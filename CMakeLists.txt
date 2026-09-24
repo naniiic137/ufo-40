@@ -46,10 +46,13 @@ if(UFO40_VITA)
   enable_language(CXX)
   add_executable(ufo40 ${UFO40_CORE_SRC} ${UFO40_SDL_SRC})
   set_target_properties(ufo40 PROPERTIES LINKER_LANGUAGE CXX)
-  # Its GL path also references the runtime shader compiler; we never use it
-  # (the GXM renderer is forced in main_sdl.c) but the linker still needs it.
-  target_link_libraries(ufo40 SDL2::SDL2 SceShaccCgExt taihen_stub SceShaccCg_stub
-                        ScePower_stub stdc++ m)
+  target_link_libraries(ufo40 SDL2::SDL2 ScePower_stub stdc++ m)
+  # SDL2's GL path (vitashark) also references the runtime shader compiler. We
+  # never use it (the GXM renderer is forced in main_sdl.c), but the linker
+  # still needs it, and it has to come after SDL2's own dependencies, which
+  # CMake appends last. The standard-libraries slot is the very end of the line.
+  set(CMAKE_CXX_STANDARD_LIBRARIES
+      "${CMAKE_CXX_STANDARD_LIBRARIES} -lSceShaccCgExt -ltaihen_stub -lSceShaccCg_stub -lstdc++ -lm")
 
   vita_create_self(ufo40.self ufo40)
   vita_create_vpk(ufo40.vpk ${VITA_TITLEID} ufo40.self
