@@ -1,0 +1,11 @@
+# UNDERDELVE: climbing down a ladder carries Mo into the room below, and back up again.
+game underdelve
+wait 10
+press A
+wait 5
+cheat clear_enemies
+hold DOWN 50
+expect climbing == 1
+expect room_y == 1
+hold UP 70
+expect room_y == 0

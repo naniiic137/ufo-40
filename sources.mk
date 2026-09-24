@@ -18,6 +18,9 @@ CORE_SRC += src/shell/shell_audio.c
 CORE_SRC += src/shell/games.c
 CORE_SRC += src/shell/vita_assets.c
 CORE_SRC += src/games/underdelve/underdelve.c
+CORE_SRC += src/games/underdelve/underdelve_rooms.c
+CORE_SRC += src/games/underdelve/underdelve_art.c
+CORE_SRC += src/games/underdelve/underdelve_audio.c
 CORE_SRC += src/games/grubshift/grubshift.c
 CORE_SRC += src/games/roofcat/roofcat.c
 

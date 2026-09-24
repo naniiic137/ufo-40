@@ -1,0 +1,11 @@
+# UNDERDELVE: walking into an ore nugget adds 50 ore.
+game underdelve
+wait 10
+press A
+wait 5
+cheat clear_enemies
+cheat room 0 0 140 34
+wait 10
+expect money == 0
+hold RIGHT 30
+expect money == 50

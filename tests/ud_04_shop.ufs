@@ -1,0 +1,22 @@
+# UNDERDELVE: buying the Copper Pot at the trading post, and being refused when broke.
+game underdelve
+wait 10
+press A
+wait 5
+cheat room 2 0 145 130
+wait 10
+cheat money 100
+press UP
+expect items !& 1
+cheat dismiss
+wait 5
+cheat money 300
+press UP
+expect items & 1
+expect money == 0
+expect state == 4
+press A
+wait 25
+press A
+wait 5
+expect state == 1

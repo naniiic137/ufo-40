@@ -1,0 +1,12 @@
+# UNDERDELVE: crystal walls block Mo until he has the Tuning Fork, then shatter.
+game underdelve
+wait 10
+press A
+wait 5
+cheat room 3 0 280 130
+cheat clear_enemies
+hold RIGHT 60
+expect room_x == 3
+cheat give 2
+hold RIGHT 40
+expect room_x == 4

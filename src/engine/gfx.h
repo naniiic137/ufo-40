@@ -88,6 +88,7 @@ void gfx_circ(int cx, int cy, int r, int c);           /* filled */
 void gfx_circb(int cx, int cy, int r, int c);          /* outline */
 /* Ordered-dither fill: level 0..16 (0 = nothing, 16 = solid). */
 void gfx_dither(int x, int y, int w, int h, int c, int level);
+void gfx_dither_circle(int cx, int cy, int r, int c, int level);
 /* Remap every pixel in a rect through a table (for shadows / tints). */
 void gfx_remap_rect(int x, int y, int w, int h, const uint8_t *map);
 void gfx_darken_rect(int x, int y, int w, int h, int steps);

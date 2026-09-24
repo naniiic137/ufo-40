@@ -1,0 +1,19 @@
+# UNDERDELVE: the run is saved when leaving, and CONTINUE restores it.
+game underdelve
+wait 10
+press A
+wait 5
+cheat room 1 0 150 130
+cheat money 123
+cheat give 1
+wait 5
+expect has_save == 1
+reload
+game underdelve
+wait 10
+press A
+wait 10
+expect state == 1
+expect money == 123
+expect room_x == 1
+expect items & 1

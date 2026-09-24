@@ -1,0 +1,16 @@
+# UNDERDELVE: spikes kill in one hit, a lantern is lost and Mo respawns in the room.
+game underdelve
+wait 10
+press A
+wait 5
+cheat room 0 0 150 130
+cheat clear_enemies
+wait 5
+expect lanterns == 6
+hold RIGHT 40
+expect deaths == 1
+expect lanterns == 5
+wait 90
+expect state == 1
+expect room_x == 0
+expect deaths == 1

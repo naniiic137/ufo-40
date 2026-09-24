@@ -1,0 +1,33 @@
+# UNDERDELVE: the Old Lode can only be hurt on the ground; beating it opens the
+# vault, and touching the Sunstone wins the game and earns the Saucer.
+game underdelve
+wait 10
+press A
+wait 5
+cheat lanterns 6
+cheat room 4 5 170 130
+wait 5
+expect boss_hp == 14
+expect boss_dead == 0
+# while it floats, the shell turns the pick away
+press LEFT 1
+press B
+wait 20
+expect boss_hp == 14
+cheat boss_ground
+cheat boss_hp 1
+press B
+wait 20
+expect boss_hp <= 0
+wait 150
+expect boss_dead == 1
+cheat dismiss
+cheat room 5 5 100 130
+cheat clear_enemies
+hold RIGHT 30
+hold RIGHT+A 4
+wait 40
+# on the pedestal: step into the Sunstone
+hold RIGHT 30
+expect state == 5
+expect goals & 2

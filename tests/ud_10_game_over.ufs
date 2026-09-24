@@ -1,0 +1,16 @@
+# UNDERDELVE: losing the last lantern ends the run and erases the save.
+game underdelve
+wait 10
+press A
+wait 5
+cheat clear_enemies
+cheat lanterns 1
+cheat room 0 0 150 130
+wait 5
+hold RIGHT 40
+wait 150
+expect state == 3
+expect has_save == 0
+press A
+wait 5
+expect state == 0

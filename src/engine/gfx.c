@@ -191,6 +191,22 @@ void gfx_dither(int x, int y, int w, int h, int c, int level) {
     }
 }
 
+void gfx_dither_circle(int cx, int cy, int r, int c, int level) {
+    if (level <= 0 || r <= 0) return;
+    for (int yy = -r; yy <= r; yy++) {
+        int w = 0;
+        while ((w + 1) * (w + 1) + yy * yy <= r * r) w++;
+        int y = cy + yy - cam_y;
+        if (y < clip_y0 || y >= clip_y1) continue;
+        uint8_t *row = target->px + y * target->w;
+        for (int xx = cx - w; xx <= cx + w; xx++) {
+            int x = xx - cam_x;
+            if (x < clip_x0 || x >= clip_x1) continue;
+            if (level >= 16 || BAYER4[y & 3][x & 3] < level) row[x] = (uint8_t)c;
+        }
+    }
+}
+
 void gfx_remap_rect(int x, int y, int w, int h, const uint8_t *map) {
     x -= cam_x; y -= cam_y;
     int x0 = x < clip_x0 ? clip_x0 : x, y0 = y < clip_y0 ? clip_y0 : y;

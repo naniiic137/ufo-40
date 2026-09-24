@@ -1,0 +1,18 @@
+# UNDERDELVE: Mo walks, is stopped by a wall, and jumps over it with a committed arc.
+game underdelve
+wait 10
+press A
+wait 5
+expect state == 1
+expect map_errors == 0
+expect px == 35
+expect grounded == 1
+hold RIGHT 30
+# the one-tile bump at column 4 stops him
+expect px == 54
+# jumping right hops up onto the bump: the arc is fixed, no air control
+hold RIGHT+A 4
+expect grounded == 0
+wait 45
+expect grounded == 1
+expect px > 70

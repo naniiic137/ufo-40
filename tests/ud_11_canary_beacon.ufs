@@ -1,0 +1,12 @@
+# UNDERDELVE: the fake wall in the Canary Nook hides the canary; freeing it earns the Beacon.
+game underdelve
+wait 10
+press A
+wait 5
+cheat clear_enemies
+cheat room 5 0 180 66
+cheat no_gloom
+wait 10
+hold RIGHT 100
+expect items & 32
+expect goals & 1
