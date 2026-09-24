@@ -30,7 +30,7 @@ static SDL_Window *win;
 static SDL_Renderer *ren;
 static SDL_Texture *tex;
 static SDL_AudioDeviceID adev;
-static SDL_GameController *pad;
+static SDL_GameController *pads[2];
 static SDL_Joystick *joy;
 static uint32_t lut[PAL_COUNT];
 static bool quit_flag;
@@ -232,44 +232,92 @@ static void open_audio(void) {
 /* ------------------------------------------------------------------ */
 /* input                                                                */
 
+/* Up to two gamepads. Normally both drive the console; in versus mode the
+ * second one is player 2. */
 static void open_pads(void) {
     for (int i = 0; i < SDL_NumJoysticks(); i++) {
         if (SDL_IsGameController(i)) {
-            if (!pad) pad = SDL_GameControllerOpen(i);
+            SDL_JoystickID id = SDL_JoystickGetDeviceInstanceID(i);
+            int slot = -1;
+            for (int p = 1; p >= 0; p--) {
+                if (pads[p] && SDL_JoystickInstanceID(SDL_GameControllerGetJoystick(pads[p])) == id) { slot = -2; break; }
+                if (!pads[p]) slot = p;
+            }
+            if (slot >= 0) pads[slot] = SDL_GameControllerOpen(i);
         } else if (!joy) {
             joy = SDL_JoystickOpen(i);
         }
     }
 }
 
-static uint32_t read_input(void) {
+static void close_lost_pads(void) {
+    for (int p = 0; p < 2; p++)
+        if (pads[p] && !SDL_GameControllerGetAttached(pads[p])) {
+            SDL_GameControllerClose(pads[p]);
+            pads[p] = NULL;
+        }
+    if (!pads[0] && pads[1]) { pads[0] = pads[1]; pads[1] = NULL; }
+}
+
+static uint32_t pad_mask(SDL_GameController *pad) {
     uint32_t m = 0;
+    if (!pad) return 0;
+    if (SDL_GameControllerGetButton(pad, SDL_CONTROLLER_BUTTON_DPAD_UP)) m |= BTN_UP;
+    if (SDL_GameControllerGetButton(pad, SDL_CONTROLLER_BUTTON_DPAD_DOWN)) m |= BTN_DOWN;
+    if (SDL_GameControllerGetButton(pad, SDL_CONTROLLER_BUTTON_DPAD_LEFT)) m |= BTN_LEFT;
+    if (SDL_GameControllerGetButton(pad, SDL_CONTROLLER_BUTTON_DPAD_RIGHT)) m |= BTN_RIGHT;
+    if (SDL_GameControllerGetButton(pad, SDL_CONTROLLER_BUTTON_A)) m |= BTN_A;
+    if (SDL_GameControllerGetButton(pad, SDL_CONTROLLER_BUTTON_B)) m |= BTN_B;
+    if (SDL_GameControllerGetButton(pad, SDL_CONTROLLER_BUTTON_START)) m |= BTN_START;
+    if (SDL_GameControllerGetButton(pad, SDL_CONTROLLER_BUTTON_BACK)) m |= BTN_SELECT;
+    int ax = SDL_GameControllerGetAxis(pad, SDL_CONTROLLER_AXIS_LEFTX);
+    int ay = SDL_GameControllerGetAxis(pad, SDL_CONTROLLER_AXIS_LEFTY);
+    if (ax < -16000) m |= BTN_LEFT;
+    if (ax > 16000) m |= BTN_RIGHT;
+    if (ay < -16000) m |= BTN_UP;
+    if (ay > 16000) m |= BTN_DOWN;
+    return m;
+}
+
+static uint32_t read_input(void) {
+    uint32_t m = 0, m2 = 0;
     const Uint8 *k = SDL_GetKeyboardState(NULL);
     SDL_Keymod mod = SDL_GetModState();
-    if (k[SDL_SCANCODE_UP] || k[SDL_SCANCODE_W]) m |= BTN_UP;
-    if (k[SDL_SCANCODE_DOWN] || k[SDL_SCANCODE_S]) m |= BTN_DOWN;
-    if (k[SDL_SCANCODE_LEFT] || k[SDL_SCANCODE_A]) m |= BTN_LEFT;
-    if (k[SDL_SCANCODE_RIGHT] || k[SDL_SCANCODE_D]) m |= BTN_RIGHT;
-    if (k[SDL_SCANCODE_Z] || k[SDL_SCANCODE_J] || k[SDL_SCANCODE_SPACE]) m |= BTN_A;
-    if (k[SDL_SCANCODE_X] || k[SDL_SCANCODE_K]) m |= BTN_B;
+    bool vs = input_versus();
     if (((k[SDL_SCANCODE_RETURN] || k[SDL_SCANCODE_KP_ENTER]) && !(mod & KMOD_ALT)) || k[SDL_SCANCODE_ESCAPE])
         m |= BTN_START;
     if (k[SDL_SCANCODE_LSHIFT] || k[SDL_SCANCODE_RSHIFT] || k[SDL_SCANCODE_BACKSPACE]) m |= BTN_SELECT;
-    if (pad) {
-        if (SDL_GameControllerGetButton(pad, SDL_CONTROLLER_BUTTON_DPAD_UP)) m |= BTN_UP;
-        if (SDL_GameControllerGetButton(pad, SDL_CONTROLLER_BUTTON_DPAD_DOWN)) m |= BTN_DOWN;
-        if (SDL_GameControllerGetButton(pad, SDL_CONTROLLER_BUTTON_DPAD_LEFT)) m |= BTN_LEFT;
-        if (SDL_GameControllerGetButton(pad, SDL_CONTROLLER_BUTTON_DPAD_RIGHT)) m |= BTN_RIGHT;
-        if (SDL_GameControllerGetButton(pad, SDL_CONTROLLER_BUTTON_A)) m |= BTN_A;
-        if (SDL_GameControllerGetButton(pad, SDL_CONTROLLER_BUTTON_B)) m |= BTN_B;
-        if (SDL_GameControllerGetButton(pad, SDL_CONTROLLER_BUTTON_START)) m |= BTN_START;
-        if (SDL_GameControllerGetButton(pad, SDL_CONTROLLER_BUTTON_BACK)) m |= BTN_SELECT;
-        int ax = SDL_GameControllerGetAxis(pad, SDL_CONTROLLER_AXIS_LEFTX);
-        int ay = SDL_GameControllerGetAxis(pad, SDL_CONTROLLER_AXIS_LEFTY);
-        if (ax < -16000) m |= BTN_LEFT;
-        if (ax > 16000) m |= BTN_RIGHT;
-        if (ay < -16000) m |= BTN_UP;
-        if (ay > 16000) m |= BTN_DOWN;
+    if (!vs) {
+        if (k[SDL_SCANCODE_UP] || k[SDL_SCANCODE_W]) m |= BTN_UP;
+        if (k[SDL_SCANCODE_DOWN] || k[SDL_SCANCODE_S]) m |= BTN_DOWN;
+        if (k[SDL_SCANCODE_LEFT] || k[SDL_SCANCODE_A]) m |= BTN_LEFT;
+        if (k[SDL_SCANCODE_RIGHT] || k[SDL_SCANCODE_D]) m |= BTN_RIGHT;
+        if (k[SDL_SCANCODE_Z] || k[SDL_SCANCODE_J] || k[SDL_SCANCODE_SPACE]) m |= BTN_A;
+        if (k[SDL_SCANCODE_X] || k[SDL_SCANCODE_K]) m |= BTN_B;
+    } else {
+        /* split keyboard: player 1 on the left half, player 2 on the right */
+        if (k[SDL_SCANCODE_W]) m |= BTN_UP;
+        if (k[SDL_SCANCODE_S]) m |= BTN_DOWN;
+        if (k[SDL_SCANCODE_A]) m |= BTN_LEFT;
+        if (k[SDL_SCANCODE_D]) m |= BTN_RIGHT;
+        if (k[SDL_SCANCODE_F] || k[SDL_SCANCODE_Z] || k[SDL_SCANCODE_SPACE]) m |= BTN_A;
+        if (k[SDL_SCANCODE_G] || k[SDL_SCANCODE_X]) m |= BTN_B;
+        if (k[SDL_SCANCODE_UP]) m2 |= BTN_UP;
+        if (k[SDL_SCANCODE_DOWN]) m2 |= BTN_DOWN;
+        if (k[SDL_SCANCODE_LEFT]) m2 |= BTN_LEFT;
+        if (k[SDL_SCANCODE_RIGHT]) m2 |= BTN_RIGHT;
+        if (k[SDL_SCANCODE_K] || k[SDL_SCANCODE_PERIOD]) m2 |= BTN_A;
+        if (k[SDL_SCANCODE_L] || k[SDL_SCANCODE_SLASH]) m2 |= BTN_B;
+    }
+    if (pads[0] || pads[1]) {
+        m |= pad_mask(pads[0]);
+        uint32_t p2 = pad_mask(pads[1]);
+        if (vs) {
+            m2 |= p2 & ~(uint32_t)BTN_START;
+            m |= p2 & BTN_START; /* either player can pause */
+        } else {
+            m |= p2;
+        }
     } else if (joy) {
 #ifdef __vita__
         /* SDL's Vita button order: triangle, circle, cross, square, L, R, down, left, up, right, select, start */
@@ -295,7 +343,7 @@ static uint32_t read_input(void) {
             if (ay > 16000) m |= BTN_DOWN;
         }
     }
-    return m | touch_mask;
+    return m | touch_mask | (m2 << BTN_P2_SHIFT);
 }
 
 /* ------------------------------------------------------------------ */
@@ -320,10 +368,11 @@ static void handle_events(void) {
             break;
         case SDL_CONTROLLERDEVICEADDED:
         case SDL_JOYDEVICEADDED:
-            if (!pad && !joy) open_pads();
+            open_pads();
             break;
         case SDL_CONTROLLERDEVICEREMOVED:
-            if (pad) { SDL_GameControllerClose(pad); pad = NULL; open_pads(); }
+            close_lost_pads();
+            open_pads();
             break;
         default: break;
         }

@@ -104,6 +104,7 @@ static void runner_enter(void) {
 
 static void runner_leave(void) {
     music_duck(false);
+    input_set_versus(false); /* the library always gets the whole keyboard */
     if (G() && G()->quit) G()->quit();
     paused = false;
 }
