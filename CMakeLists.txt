@@ -46,7 +46,10 @@ if(UFO40_VITA)
   enable_language(CXX)
   add_executable(ufo40 ${UFO40_CORE_SRC} ${UFO40_SDL_SRC})
   set_target_properties(ufo40 PROPERTIES LINKER_LANGUAGE CXX)
-  target_link_libraries(ufo40 SDL2::SDL2 ScePower_stub stdc++ m)
+  # Its GL path also references the runtime shader compiler; we never use it
+  # (the GXM renderer is forced in main_sdl.c) but the linker still needs it.
+  target_link_libraries(ufo40 SDL2::SDL2 SceShaccCgExt taihen_stub SceShaccCg_stub
+                        ScePower_stub stdc++ m)
 
   vita_create_self(ufo40.self ufo40)
   vita_create_vpk(ufo40.vpk ${VITA_TITLEID} ufo40.self

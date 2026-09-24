@@ -386,6 +386,9 @@ int main(int argc, char **argv) {
     scePowerSetGpuClockFrequency(222);
     scePowerSetGpuXbarClockFrequency(166);
     SDL_SetHint(SDL_HINT_TOUCH_MOUSE_EVENTS, "0");
+    /* Use SDL's native GXM renderer (precompiled shaders). The GLES2 one would
+       need the user to have extracted libshacccg.suprx on the Vita. */
+    SDL_SetHint(SDL_HINT_RENDER_DRIVER, "VITA gxm");
 #endif
     SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "0");
     if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_GAMECONTROLLER | SDL_INIT_JOYSTICK) != 0) {
