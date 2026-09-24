@@ -16,7 +16,6 @@ CORE_SRC += src/shell/library.c
 CORE_SRC += src/shell/settings.c
 CORE_SRC += src/shell/shell_audio.c
 CORE_SRC += src/shell/games.c
-CORE_SRC += src/shell/vita_assets.c
 CORE_SRC += src/games/underdelve/underdelve.c
 CORE_SRC += src/games/underdelve/underdelve_rooms.c
 CORE_SRC += src/games/underdelve/underdelve_art.c
@@ -32,5 +31,6 @@ CORE_SRC += src/games/roofcat/roofcat_audio.c
 
 HEADLESS_SRC += src/platform/headless/main_headless.c
 HEADLESS_SRC += src/platform/headless/imgwrite.c
+HEADLESS_SRC += src/platform/headless/vita_assets.c
 
 SDL_SRC += src/platform/sdl2/main_sdl.c

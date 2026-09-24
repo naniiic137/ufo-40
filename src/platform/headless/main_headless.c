@@ -246,6 +246,22 @@ static int run_script(const char *path) {
             gif_count = 0;
             step(frames);
             printf("  gif %s\n", gpath);
+        } else if (!strcmp(cmd, "gifstart")) {
+            /* gifstart NAME EVERY SCALE : record until gifstop, inputs keep working */
+            char name[128];
+            int every = 2, scale = 1;
+            sscanf(arg, "%127s %d %d", name, &every, &scale);
+            char gpath[700];
+            mkdirs(out_dir);
+            snprintf(gpath, sizeof gpath, "%s/%s.gif", out_dir, name);
+            gif_begin(&gif, gpath, SCREEN_W, SCREEN_H, scale, PALETTE_RGB);
+            gif_every = every < 1 ? 1 : every;
+            gif_left = 1 << 30;
+            gif_count = 0;
+            printf("  gif %s\n", gpath);
+        } else if (!strcmp(cmd, "gifstop")) {
+            if (gif_left > 0) gif_end(&gif);
+            gif_left = 0;
         } else if (!strcmp(cmd, "cheat")) {
             int gi = game_current_index();
             if (gi < 0 || !GAMES[gi]->cheat || !GAMES[gi]->cheat(arg)) fail("cheat not handled: %s%ld", arg, 0);

@@ -13,6 +13,7 @@ typedef struct GifWriter {
     FILE *f;
     int w, h, scale;
     uint8_t *buf;
+    uint8_t *prev;
 } GifWriter;
 
 int gif_begin(GifWriter *g, const char *path, int w, int h, int scale, const uint8_t (*pal)[3]);

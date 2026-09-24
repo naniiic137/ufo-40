@@ -286,14 +286,36 @@ int gif_begin(GifWriter *g, const char *path, int w, int h, int scale, const uin
 
 int gif_frame(GifWriter *g, const uint8_t *px, int delay_cs) {
     int W = g->w * g->scale, H = g->h * g->scale;
-    for (int y = 0; y < H; y++)
-        for (int x = 0; x < W; x++) g->buf[y * W + x] = px[(y / g->scale) * g->w + x / g->scale];
+    /* only encode the rectangle that changed since the previous frame */
+    int x0 = 0, y0 = 0, x1 = g->w - 1, y1 = g->h - 1;
+    if (g->prev) {
+        x0 = g->w; y0 = g->h; x1 = -1; y1 = -1;
+        for (int y = 0; y < g->h; y++)
+            for (int x = 0; x < g->w; x++)
+                if (px[y * g->w + x] != g->prev[y * g->w + x]) {
+                    if (x < x0) x0 = x;
+                    if (x > x1) x1 = x;
+                    if (y < y0) y0 = y;
+                    if (y > y1) y1 = y;
+                }
+        if (x1 < 0) { x0 = y0 = x1 = y1 = 0; }
+    } else {
+        g->prev = (uint8_t *)malloc((size_t)g->w * g->h);
+    }
+    memcpy(g->prev, px, (size_t)g->w * g->h);
+    int rw = (x1 - x0 + 1) * g->scale, rh = (y1 - y0 + 1) * g->scale;
+    int n = 0;
+    for (int y = 0; y < rh; y++)
+        for (int x = 0; x < rw; x++)
+            g->buf[n++] = px[(y0 + y / g->scale) * g->w + x0 + x / g->scale];
     uint8_t gce[] = {0x21, 0xF9, 0x04, 0x04, (uint8_t)(delay_cs & 0xFF), (uint8_t)(delay_cs >> 8), 0, 0};
     fwrite(gce, 1, sizeof gce, g->f);
     fputc(0x2C, g->f);
-    le16(g->f, 0); le16(g->f, 0); le16(g->f, W); le16(g->f, H);
+    le16(g->f, x0 * g->scale); le16(g->f, y0 * g->scale); le16(g->f, rw); le16(g->f, rh);
     fputc(0, g->f);
-    lzw_encode(g->f, g->buf, W * H);
+    lzw_encode(g->f, g->buf, rw * rh);
+    (void)W;
+    (void)H;
     return 0;
 }
 
@@ -302,5 +324,7 @@ void gif_end(GifWriter *g) {
     fputc(0x3B, g->f);
     fclose(g->f);
     free(g->buf);
+    free(g->prev);
+    g->prev = NULL;
     g->f = NULL;
 }
