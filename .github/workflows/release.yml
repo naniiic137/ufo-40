@@ -1,0 +1,35 @@
+name: release
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+
+jobs:
+  vita:
+    uses: ./.github/workflows/vita.yml
+
+  windows:
+    uses: ./.github/workflows/windows.yml
+
+  publish:
+    needs: [vita, windows]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: dist
+          merge-multiple: true
+
+      - name: Create the GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          ls -l dist
+          gh release create "$GITHUB_REF_NAME" \
+            dist/ufo40.vpk dist/UFO40-windows.zip \
+            --repo "$GITHUB_REPOSITORY" \
+            --title "UFO 40 $GITHUB_REF_NAME" \
+            --generate-notes

@@ -1,0 +1,50 @@
+name: windows
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+  workflow_call:
+
+env:
+  SDL2_VERSION: 2.32.10
+  SDL2_SHA256: 83a5d74012311edc3c0d40ea6faecbe57ad692aa033fa5dc273cc937e3938ff2
+
+jobs:
+  win64:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install the mingw-w64 cross compiler
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends gcc-mingw-w64-x86-64 zip
+
+      - name: Fetch SDL2 development libraries (verified)
+        run: |
+          curl -fsSL -o sdl2.tar.gz "https://github.com/libsdl-org/SDL/releases/download/release-${SDL2_VERSION}/SDL2-devel-${SDL2_VERSION}-mingw.tar.gz"
+          echo "${SDL2_SHA256}  sdl2.tar.gz" | sha256sum -c -
+          tar xzf sdl2.tar.gz
+
+      - name: Cross-compile ufo40.exe
+        run: |
+          make sdl OS=Windows_NT CC=x86_64-w64-mingw32-gcc \
+               SDL2_DIR="$PWD/SDL2-${SDL2_VERSION}/x86_64-w64-mingw32"
+          ls -l build/ufo40.exe build/SDL2.dll
+
+      - name: Package the zip
+        run: |
+          mkdir -p UFO40-windows
+          cp build/ufo40.exe build/SDL2.dll UFO40-windows/
+          cp LICENSE UFO40-windows/LICENSE.txt
+          cp "SDL2-${SDL2_VERSION}/LICENSE.txt" UFO40-windows/SDL2-LICENSE.txt
+          printf 'UFO 40 for Windows\r\n\r\nRun ufo40.exe. Saves go to %%APPDATA%%\UFO40.\r\nCreate an empty file named portable.txt next to ufo40.exe to keep saves in a "saves" folder here instead.\r\n\r\nF11 or Alt+Enter toggles fullscreen.\r\n' > UFO40-windows/README.txt
+          (cd UFO40-windows && zip -r ../UFO40-windows.zip .)
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ufo40-windows
+          path: UFO40-windows.zip
+          if-no-files-found: error

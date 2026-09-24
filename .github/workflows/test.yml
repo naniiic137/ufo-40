@@ -1,0 +1,33 @@
+name: test
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  headless:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build the headless runner (gcc)
+        run: make headless CC=gcc
+
+      - name: Run every scripted test
+        run: make test CC=gcc
+
+      - name: Also build and run through CMake/CTest
+        run: |
+          cmake -S . -B build-cmake -DCMAKE_BUILD_TYPE=Release
+          cmake --build build-cmake --target ufo40_headless -j2
+          ctest --test-dir build-cmake --output-on-failure
+
+      - name: Upload test screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-screenshots
+          path: build/testshots
+          if-no-files-found: ignore

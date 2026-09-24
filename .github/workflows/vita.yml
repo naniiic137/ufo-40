@@ -1,0 +1,38 @@
+name: vita
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+  workflow_call:
+
+jobs:
+  vpk:
+    runs-on: ubuntu-latest
+    container: vitasdk/vitasdk:latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Show the toolchain
+        run: |
+          echo "VITASDK=$VITASDK"
+          arm-vita-eabi-gcc --version | head -n 1
+          cmake --version | head -n 1
+
+      - name: Configure (vitasdk toolchain)
+        run: cmake -S . -B build-vita -DUFO40_VITA=ON -DCMAKE_BUILD_TYPE=Release
+
+      - name: Build the .vpk
+        run: cmake --build build-vita -j2
+
+      - name: Check the package
+        run: |
+          ls -l build-vita/ufo40.vpk
+          test -s build-vita/ufo40.vpk
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ufo40-vpk
+          path: build-vita/ufo40.vpk
+          if-no-files-found: error

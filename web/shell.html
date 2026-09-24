@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="description" content="UFO 40 - a fan-made parody console of forty tiny games. Play in your browser.">
+<meta name="theme-color" content="#000000">
+<title>UFO 40</title>
+<link rel="icon" type="image/png" href="favicon.png">
+<style>
+  :root { color-scheme: dark; --ink:#0e0b16; --night:#1f1a33; --dusk:#3a3356; --light:#c9c5de; --yellow:#ffe06b; --sky:#3d96e6; }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; background: #000; color: var(--light); overscroll-behavior: none; }
+  body { font: 13px/1.5 ui-monospace, "Cascadia Mono", Menlo, Consolas, monospace; min-height: 100vh; }
+  #wrap { display: flex; flex-direction: column; align-items: center; padding: 12px 12px 24px; gap: 14px; }
+  #stage { position: relative; line-height: 0; }
+  canvas#canvas { display: block; width: 320px; height: 180px; background: var(--ink);
+    image-rendering: pixelated; image-rendering: crisp-edges; outline: none;
+    box-shadow: 0 0 0 2px var(--dusk), 0 0 40px rgba(61,150,230,.15); }
+  #status { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+    color: var(--yellow); letter-spacing: .2em; font-size: 12px; pointer-events: none; }
+  #tap { position: absolute; inset: 0; display: none; align-items: center; justify-content: center;
+    background: rgba(14,11,22,.72); color: var(--yellow); font-size: 14px; letter-spacing: .15em; cursor: pointer; }
+  #tap.show { display: flex; }
+
+  /* on-screen controls, shown on touch devices */
+  #touch { display: none; width: 100%; max-width: 560px; justify-content: space-between; align-items: center;
+    user-select: none; -webkit-user-select: none; touch-action: none; }
+  @media (pointer: coarse) { #touch { display: flex; } #help { display: none; } }
+  .dpad { position: relative; width: 150px; height: 150px; }
+  .dpad button { position: absolute; width: 50px; height: 50px; }
+  .dpad .up { left: 50px; top: 0; } .dpad .down { left: 50px; bottom: 0; }
+  .dpad .left { left: 0; top: 50px; } .dpad .right { right: 0; top: 50px; }
+  .dpad .hub { left: 50px; top: 50px; background: var(--night); pointer-events: none; border-radius: 0; }
+  .mid { display: flex; flex-direction: column; gap: 14px; align-items: center; }
+  .mid button { width: 72px; height: 26px; border-radius: 13px; font-size: 10px; letter-spacing: .1em; }
+  .ab { position: relative; width: 150px; height: 130px; }
+  .ab button { position: absolute; width: 64px; height: 64px; border-radius: 50%; font-size: 20px; font-weight: bold; }
+  .ab .a { right: 0; top: 10px; background: #cf4140; } .ab .b { left: 0; bottom: 0; background: #2759b3; }
+  #touch button { border: 2px solid var(--dusk); background: var(--night); color: var(--light); touch-action: none;
+    font-family: inherit; }
+  #touch button.on { filter: brightness(1.6); transform: scale(.96); }
+
+  #help { width: 100%; max-width: 640px; border: 1px solid var(--dusk); border-radius: 6px; padding: 10px 16px; }
+  #help h2 { margin: 0 0 6px; font-size: 13px; color: var(--yellow); letter-spacing: .15em; }
+  #help table { border-collapse: collapse; width: 100%; }
+  #help td { padding: 2px 8px 2px 0; vertical-align: top; }
+  #help td:first-child { color: #fff; white-space: nowrap; width: 38%; }
+  kbd { border: 1px solid var(--dusk); border-bottom-width: 2px; border-radius: 3px; padding: 0 4px; background: var(--night); }
+  footer { max-width: 640px; text-align: center; color: #5e587c; font-size: 11px; }
+  footer a { color: var(--sky); }
+</style>
+</head>
+<body>
+<div id="wrap">
+  <div id="stage">
+    <canvas id="canvas" tabindex="0" oncontextmenu="event.preventDefault()"></canvas>
+    <div id="status">LOADING&hellip;</div>
+    <div id="tap">TAP OR PRESS A KEY FOR SOUND</div>
+  </div>
+
+  <div id="touch" aria-label="on-screen controls">
+    <div class="dpad">
+      <button class="up" data-mask="1" aria-label="up">&#9650;</button>
+      <button class="left" data-mask="4" aria-label="left">&#9664;</button>
+      <button class="hub" tabindex="-1" aria-hidden="true"></button>
+      <button class="right" data-mask="8" aria-label="right">&#9654;</button>
+      <button class="down" data-mask="2" aria-label="down">&#9660;</button>
+    </div>
+    <div class="mid">
+      <button data-mask="128">SELECT</button>
+      <button data-mask="64">START</button>
+    </div>
+    <div class="ab">
+      <button class="b" data-mask="32">B</button>
+      <button class="a" data-mask="16">A</button>
+    </div>
+  </div>
+
+  <section id="help">
+    <h2>CONTROLS</h2>
+    <table>
+      <tr><td><kbd>&larr;</kbd><kbd>&uarr;</kbd><kbd>&darr;</kbd><kbd>&rarr;</kbd> / <kbd>WASD</kbd></td><td>D-pad</td></tr>
+      <tr><td><kbd>Z</kbd> or <kbd>J</kbd> or <kbd>Space</kbd></td><td>A button</td></tr>
+      <tr><td><kbd>X</kbd> or <kbd>K</kbd></td><td>B button</td></tr>
+      <tr><td><kbd>Enter</kbd> / <kbd>Esc</kbd></td><td>START (pause)</td></tr>
+      <tr><td><kbd>Shift</kbd> / <kbd>Backspace</kbd></td><td>SELECT (settings in the library)</td></tr>
+      <tr><td>Gamepad</td><td>works in most browsers</td></tr>
+    </table>
+    <p>Progress is saved in this browser. The Vita and Windows builds live on the
+      <a href="https://github.com/naniiic137/ufo-40/releases">releases page</a>.</p>
+  </section>
+
+  <footer>
+    UFO 40 is a fan-made parody tribute. It contains no code, art, music or levels from UFO 50
+    and is not affiliated with or endorsed by Mossmouth.<br>
+    Made by Hamza Ben Ismail &middot; <a href="https://github.com/naniiic137/ufo-40">source on GitHub</a>
+  </footer>
+</div>
+
+<script>
+  var canvas = document.getElementById('canvas');
+  var statusEl = document.getElementById('status');
+  var tapEl = document.getElementById('tap');
+
+  /* Integer scaling: the game renders 320x180; CSS scales it by whole numbers. */
+  function fit() {
+    var touch = window.matchMedia('(pointer: coarse)').matches;
+    var reserve = touch ? 190 : 150;
+    var s = Math.floor(Math.min((window.innerWidth - 24) / 320, (window.innerHeight - reserve) / 180));
+    if (s < 1) s = Math.max(0.5, Math.min((window.innerWidth - 24) / 320, 1));
+    canvas.style.width = (320 * s) + 'px';
+    canvas.style.height = (180 * s) + 'px';
+  }
+  fit();
+  window.addEventListener('resize', fit);
+
+  var Module = {
+    canvas: canvas,
+    print: function (t) { console.log(t); },
+    printErr: function (t) { console.warn(t); },
+    setStatus: function (t) { statusEl.textContent = t ? t.replace(/\(.*\)/, '').toUpperCase() : ''; },
+    onRuntimeInitialized: function () { statusEl.textContent = ''; maybeAskForSound(); canvas.focus(); }
+  };
+
+  /* Browsers start audio suspended until the first user gesture. */
+  function audioCtx() { try { return Module.SDL2 && Module.SDL2.audioContext; } catch (e) { return null; } }
+  function resumeAudio() {
+    var ctx = audioCtx();
+    if (ctx && ctx.state !== 'running') ctx.resume();
+    tapEl.classList.remove('show');
+  }
+  function maybeAskForSound() {
+    setTimeout(function () {
+      var ctx = audioCtx();
+      if (ctx && ctx.state !== 'running') tapEl.classList.add('show');
+    }, 400);
+  }
+  ['keydown', 'pointerdown', 'touchstart', 'mousedown'].forEach(function (ev) {
+    window.addEventListener(ev, resumeAudio, { capture: true, passive: true });
+  });
+  tapEl.addEventListener('pointerdown', function () { resumeAudio(); canvas.focus(); });
+
+  /* Keep arrow keys and space from scrolling the page. */
+  window.addEventListener('keydown', function (e) {
+    if ([32, 37, 38, 39, 40].indexOf(e.keyCode) >= 0) e.preventDefault();
+  }, { passive: false });
+
+  /* On-screen buttons talk to the game through an exported C function. */
+  function press(mask, down) {
+    if (Module._ufo_web_button) Module._ufo_web_button(mask, down ? 1 : 0);
+  }
+  document.querySelectorAll('#touch button[data-mask]').forEach(function (b) {
+    var mask = parseInt(b.getAttribute('data-mask'), 10);
+    var active = {};
+    function down(e) { e.preventDefault(); active[e.pointerId] = 1; b.classList.add('on'); press(mask, true); resumeAudio();
+      try { b.setPointerCapture(e.pointerId); } catch (x) {} }
+    function up(e) { if (!active[e.pointerId]) return; delete active[e.pointerId];
+      if (Object.keys(active).length === 0) { b.classList.remove('on'); press(mask, false); } }
+    b.addEventListener('pointerdown', down);
+    b.addEventListener('pointerup', up);
+    b.addEventListener('pointercancel', up);
+    b.addEventListener('lostpointercapture', up);
+  });
+  window.addEventListener('blur', function () { for (var m = 1; m <= 128; m <<= 1) press(m, false); });
+</script>
+{{{ SCRIPT }}}
+</body>
+</html>
