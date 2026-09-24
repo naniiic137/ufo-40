@@ -99,7 +99,6 @@ static void finish_contract(void) {
         sv.streak++;
         sv.contracts_done++;
         if (sv.streak > sv.best_streak) sv.best_streak = sv.streak;
-        game_award(GOAL_BEACON * 0); /* no-op, keeps the call site obvious */
         if (sv.streak >= 3) game_award(GOAL_SAUCER);
         if (sv.streak >= 5) game_award(GOAL_ALIEN);
         music_restart(GS_MUS_WIN);

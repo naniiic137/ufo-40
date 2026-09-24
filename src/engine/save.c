@@ -82,6 +82,7 @@ bool progress_save(void) { return write_wrapped("progress.dat", &g_progress, (in
 
 bool progress_award(int game, int bit) {
     if (game < 0 || game >= MAX_GAMES) return false;
+    if (bit != GOAL_BEACON && bit != GOAL_SAUCER && bit != GOAL_ALIEN) return false;
     if (g_progress.goals[game] & bit) return false;
     g_progress.goals[game] = (uint8_t)(g_progress.goals[game] | bit);
     progress_save();

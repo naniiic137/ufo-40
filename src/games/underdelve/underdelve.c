@@ -1820,34 +1820,51 @@ static void draw_gameover(void) {
 }
 
 static void draw_ending(void) {
-    gfx_cls(C_NIGHT);
-    /* sunrise */
     int t = state_t;
-    for (int y = 0; y < 180; y++) {
-        int lvl = iclamp(16 - (y - 40 + t / 4) / 8, 0, 16);
-        gfx_dither(0, y, 320, 1, y < 90 ? C_AMBER : C_ORANGE, lvl / 2);
+    /* dawn over the hills above the mine */
+    static const uint8_t sky[6] = {C_NAVY, C_PURPLE, C_VIOLET, C_MAGENTA, C_ORANGE, C_AMBER};
+    for (int b = 0; b < 6; b++) {
+        gfx_rect(0, b * 22, 320, 22, sky[b]);
+        if (b < 5) gfx_dither(0, b * 22 + 16, 320, 6, sky[b + 1], 8);
     }
-    gfx_circ(160, 150 - imin(t / 3, 60), 30, C_YELLOW);
-    gfx_circ(160, 150 - imin(t / 3, 60), 24, C_CREAM);
-    for (int i = 0; i < 20; i++) spr_draw_ex(&ud_spr[S_T_ROCK], i * 16, 150, 0, NULL, -1);
-    spr_draw_scaled(&ud_spr[S_MO_IDLE], 140, 118, 2, 0);
+    int sun_y = 150 - imin(t / 3, 40);
+    gfx_dither_circle(160, sun_y, 44, C_YELLOW, 5);
+    gfx_circ(160, sun_y, 26, C_YELLOW);
+    gfx_circ(160, sun_y, 20, C_CREAM);
+    /* hills and the mine mouth */
+    for (int x = 0; x < 320; x++) {
+        int h = 128 + (int)(sinf(x * 0.03f) * 6 + sinf(x * 0.011f + 1) * 8);
+        gfx_vline(x, h, 179, C_FOREST);
+        gfx_pset(x, h, C_JADE);
+    }
+    build_zone_maps(0);
+    for (int i = 0; i < 20; i++) spr_draw_ex(&ud_spr[i % 3 ? S_T_ROCK : S_T_ROCK2], i * 16, 158, 0, zmap, -1);
+    for (int i = 0; i < 20; i++) gfx_hline(i * 16, i * 16 + 15, 158, C_EARTH);
+    /* Mo holds the Sunstone high */
+    int bob = (int)(sinf(t * 0.1f) * 2);
+    spr_draw_scaled(&ud_spr[S_MO_IDLE], 144, 126, 2, 0);
+    spr_draw(&ud_spr[S_SUNSTONE], 152, 106 + bob, 0);
+    if (run.items & UD_ITEM_CANARY)
+        spr_draw(&ud_spr[(t / 4) % 2 ? S_CANARY1 : S_CANARY2], 184 + (int)(sinf(t * 0.05f) * 12), 104, 0);
+    /* the story card */
+    ui_panel(40, 8, 240, 82, C_INK, C_YELLOW);
     static const uint8_t grad[] = {C_WHITE, C_CREAM, C_YELLOW, C_AMBER};
-    ui_fancy_center("THE DELVE IS LIT", 160, 18, 2, grad, 4, C_INK, C_WINE);
-    if (t > 60) {
+    ui_fancy_center("THE DELVE IS LIT", 160, 14, 2, grad, 4, C_INK, C_WINE);
+    if (t > 40) {
         char buf[160];
         int secs = (int)(run.frames / 60);
-        snprintf(buf, sizeof buf, "MO CARRIED THE SUNSTONE HOME.\nTIME %d:%02d   DEATHS %d   ORE %d", secs / 60, secs % 60,
-                 run.deaths, run.money);
-        text_center(buf, 160, 46, C_INK);
+        text_center("MO CARRIED THE SUNSTONE HOME.", 160, 36, C_LIGHT);
+        snprintf(buf, sizeof buf, "TIME %d:%02d   DEATHS %d   ORE %d", secs / 60, secs % 60, run.deaths, run.money);
+        text_center(buf, 160, 47, C_GREY);
     }
-    if (t > 120) {
-        int gx = 136;
-        ui_goal_icon(gx, 76, GOAL_BEACON, (g_progress.goals[game_current_index()] & GOAL_BEACON) != 0, t);
-        ui_goal_icon(gx + 20, 76, GOAL_SAUCER, true, t);
-        ui_goal_icon(gx + 40, 76, GOAL_ALIEN, run.deaths == 0, t);
-        if (run.deaths == 0) text_center("A FLAWLESS DELVE!", 160, 90, C_WINE);
+    if (t > 90) {
+        int gx = 134;
+        ui_goal_icon(gx, 60, GOAL_BEACON, (g_progress.goals[game_current_index()] & GOAL_BEACON) != 0, t);
+        ui_goal_icon(gx + 20, 60, GOAL_SAUCER, true, t);
+        ui_goal_icon(gx + 40, 60, GOAL_ALIEN, run.deaths == 0, t);
+        text_center(run.deaths == 0 ? "A FLAWLESS DELVE!" : "THE MINE IS SAFE AGAIN.", 160, 74, run.deaths == 0 ? C_YELLOW : C_SLATE);
     }
-    if (t > 240 && (t / 20) % 2) text_center("THANKS FOR PLAYING  - PRESS " GLYPH_A, 160, 102, C_INK);
+    if (t > 240 && (t / 20) % 2) text_center("THANKS FOR PLAYING - PRESS " GLYPH_A, 160, 170, C_WHITE);
 }
 
 static void draw_sheet(void) {

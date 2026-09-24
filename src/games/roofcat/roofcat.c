@@ -1388,35 +1388,62 @@ static void draw_over(void) {
 
 static void draw_ending(void) {
     int t = state_t;
-    gfx_cls(loop >= 2 ? C_NAVY : C_SKY);
+    bool night = loop >= 2;
+    static const uint8_t day_sky[4] = {C_SKY, C_CYAN, C_CYAN, C_ICE};
+    static const uint8_t night_sky[4] = {C_INK, C_NIGHT, C_NAVY, C_DUSK};
+    const uint8_t *sky = night ? night_sky : day_sky;
+    for (int b = 0; b < 4; b++) gfx_rect(0, b * 45, 320, 45, sky[b]);
+    for (int b = 0; b < 3; b++) gfx_dither(0, b * 45 + 35, 320, 10, sky[b + 1], 8);
+    if (night) { gfx_circ(270, 30, 11, C_CREAM); gfx_circ(274, 27, 9, sky[0]); }
+    else { gfx_circ(270, 30, 13, C_YELLOW); gfx_circ(270, 30, 9, C_CREAM); }
+    /* the town and Grandma Zohra's house */
+    int wall = night ? C_GREY : C_WHITE, trim = night ? C_NAVY : C_SKY, door = night ? C_NAVY : C_BLUE;
     for (int i = 0; i < 20; i++) {
-        gfx_rect(i * 16, 130, 16, 50, C_WHITE);
-        gfx_rect(i * 16, 130, 16, 2, C_SKY);
+        gfx_rect(i * 16, 142, 16, 38, wall);
+        gfx_rect(i * 16, 142, 16, 2, trim);
     }
-    /* Grandma's doorstep */
-    gfx_rect(200, 70, 90, 60, C_WHITE);
-    gfx_rect(236, 94, 18, 36, C_BLUE);
-    gfx_circ(245, 94, 9, C_BLUE);
-    gfx_circ(245, 60, 22, C_BLUE);
-    gfx_rect(200, 60, 90, 12, C_WHITE);
-    int cx = 60 + imin(t, 120);
+    gfx_circ(250, 88, 24, door);
+    gfx_pset(244, 70, night ? C_SKY : C_CYAN);
+    gfx_rect(206, 88, 88, 54, wall);
+    gfx_rect(206, 88, 88, 3, trim);
+    gfx_rect(240, 110, 20, 32, door);
+    gfx_circ(250, 110, 10, door);
+    gfx_rect(216, 100, 12, 12, door);
+    gfx_rect(272, 100, 12, 12, door);
+    gfx_dither_circle(222, 126, 10, C_MAGENTA, 8); /* bougainvillea */
+    gfx_dither_circle(282, 128, 9, C_MAGENTA, 8);
+    /* Grandma: a silver cat in a pink shawl */
+    uint8_t gran[PAL_COUNT];
+    pal_identity(gran);
+    gran[C_ORANGE] = C_LIGHT; gran[C_RED] = C_GREY; gran[C_BLUE] = C_MAGENTA; gran[C_SKY] = C_PINK;
+    gran[C_HIDE] = C_WHITE; gran[C_LEAF] = C_SKY;
+    spr_draw_ex(&rc_spr[R_CAT_IDLE], 238, 126, SPR_FLIPX, gran, -1);
+    /* Harissa runs in with the parcel */
+    int cx = -20 + imin(t * 2, 200);
     static const int run[4] = {R_CAT_RUN1, R_CAT_RUN2, R_CAT_RUN3, R_CAT_RUN4};
-    spr_draw_scaled(&rc_spr[t < 120 ? run[(t / 5) % 4] : R_CAT_IDLE], cx, 98, 2, 0);
-    if (t >= 120) {
-        spr_draw(&rc_spr[R_PARCEL], cx + 30, 116, 0);
-        for (int i = 0; i < 6; i++) {
-            float a = t * 0.05f + i;
-            gfx_pset(cx + 38 + (int)(cosf(a) * (10 + i * 3)), 110 + (int)(sinf(a) * 8) - (t - 120) / 8 % 20, (i % 2) ? C_PINK : C_YELLOW);
+    bool arrived = t * 2 >= 220;
+    spr_draw_scaled(&rc_spr[arrived ? R_CAT_IDLE : run[(t / 4) % 4]], cx, 110, 2, 0);
+    if (arrived) {
+        spr_draw(&rc_spr[R_PARCEL], 218, 130, 0);
+        for (int i = 0; i < 5; i++) {
+            int hy = 120 - ((t * 1 + i * 14) % 60);
+            spr_draw(&rc_spr[R_HEART], 212 + i * 9 + (int)(sinf(t * 0.08f + i) * 3), hy, 0);
         }
+    } else {
+        spr_draw(&rc_spr[R_PARCEL], cx + 28, 124, 0);
     }
+    /* the card */
+    ui_panel(34, 8, 252, 52, C_INK, night ? C_VIOLET : C_YELLOW);
     static const uint8_t grad[] = {C_YELLOW, C_AMBER, C_ORANGE, C_RED};
-    ui_fancy_center(loop >= 2 ? "NIGHT ROUTE CLEARED!" : "PARCEL DELIVERED!", 160, 14, 2, grad, 4, C_INK, C_WINE);
+    ui_fancy_center(night ? "NIGHT ROUTE CLEARED!" : "PARCEL DELIVERED!", 160, 13, 2, grad, 4, C_INK, C_WINE);
     char buf[80];
     snprintf(buf, sizeof buf, "SCORE %07u   LETTERS %d", (unsigned)score, letters_this_run);
-    text_center(buf, 160, 38, loop >= 2 ? C_WHITE : C_NAVY);
-    text_center(loop >= 2 ? "EVEN THE MAGPIE MOB SLEEPS NOW." : "HAPPY BIRTHDAY, GRANDMA ZOHRA!", 160, 50, loop >= 2 ? C_LIGHT : C_NAVY);
-    if (t > 240 && (t / 20) % 2)
-        text_center(loop >= 2 ? GLYPH_A " TITLE" : GLYPH_A " NIGHT ROUTE    B TITLE", 160, 164, C_INK);
+    text_center(buf, 160, 34, C_WHITE);
+    text_center(night ? "EVEN THE MAGPIE MOB SLEEPS NOW." : "HAPPY BIRTHDAY, GRANDMA ZOHRA!", 160, 46, night ? C_VIOLET : C_YELLOW);
+    if (t > 240 && (t / 20) % 2) {
+        gfx_rect(60, 160, 200, 12, C_INK);
+        text_center(night ? GLYPH_A " TITLE" : GLYPH_A " NIGHT ROUTE    B TITLE", 160, 162, C_WHITE);
+    }
 }
 
 static void draw_sheet(void) {
