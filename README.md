@@ -72,6 +72,11 @@ You collect ore, buy a copper pot to keep ceiling drips off your head, and
 shatter crystal walls with a tuning fork. After that come the mine lifts, ropes
 and the Deep Gate. Six lanterns are your lives. Watch out for the Gloom.
 
+<details>
+<summary>The whole mine: all 36 screens, stitched from headless screenshots (spoilers)</summary>
+<p align="center"><img src="docs/shots/underdelve_map.png" alt="All 36 screens of the Underdelve map"></p>
+</details>
+
 ### 02 · GRUB SHIFT
 
 <p align="center">

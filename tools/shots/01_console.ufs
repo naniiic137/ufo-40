@@ -1,5 +1,5 @@
 # README media: the console shell
-gifstart boot 2 1
+gifstart boot 2 2
 wait 250
 gifstop
 shotscale 2
