@@ -1,0 +1,17 @@
+# README media: the console shell
+gifstart boot 2 1
+wait 250
+gifstop
+shotscale 2
+wait 1
+shot boot
+press A
+wait 40
+shot library
+press RIGHT
+press RIGHT
+wait 30
+shot library_roofcat
+press SELECT
+wait 30
+shot settings

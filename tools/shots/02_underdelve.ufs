@@ -1,0 +1,26 @@
+# README media: UNDERDELVE
+shotscale 2
+game underdelve
+wait 40
+shot underdelve_title
+press A
+wait 10
+gifstart underdelve 2 2
+wait 20
+hold RIGHT 18
+hold RIGHT+A 3
+hold RIGHT 40
+press B
+wait 16
+hold RIGHT 30
+hold RIGHT+A 3
+hold RIGHT 60
+gifstop
+cheat room 1 1 40 34
+cheat no_gloom
+wait 30
+shot underdelve_grotto
+cheat room 4 5 200 130
+cheat lanterns 6
+wait 90
+shot underdelve_boss
