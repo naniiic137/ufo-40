@@ -1,0 +1,26 @@
+# UNDERDELVE: the Spark Rod is traded for the pick and fires bolts;
+# the Hungry Pick on the altar costs a lantern.
+game underdelve
+wait 10
+press A
+wait 5
+cheat room 0 4 136 130
+cheat money 400
+wait 5
+press UP
+expect weapon == 1
+expect money == 0
+cheat dismiss
+wait 5
+press B
+wait 2
+expect items & 64
+cheat room 2 3 146 130
+cheat lanterns 4
+wait 5
+press UP
+cheat dismiss
+wait 3
+press UP
+expect weapon == 2
+expect lanterns == 3

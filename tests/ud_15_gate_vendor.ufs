@@ -1,0 +1,31 @@
+# UNDERDELVE: the Deep Gate stays shut without the Brass Key and opens with it;
+# the Lantern Keeper sells lanterns for 100 ore.
+game underdelve
+wait 10
+press A
+wait 5
+cheat room 3 5 200 130
+cheat no_gloom
+wait 5
+hold RIGHT 40
+expect gate_open == 0
+expect room_x == 3
+cheat dismiss
+cheat give 16
+hold RIGHT 30
+expect gate_open == 1
+cheat dismiss
+hold RIGHT 100
+expect room_x == 4
+cheat room 2 5 210 130
+cheat lanterns 3
+cheat money 250
+wait 5
+press UP
+expect lanterns == 4
+expect money == 150
+press UP
+expect lanterns == 5
+expect money == 50
+press UP
+expect lanterns == 5

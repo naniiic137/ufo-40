@@ -150,6 +150,7 @@ static bool solid_at(int tx, int ty) {
                        raw_solid(UD_ROOMS[run.room_y][run.room_x - 1].rows[ty][UD_ROOM_W - 1]);
     if (tx >= UD_ROOM_W) return !room_exists(run.room_x + 1, run.room_y) ||
                                 raw_solid(UD_ROOMS[run.room_y][run.room_x + 1].rows[ty][0]);
+    if (arena_sealed && tx == 0 && (ty == 7 || ty == 8)) return true;
     char c = tiles[ty][tx];
     switch (c) {
     case '#': case 'B': case 'X': case 'D': case 'I': return true;
@@ -1613,6 +1614,11 @@ static void draw_room(void) {
                 break;
             }
         }
+    /* the arena door slams shut behind Mo */
+    if (arena_sealed) {
+        spr_draw(&ud_spr[S_T_SEAL], 0, 7 * 16, 0);
+        spr_draw(&ud_spr[S_T_SEAL], 0, 8 * 16, 0);
+    }
     /* lifts */
     bool powered = (run.items & UD_ITEM_CRANK) != 0;
     for (int i = 0; i < n_lifts; i++) {
