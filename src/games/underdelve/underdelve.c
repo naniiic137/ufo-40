@@ -745,11 +745,14 @@ static void drop_coin(float x, float y) {
 }
 
 static void enemy_die(Ent *e) {
+    /* copy first: the puff below may recycle this slot */
+    float cx = e->x + e->w / 2, cy = e->y + e->h / 2, top = e->y;
+    int type = e->type;
     e->alive = false;
     run.kills++;
-    puff(e->x + e->w / 2, e->y + e->h / 2);
+    puff(cx, cy);
     sfx_play_name("ud_kill");
-    if (e->type != E_WISP) drop_coin(e->x + e->w / 2 - 3, e->y);
+    if (type != E_WISP) drop_coin(cx - 3, top);
 }
 
 static int weapon_damage(void) { return run.weapon == W_HUNGRY ? 2 : 1; }

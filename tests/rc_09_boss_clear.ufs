@@ -1,0 +1,20 @@
+# ROOFCAT: the scroll stops at the arena, the boss appears, and beating it
+# clears the stage and moves on to the next one.
+game roofcat
+wait 5
+cheat stage 0 1
+cheat clear_foes
+cheat arena
+wait 10
+expect in_arena == 1
+expect boss_hp > 0
+cheat boss_hp 1
+cheat put 150 83
+cheat win_stage
+wait 30
+expect boss_dead == 1
+wait 30
+expect state == 3
+wait 220
+expect stage == 1
+expect state == 1

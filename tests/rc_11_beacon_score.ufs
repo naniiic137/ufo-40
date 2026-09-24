@@ -1,0 +1,8 @@
+# ROOFCAT: 15,000 points in one run earns the Beacon.
+game roofcat
+wait 5
+press A
+wait 20
+expect goals !& 1
+cheat score 15000
+expect goals & 1

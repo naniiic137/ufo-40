@@ -26,6 +26,9 @@ CORE_SRC += src/games/grubshift/grubshift_logic.c
 CORE_SRC += src/games/grubshift/grubshift_art.c
 CORE_SRC += src/games/grubshift/grubshift_audio.c
 CORE_SRC += src/games/roofcat/roofcat.c
+CORE_SRC += src/games/roofcat/roofcat_levels.c
+CORE_SRC += src/games/roofcat/roofcat_art.c
+CORE_SRC += src/games/roofcat/roofcat_audio.c
 
 HEADLESS_SRC += src/platform/headless/main_headless.c
 HEADLESS_SRC += src/platform/headless/imgwrite.c

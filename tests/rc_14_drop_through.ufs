@@ -1,0 +1,13 @@
+# ROOFCAT: down + A drops through a one-way ledge.
+game roofcat
+wait 5
+cheat stage 0 1
+cheat clear_foes
+cheat cam 2880
+cheat put 60 60
+wait 20
+expect grounded == 1
+expect py == 83
+hold DOWN+A 3
+wait 30
+expect py > 90

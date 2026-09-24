@@ -1,0 +1,19 @@
+# ROOFCAT: every third defeated foe drops a catnip power-up.
+game roofcat
+wait 5
+cheat stage 0 1
+cheat clear_foes
+cheat cam 0
+cheat put 40 83
+wait 20
+cheat foe 90 84
+press B
+wait 30
+cheat foe 90 84
+press B
+wait 30
+cheat foe 90 84
+press B
+wait 12
+hold RIGHT 40
+expect power == 1

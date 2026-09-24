@@ -1,0 +1,14 @@
+# ROOFCAT: every stage start is a checkpoint; CONTINUE resumes from it after quitting.
+game roofcat
+wait 5
+cheat stage 2 1
+cheat lives 5
+cheat stage 2 1
+expect has_checkpoint == 1
+reload
+game roofcat
+wait 10
+press A
+wait 5
+expect stage == 2
+expect lives == 5

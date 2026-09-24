@@ -1,0 +1,22 @@
+# ROOFCAT: falling into a pit costs a life and turns Harissa into a spirit that
+# flies and shoots; pressing A brings her back to life where the spirit is.
+game roofcat
+wait 5
+cheat stage 0 1
+cheat clear_foes
+cheat cam 640
+cheat put 30 83
+wait 2
+hold RIGHT 45
+wait 40
+expect lives == 2
+expect spirit == 1
+hold UP 40
+press B
+wait 5
+expect stars == 0
+wait 25
+press A 2
+wait 2
+expect spirit == 0
+expect lives == 2

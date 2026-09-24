@@ -1,0 +1,8 @@
+# ROOFCAT: dying with no lives left is game over.
+game roofcat
+wait 5
+cheat stage 0 1
+cheat lives 0
+cheat kill
+wait 100
+expect state == 4

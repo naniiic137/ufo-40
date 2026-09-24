@@ -1,0 +1,17 @@
+# ROOFCAT: passing a score milestone releases a paper lantern; hitting it is a 1UP.
+game roofcat
+wait 5
+cheat stage 0 1
+cheat clear_foes
+cheat cam 0
+wait 10
+expect lanterns == 0
+cheat score 3000
+expect lanterns == 1
+expect lives == 3
+cheat put 150 40
+wait 110
+press B
+press UP
+wait 20
+expect lives >= 3

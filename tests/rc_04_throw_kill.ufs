@@ -1,0 +1,14 @@
+# ROOFCAT: a jasmine star defeats a foe, which drops a fish token worth points.
+game roofcat
+wait 5
+cheat stage 0 1
+cheat clear_foes
+cheat cam 0
+cheat put 60 83
+wait 20
+cheat foe 110 84
+press B
+wait 20
+expect score == 0
+hold RIGHT 30
+expect score >= 100
