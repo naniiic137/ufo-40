@@ -105,6 +105,14 @@ static void draw_panel(void) {
     if (g && g->draw_label) {
         gfx_clip(x, y, PANEL_W, 64);
         g->draw_label(x, y, PANEL_W, 64, t);
+        if (g->tribute) {
+            /* a small sticker along the bottom of the label art */
+            char tb[64];
+            snprintf(tb, sizeof tb, "TRIBUTE TO %s " GLYPH_DOT " UFO 50 #%d", g->tribute, g->tribute_no);
+            gfx_rect(x, y + 57, PANEL_W, 7, C_INK);
+            gfx_hline(x, x + PANEL_W - 1, y + 56, C_NIGHT);
+            tiny_center(tb, x + PANEL_W / 2, y + 58, C_GREY);
+        }
         gfx_noclip();
     } else {
         /* no-signal static */
@@ -165,7 +173,7 @@ static void lib_draw(void) {
     char buf[48];
     snprintf(buf, sizeof buf, "%d/40 LOADED", available_count());
     tiny_draw(buf, 148, 7, C_SLATE);
-    snprintf(buf, sizeof buf, "%d/120", progress_goal_count());
+    snprintf(buf, sizeof buf, "%d/%d", progress_goal_count(), available_count() * 3);
     ui_goal_icon(252, 4, GOAL_SAUCER, true, t);
     text_draw(buf, 264, 5, C_YELLOW);
 

@@ -25,6 +25,11 @@ typedef struct GameDef {
     /* Test hooks for the headless runner. */
     int (*query)(const char *key, int *out); /* returns 1 if key known */
     int (*cheat)(const char *cmd);           /* returns 1 if handled */
+
+    /* The UFO 50 game this cartridge pays tribute to, and its number there.
+     * A cartridge lives in the library slot with that same number. */
+    const char *tribute;
+    int tribute_no;
 } GameDef;
 
 #define GAME_SLOTS 40

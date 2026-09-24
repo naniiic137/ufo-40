@@ -2097,4 +2097,5 @@ const GameDef GAME_UNDERDELVE = {
     "LEAVE A ROOM TO ESCAPE THE GLOOM.",
     C_TAN, C_YELLOW,
     ud_load, ud_start, ud_update, ud_draw, ud_quit, ud_label, ud_query, ud_cheat,
+    "BARBUTA", 1,
 };

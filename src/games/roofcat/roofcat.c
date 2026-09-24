@@ -1649,4 +1649,5 @@ const GameDef GAME_ROOFCAT = {
     "HIT THE PAPER LANTERN FOR 1UP.",
     C_ORANGE, C_SKY,
     rc_load, rc_start, rc_update, rc_draw, rc_quit, rc_label, rc_query, rc_cheat,
+    "NINPEK", 3,
 };

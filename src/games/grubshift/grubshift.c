@@ -1008,4 +1008,5 @@ const GameDef GAME_GRUBSHIFT = {
     "REST ENDS THE SHIFT.",
     C_JADE, C_LIME,
     gs_load, gs_start, gs_update, gs_draw, gs_quit, gs_label, gs_query, gs_cheat,
+    "BUG HUNTER", 2,
 };

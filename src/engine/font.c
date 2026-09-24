@@ -328,7 +328,8 @@ static const struct { char c; const char *g; } TINY_PUNCT[] = {
     {'!', ".#.|.#.|.#.|...|.#."}, {'?', "##.|..#|.#.|...|.#."}, {'%', "#.#|..#|.#.|#..|#.#"},
     {'\'', ".#.|.#.|...|...|..."}, {'(', ".#.|#..|#..|#..|.#."}, {')', ".#.|..#|..#|..#|.#."},
     {'>', "#..|.#.|..#|.#.|#.."}, {'<', "..#|.#.|#..|.#.|..#"}, {'=', "...|###|...|###|..."},
-    {',', "...|...|...|.#.|#.."}, {'#', "#.#|###|#.#|###|#.#"}, {'$', ".##|##.|.#.|.##|##."},
+    {',', "...|...|...|.#.|#.."}, {'#', ".#.#|####|.#.#|####|.#.#"}, {'$', ".##|##.|.#.|.##|##."},
+    {'\x8a', "...|...|.#.|...|..."}, /* GLYPH_DOT: a middle dot */
 };
 
 static const char *tiny_glyph(char c) {
@@ -340,13 +341,23 @@ static const char *tiny_glyph(char c) {
     return NULL;
 }
 
+/* Glyphs are 3 pixels wide except a few (like '#') that need 4. */
+static int tiny_adv(char c) {
+    const char *g = tiny_glyph(c);
+    int w = 0;
+    if (g)
+        while (g[w] && g[w] != '|') w++;
+    return (w > 3 ? w : 3) + 1;
+}
+
 int tiny_width(const char *s) {
-    int n = (int)strlen(s);
-    return n > 0 ? n * 4 - 1 : 0;
+    int w = 0;
+    for (; *s; s++) w += tiny_adv(*s);
+    return w > 0 ? w - 1 : 0;
 }
 
 int tiny_draw(const char *s, int x, int y, int col) {
-    for (; *s; s++, x += 4) {
+    for (; *s; x += tiny_adv(*s), s++) {
         const char *g = tiny_glyph(*s);
         if (!g) continue;
         int r = 0, c = 0;
