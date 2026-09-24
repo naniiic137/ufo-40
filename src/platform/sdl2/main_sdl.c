@@ -358,16 +358,27 @@ static void frame(void) {
     double dt = (double)(now - last_counter) / (double)perf_freq;
     last_counter = now;
     if (dt > 0.25) dt = 0.25;
-    accum += dt;
     const double step = 1.0 / 60.0;
+    /* Vsync snapping. On a ~60 Hz display (the Vita, most PCs, the browser)
+     * every presented frame lasts one step plus timer noise. Feeding that noise
+     * into the accumulator makes it straddle the step boundary, so some frames
+     * run 0 updates and the next runs 2, and scrolling judders. Frames that
+     * last a whole number of steps (within 1 ms) run exactly that many updates
+     * and leave the accumulator alone, so there is no drift either. Other
+     * refresh rates (120 Hz, 144 Hz, no vsync) use the accumulator. */
+    int want = 0;
+    for (int k = 1; k <= 3 && !want; k++)
+        if (fabs(dt - k * step) < 0.001) want = k;
+    if (!want) {
+        accum += dt;
+        while (accum >= step && want < 5) { accum -= step; want++; }
+        if (want == 5) accum = 0;
+    }
     int steps = 0;
-    while (accum >= step && steps < 5) {
+    for (; steps < want; steps++) {
         input_set_raw(read_input());
         app_update();
-        accum -= step;
-        steps++;
     }
-    if (steps == 5) accum = 0;
     if (steps > 0) {
         app_draw();
     }

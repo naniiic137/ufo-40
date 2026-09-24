@@ -1,0 +1,27 @@
+# ROOFCAT: a grounded cat carried by the auto-scroll must not shimmer.
+# At SCROLL 0.5 the camera steps 0,1,0,1 whole pixels. The carried cat has to
+# move by exactly the same whole-pixel steps, so its drawn screen x stays put
+# (it used to alternate between two columns every frame, which looked blurry
+# on the Vita). Two frames of running first knock the cat off the camera's
+# half-pixel phase, which is what exposed the bug.
+game roofcat
+wait 5
+press A
+wait 100
+hold RIGHT 2
+wait 2
+cheat jitter_reset
+wait 240
+expect grounded == 1
+expect spirit == 0
+expect jitter == 0
+expect cam_bad == 0
+expect cam > 100
+# running back and forth is fine, but standing still again must be steady
+hold RIGHT 7
+hold LEFT 3
+wait 2
+cheat jitter_reset
+wait 120
+expect jitter == 0
+expect cam_bad == 0

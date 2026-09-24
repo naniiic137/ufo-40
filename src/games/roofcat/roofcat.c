@@ -49,6 +49,14 @@ static int stage, loop;
 static uint32_t score, next_life_at;
 static int lives, power, kills_since_power, letters_this_run, stage_letter;
 static float cam_x, arena_x;
+/* Whole pixels the camera advanced this frame (0 or 1 at SCROLL 0.5). Anything
+ * carried by the scroll moves by exactly this much, so it keeps the camera's
+ * sub-pixel phase and never shimmers against the rooftops. */
+static int carry_px;
+/* Jitter probe for the tests: reversals of the drawn screen x and camera steps
+ * that are not 0 or 1 pixel. */
+static int jit_last_sx, jit_last_d, jit_last_cam, jit_rev, jit_cam_bad;
+static bool jit_valid;
 static bool in_arena, boss_dead;
 static int boss_i = -1;
 static bool sheet_mode;
@@ -182,6 +190,8 @@ static void build_stage(void) {
     }
     arena_x = (float)((s->n_chunks - 1) * RC_CHUNK_W * 16);
     cam_x = 0;
+    carry_px = 0;
+    jit_valid = false;
     in_arena = false;
     boss_dead = false;
     stage_letter = 0;
@@ -240,7 +250,8 @@ static void add_score(int v) {
 
 static int max_stars(void) { return 1 + power; }
 static int throw_cooldown(void) { return power == 0 ? 16 : power == 1 ? 11 : 7; }
-static float carry(void) { return in_arena ? 0.0f : SCROLL; }
+static float carry(void) { return (float)carry_px; }
+static int cam_px(void) { return (int)floorf(cam_x); }
 
 static void lose_life(void) {
     if (pl.spirit || state != S_PLAY || pl.dead_t > 0) return;
@@ -342,7 +353,7 @@ static void update_spirit(void) {
     if (btnp(BTN_B) && pl.throw_cd == 0) {
         for (int k = -1; k <= 1; k += 2) {
             Ent *s = spawn(E_SPIRIT_SHOT, pl.x + PW, pl.y + PH / 2 - 3 + k * 4);
-            if (s) { s->w = 6; s->h = 6; s->vx = 4.2f + c; s->t = 40; }
+            if (s) { s->w = 6; s->h = 6; s->vx = 4.2f; s->t = 40; }
         }
         pl.throw_cd = 10;
         sfx_play_name("rc_shoot");
@@ -389,7 +400,7 @@ static void update_player(void) {
     /* throwing */
     if (btnp(BTN_B) && pl.throw_cd == 0 && count_type(E_STAR) < max_stars()) {
         Ent *s = spawn(E_STAR, pl.face > 0 ? pl.x + PW : pl.x - 8, pl.y + 3);
-        if (s) { s->w = 8; s->h = 8; s->vx = 3.6f * pl.face + c; s->t = (int)(STAR_RANGE / 3.6f); }
+        if (s) { s->w = 8; s->h = 8; s->vx = 3.6f * pl.face; s->t = (int)(STAR_RANGE / 3.6f); }
         pl.throw_cd = throw_cooldown();
         pl.throw_t = 8;
         sfx_play_name("rc_throw");
@@ -687,7 +698,7 @@ static void update_ents(void) {
             e->dir = pcx() < e->x ? -1 : 1;
             if (e->t % (int)(100 / sm) == 60) {
                 float dx = pcx() - e->x;
-                enemy_shot(E_PEBBLE, e->x + 3, e->y, fclamp(dx / 48.0f, -2.8f, 2.8f) + carry(), -3.1f);
+                enemy_shot(E_PEBBLE, e->x + 3, e->y, fclamp(dx / 48.0f, -2.8f, 2.8f) + (in_arena ? 0.0f : SCROLL), -3.1f);
                 e->sub = 10;
             }
             if (e->sub > 0) e->sub--;
@@ -711,7 +722,7 @@ static void update_ents(void) {
                 if (fabsf(pcx() - e->x) < 110 && e->x < cam_x + 300) {
                     e->sub = 1;
                     float dx = pcx() - e->x, dy = pcy() - e->y, d = sqrtf(dx * dx + dy * dy) + 0.1f;
-                    e->vx = dx / d * 2.6f * sm + carry();
+                    e->vx = dx / d * 2.6f * sm + (in_arena ? 0.0f : SCROLL);
                     e->vy = dy / d * 2.6f * sm;
                 }
             } else {
@@ -724,7 +735,7 @@ static void update_ents(void) {
             break;
         case E_BOSS: update_boss(e); break;
         case E_STAR: case E_SPIRIT_SHOT: {
-            e->x += e->vx;
+            e->x += e->vx + carry();
             if (--e->t <= 0 || (e->type == E_STAR && box_solid(e->x, e->y, e->w, e->h))) { e->alive = false; break; }
             for (int j = 0; j < MAX_ENTS; j++) {
                 Ent *o = &ents[j];
@@ -846,13 +857,16 @@ static void save_now(void) {
 
 static void play_update(void) {
     frame_t++;
+    carry_px = 0;
     if (!in_arena) {
+        int before = cam_px();
         cam_x += SCROLL;
         if (cam_x >= arena_x) {
             cam_x = arena_x;
             in_arena = true;
             spawn_boss();
         }
+        carry_px = cam_px() - before;
     }
     if (pl.dead_t > 0) {
         if (++pl.dead_t > 80) {
@@ -869,6 +883,19 @@ static void play_update(void) {
     update_player();
     update_ents();
     contacts();
+    {
+        /* what the renderer will show: the player's screen x and the camera */
+        int icam = cam_px(), sx = (int)floorf(pl.x) - icam;
+        if (jit_valid) {
+            int d = sx - jit_last_sx, dc = icam - jit_last_cam;
+            if (d != 0 && jit_last_d != 0 && (d > 0) != (jit_last_d > 0)) jit_rev++;
+            if (d != 0) jit_last_d = d;
+            if (dc < 0 || dc > 1) jit_cam_bad++;
+        }
+        jit_valid = true;
+        jit_last_sx = sx;
+        jit_last_cam = icam;
+    }
     if (boss_dead && boss_i >= 0 && !ents[boss_i].alive) {
         state = S_CLEAR;
         state_t = 0;
@@ -998,8 +1025,9 @@ static void draw_sky(void) {
     for (int b = 0; b < 4; b++) gfx_rect(0, b * 40, 320, 40, sky[b]);
     for (int b = 0; b < 3; b++) gfx_dither(0, b * 40 + 30, 320, 10, sky[b + 1], 8);
     /* sun / moon */
-    float par = cam_x * 0.05f;
-    int sx = 250 - (int)par % 40, sy = 34;
+    int icam = cam_px();
+    int par = icam / 20;
+    int sx = 250 - par % 40, sy = 34;
     if (night) {
         gfx_dither_circle(sx, sy, 20, C_DUSK, 5);
         gfx_circ(sx, sy, 12, C_CREAM);
@@ -1012,7 +1040,7 @@ static void draw_sky(void) {
     else if (theme == 1) { gfx_circ(sx, 50, 18, C_YELLOW); gfx_dither_circle(sx, 50, 24, C_CREAM, 4); }
     else if (theme == 2) { gfx_circ(160, 118, 28, C_ORANGE); gfx_circ(160, 118, 22, C_AMBER); gfx_circ(160, 118, 15, C_YELLOW); }
     /* far silhouettes (parallax 0.25) */
-    int off = (int)(cam_x * 0.25f);
+    int off = icam / 4;
     for (int i = -1; i < 12; i++) {
         int base = i * 36 - off % 36;
         uint32_t h = (uint32_t)((i + off / 36) * 2654435761u);
@@ -1052,7 +1080,7 @@ static void draw_sky(void) {
         if ((frame_t / 20) % 2) gfx_dither(lx + 10, 62, 60, 8, C_YELLOW, 6);
     }
     /* clouds / lanterns (parallax 0.5) */
-    int off2 = (int)(cam_x * 0.5f);
+    int off2 = icam / 2;
     for (int i = 0; i < 6; i++) {
         int x = (i * 97 - off2) % 420;
         if (x < -60) x += 420;
@@ -1285,7 +1313,7 @@ static void draw_play(void) {
     gfx_camera(sx, -RC_HUD + sy);
     gfx_clip(0, RC_HUD, 320, 160);
     draw_sky();
-    int cx = (int)cam_x;
+    int cx = cam_px();
     gfx_camera(cx + sx, -RC_HUD + sy);
     int tx0 = cx >> 4, tx1 = (cx + 320) >> 4;
     for (int ty = 0; ty < RC_ROWS; ty++)
@@ -1527,7 +1555,9 @@ static int rc_query(const char *key, int *out) {
     if (!strcmp(key, "spirit")) { *out = pl.spirit; return 1; }
     if (!strcmp(key, "px")) { *out = (int)pl.x; return 1; }
     if (!strcmp(key, "py")) { *out = (int)pl.y; return 1; }
-    if (!strcmp(key, "screen_x")) { *out = (int)(pl.x - cam_x); return 1; }
+    if (!strcmp(key, "screen_x")) { *out = (int)floorf(pl.x) - cam_px(); return 1; } /* as drawn */
+    if (!strcmp(key, "jitter")) { *out = jit_rev; return 1; }
+    if (!strcmp(key, "cam_bad")) { *out = jit_cam_bad; return 1; }
     if (!strcmp(key, "cam")) { *out = (int)cam_x; return 1; }
     if (!strcmp(key, "grounded")) { *out = pl.ground; return 1; }
     if (!strcmp(key, "jumps")) { *out = pl.jumps; return 1; }
@@ -1594,6 +1624,7 @@ static int rc_cheat(const char *cmd) {
         return 1;
     }
     if (!strcmp(cmd, "kill")) { lose_life(); return 1; }
+    if (!strcmp(cmd, "jitter_reset")) { jit_valid = false; jit_last_d = 0; jit_rev = 0; jit_cam_bad = 0; return 1; }
     if (!strcmp(cmd, "sheet")) { sheet_mode = !sheet_mode; return 1; }
     if (!strcmp(cmd, "win_stage")) {
         if (boss_i >= 0) { boss_damage(&ents[boss_i], 999); ents[boss_i].t = 239; }
