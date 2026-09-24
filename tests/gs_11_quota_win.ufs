@@ -10,6 +10,7 @@ expect status == 1
 wait 150
 expect state == 5
 expect streak == 1
+expect goals == 0
 press A
 wait 5
 expect state == 2

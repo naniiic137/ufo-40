@@ -1,0 +1,13 @@
+# SHELL: goals are saved in the global progress file and survive a restart;
+# the library counts them.
+game roofcat
+wait 5
+press A
+wait 20
+expect total_goals == 0
+cheat score 15000
+expect goals & 1
+reload
+expect goals.roofcat == 1
+expect goals.underdelve == 0
+expect total_goals == 1
