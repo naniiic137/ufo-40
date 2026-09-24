@@ -33,6 +33,7 @@ static void lib_update(void) {
     if (shake_t > 0) shake_t--;
     if (launching) {
         launch_t++;
+        if (launch_t == 26) gfx_set_flash(3);
         if (launch_t == 34) app_launch_game(g_library_cursor, true);
         return;
     }
@@ -203,7 +204,6 @@ static void lib_draw(void) {
     text_draw("SETTINGS", fx + 4, 170, C_LIGHT);
     snprintf(buf, sizeof buf, "SLOT %02d/40", g_library_cursor + 1);
     text_draw(buf, SCREEN_W - 6 - text_width(buf), 170, C_GREY);
-    if (launching && launch_t > 24) gfx_set_flash(2);
 }
 
 const Scene SCENE_LIBRARY = {"library", lib_enter, lib_update, lib_draw, NULL};

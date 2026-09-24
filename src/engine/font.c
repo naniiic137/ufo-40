@@ -165,7 +165,10 @@ static const Glyph *glyph_for(unsigned char c) {
 
 static int line_width(const char *s, int scale) {
     int w = 0;
-    for (; *s && *s != '\n'; s++) w += (glyph_for((unsigned char)*s)->w + 1) * scale;
+    for (; *s && *s != '\n'; s++) {
+        if (*s == '\t') { w = w < TAB_W * scale ? TAB_W * scale : w + 8 * scale; continue; }
+        w += (glyph_for((unsigned char)*s)->w + 1) * scale;
+    }
     return w > 0 ? w - scale : 0;
 }
 
@@ -186,6 +189,10 @@ int text_draw_scaled(const char *s, int x, int y, int col, int scale) {
     int cx = x;
     for (; *s; s++) {
         if (*s == '\n') { cx = x; y += (LINE_H)*scale; continue; }
+        if (*s == '\t') { /* tab stop: a fixed column for tables */
+            cx = cx < x + TAB_W * scale ? x + TAB_W * scale : cx + 8 * scale;
+            continue;
+        }
         const Glyph *g = glyph_for((unsigned char)*s);
         for (int r = 0; r < 7; r++) {
             uint8_t bits = g->rows[r];

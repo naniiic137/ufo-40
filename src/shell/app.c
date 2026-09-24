@@ -66,26 +66,26 @@ void app_launch_game(int index, bool with_transition) {
 const char *shell_controls_text(void) {
     switch (plat_kind()) {
     case PLAT_VITA:
-        return "D-PAD / LEFT STICK   MOVE\n"
-               "CROSS                A\n"
-               "CIRCLE               B\n"
-               "START                START / PAUSE\n"
-               "SELECT               SELECT";
+        return "D-PAD, STICK\tMOVE\n"
+               "CROSS\t" GLYPH_A " BUTTON\n"
+               "CIRCLE\t" GLYPH_B " BUTTON\n"
+               "START\tSTART / PAUSE\n"
+               "SELECT\tSELECT";
     case PLAT_WEB:
-        return "ARROWS / WASD        MOVE\n"
-               "Z OR J               A\n"
-               "X OR K               B\n"
-               "ENTER                START / PAUSE\n"
-               "SHIFT OR BACKSPACE   SELECT\n"
-               "TOUCH: ON-SCREEN PAD";
+        return "ARROWS, WASD\tMOVE\n"
+               "Z OR J\t" GLYPH_A " BUTTON\n"
+               "X OR K\t" GLYPH_B " BUTTON\n"
+               "ENTER\tSTART / PAUSE\n"
+               "SHIFT, BKSP\tSELECT\n"
+               "TOUCH\tON-SCREEN PAD";
     default:
-        return "ARROWS / WASD        MOVE\n"
-               "Z OR J               A\n"
-               "X OR K               B\n"
-               "ENTER / ESC          START / PAUSE\n"
-               "SHIFT OR BACKSPACE   SELECT\n"
-               "F11 / ALT+ENTER      FULLSCREEN\n"
-               "GAMEPAD              SUPPORTED";
+        return "ARROWS, WASD\tMOVE\n"
+               "Z OR J\t" GLYPH_A " BUTTON\n"
+               "X OR K\t" GLYPH_B " BUTTON\n"
+               "ENTER, ESC\tSTART / PAUSE\n"
+               "SHIFT, BKSP\tSELECT\n"
+               "F11\tFULLSCREEN\n"
+               "GAMEPAD\tPLUG AND PLAY";
     }
 }
 
@@ -187,8 +187,7 @@ static void runner_update(void) {
 static void draw_pause(void) {
     gfx_camera(0, 0);
     gfx_noclip();
-    gfx_darken_rect(0, 0, SCREEN_W, SCREEN_H, 2);
-    gfx_dither(0, 0, SCREEN_W, SCREEN_H, C_INK, 6);
+    gfx_darken_rect(0, 0, SCREEN_W, SCREEN_H, 3);
     const GameDef *g = G();
     if (pause_page == 1) {
         ui_panel(30, 22, 260, 136, C_NIGHT, C_SLATE);

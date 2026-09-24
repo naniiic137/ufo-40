@@ -1923,7 +1923,8 @@ static void ud_label(int x, int y, int w, int h, int t) {
         gfx_hline(x + i * 16, x + i * 16 + 15, y + h - 12, C_EARTH);
         spr_draw_ex(&ud_spr[S_T_ROCK], x + i * 16, y - 8 + (i % 3) * 2, 0, zmap, -1);
     }
-    for (int r = 4; r >= 1; r--) gfx_dither(x + 34 - r * 10, y + 30 - r * 8, r * 20, r * 16, C_BROWN, 5);
+    gfx_dither_circle(x + 34, y + 36, 30, C_BROWN, 4);
+    gfx_dither_circle(x + 34, y + 36, 18, C_TAN, 3);
     spr_draw(&ud_spr[(t / 8) % 2 ? S_T_TORCH1 : S_T_TORCH2], x + w - 26, y + h - 28, 0);
     spr_draw_scaled(&ud_spr[(t % 150) < 6 ? S_MO_BLINK : S_MO_IDLE], x + 18, y + h - 44, 2, 0);
     spr_draw(&ud_spr[S_GEM1], x + 70, y + h - 22, 0);
@@ -2062,13 +2063,13 @@ const GameDef GAME_UNDERDELVE = {
     "UNDERDELVE",
     "1983",
     "EXPLORATION",
-    "GUIDE MO THE MOLE THROUGH A DARK MINE. ONE TOUCH IS DEADLY, SO SPEND ORE WISELY.",
+    "HELP MO THE MOLE RELIGHT A DARK MINE. ONE TOUCH IS DEADLY.",
     {"FREE THE HIDDEN CANARY", "DEFEAT THE OLD LODE", "WIN WITHOUT DYING"},
-    "D-PAD        WALK / CLIMB\n"
-    "UP           BUY AT SHOPS\n"
-    GLYPH_A "            JUMP (NO AIR CONTROL)\n"
-    GLYPH_B "            SWING PICK / FIRE ROD\n"
-    "START        PAUSE\n\n"
+    "D-PAD\tWALK / CLIMB\n"
+    "UP\tBUY AT SHOPS\n"
+    GLYPH_A "\tJUMP (NO AIR CONTROL)\n"
+    GLYPH_B "\tSWING PICK / FIRE ROD\n"
+    "START\tPAUSE\n\n"
     "ONE HIT LOSES A LANTERN.\n"
     "LEAVE A ROOM TO ESCAPE THE GLOOM.",
     C_TAN, C_YELLOW,

@@ -22,6 +22,7 @@
 
 #define FONT_H 7
 #define LINE_H 9
+#define TAB_W 76 /* '\t' jumps to this column (for control tables) */
 
 void font_init(void);
 int text_width(const char *s);             /* width of the widest line */
