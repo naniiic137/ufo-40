@@ -42,8 +42,11 @@ if(UFO40_VITA)
 
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=gnu11 -O2 -Wall -Wno-unused-parameter")
 
+  # vitasdk's static SDL2 contains C++ code, so link with g++ to pull in libstdc++.
+  enable_language(CXX)
   add_executable(ufo40 ${UFO40_CORE_SRC} ${UFO40_SDL_SRC})
-  target_link_libraries(ufo40 SDL2::SDL2 ScePower_stub m)
+  set_target_properties(ufo40 PROPERTIES LINKER_LANGUAGE CXX)
+  target_link_libraries(ufo40 SDL2::SDL2 ScePower_stub stdc++ m)
 
   vita_create_self(ufo40.self ufo40)
   vita_create_vpk(ufo40.vpk ${VITA_TITLEID} ufo40.self
