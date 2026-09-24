@@ -1,0 +1,28 @@
+# GRUB SHIFT: a hivebug grows up with a drone beside it and can't be hurt
+# while the drone is next to it. Shove the drone away and it dies (no kill
+# counted), then the hivebug pops.
+game grubshift
+wait 5
+cheat contract 1 7
+cheat clear
+cheat evolvers 0 0
+cheat tilly 0 4
+cheat bug 3 1 2 0
+cheat rest
+wait 120
+expect lv_at31 == 1
+expect drones == 1
+cheat clear
+cheat tilly 2 3
+cheat bug 4 3 2 1
+cheat bug 5 2 7 0
+cheat use 5 4 3
+expect kills == 0
+expect bug_at43 == 2
+cheat tilly 5 3
+cheat use 0 5 2
+expect drones == 0
+expect kills == 0
+cheat tilly 4 1
+cheat use 6 4 3
+expect kills == 1

@@ -3,7 +3,7 @@ game grubshift
 wait 5
 cheat contract 1 7
 cheat energy 4
-cheat shop 6 12
+cheat shop 6 17
 wait 5
 press UP
 wait 2
@@ -11,7 +11,7 @@ press A
 wait 2
 press A
 wait 2
-expect chip0 == 12
+expect chip0 == 17
 expect energy == 0
 press RIGHT
 press RIGHT
@@ -23,7 +23,7 @@ press RIGHT
 wait 2
 press A
 wait 2
-expect day == 1
-press A
-wait 120
 expect day == 2
+expect state == 3
+wait 120
+expect state == 2

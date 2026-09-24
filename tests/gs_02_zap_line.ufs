@@ -3,9 +3,9 @@ game grubshift
 wait 5
 cheat contract 1 7
 cheat clear
-cheat bug 4 3 1 0
-cheat bug 5 3 3 0
+cheat bug 3 2 1 0
+cheat bug 4 2 6 0
 expect kills == 0
-cheat use 5 5 3
+cheat use 5 4 2
 expect kills == 2
 expect bugs == 0

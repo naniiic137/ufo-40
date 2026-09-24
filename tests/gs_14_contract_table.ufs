@@ -1,0 +1,28 @@
+# GRUB SHIFT: contracts 1-3 give ten shifts, 4-6 nine, then eight. The quota
+# is always 30. The field has 4 planters on contract 1 and up to 8 later,
+# one or two sinkholes, and from contract 10 some grubs start grown.
+game grubshift
+wait 5
+cheat contract 1 11
+expect days == 10
+expect quota == 30
+expect planters >= 4
+expect holes >= 1
+expect holes <= 2
+expect adults == 0
+cheat contract 3 12
+expect days == 10
+cheat contract 4 13
+expect days == 9
+cheat contract 6 14
+expect days == 9
+cheat contract 7 15
+expect days == 8
+expect adults == 0
+cheat contract 10 16
+expect adults == 1
+cheat contract 13 17
+expect adults == 2
+cheat contract 17 18
+expect adults == 2
+expect days == 8

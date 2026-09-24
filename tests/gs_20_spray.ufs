@@ -1,0 +1,17 @@
+# GRUB SHIFT: SPRAY marks two tiles. A grub pushed onto one dies; no larva
+# ever hatches on one.
+game grubshift
+wait 5
+cheat contract 1 7
+cheat clear
+cheat chip 6 34
+cheat use 6 4 2 0 0
+expect spent == 1
+cheat bug 3 2 1 0
+cheat use 0 3 2
+expect kills == 1
+expect bug_at42 == 0
+cheat use 1 4 2
+cheat rest
+wait 120
+expect bug_at00 == 0

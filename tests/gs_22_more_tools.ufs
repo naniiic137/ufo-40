@@ -1,0 +1,72 @@
+# GRUB SHIFT: a tour of the other tools. HUSTLE recharges on a squash,
+# RECHARGE refreshes its neighbours, BOOST stretches ZAP, DIG opens a pit
+# next to a pit, QUAKE hits around a pit, HAIL hits every planter, CRACK blows
+# up an egg, FLIP swaps heights and GATHER scoops pods.
+game grubshift
+wait 5
+cheat contract 1 7
+cheat clear
+cheat chip 0 10
+cheat hole 4 2
+cheat bug 3 2 1 0
+cheat use 0 3 2
+expect kills == 1
+expect spent0 == 0
+cheat clear
+cheat chip 1 36
+cheat use 0 3 2
+cheat use 2 4 2
+expect spent0 == 1
+cheat use 1 4 2
+expect spent0 == 0
+expect spent2 == 0
+cheat clear
+cheat chip 3 30
+cheat use 3 2 2
+expect fx & 2
+cheat bug 5 2 1 0
+cheat use 5 5 2
+expect kills == 2
+cheat clear
+cheat chip 4 31
+cheat hole 0 0
+cheat bug 1 1 1 0
+cheat use 4 1 1
+expect hole_at11 == 1
+expect kills == 3
+cheat clear
+cheat chip 6 19
+cheat hole 5 4
+cheat bug 4 3 1 0
+cheat bug 5 3 6 0
+cheat use 6 5 4
+expect kills == 5
+cheat clear
+cheat chip 5 21
+cheat elev 0 0 1
+cheat elev 5 4 1
+cheat bug 0 0 1 0
+cheat bug 5 4 3 0
+cheat use 5 2 2
+expect kills == 7
+cheat clear
+cheat chip 2 22
+cheat bug 5 0 1 3
+cheat bug 4 0 3 0
+cheat use 2 5 0
+expect eggs == 0
+expect kills == 8
+cheat clear
+cheat chip 0 37
+cheat elev 0 0 1
+cheat use 0 2 2
+expect elev_at00 == 0
+expect elev_at11 == 1
+cheat clear
+cheat chip 1 27
+cheat pods 5 4 2
+cheat pods 4 4 1
+cheat pods 4 3 1
+cheat energy 0
+cheat use 1 5 4
+expect energy == 4

@@ -1,0 +1,19 @@
+# GRUB SHIFT: a moundmaker that grows up raises its own tile and flattens
+# the planters beside it.
+game grubshift
+wait 5
+cheat contract 1 7
+cheat clear
+cheat evolvers 1 1
+cheat tilly 0 0
+cheat bug 3 2 3 0
+cheat elev 4 2 1
+cheat elev 3 1 1
+cheat elev 4 3 1
+cheat rest
+wait 120
+expect lv_at32 == 1
+expect elev_at32 == 1
+expect elev_at42 == 0
+expect elev_at31 == 0
+expect elev_at43 == 1

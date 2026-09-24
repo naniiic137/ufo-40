@@ -1,17 +1,19 @@
-# GRUB SHIFT: reaching the quota completes the contract and starts a streak.
+# GRUB SHIFT: the quota is 30. Reaching it completes the contract, earns the
+# Beacon (the first contract) and moves on to contract 2.
 game grubshift
 wait 5
 cheat contract 1 7
+expect quota == 30
 cheat clear
-cheat kills 17
-cheat bug 4 3 1 0
-cheat use 5 4 3
+cheat kills 29
+cheat bug 3 2 1 0
+cheat use 5 3 2
 expect status == 1
 wait 150
-expect state == 5
+expect state == 4
 expect streak == 1
-expect goals == 0
+expect goals == 1
 press A
 wait 5
-expect state == 2
+expect state == 1
 expect contract == 2

@@ -6,4 +6,4 @@ cheat bug 0 0 1 3
 cheat rest
 expect status == 3
 wait 150
-expect state == 5
+expect state == 4

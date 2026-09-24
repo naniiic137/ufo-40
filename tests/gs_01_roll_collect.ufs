@@ -4,12 +4,12 @@ game grubshift
 wait 5
 cheat contract 1 7
 cheat clear
-cheat pods 4 3 1
-cheat pods 5 3 2
-cheat use 0 5 3
-expect px == 5
+cheat pods 3 2 1
+cheat pods 4 2 2
+cheat use 0 4 2
+expect px == 4
 expect energy == 3
 expect spent == 1
-cheat use 0 3 3
-expect px == 5
+cheat use 0 2 2
+expect px == 4
 expect spent == 1

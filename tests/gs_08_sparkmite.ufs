@@ -1,11 +1,19 @@
-# GRUB SHIFT: an adult sparkmite sprays sparks when it pops, chaining into neighbours.
+# GRUB SHIFT: an adult sparkmite sprays sparks two tiles each way when it
+# pops, chaining into grubs - and into Tilly if she stands in the line.
 game grubshift
 wait 5
 cheat contract 1 7
 cheat clear
-cheat bug 5 3 1 1
-cheat bug 6 3 3 0
-cheat bug 5 4 4 0
-cheat use 6 5 3
+cheat chip 6 16
+cheat bug 4 4 1 1
+cheat bug 2 4 3 0
+cheat bug 4 2 6 0
+cheat use 6 4 4
 expect kills == 3
 expect status == 0
+expect bugs == 0
+cheat bug 2 0 1 1
+cheat chip 6 15
+cheat use 6 2 0
+expect kills == 4
+expect status == 2

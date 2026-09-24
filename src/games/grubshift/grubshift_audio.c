@@ -81,4 +81,6 @@ void gs_audio_load(void) {
     sfx_define("gs_die", CH_P1, 160, "@33 v13 o5 c8 o4 g8 e8 c4");
     sfx_define("gs_hatch", CH_P1, 140, "@37 v13 o3 c8 c+8 d4");
     sfx_define("gs_nope", CH_P2, 200, "@37 v10 o3 c16");
+    sfx_define("gs_sour", CH_P2, 220, "@33 v10 o5 e16 c16");
+    sfx_define("gs_spray", CH_NOISE, 200, "@36 v9 o7 c8");
 }

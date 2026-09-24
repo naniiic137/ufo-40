@@ -1,0 +1,12 @@
+# GRUB SHIFT: blasts only reach tiles at the same height as the pod.
+game grubshift
+wait 5
+cheat contract 1 7
+cheat clear
+cheat pods 4 2 1
+cheat elev 5 2 1
+cheat bug 5 2 1 0
+cheat bug 4 3 3 0
+cheat use 5 4 2
+expect kills == 1
+expect bug_at52 == 1

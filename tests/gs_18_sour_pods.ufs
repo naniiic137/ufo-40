@@ -1,0 +1,34 @@
+# GRUB SHIFT: a grown sourmite spoils the fizz pods next to it. Rolling over
+# sour pods costs energy; shooting one feeds it, and three become an egg;
+# a grub pushed into sour pods grows a stage for good.
+game grubshift
+wait 5
+cheat contract 1 7
+cheat clear
+cheat evolvers 1 1
+cheat bug 4 4 4 0
+cheat pods 5 4 1
+cheat pods 5 3 1
+cheat rest
+wait 120
+expect lv_at44 == 1
+expect sour_at54 >= 1
+expect sour_at53 >= 1
+expect pods_at54 == 0
+cheat clear
+cheat energy 3
+cheat sour 3 2 2
+cheat use 0 3 2
+expect energy == 1
+expect sour_at32 == 0
+cheat clear
+cheat sour 4 2 2
+cheat use 5 4 2
+expect sour_at42 == 0
+expect eggs == 1
+cheat clear
+cheat bug 3 2 1 0
+cheat sour 4 2 1
+cheat use 1 3 2
+expect bug_at42 == 1
+expect lv_at42 == 1

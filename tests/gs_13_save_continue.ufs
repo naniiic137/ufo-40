@@ -2,12 +2,14 @@
 game grubshift
 wait 5
 cheat contract 1 7
-cheat use 0 3 3
+cheat clear
+cheat use 0 3 2
 expect in_progress == 1
 reload
 game grubshift
 wait 10
 press A
 wait 5
-expect state == 3
+expect state == 2
 expect spent == 1
+expect px == 3

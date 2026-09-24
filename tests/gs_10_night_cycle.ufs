@@ -1,13 +1,16 @@
-# GRUB SHIFT: resting ends the shift - tools recharge, new grubs and pods arrive.
+# GRUB SHIFT: resting ends the shift - tools recharge, four larvae hatch,
+# fizz pods fall and the ground gives way in one new place.
 game grubshift
 wait 5
 cheat contract 1 7
-cheat use 0 3 3
-cheat use 4 3 3
+cheat clear
+cheat use 0 3 2
 expect day == 1
+expect spent == 1
 cheat rest
 wait 120
 expect day == 2
 expect spent == 0
-expect bugs >= 5
-expect state == 3
+expect larvae == 4
+expect holes == 1
+expect state == 2
