@@ -1,0 +1,11 @@
+build/
+build-*/
+*.o
+*.exe
+*.dll
+*.vpk
+*.self
+*.velf
+/saves/
+.vscode/
+.DS_Store

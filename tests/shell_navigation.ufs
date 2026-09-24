@@ -1,0 +1,16 @@
+# The console boots, the boot screen can be skipped, the library opens,
+# settings open and close, and a cartridge launches into the game runner.
+wait 30
+expect_scene boot
+press A
+wait 30
+expect_scene library
+press SELECT
+wait 30
+expect_scene settings
+press B
+wait 30
+expect_scene library
+press A
+wait 90
+expect_scene runner

@@ -1,0 +1,6 @@
+# Every song's channels loop in sync, and the synth actually makes sound.
+check_songs
+audio on
+wait 120
+expect audio.peak > 20
+expect audio.peak < 1000
