@@ -1,0 +1,11 @@
+# GRUB SHIFT: ZAP hits every tile along its line, so two grubs in a row both pop.
+game grubshift
+wait 5
+cheat contract 1 7
+cheat clear
+cheat bug 4 3 1 0
+cheat bug 5 3 3 0
+expect kills == 0
+cheat use 5 5 3
+expect kills == 2
+expect bugs == 0

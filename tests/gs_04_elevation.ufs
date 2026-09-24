@@ -1,0 +1,18 @@
+# GRUB SHIFT: shots can't go uphill, but a lob ignores height;
+# rolling down off a planter onto a grub stomps it.
+game grubshift
+wait 5
+cheat contract 1 7
+cheat clear
+cheat elev 4 3 1
+cheat bug 4 3 1 0
+cheat use 5 4 3
+expect spent == 0
+expect kills == 0
+cheat use 6 4 3
+expect kills == 1
+cheat elev 3 3 1
+cheat bug 2 3 1 0
+cheat use 0 2 3
+expect kills == 2
+expect px == 2

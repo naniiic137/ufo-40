@@ -22,6 +22,9 @@ CORE_SRC += src/games/underdelve/underdelve_rooms.c
 CORE_SRC += src/games/underdelve/underdelve_art.c
 CORE_SRC += src/games/underdelve/underdelve_audio.c
 CORE_SRC += src/games/grubshift/grubshift.c
+CORE_SRC += src/games/grubshift/grubshift_logic.c
+CORE_SRC += src/games/grubshift/grubshift_art.c
+CORE_SRC += src/games/grubshift/grubshift_audio.c
 CORE_SRC += src/games/roofcat/roofcat.c
 
 HEADLESS_SRC += src/platform/headless/main_headless.c

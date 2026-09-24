@@ -1,0 +1,9 @@
+# GRUB SHIFT: an unbroken egg at the end of a shift hatches and you lose.
+game grubshift
+wait 5
+cheat contract 1 7
+cheat bug 0 0 1 3
+cheat rest
+expect status == 3
+wait 150
+expect state == 5

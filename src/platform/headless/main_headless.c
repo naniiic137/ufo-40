@@ -317,6 +317,10 @@ static int run_script(const char *path) {
             }
         } else if (!strcmp(cmd, "log")) {
             printf("  %s\n", arg);
+        } else if (!strcmp(cmd, "print")) {
+            int v;
+            if (query(arg, &v)) printf("  %s = %d\n", arg, v);
+            else fail("unknown key '%s'%ld", arg, 0);
         } else {
             fail("unknown command '%s'%ld", cmd, 0);
         }

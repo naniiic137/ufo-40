@@ -1,0 +1,15 @@
+# GRUB SHIFT: ROLL moves Tilly and collects the fizz pods she rolls over;
+# a used tool stays spent for the rest of the shift.
+game grubshift
+wait 5
+cheat contract 1 7
+cheat clear
+cheat pods 4 3 1
+cheat pods 5 3 2
+cheat use 0 5 3
+expect px == 5
+expect energy == 3
+expect spent == 1
+cheat use 0 3 3
+expect px == 5
+expect spent == 1

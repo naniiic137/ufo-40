@@ -1,0 +1,11 @@
+# GRUB SHIFT: an adult sparkmite sprays sparks when it pops, chaining into neighbours.
+game grubshift
+wait 5
+cheat contract 1 7
+cheat clear
+cheat bug 5 3 1 1
+cheat bug 6 3 3 0
+cheat bug 5 4 4 0
+cheat use 6 5 3
+expect kills == 3
+expect status == 0

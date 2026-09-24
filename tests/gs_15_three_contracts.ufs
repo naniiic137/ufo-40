@@ -1,0 +1,32 @@
+# GRUB SHIFT: three contracts in a row earns the Saucer and the certificate.
+game grubshift
+wait 5
+cheat contract 1 7
+cheat clear
+cheat kills 17
+cheat bug 4 3 1 0
+cheat use 5 4 3
+wait 150
+press A
+wait 40
+press A
+wait 10
+cheat clear
+cheat kills 30
+cheat bug 4 3 1 0
+cheat use 5 4 3
+wait 150
+press A
+wait 40
+press A
+wait 10
+cheat clear
+cheat kills 30
+cheat bug 4 3 1 0
+cheat use 5 4 3
+wait 150
+expect streak == 3
+expect goals & 2
+press A
+wait 10
+expect state == 6

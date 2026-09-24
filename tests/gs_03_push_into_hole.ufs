@@ -1,0 +1,15 @@
+# GRUB SHIFT: rolling into a grub pushes it one tile; pushed into a pit, it's gone.
+game grubshift
+wait 5
+cheat contract 1 7
+cheat clear
+cheat bug 4 3 2 1
+cheat hole 5 3
+cheat use 0 4 3
+expect kills == 1
+expect px == 4
+cheat bug 4 2 3 0
+cheat use 1 4 2
+expect bug_at43 == 0
+expect bug_at41 == 3
+expect py == 2

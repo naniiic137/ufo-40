@@ -1,0 +1,16 @@
+# GRUB SHIFT: a hit fizz pod explodes, chains into its neighbour, and a
+# blast next to Tilly ends the contract.
+game grubshift
+wait 5
+cheat contract 1 7
+cheat clear
+cheat pods 5 3 1
+cheat pods 4 3 1
+cheat bug 6 3 1 0
+cheat bug 6 4 3 0
+cheat use 6 5 3
+expect kills == 2
+expect status == 2
+wait 80
+expect state == 5
+expect streak == 0

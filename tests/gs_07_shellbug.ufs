@@ -1,0 +1,11 @@
+# GRUB SHIFT: an adult shellbug shrugs off the first hit and pops on the second.
+game grubshift
+wait 5
+cheat contract 1 7
+cheat clear
+cheat bug 4 3 2 1
+cheat use 5 4 3
+expect kills == 0
+expect bugs == 1
+cheat use 6 4 3
+expect kills == 1

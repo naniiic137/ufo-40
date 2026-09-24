@@ -1,0 +1,16 @@
+# GRUB SHIFT: reaching the quota completes the contract and starts a streak.
+game grubshift
+wait 5
+cheat contract 1 7
+cheat clear
+cheat kills 17
+cheat bug 4 3 1 0
+cheat use 5 4 3
+expect status == 1
+wait 150
+expect state == 5
+expect streak == 1
+press A
+wait 5
+expect state == 2
+expect contract == 2
