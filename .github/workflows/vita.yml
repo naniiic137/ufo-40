@@ -29,7 +29,9 @@ jobs:
         run: |
           if ! cmake --build build-vita -j2 > build.log 2>&1; then
             cat build.log
-            grep -E "error|undefined reference|No such file" build.log | head -n 10 | sed 's/^/::error::/'
+            grep -iE "error|undefined reference|No such file|failed" build.log | head -n 6 | sed 's/^/::error::/'
+            # the last lines too, for failures that don't say "error" (e.g. a packaging tool)
+            tail -n 4 build.log | sed 's/^/::error::/'
             exit 1
           fi
           tail -n 20 build.log
