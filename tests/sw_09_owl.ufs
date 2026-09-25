@@ -1,0 +1,29 @@
+# SKYWELL: on floor 12 the Keeper Owl flies at the top of the screen for
+# 15 seconds; shoot it down and it drops a key. If it gets away it never
+# comes back.
+game skywell
+wait 5
+press A
+cheat god
+cheat top 12
+wait 3
+expect owl_on == 1
+expect owl_hp == 14
+cheat owl_hp 0
+wait 2
+cheat clear
+cheat plat 0 0 0 13
+cheat pos 100 -12
+cheat owl_hp -1
+wait 2
+cheat level 2
+cheat god
+cheat top 12
+wait 3
+expect owl_on == 1
+wait 910
+expect owl_gone == 1
+cheat level 3
+cheat top 12
+wait 3
+expect owl_on == 0

@@ -1,0 +1,13 @@
+# SKYWELL: a star block shoots Kip up about six floors, untouchable.
+game skywell
+wait 5
+press A
+cheat clear
+cheat plat 0 0 0 13
+cheat plat 4 100 -24 1
+wait 5
+cheat pos 100 -12
+hold A 8
+expect star > 0
+wait 50
+expect ky < -200

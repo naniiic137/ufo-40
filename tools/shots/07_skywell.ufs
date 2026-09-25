@@ -1,0 +1,32 @@
+# README media: SKYWELL
+shotscale 2
+game skywell
+wait 60
+shot skywell_title
+game skywell
+wait 5
+cheat seed 6
+press A
+cheat autoplay
+wait 30
+gifstart skywell 4 2
+wait 280
+gifstop
+wait 200
+shot skywell_climb
+cheat autoplay
+cheat level 3
+cheat god
+cheat pos 100 -500
+wait 150
+shot skywell_reef
+cheat level 4
+cheat god
+cheat pos 100 -440
+cheat top 14
+wait 100
+shot skywell_eye
+cheat cogs 37
+cheat shop
+wait 30
+shot skywell_shop

@@ -1,0 +1,22 @@
+# SKYWELL: the view (and the Grinder at its foot) only moves up, and only
+# when Kip climbs above the middle of the screen.
+game skywell
+wait 5
+press A
+cheat clear
+cheat plat 0 0 0 13
+wait 5
+expect cam_y == -150
+cheat plat 3 80 -50 4
+cheat plat 3 150 -100 4
+cheat pos 90 -62
+wait 3
+expect cam_y == -150
+cheat pos 160 -112
+wait 3
+expect cam_y == -196
+# the old floor is now under the Grinder: stepping off the rock is fatal
+hold LEFT 40
+wait 60
+expect cam_y == -196
+expect state == 2

@@ -8,6 +8,7 @@ extern const GameDef GAME_GRUBSHIFT;
 extern const GameDef GAME_ROOFCAT;
 extern const GameDef GAME_PETALPARADE;
 extern const GameDef GAME_TINTROOP;
+extern const GameDef GAME_SKYWELL;
 
 const GameDef *const GAMES[GAME_SLOTS] = {
     [0] = &GAME_UNDERDELVE,  /* 01 Barbuta */
@@ -15,4 +16,5 @@ const GameDef *const GAMES[GAME_SLOTS] = {
     [2] = &GAME_ROOFCAT,     /* 03 Ninpek */
     [4] = &GAME_PETALPARADE, /* 05 Magic Garden */
     [5] = &GAME_TINTROOP,    /* 06 Mortol */
+    [6] = &GAME_SKYWELL,     /* 07 Velgress */
 };

@@ -1,0 +1,26 @@
+# SKYWELL: shots break clouds (and fly on), set crates and rocks crumbling,
+# and knock cogs out of coin blocks. Lightning shots leave clouds alone.
+game skywell
+wait 5
+press A
+cheat clear
+cheat plat 0 0 0 13
+cheat plat 1 90 -60 2
+wait 5
+cheat pos 96 -12
+wait 2
+hold UP+B 12
+expect count_1 == 0
+cheat plat 2 90 -60 2
+hold UP+B 4
+wait 14
+expect count_2 == 0
+cheat plat 5 90 -60 2
+hold UP+B 30
+expect coins > 0
+cheat give 5
+cheat plat 1 20 -60 2
+cheat pos 26 -12
+wait 2
+hold UP+B 20
+expect count_1 == 1

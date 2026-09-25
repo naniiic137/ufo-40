@@ -1,0 +1,23 @@
+# SKYWELL: a cloud mine stuns on touch; shot, it puffs into safe clouds.
+# A bomb platform leaves a ticking mine that bursts into shots.
+game skywell
+wait 5
+press A
+cheat clear
+cheat plat 0 0 0 13
+cheat plat 6 96 -40 2
+wait 5
+cheat pos 100 -12
+hold UP+B 6
+wait 4
+expect count_6 == 0
+expect count_1 == 1
+cheat clear
+cheat plat 0 0 0 13
+cheat plat 7 90 -40 2
+cheat god
+cheat pos 94 -52
+wait 5
+expect foe_5 == 1
+wait 100
+expect foe_5 == 0

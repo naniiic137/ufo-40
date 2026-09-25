@@ -1,0 +1,25 @@
+# SKYWELL: the top of each level is the Tinker's shop: three items for cogs.
+game skywell
+wait 5
+press A
+cheat cogs 40
+cheat done
+expect state == 3
+cheat offer 2 0 4
+wait 30
+press A
+expect cogs == 10
+expect item_2 == 1
+press RIGHT
+press A
+expect cogs == 10
+expect item_0 == 0
+press RIGHT
+press A
+expect cogs == 5
+expect item_4 == 1
+press B
+wait 5
+expect state == 1
+expect level == 2
+expect floor == 31

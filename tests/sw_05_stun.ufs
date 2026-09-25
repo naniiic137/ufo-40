@@ -1,0 +1,24 @@
+# SKYWELL: foes don't hurt - they stun Kip and knock her about. Recovery
+# shortens the stun.
+game skywell
+wait 5
+press A
+cheat clear
+cheat plat 0 0 0 13
+wait 5
+cheat pos 100 -12
+cheat foe 0 60 -40
+wait 60
+expect stun > 0
+expect state == 1
+cheat clear
+cheat plat 0 0 0 13
+wait 60
+expect stun == 0
+cheat give 0
+cheat give 0
+cheat pos 100 -12
+cheat foe 0 60 -40
+wait 52
+expect stun > 0
+expect stun <= 20

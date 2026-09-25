@@ -35,6 +35,9 @@ CORE_SRC += src/games/tintroop/tintroop.c
 CORE_SRC += src/games/tintroop/tintroop_levels.c
 CORE_SRC += src/games/tintroop/tintroop_art.c
 CORE_SRC += src/games/tintroop/tintroop_audio.c
+CORE_SRC += src/games/skywell/skywell.c
+CORE_SRC += src/games/skywell/skywell_art.c
+CORE_SRC += src/games/skywell/skywell_audio.c
 
 HEADLESS_SRC += src/platform/headless/main_headless.c
 HEADLESS_SRC += src/platform/headless/imgwrite.c
