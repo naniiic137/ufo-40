@@ -1,0 +1,40 @@
+# SHELL: the main menu remembers where the cursor was, both when coming back
+# from a screen and after the console is switched off and on again.
+wait 30
+press A
+wait 30
+expect_scene menu
+press DOWN
+press DOWN
+press DOWN
+expect menu_sel == 3
+press A
+wait 30
+expect_scene controls
+press B
+wait 30
+expect_scene menu
+expect menu_sel == 3
+# switched off and on: the boot animation, then the same menu item
+reload
+wait 30
+expect_scene boot
+press A
+wait 30
+expect_scene menu
+expect menu_sel == 3
+# and the options cursor stays put between visits
+press UP
+press UP
+press A
+wait 30
+expect_scene settings
+press DOWN
+press DOWN
+expect options_sel == 2
+press B
+wait 30
+press A
+wait 30
+expect_scene settings
+expect options_sel == 2

@@ -34,7 +34,9 @@ static int shot_scale = 1;
 int plat_kind(void) { return PLAT_HEADLESS; }
 const char *plat_name(void) { return "HEADLESS"; }
 void plat_apply_video(int scale, int fullscreen) { (void)scale; (void)fullscreen; }
-void plat_request_quit(void) {}
+static bool quit_requested;
+void plat_request_quit(void) { quit_requested = true; }
+const char *plat_save_where(void) { return save_dir; }
 
 static void mkdirs(const char *path) {
     char tmp[512];
@@ -152,6 +154,8 @@ static bool query(const char *key, int *out) {
         *out = g >= 0 ? g_progress.goals[g] : -1;
         return true;
     }
+    if (!strcmp(key, "quit_requested")) { *out = quit_requested; return true; }
+    if (shell_query(key, out)) return true;
     if (gi >= 0 && GAMES[gi] && GAMES[gi]->query && GAMES[gi]->query(key, out)) return true;
     return false;
 }
@@ -299,6 +303,25 @@ static int run_script(const char *path) {
             remove(pth);
             for (int i = 0; i < GAME_SLOTS; i++) { snprintf(pth, sizeof pth, "%s/game%02d.sav", save_dir, i + 1); remove(pth); }
             progress_defaults();
+        } else if (!strcmp(cmd, "fake_save")) {
+            /* fake_save GAME BYTES : give a cartridge a valid save file of that size */
+            char name[64] = {0};
+            int bytes = 0;
+            sscanf(arg, "%63s %d", name, &bytes);
+            int gi = app_find_game(name);
+            if (gi < 0 || bytes <= 0 || bytes > 4096) { fail("bad fake_save '%s'%ld", arg, 0); continue; }
+            uint8_t blob[4096];
+            for (int i = 0; i < bytes; i++) blob[i] = (uint8_t)(i * 7 + gi);
+            game_save_write(gi, blob, bytes);
+        } else if (!strcmp(cmd, "set_goals")) {
+            /* set_goals GAME BITS : set a cartridge's goals (1 beacon, 2 saucer, 4 alien) */
+            char name[64] = {0};
+            int bits = 0;
+            sscanf(arg, "%63s %d", name, &bits);
+            int gi = app_find_game(name);
+            if (gi < 0) { fail("bad set_goals '%s'%ld", arg, 0); continue; }
+            g_progress.goals[gi] = (uint8_t)(bits & 7);
+            progress_save();
         } else if (!strcmp(cmd, "audio")) {
             audio_on = strncmp(arg, "on", 2) == 0;
         } else if (!strcmp(cmd, "check_songs")) {

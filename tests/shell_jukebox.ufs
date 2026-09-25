@@ -1,0 +1,77 @@
+# SHELL: the jukebox lists every tune in the console and in each cartridge,
+# plays the one under the cursor, skips with LEFT/RIGHT, stops with A, and a
+# pick keeps playing through the menus until a game starts.
+wait 30
+press A
+wait 30
+press DOWN
+press A
+wait 30
+expect_scene settings
+press DOWN
+press DOWN
+expect options_sel == 2
+press A
+wait 30
+expect_scene jukebox
+expect jukebox_missing == 0
+expect jukebox_songs >= 80
+# the first entries are the console's own: the lounge, then the boot jingle
+expect jukebox_owner == -1
+expect jukebox_playing == 0
+press A
+expect jukebox_playing == 1
+expect music_is.library == 1
+press DOWN
+press A
+expect music_is.boot == 1
+# RIGHT skips ahead and plays: past the console, into cartridge 01
+press RIGHT
+expect jukebox_owner == 0
+expect music_is.ud_mine == 1
+press RIGHT
+expect music_is.ud_deep == 1
+press LEFT
+expect music_is.ud_mine == 1
+# browsing does not change the tune: walk down past the rest of Underdelve
+# and all five of Grub Shift to ROOFCAT's first tune
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+expect music_is.ud_mine == 1
+expect jukebox_owner == 2
+press A
+expect music_is.rc_rooftops == 1
+# A on the tune that is playing stops it
+press A
+expect jukebox_playing == 0
+expect music_playing == -1
+# pick one and leave: it keeps playing in the options, the menu and the library
+press A
+expect jukebox_playing == 1
+press B
+wait 30
+expect_scene settings
+expect jukebox_playing == 1
+press B
+wait 30
+expect_scene menu
+expect jukebox_playing == 1
+press UP
+expect menu_sel == 0
+press A
+wait 30
+expect_scene library
+expect jukebox_playing == 1
+# a game takes over the music
+press A
+wait 90
+expect_scene runner
+expect jukebox_playing == 0

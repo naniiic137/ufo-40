@@ -7,11 +7,55 @@ wait 1
 shot boot
 press A
 wait 40
+shot menu
+press A
+wait 40
 shot library
 press RIGHT
 press RIGHT
 wait 30
 shot library_roofcat
 press SELECT
+wait 40
+shot options
+press DOWN
+press DOWN
+press A
+wait 40
+audio on
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press A
+wait 100
+shot jukebox
+audio off
+press B
 wait 30
-shot settings
+press B
+wait 40
+press B
+wait 40
+# the save data screen, with a couple of cartridges played
+fake_save underdelve 64
+fake_save roofcat 20
+set_goals underdelve 1
+set_goals roofcat 3
+press DOWN
+press DOWN
+press A
+wait 40
+press DOWN
+press DOWN
+wait 20
+shot savedata
+wipe_saves

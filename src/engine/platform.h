@@ -8,6 +8,8 @@ enum { PLAT_PC = 0, PLAT_VITA, PLAT_WEB, PLAT_HEADLESS };
  * write returns 0 on success; read returns bytes read or -1. */
 int plat_save_write(const char *name, const void *data, int len);
 int plat_save_read(const char *name, void *data, int maxlen);
+/* Where the saves live, for the SAVE DATA screen ("ux0:data/UFO40"). */
+const char *plat_save_where(void);
 
 int plat_kind(void);
 const char *plat_name(void);

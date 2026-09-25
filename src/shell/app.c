@@ -7,6 +7,12 @@ static int pause_sel, pause_page, confirm_sel, pause_t;
 static int toast_timer, toast_game_i, toast_bit_i;
 
 int g_library_cursor;
+int g_jukebox_song = -1;
+
+/* which cartridge defined each song, recorded while the cartridges load */
+#define OWNER_MAX 256
+static int8_t song_owner[OWNER_MAX];
+static bool owners_ready;
 
 /* ---- services for games ---------------------------------------------- */
 
@@ -31,10 +37,86 @@ void app_init(void) {
     progress_load();
     audio_set_volume(g_progress.music_vol, g_progress.sfx_vol);
     shell_audio_init();
+    if (!owners_ready) memset(song_owner, -1, sizeof song_owner); /* the console's own songs */
     for (int i = 0; i < GAME_SLOTS; i++)
-        if (GAMES[i] && GAMES[i]->load) GAMES[i]->load();
+        if (GAMES[i] && GAMES[i]->load) {
+            int s0 = song_count();
+            GAMES[i]->load();
+            for (int s = s0; s < song_count() && s < OWNER_MAX; s++) song_owner[s] = (int8_t)i;
+        }
+    owners_ready = true;
+    g_jukebox_song = -1;
     g_library_cursor = g_progress.last_game < GAME_SLOTS ? g_progress.last_game : 0;
     scene_set(&SCENE_BOOT);
+}
+
+int shell_song_owner(int song) { return song >= 0 && song < OWNER_MAX ? song_owner[song] : -1; }
+
+void shell_menu_music(void) {
+    /* a song picked in the jukebox keeps playing through the menus */
+    if (g_jukebox_song >= 0 && music_playing() == g_jukebox_song && !music_finished()) return;
+    g_jukebox_song = -1;
+    music_play(MUS_LIBRARY);
+}
+
+/* ---- save data --------------------------------------------------------- */
+
+static uint8_t save_scratch[65536];
+
+int shell_save_size(int game) {
+    if (game < 0 || game >= GAME_SLOTS) return 0;
+    int n = game_save_read(game, save_scratch, (int)sizeof save_scratch);
+    return n > 0 ? n : 0;
+}
+
+void shell_delete_save(int game) {
+    if (game >= 0 && game < GAME_SLOTS) game_save_erase(game);
+}
+
+void shell_reset_goals(int game) {
+    if (game < 0 || game >= GAME_SLOTS) return;
+    g_progress.goals[game] = 0;
+    progress_save();
+}
+
+void shell_delete_all(void) {
+    for (int i = 0; i < GAME_SLOTS; i++) game_save_erase(i);
+    memset(g_progress.goals, 0, sizeof g_progress.goals);
+    memset(g_progress.played, 0, sizeof g_progress.played);
+    g_progress.last_game = 0;
+    g_library_cursor = 0;
+    progress_save(); /* volumes, video and the menu position stay */
+}
+
+/* ---- test hooks ---------------------------------------------------------- */
+
+bool menu_query(const char *key, int *out);
+bool options_query(const char *key, int *out);
+bool jukebox_query(const char *key, int *out);
+bool savedata_query(const char *key, int *out);
+
+bool shell_query(const char *key, int *out) {
+    if (!strcmp(key, "music_vol")) { *out = g_progress.music_vol; return true; }
+    if (!strcmp(key, "sfx_vol")) { *out = g_progress.sfx_vol; return true; }
+    if (!strcmp(key, "music_playing")) { *out = music_playing(); return true; }
+    if (!strcmp(key, "jukebox_song")) { *out = g_jukebox_song; return true; }
+    if (!strcmp(key, "library_cursor")) { *out = g_library_cursor; return true; }
+    if (!strncmp(key, "music_is.", 9)) {
+        int id = song_find(key + 9);
+        *out = id >= 0 && music_playing() == id && !music_finished();
+        return true;
+    }
+    if (!strncmp(key, "save.", 5)) {
+        int g = app_find_game(key + 5);
+        *out = g >= 0 ? shell_save_size(g) : -1;
+        return true;
+    }
+    if (!strncmp(key, "played.", 7)) {
+        int g = app_find_game(key + 7);
+        *out = g >= 0 ? g_progress.played[g] : -1;
+        return true;
+    }
+    return menu_query(key, out) || options_query(key, out) || jukebox_query(key, out) || savedata_query(key, out);
 }
 
 void app_update(void) { engine_update(); }

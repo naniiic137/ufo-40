@@ -18,7 +18,8 @@ typedef struct Progress {
     uint8_t scale;              /* PC window scale */
     uint8_t fullscreen;
     uint8_t last_game;
-    uint8_t reserved[15];
+    uint8_t menu_pos;           /* main menu cursor (was reserved: old files read 0) */
+    uint8_t reserved[14];
 } Progress;
 
 extern Progress g_progress;
