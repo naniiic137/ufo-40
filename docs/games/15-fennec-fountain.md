@@ -97,6 +97,7 @@ Only the platform needs every UFO 40 cartridge has:
 
 Editor: D-pad moves the cursor, A places the chosen piece, B erases, SELECT
 opens the piece menu (and PLAY TEST, SAVE, CLEAR).
+Custom rooms may have no door, so SELECT walks out of them.
 
 ## Testing hooks
 
