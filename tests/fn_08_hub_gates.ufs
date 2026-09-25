@@ -1,0 +1,18 @@
+# FENNEC FOUNTAIN: the hub's gates open at 5, 10, 20, 30 and 40 drops.
+game fennec
+wait 30
+press A
+wait 20
+press A
+wait 5
+expect state == 1
+cheat hub 6 13
+hold UP 10
+expect hub_y == 13
+expect gates_open == 0
+cheat drops 5
+expect gates_open == 1
+hold UP 20
+expect hub_y < 13
+cheat drops 40
+expect gates_open == 5

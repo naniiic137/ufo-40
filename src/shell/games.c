@@ -6,6 +6,7 @@ extern const GameDef GAME_GRUBSHIFT;
 extern const GameDef GAME_ROOFCAT;
 extern const GameDef GAME_BANNERFALL;
 extern const GameDef GAME_CUTLASS;
+extern const GameDef GAME_FENNEC;
 
 const GameDef *const GAMES[GAME_SLOTS] = {
     &GAME_UNDERDELVE,
@@ -14,4 +15,5 @@ const GameDef *const GAMES[GAME_SLOTS] = {
     /* slots 4..40: still in the saucer's cargo hold */
     [8] = &GAME_BANNERFALL,
     [13] = &GAME_CUTLASS,
+    [14] = &GAME_FENNEC,
 };

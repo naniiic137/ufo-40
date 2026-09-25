@@ -1,0 +1,27 @@
+# FENNEC FOUNTAIN: basalt is n x n; each time the fennec stops pushing it,
+# it shrinks one size (and a 1 crumbles away), unless another block pushed it
+# or the push ended in a merge.
+game fennec
+wait 5
+cheat setroom ##########/#K.xx....#/#..xx....#/#........#/##########
+cheat moves RRR
+expect tile51 == 32
+expect tile62 == 32
+cheat moves D
+expect tile51 == 31
+expect tile61 == 0
+expect tile52 == 0
+cheat setroom #########/#K.w....#/#.......#/#########
+cheat moves RR
+expect tile41 == 31
+cheat moves D
+expect tile41 == 0
+expect nb == 0
+# pushed by another block: no shrinking
+cheat setroom #########/#K.2xx..#/#...xx..#/#########
+cheat moves RRD
+expect tile51 == 32
+# ending in a merge: no shrinking
+cheat setroom #########/#K.w1...#/#.......#/#########
+cheat moves RRD
+expect tile41 == 12

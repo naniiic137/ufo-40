@@ -36,6 +36,11 @@ CORE_SRC += src/games/cutlass/cutlass.c
 CORE_SRC += src/games/cutlass/cutlass_match.c
 CORE_SRC += src/games/cutlass/cutlass_art.c
 CORE_SRC += src/games/cutlass/cutlass_audio.c
+CORE_SRC += src/games/fennec/fennec.c
+CORE_SRC += src/games/fennec/fennec_logic.c
+CORE_SRC += src/games/fennec/fennec_rooms.c
+CORE_SRC += src/games/fennec/fennec_art.c
+CORE_SRC += src/games/fennec/fennec_audio.c
 
 HEADLESS_SRC += src/platform/headless/main_headless.c
 HEADLESS_SRC += src/platform/headless/imgwrite.c
