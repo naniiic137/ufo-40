@@ -196,8 +196,8 @@ the top.
   which look where they are about to hop. The sun circle (a line, a ring or
   a cross) moves on every 10 seconds, and if nobody was saved on it the witch
   plants a toadstool. Saved pups fill a six-jar counter; extra pups make the
-  jar riper, and jars ripen on the ground. Nectar lets Posy smash brambles
-  for a rising chain (only blue and gold break toadstools). Save 200 to win;
+  jar riper, and jars ripen on the ground. Eight seconds of nectar let Posy
+  smash brambles for a rising chain (only blue and gold break toadstools). Save 200 to win;
   scores go on a board of five.
 - **Ours:** Posy the palace gardener, the petalpups and the brambles they turn
   into, the sun circles, the nectar jars, Madame Nettle and four seasons of
@@ -314,8 +314,9 @@ the top.
 - **Meter:** two strikes fill half a bar. A double tap throws your trick, and
   holding the button charges a broadside, which spare bars upgrade; one that
   hits you is caught and must be mashed back.
-- **Fouls:** dawdling, a blade on your rival and jumping the serve; the third
-  gives away a point.
+- **Fouls:** dawdling, a blade on your rival and jumping the serve (play goes
+  on); the third gives away a point. You may go right up to your rival's
+  circle.
 - **Modes:** six fighters with the original's stats and kits, a five-match
   tournament with unlimited continues, 2P versus and 2P co-op doubles. Like
   the original, there's no music during play. A demo player in the tests

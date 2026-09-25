@@ -14,7 +14,7 @@ appear at random, and so is ours. What appears, and where:
 
 | Thing | Rule | Source |
 |---|---|---|
-| Loose pups | three at a time (ours), topped up on a random free tile at least 3 tiles from Posy; each gold jar adds one for good | [W], [G] |
+| Loose pups | three at a time (ours), topped up on a random free tile at least 3 tiles from Posy, sprouting out of the ground for 24 frames (ours) before they can join; each gold jar adds one for good | [W], [G], [L] |
 | Sun circle | one at a time, off Posy's tile: a whole row or column, a square ring (side 4 to 6) or a cross (arms of 2 or 3) | [MM] |
 | Brambles | one crawls out on its own every 9 s on a random free tile | [W] |
 | Toadstools | planted by the witch on random free tiles | [W], [G] |
@@ -45,7 +45,8 @@ presses.
 | Jar counter | goes up by the number saved; at 6 it starts again and a nectar jar appears | [W] | pp_05, pp_08 |
 | Jar level | each pup saved past the six needed makes it a level riper: red, green, blue, gold (9 or more: gold) | [W], [SR], [G] | pp_08 |
 | Ripening | a jar left on the ground rises a level every 8 s, up to gold | [W], [G] | pp_09 |
-| Nectar | drinking one starts a countdown from 48, faster than one a second; while it runs, walking into a bramble smashes it | [W] | pp_10 |
+| Nectar | drinking one starts a countdown from 48 at 6 a second: 8 s | [W], [G] | pp_10, pp_11 |
+| Smashing | while it runs, a bramble (or, with blue or gold, a toadstool) is smashed as she touches it: straight ahead when she is centred on a tile, so a turn waiting for that tile still takes her away | [W], [SC] | pp_10 |
 | Smash chain | 10, 20, 30… × the multiplier; the garden holds still a moment on each smash | [W], [SC] | pp_10 |
 | More jars | any jar starts the countdown again; green and up add one to the multiplier | [W], [SR] | pp_11 |
 | Running out | the chain and the multiplier reset | [W] | pp_11 |
@@ -59,9 +60,9 @@ presses.
 
 ### Readings we had to choose
 
-- **Numbers no source gives:** a tile every 8 frames; a count every 0.4 s
-  (the wiki's "faster than one a second", not one guide's 45 s); dizzy for
-  4 s; a bramble hop every ¾ s; a new bramble every 9 s; a 6-frame hitch.
+- **Numbers no source gives:** a tile every 8 frames; dizzy for 4 s; a
+  bramble hop every ¾ s; a new bramble every 9 s; a 6-frame hitch; a pup
+  sprouts for 24 frames.
 - **The witch** plants 2 from 100 saved and 3 from 150.
 - **A used sun circle** stays until its time is up.
 - **Brambles** won't hop onto Posy's own tile, but nothing keeps one off the
@@ -88,9 +89,10 @@ Only what every UFO 40 cartridge has: the START pause menu, the score board
 save, and the three UFO 40 goals, which are Magic Garden's own (gift, gold,
 cherry). Removed as invented: the suspended game and CONTINUE, the best score,
 line count, season name, multiplier and "breaks toadstools" labels in the HUD,
-the witch's patience bar, the control hints on the HUD and title, the rule
-text in the pause menu, three single-tile circles that moved when used, and
-brambles keeping off the tile in front of Posy.
+the game's name in the countdown's place, the witch's patience bar, the
+tagline and control hints on the HUD and title, the rule text in the pause
+menu, three single-tile circles that moved when used, and brambles keeping
+off the tile in front of Posy.
 
 ## Controls
 
@@ -106,17 +108,21 @@ brambles keeping off the tile in front of Posy.
 - How many loose oppies wait at once, how often angry ones appear on their
   own, and how fast the gardener walks.
 - Whether a used star area moves on at once.
-- The potion's length (the wiki's count of 48 or a guide's 45 s).
 - The witch's numbers (when 2 and 3 mushrooms start).
+- Open: the originals' stats (biggest drop off, most enemies cleared at
+  once and in total) would need a platform stats line.
 
 ## Tests
 
-`tests/pp_01` … `pp_23`, all driven by button presses. `pp_23_demo_run` is
+`tests/pp_01` … `pp_24`, all driven by button presses. `pp_23_demo_run` is
 a demo player (`petalparade.c`, the `bot` query) that wins a whole run: it
 plans a way through the grid that never turns straight back, fetches pups,
 walks them along the sun circle and lets go when they all stand on it,
-drinks jars and smashes brambles while the nectar runs, keeps off the tile
-each bramble is looking at, and hops what it can't avoid.
+drinks a jar only when there are brambles to clear (stepping round the
+others), smashes brambles while the nectar runs, keeps off the tile each
+bramble is looking at, and hops what it can't avoid. `pp_24_economy`
+checks that this safe play is powered under half the run and wins well
+short of the Alien's 20,000.
 
 ## Sources
 
@@ -134,7 +140,8 @@ each bramble is looking at, and hops what it can't avoid.
   you, walk the line along the star tiles and drop before the first slime
   leaves them, potion tiers by points (9+ gold), potions tier up every 8 s,
   gold adds a slime spawn, mushrooms only appear if you let the star area
-  expire, you win at 200 or more.
+  expire, you win at 200 or more; a correction in its comments: potions
+  last 8 s, the timer starts at 48 and ticks 6 times a second.
   https://steamcommunity.com/sharedfiles/filedetails/?id=3333877649
 - [SR] Steam thread "Magic Garden rules?": a tier per oppie past 6, potions
   improve on the ground, green and up add to the multiplier, gold adds an

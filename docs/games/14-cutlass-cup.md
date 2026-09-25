@@ -25,7 +25,7 @@ presses.
 |---|---|---|---|
 | The sport | strike the ball past your rival and off the far edge for a point | [W] | cc_01 |
 | Winning | first to 8 points; POINTS can be 4 to 20 | [W], [SC] | cc_12, cc_14 |
-| Moving | 8 ways, past the centre up to the line near the rival's circle | [W], [MM] | cc_16 |
+| Moving | 8 ways, past the centre up to the line just in front of the rival's circle, close enough to strike a rival waiting there | [W], [MM], [SB] | cc_16 |
 | The serve | the judge at the bottom middle rolls the ball along the deck to whoever lost the last point | [MM] | cc_01 |
 | Strike (B) | up or down angles it; back launches it into the air (a lob) | [W], [G] | cc_02 |
 | Rally speed | every return is faster than the last; a lob adds nothing, nor does returning one; a new point starts slow | [SH] | cc_03 |
@@ -34,16 +34,16 @@ presses.
 | Back of a roll | the back third of a rolling body knocks the ball backwards | [W] | cc_19 |
 | Sweet spot | a strike at the very start of the swing wallops the ball | [SC] | cc_03 |
 | Body hits | the ball bounces off and stuns that player; no meter either way | [W] | cc_04 |
-| Meter | every 2 weapon strikes fill half a bar; 3 bars at most | [W], [G], [L], [MM] | cc_02 |
+| Meter | every 2 weapon strikes fill half a bar; 3 bars at most; each player's in their side's top corner | [W], [G], [L], [MM] | cc_02 |
 | Trick (B twice) | half a bar; a hit stuns, pushes back and takes half a bar | [W], [G] | cc_05 |
 | Broadside (hold B) | one bar; with spare bars a longer charge upgrades it (faster, or more fakes), still for one bar | [W], [L] | cc_06 |
-| Struck back | a Super Ball struck with a weapon or trick flies back as one | [W] | cc_08 |
+| Struck back | a Super Ball (always bright orange) struck with a weapon or trick flies back as one | [W] | cc_08 |
 | Caught | a Super Ball that hits your body is caught and you slide back; mash B to send it back, or it slips over your head | [W] | cc_07 |
-| Fouls | dawdling (the ball too long on your side), a blade on the rival (who is stunned), striking the other side's serve first (not with an urchin); the third gives the rival a point and clears; shown as red marks | [W], [G], [MM], [SB] | cc_09, cc_10 |
+| Fouls | dawdling (the ball too long on your side), a blade on the rival (who is stunned), striking the other side's serve first (not with an urchin), after which play goes on; the third gives the rival a point and clears; shown as red marks on the bottom rail beside the judge | [W], [G], [MM], [SB] | cc_09, cc_10 |
 | FOULS off | an option | [W] | cc_11 |
 | Options | POINTS, TIME (none or 1 to 10 minutes), FOULS, SPEED (three) | [W] | cc_14, cc_15 |
 | No music in play | only a jingle when a point is won; music on the menus | [L], [P] | cc_01 |
-| Tournament | five matches against the other five fighters in a random order, each rival tougher | [W], [SF], [P] | cc_12, cc_21 |
+| Tournament | five matches against the other five fighters in a random order (so the final rival varies), each rival tougher | [W], [SF], [P] | cc_12, cc_21 |
 | Continues | as many as you like; the Alien needs a run with none | [W], [SF] | cc_13 |
 | 2P Versus | on PC and the web; the Vita has one controller | [W] | cc_16 |
 | 2P Co-op | doubles against CPU pairs; two wins clear the other four | [W], [SH] | cc_17 |
@@ -56,12 +56,12 @@ Stats are Speed / Control / Power, 1 to 3, as in [W]. Kits follow [W] and
 
 | Ours | Bushido Ball | S/C/P | Reach | Trick (half a bar) | Broadside (one bar) |
 |---|---|---|---|---|---|
-| FINN, the young corsair | Kotaro | 2/2/3 | medium | a lucky coin thrown at the rival; can be struck back; medium stun (short if struck back) | Comet: very fast in the chosen direction |
-| MAE, the deckhand | Ayumi | 3/2/2 | shortest | lobs a sea urchin; struck, it slides forward, and the rival's changes sides; the ball touching it goes toward the owner's rival, downward unless up was held when it was thrown or struck; long stun | Wall Runner: turns to the chosen rail and slides along it |
-| GRETA, the harpooner | Tomoe | 2/3/2 | tallest | a harpoon line pulls the ball in and strikes it, unless caught at full range; it can't catch a high, fast or far ball; medium stun | Mirage: one fake per level beside the real one, looking just like it |
-| SILAS, the sabre dancer | Raizo | 2/1/3 | narrow | the squall, a flurry that travels forward hitting the ball and anyone in it again and again and cutting through the other side's tricks, farther with more than one bar; a ball struck while it is out becomes a Super Ball; medium stun | Whirl: flies ahead, loops twice, then turns; with forward held it curves down at once instead |
-| WREN, the shadow | Chiyome | 3/1/2 | standard | a dart straight ahead; can be struck back; medium stun. She blinks a set distance instead of rolling, leaving a decoy barrel the ball bounces off, so she has no curve shot | Sea Fog: the ball turns invisible, trailing smoke, and curves |
-| BRUNO, the gunner | Yamada | 1/3/2 | thin, tall | lobs a powder pot that blows up after a while or when struck; the blast stuns (long) and throws the ball a little into the air with a strong curve, whatever its height. He rolls only forward and back; up or down thrusts his trident a long way | Plunge: runs up or down to the middle line, then turns 90° toward the rival |
+| FINN, the young corsair | Kotaro | 2/2/3 | medium | a lucky coin thrown at the rival; it knocks the ball once and can be struck back once; medium stun (short if struck back) | Comet: very fast in the chosen direction |
+| MAE, the deckhand | Ayumi | 3/2/2 | shortest (12 × 9) | lobs a sea urchin; struck, it slides forward, and the rival's changes sides; the ball touching it goes toward the owner's rival, downward unless up was held when it was thrown or struck; long stun | Wall Runner: turns to the chosen rail and slides along it |
+| GRETA, the harpooner | Tomoe | 2/3/2 | tall and long (21 × 22) | a harpoon fired at the ball pulls it in and strikes it, unless caught at full range; it can't catch a high, fast or far ball; medium stun | Mirage: one fake per level beside the real one, looking just like it (no faster per level) |
+| SILAS, the sabre dancer | Raizo | 2/1/3 | thin and long (26 × 7) | the squall, a flurry that travels forward hitting the ball and anyone in it again and again and cutting through the other side's tricks, farther with more than one bar; a ball struck while it is out becomes a Super Ball; medium stun | Whirl: flies ahead, loops twice, then turns; with forward held it curves down at once instead |
+| WREN, the shadow | Chiyome | 3/1/2 | short but tall (13 × 18) | a dart straight ahead; can be struck back; medium stun. She blinks a set distance instead of rolling, leaving a decoy barrel the ball bounces off, so she has no curve shot | Sea Fog: the ball turns invisible, trailing smoke, and curves |
+| BRUNO, the gunner | Yamada | 1/3/2 | very thin, covering most of the deck from the middle (9 × 58) | lobs a powder pot that blows up after a while or when struck; the blast stuns (long) and throws the ball a little into the air with a strong curve, whatever its height. He rolls only forward and back; up or down thrusts his trident a long way | Plunge: runs up or down to the middle line, then turns 90° toward the rival |
 
 ### Readings we had to choose
 
@@ -100,9 +100,11 @@ which are Bushido Ball's own (gift: 3 opponents; gold: the tournament;
 cherry: no continues). 2P Versus and Co-op need a second player: two gamepads
 or a split keyboard on PC and the web; on the Vita only the 1P tournament is
 offered. Removed as invented: fighter names and the goal count in the HUD,
-player tags over the fighters, button hints on the select screen, the
-continue countdown, and wording copied from UFO 50 ("Secondary Weapon",
-"Super Shot", "Laws", "Hyper", the three foul names).
+player tags over the fighters, button hints on the select and continue
+screens, the continue countdown, the title's cups and best-run line, the
+bracket's continue count, the result card's opponent count and goal icons,
+a re-serve after an intercepted serve, and wording copied from UFO 50
+("Secondary Weapon", "Super Shot", "Laws", "Hyper", the three foul names).
 
 ## Controls
 
@@ -121,18 +123,24 @@ player 2 arrows + K (roll) / L (strike).
 ## Not confirmed
 
 - The exact speed curve, stun lengths and charge times.
-- Whether each fighter always meets the same final rival (one thread hints
-  so); ours come in a random order.
 - Whether a Super Ball struck back stays one, and which way a rolling body
   pushes the ball.
+- Mae's urchin: the Bushido guide sends the ball toward the urchin's owner;
+  ours follows the wiki's tip (toward the owner's rival).
 - Co-op's exact rules (ours: two players against CPU pairs).
+- Open, not done: late CPUs (level 3 and up) deliberately striking urchins
+  on their side; the originals' stats (fighters used, fighters won with),
+  which would need a platform stats line.
+
+The final rival is random, as ours is: the same thread that first seemed to
+tie it to your fighter ends "so I guess it's random" [SF].
 
 ## Tests
 
-`tests/cc_01` … `cc_21`, all driven by button presses. `cc_21_demo_tournament`
+`tests/cc_01` … `cc_22`, all driven by button presses. `cc_21_demo_tournament`
 is a demo player (`cutlass.c`, the `bot` query) that presses real buttons the
 way the best CPU plays and, continuing when it loses, beats three rivals for
-the Beacon.
+the Beacon. `cc_22_no_stall` plays three best-CPU matches to the end.
 
 ## Sources
 
@@ -157,8 +165,8 @@ the Beacon.
   penalties off, co-op needs two wins.
   https://steamcommunity.com/app/1147860/discussions/0/595144212454885425/
 - [SF] Steam thread on the final match: the last CPU rolls straight to where
-  the ball is going, the final rival depends on your fighter, lob close to
-  the middle, 30 to 40 continues.
+  the ball is going, the final rival varies ("so I guess it's random"), lob
+  close to the middle, 30 to 40 continues.
   https://steamcommunity.com/app/1147860/discussions/0/4852155152087803136/
 - [SB] Steam thread "Bushido Ball Help?": the AI returns shots almost
   perfectly, lobs confuse it, rolling at the rival and hitting them with
