@@ -22,7 +22,7 @@ static const char S1_BASS[] =
 #define S1_DF "o2@13v12c8 o8@9v5c8 o6@11v10c8 o8@9v5c8 o6@11v9c16 c16 o6@11v11c16 c16 o6@11v12c8 o8@10v7c8 "
 static const char S1_DRUMS[] = "[" S1_DR S1_DR S1_DR S1_DF "]4";
 
-/* ---- stage 2: "Spice Market" - D Hijaz, maqsum rhythm */
+/* ---- stage 2: "Spice Market" - D phrygian dominant over a skipping drum */
 static const char S2_LEAD[] =
     "@14 v12 q7"
     "| o5 d8 e-8 f+8 g8 a4 g8 f+8 | o5 e-8 f+8 e-8 d8 c4 d4 | o5 d8 f+8 a8 b-8 a8 g8 f+8 e-8 | o5 d2 r4 a8 g8"
@@ -33,11 +33,11 @@ static const char S2_LEAD[] =
 static const char S2_HARM[] =
     "@3 v7 q5 l8 [" ARP4("d", "a", "d") ARP4("c", "g", "c") ARP4("d", "a", "d") ARP4("g", "b-", "d")
     ARP4("d", "a", "d") ARP4("e-", "b-", "e-") ARP4("d", "a", "d") ARP4("d", "a", "d") "]2";
-#define MAQ_B(n) "o2 " n "8 r16 " n "16 r8 " n "8 o1 a8 r8 o2 " n "8 r8 "
+#define SKIP_B(n) "o2 " n "8 r16 " n "16 r8 " n "8 o1 a8 r8 o2 " n "8 r8 "
 static const char S2_BASS[] =
-    "@6 v15 q5 [" MAQ_B("d") MAQ_B("c") MAQ_B("d") MAQ_B("g") MAQ_B("d") MAQ_B("e-") MAQ_B("d") MAQ_B("d") "]2";
-#define MAQ "o2@13v12c8 o7@21v9c8 r8 o7@21v9c8 o2@13v12c8 r8 o7@21v9c8 o8@9v5c8 "
-static const char S2_DRUMS[] = "[" MAQ "]16";
+    "@6 v15 q5 [" SKIP_B("d") SKIP_B("c") SKIP_B("d") SKIP_B("g") SKIP_B("d") SKIP_B("e-") SKIP_B("d") SKIP_B("d") "]2";
+#define SKIP "o2@13v12c8 o7@21v9c8 r8 o7@21v9c8 o2@13v12c8 r8 o7@21v9c8 o8@9v5c8 "
+static const char S2_DRUMS[] = "[" SKIP "]16";
 
 /* ---- stage 3: "Harbour Breeze" - A minor, lilting triplets */
 static const char S3_LEAD[] =
@@ -89,7 +89,7 @@ static const char OVER_TRI[] = "@6 v13 o2 l4 a g f e a2";
 void rc_audio_load(void) {
     if (RC_MUS_BOSS >= 0) return;
     RC_MUS_AREA[0] = song_define("rc_rooftops", 150, true, S1_LEAD, S1_HARM, S1_BASS, S1_DRUMS);
-    RC_MUS_AREA[1] = song_define("rc_souk", 138, true, S2_LEAD, S2_HARM, S2_BASS, S2_DRUMS);
+    RC_MUS_AREA[1] = song_define("rc_market", 138, true, S2_LEAD, S2_HARM, S2_BASS, S2_DRUMS);
     RC_MUS_AREA[2] = song_define("rc_fort", 164, true, S4_LEAD, S4_HARM, S4_BASS, S4_DRUMS);
     RC_MUS_AREA[3] = song_define("rc_harbour", 126, true, S3_LEAD, S3_HARM, S3_BASS, S3_DRUMS);
     RC_MUS_BOSS = song_define("rc_boss", 172, true, BOSS_LEAD, BOSS_HARM, BOSS_BASS, BOSS_DRUMS);

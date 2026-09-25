@@ -11,8 +11,8 @@
 #define RC_TILE 16
 #define RC_HUD 20
 #define RC_AREAS 4
-#define RC_AREA_CHUNKS 12
-/* one continuous town: four areas of twelve screens, then the harbour arena */
+#define RC_AREA_CHUNKS 13
+/* one continuous town: four areas of thirteen screens, then the harbour arena */
 #define RC_WORLD_CHUNKS (RC_AREAS * RC_AREA_CHUNKS + 1)
 
 /* level chunks: 10 rows x 20 columns, see roofcat_levels.c for the legend */
@@ -23,6 +23,10 @@ typedef struct Chunk {
 
 extern const Chunk RC_WORLD[RC_WORLD_CHUNKS];
 extern const char *const RC_AREA_NAME[RC_AREAS];
+/* the two bonus stretches: first screen of each, two screens long */
+#define RC_BONUS_AREAS 2
+#define RC_BONUS_LEN 2
+extern const int RC_BONUS_CHUNK[RC_BONUS_AREAS];
 
 enum {
     R_CAT_RUN1, R_CAT_RUN2, R_CAT_RUN3, R_CAT_RUN4, R_CAT_JUMP, R_CAT_SPIN, R_CAT_FALL, R_CAT_THROW,

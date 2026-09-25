@@ -1,10 +1,13 @@
 # ROOFCAT: after the ending the chase goes round again after dark, keeping
-# score and lives. Clearing the second loop earns the Alien.
+# score and lives. Clearing the second loop earns the Alien and ends the run
+# (its score goes on the board).
 game roofcat
 wait 5
 cheat area 4 1
 cheat arena
 wait 10
+cheat score 4000
+cheat lives 5
 cheat win
 wait 240
 expect state == 4
@@ -13,6 +16,8 @@ press A
 wait 5
 expect loop == 2
 expect area == 0
+expect score == 4000
+expect lives == 5
 cheat area 4 2
 cheat arena
 wait 10
@@ -20,3 +25,8 @@ cheat win
 wait 240
 expect state == 4
 expect goals & 4
+expect hi0 == 4000
+wait 250
+press A
+wait 5
+expect state == 0

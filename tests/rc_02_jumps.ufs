@@ -1,0 +1,48 @@
+# ROOFCAT: A jumps, and holding A jumps higher; a second A in the air is
+# the double jump, which also works after walking off an edge.
+game roofcat
+wait 5
+cheat area 0 1
+cheat clear_foes
+cheat cam 0
+wait 30
+expect grounded == 1
+expect py == 83
+# a tap: a low hop
+press A 1
+wait 7
+expect py > 70
+wait 40
+expect grounded == 1
+# held: a full jump
+hold A 8
+wait 7
+expect py < 60
+wait 40
+expect grounded == 1
+# double jump, once
+press A 2
+wait 8
+expect jumps == 1
+press A 2
+expect jumps == 2
+press A 2
+expect jumps == 2
+wait 60
+expect grounded == 1
+expect jumps == 0
+# walk off the edge of the first gap (screen 1, x 432) with no input, then
+# jump in mid-air: that is the double jump, and it saves her
+cheat cam 340
+cheat clear_foes
+cheat put 80 83
+wait 30
+expect grounded == 0
+expect spirit == 0
+hold A RIGHT 16
+expect jumps == 2
+hold RIGHT 30
+wait 20
+expect grounded == 1
+expect spirit == 0
+expect lives == 3

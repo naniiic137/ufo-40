@@ -1,0 +1,40 @@
+# ROOFCAT: falling off the bottom costs a life. Pepper's spirit floats down
+# from the top of the screen, flies anywhere, can't be hurt and shoots twin
+# shots (slower than stars). A brings her back at once, where the spirit is,
+# and with no grace period.
+game roofcat
+wait 5
+cheat area 0 1
+cheat clear_foes
+cheat cam 340
+cheat put 95 83
+wait 40
+expect lives == 2
+expect spirit == 1
+expect killer == 2000
+expect py < 10
+wait 40
+expect py > 0
+# the spirit flies through foes unharmed
+cheat foe pigeon 90 60
+hold UP 10
+expect spirit == 1
+# twin shots: two at a time, and no stars
+hold B 3
+expect spirit_shots == 2
+expect stars == 0
+hold B 12
+expect spirit_shots == 2
+hold B 12
+expect spirit_shots == 4
+hold RIGHT 20
+# A: back to life right here
+press A 1
+expect spirit == 0
+expect lives == 2
+# no grace period: a foe on top of her takes the next life at once
+cheat put 150 83
+cheat foe pigeon 150 80
+wait 2
+expect spirit == 1
+expect lives == 1

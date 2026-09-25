@@ -1,4 +1,5 @@
-# ROOFCAT: down + A drops through a one-way ledge.
+# ROOFCAT: down + A drops through a one-way ledge; on a solid roof it is
+# just a jump.
 game roofcat
 wait 5
 cheat area 0 1
@@ -8,6 +9,11 @@ cheat put 140 20
 wait 20
 expect grounded == 1
 expect py == 35
-hold DOWN+A 3
+hold DOWN A 3
 wait 40
 expect py == 83
+expect grounded == 1
+hold DOWN A 3
+wait 4
+expect grounded == 0
+expect py < 83

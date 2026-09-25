@@ -1,0 +1,24 @@
+# ROOFCAT: the screen scrolls steadily to the right. With no input Pepper
+# rides along and keeps her place on the screen; holding LEFT she stands
+# still in the town while the screen moves on; RIGHT runs ahead.
+game roofcat
+wait 20
+press A
+wait 75
+expect state == 2
+cheat clear_foes
+expect screen_x == 48
+wait 60
+expect screen_x == 48
+expect px == 81
+# LEFT: she holds her ground (the town doesn't move under her)
+hold LEFT 40
+expect px == 81
+expect screen_x == 28
+# no input again: carried at the screen's pace, so she stays at 28
+wait 30
+expect screen_x == 28
+# RIGHT: faster than the screen
+hold RIGHT 20
+expect screen_x == 54
+expect grounded == 1

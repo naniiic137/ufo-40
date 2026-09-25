@@ -1,5 +1,5 @@
 # ROOFCAT: only one star in the air at first; each catnip allows one more,
-# up to three. Holding B keeps throwing.
+# up to three. Holding B keeps throwing, as fast as the limit allows.
 game roofcat
 wait 5
 cheat area 0 1
@@ -10,6 +10,13 @@ press B 1
 press B 1
 press B 1
 expect stars == 1
+wait 40
+hold B 24
+expect stars == 1
+wait 40
+cheat power 1
+hold B 24
+expect stars == 2
 wait 40
 cheat power 2
 hold B 24

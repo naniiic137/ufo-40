@@ -1,11 +1,13 @@
 # ROOFCAT: paper lanterns drift up at 3,000 and 7,000 points and then every
-# 5,000; popping one with a star is an extra life.
+# 5,000 (12,000, 17,000...). Only shooting one gives the life.
 game roofcat
 wait 5
 cheat area 0 1
 cheat clear_foes
 cheat cam 0
 wait 10
+expect lanterns == 0
+cheat score 2990
 expect lanterns == 0
 cheat score 3000
 expect lanterns == 1
@@ -14,10 +16,18 @@ cheat score 7000
 expect next_life == 12000
 cheat score 12000
 expect next_life == 17000
+# touching a lantern does nothing
+cheat clear_foes
+cheat put 60 83
+cheat lantern 62 86
+wait 2
+expect lives == 3
+expect lanterns == 1
+# a star pops it: one more life
 cheat clear_foes
 cheat put 40 83
 cheat lantern 100 86
-expect lives == 3
 press B
 wait 20
 expect lives == 4
+expect lanterns == 0

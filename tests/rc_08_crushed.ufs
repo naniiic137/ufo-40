@@ -1,4 +1,5 @@
-# ROOFCAT: being squeezed between the screen edge and a wall costs a life.
+# ROOFCAT: the screen's left edge pushes; squeezed between it and a wall
+# she loses a life (the tower on screen 3 blocks her in).
 game roofcat
 wait 5
 cheat area 0 1
@@ -8,3 +9,4 @@ cheat put 2 83
 wait 40
 expect lives == 2
 expect spirit == 1
+expect killer == 3000

@@ -1,5 +1,6 @@
-# ROOFCAT: the scroll stops at the harbour arena and Old Crab rises. Only a
-# star in the eye hurts it; beating it delivers the parcel (the Saucer).
+# ROOFCAT: the scroll stops at the harbour arena and Old Crab rises: 35 hit
+# points, and only a star in the eye hurts it. Its legs are the footing.
+# Beating it delivers the parcel (the Saucer) but pays no points.
 game roofcat
 wait 5
 cheat area 4 1
@@ -16,9 +17,11 @@ cheat put 60 83
 press B 1
 wait 30
 expect boss_hp == 34
+expect score == 0
 cheat win
 wait 30
 expect boss_dead == 1
+expect score == 0
 wait 200
 expect state == 4
 expect goals & 2

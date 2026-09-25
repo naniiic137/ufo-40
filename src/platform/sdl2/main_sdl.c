@@ -62,6 +62,7 @@ void plat_request_quit(void) { quit_flag = true; }
 
 const char *plat_save_where(void) {
 #ifdef __EMSCRIPTEN__
+    (void)save_dir; /* the web keeps its saves in localStorage */
     return "THIS BROWSER (LOCALSTORAGE)";
 #else
     return save_dir[0] ? save_dir : "SAVES";

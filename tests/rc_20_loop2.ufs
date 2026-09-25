@@ -1,15 +1,46 @@
-# ROOFCAT: the second loop swaps in tougher foes: snails take two stars and
-# drop 200, and laundry sheets and dust moths only come out after dark.
+# ROOFCAT: the second loop swaps in tougher foes, as Ninpek's does: snails
+# take two stars and drop 200, crows' chimneys hold purple crows or loose
+# laundry that rises out of them, firecrackers go off sooner or become dust
+# moths, most flying fish become pufferfish, spike lamps get a third spike
+# and geckos spit a second seed right after the first.
 game roofcat
 wait 5
 cheat area 1 1
 cheat clear_foes
 wait 2
-expect count_sheet == 0
 cheat foe snail 200 80
 expect hp_snail == 1
+cheat foe lamp 250 40
+expect spikes_lamp == 2
 cheat area 1 2
-wait 2
-expect count_sheet == 1
+cheat clear_foes
 cheat foe snail 200 80
 expect hp_snail == 2
+expect egg_snail == 200
+cheat foe lamp 250 40
+expect spikes_lamp == 3
+# screen 17 (CROWS) holds two crow chimneys: a purple crow and laundry
+cheat area 1 2
+cheat cam 5100
+expect all_crow == 1
+expect mode_crow == 4
+expect all_sheet == 1
+# screens 24-25: four firecrackers take turns, livelier or a dust moth
+cheat area 1 2
+cheat cam 7600
+expect all_cracker == 2
+expect mode_cracker == 6
+expect all_moth == 2
+# the docks and the boats: two of the first three flying fish are pufferfish
+cheat area 3 2
+expect all_ffish == 1
+expect all_puffer == 2
+# geckos: two seeds, one right after the other
+cheat area 0 2
+cheat clear_foes
+cheat cam 0
+cheat put 40 83
+cheat foe gecko 150 80
+waituntil count_seed == 1 60
+wait 16
+expect count_seed == 2

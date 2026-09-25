@@ -1,5 +1,5 @@
-# ROOFCAT: every third defeated foe drops catnip, until Harissa holds two.
-# Losing a life loses them.
+# ROOFCAT: every third defeated foe drops catnip, while she holds fewer than
+# two. Losing a life loses them.
 game roofcat
 wait 5
 cheat area 0 1
@@ -13,9 +13,11 @@ wait 30
 cheat foe snail 90 80
 press B
 wait 30
+expect count_catnip == 0
 cheat foe snail 90 80
 press B
 wait 12
+expect count_catnip == 1
 hold RIGHT 40
 expect power == 1
 cheat kill
