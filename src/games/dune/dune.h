@@ -119,14 +119,14 @@ typedef struct DxMission {
 extern const DxMission DX_MISSIONS_DEF[DX_MISSIONS];
 
 typedef struct DxInput {
-    uint8_t left, right, up, down, a, b, a_pressed, b_pressed, select_pressed, down_pressed;
+    uint8_t left, right, up, down, a, b, a_pressed, b_pressed, down_pressed;
 } DxInput;
 
 typedef struct DxWorld {
     int w;
     uint8_t tile[DX_H][DX_MAX_W];
     uint8_t car_of[DX_MAX_W];       /* car index per column, 255 in a gap */
-    uint8_t ncars, seen[DX_MAX_CARS];
+    uint8_t ncars;
     int16_t car_x0[DX_MAX_CARS], car_x1[DX_MAX_CARS];
     DxActor a[DX_MAX_ACTORS];
     int na;

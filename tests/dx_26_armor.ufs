@@ -44,3 +44,31 @@ expect tile326 == 4
 cheat power 5
 press B
 expect tile326 == 0
+# the iron fist destroys every thing it hits: a lever is smashed (the gates
+# stay as they are), a ram knocked out, a powder stick set off
+cheat mission 7
+cheat clear_law
+cheat power 5
+cheat pos 11 6
+cheat face 1
+expect objs8 == 2
+press B
+expect objs8 == 1
+cheat mission 12
+cheat clear_law
+cheat power 5
+cheat pos 11 6
+cheat face 1
+expect objs6 == 2
+press B
+expect objs6 == 1
+cheat mission 8
+cheat clear_law
+cheat power 5
+cheat pos 12 6
+cheat face 1
+expect objs4 == 2
+press B
+wait 2
+expect objs4 == 1
+expect why == 4

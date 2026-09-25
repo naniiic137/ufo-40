@@ -1,9 +1,11 @@
 # DUNE EXPRESS: mission 11, THE HAYSTACK, can be won with the buttons alone,
 # unseen and under the time star: a crate thrown from out of sight stuns the
 # first guard; the crates broken on the way turn up the first hidden
-# strongbox; through the end wall behind the patrol and the second box; a
-# crate carried to the end of the car and, a turn later, thrown at the last
-# guard; the patrol from behind, and out
+# strongbox; through the end wall, and the patrol punched from behind before
+# the turn ends; next turn he's punched again and the second hidden box is
+# lifted from under his nose; rolling into the last guard's sight with it
+# held up, he shoots the box and not Pearl; the coins, the crates, the
+# unarmed guard walked into (the auto punch), and out
 game dune
 wait 5
 cheat mission 11
@@ -47,32 +49,34 @@ wait 2
 hold RIGHT 30
 press B
 wait 2
-wait 70
-wait 212
-hold RIGHT 73
+hold RIGHT 22
 press B
-wait 20
-hold RIGHT 20
-hold RIGHT 8
+wait 34
+wait 211
+hold RIGHT 34
+press B
+wait 2
+hold RIGHT 15
 hold DOWN
 press B
 release DOWN
 wait 2
 hold RIGHT 40
-wait 450
-wait 178
-press B
+hold RIGHT A 30
+wait 6
+hold DOWN
+press A
 wait 30
-hold RIGHT 53
+release DOWN
+wait 10
+hold LEFT 40
+hold RIGHT 62
 press B
 wait 2
-hold RIGHT 38
+hold RIGHT 40
 press B
 wait 2
-hold RIGHT 78
-press B
-wait 2
-hold RIGHT 60
+hold RIGHT 160
 wait 10
 expect result == 1
 expect state == 4

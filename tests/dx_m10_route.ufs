@@ -1,70 +1,50 @@
 # DUNE EXPRESS: mission 10, TWO BY TWO, can be won with the buttons alone,
-# unseen and under the time star: Wade punches through the end wall, stuns
-# the first guard from behind, takes his strongbox and goes up onto the roofs;
-# Hush follows over the roofs on his turn; Wade drops into the last car, rolls
-# behind a crate and lifts it, so the guard spends his only bullet on it; the
-# second strongbox, the guard punched as Wade walks into him, and out; Hush
-# comes down and follows
+# unseen and under the time star. Wade starts at the front, Hush at the back
+# and they take a turn each: Wade punches through the car's end wall, punches
+# the guard from behind, takes the first strongbox and climbs to the roofs;
+# Hush punches the last guard from behind, takes the second box and rides
+# off, and Wade runs the roofs to the camel.
 game dune
 wait 5
 cheat mission 10
 wait 1
-hold RIGHT 102
-hold RIGHT 1
+hold RIGHT 100
 press B
-wait 2
+wait 3
 press B
-wait 2
+wait 3
 press B
-wait 2
+wait 3
 press B
-wait 2
+wait 3
 press B
-wait 2
+wait 3
 press B
-wait 2
+wait 3
 hold RIGHT 62
 press B
-wait 2
-hold RIGHT 62
-press B
-wait 20
-hold RIGHT 30
-hold RIGHT 25
-hold UP 70
-hold RIGHT 20
-hold RIGHT A 20
-hold RIGHT 150
-wait 210
+wait 3
 hold RIGHT 64
-hold UP 70
-hold RIGHT 20
-hold RIGHT A 30
-hold RIGHT 150
-hold RIGHT A 30
-hold RIGHT 150
-wait 296
-hold RIGHT 107
-hold DOWN 70
-wait 2
-hold DOWN
-press A
-wait 30
 press B
+wait 4
+hold RIGHT 56
+hold UP 66
+hold RIGHT 23
+hold RIGHT A 30
+hold RIGHT 140
 wait 10
-release DOWN
-wait 2
-hold RIGHT 17
+wait 211
+hold LEFT 21
 press B
-wait 20
-hold RIGHT 30
-hold LEFT 10
-hold RIGHT 160
-hold RIGHT 77
-hold DOWN 60
-wait 210
-hold DOWN 20
-hold RIGHT 220
+wait 3
+hold LEFT 63
+press B
+wait 4
+hold LEFT 34
+hold RIGHT 180
+hold RIGHT 287
+wait 212
+hold RIGHT 60
 wait 10
 expect result == 1
 expect state == 4

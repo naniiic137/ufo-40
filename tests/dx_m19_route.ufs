@@ -1,10 +1,10 @@
-# DUNE EXPRESS: mission 19, THE GOVERNOR, can be won with the buttons alone:
-# while nobody is on the alert both outlaws hop the crates, climb the end
-# ladder and walk the roofs up behind the roof guard (SELECT swaps them); Wade
-# punches him, which starts the turns, runs on over the gap, down the far
-# ladder behind the last guard, punches him, slips past and shoots the
-# Governor in the back, then steps behind the guard again; Hush punches the
-# roof guard again, runs the roofs and drops to the camel, and Wade follows
+# DUNE EXPRESS: mission 19, THE GOVERNOR, can be won with the buttons alone,
+# unseen and under the time star. Wade starts at the front and Hush at the
+# back, and they take a turn each (a patrol sees to that): Wade hops the
+# crates, climbs the end ladder and walks the roofs up behind the roof guard;
+# Hush punches the last guard from behind, slips past him and shoots the
+# Governor in the back, then rides; Wade, with the rest of the turn, punches
+# the roof guard, jumps the gap and runs the roofs, and drops to the camel.
 game dune
 wait 5
 cheat mission 19
@@ -15,38 +15,24 @@ hold RIGHT 20
 hold RIGHT 16
 hold UP 70
 hold RIGHT 340
-press SELECT
-wait 1
-hold RIGHT 14
-hold RIGHT A 30
-hold RIGHT 20
-hold RIGHT 16
-hold UP 70
-hold RIGHT 320
-press SELECT
-wait 1
-hold RIGHT 14
+wait 83
+wait 211
+hold LEFT 64
 press B
-wait 3
-hold RIGHT 60
-hold RIGHT A 30
-hold RIGHT 192
-hold DOWN 70
-hold LEFT 20
-press B
-wait 3
-hold LEFT 46
+wait 2
+hold LEFT 44
 hold UP 132
 press B
 wait 2
-hold RIGHT 28
-wait 6
-wait 211
-hold RIGHT 69
+hold RIGHT 150
 press B
-hold RIGHT 26
+wait 2
+hold RIGHT 60
 hold RIGHT A 30
-hold RIGHT 390
+hold RIGHT 100
+wait 10
+wait 211
+hold RIGHT 200
 wait 10
 expect result == 1
 expect state == 4

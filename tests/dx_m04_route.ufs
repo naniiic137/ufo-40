@@ -1,8 +1,10 @@
 # DUNE EXPRESS: mission 4, EYES OPEN, can be won with the buttons alone,
 # unseen and under the time star: roll up behind the barrel and stay down,
-# so the patrol hops over you and walks on; then break the barrel and the
-# crate and punch through the car's end wall (three punches a plank); the
-# strongbox; wait behind the second patrol and follow him out to the camel
+# so the patrol turns back at it without seeing you (lawmen never jump); then
+# break the barrel, punch the patrol from behind, break the crate and punch
+# through the car's end wall (three punches a plank); punch the second patrol
+# from behind, take the strongbox and get out of his sight over the barrel
+# before he wakes; next turn, the camel
 game dune
 wait 5
 cheat mission 4
@@ -16,7 +18,10 @@ release DOWN
 wait 1
 press B
 wait 2
-hold RIGHT 142
+hold RIGHT 104
+press B
+wait 2
+hold RIGHT 38
 press B
 wait 2
 hold RIGHT 63
@@ -35,16 +40,19 @@ wait 2
 hold RIGHT 40
 press B
 wait 2
-hold RIGHT 126
-press B
-wait 20
-hold RIGHT 30
-hold RIGHT 70
-wait 60
-wait 212
+hold RIGHT 25
 press B
 wait 2
-hold RIGHT 180
+hold RIGHT 95
+press B
+wait 4
+hold RIGHT 60
+hold RIGHT 48
+hold RIGHT A 30
+hold RIGHT 20
+wait 12
+wait 211
+hold RIGHT 160
 wait 10
 expect result == 1
 expect state == 4

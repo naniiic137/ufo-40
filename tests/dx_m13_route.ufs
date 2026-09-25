@@ -1,9 +1,10 @@
 # DUNE EXPRESS: mission 13, JAILBREAK, can be won with the buttons alone,
 # unseen and under the time star: Pearl rolls up behind the crate and stays
-# down so the patrol hops over her; up and along the roof, where she waits for
-# the next car's patrol to walk past the hatch; down behind him, a punch, and
-# the lever: the cell opens and Hush takes over, jumps the lever, punches the
-# guard from behind and jumps the crate and the barrel out to the camel
+# down, so the patrol turns back at it; she follows and punches him from
+# behind, and goes up and along the roof, where she waits for the next car's
+# patrol to walk past the hatch; down behind him, a punch, and the lever:
+# the cell opens and Hush takes over, jumps the lever, punches the guard from
+# behind, climbs to the roof over the last patrol and drops to the camel
 game dune
 wait 5
 cheat mission 13
@@ -16,7 +17,10 @@ release DOWN
 wait 5
 press B
 wait 2
-hold RIGHT 165
+hold RIGHT 116
+press B
+wait 2
+hold RIGHT 49
 hold UP 70
 hold RIGHT 203
 wait 360
@@ -37,11 +41,16 @@ press B
 wait 3
 hold RIGHT 44
 hold RIGHT A 22
-hold RIGHT 178
-hold RIGHT A 22
-hold RIGHT 60
-wait 200
-hold RIGHT 20
+hold RIGHT 16
+wait 4
+hold UP 66
+hold RIGHT 10
+hold RIGHT A 30
+hold RIGHT 40
+hold RIGHT 80
+wait 5
+wait 211
+hold RIGHT 120
 wait 10
 expect result == 1
 expect state == 4

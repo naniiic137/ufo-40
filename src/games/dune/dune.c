@@ -20,6 +20,10 @@ typedef struct Save {
 static Save sv;
 static DxWorld W;
 static int state, state_t, frame_t, cur, menu_sel;
+/* which way the world slides past: the trains run left (the front is at the
+ * start of a mission, the camel waits at the back); only the ending rides right */
+static int drift = -1;
+static int wrap(int v, int m) { return ((v % m) + m) % m; }
 static float cam_x;
 static int cam_lock = -1; /* the headless runner can hold the camera still */
 static int result_stars, result_new, alert_t[DX_MAX_ACTORS];
@@ -149,7 +153,6 @@ static DxInput read_input(bool p2) {
     if (p2) {
         in.left = btn2(BTN_LEFT); in.right = btn2(BTN_RIGHT); in.up = btn2(BTN_UP); in.down = btn2(BTN_DOWN);
         in.a = btn2(BTN_A); in.b = btn2(BTN_B); in.a_pressed = btnp2(BTN_A); in.b_pressed = btnp2(BTN_B);
-        in.select_pressed = btnp2(BTN_SELECT);
         in.down_pressed = btnp2(BTN_DOWN) || btnp(BTN_DOWN);
         /* hot seat on one pad works too */
         in.left |= btn(BTN_LEFT); in.right |= btn(BTN_RIGHT); in.up |= btn(BTN_UP); in.down |= btn(BTN_DOWN);
@@ -158,7 +161,6 @@ static DxInput read_input(bool p2) {
     }
     in.left = btn(BTN_LEFT); in.right = btn(BTN_RIGHT); in.up = btn(BTN_UP); in.down = btn(BTN_DOWN);
     in.a = btn(BTN_A); in.b = btn(BTN_B); in.a_pressed = btnp(BTN_A); in.b_pressed = btnp(BTN_B);
-    in.select_pressed = btnp(BTN_SELECT);
     in.down_pressed = btnp(BTN_DOWN);
     return in;
 }
@@ -212,7 +214,7 @@ static void update_play(void) {
     follow_camera();
     sounds_and_effects();
     /* dust behind the train's wheels, smoke from a blast */
-    if (frame_t % 6 == 0) part_add(cam_x + 330, OY + 9 * DX_T - 2, -3.0f, -0.2f, 90, C_TAN, 1);
+    if (frame_t % 6 == 0) part_add(cam_x - 10, OY + 9 * DX_T - 2, 3.0f, -0.2f, 90, C_TAN, 1);
     for (int i = 0; i < ARRAY_LEN(parts); i++) {
         Part *p = &parts[i];
         if (p->life <= 0) continue;
@@ -249,7 +251,7 @@ static void draw_sky(void) {
         gfx_circ(s ? 240 : 260, s ? 92 : 34, s ? 18 : 12, s ? C_YELLOW : C_WHITE);
     }
     /* dunes, far and near, slide by as the train runs */
-    int far = (int)(cam_x * 0.1f + frame_t * 0.2f), near = (int)(cam_x * 0.3f + frame_t * 0.8f);
+    int far = (int)(cam_x * 0.1f - drift * frame_t * 0.2f), near = (int)(cam_x * 0.3f - drift * frame_t * 0.8f);
     for (int x = 0; x < SCREEN_W; x++) {
         int h1 = 100 + (int)(8 * sinf((x + far) * 0.02f) + 5 * sinf((x + far) * 0.051f));
         gfx_vline(x, h1, 140, s == 2 ? C_DUSK : s == 1 ? C_WINE : C_EARTH);
@@ -257,7 +259,7 @@ static void draw_sky(void) {
         gfx_vline(x, h2, 180, s == 2 ? C_NIGHT : s == 1 ? C_TAN : C_HIDE);
     }
     /* telegraph poles whip past */
-    int pole = (int)(cam_x * 1.2f + frame_t * 3.0f) % 160;
+    int pole = wrap((int)(cam_x * 1.2f - drift * frame_t * 3.0f), 160);
     for (int x = -pole; x < SCREEN_W; x += 160) {
         gfx_rect(x, 60, 3, 90, s == 2 ? C_INK : C_BROWN);
         gfx_rect(x - 6, 64, 15, 2, s == 2 ? C_INK : C_BROWN);
@@ -268,7 +270,7 @@ static void draw_sky(void) {
 static void draw_rails(void) {
     int y = OY + 9 * DX_T;
     gfx_rect(0, y, SCREEN_W, SCREEN_H - y, sky_of(cur) == 2 ? C_INK : C_BROWN);
-    int off = (int)(cam_x + frame_t * 4) % 12;
+    int off = wrap((int)(cam_x - drift * frame_t * 4), 12);
     for (int x = -off; x < SCREEN_W; x += 12) gfx_rect(x, y + 4, 6, 3, sky_of(cur) == 2 ? C_DUSK : C_TAN);
     gfx_hline(0, SCREEN_W - 1, y + 2, C_GREY);
     gfx_hline(0, SCREEN_W - 1, y + 3, C_SLATE);
@@ -281,7 +283,7 @@ static int car_colour(int car) {
 
 /* a wheel: rim, hub and a crank pin turning with the train */
 static void draw_wheel(int x, int y) {
-    float ang = frame_t * 0.35f;
+    float ang = -drift * frame_t * 0.35f;
     gfx_circ(x, y, 7, C_INK);
     gfx_circb(x, y, 6, C_SLATE);
     gfx_line(x, y, x + (int)lroundf(cosf(ang) * 4), y + (int)lroundf(sinf(ang) * 4), C_SLATE);
@@ -373,43 +375,13 @@ static void draw_car_back(int car) {
     int x0 = W.car_x0[car] * DX_T - (int)cam_x, x1 = (W.car_x1[car] + 1) * DX_T - (int)cam_x;
     if (x1 < 0 || x0 > SCREEN_W) return;
     int y0 = OY + 3 * DX_T, y1 = OY + 8 * DX_T;
-    gfx_rect(x0, y0, x1 - x0, y1 - y0, W.seen[car] ? PAL_DARKER[car_colour(car)] : car_colour(car));
-    if (!W.seen[car]) {
-        /* the open doorways at the ends of a car nobody has entered yet: dark */
-        for (int e = 0; e < 2; e++) {
-            int tx = e ? W.car_x1[car] : W.car_x0[car];
-            for (int ty = 4; ty <= 6; ty++)
-                if (W.tile[ty][tx] == TL_AIR) gfx_rect(tx * DX_T - (int)cam_x, OY + ty * DX_T, DX_T, DX_T, C_NIGHT);
-        }
+    gfx_rect(x0, y0, x1 - x0, y1 - y0, PAL_DARKER[car_colour(car)]);
+    for (int x = x0 + 12; x + 18 < x1; x += 28) {
+        gfx_rect(x, OY + 4 * DX_T + 4, 18, 12, SKY[sky_of(cur)][1]);
+        int d = wrap((int)(-drift * frame_t * 2) + x, 18);
+        gfx_rect(x + (18 - d) % 18, OY + 4 * DX_T + 12, 5, 4, SKY[sky_of(cur)][3]);
+        gfx_rectb(x - 1, OY + 4 * DX_T + 3, 20, 14, C_INK);
     }
-    if (W.seen[car]) {
-        for (int x = x0 + 12; x + 18 < x1; x += 28) {
-            gfx_rect(x, OY + 4 * DX_T + 4, 18, 12, SKY[sky_of(cur)][1]);
-            int d = (int)(frame_t * 2 + x) % 18;
-            gfx_rect(x + (18 - d) % 18, OY + 4 * DX_T + 12, 5, 4, SKY[sky_of(cur)][3]);
-            gfx_rectb(x - 1, OY + 4 * DX_T + 3, 20, 14, C_INK);
-        }
-    }
-}
-
-/* the fog: a car nobody has entered shows its outside */
-static void draw_car_front(int car) {
-    if (W.seen[car] || !car_has_roof(car)) return;
-    /* the end walls and their doorways stay as they are; the fog is the inside */
-    int x0 = (W.car_x0[car] + 1) * DX_T - (int)cam_x, x1 = W.car_x1[car] * DX_T - (int)cam_x;
-    if (x1 < 0 || x0 > SCREEN_W) return;
-    int y0 = OY + 4 * DX_T, y1 = OY + 7 * DX_T;
-    int c = car_colour(car);
-    gfx_rect(x0, y0, x1 - x0, y1 - y0, c);
-    gfx_hline(x0, x1 - 1, y0, PAL_LIGHTER[c]);
-    gfx_hline(x0, x1 - 1, y1 - 3, PAL_DARKER[c]);
-    for (int x = x0 + 10; x + 16 < x1; x += 26) {
-        gfx_rect(x, y0 + 8, 14, 12, C_INK);
-        gfx_rect(x + 1, y0 + 9, 12, 5, C_NIGHT);
-    }
-    char b[8];
-    snprintf(b, sizeof b, "%d", car + 1);
-    tiny_draw(b, x0 + 4, y1 - 10, PAL_LIGHTER[c]);
 }
 
 static void person_colours(uint8_t *map, const DxActor *a) {
@@ -434,9 +406,6 @@ static void person_colours(uint8_t *map, const DxActor *a) {
 static void draw_actor(int i) {
     DxActor *a = &W.a[i];
     if (a->escaped == 1 || a->hidden) return;
-    int car = dx_car_at(&W, a->x + 6);
-    bool inside = a->y + 30 > 4 * DX_T && a->y < 7 * DX_T;
-    if (car >= 0 && inside && !W.seen[car] && a->kind != AK_OUTLAW) return; /* hidden by the fog */
     int px = (int)a->x - 2 - (int)cam_x, py = (int)a->y - 1 + OY;
     int frame = DS_STAND;
     if (!a->alive) frame = DS_DOWN;
@@ -487,9 +456,6 @@ static void draw_actor(int i) {
 static void draw_obj(int i) {
     DxObj *o = &W.o[i];
     if (!o->alive) return;
-    int car = dx_car_at(&W, o->x + o->w / 2.0f);
-    bool inside = o->y + o->h > 4 * DX_T && o->y < 7 * DX_T;
-    if (car >= 0 && inside && !W.seen[car] && o->held < 0 && o->type != OB_CAMEL) return;
     int px = (int)o->x - 1 - (int)cam_x, py = (int)o->y - 2 + OY;
     int flip = o->face ? 0 : SPR_FLIPX;
     switch (o->type) {
@@ -533,7 +499,7 @@ static void draw_obj(int i) {
             gfx_noclip();
             k++;
         }
-        spr_draw(&dx_obj[(frame_t / 10) % 2 ? DO_CAMEL : DO_CAMEL2], px - 2, py, 0);
+        spr_draw(&dx_obj[(frame_t / 10) % 2 ? DO_CAMEL : DO_CAMEL2], px - 2, py, SPR_FLIPX);
         break;
     }
     default: break;
@@ -556,7 +522,6 @@ static void draw_world(void) {
         if (W.a[i].kind == AK_OUTLAW) draw_actor(i);
     for (int i = 0; i < W.no; i++)
         if (W.o[i].held >= 0) draw_obj(i);
-    for (int c = 0; c < W.ncars; c++) draw_car_front(c);
     for (int i = 0; i < DX_MAX_SHOTS; i++) {
         DxShot *s = &W.s[i];
         if (!s->alive) continue;
@@ -647,10 +612,10 @@ static void draw_title(void) {
     cam_x = frame_t * 0.5f;
     draw_sky();
     draw_rails();
-    /* the night train: three cars and the engine, the windows lit */
+    /* the night train: the engine at the front (left) and three cars, the windows lit */
     int y0 = OY + 72, yb = OY + 124, wy = OY + 136;
     for (int c = 0; c < 3; c++) {
-        int x = -30 + c * 104, w = 98, col = car_colour(c + 2);
+        int x = 252 - c * 104, w = 98, col = car_colour(c + 2);
         gfx_rect(x + 2, y0 + 6, w - 4, yb - y0 - 6, col);
         gfx_rect(x, y0, w, 7, C_MAROON);
         gfx_hline(x + 1, x + w - 2, y0, PAL_LIGHTER[C_MAROON]);
@@ -669,25 +634,25 @@ static void draw_title(void) {
             }
         }
         gfx_rect(x, yb, w, 5, C_INK);
-        gfx_rect(x + w, yb + 1, 6, 3, C_INK);
+        gfx_rect(x - 6, yb + 1, 6, 3, C_INK);
         draw_wheel(x + 14, wy); draw_wheel(x + 30, wy);
         draw_wheel(x + w - 30, wy); draw_wheel(x + w - 14, wy);
     }
     /* the engine */
-    int ex = 282;
+    int ex = 2;
     gfx_rect(ex, y0 - 4, 36, yb - y0 + 4, C_MAROON);           /* the cab */
     gfx_rect(ex - 2, y0 - 8, 40, 6, C_INK);
-    gfx_rect(ex + 6, y0 + 8, 20, 16, C_INK);
-    gfx_rect(ex + 7, y0 + 9, 18, 14, C_AMBER);
-    gfx_rect(ex + 7, y0 + 9, 18, 5, C_YELLOW);
-    gfx_rect(ex + 36, y0 + 20, 60, yb - y0 - 20, C_SLATE);   /* the boiler, off the right edge */
-    for (int k = 0; k < 3; k++) gfx_vline(ex + 44 + k * 14, y0 + 20, yb - 1, C_GREY);
-    gfx_rect(ex, yb, 40, 5, C_INK);
-    draw_wheel(ex + 16, wy); draw_wheel(ex + 32, wy);
+    gfx_rect(ex + 10, y0 + 8, 20, 16, C_INK);
+    gfx_rect(ex + 11, y0 + 9, 18, 14, C_AMBER);
+    gfx_rect(ex + 11, y0 + 9, 18, 5, C_YELLOW);
+    gfx_rect(ex - 60, y0 + 20, 60, yb - y0 - 20, C_SLATE);   /* the boiler, off the left edge */
+    for (int k = 0; k < 3; k++) gfx_vline(ex - 9 - k * 14, y0 + 20, yb - 1, C_GREY);
+    gfx_rect(ex - 4, yb, 40, 5, C_INK);
+    draw_wheel(ex + 20, wy); draw_wheel(ex + 4, wy);
     /* the engine's smoke streams back and thins out */
     for (int k = 0; k < 8; k++) {
         int t = (frame_t + k * 10) % 80;
-        int sx = 322 - t * 2, sy = y0 - 10 - t / 5 - (int)(2 * sinf((t + k * 9) * 0.15f));
+        int sx = -2 + t * 2, sy = y0 - 10 - t / 5 - (int)(2 * sinf((t + k * 9) * 0.15f));
         int r = 2 + t / 20;
         if (t < 40) gfx_circ(sx, sy, r, t < 16 ? C_GREY : C_SLATE);
         else gfx_dither_circle(sx, sy, r, C_SLATE, 8);
@@ -699,10 +664,10 @@ static void draw_title(void) {
         a.kind = AK_OUTLAW; a.who = OUT_WADE; a.face = 1;
         uint8_t map[PAL_COUNT];
         person_colours(map, &a);
-        int kx = 20 + (frame_t / 2) % 220, fr = (frame_t / 8) % 2 ? DS_WALK1 : DS_WALK2;
+        int kx = 284 - (frame_t / 2) % 220, fr = (frame_t / 8) % 2 ? DS_WALK1 : DS_WALK2;
         if ((frame_t / 2) % 220 > 200) fr = DS_STAND;
-        spr_draw_ex(&dx_body[fr], kx, y0 - 31, 0, map, -1);
-        spr_draw(&dx_obj[DO_HAT_W], kx, y0 - 31, 0);
+        spr_draw_ex(&dx_body[fr], kx, y0 - 31, SPR_FLIPX, map, -1);
+        spr_draw(&dx_obj[DO_HAT_W], kx, y0 - 31, SPR_FLIPX);
     }
     static const uint8_t grad[] = {C_WHITE, C_CREAM, C_AMBER, C_ORANGE};
     ui_fancy_center("DUNE", 160, 6, 3, grad, 4, C_INK, C_MAROON);
@@ -869,8 +834,10 @@ static void update_result(void) {
 static void draw_ending(void) {
     cur = 19;
     cam_x = frame_t * 0.4f;
+    drift = 1;
     draw_sky();
     draw_rails();
+    drift = -1;
     /* Pearl up on Biscuit, heading for the coast */
     int bob = (frame_t / 10) % 2;
     draw_outlaw_big(OUT_PEARL, 134, 84 + bob, 2, 17);
@@ -982,7 +949,7 @@ static void de_quit(void) {
 static void de_label(int x, int y, int w, int h, int t) {
     for (int yy = 0; yy < h; yy++) gfx_hline(x, x + w - 1, y + yy, yy < 20 ? C_VIOLET : yy < 34 ? C_ORANGE : C_AMBER);
     gfx_circ(x + 110, y + 34, 12, C_YELLOW);
-    for (int xx = 0; xx < w; xx++) gfx_vline(x + xx, y + 44 + (int)(3 * sinf((xx + t) * 0.05f)), y + h - 1, C_TAN);
+    for (int xx = 0; xx < w; xx++) gfx_vline(x + xx, y + 44 + (int)(3 * sinf((xx - t) * 0.05f)), y + h - 1, C_TAN);
     /* a car, an outlaw crouched on the roof, the camel keeping pace */
     gfx_rect(x + 10, y + 34, 70, 21, C_WINE);
     gfx_rect(x + 10, y + 32, 70, 3, C_MAROON);
@@ -1000,7 +967,7 @@ static void de_label(int x, int y, int w, int h, int t) {
     person_colours(map, &fake);
     spr_draw_ex(&dx_body[DS_DUCK], x + 46, y + 1, 0, map, -1);
     spr_draw(&dx_obj[DO_HAT_P], x + 46, y + 15, 0);
-    spr_draw(&dx_obj[(t / 10) % 2 ? DO_CAMEL : DO_CAMEL2], x + 96, y + 28, 0);
+    spr_draw(&dx_obj[(t / 10) % 2 ? DO_CAMEL : DO_CAMEL2], x + 96, y + 28, SPR_FLIPX);
     static const uint8_t grad[] = {C_WHITE, C_CREAM, C_AMBER};
     ui_fancy_text("DUNE EXPRESS", x + 4, y + 3, 1, grad, 3, C_INK, -1);
 }
@@ -1055,7 +1022,6 @@ static int de_query(const char *key, int *out) {
     if (!strcmp(key, "blast")) { *out = me->blast; return 1; }
     if (!strcmp(key, "fist")) { *out = me->fist; return 1; }
     if (!strcmp(key, "quick")) { *out = me->quick; return 1; }
-    if (!strcmp(key, "seen_cars")) { int n = 0; for (int c = 0; c < W.ncars; c++) n += W.seen[c]; *out = n; return 1; }
     if (!strncmp(key, "tile", 4)) {
         /* tileXXXY: the tile at column XXX, row Y */
         int v = atoi(key + 4);
@@ -1158,7 +1124,6 @@ static int de_cheat(const char *cmd) {
     if (!strcmp(cmd, "win")) { W.result = DX_WON; finish(); return 1; }
     if (!strcmp(cmd, "versus")) { start_versus(); state = S_PLAY; return 1; }
     if (sscanf(cmd, "camx %d", &a) == 1) { cam_lock = a; return 1; }
-    if (!strcmp(cmd, "see_all")) { for (int c = 0; c < W.ncars; c++) W.seen[c] = 1; return 1; }
     if (!strcmp(cmd, "sheet")) { sheet_mode = !sheet_mode; return 1; }
     if (!strcmp(cmd, "menu")) { go_menu(); return 1; }
     return 0;
@@ -1179,7 +1144,6 @@ const GameDef GAME_DUNE = {
     "WALK ON\tPUSH A BOX ALONG\n"
     "BARREL\t" GLYPH_DOWN " HIDE, " GLYPH_LEFT GLYPH_RIGHT " ROLL, " GLYPH_UP " OUT\n"
     "HOLD " GLYPH_UP "\tLOAD + DRAW, " GLYPH_B " FIRES\n"
-    "SELECT\tSWAP OUTLAWS (QUIET)\n"
     "START\tPAUSE",
     C_ORANGE, C_WINE,
     de_load, de_start, de_update, de_draw, de_quit, de_label, de_query, de_cheat,

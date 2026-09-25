@@ -1,8 +1,9 @@
 # DUNE EXPRESS: mission 5, GOOSE CHASE, can be won with the buttons alone,
 # unseen and under the time star: a thrown goose draws the first guard's only
 # bullet and he's punched walking past; up to the roof goose, which carries
-# Hush gliding over the gap between the cars; down into the next car for the
-# strongbox, and both lawmen by the last car punched from behind
+# Hush gliding over the gap between the cars; down into the next car, where
+# the patrol, who turned back at the barrel, punched from behind; the
+# strongbox; the guard by the last car punched from behind
 game dune
 wait 5
 cheat mission 5
@@ -41,14 +42,14 @@ hold DOWN 70
 hold RIGHT 40
 press B
 wait 2
-hold RIGHT 100
+hold RIGHT 36
+press B
+wait 2
+hold RIGHT 64
 press B
 wait 20
 hold RIGHT 30
 hold RIGHT 60
-press B
-wait 3
-hold RIGHT 8
 press B
 wait 3
 hold RIGHT 200

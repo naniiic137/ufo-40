@@ -51,7 +51,7 @@ cheat pos 4 6
 wait 2
 hold A 18
 press A
-hold A 12
+hold A 24
 expect y > 60
 cheat mission 1
 cheat clear_law
@@ -60,8 +60,8 @@ cheat pos 4 6
 wait 2
 hold A 18
 press A
-hold A 12
-expect y < 0
+hold A 24
+expect y < -35
 # the master timer
 cheat mission 1
 cheat master 1
