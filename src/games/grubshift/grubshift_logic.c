@@ -6,54 +6,55 @@
 
 /*  name        kind          cost 2step  description (tiny font, ~80 chars) */
 const ChipInfo CHIPS[TOOL_COUNT] = {
-    {"ROLL", KIND_MOVE, 2, 0, "ROLL 1-2 TILES STRAIGHT. PUSHES GRUBS AND COLLECTS PODS. NOT UPHILL."},
-    {"DASH", KIND_MOVE, 2, 0, "ROLL 1-2 TILES IN 8 DIRECTIONS. PUSHES GRUBS. NOT UPHILL."},
-    {"STREAK", KIND_MOVE, 2, 0, "ROLL ANY DISTANCE STRAIGHT. PUSHES GRUBS. NOT UPHILL."},
-    {"RUSH", KIND_MOVE, 4, 0, "ROLL ANY DISTANCE IN 8 DIRECTIONS. PUSHES GRUBS. NOT UPHILL."},
-    {"SKIP", KIND_MOVE, 2, 0, "HOP 1-2 TILES STRAIGHT TO A FREE TILE. ANY HEIGHT. NO PUSH."},
+    {"ROLL", KIND_MOVE, 2, 0, "ROLL 1-2 TILES STRAIGHT. SHOVES GRUBS AND PICKS UP PODS. NOT UPHILL."},
+    {"SCURRY", KIND_MOVE, 2, 0, "ROLL 1-2 TILES IN 8 DIRECTIONS. SHOVES GRUBS. NOT UPHILL."},
+    {"STREAK", KIND_MOVE, 2, 0, "ROLL ANY DISTANCE STRAIGHT. SHOVES GRUBS. NOT UPHILL."},
+    {"RUSH", KIND_MOVE, 4, 0, "ROLL ANY DISTANCE IN 8 DIRECTIONS. SHOVES GRUBS. NOT UPHILL."},
+    {"SKIP", KIND_MOVE, 2, 0, "HOP 1-2 TILES STRAIGHT TO A FREE TILE. ANY HEIGHT. NO SHOVE."},
     {"LEAP", KIND_MOVE, 2, 0, "HOP 1-2 TILES IN 8 DIRECTIONS TO A FREE TILE. ANY HEIGHT."},
-    {"VAULT", KIND_MOVE, 4, 0, "HOP TO ANY FREE TILE WITHIN TWO."},
-    {"WARP", KIND_MOVE, 3, 0, "BEAM ONTO ANY FIZZ POD AND COLLECT IT."},
+    {"BOUND", KIND_MOVE, 4, 0, "HOP TO ANY FREE TILE WITHIN TWO."},
+    {"BLINK", KIND_MOVE, 3, 0, "BEAM ONTO ANY POD, SOUR ONES TOO, AND PICK IT UP."},
     {"PERCH", KIND_MOVE, 3, 0, "BEAM ONTO ANY FREE PLANTER."},
     {"DIVE", KIND_MOVE, 3, 0, "BEAM ONTO ANY FREE TILE NEXT TO A SINKHOLE."},
-    {"HUSTLE", KIND_MOVE, 4, 0, "ROLL 1-2 TILES STRAIGHT. RECHARGES WHENEVER A GRUB IS SQUASHED."},
+    {"HUSTLE", KIND_MOVE, 4, 0, "ROLL 1-2 TILES STRAIGHT. RECHARGES WHENEVER A GRUB DIES."},
     {"ZAP", KIND_ATTACK, 2, 0, "SHOOT 1-2 TILES STRAIGHT, HITTING THE WHOLE LINE. NOT UPHILL."},
     {"ARC", KIND_ATTACK, 2, 0, "SHOOT 1-2 TILES IN 8 DIRECTIONS, HITTING THE WHOLE LINE. NOT UPHILL."},
     {"BEAM", KIND_ATTACK, 2, 0, "SHOOT A WHOLE ROW OR COLUMN. BLOCKED BY HIGHER GROUND."},
     {"FLARE", KIND_ATTACK, 4, 0, "SHOOT ALL THE WAY IN 8 DIRECTIONS. BLOCKED BY HIGHER GROUND."},
     {"TOSS", KIND_ATTACK, 2, 0, "LOB AT ONE TILE UP TO 2 AWAY, STRAIGHT. ANY HEIGHT."},
-    {"LOB", KIND_ATTACK, 2, 0, "LOB AT ONE TILE UP TO 2 AWAY IN 8 DIRECTIONS. ANY HEIGHT."},
+    {"PITCH", KIND_ATTACK, 2, 0, "LOB AT ONE TILE UP TO 2 AWAY IN 8 DIRECTIONS. ANY HEIGHT."},
     {"MORTAR", KIND_ATTACK, 4, 0, "LOB AT ANY TILE WITHIN TWO. ANY HEIGHT."},
-    {"DETONATE", KIND_ATTACK, 4, 0, "SET OFF ANY FIZZ POD ON THE FIELD."},
+    {"IGNITE", KIND_ATTACK, 4, 0, "SET OFF ANY FIZZ POD ON THE FIELD."},
     {"QUAKE", KIND_ATTACK, 4, 0, "HIT EVERY TILE AROUND ONE SINKHOLE, HIGH OR LOW."},
     {"PULSE", KIND_ATTACK, 3, 0, "HIT ALL 8 TILES AROUND TILLY AT ONCE."},
-    {"HAIL", KIND_ATTACK, 4, 0, "HIT EVERY PLANTER. ONLY WORKS FROM THE GROUND."},
+    {"HAIL", KIND_ATTACK, 4, 0, "HIT EVERY PLANTER. USE IT FROM THE GROUND OR IT HITS TILLY TOO!"},
     {"CRACK", KIND_ATTACK, 3, 0, "BLOW UP ANY EGG. THE BLAST HITS THE TILES AROUND IT."},
     {"TRACK", KIND_ATTACK, 4, 0, "SHOOT 1-2 TILES STRAIGHT. RECHARGES WHEN TILLY CHANGES HEIGHT."},
-    {"SEED", KIND_SPECIAL, 2, 0, "DROP A FIZZ POD WITHIN TWO. A THIRD POD ON A TILE GOES BOOM!"},
-    {"SHIFT", KIND_SPECIAL, 2, 1, "LOWER ONE PLANTER, THEN RAISE ANOTHER TILE."},
+    {"SEED", KIND_SPECIAL, 2, 0, "DROP A FIZZ POD ON ANY FREE TILE. A THIRD POD ON A TILE GOES BOOM!"},
+    {"TILL", KIND_SPECIAL, 2, 1, "LOWER ONE PLANTER, THEN RAISE ANOTHER TILE."},
     {"OVERDRIVE", KIND_SPECIAL, 4, 0, "UNTIL THE SHIFT ENDS, GRUBS TILLY TOUCHES ARE SQUASHED OUTRIGHT."},
     {"GATHER", KIND_SPECIAL, 2, 0, "COLLECT A POD AND EVERY POD AROUND IT."},
     {"RELOAD", KIND_SPECIAL, 4, 0, "RECHARGE EVERY USED ATTACK TOOL."},
     {"REFUEL", KIND_SPECIAL, 4, 0, "RECHARGE EVERY USED MOVE TOOL."},
-    {"BOOST", KIND_SPECIAL, 4, 0, "UNTIL THE SHIFT ENDS, TOOLS REACH AS FAR AS THEY CAN."},
-    {"DIG", KIND_SPECIAL, 4, 0, "OPEN A NEW SINKHOLE NEXT TO AN OLD ONE."},
+    {"BOOST", KIND_SPECIAL, 4, 0, "UNTIL THE SHIFT ENDS, STRAIGHT TOOLS REACH ALL THE WAY, 8 WAYS."},
+    {"BORE", KIND_SPECIAL, 4, 0, "OPEN A NEW SINKHOLE NEXT TO AN OLD ONE."},
     {"VOLATILE", KIND_SPECIAL, 4, 0, "UNTIL THE SHIFT ENDS, GRUBS POPPED BY ATTACKS EXPLODE."},
-    {"DEVOLVE", KIND_SPECIAL, 3, 0, "TURN A GRUB AND ITS NEIGHBOURS BACK INTO LARVAE."},
-    {"SPRAY", KIND_SPECIAL, 2, 1, "SPRAY TWO TILES. NO GRUB HATCHES THERE; ONE PUSHED THERE DIES."},
+    {"REWIND", KIND_SPECIAL, 3, 0, "TURN ANY GRUB AND ITS NEIGHBOURS BACK INTO LARVAE. EGGS TOO."},
+    {"MIST", KIND_SPECIAL, 2, 1, "MIST TWO FREE TILES. NO GRUB HATCHES THERE; ONE SHOVED THERE DIES."},
     {"RESTOCK", KIND_SPECIAL, 4, 0, "CALL DOWN FOUR NEW FIZZ PODS."},
-    {"RECHARGE", KIND_SPECIAL, 4, 0, "RECHARGE THE TOOLS ON EITHER SIDE OF THIS ONE."},
+    {"JUMPER", KIND_SPECIAL, 4, 0, "RECHARGE THE TOOLS ON EITHER SIDE OF THIS ONE."},
     {"FLIP", KIND_SPECIAL, 2, 0, "SWAP HIGH AND LOW GROUND EVERYWHERE."},
     {"HOVER", KIND_SPECIAL, 2, 0, "UNTIL THE SHIFT ENDS, ROLLS IGNORE HEIGHT."},
     {"SIGHT", KIND_SPECIAL, 2, 0, "UNTIL THE SHIFT ENDS, SHOTS IGNORE HEIGHT."},
-    {"SHOO", KIND_SPECIAL, 5, 0, "EVERY GRUB SCUTTLES TO A FREE TILE BESIDE IT."},
+    {"SHOO", KIND_SPECIAL, 5, 0, "EVERY GRUB SCUTTLES TO A TILE BESIDE IT, EVEN INTO A PIT OR A POD."},
 };
 
 static const int8_t DIR8[8][2] = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}, {1, 1}, {-1, 1}, {1, -1}, {-1, -1}};
 static const uint8_t PAIR_A[PAIR_COUNT] = {SP_SPARK, SP_MOUND, SP_SHELL};
 static const uint8_t PAIR_B[PAIR_COUNT] = {SP_HIVE, SP_SOUR, SP_BURROW};
 
-enum { CAUSE_ATTACK, CAUSE_BOOM, CAUSE_SPARK, CAUSE_STOMP, CAUSE_HOLE, CAUSE_TOUCH, CAUSE_SPRAY };
+/* How a grub dies. Only attacks, blasts and sparks trigger abilities. */
+enum { CAUSE_ATTACK, CAUSE_BOOM, CAUSE_SPARK, CAUSE_STOMP, CAUSE_HOLE, CAUSE_TOUCH, CAUSE_SPRAY, CAUSE_POD };
 
 int gs_pair_of(int sp) {
     switch (sp) {
@@ -83,34 +84,61 @@ int gs_count_bugs(const Board *b, int level) {
     return n;
 }
 
-int gs_days_for(int contract) { return contract <= 3 ? 10 : contract <= 6 ? 9 : 8; }
+int gs_job_of(int contract) { return contract > 15 ? 13 + (contract - 13) % 3 : contract; }
+int gs_days_for(int contract) {
+    int j = gs_job_of(contract);
+    return j <= 3 ? 10 : j <= 6 ? 9 : 8;
+}
+
+/* a grown grub (adult or queen) of this species */
+static bool grown_sp(const Board *b, int x, int y, int sp) {
+    return inb(x, y) && b->bsp[y][x] == sp && (b->blv[y][x] == LV_ADULT || b->blv[y][x] == LV_QUEEN);
+}
+
+static bool hive_has_drone(const Board *b, int x, int y) {
+    for (int d = 0; d < 8; d++) {
+        int nx = x + DIR8[d][0], ny = y + DIR8[d][1];
+        if (inb(nx, ny) && b->bsp[ny][nx] == SP_DRONE) return true;
+    }
+    return false;
+}
+
+/* a hivebug with its drone beside it can't be hurt, squashed or touched */
+static bool shielded(const Board *b, int x, int y) { return grown_sp(b, x, y, SP_HIVE) && hive_has_drone(b, x, y); }
+
+static bool near_grown_sour(const Board *b, int x, int y) {
+    for (int d = 0; d < 8; d++)
+        if (grown_sp(b, x + DIR8[d][0], y + DIR8[d][1], SP_SOUR)) return true;
+    return false;
+}
 
 /* ------------------------------------------------------------------ */
-/* setup                                                                */
+/* the shop                                                             */
+
+/* Five offers cost 2, one costs 3 and two cost 4 (the 5-cost SHOO sits with
+ * the 4s). A bought offer is replaced at once by another of its price. */
+static int tier_of(int chip) { return CHIPS[chip].cost <= 2 ? 0 : CHIPS[chip].cost == 3 ? 1 : 2; }
+static int tier_of_offer(int o) { return o < 5 ? 0 : o < 6 ? 1 : 2; }
+
+static void refill_offer(Board *b, int o, int not_this) {
+    uint8_t pool[TOOL_COUNT];
+    int np = 0;
+    for (int c = 0; c < TOOL_COUNT; c++) {
+        if (tier_of(c) != tier_of_offer(o) || c == not_this) continue;
+        bool shown = false;
+        for (int k = 0; k < OFFERS; k++) shown |= b->shop[k] == c;
+        if (!shown) pool[np++] = (uint8_t)c;
+    }
+    b->shop[o] = np ? pool[rng_range(&b->rng, 0, np - 1)] : TOOL_NONE;
+}
 
 static void roll_shop(Board *b) {
-    int n = 0;
-    uint8_t pool[TOOL_COUNT];
-    /* five cheap offers, one mid, two dear (the dear ones include SHOO) */
-    for (int tier = 0; tier < 3; tier++) {
-        int want = tier == 0 ? 5 : tier == 1 ? 1 : 2;
-        int np = 0;
-        for (int c = 0; c < TOOL_COUNT; c++) {
-            int cost = CHIPS[c].cost;
-            if ((tier == 0 && cost == 2) || (tier == 1 && cost == 3) || (tier == 2 && cost >= 4)) pool[np++] = (uint8_t)c;
-        }
-        for (int i = 0; i < want && np > 0; i++) {
-            int k = rng_range(&b->rng, 0, np - 1);
-            b->shop[n++] = pool[k];
-            pool[k] = pool[--np];
-        }
-    }
-    while (n < OFFERS) b->shop[n++] = TOOL_NONE;
+    memset(b->shop, TOOL_NONE, sizeof b->shop);
+    for (int o = 0; o < OFFERS; o++) refill_offer(b, o, -1);
 }
 
-static bool spawnable(const Board *b, int x, int y) {
-    return !b->hole[y][x] && !b->bsp[y][x] && !is_player(b, x, y) && !b->spray[y][x] && !b->pods[y][x] && !b->sour[y][x];
-}
+/* ------------------------------------------------------------------ */
+/* grubs, terrain and pods                                              */
 
 static bool random_tile(Board *b, int *ox, int *oy, bool (*ok)(const Board *, int, int)) {
     int cand[GW * GH], n = 0;
@@ -130,12 +158,8 @@ static void place_bug(Board *b, int x, int y, int sp, int lv) {
     b->bhp[y][x] = (uint8_t)((sp == SP_SHELL && (lv == LV_ADULT || lv == LV_QUEEN)) ? 2 : 1);
 }
 
-static bool drone_free(const Board *b, int x, int y) {
-    return inb(x, y) && !b->hole[y][x] && !b->bsp[y][x] && !is_player(b, x, y);
-}
-
 static void convert_sour(Board *b, int x, int y, Events *ev) {
-    /* a grown sourmite spoils the fizz pods beside it */
+    /* a grown sourmite spoils the fizz pods beside it, at any height */
     for (int d = 0; d < 8; d++) {
         int nx = x + DIR8[d][0], ny = y + DIR8[d][1];
         if (!inb(nx, ny) || !b->pods[ny][nx]) continue;
@@ -145,26 +169,37 @@ static void convert_sour(Board *b, int x, int y, Events *ev) {
     }
 }
 
-static bool hive_has_drone(const Board *b, int x, int y) {
-    for (int d = 0; d < 8; d++) {
-        int nx = x + DIR8[d][0], ny = y + DIR8[d][1];
-        if (inb(nx, ny) && b->bsp[ny][nx] == SP_DRONE) return true;
-    }
-    return false;
+/* the spoiling never stops while a sourmite lives */
+static void sour_pass(Board *b, Events *ev) {
+    for (int y = 0; y < GH; y++)
+        for (int x = 0; x < GW; x++)
+            if (grown_sp(b, x, y, SP_SOUR)) convert_sour(b, x, y, ev);
 }
 
-/* Abilities that happen when a grub grows up. */
+/* A moundmaker's private planter: it raises its own tile and lowers the
+ * planters beside it, except under another moundmaker or a pod. It does this
+ * when it appears and again every morning. */
+static void mound_turn(Board *b, int x, int y, Events *ev) {
+    if (b->hole[y][x]) return;
+    if (!b->elev[y][x]) { b->elev[y][x] = 1; emit(ev, EV_RAISE, x, y, 0, 0, 1); }
+    for (int d = 0; d < 4; d++) {
+        int nx = x + DIR8[d][0], ny = y + DIR8[d][1];
+        if (!inb(nx, ny) || !b->elev[ny][nx] || grown_sp(b, nx, ny, SP_MOUND) || b->pods[ny][nx] || b->sour[ny][nx]) continue;
+        b->elev[ny][nx] = 0;
+        emit(ev, EV_RAISE, nx, ny, 0, 0, 0);
+    }
+}
+
+static bool drone_free(const Board *b, int x, int y) {
+    return inb(x, y) && !b->hole[y][x] && !b->bsp[y][x] && !is_player(b, x, y);
+}
+
+/* What a grub does the moment it is grown (by growing up or hatching grown). */
 static void on_grow(Board *b, int x, int y, Events *ev) {
-    int sp = b->bsp[y][x], lv = b->blv[y][x];
+    int sp = b->bsp[y][x];
     emit(ev, EV_GROW, x, y, 0, 0, sp);
-    if (sp == SP_MOUND && lv == LV_ADULT) {
-        /* raises its own planter and flattens the ones beside it (once) */
-        b->elev[y][x] = 1;
-        for (int d = 0; d < 4; d++) {
-            int nx = x + DIR8[d][0], ny = y + DIR8[d][1];
-            if (inb(nx, ny) && b->elev[ny][nx]) { b->elev[ny][nx] = 0; emit(ev, EV_RAISE, nx, ny, 0, 0, 0); }
-        }
-        emit(ev, EV_RAISE, x, y, 0, 0, 1);
+    if (sp == SP_MOUND) {
+        mound_turn(b, x, y, ev);
     } else if (sp == SP_HIVE && !hive_has_drone(b, x, y)) {
         int opts[8], n = 0;
         for (int d = 0; d < 8; d++)
@@ -180,6 +215,71 @@ static void on_grow(Board *b, int x, int y, Events *ev) {
     }
 }
 
+static bool spawnable(const Board *b, int x, int y) {
+    return !b->hole[y][x] && !b->bsp[y][x] && !is_player(b, x, y) && !b->spray[y][x] && !b->pods[y][x] && !b->sour[y][x];
+}
+
+/* New grubs hatch at the level their colour has reached. */
+static void spawn_bugs(Board *b, int n, Events *ev) {
+    int x, y;
+    for (int i = 0; i < n; i++) {
+        if (!random_tile(b, &x, &y, spawnable)) return;
+        int c = rng_range(&b->rng, 0, PAIR_COUNT - 1);
+        place_bug(b, x, y, b->pair_sp[c], b->stage[c]);
+        emit(ev, EV_GROW, x, y, 0, 0, 0);
+        if (b->stage[c] >= LV_ADULT) on_grow(b, x, y, ev);
+    }
+}
+
+static bool terrain_hole_ok(const Board *b, int x, int y) {
+    return !b->hole[y][x] && !b->bsp[y][x] && !is_player(b, x, y) && !b->pods[y][x] && !b->sour[y][x];
+}
+static bool terrain_plat_ok(const Board *b, int x, int y) { return !b->hole[y][x] && !b->elev[y][x]; }
+
+/* Each morning the ground is dealt again: the job table's holes (1 or 2)
+ * and raised planters (4-6, or 7-8 on every third contract). */
+static void deal_terrain(Board *b, Events *ev) {
+    int j = gs_job_of(b->contract);
+    int holes = j % 3 == 2 ? 2 : 1;
+    int plats = j % 3 == 0 ? rng_range(&b->rng, 7, 8) : rng_range(&b->rng, 4, 6);
+    memset(b->elev, 0, sizeof b->elev);
+    memset(b->hole, 0, sizeof b->hole);
+    int x, y;
+    for (int i = 0; i < holes; i++)
+        if (random_tile(b, &x, &y, terrain_hole_ok)) { b->hole[y][x] = 1; emit(ev, EV_HOLE, x, y, 0, 0, 1); }
+    for (int i = 0; i < plats; i++)
+        if (random_tile(b, &x, &y, terrain_plat_ok)) b->elev[y][x] = 1;
+    emit(ev, EV_RAISE, b->px, b->py, 0, 0, 3);
+}
+
+/* ------------------------------------------------------------------ */
+/* setup                                                                */
+
+static void add_pod(Board *b, int x, int y, Events *ev);
+static void check_drones(Board *b, Events *ev);
+
+static bool drop_ok(const Board *b, int x, int y) { return !is_player(b, x, y) && !b->bsp[y][x] && !b->sour[y][x]; }
+
+/* Pods rain on distinct random tiles. One that lands in a pit is lost, and a
+ * third pod on a tile blows it open (not in the opening drop). */
+static void drop_pods(Board *b, int n, bool opening, Events *ev) {
+    uint8_t used[GH][GW];
+    memset(used, 0, sizeof used);
+    for (int i = 0; i < n; i++) {
+        int cand[GW * GH], m = 0;
+        for (int y = 0; y < GH; y++)
+            for (int x = 0; x < GW; x++)
+                if (drop_ok(b, x, y) && !used[y][x] && !(opening && (b->hole[y][x] || b->pods[y][x] >= 2))) cand[m++] = y * GW + x;
+        if (m == 0) break;
+        int k = cand[rng_range(&b->rng, 0, m - 1)];
+        int x = k % GW, y = k / GW;
+        used[y][x] = 1;
+        if (b->hole[y][x]) emit(ev, EV_POD, x, y, 0, 0, 9);
+        else add_pod(b, x, y, ev);
+    }
+    sour_pass(b, ev);
+}
+
 void gs_new_contract(Board *b, int contract, int pair_mask, uint64_t seed) {
     memset(b, 0, sizeof *b);
     rng_seed(&b->rng, seed);
@@ -191,252 +291,49 @@ void gs_new_contract(Board *b, int contract, int pair_mask, uint64_t seed) {
     b->day = 1;
     b->status = ST_PLAYING;
     for (int p = 0; p < PAIR_COUNT; p++) b->pair_sp[p] = ((pair_mask >> p) & 1) ? PAIR_B[p] : PAIR_A[p];
-    /* two of the three colours grow this contract */
-    int skip = rng_range(&b->rng, 0, 2), k = 0;
-    for (int p = 0; p < PAIR_COUNT; p++)
-        if (p != skip) b->evolvers[k++] = (uint8_t)p;
-    if (rng_chance(&b->rng, 50)) { uint8_t t = b->evolvers[0]; b->evolvers[0] = b->evolvers[1]; b->evolvers[1] = t; }
+    /* from contract 10 one colour, from 13 two, hatch already grown */
+    int j = gs_job_of(contract), pre = j >= 13 ? 2 : j >= 10 ? 1 : 0;
+    int order[PAIR_COUNT] = {0, 1, 2};
+    for (int i = PAIR_COUNT - 1; i > 0; i--) {
+        int k = rng_range(&b->rng, 0, i);
+        int t = order[i]; order[i] = order[k]; order[k] = t;
+    }
+    for (int i = 0; i < pre; i++) {
+        b->stage[order[i]] = LV_ADULT;
+        b->grown_mask |= (uint8_t)(1 << order[i]);
+    }
     /* Tilly starts away from the walls */
     b->px = (int8_t)rng_range(&b->rng, 1, GW - 2);
     b->py = (int8_t)rng_range(&b->rng, 1, GH - 2);
-    /* one or two sinkholes, never beside Tilly */
-    int holes = rng_range(&b->rng, 1, 2);
-    for (int placed = 0, tries = 0; placed < holes && tries < 200; tries++) {
-        int x = rng_range(&b->rng, 0, GW - 1), y = rng_range(&b->rng, 0, GH - 1);
-        if (b->hole[y][x] || (iabs(x - b->px) <= 1 && iabs(y - b->py) <= 1)) continue;
-        b->hole[y][x] = 1;
-        b->elev[y][x] = 0;
-        placed++;
-    }
-    /* raised planters, grown in little clumps: 4 on the first contract up to 8 */
-    int platforms = 4 + imin(contract - 1, 4);
-    for (int placed = 0, tries = 0; placed < platforms && tries < 200; tries++) {
-        int x = rng_range(&b->rng, 0, GW - 1), y = rng_range(&b->rng, 0, GH - 1);
-        if (b->elev[y][x] || b->hole[y][x] || is_player(b, x, y)) continue;
-        b->elev[y][x] = 1;
-        placed++;
-        int d = rng_range(&b->rng, 0, 3);
-        int nx = x + DIR8[d][0], ny = y + DIR8[d][1];
-        if (placed < platforms && inb(nx, ny) && !b->elev[ny][nx] && !b->hole[ny][nx] && !is_player(b, nx, ny) && rng_chance(&b->rng, 60)) {
-            b->elev[ny][nx] = 1;
-            placed++;
-        }
-    }
-    /* the opening grubs; late contracts start with grown ones */
-    int x, y;
-    for (int i = 0; i < 5; i++)
-        if (random_tile(b, &x, &y, spawnable)) place_bug(b, x, y, b->pair_sp[rng_range(&b->rng, 0, 2)], LV_LARVA);
-    int j = contract > 15 ? 13 + (contract - 13) % 3 : contract;
-    int pre = j >= 13 ? 2 : j >= 10 ? 1 : 0;
-    for (int i = 0; i < pre; i++)
-        if (random_tile(b, &x, &y, spawnable)) {
-            place_bug(b, x, y, b->pair_sp[b->evolvers[i % 2]], LV_ADULT);
-            on_grow(b, x, y, NULL);
-        }
-    for (int i = 0; i < 3; i++)
-        if (random_tile(b, &x, &y, spawnable)) b->pods[y][x]++;
+    deal_terrain(b, NULL);
+    drop_pods(b, 3, true, NULL);
+    spawn_bugs(b, 5, NULL);
+    sour_pass(b, NULL);
+    check_drones(b, NULL);
     static const uint8_t kit[SLOTS] = {CH_ROLL, CH_ROLL, CH_ROLL, CH_ROLL, CH_SKIP, CH_ZAP, CH_TOSS};
     memcpy(b->chips, kit, SLOTS);
     roll_shop(b);
 }
 
 /* ------------------------------------------------------------------ */
-/* targeting                                                            */
-
-static int reach(const Board *b, int n) { return (b->fx & FX_BOOST) ? 99 : n; }
-
-static int range_of(const Board *b, int chip) {
-    switch (chip) {
-    case CH_STREAK: case CH_RUSH: case CH_BEAM: case CH_FLARE: return 99;
-    default: return reach(b, 2);
-    }
-}
-static int dirs_of(int chip) {
-    switch (chip) {
-    case CH_DASH: case CH_RUSH: case CH_LEAP: case CH_ARC: case CH_FLARE: case CH_LOB: return 8;
-    default: return 4;
-    }
-}
-static bool is_roll(int chip) {
-    return chip == CH_ROLL || chip == CH_DASH || chip == CH_STREAK || chip == CH_RUSH || chip == CH_HUSTLE;
-}
-static bool is_line_shot(int chip) {
-    return chip == CH_ZAP || chip == CH_ARC || chip == CH_BEAM || chip == CH_FLARE || chip == CH_TRACK;
-}
-
-/* Can a rolling move enter tile (nx,ny) from (cx,cy)? Also reports whether
- * entering it ends the roll (a push or a stomp). */
-static bool roll_step_ok(const Board *b, int cx, int cy, int dx, int dy, bool *ends) {
-    int nx = cx + dx, ny = cy + dy;
-    *ends = false;
-    if (!inb(nx, ny) || b->hole[ny][nx]) return false;
-    bool hover = (b->fx & FX_HOVER) != 0;
-    if (!hover && b->elev[ny][nx] > b->elev[cy][cx]) return false;
-    if (!b->bsp[ny][nx]) return true;
-    if (b->fx & FX_OVERDRIVE) return true; /* touched grubs just pop */
-    *ends = true;
-    if (b->elev[cy][cx] > b->elev[ny][nx]) return true; /* stomp */
-    int bx = nx + dx, by = ny + dy;
-    if (!inb(bx, by)) return false;
-    if (b->hole[by][bx]) return true;
-    if (b->bsp[by][bx] || is_player(b, bx, by)) return false;
-    if (b->elev[by][bx] > b->elev[ny][nx]) return false;
-    return true;
-}
-
-static bool hop_ok(const Board *b, int x, int y) {
-    if (!inb(x, y) || b->hole[y][x] || is_player(b, x, y)) return false;
-    return !b->bsp[y][x] || (b->fx & FX_OVERDRIVE);
-}
-
-static bool near_hole(const Board *b, int x, int y) {
-    for (int d = 0; d < 8; d++) {
-        int nx = x + DIR8[d][0], ny = y + DIR8[d][1];
-        if (inb(nx, ny) && b->hole[ny][nx]) return true;
-    }
-    return false;
-}
-
-void gs_targets(const Board *b, int chip, uint8_t out[GH][GW]) {
-    memset(out, 0, GW * GH);
-    int px = b->px, py = b->py;
-    int r = range_of(b, chip);
-    if (is_roll(chip)) {
-        for (int d = 0; d < dirs_of(chip); d++) {
-            int cx = px, cy = py;
-            for (int k = 1; k <= r; k++) {
-                bool ends;
-                if (!roll_step_ok(b, cx, cy, DIR8[d][0], DIR8[d][1], &ends)) break;
-                cx += DIR8[d][0];
-                cy += DIR8[d][1];
-                out[cy][cx] = 1;
-                if (ends) break;
-            }
-        }
-        return;
-    }
-    if (is_line_shot(chip)) {
-        bool sight = (b->fx & FX_SIGHT) != 0;
-        for (int d = 0; d < dirs_of(chip); d++)
-            for (int k = 1; k <= r; k++) {
-                int x = px + DIR8[d][0] * k, y = py + DIR8[d][1] * k;
-                if (!inb(x, y) || (!sight && b->elev[y][x] > b->elev[py][px])) break;
-                out[y][x] = 1;
-            }
-        return;
-    }
-    switch (chip) {
-    case CH_SKIP: case CH_LEAP:
-        for (int d = 0; d < dirs_of(chip); d++)
-            for (int k = 1; k <= r; k++)
-                if (hop_ok(b, px + DIR8[d][0] * k, py + DIR8[d][1] * k)) out[py + DIR8[d][1] * k][px + DIR8[d][0] * k] = 1;
-        break;
-    case CH_VAULT: {
-        int rr = reach(b, 2);
-        for (int y = py - rr; y <= py + rr; y++)
-            for (int x = px - rr; x <= px + rr; x++)
-                if (hop_ok(b, x, y)) out[y][x] = 1;
-        break;
-    }
-    case CH_WARP:
-        for (int y = 0; y < GH; y++)
-            for (int x = 0; x < GW; x++)
-                if (b->pods[y][x] && hop_ok(b, x, y)) out[y][x] = 1;
-        break;
-    case CH_PERCH:
-        for (int y = 0; y < GH; y++)
-            for (int x = 0; x < GW; x++)
-                if (b->elev[y][x] && hop_ok(b, x, y)) out[y][x] = 1;
-        break;
-    case CH_DIVE:
-        for (int y = 0; y < GH; y++)
-            for (int x = 0; x < GW; x++)
-                if (near_hole(b, x, y) && hop_ok(b, x, y)) out[y][x] = 1;
-        break;
-    case CH_TOSS: case CH_LOB:
-        for (int d = 0; d < dirs_of(chip); d++)
-            for (int k = 1; k <= r; k++) {
-                int x = px + DIR8[d][0] * k, y = py + DIR8[d][1] * k;
-                if (inb(x, y)) out[y][x] = 1;
-            }
-        break;
-    case CH_MORTAR: case CH_SEED: {
-        int rr = reach(b, 2);
-        for (int y = py - rr; y <= py + rr; y++)
-            for (int x = px - rr; x <= px + rr; x++)
-                if (inb(x, y) && !(x == px && y == py) && !(chip == CH_SEED && b->hole[y][x])) out[y][x] = 1;
-        break;
-    }
-    case CH_DEVOLVE: {
-        int rr = reach(b, 2);
-        for (int y = py - rr; y <= py + rr; y++)
-            for (int x = px - rr; x <= px + rr; x++)
-                if (inb(x, y) && b->bsp[y][x] && b->bsp[y][x] != SP_DRONE) out[y][x] = 1;
-        break;
-    }
-    case CH_DETONATE:
-        for (int y = 0; y < GH; y++)
-            for (int x = 0; x < GW; x++)
-                if (b->pods[y][x]) out[y][x] = 1;
-        break;
-    case CH_QUAKE:
-        for (int y = 0; y < GH; y++)
-            for (int x = 0; x < GW; x++)
-                if (b->hole[y][x]) out[y][x] = 1;
-        break;
-    case CH_HAIL:
-        if (b->elev[py][px] == 0) out[py][px] = 1;
-        break;
-    case CH_CRACK:
-        for (int y = 0; y < GH; y++)
-            for (int x = 0; x < GW; x++)
-                if (b->bsp[y][x] && b->blv[y][x] == LV_EGG) out[y][x] = 1;
-        break;
-    case CH_SHIFT:
-        for (int y = 0; y < GH; y++)
-            for (int x = 0; x < GW; x++)
-                if (b->elev[y][x] && !b->hole[y][x]) out[y][x] = 1;
-        break;
-    case CH_GATHER:
-        for (int y = 0; y < GH; y++)
-            for (int x = 0; x < GW; x++)
-                if (b->pods[y][x] || b->sour[y][x]) out[y][x] = 1;
-        break;
-    case CH_DIG:
-        for (int y = 0; y < GH; y++)
-            for (int x = 0; x < GW; x++)
-                if (!b->hole[y][x] && !is_player(b, x, y) && near_hole(b, x, y)) out[y][x] = 1;
-        break;
-    case CH_SPRAY:
-        for (int y = 0; y < GH; y++)
-            for (int x = 0; x < GW; x++)
-                if (!b->hole[y][x] && !b->spray[y][x]) out[y][x] = 1;
-        break;
-    case CH_PULSE: case CH_OVERDRIVE: case CH_RELOAD: case CH_REFUEL: case CH_BOOST: case CH_VOLATILE:
-    case CH_RESTOCK: case CH_RECHARGE: case CH_FLIP: case CH_HOVER: case CH_SIGHT: case CH_SHOO:
-        out[py][px] = 1; /* confirm on Tilly herself */
-        break;
-    }
-}
-
-void gs_targets2(const Board *b, int chip, int fx, int fy, uint8_t out[GH][GW]) {
-    memset(out, 0, GW * GH);
-    for (int y = 0; y < GH; y++)
-        for (int x = 0; x < GW; x++) {
-            if (x == fx && y == fy) continue;
-            if (chip == CH_SHIFT && !b->hole[y][x] && !b->elev[y][x]) out[y][x] = 1;
-            if (chip == CH_SPRAY && !b->hole[y][x] && !b->spray[y][x]) out[y][x] = 1;
-        }
-}
-
-/* ------------------------------------------------------------------ */
 /* damage resolution                                                    */
 
-typedef struct { int8_t x, y; uint8_t cause, elev; } Hit;
-typedef struct { Hit q[400]; int qh, qt; uint8_t boomed[GH][GW]; } HitQ;
+typedef struct { int8_t x, y; uint8_t cause; } Hit;
+typedef struct {
+    Hit q[400];
+    int qh, qt;
+    uint8_t boomed[GH][GW];
+    uint8_t revert[GH][GW]; /* sour pods to turn sweet again once the dust settles */
+} HitQ;
 
-static void push_hit(HitQ *h, int x, int y, int cause, int elev) {
-    if (h->qt < (int)(sizeof h->q / sizeof h->q[0])) h->q[h->qt++] = (Hit){(int8_t)x, (int8_t)y, (uint8_t)cause, (uint8_t)elev};
+static void hitq_init(HitQ *h) {
+    h->qh = h->qt = 0;
+    memset(h->boomed, 0, sizeof h->boomed);
+    memset(h->revert, 0, sizeof h->revert);
+}
+
+static void push_hit(HitQ *h, int x, int y, int cause) {
+    if (h->qt < (int)(sizeof h->q / sizeof h->q[0])) h->q[h->qt++] = (Hit){(int8_t)x, (int8_t)y, (uint8_t)cause};
 }
 
 /* A blast on a tile: it and its 8 neighbours at the same height. */
@@ -447,7 +344,7 @@ static void blast(Board *b, HitQ *h, int x, int y, int elev, Events *ev) {
             int nx = x + dx, ny = y + dy;
             if (!inb(nx, ny)) continue;
             if (!(dx == 0 && dy == 0) && (b->hole[ny][nx] || b->elev[ny][nx] != elev)) continue;
-            push_hit(h, nx, ny, CAUSE_BOOM, elev);
+            push_hit(h, nx, ny, CAUSE_BOOM);
         }
 }
 
@@ -460,26 +357,31 @@ static void kill_bug(Board *b, HitQ *h, int x, int y, int cause, Events *ev) {
     if (lv == LV_EGG) { emit(ev, EV_EGG, x, y, 0, 0, sp); return; }
     b->kills++;
     emit(ev, cause == CAUSE_STOMP ? EV_STOMP : EV_KILL, x, y, 0, 0, sp);
-    if (!damaging(cause)) return; /* stomps, pits and sprays never trigger abilities */
-    if (lv >= LV_ADULT) {
-        if (sp == SP_SPARK) {
-            for (int d = 0; d < 4; d++)
-                for (int k = 1; k <= 2; k++) {
-                    int sx = x + DIR8[d][0] * k, sy = y + DIR8[d][1] * k;
-                    if (!inb(sx, sy)) break;
-                    emit(ev, EV_SPARK, x, y, sx, sy, 0);
-                    push_hit(h, sx, sy, CAUSE_SPARK, 0);
-                }
-        } else if (sp == SP_BURROW) {
-            b->hole[y][x] = 1;
-            b->pods[y][x] = 0;
-            b->sour[y][x] = 0;
-            b->spray[y][x] = 0;
-            b->elev[y][x] = 0;
-            emit(ev, EV_HOLE, x, y, 0, 0, 0);
-        }
+    bool grown = lv == LV_ADULT || lv == LV_QUEEN;
+    /* a dead sourmite's sour pods turn back into fizz pods */
+    if (sp == SP_SOUR && grown)
+        for (int d = 0; d < 8; d++)
+            if (inb(x + DIR8[d][0], y + DIR8[d][1])) h->revert[y + DIR8[d][1]][x + DIR8[d][0]] = 1;
+    if (!damaging(cause) || !grown) return; /* stomps, pits, pods and sprays never trigger abilities */
+    if (sp == SP_SPARK) {
+        /* sparks fly two tiles each way at the grub's own height; higher
+         * ground stops them, lower ground and pits pass beneath */
+        int e0 = b->elev[y][x];
+        for (int d = 0; d < 4; d++)
+            for (int k = 1; k <= 2; k++) {
+                int sx = x + DIR8[d][0] * k, sy = y + DIR8[d][1] * k;
+                if (!inb(sx, sy) || (!b->hole[sy][sx] && b->elev[sy][sx] > e0)) break;
+                emit(ev, EV_SPARK, x, y, sx, sy, 0);
+                if (!b->hole[sy][sx] && b->elev[sy][sx] == e0) push_hit(h, sx, sy, CAUSE_SPARK);
+            }
+    } else if (sp == SP_BURROW) {
+        b->hole[y][x] = 1;
+        b->pods[y][x] = 0;
+        b->sour[y][x] = 0;
+        b->elev[y][x] = 0;
+        emit(ev, EV_HOLE, x, y, 0, 0, 0);
     }
-    if ((b->fx & FX_VOLATILE) && cause != CAUSE_BOOM && !b->hole[y][x]) blast(b, h, x, y, b->elev[y][x], ev);
+    if ((b->fx & FX_VOLATILE) && cause == CAUSE_ATTACK && !b->hole[y][x]) blast(b, h, x, y, b->elev[y][x], ev);
 }
 
 static void check_drones(Board *b, Events *ev) {
@@ -487,10 +389,7 @@ static void check_drones(Board *b, Events *ev) {
         for (int x = 0; x < GW; x++) {
             if (b->bsp[y][x] != SP_DRONE) continue;
             bool near = false;
-            for (int d = 0; d < 8; d++) {
-                int nx = x + DIR8[d][0], ny = y + DIR8[d][1];
-                if (inb(nx, ny) && b->bsp[ny][nx] == SP_HIVE && b->blv[ny][nx] >= LV_ADULT && b->blv[ny][nx] <= LV_QUEEN) near = true;
-            }
+            for (int d = 0; d < 8; d++) near |= grown_sp(b, x + DIR8[d][0], y + DIR8[d][1], SP_HIVE);
             if (!near) { b->bsp[y][x] = SP_NONE; emit(ev, EV_KILL, x, y, 0, 0, SP_DRONE); }
         }
 }
@@ -500,6 +399,7 @@ static void run_hits(Board *b, HitQ *h, Events *ev) {
         Hit hit = h->q[h->qh++];
         int x = hit.x, y = hit.y, cause = hit.cause;
         if (!inb(x, y)) continue;
+        if (damaging(cause)) emit(ev, EV_AREA, x, y, 0, 0, cause);
         if (is_player(b, x, y) && damaging(cause) && (b->status == ST_PLAYING || b->status == ST_WON)) {
             b->status = ST_DEAD;
             emit(ev, EV_DIE, x, y, 0, 0, 0);
@@ -524,28 +424,33 @@ static void run_hits(Board *b, HitQ *h, Events *ev) {
             continue; /* the tile itself is in the queue again as part of the blast */
         }
         if (!b->bsp[y][x]) continue;
-        int sp = b->bsp[y][x], lv = b->blv[y][x];
-        bool grown = lv == LV_ADULT || lv == LV_QUEEN;
-        if (damaging(cause)) {
-            if (sp == SP_HIVE && grown && hive_has_drone(b, x, y)) { emit(ev, EV_HIT, x, y, 0, 0, sp); continue; }
-            if (sp == SP_SOUR && grown && cause == CAUSE_BOOM) { emit(ev, EV_HIT, x, y, 0, 0, sp); continue; }
-            if (b->bhp[y][x] > 1) {
-                b->bhp[y][x]--;
-                emit(ev, EV_HIT, x, y, 0, 0, sp);
-                continue;
-            }
+        if ((damaging(cause) || cause == CAUSE_TOUCH || cause == CAUSE_STOMP) && shielded(b, x, y)) {
+            emit(ev, EV_HIT, x, y, 0, 0, b->bsp[y][x]);
+            continue;
+        }
+        if (damaging(cause) && b->bhp[y][x] > 1) {
+            b->bhp[y][x]--;
+            emit(ev, EV_HIT, x, y, 0, 0, b->bsp[y][x]);
+            continue;
         }
         kill_bug(b, h, x, y, cause, ev);
     }
+    for (int y = 0; y < GH; y++)
+        for (int x = 0; x < GW; x++)
+            if (h->revert[y][x] && b->sour[y][x] && !near_grown_sour(b, x, y)) {
+                b->pods[y][x] = b->sour[y][x];
+                b->sour[y][x] = 0;
+                emit(ev, EV_POD, x, y, 0, 0, b->pods[y][x]);
+            }
+    memset(h->revert, 0, sizeof h->revert);
     check_drones(b, ev);
     if (b->status == ST_PLAYING && b->kills >= b->quota) b->status = ST_WON;
 }
 
 static void resolve1(Board *b, int x, int y, int cause, Events *ev) {
     HitQ h;
-    h.qh = h.qt = 0;
-    memset(h.boomed, 0, sizeof h.boomed);
-    push_hit(&h, x, y, cause, 0);
+    hitq_init(&h);
+    push_hit(&h, x, y, cause);
     run_hits(b, &h, ev);
 }
 
@@ -558,21 +463,19 @@ static void add_pod(Board *b, int x, int y, Events *ev) {
         int elev = b->elev[y][x];
         b->pods[y][x] = 0;
         b->sour[y][x] = 0;
-        b->spray[y][x] = 0;
         b->hole[y][x] = 1;
         b->elev[y][x] = 0;
         emit(ev, EV_HOLE, x, y, 0, 0, 0);
         HitQ h;
-        h.qh = h.qt = 0;
-        memset(h.boomed, 0, sizeof h.boomed);
+        hitq_init(&h);
         h.boomed[y][x] = 1;
-        if (b->bsp[y][x]) push_hit(&h, x, y, CAUSE_HOLE, 0);
+        if (b->bsp[y][x]) push_hit(&h, x, y, CAUSE_HOLE);
         if (is_player(b, x, y)) { b->status = ST_DEAD; emit(ev, EV_DIE, x, y, 0, 0, 0); }
         emit(ev, EV_BOOM, x, y, 0, 0, 1);
         for (int dy = -1; dy <= 1; dy++)
             for (int dx = -1; dx <= 1; dx++) {
                 int nx = x + dx, ny = y + dy;
-                if ((dx || dy) && inb(nx, ny) && !b->hole[ny][nx] && b->elev[ny][nx] == elev) push_hit(&h, nx, ny, CAUSE_BOOM, elev);
+                if ((dx || dy) && inb(nx, ny) && !b->hole[ny][nx] && b->elev[ny][nx] == elev) push_hit(&h, nx, ny, CAUSE_BOOM);
             }
         run_hits(b, &h, ev);
     }
@@ -591,25 +494,39 @@ static void collect(Board *b, int x, int y, Events *ev) {
     }
 }
 
-/* A grub lands on a tile after a push (or a SHOO): sprays kill it, sour pods
- * make it grow a stage for good, and an egg shoved into sour pods hatches. */
+/* A grub lands on a tile after a shove (or a SHOO): a sprayed tile or a fizz
+ * pod kills it (the pod is used up, no blast); sour pods make it grow a stage
+ * for good, turn a drone into a larva, and hatch an egg. */
 static void landed(Board *b, int x, int y, Events *ev) {
     if (!b->bsp[y][x]) return;
     if (b->spray[y][x]) { resolve1(b, x, y, CAUSE_SPRAY, ev); return; }
-    if (b->sour[y][x] && b->bsp[y][x] != SP_DRONE) {
+    if (b->pods[y][x]) {
+        b->pods[y][x] = 0;
+        emit(ev, EV_POD, x, y, 0, 0, 9);
+        resolve1(b, x, y, CAUSE_POD, ev);
+        return;
+    }
+    if (b->sour[y][x]) {
         b->sour[y][x] = 0;
-        if (b->blv[y][x] == LV_EGG) {
+        emit(ev, EV_SOUR, x, y, 0, 0, 0);
+        if (b->bsp[y][x] == SP_DRONE) {
+            place_bug(b, x, y, b->pair_sp[PAIR_GOLD], LV_LARVA);
+            emit(ev, EV_GROW, x, y, 0, 0, 0);
+        } else if (b->blv[y][x] == LV_EGG) {
             b->status = ST_HATCHED;
             emit(ev, EV_EGG, x, y, 0, 0, 255);
             return;
+        } else {
+            place_bug(b, x, y, b->bsp[y][x], b->blv[y][x] + 1);
+            if (b->blv[y][x] <= LV_QUEEN) on_grow(b, x, y, ev);
+            else emit(ev, EV_EGG, x, y, 0, 0, 253);
         }
-        place_bug(b, x, y, b->bsp[y][x], b->blv[y][x] + 1);
-        if (b->blv[y][x] <= LV_QUEEN) on_grow(b, x, y, ev);
     }
+    sour_pass(b, ev);
 }
 
 /* ------------------------------------------------------------------ */
-/* actions                                                              */
+/* moving                                                               */
 
 static void move_tilly(Board *b, int nx, int ny, int hop, Events *ev) {
     emit(ev, EV_MOVE, b->px, b->py, nx, ny, hop);
@@ -618,41 +535,219 @@ static void move_tilly(Board *b, int nx, int ny, int hop, Events *ev) {
     collect(b, nx, ny, ev);
 }
 
+static void shove(Board *b, int x, int y, int bx, int by, Events *ev) {
+    emit(ev, EV_PUSH, x, y, bx, by, b->bsp[y][x]);
+    if (b->hole[by][bx]) {
+        resolve1(b, x, y, CAUSE_HOLE, ev);
+        return;
+    }
+    b->bsp[by][bx] = b->bsp[y][x];
+    b->blv[by][bx] = b->blv[y][x];
+    b->bhp[by][bx] = b->bhp[y][x];
+    b->bsp[y][x] = SP_NONE;
+    landed(b, bx, by, ev);
+    check_drones(b, ev);
+}
+
+/* One tile of a rolling move. Rolls can't climb. Rolling down onto a grub
+ * squashes it and the roll goes on; rolling into one at the same height
+ * shoves it a tile ahead (not uphill, not into another grub or Tilly), and
+ * the roll goes on, shoving again. Returns false if Tilly can't go on. */
+static bool roll_step(Board *b, int dx, int dy, Events *ev) {
+    int cx = b->px, cy = b->py, nx = cx + dx, ny = cy + dy;
+    if (!inb(nx, ny) || b->hole[ny][nx]) return false;
+    if (!(b->fx & FX_HOVER) && b->elev[ny][nx] > b->elev[cy][cx]) return false;
+    if (b->bsp[ny][nx]) {
+        bool shield = shielded(b, nx, ny);
+        if ((b->fx & FX_OVERDRIVE) && !shield) {
+            resolve1(b, nx, ny, CAUSE_TOUCH, ev);
+        } else if (b->elev[cy][cx] > b->elev[ny][nx] && !shield) {
+            resolve1(b, nx, ny, CAUSE_STOMP, ev);
+        } else {
+            int bx = nx + dx, by = ny + dy;
+            if (!inb(bx, by)) return false;
+            if (!b->hole[by][bx] && (b->bsp[by][bx] || is_player(b, bx, by) || b->elev[by][bx] > b->elev[ny][nx])) return false;
+            shove(b, nx, ny, bx, by, ev);
+        }
+        if (b->bsp[ny][nx]) return false; /* still there somehow: stop */
+    }
+    move_tilly(b, nx, ny, 0, ev);
+    return true;
+}
+
 static void do_roll(Board *b, int tx, int ty, Events *ev) {
     int dx = isign(tx - b->px), dy = isign(ty - b->py);
     int steps = imax(iabs(tx - b->px), iabs(ty - b->py));
-    for (int k = 0; k < steps && b->status == ST_PLAYING; k++) {
-        bool ends;
-        if (!roll_step_ok(b, b->px, b->py, dx, dy, &ends)) break;
-        int nx = b->px + dx, ny = b->py + dy;
-        if (b->bsp[ny][nx]) {
-            if (b->fx & FX_OVERDRIVE) {
-                resolve1(b, nx, ny, CAUSE_TOUCH, ev);
-                move_tilly(b, nx, ny, 0, ev);
-                continue;
+    for (int k = 0; k < steps && b->status == ST_PLAYING; k++)
+        if (!roll_step(b, dx, dy, ev)) break;
+}
+
+/* ------------------------------------------------------------------ */
+/* targeting                                                            */
+
+static bool is_roll(int chip) {
+    return chip == CH_ROLL || chip == CH_SCURRY || chip == CH_STREAK || chip == CH_RUSH || chip == CH_HUSTLE;
+}
+static bool is_line_shot(int chip) {
+    return chip == CH_ZAP || chip == CH_ARC || chip == CH_BEAM || chip == CH_FLARE || chip == CH_TRACK;
+}
+/* tools that go in straight lines (BOOST stretches these) */
+static bool directional(int chip) {
+    return is_roll(chip) || is_line_shot(chip) || chip == CH_SKIP || chip == CH_LEAP || chip == CH_TOSS || chip == CH_PITCH;
+}
+static int range_of(const Board *b, int chip) {
+    if (chip == CH_STREAK || chip == CH_RUSH || chip == CH_BEAM || chip == CH_FLARE) return 99;
+    return ((b->fx & FX_BOOST) && directional(chip)) ? 99 : 2;
+}
+static int dirs_of(const Board *b, int chip) {
+    if (chip == CH_SCURRY || chip == CH_RUSH || chip == CH_LEAP || chip == CH_ARC || chip == CH_FLARE || chip == CH_PITCH) return 8;
+    return ((b->fx & FX_BOOST) && directional(chip)) ? 8 : 4;
+}
+
+static bool hop_ok(const Board *b, int x, int y) {
+    if (!inb(x, y) || b->hole[y][x] || is_player(b, x, y)) return false;
+    return !b->bsp[y][x] || ((b->fx & FX_OVERDRIVE) && !shielded(b, x, y));
+}
+
+static bool near_hole(const Board *b, int x, int y) {
+    for (int d = 0; d < 8; d++) {
+        int nx = x + DIR8[d][0], ny = y + DIR8[d][1];
+        if (inb(nx, ny) && b->hole[ny][nx]) return true;
+    }
+    return false;
+}
+
+static bool free_tile(const Board *b, int x, int y) {
+    return inb(x, y) && !b->hole[y][x] && !b->bsp[y][x] && !is_player(b, x, y);
+}
+
+void gs_targets(const Board *b, int chip, uint8_t out[GH][GW]) {
+    memset(out, 0, GW * GH);
+    int px = b->px, py = b->py;
+    int r = range_of(b, chip);
+    if (is_roll(chip)) {
+        /* play the roll out on a copy: every tile it can end on is a target */
+        for (int d = 0; d < dirs_of(b, chip); d++) {
+            Board t = *b;
+            for (int k = 1; k <= r; k++) {
+                if (!roll_step(&t, DIR8[d][0], DIR8[d][1], NULL) || t.status != ST_PLAYING) break;
+                out[t.py][t.px] = 1;
             }
-            if (b->elev[b->py][b->px] > b->elev[ny][nx]) {
-                resolve1(b, nx, ny, CAUSE_STOMP, ev);
-            } else {
-                int bx = nx + dx, by = ny + dy;
-                emit(ev, EV_PUSH, nx, ny, bx, by, b->bsp[ny][nx]);
-                if (b->hole[by][bx]) {
-                    resolve1(b, nx, ny, CAUSE_HOLE, ev);
-                } else {
-                    b->bsp[by][bx] = b->bsp[ny][nx];
-                    b->blv[by][bx] = b->blv[ny][nx];
-                    b->bhp[by][bx] = b->bhp[ny][nx];
-                    b->bsp[ny][nx] = SP_NONE;
-                    landed(b, bx, by, ev);
-                    check_drones(b, ev);
-                }
-            }
-            move_tilly(b, nx, ny, 0, ev);
-            break;
         }
-        move_tilly(b, nx, ny, 0, ev);
+        return;
+    }
+    if (is_line_shot(chip)) {
+        bool sight = (b->fx & FX_SIGHT) != 0;
+        for (int d = 0; d < dirs_of(b, chip); d++)
+            for (int k = 1; k <= r; k++) {
+                int x = px + DIR8[d][0] * k, y = py + DIR8[d][1] * k;
+                if (!inb(x, y) || (!sight && b->elev[y][x] > b->elev[py][px])) break;
+                out[y][x] = 1;
+            }
+        return;
+    }
+    switch (chip) {
+    case CH_SKIP: case CH_LEAP:
+        for (int d = 0; d < dirs_of(b, chip); d++)
+            for (int k = 1; k <= r; k++)
+                if (hop_ok(b, px + DIR8[d][0] * k, py + DIR8[d][1] * k)) out[py + DIR8[d][1] * k][px + DIR8[d][0] * k] = 1;
+        break;
+    case CH_BOUND:
+        for (int y = py - 2; y <= py + 2; y++)
+            for (int x = px - 2; x <= px + 2; x++)
+                if (hop_ok(b, x, y)) out[y][x] = 1;
+        break;
+    case CH_BLINK:
+        for (int y = 0; y < GH; y++)
+            for (int x = 0; x < GW; x++)
+                if ((b->pods[y][x] || b->sour[y][x]) && hop_ok(b, x, y)) out[y][x] = 1;
+        break;
+    case CH_PERCH:
+        for (int y = 0; y < GH; y++)
+            for (int x = 0; x < GW; x++)
+                if (b->elev[y][x] && hop_ok(b, x, y)) out[y][x] = 1;
+        break;
+    case CH_DIVE:
+        for (int y = 0; y < GH; y++)
+            for (int x = 0; x < GW; x++)
+                if (near_hole(b, x, y) && hop_ok(b, x, y)) out[y][x] = 1;
+        break;
+    case CH_TOSS: case CH_PITCH:
+        for (int d = 0; d < dirs_of(b, chip); d++)
+            for (int k = 1; k <= r; k++) {
+                int x = px + DIR8[d][0] * k, y = py + DIR8[d][1] * k;
+                if (inb(x, y)) out[y][x] = 1;
+            }
+        break;
+    case CH_MORTAR:
+        for (int y = py - 2; y <= py + 2; y++)
+            for (int x = px - 2; x <= px + 2; x++)
+                if (inb(x, y) && !(x == px && y == py)) out[y][x] = 1;
+        break;
+    case CH_SEED:
+        for (int y = 0; y < GH; y++)
+            for (int x = 0; x < GW; x++)
+                if (free_tile(b, x, y) && !b->sour[y][x]) out[y][x] = 1;
+        break;
+    case CH_REWIND:
+        for (int y = 0; y < GH; y++)
+            for (int x = 0; x < GW; x++)
+                if (b->bsp[y][x] && b->bsp[y][x] != SP_DRONE) out[y][x] = 1;
+        break;
+    case CH_IGNITE:
+        for (int y = 0; y < GH; y++)
+            for (int x = 0; x < GW; x++)
+                if (b->pods[y][x]) out[y][x] = 1;
+        break;
+    case CH_QUAKE:
+        for (int y = 0; y < GH; y++)
+            for (int x = 0; x < GW; x++)
+                if (b->hole[y][x]) out[y][x] = 1;
+        break;
+    case CH_CRACK:
+        for (int y = 0; y < GH; y++)
+            for (int x = 0; x < GW; x++)
+                if (b->bsp[y][x] && b->blv[y][x] == LV_EGG) out[y][x] = 1;
+        break;
+    case CH_TILL:
+        for (int y = 0; y < GH; y++)
+            for (int x = 0; x < GW; x++)
+                if (b->elev[y][x] && !b->hole[y][x]) out[y][x] = 1;
+        break;
+    case CH_GATHER:
+        for (int y = 0; y < GH; y++)
+            for (int x = 0; x < GW; x++)
+                if (b->pods[y][x] || b->sour[y][x]) out[y][x] = 1;
+        break;
+    case CH_BORE:
+        for (int y = 0; y < GH; y++)
+            for (int x = 0; x < GW; x++)
+                if (!b->hole[y][x] && !is_player(b, x, y) && near_hole(b, x, y)) out[y][x] = 1;
+        break;
+    case CH_MIST:
+        for (int y = 0; y < GH; y++)
+            for (int x = 0; x < GW; x++)
+                if (free_tile(b, x, y) && !b->spray[y][x]) out[y][x] = 1;
+        break;
+    case CH_PULSE: case CH_HAIL: case CH_OVERDRIVE: case CH_RELOAD: case CH_REFUEL: case CH_BOOST: case CH_VOLATILE:
+    case CH_RESTOCK: case CH_JUMPER: case CH_FLIP: case CH_HOVER: case CH_SIGHT: case CH_SHOO:
+        out[py][px] = 1; /* confirm on Tilly herself */
+        break;
     }
 }
+
+void gs_targets2(const Board *b, int chip, int fx, int fy, uint8_t out[GH][GW]) {
+    memset(out, 0, GW * GH);
+    for (int y = 0; y < GH; y++)
+        for (int x = 0; x < GW; x++) {
+            if (x == fx && y == fy) continue;
+            if (chip == CH_TILL && !b->hole[y][x] && !b->elev[y][x]) out[y][x] = 1;
+            if (chip == CH_MIST && free_tile(b, x, y) && !b->spray[y][x]) out[y][x] = 1;
+        }
+}
+
+/* ------------------------------------------------------------------ */
+/* actions                                                              */
 
 static void hop_to(Board *b, int tx, int ty, Events *ev) {
     if (b->bsp[ty][tx] && (b->fx & FX_OVERDRIVE)) resolve1(b, tx, ty, CAUSE_TOUCH, ev);
@@ -663,13 +758,12 @@ static void shoot_line(Board *b, int tx, int ty, Events *ev) {
     int dx = isign(tx - b->px), dy = isign(ty - b->py);
     int steps = imax(iabs(tx - b->px), iabs(ty - b->py));
     HitQ h;
-    h.qh = h.qt = 0;
-    memset(h.boomed, 0, sizeof h.boomed);
+    hitq_init(&h);
     bool sight = (b->fx & FX_SIGHT) != 0;
     for (int k = 1; k <= steps; k++) {
         int x = b->px + dx * k, y = b->py + dy * k;
         if (!inb(x, y) || (!sight && b->elev[y][x] > b->elev[b->py][b->px])) break;
-        push_hit(&h, x, y, CAUSE_ATTACK, 0);
+        push_hit(&h, x, y, CAUSE_ATTACK);
     }
     emit(ev, EV_SHOT, b->px, b->py, tx, ty, 0);
     run_hits(b, &h, ev);
@@ -681,21 +775,6 @@ static void refresh_kind(Board *b, int kind, int except, Events *ev) {
             b->spent[i] = 0;
             emit(ev, EV_REFRESH, i, 0, 0, 0, 0);
         }
-}
-
-static void drop_pods(Board *b, int n, Events *ev) {
-    /* never onto Tilly, never a third on one tile */
-    for (int i = 0; i < n; i++)
-        for (int tries = 0; tries < 40; tries++) {
-            int x = rng_range(&b->rng, 0, GW - 1), y = rng_range(&b->rng, 0, GH - 1);
-            if (b->hole[y][x] || is_player(b, x, y) || b->pods[y][x] >= 2 || b->sour[y][x]) continue;
-            b->pods[y][x]++;
-            emit(ev, EV_POD, x, y, 0, 0, b->pods[y][x]);
-            break;
-        }
-    for (int y = 0; y < GH; y++)
-        for (int x = 0; x < GW; x++)
-            if (b->bsp[y][x] == SP_SOUR && b->blv[y][x] >= LV_ADULT && b->blv[y][x] <= LV_QUEEN) convert_sour(b, x, y, ev);
 }
 
 static void do_shoo(Board *b, Events *ev) {
@@ -712,21 +791,18 @@ static void do_shoo(Board *b, Events *ev) {
     for (int i = 0; i < n && b->status == ST_PLAYING; i++) {
         int x = order[i] % GW, y = order[i] / GW;
         if (!b->bsp[y][x] || moved[y][x]) continue;
-        int opts[4], m = 0;
-        for (int d = 0; d < 4; d++) {
+        /* any neighbour, diagonals too, that no grub or Tilly is on:
+         * a pit or a pod there is the end of it */
+        int opts[8], m = 0;
+        for (int d = 0; d < 8; d++) {
             int nx = x + DIR8[d][0], ny = y + DIR8[d][1];
-            if (inb(nx, ny) && !b->hole[ny][nx] && !b->bsp[ny][nx] && !is_player(b, nx, ny)) opts[m++] = d;
+            if (inb(nx, ny) && !b->bsp[ny][nx] && !is_player(b, nx, ny)) opts[m++] = d;
         }
         if (m == 0) continue;
         int d = opts[rng_range(&b->rng, 0, m - 1)];
         int nx = x + DIR8[d][0], ny = y + DIR8[d][1];
-        b->bsp[ny][nx] = b->bsp[y][x];
-        b->blv[ny][nx] = b->blv[y][x];
-        b->bhp[ny][nx] = b->bhp[y][x];
-        b->bsp[y][x] = SP_NONE;
         moved[ny][nx] = 1;
-        emit(ev, EV_PUSH, x, y, nx, ny, b->bsp[ny][nx]);
-        landed(b, nx, ny, ev);
+        shove(b, x, y, nx, ny, ev);
     }
     check_drones(b, ev);
 }
@@ -750,38 +826,36 @@ bool gs_apply(Board *b, int slot, int tx, int ty, int tx2, int ty2, Events *ev) 
         shoot_line(b, tx, ty, ev);
     } else {
         switch (chip) {
-        case CH_SKIP: case CH_LEAP: case CH_VAULT: case CH_WARP: case CH_PERCH: case CH_DIVE:
+        case CH_SKIP: case CH_LEAP: case CH_BOUND: case CH_BLINK: case CH_PERCH: case CH_DIVE:
             hop_to(b, tx, ty, ev);
             break;
-        case CH_TOSS: case CH_LOB: case CH_MORTAR: case CH_DETONATE:
+        case CH_TOSS: case CH_PITCH: case CH_MORTAR: case CH_IGNITE:
             emit(ev, EV_SHOT, b->px, b->py, tx, ty, 1);
             resolve1(b, tx, ty, CAUSE_ATTACK, ev);
             break;
         case CH_PULSE: case CH_QUAKE: {
             HitQ h;
-            h.qh = h.qt = 0;
-            memset(h.boomed, 0, sizeof h.boomed);
+            hitq_init(&h);
             int cx = chip == CH_PULSE ? b->px : tx, cy = chip == CH_PULSE ? b->py : ty;
-            for (int d = 0; d < 8; d++) push_hit(&h, cx + DIR8[d][0], cy + DIR8[d][1], CAUSE_ATTACK, 0);
+            for (int d = 0; d < 8; d++) push_hit(&h, cx + DIR8[d][0], cy + DIR8[d][1], CAUSE_ATTACK);
             emit(ev, EV_SHOT, b->px, b->py, cx, cy, 2);
             run_hits(b, &h, ev);
             break;
         }
         case CH_HAIL: {
+            /* every planter, Tilly's own included */
             HitQ h;
-            h.qh = h.qt = 0;
-            memset(h.boomed, 0, sizeof h.boomed);
+            hitq_init(&h);
             for (int y = 0; y < GH; y++)
                 for (int x = 0; x < GW; x++)
-                    if (b->elev[y][x]) push_hit(&h, x, y, CAUSE_ATTACK, 1);
+                    if (b->elev[y][x]) push_hit(&h, x, y, CAUSE_ATTACK);
             emit(ev, EV_SHOT, b->px, b->py, b->px, b->py, 2);
             run_hits(b, &h, ev);
             break;
         }
         case CH_CRACK: {
             HitQ h;
-            h.qh = h.qt = 0;
-            memset(h.boomed, 0, sizeof h.boomed);
+            hitq_init(&h);
             emit(ev, EV_EGG, tx, ty, 0, 0, b->bsp[ty][tx]);
             b->bsp[ty][tx] = SP_NONE;
             blast(b, &h, tx, ty, b->elev[ty][tx], ev);
@@ -789,7 +863,7 @@ bool gs_apply(Board *b, int slot, int tx, int ty, int tx2, int ty2, Events *ev) 
             break;
         }
         case CH_SEED: add_pod(b, tx, ty, ev); break;
-        case CH_SHIFT:
+        case CH_TILL:
             b->elev[ty][tx] = 0;
             b->elev[ty2][tx2] = 1;
             emit(ev, EV_RAISE, tx, ty, 0, 0, 0);
@@ -807,21 +881,20 @@ bool gs_apply(Board *b, int slot, int tx, int ty, int tx2, int ty2, Events *ev) 
             break;
         case CH_RELOAD: refresh_kind(b, KIND_ATTACK, slot, ev); break;
         case CH_REFUEL: refresh_kind(b, KIND_MOVE, slot, ev); break;
-        case CH_RECHARGE:
+        case CH_JUMPER:
             for (int s = slot - 1; s <= slot + 1; s += 2)
                 if (s >= 0 && s < SLOTS && b->spent[s]) { b->spent[s] = 0; emit(ev, EV_REFRESH, s, 0, 0, 0, 0); }
             break;
-        case CH_DIG:
+        case CH_BORE:
             b->pods[ty][tx] = 0;
             b->sour[ty][tx] = 0;
-            b->spray[ty][tx] = 0;
             b->hole[ty][tx] = 1;
             b->elev[ty][tx] = 0;
             emit(ev, EV_HOLE, tx, ty, 0, 0, 0);
             if (b->bsp[ty][tx]) resolve1(b, tx, ty, CAUSE_HOLE, ev);
             check_drones(b, ev);
             break;
-        case CH_DEVOLVE:
+        case CH_REWIND:
             for (int y = ty - 1; y <= ty + 1; y++)
                 for (int x = tx - 1; x <= tx + 1; x++)
                     if (inb(x, y) && b->bsp[y][x] && b->bsp[y][x] != SP_DRONE) {
@@ -830,13 +903,13 @@ bool gs_apply(Board *b, int slot, int tx, int ty, int tx2, int ty2, Events *ev) 
                     }
             check_drones(b, ev);
             break;
-        case CH_SPRAY:
+        case CH_MIST:
             b->spray[ty][tx] = 1;
             b->spray[ty2][tx2] = 1;
             emit(ev, EV_SPRAY, tx, ty, 0, 0, 0);
             emit(ev, EV_SPRAY, tx2, ty2, 0, 0, 0);
             break;
-        case CH_RESTOCK: drop_pods(b, 4, ev); break;
+        case CH_RESTOCK: drop_pods(b, 4, false, ev); break;
         case CH_FLIP:
             for (int y = 0; y < GH; y++)
                 for (int x = 0; x < GW; x++)
@@ -846,7 +919,9 @@ bool gs_apply(Board *b, int slot, int tx, int ty, int tx2, int ty2, Events *ev) 
         case CH_SHOO: do_shoo(b, ev); break;
         }
     }
-    /* HUSTLE recharges on a squash, TRACK when Tilly changes height */
+    sour_pass(b, ev);
+    check_drones(b, ev);
+    /* HUSTLE recharges when a grub dies, TRACK when Tilly changes height */
     for (int i = 0; i < SLOTS; i++) {
         if (!b->spent[i]) continue;
         if ((b->chips[i] == CH_HUSTLE && b->kills > kills0) ||
@@ -859,20 +934,56 @@ bool gs_apply(Board *b, int slot, int tx, int ty, int tx2, int ty2, Events *ev) 
     return true;
 }
 
+/* Buying overwrites a slot and the new tool works at once; the shop fills the
+ * gap with another tool of the same price. */
 bool gs_buy(Board *b, int offer, int slot, Events *ev) {
-    if (offer < 0 || offer >= OFFERS || slot < 0 || slot >= SLOTS) return false;
+    if (b->status != ST_PLAYING || offer < 0 || offer >= OFFERS || slot < 0 || slot >= SLOTS) return false;
     int chip = b->shop[offer];
     if (chip == TOOL_NONE || b->energy < CHIPS[chip].cost) return false;
     b->energy = (uint16_t)(b->energy - CHIPS[chip].cost);
     b->chips[slot] = (uint8_t)chip;
     b->spent[slot] = 0;
     b->shop[offer] = TOOL_NONE;
+    refill_offer(b, offer, chip);
     emit(ev, EV_BUY, slot, 0, 0, 0, chip);
     return true;
 }
 
-static bool hole_ok(const Board *b, int x, int y) {
-    return !b->hole[y][x] && !b->bsp[y][x] && !is_player(b, x, y) && !b->pods[y][x] && !b->sour[y][x];
+/* The night, after the queens have settled into eggs: every grown grub ages
+ * (adult to queen). Then one colour whose larvae are still alive grows up:
+ * those larvae become adults and its new grubs hatch as adults from now on.
+ * At most two colours ever grow in a contract; larvae of the others stay
+ * harmless larvae. */
+static void grow_night(Board *b, Events *ev) {
+    for (int y = 0; y < GH; y++)
+        for (int x = 0; x < GW; x++)
+            if (b->bsp[y][x] && b->bsp[y][x] != SP_DRONE && b->blv[y][x] == LV_ADULT) {
+                place_bug(b, x, y, b->bsp[y][x], LV_QUEEN);
+                emit(ev, EV_GROW, x, y, 0, 0, b->bsp[y][x]);
+            }
+    int cand[PAIR_COUNT], n = 0, grown_types = 0;
+    for (int c = 0; c < PAIR_COUNT; c++) grown_types += (b->grown_mask >> c) & 1;
+    for (int c = 0; c < PAIR_COUNT && grown_types < 2; c++) {
+        if ((b->grown_mask >> c) & 1) continue;
+        bool alive = false;
+        for (int y = 0; y < GH; y++)
+            for (int x = 0; x < GW; x++)
+                alive |= b->bsp[y][x] && b->bsp[y][x] != SP_DRONE && b->blv[y][x] == LV_LARVA && gs_pair_of(b->bsp[y][x]) == c;
+        if (alive) cand[n++] = c;
+    }
+    if (n > 0) {
+        int c = cand[rng_range(&b->rng, 0, n - 1)];
+        b->stage[c] = LV_ADULT;
+        b->grown_mask |= (uint8_t)(1 << c);
+    }
+    /* larvae of a grown colour grow up (tonight's, or ones sent back by REWIND) */
+    for (int y = 0; y < GH; y++)
+        for (int x = 0; x < GW; x++) {
+            int sp = b->bsp[y][x];
+            if (!sp || sp == SP_DRONE || b->blv[y][x] != LV_LARVA || !((b->grown_mask >> gs_pair_of(sp)) & 1)) continue;
+            place_bug(b, x, y, sp, LV_ADULT);
+            on_grow(b, x, y, ev);
+        }
 }
 
 void gs_rest(Board *b, Events *ev) {
@@ -889,12 +1000,12 @@ void gs_rest(Board *b, Events *ev) {
         b->status = b->kills >= b->quota ? ST_WON : ST_MISSED;
         return;
     }
-    /* a field sprayed from wall to wall leaves nowhere to hatch: the job is void */
+    /* a field misted from wall to wall leaves nowhere to hatch: the job is void */
     bool open = false;
     for (int y = 0; y < GH; y++)
-        for (int x = 0; x < GW; x++) open |= !b->hole[y][x] && !b->spray[y][x];
+        for (int x = 0; x < GW; x++) open |= !b->spray[y][x];
     if (!open) { b->status = ST_MISSED; return; }
-    /* queens settle down and lay eggs */
+    /* the night: queens settle into eggs, then one colour grows */
     for (int y = 0; y < GH; y++)
         for (int x = 0; x < GW; x++)
             if (b->bsp[y][x] && b->bsp[y][x] != SP_DRONE && b->blv[y][x] == LV_QUEEN) {
@@ -902,35 +1013,23 @@ void gs_rest(Board *b, Events *ev) {
                 b->bhp[y][x] = 1;
                 emit(ev, EV_EGG, x, y, 0, 0, 253);
             }
-    /* one colour grows tonight */
-    int pair = b->evolvers[(b->day - 1) % 2];
-    for (int y = 0; y < GH; y++)
-        for (int x = 0; x < GW; x++) {
-            int sp = b->bsp[y][x];
-            if (!sp || sp == SP_DRONE || gs_pair_of(sp) != pair || b->blv[y][x] >= LV_QUEEN) continue;
-            place_bug(b, x, y, sp, b->blv[y][x] + 1);
-            on_grow(b, x, y, ev);
-        }
-    /* new larvae wriggle up */
-    int x, y;
-    for (int i = 0; i < b->spawn_n; i++)
-        if (random_tile(b, &x, &y, spawnable)) {
-            place_bug(b, x, y, b->pair_sp[rng_range(&b->rng, 0, 2)], LV_LARVA);
-            emit(ev, EV_GROW, x, y, 0, 0, 0);
-        }
-    /* fizz pods rain down */
-    drop_pods(b, b->pods_n, ev);
-    /* and the ground gives way somewhere */
-    if (random_tile(b, &x, &y, hole_ok)) {
-        b->hole[y][x] = 1;
-        b->elev[y][x] = 0;
-        b->spray[y][x] = 0;
-        emit(ev, EV_HOLE, x, y, 0, 0, 0);
-    }
     check_drones(b, ev);
+    grow_night(b, ev);
+    /* the next morning: fresh ground, the moundmakers raise their planters,
+     * pods fall and new grubs hatch */
     b->day++;
     b->fx = 0;
     memset(b->spent, 0, sizeof b->spent);
+    deal_terrain(b, ev);
+    for (int y = 0; y < GH; y++)
+        for (int x = 0; x < GW; x++)
+            if (grown_sp(b, x, y, SP_MOUND)) mound_turn(b, x, y, ev);
+    drop_pods(b, b->pods_n, false, ev);
+    if (b->status == ST_DEAD) return;
+    spawn_bugs(b, b->spawn_n, ev);
+    sour_pass(b, ev);
+    check_drones(b, ev);
+    if (b->status == ST_PLAYING && b->kills >= b->quota) b->status = ST_WON;
     roll_shop(b);
 }
 
@@ -941,11 +1040,11 @@ static int chip_value(int chip) {
     switch (chip) {
     case CH_FLARE: case CH_MORTAR: return 9;
     case CH_PULSE: case CH_VOLATILE: return 8;
-    case CH_BEAM: case CH_ARC: case CH_LOB: case CH_RELOAD: return 7;
-    case CH_DETONATE: case CH_HUSTLE: case CH_TRACK: case CH_BOOST: return 6;
+    case CH_BEAM: case CH_ARC: case CH_PITCH: case CH_RELOAD: return 7;
+    case CH_IGNITE: case CH_HUSTLE: case CH_TRACK: case CH_BOOST: return 6;
     case CH_ZAP: case CH_TOSS: case CH_RUSH: case CH_QUAKE: case CH_HAIL: return 5;
-    case CH_LEAP: case CH_VAULT: case CH_DASH: case CH_REFUEL: case CH_OVERDRIVE: return 4;
-    case CH_SKIP: case CH_STREAK: case CH_WARP: case CH_CRACK: case CH_DIG: return 3;
+    case CH_LEAP: case CH_BOUND: case CH_SCURRY: case CH_REFUEL: case CH_OVERDRIVE: return 4;
+    case CH_SKIP: case CH_STREAK: case CH_BLINK: case CH_CRACK: case CH_BORE: case CH_REWIND: return 3;
     case CH_ROLL: return 2;
     default: return 1;
     }
@@ -995,10 +1094,12 @@ static void bot_shop(Board *b) {
     }
 }
 
-bool gs_bot_turn(Board *b, Events *ev) {
-    if (b->status != ST_PLAYING) return false;
-    int base = evaluate(b);
-    int best = base, bs = -1, bx = 0, by = 0, bx2 = 0, by2 = 0;
+typedef struct { int v; int8_t s, x, y, x2, y2; } BotMove;
+
+/* Every legal action with its score one move ahead. With eggs_only, only
+ * actions that break an egg. */
+static int bot_moves(const Board *b, BotMove *out, int max, bool eggs_only) {
+    int n = 0, eggs0 = gs_count_bugs(b, LV_EGG);
     Board tmp;
     uint8_t valid[GH][GW], valid2[GH][GW];
     for (int s = 0; s < SLOTS; s++) {
@@ -1013,18 +1114,47 @@ bool gs_bot_turn(Board *b, Events *ev) {
                     gs_targets2(b, chip, x, y, valid2);
                     n2 = GW * GH;
                 }
-                for (int k = 0; k < n2; k++) {
+                for (int k = 0; k < n2 && n < max; k++) {
                     int x2 = k % GW, y2 = k / GW;
                     if (CHIPS[chip].two_step && !valid2[y2][x2]) continue;
                     tmp = *b;
                     if (!gs_apply(&tmp, s, x, y, x2, y2, NULL)) continue;
-                    int v = evaluate(&tmp) + chip_value(chip) * -3;
-                    if (v > best) { best = v; bs = s; bx = x; by = y; bx2 = x2; by2 = y2; }
+                    if (eggs_only && gs_count_bugs(&tmp, LV_EGG) >= eggs0) continue;
+                    out[n++] = (BotMove){evaluate(&tmp) + chip_value(chip) * -3, (int8_t)s, (int8_t)x, (int8_t)y, (int8_t)x2, (int8_t)y2};
                 }
             }
     }
-    if (bs < 0) return false;
-    return gs_apply(b, bs, bx, by, bx2, by2, ev);
+    return n;
+}
+
+/* One greedy action, looking two moves ahead from its five best first
+ * moves. Eggs first, like any sensible hunter: if some action breaks an egg,
+ * the choice is made among those. */
+bool gs_bot_turn(Board *b, Events *ev) {
+    if (b->status != ST_PLAYING) return false;
+    static BotMove mv[1200], mv2[1200];
+    int base = evaluate(b);
+    int n = 0;
+    if (gs_count_bugs(b, LV_EGG) > 0) n = bot_moves(b, mv, 1200, true);
+    if (n == 0) n = bot_moves(b, mv, 1200, false);
+    if (n == 0) return false;
+    /* the five best first moves */
+    for (int i = 0; i < n && i < 5; i++)
+        for (int j = i + 1; j < n; j++)
+            if (mv[j].v > mv[i].v) { BotMove t = mv[i]; mv[i] = mv[j]; mv[j] = t; }
+    int best = base, bi = -1;
+    for (int i = 0; i < n && i < 5; i++) {
+        Board t = *b;
+        gs_apply(&t, mv[i].s, mv[i].x, mv[i].y, mv[i].x2, mv[i].y2, NULL);
+        int v = mv[i].v;
+        if (t.status == ST_PLAYING) {
+            int m = bot_moves(&t, mv2, 1200, false);
+            for (int k = 0; k < m; k++) v = imax(v, mv2[k].v);
+        }
+        if (v > best || (bi < 0 && mv[i].v > base)) { best = v; bi = i; }
+    }
+    if (bi < 0) return false;
+    return gs_apply(b, mv[bi].s, mv[bi].x, mv[bi].y, mv[bi].x2, mv[bi].y2, ev);
 }
 
 void gs_bot_contract(Board *b) {

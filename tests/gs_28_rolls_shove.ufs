@@ -1,0 +1,42 @@
+# GRUB SHIFT: rolls are continuous. Rolling into a grub shoves it one tile
+# per step, so a two-tile roll shoves it twice; a shove is stopped by higher
+# ground or another grub. Rolling down off a planter squashes a grub and the
+# roll carries on. A grub shoved into a fizz pod dies and the pod is used up
+# with no blast.
+game grubshift
+wait 5
+cheat contract 1 7
+cheat clear
+cheat tilly 0 2
+cheat bug 1 2 1 0
+cheat use 0 2 2
+expect px == 2
+expect bug_at32 == 1
+expect bug_at12 == 0
+expect bug_at22 == 0
+cheat clear
+cheat tilly 0 2
+cheat bug 1 2 1 0
+cheat elev 2 2 1
+cheat use 1 1 2
+expect spent1 == 0
+expect px == 0
+cheat clear
+cheat tilly 0 2
+cheat elev 0 2 1
+cheat bug 1 2 5 1
+cheat pods 2 2 1
+cheat energy 0
+cheat use 1 2 2
+expect kills == 1
+expect px == 2
+expect energy == 1
+cheat clear
+cheat tilly 0 2
+cheat bug 1 2 1 0
+cheat pods 2 2 1
+cheat use 2 1 2
+expect kills == 2
+expect pods_at22 == 0
+expect bug_at22 == 0
+expect status == 0

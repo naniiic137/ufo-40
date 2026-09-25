@@ -1,0 +1,30 @@
+# GRUB SHIFT: a sparkmite's sparks fly two tiles each way at its own height:
+# a planter in the way stops them, and grubs (or Tilly) on lower ground are
+# safe from them.
+game grubshift
+wait 5
+cheat contract 1 7
+cheat clear
+cheat tilly 3 0
+cheat elev 3 2 1
+cheat elev 2 2 1
+cheat bug 3 2 1 1
+cheat bug 2 2 3 0
+cheat bug 3 3 3 0
+cheat bug 5 2 5 0
+cheat use 6 3 2
+expect kills == 2
+expect bug_at33 == 3
+expect bug_at52 == 5
+expect status == 0
+cheat clear
+cheat tilly 4 4
+cheat bug 2 2 1 1
+cheat elev 3 2 1
+cheat bug 4 2 3 0
+cheat bug 1 2 3 0
+cheat chip 5 17
+cheat use 5 2 2
+expect kills == 4
+expect bug_at42 == 3
+expect bug_at12 == 0

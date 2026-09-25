@@ -1,0 +1,39 @@
+# GRUB SHIFT: every morning the ground is dealt afresh from the job table:
+# 1 sinkhole and 4-6 planters on contract 1, 2 sinkholes on contract 2 and
+# 7-8 planters on contract 3. A new sinkhole never opens under Tilly, a grub
+# or a pod.
+game grubshift
+wait 5
+cheat contract 1 21
+cheat clear
+cheat rest
+wait 120
+expect holes == 1
+expect planters >= 4
+expect planters <= 6
+cheat clear
+cheat tilly 3 2
+cheat bug 0 0 1 0
+cheat bug 5 4 1 0
+cheat pods 1 1 1
+cheat rest
+wait 120
+expect holes == 1
+expect hole_at32 == 0
+expect hole_at00 == 0
+expect hole_at54 == 0
+expect hole_at11 == 0
+cheat contract 2 22
+cheat clear
+cheat rest
+wait 120
+expect holes == 2
+expect planters >= 4
+expect planters <= 6
+cheat contract 3 23
+cheat clear
+cheat rest
+wait 120
+expect holes == 1
+expect planters >= 7
+expect planters <= 8

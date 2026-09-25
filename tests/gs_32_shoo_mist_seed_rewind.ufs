@@ -1,0 +1,32 @@
+# GRUB SHIFT: SHOO sends every grub to a tile beside it (diagonals too), and
+# a pit or a pod there is the end of it. MIST only takes free tiles. SEED
+# drops a pod anywhere on the field and REWIND reaches any grub.
+game grubshift
+wait 5
+cheat contract 1 7
+cheat clear
+cheat tilly 0 1
+cheat bug 0 0 1 0
+cheat hole 1 0
+cheat pods 1 1 1
+cheat chip 6 40
+cheat use 6 0 1
+expect kills == 1
+expect bugs == 0
+cheat clear
+cheat tilly 0 0
+cheat bug 3 3 1 0
+cheat chip 5 34
+cheat use 5 3 3 1 1
+expect spent5 == 0
+cheat use 5 4 4 1 1
+expect spent5 == 1
+cheat clear
+cheat tilly 0 0
+cheat chip 4 24
+cheat use 4 5 4
+expect pods_at54 == 1
+cheat bug 5 0 1 2
+cheat chip 3 33
+cheat use 3 5 0
+expect lv_at50 == 0

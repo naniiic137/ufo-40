@@ -1,0 +1,42 @@
+# GRUB SHIFT: how grubs grow. Each night every queen settles into an egg and
+# every adult becomes a queen. Then one colour with larvae still alive grows
+# up: those larvae become adults, and that colour hatches adults from then
+# on. Only two colours grow in a contract; the third stays harmless larvae.
+# A field cleared by nightfall grows nothing.
+game grubshift
+wait 5
+cheat contract 1 7
+cheat clear
+cheat rest
+wait 120
+expect grown_types == 0
+cheat clear
+cheat tilly 0 0
+cheat bug 5 4 1 0
+cheat rest
+wait 120
+expect grown_types == 1
+expect stage0 == 1
+expect lv_at54 == 1
+expect grown_larvae == 0
+cheat clear
+cheat tilly 0 0
+cheat bug 5 4 1 1
+cheat bug 0 4 5 0
+cheat rest
+wait 120
+expect lv_at54 == 2
+expect lv_at04 == 1
+expect grown_types == 2
+expect stage2 == 1
+expect grown_larvae == 0
+cheat clear
+cheat tilly 0 0
+cheat bug 5 4 1 2
+cheat bug 0 4 3 0
+cheat rest
+wait 120
+expect lv_at54 == 3
+expect lv_at04 == 0
+expect grown_types == 2
+expect stage1 == 0

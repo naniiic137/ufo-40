@@ -34,13 +34,13 @@ int gs_pair_of(int species);
 /* tools ("chips") */
 enum {
     /* moves */
-    CH_ROLL, CH_DASH, CH_STREAK, CH_RUSH, CH_SKIP, CH_LEAP, CH_VAULT, CH_WARP, CH_PERCH, CH_DIVE, CH_HUSTLE,
+    CH_ROLL, CH_SCURRY, CH_STREAK, CH_RUSH, CH_SKIP, CH_LEAP, CH_BOUND, CH_BLINK, CH_PERCH, CH_DIVE, CH_HUSTLE,
     /* attacks */
-    CH_ZAP, CH_ARC, CH_BEAM, CH_FLARE, CH_TOSS, CH_LOB, CH_MORTAR, CH_DETONATE, CH_QUAKE, CH_PULSE, CH_HAIL,
+    CH_ZAP, CH_ARC, CH_BEAM, CH_FLARE, CH_TOSS, CH_PITCH, CH_MORTAR, CH_IGNITE, CH_QUAKE, CH_PULSE, CH_HAIL,
     CH_CRACK, CH_TRACK,
     /* specials */
-    CH_SEED, CH_SHIFT, CH_OVERDRIVE, CH_GATHER, CH_RELOAD, CH_REFUEL, CH_BOOST, CH_DIG, CH_VOLATILE,
-    CH_DEVOLVE, CH_SPRAY, CH_RESTOCK, CH_RECHARGE, CH_FLIP, CH_HOVER, CH_SIGHT, CH_SHOO,
+    CH_SEED, CH_TILL, CH_OVERDRIVE, CH_GATHER, CH_RELOAD, CH_REFUEL, CH_BOOST, CH_BORE, CH_VOLATILE,
+    CH_REWIND, CH_MIST, CH_RESTOCK, CH_JUMPER, CH_FLIP, CH_HOVER, CH_SIGHT, CH_SHOO,
     TOOL_COUNT,
     TOOL_NONE = 0xFF
 };
@@ -77,30 +77,32 @@ typedef struct Board {
     uint8_t day, days;
     uint16_t kills, quota;
     uint8_t pair_sp[PAIR_COUNT]; /* the species each colour grows into this contract */
-    uint8_t evolvers[2];         /* the two colours that grow this contract */
+    uint8_t stage[PAIR_COUNT];   /* the level each colour hatches at: it rises when that colour grows */
+    uint8_t grown_mask;          /* colours that have grown this contract (two at most) */
     uint8_t spawn_n, pods_n;
     uint8_t status;
     uint8_t contract;
     uint8_t fx;                  /* FX_* until the shift ends */
-    uint8_t pad;
     Rng rng;
 } Board;
 
-/* Visual events produced by the rules, replayed by the renderer. */
+/* Visual events produced by the rules, replayed by the renderer.
+ * EV_AREA marks every tile a hit reaches (the aiming preview uses it). */
 enum { EV_MOVE, EV_HIT, EV_BOOM, EV_KILL, EV_SPARK, EV_PUSH, EV_STOMP, EV_HOLE, EV_POD, EV_EGG, EV_DIE,
-       EV_RAISE, EV_BUY, EV_SHOT, EV_SOUR, EV_SPRAY, EV_DRONE, EV_GROW, EV_REFRESH };
+       EV_RAISE, EV_BUY, EV_SHOT, EV_SOUR, EV_SPRAY, EV_DRONE, EV_GROW, EV_REFRESH, EV_AREA };
 typedef struct Event {
     uint8_t type;
     int8_t x, y, x2, y2;
     uint8_t a;
 } Event;
 typedef struct Events {
-    Event ev[200];
+    Event ev[400];
     int n;
 } Events;
 
 /* rules (grubshift_logic.c) */
 int gs_days_for(int contract);
+int gs_job_of(int contract); /* past contract 15 the table loops through 13-15 */
 void gs_new_contract(Board *b, int contract, int prev_first_species, uint64_t seed);
 void gs_targets(const Board *b, int chip, uint8_t out[GH][GW]);
 /* second target of a two-step tool, given the first */

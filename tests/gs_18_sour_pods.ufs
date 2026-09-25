@@ -5,7 +5,6 @@ game grubshift
 wait 5
 cheat contract 1 7
 cheat clear
-cheat evolvers 1 1
 cheat bug 4 4 4 0
 cheat pods 5 4 1
 cheat pods 5 3 1
