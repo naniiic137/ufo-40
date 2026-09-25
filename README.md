@@ -5,7 +5,7 @@
 <h1 align="center">UFO 40</h1>
 
 <p align="center">
-  <b>A pretend 1980s console with forty cartridges (well, three so far), built from scratch<br>
+  <b>A pretend 1980s console with forty cartridges (well, six so far), built from scratch<br>
   for the PlayStation Vita, Windows and the web.</b><br><br>
   <a href="https://naniiic137.github.io/ufo-40/"><b>▶ Play it in your browser</b></a> ·
   <a href="https://github.com/naniiic137/ufo-40/releases">Download for Vita / Windows</a>
@@ -36,7 +36,7 @@ on **Windows/Linux** and in the **browser** through Emscripten. A headless build
 drives the whole console from scripted input for testing and for every
 screenshot and GIF on this page.
 
-## The library (3 of 40 loaded)
+## The library (6 of 40 loaded)
 
 <p align="center"><img src="docs/shots/library.png" width="640" alt="The UFO 40 game library with 40 cartridge slots"></p>
 
@@ -45,7 +45,10 @@ screenshot and GIF on this page.
 | 01 | **UNDERDELVE** | exploration | Mo the mole relights a mine that's gone dark. You die in one hit, your jumps are locked in once you take off, and there are 36 hand-built screens with shops, secrets and item-gated paths. |
 | 02 | **GRUB SHIFT** | tactics | Tilly the farm robot works the night shift. It's turn-based grub control: seven one-use tools, explosive fizz pods, and grubs that grow into egg-laying queens. |
 | 03 | **ROOFCAT** | action | Harissa the courier cat chases the Magpie Mob across a sunny seaside town. It's an auto-scroller with double jumps, a spirit form when you die, and four stages plus a night route. |
-| 04–40 | *coming soon* | | still in the saucer's cargo hold |
+| 09 | **BANNERFALL** | strategy | The Marigold Guard holds a meadow against the Thistle Host. Drag your troops between six lanes before the drums sound; eight unit types, a 24-battle campaign, ranked, survival and 2P versus. |
+| 14 | **CUTLASS CUP** | sports | Six corsairs knock a ball past each other on a galley deck: lobs, curve shots, secondary weapons and super shots, in a tournament, 2P versus or 2P co-op doubles. |
+| 15 | **FENNEC FOUNTAIN** | puzzle | Fen the fennec pushes numbered stones to unplug the oasis springs. Big numbers push small ones and 1s add up; fifty rooms around a hub garden, plus a room editor. |
+| other | *coming soon* | | still in the saucer's cargo hold |
 
 Every cartridge has three goals: a **Beacon** (a side challenge), the
 **Saucer** (beating the game) and the **Alien** (a secret, harder challenge).
@@ -116,6 +119,81 @@ Meet the quota before the last shift ends:
 - **Extra lives:** hit the paper lanterns for 1-ups.
 - **Dying:** you float around as a spirit for a few seconds before coming back.
 
+### 09 · BANNERFALL
+
+<p align="center">
+  <img src="docs/shots/bannerfall.gif" width="640" alt="Bannerfall: troops drag into lanes, then march, shoot and clash">
+</p>
+<p align="center">
+  <img src="docs/shots/bannerfall_campaign.png" width="320" alt="The campaign map">
+  <img src="docs/shots/bannerfall_volley.png" width="320" alt="Arrows fly as the turn ends">
+</p>
+
+*A tribute to **Attactics** (UFO 50 #9).*
+
+- **Plays the same:** a 6 × 8 field between two keeps and one new unit a turn
+  on a random row. While the timer counts down from 9 you drag units up, down
+  or back (forward only to where you picked them up). Then everyone attacks
+  and marches in Attactics' order.
+- **The troops:** eight units with the original's rules. Footmen in a column
+  of three shrug off melee, bowmen stand and shoot, wardens stop arrows until
+  they're hurt, riders move twice, and powdermen blow up. Every fifth
+  promotion calls a champion.
+- **The CPU** never moves its troops, but it gets extra ones. The 24-battle
+  campaign uses the original's banners, unit pools and percentages. Ranked,
+  Survival and 2P Versus are there too.
+- **Ours:** the Marigold Guard and the Thistle Host, every unit's name and
+  look, the keeps, the battle names, the march and the battle music.
+
+### 14 · CUTLASS CUP
+
+<p align="center">
+  <img src="docs/shots/cutlass.gif" width="640" alt="Cutlass Cup: Karim and Omar rally on the galley deck">
+</p>
+<p align="center">
+  <img src="docs/shots/cutlass_select.png" width="320" alt="Choose your crew">
+  <img src="docs/shots/cutlass_bracket.png" width="320" alt="The road to the Cup">
+</p>
+
+*A tribute to **Bushido Ball** (UFO 50 #14).*
+
+- **Plays the same:** knock the ball past your rival for a point, first to 8.
+  Up and down aim, back lobs, and a rolling strike goes faster or curves.
+- **Meter:** two strikes fill half a bar. A double tap throws your secondary
+  weapon, and holding the button charges a Super Shot, which can be caught
+  and mashed back.
+- **Laws:** stalling, weapon fouls and serve interference; the third foul
+  gives away a point.
+- **Modes:** six fighters with the original's stats and kits, a five-match
+  tournament with continues, 2P versus and 2P co-op doubles. Like the
+  original, there's no music during play.
+- **Ours:** the harbour and the galley *Sabra*, the judge Rais Mabrouk, and
+  Hamdi, Leila, Nour, Karim, Zina and Omar with their coins, sea urchins,
+  harpoon, sirocco, darts and powder pots. The tunes are ours too.
+
+### 15 · FENNEC FOUNTAIN
+
+<p align="center">
+  <img src="docs/shots/fennec.gif" width="640" alt="Fennec Fountain: Fen pushes numbered stones to the dry spring">
+</p>
+<p align="center">
+  <img src="docs/shots/fennec_hub.png" width="320" alt="The oasis hub">
+  <img src="docs/shots/fennec_bath.png" width="320" alt="Room 50, the Vizier's bath">
+</p>
+
+*A tribute to **Block Koala** (UFO 50 #15).*
+
+- **Plays the same:** Sokoban where numbers are weights. A block only pushes
+  numbers as big as its own or smaller, pushing onto a 1 adds up, and five
+  turns to marble.
+- **Special blocks:** blue blocks only move for other blocks, black ones
+  crumble when you stop pushing them, and geckos copy your steps. Undo is
+  unlimited.
+- **Structure:** fifty rooms around a hub, with gates at 5, 10, 20, 30 and 40
+  drops, and a workshop for building ten rooms of your own.
+- **Ours:** Fen and Zizi the fennecs, Grand Vizier Humph and his bath, the
+  oasis garden, all fifty rooms (every wall and every block) and the music.
+
 ## Install on PS Vita
 
 You need a Vita running HENkaku / h-encore / Ensō with **VitaShell**.
@@ -150,6 +228,9 @@ Download `UFO40-windows.zip` from the releases and run `ufo40.exe`.
 
 - **START** opens the pause menu in every game: Resume, Restart, Controls, Quit.
 - **SELECT** opens Settings in the library.
+- **Two players:** the 2-player modes of Bannerfall and Cutlass Cup take two
+  gamepads, or split the keyboard: player 1 on WASD + F/G, player 2 on the
+  arrows + K/L. On the Vita (one controller) those modes are locked.
 - On phones the web page shows an on-screen D-pad with A, B, START and SELECT.
 
 ## Building
@@ -228,8 +309,8 @@ src/platform/headless/ scripted test runner, PNG / GIF / WAV writers, Vita LiveA
     plays notes with lengths, ties and repeat blocks.
   - Sound effects use the same notation and take over one channel for a
     moment, just like old hardware.
-  - Every track and jingle is original: 19 compositions across the console and
-    the three cartridges.
+  - Every track and jingle is original: 37 compositions across the console and
+    the six cartridges.
 - **Art.** Sprites are written as strings of palette letters in the C source
   (`k` ink, `y` yellow, `C` cyan and so on), so there are no binary assets at
   all. The Vita LiveArea images are drawn by the engine itself
@@ -244,6 +325,8 @@ src/platform/headless/ scripted test runner, PNG / GIF / WAV writers, Vita LiveA
     use cheats to set up situations and then `expect` game state.
   - Grub Shift keeps its rules in one pure struct. A greedy autoplay bot plays
     whole contracts from it as a balance smoke test.
+  - Fennec Fountain ships every room with its shortest solution, and a test
+    replays all fifty on the real rules.
 
 Example test:
 
