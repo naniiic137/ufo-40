@@ -1,4 +1,4 @@
-# CUTLASS CUP: with LAWS off nobody fouls.
+# CUTLASS CUP: with FOULS off nobody fouls.
 game cutlass
 wait 5
 cheat laws 0

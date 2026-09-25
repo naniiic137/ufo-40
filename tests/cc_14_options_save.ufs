@@ -1,4 +1,5 @@
-# CUTLASS CUP: GOAL, TIME, LAWS and SPEED are options, and they are saved.
+# CUTLASS CUP: POINTS (4-20), TIME, FOULS and SPEED are options, and they
+# are saved.
 game cutlass
 wait 20
 press DOWN

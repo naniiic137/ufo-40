@@ -1,5 +1,6 @@
-# CUTLASS CUP: losing a match offers a continue; winning the Cup after one
-# gives the Saucer but not the Alien.
+# CUTLASS CUP: losing a match offers a continue, as many as you like, and
+# the screen waits for you. Winning the Cup after one gives the Saucer but
+# not the Alien.
 game cutlass
 wait 5
 cheat tourney 2
@@ -11,10 +12,18 @@ wait 170
 expect state == 6
 press A
 expect state == 7
-wait 25
+wait 900
+expect state == 7
 press A
 expect continues == 1
 expect state == 4
+wait 130
+cheat win 1
+wait 170
+press A
+wait 25
+press A
+expect continues == 2
 wait 130
 cheat win 0
 wait 170

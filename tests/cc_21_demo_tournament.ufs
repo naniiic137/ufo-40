@@ -1,0 +1,12 @@
+# CUTLASS CUP: a sensible player makes progress. The demo player presses
+# real buttons each frame (it plays the way the best CPU does: it moves to
+# where the ball will cross, swings early enough for a fast ball, rolls to
+# reach it, lobs a rival who comes forward, charges broadsides and throws
+# its trick at a lined-up rival). Through the menus and the tournament,
+# continuing when it loses, it beats three opponents for the Beacon.
+seed 3
+game cutlass
+wait 20
+botuntil state == 2 200
+botuntil defeated >= 3 60000
+expect goals & 1

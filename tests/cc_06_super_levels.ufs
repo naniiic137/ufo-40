@@ -1,0 +1,35 @@
+# CUTLASS CUP: hold B with a full bar to charge; let go to swing the Super
+# Shot, which costs one bar. With spare bars a longer charge upgrades it
+# (faster) for the same one bar. Finn's is the Comet.
+game cutlass
+wait 5
+cheat match 0 1
+cheat cpu 1 0
+wait 2
+cheat play
+cheat pos 0 60 100
+cheat meter 0 2
+hold B
+wait 34
+expect st0 == 6
+cheat ball 70 100 0 0
+release B
+wait 8
+expect ball_kind == 1
+expect ball_level == 1
+expect ball_team == 0
+expect meter0 == 0
+# three bars and a long charge: level 3, still one bar
+cheat play
+cheat pos 0 60 100
+cheat meter 0 6
+wait 20
+hold B
+wait 110
+cheat ball 70 100 0 0
+release B
+wait 8
+expect ball_kind == 1
+expect ball_level == 3
+expect meter0 == 4
+expect ball_speed100 > 700

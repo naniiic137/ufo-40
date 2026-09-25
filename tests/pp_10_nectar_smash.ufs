@@ -1,0 +1,36 @@
+# PETAL PARADE: drinking nectar starts the countdown from 48 (8 seconds);
+# while it runs Posy smashes brambles on contact for 10, 20, 30... x the
+# multiplier (green: x2), and the garden holds still a moment after each.
+# A turn waiting for the tile lets her eat a bramble and turn away.
+game petalparade
+wait 20
+press A
+cheat clear
+cheat put jar 5 7
+cheat jarlevel 5 7 2
+cheat put bramble 5 5
+cheat put bramble 5 3
+wait 20
+expect power > 450
+expect mult == 2
+expect mush_power == 0
+wait 16
+expect state == 1
+expect brambles == 1
+expect score == 20
+expect freeze > 0
+expect hy == 5
+wait 22
+expect brambles == 0
+expect score == 60
+expect chain == 2
+cheat clear
+cheat put jar 5 8
+cheat jarlevel 5 8 2
+cheat put bramble 5 6
+wait 16
+press RIGHT
+wait 8
+expect brambles == 0
+expect hx == 6
+expect hy == 7

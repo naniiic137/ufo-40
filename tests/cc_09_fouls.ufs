@@ -1,5 +1,6 @@
-# CUTLASS CUP laws: stalling and weapon fouls; a third foul ends the point
-# and gives the other side a penalty point.
+# CUTLASS CUP fouls: dawdling (the ball stays on your side too long) and
+# striking the other player with your blade (which stuns them); a third
+# foul ends the point and gives the other side a penalty point.
 game cutlass
 wait 5
 cheat match 0 1
@@ -10,7 +11,7 @@ cheat pos 0 30 60
 cheat ball 100 150 0 0
 wait 310
 expect fouls_l == 1
-# weapon foul: striking the other player's body
+# a blade foul
 cheat play
 cheat pos 0 150 100
 cheat pos 1 162 100

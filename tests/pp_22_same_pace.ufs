@@ -1,0 +1,13 @@
+# PETAL PARADE: the pace never changes - late in a run a tile still takes
+# 8 frames.
+game petalparade
+wait 20
+press A
+cheat clear
+cheat saved 180
+wait 7
+expect hy == 8
+wait 8
+expect hy == 7
+wait 8
+expect hy == 6

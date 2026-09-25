@@ -1,0 +1,15 @@
+# PETAL PARADE: a sensible player wins. The demo player presses real
+# buttons each frame: it collects pups, walks them along the sun circle and
+# lets go when they all stand on it, drinks the jars and smashes brambles
+# while the nectar runs, hops what it can't avoid, and keeps clear of the
+# way each bramble is looking. It must save all 200 in one run.
+seed 7
+game petalparade
+wait 20
+botuntil state == 1 100
+botuntil saved >= 50 8000
+expect state == 1
+botuntil state != 1 30000
+expect state == 4
+expect saved >= 200
+expect goals & 2

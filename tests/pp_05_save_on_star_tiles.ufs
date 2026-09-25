@@ -1,0 +1,26 @@
+# PETAL PARADE: B lets the line go. Every pup standing on the sun circle is
+# saved and scores 10 x its place in the line (3 pups: 10+20+30); the
+# jar counter goes up by the number saved.
+game petalparade
+wait 20
+press A
+cheat clear
+cheat put pup 5 7
+cheat put pup 5 6
+cheat put pup 5 5
+cheat put pad 5 7
+cheat put pad 5 6
+cheat put pad 5 5
+cheat put pad 5 4
+expect pads == 4
+wait 40
+expect hy == 4
+expect line == 3
+press B
+expect line == 0
+expect saved == 3
+expect score == 60
+expect counter == 3
+expect brambles == 0
+expect star_used == 1
+expect state == 1

@@ -1,17 +1,17 @@
-# PETAL PARADE: a jar left on the ground ripens a level every 12 seconds,
-# up to gold.
+# PETAL PARADE: a jar left on the ground ripens a level every 8 seconds, up
+# to gold.
 game petalparade
-wait 5
+wait 20
 press A
 cheat clear
 cheat still
 cheat put jar 9 2
 expect jar_level == 1
-wait 719
+wait 479
 expect jar_level == 1
 wait 2
 expect jar_level == 2
-wait 1440
+wait 960
 expect jar_level == 4
-wait 800
+wait 600
 expect jar_level == 4

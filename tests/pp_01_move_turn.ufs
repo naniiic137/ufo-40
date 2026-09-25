@@ -1,7 +1,8 @@
-# PETAL PARADE: Lina never stops; one tile every 8 frames. The D-pad turns
-# her, but never straight back.
+# PETAL PARADE: Posy never stops: one tile every 8 frames. A turn pressed
+# part-way through a tile waits for the next tile; she can't turn straight
+# back; holding a direction steers too.
 game petalparade
-wait 5
+wait 20
 press A
 cheat clear
 expect state == 1
@@ -10,14 +11,24 @@ expect hy == 9
 wait 7
 expect hy == 8
 press RIGHT
-wait 5
+expect hx == 5
+expect dir == 3
+wait 4
+expect hx == 5
+wait 1
 expect hx == 6
 expect hy == 8
+expect dir == 0
 press LEFT
 wait 5
 expect hx == 7
 expect dir == 0
-press UP
-wait 5
+hold UP 8
 expect hx == 7
 expect hy == 7
+expect dir == 3
+# no input: straight on at the same pace
+wait 8
+expect hy == 6
+wait 8
+expect hy == 5

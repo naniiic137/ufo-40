@@ -1,0 +1,23 @@
+# PETAL PARADE: a bramble looks where it will hop, then hops one tile about
+# every 3/4 second. If that tile holds a pup (or the line) it hops another
+# way instead.
+game petalparade
+wait 20
+press A
+cheat clear
+cheat still
+cheat put bramble 2 2
+cheat look 2 2 0
+cheat hops_on
+expect look_2_2 == 0
+wait 44
+expect cell_2_2 == 2
+wait 1
+expect cell_2_2 == 0
+expect cell_3_2 == 2
+cheat put pup 4 2
+cheat look 3 2 0
+wait 45
+expect cell_4_2 == 1
+expect cell_3_2 == 0
+expect brambles == 1

@@ -1,0 +1,128 @@
+# CUTLASS CUP: the kits in detail. Greta's harpoon flies at the ball, off
+# her row, and strikes it back; Bruno's thin strike covers a tall stretch
+# of the deck. Mae's urchin sends the ball upward when
+# up was held as she threw it; Silas's squall hits again and again, and a
+# ball struck while it is out becomes a Super Ball; his Whirl with forward
+# held curves down at once instead of looping; Bruno's thrust reaches far
+# up or down; the pot's blast throws the ball low with a strong curve; the
+# back of a rolling body knocks the ball backwards.
+game cutlass
+wait 5
+cheat match 1 0
+cheat cpu 1 0
+wait 2
+cheat play
+cheat pos 0 60 100
+cheat meter 0 2
+hold UP
+press B 1
+press B 1
+release UP
+expect projs2 == 1
+wait 40
+cheat ball 150 100 -3 0
+wait 12
+expect ball_team == 0
+expect ball_vy100 < 0
+# Silas's squall
+cheat match 3 0
+cheat cpu 1 0
+wait 2
+cheat play
+cheat pos 0 60 100
+cheat pos 1 150 100
+cheat meter 0 4
+cheat meter 1 4
+press B 1
+press B 1
+expect projs4 == 1
+wait 60
+expect meter1 <= 2
+# a strike while the squall is out
+cheat play
+cheat pos 0 60 100
+cheat meter 0 2
+wait 30
+press B 1
+press B 1
+expect projs4 == 1
+cheat pos 0 60 112
+wait 14
+cheat ball 72 114 0 0
+press B
+wait 6
+expect ball_kind == 1
+expect ball_team == 0
+# Whirl with forward held
+cheat play
+cheat pos 0 60 100
+cheat meter 0 2
+wait 30
+hold RIGHT
+hold B
+wait 34
+cheat pos 0 60 100
+cheat ball 70 100 0 0
+release B
+wait 6
+release RIGHT
+expect ball_kind == 4
+expect ball_curve == 1
+# Bruno's thrust and powder pot
+cheat match 5 0
+cheat cpu 1 0
+wait 2
+cheat play
+cheat pos 0 60 60
+cheat ball 62 110 0 0
+hold DOWN A 2
+wait 6
+expect ball_team == 0
+cheat play
+cheat pos 0 60 100
+cheat meter 0 2
+press B 1
+press B 1
+expect projs6 == 1
+wait 30
+cheat ball 114 100 0 0
+waituntil projs8 >= 1 200
+wait 2
+expect ball_team == 0
+expect ball_curve == 1
+expect ball_z < 12
+# the back of a rolling body
+cheat match 0 1
+cheat cpu 1 0
+wait 2
+cheat play
+cheat pos 0 100 100
+hold RIGHT
+press A 1
+cheat ball 105 100 0 0
+wait 2
+release RIGHT
+expect ball_vx100 < 0
+expect st0 == 3
+# Greta's harpoon flies at a ball well off her row
+cheat match 2 0
+cheat cpu 1 0
+wait 2
+cheat play
+cheat pos 0 60 100
+cheat meter 0 2
+cheat ball 110 65 0 0
+press B 1
+press B 1
+expect projs3 == 1
+waituntil ball_team == 0 90
+# Bruno's strike reaches far above and below him
+cheat match 5 0
+cheat cpu 1 0
+wait 2
+cheat play
+cheat pos 0 60 100
+cheat ball 66 148 0 0
+press B
+wait 6
+expect ball_team == 0

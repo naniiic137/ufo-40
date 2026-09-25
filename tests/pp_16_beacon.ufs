@@ -1,9 +1,9 @@
-# PETAL PARADE: saving 10 pups at once earns the Beacon.
+# PETAL PARADE: saving 10 pups at once earns the Beacon (10+20+...+100).
 game petalparade
-wait 5
+wait 20
 press A
 cheat clear
-cheat lina 0 5 0
+cheat posy 0 5 0
 cheat put pup 1 5
 cheat put pup 2 5
 cheat put pup 3 5
@@ -14,7 +14,16 @@ cheat put pup 7 5
 cheat put pup 8 5
 cheat put pup 9 5
 cheat put pup 10 5
-cheat put pad 11 5
+cheat put pad 1 5
+cheat put pad 2 5
+cheat put pad 3 5
+cheat put pad 4 5
+cheat put pad 5 5
+cheat put pad 6 5
+cheat put pad 7 5
+cheat put pad 8 5
+cheat put pad 9 5
+cheat put pad 10 5
 wait 87
 expect hx == 11
 expect line == 10
@@ -23,6 +32,7 @@ expect saved == 10
 expect score == 550
 expect goals & 1
 expect goals !& 2
-cheat turn 1
-wait 5
+press DOWN
+wait 3
 expect state == 1
+expect hy == 6

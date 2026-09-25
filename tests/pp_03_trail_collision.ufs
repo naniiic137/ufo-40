@@ -1,7 +1,7 @@
-# PETAL PARADE: pups Lina walks over follow her in a line; running into
-# the line ends the game.
+# PETAL PARADE: pups Posy walks over follow her in a line; running into
+# the line ends the run.
 game petalparade
-wait 5
+wait 20
 press A
 cheat clear
 cheat put pup 5 7
@@ -13,12 +13,14 @@ expect line == 1
 wait 24
 expect line == 4
 expect pups == 0
-cheat turn 0
-wait 8
+press RIGHT
 expect hx == 6
-cheat turn 1
-wait 8
+expect hy == 4
+press DOWN
+wait 5
 expect hy == 5
-cheat turn 2
+press LEFT
 wait 8
+expect state == 1
+wait 1
 expect state == 2

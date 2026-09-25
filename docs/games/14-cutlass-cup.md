@@ -5,103 +5,106 @@
 ## Tribute to
 
 **Bushido Ball** (UFO 50 game #14, Mossmouth). The rules were researched from
-text only: the community wiki, written reviews, Steam guides and forum threads
+text only: the community wiki, Steam guides and threads, and written reviews
 (listed under Sources). No UFO 50 images, video, sprites, music or text were
 used as references.
 
 **Map type: one fixed court.** Bushido Ball is played on a single arena, so
-there are no levels to generate or lay out. Our court follows the described
-structure: a centre line, a starting circle on each side, and a line near each
-circle that marks how far past the centre a player may go. Walls run along the
-top and bottom; the left and right edges are open (a ball that leaves there is
-a point).
+there are no levels. Ours follows the described structure: a centre line, a
+starting circle on each side, a line near each circle that marks how far past
+the centre a player may go, rails along the top and bottom that the ball
+bounces off, open ends (a ball that leaves there is a point), and the judge at
+the bottom middle.
 
 ## Mechanics checklist
 
-| Mechanic | How CUTLASS CUP does it | Source |
-|---|---|---|
-| The sport | hit the ball with your weapon past your opponent and off the far edge for a point | [W], [L], [P] |
-| Winning a match | first to 8 points by default; GOAL can be set from 4 to 20 | [W], [SC] "8 points for a victory" |
-| Movement limit | each player may go past the centre, up to the line nearest the opponent's starting circle | [W] |
-| Strike (Button I = our B) | a swing in front of you; up / down changes the angle; back launches the ball into the air (a lob) | [W], [G] |
-| Roll (Button II = our A) | a quick roll; you can change direction mid-roll and cancel it with a strike | [W], [G] |
-| Rolling strike | striking during a roll gives the ball a big speed boost; rolling up or down and striking is a Curve Shot | [W], [G] |
-| Airborne balls | a lobbed ball flies over players; it can only be struck again once it is low | [W], [T] |
-| Body hits | a ball that hits a body bounces off and stuns that player briefly; body hits give no meter | [W] |
-| Meter | every 2 weapon strikes fill half a bar; up to 3 bars | [W], [G], [L] |
-| Secondary weapon | double-tap strike with at least half a bar; costs half a bar; a hit stuns, pushes back and removes half a bar | [W], [G] |
-| Super Shot | hold strike with at least one full bar; costs one bar; extra full bars make it faster at no extra cost | [W], [L] |
-| Stopping a Super Shot | strike it with your primary or secondary weapon to send it back; if it hits your body you catch it, slide back and must mash strike to reflect it, or it slips over your head | [W] |
-| Sweet spot | a strike timed at the very start of the swing wallops the ball | [SC] "if you hit the ball at exactly the right time it absolutely wallops it" |
-| The judge's serve | the judge serves the ball to one player; the other may not touch it first | [W], [G] |
-| Laws (fouls) | Stalling (the ball stays on your side too long), Weapon Foul (hitting your opponent's body with your primary weapon), Serve Interference (touching the other player's serve first, even with a secondary weapon) | [W], [SG] |
-| Penalty | a third foul ends the point at once, gives the opponent 1 point and clears the fouls; fouls show as marks on each side | [W], [G] |
-| Options | GOAL 4–20, TIME none or 1–10 minutes, LAWS on/off, SPEED Normal / Fast / Hyper | [W], [D] |
-| No music in play | only a short jingle when a point is won; music on the menus | [L] "no sound or music during the game, except for when a player wins a round"; [P] |
-| 1P Tournament | beat the other five fighters, one match each | [SG2] "five consecutive 1v1 matches" |
-| Continues | lose a match and you may continue (retry it); the Alien needs a run with none | [W], [SD] |
-| 2P Versus | two players, one match | [W] |
-| 2P Co-op | the two players team up for doubles (2 v 2) against CPU pairs; two wins clear the other four fighters | [SG2], [L] "co-op ... a kind of doubles tennis game" |
-| CPU | returns ordinary volleys very reliably, is fooled by lobs (it chases the ball, not where it will land), struggles at Hyper speed, uses its fighter's gimmicks, and never breaks the laws on purpose | [SD], [SH], [W] "The Bots do not try to break the rules" |
+Every line was compared with the code; the tests named prove it with button
+presses.
+
+| Mechanic | How CUTLASS CUP does it | Source | Test |
+|---|---|---|---|
+| The sport | strike the ball past your rival and off the far edge for a point | [W] | cc_01 |
+| Winning | first to 8 points; POINTS can be 4 to 20 | [W], [SC] | cc_12, cc_14 |
+| Moving | 8 ways, past the centre up to the line just in front of the rival's circle, close enough to strike a rival waiting there | [W], [MM], [SB] | cc_16 |
+| The serve | the judge at the bottom middle rolls the ball along the deck to whoever lost the last point | [MM] | cc_01 |
+| Strike (B) | up or down angles it; back launches it into the air (a lob) | [W], [G] | cc_02 |
+| Rally speed | every return is faster than the last; a lob adds nothing, nor does returning one; a new point starts slow | [SH] | cc_03 |
+| Roll (A) | a quick move the way you are going, steerable, cancelled by a strike | [W], [MM] | cc_03 |
+| Rolling strike | a big speed boost; rolling up or down, a curve shot that swerves and bounces hard off the rails | [W], [G] | cc_03, cc_20 |
+| Back of a roll | the back third of a rolling body knocks the ball backwards | [W] | cc_19 |
+| Sweet spot | a strike at the very start of the swing wallops the ball | [SC] | cc_03 |
+| Body hits | the ball bounces off and stuns that player; no meter either way | [W] | cc_04 |
+| Meter | every 2 weapon strikes fill half a bar; 3 bars at most; each player's in their side's top corner | [W], [G], [L], [MM] | cc_02 |
+| Trick (B twice) | half a bar; a hit stuns, pushes back and takes half a bar | [W], [G] | cc_05 |
+| Broadside (hold B) | one bar; with spare bars a longer charge upgrades it (faster, or more fakes), still for one bar | [W], [L] | cc_06 |
+| Struck back | a Super Ball (always bright orange) struck with a weapon or trick flies back as one | [W] | cc_08 |
+| Caught | a Super Ball that hits your body is caught and you slide back; mash B to send it back, or it slips over your head | [W] | cc_07 |
+| Fouls | dawdling (the ball too long on your side), a blade on the rival (who is stunned), striking the other side's serve first (not with an urchin), after which play goes on; the third gives the rival a point and clears; shown as red marks on the bottom rail beside the judge | [W], [G], [MM], [SB] | cc_09, cc_10 |
+| FOULS off | an option | [W] | cc_11 |
+| Options | POINTS, TIME (none or 1 to 10 minutes), FOULS, SPEED (three) | [W] | cc_14, cc_15 |
+| No music in play | only a jingle when a point is won; music on the menus | [L], [P] | cc_01 |
+| Tournament | five matches against the other five fighters in a random order (so the final rival varies), each rival tougher | [W], [SF], [P] | cc_12, cc_21 |
+| Continues | as many as you like; the Alien needs a run with none | [W], [SF] | cc_13 |
+| 2P Versus | on PC and the web; the Vita has one controller | [W] | cc_16 |
+| 2P Co-op | doubles against CPU pairs; two wins clear the other four | [W], [SH] | cc_17 |
+| The CPU | returns almost everything, but guesses worse the faster the ball; a lob over it near the middle fools it; it never fouls on purpose; the last rivals roll to where the ball is going | [SB], [SF], [W] | cc_20, cc_21 |
 
 ### The six fighters
 
-Stats are Speed / Control / Power, 1–3, as in [W]. Kits follow [W] and [G] one
-for one; names, looks and weapons are ours.
+Stats are Speed / Control / Power, 1 to 3, as in [W]. Kits follow [W] and
+[G] one for one; names, looks and weapons are ours.
 
-| Ours | Bushido Ball | S/C/P | Reach | Secondary (half bar) | Super Shot (one bar) |
+| Ours | Bushido Ball | S/C/P | Reach | Trick (half a bar) | Broadside (one bar) |
 |---|---|---|---|---|---|
-| HAMDI, corsair with a scimitar | Kotaro | 2/2/3 | medium | a spinning coin thrown straight ahead; can be struck back; medium stun (short if reflected) | Comet: a very fast ball in the chosen direction |
-| LEILA, quick deckhand with a dagger | Ayumi | 3/2/2 | shortest | lobs a sea urchin that stays on the deck; struck, it slides and changes sides; the ball touching it shoots toward the owner's foe, downward unless up is held; long stun | Wall Runner: the ball turns to the chosen wall and slides along it |
-| NOUR, harpooner with a boat hook | Tomoe | 2/3/2 | tallest and long | a harpoon line that pulls the ball in and strikes it automatically, unless caught at full range; can't catch airborne, too fast or too far balls; medium stun | Mirage: fake balls fly beside the real one (one more per extra bar) |
-| KARIM, sabre dancer | Raizo | 2/1/3 | longest sideways | a flurry of slashes that travels forward, hitting the ball again and again and cutting through the other side's weapons; goes farther with more bars; medium stun | Whirl: the ball flies ahead, loops twice, then turns (down if forward is held) |
-| ZINA, the masked shadow | Chiyome | 3/1/2 | medium | a dart thrown straight ahead; can be struck back; medium stun. She blinks a set distance instead of rolling, leaving a decoy barrel the ball bounces off, so she has no Curve Shot | Djinn: the ball turns invisible, leaving smoke, and curves |
-| OMAR, gunner with a trident | Yamada | 1/3/2 | thin but tall | lobs a powder pot that blows up after a while or when struck; the blast stuns (long) and launches the ball in a high curve, whatever its height. He only rolls forward and back; rolling up or down thrusts his trident | Plunge: the ball runs vertically to the middle line, then turns 90° toward the foe |
+| FINN, the young corsair | Kotaro | 2/2/3 | medium | a lucky coin thrown at the rival; it knocks the ball once and can be struck back once; medium stun (short if struck back) | Comet: very fast in the chosen direction |
+| MAE, the deckhand | Ayumi | 3/2/2 | shortest (12 × 9) | lobs a sea urchin; struck, it slides forward, and the rival's changes sides; the ball touching it goes toward the owner's rival, downward unless up was held when it was thrown or struck; long stun | Wall Runner: turns to the chosen rail and slides along it |
+| GRETA, the harpooner | Tomoe | 2/3/2 | tall and long (21 × 22) | a harpoon fired at the ball pulls it in and strikes it, unless caught at full range; it can't catch a high, fast or far ball; medium stun | Mirage: one fake per level beside the real one, looking just like it (no faster per level) |
+| SILAS, the sabre dancer | Raizo | 2/1/3 | thin and long (26 × 7) | the squall, a flurry that travels forward hitting the ball and anyone in it again and again and cutting through the other side's tricks, farther with more than one bar; a ball struck while it is out becomes a Super Ball; medium stun | Whirl: flies ahead, loops twice, then turns; with forward held it curves down at once instead |
+| WREN, the shadow | Chiyome | 3/1/2 | short but tall (13 × 18) | a dart straight ahead; can be struck back; medium stun. She blinks a set distance instead of rolling, leaving a decoy barrel the ball bounces off, so she has no curve shot | Sea Fog: the ball turns invisible, trailing smoke, and curves |
+| BRUNO, the gunner | Yamada | 1/3/2 | very thin, covering most of the deck from the middle (9 × 58) | lobs a powder pot that blows up after a while or when struck; the blast stuns (long) and throws the ball a little into the air with a strong curve, whatever its height. He rolls only forward and back; up or down thrusts his trident a long way | Plunge: runs up or down to the middle line, then turns 90° toward the rival |
 
 ### Readings we had to choose
 
-- **Court numbers:** the court is 320 × 150 pixels between the rails; the reach
-  lines sit 48 pixels past the centre.
-- **Speeds:** Speed 1/2/3 moves at 1.1/1.35/1.6 px per frame; Power 1/2/3 hits
-  at 3.0/3.4/3.8; Control 1/2/3 aims up to 20°/32°/45°. Fast and Hyper
-  multiply everything by 1.25 and 1.5.
-- **The serve:** the judge serves toward whoever lost the last point (the first
-  serve goes to player 1); a serve nobody touches goes off that side like any
-  ball.
-- **Stalling:** five seconds on one side.
-- **Weapon Foul:** the victim is stunned briefly too.
-- **Tournament order:** the five opponents come in a random order.
-- **TIME:** when time runs out the leader wins; a tie goes to the next point.
-- **Traps:** each fighter can have at most two sea urchins or powder pots out.
-- **The sweet spot:** the first active frame of a swing adds 25% speed.
+- **Numbers no source gives:** moving 0.95 / 1.3 / 1.65 px a frame by
+  Speed; striking 2.9 / 3.3 / 3.8 by Power; aiming up to 17° / 31° / 45° by
+  Control; each return +0.5 up to +7; a roll strike ×1.4; the sweet spot
+  ×1.25; Brisk and Gale ×1.25 and ×1.5; a broadside after 12 frames of
+  holding, each upgrade 36 more; dawdling after 5 s.
+- **The first serve** goes to either side at random; a serve nobody touches
+  goes off that side like any ball.
+- **A Super Ball struck back** stays one and comes back faster, like any
+  return.
+- **"Pushed backwards"** by a rolling body: toward the roller's own side.
+- **The blade foul** stuns the rival too (a thread's tactic depends on it).
+- **TIME** ending: the leader wins; a tie goes to the next point.
+- **Traps:** two urchins or pots out at most.
 
 ## What is ours
 
 - **Name:** CUTLASS CUP (1985, Beamdown Softworks).
 - **Setting:** the Cutlass Cup, played every summer on the deck of the old
-  galley *Sabra*, moored in a whitewashed harbour. The judge is old Rais
-  Mabrouk, who serves the ball from the rail and hands out red marks.
-- **The six fighters**, their weapons, gimmick names and all art.
-- **Music:** a title tune, a crew-select tune, the bracket theme and jingles.
-  As in the original, there is no music during play.
+  galley *Merry Mackerel*, moored in a whitewashed harbour. The judge is old
+  Bosun Crabbe, who rolls the ball out from the bottom rail and hands out red
+  marks.
+- **The six fighters**, their weapons, the trick and broadside names, the
+  foul and option names (dawdling, blade foul, early swing; POINTS, FOULS,
+  CALM, BRISK, GALE) and all art.
+- **Music:** a title tune, a crew-select tune, the bracket theme, the cup
+  theme and jingles. As in the original, there is no music during play.
 
 ## Additions: none
 
-Only the platform needs every UFO 40 cartridge has:
-
-- the START pause menu;
-- saving: the options and the best tournament result;
-- the three UFO 40 goals, which replicate Bushido Ball's own three:
-
-| UFO 40 goal | Condition | Bushido Ball's goal |
-|---|---|---|
-| Beacon | defeat 3 opponents in one tournament | gift: defeat 3 opponents in tournament |
-| Saucer | win the tournament | gold: win the tournament |
-| Alien | win the tournament without a continue | cherry: win without using continues |
-
-2P Versus and 2P Co-op need a second player: two gamepads or a split keyboard
-on PC and the web. On the Vita (one controller) only the 1P tournament is
-offered.
+Only the platform needs every UFO 40 cartridge has: the START pause menu,
+saving the options and the tournament record, and the three UFO 40 goals,
+which are Bushido Ball's own (gift: 3 opponents; gold: the tournament;
+cherry: no continues). 2P Versus and Co-op need a second player: two gamepads
+or a split keyboard on PC and the web; on the Vita only the 1P tournament is
+offered. Removed as invented: fighter names and the goal count in the HUD,
+player tags over the fighters, button hints on the select and continue
+screens, the continue countdown, the title's cups and best-run line, the
+bracket's continue count, the result card's opponent count and goal icons,
+a re-serve after an intercepted serve, and wording copied from UFO 50
+("Secondary Weapon", "Super Shot", "Laws", "Hyper", the three foul names).
 
 ## Controls
 
@@ -109,44 +112,71 @@ offered.
 |---|---|
 | D-pad | run |
 | B | strike (up/down: angle, back: lob) |
-| B twice | secondary weapon (half a bar) |
-| hold B | charge a Super Shot (one bar) and swing on release |
-| A | roll (Zina: blink) |
+| B twice | trick (half a bar) |
+| hold B | charge a broadside (one bar) and swing on release |
+| A | roll (Wren: blink; Bruno up/down: thrust) |
 | START | pause menu |
 
 Split keyboard for two players: player 1 WASD + F (roll) / G (strike),
 player 2 arrows + K (roll) / L (strike).
 
+## Not confirmed
+
+- The exact speed curve, stun lengths and charge times.
+- Whether a Super Ball struck back stays one, and which way a rolling body
+  pushes the ball.
+- Mae's urchin: the Bushido guide sends the ball toward the urchin's owner;
+  ours follows the wiki's tip (toward the owner's rival).
+- Co-op's exact rules (ours: two players against CPU pairs).
+- Open, not done: late CPUs (level 3 and up) deliberately striking urchins
+  on their side; the originals' stats (fighters used, fighters won with),
+  which would need a platform stats line.
+
+The final rival is random, as ours is: the same thread that first seemed to
+tie it to your fighter ends "so I guess it's random" [SF].
+
+## Tests
+
+`tests/cc_01` … `cc_22`, all driven by button presses. `cc_21_demo_tournament`
+is a demo player (`cutlass.c`, the `bot` query) that presses real buttons the
+way the best CPU plays and, continuing when it loses, beats three rivals for
+the Beacon. `cc_22_no_stall` plays three best-CPU matches to the end.
+
 ## Sources
 
-- [W] UFO 50 Wiki (Miraheze), "Bushido Ball": controls, points, laws and
-  penalty points, the arena lines, meter, secondary weapons, Super Shots and
-  how to stop them, body hits, all six characters with stats and kits,
-  options, modes, goals. https://ufo50.miraheze.org/wiki/Bushido_Ball
-- [G] Steam guide "Bushido Ball" (summarised): back + strike lobs, dash + up/down
-  strike spins the ball, every 2 hits give half a bar, being hit by a special
-  costs half a bar, three penalties end the round and give the opponent a
-  point. https://steamcommunity.com/sharedfiles/filedetails/?id=3339728484
-- [L] Lizstar's Trashcan, "UFO 50 Retrospective Part 14 - Bushido Ball": half a
-  meter per two hits, double tap for the special, hold for the full charge
-  hit, co-op doubles, no music during play.
-  https://lizstar64.github.io/reviews/2024/10/12/UFO50-14.html
-- [SC] Static Canvas, "The UFO 50 Diaries: Bushido Ball": 8 points by default,
-  shurikens, caltrops, bombs and grappling hooks, the well-timed wallop.
-  https://staticcanvas.substack.com/p/the-ufo-50-diaries-bushido-ball
-- [P] Popcar's Blog, "Reviewing Every Single UFO 50 Game": curve balls, lobs,
-  meter from volleys, no in-game music, tough CPUs late on.
-  https://popcar.bearblog.dev/reviewing-every-ufo50-game/
-- [SG] Search summary of the Steam discussions: stalling, interception and
-  attacking fouls; three fouls give a penalty point; fouls shown as red books.
-- [SG2] Steam thread "If you're struggling with Bushido Ball, try this": five
-  1v1 matches in the tournament, co-op is 2v2 and needs two wins.
-  https://steamcommunity.com/app/1147860/discussions/0/4700161643034778286/
-- [SD] Steam threads "Bushido ball" and "Bushido Ball Help?": the CPU returns
-  shots almost perfectly, lobs fool it, Hyper speed troubles it, the cherry
-  needs no continues. https://steamcommunity.com/app/1147860/discussions/0/4849904427679634659/ ,
+- [W] UFO 50 Wiki (Miraheze), "Bushido Ball": controls, points, the arena
+  lines, the roll and its back third, rolling strikes and curve shots, the
+  meter, secondary weapons and Super Shots (upgrades take longer to charge
+  but cost one bar), stopping and catching Super Balls, body hits, the fouls
+  and penalty points, all six characters, options, modes, goals.
+  https://ufo50.miraheze.org/wiki/Bushido_Ball
+- [MM] Steam guide "The missing manuals - How to play UFO 50 games": 8-way
+  movement, the referee at the bottom middle rolls the ball to whoever lost
+  the last point, the roll is a fast move the way you were going, three
+  infractions give the point, up to 3 meters.
+  https://steamcommunity.com/sharedfiles/filedetails/?id=3350227767
+- [G] Steam guide "Bushido Ball": forward/up/down strikes, back lobs, dash +
+  up/down spins the ball, half a bar per 2 hits, half a bar lost to a special,
+  Tomoe's vertical reach, Yamada's reach from the centre and weakness to
+  lobs, Raizo's piercing wave, the three penalties.
+  https://steamcommunity.com/sharedfiles/filedetails/?id=3339728484
+- [SH] Steam thread "Is Bushido Ball too hard?": the ball gets too fast after
+  a couple of volleys, the ball can't build speed when returning a lob,
+  penalties off, co-op needs two wins.
+  https://steamcommunity.com/app/1147860/discussions/0/595144212454885425/
+- [SF] Steam thread on the final match: the last CPU rolls straight to where
+  the ball is going, the final rival varies ("so I guess it's random"), lob
+  close to the middle, 30 to 40 continues.
+  https://steamcommunity.com/app/1147860/discussions/0/4852155152087803136/
+- [SB] Steam thread "Bushido Ball Help?": the AI returns shots almost
+  perfectly, lobs confuse it, rolling at the rival and hitting them with
+  penalties off, Raizo's wave hitting ball and rival together.
   https://steamcommunity.com/app/1147860/discussions/0/523083510998705141/
-- [SH] Steam thread "How to easily win every match in Bushido Ball": the CPU
-  lets lobs fly over it. https://steamcommunity.com/app/1147860/discussions/0/4849903793440612199/
-- [D] Steam thread "Bushido ball": the round count can be lowered and the laws
-  switched off.
+- [L] Lizstar's Trashcan, "UFO 50 Retrospective Part 14": half a meter per
+  two hits, double tap, hold for the full charge, co-op doubles, no music
+  during play except a jingle. https://lizstar64.github.io/reviews/2024/10/12/UFO50-14.html
+- [SC] Static Canvas, "The UFO 50 Diaries: Bushido Ball": 8 points, a well
+  timed hit wallops the ball. https://staticcanvas.substack.com/p/the-ufo-50-diaries-bushido-ball
+- [P] Popcar's Blog, "Reviewing Every Single UFO 50 Game": every fighter plays
+  differently, no in-game music, the campaign gets harder.
+  https://popcar.bearblog.dev/reviewing-every-ufo50-game/

@@ -1,7 +1,8 @@
-# CUTLASS CUP: every fighter's secondary weapon and Super Shot.
+# CUTLASS CUP: every fighter's trick (secondary weapon) and broadside
+# (Super Shot).
 game cutlass
 wait 5
-# Leila: a sea urchin, Wall Runner
+# Mae: a sea urchin, Wall Runner
 cheat match 1 0
 cheat cpu 1 0
 wait 2
@@ -18,7 +19,7 @@ cheat ball 70 100 0 0
 release B
 wait 8
 expect ball_kind == 2
-# Nour: a harpoon line, Mirage fakes
+# Greta: a harpoon line; Mirage: one fake per level
 cheat match 2 0
 cheat cpu 1 0
 wait 2
@@ -35,8 +36,21 @@ cheat ball 70 100 0 0
 release B
 wait 8
 expect ball_kind == 3
-expect fakes >= 2
-# Karim: the sirocco flurry, Whirl
+expect fakes == 1
+cheat play
+cheat pos 0 60 100
+cheat meter 0 4
+wait 20
+hold B
+wait 70
+cheat ball 70 100 0 0
+release B
+wait 8
+expect ball_kind == 3
+expect ball_level == 2
+expect fakes == 2
+expect ball_speed100 < 470
+# Silas: the squall, Whirl
 cheat match 3 0
 cheat cpu 1 0
 wait 2
@@ -53,7 +67,7 @@ cheat ball 70 100 0 0
 release B
 wait 8
 expect ball_kind == 4
-# Zina: a dart; she blinks and leaves a decoy; Djinn
+# Wren: a dart; she blinks and leaves a decoy; Sea Fog
 cheat match 4 0
 cheat cpu 1 0
 wait 2
@@ -74,7 +88,7 @@ cheat ball 70 100 0 0
 release B
 wait 8
 expect ball_kind == 5
-# Omar: a powder pot, the trident thrust, Plunge
+# Bruno: a powder pot, the trident thrust, Plunge
 cheat match 5 0
 cheat cpu 1 0
 wait 2
@@ -90,7 +104,7 @@ expect st0 == 2
 wait 20
 hold B
 wait 34
-cheat ball 70 60 0 0
+cheat ball 67 60 0 0
 release B
 wait 8
 expect ball_kind == 6

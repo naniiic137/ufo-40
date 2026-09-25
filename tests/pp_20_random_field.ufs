@@ -1,0 +1,17 @@
+# PETAL PARADE: the field is random. One sun circle at a time (a line
+# across the garden, a square ring or a cross) moves somewhere else every
+# 10 seconds; three pups wait at a time; brambles crawl out on their own.
+game petalparade
+wait 20
+press A
+cheat still
+expect pads >= 9
+expect star_t > 590
+wait 2
+expect pups == 3
+cheat startime 10
+wait 11
+expect star_t == 599
+expect pads >= 9
+expect toadstools == 1
+waituntil brambles >= 1 560

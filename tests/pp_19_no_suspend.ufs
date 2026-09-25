@@ -1,0 +1,23 @@
+# PETAL PARADE: like Magic Garden, a run is never saved half-way. Quitting
+# puts its score on the board, and the title only starts a new run. A save
+# from the first version keeps its best score.
+game petalparade
+wait 20
+cheat old_save
+expect hi0 == 4321
+press A
+expect state == 1
+cheat clear
+cheat score 1234
+cheat saved 42
+reload
+game petalparade
+wait 20
+expect state == 0
+expect hi0 == 4321
+expect hi1 == 1234
+expect hi2 == 0
+press A
+expect state == 1
+expect score == 0
+expect saved == 0

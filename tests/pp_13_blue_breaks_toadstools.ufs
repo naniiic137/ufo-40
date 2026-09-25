@@ -1,7 +1,7 @@
 # PETAL PARADE: blue and gold nectar break toadstools; gold also adds a
 # pup to the field for good.
 game petalparade
-wait 5
+wait 20
 press A
 cheat clear
 cheat put jar 5 7

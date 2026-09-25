@@ -32,3 +32,4 @@ press B
 wait 4
 release LEFT
 expect ball_z > 4
+expect ball_lob == 1
