@@ -619,8 +619,8 @@ static const uint8_t GRASS[5][4] = {
 static int field_stage(const Board *b) { return b->mode == MODE_SURVIVAL ? bf_survival_stage(b->turn) : 0; }
 
 static void ants_rect(int x, int y, int w, int h, int col) {
-    /* a dashed "marching ants" border */
-    int n = 0, off = frame_t / 4;
+    /* a dashed border */
+    int n = 0, off = 0;
     for (int i = 0; i < w; i++, n++) {
         if ((n + off) % 6 < 3) { gfx_pset(x + i, y, col); gfx_pset(x + w - 1 - i, y + h - 1, col); }
     }
@@ -647,7 +647,7 @@ static void draw_field(const Board *b, bool planning) {
                 gfx_pset(bx, by, gc[2]);
                 gfx_pset(bx, by - 1, gc[3]);
             }
-            if (h % 3 == 0) spr_draw(&bf_spr[BS_TUFT], px + 4 + (int)(h % 17), py + 6 + (int)((h >> 4) % 11), 0);
+            if (h % 3 == 0 && field_stage(b) == 0) spr_draw(&bf_spr[BS_TUFT], px + 4 + (int)(h % 17), py + 6 + (int)((h >> 4) % 11), 0);
             if (h % 7 == 1 && field_stage(b) == 0) spr_draw(&bf_spr[BS_FLOWER], px + 3 + (int)((h >> 3) % 20), py + 4 + (int)((h >> 6) % 14), 0);
         }
     /* the midline */
@@ -1276,8 +1276,8 @@ static void draw_versus(void) {
     bool fs = vs_row[0] == fight_row;
     text_center("FIGHT!", 160, 156, fs ? C_WHITE : C_GREY);
     if (fs) ui_cursor(160 - text_width("FIGHT!") / 2 - 10, 156, frame_t);
-    tiny_center(plat_kind() == PLAT_PC || plat_kind() == PLAT_HEADLESS ? "KEYS: P1 WASD F G    P2 ARROWS K L    OR TWO PADS"
-                                                                       : "TWO GAMEPADS, OR P1 WASD F G / P2 ARROWS K L",
+    tiny_center(plat_kind() == PLAT_PC || plat_kind() == PLAT_HEADLESS ? "KEYS: P1 WASD + F    P2 ARROWS + K    OR TWO PADS"
+                                                                       : "TWO GAMEPADS, OR P1 WASD + F / P2 ARROWS + K",
                 160, 170, C_SLATE);
 }
 
@@ -1529,7 +1529,7 @@ const GameDef GAME_BANNERFALL = {
     "START\tPAUSE\n\n"
     "DRAG UP, DOWN OR BACK, AND FORWARD\n"
     "ONLY AS FAR AS WHERE IT STARTED.\n"
-    "2P KEYS: WASD F G / ARROWS K L",
+    "2P KEYS: WASD + F / ARROWS + K",
     C_AMBER, C_VIOLET,
     bf_load, bf_start, bf_update, bf_draw, bf_quit, bf_label, bf_query, bf_cheat,
     "ATTACTICS", 9,
