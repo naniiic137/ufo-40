@@ -1116,7 +1116,7 @@ static void lawman_think(DxWorld *w, int li) {
                 }
                 if (best >= 0) {
                     float lx = (float)(best * DX_T + 2);
-                    if (fabsf(lx - l->x) < 1.5f) {
+                    if (fabsf(lx - l->x) < 2.0f) { /* walk_to stops within 2 */
                         l->x = lx;
                         l->climb = 1;
                         l->vy = dy < 0 ? -CLIMB : CLIMB;
@@ -1607,6 +1607,9 @@ static void vs_set(DxWorld *w, int x, int y, int t) {
     if (x >= 0 && x < DX_MAX_W && y >= 0 && y < DX_H) w->tile[y][x] = (uint8_t)t;
 }
 
+/* the loose things in a 2P car: now and then an anvil */
+static const int VS_THINGS[5] = {OB_ANVIL, OB_CRATE, OB_CRATE, OB_BARREL, OB_BARREL};
+
 void dx_versus_train(DxWorld *w, uint64_t seed) {
     memset(w, 0, sizeof *w);
     rng_seed(&w->rng, seed);
@@ -1649,7 +1652,7 @@ void dx_versus_train(DxWorld *w, uint64_t seed) {
         int cover = rng_range(&w->rng, 0, 2);
         for (int k = 0; k < cover; k++) {
             int bx = x + 2 + rng_range(&w->rng, 0, cw - 4);
-            add_obj(w, rng_range(&w->rng, 0, 1) ? OB_CRATE : OB_BARREL, (float)(bx * DX_T + 1), (float)((kind == 3 ? 2 : 6) * DX_T + 2));
+            add_obj(w, VS_THINGS[rng_range(&w->rng, 0, 4)], (float)(bx * DX_T + 1), (float)((kind == 3 ? 2 : 6) * DX_T + 2));
         }
         for (int k = 0; k < guard_car[c]; k++) {
             int gx = x + 3 + rng_range(&w->rng, 0, cw - 6);
