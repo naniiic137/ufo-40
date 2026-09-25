@@ -1,38 +1,121 @@
-# README media: TIN TROOP
+# README media: TIN TROOP. Replays the recorded routes of tests/tt_02,
+# tt_05, tt_06 and tt_11 (plain button presses) and grabs frames on the way.
 shotscale 2
 game tintroop
 wait 60
 shot tintroop_title
-cheat level 0
-wait 150
-cheat pos 470 121
+# tt_02_route_1a.ufs
+wipe_saves
+game tintroop
+wait 5
+press A
+wait 5
+press A
 wait 30
-hold RIGHT 30
-press B
-wait 170
-hold RIGHT 90
-hold RIGHT+A 12
-shot tintroop_shelf
-cheat level 3
+press A
+wait 5
+wait 129
+hold RIGHT 12
+hold RIGHT+A 30
+hold RIGHT 123
+hold RIGHT+A 20
+wait 2
+hold A 14
+hold RIGHT 139
+hold A 5
+hold A+B 2
+wait 39
+hold RIGHT 70
+gifstart tintroop 4 2
+hold RIGHT 56
+wait 10
+hold RIGHT+A 24
+wait 1
+hold RIGHT 4
+hold A 5
+hold A+B 2
 wait 150
-cheat pos 250 115
-wait 40
-shot tintroop_bath
-cheat level 9
-wait 40
-cheat pos 142 121
-cheat seed
-wait 110
-wait 100
-hold RIGHT 116
-gifstart tintroop 3 2
-hold UP 90
-hold RIGHT 20
-wait 20
-cheat burn
-cheat mouth
-wait 20
-hold RIGHT 2
-press B
-wait 110
+hold RIGHT 104
+hold RIGHT+A 24
+wait 1
+hold RIGHT+A 24
+wait 1
+hold RIGHT+A 30
+wait 1
+hold RIGHT 23
+shot tintroop_shelf
+hold RIGHT 190
+hold UP+B 2
+wait 36
+hold RIGHT 12
 gifstop
+# tt_05_route_2a.ufs
+wipe_saves
+game tintroop
+wait 5
+cheat unlock
+press A
+wait 5
+press LEFT
+press LEFT
+press LEFT
+press LEFT
+press LEFT
+press LEFT
+press A
+wait 30
+press A
+wait 5
+wait 129
+hold RIGHT 102
+hold DOWN+B 2
+wait 19
+shot tintroop_bath
+# tt_06_route_2b.ufs
+wipe_saves
+game tintroop
+wait 5
+cheat unlock
+press A
+wait 5
+press LEFT
+press LEFT
+press LEFT
+press LEFT
+press LEFT
+press A
+wait 30
+press A
+wait 5
+wait 129
+hold RIGHT 192
+wait 5
+hold RIGHT+A 16
+hold RIGHT 13
+hold RIGHT+A 20
+hold RIGHT 44
+wait 11
+shot tintroop_candles
+# tt_11_route_4b.ufs
+wipe_saves
+game tintroop
+wait 5
+cheat unlock
+press A
+wait 5
+press A
+wait 30
+press A
+wait 5
+wait 24
+hold RIGHT 24
+hold RIGHT+A 16
+wait 5
+hold RIGHT+A 16
+wait 6
+hold RIGHT 37
+wait 45
+hold A 5
+hold A+B 2
+wait 65
+shot tintroop_jack

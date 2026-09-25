@@ -173,24 +173,31 @@ the top.
 *Tribute to Mortol (UFO 50 #6).*
 
 <p align="center">
-  <img src="docs/shots/tintroop.gif" width="640" alt="Tin Troop: a burning soldier throws himself at the Jack of the Chest">
+  <img src="docs/shots/tintroop.gif" width="640" alt="Tin Troop: soldiers lance themselves into a bookshelf to make a ladder, then one blows up the toy blocks under a wardrobe">
 </p>
 <p align="center">
-  <img src="docs/shots/tintroop_shelf.png" width="320" alt="A soldier lodged in the bookshelf is a step for the next">
-  <img src="docs/shots/tintroop_bath.png" width="320" alt="Bath time">
+  <img src="docs/shots/tintroop_shelf.png" width="320" alt="Two soldiers lodged in the bookshelf are steps for the next">
+  <img src="docs/shots/tintroop_bath.png" width="320" alt="A soldier turns to stone on the bath tap to stop the water">
+  <img src="docs/shots/tintroop_candles.png" width="320" alt="A burning soldier sets a nest of wind-up mice alight">
+  <img src="docs/shots/tintroop_jack.png" width="320" alt="The Jack of the Chest and his four carved heads">
 </p>
 
-- **Plays like Mortol:** you have twenty lives, and spending them is how you
-  get anywhere. A soldier can fly into a wall and stay there as a ledge, blow
-  himself up to clear blocks and foes, or turn into a stone block. Bodies
-  press switches and weigh down scales. Drowned soldiers float, burning ones
-  can't be hurt, and seeded ones grow into vines. New soldiers parachute from
-  a ship that follows your progress. Lives carry from level to level, and
-  replaying a level to do better raises every level after it. There are ten
-  levels in four worlds, then the final boss.
+- **Plays like Mortol:** twenty soldiers are your lives, and spending them is
+  how you get anywhere. B alone flies a soldier into the nearest wall, where
+  he stays as a ledge; up+B blows him up, breaking toy blocks and foes;
+  down+B turns him to stone, and a stone dropped from the air smashes down
+  through every block under it and crushes spikes. Rituals chain in mid-air
+  for the one soldier. Bodies hold switches down, lie on spikes for the next
+  man to cross, float when drowned, and stop laser beams. Burning soldiers
+  can't be hurt and set foes alight, seeded ones grow into vines, and a stone
+  stops a bath tap. The plane waits at the top left of a view that only
+  scrolls forward; the toy chest has doors instead. Lives carry from level
+  to level, and replaying a level to do better raises every level after it.
+  Ten levels, the last one the final boss.
 - **Ours:** Captain Pip's tin soldiers, the toy blimp, a toymaker's house at
   night (nursery, bathroom, kitchen and toy chest), wind-up mice, paper darts,
-  tin rams and the Jack of the Chest. All ten levels are new layouts.
+  tin rams, pill bugs, toy dragons and the Jack of the Chest. All ten levels
+  are new layouts.
 
 ### 07 · SKYWELL
 
