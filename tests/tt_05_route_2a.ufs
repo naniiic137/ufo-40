@@ -1,56 +1,55 @@
-# TIN TROOP 2-A: swimming, the parachute over the basin, the dive tunnel.
+# TIN TROOP 2-A, start to finish with plain button presses (recorded once
+# from a route plan). A stone under the tap stops the water: the tub drains
+# through its plughole and its fish die with it. The next soldier crosses
+# the dry tub, dives through the basin for the +5, climbs out and lances
+# the mouse; a stone at the foot of the last box is the step over it.
 game tintroop
 wait 5
-cheat level 3
-cheat no_foes
-wait 120
-# the tub: hop the rim, swim across holding A, leap out onto the far rim
-cheat pos 100 121
-wait 2
-hold RIGHT+A 20
-hold RIGHT 30
-expect mode == 4
-hold RIGHT+A 340
-hold RIGHT 1
+cheat unlock
+press A
+wait 5
+press LEFT
+press LEFT
+press LEFT
+press LEFT
+press LEFT
+press LEFT
+press A
+wait 30
+press A
+wait 5
+wait 129
+hold RIGHT 102
+hold DOWN+B 2
+wait 196
+hold RIGHT 80
+hold RIGHT+A 24
+hold RIGHT 196
 hold RIGHT+A 30
-hold RIGHT 10
-expect mode == 3
-expect px > 415
-# the basin: its far side is too tall to climb out onto; the next soldier
-# parachutes over it
-cheat pos 682 105
-wait 100
-expect mode == 4
-cheat respawn 1
-wait 2
-expect mode == 1
-hold RIGHT 60
-wait 60
-expect mode == 3
-expect py == 61
-# the sink: dive under the wall and come up the other side
-cheat pos 845 101
-wait 2
-hold RIGHT 30
-expect mode == 4
-hold RIGHT 150
-expect breath > 0
-hold RIGHT+A 60
-expect px > 965
-hold RIGHT 1
-hold RIGHT+A 40
+hold RIGHT 56
+hold RIGHT+A 20
+hold RIGHT 317
+hold A 24
+hold RIGHT+A 21
+wait 1
+hold RIGHT+A 20
+hold RIGHT 8
+wait 1
+hold B 2
+wait 68
+hold RIGHT 154
+wait 1
 hold RIGHT 20
-expect mode == 3
-expect px > 1010
-# the gate: a stone on the switch
-cheat pos 1062 121
-wait 3
-press DOWN+B
-wait 40
-expect gate0 == 1
-cheat pos 1080 121
-hold RIGHT 80
-expect px > 1150
-cheat pos 1300 121
-hold RIGHT 80
+hold DOWN+B 2
+wait 58
+hold RIGHT 118
+wait 18
+hold RIGHT 12
+hold RIGHT+A 16
+wait 11
+hold RIGHT+A 30
+wait 1
+hold RIGHT 162
 expect state == 4
+expect best_3 == 9
+expect kills == 3

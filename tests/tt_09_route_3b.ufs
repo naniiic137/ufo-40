@@ -1,75 +1,51 @@
-# TIN TROOP 3-B: the pantry puts it all together.
+# TIN TROOP 3-B, start to finish with plain button presses (recorded once
+# from a route plan). The laser eye fires down the tunnel at anything in
+# its line, so a stone dropped right in front of it (from the air, above
+# the beam) blinds it. The second soldier drops in on the tin ram, jumps
+# its charge, and lances it in the back while it's dazed against the crate.
 game tintroop
 wait 5
-cheat level 7
-cheat no_foes
-cheat freeze
-wait 120
-# the block column: Pop its foot
-cheat pos 232 121
-wait 2
-press UP+B
-wait 40
-cheat pos 210 121
-hold RIGHT 60
-expect px > 262
-# the pit: a stone late in a jump, then hop it
-cheat pos 366 121
-wait 2
-hold RIGHT 2
-hold RIGHT+A 22
-press DOWN+B
-wait 40
-expect stone_y == 140
-cheat pos 366 121
-wait 2
+cheat unlock
+press A
+wait 5
+press LEFT
+press LEFT
+press A
+wait 30
+press A
+wait 5
+wait 129
+hold RIGHT 170
+hold RIGHT+A 14
+wait 13
+hold RIGHT+A 11
+hold DOWN+B 2
+wait 41
+hold RIGHT 105
+wait 31
+hold RIGHT+A 16
+wait 11
+hold RIGHT 247
+hold RIGHT+A 16
+wait 5
+hold RIGHT 16
+wait 177
+hold RIGHT+A 24
+wait 73
+hold RIGHT+A 30
+wait 33
+hold LEFT 2
+hold B 2
+wait 185
+hold RIGHT 31
+hold RIGHT+A 16
+wait 5
+hold RIGHT 18
 hold RIGHT+A 20
-wait 20
-hold RIGHT 6
-hold RIGHT+A 20
-hold RIGHT 10
-expect mode == 3
-expect px > 425
-# the tall crate: a vine
-cheat pos 492 121
-cheat seed
-wait 160
-wait 80
-cheat pos 480 121
-hold RIGHT 12
-hold UP 120
-hold RIGHT 30
-expect py == 61
-# the jar room: a stone opens the gate
-cheat pos 762 121
-wait 3
-press DOWN+B
-wait 40
-expect gate0 == 1
-# a stone on the weight pan lifts the step pan beside the jar
-cheat pos 870 121
-wait 50
-expect pan_off == 20
-press DOWN+B
-wait 60
-cheat pos 920 121
-wait 2
-hold RIGHT+A 20
-hold RIGHT 6
-wait 6
-expect py < 108
-hold RIGHT+A 20
-hold RIGHT 12
-expect py == 91
-# onto the counter and away
-wait 10
-cheat pos 1020 91
-wait 4
-hold RIGHT+A 20
-hold RIGHT 30
-expect py == 71
-cheat pos 1430 121
-hold RIGHT 4
-hold RIGHT+A 20
-hold RIGHT 90
+wait 17
+hold RIGHT 262
+hold RIGHT+A 34
+hold RIGHT 300
 expect state == 4
+expect best_7 == 12
+expect kills == 1

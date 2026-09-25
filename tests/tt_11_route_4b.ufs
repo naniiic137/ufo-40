@@ -1,0 +1,48 @@
+# TIN TROOP 4-B, the Jack of the Chest, with plain button presses (recorded
+# once from a route plan). Each soldier marches out of the door, climbs to
+# the ledge, and as the Jack springs out with his mouth open, jumps and
+# lances straight down his throat. Three lances finish him.
+game tintroop
+wait 5
+cheat unlock
+press A
+wait 5
+press A
+wait 30
+press A
+wait 5
+wait 24
+hold RIGHT 24
+hold RIGHT+A 16
+wait 5
+hold RIGHT+A 16
+wait 6
+hold RIGHT 37
+wait 45
+hold A 5
+hold A+B 2
+wait 99
+hold RIGHT 24
+hold RIGHT+A 16
+wait 5
+hold RIGHT+A 16
+wait 6
+hold RIGHT 37
+wait 90
+hold A 5
+hold A+B 2
+wait 99
+hold RIGHT 24
+hold RIGHT+A 16
+wait 5
+hold RIGHT+A 16
+wait 6
+hold RIGHT 37
+wait 90
+hold A 5
+hold A+B 2
+wait 1
+wait 200
+expect boss_dead == 1
+expect state == 4
+expect goals & 2

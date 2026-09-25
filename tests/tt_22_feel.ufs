@@ -1,0 +1,81 @@
+# TIN TROOP: how a soldier moves. He speeds up to a full run in 8 frames
+# and stops in 4; a tapped A is a hop, a held A a full jump; A held while
+# falling slows the fall; a step off a ledge still allows a jump for two
+# frames. The view only scrolls forward, its left edge is a wall, and the
+# plane waits at its top left. Holding B on the chute gives the level up.
+game tintroop
+wait 5
+cheat level 0
+wait 5
+# the plane drops each soldier at the top left of the view
+expect mode == 1
+expect ship_dx == 8
+expect px_dx < 40
+cheat no_foes
+# running: half speed after 4 frames, full speed (1 px a frame) after 8
+cheat pos 400 121
+wait 10
+expect ground == 1
+hold RIGHT 4
+expect vx10 == 5
+hold RIGHT 20
+expect vx10 == 10
+wait 2
+expect vx10 == 5
+wait 4
+expect vx10 == 0
+# a tapped A: a hop under a tile high
+cheat pos 400 121
+wait 10
+press A 1
+wait 5
+expect py > 110
+expect py < 116
+wait 30
+expect ground == 1
+# a held A: a jump of about 2.5 tiles
+cheat pos 400 121
+wait 10
+hold A 17
+expect py < 100
+# A held while falling: a slower fall
+cheat pos 400 40
+wait 12
+expect vy10 > 24
+cheat pos 400 40
+hold A 12
+expect vy10 < 20
+# stepping off the crate: A still jumps two frames later...
+cheat pos 212 101
+wait 10
+hold RIGHT 12
+expect ground == 0
+hold RIGHT 1
+press A 1
+expect vy10 < 0
+# ...but not three frames later
+cheat pos 212 101
+wait 10
+hold RIGHT 14
+press A 1
+expect vy10 > 0
+# walking on drags the view forward, the plane with it...
+cheat pos 460 121
+wait 10
+expect cam_x == 320
+hold RIGHT 100
+expect cam_x > 400
+expect ship_dx == 8
+# ...but it never scrolls back: its left edge stops him
+hold LEFT 200
+expect cam_x > 400
+expect px_dx >= 0
+expect px_dx < 6
+# holding B on the chute gives the level up
+cheat level 0
+wait 10
+expect mode == 1
+hold B 60
+expect state == 3
+hold B 40
+expect state == 5

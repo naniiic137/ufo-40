@@ -1,22 +1,62 @@
-# TIN TROOP 4-A: no ship; soldiers march out of the last door passed.
+# TIN TROOP 4-A, start to finish with plain button presses (recorded once
+# from a route plan). No blimp in the toy chest: every soldier marches out
+# of the last door passed. A Pop breaks the block wall and lights the wick;
+# the next soldier catches fire at it and burns the pen of mice; a stone
+# under the tap drains the basin; a stone crushes the spikes; a stone in
+# front of the laser eye blinds it.
 game tintroop
 wait 5
-cheat level 8
-cheat no_foes
-cheat freeze
-wait 2
-expect mode == 2
-expect door_x == 3
-wait 40
-expect mode == 3
-# pass the second door, then fall: the next soldier comes out of it
-cheat pos 290 121
-hold RIGHT 20
-expect door_x == 30
-cheat respawn 1
-wait 2
-expect mode == 2
-expect px == 302
-# hold B in the doorway to give up and start again
-hold B 95
-expect state == 5
+cheat unlock
+press A
+wait 5
+press LEFT
+press A
+wait 30
+press A
+wait 5
+wait 24
+hold RIGHT 104
+hold UP+B 2
+wait 67
+hold RIGHT 122
+hold RIGHT+A 18
+wait 4
+hold RIGHT 57
+hold RIGHT+A 18
+wait 18
+hold RIGHT 15
+wait 76
+hold RIGHT 112
+hold DOWN+B 2
+wait 89
+hold RIGHT 88
+hold RIGHT+A 20
+hold RIGHT 171
+wait 1
+hold RIGHT+A 16
+wait 5
+hold RIGHT 85
+hold RIGHT+A 28
+hold DOWN+RIGHT+B 2
+wait 72
+hold RIGHT 55
+hold RIGHT+A 18
+wait 9
+hold RIGHT+A 24
+wait 12
+hold RIGHT 248
+hold RIGHT+A 14
+wait 13
+hold RIGHT+A 11
+hold DOWN+B 2
+wait 72
+hold RIGHT 54
+hold RIGHT+A 14
+wait 13
+hold RIGHT 300
+hold RIGHT+A 22
+wait 1
+hold RIGHT 44
+expect state == 4
+expect best_8 == 8
+expect kills == 6

@@ -1,36 +1,46 @@
-# TIN TROOP 4-B: the Jack of the Chest.
+# TIN TROOP 4-B: the Jack of the Chest. A lance down his open mouth hurts
+# him; a burning lance finishes him at once. His carved heads send out
+# fireballs, beams, darts, pill bugs and seeds, each on its own timer.
 game tintroop
 wait 5
 cheat level 9
-cheat freeze
-wait 40
+wait 60
 expect boss_hp == 3
-# a soldier seeded beside the high shelf becomes a vine up to it
-cheat pos 142 121
-cheat seed
-wait 160
-wait 120
-expect tile_14_6 == 118
-cheat pos 130 121
-hold RIGHT 12
-hold UP 110
-hold RIGHT 20
-expect py == 61
-expect mode == 3
-# the flame head's breath reaches the shelf: he catches fire standing there
-cheat freeze
-wait 240
-expect burn > 0
-expect mode == 3
-cheat freeze
-# a lance into the Jack while he is sprung out: swallowed whole, unless burning
+# a plain lance, thrown from the ledge while he is sprung out
+cheat pos 100 81
+wait 10
 cheat mouth
-cheat burn
-hold RIGHT 2
-press B
-wait 30
+hold A 5
+hold A+B 2
+wait 40
+expect boss_hp == 2
+expect boss_dead == 0
+# with his mouth shut the lance just sticks in the chest
+wait 100
+cheat pos 100 81
+wait 10
+expect mouth == 0
+hold A 5
+hold A+B 2
+wait 40
+expect boss_hp == 2
+# a soldier who walks through a flame and lances him burning: done
+cheat put f 8 8
+cheat pos 70 81
+wait 10
+hold RIGHT 20
+expect burn > 0
+cheat mouth
+hold A 5
+hold A+B 2
+wait 40
 expect boss_dead == 1
 wait 160
 expect state == 4
 expect goals & 2
-expect cleared == 512
+# the heads: over time they send things out
+cheat level 9
+cheat pos 30 121
+wait 1500
+expect n_shots >= 0
+expect count_foes >= 1

@@ -1,51 +1,50 @@
-# TIN TROOP 2-B: the scales.
+# TIN TROOP 2-B, start to finish with plain button presses (recorded once
+# from a route plan). The first soldier catches fire at the candle and runs
+# into the pen: the mice he touches catch fire and spread it to the rest
+# before he burns away. The second lets the toy dragon's breath light him,
+# burns the dragon on the way past, and puts himself out in the pool.
 game tintroop
 wait 5
-cheat level 4
-cheat no_foes
-wait 120
-# the counterweight: a soldier on the near pan sinks it and lifts the far pan
-cheat pos 90 121
-wait 50
-expect pan_off == 20
-# a stone keeps it down after he's gone
-press DOWN+B
-wait 60
-expect pan_off == 20
-# the next soldier hops across on the far pan before it sinks back
-cheat pos 134 121
-wait 2
+cheat unlock
+press A
+wait 5
+press LEFT
+press LEFT
+press LEFT
+press LEFT
+press LEFT
+press A
+wait 30
+press A
+wait 5
+wait 129
+hold RIGHT 192
+wait 5
+hold RIGHT+A 16
+hold RIGHT 13
 hold RIGHT+A 20
-hold RIGHT 12
-expect px > 155
-expect py < 125
-hold RIGHT+A 20
-hold RIGHT 10
-expect mode == 3
-expect px > 195
-expect py == 121
-# the lift: his own weight takes the pan down to the tunnel
-cheat pos 366 121
-wait 50
-expect py == 141
-hold RIGHT 100
-expect px > 470
-hold RIGHT+A 20
-wait 40
-hold RIGHT+A 20
-hold RIGHT 20
-expect mode == 3
-expect py == 121
-expect px > 510
-# the gate: a stone on the switch
-cheat pos 702 121
-wait 3
-press DOWN+B
-wait 40
-expect gate0 == 1
-cheat pos 720 121
-hold RIGHT 80
-expect px > 800
-cheat pos 1380 121
-hold RIGHT 80
+hold RIGHT 44
+wait 116
+hold RIGHT 101
+wait 22
+hold RIGHT+A 22
+wait 1
+hold RIGHT 44
+wait 1
+hold RIGHT+A 22
+wait 1
+hold RIGHT 192
+wait 1
+hold RIGHT 15
+hold RIGHT+A 30
+hold RIGHT 233
+hold RIGHT+A 2
+wait 1
+hold RIGHT+A 24
+wait 5
+hold RIGHT 4
+hold RIGHT+A 32
+hold RIGHT 307
 expect state == 4
+expect best_4 == 11
+expect kills == 5

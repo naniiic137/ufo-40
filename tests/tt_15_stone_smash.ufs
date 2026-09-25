@@ -1,25 +1,44 @@
-# TIN TROOP: a stone dropped from the air smashes down through blocks;
-# one made standing on a block just sits there.
+# TIN TROOP: a stone dropped from the air falls at full speed and smashes
+# down through any toy blocks below it, one after another; spikes under it
+# are crushed, a flame under it goes out, a foe under it is flattened.
 game tintroop
 wait 5
-cheat level 1
+cheat level 0
 cheat no_foes
-wait 120
-expect tile_30_12 == 120
-cheat pos 307 21
-wait 2
-hold A 10
-press DOWN+B
-wait 80
-expect tile_30_3 == 32
-expect tile_30_12 == 32
-expect tile_31_12 == 32
-expect stone_y == 120
-cheat put x 60 12
-cheat put x 60 11
-cheat pos 598 101
-wait 10
+cheat freeze
+wait 60
+# a column of four blocks under a ledge of air
+cheat put x 12 9
+cheat put x 12 10
+cheat put x 12 11
+cheat put x 12 12
+expect count_breakable == 7
+cheat pos 118 71
+wait 1
 press DOWN+B
 wait 40
-expect tile_60_11 == 120
-expect stone_y == 100
+expect count_breakable == 3
+expect stone_y == 120
+# spikes
+cheat put ^ 6 12
+cheat put ^ 7 12
+cheat pos 62 91
+wait 1
+press DOWN+B
+wait 20
+expect tile_6_12 == 32
+expect stone_y == 120
+# a flame
+cheat put f 16 12
+cheat pos 158 91
+wait 1
+press DOWN+B
+wait 20
+expect tile_16_12 == 99
+# a mouse
+cheat foe mouse 180 130
+cheat pos 178 91
+wait 1
+press DOWN+B
+wait 20
+expect kills == 1

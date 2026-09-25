@@ -1,0 +1,31 @@
+# TIN TROOP world 4: there is no plane in the toy chest. Each soldier steps
+# out of the last door the troop has passed, and the view follows him both
+# ways, so he can go back for what he left behind.
+game tintroop
+wait 5
+cheat level 8
+wait 5
+expect mode == 2
+expect door_x == 3
+wait 60
+expect mode == 3
+cheat no_foes
+# walking through a door makes it the new way in
+cheat pos 240 121
+wait 5
+hold RIGHT 30
+expect door_x == 25
+# the view scrolls back with him
+cheat pos 700 121
+wait 40
+expect cam_x > 540
+hold LEFT 30
+wait 30
+expect cam_x < 540
+# the next soldier comes out of the last door passed
+press UP+B
+expect lives == 19
+wait 60
+expect px > 245
+expect px < 260
+expect cam_x < 250

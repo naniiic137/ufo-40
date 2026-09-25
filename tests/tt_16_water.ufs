@@ -1,17 +1,44 @@
-# TIN TROOP: underwater the breath runs out; a drowned soldier floats up
-# and is a raft for the next.
+# TIN TROOP 2-A: holding A swims up; under water breath runs out and the
+# soldier drowns, floating up as a platform; a ritual under water only
+# drowns him. A stone under the tap stops the water: the tub drains by its
+# plughole, its fish die, and the launcher sends out darts instead.
 game tintroop
 wait 5
 cheat level 3
-cheat no_foes
-wait 120
-cheat pos 250 135
-wait 20
-expect mode == 4
-expect breath < 240
-wait 240
-expect mode != 4
-expect lives == 19
+cheat freeze
 wait 60
+expect count_water > 50
+# into the tub
+cheat pos 260 110
+wait 30
+expect mode == 4
+hold A 40
+expect breath > 200
+# let him sink and hold his breath too long
+wait 250
+expect mode == 0
 expect count_float == 1
-expect body_0_y == 109
+wait 60
+# the floating body is a step
+cheat pos 266 100
+wait 30
+expect ground == 1
+expect mode == 3
+# a lance under water: he just drowns
+cheat pos 300 130
+wait 30
+press B
+expect count_float == 2
+expect count_lodged == 0
+# a stone under the tap: the water goes
+cheat freeze
+cheat pos 122 121
+wait 10
+press DOWN+B
+wait 150
+expect count_water <= 28
+expect pool0 == 15
+expect kills >= 2
+# with the launcher dry, darts come out
+wait 300
+expect near_kind == 1

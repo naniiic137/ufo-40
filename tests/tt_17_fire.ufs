@@ -1,18 +1,63 @@
-# TIN TROOP: a burning soldier can't be hurt by foes and burns them; he
-# burns away with no body unless water puts him out.
+# TIN TROOP: a soldier who touches a flame burns. Burning, foes can't hurt
+# him: he sets them alight, and a burning creature passes the fire to the
+# ones it touches before it burns away. He burns away himself, leaving no
+# body, unless water puts him out. A Pop lights an unlit wick, and so does
+# a burning soldier who touches one; a lance through a flame catches fire.
 game tintroop
 wait 5
 cheat level 0
 cheat no_foes
-wait 120
-cheat pos 100 121
-cheat burn
-cheat foe mouse 130 130
 cheat freeze
-hold RIGHT 30
-expect kills == 1
-expect mode == 3
-wait 180
-expect mode == 0
+wait 60
+cheat put f 8 12
+cheat pos 60 121
+wait 5
+hold RIGHT 20
+expect burn > 0
+# two mice side by side: he touches one, the fire spreads to the other
+cheat foe mouse 140 130 -1
+cheat foe mouse 146 130 -1
+cheat freeze
+hold RIGHT 40
+expect lives == 20
+expect burning >= 1
+wait 60
+expect count_foes == 0
+expect kills == 2
+# he burns away with no body
+wait 200
 expect lives == 19
 expect count_corpse == 0
+# a Pop lights an unlit wick next to it
+cheat put c 12 12
+cheat pos 100 121
+wait 5
+press UP+B
+expect tile_12_12 == 102
+# a burning soldier lights one he walks through
+cheat put c 16 12
+cheat pos 100 121
+wait 20
+hold RIGHT 60
+expect tile_16_12 == 102
+# a lance through a flame burns
+cheat put f 5 12
+cheat pos 90 121
+wait 5
+hold LEFT 2
+press B
+wait 3
+expect burn > 0
+# water puts a burning soldier out (2-A's basin)
+cheat level 3
+cheat no_foes
+wait 60
+cheat put f 55 12
+cheat pos 540 121
+wait 5
+hold RIGHT 20
+expect burn > 0
+hold RIGHT 40
+wait 10
+expect burn == 0
+expect mode == 4

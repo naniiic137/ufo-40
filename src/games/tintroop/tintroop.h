@@ -23,11 +23,14 @@ extern const TTLevel TT_LEVEL[TT_LEVELS];
 
 /* Tile legend (see tintroop_levels.c):
  *  ' ' air        '#' wall       'x' breakable   '^' spikes     'w' water
- *  'f' flame      'P' creeper pot '[' switch A   ']' switch B
- *  '|' gate A     '!' gate B      'L' 'R' scale pans (3 wide)
+ *  'f' lit wick   'c' unlit wick 'P' seed pot    '[' switch A   ']' switch B
+ *  '|' gate A     '!' gate B     'L' 'R' scale pans (3 wide)
+ *  'Z' water pipe (pours water in)   'U' drain (lets it out)
+ *  'H' launcher (sends out fish in water, dart planes in air)
+ *  '<' '>' laser blocks facing left / right
  *  '1'..'9' life tag   'E' exit   'D' toy-box door   'S' start
  *  foes: 'm' mouse 'a' paper dart 'r' ram 'q' fish 'o' pill bug 'd' dragon
- *  boss: 'J' jack box (4x5)  'N' flame head  'K' seed head  'Y' bug head (2x2) */
+ *  boss: 'J' jack box (4x5)  'N' carved head (2x2) */
 
 enum {
     T_SOLDIER1, T_SOLDIER2, T_SOLDIER3, T_SOLDIER_JUMP, T_SOLDIER_CHUTE, T_CHUTE, T_SOLDIER_SWIM,

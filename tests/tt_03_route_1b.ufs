@@ -1,93 +1,62 @@
-# TIN TROOP 1-B, obstacle by obstacle.
+# TIN TROOP 1-B, start to finish with plain button presses (recorded once
+# from a route plan). The first soldier stands on the tin ram's plateau so
+# it charges him and runs off into the gap, then Pops the tower of toy
+# blocks; a lance makes a step up the sideboard; a stone dropped into the
+# trench flattens the second ram and fills the hole.
 game tintroop
 wait 5
-cheat level 1
-cheat no_foes
-wait 120
-# the roofed pit: a stone dropped late in a jump lands at the bottom to hop on
-cheat pos 146 121
-wait 2
-hold RIGHT 2
+cheat unlock
+press A
+wait 5
+press LEFT
+press LEFT
+press LEFT
+press LEFT
+press LEFT
+press LEFT
+press LEFT
+press LEFT
+press A
+wait 30
+press A
+wait 5
+wait 129
+hold RIGHT 242
+hold RIGHT+A 18
+wait 4
+hold RIGHT 67
+wait 80
+hold RIGHT 24
+hold RIGHT+A 30
+wait 4
+hold RIGHT 209
+hold UP+B 2
+wait 36
+hold RIGHT 129
+wait 7
+hold RIGHT 164
+hold A 5
+hold A+B 2
+wait 62
+hold RIGHT 107
 hold RIGHT+A 22
-press DOWN+B
-wait 40
-expect stone_y == 140
-cheat pos 146 121
-wait 2
-hold RIGHT+A 20
-wait 20
-expect py == 131
-hold RIGHT 8
-hold RIGHT+A 20
-hold RIGHT 10
-expect mode == 3
-expect px > 205
-expect py == 121
-# the tower of blocks: Pop the foot and squeeze through
-cheat pos 292 121
-wait 2
-press UP+B
-wait 40
-cheat pos 280 121
-hold RIGHT 60
-expect px > 330
-# the three-high crate in the dart hall: lance, then climb
-cheat pos 490 121
-wait 2
-hold RIGHT 2
-press B
-wait 50
-cheat pos 478 121
-wait 2
-hold RIGHT+A 20
-hold RIGHT 12
-hold RIGHT+A 20
-hold RIGHT 16
-expect py == 91
-# the stair: a lance up the first step, a jump up the second
-cheat pos 750 121
-wait 2
-hold RIGHT 2
-press B
-wait 50
-cheat pos 738 121
-wait 2
-hold RIGHT+A 20
-hold RIGHT 12
-hold RIGHT+A 20
+wait 1
+hold RIGHT+A 24
+wait 1
 hold RIGHT 20
-hold RIGHT+A 20
-hold RIGHT 20
-expect py == 71
-# the spike field: four boxes two tiles apart, then the floor
-cheat pos 862 71
+wait 23
+hold RIGHT 33
+hold RIGHT+A 42
+hold DOWN+B 2
+wait 155
+hold RIGHT+A 22
 wait 2
-hold RIGHT 4
+hold RIGHT+A 24
+wait 9
+hold RIGHT 73
+wait 1
 hold RIGHT+A 20
-hold RIGHT 4
-wait 16
-expect py == 91
-hold RIGHT+A 20
-hold RIGHT 12
-wait 6
-expect py == 91
-expect px > 925
-hold RIGHT 6
-hold RIGHT+A 20
-hold RIGHT 12
-wait 6
-expect py == 91
-expect px > 965
-hold RIGHT 6
-hold RIGHT+A 20
-hold RIGHT 12
-wait 6
-expect py == 91
-expect px > 1005
-hold RIGHT+A 20
-hold RIGHT 20
-expect mode == 3
-expect px > 1045
-cheat pos 1270 121
-hold RIGHT 80
+hold RIGHT 291
 expect state == 4
+expect best_1 == 16
+expect kills == 2

@@ -1,10 +1,12 @@
-# TIN TROOP: a lance kills every foe in its path; every third foe brings a
-# soldier back; brass tags give soldiers.
+# TIN TROOP: a lance kills every foe in its path; each foe beaten shows the
+# running count, and every third brings a soldier back. Floating numbers
+# give that many soldiers. A Pop's blast lingers a moment: a foe that walks
+# into it is caught too.
 game tintroop
 wait 5
 cheat level 0
 cheat no_foes
-wait 120
+wait 60
 cheat pos 100 121
 cheat foe mouse 140 130
 cheat foe mouse 160 130
@@ -17,9 +19,20 @@ wait 30
 expect kills == 3
 expect lives == 20
 expect count_foes == 0
-cheat put 5 35 12
-wait 40
-cheat pos 320 121
+# a number tag
+cheat put 5 14 12
+cheat pos 100 121
+wait 10
 hold RIGHT 40
 expect lives == 25
-expect tile_35_12 == 32
+expect tile_14_12 == 32
+# the lingering blast
+cheat freeze
+cheat pos 100 121
+cheat foe mouse 134 130 -1
+wait 10
+press UP+B
+wait 1
+expect kills == 3
+wait 14
+expect kills == 4

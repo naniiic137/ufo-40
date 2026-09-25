@@ -1,0 +1,82 @@
+# TIN TROOP: what the dead are good for. A soldier who falls on spikes stays
+# skewered on their points, and the next one walks across him. A living
+# soldier, a stone or a body holds a switch down and its gate open. Lasers
+# fire the moment something steps into their line: a soldier freezes and
+# drops dead, a foe is killed, and a body in the line shields what's behind.
+game tintroop
+wait 5
+cheat level 0
+cheat no_foes
+wait 60
+# a single spike tile on the playroom floor
+cheat put ^ 30 12
+cheat pos 301 90
+wait 30
+expect lives == 19
+expect impaled == 1
+# the next soldier stands on him, safe above the points, and walks on
+wait 60
+cheat no_foes
+cheat pos 301 100
+wait 30
+expect ground == 1
+expect py < 115
+expect lives == 19
+hold RIGHT 30
+expect px > 315
+expect lives == 19
+expect mode == 3
+# 1-C: the first switch and its gate
+cheat level 2
+cheat no_foes
+wait 60
+expect gate0 == 0
+cheat pos 180 121
+wait 5
+expect gate0 == 1
+hold LEFT 20
+wait 5
+expect gate0 == 0
+# a stone keeps it down
+cheat pos 180 121
+wait 5
+press DOWN+B
+wait 30
+expect count_stone == 1
+expect gate0 == 1
+# and so does a body: a mouse gets a soldier standing on it
+cheat level 2
+cheat no_foes
+wait 60
+cheat pos 180 121
+cheat foe mouse 205 130
+wait 60
+expect count_corpse == 1
+expect gate0 == 1
+# 3-B: a laser eye fires as a soldier steps into its line
+cheat level 7
+cheat no_foes
+wait 60
+expect beams == 0
+cheat pos 250 121
+wait 2
+expect beams == 1
+expect mode == 9
+wait 30
+expect count_corpse == 1
+expect lives == 19
+# his body now shields the soldier behind him
+wait 120
+cheat no_foes
+cheat pos 300 121
+wait 100
+expect mode == 3
+expect beams == 0
+# a foe in its line is killed
+cheat level 7
+cheat no_foes
+wait 60
+cheat foe mouse 260 130
+wait 5
+expect count_foes == 0
+expect kills == 1

@@ -1,22 +1,64 @@
-# TIN TROOP: creeper pots lob seeds; a seeded soldier glows, then becomes a
-# vine where he stands. A seeded pill bug sprouts one too.
+# TIN TROOP 3-A: a seed from a creeper pot makes a soldier glow; when the
+# meter fills he dies and a vine climbs as high as it can from where he
+# stood. Killed by a foe while glowing, he still becomes a vine; a lance
+# doesn't. A seeded pill bug grows a vine too; left alone, a pill bug is a
+# rolling bomb that goes off in the end.
 game tintroop
 wait 5
-cheat level 5
-cheat no_foes
-wait 120
-# stand where the pot's short lob lands
-cheat pos 346 121
-wait 600
+cheat level 6
+wait 60
+# standing where the pot's short lob lands
+cheat pos 108 121
+wait 590
+expect seed == 0
 expect lives == 19
-expect count_vine >= 8
-expect tile_34_12 == 118
-# a seeded pill bug rolls on, then sprouts
-cheat pos 250 121
-cheat foe bug 300 130
+expect count_vine == 13
+expect tile_11_0 == 118
+# a vine is climbed with up
+wait 60
+cheat pos 112 121
+wait 5
+hold UP 40
+expect mode == 5
+expect py < 100
+# glowing and killed by a mouse: a vine all the same
+cheat level 6
+cheat freeze
+wait 60
+cheat pos 60 121
+cheat seed
+cheat foe mouse 72 130 -1
+cheat freeze
+wait 30
+expect lives == 19
+wait 90
+expect count_vine >= 10
+# glowing and thrown as a lance: no vine
+cheat level 6
+cheat no_foes
+wait 60
+cheat pos 60 121
+cheat seed
+wait 5
+hold RIGHT 2
+press B
+wait 200
+expect count_vine == 0
+# a pill bug hit by a seed sprouts a vine
+cheat level 6
+cheat no_foes
+cheat foe bug 60 130
 cheat seed_bug
-expect seeded == 1
-wait 170
+wait 200
+expect count_vine >= 8
+expect kills == 1
+# an unseeded pill bug goes off after a while (in 1-A, far from any pot)
+cheat level 0
+cheat no_foes
+cheat foe bug 60 130
+cheat pos 180 121
+wait 20
+expect count_foes == 1
+wait 320
 expect count_foes == 0
-wait 80
-expect count_vine >= 12
+expect kills == 1

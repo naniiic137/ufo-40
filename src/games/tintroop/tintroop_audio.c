@@ -175,4 +175,5 @@ void tt_audio_load(void) {
     sfx_define("tt_gulp", CH_TRI, 200, "@41 v13 o4 c8 o3 c8");
     sfx_define("tt_door", CH_P2, 200, "@35 v9 o5 g16 o6 d16");
     sfx_define("tt_intro", CH_P1, 180, "@23 v11 o5 l16 g o6 c e g8");
+    sfx_define("tt_laser", CH_P2, 240, "@20 v11 o7 c32 o6 g32 e32 c32");
 }

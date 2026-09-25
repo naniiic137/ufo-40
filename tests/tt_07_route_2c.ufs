@@ -1,55 +1,52 @@
-# TIN TROOP 2-C: a seeded soldier becomes a vine to climb.
+# TIN TROOP 2-C, start to finish with plain button presses (recorded once
+# from a route plan). A stone dropped down the hole puts out the candles
+# at its foot and makes a step; a Pop clears the soap bars in the corridor
+# (the pill bugs go off on their own); two stones, each half off the edge
+# of the one below, make a stair up to the high ledge.
 game tintroop
 wait 5
-cheat level 5
-cheat no_foes
-cheat freeze
-wait 120
-# the cliff: a soldier seeded at its foot grows into a vine up it
-cheat pos 372 121
-cheat seed
-wait 160
-expect mode == 0
-wait 60
-expect count_vine >= 9
-expect tile_37_3 == 118
-# the next one climbs it and steps off onto the top
-cheat pos 360 121
+cheat unlock
+press A
+wait 5
+press LEFT
+press LEFT
+press LEFT
+press LEFT
+press A
+wait 30
+press A
+wait 5
+wait 66
+hold RIGHT 169
+hold RIGHT+A 18
+hold DOWN+B 2
+wait 130
+hold RIGHT 130
+wait 3
+hold RIGHT 95
+hold UP+B 2
+wait 109
+hold RIGHT 24
 wait 2
-hold RIGHT 12
-hold UP 120
-expect mode == 5
-hold RIGHT 30
-expect mode == 3
-expect py == 51
-expect px > 385
-# the bench: a stone at its foot, then two jumps
-cheat pos 933 121
-wait 2
-press DOWN+B
-wait 50
-cheat pos 906 121
-wait 2
-hold RIGHT+A 20
-hold RIGHT 6
-wait 10
-expect py == 111
-hold RIGHT+A 20
-hold RIGHT 12
-expect py == 91
-hold RIGHT 16
-hold RIGHT+A 20
-hold RIGHT 20
-expect py == 71
-# the last wall, under open sky: the next soldier parachutes over it
-cheat pos 1170 121
-wait 100
-cheat respawn 1
-wait 2
-hold RIGHT 90
-wait 60
-expect mode == 3
-expect py < 90
-cheat pos 1400 121
-hold RIGHT 80
+hold RIGHT 358
+hold DOWN+B 2
+wait 58
+hold RIGHT 83
+wait 1
+hold RIGHT 26
+hold RIGHT+A 12
+wait 15
+hold DOWN+B 2
+wait 58
+hold RIGHT 77
+wait 1
+hold RIGHT 25
+hold RIGHT+A 12
+wait 9
+hold RIGHT+A 10
+wait 8
+hold RIGHT+A 32
+hold RIGHT 493
 expect state == 4
+expect best_5 == 16
+expect goals & 1
