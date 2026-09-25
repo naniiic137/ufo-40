@@ -5,7 +5,7 @@
 <h1 align="center">UFO 40</h1>
 
 <p align="center">
-  <b>A pretend 1980s console with forty cartridges (well, seven so far), built from scratch<br>
+  <b>A pretend 1980s console with forty cartridges (well, eight so far), built from scratch<br>
   for the PlayStation Vita, Windows and the web.</b><br><br>
   <a href="https://naniiic137.github.io/ufo-40/"><b>▶ Play it in your browser</b></a> ·
   <a href="https://github.com/naniiic137/ufo-40/releases">Download for Vita / Windows</a>
@@ -36,7 +36,7 @@ on **Windows/Linux** and in the **browser** through Emscripten. A headless build
 drives the whole console from scripted input for testing and for every
 screenshot and GIF on this page.
 
-## The library (7 of 40 loaded)
+## The library (8 of 40 loaded)
 
 <p align="center"><img src="docs/shots/library.png" width="640" alt="The UFO 40 game library with 40 cartridge slots"></p>
 
@@ -49,6 +49,7 @@ screenshot and GIF on this page.
 | 14 | **CUTLASS CUP** | sports | Six corsairs knock a ball past each other on a galley deck: lobs, curve shots, secondary weapons and super shots, in a tournament, 2P versus or 2P co-op doubles. |
 | 15 | **FENNEC FOUNTAIN** | puzzle | Fen the fennec pushes numbered stones to unplug the oasis springs. Big numbers push small ones and 1s add up; fifty rooms around a hub garden, plus a room editor. |
 | 16 | **TINTAIL** | puzzle | Kama the chameleon sneaks across Salt Island past toads and storks by taking the colour of the ground. Fifteen single-screen levels, pears and lost hatchlings to carry home. |
+| 25 | **OPEN HOUSE** | strategy | Summer parties in a whitewashed house by the sea. Draw guests from your rolodex, dodge the police and the fire marshal, and get four star guests under one roof within 25 nights. |
 | other | *coming soon* | | still in the saucer's cargo hold |
 
 Every cartridge has three goals: a **Beacon** (a side challenge), the
@@ -220,6 +221,34 @@ Meet the quota before the last shift ends:
   Only the best single escape counts toward completion.
 - **Ours:** Kama, the toads, storks and falcon, Salt Island and the Sun Gate,
   all fifteen levels (a solver in the tests proves each one), and the music.
+
+### 25 · OPEN HOUSE
+
+<p align="center">
+  <img src="docs/shots/openhouse.gif" width="640" alt="Open House: guests arrive through the door and a paparazzo gets to work">
+</p>
+<p align="center">
+  <img src="docs/shots/openhouse_party.png" width="320" alt="A busy night in the house">
+  <img src="docs/shots/openhouse_shop.png" width="320" alt="The shop">
+</p>
+
+*A tribute to **Party House** (UFO 50 #25).*
+
+- **Plays the same:** open the door and a random guest from your rolodex
+  walks in. Three TROUBLE! guests bring the police, and guests brought along
+  can overflow the house for the fire marshal; either way nobody pays and one
+  guest misses the next party. End the party in time and everyone pays
+  popularity (to buy guests) and cash (to add space).
+- **The guests:** all 46 of Party House's guests with their costs, pay,
+  talents and trouble, from fetchers, bouncers and peekers to drummers,
+  upstarts and the nine star guests. Win by getting four stars into one
+  party within 25 nights.
+- **Structure:** five set guest lists with the original's pools, then a
+  Random list and the five-win streak. 2P Versus takes alternate nights and
+  shares the shop.
+- **Ours:** the house by the sea, the nosy neighbour's lamp, every guest's
+  name, portrait and line (the Saucer Pilot, the Wish Fish, the Rai Singer,
+  the Goat...), the list names and the music.
 
 ## Install on PS Vita
 
