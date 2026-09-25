@@ -1,0 +1,46 @@
+# DUNE EXPRESS: armor plate gives to punches too, only slowly: thirty of
+# them (a plank takes three), cracking as it goes; the iron fist breaks it
+# at once.
+game dune
+wait 5
+cheat mission 8
+cheat clear_law
+cheat pos 31 6
+cheat face 1
+expect tile325 == 4
+press B
+press B
+press B
+press B
+press B
+press B
+press B
+press B
+press B
+press B
+press B
+press B
+press B
+press B
+press B
+press B
+press B
+press B
+press B
+press B
+press B
+press B
+press B
+press B
+press B
+press B
+press B
+press B
+press B
+expect tile325 == 4
+press B
+expect tile325 == 0
+expect tile326 == 4
+cheat power 5
+press B
+expect tile326 == 0

@@ -350,8 +350,8 @@ static void draw_tile(int tx, int ty, int px, int py) {
         break;
     default: break;
     }
-    /* a plank that has taken punches cracks, and flashes as it's struck */
-    int d = W.dmg[ty][tx];
+    /* a plank or plate that has taken punches cracks, and flashes as it's struck */
+    int d = t == TL_ARMOR ? W.dmg[ty][tx] * 3 / DX_ARMOR_HP : W.dmg[ty][tx];
     if (d > 0) {
         gfx_line(px + 3, py + 2, px + 8, py + 8, C_INK);
         gfx_line(px + 8, py + 8, px + 6, py + 13, C_INK);

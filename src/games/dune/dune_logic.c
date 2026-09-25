@@ -658,14 +658,15 @@ static void stun_actor(DxWorld *w, int i, float kvx, float kvy) {
     w->ev_stun++;
 }
 
-/* a punch on a tile: planks take DX_TILE_HP punches (flashing as they
- * crack), armor and gates only give to the iron fist */
+/* a punch on a tile: planks take DX_TILE_HP punches and armor
+ * DX_ARMOR_HP (flashing as they crack); the iron fist breaks anything,
+ * gates included, at once */
 static bool punch_tile(DxWorld *w, int tx, int ty, bool fist) {
     int t = dx_tile(w, tx, ty);
     if (fist && (breakable(t, true) || t == TL_GATE)) { clear_tile(w, tx, ty); w->ev_break++; return true; }
-    if (!breakable(t, false)) return false;
+    if (!breakable(t, true)) return false;
     w->tflash[ty][tx] = 8;
-    if (++w->dmg[ty][tx] >= DX_TILE_HP) clear_tile(w, tx, ty);
+    if (++w->dmg[ty][tx] >= (t == TL_ARMOR ? DX_ARMOR_HP : DX_TILE_HP)) clear_tile(w, tx, ty);
     w->ev_break++;
     return true;
 }

@@ -32,6 +32,7 @@
 #define DX_MAX_AMMO 6
 #define DX_DEATH_Y (9 * DX_T)   /* below the undercarriage: off the train */
 #define DX_TILE_HP 3            /* punches a plank wall, floor or roof takes */
+#define DX_ARMOR_HP 30          /* and a plate of armor */
 #define DX_GUN_SHOTS 6          /* a crank gun: two bursts of three */
 #define DX_END_FRAMES 70        /* a failed heist: the fall plays out first */
 
