@@ -1,17 +1,23 @@
-# ROOFCAT: passing a score milestone releases a paper lantern; hitting it is a 1UP.
+# ROOFCAT: paper lanterns drift up at 3,000 and 7,000 points and then every
+# 5,000; popping one with a star is an extra life.
 game roofcat
 wait 5
-cheat stage 0 1
+cheat area 0 1
 cheat clear_foes
 cheat cam 0
 wait 10
 expect lanterns == 0
 cheat score 3000
 expect lanterns == 1
+expect next_life == 7000
+cheat score 7000
+expect next_life == 12000
+cheat score 12000
+expect next_life == 17000
+cheat clear_foes
+cheat put 40 83
+cheat lantern 100 86
 expect lives == 3
-cheat put 150 40
-wait 110
 press B
-press UP
 wait 20
-expect lives >= 3
+expect lives == 4

@@ -1,0 +1,32 @@
+# ROOFCAT: foe toughness and what they drop. A toad takes four stars and
+# drops a 300 token; a crow takes four; a spike lamp takes ten and a snail one.
+game roofcat
+wait 5
+cheat area 0 1
+cheat clear_foes
+cheat cam 0
+cheat put 20 83
+wait 5
+cheat foe toad 100 80
+expect hp_toad == 4
+expect hp_crow == -1
+cheat foe crow 200 64
+expect hp_crow == 4
+cheat clear_foes
+cheat foe toad 80 80
+press B 1
+wait 25
+press B 1
+wait 25
+press B 1
+wait 25
+expect count_toad == 1
+press B 1
+wait 25
+expect count_toad == 0
+expect token_value == 300
+cheat clear_foes
+cheat foe lamp 70 70
+expect hp_lamp == 10
+cheat foe snail 200 80
+expect hp_snail == 1

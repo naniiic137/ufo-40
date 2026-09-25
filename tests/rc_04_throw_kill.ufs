@@ -1,14 +1,26 @@
-# ROOFCAT: a jasmine star defeats a foe, which drops a fish token worth points.
+# ROOFCAT: foes score nothing when they fall; they drop a fish token, and the
+# token pays out when Harissa picks it up. A pigeon takes two stars.
 game roofcat
 wait 5
-cheat stage 0 1
+cheat area 0 1
 cheat clear_foes
 cheat cam 0
 cheat put 60 83
 wait 20
-cheat foe 110 84
-press B
+cheat foe snail 110 80
+press B 1
 wait 20
+expect count_snail == 0
 expect score == 0
+expect tokens == 1
+expect token_value == 100
 hold RIGHT 30
-expect score >= 100
+expect score == 100
+cheat foe pigeon 150 80
+press B 1
+wait 20
+expect hp_pigeon == 1
+press B 1
+wait 20
+expect count_pigeon == 0
+expect token_value == 100

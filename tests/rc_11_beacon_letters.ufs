@@ -1,0 +1,21 @@
+# ROOFCAT: standing on a hidden spot calls down a lost letter worth 500.
+# Three letters in one run earn the Beacon; score alone does not.
+game roofcat
+wait 5
+cheat area 0 1
+cheat clear_foes
+cheat cam 0
+wait 10
+cheat score 15000
+expect goals !& 1
+cheat put 60 83
+wait 5
+cheat spot 60 80
+wait 40
+expect letters == 1
+cheat spot 60 80
+wait 40
+cheat spot 60 80
+wait 40
+expect letters == 3
+expect goals & 1

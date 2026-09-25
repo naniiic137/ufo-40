@@ -1,0 +1,8 @@
+# ROOFCAT: one continuous town of four areas of twelve screens plus the
+# arena, with five hidden letter spots. Every screen joins its neighbours.
+game roofcat
+wait 5
+cheat area 0 1
+expect world_len == 49
+expect chunk_errors == 0
+expect secrets == 5
