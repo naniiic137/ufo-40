@@ -23,7 +23,9 @@ extern const TTLevel TT_LEVEL[TT_LEVELS];
 
 /* Tile legend (see tintroop_levels.c):
  *  ' ' air        '#' wall       'x' breakable   '^' spikes     'w' water
+ *  'X' sturdy (a Pop cracks it to 'k', a pill bug's blast breaks it)
  *  'f' lit wick   'c' unlit wick 'P' seed pot    '[' switch A   ']' switch B
+ *  'v' vine (grown in play)      'F' burning vine (set alight in play)
  *  '|' gate A     '!' gate B     'L' 'R' scale pans (3 wide)
  *  'Z' water pipe (pours water in)   'U' drain (lets it out)
  *  'H' launcher (sends out fish in water, dart planes in air)

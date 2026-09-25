@@ -179,7 +179,7 @@ the top.
   <img src="docs/shots/tintroop_shelf.png" width="320" alt="Two soldiers lodged in the bookshelf are steps for the next">
   <img src="docs/shots/tintroop_bath.png" width="320" alt="A soldier turns to stone on the bath tap to stop the water">
   <img src="docs/shots/tintroop_candles.png" width="320" alt="A burning soldier sets a nest of wind-up mice alight">
-  <img src="docs/shots/tintroop_jack.png" width="320" alt="The Jack of the Chest and his four carved heads">
+  <img src="docs/shots/tintroop_jack.png" width="320" alt="A burning soldier lances into the Jack of the Chest's open mouth">
 </p>
 
 - **Plays like Mortol:** twenty soldiers are your lives, and spending them is
@@ -189,11 +189,14 @@ the top.
   through every block under it and crushes spikes. Rituals chain in mid-air
   for the one soldier. Bodies hold switches down, lie on spikes for the next
   man to cross, float when drowned, and stop laser beams. Burning soldiers
-  can't be hurt and set foes alight, seeded ones grow into vines, and a stone
-  stops a bath tap. The plane waits at the top left of a view that only
-  scrolls forward; the toy chest has doors instead. Lives carry from level
-  to level, and replaying a level to do better raises every level after it.
-  Ten levels, the last one the final boss.
+  can't be hurt and set foes alight, seeded soldiers and creatures grow into
+  vines, a blast sets a vine burning, and a stone stops a bath tap. Pill
+  bugs are rolling bombs whose blast breaks tin blocks a Pop only cracks,
+  and launchers shut down once three of their creatures are killed. The
+  plane waits at the top left of a view that only scrolls forward; the toy
+  chest has doors instead, and no music. Lives carry from level to level,
+  and replaying a level to do better raises every level after it. Ten
+  levels, the last one the final boss.
 - **Ours:** Captain Pip's tin soldiers, the toy blimp, a toymaker's house at
   night (nursery, bathroom, kitchen and toy chest), wind-up mice, paper darts,
   tin rams, pill bugs, toy dragons and the Jack of the Chest. All ten levels

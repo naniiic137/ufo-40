@@ -1,36 +1,52 @@
-# TIN TROOP 4-B: the Jack of the Chest. A lance down his open mouth hurts
-# him; a burning lance finishes him at once. His carved heads send out
+# TIN TROOP 4-B: the Jack of the Chest. His mouth stays shut until a lance
+# strikes the eye of the carved eagle on his chest: then he springs up with
+# his mouth wide open for a while. A plain lance down his throat is just
+# swallowed; a burning one finishes him at once. His carved heads send out
 # fireballs, beams, darts, pill bugs and seeds, each on its own timer.
 game tintroop
 wait 5
 cheat level 9
 wait 60
-expect boss_hp == 3
-# a plain lance, thrown from the ledge while he is sprung out
-cheat pos 100 81
-wait 10
-cheat mouth
-hold A 5
-hold A+B 2
-wait 40
-expect boss_hp == 2
-expect boss_dead == 0
-# with his mouth shut the lance just sticks in the chest
-wait 100
-cheat pos 100 81
-wait 10
+# no timer opens him
+wait 400
 expect mouth == 0
+expect boss_dead == 0
+# a lance from the ledge into the eagle's eye
+cheat pos 100 81
+wait 10
+hold A 4
+hold A+B 2
+wait 40
+expect mouth == 1
+expect open_t > 200
+# a plain lance down his throat: swallowed, no harm done
+wait 60
+cheat pos 100 81
+wait 10
 hold A 5
 hold A+B 2
 wait 40
-expect boss_hp == 2
-# a soldier who walks through a flame and lances him burning: done
-cheat put f 8 8
+expect mouth == 1
+expect boss_dead == 0
+expect count_lodged == 0
+expect count_corpse == 0
+# after a while he ducks back in
+wait 200
+expect mouth == 0
+# the eye again, then a soldier who walks through the candle on the ledge
+# and lances him burning: done
+wait 60
+cheat pos 100 81
+wait 10
+hold A 4
+hold A+B 2
+wait 40
+expect mouth == 1
+wait 30
 cheat pos 70 81
 wait 10
 hold RIGHT 20
 expect burn > 0
-cheat mouth
 hold A 5
 hold A+B 2
 wait 40
@@ -42,5 +58,4 @@ expect goals & 2
 cheat level 9
 cheat pos 30 121
 wait 1500
-expect n_shots >= 0
 expect count_foes >= 1

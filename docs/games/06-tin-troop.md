@@ -20,7 +20,8 @@ never the layouts:
 | Lives | 20 at 1-A; the count carries on; replays keep the best [W] | the same |
 | Worlds 1-3 | the view scrolls forward only; the plane sits at the top left and drops the next soldier [MM], [TR] | the same |
 | World 4 | no plane; doorways are checkpoints and the troop may walk back [TT] | toy-box doors |
-| Final level | a boss that fires a slow spread; four nests around it send things out on a timer; a burning lance into its open mouth kills it at once [TR], [SG] | the Jack of the Chest and four carved heads |
+| Final level | a boss that fires a slow spread; four nests around it send things out on a timer; a lance into the eye of the eagle head on top opens its mouth, and a burning lance into the open mouth kills it at once [TR], [SG], [TT] | the Jack of the Chest, the carved eagle on his chest, and four carved heads |
+| Music | the last two levels have no music at all [LZ] | none in 4-A and 4-B |
 
 ### What each level brings in
 
@@ -31,11 +32,11 @@ never the layouts:
 | 1-C | switches and gates, bodies on spikes [W] | THE TOY TRAIN: two switches (one down a shaft), a spike bed to bridge |
 | 2-A | water, fish, pipes, launchers [W], [TAS] | BATH TIME: a tap to block, a plughole, a launcher in the tub wall |
 | 2-B | burning creatures, shallow water over spikes [TAS] | CANDLELIGHT: a nest of mice to burn, a toy dragon |
-| 2-C | a stone puts fire out, a lance catches fire, the bomb roller, stones stacked half off edges [TAS], [SG2] | THE SOAP DISH: candles under a hole, pill bugs, a high ledge |
+| 2-C | a stone puts fire out, a lance catches fire, the bomb roller, stones stacked half off edges [TAS], [SG2] | THE SOAP DISH: candles under a hole, a pill bug rolling in a soap dish beside a tin block that its blast breaks, a high ledge |
 | 3-A | plants and seeds [TAS] | THE HERB POTS: seed pots, and a flour bin only a vine can climb |
 | 3-B | laser blocks, the rammer [TAS] | THE PANTRY: a laser eye down a tunnel, a guarded shelf |
 | 4-A | everything, rolling and flying foes [TAS] | THE TOY CHEST: doors, a wick, a basin, lasers, rams |
-| 4-B | the boss [TAS] | THE JACK OF THE CHEST |
+| 4-B | the boss [TAS] | THE JACK OF THE CHEST: a candle on the throwing ledge |
 
 ## Mechanics checklist
 
@@ -57,16 +58,19 @@ never the layouts:
 | Bodies | corpses hold switches down like stones but don't block the way; foes walk through them; a soldier killed on spikes stays on the points as a bridge | [W], [TT], [TAS] |
 | Water | hold A to swim; a breath meter runs down; a drowned soldier floats up as a platform; a ritual under water only drowns him | [W] |
 | Pipes | a tap fills its pool while its mouth is clear; a plughole drains it; a stone on the tap stops it; drained water kills the fish, and launchers then send darts instead | [W], [TAS] |
+| Launchers | send out creatures on a timer; a launcher shuts down for good once three of its creatures have been killed (the boss's nests never do) | [TT], [TR] |
+| Sturdy blocks | a soldier's Pop only cracks a tin block, a second breaks it; a pill bug's blast is stronger and breaks it at once; a falling stone stops on it | [TT] |
 | Fire | a flame or a fireball sets him alight: foes can't hurt him, he sets them alight, and a burning creature passes the fire on (not always); the meter fills and he burns away with no body; water puts him out; a lance through a flame catches fire | [W], [TAS] |
-| Seeds | seeds make him glow green; when the meter fills he dies and a vine climbs as high as it can; killed by a foe first, the vine still grows; a lance loses the seed | [W], [TAS] |
+| Seeds | seeds make him glow green; when the meter fills he dies and a vine climbs as high as it can; killed by a foe first, the vine still grows; a lance loses the seed; seeds infect creatures too (not fish), which die into vines the same way | [W], [TAS], [TT], [SG] |
+| Burning vines | a blast that reaches a vine sets it burning: the fire climbs it, a soldier who touches it catches fire, and in the end it burns away | [TT] |
 | Lasers | fire the moment anything steps into their line; a soldier freezes and drops dead, foes die; walls, stones and bodies stop the beam | [TAS], [TT] |
 | Patroller (mouse) | walks to and fro on its platform | [W] |
-| Flyer (paper dart) | flies in straight lines; turns at random while it can't see a soldier | [W] |
-| Rammer (tin ram) | charges a soldier on its ground and turns round after passing him; can be jumped over; a stone clips it | [W], [TAS] |
-| Fish | swim to and fro; each picks a new direction at random every 40 frames | [TR] |
-| Roller (pill bug) | a rolling bomb; it waits while off screen; seeded, it grows a vine | [SG2], [TAS], [SG] |
+| Flyer (paper dart) | flies in straight lines; a soldier in plain sight along its row or column, it turns and comes at him; while it can't see one it turns at random | [W], [TAS] (the turn toward him is our reading of "others will pursue you") |
+| Rammer (tin ram) | charges a soldier on its ground and turns round after passing him; can be jumped over; a stone clips it; a lance kills it like any foe | [W], [TAS] |
+| Fish | swim to and fro, each picking a new direction at random every 40 frames while no soldier swims in their pool; with one there, they come after him | [TR], [TAS] (the chase is our reading of "when you are not in the water") |
+| Roller (pill bug) | a rolling bomb; it waits while off screen; seeded, it grows a vine; its going off earns nothing, only what its blast kills counts | [SG2], [TAS], [SG] |
 | Dragon | turns to face a soldier and breathes a slow fireball every 2.5 s (the wiki names it; what it does is our reading) | [W] |
-| Boss | a slow spread shot; four nests send out fireballs, lasers, darts, rollers and seeds from a shuffled list of ten, one every 720 frames; lances hurt him through his open mouth, a burning one kills him at once; he flashes when hit | [TR], [SG], [TT] |
+| Boss | a slow spread shot; four nests send out fireballs, lasers, darts, rollers and seeds from a shuffled list of ten, one every 720 frames; a lance into the eagle's eye on top opens his mouth for a while; a burning lance into the open mouth kills him at once; he flashes when hit | [TR], [SG], [TT] |
 | Timing | kills and pickups hold the action for one frame | [TR] |
 | Saving | the record is saved between levels | [MM] |
 
@@ -81,11 +85,24 @@ Numbers not in any source are ours, and so are these readings:
   Standing, the Lead takes 20 frames.
 - A laser beam lasts 24 frames, then rests 60. A launcher sends one creature
   every 4 s, two at most.
-- The tin ram's brass front turns a plain lance. The boss takes three plain
-  lances. A dart turns every 90 frames while it can't see a soldier; fire
-  spreads 7 times in 8.
+- The Jack's mouth stays open 5 s after the eagle's eye is hit; a plain
+  lance into it is swallowed, doing nothing. A dart turns every 90 frames
+  while it can't see a soldier; fire spreads 7 times in 8. A burning vine
+  lasts 3 s and passes the fire along every 8 frames.
 - Mortol also has scales [W]; the engine supports them, but none of our ten
   layouts uses them.
+
+### Open items
+
+- **Two players.** Mortol can be played by two in co-op [W]; how that works
+  isn't in the sources we could read, and the Vita has one controller, so
+  TIN TROOP is one player for now.
+- **The view.** Mortol shows about 24 × 13.5 of its 16-px blocks; our 10-px
+  tiles show 32 × 16, so more of a level is seen ahead. Changing that means
+  re-laying all ten levels (or zooming the camera), so it waits.
+- **Lasers and rituals.** One source wonders, with a question mark, whether
+  a soldier mid-ritual is spared by a laser [TAS]; until something firmer
+  turns up, a lance in a beam still dies.
 
 ## What is ours
 
@@ -99,7 +116,8 @@ Numbers not in any source are ours, and so are these readings:
 - **Foes:** wind-up mice, paper darts, tin rams, bath fish, pill bugs, toy
   dragons, the Jack of the Chest and his carved heads.
 - **Levels:** 10 original layouts.
-- **Music:** original UFO-MML marches.
+- **Music:** original UFO-MML marches; the toy chest (4-A, 4-B) is silent,
+  as Mortol's last two levels are.
 
 ## Additions: none
 
@@ -149,22 +167,31 @@ Only the platform needs every UFO 40 cartridge has:
   controls, the parachute, the plane at the top left, lives top right,
   numbers over beaten foes, floating number tags, saving.
   https://steamcommunity.com/sharedfiles/filedetails/?id=3350227767
-- [TT] TV Tropes (search snippets only): bodies over spikes, a stone
-  destroying spikes, world 4's doorways, lasers, the boss flashing.
+- [TT] TV Tropes, Mortol recap (search snippets only): bodies over spikes,
+  a stone destroying spikes, world 4's doorways, lasers, the boss
+  flashing, the eagle head's eye that opens the mouth, spawners shut down
+  after three of their spawns are killed, enemies turned into plants, vines
+  as a source of flames when hit by an explosion, rollers' blasts breaking
+  blocks the citizens' only crack.
+  https://tvtropes.org/pmwiki/pmwiki.php/Recap/UFO50Game6Mortol
 - [SC] Static Canvas, "The UFO 50 Diaries: Mortol": 10 levels, 20 lives.
   https://staticcanvas.substack.com/p/the-ufo-50-diaries-mortol
-- [LZ] Lizstar's Trashcan, "UFO 50 Retrospective Part 6 - Mortol".
+- [LZ] Lizstar's Trashcan, "UFO 50 Retrospective Part 6 - Mortol": the last
+  two levels have no music.
   https://lizstar64.github.io/reviews/2024/10/08/UFO50-6.html
 - [PB] Popcar's blog, "Reviewing Every Single UFO 50 Game": carry-over and
   replays. https://popcar.bearblog.dev/reviewing-every-ufo50-game/
 - [RC] Record Crash, "Game Review: UFO 50", and [BQ] BugQuest's UFO 50
   review: the general feel only.
 - [SG] Steam thread "Mortol Ruby is 75 lives?!": +3s and +5s, every third
-  kill, a vine from a roller, the boss.
+  kill, a vine from a roller, the boss (a lance into the bird head's eye,
+  then a burning one into the open mouth).
+  https://steamcommunity.com/app/1147860/discussions/0/4849903998510827025/
 - [SG2] Steam thread "Mortol 2-C Help": stones half off edges, the bomb
   roller.
 - [SG4] Steam thread "Is there a quick way to reset the level for Mortol?":
   "Hold X to give up".
+  https://steamcommunity.com/app/1147860/discussions/0/4699034922676294567/
 - [YT] Players' record-video titles only (no video watched): the level
   names and the best result per level, used to judge our routes.
 
@@ -180,7 +207,8 @@ Only the platform needs every UFO 40 cartridge has:
   stones; `tt_16` water and pipes; `tt_17` fire; `tt_18` seeds and vines;
   `tt_19` records; `tt_20` saving; `tt_21` failing; `tt_22` movement, the
   forward-only view and giving up; `tt_23` bodies on spikes, switches and
-  lasers; `tt_24` world 4's doors.
+  lasers; `tt_24` world 4's doors; `tt_25` a launcher shutting down;
+  `tt_26` darts and fish coming after a soldier; `tt_27` sturdy blocks.
 - Media: `docs/shots/tintroop.gif` (1-A: a lance ladder, then a Pop),
   `tintroop_title.png`, `tintroop_shelf.png`, `tintroop_bath.png`,
   `tintroop_candles.png`, `tintroop_jack.png`

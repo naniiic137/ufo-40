@@ -1,0 +1,49 @@
+# TIN TROOP: pursuers. A paper dart that sees a soldier straight along its
+# row or column turns and comes at him; one that can't see him flies on.
+# A fish comes after a soldier swimming in its pool.
+game tintroop
+wait 5
+cheat level 0
+cheat no_foes
+wait 60
+# along the row
+cheat pos 225 121
+wait 10
+cheat foe dart 300 128 1
+wait 3
+expect foe0_dir == -1
+wait 40
+expect foe0_x < 290
+# out of sight it flies on
+cheat level 0
+cheat no_foes
+wait 60
+cheat pos 225 121
+wait 10
+cheat foe dart 300 60 1
+wait 30
+expect foe0_dir == 1
+expect foe0_x > 320
+# straight above him: it turns down
+cheat level 0
+cheat no_foes
+wait 60
+cheat pos 225 121
+wait 10
+cheat foe dart 226 60 1
+wait 3
+expect foe0_dir == 0
+expect foe0_vdir == 1
+# 2-A: a fish chases the soldier swimming in the tub
+cheat level 3
+wait 60
+cheat no_foes
+cheat pos 250 131
+wait 5
+expect mode == 4
+cheat foe fish 350 146 1
+wait 3
+expect foe0_dir == -1
+expect near_d > 80
+wait 100
+expect near_d < 60

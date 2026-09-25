@@ -21,10 +21,10 @@ wait 5
 wait 129
 hold RIGHT 102
 hold DOWN+B 2
-wait 196
+wait 195
 hold RIGHT 80
 hold RIGHT+A 24
-hold RIGHT 196
+hold RIGHT 197
 hold RIGHT+A 30
 hold RIGHT 56
 hold RIGHT+A 20
@@ -50,6 +50,7 @@ wait 11
 hold RIGHT+A 30
 wait 1
 hold RIGHT 162
+wait 200
 expect state == 4
 expect best_3 == 9
 expect kills == 3

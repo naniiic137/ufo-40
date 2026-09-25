@@ -1,8 +1,9 @@
 # TIN TROOP 2-C, start to finish with plain button presses (recorded once
 # from a route plan). A stone dropped down the hole puts out the candles
-# at its foot and makes a step; a Pop clears the soap bars in the corridor
-# (the pill bugs go off on their own); two stones, each half off the edge
-# of the one below, make a stair up to the high ledge.
+# at its foot and makes a step; the pill bug rolling in the soap dish goes
+# off and breaks through the tin soap box, which a Pop would only crack;
+# two stones, each half off the edge of the one below, make a stair up to
+# the high ledge.
 game tintroop
 wait 5
 cheat unlock
@@ -20,20 +21,21 @@ wait 66
 hold RIGHT 169
 hold RIGHT+A 18
 hold DOWN+B 2
-wait 130
-hold RIGHT 130
-wait 3
-hold RIGHT 95
-hold UP+B 2
-wait 109
-hold RIGHT 24
+wait 58
+hold RIGHT 105
+wait 1
+hold RIGHT 37
 wait 2
-hold RIGHT 358
+hold RIGHT 52
+wait 60
+hold RIGHT+A 14
+wait 7
+hold RIGHT 293
 hold DOWN+B 2
 wait 58
-hold RIGHT 83
+hold RIGHT 84
 wait 1
-hold RIGHT 26
+hold RIGHT 25
 hold RIGHT+A 12
 wait 15
 hold DOWN+B 2
@@ -47,6 +49,7 @@ hold RIGHT+A 10
 wait 8
 hold RIGHT+A 32
 hold RIGHT 493
+wait 200
 expect state == 4
 expect best_5 == 16
 expect goals & 1

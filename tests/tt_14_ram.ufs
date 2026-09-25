@@ -1,12 +1,12 @@
-# TIN TROOP: a tin ram charges a soldier who steps onto its level. Its
-# brass brow turns a lance aimed at its face, but from behind it goes down;
-# jumped over, it charges on into the wall and stands dazed.
+# TIN TROOP: a tin ram charges a soldier who steps onto its level. A lance
+# kills it like any foe, from the front or from behind; jumped over, it
+# charges on into the wall and stands dazed.
 game tintroop
 wait 5
 cheat level 0
 cheat no_foes
 wait 60
-# a lance into its face: the soldier falls, the ram stands
+# a lance into its face goes through it
 cheat freeze
 cheat pos 60 121
 cheat foe ram 150 130 -1
@@ -14,9 +14,8 @@ wait 10
 hold RIGHT 2
 press B
 wait 30
-expect count_foes == 1
-expect count_corpse == 1
-expect kills == 0
+expect count_foes == 0
+expect kills == 1
 # from behind it goes down
 cheat no_foes
 cheat foe ram 150 130 1
@@ -26,7 +25,7 @@ hold RIGHT 2
 press B
 wait 30
 expect count_foes == 0
-expect kills == 1
+expect kills == 2
 # on its level it charges; jump it, and it runs into the wall behind
 cheat freeze
 cheat foe ram 150 130 -1
@@ -42,4 +41,4 @@ hold LEFT 2
 press B
 wait 20
 expect count_foes == 0
-expect kills == 2
+expect kills == 3

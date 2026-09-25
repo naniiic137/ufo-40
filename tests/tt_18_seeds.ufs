@@ -52,7 +52,8 @@ cheat seed_bug
 wait 200
 expect count_vine >= 8
 expect kills == 1
-# an unseeded pill bug goes off after a while (in 1-A, far from any pot)
+# an unseeded pill bug goes off after a while (in 1-A, far from any pot);
+# that earns nothing: only what its blast kills would count
 cheat level 0
 cheat no_foes
 cheat foe bug 60 130
@@ -61,4 +62,34 @@ wait 20
 expect count_foes == 1
 wait 320
 expect count_foes == 0
+expect kills == 0
+# a seed infects any creature: a mouse hit by one turns into a vine
+cheat level 0
+cheat no_foes
+wait 60
+cheat put # 25 12
+cheat put # 27 12
+cheat foe mouse 261 130
+cheat seedshot 265 127
+wait 2
+expect seeded == 1
+wait 240
+expect count_foes == 0
+expect count_vine >= 10
 expect kills == 1
+# a Pop beside the vine sets it burning; the fire climbs it
+cheat pos 271 111
+wait 10
+press UP+B
+expect count_vinefire >= 1
+wait 60
+expect count_vinefire >= 5
+# a soldier who touches the burning vine catches fire
+wait 20
+cheat pos 262 90
+wait 2
+expect burn > 0
+# in the end the vine burns away
+wait 400
+expect count_vine == 0
+expect count_vinefire == 0

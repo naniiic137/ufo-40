@@ -1,0 +1,44 @@
+# TIN TROOP: a sturdy tin block. A soldier's Pop only cracks it and a
+# second Pop breaks it; a falling stone stops on it; a pill bug's blast is
+# stronger and breaks it at once.
+game tintroop
+wait 5
+cheat level 0
+cheat no_foes
+wait 60
+cheat put X 26 12
+cheat put X 26 11
+expect count_sturdy == 2
+# a Pop two steps away cracks the lower one
+cheat pos 242 121
+wait 10
+press UP+B
+expect count_sturdy == 1
+expect count_cracked == 1
+# a second Pop breaks it
+wait 60
+cheat pos 242 121
+wait 10
+press UP+B
+expect count_sturdy == 1
+expect count_cracked == 0
+expect tile_26_12 == 32
+# a stone dropped on it stops on top
+wait 60
+cheat put X 30 12
+cheat pos 301 60
+wait 1
+press DOWN+B
+wait 40
+expect count_stone == 1
+expect stone_y == 110
+expect tile_30_12 == 88
+# a pill bug rolling in a pocket beside one goes off and breaks it
+wait 30
+cheat put # 22 12
+cheat put X 25 12
+cheat foe bug 232 130
+cheat pos 100 121
+wait 330
+expect count_foes == 0
+expect tile_25_12 == 32

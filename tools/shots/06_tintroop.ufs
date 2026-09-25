@@ -114,8 +114,17 @@ wait 5
 hold RIGHT+A 16
 wait 6
 hold RIGHT 37
-wait 45
+hold A 4
+hold A+B 2
+wait 104
+hold RIGHT 24
+hold RIGHT+A 16
+wait 5
+hold RIGHT+A 16
+wait 6
+hold RIGHT 37
 hold A 5
 hold A+B 2
-wait 65
+wait 1
+wait 17
 shot tintroop_jack

@@ -36,6 +36,9 @@
 #define LASER_COOL 60
 #define LAUNCH_T 240
 #define NEST_SPAWN 720
+#define MOUTH_T 300      /* a lance in the crest's eye holds the Jack's mouth open this long */
+#define VFIRE_T 180      /* a vine hit by a blast burns this long */
+#define LAUNCH_KILLS 3   /* a launcher shuts down once this many of its creatures are killed */
 #define LEVEL_H (TT_ROWS * TS)
 
 enum { S_TITLE, S_MAP, S_INTRO, S_PLAY, S_CLEAR, S_FAIL, S_ENDING, S_HELP };
@@ -55,7 +58,8 @@ typedef struct { float x, y; int t; bool hostile; } Blast;
 typedef struct { int top0, bottom, level, t; } Pool;
 typedef struct { int tx, ty, mx, my, pool; bool drain; } Pipe;
 typedef struct { int tx, ty, dir, beam, cool, end; bool manual; } Laser;
-typedef struct { int tx, ty, mx, my, t; } Launcher;
+typedef struct { int tx, ty, mx, my, t, kills; bool off; } Launcher;
+typedef struct { int tx, ty, t; } VFire;
 typedef struct { int tx, ty, t, idx; uint8_t list[10]; } Nest;
 
 #define MAX_BODIES 96
@@ -69,6 +73,7 @@ typedef struct { int tx, ty, t, idx; uint8_t list[10]; } Nest;
 #define MAX_LASERS 12
 #define MAX_LAUNCH 8
 #define MAX_NESTS 4
+#define MAX_VFIRE 64
 
 static char map[TT_ROWS][TT_MAXW + 1];
 static uint8_t pool_of[TT_ROWS][TT_MAXW]; /* 1 + pool index for a tile that held water */
@@ -91,6 +96,7 @@ static Launcher launchers[MAX_LAUNCH];
 static int n_launch;
 static Nest nests[MAX_NESTS];
 static int n_nests;
+static VFire vfire[MAX_VFIRE]; /* burning vine tiles ('F') */
 static Rng lrng; /* the level's own dice: fish, darts, heads */
 
 static struct {
@@ -121,7 +127,7 @@ static int overview_page = -1;
 
 static struct {
     bool on, dead;
-    int hp, bx, by, t, shot_t, flash, death_t;
+    int bx, by, t, shot_t, flash, death_t, open_t;
     bool mouth;
 } boss;
 
@@ -169,7 +175,7 @@ static char tile(int tx, int ty) {
 
 static bool solid_char(char c) {
     switch (c) {
-    case '#': case 'x': case 'P': case 'j': case 'N': case 'Z': case 'U': case 'H': case '<': case '>': return true;
+    case '#': case 'x': case 'X': case 'k': case 'P': case 'j': case 'N': case 'Z': case 'U': case 'H': case '<': case '>': return true;
     case '|': return !gate_open[0];
     case '!': return !gate_open[1];
     default: return false;
@@ -388,6 +394,7 @@ static void load_level(int i) {
     memset(vines, 0, sizeof vines);
     memset(parts, 0, sizeof parts);
     memset(blasts, 0, sizeof blasts);
+    memset(vfire, 0, sizeof vfire);
     memset(&boss, 0, sizeof boss);
     rng_seed(&lrng, 0x7717u + (uint64_t)i * 977u);
     n_scales = n_pipes = n_lasers = n_launch = n_nests = 0;
@@ -443,7 +450,6 @@ static void load_level(int i) {
                 boss.on = true;
                 boss.bx = x * TS;
                 boss.by = y * TS;
-                boss.hp = 3;
                 for (int yy = 0; yy < 5; yy++)
                     for (int xx = 0; xx < 4; xx++) map[y + yy][x + xx] = 'j';
                 break;
@@ -496,7 +502,9 @@ static void start_attempt(void) {
     state_t = 0;
     shake = 0;
     game_set_pausable(true);
-    music_play(boss.on ? TT_MUS_BOSS : TT_MUS_WORLD[world - 1]);
+    /* the last two levels have no music at all */
+    if (world == 4) music_stop();
+    else music_play(TT_MUS_WORLD[world - 1]);
 }
 
 /* ------------------------------------------------------------------ */
@@ -541,6 +549,15 @@ static void kill_foe(int i) {
     f->alive = 0;
     kills++;
     hitstop = imax(hitstop, 1);
+    /* a launcher whose creatures keep getting killed shuts down */
+    if (f->home >= 0 && f->home < n_launch) {
+        Launcher *l = &launchers[f->home];
+        if (!l->off && ++l->kills >= LAUNCH_KILLS) {
+            l->off = true;
+            burst((float)(l->tx * TS + 5), (float)(l->ty * TS + 5), C_GREY, 10, 1.0f);
+            sfx_play_name("tt_crash");
+        }
+    }
     burst(f->x + w / 2, f->y + h / 2, f->burn ? C_ORANGE : C_LIGHT, 10, 1.2f);
     popup_kill(f->x + w / 2, f->y - 2, kills);
     sfx_play_name("tt_foe");
@@ -554,6 +571,38 @@ static void kill_foe(int i) {
 static void grow_vine(int tx, int ty) {
     for (int i = 0; i < MAX_VINES; i++)
         if (vines[i].left <= 0) { vines[i] = (Vine){tx, ty, TT_ROWS, 0}; return; }
+}
+
+/* a vine caught by a blast burns: a source of flame for a while, and the
+ * fire climbs along it */
+static void ignite_vine(int tx, int ty) {
+    if (tile(tx, ty) != 'v') return;
+    for (int i = 0; i < MAX_VFIRE; i++)
+        if (vfire[i].t <= 0) {
+            vfire[i] = (VFire){tx, ty, 1};
+            map[ty][tx] = 'F';
+            return;
+        }
+}
+
+static void vfire_update(void) {
+    for (int i = 0; i < MAX_VFIRE; i++) {
+        VFire *v = &vfire[i];
+        if (v->t <= 0) continue;
+        if (tile(v->tx, v->ty) != 'F') { v->t = 0; continue; } /* put out */
+        v->t++;
+        if (v->t == 8) {
+            ignite_vine(v->tx, v->ty - 1);
+            ignite_vine(v->tx, v->ty + 1);
+            ignite_vine(v->tx - 1, v->ty);
+            ignite_vine(v->tx + 1, v->ty);
+        }
+        if (v->t >= VFIRE_T) {
+            map[v->ty][v->tx] = ' ';
+            burst((float)(v->tx * TS + 5), (float)(v->ty * TS + 5), C_GREY, 4, 0.5f);
+            v->t = 0;
+        }
+    }
 }
 
 static bool soldier_vulnerable(void) {
@@ -589,8 +638,10 @@ static void set_alight(Foe *f) {
     sfx_play_name("tt_ignite");
 }
 
-/* An explosion: breaks blocks and lights wicks within two steps (a
- * diamond), and anything that walks into it while it lingers is caught. */
+/* An explosion: breaks blocks, lights wicks and sets vines burning within
+ * two steps (a diamond), and anything that walks into it while it lingers
+ * is caught. A soldier's Pop only cracks a sturdy block; a pill bug's
+ * blast (hostile) is stronger and breaks it at once. */
 static void blast_hit(Blast *b, bool first) {
     int ctx = tx_of(b->x), cty = tx_of(b->y);
     if (first)
@@ -598,11 +649,16 @@ static void blast_hit(Blast *b, bool first) {
             for (int dx = -2; dx <= 2; dx++) {
                 if (iabs(dx) + iabs(dy) > 2) continue;
                 int tx = ctx + dx, ty = cty + dy;
-                if (tile(tx, ty) == 'x') {
+                char c = tile(tx, ty);
+                if (c == 'x' || c == 'k' || (c == 'X' && b->hostile)) {
                     map[ty][tx] = ' ';
                     burst((float)(tx * TS + 5), (float)(ty * TS + 5), world == 2 ? C_CYAN : C_TAN, 6, 1.0f);
+                } else if (c == 'X') {
+                    map[ty][tx] = 'k';
+                    burst((float)(tx * TS + 5), (float)(ty * TS + 5), C_GREY, 4, 0.7f);
                 }
-                if (tile(tx, ty) == 'c') { map[ty][tx] = 'f'; sfx_play_name("tt_ignite"); }
+                if (c == 'c') { map[ty][tx] = 'f'; sfx_play_name("tt_ignite"); }
+                if (c == 'v') { ignite_vine(tx, ty); sfx_play_name("tt_ignite"); }
             }
     for (int i = 0; i < MAX_FOES; i++) {
         Foe *f = &foes[i];
@@ -701,6 +757,12 @@ static void ritual(void) {
     }
 }
 
+/* the eye of the carved eagle on the chest's lid */
+static void jack_eye_rect(float *x, float *y) {
+    *x = (float)(boss.bx + 32);
+    *y = (float)(boss.by - 9);
+}
+
 /* where the Jack's head is when he has sprung out of the chest */
 static void jack_head_rect(float *x, float *y, float *w, float *h) {
     *x = (float)(boss.bx + 10);
@@ -757,21 +819,44 @@ static void arrow_update(void) {
         if (blocked(nx, P.y, 10, 4, -1) || (world != 4 && nx < cam_x - 12)) { lodge(); return; }
         P.x = nx;
         touch_pickups(P.x, P.y, 10, 4);
-        if (boss.on && !boss.dead && boss.mouth) {
-            float hx, hy, hw, hh;
-            jack_head_rect(&hx, &hy, &hw, &hh);
-            if (overlap(P.x, P.y, 10, 4, hx, hy, hw, hh)) {
-                /* a lance down his throat hurts him; a burning one finishes him */
-                boss.flash = 20;
-                boss.hp = P.burn > 0 ? 0 : boss.hp - 1;
-                sfx_play_name(boss.hp <= 0 ? "tt_bosshit" : "tt_gulp");
-                if (boss.hp <= 0) { boss.dead = true; boss.death_t = 0; boss.flash = 40; music_stop(); }
+        if (boss.on && !boss.dead && !boss.mouth) {
+            /* a lance in the carved eagle's eye springs the lid: the Jack
+             * comes up with his mouth wide open, for a while */
+            float ex, ey;
+            jack_eye_rect(&ex, &ey);
+            if (overlap(P.x, P.y, 10, 4, ex, ey, 6, 6)) {
+                boss.mouth = true;
+                boss.open_t = MOUTH_T;
+                boss.flash = 10;
+                burst(ex + 3, ey + 3, C_YELLOW, 10, 1.2f);
+                sfx_play_name("tt_jack");
                 P.mode = M_GONE;
                 respawn_t = RESPAWN;
                 return;
             }
         }
-        if (rect_has(P.x, P.y, 10, 4, 'f')) catch_fire();
+        if (boss.on && !boss.dead && boss.mouth) {
+            float hx, hy, hw, hh;
+            jack_head_rect(&hx, &hy, &hw, &hh);
+            if (overlap(P.x, P.y, 10, 4, hx, hy, hw, hh)) {
+                /* only a burning lance down his throat finishes him; a
+                 * plain one is just swallowed */
+                if (P.burn > 0) {
+                    boss.flash = 40;
+                    boss.dead = true;
+                    boss.death_t = 0;
+                    sfx_play_name("tt_bosshit");
+                    music_stop();
+                } else {
+                    boss.flash = 6;
+                    sfx_play_name("tt_gulp");
+                }
+                P.mode = M_GONE;
+                respawn_t = RESPAWN;
+                return;
+            }
+        }
+        if (rect_has(P.x, P.y, 10, 4, 'f') || rect_has(P.x, P.y, 10, 4, 'F')) catch_fire();
         if (P.burn > 0) light_wicks(P.x, P.y, 10, 4);
         if (water_at(P.x + 5, P.y + 2)) P.burn = 0;
         for (int i = 0; i < MAX_FOES; i++) {
@@ -780,14 +865,6 @@ static void arrow_update(void) {
             float w, h;
             foe_size(f->kind, &w, &h);
             if (!overlap(P.x, P.y, 10, 4, f->x, f->y, w, h)) continue;
-            if (f->kind == F_RAM && f->dir == -P.dir && P.burn == 0) {
-                /* the ram's brass brow turns a lance aside */
-                sfx_play_name("tt_clang");
-                P.y -= 2;
-                P.x -= (float)P.dir * 3;
-                soldier_die(DIE_CORPSE);
-                return;
-            }
             kill_foe(i);
         }
     }
@@ -847,7 +924,7 @@ static void stone_update(void) {
     int x0 = tx_of(P.x + 1), x1 = tx_of(P.x + 8.99f), y0 = tx_of(P.y + 1), y1 = tx_of(P.y + 8.99f);
     for (int ty = y0; ty <= y1; ty++)
         for (int tx = x0; tx <= x1; tx++)
-            if (tile(tx, ty) == 'f') { map[ty][tx] = 'c'; burst((float)(tx * TS + 5), (float)(ty * TS + 3), C_GREY, 5, 0.6f); }
+            if (tile(tx, ty) == 'f' || tile(tx, ty) == 'F') { map[ty][tx] = tile(tx, ty) == 'f' ? 'c' : ' '; burst((float)(tx * TS + 5), (float)(ty * TS + 3), C_GREY, 5, 0.6f); }
     for (int f = 0; f < MAX_FOES; f++) {
         Foe *e = &foes[f];
         if (!e->alive) continue;
@@ -1019,7 +1096,7 @@ static void soldier_update(void) {
     }
     if (P.mode != M_SWIM && kbp(BTN_B)) { ritual(); return; }
     /* hazards */
-    if (P.mode != M_SWIM && rect_has(P.x, P.y, SW, SH, 'f')) catch_fire();
+    if (P.mode != M_SWIM && (rect_has(P.x, P.y, SW, SH, 'f') || rect_has(P.x, P.y, SW, SH, 'F'))) catch_fire();
     if (P.burn > 0) light_wicks(P.x, P.y, SW, SH);
     if (P.burn > 0 && --P.burn == 0) { soldier_die(DIE_NONE); return; }
     if (P.seed > 0 && --P.seed == 0) { soldier_die(DIE_VINE); return; }
@@ -1208,6 +1285,13 @@ static bool pipe_blocked(const Pipe *p) {
     return false;
 }
 
+/* which pool the water at a point belongs to, or -1 */
+static int pool_at(float x, float y) {
+    int tx = tx_of(x), ty = tx_of(y);
+    if (tx < 0 || ty < 0 || tx >= LW || ty >= TT_ROWS || map[ty][tx] != 'w') return -1;
+    return pool_of[ty][tx] - 1;
+}
+
 /* Water flows in while a water pipe is open, and out through an open
  * drain once nothing is filling it. Emptied water takes its fish with it. */
 static void water_update(void) {
@@ -1308,10 +1392,14 @@ static void foes_update(void) {
             break;
         }
         case F_DART: {
-            /* flies straight, turning at walls; while it can't see a
-             * soldier it now and then picks a new way at random */
+            /* flies straight, turning at walls; a soldier in plain sight
+             * along its row or column, it turns and comes at him; while it
+             * can't see one it now and then picks a new way at random */
             int see = dart_sees(f, w, h);
-            if (!see && f->t % 90 == 0) {
+            if (see) {
+                f->dir = (int8_t)(see == 1 ? 1 : see == 2 ? -1 : 0);
+                f->vdir = (int8_t)(see == 3 ? 1 : see == 4 ? -1 : 0);
+            } else if (f->t % 90 == 0) {
                 int r = rng_range(&lrng, 0, 3);
                 f->dir = (int8_t)(r == 0 ? 1 : r == 1 ? -1 : 0);
                 f->vdir = (int8_t)(r == 2 ? 1 : r == 3 ? -1 : 0);
@@ -1354,8 +1442,14 @@ static void foes_update(void) {
             break;
         }
         case F_FISH: {
-            /* swims one way, and every 40 frames may turn */
-            if (f->t % 40 == 1) {
+            /* a soldier swimming in its pool: it comes after him;
+             * otherwise it swims one way, and every 40 frames may turn */
+            bool chase = here && P.mode == M_SWIM &&
+                         pool_at(scx, scy) >= 0 && pool_at(scx, scy) == pool_at(fcx, fcy);
+            if (chase) {
+                if (fabsf(scx - fcx) > 2) f->dir = (int8_t)(scx > fcx ? 1 : -1);
+                f->vdir = (int8_t)(fabsf(scy - fcy) < 2 ? 0 : scy > fcy ? 1 : -1);
+            } else if (f->t % 40 == 1) {
                 if (rng_range(&lrng, 0, 1)) f->dir = (int8_t)-f->dir;
                 f->vdir = (int8_t)rng_range(&lrng, -1, 1);
             }
@@ -1373,19 +1467,11 @@ static void foes_update(void) {
             if (blocked(nx, f->y, w, h, -1)) f->dir = (int8_t)-f->dir;
             else f->x = nx;
             foe_fall(f, w, h);
-            if (f->seeded > 0) {
-                if (--f->seeded == 0) {
-                    grow_vine(tx_of(fcx), tx_of(f->y + h - 1));
-                    kill_foe(i);
-                    continue;
-                }
-            } else if (--f->fuse <= 0) {
-                /* a pill bug is a rolling bomb: it goes off in the end */
+            if (f->seeded == 0 && --f->fuse <= 0) {
+                /* a pill bug is a rolling bomb: it goes off in the end (no
+                 * credit for that: only what its blast kills counts) */
                 f->alive = 0;
                 explode(fcx, fcy, true);
-                kills++;
-                popup_kill(fcx, f->y - 2, kills);
-                if (kills % 3 == 0) { lives++; popup_n(fcx, f->y - 12, 1); sfx_play_name("tt_life"); }
                 continue;
             }
             break;
@@ -1399,6 +1485,12 @@ static void foes_update(void) {
             break;
         }
         if (!f->alive) continue;
+        /* a seeded creature turns into a vine where it dies */
+        if (f->seeded > 0 && --f->seeded == 0) {
+            grow_vine(tx_of(f->x + w / 2), tx_of(f->y + h - 1));
+            kill_foe(i);
+            continue;
+        }
         /* burning creatures burn out, and set alight those they touch */
         if (f->burn > 0) {
             for (int j = 0; j < MAX_FOES; j++) {
@@ -1434,8 +1526,10 @@ static void shots_update(void) {
         if (s->kind == SH_SEED)
             for (int f = 0; f < MAX_FOES; f++) {
                 Foe *e = &foes[f];
-                if (!e->alive || e->kind != F_BUG || e->seeded) continue;
-                if (overlap(s->x - 2, s->y - 2, 4, 4, e->x, e->y, 8, 7)) { e->seeded = SEEDED; s->alive = 0; sfx_play_name("tt_seed"); break; }
+                if (!e->alive || e->kind == F_FISH || e->seeded) continue;
+                float ew, eh;
+                foe_size(e->kind, &ew, &eh);
+                if (overlap(s->x - 2, s->y - 2, 4, 4, e->x, e->y, ew, eh)) { e->seeded = SEEDED; s->alive = 0; sfx_play_name("tt_seed"); break; }
             }
         if (!s->alive) continue;
         if (soldier_present() || P.mode == M_ARROW) {
@@ -1522,7 +1616,7 @@ static void lasers_update(void) {
 static void launchers_update(void) {
     for (int k = 0; k < n_launch; k++) {
         Launcher *l = &launchers[k];
-        if (l->tx < cam_x / TS - 6 || l->tx > (cam_x + SCREEN_W) / TS + 6) continue;
+        if (l->off || l->tx < cam_x / TS - 6 || l->tx > (cam_x + SCREEN_W) / TS + 6) continue;
         if (++l->t < LAUNCH_T) continue;
         int mine = 0;
         for (int i = 0; i < MAX_FOES; i++) mine += foes[i].alive && foes[i].home == k;
@@ -1606,11 +1700,9 @@ static void boss_update(void) {
         return;
     }
     boss.t++;
-    /* the lid opens and the Jack shows his mouth for a while */
-    int cyc = boss.t % 300;
-    bool was = boss.mouth;
-    boss.mouth = cyc >= 180;
-    if (boss.mouth && !was) sfx_play_name("tt_jack");
+    /* sprung by a lance in the eagle's eye, he keeps his mouth open for a
+     * while, then ducks back into the chest */
+    if (boss.mouth && --boss.open_t <= 0) { boss.mouth = false; sfx_play_name("tt_gate_shut"); }
     /* his only attack: a slow spread of three */
     if (soldier_present() && ++boss.shot_t >= 170) {
         boss.shot_t = 0;
@@ -1761,7 +1853,7 @@ static uint32_t plan_tick(void) {
         }
         case 'c': done = P.mode == M_CHUTE; break;
         case 'e': done = P.mode == M_ENTER; break; /* a new soldier at a door */
-        case 'o': m = plan_btns(t + 1); done = boss.mouth && boss.t % 300 >= 180 + n; break; /* o10: the Jack's mouth open 10 frames */
+        case 'o': m = plan_btns(t + 1); done = boss.mouth && MOUTH_T - boss.open_t >= n; break; /* o10: the Jack's mouth open 10 frames */
         case 's': m = plan_btns(t + 1); done = P.seed > 0; break;  /* until a seed hits him */
         case 'b': m = plan_btns(t + 1); done = P.burn > 0; break;  /* until he catches fire */
         default: done = true; break;
@@ -1794,6 +1886,7 @@ static void play_update(void) {
     scales_update();
     switches_update();
     vines_update();
+    vfire_update();
     water_update();
     for (int i = 0; i < MAX_BLASTS; i++)
         if (blasts[i].t > 0) { blasts[i].t--; blast_hit(&blasts[i], false); }
@@ -2010,6 +2103,21 @@ static void draw_tile(int tx, int ty, int sx, int sy) {
         }
         break;
     }
+    case 'X': case 'k':
+        /* sturdy: a riveted tin crate; a Pop only cracks it */
+        gfx_rect(sx, sy, TS, TS, C_SLATE);
+        gfx_rectb(sx, sy, TS, TS, C_INK);
+        gfx_hline(sx + 1, sx + 8, sy + 1, C_GREY);
+        gfx_pset(sx + 2, sy + 2, C_LIGHT);
+        gfx_pset(sx + 7, sy + 2, C_LIGHT);
+        gfx_pset(sx + 2, sy + 7, C_LIGHT);
+        gfx_pset(sx + 7, sy + 7, C_LIGHT);
+        if (c == 'k') {
+            gfx_line(sx + 2, sy + 1, sx + 5, sy + 5, C_INK);
+            gfx_line(sx + 5, sy + 5, sx + 4, sy + 8, C_INK);
+            gfx_line(sx + 5, sy + 5, sx + 8, sy + 6, C_INK);
+        }
+        break;
     case 'x':
         /* breakable: a toy block with a crack, clearly not the wall */
         gfx_rect(sx, sy, TS, TS, t->brk);
@@ -2086,13 +2194,21 @@ static void draw_tile(int tx, int ty, int sx, int sy) {
         for (int k = 1; k < TS; k += 3) gfx_vline(sx + k, sy + 1, sy + 4, C_INK);
         gfx_hline(sx, sx + 9, sy, pipe_open_at(tx, ty) ? C_CYAN : C_GREY);
         break;
-    case 'H':
-        /* a launcher: a round hatch in the wall */
+    case 'H': {
+        /* a launcher: a round hatch in the wall; shut down, it is boarded */
+        bool off = false;
+        for (int i = 0; i < n_launch; i++) if (launchers[i].tx == tx && launchers[i].ty == ty) off = launchers[i].off;
         gfx_rect(sx, sy, TS, TS, t->wall);
         gfx_circ(sx + 5, sy + 5, 4, C_INK);
         gfx_circb(sx + 5, sy + 5, 4, C_GREY);
-        gfx_pset(sx + 5, sy + 5, (frame_t / 16) % 2 ? C_RED : C_MAROON);
+        if (off) {
+            gfx_line(sx + 1, sy + 2, sx + 8, sy + 7, C_TAN);
+            gfx_line(sx + 1, sy + 7, sx + 8, sy + 2, C_TAN);
+        } else {
+            gfx_pset(sx + 5, sy + 5, (frame_t / 16) % 2 ? C_RED : C_MAROON);
+        }
         break;
+    }
     case '<': case '>': {
         /* a laser block: an eye that fires along its row */
         gfx_rect(sx, sy, TS, TS, C_SLATE);
@@ -2104,6 +2220,11 @@ static void draw_tile(int tx, int ty, int sx, int sy) {
     }
     case 'E': spr_draw(&tt_spr[T_EXIT], sx, sy - 10, 0); break;
     case 'D': spr_draw(&tt_spr[T_DOOR], sx - 1, sy - 6, 0); if (tx == door_x) gfx_pset(sx + 4, sy - 8, (frame_t / 10) % 2 ? C_YELLOW : C_AMBER); break;
+    case 'F':
+        /* a vine on fire */
+        gfx_vline(sx + 4 + ((ty & 1) ? 1 : 0), sy + 2, sy + 9, C_BROWN);
+        spr_draw(&tt_spr[(frame_t / 5 + tx + ty) % 2 ? T_FLAME1 : T_FLAME2], sx + 1, sy - 2, 0);
+        break;
     case 'v': {
         gfx_vline(sx + 4 + ((ty & 1) ? 1 : 0), sy, sy + 9, C_JADE);
         gfx_vline(sx + 5 - ((ty & 1) ? 1 : 0), sy, sy + 9, C_FOREST);
@@ -2174,7 +2295,7 @@ static void draw_foes(int cx) {
         const uint8_t *remap = NULL;
         pal_identity(m);
         if (f->burn > 0 && (frame_t / 3) % 2) { for (int k = 0; k < PAL_COUNT; k++) if (k != C_INK) m[k] = k % 2 ? C_ORANGE : C_YELLOW; remap = m; }
-        else if (f->kind == F_BUG && f->seeded) { m[C_GREY] = C_LEAF; m[C_SLATE] = C_JADE; remap = m; }
+        else if (f->seeded && (frame_t / 4) % 3) { for (int k = 0; k < PAL_COUNT; k++) if (k != C_INK) m[k] = k % 2 ? C_LEAF : C_JADE; remap = m; }
         else if (f->kind == F_BUG && f->fuse < 60 && (frame_t / 4) % 2) { m[C_GREY] = C_RED; m[C_SLATE] = C_MAROON; remap = m; }
         int spr = 0, ox = 0, oy = 0;
         switch (f->kind) {
@@ -2276,9 +2397,24 @@ static void draw_boss(int cx) {
     spr_draw_ex(&tt_spr[T_JACK_HEAD], x + 10 + sway, hy, 0, m, -1);
     if (boss.mouth) spr_draw_ex(&tt_spr[T_JACK_MOUTH], x + 16 + sway, hy + 8, 0, m, -1);
     spr_draw_ex(&tt_spr[T_JACK_BOX], x, y, 0, m, -1);
-    if (!boss.dead) {
-        for (int k = 0; k < 3; k++)
-            if (k < boss.hp) gfx_rect(x + 8 + k * 9, y + 44, 6, 3, C_RED);
+    /* the carved eagle on the lid: a lance in its eye springs the Jack */
+    int ex = x + 32, ey = y - 9;
+    gfx_rect(ex - 1, ey - 3, 9, 12, C_BROWN);
+    gfx_rectb(ex - 1, ey - 3, 9, 12, C_INK);
+    gfx_hline(ex, ex + 6, ey - 2, C_TAN);
+    gfx_rect(ex - 4, ey + 3, 3, 2, C_AMBER); /* the beak, facing the ledge */
+    gfx_rect(ex, ey, 5, 5, C_INK);
+    if (!boss.mouth && !boss.dead) {
+        gfx_rect(ex + 1, ey + 1, 3, 3, (frame_t / 12) % 2 ? C_YELLOW : C_AMBER);
+        gfx_pset(ex + 1, ey + 2, C_INK);
+    } else {
+        gfx_hline(ex + 1, ex + 3, ey + 2, C_GREY);
+    }
+    if (boss.mouth && !boss.dead) {
+        /* how long the mouth stays open */
+        int w = 20 * boss.open_t / MOUTH_T;
+        gfx_rect(x + 10, y + 44, 20, 2, C_INK);
+        gfx_rect(x + 10, y + 44, w, 2, C_RED);
     }
     /* the heads' timers: a glow as each is about to send something out */
     for (int k = 0; k < n_nests; k++) {
@@ -2425,7 +2561,8 @@ static void draw_help(void) {
         GLYPH_B " ALONE - THE LANCE: HE FLIES STRAIGHT AHEAD AND\n"
         "STICKS IN THE FIRST WALL. HIS BODY IS A LEDGE.\n\n"
         GLYPH_UP "+" GLYPH_B " - THE POP: HE BLOWS UP, BREAKING TOY BLOCKS\n"
-        "AND FOES AROUND HIM, AND LIGHTING WICKS.\n\n"
+        "AND FOES AROUND HIM, AND LIGHTING WICKS. A TIN\n"
+        "BLOCK ONLY CRACKS: IT TAKES TWO, OR A PILL BUG'S.\n\n"
         GLYPH_DOWN "+" GLYPH_B " - THE LEAD: HE TURNS TO A STONE. DROPPED FROM\n"
         "THE AIR IT SMASHES DOWN THROUGH TOY BLOCKS, SPIKES\n"
         "AND FOES. STONES STACK AND CAN HANG OFF EDGES.",
@@ -2442,7 +2579,8 @@ static void draw_help(void) {
         "THEM ALIGHT, UNTIL HE BURNS AWAY. WATER PUTS HIM\n"
         "OUT, A STONE PUTS A FLAME OUT.\n\n"
         "SEEDS MAKE HIM GLOW: WHEN THE METER FILLS HE BECOMES\n"
-        "A VINE TO CLIMB (" GLYPH_UP "/" GLYPH_DOWN ").",
+        "A VINE TO CLIMB (" GLYPH_UP "/" GLYPH_DOWN "). SEEDED CREATURES DO TOO,\n"
+        "AND A BLAST SETS A VINE BURNING.",
     };
     ui_panel(8, 30, 304, 128, C_INK, C_DUSK);
     text_draw(PAGE[help_page], 14, 36, C_LIGHT);
@@ -2609,6 +2747,8 @@ static void draw_overview(void) {
                 switch (c) {
                 case '#': col = C_TAN; break;
                 case 'x': col = C_RED; break;
+                case 'X': case 'k': col = C_GREY; break;
+                case 'F': col = C_ORANGE; break;
                 case '^': col = C_WHITE; break;
                 case 'w': case 'q': col = C_BLUE; break;
                 case 'f': case 'c': col = C_ORANGE; break;
@@ -2709,7 +2849,18 @@ static int tt_query(const char *key, int *out) {
     if (!strcmp(key, "gate0")) { *out = gate_open[0]; return 1; }
     if (!strcmp(key, "gate1")) { *out = gate_open[1]; return 1; }
     if (!strcmp(key, "pan_off")) { *out = n_scales ? (int)lroundf(scales[0].off) : 0; return 1; }
-    if (!strcmp(key, "boss_hp")) { *out = boss.hp; return 1; }
+    if (!strcmp(key, "open_t")) { *out = boss.open_t; return 1; }
+    if (!strcmp(key, "near_d")) {
+        int best = 9999;
+        for (int i = 0; i < MAX_FOES; i++)
+            if (foes[i].alive) best = imin(best, (int)lroundf(fabsf(foes[i].x - P.x) + fabsf(foes[i].y - P.y)));
+        *out = best;
+        return 1;
+    }
+    if (!strcmp(key, "foe0_dir")) { *out = 0; for (int i = 0; i < MAX_FOES; i++) if (foes[i].alive) { *out = foes[i].dir; break; } return 1; }
+    if (!strcmp(key, "foe0_vdir")) { *out = 0; for (int i = 0; i < MAX_FOES; i++) if (foes[i].alive) { *out = foes[i].vdir; break; } return 1; }
+    if (!strcmp(key, "launch_off")) { int n = 0; for (int i = 0; i < n_launch; i++) n += launchers[i].off; *out = n; return 1; }
+    if (!strcmp(key, "launch_kills")) { *out = n_launch ? launchers[0].kills : -1; return 1; }
     if (!strcmp(key, "boss_dead")) { *out = boss.dead; return 1; }
     if (!strcmp(key, "mouth")) { *out = boss.mouth; return 1; }
     if (!strcmp(key, "cleared")) { *out = sv.cleared; return 1; }
@@ -2757,6 +2908,9 @@ static int tt_query(const char *key, int *out) {
         else if (!strcmp(n, "foes")) { for (int i = 0; i < MAX_FOES; i++) c += foes[i].alive; }
         else if (!strcmp(n, "vine")) { for (int y = 0; y < TT_ROWS; y++) for (int x = 0; x < LW; x++) c += map[y][x] == 'v'; }
         else if (!strcmp(n, "breakable")) { for (int y = 0; y < TT_ROWS; y++) for (int x = 0; x < LW; x++) c += map[y][x] == 'x'; }
+        else if (!strcmp(n, "sturdy")) { for (int y = 0; y < TT_ROWS; y++) for (int x = 0; x < LW; x++) c += map[y][x] == 'X'; }
+        else if (!strcmp(n, "cracked")) { for (int y = 0; y < TT_ROWS; y++) for (int x = 0; x < LW; x++) c += map[y][x] == 'k'; }
+        else if (!strcmp(n, "vinefire")) { for (int y = 0; y < TT_ROWS; y++) for (int x = 0; x < LW; x++) c += map[y][x] == 'F'; }
         else if (!strcmp(n, "spikes")) { for (int y = 0; y < TT_ROWS; y++) for (int x = 0; x < LW; x++) c += map[y][x] == '^'; }
         else if (!strcmp(n, "water")) { for (int y = 0; y < TT_ROWS; y++) for (int x = 0; x < LW; x++) c += map[y][x] == 'w'; }
         else if (!strcmp(n, "flames")) { for (int y = 0; y < TT_ROWS; y++) for (int x = 0; x < LW; x++) c += map[y][x] == 'f'; }
@@ -2849,8 +3003,8 @@ static int tt_cheat(const char *cmd) {
             }
         return 0;
     }
-    if (!strcmp(cmd, "mouth")) { boss.t = 180; boss.mouth = true; return 1; }
-    if (sscanf(cmd, "boss_hp %d", &a) == 1) { boss.hp = a; return 1; }
+    if (!strcmp(cmd, "mouth")) { boss.mouth = true; boss.open_t = MOUTH_T; return 1; }
+    if (sscanf(cmd, "seedshot %d %d", &a, &b) == 2) { add_shot(SH_SEED, (float)a, (float)b, 0, 0); return 1; }
     if (!strcmp(cmd, "win")) { state = S_CLEAR; state_t = 0; clear_level(); return 1; }
     if (!strcmp(cmd, "sheet")) { sheet_mode = !sheet_mode; return 1; }
     if (sscanf(cmd, "overview %d", &a) == 1) { overview_page = a; return 1; }

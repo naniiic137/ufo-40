@@ -1,0 +1,46 @@
+# TIN TROOP 2-A: a launcher sends out fish while its mouth is under water
+# and darts once it's dry, two at most. Every creature of its own that is
+# killed counts against it: after three it shuts down for good.
+game tintroop
+wait 5
+cheat level 3
+wait 60
+# a stone under the tap: the tub drains
+cheat pos 122 121
+wait 10
+press DOWN+B
+wait 150
+cheat no_foes
+expect launch_off == 0
+# a soldier in the dry tub lances each dart as it comes at him
+cheat pos 330 141
+wait 20
+hold RIGHT 1
+wait 50
+expect count_foes == 1
+press B
+wait 20
+expect count_foes == 0
+expect launch_kills == 1
+wait 110
+cheat pos 330 141
+wait 20
+hold RIGHT 1
+wait 86
+expect count_foes == 1
+press B
+wait 20
+expect launch_kills == 2
+wait 110
+cheat pos 330 141
+wait 20
+hold RIGHT 1
+wait 86
+expect count_foes == 1
+press B
+wait 20
+expect launch_kills == 3
+expect launch_off == 1
+# nothing more comes out of it
+wait 600
+expect count_foes == 0
