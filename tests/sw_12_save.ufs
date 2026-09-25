@@ -1,16 +1,27 @@
-# SKYWELL: the best floor, most cogs and most keys are kept between runs.
+# SKYWELL: the best floor, most cogs, most keys and items bought are kept
+# between runs.
 game skywell
 wait 5
 press A
 cheat cogs 7
 cheat top 9
 cheat keys 1
+cheat cogs 20
+cheat shop
+cheat offer 3 3 3
+wait 30
+press A
+expect items_bought == 1
+press B
+wait 5
+cheat top 9
 cheat pos 100 60
 wait 20
 expect state == 2
-expect best_floor == 9
+expect best_floor == 39
 reload
 game skywell
 wait 5
-expect best_floor == 9
+expect best_floor == 39
 expect most_keys == 1
+expect items_bought == 1

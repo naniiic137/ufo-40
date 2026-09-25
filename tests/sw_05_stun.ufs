@@ -1,7 +1,9 @@
 # SKYWELL: a bat sleeps until Kip passes close or underneath, then flutters
-# after her, slower than she runs. Its touch doesn't hurt: it knocks her
-# flying for a moment, and when she comes round she still has her jump in
-# the air. Recovery shortens the knock.
+# after her, slower than she runs. Its touch doesn't hurt, but the knock is
+# dangerous: she is flung hard across the shaft, out of control for almost
+# a second, and unless a platform catches her she drops floors towards the
+# Grinder. When she comes round she still has her jump in the air.
+# Recovery shortens the knock.
 game skywell
 wait 5
 press A
@@ -19,43 +21,55 @@ expect bats_awake == 1
 hold RIGHT 60
 expect kx > 120
 expect foe0_x < 60
-# standing still, it catches up and bumps her: knocked, not hurt
-wait 130
-expect stun > 0
+# standing still, it catches up and bumps her: a long knock, flung far
+wait 112
+expect stun > 50
 expect state == 1
-wait 30
+wait 12
+expect kx > 160
+wait 50
 expect stun == 0
-# in the air, a knock gives her back her jump in the air
+expect state == 1
+# knocked off a high ledge with nothing below: she falls into the Grinder
 cheat clear
-cheat plat 0 0 0 13
-cheat plat 0 80 -60 3
-cheat pos 100 -72
+cheat plat 0 80 -300 3
+cheat pos 100 -312
 wait 20
-hold A 10
-wait 1
+expect ground == 1
+cheat foe 0 116 -312
+wait 90
+expect state == 2
+# again, with a platform two floors down: it catches her
+wait 80
 press A
-expect air_used == 1
-cheat foe 0 98 -124
-wait 8
-expect stun > 0
+cheat clear
+cheat plat 0 80 -300 3
+cheat plat 0 0 -236 13
+cheat pos 100 -312
+wait 20
+cheat foe 0 116 -312
+wait 60
+expect state == 1
+expect ground == 1
+expect ky == -248
+# four Recoveries: the knock is at its shortest, and when she comes round
+# in the air she still has her jump in the air
+cheat run
+cheat clear
+cheat plat 0 0 -120 13
+cheat give 0
+cheat give 0
+cheat give 0
+cheat give 0
+cheat pos 100 -312
+cheat foe 0 104 -310
+wait 2
+expect stun > 15
+expect stun <= 20
 expect air_used == 0
-wait 18
+wait 20
 expect stun == 0
 expect ground == 0
 press A
 expect air_used == 1
 expect vy10 < 0
-# and she makes it back onto the ledge
-wait 40
-expect ground == 1
-expect ky == -72
-cheat clear
-cheat plat 0 80 -60 3
-wait 60
-# two Recoveries shorten the knock
-cheat give 0
-cheat give 0
-cheat foe 0 108 -84
-wait 20
-expect stun > 0
-expect stun <= 14

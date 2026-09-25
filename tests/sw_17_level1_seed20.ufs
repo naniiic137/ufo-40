@@ -40,50 +40,52 @@ hold LEFT+A 18
 hold LEFT 4
 hold LEFT+A 23
 hold LEFT 1
-hold LEFT+A 18
-hold LEFT 5
-hold RIGHT+A 18
-hold RIGHT 1
-hold RIGHT+A 10
-hold A 8
-wait 2
-hold LEFT+A 10
-hold LEFT 1
-hold LEFT+A 18
-hold LEFT 4
-hold RIGHT+A 6
-hold A 3
-wait 1
+hold RIGHT 14
+wait 9
+hold LEFT 6
 hold A 18
-wait 6
-hold LEFT+A 15
+wait 12
+hold LEFT 2
+hold LEFT+A 10
 hold LEFT 1
 hold LEFT+A 18
 hold LEFT 4
 hold RIGHT+A 15
 hold RIGHT 1
-hold RIGHT+A 12
-hold UP+RIGHT+A+B 6
-hold UP+RIGHT+B 6
-hold UP+B 2
-hold UP+RIGHT+A+B 5
-hold RIGHT+A 5
+hold RIGHT+A 13
+hold A 5
+wait 4
+hold A 13
+wait 1
+hold A 12
+hold LEFT+A 6
+hold LEFT 5
+hold RIGHT+A 1
+hold RIGHT 3
+hold RIGHT+A 10
+hold UP+RIGHT+A+B 8
+hold UP+B 7
+wait 5
+hold RIGHT+A 10
 hold RIGHT 1
 hold RIGHT+A 1
 hold A 1
 hold A+B 6
 hold A 10
 wait 5
-hold LEFT+A 1
-hold LEFT 3
-hold LEFT+A 17
-hold UP+LEFT+A+B 1
-hold UP+LEFT+B 10
+hold RIGHT+A 6
+hold UP+RIGHT+A+B 5
+hold UP+RIGHT+B 1
+hold UP+RIGHT+A+B 15
+hold RIGHT+A 3
+hold RIGHT 16
+wait 2
+hold LEFT+A 12
 hold LEFT 1
-hold LEFT+A 13
+hold LEFT+A 3
+hold UP+LEFT+A+B 15
+hold UP+LEFT+B 3
 hold LEFT 1
-hold LEFT+A 18
-hold LEFT 3
 expect state == 3
 expect level == 1
 expect top_floor == 30

@@ -1,4 +1,5 @@
 # SKYWELL: the top of each level is the Tinker's shop: three items for cogs.
+# Every item bought is counted in the records.
 game skywell
 wait 5
 press A
@@ -18,6 +19,7 @@ press RIGHT
 press A
 expect cogs == 5
 expect item_4 == 1
+expect items_bought == 2
 press B
 wait 5
 expect state == 1

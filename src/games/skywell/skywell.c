@@ -22,18 +22,21 @@
 #define BOSS_FLOOR 14 /* floor 104 */
 #define EYE_HP 60
 #define HAND_HP 14
-#define STUN_BASE 24  /* frames without control after a knock */
-#define STUN_STEP 5   /* each Recovery takes this much off */
-#define STUN_MIN 9
+#define STUN_BASE 56  /* frames without control after a knock */
+#define STUN_STEP 10  /* each Recovery takes this much off */
+#define STUN_MIN 20
+#define KNOCK_VX 2.8f /* a knock flings her hard across the shaft */
+#define KNOCK_VY 1.8f
 #define SAFE_T 40     /* blinking frames after a knock */
 #define BAT_V 0.75f   /* slower than Kip runs or climbs */
-#define STAR_T 52     /* frames of star boost while A is held */
+#define STAR_T 52     /* frames of star boost: about six and a half floors */
+#define FLOAT_V 0.5f  /* after a star ride, A held floats her down this slowly */
 #define BOMB_FUSE 60  /* a TNT block goes off this long after its plunger is pushed */
 #define COIN_SHOT_T 50 /* a coin block lasts this long after it is first shot */
 
 enum { S_TITLE, S_PLAY, S_DEAD, S_SHOP, S_OVER, S_END, S_HELP };
 enum { PT_BASE, PT_CLOUD, PT_CRATE, PT_ROCK, PT_STAR, PT_COIN, PT_MINE, PT_BOMB, PT_ZAP, PT_BUBBLE, PT_METAL };
-enum { FE_BAT, FE_MINNOW, FE_JELLY, FE_JELLY_S, FE_SQUID };
+enum { FE_BAT, FE_MINNOW, FE_JELLY, FE_JELLY_S, FE_SQUID, FE_MINION };
 enum { IT_RECOVERY, IT_POWER, IT_DJUMP, IT_LIGHTFOOT, IT_MAGNET, IT_LIGHTNING, IT_COUNT };
 static const int IT_PRICE[IT_COUNT] = {20, 15, 30, 10, 5, 20};
 static const char *const IT_NAME[IT_COUNT] = {"RECOVERY", "POWER", "DOUBLE JUMP", "LIGHTFOOT", "MAGNET", "LIGHTNING"};
@@ -64,8 +67,8 @@ static Part parts[160];
 
 static struct {
     float x, y, vx, vy;
-    int dir, air_used, stun, inv, star, shoot_cd, anim;
-    bool ground, hop_held;
+    int dir, air_used, stun, inv, star, shoot_cd, anim, on;
+    bool ground, hop_held, floaty;
 } K;
 
 static struct {
@@ -82,10 +85,18 @@ static struct {
     int hp, t, dir;
 } owl;
 
+/* phase: 0 watching (eye shots, hand spreads, lightning), 1 a fist sweeps
+ * low across the shaft, 2 the eye swoops across and lets out its minions */
+enum { BP_WATCH, BP_FIST, BP_FLY };
+#define BP_WATCH_T 480
+#define BP_FIST_T 240
+#define BP_FLY_T 260
 static struct {
     bool on, dead;
     int eye_hp, hand_hp[2], t, flash, death_t;
     int warn[2], bolt[2];
+    int phase, pt, next, fist;
+    float ox, oy, fx, fy;
 } boss;
 
 static int offer[3];
@@ -100,7 +111,9 @@ typedef struct {
     uint32_t magic;
     uint16_t best_floor, most_cogs;
     uint8_t most_keys, escaped, beaten, pad;
+    uint16_t items_bought, pad2; /* every item ever bought */
 } Save;
+#define SAVE_OLD_SIZE 12 /* saves from before the items count */
 #define SAVE_MAGIC 0x53570001u
 static Save sv;
 
@@ -114,7 +127,9 @@ static void save_now(void) {
 
 static void load_save(void) {
     Save tmp;
-    if (game_save_read(game_current_index(), &tmp, (int)sizeof tmp) == (int)sizeof tmp && tmp.magic == SAVE_MAGIC) sv = tmp;
+    memset(&tmp, 0, sizeof tmp);
+    int n = game_save_read(game_current_index(), &tmp, (int)sizeof tmp);
+    if ((n == (int)sizeof tmp || n == SAVE_OLD_SIZE) && tmp.magic == SAVE_MAGIC) sv = tmp;
     else { memset(&sv, 0, sizeof sv); sv.magic = SAVE_MAGIC; }
 }
 
@@ -152,7 +167,7 @@ static int add_plat(int type, float x, float y, int w) {
 static int add_foe(int kind, float x, float y) {
     for (int i = 0; i < MAX_FOES; i++)
         if (!foes[i].alive) {
-            static const int HP[5] = {1, 99, 1, 1, 2};
+            static const int HP[6] = {1, 99, 1, 1, 2, 2};
             foes[i] = (Foe){x, y, 0, 0, (uint8_t)kind, 1, HP[kind], 0, 0};
             if (kind == FE_MINNOW) foes[i].vx = (i % 2) ? 0.6f : -0.6f;
             return i;
@@ -166,7 +181,7 @@ static void add_coin(float x, float y, bool loose) {
 }
 
 static void foe_size(int k, float *w, float *h) {
-    static const float W[5] = {10, 24, 12, 8, 12}, H[5] = {8, 8, 12, 8, 12};
+    static const float W[6] = {10, 24, 12, 8, 12, 10}, H[6] = {8, 8, 12, 8, 12, 10};
     *w = W[k];
     *h = H[k];
 }
@@ -177,13 +192,13 @@ static void foe_size(int k, float *w, float *h) {
 /* weights per level for: cloud crate rock coin mine bomb zap bubble metal.
  * Level 1 is clouds, boxes and bricks; level 2 adds TNT, cloud mines and
  * zappers; level 3 swaps clouds for bubbles; level 4 has cloud mines and
- * bouncing metal. */
+ * bouncing metal, and no coin blocks. */
 static int pick_type(int level, int f) {
     static const int W[4][9] = {
         {32, 32, 26, 7, 0, 0, 0, 0, 0},
         {22, 26, 20, 6, 8, 8, 10, 0, 0},
         {0, 24, 20, 6, 0, 0, 0, 34, 0},
-        {22, 20, 22, 4, 12, 0, 0, 0, 20},
+        {22, 20, 22, 0, 12, 0, 0, 0, 20},
     };
     static const int T[9] = {PT_CLOUD, PT_CRATE, PT_ROCK, PT_COIN, PT_MINE, PT_BOMB, PT_ZAP, PT_BUBBLE, PT_METAL};
     int w[9], sum = 0;
@@ -216,7 +231,12 @@ static void gen_level(void) {
     int star_floor = rng_range(&rng, 6, 24);
     for (int f = 1; f <= SW_FLOORS; f++) {
         float y = (float)(-f * SW_FLOOR_H);
-        if (f == SW_FLOORS) { add_plat(PT_BASE, 0, y, SW_COLS); break; }
+        if (f == SW_FLOORS) {
+            /* the Eye's level ends on a single row of clouds: the ledge out
+             * only comes once the eye is shut */
+            add_plat(run.level == 4 ? PT_CLOUD : PT_BASE, 0, y, SW_COLS);
+            break;
+        }
         /* the reef has fewer platforms: its fish make up the difference */
         int n = rng_range(&rng, 1, run.level == 3 ? 2 : f < 10 ? 3 : 2);
         float cx_now[3];
@@ -239,7 +259,7 @@ static void gen_level(void) {
             for (int j = 0; j < made; j++)
                 if (fabsf(cx_now[j] - (col + w / 2.0f) * SW_TILE) < (w + 3) * SW_TILE / 2.0f) clash = true;
             if (clash && k > 0) continue;
-            if (f == star_floor && k == n - 1) { type = PT_STAR; w = 1; }
+            if (f == star_floor && k == n - 1 && run.level <= 3) { type = PT_STAR; w = 1; } /* star blocks: levels 1-3 */
             float jy = y + (float)rng_range(&rng, -4, 4);
             int pi = add_plat(type, (float)(col * SW_TILE), jy, w);
             if (pi >= 0 && type == PT_ZAP) plats[pi].hp = rng_range(&rng, 0, 1);
@@ -274,6 +294,8 @@ static void start_level(void) {
     K.vx = K.vy = 0;
     K.ground = true;
     K.stun = K.inv = K.star = 0;
+    K.floaty = false;
+    K.on = -1;
     K.air_used = 0;
     K.dir = 1;
     cam_y = -150;
@@ -505,14 +527,26 @@ static void bot_think(void) {
     } else if (!K.ground && K.vy < 0 && (bot_prev & BTN_A)) {
         bot_now |= BTN_A; /* keep holding for the full height */
     }
-    /* shoot what's coming: awake bats and jellies close by */
+    /* shoot what's coming: awake bats, jellies and minions close by, and
+     * a sleeping bat it is about to pass under */
     for (int i = 0; i < MAX_FOES; i++) {
         Foe *f = &foes[i];
         if (!f->alive) continue;
-        if (!((f->kind == FE_BAT && f->state) || f->kind == FE_JELLY || f->kind == FE_JELLY_S)) continue;
         float w, h;
         foe_size(f->kind, &w, &h);
         float dx = f->x + w / 2 - kx, dy = f->y + h / 2 - (K.y + KH / 2);
+        if (f->kind == FE_BAT && !f->state) {
+            if (fabsf(dx) < 7 && dy < -6 && dy > -100) bot_now |= BTN_UP | BTN_B;
+            continue;
+        }
+        if (!(f->kind == FE_BAT || f->kind == FE_JELLY || f->kind == FE_JELLY_S || f->kind == FE_MINION)) continue;
+        if (K.ground && dy < -8 && dy > -90 && fabsf(dx) < 60) {
+            /* one coming down at her: step under it and shoot it down */
+            bot_now &= ~(uint32_t)(BTN_LEFT | BTN_RIGHT | BTN_A);
+            if (fabsf(dx) > 3) bot_now |= dx > 0 ? BTN_RIGHT : BTN_LEFT;
+            if (fabsf(dx) < 8) bot_now |= BTN_UP | BTN_B;
+            continue;
+        }
         if (fabsf(dy) < 9 && fabsf(dx) < 80) {
             if ((dx > 0) == (K.dir > 0)) bot_now |= BTN_B;
             else bot_now = (bot_now & ~(uint32_t)(BTN_LEFT | BTN_RIGHT)) | (dx > 0 ? BTN_RIGHT : BTN_LEFT);
@@ -523,28 +557,44 @@ static void bot_think(void) {
         }
     }
     if (owl.on && !owl.done && fabsf(owl.x + 8 - kx) < 14) bot_now |= BTN_UP | BTN_B;
-    if (boss.on && !boss.dead && fabsf(SHAFT_W / 2.0f - kx) < 16) bot_now |= BTN_UP | BTN_B;
+    if (boss.on && !boss.dead && fabsf(SHAFT_W / 2.0f + boss.ox - kx) < 16) bot_now |= BTN_UP | BTN_B;
     if (bot_log) bot_log_frame();
 }
 
-/* A knock flings Kip sideways, out of control for a moment. It costs her
- * the jump she was standing on, but not her jumps in the air: she can
- * jump again as soon as she comes round. */
+/* A knock flings Kip hard across the shaft, out of control for almost a
+ * second: unless something below catches her, it can drop her floors
+ * towards the Grinder. It costs her the jump she was standing on, but not
+ * her jumps in the air: she can jump again as soon as she comes round.
+ * Each Recovery shortens it. */
 static void stun_kip(float from_x) {
     if (K.inv > 0 || K.star > 0 || god) return;
     int st = imax(STUN_MIN, STUN_BASE - STUN_STEP * run.items[IT_RECOVERY]);
     K.stun = st;
     K.inv = st + SAFE_T;
-    K.vx = (K.x + KW / 2 < from_x ? -1.5f : 1.5f);
-    K.vy = -1.6f;
+    K.vx = (K.x + KW / 2 < from_x ? -KNOCK_VX : KNOCK_VX);
+    K.vy = -KNOCK_VY;
     K.ground = false;
+    K.floaty = false;
     K.air_used = 0;
-    shake = imax(shake, 5);
+    shake = imax(shake, 6);
     sfx_play_name("sw_stun");
 }
 
 static void kill_foe(int i, int col);
 static void add_eshot(float x, float y, float vx, float vy, bool mine);
+static void eye_shut(void);
+
+/* where the Well Eye and its hands are (the eye swoops, and a hand can
+ * leave to sweep the shaft as a fist) */
+static void eye_rect(float *x, float *y) {
+    *x = SHAFT_W / 2.0f - 14 + boss.ox;
+    *y = cam_y + 26 + boss.oy;
+}
+static void hand_pos(int h, float *x, float *y) {
+    if (boss.phase == BP_FIST && boss.fist == h) { *x = boss.fx; *y = boss.fy; return; }
+    *x = SHAFT_W / 2.0f + boss.ox + (h ? 52.0f : -68.0f);
+    *y = cam_y + 42 + boss.oy;
+}
 
 /* landing on any creature is safe: Kip bounces off it with her jumps back */
 static void bounce_kip(void) {
@@ -572,14 +622,16 @@ static void fire(void) {
     sfx_play_name("sw_shoot");
 }
 
-/* a star block launches Kip up, untouchable; holding A keeps her going */
-static void star_touch(int i) {
+/* jumping off a star block rockets Kip up about six and a half floors,
+ * untouchable; the block is used up */
+static void star_launch(int i) {
     plats[i].alive = 0;
     K.star = STAR_T;
     K.inv = STAR_T + 20;
     K.stun = 0;
     K.air_used = 0;
-    burst(plats[i].x + 8, plats[i].y, C_YELLOW, 14, 1.6f);
+    K.floaty = false;
+    burst(plats[i].x + 8, plats[i].y - 6, C_YELLOW, 14, 1.6f);
     sfx_play_name("sw_star");
 }
 
@@ -616,8 +668,7 @@ static void land_effects(int i) {
         p->flash = 8;
         bounce_kip();
         break;
-    case PT_STAR: star_touch(i); break;
-    default: break;
+    default: break; /* a star block is solid until she jumps off it */
     }
 }
 
@@ -628,38 +679,57 @@ static void kip_update(void) {
     if (K.inv > 0) K.inv--;
     if (K.shoot_cd > 0) K.shoot_cd--;
     if (K.star > 0) {
-        /* the star carries her up about six floors, untouchable, as long
-         * as A is held; letting go ends the climb early */
+        /* the star carries her a fixed six and a half floors, whatever A
+         * does; A still held at the end, she floats down slowly */
         K.star--;
         K.vy = -4.0f;
         K.vx = (float)hx * RUN;
         if (hx) K.dir = hx;
-        if (!kb(BTN_A) && K.star < STAR_T - 6) K.star = 0;
-        if (K.star == 0) { K.vy = -1.0f; K.air_used = 0; }
+        if (K.star == 0) { K.vy = 0; K.air_used = 0; K.floaty = kb(BTN_A); }
     } else if (K.stun > 0) {
+        /* flung: no control; she skids to a stop if something catches her */
         K.stun--;
-        K.vx *= 0.97f;
+        K.vx *= K.ground ? 0.8f : 0.995f;
         K.vy = fminf(K.vy + GRAV, 4.0f);
     } else {
         if (hx) K.dir = hx;
         K.vx = (float)hx * RUN;
         int air_jumps = 1 + run.items[IT_DJUMP];
         if (kbp(BTN_A) || (kb(BTN_A) && K.ground && K.hop_held)) {
-            if (K.ground) { K.vy = -JUMP_V; K.ground = false; sfx_play_name("sw_jump"); }
-            else if (kbp(BTN_A) && K.air_used < air_jumps) { K.vy = -AIR_V; K.air_used++; sfx_play_name("sw_jump2"); burst(K.x + KW / 2, K.y + KH, C_LIGHT, 5, 0.6f); }
+            if (K.ground) {
+                bool star = K.on >= 0 && plats[K.on].alive && plats[K.on].type == PT_STAR;
+                K.vy = -JUMP_V;
+                K.ground = false;
+                if (star) star_launch(K.on);
+                else sfx_play_name("sw_jump");
+            } else if (kbp(BTN_A) && K.air_used < air_jumps) {
+                K.vy = -AIR_V; K.air_used++; K.floaty = false;
+                sfx_play_name("sw_jump2");
+                burst(K.x + KW / 2, K.y + KH, C_LIGHT, 5, 0.6f);
+            }
         }
         K.hop_held = kb(BTN_A);
-        if (!kb(BTN_A) && K.vy < -1.2f) K.vy += 0.25f;
-        K.vy = fminf(K.vy + GRAV, 4.0f);
+        if (K.floaty && (!kb(BTN_A) || K.ground)) K.floaty = false;
+        if (K.star > 0) {
+            K.vy = -4.0f; /* launched off a star this frame */
+        } else if (K.floaty) {
+            K.vy = fminf(K.vy + GRAV, FLOAT_V); /* the slow float after a star ride */
+        } else {
+            if (!kb(BTN_A) && K.vy < -1.2f) K.vy += 0.25f;
+            K.vy = fminf(K.vy + GRAV, 4.0f);
+        }
         if (kb(BTN_B) && K.shoot_cd == 0) { fire(); K.shoot_cd = SHOT_CD; }
     }
-    /* horizontal: the shaft walls */
-    K.x = fclamp(K.x + K.vx, 0, SHAFT_W - KW);
+    /* horizontal: the shaft walls (a flung Kip bounces off them) */
+    float nx = K.x + K.vx;
+    if (K.stun > 0 && (nx < 0 || nx > SHAFT_W - KW)) K.vx = -K.vx * 0.8f;
+    K.x = fclamp(nx, 0, SHAFT_W - KW);
     /* vertical: land on platforms from above */
     float ob = K.y + KH;
     K.y += K.vy;
     float nb = K.y + KH;
     K.ground = false;
+    K.on = -1;
     if (K.vy >= 0) {
         for (int i = 0; i < MAX_PLATS; i++) {
             Plat *p = &plats[i];
@@ -672,6 +742,7 @@ static void kip_update(void) {
                 K.vy = 0;
                 K.ground = true;
                 K.air_used = 0;
+                K.on = i;
                 if (p->type == PT_METAL) K.x = fclamp(K.x + p->vx, 0, SHAFT_W - KW);
                 land_effects(i);
                 break;
@@ -694,7 +765,7 @@ static void kip_update(void) {
                 }
                 K.y = f->y - KH;
                 bounce_kip();
-                if (f->kind == FE_BAT || f->kind == FE_JELLY || f->kind == FE_JELLY_S) kill_foe(i, C_VIOLET);
+                if (f->kind == FE_BAT || f->kind == FE_JELLY || f->kind == FE_JELLY_S || f->kind == FE_MINION) kill_foe(i, C_VIOLET);
                 break;
             }
     } else {
@@ -886,26 +957,39 @@ static void shots_update(void) {
             continue;
         }
         if (boss.on && !boss.dead) {
-            float by = cam_y + 26;
             for (int h = 0; h < 2; h++) {
-                float hx = SHAFT_W / 2.0f + (h ? 52.0f : -68.0f);
-                if (boss.hand_hp[h] > 0 && overlap(s->x - 2, s->y - 2, 4, 4, hx, by + 16, 16, 14)) {
+                float hx, hy;
+                hand_pos(h, &hx, &hy);
+                if (boss.hand_hp[h] > 0 && overlap(s->x - 2, s->y - 2, 4, 4, hx, hy, 16, 14)) {
                     s->alive = 0;
                     boss.hand_hp[h] -= dmg;
                     boss.flash = 6;
                     sfx_play_name("sw_hit");
-                    if (boss.hand_hp[h] <= 0) { burst(hx + 8, by + 22, C_MAGENTA, 16, 1.5f); sfx_play_name("sw_boom"); }
+                    if (boss.hand_hp[h] <= 0) { burst(hx + 8, hy + 6, C_MAGENTA, 16, 1.5f); sfx_play_name("sw_boom"); }
                 }
             }
-            if (s->alive && overlap(s->x - 2, s->y - 2, 4, 4, SHAFT_W / 2.0f - 14, by, 28, 24)) {
+            float ex, ey;
+            eye_rect(&ex, &ey);
+            if (s->alive && overlap(s->x - 2, s->y - 2, 4, 4, ex, ey, 28, 24)) {
                 s->alive = 0;
                 boss.eye_hp -= dmg;
                 boss.flash = 6;
                 sfx_play_name("sw_hit");
-                if (boss.eye_hp <= 0) { boss.dead = true; boss.death_t = 0; music_stop(); sfx_play_name("sw_boom"); }
+                if (boss.eye_hp <= 0) eye_shut();
             }
         }
     }
+}
+
+/* the eye is shut: the ledge out of the well comes in at the top */
+static void eye_shut(void) {
+    boss.dead = true;
+    boss.death_t = 0;
+    music_stop();
+    sfx_play_name("sw_boom");
+    for (int i = 0; i < MAX_PLATS; i++)
+        if (plats[i].alive && plats[i].y <= LEVEL_TOP + 1) plats[i].alive = 0;
+    add_plat(PT_BASE, 0, (float)LEVEL_TOP, SW_COLS);
 }
 
 static void add_eshot(float x, float y, float vx, float vy, bool mine) {
@@ -956,6 +1040,19 @@ static void foes_update(void) {
             f->y += sinf(f->t * 0.1f) * 0.4f;
             if (f->x < 0 || f->x > SHAFT_W - 8) f->vx = -f->vx;
             break;
+        case FE_MINION: {
+            /* the eye's minions lunge at Kip like dogs on a chain, then
+             * slow down and bob until the next lunge */
+            float dx = kcx - (f->x + w / 2), dy = kcy - (f->y + h / 2), d = sqrtf(dx * dx + dy * dy) + 0.01f;
+            if (f->t % 60 == 30) { f->vx = dx / d * 2.4f; f->vy = dy / d * 2.4f; }
+            f->vx *= 0.95f;
+            f->vy = f->vy * 0.95f + sinf(f->t * 0.2f) * 0.05f;
+            float nx = f->x + f->vx;
+            if (nx < 0 || nx > SHAFT_W - w) f->vx = -f->vx;
+            f->x = fclamp(nx, 0, SHAFT_W - w);
+            f->y += f->vy;
+            break;
+        }
         case FE_SQUID:
             if (f->state == 0) {
                 /* its mark shows at the top of the screen, then it drops */
@@ -1028,9 +1125,10 @@ static void owl_update(void) {
         if (owl.y < cam_y - 40) owl.on = false;
         return;
     }
-    /* it keeps near the top of the screen, ascending with Kip */
-    owl.x += owl.dir * 1.1f;
-    if (owl.x < 0 || owl.x > SHAFT_W - 16) owl.dir = -owl.dir;
+    /* it keeps near the top of the screen, ascending with Kip, and holds
+     * the column it came in on, bobbing */
+    owl.x = SHAFT_W / 2.0f - 8 + sinf(owl.t * 0.04f) * 5;
+    owl.dir = cosf(owl.t * 0.04f) > 0 ? 1 : -1;
     float want = cam_y + 22 + sinf(owl.t * 0.05f) * 8;
     owl.y += (want - owl.y) * 0.1f;
     if (owl.t >= OWL_TIME) {
@@ -1047,31 +1145,119 @@ static void boss_update(void) {
         boss.eye_hp = EYE_HP;
         boss.hand_hp[0] = boss.hand_hp[1] = HAND_HP;
         boss.t = 0;
+        boss.phase = BP_WATCH;
+        boss.pt = 0;
+        boss.next = BP_FIST;
+        boss.fist = -1;
+        boss.ox = boss.oy = 0;
         sfx_play_name("sw_owl");
     }
     if (!boss.on) return;
     if (boss.flash > 0) boss.flash--;
     if (boss.dead) {
         boss.death_t++;
-        if (boss.death_t % 6 == 0) burst(SHAFT_W / 2.0f + (float)(frame_t * 13 % 60 - 30), cam_y + 30 + (float)(frame_t * 7 % 30), C_MAGENTA, 8, 1.4f);
+        if (boss.death_t % 6 == 0) burst(SHAFT_W / 2.0f + boss.ox + (float)(frame_t * 13 % 60 - 30), cam_y + 30 + boss.oy + (float)(frame_t * 7 % 30), C_MAGENTA, 8, 1.4f);
         return;
     }
     boss.t++;
-    float by = cam_y + 26;
+    boss.pt++;
+    float kcx = K.x + KW / 2, kcy = K.y + KH / 2;
+    float ex, ey;
+    eye_rect(&ex, &ey);
+    /* the eye's small aimed shots, all through the fight */
     if (boss.t % 60 == 0) {
-        float ex = SHAFT_W / 2.0f, ey = by + 12;
-        float dx = K.x + KW / 2 - ex, dy = K.y + KH / 2 - ey, d = sqrtf(dx * dx + dy * dy) + 0.01f;
-        add_eshot(ex, ey, dx / d * 1.5f, dy / d * 1.5f, false);
+        float cx = ex + 14, cy = ey + 12;
+        float dx = kcx - cx, dy = kcy - cy, d = sqrtf(dx * dx + dy * dy) + 0.01f;
+        add_eshot(cx, cy, dx / d * 1.5f, dy / d * 1.5f, false);
         sfx_play_name("sw_orb");
     }
+    switch (boss.phase) {
+    case BP_WATCH:
+        /* each hand drops lightning straight down, breaking the platforms
+         * under it, and fires a spread of five at Kip */
+        for (int h = 0; h < 2; h++) {
+            boss.warn[h] = boss.bolt[h] = 0;
+            if (boss.hand_hp[h] <= 0) continue;
+            float hx, hy;
+            hand_pos(h, &hx, &hy);
+            int ph = (boss.pt + h * 55) % 110;
+            boss.warn[h] = ph >= 60 && ph < 90;
+            boss.bolt[h] = ph >= 90;
+            if (ph == 90) sfx_play_name("sw_zap");
+            if (boss.bolt[h]) {
+                if (overlap(K.x, K.y, KW, KH, hx + 4, hy + 14, 8, 220)) stun_kip(hx + 8);
+                for (int i = 0; i < MAX_PLATS; i++) {
+                    Plat *p = &plats[i];
+                    if (p->alive && p->type != PT_BASE && p->y > hy + 14 && p->y < cam_y + GRINDER_Y &&
+                        overlap(p->x, p->y, p->w * SW_TILE, 8, hx + 4, hy + 14, 8, 220))
+                        break_plat(i);
+                }
+            }
+            if ((boss.pt + h * 75) % 150 == 20) {
+                float cx = hx + 8, cy = hy + 8;
+                float a = atan2f(kcy - cy, kcx - cx);
+                for (int k = -2; k <= 2; k++) add_eshot(cx, cy, cosf(a + k * 0.28f) * 1.2f, sinf(a + k * 0.28f) * 1.2f, false);
+                sfx_play_name("sw_orb");
+            }
+        }
+        if (boss.pt >= BP_WATCH_T) {
+            boss.pt = 0;
+            boss.phase = boss.next;
+            boss.next = boss.next == BP_FIST ? BP_FLY : BP_FIST;
+            boss.warn[0] = boss.warn[1] = boss.bolt[0] = boss.bolt[1] = 0;
+            if (boss.phase == BP_FIST) {
+                /* the hand on Kip's far side swings round as a fist */
+                int h = kcx < SHAFT_W / 2.0f ? 1 : 0;
+                if (boss.hand_hp[h] <= 0) h ^= 1;
+                if (boss.hand_hp[h] <= 0) boss.phase = BP_FLY;
+                else { boss.fist = h; hand_pos(h, &boss.fx, &boss.fy); sfx_play_name("sw_owl"); }
+            }
+        }
+        break;
+    case BP_FIST: {
+        /* down low at its own side, then across the shaft in a wave, and
+         * back up to the eye */
+        int h = boss.fist;
+        float sx = h ? SHAFT_W - 16.0f : 0.0f, ex2 = h ? 0.0f : SHAFT_W - 16.0f;
+        float low = cam_y + 118;
+        if (boss.pt < 40) {
+            boss.fx += (sx - boss.fx) * 0.1f;
+            boss.fy += (low - boss.fy) * 0.1f;
+        } else if (boss.pt < 200) {
+            float u = (float)(boss.pt - 40) / 160.0f;
+            boss.fx = sx + (ex2 - sx) * u;
+            boss.fy = low + sinf((float)boss.pt * 0.09f) * 16;
+        } else {
+            float hx = SHAFT_W / 2.0f + boss.ox + (h ? 52.0f : -68.0f), hy = cam_y + 42 + boss.oy;
+            boss.fx += (hx - boss.fx) * 0.12f;
+            boss.fy += (hy - boss.fy) * 0.12f;
+        }
+        if (boss.hand_hp[h] > 0 && overlap(K.x, K.y, KW, KH, boss.fx + 1, boss.fy + 1, 14, 12)) stun_kip(boss.fx + 8);
+        if (boss.pt >= BP_FIST_T || boss.hand_hp[h] <= 0) { boss.phase = BP_WATCH; boss.pt = 0; boss.fist = -1; }
+        break;
+    }
+    case BP_FLY: {
+        /* the eye swoops down and across the shaft and back, letting out
+         * four minions on the way */
+        float u = (float)boss.pt / BP_FLY_T;
+        boss.ox = sinf(u * 6.283f) * 34;
+        boss.oy = sinf(u * 3.1416f) * 40;
+        if (boss.pt == 45 || boss.pt == 95 || boss.pt == 145 || boss.pt == 195) {
+            int f = add_foe(FE_MINION, ex + 9, ey + 20);
+            if (f >= 0) { foes[f].vx = (boss.pt / 50) % 2 ? 1.2f : -1.2f; foes[f].vy = 1.0f; }
+            sfx_play_name("sw_bat");
+        }
+        if (boss.pt >= BP_FLY_T) { boss.phase = BP_WATCH; boss.pt = 0; boss.ox = boss.oy = 0; }
+        break;
+    }
+    }
+    /* the eye and its hands knock Kip away if she runs into them */
+    eye_rect(&ex, &ey);
+    if (overlap(K.x, K.y, KW, KH, ex + 2, ey + 2, 24, 20)) stun_kip(ex + 14);
     for (int h = 0; h < 2; h++) {
-        if (boss.hand_hp[h] <= 0) { boss.warn[h] = boss.bolt[h] = 0; continue; }
-        int phase = (boss.t + h * 55) % 110;
-        boss.warn[h] = phase >= 60 && phase < 90;
-        boss.bolt[h] = phase >= 90;
-        if (phase == 90) sfx_play_name("sw_zap");
-        float hx = SHAFT_W / 2.0f + (h ? 52.0f : -68.0f);
-        if (boss.bolt[h] && overlap(K.x, K.y, KW, KH, hx + 4, by + 30, 8, 200)) stun_kip(hx + 8);
+        float hx, hy;
+        hand_pos(h, &hx, &hy);
+        if (boss.hand_hp[h] > 0 && overlap(K.x, K.y, KW, KH, hx + 1, hy + 1, 14, 12)) stun_kip(hx + 8);
     }
 }
 
@@ -1142,6 +1328,8 @@ static void sw_update(void) {
             if (it >= 0 && run.cogs >= IT_PRICE[it]) {
                 run.cogs -= IT_PRICE[it];
                 run.items[it]++;
+                if (sv.items_bought < 65535) sv.items_bought++;
+                save_now();
                 offer[shop_sel] = -1;
                 sfx_play_name("sw_buy");
             } else {
@@ -1288,6 +1476,18 @@ static void draw_foes(void) {
         case FE_MINNOW: spr_draw(&sw_spr[alt ? K_MINNOW1 : K_MINNOW2], x, y, f->vx > 0 ? SPR_FLIPX : 0); break;
         case FE_JELLY: spr_draw(&sw_spr[K_JELLY], x, y + (alt ? 1 : 0), 0); break;
         case FE_JELLY_S: spr_draw(&sw_spr[K_JELLY_SMALL], x, y, 0); break;
+        case FE_MINION: {
+            /* a toothy ball on a stub of chain */
+            int cxm = x + 5, cym = y + 5;
+            gfx_circ(cxm, cym, 5, C_WINE);
+            gfx_circb(cxm, cym, 5, C_INK);
+            gfx_rect(cxm - 1, cym - 3, 3, 3, C_WHITE);
+            gfx_pset(cxm, cym - 2, C_INK);
+            for (int k = -3; k <= 3; k += 2) gfx_pset(cxm + k, cym + 2 + (alt ? 0 : 1), C_WHITE);
+            gfx_pset(cxm - (int)(f->vx * 3), cym - 7, C_GREY);
+            gfx_pset(cxm - (int)(f->vx * 5), cym - 9, C_GREY);
+            break;
+        }
         case FE_SQUID:
             if (f->state == 0) {
                 /* the mark where the next squid will drop */
@@ -1333,6 +1533,12 @@ static void draw_kip(void) {
         m[C_NAVY] = C_MAROON;
         spr_draw_ex(&sw_spr[spr], x, y, fl, m, -1);
     } else spr_draw(&sw_spr[spr], x, y, fl);
+    if (K.floaty && !K.ground) {
+        /* floating down after a star ride: a canopy of sparks over her */
+        for (int k = -6; k <= 6; k++) gfx_pset(x + 8 + k, y - 5 + (k * k) / 12, (k + frame_t / 3) % 3 ? C_YELLOW : C_WHITE);
+        gfx_pset(x + 3, y, C_LIGHT);
+        gfx_pset(x + 13, y, C_LIGHT);
+    }
     if (K.stun > 0) {
         for (int k = 0; k < 3; k++) {
             float a = (float)(frame_t * 0.2f + k * 2.1f);
@@ -1353,18 +1559,13 @@ static void draw_owl(void) {
     if (!owl.on) return;
     int x = SW_X0 + (int)owl.x, y = sy(owl.y);
     spr_draw(&sw_spr[(frame_t / 6) % 2 ? K_OWL1 : K_OWL2], x, y, owl.dir > 0 ? SPR_FLIPX : 0);
-    if (!owl.done && !owl.fled) {
-        /* how long it will stay */
-        int w = 16 * (OWL_TIME - owl.t) / OWL_TIME;
-        gfx_rect(x, y - 4, 16, 2, C_INK);
-        gfx_rect(x, y - 4, w, 2, C_LIGHT);
-    }
 }
 
 static void draw_boss(void) {
     if (!boss.on || (boss.dead && boss.death_t > 90)) return;
-    int by = 26;
-    int cx = SW_X0 + SHAFT_W / 2;
+    float ex, ey;
+    eye_rect(&ex, &ey);
+    int cx = SW_X0 + (int)lroundf(ex) + 14, by = sy(ey);
     uint8_t m[PAL_COUNT];
     pal_identity(m);
     if (boss.flash > 0 && (frame_t / 2) % 2) for (int k = 0; k < PAL_COUNT; k++) m[k] = C_WHITE;
@@ -1372,13 +1573,20 @@ static void draw_boss(void) {
     gfx_dither_circle(cx, by + 12, 26, C_INK, 10);
     for (int h = 0; h < 2; h++) {
         if (boss.hand_hp[h] <= 0) continue;
-        int hx = cx + (h ? 52 : -68);
-        if (boss.warn[h] && (frame_t / 3) % 2) for (int yy = by + 30; yy < SCREEN_H; yy += 4) gfx_pset(hx + 8, yy, C_MAGENTA);
+        float fhx, fhy;
+        hand_pos(h, &fhx, &fhy);
+        int hx = SW_X0 + (int)lroundf(fhx), hy = sy(fhy);
+        if (boss.warn[h] && (frame_t / 3) % 2) for (int yy = hy + 14; yy < SCREEN_H; yy += 4) gfx_pset(hx + 8, yy, C_MAGENTA);
         if (boss.bolt[h]) {
-            gfx_rect(hx + 5, by + 30, 6, SCREEN_H, C_PINK);
-            gfx_rect(hx + 7, by + 30, 2, SCREEN_H, C_WHITE);
+            gfx_rect(hx + 5, hy + 14, 6, SCREEN_H, C_PINK);
+            gfx_rect(hx + 7, hy + 14, 2, SCREEN_H, C_WHITE);
         }
-        spr_draw_ex(&sw_spr[boss.bolt[h] || boss.warn[h] ? K_HAND_OPEN : K_HAND], hx, by + 16, h ? SPR_FLIPX : 0, m, -1);
+        bool fist = boss.phase == BP_FIST && boss.fist == h;
+        if (fist) {
+            /* a trail behind the sweeping fist */
+            for (int k = 1; k <= 3; k++) gfx_pset(hx + 8 - (h ? -k * 4 : k * 4), hy + 7, C_MAGENTA);
+        }
+        spr_draw_ex(&sw_spr[!fist && (boss.bolt[h] || boss.warn[h]) ? K_HAND_OPEN : K_HAND], hx, hy, h ? SPR_FLIPX : 0, m, -1);
     }
     spr_draw_ex(&sw_spr[boss.t % 120 < 8 ? K_EYE_SHUT : K_EYE], cx - 14, by, 0, m, -1);
     if (!boss.dead) {
@@ -1386,8 +1594,9 @@ static void draw_boss(void) {
         int px = SW_X0 + (int)(K.x + KW / 2), py = sy(K.y);
         float dx = (float)(px - cx), dy = (float)(py - (by + 12)), d = sqrtf(dx * dx + dy * dy) + 0.01f;
         if (boss.t % 120 >= 8) gfx_rect(cx - 2 + (int)(dx / d * 5), by + 10 + (int)(dy / d * 4), 4, 4, C_INK);
-        gfx_rect(cx - 30, by - 8, 60, 3, C_INK);
-        gfx_rect(cx - 30, by - 8, 60 * boss.eye_hp / EYE_HP, 3, C_MAGENTA);
+        int bx = SW_X0 + SHAFT_W / 2;
+        gfx_rect(bx - 30, 18, 60, 3, C_INK);
+        gfx_rect(bx - 30, 18, 60 * boss.eye_hp / EYE_HP, 3, C_MAGENTA);
     }
 }
 
@@ -1441,7 +1650,7 @@ static void draw_hud(void) {
     tiny_draw("FLOOR", 2, 150, C_SLATE);
     snprintf(buf, sizeof buf, "%d", global_floor());
     text_draw(buf, 2, 158, C_WHITE);
-    /* right: cogs, keys, jumps, items */
+    /* right: cogs, keys, items */
     int rx = SW_X1 + 12;
     spr_draw(&sw_spr[K_COIN1], rx, 5, 0);
     snprintf(buf, sizeof buf, "%d", run.cogs);
@@ -1451,11 +1660,8 @@ static void draw_hud(void) {
         if (k < run.keys) spr_draw(&sw_spr[K_KEY], rx + k * 11, 30, 0);
         else gfx_rectb(rx + k * 11, 30, 8, 10, C_DUSK);
     }
-    tiny_draw("JUMPS", rx, 48, C_SLATE);
-    int aj = 1 + run.items[IT_DJUMP];
-    for (int k = 0; k < aj; k++) gfx_rect(rx + k * 6, 56, 4, 4, k < aj - K.air_used || K.ground ? C_CYAN : C_DUSK);
     static const char *ABBR[IT_COUNT] = {"REC", "POW", "JMP", "LFT", "MAG", "LTN"};
-    int iy = 70;
+    int iy = 50;
     for (int i = 0; i < IT_COUNT; i++) {
         if (!run.items[i]) continue;
         snprintf(buf, sizeof buf, "%s%s", ABBR[i], run.items[i] > 1 ? "+" : "");
@@ -1519,6 +1725,8 @@ static void draw_title(void) {
         tiny_center(buf, 160, 128, C_YELLOW);
         snprintf(buf, sizeof buf, "MOST COGS %d  MOST KEYS %d", sv.most_cogs, sv.most_keys);
         tiny_center(buf, 160, 136, C_GREY);
+        snprintf(buf, sizeof buf, "ITEMS BOUGHT %d", sv.items_bought);
+        tiny_center(buf, 160, 144, C_GREY);
     }
     gfx_rect(236, 142, 84, 38, C_INK);
     text_draw(GLYPH_A " START", 240, 146, C_LIGHT);
@@ -1588,14 +1796,15 @@ static void draw_help(void) {
         "PLATFORMS CRUMBLE SOON AFTER YOU LAND: CLOUDS AT\n"
         "ONCE, BOXES A BIT LATER, BRICKS AFTER A SECOND.\n"
         "SHOTS BREAK CLOUDS TOO. SHOOT COIN BLOCKS FOR COGS.\n\n"
-        "BUMPING A CREATURE OR A HAZARD KNOCKS YOU FLYING\n"
-        "FOR A MOMENT. WHEN YOU COME ROUND YOU STILL HAVE\n"
-        "YOUR JUMP IN THE AIR: USE IT!\n\n"
+        "BUMPING A CREATURE OR A HAZARD KNOCKS YOU FLYING,\n"
+        "OUT OF CONTROL, OFTEN FLOORS DOWN. WHEN YOU COME\n"
+        "ROUND YOU STILL HAVE YOUR JUMP IN THE AIR: USE IT!\n\n"
         "LANDING ON A CREATURE IS SAFE: YOU BOUNCE OFF IT\n"
         "WITH YOUR JUMPS BACK. BATS AND JELLIES POP.",
         "BATS SLEEP UNTIL YOU PASS CLOSE OR UNDERNEATH.\n"
         "SHOOT THEM, BOUNCE ON THEM, OR OUTCLIMB THEM.\n\n"
-        "STAR BLOCKS: LAND ON ONE AND HOLD " GLYPH_A " TO FLY.\n"
+        "STAR BLOCKS: JUMP OFF ONE TO ROCKET UP. KEEP " GLYPH_A "\n"
+        "HELD TO FLOAT DOWN SLOWLY AT THE END.\n"
         "SHOOT A ZAPPER'S MIDDLE TO TURN ITS FIELD ROUND.\n"
         "TNT GOES OFF A SECOND AFTER YOU STEP ON IT.\n"
         "CLOUD MINES BURST INTO CLOUDS. SHOOT THEM FIRST.\n\n"
@@ -1727,6 +1936,17 @@ static int sw_query(const char *key, int *out) {
     if (!strcmp(key, "best_floor")) { *out = sv.best_floor; return 1; }
     if (!strcmp(key, "most_cogs")) { *out = sv.most_cogs; return 1; }
     if (!strcmp(key, "most_keys")) { *out = sv.most_keys; return 1; }
+    if (!strcmp(key, "items_bought")) { *out = sv.items_bought; return 1; }
+    if (!strcmp(key, "floaty")) { *out = K.floaty; return 1; }
+    if (!strcmp(key, "vx10")) { *out = (int)lroundf(K.vx * 10); return 1; }
+    if (!strcmp(key, "boss_phase")) { *out = boss.phase; return 1; }
+    if (!strcmp(key, "hand1_hp")) { *out = boss.hand_hp[1]; return 1; }
+    if (!strcmp(key, "minions")) { int n = 0; for (int i = 0; i < MAX_FOES; i++) n += foes[i].alive && foes[i].kind == FE_MINION; *out = n; return 1; }
+    if (!strcmp(key, "owl_x")) { *out = (int)lroundf(owl.x); return 1; }
+    if (!strcmp(key, "fist_x")) { *out = boss.phase == BP_FIST ? (int)lroundf(boss.fx) : -999; return 1; }
+    if (!strcmp(key, "fist_dy")) { *out = boss.phase == BP_FIST ? (int)lroundf(boss.fy - cam_y) : -999; return 1; }
+    if (!strcmp(key, "eye_dy")) { float ex, ey; eye_rect(&ex, &ey); *out = (int)lroundf(ey - cam_y); return 1; }
+    if (!strcmp(key, "top_type")) { *out = -1; for (int i = 0; i < MAX_PLATS; i++) if (plats[i].alive && plats[i].y <= LEVEL_TOP + 1) { *out = plats[i].type; break; } return 1; }
     if (!strncmp(key, "item_", 5)) { *out = run.items[iclamp(atoi(key + 5), 0, IT_COUNT - 1)]; return 1; }
     if (!strncmp(key, "offer_", 6)) { *out = offer[iclamp(atoi(key + 6), 0, 2)]; return 1; }
     if (!strcmp(key, "plats")) { int n = 0; for (int i = 0; i < MAX_PLATS; i++) n += plats[i].alive; *out = n; return 1; }
@@ -1804,6 +2024,7 @@ static int sw_cheat(const char *cmd) {
     if (sscanf(cmd, "offer %d %d %d", &a, &b, &c) == 3) { offer[0] = a; offer[1] = b; offer[2] = c; return 1; }
     if (sscanf(cmd, "owl_hp %d", &a) == 1) { owl.hp = a; return 1; }
     if (sscanf(cmd, "eye_hp %d", &a) == 1) { boss.eye_hp = a; return 1; }
+    if (sscanf(cmd, "boss_phase %d", &a) == 1) { boss.phase = BP_WATCH; boss.pt = BP_WATCH_T - 1; boss.next = a; return 1; }
     if (!strcmp(cmd, "sheet")) { sheet_mode = !sheet_mode; return 1; }
     if (!strcmp(cmd, "autoplay")) { autoplay = !autoplay; bot_now = bot_prev = 0; return 1; }
     if (!strcmp(cmd, "botlog")) { autoplay = bot_log = true; bot_now = bot_prev = 0; log_mask = 0; log_run = 0; return 1; }

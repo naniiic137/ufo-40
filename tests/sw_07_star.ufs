@@ -1,5 +1,7 @@
-# SKYWELL: land on a star block and Kip shoots up, untouchable, for about
-# six floors as long as A stays held; letting go ends the flight early.
+# SKYWELL: a star block is solid to stand on. Jumping off it rockets Kip
+# up about six and a half floors, untouchable, whatever A does, and uses
+# the block up. With A still held as the ride ends she floats down slowly;
+# otherwise she just drops.
 game skywell
 wait 5
 press A
@@ -7,22 +9,42 @@ cheat clear
 cheat plat 0 0 0 13
 cheat plat 4 100 -24 1
 wait 5
-# jump and come down on it, holding A all the way
-hold A 40
+# a short jump onto it: she stands on it and nothing happens yet
+hold A 8
+wait 40
+expect ground == 1
+expect ky == -42
+expect star == 0
+expect count_4 == 1
+# jumping off launches her; letting go of A doesn't end the ride
+press A
 expect star > 0
 expect inv > 0
-hold A 50
-expect ky < -200
-expect star == 0
-# a second star, touched without holding A: a short hop
-cheat clear
-cheat plat 0 80 -300 3
-cheat plat 4 100 -324 1
-cheat pos 100 -312
-wait 30
-hold A 30
-wait 12
 expect count_4 == 0
+wait 30
+expect star > 0
+wait 30
 expect star == 0
-expect ky > -400
-expect ky < -330
+expect ky < -230
+expect floaty == 0
+# A wasn't held at the end: she just drops
+wait 15
+expect vy10 > 20
+# again, holding A the whole way: she floats down slowly at the end
+cheat clear
+cheat plat 0 0 -300 13
+cheat plat 4 100 -324 1
+cheat pos 100 -342
+wait 20
+expect ground == 1
+hold A 70
+expect star == 0
+expect floaty == 1
+expect vy10 <= 5
+hold A 40
+expect floaty == 1
+expect vy10 == 5
+# letting go ends the float
+wait 10
+expect floaty == 0
+expect vy10 > 10

@@ -28,7 +28,7 @@ does too. Structure copied from the text; generator rules ours:
 | 1 | clouds, wooden boxes and bricks, each lasting longer than the last [IG]; coin blocks [W]; bats, the level's only creature [W] | the Roots: clouds, crates, bricks, coin blocks, a star block, bats hanging under platforms |
 | 2 | no creatures [W]; TNT blocks [IG], [CH]; cloud mines [CH]; zappers (level 2 only) [W] | the Sparkworks |
 | 3 | bubbles (level 3 only) [W]; fewer platforms, so fish are the platforms [W]; jellies, squids [W] | the Sky Reef |
-| 4 | blocks, clouds, "smoke bombs" (cloud mines) and bounce platforms [BV]; metal (level 4 only) [W]; the mines return [IG] | the Eye |
+| 4 | blocks, clouds, "smoke bombs" (cloud mines) and bounce platforms [BV]; metal (level 4 only) [W]; the mines return [IG]; coin blocks and star blocks only in levels 1-3 [IG]; one line of clouds left at the top to finish the boss [IG] | the Eye: no coin or star blocks; the top is a row of clouds until the eye is shut |
 
 ### Generator rules (ours)
 
@@ -37,7 +37,7 @@ does too. Structure copied from the text; generator rules ours:
   2-4 tiles wide, and the first is always within a jump of one on the
   floor below and never a trap.
 - Coins float above about one platform in three.
-- A star block turns up once per level.
+- A star block turns up once in each of levels 1-3.
 - In the Roots about one floor in four has a bat hanging under a platform.
 
 ## Mechanics checklist
@@ -52,7 +52,7 @@ does too. Structure copied from the text; generator rules ours:
 | The gun | rapid-fire, short range; fires the way she faces, or straight up or down; same rate held or tapped | [MM], [W] |
 | The Grinder | always at the foot of the screen; it only rises when Kip climbs above the middle of the screen, and never goes down; touching it is the only way to die | [W], [CH], [SC], [BW], [LZ] |
 | One life | a death ends the run; A goes straight back into a new pit | [W], [LZ] |
-| Knocks | creatures and hazards never hurt: they fling her sideways out of control for a moment | [W], [MM], [BW], [RC] |
+| Knocks | creatures and hazards never hurt, but the knockback is huge: she is flung hard across the shaft, out of control, bouncing off the walls; unless a platform catches her she drops floors, often into the Grinder. Recovery shortens it | [W], [MM], [BW], [RC], [TVT], [LZ], [PB] |
 | After a knock | the knock costs her standing jump but not her jump in the air: she can jump as soon as she comes round | [IG], [CH], [SR] |
 | Bouncing | every creature is safe to land on: she bounces off it with her jumps back, higher if A is held | [W], [IG], [CH] |
 | Crumbling | every platform crumbles after she lands: clouds at once, then boxes, then bricks | [MM], [BW], [IG] |
@@ -60,7 +60,7 @@ does too. Structure copied from the text; generator rules ours:
 | Crates | break 0.2 s after a shot, 0.3 s after landing | [W] |
 | Bricks (rocks) | break about a second after landing or a shot | [W] |
 | Coin blocks | durable; every hit knocks out a coin, and the first hit starts its crumbling | [W], [IG] |
-| Star blocks | land on one and she shoots up, untouchable, for up to about six floors while A is held | [W], [CH] |
+| Star blocks | solid to stand on; jumping off one rockets her up about six and a half floors, untouchable, whatever A does; with A still held at the end she floats down slowly, otherwise she just drops | [W], [CH], [IG] |
 | Cloud mines | shot, or bumped, they burst into a row of clouds; bumping one also knocks her | [W], [CH] |
 | TNT blocks | her weight pushes the plunger down; a moment later it fires three shots, up and to both diagonals; the Grinder sets them off too | [W], [IG], [CH] |
 | Zappers (level 2) | a middle block with two electrified bars, a five-tile wall across or upright; a shot on the middle block turns it round | [W], [IG] |
@@ -74,10 +74,13 @@ does too. Structure copied from the text; generator rules ours:
 | Coins | scattered through the pit, counted top right; spent in the shop | [W], [MM] |
 | Shop | after levels 1-3, three of the six items | [W], [CH] |
 | Items | Recovery 20 (shorter knocks), Power 15 (breaks terrain and hurts bosses faster), Double Jump 30 (one more jump in the air), Lightfoot 10 (platforms she stands on break more slowly), Magnet 5 (shots collect coins), Lightning 20 (shots don't break clouds, still break bubbles); the first four stack | [W] |
-| Keeper bird | on floor 12 of levels 1-3 it flies near the top of the screen for 15 s without attacking; shot enough, it drops a key and flees; if it gets away it stops coming | [W] |
+| Keeper bird | on floor 12 of levels 1-3 it flies near the top of the screen for 15 s without attacking, holding the column it came in on; shot enough, it drops a key and flees; if it gets away it stops coming | [W], [IG] |
 | Level 4 | opens only with all three keys | [W] |
 | Final boss | on floor 104 she climbs with Kip: the eye fires small shots at her, each hand drops lightning straight down; the hands can be shot off; the eye must be shot to win; she must be beaten before the exit counts | [W] |
+| Boss attacks (medium confidence) | each hand also fires spreads of five; the lightning breaks the platforms under it; in turn a fist sweeps low across the shaft in a wave, and the eye swoops across letting out four lunging minions | [IG], [BV] |
+| HUD | floor numbers and the dotted best line on the left, cogs top right; the red suit is the only jump counter | [MM], [TVT] |
 | Best height | a dotted line marks the highest floor ever reached | [MM], [SC] |
+| Records | items bought, most cogs, most keys, and the best floor | [W] |
 
 ### Readings we had to choose
 
@@ -87,11 +90,17 @@ The sources give no numbers for these, so they are ours:
   in the air 32.
 - A shot every 10 frames (so a coin block gives up to five coins before it
   goes), 5 px/frame, reaching 110 px.
-- A knock lasts 24 frames, 5 fewer per Recovery (never under 9), then 40
-  frames of blinking safety.
+- A knock lasts 56 frames, 10 fewer per Recovery (never under 20), then 40
+  frames of blinking safety. It throws her at 2.8 px/frame across and
+  1.8 up; unchecked, it drops her about four floors.
+- A star ride lasts 52 frames at 4 px/frame; the float after it falls at
+  most 0.5 px/frame.
 - Bats fly 0.75 px/frame, slower than Kip runs or climbs. TNT goes off
   60 frames after the plunger goes down.
-- The Keeper Owl takes 14 hits. The Well Eye has 60, each hand 14.
+- The Keeper Owl takes 14 hits. The Well Eye has 60, each hand 14. The
+  Eye watches for 8 s (shots every second, a hand spread every 2.5 s,
+  lightning every 1.8 s), then sweeps a fist (4 s), watches again, then
+  swoops (4.3 s), and so on.
 
 ## What is ours
 
@@ -110,8 +119,8 @@ The sources give no numbers for these, so they are ours:
 Only the platform needs every UFO 40 cartridge has:
 
 - the START pause menu, and a how-to-play page on SELECT at the title;
-- saving: the best floor, most cogs and most keys are kept (as Velgress
-  tracks); a run in progress is not saved, as in the original;
+- saving: the best floor, items bought, most cogs and most keys are kept
+  (as Velgress tracks); a run in progress is not saved, as in the original;
 - the three UFO 40 goals, which replicate Velgress's own three:
 
 | UFO 40 goal | Condition | Velgress's goal |
@@ -181,18 +190,25 @@ Only the platform needs every UFO 40 cartridge has:
 - [SR] Search-engine summaries (text only) of guides: bats knock you
   sideways and steal your first jump, so jump as the stun runs out; landing
   on top of bats removes them.
+- [TVT] TV Tropes, Velgress recap (search snippets only): "a tremendous
+  amount of knockback" that can throw her into the spikes; the suit's
+  colour shows the jumps left.
+  https://tvtropes.org/pmwiki/pmwiki.php/Recap/UFO50Game7Velgress
 
 ## Progress
 
 - Built: `src/games/skywell/` (game, art, audio), slot 07.
-- Tests: `tests/sw_01` … `sw_17`: the start, the level-1 mix and a quick
+- Tests: `tests/sw_01` … `sw_18`: the start, the level-1 mix and a quick
   restart, jumps, crumbling and Lightfoot, shooting every platform type,
-  bats waking and chasing and knocks with the jump in the air left, the
-  one-way camera and the Grinder, star blocks, cloud mines and TNT, the
-  Keeper Owl and its key, the shop, all three goals and the Well Eye,
-  saving, the reef's creatures, metal and zappers, stomping and
-  shooting bats and leaving them to the Grinder. `sw_16` and `sw_17` climb
-  all of level 1 on two different pits with plain button presses only.
+  bats waking and chasing, knocks (flung far, deadly over the Grinder,
+  caught by a platform, shortened by Recovery, the jump in the air left),
+  the one-way camera and the Grinder, star blocks (launch, fixed ride,
+  float), cloud mines and TNT, the Keeper Owl and its key, the shop and
+  items bought, all three goals, saving, the reef's creatures, metal and
+  zappers, stomping and shooting bats and leaving them to the Grinder,
+  and the Eye's level (`sw_18`: its contents, the cloud top, every attack,
+  the ledge out). `sw_16` and `sw_17` climb all of level 1 on two
+  different pits with plain button presses only.
 - A demo climber (`cheat autoplay`, used only by scripts) looks ahead and
   picks its landings; `cheat botlog` prints its presses as script lines,
   which is how `sw_16` and `sw_17` were recorded.

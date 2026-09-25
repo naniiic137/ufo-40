@@ -1,0 +1,58 @@
+# SKYWELL level 4, the Eye: no coin blocks and no star blocks, and the top
+# is a single row of clouds while the Well Eye lives. The Eye fires small
+# aimed shots; each hand fires spreads of five and drops lightning that
+# breaks the platforms under it; in turn a fist sweeps low across the
+# shaft, and the eye swoops across, letting out four minions. Once the eye
+# is shut the ledge out comes in at the top.
+game skywell
+wait 5
+press A
+cheat keys 3
+cheat level 4
+expect count_5 == 0
+expect count_4 == 0
+expect top_type == 1
+cheat god
+cheat top 14
+wait 2
+expect boss_on == 1
+expect boss_phase == 0
+# a crate under the left hand is broken by its lightning
+cheat clear
+cheat plat 0 0 0 13
+cheat plat 2 32 -40 2
+expect count_2 == 1
+wait 60
+expect eshots >= 6
+wait 50
+expect boss_phase == 0
+expect count_2 == 0
+# the fist: down low at one side, then across the shaft
+cheat boss_phase 1
+wait 2
+expect boss_phase == 1
+wait 60
+expect fist_dy > 100
+expect fist_x < 40
+wait 120
+expect fist_x > 150
+wait 70
+expect boss_phase == 0
+# the swoop: the eye dives and lets out its minions
+cheat boss_phase 2
+wait 2
+expect boss_phase == 2
+wait 128
+expect eye_dy > 50
+wait 80
+expect minions >= 3
+wait 60
+expect boss_phase == 0
+# shut the eye: the clouds at the top give way to the ledge out
+cheat eye_hp 1
+cheat clear
+cheat plat 0 0 0 13
+cheat pos 100 -12
+hold UP+B 60
+expect boss_dead == 1
+expect top_type == 0

@@ -213,11 +213,12 @@ the top.
 
 - **Plays like Velgress:** every run is a new shaft, and a spiked roller at
   the foot of the screen rises whenever you climb past the middle. It is
-  the only thing that can kill you: creatures and hazards just knock you
-  flying for a moment, and you come round with your jump in the air still
-  to use. Every platform crumbles soon after you land, and you can bounce
-  off any creature's head. You double jump, shoot the way you face or
-  straight up or down, and spend coins in a shop between levels.
+  the only thing that can kill you, but creatures and hazards knock you
+  flying so hard that, unless a platform catches you, you drop floors
+  towards it. You come round with your jump in the air still to use. Every
+  platform crumbles soon after you land, and you can bounce off any
+  creature's head. You double jump, shoot the way you face or straight up
+  or down, ride star blocks, and spend coins in a shop between levels.
 - **Level by level:** bats that wake when you pass under them, then TNT,
   cloud mines and zappers, then bubbles, fish, jellies and squids, then
   bouncing metal. Shoot down the bird on each level's 12th floor for a key;
