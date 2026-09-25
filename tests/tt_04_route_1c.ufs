@@ -1,0 +1,67 @@
+# TIN TROOP 1-C: switches need a weight left on them.
+game tintroop
+wait 5
+cheat level 2
+cheat no_foes
+wait 120
+# gate one: stand on the switch and it opens; step off and it shuts
+cheat pos 182 121
+wait 3
+expect gate0 == 1
+hold RIGHT 20
+wait 10
+expect gate0 == 0
+# so leave a stone on it
+cheat pos 182 121
+wait 3
+press DOWN+B
+wait 40
+expect gate0 == 1
+cheat pos 200 121
+hold RIGHT 110
+expect px > 300
+# the ram's pit is three wide: a running jump
+cheat pos 580 101
+wait 2
+hold RIGHT 4
+hold RIGHT+A 20
+hold RIGHT 16
+expect px > 620
+expect py == 101
+# room two: a stone in the pit, then a stone on switch two
+cheat pos 786 121
+wait 2
+hold RIGHT 2
+hold RIGHT+A 22
+press DOWN+B
+wait 40
+expect stone_y == 140
+cheat pos 786 121
+wait 2
+hold RIGHT+A 22
+wait 16
+expect py == 131
+hold RIGHT 6
+hold RIGHT+A 20
+hold RIGHT 10
+expect mode == 3
+expect py == 121
+cheat pos 882 121
+wait 3
+press DOWN+B
+wait 40
+expect gate1 == 1
+cheat pos 900 121
+hold RIGHT 80
+expect px > 960
+# the block wall: Pop the foot
+cheat pos 1072 121
+wait 2
+press UP+B
+wait 40
+cheat pos 1060 121
+hold RIGHT 60
+expect px > 1100
+cheat pos 1380 121
+hold RIGHT 60
+expect state == 4

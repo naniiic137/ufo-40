@@ -1,0 +1,58 @@
+# TIN TROOP 3-A: fire.
+game tintroop
+wait 5
+cheat level 6
+wait 100
+# the candle lights a soldier; burning, he walks through the three mice
+cheat pos 100 121
+hold RIGHT 20
+expect burn > 0
+expect lives == 20
+hold RIGHT 150
+expect kills == 3
+expect lives == 21
+wait 40
+expect mode == 0
+expect lives == 20
+# no body is left when a soldier burns away
+expect count_corpse == 0
+cheat no_foes
+# the kettle puts a burning soldier out
+wait 60
+cheat pos 664 101
+cheat burn
+wait 2
+hold RIGHT 30
+expect mode == 4
+expect burn == 0
+hold RIGHT 60
+hold RIGHT+A 60
+hold RIGHT 1
+hold RIGHT+A 30
+hold RIGHT 20
+expect mode == 3
+expect px > 750
+# the block column in the second room: Pop its foot
+cheat pos 1025 121
+wait 2
+press UP+B
+wait 40
+cheat pos 1000 121
+hold RIGHT 60
+expect px > 1060
+# the dragon's platform: a stone at its foot to climb it
+cheat pos 1214 121
+wait 2
+press DOWN+B
+wait 50
+cheat pos 1190 121
+wait 2
+hold RIGHT+A 20
+hold RIGHT 6
+wait 10
+hold RIGHT+A 20
+hold RIGHT 12
+expect py == 91
+cheat pos 1400 121
+hold RIGHT 80
+expect state == 4

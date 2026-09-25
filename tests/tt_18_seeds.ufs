@@ -1,0 +1,22 @@
+# TIN TROOP: creeper pots lob seeds; a seeded soldier glows, then becomes a
+# vine where he stands. A seeded pill bug sprouts one too.
+game tintroop
+wait 5
+cheat level 5
+cheat no_foes
+wait 120
+# stand where the pot's short lob lands
+cheat pos 346 121
+wait 600
+expect lives == 19
+expect count_vine >= 8
+expect tile_34_12 == 118
+# a seeded pill bug rolls on, then sprouts
+cheat pos 250 121
+cheat foe bug 300 130
+cheat seed_bug
+expect seeded == 1
+wait 170
+expect count_foes == 0
+wait 80
+expect count_vine >= 12

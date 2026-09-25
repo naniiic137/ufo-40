@@ -1,0 +1,36 @@
+# TIN TROOP 4-B: the Jack of the Chest.
+game tintroop
+wait 5
+cheat level 9
+cheat freeze
+wait 40
+expect boss_hp == 3
+# a soldier seeded beside the high shelf becomes a vine up to it
+cheat pos 142 121
+cheat seed
+wait 160
+wait 120
+expect tile_14_6 == 118
+cheat pos 130 121
+hold RIGHT 12
+hold UP 110
+hold RIGHT 20
+expect py == 61
+expect mode == 3
+# the flame head's breath reaches the shelf: he catches fire standing there
+cheat freeze
+wait 240
+expect burn > 0
+expect mode == 3
+cheat freeze
+# a lance into the Jack while he is sprung out: swallowed whole, unless burning
+cheat mouth
+cheat burn
+hold RIGHT 2
+press B
+wait 30
+expect boss_dead == 1
+wait 160
+expect state == 4
+expect goals & 2
+expect cleared == 512

@@ -1,0 +1,70 @@
+# TIN TROOP: every level is well formed; the troop starts with 20; each
+# soldier parachutes in, and every ritual spends him.
+game tintroop
+wait 5
+expect level_errors == 0
+expect state == 0
+press A
+wait 5
+expect state == 1
+press A
+wait 5
+expect state == 2
+wait 30
+press A
+wait 5
+expect state == 3
+expect lives == 20
+expect mode == 1
+# parachuting soldiers are slow and can't be hurt
+cheat foe mouse 50 130
+wait 30
+expect mode == 1
+cheat no_foes
+wait 150
+expect mode == 3
+# the Lance: flies until a wall stops it and stays there as a ledge
+cheat pos 60 121
+wait 2
+hold LEFT 2
+press B
+expect lives == 19
+expect mode == 6
+wait 20
+expect count_lodged == 1
+expect body_0_x < 12
+# the Pop leaves nothing behind
+wait 30
+cheat pos 100 121
+wait 2
+press UP+B
+expect lives == 18
+expect count_lodged == 1
+expect count_stone == 0
+# the Lead leaves a stone where he stood
+wait 40
+cheat pos 100 121
+wait 2
+press DOWN+B
+expect lives == 17
+expect count_stone == 1
+expect stone_y == 120
+# combos: a lance in flight can turn to stone, and a falling stone can go off
+wait 40
+cheat pos 150 121
+wait 2
+hold RIGHT 2
+press B
+wait 3
+press DOWN+B
+expect lives == 16
+expect count_stone == 2
+wait 40
+cheat pos 150 121
+wait 2
+hold A 12
+press DOWN+B
+wait 2
+press UP+B
+expect lives == 15
+expect count_stone == 2

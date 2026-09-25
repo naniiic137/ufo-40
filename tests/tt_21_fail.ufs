@@ -1,0 +1,18 @@
+# TIN TROOP: when the last soldier is spent the attempt fails; trying again
+# starts over with the level's starting count.
+game tintroop
+wait 5
+cheat level 0
+cheat no_foes
+wait 120
+cheat lives 1
+cheat pos 100 121
+wait 2
+press UP+B
+wait 50
+expect state == 5
+wait 70
+press A
+wait 110
+expect state == 3
+expect lives == 20

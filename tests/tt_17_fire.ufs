@@ -1,0 +1,18 @@
+# TIN TROOP: a burning soldier can't be hurt by foes and burns them; he
+# burns away with no body unless water puts him out.
+game tintroop
+wait 5
+cheat level 0
+cheat no_foes
+wait 120
+cheat pos 100 121
+cheat burn
+cheat foe mouse 130 130
+cheat freeze
+hold RIGHT 30
+expect kills == 1
+expect mode == 3
+wait 180
+expect mode == 0
+expect lives == 19
+expect count_corpse == 0

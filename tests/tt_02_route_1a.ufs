@@ -1,0 +1,73 @@
+# TIN TROOP 1-A, room by room, the way the level is meant to be solved.
+game tintroop
+wait 5
+cheat level 0
+cheat no_foes
+wait 120
+# the crate: a plain jump
+cheat pos 200 121
+wait 2
+hold RIGHT+A 20
+hold RIGHT 10
+expect py == 101
+# the bookshelf: lance into it, the next soldier climbs him
+cheat pos 500 121
+wait 2
+hold RIGHT 2
+press B
+wait 8
+expect count_lodged == 1
+wait 60
+cheat pos 488 121
+wait 2
+hold RIGHT+A 20
+hold RIGHT 12
+hold RIGHT+A 20
+hold RIGHT 20
+expect py == 91
+expect px > 525
+# the low table: Pop the block wall
+cheat pos 712 121
+wait 2
+hold RIGHT 2
+hold UP 2
+press UP+B
+expect tile_72_12 == 32
+expect tile_72_11 == 32
+wait 60
+# the spike rug: a stone dropped mid-jump is a stepping stone
+cheat pos 868 121
+wait 2
+hold RIGHT 4
+hold RIGHT+A 22
+hold RIGHT+DOWN 1
+press DOWN+B
+wait 40
+expect count_stone == 1
+expect stone_y == 120
+cheat pos 868 121
+wait 2
+hold RIGHT 4
+hold RIGHT+A 18
+hold RIGHT 10
+hold RIGHT+A 18
+hold RIGHT 20
+expect mode == 3
+expect px > 930
+# the floating shelf: spend a soldier beneath it and parachute onto it
+cheat pos 1068 121
+wait 30
+expect lives == 20
+cheat respawn 1
+wait 2
+expect mode == 1
+wait 120
+expect mode == 3
+expect py == 71
+hold RIGHT 12
+expect lives == 25
+# and out
+cheat pos 1240 121
+hold RIGHT 60
+expect state == 4
+expect best_0 == 5

@@ -31,6 +31,10 @@ CORE_SRC += src/games/roofcat/roofcat_audio.c
 CORE_SRC += src/games/petalparade/petalparade.c
 CORE_SRC += src/games/petalparade/petalparade_art.c
 CORE_SRC += src/games/petalparade/petalparade_audio.c
+CORE_SRC += src/games/tintroop/tintroop.c
+CORE_SRC += src/games/tintroop/tintroop_levels.c
+CORE_SRC += src/games/tintroop/tintroop_art.c
+CORE_SRC += src/games/tintroop/tintroop_audio.c
 
 HEADLESS_SRC += src/platform/headless/main_headless.c
 HEADLESS_SRC += src/platform/headless/imgwrite.c

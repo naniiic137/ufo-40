@@ -1,0 +1,25 @@
+# TIN TROOP: a stone dropped from the air smashes down through blocks;
+# one made standing on a block just sits there.
+game tintroop
+wait 5
+cheat level 1
+cheat no_foes
+wait 120
+expect tile_30_12 == 120
+cheat pos 307 21
+wait 2
+hold A 10
+press DOWN+B
+wait 80
+expect tile_30_3 == 32
+expect tile_30_12 == 32
+expect tile_31_12 == 32
+expect stone_y == 120
+cheat put x 60 12
+cheat put x 60 11
+cheat pos 598 101
+wait 10
+press DOWN+B
+wait 40
+expect tile_60_11 == 120
+expect stone_y == 100
