@@ -274,7 +274,7 @@ static const char DOWN[] =
     "................";
 
 /* hats and hair (16 x 10), drawn over the head */
-static const char HAT_K[] =      /* Khaled: a red bandana, tails flying */
+static const char HAT_W[] =      /* Wade: a red bandana, tails flying */
     "................"
     "......rrrr......"
     ".....rrrrrr....."
@@ -285,7 +285,7 @@ static const char HAT_K[] =      /* Khaled: a red bandana, tails flying */
     "................"
     "................"
     "................";
-static const char HAT_V[] =      /* the Veil: an indigo hood and face cloth */
+static const char HAT_H[] =      /* Hush: an indigo hood and face cloth */
     "......NNNN......"
     ".....NBBBBN....."
     "....NBBBBBBN...."
@@ -296,7 +296,7 @@ static const char HAT_V[] =      /* the Veil: an indigo hood and face cloth */
     "....NBBBBBBBN..."
     ".....NNBBBBN...."
     "................";
-static const char HAT_S[] =      /* Sahar: a magenta headscarf and a braid */
+static const char HAT_P[] =      /* Pearl: a magenta kerchief and a braid */
     "......PPPP......"
     ".....PKKKPP....."
     "....PKPPPPPP...."
@@ -596,7 +596,7 @@ static const char CAMEL2[] =
     "................................";
 
 /* the power-up icons (8 x 8): spare rounds, blast rounds, spring boots,
- * the hamsa, the iron fist, the quick holster */
+ * the horseshoe, the iron fist, the quick holster */
 static const char IC_ROUNDS[] =
     "..k..k.."
     ".kyk.kyk"
@@ -624,15 +624,15 @@ static const char IC_BOOTS[] =
     "kbbbbbbk"
     "kyykyyyk"
     ".kk.kkk.";
-static const char IC_CHARM[] =
-    ".k.k.k.."
-    "kukukuk."
-    "kuuuuuk."
-    "kuuwuuk."
-    "kuwkwuk."
-    ".kuuuk.."
-    "..kuk..."
-    "...k....";
+static const char IC_CHARM[] =  /* a lucky horseshoe */
+    "kk....kk"
+    "klk..klk"
+    "kgk..kgk"
+    "klk..klk"
+    "kllkkllk"
+    ".kgllgk."
+    "..kkkk.."
+    "........";
 static const char IC_FIST[] =
     ".kkkkk.."
     "khkhkhk."
@@ -681,9 +681,9 @@ void dx_art_load(void) {
     spr_make(&dx_obj[DO_POWER], 8, 8, POWER);
     spr_make(&dx_obj[DO_CAMEL], 32, 32, CAMEL);
     spr_make(&dx_obj[DO_CAMEL2], 32, 32, CAMEL2);
-    spr_make(&dx_obj[DO_HAT_K], 16, 10, HAT_K);
-    spr_make(&dx_obj[DO_HAT_V], 16, 10, HAT_V);
-    spr_make(&dx_obj[DO_HAT_S], 16, 10, HAT_S);
+    spr_make(&dx_obj[DO_HAT_W], 16, 10, HAT_W);
+    spr_make(&dx_obj[DO_HAT_H], 16, 10, HAT_H);
+    spr_make(&dx_obj[DO_HAT_P], 16, 10, HAT_P);
     spr_make(&dx_obj[DO_HAT_G], 16, 10, HAT_G);
     spr_make(&dx_obj[DO_HAT_GOV], 16, 10, HAT_GOV);
     static const char *const IC[6] = {IC_ROUNDS, IC_BLAST, IC_BOOTS, IC_CHARM, IC_FIST, IC_QUICK};

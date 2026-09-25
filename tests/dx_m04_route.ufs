@@ -1,89 +1,50 @@
-# DUNE EXPRESS: mission 4, EYES OPEN, can be won with the buttons alone:
-# wait out the first lawmen turn, punch the patrol from behind, over the roof,
-# down the hatch behind the second patrol, the strongbox out through car 4
+# DUNE EXPRESS: mission 4, EYES OPEN, can be won with the buttons alone,
+# unseen and under the time star: roll up behind the barrel and stay down,
+# so the patrol hops over you and walks on; then break the barrel and the
+# crate and punch through the car's end wall (three punches a plank); the
+# strongbox; wait behind the second patrol and follow him out to the camel
 game dune
 wait 5
 cheat mission 4
 wait 1
-wait 600
-wait 210
-hold RIGHT 16
-hold RIGHT 16
-hold RIGHT 16
-hold RIGHT 16
-hold RIGHT 16
-hold RIGHT 16
-hold RIGHT 16
-hold RIGHT 16
-hold RIGHT 16
-hold RIGHT 1
-press B
-wait 8
-hold RIGHT 16
-hold RIGHT 16
-hold RIGHT 16
-hold RIGHT 16
-hold RIGHT 16
-hold RIGHT 16
-hold RIGHT 16
-hold RIGHT 1
-press B
-wait 5
-hold RIGHT 16
-hold RIGHT 10
-hold RIGHT 1
-press B
-wait 5
-hold RIGHT 63
-hold UP 24
-hold UP 24
-hold UP 24
-hold RIGHT 89
-wait 64
-wait 210
-hold RIGHT 13
-hold DOWN 24
-hold DOWN 24
-hold DOWN 4
-hold RIGHT 1
-wait 2
-wait 2
-wait 2
-wait 2
-wait 2
-hold RIGHT 64
-hold RIGHT 1
 hold DOWN
-press B
+press A
+wait 150
+wait 446
+wait 212
 release DOWN
+wait 1
+press B
 wait 2
-hold RIGHT 16
-hold RIGHT 16
-hold RIGHT 16
-hold RIGHT 16
-hold RIGHT 16
-hold RIGHT 16
-hold RIGHT 5
-hold RIGHT 16
-hold RIGHT 16
-hold RIGHT 1
+hold RIGHT 142
 press B
-wait 8
-hold RIGHT 16
-hold RIGHT 1
+wait 2
+hold RIGHT 63
 press B
-wait 8
-hold RIGHT 16
-hold RIGHT 16
-hold RIGHT 16
-hold RIGHT 16
-hold RIGHT 16
-hold RIGHT 16
-hold RIGHT 16
-hold RIGHT 16
-hold RIGHT 16
-hold RIGHT 16
-hold RIGHT 16
+wait 2
+press B
+wait 2
+press B
+wait 2
+press B
+wait 2
+press B
+wait 2
+press B
+wait 2
+hold RIGHT 40
+press B
+wait 2
+hold RIGHT 126
+press B
+wait 20
+hold RIGHT 30
+hold RIGHT 70
+wait 60
+wait 212
+press B
+wait 2
+hold RIGHT 180
 wait 10
 expect result == 1
 expect state == 4

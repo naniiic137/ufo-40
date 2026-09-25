@@ -1,151 +1,59 @@
-# DUNE EXPRESS: mission 16, PLATED, can be won with the buttons alone:
-# Sahar draws the first guard's shot with the crate of blast rounds, stuns him,
-# and shoots through the two plates; the strongbox behind the standing guard; both
-# outlaws up the hatch, over the roofs and down behind the last guard, one after the other
+# DUNE EXPRESS: mission 16, PLATED, can be won with the buttons alone,
+# unseen and under the time star: Pearl rolls in holding the crate of blast
+# rounds so the first guard shoots the crate, takes the rounds and blows both
+# plates open from two tiles back; Wade punches the guard as he walks past,
+# takes the strongbox and climbs to the roofs; each crosses the roofs on
+# their own turns and drops in behind the last guard, punching him on the way
 game dune
 wait 5
 cheat mission 16
 wait 1
-hold RIGHT 25
-hold RIGHT 1
+hold RIGHT 26
 hold DOWN
 press B
+wait 2
+press A
+wait 30
 release DOWN
-wait 2
-hold RIGHT 38
-wait 5
-hold LEFT 25
-hold RIGHT 38
-hold RIGHT 76
-hold RIGHT 1
+wait 20
+hold LEFT 8
+hold RIGHT 105
+hold RIGHT 126
+hold UP 132
 press B
 wait 5
-hold RIGHT 153
-hold RIGHT 1
-hold UP 135
+hold UP 132
+press B
+wait 5
+hold RIGHT 60
+wait 200
+hold RIGHT 300
+hold RIGHT 104
 press B
 wait 20
-wait 117
-wait 210
-hold RIGHT 16
-hold RIGHT 16
-hold RIGHT 16
-hold RIGHT 16
-hold RIGHT 16
-hold RIGHT 16
-hold RIGHT 16
-hold RIGHT 16
-hold RIGHT 16
-hold RIGHT 16
-hold RIGHT 16
-hold RIGHT 16
-hold RIGHT 16
-hold RIGHT 16
-hold RIGHT 16
-hold RIGHT 16
-hold RIGHT 16
-hold RIGHT 9
-wait 319
-wait 210
-hold RIGHT 24
-hold RIGHT 1
-hold UP 135
+hold RIGHT 28
+hold LEFT 62
+hold UP 70
+wait 222
+hold RIGHT 56
+hold UP 70
+hold RIGHT 205
+hold DOWN 70
+hold RIGHT 58
 press B
-wait 20
-hold RIGHT 89
-hold RIGHT 1
+wait 3
+hold RIGHT 45
 press B
-wait 25
-hold RIGHT 25
-hold LEFT 38
-hold RIGHT 25
-hold LEFT 50
-hold UP 24
-hold UP 24
-hold UP 24
-wait 89
-wait 210
-hold LEFT 1
+wait 3
+hold RIGHT 80
+wait 215
+hold RIGHT 205
+hold DOWN 70
+hold RIGHT 60
+hold RIGHT 34
 press B
-wait 5
-hold RIGHT 16
-hold RIGHT 16
-hold RIGHT 1
-press B
-wait 8
-hold RIGHT 16
-hold RIGHT 1
-press B
-wait 8
-hold RIGHT 16
-hold RIGHT 1
-press B
-wait 8
-hold RIGHT 16
-hold RIGHT 1
-press B
-wait 8
-hold RIGHT 16
-hold RIGHT 1
-press B
-wait 8
-hold RIGHT 16
-hold RIGHT 16
-hold RIGHT 16
-hold RIGHT 16
-hold RIGHT 16
-hold RIGHT 8
-hold UP 24
-hold UP 24
-hold UP 24
-wait 275
-wait 210
-hold RIGHT 188
-hold RIGHT 170
-wait 242
-wait 210
-hold RIGHT 168
-wait 432
-wait 210
-hold RIGHT 13
-hold DOWN 24
-hold DOWN 24
-hold DOWN 4
-hold RIGHT 1
-wait 2
-wait 2
-wait 2
-wait 2
-wait 2
-hold RIGHT 64
-hold RIGHT 1
-press B
-wait 5
-hold RIGHT 16
-hold RIGHT 16
-hold RIGHT 16
-hold RIGHT 16
-hold RIGHT 1
-press B
-wait 8
-hold RIGHT 16
-hold RIGHT 16
-hold RIGHT 16
-hold RIGHT 16
-hold RIGHT 16
-hold RIGHT 16
-hold RIGHT 16
-hold RIGHT 16
-hold RIGHT 16
-hold RIGHT 16
-hold RIGHT 16
-hold RIGHT 16
-hold RIGHT 16
-hold RIGHT 16
-hold RIGHT 16
-hold RIGHT 16
-hold RIGHT 16
-hold RIGHT 16
+wait 3
+hold RIGHT 90
 wait 10
 expect result == 1
 expect state == 4

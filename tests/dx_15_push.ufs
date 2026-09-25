@@ -1,0 +1,17 @@
+# DUNE EXPRESS: walk into a crate for a moment and it slides along ahead of
+# you, slower than walking; it stops at a wall.
+game dune
+wait 5
+cheat mission 1
+cheat clear_law
+expect otype2_x == 81
+hold RIGHT 30
+expect otype2_x == 81
+hold RIGHT 60
+expect otype2_x > 100
+expect otype2_x < 125
+expect tx < 7
+cheat pos 8 6
+hold LEFT 200
+expect otype2_x == 16
+expect x == 30

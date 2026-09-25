@@ -1,0 +1,37 @@
+# DUNE EXPRESS: hidden in a barrel you can roll it along with left and right.
+# A guard who sees a barrel roll grows wary (no shot yet); on the lawmen's
+# turn he shoots it, the barrel bursts and the outlaw inside is unhurt. A
+# barrel that just stands there he leaves alone.
+game dune
+wait 5
+cheat mission 1
+cheat law 0 38 6 1 0
+cheat law 1 20 2 0 0
+cheat pos 30 6
+cheat face 1
+wait 2
+hold DOWN
+press B
+release DOWN
+wait 2
+expect carry == 1
+press DOWN
+wait 2
+expect hidden == 1
+# he turns round: a still barrel is just a barrel
+cheat law 0 38 6 0 0
+wait 30
+expect law0_state == 0
+expect alive == 1
+hold RIGHT 40
+expect hidden == 1
+expect alive == 1
+expect law0_state == 2
+expect law0_armed == 1
+wait 5
+expect phase == 1
+wait 640
+expect hidden == 0
+expect alive == 1
+expect law0_armed == 0
+expect objs1 == 0

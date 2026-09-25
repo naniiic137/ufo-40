@@ -1,0 +1,20 @@
+# DUNE EXPRESS: with blast rounds a bullet blows a three by three tile hole
+# where it strikes, armor plate included.
+game dune
+wait 5
+cheat mission 8
+cheat clear_law
+cheat power 2
+cheat pos 30 6
+cheat face 1
+expect tile325 == 4
+hold UP 135
+expect gun == -1
+press B
+wait 2
+expect tile324 == 0
+expect tile325 == 0
+expect tile326 == 0
+expect tile333 == 4
+expect tile343 == 4
+expect alive == 1

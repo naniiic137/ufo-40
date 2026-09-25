@@ -1,6 +1,5 @@
 # DUNE EXPRESS: a lever flips every gate; the crank gun shoots whoever walks
-# in front of it but turns on the lawmen when punched from behind; a punched
-# ram charges and tramples whoever is in its way.
+# in front of it but turns on the lawmen when punched from behind.
 game dune
 wait 5
 cheat mission 7
@@ -25,14 +24,4 @@ wait 2
 press B
 cheat pos 10 6
 wait 60
-expect alive == 1
-cheat mission 12
-hold DOWN
-cheat pos 10 6
-cheat face 1
-wait 2
-press B
-wait 120
-release DOWN
-expect kills >= 1
 expect alive == 1

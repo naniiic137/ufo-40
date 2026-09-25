@@ -1,6 +1,6 @@
 # DUNE EXPRESS: mission 1, THE FIRST JOB, can be won with the buttons alone:
 # the crate for a bullet, over the roofs, down the ladder behind the guard,
-# the strongbox's dinars, out to Baraka
+# the strongbox's dollars, out to Biscuit
 game dune
 wait 5
 cheat mission 1

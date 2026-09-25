@@ -1,0 +1,23 @@
+# DUNE EXPRESS: the crank gun. Punched from behind it turns on the lawmen;
+# it warns with a flash, then fires a burst of three whatever is in the way
+# (both guards in its line fall), and its six rounds make two bursts.
+game dune
+wait 5
+cheat mission 6
+cheat law 0 11 6 0 0
+cheat law 1 10 6 0 0
+cheat pos 13 6
+cheat face 0
+wait 2
+expect gun_ammo == 6
+expect gun_friendly == 0
+press B
+expect gun_friendly == 1
+wait 20
+expect gun_ammo == 6
+wait 30
+expect gun_ammo == 3
+expect kills == 2
+expect alive == 1
+wait 200
+expect gun_ammo == 3

@@ -26,6 +26,8 @@ static int result_stars, result_new, alert_t[DX_MAX_ACTORS];
 static int last_ev[9], last_phase;
 static bool versus;
 static uint32_t vs_seed;
+/* the opening look along the train: 1 panning, 2 waiting for a button */
+static int intro;
 
 typedef struct Part {
     float x, y, vx, vy;
@@ -82,7 +84,10 @@ static void start_mission(int m) {
     if (dx_load(&W, &DX_MISSIONS_DEF[m], m) != 0) return;
     state = S_PLAY;
     state_t = 0;
-    cam_x = W.a[W.ctrl].x - 100;
+    /* the camera looks the train over from the far end back to the outlaw;
+     * a button then starts the heist and the clock */
+    intro = 1;
+    cam_x = (float)(W.w * DX_T - SCREEN_W);
     memset(parts, 0, sizeof parts);
     memset(last_ev, 0, sizeof last_ev);
     memset(alert_t, 0, sizeof alert_t);
@@ -93,6 +98,7 @@ static void start_mission(int m) {
 
 static void start_versus(void) {
     versus = true;
+    intro = 0;
     vs_seed = rng_next(&g_rng);
     dx_versus_train(&W, vs_seed);
     state = S_VS_INTRO;
@@ -144,6 +150,7 @@ static DxInput read_input(bool p2) {
         in.left = btn2(BTN_LEFT); in.right = btn2(BTN_RIGHT); in.up = btn2(BTN_UP); in.down = btn2(BTN_DOWN);
         in.a = btn2(BTN_A); in.b = btn2(BTN_B); in.a_pressed = btnp2(BTN_A); in.b_pressed = btnp2(BTN_B);
         in.select_pressed = btnp2(BTN_SELECT);
+        in.down_pressed = btnp2(BTN_DOWN) || btnp(BTN_DOWN);
         /* hot seat on one pad works too */
         in.left |= btn(BTN_LEFT); in.right |= btn(BTN_RIGHT); in.up |= btn(BTN_UP); in.down |= btn(BTN_DOWN);
         in.a |= btn(BTN_A); in.b |= btn(BTN_B); in.a_pressed |= btnp(BTN_A); in.b_pressed |= btnp(BTN_B);
@@ -152,6 +159,7 @@ static DxInput read_input(bool p2) {
     in.left = btn(BTN_LEFT); in.right = btn(BTN_RIGHT); in.up = btn(BTN_UP); in.down = btn(BTN_DOWN);
     in.a = btn(BTN_A); in.b = btn(BTN_B); in.a_pressed = btnp(BTN_A); in.b_pressed = btnp(BTN_B);
     in.select_pressed = btnp(BTN_SELECT);
+    in.down_pressed = btnp(BTN_DOWN);
     return in;
 }
 
@@ -184,6 +192,20 @@ static void follow_camera(void) {
 }
 
 static void update_play(void) {
+    if (intro && !versus) {
+        const DxActor *me = &W.a[W.ctrl];
+        float want = fclamp(me->x + 6 - SCREEN_W / 2 + 30, 0, (float)(W.w * DX_T - SCREEN_W));
+        bool any = btnp(BTN_A) || btnp(BTN_B) || btnp(BTN_LEFT) || btnp(BTN_RIGHT) || btnp(BTN_UP) || btnp(BTN_DOWN);
+        if (intro == 1) {
+            cam_x -= 5;
+            if (cam_x <= want) { cam_x = want; intro = 2; }
+            if (any && state_t > 10) { cam_x = want; intro = 0; input_consume(); }
+        } else if (any) {
+            intro = 0;
+            input_consume();
+        }
+        return;
+    }
     DxInput in = read_input(false), in2 = read_input(true);
     if (versus) input_set_versus(true);
     dx_step(&W, &in, versus ? &in2 : NULL);
@@ -199,7 +221,7 @@ static void update_play(void) {
         p->y += p->vy;
         if (p->kind == 0) p->vy += 0.12f;
     }
-    if (W.result) finish();
+    if (W.result && W.end_t <= 0) finish(); /* a failed heist: the fall plays out first */
 }
 
 /* ------------------------------------------------------------------ */
@@ -328,6 +350,15 @@ static void draw_tile(int tx, int ty, int px, int py) {
         break;
     default: break;
     }
+    /* a plank that has taken punches cracks, and flashes as it's struck */
+    int d = W.dmg[ty][tx];
+    if (d > 0) {
+        gfx_line(px + 3, py + 2, px + 8, py + 8, C_INK);
+        gfx_line(px + 8, py + 8, px + 6, py + 13, C_INK);
+        if (d > 1) { gfx_line(px + 13, py + 3, px + 9, py + 9, C_INK); gfx_line(px + 9, py + 9, px + 12, py + 14, C_INK); }
+    }
+    if (W.tflash[ty][tx] > 4) gfx_rect(px, py, DX_T, DX_T, C_WHITE);
+    else if (W.tflash[ty][tx] > 0) gfx_dither(px, py, DX_T, DX_T, C_WHITE, 8);
 }
 
 /* the inside of a car: its back wall, with the desert passing in the windows */
@@ -385,8 +416,8 @@ static void person_colours(uint8_t *map, const DxActor *a) {
     pal_identity(map);
     int skin = C_HIDE, shirt = C_RED, sash = C_YELLOW, pants = C_BROWN, boots = C_TAN;
     if (a->kind == AK_OUTLAW) {
-        if (a->who == OUT_KHALED) { skin = C_EARTH; shirt = C_CREAM; sash = C_RED; pants = C_TAN; boots = C_BROWN; }
-        else if (a->who == OUT_VEIL) { skin = C_TAN; shirt = C_NAVY; sash = C_BLUE; pants = C_NIGHT; boots = C_DUSK; }
+        if (a->who == OUT_WADE) { skin = C_EARTH; shirt = C_CREAM; sash = C_RED; pants = C_TAN; boots = C_BROWN; }
+        else if (a->who == OUT_HUSH) { skin = C_TAN; shirt = C_NAVY; sash = C_BLUE; pants = C_NIGHT; boots = C_DUSK; }
         else { skin = C_HIDE; shirt = C_PURPLE; sash = C_MAGENTA; pants = C_WINE; boots = C_BROWN; }
     } else if (a->kind == AK_GUARD) {
         skin = C_HIDE; shirt = C_BLUE; sash = C_WHITE; pants = C_RED; boots = C_INK;
@@ -426,7 +457,7 @@ static void draw_actor(int i) {
     spr_draw_ex(&dx_body[frame], px, py, flip, map, -1);
     /* the hat */
     int hat = a->kind == AK_GUARD ? DO_HAT_G : a->kind == AK_GOVERNOR ? DO_HAT_GOV
-            : a->who == OUT_KHALED ? DO_HAT_K : a->who == OUT_VEIL ? DO_HAT_V : DO_HAT_S;
+            : a->who == OUT_WADE ? DO_HAT_W : a->who == OUT_HUSH ? DO_HAT_H : DO_HAT_P;
     int hy = py;
     if (frame == DS_DUCK || frame == DS_ROLL) hy += 14;
     if (frame != DS_ROLL && frame != DS_DOWN && frame != DS_CLIMB) spr_draw(&dx_obj[hat], px, hy, flip);
@@ -472,12 +503,14 @@ static void draw_obj(int i) {
     case OB_GOOSE: spr_draw(&dx_obj[(o->held >= 0 || o->thrower) && (frame_t / 5) % 2 ? DO_GOOSE2 : DO_GOOSE], px, py, flip ^ SPR_FLIPX); break;
     case OB_RAM: spr_draw(&dx_obj[DO_RAM], px - 1, py, flip ^ SPR_FLIPX); break;
     case OB_GUN: {
+        /* green while it guards the train, red once it's turned on the
+         * lawmen, dark when its six rounds are spent */
         uint8_t map[PAL_COUNT];
         pal_identity(map);
-        if (o->friendly) pal_swap(map, C_LIGHT, C_LIME);
+        pal_swap(map, C_LIGHT, o->friendly ? C_RED : C_LIME);
         if (o->ammo <= 0) { pal_swap(map, C_LIGHT, C_DUSK); pal_swap(map, C_GREY, C_DUSK); }
         spr_draw_ex(&dx_obj[DO_GUN], px, py, flip, map, -1);
-        if (o->timer > 10 && o->ammo > 0 && (frame_t / 3) % 2) gfx_circ(px + (o->face ? 15 : 0), py + 4, 3, C_LIME);
+        if (o->burst == 0 && o->timer > 0 && o->ammo > 0 && (frame_t / 3) % 2) gfx_circ(px + (o->face ? 15 : 0), py + 4, 3, o->friendly ? C_RED : C_LIME);
         break;
     }
     case OB_LEVER: spr_draw(&dx_obj[DO_LEVER], px, py, o->face ? SPR_FLIPX : 0); break;
@@ -486,7 +519,7 @@ static void draw_obj(int i) {
     case OB_AMMO: spr_draw(&dx_obj[DO_AMMO], px, py, 0); break;
     case OB_POWER: spr_draw(&dx_icon[o->content ? (o->content - 1) % 8 : 0], px, py - ((frame_t / 10) % 2), 0); break;
     case OB_CAMEL: {
-        /* whoever made it out sits up on Baraka */
+        /* whoever made it out sits up on Biscuit */
         int k = 0;
         for (int j = 0; j < W.na; j++) {
             const DxActor *r = &W.a[j];
@@ -496,7 +529,7 @@ static void draw_obj(int i) {
             int rx = px + 4 + k * 8, ry = py - 13;
             gfx_clip(rx - 2, 0, 20, py + 9);
             spr_draw_ex(&dx_body[DS_STAND], rx, ry, 0, map, -1);
-            spr_draw(&dx_obj[r->who == OUT_KHALED ? DO_HAT_K : r->who == OUT_VEIL ? DO_HAT_V : DO_HAT_S], rx, ry, 0);
+            spr_draw(&dx_obj[r->who == OUT_WADE ? DO_HAT_W : r->who == OUT_HUSH ? DO_HAT_H : DO_HAT_P], rx, ry, 0);
             gfx_noclip();
             k++;
         }
@@ -577,7 +610,7 @@ static void draw_hud(void) {
     person_colours(map, me);
     gfx_clip(200, 1, 16, 17);
     spr_draw_ex(&dx_body[DS_STAND], 200, 2, 0, map, -1);
-    spr_draw(&dx_obj[me->who == OUT_KHALED ? DO_HAT_K : me->who == OUT_VEIL ? DO_HAT_V : DO_HAT_S], 200, 2, 0);
+    spr_draw(&dx_obj[me->who == OUT_WADE ? DO_HAT_W : me->who == OUT_HUSH ? DO_HAT_H : DO_HAT_P], 200, 2, 0);
     gfx_noclip();
     for (int k = 0; k < DX_MAX_AMMO; k++) gfx_rect(220 + k * 5, 6, 3, 7, k < me->ammo ? C_YELLOW : C_DUSK);
     int ix = 254;
@@ -595,18 +628,19 @@ static void draw_play(void) {
         gfx_rect(0, OY, SCREEN_W, 2, C_RED);
         gfx_rect(0, SCREEN_H - 2, SCREEN_W, 2, C_RED);
     }
-    if (state == S_PLAY && state_t < 150 && !versus) {
+    if (state == S_PLAY && intro && !versus) {
         const DxMission *m = &DX_MISSIONS_DEF[cur];
         int y = 150;
         gfx_rect(0, y, SCREEN_W, 14, C_INK);
         tiny_center(m->brief, 160, y + 4, C_CREAM);
+        if (intro == 2 && (frame_t / 16) % 2) text_center("PRESS A BUTTON TO START", 160, 134, C_WHITE);
     }
 }
 
 /* ------------------------------------------------------------------ */
 /* menus                                                                */
 
-static const char *OUTLAW_NAME[3] = {"KHALED", "THE VEIL", "SAHAR"};
+static const char *OUTLAW_NAME[3] = {"WADE", "HUSH", "PEARL"};
 
 static void draw_title(void) {
     cur = 14;
@@ -658,17 +692,17 @@ static void draw_title(void) {
         if (t < 40) gfx_circ(sx, sy, r, t < 16 ? C_GREY : C_SLATE);
         else gfx_dither_circle(sx, sy, r, C_SLATE, 8);
     }
-    /* Khaled on the roof */
+    /* Wade on the roof */
     {
         DxActor a;
         memset(&a, 0, sizeof a);
-        a.kind = AK_OUTLAW; a.who = OUT_KHALED; a.face = 1;
+        a.kind = AK_OUTLAW; a.who = OUT_WADE; a.face = 1;
         uint8_t map[PAL_COUNT];
         person_colours(map, &a);
         int kx = 20 + (frame_t / 2) % 220, fr = (frame_t / 8) % 2 ? DS_WALK1 : DS_WALK2;
         if ((frame_t / 2) % 220 > 200) fr = DS_STAND;
         spr_draw_ex(&dx_body[fr], kx, y0 - 31, 0, map, -1);
-        spr_draw(&dx_obj[DO_HAT_K], kx, y0 - 31, 0);
+        spr_draw(&dx_obj[DO_HAT_W], kx, y0 - 31, 0);
     }
     static const uint8_t grad[] = {C_WHITE, C_CREAM, C_AMBER, C_ORANGE};
     ui_fancy_center("DUNE", 160, 6, 3, grad, 4, C_INK, C_MAROON);
@@ -748,7 +782,7 @@ static void draw_outlaw_big(int who, int x, int y, int scale, int rows) {
             uint8_t p = dx_body[DS_STAND].px[sy * 16 + sx];
             if (p != TRANSPARENT) gfx_rect(x + sx * scale, y + sy * scale, scale, scale, map[p]);
         }
-    const Sprite *hat = &dx_obj[who == OUT_KHALED ? DO_HAT_K : who == OUT_VEIL ? DO_HAT_V : DO_HAT_S];
+    const Sprite *hat = &dx_obj[who == OUT_WADE ? DO_HAT_W : who == OUT_HUSH ? DO_HAT_H : DO_HAT_P];
     for (int sy = 0; sy < hat->h; sy++)
         for (int sx = 0; sx < 16; sx++) {
             uint8_t p = hat->px[sy * 16 + sx];
@@ -785,7 +819,7 @@ static void draw_brief(void) {
     if (state_t > 20 && (state_t / 20) % 2) text_center("PRESS " GLYPH_A, 160, 146, C_WHITE);
 }
 
-static const char *WHY_TEXT[] = {"", "SHOT!", "OFF THE TRAIN!", "FLATTENED!", "BLOWN SKY HIGH!", "TRAMPLED!", "THE TRAIN REACHED PORT SIDI.", "CAUGHT BY THE CRANK GUN!"};
+static const char *WHY_TEXT[] = {"", "SHOT!", "OFF THE TRAIN!", "FLATTENED!", "BLOWN SKY HIGH!", "TRAMPLED!", "THE TRAIN REACHED COPPER BEND.", "CAUGHT BY THE CRANK GUN!"};
 
 static void draw_result(void) {
     draw_play();
@@ -837,14 +871,14 @@ static void draw_ending(void) {
     cam_x = frame_t * 0.4f;
     draw_sky();
     draw_rails();
-    /* Sahar up on Baraka, heading for the coast */
+    /* Pearl up on Biscuit, heading for the coast */
     int bob = (frame_t / 10) % 2;
-    draw_outlaw_big(OUT_SAHAR, 134, 84 + bob, 2, 17);
+    draw_outlaw_big(OUT_PEARL, 134, 84 + bob, 2, 17);
     spr_draw_scaled(&dx_obj[bob ? DO_CAMEL : DO_CAMEL2], 128, 100, 2, 0);
     ui_panel(20, 10, 280, 56, C_NIGHT, C_AMBER);
     static const uint8_t grad[] = {C_WHITE, C_CREAM, C_AMBER};
     ui_fancy_center("THE LAST SCORE", 160, 16, 2, grad, 3, C_INK, C_MAROON);
-    text_center("THE BAND SPLITS THE LAST OF THE GOLD.\nSAHAR AND BARAKA RIDE FOR THE COAST.", 160, 38, C_LIGHT);
+    text_center("THE BAND SPLITS THE LAST OF THE GOLD.\nPEARL AND BISCUIT RIDE FOR THE COAST.", 160, 38, C_LIGHT);
     char b[48];
     snprintf(b, sizeof b, GLYPH_STAR " %d OF 60 STARS", total_stars());
     text_center(b, 160, 168, C_YELLOW);
@@ -961,11 +995,11 @@ static void de_label(int x, int y, int w, int h, int t) {
     gfx_circ(x + 68, y + 56, 4, C_INK);
     DxActor fake;
     memset(&fake, 0, sizeof fake);
-    fake.who = OUT_SAHAR;
+    fake.who = OUT_PEARL;
     uint8_t map[PAL_COUNT];
     person_colours(map, &fake);
     spr_draw_ex(&dx_body[DS_DUCK], x + 46, y + 1, 0, map, -1);
-    spr_draw(&dx_obj[DO_HAT_S], x + 46, y + 15, 0);
+    spr_draw(&dx_obj[DO_HAT_P], x + 46, y + 15, 0);
     spr_draw(&dx_obj[(t / 10) % 2 ? DO_CAMEL : DO_CAMEL2], x + 96, y + 28, 0);
     static const uint8_t grad[] = {C_WHITE, C_CREAM, C_AMBER};
     ui_fancy_text("DUNE EXPRESS", x + 4, y + 3, 1, grad, 3, C_INK, -1);
@@ -974,6 +1008,16 @@ static void de_label(int x, int y, int w, int h, int t) {
 static int de_query(const char *key, int *out) {
     DxActor *me = &W.a[W.ctrl];
     if (!strcmp(key, "state")) { *out = state; return 1; }
+    if (!strcmp(key, "intro")) { *out = intro; return 1; }
+    if (!strcmp(key, "cam")) { *out = (int)cam_x; return 1; }
+    if (!strcmp(key, "rolling")) { *out = me->rolling; return 1; }
+    if (!strcmp(key, "end_t")) { *out = W.end_t; return 1; }
+    if (!strcmp(key, "gun_ammo") || !strcmp(key, "gun_friendly")) {
+        for (int i = 0; i < W.no; i++)
+            if (W.o[i].alive && W.o[i].type == OB_GUN) { *out = key[4] == 'a' ? W.o[i].ammo : W.o[i].friendly; return 1; }
+        *out = -1;
+        return 1;
+    }
     if (!strcmp(key, "mission")) { *out = cur + 1; return 1; }
     if (!strcmp(key, "x")) { *out = (int)me->x; return 1; }
     if (!strcmp(key, "y")) { *out = (int)me->y; return 1; }
@@ -993,6 +1037,7 @@ static int de_query(const char *key, int *out) {
     if (!strcmp(key, "phase")) { *out = W.phase; return 1; }
     if (!strcmp(key, "turn_t")) { *out = W.turn_t; return 1; }
     if (!strcmp(key, "master")) { *out = W.master; return 1; }
+    if (!strcmp(key, "elapsed")) { *out = W.elapsed; return 1; }
     if (!strcmp(key, "result")) { *out = W.result; return 1; }
     if (!strcmp(key, "why")) { *out = W.why; return 1; }
     if (!strcmp(key, "loot")) { *out = W.loot; return 1; }
@@ -1072,7 +1117,13 @@ static int de_query(const char *key, int *out) {
 static int de_cheat(const char *cmd) {
     int a, b;
     DxActor *me = &W.a[W.ctrl];
-    if (sscanf(cmd, "mission %d", &a) == 1) { start_mission(iclamp(a, 1, DX_MISSIONS) - 1); return 1; }
+    if (sscanf(cmd, "mission %d", &a) == 1) {
+        /* straight into mission N, past its opening look along the train */
+        start_mission(iclamp(a, 1, DX_MISSIONS) - 1);
+        intro = 0;
+        cam_x = W.a[W.ctrl].x - 100;
+        return 1;
+    }
     if (sscanf(cmd, "pos %d %d", &a, &b) == 2) { me->x = (float)(a * DX_T + 2); me->y = (float)((b - 1) * DX_T + 2); me->vx = me->vy = 0; me->climb = 0; me->ground = 1; return 1; }
     if (sscanf(cmd, "face %d", &a) == 1) { me->face = (uint8_t)a; return 1; }
     if (sscanf(cmd, "ammo %d", &a) == 1) { me->ammo = (uint8_t)a; return 1; }
@@ -1120,13 +1171,15 @@ const GameDef GAME_DUNE = {
     "STEALTH",
     "DESERT OUTLAWS ROB THE GOVERNOR'S TRAINS. MOVE WHILE THE GUARDS WAIT.",
     {"BEAT MISSION 10", "BEAT ALL 20 MISSIONS", "BEAT THE GAME WITH 40 STARS"},
-    "D-PAD\tWALK / CLIMB / DUCK\n"
-    GLYPH_DOWN GLYPH_LEFT GLYPH_RIGHT "\tROLL\n"
-    GLYPH_A "\tJUMP\n"
+    "D-PAD\tWALK, CLIMB, " GLYPH_DOWN " DUCKS\n"
+    GLYPH_A "\tJUMP (HOLD: HIGHER)\n"
+    GLYPH_DOWN "+" GLYPH_A "\tROLL (HOLD " GLYPH_DOWN ")\n"
     GLYPH_B "\tPUNCH / THROW\n"
     GLYPH_DOWN "+" GLYPH_B "\tPICK UP / PUT DOWN\n"
-    "HOLD " GLYPH_UP "\tDRAW THE GUN, " GLYPH_B " FIRES\n"
-    "SELECT\tSWAP OUTLAWS\n"
+    "WALK ON\tPUSH A BOX ALONG\n"
+    "BARREL\t" GLYPH_DOWN " HIDE, " GLYPH_LEFT GLYPH_RIGHT " ROLL, " GLYPH_UP " OUT\n"
+    "HOLD " GLYPH_UP "\tLOAD + DRAW, " GLYPH_B " FIRES\n"
+    "SELECT\tSWAP OUTLAWS (QUIET)\n"
     "START\tPAUSE",
     C_ORANGE, C_WINE,
     de_load, de_start, de_update, de_draw, de_quit, de_label, de_query, de_cheat,

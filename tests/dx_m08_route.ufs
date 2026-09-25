@@ -1,7 +1,8 @@
-# DUNE EXPRESS: mission 8, THE STRONGROOM, can be won with the buttons alone:
-# a crate thrown from out of sight stuns the first guard; up and over, down
-# the hatch, a powder stick thrown at the plated wall; the strongbox; wait for the
-# patrol to turn his back, then punch out through the far wall and past both guards
+# DUNE EXPRESS: mission 8, THE STRONGROOM, can be won with the buttons alone,
+# unseen and under the time star: a crate thrown from out of sight stuns the
+# first guard; up and over, down the hatch, a powder stick thrown at the
+# plated wall; the strongbox; wait out a lawmen turn, then punch through the
+# far wall (three punches a plank) and both guards from behind
 game dune
 wait 5
 cheat mission 8
@@ -68,7 +69,15 @@ hold RIGHT 1
 press B
 wait 8
 press B
-wait 8
+wait 3
+press B
+wait 3
+press B
+wait 3
+press B
+wait 3
+press B
+wait 3
 hold RIGHT 101
 hold RIGHT 1
 press B
@@ -77,15 +86,7 @@ hold RIGHT 38
 hold RIGHT 1
 press B
 wait 5
-hold RIGHT 16
-hold RIGHT 16
-hold RIGHT 16
-hold RIGHT 16
-hold RIGHT 16
-hold RIGHT 16
-hold RIGHT 16
-hold RIGHT 16
-hold RIGHT 16
+hold RIGHT 150
 wait 10
 expect result == 1
 expect state == 4

@@ -1,0 +1,51 @@
+# DUNE EXPRESS: a lawman's bullet takes whoever is first in line, a fellow
+# lawman too (lawmen don't block each other's view); a box held up only
+# saves you when it is what's in his line of sight (a guard up high), not
+# from a guard on your own level.
+game dune
+wait 5
+cheat mission 1
+cheat law 0 16 6 1 0
+cheat law 1 19 6 0 0
+cheat pos 13 6
+cheat face 1
+wait 3
+expect alive == 1
+expect law0_alive == 0
+expect law1_armed == 0
+expect kills == 1
+# a guard standing on a crate: the crate held over your head takes his shot
+cheat mission 1
+cheat law 1 40 2 0 0
+cheat pos 19 6
+cheat face 1
+wait 2
+hold DOWN
+press B
+release DOWN
+wait 2
+expect carry == 2
+cheat law 0 5 5 0 0
+wait 20
+cheat pos 3 6
+cheat face 1
+wait 3
+expect alive == 1
+expect carry == 0
+expect law0_armed == 0
+# a guard on the floor with you sees you under the box
+cheat mission 1
+cheat law 1 40 2 0 0
+cheat pos 19 6
+cheat face 1
+wait 2
+hold DOWN
+press B
+release DOWN
+wait 2
+expect carry == 2
+cheat law 0 8 6 0 0
+cheat pos 3 6
+wait 3
+expect alive == 0
+expect why == 1

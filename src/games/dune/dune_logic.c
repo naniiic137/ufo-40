@@ -1,7 +1,8 @@
 /* DUNE EXPRESS - the rules: a platformer on a moving train that runs in
  * real time until a lawman is up and about, then in turns (ten seconds for
  * the outlaws, three and a half for the lawmen). Pure C, no shell
- * dependencies (build with -DDX_NO_SHELL for tools). */
+ * dependencies (build with -DDX_NO_SHELL for tools).
+ * Every rule is listed with its source in docs/games/28-dune-express.md. */
 #include "dune.h"
 
 #define GRAV 0.28f
@@ -9,12 +10,17 @@
 #define WALK 1.25f
 #define LAW_WALK 0.9f
 #define JUMP_V (-4.9f)
+#define JUMP_CUT 0.45f       /* letting go of A early: a short hop */
 #define HEAVY_JUMP_V (-3.0f)
 #define BOOTS_V (-5.6f)
+#define LAW_HOP_V (-3.9f)    /* a lawman hopping over a box in his way */
 #define CLIMB 1.0f
 #define GLIDE 0.7f
-#define SHOT_V 7.0f
-#define SIGHT 9      /* tiles a lawman can see */
+#define PUSH_DELAY 12        /* walking into a thing this long starts to push it */
+#define PUSH_SPEED 0.6f
+#define RAM_WALK 0.9f
+#define RAM_RUN 2.6f
+#define SIGHT 9              /* tiles a lawman can see */
 #define AW 12
 #define AH 30
 #define DUCK_H 14
@@ -36,6 +42,7 @@ bool dx_solid(const DxWorld *w, int tx, int ty) {
     return t == TL_ROOF || t == TL_WALL || t == TL_FLOOR || t == TL_ARMOR || t == TL_GATE || t == TL_COUPLING || t == TL_CELL;
 }
 
+/* plank walls, floors and roofs break; armor only to blasts and the iron fist */
 static bool breakable(int t, bool hard) {
     if (t == TL_ROOF || t == TL_WALL || t == TL_FLOOR) return true;
     return hard && (t == TL_ARMOR);
@@ -45,6 +52,13 @@ int dx_car_at(const DxWorld *w, float x) {
     int tx = fl(x / DX_T);
     if (tx < 0 || tx >= w->w) return -1;
     return w->car_of[tx] == 255 ? -1 : w->car_of[tx];
+}
+
+static void clear_tile(DxWorld *w, int tx, int ty) {
+    if (tx < 0 || ty < 0 || tx >= w->w || ty >= DX_H) return;
+    w->tile[ty][tx] = TL_AIR;
+    w->dmg[ty][tx] = 0;
+    w->tflash[ty][tx] = 0;
 }
 
 /* ------------------------------------------------------------------ */
@@ -66,7 +80,7 @@ static int add_obj(DxWorld *w, int type, float x, float y) {
         if (type == OB_COIN || type == OB_AMMO || type == OB_POWER) { o->w = 8; o->h = 8; }
         if (type == OB_RAM) { o->w = 26; o->h = 14; }
         if (type == OB_CAMEL) { o->w = 28; o->h = 30; }
-        if (type == OB_GUN) o->ammo = 14;
+        if (type == OB_GUN) o->ammo = DX_GUN_SHOTS;
         if (i >= w->no) w->no = i + 1;
         return i;
     }
@@ -224,7 +238,12 @@ static float atop(const DxActor *a) { return a->y + (AH - ah(a)); }
 static bool obj_solid(const DxObj *o) {
     if (!o->alive || o->held >= 0 || o->thrower) return false;
     return o->type == OB_BARREL || o->type == OB_CRATE || o->type == OB_ANVIL || o->type == OB_LOOT || o->type == OB_LEVER ||
-           o->type == OB_GUN || (o->type == OB_RAM && o->timer == 0);
+           o->type == OB_GUN || o->type == OB_RAM;
+}
+
+static bool pushable(const DxObj *o) {
+    return o->type == OB_BARREL || o->type == OB_CRATE || o->type == OB_ANVIL || o->type == OB_LOOT || o->type == OB_LEVER ||
+           o->type == OB_GUN || o->type == OB_DYNAMITE;
 }
 
 static bool box_hits_tiles(const DxWorld *w, float x, float y, float bw, float bh) {
@@ -261,6 +280,19 @@ static bool shelf_under(const DxWorld *w, float x, float bottom_before, float bo
     return false;
 }
 
+/* an outlaw can stand on a lawman's head (lawmen only look straight ahead) */
+static int head_under(const DxWorld *w, int ai, float x, float bottom_before, float bottom_after) {
+    const DxActor *me = &w->a[ai];
+    if (me->kind != AK_OUTLAW) return -1;
+    for (int i = 0; i < w->na; i++) {
+        const DxActor *l = &w->a[i];
+        if (l->kind == AK_OUTLAW || !l->alive || l->dying) continue;
+        float top = atop(l);
+        if (x < l->x + AW - 3 && l->x + 3 < x + AW && bottom_before <= top + 1 && bottom_after >= top) return i;
+    }
+    return -1;
+}
+
 /* ------------------------------------------------------------------ */
 /* noise, kills, breaking                                               */
 
@@ -274,7 +306,15 @@ static int car_near(const DxWorld *w, float x) {
 
 #define HEARING (10 * DX_T)     /* how far a gunshot carries */
 
-static void alert_near(DxWorld *w, float x) {
+static void set_target(DxActor *l, float x, float feet) {
+    l->has_tgt = 1;
+    l->tgt_x = x;
+    l->tgt_y = feet;
+    l->look_t = 0;
+}
+
+/* a gunshot or a blast: every lawman nearby is alert and heads for it */
+static void alert_near(DxWorld *w, float x, float feet) {
     int car = car_near(w, x);
     for (int i = 0; i < w->na; i++) {
         DxActor *a = &w->a[i];
@@ -282,6 +322,7 @@ static void alert_near(DxWorld *w, float x) {
         if (fabsf(a->x + 6 - x) <= HEARING) {
             if (a->state != LS_ALERT) w->ev_alert++;
             a->state = LS_ALERT;
+            set_target(a, x, feet);
         }
     }
     /* rams spook at gunshots too */
@@ -291,23 +332,33 @@ static void alert_near(DxWorld *w, float x) {
     }
 }
 
-static void kill_actor(DxWorld *w, int i, int why) {
+/* dir: which way a shot or a blow throws the body (0: it just drops) */
+static void kill_actor(DxWorld *w, int i, int why, int dir) {
     DxActor *a = &w->a[i];
     if (!a->alive) return;
     if (a->kind == AK_OUTLAW && a->charm && why != WHY_FELL) {
-        /* the hamsa takes the blow, once */
+        /* the horseshoe takes the blow, once */
         a->charm = 0;
         a->stun = 30;
         return;
     }
     a->alive = 0;
+    a->climb = 0;
+    a->hidden = 0;
     if (a->carry >= 0) {
         DxObj *o = &w->o[a->carry];
         o->held = -1;
         o->vy = -1;
         a->carry = -1;
     }
+    if (why != WHY_FELL) {
+        /* shot, blown or trampled: the body flies off in an arc to the rails */
+        a->dying = 1;
+        a->vx = (dir ? dir : (a->face ? -1 : 1)) * 1.8f;
+        a->vy = -3.6f;
+    }
     if (a->kind == AK_OUTLAW) {
+        if (!w->result) w->end_t = DX_END_FRAMES;
         w->result = DX_LOST;
         w->why = (uint8_t)why;
     } else if (a->kind == AK_GOVERNOR) {
@@ -332,7 +383,16 @@ static void spill(DxWorld *w, DxObj *o) {
     }
 }
 
-static void explode(DxWorld *w, float cx, float cy);
+static void explode(DxWorld *w, float cx, float cy, float reach_px, float kill_px);
+
+/* a barrel someone hides in breaks: out they tumble, unhurt */
+static void unhide(DxWorld *w, int oi) {
+    for (int i = 0; i < w->na; i++) {
+        DxActor *a = &w->a[i];
+        if (!a->hidden) continue;
+        if (fabsf(a->x - (w->o[oi].x + 1)) < 8) { a->hidden = 0; a->duck = 1; }
+    }
+}
 
 static void break_obj(DxWorld *w, int i) {
     DxObj *o = &w->o[i];
@@ -340,13 +400,14 @@ static void break_obj(DxWorld *w, int i) {
     if (o->held >= 0) { w->a[o->held].carry = -1; o->held = -1; }
     switch (o->type) {
     case OB_BARREL: case OB_CRATE: case OB_LOOT:
+        if (o->type == OB_BARREL && o->timer == -5) unhide(w, i);
         o->alive = 0;
         spill(w, o);
         w->ev_break++;
         break;
     case OB_DYNAMITE:
         o->alive = 0;
-        explode(w, o->x + 7, o->y + 7);
+        explode(w, o->x + 7, o->y + 7, 24, 28);
         break;
     case OB_GOOSE: case OB_ANVIL: case OB_LEVER: case OB_GUN:
         o->alive = 0;
@@ -354,7 +415,6 @@ static void break_obj(DxWorld *w, int i) {
         break;
     default: break;
     }
-    (void)o;
 }
 
 static void flip_gates(DxWorld *w) {
@@ -371,62 +431,81 @@ static void flip_gates(DxWorld *w) {
         if (w->a[i].kind == AK_OUTLAW && w->a[i].escaped == 2) {
             w->a[i].escaped = 0;
             w->rescue_open = 1;
-            /* Sahar slips away to the camel and the rescued outlaw takes over */
+            /* the rescuer slips away to the camel and the freed outlaw takes over */
             int old = w->ctrl;
             w->a[old].escaped = 1;
             w->ctrl = i;
         }
 }
 
-static void explode(DxWorld *w, float cx, float cy) {
+/* a blast: walls, roofs and plate within reach go (the floor holds), and
+ * whoever stands within kill_px dies */
+static void explode(DxWorld *w, float cx, float cy, float reach_px, float kill_px) {
     w->ev_boom++;
-    int tx0 = fl((cx - 24) / DX_T), tx1 = fl((cx + 24) / DX_T), ty0 = fl((cy - 24) / DX_T), ty1 = fl((cy + 24) / DX_T);
+    int tx0 = fl((cx - reach_px) / DX_T), tx1 = fl((cx + reach_px) / DX_T), ty0 = fl((cy - reach_px) / DX_T), ty1 = fl((cy + reach_px) / DX_T);
     for (int ty = ty0; ty <= ty1; ty++)
         for (int tx = tx0; tx <= tx1; tx++)
             if (tx >= 0 && ty >= 0 && tx < w->w && ty < DX_H && breakable(w->tile[ty][tx], true) && w->tile[ty][tx] != TL_FLOOR)
-                w->tile[ty][tx] = TL_AIR; /* walls, roofs and plate go; the floor holds */
+                clear_tile(w, tx, ty);
     for (int i = 0; i < w->na; i++) {
         DxActor *a = &w->a[i];
         if (!a->alive || a->escaped) continue;
         float dx = a->x + 6 - cx, dy = a->y + 15 - cy;
-        if (dx * dx + dy * dy < 28 * 28) kill_actor(w, i, WHY_BLAST);
+        if (dx * dx + dy * dy < kill_px * kill_px) kill_actor(w, i, WHY_BLAST, dx > 0 ? 1 : -1);
     }
     for (int i = 0; i < w->no; i++) {
         DxObj *o = &w->o[i];
         if (!o->alive || o->type == OB_CAMEL || o->type == OB_COIN || o->type == OB_POWER || o->type == OB_AMMO) continue;
         float dx = o->x + o->w / 2.0f - cx, dy = o->y + o->h / 2.0f - cy;
-        if (dx * dx + dy * dy < 30 * 30) break_obj(w, i);
+        if (dx * dx + dy * dy < (kill_px + 2) * (kill_px + 2)) break_obj(w, i);
     }
-    alert_near(w, cx);
+    alert_near(w, cx, cy + 15);
 }
 
 /* ------------------------------------------------------------------ */
 /* sight                                                                */
 
+/* does this thing stop a look or a bullet? */
+static bool obj_blocks(const DxObj *o, int shooter) {
+    if (!o->alive || o->type == OB_COIN || o->type == OB_POWER || o->type == OB_AMMO || o->type == OB_CAMEL) return false;
+    if (o->held >= 0) return o->held != shooter;
+    return obj_solid(o) || o->thrower;
+}
+
 /* walk a ray from (x, y) in dir; returns what it meets first:
- * 1 + actor index, -(1 + object index), or 0 */
-static int ray(const DxWorld *w, float x, float y, int dir, int shooter, bool want_outlaws, bool want_law, int max_tiles) {
+ * 1 + actor index, -(1 + object index), or 0 (a wall, or nothing in range).
+ * *hx is where it stopped. */
+static int ray_ex(const DxWorld *w, float x, float y, int dir, int shooter, int skip_obj, bool want_outlaws, bool want_law,
+                  int max_tiles, float *hx) {
+    float px = x;
     for (int step = 0; step < max_tiles * 4; step++) {
-        float px = x + dir * step * 4.0f;
+        px = x + dir * step * 4.0f;
         int tx = fl(px / DX_T), ty = fl(y / DX_T);
-        if (dx_solid(w, tx, ty)) return 0;
+        if (px < -DX_T || px > (w->w + 1) * DX_T) break;
+        if (dx_solid(w, tx, ty)) { if (hx) *hx = px; return 0; }
         for (int i = 0; i < w->no; i++) {
             const DxObj *o = &w->o[i];
-            if (!o->alive) continue;
-            bool blocks = obj_solid(o) || (o->held >= 0 && o->held != shooter) || (o->type == OB_GOOSE && o->thrower);
-            if (blocks && px >= o->x && px < o->x + o->w && y >= o->y && y < o->y + o->h) return -(1 + i);
+            if (i == skip_obj || !obj_blocks(o, shooter)) continue;
+            if (px >= o->x && px < o->x + o->w && y >= o->y && y < o->y + o->h) { if (hx) *hx = px; return -(1 + i); }
         }
         for (int i = 0; i < w->na; i++) {
             const DxActor *a = &w->a[i];
-            if (i == shooter || !a->alive || a->hidden || a->escaped) continue;
+            if (i == shooter || !a->alive || a->hidden || a->escaped || a->dying) continue;
             bool out = a->kind == AK_OUTLAW;
             if ((out && !want_outlaws) || (!out && !want_law)) continue;
-            if (px >= a->x && px < a->x + AW && y >= atop(a) && y < a->y + AH) return 1 + i;
+            if (px >= a->x && px < a->x + AW && y >= atop(a) && y < a->y + AH) { if (hx) *hx = px; return 1 + i; }
         }
     }
+    if (hx) *hx = px;
     return 0;
 }
 
+static int ray(const DxWorld *w, float x, float y, int dir, int shooter, bool want_outlaws, bool want_law, int max_tiles) {
+    return ray_ex(w, x, y, dir, shooter, -1, want_outlaws, want_law, max_tiles, NULL);
+}
+
+/* a lawman looks straight ahead at head and knee height; other lawmen don't
+ * block his view, anything solid does */
 bool dx_sees(const DxWorld *w, int li, int target) {
     const DxActor *l = &w->a[li];
     if (!l->alive || l->stun) return false;
@@ -448,7 +527,8 @@ int dx_active_lawmen(const DxWorld *w) {
     return n;
 }
 
-static void fire(DxWorld *w, int owner, float x, float y, int dir, bool hostile, bool blast) {
+/* a streak of light where a bullet went: the hit itself is dealt at once */
+static void tracer(DxWorld *w, float x, float y, int dir, float len, int owner, bool hostile) {
     for (int i = 0; i < DX_MAX_SHOTS; i++) {
         DxShot *s = &w->s[i];
         if (s->alive) continue;
@@ -457,12 +537,49 @@ static void fire(DxWorld *w, int owner, float x, float y, int dir, bool hostile,
         s->owner = (int8_t)owner;
         s->x = x;
         s->y = y;
-        s->vx = dir * SHOT_V;
+        s->vx = dir * 9.0f;
         s->hostile = hostile;
-        s->blast = blast;
+        s->tracer = 1;
+        s->range = len;
         break;
     }
+}
+
+/* a gunshot: whoever or whatever is first in line takes it, there and then.
+ * shooter: actor index, or -2 - object index for a crank gun. A lawman's
+ * bullet takes whoever is in the way, a fellow lawman too; an outlaw's
+ * passes the other outlaw. */
+static void shoot(DxWorld *w, int shooter, float x, float y, int dir, bool blast) {
+    bool from_gun = shooter <= -2;
+    int gun = from_gun ? -2 - shooter : -1;
+    bool from_law = !from_gun && w->a[shooter].kind != AK_OUTLAW;
+    bool hits_outlaws = from_gun || from_law;
+    float hx = x;
+    int hit = ray_ex(w, x, y, dir, from_gun ? -1 : shooter, gun, hits_outlaws, true, 40, &hx);
+    tracer(w, x, y, dir, fabsf(hx - x), from_gun ? -2 : shooter, hits_outlaws);
     w->ev_shot++;
+    if (hit > 0) {
+        DxActor *t = &w->a[hit - 1];
+        kill_actor(w, hit - 1, from_gun ? WHY_GUN : WHY_SHOT, dir);
+        if (t->kind != AK_OUTLAW) alert_near(w, t->x + 6, t->y + AH);
+    } else if (hit < 0) {
+        int oi = -hit - 1;
+        DxObj *o = &w->o[oi];
+        if (o->type == OB_LEVER) flip_gates(w);
+        else if (o->type == OB_RAM) { if (o->timer == 0) o->timer = 1; }
+        else if (o->type != OB_ANVIL && o->type != OB_GUN) break_obj(w, oi); /* an anvil just rings */
+    }
+    /* blast rounds: a three by three tile blast where the bullet stops */
+    if (blast && !from_law && !from_gun) {
+        int ctx = fl(hx / DX_T), cty = fl(y / DX_T);
+        explode(w, (ctx + 0.5f) * DX_T, (cty + 0.5f) * DX_T, DX_T, 22);
+    }
+    if (!from_gun) {
+        const DxActor *s = &w->a[shooter];
+        alert_near(w, s->x + 6, s->y + AH);
+    } else {
+        alert_near(w, w->o[gun].x + 7, w->o[gun].y + 14);
+    }
 }
 
 /* ------------------------------------------------------------------ */
@@ -474,16 +591,14 @@ static bool liftable(const DxObj *o) {
 }
 
 static int obj_in_front(DxWorld *w, DxActor *a, bool low) {
-    int dir = a->face ? 1 : -1;
     float hx = a->face ? a->x + AW - 2 : a->x - 12, hy = low ? a->y + 16 : a->y + 4;
-    int best = -1;
     for (int i = 0; i < w->no; i++) {
         DxObj *o = &w->o[i];
         if (!o->alive || o->held >= 0 || o->type == OB_COIN || o->type == OB_POWER || o->type == OB_AMMO || o->type == OB_CAMEL) continue;
-        if (overlap(hx, hy, 14, low ? 14 : 24, o->x, o->y, o->w, o->h)) { best = i; break; }
+        if (o->type == OB_BARREL && o->timer == -5) continue; /* someone's inside */
+        if (overlap(hx, hy, 14, low ? 14 : 24, o->x, o->y, o->w, o->h)) return i;
     }
-    (void)dir;
-    return best;
+    return -1;
 }
 
 static void pick_up(DxWorld *w, int ai, int oi) {
@@ -492,6 +607,7 @@ static void pick_up(DxWorld *w, int ai, int oi) {
     if (o->type == OB_GUN && a->kind == AK_OUTLAW) o->friendly = 1; /* picked up: it's ours now */
     o->held = (int16_t)ai;
     o->thrower = 0;
+    o->timer = 0;
     a->carry = (int16_t)oi;
     a->gun = 0;
 }
@@ -535,10 +651,23 @@ static void stun_actor(DxWorld *w, int i, float kvx, float kvy) {
     a->vy = kvy;
     a->climb = 0;
     a->gun = 0;
+    a->rolling = 0;
     if (a->hidden) a->hidden = 0;
     if (a->carry >= 0) let_go(w, a, false, false);
     if (a->kind != AK_OUTLAW && a->state == LS_GUARD) a->state = LS_PATROL; /* stunned guards start to patrol */
     w->ev_stun++;
+}
+
+/* a punch on a tile: planks take DX_TILE_HP punches (flashing as they
+ * crack), armor and gates only give to the iron fist */
+static bool punch_tile(DxWorld *w, int tx, int ty, bool fist) {
+    int t = dx_tile(w, tx, ty);
+    if (fist && (breakable(t, true) || t == TL_GATE)) { clear_tile(w, tx, ty); w->ev_break++; return true; }
+    if (!breakable(t, false)) return false;
+    w->tflash[ty][tx] = 8;
+    if (++w->dmg[ty][tx] >= DX_TILE_HP) clear_tile(w, tx, ty);
+    w->ev_break++;
+    return true;
 }
 
 /* a punch: characters, then things, then the wall, floor or ceiling */
@@ -552,9 +681,9 @@ static void punch(DxWorld *w, int ai) {
     float hw = 14, hh = low ? 14 : 26;
     for (int i = 0; i < w->na; i++) {
         DxActor *t = &w->a[i];
-        if (i == ai || !t->alive || t->escaped) continue;
+        if (i == ai || !t->alive || t->escaped || t->dying) continue;
         if (!overlap(hx, hy, hw, hh, t->x, atop(t), AW, ah(t))) continue;
-        if (fist && a->kind == AK_OUTLAW && t->kind != AK_OUTLAW) { kill_actor(w, i, WHY_SHOT); alert_near(w, t->x); return; }
+        if (fist && a->kind == AK_OUTLAW && t->kind != AK_OUTLAW) { kill_actor(w, i, WHY_SHOT, dir); alert_near(w, t->x + 6, t->y + AH); return; }
         if (low) stun_actor(w, i, dir * 3.2f, -3.6f); /* the low punch sends them flying */
         else stun_actor(w, i, dir * 2.6f, -0.5f);
         return;
@@ -565,7 +694,7 @@ static void punch(DxWorld *w, int ai) {
         switch (o->type) {
         case OB_BARREL: case OB_CRATE: case OB_LOOT: break_obj(w, oi); return;
         case OB_LEVER: flip_gates(w); return;
-        case OB_RAM: if (o->timer == 0) o->timer = 1; return;
+        case OB_RAM: o->timer = 1; o->face = (uint8_t)(dir > 0); return; /* a poke sends it charging */
         case OB_GUN:
             /* from behind or above it turns on the lawmen */
             if ((o->face && a->x < o->x) || (!o->face && a->x > o->x) || a->y + AH <= o->y + 2) o->friendly = 1;
@@ -583,27 +712,46 @@ static void punch(DxWorld *w, int ai) {
     if (low) { tx = fl((a->x + 6 + dir * 4) / DX_T); ty = fl((a->y + AH + 2) / DX_T); }
     else if (up) { tx = fl((a->x + 6) / DX_T); ty = fl((a->y - 2) / DX_T); }
     else { tx = fl((a->x + 6 + dir * 12) / DX_T); ty = fl((a->y + 8) / DX_T); }
-    for (int k = 0; k < (low || up ? 1 : 2); k++) {
-        int yy = ty + k;
-        int t = dx_tile(w, tx, yy);
-        if (breakable(t, fist) || (fist && t == TL_GATE)) {
-            w->tile[yy][tx] = TL_AIR;
-            w->ev_break++;
-            return;
-        }
-    }
+    for (int k = 0; k < (low || up ? 1 : 2); k++)
+        if (punch_tile(w, tx, ty + k, fist)) return;
 }
 
 /* ------------------------------------------------------------------ */
 /* moving bodies                                                        */
 
+/* is anything sitting on the top or the foot of the ladder in column tx? */
+static bool ladder_blocked(const DxWorld *w, int tx) {
+    int top = -1, bot = -1;
+    for (int y = 0; y < DX_H; y++)
+        if (w->tile[y][tx] == TL_LADDER) { if (top < 0) top = y; bot = y; }
+    if (top < 0) return false;
+    float x0 = (float)(tx * DX_T), x1 = x0 + DX_T;
+    for (int i = 0; i < w->no; i++) {
+        const DxObj *o = &w->o[i];
+        if (!obj_solid(o)) continue;
+        if (o->x + o->w <= x0 + 2 || o->x >= x1 - 2) continue;
+        float ob = o->y + o->h;
+        if (fabsf(ob - top * DX_T) < 4 || fabsf(ob - (bot + 1) * DX_T) < 4) return true;
+    }
+    return false;
+}
+
 static void move_actor(DxWorld *w, int ai, float dvx) {
     DxActor *a = &w->a[ai];
+    /* a body shot off the train: an arc to the rails, through everything */
+    if (a->dying) {
+        a->x += a->vx;
+        a->y += a->vy;
+        a->vy += GRAV;
+        if (a->y > DX_DEATH_Y + 48) a->dying = 0;
+        return;
+    }
     /* ladders */
     if (a->climb) {
         a->y += a->vy;
         int tx = fl((a->x + 6) / DX_T);
         int fr = fl((a->y + AH - 1) / DX_T);
+        if (a->vy < 0 && box_hits_objs(w, a->x, a->y, AW, 4, a->carry) >= 0) { a->y -= a->vy; a->vy = 0; } /* something sits on top */
         if (a->vy < 0 && dx_tile(w, tx, fr) != TL_LADDER && dx_tile(w, tx, fr + 1) == TL_LADDER) {
             /* over the top: step off onto the roof */
             a->y = (float)((fr + 1) * DX_T - AH);
@@ -629,12 +777,26 @@ static void move_actor(DxWorld *w, int ai, float dvx) {
         nx = a->vx + dvx > 0 ? (float)(fl((nx + AW) / DX_T) * DX_T - AW) - 0.01f : (float)((fl(nx / DX_T) + 1) * DX_T) + 0.01f;
         if (box_hits_tiles(w, nx, top, AW, h)) nx = a->x;
         a->vx = 0;
+        a->push_t = 0;
     }
-    int ob = box_hits_objs(w, nx, top, AW, h, a->carry);
+    int ob = box_hits_objs(w, nx, top, AW, h - 1, a->carry);
     if (ob >= 0) {
-        /* things stand where they stand: jump over them or pick them up */
-        nx = a->x;
-        a->vx = 0;
+        /* walk into a thing for a moment and it starts to slide ahead of you */
+        DxObj *o = &w->o[ob];
+        float d = nx - a->x;
+        bool pushed = false;
+        if (a->kind == AK_OUTLAW && a->ground && dvx != 0 && pushable(o) && o->timer != -5 && ++a->push_t > PUSH_DELAY) {
+            float step = d > 0 ? PUSH_SPEED : -PUSH_SPEED;
+            float ox = o->x + step;
+            if (!box_hits_tiles(w, ox, o->y, o->w, o->h) && box_hits_objs(w, ox, o->y, o->w, o->h, ob) < 0) {
+                o->x = ox;
+                nx = a->x + step;
+                pushed = box_hits_objs(w, nx, top, AW, h - 1, a->carry) < 0;
+            }
+        }
+        if (!pushed) { nx = a->x; a->vx = 0; }
+    } else {
+        a->push_t = 0;
     }
     a->x = nx;
     /* vertical */
@@ -647,7 +809,13 @@ static void move_actor(DxWorld *w, int ai, float dvx) {
         int lo = box_hits_objs(w, a->x, top, AW, h, a->carry);
         if (lo >= 0 && before <= w->o[lo].y + 1) land = true;
         else if (lo >= 0) lo = -1;
-        if (land) {
+        int hd = land ? -1 : head_under(w, ai, a->x, before, a->y + AH);
+        if (hd >= 0) {
+            a->y = atop(&w->a[hd]) - AH;
+            a->vy = 0;
+            a->ground = 1;
+            a->jumps = 0;
+        } else if (land) {
             if (lo >= 0) a->y = w->o[lo].y - AH;
             else a->y = (float)(fl((a->y + AH) / DX_T) * DX_T - AH);
             a->vy = 0;
@@ -660,6 +828,7 @@ static void move_actor(DxWorld *w, int ai, float dvx) {
             else {
                 int ro = box_hits_objs(w, a->x, top + 1, AW, h, a->carry);
                 if (ro >= 0 && feet <= w->o[ro].y + 1) { a->ground = 1; a->vy = 0; a->jumps = 0; }
+                else if (head_under(w, ai, a->x, feet, feet + 1) >= 0) { a->ground = 1; a->vy = 0; a->jumps = 0; }
             }
         }
     } else if (box_hits_tiles(w, a->x, top, AW, h) || box_hits_objs(w, a->x, top, AW, h, a->carry) >= 0) {
@@ -676,7 +845,7 @@ static void move_actor(DxWorld *w, int ai, float dvx) {
     else a->vx *= 0.98f;
     if (fabsf(a->vx) < 0.05f) a->vx = 0;
     /* off the train */
-    if (a->y + AH > DX_DEATH_Y + 8) kill_actor(w, ai, WHY_FELL);
+    if (a->y + AH > DX_DEATH_Y + 8) kill_actor(w, ai, WHY_FELL, 0);
     /* the carried thing rides overhead */
     if (a->carry >= 0) {
         DxObj *o = &w->o[a->carry];
@@ -695,18 +864,40 @@ static bool at_ladder(const DxWorld *w, const DxActor *a, int dy) {
 /* ------------------------------------------------------------------ */
 /* the outlaw at the controls                                           */
 
+/* the barrel an outlaw hides in */
+static int hide_barrel(const DxWorld *w, const DxActor *a) {
+    for (int i = 0; i < w->no; i++) {
+        const DxObj *o = &w->o[i];
+        if (o->alive && o->type == OB_BARREL && o->timer == -5 && fabsf(o->x - (a->x - 1)) < 8 && fabsf(o->y + o->h - (a->y + AH)) < 20) return i;
+    }
+    return -1;
+}
+
 static void control_outlaw(DxWorld *w, int ai, const DxInput *in) {
     DxActor *a = &w->a[ai];
     if (!a->alive || a->escaped) return;
     if (a->stun > 0) { move_actor(w, ai, 0); return; }
     if (a->punch_t) a->punch_t--;
-    /* inside a barrel: any button climbs out */
+    /* inside a barrel: left and right roll it, up or A climbs out on top,
+     * B climbs out holding it */
     if (a->hidden) {
-        if (in->a_pressed || in->b_pressed || in->up || in->left || in->right) {
+        int bi = hide_barrel(w, a);
+        if (bi < 0) { a->hidden = 0; return; }
+        DxObj *o = &w->o[bi];
+        o->roll = (int8_t)(in->right - in->left);
+        if (in->up || in->a_pressed) {
             a->hidden = 0;
             a->duck = 0;
-            for (int i = 0; i < w->no; i++)
-                if (w->o[i].alive && w->o[i].type == OB_BARREL && w->o[i].timer == -5) { w->o[i].timer = 0; pick_up(w, ai, i); break; }
+            o->timer = 0;
+            o->roll = 0;
+            a->y = o->y - AH;
+            a->vy = 0;
+        } else if (in->b_pressed) {
+            a->hidden = 0;
+            a->duck = 0;
+            o->timer = 0;
+            o->roll = 0;
+            pick_up(w, ai, bi);
         }
         return;
     }
@@ -714,10 +905,8 @@ static void control_outlaw(DxWorld *w, int ai, const DxInput *in) {
     /* ladders */
     if (a->climb) {
         a->vy = in->up ? -CLIMB : in->down ? CLIMB : 0;
-        if (in->a_pressed) { a->climb = 0; a->vy = JUMP_V * 0.7f; }
+        if (in->a_pressed) { a->climb = 0; a->vy = JUMP_V * 0.7f; a->jump_hold = 1; }
         if ((in->left || in->right) && !in->up && !in->down) {
-            int tx = fl((a->x + 6) / DX_T), ty = fl((a->y + AH - 1) / DX_T);
-            if (!dx_solid(w, tx, ty + 1) || dx_tile(w, tx, ty + 1) == TL_LADDER) {} else a->climb = 0;
             if (in->left) a->face = 0;
             if (in->right) a->face = 1;
             a->climb = 0;
@@ -734,6 +923,20 @@ static void control_outlaw(DxWorld *w, int ai, const DxInput *in) {
         move_actor(w, ai, 0);
         return;
     }
+    /* holding a barrel, duck into it */
+    if (a->carry >= 0 && w->o[a->carry].type == OB_BARREL && in->down_pressed && a->ground) {
+        DxObj *o = &w->o[a->carry];
+        let_go(w, a, false, false);
+        o->x = a->x - 1;
+        o->y = a->y + AH - o->h;
+        o->timer = -5;
+        o->roll = 0;
+        o->suspect = 0;
+        a->hidden = 1;
+        a->duck = 1;
+        a->rolling = 0;
+        return;
+    }
     /* the gun: hold up, standing still, to load and draw */
     if (a->gun == -1) {
         if (in->left || in->right || in->down || in->a_pressed) a->gun = 0;
@@ -741,53 +944,54 @@ static void control_outlaw(DxWorld *w, int ai, const DxInput *in) {
             int dir = a->face ? 1 : -1;
             if (a->ammo > 0) {
                 a->ammo--;
-                fire(w, ai, a->x + 6 + dir * 8, a->y + 9, dir, false, a->blast);
-                alert_near(w, a->x);
+                shoot(w, ai, a->x + 6 + dir * 8, a->y + 9, dir, a->blast);
             }
             a->gun = 0;
             move_actor(w, ai, 0);
             return;
         }
-    } else if (in->up && a->ground && a->carry < 0 && !in->left && !in->right && !in->down) {
+    } else if (in->up && a->ground && a->carry < 0 && a->ammo > 0 && !in->left && !in->right && !in->down) {
         a->gun++;
         if (a->gun >= (a->quick ? DX_QUICKDRAW : DX_DRAW)) a->gun = -1;
     } else if (a->gun > 0) {
         a->gun = 0;
     }
-    /* ducking and rolling */
-    bool want_duck = in->down && a->ground;
-    if (!want_duck && a->duck && box_hits_tiles(w, a->x, a->y, AW, AH)) want_duck = true; /* no room to stand */
-    a->duck = want_duck;
-    float move = 0;
-    if (a->gun != -1 && a->gun <= 0) {
-        if (in->left) { move = -WALK; a->face = 0; }
-        if (in->right) { move = WALK; a->face = 1; }
+    /* ducking, and the roll: down + A rolls on for as long as down is held
+     * (or until there's room to stand), as fast as walking */
+    bool room = !box_hits_tiles(w, a->x, a->y, AW, AH) && box_hits_objs(w, a->x, a->y, AW, AH - DUCK_H, a->carry) < 0;
+    if (a->ground && in->down && in->a_pressed && a->gun <= 0) { a->rolling = 1; a->duck = 1; }
+    if (a->rolling) {
+        if (in->left) a->face = 0;
+        if (in->right) a->face = 1;
+        if (!in->down && room && a->ground) a->rolling = 0;
     }
-    if (in->a_pressed && a->gun <= 0) {
-        if (a->ground) { a->vy = heavy ? HEAVY_JUMP_V : JUMP_V; a->ground = 0; a->duck = 0; }
-        else if (a->boots && !a->jumps && !heavy) { a->vy = BOOTS_V; a->jumps = 1; }
+    a->duck = a->rolling || (in->down && a->ground) || (a->duck && !room);
+    float move = 0;
+    if (a->rolling) move = a->face ? WALK : -WALK;
+    else if (a->gun != -1 && a->gun <= 0) {
+        if (in->left) a->face = 0;
+        if (in->right) a->face = 1;
+        if (!a->duck) move = (in->right - in->left) * WALK;
+    }
+    /* jump: hold A for the full height, let go early for a hop */
+    if (in->a_pressed && a->gun <= 0 && !in->down) {
+        if (a->ground) { a->vy = heavy ? HEAVY_JUMP_V : JUMP_V; a->ground = 0; a->duck = 0; a->jump_hold = 1; }
+        else if (a->boots && !a->jumps && !heavy) { a->vy = BOOTS_V; a->jumps = 1; a->jump_hold = 1; }
+    }
+    if (a->jump_hold && (!in->a || a->vy >= 0)) {
+        if (!in->a && a->vy < 0) a->vy *= JUMP_CUT;
+        a->jump_hold = 0;
     }
     if (in->b_pressed && a->gun != -1) {
         if (a->carry >= 0) {
-            if (in->down && w->o[a->carry].type == OB_BARREL && a->ground) {
-                /* climb inside the barrel */
-                DxObj *o = &w->o[a->carry];
-                let_go(w, a, false, false);
-                o->x = a->x - 1;
-                o->y = a->y + AH - o->h;
-                o->timer = -5;
-                a->hidden = 1;
-                a->duck = 1;
-            } else {
-                let_go(w, a, !in->down, in->down);
-            }
+            let_go(w, a, !in->down, in->down);
         } else if (a->duck) {
             int oi = obj_in_front(w, a, true);
             if (oi < 0) {
                 /* standing on it counts too */
                 for (int i = 0; i < w->no; i++) {
                     DxObj *o = &w->o[i];
-                    if (liftable(o) && overlap(a->x - 4, a->y + AH - 4, AW + 8, 8, o->x, o->y, o->w, o->h)) { oi = i; break; }
+                    if (liftable(o) && o->timer != -5 && overlap(a->x - 4, a->y + AH - 4, AW + 8, 8, o->x, o->y, o->w, o->h)) { oi = i; break; }
                 }
             }
             if (oi >= 0 && liftable(&w->o[oi])) pick_up(w, ai, oi);
@@ -798,81 +1002,116 @@ static void control_outlaw(DxWorld *w, int ai, const DxInput *in) {
         }
     }
     a->vx = a->vx * 0.5f;
+    float before = a->x;
     move_actor(w, ai, move);
+    if (a->rolling && move != 0 && fabsf(a->x - before) < 0.01f && a->ground && room) a->rolling = 0; /* rolled into a wall */
     if (move != 0 || !a->ground) a->anim++;
 }
 
 /* ------------------------------------------------------------------ */
 /* lawmen                                                               */
 
-static int nearest_outlaw(const DxWorld *w, const DxActor *l) {
-    int best = -1;
-    float bd = 1e9f;
-    for (int i = 0; i < w->na; i++) {
-        const DxActor *a = &w->a[i];
-        if (a->kind != AK_OUTLAW || !a->alive || a->escaped || a->hidden) continue;
-        float d = fabsf(a->x - l->x) + fabsf(a->y - l->y) * 3;
-        if (d < bd) { bd = d; best = i; }
-    }
-    return best;
-}
-
+/* somewhere to put a foot ahead: level, or a step of up to a tile down
+ * (off a box); not the edge of a car or a hole */
 static bool ground_ahead(const DxWorld *w, const DxActor *a, int dir) {
-    int tx = fl((a->x + 6 + dir * 10) / DX_T), ty = fl((a->y + AH + 2) / DX_T);
-    int t = dx_tile(w, tx, ty);
-    if (dx_solid(w, tx, ty) || t == TL_SHELF || t == TL_LADDER) return true;
-    return box_hits_objs(w, a->x + dir * 10, a->y + AH + 1, AW, 2, -1) >= 0;
+    for (int drop = 0; drop <= DX_T; drop += DX_T) {
+        int tx = fl((a->x + 6 + dir * 10) / DX_T), ty = fl((a->y + AH + 2 + drop) / DX_T);
+        int t = dx_tile(w, tx, ty);
+        if (dx_solid(w, tx, ty) || t == TL_SHELF || t == TL_LADDER) return true;
+        if (box_hits_objs(w, a->x + dir * 10, a->y + AH + 1 + drop, AW, 2, -1) >= 0) return true;
+    }
+    return false;
 }
 
+/* (the bottom pixel is left out: whatever he stands on isn't in his way) */
 static bool wall_ahead(const DxWorld *w, const DxActor *a, int dir) {
-    return box_hits_tiles(w, a->x + dir * 2, a->y, AW, AH) || box_hits_objs(w, a->x + dir * 2, a->y, AW, AH, a->carry) >= 0;
+    return box_hits_tiles(w, a->x + dir * 2, a->y, AW, AH - 1) || box_hits_objs(w, a->x + dir * 2, a->y, AW, AH - 1, a->carry) >= 0;
+}
+
+/* only something a tile high in the way, with room to hop over it */
+static bool low_obstacle(const DxWorld *w, const DxActor *a, int dir) {
+    if (box_hits_tiles(w, a->x + dir * 2, a->y, AW, AH - 1)) return false;
+    int oi = box_hits_objs(w, a->x + dir * 2, a->y, AW, AH - 1, a->carry);
+    if (oi < 0) return false;
+    const DxObj *o = &w->o[oi];
+    if (o->y + o->h < a->y + AH - 2 || o->y < a->y + AH - 18) return false;
+    float over = o->x + (dir > 0 ? o->w + 2 : -AW - 2);
+    return !box_hits_tiles(w, dir > 0 ? o->x : over, a->y - 18, AW + o->w, 30);
+}
+
+static int visible_outlaw(const DxWorld *w, int li) {
+    for (int i = 0; i < w->na; i++)
+        if (w->a[i].kind == AK_OUTLAW && w->a[i].alive && !w->a[i].escaped && dx_sees(w, li, i)) return i;
+    return -1;
+}
+
+/* walk toward x on this floor; returns true once there */
+static bool walk_to(DxWorld *w, DxActor *l, float x, float *move) {
+    float dx = x - l->x;
+    if (fabsf(dx) < 2) return true;
+    int dir = dx > 0 ? 1 : -1;
+    l->face = dir > 0;
+    if (!l->ground) {}
+    else if (low_obstacle(w, l, dir)) { l->vy = LAW_HOP_V; l->ground = 0; }
+    else if (wall_ahead(w, l, dir) || !ground_ahead(w, l, dir)) return true; /* as far as he can get */
+    *move = fabsf(dx) < LAW_WALK ? dx : dir * LAW_WALK;
+    return false;
 }
 
 static void lawman_think(DxWorld *w, int li) {
     DxActor *l = &w->a[li];
     if (!l->alive) return;
+    if (l->dying) { move_actor(w, li, 0); return; }
     if (l->stun > 0) { l->stun--; move_actor(w, li, 0); return; }
     if (l->punch_t) l->punch_t--;
     if (l->throw_cd) l->throw_cd--;
     int dir = l->face ? 1 : -1;
     float move = 0;
     if (l->climb) {
-        int t = nearest_outlaw(w, l);
-        float ty = t >= 0 ? w->a[t].y : l->y;
-        l->vy = ty < l->y - 4 ? -CLIMB : CLIMB;
+        float want = l->has_tgt ? l->tgt_y : l->y + AH;
+        l->vy = want < l->y + AH - 4 ? -CLIMB : CLIMB;
         move_actor(w, li, 0);
         return;
     }
     if (l->state == LS_PATROL) {
-        if (wall_ahead(w, l, dir) || !ground_ahead(w, l, dir)) { l->face ^= 1; dir = -dir; }
+        /* a fixed beat: back and forth, hopping over anything a tile high */
+        if (!l->ground) {}
+        else if (low_obstacle(w, l, dir)) { l->vy = LAW_HOP_V; l->ground = 0; }
+        else if (wall_ahead(w, l, dir) || !ground_ahead(w, l, dir)) { l->face ^= 1; dir = -dir; }
         move = dir * LAW_WALK;
     } else if (l->state == LS_ALERT) {
-        int t = nearest_outlaw(w, l);
-        if (t >= 0) {
-            DxActor *o = &w->a[t];
-            float dy = (o->y + AH) - (l->y + AH);
+        /* seeking: the outlaw he can see, else the last noise or sighting,
+         * else a search back and forth */
+        int seen = visible_outlaw(w, li);
+        if (seen >= 0) set_target(l, w->a[seen].x, w->a[seen].y + AH);
+        if (seen >= 0 && !l->armed) {
+            const DxActor *o = &w->a[seen];
+            float gap = fabsf(o->x - l->x);
+            /* hands full: throw it at them */
+            if (l->carry >= 0 && gap < 8 * DX_T && l->throw_cd == 0) { let_go(w, l, true, false); l->throw_cd = 60; }
+            else if (gap > 13) walk_to(w, l, o->x, &move);
+        } else if (l->has_tgt) {
+            float dy = l->tgt_y - (l->y + AH);
             if (fabsf(dy) < 10) {
-                int want = o->x > l->x ? 1 : -1;
-                l->face = want > 0;
-                dir = want;
-                float gap = fabsf(o->x - l->x);
-                /* hands full: throw it at them */
-                if (l->carry >= 0 && gap < 8 * DX_T && l->throw_cd == 0) { let_go(w, l, true, false); l->throw_cd = 60; }
-                else if (gap > 13) {
-                    if (wall_ahead(w, l, dir)) {
-                        /* break through whatever is in the way */
-                        int oi = obj_in_front(w, l, false);
-                        if (!l->armed && l->carry < 0 && oi >= 0 && liftable(&w->o[oi]) && w->o[oi].type != OB_LOOT) pick_up(w, li, oi);
-                        else if (l->punch_t == 0) { l->punch_t = 20; punch(w, li); }
-                    } else if (ground_ahead(w, l, dir)) move = dir * LAW_WALK;
+                int tdir = l->tgt_x > l->x ? 1 : -1;
+                if (fabsf(l->tgt_x - l->x) > 2 && wall_ahead(w, l, tdir) && !low_obstacle(w, l, tdir)) {
+                    /* break through whatever is in the way */
+                    l->face = tdir > 0;
+                    int oi = obj_in_front(w, l, false);
+                    if (!l->armed && l->carry < 0 && oi >= 0 && liftable(&w->o[oi]) && w->o[oi].type != OB_LOOT) pick_up(w, li, oi);
+                    else if (l->punch_t == 0) { l->punch_t = 20; punch(w, li); }
+                } else if (walk_to(w, l, l->tgt_x, &move)) {
+                    /* here, and nobody: look both ways, then search */
+                    if (++l->look_t == 30 || l->look_t == 60) l->face ^= 1;
+                    if (l->look_t > 75) l->has_tgt = 0;
                 }
             } else {
-                /* find a ladder toward them on this floor */
+                /* another floor: the nearest ladder that isn't blocked */
                 int ltx = fl((l->x + 6) / DX_T), fy = fl((l->y + AH - 4) / DX_T), best = -1, bd = 999;
                 for (int tx = ltx - 12; tx <= ltx + 12; tx++) {
                     bool up = dy < 0 && (dx_tile(w, tx, fy) == TL_LADDER || dx_tile(w, tx, fy - 1) == TL_LADDER);
                     bool down = dy > 0 && dx_tile(w, tx, fy + 1) == TL_LADDER;
-                    if ((up || down) && iabs_c(tx - ltx) < bd) { bd = iabs_c(tx - ltx); best = tx; }
+                    if ((up || down) && !ladder_blocked(w, tx) && iabs_c(tx - ltx) < bd) { bd = iabs_c(tx - ltx); best = tx; }
                 }
                 if (best >= 0) {
                     float lx = (float)(best * DX_T + 2);
@@ -882,16 +1121,17 @@ static void lawman_think(DxWorld *w, int li) {
                         l->vy = dy < 0 ? -CLIMB : CLIMB;
                         if (dy > 0) l->y += 2;
                     } else {
-                        dir = lx > l->x ? 1 : -1;
-                        l->face = dir > 0;
-                        move = dir * LAW_WALK;
-                        if (fabsf(lx - l->x) < LAW_WALK) move = lx - l->x;
+                        walk_to(w, l, lx, &move);
                     }
                 } else {
-                    if (wall_ahead(w, l, dir) || !ground_ahead(w, l, dir)) { l->face ^= 1; dir = -dir; }
-                    move = dir * LAW_WALK;
+                    l->has_tgt = 0; /* no way there: search here */
                 }
             }
+        } else {
+            if (!l->ground) {}
+            else if (low_obstacle(w, l, dir)) { l->vy = LAW_HOP_V; l->ground = 0; }
+            else if (wall_ahead(w, l, dir) || !ground_ahead(w, l, dir)) { l->face ^= 1; dir = -dir; }
+            move = dir * LAW_WALK;
         }
     }
     l->vx *= 0.5f;
@@ -899,43 +1139,47 @@ static void lawman_think(DxWorld *w, int li) {
     if (move != 0) l->anim++;
 }
 
-/* lawmen with a gun shoot whatever they see first */
+/* what a lawman sees ahead, and what he does about it */
 static void lawmen_look(DxWorld *w) {
     for (int i = 0; i < w->na; i++) {
         DxActor *l = &w->a[i];
-        if (l->kind == AK_OUTLAW || !l->alive || l->stun || !l->armed) continue;
+        if (l->kind == AK_OUTLAW || !l->alive || l->stun || l->dying) continue;
         int dir = l->face ? 1 : -1;
         float ex = l->x + 6 + dir * 6;
         for (int k = 0; k < 2; k++) {
             float ry = l->y + (k ? 24 : 6);
             int hit = ray(w, ex, ry, dir, i, true, false, SIGHT);
-            bool shoot = false;
-            if (hit > 0 && w->a[hit - 1].kind == AK_OUTLAW) {
-                shoot = true;
-                /* whatever the outlaw holds up takes the bullet */
-                if (w->a[hit - 1].carry >= 0) hit = -(1 + w->a[hit - 1].carry);
-            } else if (hit < 0) {
-                /* a goose in the air draws his fire (a box someone holds only blocks his view) */
+            if (hit == 0) continue;
+            bool shoot_it = false, alert = false;
+            float tx = 0, tfeet = l->y + AH;
+            if (hit > 0) {
+                /* an outlaw in plain sight */
+                const DxActor *o = &w->a[hit - 1];
+                shoot_it = true;
+                alert = true;
+                tx = o->x;
+                tfeet = o->y + AH;
+            } else {
                 const DxObj *o = &w->o[-hit - 1];
-                if (o->type == OB_GOOSE && o->thrower) shoot = true;
+                tx = o->x;
+                if (o->held >= 0 && w->a[o->held].kind == AK_OUTLAW) shoot_it = alert = true;   /* a box held up in his sight */
+                else if (o->type == OB_GOOSE && o->thrower) shoot_it = alert = true;          /* a goose on the wing */
+                else if (o->type == OB_BARREL && o->timer == -5) {
+                    /* a barrel with someone in it: falling, or one he saw roll, gets shot */
+                    if (o->vy > 0.5f || (o->suspect && l->state == LS_ALERT && w->phase == PH_LAW)) shoot_it = alert = true;
+                    else if (o->roll) { w->o[-hit - 1].suspect = 1; alert = true; }
+                } else if (o->thrower) alert = true;                                        /* something thrown past him */
             }
-            if (shoot) {
-                fire(w, i, ex, ry, dir, true, false);
-                if (hit < 0) {
-                    /* a thing in the way takes the bullet there and then (a goose on the
-                     * wing would otherwise slip out of its path); the bullet is a streak */
-                    const DxObj *o = &w->o[-hit - 1];
-                    float tx = o->x + o->w / 2.0f;
-                    if (o->type != OB_ANVIL) break_obj(w, -hit - 1); /* an anvil just rings */
-                    for (int k2 = 0; k2 < DX_MAX_SHOTS; k2++)
-                        if (w->s[k2].alive && w->s[k2].owner == i && !w->s[k2].tracer) { w->s[k2].tracer = 1; w->s[k2].range = fabsf(tx - ex); }
-                }
+            if (shoot_it && l->armed) {
+                shoot(w, i, ex, ry, dir, false);
                 l->armed = 0;
+            }
+            if (alert) {
                 if (l->state != LS_ALERT) w->ev_alert++;
                 l->state = LS_ALERT;
-                alert_near(w, l->x);
-                break;
+                set_target(l, tx, tfeet);
             }
+            if (shoot_it || alert) break;
         }
     }
 }
@@ -947,7 +1191,7 @@ static void auto_punch(DxWorld *w, bool outlaws_moving) {
         if (o->kind != AK_OUTLAW || !o->alive || o->escaped || o->hidden || o->stun) continue;
         for (int j = 0; j < w->na; j++) {
             DxActor *l = &w->a[j];
-            if (l->kind == AK_OUTLAW || !l->alive || l->armed || l->stun) continue;
+            if (l->kind == AK_OUTLAW || !l->alive || l->armed || l->stun || l->dying) continue;
             if (!overlap(o->x - 2, atop(o), AW + 4, ah(o), l->x, l->y, AW, AH)) continue;
             int dir = l->x > o->x ? 1 : -1;
             if (outlaws_moving) { o->face = dir > 0; o->punch_t = 12; stun_actor(w, j, dir * 2.6f, -0.5f); w->ev_punch++; }
@@ -961,16 +1205,49 @@ static void auto_punch(DxWorld *w, bool outlaws_moving) {
 
 static void obj_hits_actor(DxWorld *w, int oi, int ai) {
     DxObj *o = &w->o[oi];
-    DxActor *a = &w->a[ai];
     int dir = o->vx > 0 ? 1 : -1;
-    if (o->type == OB_ANVIL) kill_actor(w, ai, WHY_CRUSHED);
-    else if (o->type == OB_DYNAMITE) { o->alive = 0; explode(w, o->x + 7, o->y + 7); }
+    if (o->type == OB_ANVIL) kill_actor(w, ai, WHY_CRUSHED, dir);
+    else if (o->type == OB_DYNAMITE) { o->alive = 0; explode(w, o->x + 7, o->y + 7, 24, 28); }
     else stun_actor(w, ai, dir * 2.0f, -1.0f);
-    (void)a;
     o->vx = -o->vx * 0.3f;
     o->thrower = 0;
     /* barrels, crates and strongboxes burst on whoever they hit */
     if (o->type == OB_BARREL || o->type == OB_CRATE || o->type == OB_LOOT) break_obj(w, oi);
+}
+
+/* the ram: it plods back and forth; poked, shot at or hearing a shot it
+ * charges until it hits a wall. Either way it runs down whoever is in front */
+static void step_ram(DxWorld *w, int i) {
+    DxObj *o = &w->o[i];
+    int dir = o->face ? 1 : -1;
+    float sp = o->timer > 0 ? RAM_RUN : RAM_WALK;
+    float nx = o->x + dir * sp;
+    bool edge = !box_hits_tiles(w, nx + (dir > 0 ? o->w - 4 : 0), o->y + o->h + 1, 4, 1) &&
+                box_hits_objs(w, nx + (dir > 0 ? o->w - 4 : 0), o->y + o->h + 1, 4, 1, i) < 0;
+    int blocked = box_hits_objs(w, nx, o->y, o->w, o->h, i);
+    if (box_hits_tiles(w, nx, o->y, o->w, o->h) || (o->timer == 0 && (edge || blocked >= 0))) {
+        o->timer = 0;
+        o->face ^= 1;
+        return;
+    }
+    o->x = nx;
+    if (edge) {
+        /* charging over the edge */
+        o->y += 4;
+        if (o->y > DX_DEATH_Y) { o->alive = 0; return; }
+    }
+    for (int a = 0; a < w->na; a++) {
+        DxActor *t = &w->a[a];
+        if (!t->alive || t->escaped || t->dying || t->hidden) continue;
+        float front = dir > 0 ? o->x + o->w - 6 : o->x;
+        if (overlap(front, o->y, 6, o->h, t->x, atop(t), AW, ah(t))) {
+            kill_actor(w, a, WHY_TRAMPLED, dir);
+            if (t->kind != AK_OUTLAW) alert_near(w, t->x + 6, t->y + AH);
+        }
+    }
+    if (o->timer > 0)
+        for (int b = 0; b < w->no; b++)
+            if (b != i && obj_solid(&w->o[b]) && w->o[b].type != OB_RAM && overlap(o->x, o->y, o->w, o->h, w->o[b].x, w->o[b].y, w->o[b].w, w->o[b].h)) break_obj(w, b);
 }
 
 static void step_objects(DxWorld *w) {
@@ -978,31 +1255,12 @@ static void step_objects(DxWorld *w) {
         DxObj *o = &w->o[i];
         if (!o->alive || o->held >= 0) continue;
         if (o->type == OB_CAMEL) continue;
-        if (o->type == OB_BARREL && o->timer == -5) continue; /* someone's hiding in it */
-        /* the ram's charge */
-        if (o->type == OB_RAM && o->timer > 0) {
-            int dir = o->face ? 1 : -1;
-            float nx = o->x + dir * 2.6f;
-            if (box_hits_tiles(w, nx, o->y, o->w, o->h)) { o->timer = 0; continue; }
-            o->x = nx;
-            if (!box_hits_tiles(w, o->x + 4, o->y + o->h + 1, o->w - 8, 1)) {
-                /* over the edge */
-                o->y += 4;
-                if (o->y > DX_DEATH_Y) { o->alive = 0; continue; }
-            }
-            for (int a = 0; a < w->na; a++) {
-                DxActor *t = &w->a[a];
-                if (t->alive && !t->escaped && overlap(o->x, o->y, o->w, o->h, t->x, atop(t), AW, ah(t))) {
-                    kill_actor(w, a, WHY_TRAMPLED);
-                    if (t->kind != AK_OUTLAW) alert_near(w, t->x);
-                }
-            }
-            for (int b = 0; b < w->no; b++)
-                if (b != i && obj_solid(&w->o[b]) && overlap(o->x, o->y, o->w, o->h, w->o[b].x, w->o[b].y, w->o[b].w, w->o[b].h)) break_obj(w, b);
-            continue;
-        }
+        if (o->type == OB_RAM) { step_ram(w, i); continue; }
+        /* a barrel with someone inside: rolled by the one inside */
+        bool occupied = o->type == OB_BARREL && o->timer == -5;
+        if (occupied) o->vx = o->roll * WALK * 0.8f;
         /* dynamite that was thrown and has stopped goes off */
-        if (o->type == OB_DYNAMITE && o->timer > 0 && --o->timer == 0) { o->alive = 0; explode(w, o->x + 7, o->y + 7); continue; }
+        if (o->type == OB_DYNAMITE && o->timer > 0 && --o->timer == 0) { o->alive = 0; explode(w, o->x + 7, o->y + 7, 24, 28); continue; }
         float before = o->y + o->h;
         o->vy += 0.25f;
         if (o->vy > MAXFALL) o->vy = MAXFALL;
@@ -1014,9 +1272,9 @@ static void step_objects(DxWorld *w) {
             if (ny - o->y <= 10 && !box_hits_tiles(w, nx, ny, o->w, o->h)) { o->y = ny; if (o->vy < 0) o->vy = 0; }
         }
         if (box_hits_tiles(w, nx, o->y, o->w, o->h)) {
-            if (o->type == OB_DYNAMITE && o->thrower) { o->alive = 0; explode(w, o->x + 7, o->y + 7); continue; }
+            if (o->type == OB_DYNAMITE && o->thrower) { o->alive = 0; explode(w, o->x + 7, o->y + 7, 24, 28); continue; }
             o->vx = -o->vx * 0.2f;
-        } else if (box_hits_objs(w, nx, o->y, o->w, o->h, i) >= 0 && o->thrower) {
+        } else if (box_hits_objs(w, nx, o->y, o->w, o->h, i) >= 0 && (o->thrower || occupied)) {
             o->vx = -o->vx * 0.2f;
         } else {
             o->x = nx;
@@ -1028,18 +1286,28 @@ static void step_objects(DxWorld *w) {
             o->y = (float)((fl(o->y / DX_T) + 1) * DX_T);
             o->vy = 0;
         }
+        /* thrown things hit people (before a landing ends the throw) */
+        if (o->thrower) {
+            bool hit = false;
+            for (int a = 0; a < w->na && !hit; a++) {
+                DxActor *t = &w->a[a];
+                if (a == o->thrower - 1 || !t->alive || t->escaped || t->hidden || t->dying) continue;
+                if (overlap(o->x, o->y, o->w, o->h, t->x, atop(t), AW, ah(t))) { obj_hits_actor(w, i, a); hit = true; }
+            }
+            if (!o->alive) continue;
+        }
         bool land = o->vy >= 0 && (box_hits_tiles(w, o->x, o->y, o->w, o->h) || shelf_under(w, o->x, before, o->y + o->h));
         int under = box_hits_objs(w, o->x, o->y, o->w, o->h, i);
         if (under >= 0 && before <= w->o[under].y + 1 && o->type != OB_COIN && o->type != OB_POWER && o->type != OB_AMMO) {
             o->y = w->o[under].y - o->h;
             land = false;
             o->vy = 0;
-            o->vx *= 0.7f;
+            if (!occupied) o->vx *= 0.7f;
         }
         if (land) {
             o->y = (float)(fl((o->y + o->h) / DX_T) * DX_T - o->h);
             if (o->vy > 0) o->vy = 0;
-            o->vx *= 0.75f;
+            if (!occupied) o->vx *= 0.75f;
             if (fabsf(o->vx) < 0.05f) o->vx = 0;
             if (o->thrower) {
                 if (o->type == OB_LOOT) { break_obj(w, i); continue; }
@@ -1048,28 +1316,25 @@ static void step_objects(DxWorld *w) {
             }
         }
         if (o->y > DX_DEATH_Y + 16) { o->alive = 0; continue; } /* lost off the train */
-        /* thrown things hit people */
-        if (o->thrower) {
-            for (int a = 0; a < w->na; a++) {
-                DxActor *t = &w->a[a];
-                if (a == o->thrower - 1 || !t->alive || t->escaped || t->hidden) continue;
-                if (overlap(o->x, o->y, o->w, o->h, t->x, atop(t), AW, ah(t))) { obj_hits_actor(w, i, a); break; }
-            }
-        }
-        /* the crank gun */
+        /* the crank gun: a warning flash (green at outlaws, red once it's
+         * ours), then a burst of three, whatever is in the way; two bursts */
         if (o->type == OB_GUN && o->ammo > 0) {
             int dir = o->face ? 1 : -1;
-            int hit = ray(w, o->x + 7 + dir * 9, o->y + 6, dir, -1, !o->friendly, o->friendly != 0, 14);
-            bool target = hit > 0;
-            if (target && o->timer == 0) o->timer = 24;  /* the green flash first */
-            if (o->timer > 0) {
-                o->timer--;
-                if (o->timer == 0 && target) {
-                    fire(w, -2, o->x + 7 + dir * 9, o->y + 6, dir, !o->friendly, false);
+            float mx = o->x + 7 + dir * 9, my = o->y + 6;
+            if (o->burst > 0) {
+                if (--o->timer <= 0) {
+                    shoot(w, -2 - i, mx, my, dir, false);
                     o->ammo--;
-                    o->timer = 10;
-                    alert_near(w, o->x);
+                    o->burst--;
+                    o->timer = o->burst ? 8 : -40; /* a breather after each burst */
                 }
+            } else if (o->timer < 0) {
+                o->timer++;
+            } else {
+                int hit = ray_ex(w, mx, my, dir, -1, i, !o->friendly, o->friendly != 0, 14, NULL);
+                bool target = hit > 0;
+                if (target && o->timer == 0) o->timer = 24;
+                if (o->timer > 0 && --o->timer == 0) { o->burst = 3; o->timer = 1; }
             }
         }
     }
@@ -1079,50 +1344,23 @@ static void step_shots(DxWorld *w) {
     for (int i = 0; i < DX_MAX_SHOTS; i++) {
         DxShot *s = &w->s[i];
         if (!s->alive) continue;
-        if (s->tracer) {
-            s->x += s->vx;
-            s->range -= fabsf(s->vx);
-            if (s->range <= 0) s->alive = 0;
-            continue;
-        }
-        for (int sub = 0; sub < 2 && s->alive; sub++) {
-            s->x += s->vx / 2;
-            int tx = fl(s->x / DX_T), ty = fl(s->y / DX_T);
-            if (s->x < -32 || s->x > w->w * DX_T + 32) { s->alive = 0; break; }
-            if (dx_solid(w, tx, ty)) {
-                if (s->blast && dx_tile(w, tx, ty) != TL_GATE) {
-                    /* a blast round knocks out a hole a person fits through */
-                    for (int k = 0; k < 2; k++)
-                        if (breakable(dx_tile(w, tx, ty + k), true)) w->tile[ty + k][tx] = TL_AIR;
-                    w->ev_break++;
-                }
-                s->alive = 0;
-                break;
-            }
-            for (int o = 0; o < w->no && s->alive; o++) {
-                DxObj *ob = &w->o[o];
-                if (!ob->alive || ob->type == OB_COIN || ob->type == OB_POWER || ob->type == OB_AMMO || ob->type == OB_CAMEL) continue;
-                if (ob->type == OB_GUN && s->owner == -2) continue;
-                if (s->x >= ob->x && s->x < ob->x + ob->w && s->y >= ob->y && s->y < ob->y + ob->h) {
-                    if (ob->type == OB_LEVER) flip_gates(w);
-                    else if (ob->type == OB_RAM) { if (ob->timer == 0) ob->timer = 1; }
-                    else if (ob->type != OB_ANVIL) break_obj(w, o);
-                    s->alive = 0;
-                }
-            }
-            for (int a = 0; a < w->na && s->alive; a++) {
-                DxActor *t = &w->a[a];
-                if (a == s->owner || !t->alive || t->escaped || t->hidden) continue;
-                bool out = t->kind == AK_OUTLAW;
-                if (s->hostile && !out) continue;  /* lawmen's bullets pass by other lawmen */
-                if (!s->hostile && out) continue;
-                if (s->x >= t->x && s->x < t->x + AW && s->y >= atop(t) && s->y < t->y + AH) {
-                    kill_actor(w, a, s->owner == -2 ? WHY_GUN : WHY_SHOT);
-                    if (!out) alert_near(w, t->x);
-                    s->alive = 0;
-                }
-            }
-        }
+        s->x += s->vx;
+        s->range -= fabsf(s->vx);
+        if (s->range <= 0) s->alive = 0;
+    }
+}
+
+/* the hidden outlaw goes where the barrel goes */
+static void ride_barrels(DxWorld *w) {
+    for (int i = 0; i < w->na; i++) {
+        DxActor *a = &w->a[i];
+        if (!a->hidden || !a->alive) continue;
+        int bi = hide_barrel(w, a);
+        if (bi < 0) { a->hidden = 0; continue; }
+        const DxObj *o = &w->o[bi];
+        a->x = o->x + 1;
+        a->y = o->y + o->h - AH;
+        if (o->y > DX_DEATH_Y) kill_actor(w, i, WHY_FELL, 0);
     }
 }
 
@@ -1207,8 +1445,22 @@ int dx_stars(const DxWorld *w) {
 /* ------------------------------------------------------------------ */
 /* one frame                                                            */
 
+static void step_bodies(DxWorld *w) {
+    for (int i = 0; i < w->na; i++)
+        if (w->a[i].dying) move_actor(w, i, 0);
+}
+
 void dx_step(DxWorld *w, const DxInput *in, const DxInput *in2) {
-    if (w->result) return;
+    for (int y = 0; y < DX_H; y++)
+        for (int x = 0; x < w->w; x++)
+            if (w->tflash[y][x]) w->tflash[y][x]--;
+    if (w->result) {
+        /* the heist is over: let the last fall play out */
+        step_bodies(w);
+        step_shots(w);
+        if (w->end_t > 0) w->end_t--;
+        return;
+    }
     int active = dx_active_lawmen(w);
     /* time and turns */
     if (w->phase == PH_FREE && active > 0) {
@@ -1222,7 +1474,7 @@ void dx_step(DxWorld *w, const DxInput *in, const DxInput *in2) {
     if (w->phase != PH_LAW) {
         w->master--;
         w->elapsed++;
-        if (w->master <= 0 && !w->versus) { w->result = DX_LOST; w->why = WHY_TIME; return; }
+        if (w->master <= 0 && !w->versus) { w->result = DX_LOST; w->why = WHY_TIME; w->end_t = DX_END_FRAMES; return; }
     }
     if (w->phase != PH_FREE && --w->turn_t <= 0) {
         if (w->phase == PH_PLAYER) {
@@ -1235,6 +1487,11 @@ void dx_step(DxWorld *w, const DxInput *in, const DxInput *in2) {
                     if (w->a[i].kind != AK_OUTLAW && w->a[i].alive) { w->law_ctrl = (uint8_t)i; break; }
                 }
             }
+            /* the outlaws let go: a barrel stops rolling; one in mid-jump
+             * keeps going the way he was heading */
+            for (int i = 0; i < w->no; i++) w->o[i].roll = 0;
+            DxActor *c = &w->a[w->ctrl];
+            if (!c->ground && !c->climb && !c->hidden) c->vx = (float)(in->right - in->left) * WALK;
         } else {
             w->phase = PH_PLAYER;
             w->turn_t = DX_TURN_FRAMES;
@@ -1245,18 +1502,26 @@ void dx_step(DxWorld *w, const DxInput *in, const DxInput *in2) {
     }
     DxActor *me = &w->a[w->ctrl];
     if (w->phase == PH_FREE && in->select_pressed) dx_swap_outlaw(w);
-    /* the outlaws move in real time and on their turn */
     if (w->phase != PH_LAW) {
+        /* the outlaws move in real time and on their turn */
         for (int i = 0; i < w->na; i++) {
             DxActor *a = &w->a[i];
             if (a->kind != AK_OUTLAW || !a->alive || a->escaped) continue;
             if (a->stun > 0) a->stun--;
             if (i == w->ctrl) control_outlaw(w, i, in);
-            else move_actor(w, i, 0);
+            else if (!a->hidden) move_actor(w, i, 0);
         }
         auto_punch(w, true);
     } else {
-        /* the lawmen's turn: in 2P the second player drives one of them */
+        /* the lawmen's turn: the outlaws are locked (a jump or a fall still
+         * finishes); in 2P the second player drives one of the lawmen */
+        for (int i = 0; i < w->na; i++) {
+            DxActor *a = &w->a[i];
+            if (a->kind == AK_OUTLAW && a->alive && !a->escaped && !a->hidden && !a->climb) {
+                a->rolling = 0;
+                move_actor(w, i, 0);
+            }
+        }
         for (int i = 0; i < w->na; i++) {
             DxActor *a = &w->a[i];
             if (a->kind == AK_OUTLAW || !a->alive) continue;
@@ -1271,10 +1536,14 @@ void dx_step(DxWorld *w, const DxInput *in, const DxInput *in2) {
                 a->gun = 0;
             } else if (!w->versus && a->state != LS_GUARD) {
                 lawman_think(w, i);
+            } else if (a->stun > 0) {
+                a->stun--;
+                move_actor(w, i, 0);
             }
         }
         auto_punch(w, false);
-        /* a drawn gun fires by itself at a lawman who steps into its sight */
+        /* a drawn gun fires by itself at a lawman who steps into its sight,
+         * before he can fire himself */
         for (int i = 0; i < w->na; i++) {
             DxActor *a = &w->a[i];
             if (a->kind != AK_OUTLAW || !a->alive || a->gun != -1 || a->ammo == 0) continue;
@@ -1283,8 +1552,7 @@ void dx_step(DxWorld *w, const DxInput *in, const DxInput *in2) {
             if (hit > 0) {
                 a->ammo--;
                 a->gun = 0;
-                fire(w, i, a->x + 6 + dir * 8, a->y + 9, dir, false, a->blast);
-                alert_near(w, a->x);
+                shoot(w, i, a->x + 6 + dir * 8, a->y + 9, dir, a->blast);
             }
         }
     }
@@ -1294,8 +1562,10 @@ void dx_step(DxWorld *w, const DxInput *in, const DxInput *in2) {
             DxActor *a = &w->a[i];
             if (a->kind != AK_OUTLAW && a->alive && a->stun > 0) { a->stun--; move_actor(w, i, 0); }
         }
+    step_bodies(w);
     lawmen_look(w);
     step_objects(w);
+    ride_barrels(w);
     step_shots(w);
     pickups(w);
     /* the fog lifts from every car an outlaw walks into */
@@ -1310,7 +1580,12 @@ void dx_step(DxWorld *w, const DxInput *in, const DxInput *in2) {
     for (int i = 0; i < w->na; i++) {
         DxActor *a = &w->a[i];
         if (a->kind != AK_OUTLAW) continue;
-        if (!a->alive) { w->result = DX_LOST; if (!w->why) w->why = WHY_SHOT; return; }
+        if (!a->alive) {
+            if (!w->result) w->end_t = DX_END_FRAMES;
+            w->result = DX_LOST;
+            if (!w->why) w->why = WHY_SHOT;
+            return;
+        }
         if (a->escaped != 1) all_out = false;
         if (!a->escaped) any_left = true;
     }
@@ -1387,8 +1662,8 @@ void dx_versus_train(DxWorld *w, uint64_t seed) {
         x += 1;
     }
     w->w = x;
-    add_actor(w, AK_OUTLAW, OUT_KHALED, 2 * DX_T + 2, 5 * DX_T + 2, 1);
-    add_actor(w, AK_OUTLAW, OUT_SAHAR, 4 * DX_T + 2, 5 * DX_T + 2, 1);
+    add_actor(w, AK_OUTLAW, OUT_WADE, 2 * DX_T + 2, 5 * DX_T + 2, 1);
+    add_actor(w, AK_OUTLAW, OUT_PEARL, 4 * DX_T + 2, 5 * DX_T + 2, 1);
     for (int i = 0; i < w->na; i++) if (w->a[i].kind == AK_OUTLAW) { w->a[i].ammo = 2; }
     for (int i = 0; i < w->na; i++) if (w->a[i].kind != AK_OUTLAW) { w->law_ctrl = (uint8_t)i; w->lawmen_total++; }
     compute_cars(w);

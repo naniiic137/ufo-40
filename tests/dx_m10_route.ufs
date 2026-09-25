@@ -1,7 +1,10 @@
-# DUNE EXPRESS: mission 10, TWO BY TWO, can be won with the buttons alone:
-# Khaled breaks in behind the first guard and takes his strongbox, the Veil
-# follows; both cross the roofs; a crate thrown from the hatch stuns the last guard;
-# Khaled takes the second strongbox and rides off, and the Veil walks out behind the patrol
+# DUNE EXPRESS: mission 10, TWO BY TWO, can be won with the buttons alone,
+# unseen and under the time star: Wade punches through the end wall, stuns
+# the first guard from behind, takes his strongbox and goes up onto the roofs;
+# Hush follows over the roofs on his turn; Wade drops into the last car, rolls
+# behind a crate and lifts it, so the guard spends his only bullet on it; the
+# second strongbox, the guard punched as Wade walks into him, and out; Hush
+# comes down and follows
 game dune
 wait 5
 cheat mission 10
@@ -9,95 +12,59 @@ wait 1
 hold RIGHT 102
 hold RIGHT 1
 press B
-wait 8
+wait 2
 press B
-wait 8
-hold RIGHT 64
-hold RIGHT 1
+wait 2
 press B
-wait 5
+wait 2
+press B
+wait 2
+press B
+wait 2
+press B
+wait 2
 hold RIGHT 62
-hold RIGHT 1
 press B
-wait 30
-hold RIGHT 38
-hold LEFT 51
-hold RIGHT 38
-hold RIGHT 25
-hold UP 24
-hold UP 24
-hold UP 24
-wait 82
-wait 210
-hold RIGHT 166
-hold RIGHT 1
+wait 2
+hold RIGHT 62
 press B
-wait 5
-hold RIGHT 76
-hold UP 24
-hold UP 24
-hold UP 24
-wait 277
-wait 210
+wait 20
+hold RIGHT 30
 hold RIGHT 25
-hold RIGHT A 40
-wait 5
-hold RIGHT 229
-hold DOWN 24
-hold DOWN 24
-hold DOWN 4
-hold RIGHT 1
+hold UP 70
+hold RIGHT 20
+hold RIGHT A 20
+hold RIGHT 150
+wait 210
+hold RIGHT 64
+hold UP 70
+hold RIGHT 20
+hold RIGHT A 30
+hold RIGHT 150
+hold RIGHT A 30
+hold RIGHT 150
+wait 296
+hold RIGHT 107
+hold DOWN 70
 wait 2
-wait 2
-wait 2
-wait 2
-wait 2
-hold RIGHT DOWN 25
 hold DOWN
+press A
+wait 30
 press B
-hold LEFT DOWN 24
+wait 10
 release DOWN
-wait 3
-hold RIGHT 1
-hold RIGHT 1
+wait 2
+hold RIGHT 17
 press B
-wait 30
-hold UP 24
-hold UP 24
-hold UP 24
-wait 76
+wait 20
+hold RIGHT 30
+hold LEFT 10
+hold RIGHT 160
+hold RIGHT 77
+hold DOWN 60
 wait 210
-hold RIGHT 25
-hold RIGHT A 40
-wait 5
-hold RIGHT 216
-wait 314
-wait 210
-hold DOWN 24
-hold DOWN 24
-hold DOWN 4
-hold RIGHT 1
-wait 2
-wait 2
-wait 2
-wait 2
-wait 2
-hold RIGHT 51
-hold RIGHT 1
-press B
-wait 30
-hold RIGHT 37
-hold LEFT 50
-hold RIGHT 38
-hold RIGHT 89
-hold RIGHT 1
-press B
-wait 5
-hold RIGHT 51
-hold RIGHT 176
-wait 2
-wait 210
-hold RIGHT 58
+hold DOWN 20
+hold RIGHT 220
 wait 10
 expect result == 1
 expect state == 4

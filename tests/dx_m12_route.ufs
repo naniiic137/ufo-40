@@ -1,66 +1,32 @@
-# DUNE EXPRESS: mission 12, THE RAM CAR, can be won with the buttons alone:
-# no stampede this time: up the ladder and over the rams' cars while the patrol
-# walks away, down for the strongbox and back up, then down the last hatch behind
-# the guard
+# DUNE EXPRESS: mission 12, THE RAM CAR, can be won with the buttons alone,
+# unseen and under the time star: up and along the roofs past the first ram's
+# pen, over the hatch and down the ladder behind the patrol; the strongbox;
+# back up, over the second ram's pen and down behind the last guard, punch him
+# and out
 game dune
 wait 5
 cheat mission 12
 wait 1
-hold RIGHT 76
-hold UP 24
-hold UP 24
-hold UP 24
-hold RIGHT 230
-hold RIGHT A 40
-wait 5
-hold RIGHT 152
-wait 25
-wait 210
-hold DOWN 24
-hold DOWN 24
-hold DOWN 4
-hold RIGHT 1
-wait 2
-wait 2
-wait 2
-wait 2
-wait 2
+hold RIGHT 77
+hold UP 70
+hold RIGHT 228
+hold RIGHT A 20
+hold RIGHT 174
+hold DOWN 16
+wait 212
+hold DOWN 60
 hold LEFT 12
-hold LEFT 1
 press B
-wait 30
-hold LEFT 37
-hold RIGHT 37
-hold LEFT 24
-hold RIGHT 37
-hold UP 24
-hold UP 24
-hold UP 24
-hold RIGHT 25
-hold RIGHT A 40
-wait 5
-hold RIGHT 63
-wait 151
-wait 210
-hold DOWN 24
-hold DOWN 24
-hold DOWN 4
-hold RIGHT 1
-wait 2
-wait 2
-wait 2
-wait 2
-wait 2
-hold RIGHT 38
-hold RIGHT 1
+wait 20
+hold LEFT 22
+hold RIGHT 34
+hold UP 70
+hold RIGHT 128
+hold DOWN 70
+hold RIGHT 34
 press B
-wait 5
-hold RIGHT 16
-hold RIGHT 16
-hold RIGHT 16
-hold RIGHT 16
-hold RIGHT 16
-hold RIGHT 16
+wait 3
+hold RIGHT 100
 wait 10
 expect result == 1
 expect state == 4

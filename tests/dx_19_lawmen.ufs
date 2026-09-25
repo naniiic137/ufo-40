@@ -1,0 +1,37 @@
+# DUNE EXPRESS lawmen: a patrol hops over a box in his way (and over an
+# outlaw ducked behind it, who he never sees); a gunshot sends every lawman
+# nearby to where it came from, breaking through walls; an outlaw can stand
+# on a lawman's head, since lawmen only look straight ahead.
+game dune
+wait 5
+cheat mission 4
+cheat pos 11 6
+cheat face 1
+hold DOWN 830
+expect alive == 1
+expect law1_x < 150
+expect law1_state == 1
+# a shot behind a wall: the guard comes for it
+cheat mission 1
+cheat pos 4 6
+cheat face 0
+hold UP 135
+expect gun == -1
+press B
+expect ammo == 0
+expect law0_state == 2
+wait 620
+expect law0_x < 210
+expect law0_face == 0
+# up on a guard's head, on the roof
+cheat mission 2
+cheat pos 26 2
+cheat face 1
+wait 2
+hold RIGHT A 22
+hold A 12
+wait 10
+expect alive == 1
+expect ground == 1
+expect y == -12
+expect law1_state == 0

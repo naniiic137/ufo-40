@@ -1,97 +1,57 @@
-# DUNE EXPRESS: mission 5, GOOSE CHASE, can be won with the buttons alone:
-# a thrown goose draws the first guard's only bullet; with the roof goose the
-# Veil glides over the gap; the patrol punched from behind for the strongbox; back
-# up and over the last car's roof, well out of its guard's sight
+# DUNE EXPRESS: mission 5, GOOSE CHASE, can be won with the buttons alone,
+# unseen and under the time star: a thrown goose draws the first guard's only
+# bullet and he's punched walking past; up to the roof goose, which carries
+# Hush gliding over the gap between the cars; down into the next car for the
+# strongbox, and both lawmen by the last car punched from behind
 game dune
 wait 5
 cheat mission 5
 wait 1
-hold RIGHT 25
-hold RIGHT 1
+hold RIGHT 26
 hold DOWN
 press B
 release DOWN
 wait 2
 hold RIGHT 38
-hold RIGHT 1
 press B
-wait 30
-hold RIGHT 16
-hold RIGHT 16
-hold RIGHT 16
-hold RIGHT 16
-hold RIGHT 16
-hold RIGHT 16
-hold RIGHT 16
-hold RIGHT 16
-hold RIGHT 1
+wait 20
+hold RIGHT 105
 press B
-wait 8
-hold RIGHT 16
-hold RIGHT 8
-hold RIGHT 16
-hold RIGHT 16
-hold RIGHT 16
-hold RIGHT 16
-hold UP 24
-hold UP 24
-hold UP 24
-hold LEFT 12
-hold LEFT 1
+wait 2
+hold RIGHT 20
+hold RIGHT 45
+hold RIGHT 23
+hold UP 70
+hold LEFT 13
 hold DOWN
 press B
 release DOWN
 wait 2
-hold RIGHT 39
-hold RIGHT A 70
+hold RIGHT 40
+hold RIGHT A 40
+wait 25
 wait 10
 hold DOWN
 press B
 release DOWN
-wait 5
-wait 52
-wait 210
-hold DOWN 24
-hold DOWN 24
-hold DOWN 4
-hold RIGHT 1
 wait 2
-wait 2
-wait 2
-wait 2
-wait 2
-hold RIGHT 16
-hold RIGHT 16
-hold RIGHT 16
-hold RIGHT 1
+hold RIGHT 36
+wait 276
+hold DOWN 70
+hold RIGHT 40
 press B
-wait 8
-hold RIGHT 16
-hold RIGHT 16
-hold RIGHT 4
-hold RIGHT 1
+wait 2
+hold RIGHT 100
 press B
-wait 5
-hold RIGHT 63
-hold RIGHT 1
+wait 20
+hold RIGHT 30
+hold RIGHT 60
 press B
-wait 30
-hold RIGHT 24
-hold LEFT 37
-hold RIGHT 37
-hold LEFT 152
-hold UP 24
-hold UP 24
-hold UP 24
-wait 13
-wait 210
-hold RIGHT 166
-hold RIGHT A 40
-wait 5
-hold RIGHT 152
-hold RIGHT 13
-wait 30
-hold RIGHT 39
+wait 3
+hold RIGHT 8
+press B
+wait 3
+hold RIGHT 200
 wait 10
 expect result == 1
 expect state == 4
