@@ -42,8 +42,8 @@ typedef struct Sfx {
     Track tr;
 } Sfx;
 
-#define MAX_SONGS 48
-#define MAX_SFX 96
+#define MAX_SONGS 96
+#define MAX_SFX 256
 
 static Song songs[MAX_SONGS];
 static int n_songs;

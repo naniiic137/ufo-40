@@ -1,0 +1,23 @@
+# PETAL PARADE: drinking nectar starts a countdown; while it runs Lina
+# smashes brambles for 10, 20, 30... x the multiplier (green = x2).
+game petalparade
+wait 5
+press A
+cheat clear
+cheat put jar 5 7
+cheat jarlevel 5 7 2
+cheat put bramble 5 5
+cheat put bramble 5 3
+wait 20
+expect power > 1100
+expect mult == 2
+expect mush_power == 0
+wait 16
+expect state == 1
+expect brambles == 1
+expect score == 20
+wait 16
+expect brambles == 0
+expect score == 60
+expect chain == 2
+wait 60

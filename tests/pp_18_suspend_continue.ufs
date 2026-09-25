@@ -1,0 +1,22 @@
+# PETAL PARADE: quitting mid-game suspends it; CONTINUE resumes the field,
+# the line and the score.
+game petalparade
+wait 5
+press A
+cheat clear
+cheat put pup 5 7
+cheat put pup 5 6
+cheat score 1234
+cheat saved 42
+wait 30
+expect line == 2
+reload
+game petalparade
+wait 10
+expect has_game == 1
+press A
+wait 1
+expect state == 1
+expect line == 2
+expect saved == 42
+expect score == 1234

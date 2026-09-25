@@ -1,0 +1,17 @@
+# PETAL PARADE: 200 pups with 20,000 points or more earns the Alien too.
+game petalparade
+wait 5
+press A
+cheat clear
+cheat saved 197
+cheat score 19950
+cheat put pup 5 7
+cheat put pup 5 6
+cheat put pup 5 5
+cheat put pad 5 4
+wait 40
+press B
+expect score == 20010
+expect state == 4
+expect goals & 2
+expect goals & 4

@@ -289,8 +289,10 @@ static int run_script(const char *path) {
             app_init();
             step(1);
         } else if (!strcmp(cmd, "wipe_saves")) {
-            const char *names[] = {"progress.dat", "game01.sav", "game02.sav", "game03.sav"};
-            for (int i = 0; i < 4; i++) { char pth[700]; snprintf(pth, sizeof pth, "%s/%s", save_dir, names[i]); remove(pth); }
+            char pth[700];
+            snprintf(pth, sizeof pth, "%s/progress.dat", save_dir);
+            remove(pth);
+            for (int i = 0; i < GAME_SLOTS; i++) { snprintf(pth, sizeof pth, "%s/game%02d.sav", save_dir, i + 1); remove(pth); }
             progress_defaults();
         } else if (!strcmp(cmd, "audio")) {
             audio_on = strncmp(arg, "on", 2) == 0;

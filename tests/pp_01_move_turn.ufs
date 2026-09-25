@@ -1,0 +1,23 @@
+# PETAL PARADE: Lina never stops; one tile every 8 frames. The D-pad turns
+# her, but never straight back.
+game petalparade
+wait 5
+press A
+cheat clear
+expect state == 1
+expect hx == 5
+expect hy == 9
+wait 7
+expect hy == 8
+press RIGHT
+wait 5
+expect hx == 6
+expect hy == 8
+press LEFT
+wait 5
+expect hx == 7
+expect dir == 0
+press UP
+wait 5
+expect hx == 7
+expect hy == 7

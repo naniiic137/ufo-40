@@ -1,0 +1,18 @@
+# PETAL PARADE: when the countdown runs out the chain and multiplier reset,
+# and brambles are deadly again.
+game petalparade
+wait 5
+press A
+cheat clear
+cheat put jar 5 8
+cheat jarlevel 5 8 2
+wait 12
+expect mult == 2
+cheat still
+wait 1149
+expect power == 1
+expect mult == 2
+wait 1
+expect power == 0
+expect mult == 1
+expect chain == 0

@@ -1,0 +1,17 @@
+# PETAL PARADE: every saved pup fills the jar counter; at 6 a nectar jar
+# appears, one level riper for each pup past the six (8 -> blue).
+game petalparade
+wait 5
+press A
+cheat clear
+cheat counter 5
+cheat put pup 5 7
+cheat put pup 5 6
+cheat put pup 5 5
+cheat put pad 5 4
+wait 40
+press B
+expect saved == 3
+expect counter == 0
+expect jars == 1
+expect jar_level == 3
