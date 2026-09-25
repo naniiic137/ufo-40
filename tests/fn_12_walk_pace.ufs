@@ -1,0 +1,28 @@
+# FENNEC FOUNTAIN: the fennec walks one tile at a time and takes its time
+# (Block Koala's koala is slow): a step every 12 frames while a direction is
+# held, and a tap during a step waits for it. Rooms are entered from the
+# garden with A at a hut.
+game fennec
+wait 30
+press A
+wait 20
+press A
+wait 5
+expect state == 1
+# stand in front of room 1's hut and go in
+cheat hub 1 14
+wait 5
+press A
+wait 5
+expect state == 2
+expect room == 1
+expect px == 1
+hold RIGHT 26
+expect px == 4
+wait 12
+# the next tile pushes the water stone
+hold RIGHT 2
+wait 12
+expect px == 5
+expect tile61 == 0
+expect tile62 == 40

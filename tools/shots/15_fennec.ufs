@@ -12,11 +12,11 @@ wait 10
 cheat hub 5 20
 wait 10
 shot fennec_hub
-cheat room 13
+cheat room 43
 wait 20
 cheat autosolve
 gifstart fennec 3 2
-wait 330
+wait 440
 gifstop
 shot fennec_room
 cheat room 27

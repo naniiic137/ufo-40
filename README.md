@@ -77,7 +77,7 @@ and the music and sound volumes are in every game's pause menu too.
 | 07 | **SKYWELL** | Velgress | a random shaft of crumbling platforms, a roller that only follows you up, stun instead of damage, four-way shooting, a shop between levels, a key bird, a locked fourth level | Kip the scrap-diver, the Grinder, the Tinker, the Well Eye |
 | 09 | **BANNERFALL** | Attactics | a 6×8 field between two keeps, a countdown turn where you drag troops within your half, the same end-of-turn order and clashes, eight unit types with promotions and heroes, the original's 24 campaign battles, ranked, survival and 2P versus | the Marigold Guard and the Thistle Host, all units and battle names |
 | 14 | **CUTLASS CUP** | Bushido Ball | first to 8 points, aimed and curved strikes, lobs, secondary weapons, charged super shots, the fouls and penalty points, six fighters, a tournament, 2P versus and co-op doubles | six corsairs, the galley *Sabra*, judge Rais Mabrouk |
-| 15 | **FENNEC FOUNTAIN** | Block Koala | pushing numbered blocks (big pushes small, 1s add up), blocks that turn to marble, blue and black blocks, mimics, unlimited undo, fifty rooms behind gates, a room editor | Fen the fennec, an oasis, 50 new rooms |
+| 15 | **FENNEC FOUNTAIN** | Block Koala | pushing numbered blocks (never into a heavier one, a 1 that can't move is taken in), grey at five, blue and black blocks, mimics, arrows, stone patches and doors, unlimited undo and a room menu, fifty rooms behind gates, a room editor | Fen the fennec, a dry spring garden, 50 new rooms |
 | 16 | **TINTAIL** | Camouflage | sneaking on a grid past watchers by taking the colour of the ground you stand on, hollow logs, sun and rain pads, hatchlings to carry home, a danger view, undo | Kama the chameleon, Salt Island, toads and storks, 15 new levels |
 | 25 | **OPEN HOUSE** | Party House | drawing guests from a rolodex into a house with limited space, the original's 46 guest abilities, costs and trouble, police, fire marshal and bans, set guest lists and a random list, win within 25 nights, 2P hot-seat | a whitewashed house by the sea, all 46 guests' names and faces |
 | 28 | **DUNE EXPRESS** | Rail Heist | real time until a guard is alert, then 10-second turns, one-bullet lawmen who hit each other too, punches through walls and floors, carrying and throwing, hiding in barrels, levers, a crank gun, rams, three outlaws, three stars a mission with the original's time goals, 2P versus | Wade, Hush and Pearl, the Governor's tax trains, Biscuit the camel, 20 new trains |
@@ -322,22 +322,24 @@ the top.
   <img src="docs/shots/fennec.gif" width="640" alt="Fennec Fountain: Fen pushes numbered stones to the dry spring">
 </p>
 <p align="center">
-  <img src="docs/shots/fennec_hub.png" width="320" alt="The oasis hub">
-  <img src="docs/shots/fennec_bath.png" width="320" alt="Room 50, the Vizier's bath">
+  <img src="docs/shots/fennec_hub.png" width="320" alt="The garden hub">
+  <img src="docs/shots/fennec_bath.png" width="320" alt="Room 50, Humph's bath">
 </p>
 
 *A tribute to **Block Koala** (UFO 50 #15).*
 
-- **Plays the same:** Sokoban where numbers are weights. A block only pushes
-  numbers as big as its own or smaller, pushing onto a 1 adds up, and five
-  turns to marble.
-- **Special blocks:** blue blocks only move for other blocks, black ones
-  crumble when you stop pushing them, and geckos copy your steps. Undo is
-  unlimited.
-- **Structure:** fifty rooms around a hub, with gates at 5, 10, 20, 30 and 40
-  drops, and a workshop for building ten rooms of your own.
-- **Ours:** Fen and Zizi the fennecs, Grand Vizier Humph and his bath, the
-  oasis garden, all fifty rooms (every wall and every block) and the music.
+- **Plays the same:** Sokoban where numbers are weights. A line of blocks
+  moves only if no block is pushed into a heavier one, and a block pushed
+  into a 1 that can't move takes it in (2 and 1 make 3). Five turns grey.
+  The fennec is slow, B undoes without limit and A opens the room menu
+  (start over, leave, or set one undo mark).
+- **Special blocks:** blue blocks move only for other blocks, black ones
+  shrink when you stop pushing them, geckos copy your steps, arrows send
+  blocks one way, stone patches take no blocks, and plates hold doors open.
+- **Structure:** fifty rooms around a garden, with gates at 5, 10, 20, 30
+  and 40 drops, and a workshop for ten rooms of your own.
+- **Ours:** Fen and Tuft the fennecs, Lord Humph the camel and his bath, the
+  garden, all fifty rooms and the music.
 
 ### 16 · TINTAIL
 
@@ -571,7 +573,7 @@ src/platform/headless/ scripted test runner, PNG / GIF / WAV writers, Vita LiveA
     intended way, and Skywell has a demo climber that checks generated pits
     can be climbed.
   - Fennec Fountain ships every room with its shortest solution, and a test
-    replays all fifty on the real rules.
+    plays all fifty with button presses on the real rules.
 
 Example test (`tests/ud_02_hazard_death.ufs`):
 

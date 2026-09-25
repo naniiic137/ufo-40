@@ -1,0 +1,46 @@
+# FENNEC FOUNTAIN: arrows let a block onto them, and off them, only their
+# way; the fennec walks over them. A second block in a line goes over the
+# arrows (the original's quirk). Stone patches take the fennec but no block.
+game fennec
+wait 5
+# pushing a 2 onto a left arrow: stuck
+cheat setroom #########/#K.2<...#/#########
+press RIGHT
+wait 12
+press RIGHT
+wait 12
+expect px == 2
+expect tile31 == 12
+# with the arrow: fine
+cheat setroom #########/#K.2>...#/#########
+press RIGHT
+wait 12
+press RIGHT
+wait 12
+press RIGHT
+wait 12
+expect tile51 == 12
+expect px == 4
+# the fennec walks over arrows either way
+cheat setroom #########/#K.<<...#/#########
+hold RIGHT 40
+expect px == 5
+# the second block in a line is not held to the arrows
+cheat setroom #########/#K.32<..#/#########
+press RIGHT
+wait 12
+press RIGHT
+wait 12
+expect tile51 == 12
+expect tile41 == 13
+# a block can't go onto a stone patch, the fennec can
+cheat setroom #########/#K.2:...#/#########
+press RIGHT
+wait 12
+press RIGHT
+wait 12
+expect px == 2
+expect tile31 == 12
+cheat setroom #########/#K.::...#/#########
+hold RIGHT 40
+expect px == 5

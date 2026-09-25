@@ -1,21 +1,73 @@
-# FENNEC FOUNTAIN: pushing a block onto a 1, or a 1 onto a block, adds them;
-# at five a block turns to marble, which pushes anything.
+# FENNEC FOUNTAIN: a block pushed into a 1 that can't move takes it in and
+# weighs one more (Block Koala's manual: a 2 pushed into a dot against a
+# wall makes a 3; two dots make a 2). A 1 that can move is simply pushed.
+# A block that reaches 5 turns to marble, which never changes again.
 game fennec
 wait 5
+# the 1 can move: it is pushed along
 cheat setroom #########/#K.31...#/#########
-cheat moves RR
+press RIGHT
+wait 12
+press RIGHT
+wait 12
+expect tile41 == 13
+expect tile51 == 11
+# against a wall: 3 + 1 = 4, and the 3 lands where the 1 was
+cheat setroom ######/#K.31#/######
+press RIGHT
+wait 12
+press RIGHT
+wait 12
 expect tile41 == 14
 expect tile31 == 0
 expect nb == 1
-cheat setroom #########/#K.13...#/#########
-cheat moves RR
-expect tile41 == 14
 expect px == 3
+# two dots make a 2
+cheat setroom ######/#K.11#/######
+press RIGHT
+wait 12
+press RIGHT
+wait 12
+expect tile41 == 12
 expect nb == 1
-cheat setroom #########/#K.41...#/#########
-cheat moves RR
+# a 1 pushed into a heavier block is stuck; they don't merge
+cheat setroom #########/#K.13...#/#########
+press RIGHT
+wait 12
+press RIGHT
+wait 12
+expect px == 2
+expect tile31 == 11
+expect tile41 == 13
+expect nb == 2
+# four and one: five turns to marble
+cheat setroom ######/#K.41#/######
+press RIGHT
+wait 12
+press RIGHT
+wait 12
 expect tile41 == 55
+# marble pushes anything, but never takes in a 1
 cheat setroom #########/#K.54...#/#########
-cheat moves RR
+press RIGHT
+wait 12
+press RIGHT
+wait 12
 expect tile41 == 55
 expect tile51 == 14
+cheat setroom ######/#K.51#/######
+press RIGHT
+wait 12
+press RIGHT
+wait 12
+expect px == 2
+expect tile31 == 55
+expect tile41 == 11
+# the water stone weighs nothing: it can't push a 1
+cheat setroom #########/#K.S1...#/#########
+press RIGHT
+wait 12
+press RIGHT
+wait 12
+expect px == 2
+expect tile31 == 40

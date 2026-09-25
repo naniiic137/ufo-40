@@ -20,9 +20,13 @@
 #define FN_CUSTOM 10
 #define FN_NONE 255
 
-/* block kinds */
+/* block kinds; the water stone weighs 0, a 1 is a "dot" */
 enum { BK_NONE = 0, BK_SAND, BK_LAPIS, BK_BASALT, BK_STONE, BK_MARBLE };
 enum { DIR_UP, DIR_RIGHT, DIR_DOWN, DIR_LEFT };
+
+/* floor features: arrows (blocks move over them only their way), stone
+ * patches (no block may enter), plates and the doors they hold open */
+enum { FT_FLOOR = 0, FT_ARROW_U, FT_ARROW_R, FT_ARROW_D, FT_ARROW_L, FT_PATCH, FT_PLATE, FT_DOOR };
 
 typedef struct FnBlock {
     uint8_t kind, n, x, y; /* a basalt block covers n x n tiles from (x, y) */
@@ -32,8 +36,9 @@ typedef struct FnBlock {
 typedef struct FnRoom {
     uint8_t w, h;
     uint8_t wall[FN_H][FN_W];
+    uint8_t tile[FN_H][FN_W];  /* FT_* */
     uint8_t goal_x, goal_y;
-    uint8_t door_x, door_y;  /* the way out (FN_NONE when there is none) */
+    uint8_t nplates;
 } FnRoom;
 
 /* everything that moves */
@@ -45,11 +50,12 @@ typedef struct FnState {
     FnBlock b[FN_MAX_BLOCKS];
     int8_t push_blk;         /* the basalt block the fennec is pushing, or -1 */
     int8_t push_dir;
-    uint8_t won, exited;
+    uint8_t won;
+    uint8_t door_open;       /* the doors stand open */
 } FnState;
 
 /* what happened in a step, for the animation */
-enum { FE_WALK, FE_BUMP, FE_PUSH, FE_MERGE, FE_SHRINK, FE_CRUMBLE, FE_GECKO, FE_MARBLE, FE_WIN, FE_EXIT };
+enum { FE_WALK, FE_BUMP, FE_PUSH, FE_MERGE, FE_SHRINK, FE_CRUMBLE, FE_GECKO, FE_MARBLE, FE_WIN, FE_OPEN, FE_SHUT };
 typedef struct FnEvent {
     uint8_t type, a;         /* a: block index (after the step) or gecko index */
     int8_t x, y, x2, y2;
@@ -78,7 +84,7 @@ extern const RoomDef FN_ROOMS_DEF[FN_ROOMS];
 /* art & audio */
 enum {
     FS_FEN_D, FS_FEN_D2, FS_FEN_U, FS_FEN_U2, FS_FEN_S, FS_FEN_S2, FS_FEN_PUSH,
-    FS_ZIZI, FS_HUMPH, FS_GECKO1, FS_GECKO2,
+    FS_TUFT, FS_HUMPH, FS_GECKO1, FS_GECKO2,
     FS_STONE, FS_SPRING_DRY, FS_SPRING_WET, FS_DROP, FS_PALM, FS_DOOR, FS_LOCK, FS_CURSOR,
     FS_SPRITE_COUNT
 };
