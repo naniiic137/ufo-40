@@ -98,8 +98,8 @@ int bf_count(const Board *b, int side, int type) {
 }
 
 int bf_timer_counts(const Board *b) {
-    if (b->turn >= 60) return 4; /* TRIPLE TIME */
-    if (b->turn >= 40) return 6; /* DOUBLE TIME */
+    if (b->turn >= 60) return 4; /* double quick (Attactics: triple time) */
+    if (b->turn >= 40) return 6; /* quick march (Attactics: double time) */
     return 9;
 }
 

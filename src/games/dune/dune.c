@@ -746,8 +746,8 @@ static void draw_menu(void) {
     bool vs_sel = menu_sel == DX_MISSIONS;
     if (vs_sel) gfx_rect(10, 150, 146, 12, C_DUSK);
     text_draw("2P VERSUS", 14, 152, vs_sel ? C_WHITE : C_GREY);
-    tiny_draw("STARS: " "ANGEL (NO KILLS)", 164, 150, C_ICE);
-    tiny_draw("DEVIL (ALL GUARDS) " GLYPH_DOT " TIME", 164, 158, C_ORANGE);
+    tiny_draw("STARS: " "MERCY (NO KILLS)", 164, 150, C_ICE);
+    tiny_draw("RUTHLESS (ALL GUARDS) " GLYPH_DOT " SWIFT", 164, 158, C_ORANGE);
 }
 
 static void update_menu(void) {
@@ -812,7 +812,7 @@ static void draw_brief(void) {
     tiny_draw(b, tx, 118, C_YELLOW);
     for (int s = 0; s < 3; s++) {
         bool got = (sv.stars[cur] >> s) & 1;
-        static const char *const N[3] = {"ANGEL", "DEVIL", "TIME"};
+        static const char *const N[3] = {"MERCY", "RUTHLESS", "SWIFT"};
         mini_star(tx + s * 46, 130, got ? (s == 0 ? C_ICE : s == 1 ? C_RED : C_YELLOW) : C_DUSK);
         tiny_draw(N[s], tx + 8 + s * 46, 130, got ? C_WHITE : C_SLATE);
     }
@@ -831,7 +831,7 @@ static void draw_result(void) {
         tiny_center(won ? "TEN COINS OFF THE TRAIN." : "THEY HELD OUT FOR TEN TURNS.", 160, 84, C_CREAM);
     } else if (won) {
         ui_fancy_center("CLEAN GETAWAY!", 160, 58, 2, g1, 4, C_INK, C_NIGHT);
-        static const char *const N[3] = {"ANGEL", "DEVIL", "TIME"};
+        static const char *const N[3] = {"MERCY", "RUTHLESS", "SWIFT"};
         for (int s = 0; s < 3; s++) {
             bool got = (result_stars >> s) & 1;
             int x = 86 + s * 52;

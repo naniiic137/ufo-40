@@ -1081,7 +1081,7 @@ static void draw_play(void) {
         static const uint8_t grad[] = {C_YELLOW, C_ORANGE, C_RED};
         int y = 70 + (banner_t > 80 ? (banner_t - 80) * 3 : 0);
         gfx_rect(0, y - 4, SCREEN_W, 26, C_INK);
-        ui_fancy_center(banner_kind == 1 ? "DOUBLE TIME!" : banner_kind == 2 ? "TRIPLE TIME!" : "A CHAMPION ARRIVES!", 160, y, 2, grad, 3, C_INK, C_MAROON);
+        ui_fancy_center(banner_kind == 1 ? "QUICK MARCH!" : banner_kind == 2 ? "DOUBLE QUICK!" : "A CHAMPION ARRIVES!", 160, y, 2, grad, 3, C_INK, C_MAROON);
     }
     if (sub == P_OVER) {
         int lvl = imin(10, sub_t / 3);
@@ -1362,7 +1362,7 @@ static void draw_versus(void) {
     gfx_cls(C_NIGHT);
     static const uint8_t grad[] = {C_CREAM, C_YELLOW, C_AMBER};
     ui_fancy_center("2P VERSUS", 160, 4, 2, grad, 3, C_INK, C_MAROON);
-    static const char *PRESETS[VS_PRESETS] = {"BEGINNER", "MODERATE", "ADVANCED", "CUSTOM", "RANDOM"};
+    static const char *PRESETS[VS_PRESETS] = {"RECRUITS", "REGULARS", "FULL MUSTER", "CUSTOM", "RANDOM"};
     char buf[64];
     snprintf(buf, sizeof buf, GLYPH_LEFT " %s " GLYPH_RIGHT, PRESETS[vs_preset]);
     bool on_banner = vs_cur[0] == -1;
