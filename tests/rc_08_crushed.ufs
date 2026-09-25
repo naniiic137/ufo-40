@@ -6,7 +6,7 @@ cheat area 0 1
 cheat clear_foes
 cheat cam 1058
 cheat put 2 83
-wait 40
+waituntil spirit == 1 120
 expect lives == 2
 expect spirit == 1
 expect killer == 3000

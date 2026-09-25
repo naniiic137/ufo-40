@@ -16,9 +16,14 @@
 #define MAX_COLS (RC_WORLD_CHUNKS * RC_CHUNK_W)
 #define SPIRIT_FRAMES 240
 #define STAR_RANGE 112.0f
+#define STAR_RANGE_UP 32.0f /* each catnip: farther (112, 144, 176) */
 #define THROW_CD 9       /* frames between stars while B is held */
+#define THROW_CD_UP 2    /* each catnip: faster (9, 7, 5) */
 #define SPIRIT_CD 22     /* the spirit's twin shots come much slower */
 #define START_LIVES 3
+#define STUN_FRAMES 20   /* the moment she is stunned by a hit, before she falls */
+#define CLOUD_FRAMES 420 /* a firecracker's cloud hangs about for seven seconds */
+#define LEG_USABLE (FLOOR_Y + 44) /* a crab leg higher than this is footing */
 #define BOSS_HP 35
 #define FLOOR_Y 96       /* the rooftop line (row 6) */
 #define FISH_RANGE 72.0f /* fish (and jars in the water) wait for her this close */
@@ -43,7 +48,7 @@ enum {
 #define IS_FOE(t) ((t) >= E_PIGEON && (t) <= E_MOTH)
 
 /* foe variants (Ent.mode) */
-enum { M_NONE, M_CEILING, M_WATER, M_MOVING, M_PURPLE, M_CHIMNEY, M_LIVELY, M_DIVE, M_BOSSFISH, M_POP };
+enum { M_NONE, M_CEILING, M_WATER, M_MOVING, M_CHIMNEY, M_LIVELY, M_DIVE, M_BOSSFISH, M_POP };
 
 typedef struct Ent {
     uint8_t type;
@@ -86,13 +91,16 @@ static uint32_t score, next_life_at;
 static int lives, power, kills_since_power, letters_this_run, snacks_total, kills_run;
 static int snack_points; /* points from snacks this run (tests) */
 static int bomb_shards; /* shards made by bursting bombs (tests) */
+static int leg_seen, low_up_frames, arena_frames; /* the legs' heights (tests) */
+static int dens_sum[RC_AREAS], dens_n[RC_AREAS]; /* awake foes by area (tests) */
+static bool godmode; /* tests: nothing takes a life */
 static int new_rank; /* place on the board after the last run, -1 = none */
 static bool recorded, over_in_bonus;
 static float cam_x, arena_x;
 static int spawned_chunks, cur_area;
 static bool in_arena, boss_dead;
 static int boss_i = -1;
-static int crows_seen, crackers_seen, fishes_seen;
+static int crackers_seen, fishes_seen;
 /* what took the last life (for the tests): a thing type, or 1000 + a tile, 2000 fell, 3000 crushed */
 static int last_killer;
 static bool sheet_mode;
@@ -108,11 +116,13 @@ static bool jit_valid;
 
 typedef struct Player {
     float x, y, vx, vy;
-    bool ground, still;
+    bool ground;
     int jumps, face, throw_t, throw_cd, anim, drop_t;
     int leg; /* index of the crab leg stood on, -1 none */
     bool spirit;
     int spirit_t, dead_t;
+    int stun_t;    /* hit: frozen for a moment */
+    bool dropping; /* then falling off the bottom */
 } Player;
 static Player pl;
 
@@ -265,13 +275,9 @@ static void spawn_chunk(int c) {
             case 'p': type = E_PIGEON; break;
             case 'P': type = E_RPIGEON; break;
             case 'c':
-                /* after dark the chimneys hold purple crows, or loose laundry
-                 * that rises out of them */
+                /* after dark the chimneys let out laundry instead (the Rag) */
                 type = E_CROW;
-                if (loop >= 2) {
-                    if (crows_seen++ % 2) { type = E_SHEET; mode = M_CHIMNEY; }
-                    else mode = M_PURPLE;
-                }
+                if (loop >= 2) { type = E_SHEET; mode = M_CHIMNEY; }
                 break;
             case 'g': type = E_GECKO; break;
             case 'u': type = E_GULL; break;
@@ -375,15 +381,15 @@ static void start_at(int area) {
     boss_dead = false;
     carry_px = 0;
     jit_valid = false;
-    crows_seen = crackers_seen = fishes_seen = 0;
+    crackers_seen = fishes_seen = 0;
+    memset(dens_sum, 0, sizeof dens_sum);
+    memset(dens_n, 0, sizeof dens_n);
     build_snacks();
     int chunk = area >= RC_AREAS ? RC_WORLD_CHUNKS - 2 : area * RC_AREA_CHUNKS;
     cam_x = (float)(chunk * RC_CHUNK_W * 16);
     spawned_chunks = chunk;
     cur_area = iclamp(area, 0, RC_AREAS - 1);
     place_player(cam_x + 48);
-    power = 0;
-    kills_since_power = 0;
     spawn_ahead();
     state = S_INTRO;
     state_t = 0;
@@ -411,6 +417,8 @@ static void new_run(void) {
     kills_run = 0;
     recorded = false;
     new_rank = -1;
+    power = 0;
+    kills_since_power = 0;
     next_life_at = 3000;
     loop = 1;
     start_at(0);
@@ -428,16 +436,13 @@ static void to_title(void) {
 
 static int max_stars(void) { return 1 + power; }
 
-static void lose_life(void) {
-    if (pl.spirit || state != S_PLAY || pl.dead_t > 0) return;
-    sfx_play_name("rc_die");
-    shake = 12;
-    puff(pl.x + PW / 2, pl.y + PH / 2, C_ORANGE);
-    power = 0;
-    kills_since_power = 0;
+/* The life is gone once she has fallen away: then the spirit comes down
+ * from the top, or with no lives left it is game over. */
+static void finish_death(void) {
+    pl.dropping = false;
+    pl.stun_t = 0;
     if (lives <= 0) {
         pl.dead_t = 1;
-        over_in_bonus = bonus_of_col((int)pcx() >> 4) >= 0;
         return;
     }
     lives--;
@@ -449,6 +454,22 @@ static void lose_life(void) {
     pl.leg = -1;
     pl.throw_cd = 0;
     sfx_play_name("rc_spirit");
+}
+
+/* A hit stuns her for a moment, then she falls off the bottom of the screen;
+ * the catnip is lost at once. Falling into a pit skips straight to the end. */
+static void lose_life(void) {
+    if (godmode) return;
+    if (pl.spirit || state != S_PLAY || pl.dead_t > 0 || pl.stun_t > 0 || pl.dropping) return;
+    sfx_play_name("rc_die");
+    shake = 12;
+    puff(pl.x + PW / 2, pl.y + PH / 2, C_ORANGE);
+    power = 0;
+    over_in_bonus = bonus_of_col((int)pcx() >> 4) >= 0;
+    pl.vx = pl.vy = 0;
+    pl.leg = -1;
+    if (pl.y > 150) finish_death();
+    else pl.stun_t = STUN_FRAMES;
 }
 
 static void revive(void) {
@@ -478,7 +499,7 @@ static void move_x(float dx) {
 static bool leg_under(float feet_prev, float feet_new, int *which) {
     for (int i = 0; i < MAX_ENTS; i++) {
         Ent *l = &ents[i];
-        if (!l->alive || l->type != E_LEG || l->y > 140) continue;
+        if (!l->alive || l->type != E_LEG || l->y > LEG_USABLE) continue;
         if (pl.x + PW <= l->x || pl.x >= l->x + l->w) continue;
         if (feet_prev <= l->y + 1.5f && feet_new >= l->y) { *which = i; return true; }
     }
@@ -525,7 +546,7 @@ static void move_y(float dy) {
 static bool standing(void) {
     if (pl.leg >= 0) {
         Ent *l = &ents[pl.leg];
-        return l->alive && pl.x + PW > l->x && pl.x < l->x + l->w && l->y <= 140;
+        return l->alive && pl.x + PW > l->x && pl.x < l->x + l->w && l->y <= LEG_USABLE;
     }
     int ty = ((int)pl.y + PH) >> 4;
     if (((int)pl.y + PH) & 15) return box_solid(pl.x, pl.y + 1, PW, PH);
@@ -546,8 +567,9 @@ static bool on_ledge(void) {
 
 static void throw_star(void) {
     Ent *s = spawn(E_STAR, pl.face > 0 ? pl.x + PW : pl.x - 8, pl.y + 3);
-    if (s) { s->w = 8; s->h = 8; s->vx = 3.6f * pl.face; s->t = (int)(STAR_RANGE / 3.6f); }
-    pl.throw_cd = THROW_CD;
+    /* each catnip also throws farther and faster */
+    if (s) { s->w = 8; s->h = 8; s->vx = 3.6f * pl.face; s->t = (int)((STAR_RANGE + STAR_RANGE_UP * (float)power) / 3.6f); }
+    pl.throw_cd = THROW_CD - THROW_CD_UP * power;
     pl.throw_t = 8;
     sfx_play_name("rc_throw");
 }
@@ -586,7 +608,7 @@ static void update_spirit(void) {
     pl.x += c + dx * 1.1f;
     pl.y += age < 40 ? 1.2f : dy * 1.1f; /* drifts down into view first */
     pl.x = fclamp(pl.x, cam_x + 2, cam_x + 320 - PW - 2);
-    pl.y = fclamp(pl.y, -PH, 146);
+    pl.y = fclamp(pl.y, -PH, 160 - PH - 1);
     if (pl.throw_cd > 0) pl.throw_cd--;
     if (btn(BTN_B) && pl.throw_cd == 0) {
         for (int k = -1; k <= 1; k += 2) {
@@ -603,16 +625,28 @@ static void update_spirit(void) {
 
 static void update_player(void) {
     if (pl.spirit) { update_spirit(); return; }
+    if (pl.stun_t > 0) {
+        /* stunned where she was hit, while the town scrolls on */
+        if (--pl.stun_t == 0) { pl.dropping = true; pl.vy = -1.5f; }
+        return;
+    }
+    if (pl.dropping) {
+        /* knocked off: down through everything and off the screen */
+        pl.vy = fminf(pl.vy + GRAV, 5.0f);
+        pl.y += pl.vy;
+        if (pl.y > 176) finish_death();
+        return;
+    }
     float c = carry();
     int dir = btn(BTN_RIGHT) - btn(BTN_LEFT);
     if (dir) pl.face = dir;
     if (pl.drop_t > 0) pl.drop_t--;
     if (pl.throw_cd > 0) pl.throw_cd--;
     if (pl.throw_t > 0) pl.throw_t--;
-    /* horizontal, against the town: with no input the scroll carries her
-     * (she keeps her place on the screen), left holds her ground, right runs */
-    pl.still = dir < 0;
-    move_x(dir > 0 ? c + RUN : dir < 0 ? 0.0f : c);
+    /* horizontal, against the screen: with no input the scroll carries her
+     * (she keeps her place on it), left walks her back and right runs ahead,
+     * both at the same pace; with the scroll stopped (the boss) she just walks */
+    move_x(c + (float)dir * RUN);
     /* pushed by the screen's left edge; squeezed against a wall, you're done */
     if (pl.x < cam_x) {
         if (box_solid(cam_x, pl.y, PW, PH)) { last_killer = 3000; lose_life(); return; }
@@ -654,7 +688,7 @@ static void update_player(void) {
         move_y(pl.vy);
         if (pl.ground) { pl.vy = 0; pl.jumps = 0; }
     }
-    pl.anim += dir > 0 ? 2 : dir < 0 ? 0 : 1;
+    pl.anim += dir ? 2 : 1;
     eat_snacks();
     /* hazards */
     int x0 = ((int)pl.x + 2) >> 4, x1 = ((int)pl.x + PW - 3) >> 4;
@@ -861,9 +895,15 @@ static void update_foe(Ent *e) {
         break;
     case E_FFISH: case E_PUFFER: fish_leap(e); break;
     case E_WASP:
-        /* in from the left edge, heading right; while behind her it eases to her height */
-        e->x += SCROLL + 1.3f;
-        if (e->x + e->w / 2 < pcx()) e->y += fclamp((pcy() - (e->y + 3)) * 0.04f, -0.8f, 0.8f);
+        /* in from the left edge, heading right; while behind her it eases to
+         * her height, and once level with her it darts ahead (sub 1); past
+         * her it just flies on (sub 2) */
+        if (e->sub == 0) {
+            if (e->x + e->w / 2 >= pcx()) e->sub = 2;
+            else if (fabsf(pcy() - (e->y + 3)) < 2) e->sub = 1;
+            else e->y += fclamp((pcy() - (e->y + 3)) * 0.04f, -0.8f, 0.8f);
+        }
+        e->x += SCROLL + (e->sub == 1 ? 3.0f : 1.3f);
         if (e->x > cam_x + 340) e->alive = false;
         break;
     case E_SNAIL:
@@ -944,10 +984,10 @@ static void update_foe(Ent *e) {
          * choking cloud; after dark they go off sooner, from farther away */
         bool lively = e->mode == M_LIVELY;
         float reach = lively ? 96.0f : 64.0f;
-        if (e->sub == 0 && !pl.spirit && fabsf(pcx() - (e->x + 5)) < reach) { e->sub = 1; e->t = 0; sfx_play_name("rc_fuse"); }
+        if (e->sub == 0 && fabsf(pcx() - (e->x + 5)) < reach) { e->sub = 1; e->t = 0; sfx_play_name("rc_fuse"); }
         if (e->sub == 1 && e->t >= (lively ? 40 : 60)) {
             Ent *b = spawn(E_CLOUD, e->x + 5 - 20, e->y + 6 - 18);
-            if (b) { b->w = 40; b->h = 34; b->t = 100; }
+            if (b) { b->w = 40; b->h = 34; b->t = CLOUD_FRAMES; }
             sfx_play_name("rc_boom");
             shake = 8;
             e->alive = false;
@@ -1014,17 +1054,13 @@ static void update_foe(Ent *e) {
         }
         break;
     case E_SHEET:
-        if (pl.spirit && e->sub != 0) {
-            /* while she is a spirit the laundry blows away upward */
-            e->y -= 1.4f;
-            if (e->y < -24) e->alive = false;
-            break;
-        }
         if (e->sub == 0) {
-            /* rises out of its chimney to her height */
+            /* rises out of its chimney to her height (following a spirit
+             * up, it can rise right off the top) */
             float dy = pcy() - (e->y + 6);
             e->y += fclamp(dy, -1.2f, 1.2f);
             if (fabsf(dy) < 2 || e->t > 150) { e->sub = 1; e->dir = pcx() < e->x ? -1 : 1; e->hy = e->y; }
+            if (e->y < -24) e->alive = false;
         } else {
             /* then sails at her, bobbing */
             e->x += 1.3f * e->dir;
@@ -1054,12 +1090,12 @@ static void lamp_spike(const Ent *e, int k, float *sx, float *sy) {
 /* ---- the boss: Old Crab ---- */
 
 #define EYE_X (arena_x + 258)
-#define EYE_Y 64
+#define EYE_Y (FLOOR_Y - 32)
 
 static const float LEG_X[4] = {60, 108, 156, 204};
 
 static void spawn_boss(void) {
-    Ent *b = spawn(E_BOSS, arena_x + 232, 84);
+    Ent *b = spawn(E_BOSS, arena_x + 232, FLOOR_Y - 12);
     if (!b) return;
     boss_i = (int)(b - ents);
     b->w = 80; b->h = 60;
@@ -1073,7 +1109,7 @@ static void spawn_boss(void) {
 }
 
 static void boss_hit(Ent *b) {
-    if (b->flash > 0 || boss_dead) return;
+    if (boss_dead) return; /* every hit counts */
     b->hp--;
     b->flash = 5;
     sfx_play_name("rc_bosshit");
@@ -1085,20 +1121,38 @@ static void boss_hit(Ent *b) {
     }
 }
 
+/* The height a leg reaches on a rise: low, middle or high. Half the rises are
+ * low ones, so with four legs taking turns a low one is up most of the time. */
+static float leg_top(int n, int cycle) {
+    static const float TOPS[4] = {FLOOR_Y + 20, FLOOR_Y + 4, FLOOR_Y + 20, FLOOR_Y - 12};
+    return TOPS[(cycle + n) % 4];
+}
+
 static void update_legs(void) {
     for (int i = 0; i < MAX_ENTS; i++) {
         Ent *l = &ents[i];
         if (!l->alive || l->type != E_LEG) continue;
         float oy = l->y;
         /* each leg rises, stands, sinks and rests; the four take turns */
-        int ph = (frame_t + l->n * 95) % 380;
-        float top = 100, low = 150;
-        if (boss_dead) l->y = fminf(l->y + 1.0f, 170);
+        int tt = frame_t + l->n * 95, ph = tt % 380;
+        float top = leg_top(l->n, tt / 380), low = FLOOR_Y + 54;
+        l->k = (int)top;
+        if (boss_dead) l->y = fminf(l->y + 1.0f, FLOOR_Y + 74);
         else if (ph < 30) l->y = low + (top - low) * (float)ph / 30.0f;
         else if (ph < 190) l->y = top;
         else if (ph < 220) l->y = top + (low - top) * (float)(ph - 190) / 30.0f;
-        else l->y = 170;
+        else l->y = FLOOR_Y + 74;
         if (pl.leg == i && !pl.spirit) pl.y += l->y - oy;
+    }
+    if (in_arena && !boss_dead) {
+        int low_up = 0;
+        for (int i = 0; i < MAX_ENTS; i++)
+            if (ents[i].alive && ents[i].type == E_LEG && ents[i].y == (float)ents[i].k) {
+                leg_seen |= ents[i].k == (int)FLOOR_Y + 20 ? 4 : ents[i].k == (int)FLOOR_Y + 4 ? 2 : 1;
+                low_up |= ents[i].k == (int)FLOOR_Y + 20;
+            }
+        arena_frames++;
+        low_up_frames += low_up;
     }
 }
 
@@ -1109,10 +1163,10 @@ static void update_boss(Ent *b) {
         if (b->t >= 180) b->alive = false;
         return;
     }
-    int burst = loop >= 2 ? 90 : 120;
+    int burst = 120; /* the same Old Crab in both loops */
     if (b->t % burst == burst - 1) {
         /* a burst of shots from the mouth, fanned at her */
-        float mx = arena_x + 248, my = 104;
+        float mx = arena_x + 248, my = FLOOR_Y + 8;
         float dx = pcx() - mx, dy = pcy() - my, base = atan2f(dy, dx);
         for (int k = -2; k <= 2; k++) {
             float a = base + k * 0.22f;
@@ -1127,10 +1181,10 @@ static void update_boss(Ent *b) {
     }
     if (b->t % 170 == 60) {
         /* a yellow flying fish leaps between the legs */
-        Ent *f = spawn(E_FFISH, arena_x + (float)rng_range(&rng, 80, 220), 150);
+        Ent *f = spawn(E_FFISH, arena_x + (float)rng_range(&rng, 80, 220), FLOOR_Y + 54);
         if (f) {
             f->w = 10; f->h = 8; f->hp = 1; f->value = 200; f->mode = M_BOSSFISH;
-            f->sub = 1; f->vy = -5.0f; f->vx = rng_chance(&rng, 50) ? 0.6f : -0.6f; f->state = 0; f->hy = 150;
+            f->sub = 1; f->vy = -5.0f; f->vx = rng_chance(&rng, 50) ? 0.6f : -0.6f; f->state = 0; f->hy = FLOOR_Y + 54;
         }
     }
 }
@@ -1251,7 +1305,7 @@ static void update_ents(void) {
             bool hit = floor_at(((int)e->x + 4) >> 4, ty) && (int)(e->y + e->h) - ty * 16 < 3;
             for (int j = 0; j < MAX_ENTS && !hit; j++) {
                 Ent *l = &ents[j];
-                if (l->alive && l->type == E_LEG && l->y < 150 && e->x + 8 > l->x && e->x < l->x + l->w && e->y + e->h >= l->y && e->y + e->h < l->y + 4) hit = true;
+                if (l->alive && l->type == E_LEG && l->y < LEG_USABLE + 10 && e->x + 8 > l->x && e->x < l->x + l->w && e->y + e->h >= l->y && e->y + e->h < l->y + 4) hit = true;
             }
             if (hit) {
                 e->alive = false;
@@ -1325,7 +1379,7 @@ static void killed_by(int k) {
 }
 
 static void contacts(void) {
-    if (pl.dead_t || pl.spirit) return; /* the spirit can't touch or be touched */
+    if (pl.dead_t || pl.spirit || pl.stun_t > 0 || pl.dropping) return; /* the spirit can't touch or be touched */
     int px = (int)pl.x + 1, py = (int)pl.y + 2, pw = PW - 2, ph = PH - 3;
     for (int i = 0; i < MAX_ENTS; i++) {
         Ent *e = &ents[i];
@@ -1411,6 +1465,17 @@ static void play_update(void) {
         cur_area = area;
         music_play(RC_MUS_AREA[area]);
     }
+    {
+        /* how busy the town is: awake foes, area by area (bonus stretches aside) */
+        int mid = (cam_px() + 160) >> 4;
+        if (!in_arena && bonus_of_col(mid) < 0) {
+            int n = 0;
+            for (int i = 0; i < MAX_ENTS; i++) n += ents[i].alive && IS_FOE(ents[i].type) && ents[i].state != -1;
+            dens_sum[area] += n;
+            dens_n[area]++;
+        }
+    }
+    if (godmode && pl.y > 164) { pl.y = 20; pl.vy = 0; }
     if (pl.dead_t > 0) {
         if (++pl.dead_t > 80) {
             state = S_OVER;
@@ -1745,7 +1810,6 @@ static void draw_ent(const Ent *e) {
     case E_CROW: {
         /* hides in its chimney; pops up to shoot */
         const uint8_t *remap = NULL;
-        if (e->mode == M_PURPLE) { pal_identity(rm); rm[C_NIGHT] = C_PURPLE; rm[C_DUSK] = C_VIOLET; remap = rm; }
         if (e->sub == 1) spr_draw_ex(&rc_spr[e->cd > 20 && e->cd < 45 ? R_CROW2 : R_CROW1], x - 2, y - 4, fl, remap, solid);
         else { gfx_pset(x + 3, y + 10, C_YELLOW); gfx_pset(x + 8, y + 10, C_YELLOW); }
         break;
@@ -1806,12 +1870,16 @@ static void draw_ent(const Ent *e) {
         if (charge && (e->k / 3) % 2) gfx_dither_circle(x + (e->dir > 0 ? 12 : 0), y + 5, 6, C_WHITE, 8);
         break;
     }
-    case E_SHEET: spr_draw_ex(&rc_spr[(e->t / 7) % 2 ? R_SHEET1 : R_SHEET2], x - 2, y - 2, e->dir > 0 ? SPR_FLIPX : 0, NULL, solid); break;
+    case E_SHEET: /* purple, like the second loop's other swaps */
+        pal_identity(rm);
+        rm[C_WHITE] = C_PINK; rm[C_SKY] = C_VIOLET;
+        spr_draw_ex(&rc_spr[(e->t / 7) % 2 ? R_SHEET1 : R_SHEET2], x - 2, y - 2, e->dir > 0 ? SPR_FLIPX : 0, rm, solid);
+        break;
     case E_MOTH: spr_draw_ex(&rc_spr[(e->t / 3) % 2 ? R_MOTH1 : R_MOTH2], x - 1, y - 1, 0, NULL, solid); break;
     case E_BOSS: draw_crab(e); break;
     case E_LEG: {
         /* a crab leg breaking the surface: a knobbly red platform */
-        if (e->y > 150) break;
+        if (e->y > LEG_USABLE + 10) break;
         int h = 160 - y;
         gfx_rect(x + 8, y + 4, 12, h, C_WINE);
         gfx_rect(x + 10, y + 4, 3, h, C_RED);
@@ -1844,10 +1912,10 @@ static void draw_ent(const Ent *e) {
         gfx_dither_circle(x + 8, y + 7, 8, e->t % 8 < 4 ? C_GREY : C_LIGHT, 6 + (e->t > 20 ? 4 : 0));
         break;
     case E_CLOUD: {
-        /* the firecracker's choking cloud: thick, then thinning out */
-        int lvl = e->t > 80 ? 12 : e->t > 20 ? 9 : 5;
+        /* the firecracker's choking cloud: thick, thinning in its last second */
+        int lvl = e->t > 60 ? 12 : 3 + e->t / 7;
         int cx = x + e->w / 2, cy = y + e->h / 2;
-        if (e->t > 90) gfx_circ(cx, cy, 10 + (100 - e->t), (e->t / 2) % 2 ? C_YELLOW : C_ORANGE);
+        if (e->t > CLOUD_FRAMES - 10) gfx_circ(cx, cy, 10 + (CLOUD_FRAMES - e->t), (e->t / 2) % 2 ? C_YELLOW : C_ORANGE);
         gfx_dither_circle(cx - 8, cy + 2, 12, C_GREY, lvl);
         gfx_dither_circle(cx + 7, cy - 3, 13, C_SLATE, lvl);
         gfx_dither_circle(cx, cy + 6, 11, C_LIGHT, lvl - 2);
@@ -1907,9 +1975,12 @@ static void draw_player(void) {
     }
     int fl = pl.face < 0 ? SPR_FLIPX : 0;
     int spr;
+    if (pl.stun_t > 0 || pl.dropping) {
+        spr_draw(&rc_spr[R_CAT_HURT], x, y, fl | (pl.dropping ? SPR_FLIPY : 0));
+        return;
+    }
     if (pl.throw_t > 0) spr = R_CAT_THROW;
     else if (!pl.ground) spr = pl.jumps >= 2 && pl.vy < 0 ? R_CAT_SPIN : pl.vy < 0 ? R_CAT_JUMP : R_CAT_FALL;
-    else if (pl.still) spr = R_CAT_IDLE; /* holding her ground */
     else {
         static const int run[4] = {R_CAT_RUN1, R_CAT_RUN2, R_CAT_RUN3, R_CAT_RUN4};
         spr = run[(pl.anim / 10) % 4];
@@ -1929,13 +2000,6 @@ static void draw_hud(void) {
     for (int i = 0; i < 2; i++) spr_draw_ex(&rc_spr[R_CATNIP], 206 + i * 10, 6, 0, NULL, i < power ? -1 : C_DUSK);
     for (int i = 0; i < imin(lives, 6); i++) spr_draw(&rc_spr[R_CAT_HEAD], 232 + i * 9, 7, 0);
     if (lives > 6) { snprintf(buf, sizeof buf, "+%d", lives - 6); tiny_draw(buf, 288, 8, C_WHITE); }
-    if (in_arena && boss_i >= 0 && ents[boss_i].alive) {
-        Ent *b = &ents[boss_i];
-        int w = 100 * iclamp(b->hp, 0, BOSS_HP) / BOSS_HP;
-        gfx_rect(110, 170, 102, 6, C_INK);
-        gfx_rect(111, 171, w, 4, C_RED);
-        gfx_rectb(110, 170, 102, 6, C_WHITE);
-    }
 }
 
 static void draw_play(void) {
@@ -2144,6 +2208,7 @@ static void rc_load(void) {
 }
 
 static void rc_start(void) {
+    godmode = false;
     rng_seed(&rng, g_rng.state ^ 0xCA7ull);
     load_save();
     sheet_mode = false;
@@ -2259,7 +2324,10 @@ static int threat_eta(void) {
         switch (kind) {
         case E_PEBBLE: case E_SEED: case E_BUBBLE: case E_SHRAP: case E_BEAM: case E_ORBHALF: case E_BOMB:
         case E_MAGPIE: break;
-        case E_WASP: vx = SCROLL + 1.3f; vy = fclamp((pcy() - (e->y + 3)) * 0.04f, -0.8f, 0.8f); break;
+        case E_WASP:
+            vx = SCROLL + (e->sub == 1 ? 3.0f : 1.3f);
+            vy = e->sub == 0 ? fclamp((pcy() - (e->y + 3)) * 0.04f, -0.8f, 0.8f) : 0;
+            break;
         case E_PIGEON: case E_RPIGEON: if (e->sub == 0) continue; vx = (e->type == E_RPIGEON ? 3.9f : 1.5f) * (float)e->dir; vy = 0; break;
         case E_GULL: vx = -0.25f; vy = 0; break;
         case E_PELICAN: vx = -2.2f; vy = 0; break;
@@ -2398,7 +2466,7 @@ static int bot_buttons(void) {
                 if (floor_at(((int)pl.x + dx) >> 4, r)) under = true;
             }
         for (int i = 0; i < MAX_ENTS && !under; i++)
-            if (ents[i].alive && ents[i].type == E_LEG && ents[i].y < 140 && pl.x + PW > ents[i].x - 16 && pl.x < ents[i].x + ents[i].w + 16) under = true;
+            if (ents[i].alive && ents[i].type == E_LEG && ents[i].y < LEG_USABLE && pl.x + PW > ents[i].x - 16 && pl.x < ents[i].x + ents[i].w + 16) under = true;
         if (!under) m |= BTN_RIGHT;
         if (!under && pl.vy > 0.3f && pl.jumps < 2) bot_jump(16);
         { int eta = threat_eta(); if (eta >= 0 && eta <= 10 && pl.jumps < 2) bot_jump(12); }
@@ -2469,6 +2537,14 @@ static int rc_query(const char *key, int *out) {
     if (!strcmp(key, "hi3")) { *out = (int)sv.hi[3]; return 1; }
     if (!strcmp(key, "hi4")) { *out = (int)sv.hi[4]; return 1; }
     if (!strcmp(key, "bomb_shards")) { *out = bomb_shards; return 1; }
+    if (!strcmp(key, "dying")) { *out = pl.stun_t > 0 || pl.dropping; return 1; }
+    if (!strcmp(key, "leg_seen")) { *out = leg_seen; return 1; }
+    if (!strcmp(key, "low_up_pct")) { *out = arena_frames ? low_up_frames * 100 / arena_frames : 0; return 1; }
+    if (!strncmp(key, "density", 7) && key[7] >= '0' && key[7] < '0' + RC_AREAS && !key[8]) {
+        int a = key[7] - '0';
+        *out = dens_n[a] ? dens_sum[a] * 10 / dens_n[a] : 0; /* tenths */
+        return 1;
+    }
     if (!strcmp(key, "spirit_shots")) { *out = count_type(E_SPIRIT_SHOT); return 1; }
     if (!strcmp(key, "snack_value0")) { *out = snack_value(0); return 1; }
     if (!strcmp(key, "snack_value1")) { *out = snack_value(1); return 1; }
@@ -2714,6 +2790,7 @@ static int rc_cheat(const char *cmd) {
         load_save(); /* as if the cartridge had just been started */
         return 1;
     }
+    if (!strcmp(cmd, "godmode")) { godmode = !godmode; return 1; }
     if (!strcmp(cmd, "kill")) { lose_life(); return 1; }
     if (!strcmp(cmd, "jitter_reset")) { jit_valid = false; jit_last_d = 0; jit_rev = 0; jit_cam_bad = 0; return 1; }
     if (!strcmp(cmd, "sheet")) { sheet_mode = !sheet_mode; return 1; }

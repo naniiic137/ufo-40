@@ -1,6 +1,7 @@
 # ROOFCAT: the screen scrolls steadily to the right. With no input Pepper
-# rides along and keeps her place on the screen; holding LEFT she stands
-# still in the town while the screen moves on; RIGHT runs ahead.
+# rides along and keeps her place on the screen; LEFT walks her back through
+# the town and RIGHT runs ahead, at the same pace against the screen. In the
+# boss arena, where the scroll stops, she walks both ways.
 game roofcat
 wait 20
 press A
@@ -11,14 +12,26 @@ expect screen_x == 48
 wait 60
 expect screen_x == 48
 expect px == 81
-# LEFT: she holds her ground (the town doesn't move under her)
-hold LEFT 40
-expect px == 81
+# LEFT: she walks back through the town (1.3 px a frame against the screen)
+hold LEFT 15
+expect px == 68
 expect screen_x == 28
 # no input again: carried at the screen's pace, so she stays at 28
 wait 30
 expect screen_x == 28
-# RIGHT: faster than the screen
+# RIGHT: the same pace the other way
 hold RIGHT 20
 expect screen_x == 54
 expect grounded == 1
+# the arena: the screen stands still, and so does she until she walks
+cheat area 4 1
+cheat clear_foes
+cheat arena
+wait 30
+expect px == 16661
+wait 20
+expect px == 16661
+hold LEFT 10
+expect px == 16647
+hold RIGHT 20
+expect px == 16674

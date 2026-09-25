@@ -23,8 +23,8 @@ expect kills == 1
 cheat score 20000
 cheat lives 0
 cheat kill
-wait 160
-expect state == 3
+waituntil state == 3 200
+wait 65
 expect hi0 == 20000
 expect hi1 == 12345
 expect new_rank == 0

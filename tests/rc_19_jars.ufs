@@ -21,7 +21,7 @@ cheat clear_foes
 cheat put 140 83
 cheat foe jar 140 36
 wait 1
-expect mode_jar == 7
+expect mode_jar == 6
 hold RIGHT 20
 wait 60
 expect count_jar == 0
@@ -37,12 +37,13 @@ wait 2
 expect count_jar == 4
 expect all_jar == 5
 # a spirit: they hop off to the left, away from her
+cheat clear_foes
+cheat kill
+waituntil spirit == 1 100
 cheat cam 1600
 cheat clear_foes
-cheat put 280 83
+cheat put 280 20
 cheat foe jar 100 80
-cheat kill
-expect spirit == 1
 expect wx_jar == 1703
 wait 150
 expect wx_jar < 1680

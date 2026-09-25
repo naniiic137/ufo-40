@@ -32,9 +32,13 @@ hold RIGHT 20
 press A 1
 expect spirit == 0
 expect lives == 2
-# no grace period: a foe on top of her takes the next life at once
+# no grace period: a foe on top of her takes the next life at once (she is
+# stunned for a moment, falls off the screen, and the spirit comes down)
 cheat put 150 83
 cheat foe pigeon 150 80
 wait 2
-expect spirit == 1
+expect dying == 1
+expect spirit == 0
+waituntil spirit == 1 100
 expect lives == 1
+expect killer == 1
