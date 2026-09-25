@@ -2640,7 +2640,7 @@ static void probe_room_reach_from(int rx, int ry, int ins, uint8_t reach[UD_ROOM
         /* ladders through this tile or just below it: the whole ladder */
         for (int cx = tx - 1; cx <= tx + 1; cx++) {
             if (is_ladder(cx, ty)) LADDER_SEG(cx, ty);
-            else if (is_ladder(cx, ty + 1)) LADDER_SEG(cx, ty + 1);
+            else if (is_ladder(cx, ty + 1) && !solid_at(cx, ty)) LADDER_SEG(cx, ty + 1); /* not under crystal */
             else if (cx == tx && ty > 0 && is_ladder(cx, ty - 1)) LADDER_SEG(cx, ty - 1); /* reached up for */
         }
         /* standing at a side edge that's open: out that way */
