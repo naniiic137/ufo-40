@@ -4,7 +4,7 @@
 game underdelve
 wait 15
 cheat no_gloom
-cheat room 1 5 150 130
+cheat room 2 5 150 130
 cheat money 123
 cheat give 1
 wait 5
@@ -16,6 +16,6 @@ press A
 wait 10
 expect state == 1
 expect money == 123
-expect room_x == 1
+expect room_x == 2
 expect room_y == 5
 expect items & 1

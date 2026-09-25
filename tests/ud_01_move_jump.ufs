@@ -6,7 +6,7 @@ wait 15
 cheat no_gloom
 expect state == 1
 expect map_errors == 0
-expect room_x == 0
+expect room_x == 1
 expect room_y == 5
 expect lanterns == 6
 expect grounded == 1

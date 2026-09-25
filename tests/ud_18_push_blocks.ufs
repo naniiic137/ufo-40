@@ -3,10 +3,10 @@
 game underdelve
 wait 15
 cheat no_gloom
-cheat room 2 3 60 130
+cheat room 3 3 60 130
 cheat clear_enemies
 wait 5
 expect tile_7_8 == 80
 hold RIGHT 150
-expect room_x == 2
+expect room_x == 3
 expect room_y == 4

@@ -30,7 +30,7 @@ enum { ST_TITLE, ST_PLAY, ST_DYING, ST_GAMEOVER, ST_VIEW, ST_ENDING, ST_RELIGHT 
 enum { W_PICK = 0, W_SPARKER, W_HUNGRY };
 
 /* the tally ladders: four ladders in TALLY LADDERS, climbed in this order */
-#define KEY_ROOM_X 3
+#define KEY_ROOM_X 4
 #define KEY_ROOM_Y 4
 static const int KEY_LADDER_COL[4] = {3, 7, 13, 17};
 static const int KEY_ORDER[4] = {2, 0, 3, 1};
@@ -464,7 +464,7 @@ static void new_game(void) {
     last_life = false;
     run.lanterns = MAX_LANTERNS;
     run.weapon = W_PICK;
-    run.gloom_x = 5;
+    run.gloom_x = 6;
     run.gloom_y = 2;
     reset_player();
     /* find the camp */
@@ -2670,8 +2670,13 @@ static int probe_rooms(uint64_t *mask, bool verbose) {
     memset(seen, 0, sizeof seen);
     probe_fork = probe_fork || (run.items & UD_ITEM_FORK);
     /* the camp: Mo starts inside it */
-    qx[qn] = 0; qy[qn] = 5; qs[qn] = SIDE_ALL; qn++;
-    seen[5][0] = SIDE_ALL;
+    int cx0 = 0, cy0 = 0;
+    for (int ry = 0; ry < UD_MAP_H; ry++)
+        for (int rx = 0; rx < UD_MAP_W; rx++)
+            for (int y = 0; y < UD_ROOM_H; y++)
+                if (strchr(UD_ROOMS[ry][rx].rows[y], '@')) { cx0 = rx; cy0 = ry; }
+    qx[qn] = cx0; qy[qn] = cy0; qs[qn] = SIDE_ALL; qn++;
+    seen[cy0][cx0] = SIDE_ALL;
     uint64_t m = 0;
     for (int qh = 0; qh < qn; qh++) {
         int rx = qx[qh], ry = qy[qh];

@@ -4,16 +4,16 @@
 game underdelve
 wait 15
 cheat no_gloom
-cheat room 0 0 30 130
+cheat room 1 0 30 130
 expect hp_moth == 1
-cheat room 1 2 300 130
+cheat room 2 2 300 130
 expect hp_toad == 3
-cheat room 0 2 300 130
+cheat room 1 2 300 130
 expect hp_grub == 2
-cheat room 3 2 300 130
+cheat room 4 2 300 130
 expect hp_newt == 2
 expect hp_shellback == 3
-cheat room 6 2 30 130
+cheat room 7 2 30 130
 expect hp_swooper == 1
-cheat room 4 5 300 130
+cheat room 2 4 300 130
 expect hp_sack == 10

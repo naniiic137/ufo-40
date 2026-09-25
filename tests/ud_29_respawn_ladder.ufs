@@ -5,7 +5,7 @@
 game underdelve
 wait 15
 cheat no_gloom
-cheat room 2 5 195 130
+cheat room 3 5 195 130
 cheat clear_enemies
 hold DOWN 60
 expect room_y == 6

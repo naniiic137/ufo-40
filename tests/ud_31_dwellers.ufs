@@ -4,7 +4,7 @@
 game underdelve
 wait 15
 cheat no_gloom
-cheat room 1 5 10 130
+cheat room 2 5 10 130
 cheat clear_enemies
 wait 5
 expect hint == 0

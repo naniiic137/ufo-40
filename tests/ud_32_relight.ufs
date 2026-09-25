@@ -3,7 +3,7 @@
 game underdelve
 wait 15
 cheat no_gloom
-cheat room 5 0 170 130
+cheat room 6 0 170 130
 cheat clear_enemies
 hold RIGHT 60
 expect deaths == 1

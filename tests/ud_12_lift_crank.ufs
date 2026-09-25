@@ -2,7 +2,7 @@
 game underdelve
 wait 15
 cheat no_gloom
-cheat room 5 3 44 100
+cheat room 6 3 44 100
 cheat clear_enemies
 wait 200
 expect px < 60

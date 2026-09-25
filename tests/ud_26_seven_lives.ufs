@@ -6,7 +6,7 @@
 game underdelve
 wait 15
 cheat no_gloom
-cheat room 5 0 170 130
+cheat room 6 0 170 130
 cheat clear_enemies
 hold RIGHT 60
 expect deaths == 1
@@ -19,7 +19,7 @@ wait 10
 expect state == 1
 expect lanterns == 5
 cheat no_gloom
-cheat room 5 0 170 130
+cheat room 6 0 170 130
 cheat clear_enemies
 hold RIGHT 60
 wait 90
@@ -56,6 +56,6 @@ press A
 wait 10
 expect state == 1
 expect lanterns == 6
-expect room_x == 0
+expect room_x == 1
 expect room_y == 5
 expect deaths == 0

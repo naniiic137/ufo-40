@@ -4,7 +4,7 @@
 game underdelve
 wait 15
 cheat no_gloom
-cheat room 3 4 150 130
+cheat room 4 4 150 130
 wait 10
 expect key_solved == 0
 cheat pos 211 130

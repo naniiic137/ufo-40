@@ -3,7 +3,7 @@
 game underdelve
 wait 15
 cheat no_gloom
-cheat room 1 4 20 130
+cheat room 5 5 20 130
 cheat clear_enemies
 cheat lanterns 0
 hold RIGHT 60

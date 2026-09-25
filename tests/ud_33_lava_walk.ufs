@@ -4,7 +4,7 @@
 game underdelve
 wait 15
 cheat no_gloom
-cheat room 5 5 51 130
+cheat room 6 5 51 130
 cheat clear_enemies
 wait 5
 hold DOWN 200

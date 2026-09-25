@@ -2,12 +2,12 @@
 game underdelve
 wait 15
 cheat no_gloom
-cheat room 0 5 83 130
+cheat room 1 5 83 130
 hold UP 200
 expect room_y == 4
-expect room_x == 0
-cheat room 0 4 20 130
+expect room_x == 1
+cheat room 1 4 20 130
 cheat clear_enemies
 hold LEFT 40
-expect room_x == 7
+expect room_x == 0
 expect room_y == 4

@@ -7,10 +7,10 @@
 game underdelve
 wait 15
 expect state == 1
-expect room_x == 0
+expect room_x == 1
 expect room_y == 5
 hold RIGHT 620
-expect room_x == 2
+expect room_x == 3
 expect deaths == 0
 hold RIGHT 75
 hold A 3
@@ -23,7 +23,7 @@ expect py == 66
 hold RIGHT 55
 expect money == 100
 hold LEFT 200
-expect room_x == 1
+expect room_x == 2
 hold LEFT 46
 wait 10
 press B
@@ -31,7 +31,7 @@ wait 20
 expect enemies == 1
 expect deaths == 0
 hold DOWN 240
-expect room_x == 1
+expect room_x == 2
 expect room_y == 6
 hold RIGHT 30
 press B

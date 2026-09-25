@@ -2,22 +2,21 @@
 game underdelve
 wait 15
 cheat no_gloom
-cheat room 1 5 150 60
 cheat room 2 5 150 60
 cheat room 3 5 150 60
 cheat room 4 5 150 60
-cheat room 5 5 150 60
+cheat room 2 4 150 60
 cheat room 6 5 150 60
 cheat room 7 5 150 60
-cheat room 0 4 150 60
+cheat room 0 5 150 60
 cheat room 1 4 150 60
-cheat room 2 4 150 60
+cheat room 5 5 150 60
 cheat room 3 4 150 60
 cheat room 4 4 150 60
 cheat room 5 4 150 60
 cheat room 6 4 150 60
 cheat room 7 4 150 60
-cheat room 0 3 150 60
+cheat room 0 4 150 60
 cheat room 1 3 150 60
 cheat room 2 3 150 60
 cheat room 3 3 150 60
@@ -25,8 +24,9 @@ cheat room 4 3 150 60
 cheat room 5 3 150 60
 cheat room 6 3 150 60
 cheat room 7 3 150 60
+cheat room 0 3 150 60
 expect visited == 24
 expect goals !& 1
-cheat room 0 2 150 60
+cheat room 1 2 150 60
 expect visited == 25
 expect goals & 1

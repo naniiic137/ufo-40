@@ -4,11 +4,11 @@
 game underdelve
 wait 15
 cheat no_gloom
-cheat room 2 0 250 130
+cheat room 3 0 250 130
 cheat clear_enemies
 hold RIGHT 80
-expect room_x == 2
-cheat room 2 1 99 130
+expect room_x == 3
+cheat room 3 1 99 130
 cheat money 499
 wait 5
 press UP
@@ -17,19 +17,19 @@ cheat money 500
 press UP
 expect hammer == 1
 expect money == 0
-cheat room 2 0 250 130
+cheat room 3 0 250 130
 cheat clear_enemies
 hold RIGHT 80
-expect room_x == 3
-cheat room 5 1 195 130
+expect room_x == 4
+cheat room 6 1 195 130
 cheat clear_enemies
 hold UP 240
 expect room_y == 1
-cheat room 0 6 115 130
+cheat room 1 6 115 130
 wait 20
 press UP
 expect lever == 1
-cheat room 5 1 195 130
+cheat room 6 1 195 130
 cheat clear_enemies
 hold UP 240
 expect room_y == 0

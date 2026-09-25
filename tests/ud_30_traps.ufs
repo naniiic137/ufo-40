@@ -28,7 +28,7 @@ hold RIGHT 45
 expect deaths == 0
 expect tile_3_1 == 65
 cheat no_gloom
-cheat room 0 4 110 130
+cheat room 1 4 110 130
 cheat clear_enemies
 wait 5
 expect tile_3_1 == 65

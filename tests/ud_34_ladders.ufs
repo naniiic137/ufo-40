@@ -15,7 +15,7 @@ wait 40
 expect grounded == 1
 hold UP 5
 expect climbing == 1
-cheat room 4 4 243 130
+cheat room 5 4 243 130
 cheat clear_enemies
 wait 20
 expect climbing == 0
