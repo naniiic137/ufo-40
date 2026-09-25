@@ -1,0 +1,175 @@
+# README media: DUNE EXPRESS
+shotscale 2
+seed 28
+game dune
+wait 150
+shot dune_title
+cheat mission 1
+wait 1
+gifstart dune 4 1
+hold RIGHT 25
+hold RIGHT 1
+press B
+wait 20
+hold RIGHT 76
+hold UP 24
+hold UP 24
+hold UP 24
+hold RIGHT 204
+hold RIGHT A 50
+hold RIGHT 130
+hold DOWN 24
+hold DOWN 24
+hold DOWN 4
+hold RIGHT 1
+wait 2
+wait 2
+wait 2
+wait 2
+wait 2
+hold RIGHT 12
+press B
+wait 30
+hold RIGHT 39
+hold LEFT 37
+hold RIGHT 216
+wait 10
+wait 60
+gifstop
+shot dune_getaway
+cheat mission 3
+wait 1
+hold RIGHT 25
+hold RIGHT 1
+press B
+wait 30
+hold RIGHT 38
+hold RIGHT 51
+hold RIGHT 1
+hold DOWN
+press B
+release DOWN
+wait 2
+hold RIGHT 50
+hold RIGHT 1
+press B
+wait 20
+hold RIGHT 25
+hold RIGHT 1
+press B
+wait 30
+hold RIGHT 12
+hold RIGHT 1
+press B
+wait 10
+hold RIGHT 37
+hold LEFT 29
+shot dune_turns
+cheat mission 14
+wait 1
+hold RIGHT 25
+hold RIGHT 1
+hold DOWN
+press B
+release DOWN
+wait 2
+hold RIGHT 51
+hold RIGHT 1
+press B
+wait 30
+hold RIGHT 16
+hold RIGHT 16
+hold RIGHT 16
+hold RIGHT 16
+hold RIGHT 16
+hold RIGHT 16
+hold RIGHT 1
+press B
+wait 8
+hold RIGHT 16
+hold RIGHT 16
+hold RIGHT 16
+hold RIGHT 16
+hold RIGHT 16
+hold RIGHT 16
+hold RIGHT 16
+hold RIGHT 14
+hold UP 24
+hold UP 24
+hold UP 24
+hold RIGHT 153
+wait 25
+wait 210
+hold LEFT 101
+hold DOWN 24
+hold DOWN 24
+hold DOWN 4
+hold RIGHT 1
+wait 2
+wait 2
+wait 2
+wait 2
+wait 2
+hold RIGHT 25
+hold RIGHT 1
+press B
+hold RIGHT 102
+hold RIGHT 1
+press B
+wait 30
+hold RIGHT 24
+hold LEFT 50
+hold RIGHT 12
+hold UP 24
+hold UP 24
+hold UP 24
+wait 108
+wait 94
+shot dune_roofs
+cheat mission 16
+wait 1
+hold RIGHT 25
+hold RIGHT 1
+hold DOWN
+press B
+release DOWN
+wait 2
+hold RIGHT 38
+hold LEFT 25
+hold RIGHT 38
+hold RIGHT 76
+hold RIGHT 1
+press B
+hold RIGHT 153
+hold RIGHT 1
+hold UP 135
+press B
+wait 20
+wait 117
+wait 58
+shot dune_night
+cheat menu
+wait 10
+cheat beaten 12
+cheat stars 1 7
+cheat stars 2 5
+cheat stars 3 7
+cheat stars 4 1
+cheat stars 5 3
+cheat stars 6 7
+cheat stars 7 4
+cheat stars 8 5
+cheat stars 9 7
+cheat stars 10 1
+cheat stars 11 5
+cheat stars 12 6
+cheat menu
+wait 10
+press DOWN
+wait 4
+press DOWN
+wait 4
+shot dune_menu
+press A
+wait 30
+shot dune_brief

@@ -1,0 +1,22 @@
+# DUNE EXPRESS: an armed guard shoots an outlaw he sees straight ahead (one
+# bullet, then he is unarmed and alert); ducking behind something one tile
+# high hides you; he sees nothing behind him.
+game dune
+wait 5
+cheat mission 3
+hold DOWN
+cheat pos 19 6
+wait 30
+expect alive == 1
+expect result == 0
+release DOWN
+wait 20
+expect alive == 0
+expect why == 1
+expect law0_armed == 0
+expect law0_state == 2
+cheat mission 1
+cheat pos 20 6
+wait 30
+expect alive == 1
+expect phase == 0

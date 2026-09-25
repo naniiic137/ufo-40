@@ -1,0 +1,69 @@
+# DUNE EXPRESS: mission 12, THE RAM CAR, can be won with the buttons alone:
+# no stampede this time: up the ladder and over the rams' cars while the patrol
+# walks away, down for the strongbox and back up, then down the last hatch behind
+# the guard
+game dune
+wait 5
+cheat mission 12
+wait 1
+hold RIGHT 76
+hold UP 24
+hold UP 24
+hold UP 24
+hold RIGHT 230
+hold RIGHT A 40
+wait 5
+hold RIGHT 152
+wait 25
+wait 210
+hold DOWN 24
+hold DOWN 24
+hold DOWN 4
+hold RIGHT 1
+wait 2
+wait 2
+wait 2
+wait 2
+wait 2
+hold LEFT 12
+hold LEFT 1
+press B
+wait 30
+hold LEFT 37
+hold RIGHT 37
+hold LEFT 24
+hold RIGHT 37
+hold UP 24
+hold UP 24
+hold UP 24
+hold RIGHT 25
+hold RIGHT A 40
+wait 5
+hold RIGHT 63
+wait 151
+wait 210
+hold DOWN 24
+hold DOWN 24
+hold DOWN 4
+hold RIGHT 1
+wait 2
+wait 2
+wait 2
+wait 2
+wait 2
+hold RIGHT 38
+hold RIGHT 1
+press B
+wait 5
+hold RIGHT 16
+hold RIGHT 16
+hold RIGHT 16
+hold RIGHT 16
+hold RIGHT 16
+hold RIGHT 16
+wait 10
+expect result == 1
+expect state == 4
+expect stars & 4
+expect kills == 0
+expect stars & 1

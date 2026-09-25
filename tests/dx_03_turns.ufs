@@ -1,0 +1,20 @@
+# DUNE EXPRESS: once a guard is on patrol the game runs in turns: ten seconds
+# for the outlaws (the master timer runs), then about three and a half for
+# the lawmen (it stops).
+game dune
+wait 5
+cheat mission 4
+cheat pos 20 2
+wait 2
+expect phase == 1
+expect turn_t > 590
+wait 588
+expect phase == 1
+wait 12
+expect phase == 2
+print master
+wait 100
+expect phase == 2
+wait 115
+expect phase == 1
+expect alive == 1

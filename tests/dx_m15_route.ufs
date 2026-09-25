@@ -1,0 +1,97 @@
+# DUNE EXPRESS: mission 15, RESUPPLY, can be won with the buttons alone:
+# the Veil starts empty: bullets on the floor, a crate held up to take the first
+# guard's shot, the patrol punched from behind, over the roof and down behind the next
+# guard for the spare rounds in the barrel; a full belt, and out behind the last guard
+game dune
+wait 5
+cheat mission 15
+wait 1
+hold RIGHT 51
+hold RIGHT 39
+hold RIGHT DOWN 76
+hold DOWN
+press B
+release DOWN
+wait 20
+hold RIGHT 39
+hold RIGHT 1
+press B
+wait 5
+hold RIGHT 16
+hold RIGHT 16
+hold RIGHT 16
+hold RIGHT 16
+hold RIGHT 16
+hold RIGHT 8
+hold UP 24
+hold UP 24
+hold UP 24
+hold RIGHT 25
+wait 178
+wait 210
+hold RIGHT 13
+hold DOWN 24
+hold DOWN 24
+hold DOWN 4
+hold RIGHT 1
+wait 2
+wait 2
+wait 2
+wait 2
+wait 2
+hold RIGHT 25
+hold RIGHT 1
+press B
+wait 5
+hold RIGHT 128
+hold LEFT 153
+hold UP 24
+hold UP 24
+hold UP 24
+hold RIGHT 135
+wait 2
+wait 210
+hold RIGHT 19
+wait 581
+wait 210
+hold RIGHT 12
+hold RIGHT A 40
+wait 5
+hold RIGHT 127
+hold DOWN 24
+hold DOWN 24
+hold DOWN 4
+hold RIGHT 1
+wait 2
+wait 2
+wait 2
+wait 2
+wait 2
+hold LEFT 25
+hold LEFT 1
+press B
+wait 5
+hold LEFT 63
+hold LEFT 1
+press B
+wait 30
+hold LEFT 12
+hold RIGHT 25
+hold RIGHT 180
+wait 5
+wait 210
+hold RIGHT 51
+hold RIGHT 1
+press B
+wait 5
+hold RIGHT 16
+hold RIGHT 16
+hold RIGHT 16
+hold RIGHT 16
+hold RIGHT 16
+wait 10
+expect result == 1
+expect state == 4
+expect stars & 4
+expect kills == 0
+expect stars & 1

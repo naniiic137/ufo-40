@@ -9,6 +9,7 @@ extern const GameDef GAME_CUTLASS;
 extern const GameDef GAME_FENNEC;
 extern const GameDef GAME_TINTAIL;
 extern const GameDef GAME_OPENHOUSE;
+extern const GameDef GAME_DUNE;
 
 const GameDef *const GAMES[GAME_SLOTS] = {
     &GAME_UNDERDELVE,
@@ -20,4 +21,5 @@ const GameDef *const GAMES[GAME_SLOTS] = {
     [14] = &GAME_FENNEC,
     [15] = &GAME_TINTAIL,
     [24] = &GAME_OPENHOUSE,
+    [27] = &GAME_DUNE,
 };

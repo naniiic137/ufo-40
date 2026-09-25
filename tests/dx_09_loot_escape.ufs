@@ -1,0 +1,19 @@
+# DUNE EXPRESS: a broken strongbox spills four dinars, and picking them all up
+# is the loot; with the objective done, reaching Baraka ends the heist; the
+# three stars.
+game dune
+wait 5
+cheat mission 1
+cheat pos 41 6
+cheat face 1
+press B
+wait 40
+hold LEFT 12
+hold RIGHT 45
+expect loot == 1
+cheat pos 57 6
+hold RIGHT 20
+expect result == 1
+expect state == 4
+expect stars & 1
+expect stars !& 2

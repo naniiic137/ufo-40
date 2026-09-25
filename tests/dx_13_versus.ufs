@@ -1,0 +1,13 @@
+# DUNE EXPRESS 2P: a fresh train; the bandits and the guards take ten-second
+# turns; ten coins win it for the bandits, ten turns for the guards.
+game dune
+wait 5
+cheat versus
+expect phase == 1
+wait 598
+expect phase == 1
+wait 4
+expect phase == 2
+wait 600
+expect phase == 1
+expect turns == 1

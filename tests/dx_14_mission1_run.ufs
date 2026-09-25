@@ -1,0 +1,35 @@
+# DUNE EXPRESS: mission 1 played through with the buttons alone: break the
+# crate for a bullet, up the ladder, over the roofs, down the hatch behind
+# the guard, open the strongbox and out to Baraka.
+game dune
+wait 5
+cheat mission 1
+hold RIGHT 40
+press B
+wait 20
+hold RIGHT 70
+expect ammo == 2
+expect tx == 10
+hold UP 80
+expect ty == 2
+hold RIGHT 195
+expect tx == 25
+hold RIGHT A 50
+expect ty == 2
+expect tx >= 28
+expect ground == 1
+hold RIGHT 136
+expect tx == 40
+hold DOWN 80
+expect ty == 6
+expect phase == 0
+hold RIGHT 10
+press B
+wait 40
+hold LEFT 12
+hold RIGHT 45
+expect loot == 1
+hold RIGHT 250
+expect result == 1
+expect kills == 0
+expect state == 4

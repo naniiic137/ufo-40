@@ -1,0 +1,35 @@
+# DUNE EXPRESS goals: beat mission 10 (Beacon), all twenty (Saucer), all
+# twenty with 40 stars (Alien); missions and stars are saved.
+game dune
+wait 5
+cheat beaten 9
+cheat mission 10
+cheat win
+expect goals == 1
+cheat beaten 32
+cheat mission 20
+cheat win
+expect goals == 3
+cheat stars 1 7
+cheat stars 2 7
+cheat stars 3 7
+cheat stars 4 7
+cheat stars 5 7
+cheat stars 6 7
+cheat stars 7 7
+cheat stars 8 7
+cheat stars 9 7
+cheat stars 10 7
+cheat stars 11 7
+cheat stars 12 7
+cheat stars 13 7
+cheat stars 14 3
+expect total_stars >= 40
+cheat mission 1
+cheat win
+expect goals == 7
+reload
+game dune
+wait 5
+expect total_stars >= 40
+expect beaten_mask == -1

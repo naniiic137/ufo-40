@@ -1,0 +1,28 @@
+# DUNE EXPRESS: walking, jumping, climbing a ladder onto the roof, ducking.
+game dune
+wait 5
+cheat mission 1
+expect tx == 2
+expect ty == 6
+expect ground == 1
+hold RIGHT 30
+expect tx == 4
+press A
+wait 8
+expect ground == 0
+wait 50
+expect ground == 1
+cheat pos 10 6
+hold UP 70
+expect ty == 2
+expect climb == 0
+hold RIGHT 20
+expect tx >= 11
+expect ty == 2
+cheat pos 3 6
+wait 2
+hold DOWN 5
+expect duck == 1
+hold DOWN RIGHT 20
+expect duck == 1
+expect tx >= 4

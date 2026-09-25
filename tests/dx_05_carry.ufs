@@ -1,0 +1,37 @@
+# DUNE EXPRESS: duck and B picks things up, B throws them, a thrown crate
+# stuns; down and B while holding a barrel climbs inside it.
+game dune
+wait 5
+cheat mission 1
+cheat pos 19 6
+cheat face 1
+hold DOWN
+press B
+release DOWN
+wait 2
+expect carry == 2
+cheat pos 39 6
+cheat face 0
+wait 2
+press B
+wait 30
+expect carry == 0
+expect law1_stun > 100
+cheat mission 1
+cheat clear_law
+cheat pos 30 6
+cheat face 1
+hold DOWN
+press B
+release DOWN
+wait 2
+expect carry == 1
+hold DOWN
+press B
+release DOWN
+wait 2
+expect hidden == 1
+press UP
+wait 2
+expect hidden == 0
+expect carry == 1

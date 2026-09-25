@@ -1,0 +1,22 @@
+# DUNE EXPRESS: hold up to load and draw the gun (just over two seconds), B
+# fires one bullet; the shot wakes every guard nearby. The quick holster
+# draws in one second.
+game dune
+wait 5
+cheat mission 1
+cheat pos 6 6
+cheat face 1
+hold UP 60
+expect gun > 0
+hold UP 72
+expect gun == -1
+press B
+expect ammo == 0
+expect gun == 0
+wait 2
+expect law0_state == 2
+cheat mission 1
+cheat power 6
+cheat pos 6 6
+hold UP 62
+expect gun == -1

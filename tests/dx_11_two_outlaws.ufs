@@ -1,0 +1,20 @@
+# DUNE EXPRESS: with two outlaws, SELECT swaps between them while things are
+# quiet; in turns they take a turn each.
+game dune
+wait 5
+cheat mission 10
+wait 2
+expect ctrl == 0
+expect phase == 1
+wait 598
+expect phase == 2
+wait 212
+expect phase == 1
+expect ctrl == 1
+cheat mission 2
+cheat mission 10
+cheat clear_law
+wait 2
+expect phase == 0
+press SELECT
+expect ctrl == 1

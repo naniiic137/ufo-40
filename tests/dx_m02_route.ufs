@@ -1,0 +1,73 @@
+# DUNE EXPRESS: mission 2, OVER THE ROOFS, can be won with the buttons alone:
+# down the first hatch, under the roof guards, punch through the end walls,
+# the dinars, in behind the guard in the last car and punch him
+game dune
+wait 5
+cheat mission 2
+wait 1
+hold RIGHT 76
+hold UP 24
+hold UP 24
+hold UP 24
+hold RIGHT 38
+hold DOWN 24
+hold DOWN 24
+hold DOWN 4
+hold RIGHT 1
+wait 2
+wait 2
+wait 2
+wait 2
+wait 2
+hold RIGHT 51
+hold RIGHT 1
+press B
+wait 10
+hold RIGHT 37
+hold RIGHT 1
+press B
+wait 10
+hold RIGHT 38
+hold RIGHT 1
+press B
+wait 10
+press B
+wait 10
+hold RIGHT 24
+hold RIGHT 1
+press B
+wait 10
+press B
+wait 10
+hold RIGHT 25
+hold RIGHT 1
+press B
+wait 10
+hold RIGHT 76
+hold RIGHT 1
+press B
+wait 30
+hold RIGHT 37
+hold LEFT 50
+hold RIGHT 37
+hold RIGHT 64
+hold RIGHT 1
+press B
+wait 10
+press B
+wait 10
+hold RIGHT 76
+hold RIGHT 1
+press B
+wait 5
+hold RIGHT 76
+hold RIGHT 1
+press B
+wait 10
+hold RIGHT 76
+wait 10
+expect result == 1
+expect state == 4
+expect stars & 4
+expect kills == 0
+expect stars & 1

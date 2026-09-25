@@ -50,6 +50,11 @@ CORE_SRC += src/games/openhouse/openhouse.c
 CORE_SRC += src/games/openhouse/openhouse_logic.c
 CORE_SRC += src/games/openhouse/openhouse_art.c
 CORE_SRC += src/games/openhouse/openhouse_audio.c
+CORE_SRC += src/games/dune/dune.c
+CORE_SRC += src/games/dune/dune_logic.c
+CORE_SRC += src/games/dune/dune_levels.c
+CORE_SRC += src/games/dune/dune_art.c
+CORE_SRC += src/games/dune/dune_audio.c
 
 HEADLESS_SRC += src/platform/headless/main_headless.c
 HEADLESS_SRC += src/platform/headless/imgwrite.c

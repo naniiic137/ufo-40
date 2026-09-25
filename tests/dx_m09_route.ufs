@@ -1,0 +1,88 @@
+# DUNE EXPRESS: mission 9, LEAP OF FAITH, can be won with the buttons alone:
+# the spring boots from the first crate; a double jump over each gap between
+# the roofs, the strongbox between them, the roof guard and the patrol punched from
+# behind (the patrol twice, once more at the start of the next turn)
+game dune
+wait 5
+cheat mission 9
+wait 1
+hold RIGHT 25
+hold RIGHT 1
+press B
+wait 30
+hold RIGHT 25
+hold LEFT 24
+hold RIGHT 50
+hold UP 24
+hold UP 24
+hold UP 24
+hold RIGHT 179
+hold RIGHT A 14
+hold RIGHT 2
+hold RIGHT A 44
+wait 20
+hold RIGHT 17
+hold DOWN 24
+hold DOWN 24
+hold DOWN 4
+hold RIGHT 1
+wait 2
+wait 2
+wait 2
+wait 2
+wait 2
+hold RIGHT 29
+wait 2
+wait 210
+hold RIGHT 22
+hold RIGHT 1
+press B
+wait 30
+hold RIGHT 37
+hold LEFT 50
+hold RIGHT 64
+hold UP 24
+hold UP 24
+hold UP 24
+hold RIGHT 12
+hold RIGHT 1
+press B
+wait 5
+hold RIGHT 25
+hold RIGHT A 14
+hold RIGHT 2
+hold RIGHT A 44
+wait 10
+hold RIGHT 17
+hold DOWN 24
+hold DOWN 24
+hold DOWN 4
+hold RIGHT 1
+wait 2
+wait 2
+wait 2
+wait 2
+wait 2
+hold RIGHT 38
+hold RIGHT 1
+press B
+wait 5
+wait 78
+wait 210
+hold RIGHT 38
+hold RIGHT 1
+press B
+wait 5
+hold RIGHT 16
+hold RIGHT 16
+hold RIGHT 16
+hold RIGHT 16
+hold RIGHT 16
+hold RIGHT 16
+hold RIGHT 16
+wait 10
+expect result == 1
+expect state == 4
+expect stars & 4
+expect kills == 0
+expect stars & 1

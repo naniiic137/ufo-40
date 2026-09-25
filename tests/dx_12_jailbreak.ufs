@@ -1,0 +1,12 @@
+# DUNE EXPRESS: in the jailbreak, the lever opens the cell; Sahar slips away
+# to the camel and you play the Veil.
+game dune
+wait 5
+cheat mission 13
+expect who == 2
+expect rescued == 0
+cheat pos 46 6
+cheat face 1
+press B
+expect rescued == 1
+expect who == 1
