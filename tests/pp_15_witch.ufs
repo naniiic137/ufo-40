@@ -1,0 +1,34 @@
+# PETAL PARADE: a sun circle moves on after about 10 seconds. If nobody was
+# saved on it, Madame Nettle plants a toadstool; from 100 saved she plants
+# 2, from 150 saved 3. A circle that was used moves on without her.
+game petalparade
+wait 20
+press A
+cheat clear
+cheat put pup 5 7
+cheat put pad 5 7
+cheat put pad 5 6
+cheat put pad 5 5
+cheat startime 60
+wait 26
+expect line == 1
+press B
+expect saved == 1
+expect star_used == 1
+wait 40
+expect toadstools == 0
+expect star_t > 590
+expect pads >= 9
+cheat still
+cheat startime 30
+wait 30
+expect toadstools == 1
+expect star_t == 600
+cheat saved 100
+cheat startime 5
+wait 6
+expect toadstools == 3
+cheat saved 150
+cheat startime 5
+wait 6
+expect toadstools == 6

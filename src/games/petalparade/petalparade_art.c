@@ -3,7 +3,7 @@
 
 Sprite pp_spr[P_SPRITE_COUNT];
 
-static const char LINA_DOWN1[] =
+static const char POSY_DOWN1[] =
     "...kkkkkk..."
     "..kyyyyyyk.."
     ".kyrrrrrryk."
@@ -16,7 +16,7 @@ static const char LINA_DOWN1[] =
     ".khuwwwwuhk."
     "..kuuuuuuk.."
     "..kbk...kk..";
-static const char LINA_DOWN2[] =
+static const char POSY_DOWN2[] =
     "...kkkkkk..."
     "..kyyyyyyk.."
     ".kyrrrrrryk."
@@ -29,7 +29,7 @@ static const char LINA_DOWN2[] =
     ".khuwwwwuhk."
     "..kuuuuuuk.."
     "..kk...kbk..";
-static const char LINA_UP1[] =
+static const char POSY_UP1[] =
     "...kkkkkk..."
     "..kyyyyyyk.."
     ".kyyyyyyyyk."
@@ -42,7 +42,7 @@ static const char LINA_UP1[] =
     ".khuuwwuuhk."
     "..kuuuuuuk.."
     "..kbk...kk..";
-static const char LINA_UP2[] =
+static const char POSY_UP2[] =
     "...kkkkkk..."
     "..kyyyyyyk.."
     ".kyyyyyyyyk."
@@ -55,7 +55,7 @@ static const char LINA_UP2[] =
     ".khuuwwuuhk."
     "..kuuuuuuk.."
     "..kk...kbk..";
-static const char LINA_SIDE1[] =
+static const char POSY_SIDE1[] =
     "...kkkkk...."
     "..kyyyyyk..."
     "..kyrrrrrk.."
@@ -68,7 +68,7 @@ static const char LINA_SIDE1[] =
     "..kuuuwwwk.."
     "..kuuuuuk..."
     "..kbk.kbk...";
-static const char LINA_SIDE2[] =
+static const char POSY_SIDE2[] =
     "...kkkkk...."
     "..kyyyyyk..."
     "..kyrrrrrk.."
@@ -81,7 +81,7 @@ static const char LINA_SIDE2[] =
     "..khuuwwwk.."
     "..kuuuuuk..."
     "...kbbk.....";
-static const char LINA_HOP[] =
+static const char POSY_HOP[] =
     "...kkkkkk..."
     "..kyyyyyyk.."
     ".kyrrrrrryk."
@@ -94,7 +94,7 @@ static const char LINA_HOP[] =
     "..kuuuuuuk.."
     "..kbkkkkbk.."
     "............";
-static const char LINA_FALL[] =
+static const char POSY_FALL[] =
     "............"
     "............"
     "............"
@@ -265,7 +265,7 @@ static const char WITCH_CACKLE[] =
     "...kVVppppppppppppVVk..."
     "...kkkkkkkkkkkkkkkkkk..."
     ".....kbk......kbk.......";
-static const char LINA_BIG[] =
+static const char POSY_BIG[] =
     "........kkkkkkkk........"
     "......kkyyyyyyyykk......"
     ".....kyyyyaayyyyyyk....."
@@ -309,14 +309,14 @@ static const char PETAL[] =
 
 typedef struct { int id, w, h; const char *px; } Art;
 static const Art ART[] = {
-    {P_LINA_DOWN1, 12, 12, LINA_DOWN1},
-    {P_LINA_DOWN2, 12, 12, LINA_DOWN2},
-    {P_LINA_UP1, 12, 12, LINA_UP1},
-    {P_LINA_UP2, 12, 12, LINA_UP2},
-    {P_LINA_SIDE1, 12, 12, LINA_SIDE1},
-    {P_LINA_SIDE2, 12, 12, LINA_SIDE2},
-    {P_LINA_HOP, 12, 12, LINA_HOP},
-    {P_LINA_FALL, 12, 12, LINA_FALL},
+    {P_POSY_DOWN1, 12, 12, POSY_DOWN1},
+    {P_POSY_DOWN2, 12, 12, POSY_DOWN2},
+    {P_POSY_UP1, 12, 12, POSY_UP1},
+    {P_POSY_UP2, 12, 12, POSY_UP2},
+    {P_POSY_SIDE1, 12, 12, POSY_SIDE1},
+    {P_POSY_SIDE2, 12, 12, POSY_SIDE2},
+    {P_POSY_HOP, 12, 12, POSY_HOP},
+    {P_POSY_FALL, 12, 12, POSY_FALL},
     {P_PUP1, 10, 10, PUP1},
     {P_PUP2, 10, 10, PUP2},
     {P_PUP_TRAIL, 10, 10, PUP_TRAIL},
@@ -328,7 +328,7 @@ static const Art ART[] = {
     {P_JAR, 10, 11, JAR},
     {P_WITCH, 24, 26, WITCH},
     {P_WITCH_CACKLE, 24, 26, WITCH_CACKLE},
-    {P_LINA_BIG, 24, 28, LINA_BIG},
+    {P_POSY_BIG, 24, 28, POSY_BIG},
     {P_HEART, 7, 6, HEART},
     {P_PETAL, 5, 4, PETAL},
 };

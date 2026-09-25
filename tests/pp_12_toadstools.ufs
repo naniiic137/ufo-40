@@ -1,10 +1,12 @@
 # PETAL PARADE: toadstools are tall - a green jar isn't enough to break one.
 game petalparade
-wait 5
+wait 20
 press A
 cheat clear
 cheat put jar 5 7
 cheat jarlevel 5 7 2
 cheat put toadstool 5 5
-wait 32
+wait 30
+expect state == 1
+wait 2
 expect state == 2

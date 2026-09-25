@@ -1,0 +1,24 @@
+# PETAL PARADE: another jar while the nectar runs starts the countdown
+# again (a red one adds nothing to the multiplier). When it runs out the
+# chain and the multiplier reset.
+game petalparade
+wait 20
+press A
+cheat clear
+cheat put jar 5 8
+cheat jarlevel 5 8 2
+cheat put jar 5 6
+wait 12
+expect mult == 2
+expect power == 1150
+wait 16
+expect mult == 2
+expect power == 1150
+cheat still
+wait 1149
+expect power == 1
+expect mult == 2
+wait 1
+expect power == 0
+expect mult == 1
+expect chain == 0

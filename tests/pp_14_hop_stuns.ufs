@@ -1,0 +1,28 @@
+# PETAL PARADE: hopping over a bramble leaves it dizzy for a while; walking
+# into one without a hop ends the run; one hop clears one tile, not two.
+game petalparade
+wait 20
+press A
+cheat clear
+cheat put bramble 5 6
+wait 21
+press A
+wait 8
+expect state == 1
+expect daze_5_6 > 200
+wait 30
+expect state == 1
+cheat clear
+cheat put bramble 5 6
+wait 30
+expect state == 2
+cheat new
+cheat clear
+cheat put bramble 5 6
+cheat put bramble 5 5
+wait 21
+press A
+wait 10
+expect state == 1
+wait 1
+expect state == 2

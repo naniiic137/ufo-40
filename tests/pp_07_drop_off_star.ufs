@@ -1,7 +1,7 @@
-# PETAL PARADE: letting the line go anywhere else turns the pups into
-# brambles where they stand. Running into one ends the game.
+# PETAL PARADE: letting the line go off the sun circle turns every pup into
+# a bramble. Running into one ends the run.
 game petalparade
-wait 5
+wait 20
 press A
 cheat clear
 cheat put pup 5 7

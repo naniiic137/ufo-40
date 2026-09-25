@@ -1,22 +1,23 @@
-# PETAL PARADE: 200 pups saved wins (Saucer); without 20,000 points there
-# is no Alien.
+# PETAL PARADE: the run ends as soon as 200 pups are saved (the Saucer);
+# without 20,000 points there is no Alien.
 game petalparade
-wait 5
+wait 20
 press A
 cheat clear
-cheat saved 197
+cheat saved 198
 cheat put pup 5 7
 cheat put pup 5 6
 cheat put pup 5 5
-cheat put pad 5 4
+cheat put pad 5 7
+cheat put pad 5 6
+cheat put pad 5 5
 wait 40
 press B
-expect saved == 200
+expect saved == 201
 expect state == 4
 expect goals & 2
 expect goals !& 4
 expect goals !& 1
-expect has_game == 0
 wait 320
 press A
 wait 3

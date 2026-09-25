@@ -1,0 +1,21 @@
+# PETAL PARADE: only the pups on the sun circle are saved, each still
+# scoring its own place in the line (the second: 20); the others turn
+# into brambles where they stand.
+game petalparade
+wait 20
+press A
+cheat clear
+cheat put pup 5 7
+cheat put pup 5 6
+cheat put pup 5 5
+cheat put pad 5 6
+cheat put pad 5 4
+wait 40
+expect line == 3
+press B
+expect saved == 1
+expect score == 20
+expect brambles == 2
+expect cell_5_5 == 2
+expect cell_5_7 == 2
+expect counter == 1

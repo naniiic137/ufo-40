@@ -1,7 +1,8 @@
-# PETAL PARADE: drinking nectar starts a countdown; while it runs Lina
-# smashes brambles for 10, 20, 30... x the multiplier (green = x2).
+# PETAL PARADE: drinking nectar starts the countdown from 48; while it runs
+# Posy smashes brambles for 10, 20, 30... x the multiplier (green: x2), and
+# the garden holds still for a moment after each smash.
 game petalparade
-wait 5
+wait 20
 press A
 cheat clear
 cheat put jar 5 7
@@ -16,8 +17,9 @@ wait 16
 expect state == 1
 expect brambles == 1
 expect score == 20
-wait 16
+expect freeze > 0
+expect hy == 5
+wait 22
 expect brambles == 0
 expect score == 60
 expect chain == 2
-wait 60
