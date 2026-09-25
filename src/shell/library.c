@@ -74,7 +74,7 @@ static void draw_cart(int x, int y, int idx, bool sel) {
     gfx_vline(x, y + 2, y + 21, g ? C_WHITE : C_SLATE);
     /* grip ridges */
     for (int i = 0; i < 3; i++) gfx_hline(x + 5, x + 12, y + 1 + i * 1 + 1, i % 2 ? edge : body);
-    char num[4];
+    char num[12];
     snprintf(num, sizeof num, "%02d", idx + 1);
     if (g) {
         gfx_rect(x + 2, y + 5, 14, 12, g->cart_main);
@@ -148,8 +148,29 @@ static void draw_panel(void) {
         snprintf(line, sizeof line, "%s: %s", names[sel_goal], g->goal_desc[sel_goal]);
         (void)got;
         gfx_rect(x + sel_goal * 13, gy + 10, 9, 1, C_YELLOW);
-        tiny_draw(names[sel_goal], x + 42, gy, C_YELLOW);
-        tiny_draw(g->goal_desc[sel_goal], x + 42, gy + 6, C_GREY);
+        /* the goal's wording, wrapped onto a second line if it's long */
+        const char *desc = g->goal_desc[sel_goal];
+        int room = PANEL_W - 42;
+        if (tiny_width(desc) <= room) {
+            tiny_draw(names[sel_goal], x + 42, gy, C_YELLOW);
+            tiny_draw(desc, x + 42, gy + 6, C_GREY);
+        } else {
+            char first[64];
+            int cut = 0;
+            for (int i = 0; desc[i] && i < (int)sizeof first - 1; i++) {
+                if (desc[i] != ' ') continue;
+                memcpy(first, desc, (size_t)i);
+                first[i] = 0;
+                if (tiny_width(first) > room) break;
+                cut = i;
+            }
+            if (cut == 0) cut = (int)strlen(desc);
+            memcpy(first, desc, (size_t)imin(cut, (int)sizeof first - 1));
+            first[imin(cut, (int)sizeof first - 1)] = 0;
+            tiny_draw(names[sel_goal], x + 42, gy - 3, C_YELLOW);
+            tiny_draw(first, x + 42, gy + 3, C_GREY);
+            if (desc[cut]) tiny_draw(desc + cut + 1, x + 42, gy + 9, C_GREY);
+        }
     } else {
         static const uint8_t grad[] = {C_GREY, C_SLATE};
         ui_fancy_text("COMING SOON", x, ty, 1, grad, 2, C_INK, -1);
