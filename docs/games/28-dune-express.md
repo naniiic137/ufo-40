@@ -22,7 +22,7 @@ describe:
 | Objectives | loot on most; rescue (13), max ammo (15), the sheriff (19), 4 loot (20) | the same, per mission |
 | New ideas by mission | patrols (4), gatling (6), switches (7), double jump (9), two outlaws (10), unmarked loot (11), a cow (12), longest train (14), exploding bullets (16) | the same missions introduce the same things |
 | Time goals | one per mission, 24 s to 94 s | the same twenty numbers |
-| Escape | Mister Blue at the far end of the train | Biscuit the camel, beside the last car |
+| Escape | Mister Blue at the back of the train | Biscuit the camel, at the back: the trains run left, so a heist starts at the front |
 | 2P | robbers vs lawmen on a longer, generated train | the same, with our generator |
 
 ## Mechanics checklist
@@ -35,11 +35,12 @@ presses.
 | The heist | complete the objective, then reach the camel at the far end | [W], [MM] | dx_09 |
 | Master timer | a limit per mission; at zero the train reaches town and the heist fails | [W], [MM] | dx_27 |
 | Failure | any outlaw dying fails the heist; instant retry | [W], [SC] | dx_22 |
-| Mission start | the camera pans along the whole train; any button takes control and starts the clock | [MM] | dx_21 |
+| Mission start | the camera pans along the whole train, every car's inside, guards and loot in view; any button takes control and starts the clock | [MM] | dx_21 |
 | Two modes of time | real time while no lawman is active; turns once one patrols or is alert; back to real time when none is | [W], [MM], [SC] | dx_03 |
 | Player turn | 10 s; the master timer runs | [W], [MM] | dx_03 |
 | Lawmen turn | outlaws locked in place (a jump in the air carries on); lawmen move 3.5 s; the master timer stops | [W] | dx_03, dx_20 |
-| Lawman states | guard (still, one sightline, no turn), patrol (fixed beat), alert (hunts the last sighting or noise) | [W] | dx_03, dx_19 |
+| Lawman states | guard (still, one sightline, no turn), patrol (fixed beat, turning back at walls, edges and anything in the way), alert (hunts the last sighting or noise) | [W] | dx_03, dx_19 |
+| Lawmen don't jump | a lawman walks, climbs and punches; what stands in his way turns a patrol back, and an alert lawman punches it or, unarmed, picks it up | [W], [IHZ] | dx_19 |
 | Seen | an armed lawman shoots an outlaw in his sight at once, at head or knee height | [W], [MM] | dx_02 |
 | One bullet | then he is disarmed: he can only punch or throw | [W], [R] | dx_02, dx_17 |
 | Friendly fire | objects block sight, other lawmen don't, and a bullet hits the first body in its way: bait one lawman into shooting another | [W], [G60] | dx_17 |
@@ -63,15 +64,15 @@ presses.
 | Chickens (our geese) | a thrown one in a lawman's sight gets shot, wasting his bullet; they stun; carried, you fall slowly and glide | [W] | dx_08, dx_24 |
 | Gatling (our crank gun) | shoots an outlaw in front of it after a green flash; punched or picked up from behind or above it turns on the lawmen; runs dry | [W], [R] | dx_07, dx_18 |
 | Switches (our levers) | punched or shot, flip every gear wall; can be carried; cover | [W] | dx_07 |
-| Cow (our ram) | runs people over | [W] | dx_25 |
+| Cow (our ram) | paces its pen and runs people over | [W], [R] | dx_25 |
 | Kills | gunshot, cinder block, dynamite, cow, gatling, off the train, super punch | [W], [GM] | dx_22, dx_27 |
 | Loot | carry the box to the camel, or break it and pick up the coins | [W], [MM] | dx_09 |
-| Power-ups | extra bullets (+2; +1 in mission 1), exploding bullets (3×3 blast where the bullet stops), double jump (higher than the first), protection (one lethal hit), super punch (kills, breaks every wall and thing), quick draw (1 s) | [W], [GM] | dx_06, dx_23, dx_26, dx_27 |
+| Power-ups | extra bullets (+2; +1 in mission 1), exploding bullets (3×3 blast where the bullet stops), double jump (the second much higher: nearly twice the first), protection (one lethal hit), super punch (kills lawmen, breaks every wall and destroys every thing: levers, rams, powder sticks, which go off), quick draw (1 s) | [W], [GM] | dx_06, dx_23, dx_26, dx_27 |
 | Gun | hold ↑ to load and draw (just over 2 s), B fires; limited ammo | [W], [MM] | dx_06 |
 | Stars | three per mission: MERCY (Rail Heist's angel: no lawman killed), RUTHLESS (devil: every lawman killed), SWIFT (time: at or under the goal) | [W], [MM], [G60] | dx_10, dx_m01–m20 |
 | Time goals | 24, 30, 49, 31, 54, 33, 36, 44, 36, 47, 31, 27, 36, 54, 40, 76, 45, 50, 53, 94 s | [G60], [GM] | dx_m01–m20 |
 | The sheriff (our Governor) | killing him doesn't cost the mercy star | [W] | dx_m19 |
-| Two outlaws | one moves per turn, alternating; SELECT swaps while no turns run | [W], [P] | dx_11 |
+| Two outlaws | they start at opposite ends of the train and take turns, one moving while the other waits; no button swaps them; every two-outlaw train has a patrol, so the turns run from the start | [P], [IHZ] | dx_11, dx_m10, dx_m16, dx_m19, dx_m20 |
 | 2P Versus | robbers vs lawmen on a longer generated train; each side moves one member a turn; 10 coins win for the outlaws, 10 turns for the lawmen | [W] | dx_13 |
 | Goals | beat mission 10; beat all 20; beat the game with 40+ stars | [W], [GM] | dx_10 |
 
@@ -88,7 +89,7 @@ presses.
 | 7 | IRON GATES | Shifting Gears | Wade | 1 loot | levers and gates | 36 s |
 | 8 | THE STRONGROOM | Vault Robbery | Hush | 1 loot | armor | 44 s |
 | 9 | LEAP OF FAITH | Winging It | Pearl | 1 loot | the only spring boots | 36 s |
-| 10 | TWO BY TWO | Daring Duo | Wade and Hush | 2 loot | two outlaws | 47 s |
+| 10 | TWO BY TWO | Daring Duo | Wade and Hush | 2 loot | two outlaws, at opposite ends | 47 s |
 | 11 | THE HAYSTACK | Root Around | Pearl | 2 unmarked loot | loot hidden in plain crates | 31 s |
 | 12 | THE RAM CAR | Cow Poke | Wade | 1 loot | rams | 27 s |
 | 13 | JAILBREAK | Rescue Mission | Pearl and Hush | free Hush | control passes to Hush | 36 s |
@@ -114,9 +115,16 @@ stars are in reach on every mission.
 - **The crank gun** fires two bursts of three.
 - **Ammo:** at most 6 bullets.
 - **The lawmen turn** is 3.5 s as the wiki says; one guide says 10 s.
-- **Time limits** per mission are ours (180 to 420 s).
-- **The 2P train:** 9 to 11 of our car layouts, 7 strongboxes of 3 coins,
-  up to 4 guards and a crate or barrel or two per car.
+- **Time limits** are ours, loose early and strict late ("the time limit
+  gets pretty strict toward the end" [IHZ]): missions 1 to 5 allow 180 to
+  240 s, 6 to 10 about four times the time goal, 11 to 15 three times, 16 to
+  20 two and a half times. The clock stops in the lawmen's turns.
+- **Two outlaws** keep taking turns even when no lawman is left to take one
+  (then the turns pass straight from one to the other), so neither is ever
+  stranded; the sources describe only the alternation.
+- **The iron fist on a powder stick** sets it off.
+- **The 2P train:** 9 to 11 of our car layouts, 7 strongboxes of 4 coins,
+  up to 4 guards and a crate, barrel or anvil or two per car.
 
 ## What is ours
 
@@ -151,10 +159,13 @@ Rail Heist's own three (beat mission 10; beat all 20; 40+ stars).
 | walk into a box | push it |
 | holding a barrel, ↓ | climb in; ← → roll it; ↑ or A out; B out holding it |
 | hold ↑ (still) | load and draw the gun; then B fires |
-| SELECT | swap outlaws (two-outlaw missions, real time only) |
 | START | pause menu |
 
 ## Not confirmed
+
+- **Car insides:** we show them all the time; no source mentions hiding
+  them. The old "fog" (unentered cars drawn shut, their guards unseen) is
+  gone.
 
 - **Punch boosting** (a jump, a punch and a turn for extra distance) is
   mentioned in one Reddit thread without detail; not reproduced.
@@ -185,9 +196,15 @@ Rail Heist's own three (beat mission 10; beat all 20; 40+ stars).
   three shots, punch boosting.
 - [L] Lizstar's Trashcan, "UFO 50 Retrospective Part 28 - Rail Heist".
   https://lizstar64.github.io/reviews/2024/10/16/UFO50-28.html
-- [P] Popcar's Blog, "Reviewing Every Single UFO 50 Game".
+- [P] Popcar's Blog, "Reviewing Every Single UFO 50 Game": "having to play
+  with characters on opposite ends of the level each turn".
   https://popcar.bearblog.dev/reviewing-every-ufo50-game/
 - [SC] Static Canvas, "The UFO 50 Diaries: Rail Heist".
   https://staticcanvas.substack.com/p/the-ufo-50-diaries-rail-heist
-- TV Tropes recap and Indie Hell Zone's review were read and added nothing
-  new.
+- [IHZ] Indie Hell Zone, "UFO 50: Devilition, Mooncat, Rail Heist, Quibble
+  Race": two outlaws alternate turns and both must escape, the time limit
+  gets strict late, boxes on ladders keep lawmen from following.
+  https://indiehellzone.com/2024/10/30/ufo-50-devilition-mooncat-rail-heist-quibble-race/
+- An independent review of this cartridge against these sources (fog,
+  SELECT swap, starting positions, double jump, super punch, lawmen
+  hopping, the escape end, time limits) was applied in full.

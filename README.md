@@ -234,7 +234,8 @@ the top.
   of three shrug off melee, bowmen shoot down their lane unless a friend is in
   the way, wardens stop arrows until they're hurt, riders move twice, and
   powdermen blow up. Every fifth promotion calls a champion. Battles that
-  bring a new troop open with a line about it.
+  bring a new troop open with a line about it, and the campaign map shows
+  what the next battle brings.
 - **The CPU** never moves its troops, but it gets extra ones. The 24-battle
   campaign uses the original's banners, unit pools and percentages. Ranked,
   Survival and 2P Versus are there too.
@@ -357,11 +358,11 @@ the top.
 
 *A tribute to **Rail Heist** (UFO 50 #28).*
 
-- **Plays the same:** rob a moving train and escape to your mount at the far
-  end before the train reaches town. Each heist opens with a look along the
-  train. While every guard stands still it's real time; once one is up and
-  about it goes in turns, ten seconds for you (the clock runs) and three and a
-  half for the lawmen (it stops).
+- **Plays the same:** rob a moving train and escape to your mount at the back
+  before the train reaches town. Each heist opens with a look along the whole
+  train, inside and out. While every guard stands still it's real time; once
+  one is up and about it goes in turns, ten seconds for you (the clock runs)
+  and three and a half for the lawmen (it stops).
 - **The rules:** a guard shoots an outlaw he sees straight ahead, once, and
   then can only punch and throw; his bullet takes whoever is first in line,
   another lawman too, and a gunshot wakes everyone nearby. Duck behind
@@ -371,9 +372,10 @@ the top.
   every iron gate, the crank gun turns on the lawmen from behind, and rams
   run down whoever is in front.
 - **Structure:** twenty missions in order for the same three outlaws, one or
-  two a mission, with loot, a rescue, a full belt of bullets and the Governor
-  to finish; three stars a mission (no kills, every guard down, and Rail
-  Heist's own time goals); 2P Versus on a longer train dealt fresh each time.
+  two a mission (a pair starts at opposite ends and takes turns), with loot,
+  a rescue, a full belt of bullets and the Governor to finish; three stars a
+  mission (no kills, every guard down, and Rail Heist's own time goals); 2P
+  Versus on a longer train dealt fresh each time.
 - **Ours:** Wade, Hush and Pearl, Old Hettie and Biscuit the camel, the Salt
   Line and all twenty trains (every one is won by a scripted run in the
   tests, without a kill and under its time goal), the powder sticks, geese,

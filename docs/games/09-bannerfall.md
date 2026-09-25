@@ -25,9 +25,12 @@ level 1 is Grunt against Grunt), but ours gave no hint of what it teaches,
 showed later battles as "? ? ?", and could stall for dozens of turns because
 clashes never resolved (11 of 400 hands-off battles never ended). Now the
 wiki's clash rule settles head-on meetings, battles that bring a new troop
-open with a line about it (as Attactics' levels do), and battles 1 to 3 are
+open with a line about it (as Attactics' levels do), the map shows the next
+battle's name and new troops (battle 2: the bowman), and battles 1 to 3 are
 won through the menus with button presses at a human pace
-(`bf_23_campaign_presses`).
+(`bf_23_campaign_presses`). An independent review confirmed the pacing: with
+no input at all, battle 1 ends between turns 9 and 22 in 40 seeds, as the
+field's width dictates.
 
 ## Mechanics checklist
 
@@ -53,7 +56,7 @@ presses.
 | Win / lose | take all enemy flags before they take yours; both at once is a draw | [W] | bf_09 |
 | Extra spawn per flag | one extra unit per turn for every enemy flag taken | [W] | bf_07 |
 | Handicap | "N% more units" as a running total: 10% = 1 unit for nine turns, 2 on the tenth | [W] | bf_14 |
-| Matched spawns | mirrored pools spawn the same unit on both sides; if the CPU gets several, the player's matches one; a champion turn is the exception | [W] | bf_14 |
+| Matched spawns | in campaign battles with mirrored pools, ranked and mirrored 2P (not survival), both sides get the same unit; if the CPU gets several, the player's matches one; a champion turn is the exception | [W] | bf_14 |
 | Promotion | a unit that kills and survives deals 2 (every attack plays twice); if several units dealt the killing blow, all are promoted; promoted health shows as stars | [W], [T] | bf_08 |
 | Champions | every fifth promotion a Champion replaces that turn's spawn, with a banner; it arrives promoted and doesn't count toward the next; the counter (up to four) sits on your keep; player sides only | [W] | bf_08, bf_21 |
 | Footman (Grunt) | 3 HP; no melee damage in a column of 3+ allies, unless the attacker is a footman in such a column | [W], [L], [ST] | bf_03 |
@@ -65,8 +68,9 @@ presses.
 | Powderman (Sapper) | 2 HP; dies in a 2 × 3 blast of 3 damage that hits both sides | [W], [T] | bf_06 |
 | Champion (Hero) | 5 HP; a pike's reach and a rider's second move; arrives promoted | [W] | bf_08 |
 | Campaign | 24 battles in order; flags, pools and extra units from the wiki table; new troops introduced with a line | [W] | bf_09, bf_21, bf_22, bf_23 |
+| Campaign map | the next battle to win shows its name and the troops it brings in, still locked; later ones stay hidden (our reading: the sources don't show Attactics' level list) | [W] | bf_24 |
 | Ranked | 3 flags each, the same full pool; rank = the CPU's extra-unit percentage, starting at 10, never below 0; changes +10 / +4 / +2 / 0 / −1 / −3 / −5 by flag difference; a title every ten ranks, none below 10 | [W] | bf_12, bf_18 |
-| Survival | 3 flags against none; 1 point a turn, plus 1 for every hit on their keep so far; the enemy brings more and more; the colours go yellow, pink, red, black | [W], [R] | bf_13 |
+| Survival | 3 flags against none, each side drawing its own troops; 1 point a turn, plus 1 for every hit on their keep so far; the enemy brings more and more; the colours go yellow, pink, red, black | [W], [R] | bf_13 |
 | 2P Versus | three presets (F F B R; + P W; + S X), 3 flags each, matched spawns; Custom: a pool of places each (d-pad picks a place, A/B turn it through the units, Champion included), flags 1–5 a side below, the banner above starts; Random: a pool each, no Champion, down deals again, no matching; Champions from promotions in every 2P mode | [W] | bf_15, bf_19, bf_20 |
 | Faster turns | when a battle drags on the count starts from 6, then from 4 | [W] | bf_14 |
 | Goals | win 12 battles; win all 24; win all 24 and reach rank 100 | [W] | bf_10 |
@@ -103,8 +107,8 @@ W Warden, R Rider, P Pikeman, S Shade, X Powderman, C Champion.
 | 23 | The Grey Field | 5/5 | R B F F W X P S | F F B R S P X W | 70 |
 | 24 | Bannerfall | 5/5 | R B F F W X P S (+ Champions from promotions) | F F B R S P X W | 80 |
 
-Battles 1, 2, 4, 5, 8, 11, 15, 20 and 24 open with a line about their new
-troop or rule.
+Battles 1, 2, 4, 5, 8, 11, 15 and 24 open with a line about their new
+troop or rule, as Attactics' levels 1, 2, 4, 5, 8, 11, 15 and 24 do.
 
 ### Readings we had to choose
 
