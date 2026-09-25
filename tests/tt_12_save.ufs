@@ -1,0 +1,27 @@
+# TINTAIL: levels beaten, each level's best escape and the deaths are saved;
+# only the best single run counts.
+game tintail
+wait 5
+cheat level 1
+cheat solve
+expect best1 == 3
+expect beaten1 == 1
+wait 250
+cheat level 1
+cheat autoexit
+wait 600
+expect won == 1
+expect collected < 3
+expect best1 == 3
+wait 250
+cheat level 2
+cheat act RRRRRRR
+expect deaths == 1
+reload
+game tintail
+wait 5
+expect beaten1 == 1
+expect best1 == 3
+expect beaten2 == 0
+expect deaths == 1
+expect unlocked == 2

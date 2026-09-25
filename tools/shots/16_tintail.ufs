@@ -1,0 +1,41 @@
+# README media: TINTAIL
+shotscale 2
+seed 16
+game tintail
+wait 60
+shot tintail_title
+cheat beaten 8
+cheat best 1 3
+cheat best 2 3
+cheat best 3 2
+cheat best 4 3
+cheat best 5 3
+cheat best 6 1
+cheat best 7 3
+cheat best 8 2
+cheat map
+wait 30
+shot tintail_map
+# three toads and a winding colour path
+cheat level 4
+wait 2
+hold B
+wait 30
+shot tintail_danger
+release B
+gifstart tintail 4 2
+wait 20
+hold B
+wait 40
+release B
+cheat autosolve
+wait 330
+gifstop
+# the stork flats, halfway
+cheat level 5
+cheat autosolve
+wait 200
+hold B
+wait 6
+shot tintail_storks
+release B

@@ -1,0 +1,26 @@
+# TINTAIL: inside a hollow log Kama is always hidden; logs are entered only
+# from their ends.
+game tintail
+wait 5
+cheat level 3
+cheat act RRRRR
+expect x == 7
+expect hidden == 1
+cheat act RRR
+expect x == 10
+expect danger != 0
+expect dead == 0
+cheat act D
+expect y == 2
+cheat act C
+expect camo_t == 0
+cheat act RRRRR
+expect x == 15
+expect dead == 0
+# no way in from the side
+cheat level 3
+cheat act URRRRRR
+expect x == 8
+expect y == 1
+cheat act D
+expect y == 1

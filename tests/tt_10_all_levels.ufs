@@ -1,0 +1,4 @@
+# TINTAIL: the solver escapes every level with both pears and the hatchling.
+game tintail
+wait 5
+expect check_all == 15

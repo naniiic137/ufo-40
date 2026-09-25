@@ -1,0 +1,25 @@
+# TINTAIL: after being eaten, UNDO rewinds to just before the fatal move;
+# RESTART LEVEL starts over and the pears go back.
+game tintail
+wait 5
+cheat level 1
+cheat act RRRRRRRRRRR
+expect dead == 1
+expect deaths == 1
+wait 70
+press A
+expect state == 3
+expect dead == 0
+expect x == 12
+cheat level 1
+cheat act RRRRRRRRRRC.R
+expect fruit == 1
+cheat act RRDDD
+expect dead == 1
+expect deaths == 2
+wait 70
+press DOWN
+press A
+expect state == 3
+expect fruit == 0
+expect x == 2

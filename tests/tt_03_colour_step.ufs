@@ -1,0 +1,19 @@
+# TINTAIL: one colour at a time. Stepping onto another colour inside danger
+# gets her eaten, and she can't start changing colour while she is in danger.
+game tintail
+wait 5
+cheat level 1
+cheat act RRRRRRRRRRC.RR
+expect x == 14
+expect hidden == 1
+expect danger != 0
+cheat act C
+expect camo_t == 0
+expect camo == 2
+cheat act RDD
+expect x == 15
+expect y == 5
+expect dead == 0
+expect colour1506 == 1
+cheat act D
+expect dead == 1

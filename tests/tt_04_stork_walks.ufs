@@ -1,0 +1,12 @@
+# TINTAIL: a stork walking into Kama eats her even when she is hidden.
+game tintail
+wait 5
+cheat level 5
+cheat camo 2
+cheat pos 8 4
+expect hidden == 1
+cheat act .......
+expect dead == 0
+cheat act .
+expect dead == 1
+expect eaten_by == 1

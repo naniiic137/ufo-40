@@ -1,0 +1,26 @@
+# TINTAIL: Kama steps one tile a beat and changes colour in two beats, taking
+# the colour of the ground under her. White is never hidden.
+game tintail
+wait 5
+cheat level 1
+expect x == 2
+expect y == 3
+expect camo == 0
+expect hidden == 0
+cheat act R
+expect x == 3
+cheat act D
+expect y == 4
+cheat act C
+expect camo_t == 1
+expect hidden == 0
+cheat act .
+expect camo_t == 0
+expect camo == 2
+expect hidden == 1
+# walls and the sea stop her
+cheat level 1
+cheat act U
+expect y == 2
+cheat act UUU
+expect y == 1

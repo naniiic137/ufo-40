@@ -1,0 +1,40 @@
+# TINTAIL goals: 30% of the island (Beacon), the Sun Gate (Saucer), 100%
+# (Alien). Completion: a point per level beaten and per collectible in its
+# best escape, 57 in all.
+game tintail
+wait 5
+cheat beaten 5
+cheat best 1 3
+cheat best 2 3
+cheat best 3 3
+cheat best 4 3
+expect completion == 29
+cheat level 5
+cheat solve
+expect won == 1
+expect best5 == 3
+expect completion == 35
+expect goals == 1
+wait 250
+cheat beaten 14
+cheat level 15
+cheat solve
+expect won == 1
+expect goals == 3
+wait 300
+press A
+wait 5
+cheat best 6 3
+cheat best 7 3
+cheat best 8 3
+cheat best 9 3
+cheat best 10 3
+cheat best 11 3
+cheat best 12 3
+cheat best 13 3
+cheat best 14 3
+cheat level 1
+cheat solve
+expect points == 57
+expect completion == 100
+expect goals == 7

@@ -1,0 +1,23 @@
+# TINTAIL: a toad sees an exposed chameleon in its danger area; matching the
+# ground hides her while she crosses it.
+game tintail
+wait 5
+cheat level 1
+cheat act RRRRRRRRRR
+expect x == 12
+expect dead == 0
+cheat act R
+expect x == 13
+expect dead == 1
+expect eaten_by == 0
+expect state == 5
+# the same walk wearing sand
+cheat level 1
+cheat act RRRRRRRRRRC.
+expect camo == 2
+cheat act RRRR
+expect x == 16
+expect dead == 0
+expect hidden == 1
+expect fruit == 1
+expect danger != 0

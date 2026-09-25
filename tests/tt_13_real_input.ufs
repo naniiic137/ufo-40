@@ -1,0 +1,18 @@
+# TINTAIL: real input. A tap steps at the next beat, holding keeps walking,
+# A changes colour, and the world keeps its beat while you stand still.
+game tintail
+wait 5
+cheat level 1
+press RIGHT
+wait 10
+expect x == 3
+hold RIGHT 32
+wait 10
+expect x >= 6
+expect x <= 8
+press A
+wait 20
+expect camo == 2
+cheat level 5
+wait 80
+expect beat >= 9

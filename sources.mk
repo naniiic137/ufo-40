@@ -41,6 +41,11 @@ CORE_SRC += src/games/fennec/fennec_logic.c
 CORE_SRC += src/games/fennec/fennec_rooms.c
 CORE_SRC += src/games/fennec/fennec_art.c
 CORE_SRC += src/games/fennec/fennec_audio.c
+CORE_SRC += src/games/tintail/tintail.c
+CORE_SRC += src/games/tintail/tintail_logic.c
+CORE_SRC += src/games/tintail/tintail_levels.c
+CORE_SRC += src/games/tintail/tintail_art.c
+CORE_SRC += src/games/tintail/tintail_audio.c
 
 HEADLESS_SRC += src/platform/headless/main_headless.c
 HEADLESS_SRC += src/platform/headless/imgwrite.c

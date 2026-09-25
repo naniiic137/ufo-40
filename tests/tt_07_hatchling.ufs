@@ -1,0 +1,24 @@
+# TINTAIL: the hatchling joins on the tile Kama left, follows one step
+# behind, shares her colour, and gets eaten if it is seen.
+game tintail
+wait 5
+cheat level 1
+cheat act DD
+expect baby == 1
+expect bx == 2
+expect by == 4
+cheat act R
+expect bx == 2
+expect by == 5
+expect x == 3
+cheat act C.
+expect camo == 2
+# both must be hidden: here Kama matches but the hatchling doesn't
+cheat level 10
+cheat camo 2
+cheat pos 13 4
+cheat baby 13 5
+expect hidden == 1
+cheat act .
+expect dead == 1
+expect baby_eaten == 1

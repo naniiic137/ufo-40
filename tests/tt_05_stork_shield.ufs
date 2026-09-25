@@ -1,0 +1,14 @@
+# TINTAIL: a stork standing between a toad and Kama blocks the toad's sight,
+# and storks only see ahead of them.
+game tintail
+wait 5
+cheat level 5
+cheat pos 12 4
+expect danger != 0
+cheat pos 1 6
+cheat act ..................
+expect beat == 18
+cheat pos 12 4
+expect danger == 0
+cheat act .
+expect dead == 0
