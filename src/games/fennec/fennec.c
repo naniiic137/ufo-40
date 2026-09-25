@@ -114,7 +114,7 @@ static const char *npc_text(int area) {
     case AREA_2: return "OLD SHEIKHA: A BLOCK PUSHES ANOTHER ONLY\nIF ITS NUMBER IS AS BIG OR BIGGER.\nPUSH ONE ONTO A 1 AND THEY ADD UP.\nAT FIVE THEY TURN TO MARBLE.";
     case AREA_3: return "THE TILE-SETTER: LAPIS WON'T MOVE FOR\nPAWS. PUSH IT WITH ANOTHER BLOCK AS\nHEAVY AS IT, OR HEAVIER.";
     case AREA_4: return "THE MASON: BASALT IS OLD AND TIRED.\nEACH TIME YOU STOP PUSHING IT, IT\nCRUMBLES A SIZE SMALLER.";
-    case AREA_5: return "A NERVOUS BEETLE: THE GECKOS COPY\nEVERY STEP YOU TAKE. EVERY SINGLE ONE.";
+    case AREA_5: return "COUSIN FARIS: THE GECKOS COPY EVERY\nSTEP YOU TAKE. EVERY SINGLE ONE.";
     default: return "GRAND VIZIER HUMPH: MY BATH! MY LOVELY\nBATH! FINE. ONE LAST SPRING. IF YOU\nCAN MOVE IT, LITTLE FOX.";
     }
 }
@@ -871,6 +871,23 @@ static void draw_hub_tile(int x, int y, int px, int py) {
     }
 }
 
+/* the oasis folk: Fen's family and friends in their own colours */
+static const uint8_t *npc_map(int area) {
+    static uint8_t maps[6][PAL_COUNT];
+    static bool made;
+    if (!made) {
+        for (int i = 0; i < 6; i++) pal_identity(maps[i]);
+        pal_swap(maps[AREA_2], C_EARTH, C_GREY); pal_swap(maps[AREA_2], C_HIDE, C_LIGHT); pal_swap(maps[AREA_2], C_CREAM, C_WHITE);
+        pal_swap(maps[AREA_2], C_PINK, C_VIOLET); pal_swap(maps[AREA_2], C_MAGENTA, C_PURPLE);
+        pal_swap(maps[AREA_3], C_PINK, C_SKY); pal_swap(maps[AREA_3], C_MAGENTA, C_BLUE);
+        pal_swap(maps[AREA_4], C_EARTH, C_TAN); pal_swap(maps[AREA_4], C_HIDE, C_EARTH);
+        pal_swap(maps[AREA_4], C_PINK, C_YELLOW); pal_swap(maps[AREA_4], C_MAGENTA, C_AMBER);
+        pal_swap(maps[AREA_5], C_PINK, C_LEAF); pal_swap(maps[AREA_5], C_MAGENTA, C_JADE);
+        made = true;
+    }
+    return maps[area];
+}
+
 static void draw_hub(void) {
     int fx = hub_px * TS, fy = hub_py * TS;
     if (hub_move_t < 6) {
@@ -911,8 +928,8 @@ static void draw_hub(void) {
             }
             if (HUB[y][x] == 'N') {
                 int a = area_of(x, y);
-                spr_draw(&fn_spr[a == AREA_P ? FS_HUMPH : a == AREA_1 ? FS_ZIZI : FS_GECKO1 + 0], px, py - 2, 0);
-                if (a != AREA_P && a != AREA_1) spr_draw(&fn_spr[FS_ZIZI], px, py - 2, SPR_FLIPX);
+                if (a == AREA_P) spr_draw(&fn_spr[FS_HUMPH], px, py - 2, 0);
+                else spr_draw_ex(&fn_spr[FS_ZIZI], px, py - 2, (frame_t / 90 + x) % 2 ? SPR_FLIPX : 0, npc_map(a), -1);
                 if ((frame_t / 30) % 2) text_draw("!", px + 12, py - 12, C_YELLOW);
             }
         }

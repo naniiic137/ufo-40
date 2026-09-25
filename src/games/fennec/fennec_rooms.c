@@ -44,7 +44,7 @@ const RoomDef FN_ROOMS_DEF[FN_ROOMS] = {
      {"##########", "#....#...#", "D.K.1#.#.#", "#...1..#.#", "#.##.#.#S#", "#....#..G#", "##########"},
      "URRDDRRUURRDDD"},
     /* 10: 16 moves */
-    {"THE LONG ROW",
+    {"FIRST MARBLE",
      {"############", "#.....#....#", "D.K...#....#", "#.....#.GS.#", "#...###..4.#", "#......41..#", "############"},
      "RDDDRRRRUUURRRDL"},
     /* 11: 16 moves */
@@ -52,7 +52,7 @@ const RoomDef FN_ROOMS_DEF[FN_ROOMS] = {
      {"############", "#...1#.....#", "D.K1.#.###.#", "#....#.#GS.#", "#......#...#", "#..#...#...#", "#..#.......#", "############"},
      "RDRDRRUUURRRRDDL"},
     /* 12: 25 moves */
-    {"FIRST MARBLE",
+    {"THE LONG ROW",
      {"###########", "#....#....#", "D.K..#....#", "#.........#", "#1S#####..#", "#.......1.#", "#....#.4G.#", "###########"},
      "DDULDDRRRRRRLDRRUURUULDDD"},
     /* 13: 36 moves */
@@ -136,7 +136,7 @@ const RoomDef FN_ROOMS_DEF[FN_ROOMS] = {
      {"############", "#......xx..#", "D.K....xx..#", "#...####...#", "#.S.#..#.G.#", "#........w.#", "############"},
      "RDDDLUULURRRRURRRLLLDRRRURDD"},
     /* 33: 28 moves */
-    {"TWIN BOULDERS",
+    {"THE BOULDER",
      {"############", "#....#.....#", "D.K..#.xx..#", "#......xx..#", "#2S..#...G.#", "#....#.....#", "############"},
      "RRDRRRLLLDDLLUDLUURRRRRRRURD"},
     /* 34: 35 moves */
@@ -148,11 +148,11 @@ const RoomDef FN_ROOMS_DEF[FN_ROOMS] = {
      {"#############", "#.....#.....#", "D.K...#S....#", "#w....#..#xx#", "#.........xx#", "#.....#..#G.#", "#############"},
      "RRRDDRRURURRDUULLLDDRDLLLULLDRRRRRRLUURRDD"},
     /* 36: 34 moves */
-    {"BASALT AND BLUE",
+    {"THE OLD DAM",
      {"#############", "#...........#", "D.Kxx#S#....#", "#..xx#.#....#", "#........2..#", "#....#.#..G.#", "#############"},
      "URRRRDDUURRRDDDLLLLLULLDRRRRRRRURD"},
     /* 37: 37 moves */
-    {"THE OLD DAM",
+    {"BASALT AND BLUE",
      {"############", "#..a.......#", "D.K.#S.#...#", "#.xx#..#...#", "#.xx....2..#", "#...#..#.G.#", "############"},
      "DRDRRURUULDDRDRRRLLLLLLULLDRRRRRRRURD"},
     /* 38: 40 moves */
@@ -176,11 +176,11 @@ const RoomDef FN_ROOMS_DEF[FN_ROOMS] = {
      {"###########", "#.........#", "D.K...#...#", "#.S...#...#", "#.g..2..G.#", "###########"},
      "RURRRRDULLLDDLDRRRRRUR"},
     /* 43: 24 moves */
-    {"TWO STEPS",
+    {"GECKO PAIR",
      {"############", "#.....#...2#", "D.K...#S...#", "#..........#", "#.g...#1.G.#", "#.....#.g..#", "############"},
      "RRRDRRRUULDURRDRLLLRDLDR"},
     /* 44: 26 moves */
-    {"GECKO PAIR",
+    {"TWO STEPS",
      {"############", "#..........#", "D.KS##.##..#", "#........3.#", "#.g.##.##G.#", "#..........#", "############"},
      "URRRRRRRRLLLLLLLDURRRRRRDD"},
     /* 45: 21 moves */
