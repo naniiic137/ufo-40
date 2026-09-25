@@ -2,6 +2,19 @@
 shotscale 2
 seed 14
 game cutlass
+wait 5
+cheat match 3 5
+cheat demo
+cheat level 4
+wait 200
+cheat meter 0 6
+cheat meter 1 6
+wait 282
+shot cutlass_rally
+gifstart cutlass 3 2
+wait 420
+gifstop
+game cutlass
 wait 40
 shot cutlass_title
 press A
@@ -14,21 +27,3 @@ shot cutlass_select
 cheat tourney 3
 wait 40
 shot cutlass_bracket
-cheat match 3 5
-cheat demo
-cheat level 4
-wait 200
-cheat meter 0 6
-cheat meter 1 6
-gifstart cutlass 3 2
-wait 420
-gifstop
-shot cutlass_rally
-cheat play
-cheat pos 0 70 70
-cheat pos 1 250 120
-cheat cpu 0 0
-cheat cpu 1 0
-cheat superball 4 110 70 3
-wait 26
-shot cutlass_whirl

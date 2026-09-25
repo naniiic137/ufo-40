@@ -152,7 +152,7 @@ Meet the quota before the last shift ends:
 </p>
 <p align="center">
   <img src="docs/shots/cutlass_select.png" width="320" alt="Choose your crew">
-  <img src="docs/shots/cutlass_bracket.png" width="320" alt="The road to the Cup">
+  <img src="docs/shots/cutlass_rally.png" width="320" alt="Karim charges a Super Shot">
 </p>
 
 *A tribute to **Bushido Ball** (UFO 50 #14).*

@@ -611,9 +611,12 @@ static void draw_proj(const Proj *r) {
         break;
     case PR_DECOY: spr_draw(&cc_spr[CS_DECOY], x - 4, y - 10, 0); break;
     case PR_BLAST: {
-        int rr = 4 + r->t * 2;
-        gfx_circ(x, y - 4, imin(rr, 20), r->t < 6 ? C_WHITE : C_ORANGE);
-        gfx_circb(x, y - 4, imin(rr + 2, 24), C_YELLOW);
+        /* a puff of smoke and fire that fills the blast's reach */
+        int rr = imin(22, 6 + r->t * 3);
+        gfx_dither_circle(x, y - 4, rr, r->t < 6 ? C_YELLOW : C_ORANGE, imax(2, 12 - r->t / 2));
+        gfx_dither_circle(x, y - 4, rr * 2 / 3, r->t < 8 ? C_WHITE : C_SLATE, imax(1, 10 - r->t / 2));
+        gfx_circb(x, y - 4, rr, r->t < 10 ? C_YELLOW : C_ORANGE);
+        if (r->t < 5) gfx_circ(x, y - 4, 7 - r->t, C_WHITE);
         break;
     }
     default: break;
