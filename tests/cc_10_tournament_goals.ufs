@@ -1,0 +1,48 @@
+# CUTLASS CUP: beat five opponents in a row to win the Cup. Three beaten
+# earns the Beacon, the Cup the Saucer, and a run without a continue the Alien.
+game cutlass
+wait 5
+cheat tourney 0
+expect state == 3
+wait 35
+press A
+wait 40
+expect state == 4
+wait 90
+expect state == 5
+cheat win 0
+wait 110
+expect state == 6
+expect defeated == 1
+wait 60
+press A
+expect state == 3
+wait 35
+press A
+wait 130
+cheat win 0
+wait 170
+press A
+wait 35
+press A
+wait 130
+cheat win 0
+wait 170
+expect defeated == 3
+expect goals == 1
+press A
+wait 35
+press A
+wait 130
+cheat win 0
+wait 170
+press A
+wait 35
+press A
+wait 130
+cheat win 0
+wait 170
+expect defeated == 5
+expect goals == 7
+press A
+expect state == 8

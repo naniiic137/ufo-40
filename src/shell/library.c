@@ -109,6 +109,8 @@ static void draw_panel(void) {
             /* a small sticker along the bottom of the label art */
             char tb[64];
             snprintf(tb, sizeof tb, "TRIBUTE TO %s " GLYPH_DOT " UFO 50 #%d", g->tribute, g->tribute_no);
+            if (tiny_width(tb) > PANEL_W - 2) /* long names: a shorter sticker */
+                snprintf(tb, sizeof tb, "TRIBUTE: %s " GLYPH_DOT " UFO 50 #%d", g->tribute, g->tribute_no);
             gfx_rect(x, y + 57, PANEL_W, 7, C_INK);
             gfx_hline(x, x + PANEL_W - 1, y + 56, C_NIGHT);
             tiny_center(tb, x + PANEL_W / 2, y + 58, C_GREY);

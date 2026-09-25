@@ -109,15 +109,20 @@ static uint32_t parse_buttons(char *s) {
     uint32_t m = 0;
     for (char *tok = strtok(s, " +\t\r\n"); tok; tok = strtok(NULL, " +\t\r\n")) {
         if (isdigit((unsigned char)tok[0])) break;
-        if (!strcmp(tok, "UP")) m |= BTN_UP;
-        else if (!strcmp(tok, "DOWN")) m |= BTN_DOWN;
-        else if (!strcmp(tok, "LEFT")) m |= BTN_LEFT;
-        else if (!strcmp(tok, "RIGHT")) m |= BTN_RIGHT;
-        else if (!strcmp(tok, "A")) m |= BTN_A;
-        else if (!strcmp(tok, "B")) m |= BTN_B;
-        else if (!strcmp(tok, "START")) m |= BTN_START;
-        else if (!strcmp(tok, "SELECT")) m |= BTN_SELECT;
-        else if (!strcmp(tok, "ALL")) m |= BTN_ANY;
+        /* P2UP, P2A, ...: the same buttons for player 2 */
+        int sh = 0;
+        if (!strncmp(tok, "P2", 2) && tok[2]) { tok += 2; sh = BTN_P2_SHIFT; }
+        uint32_t b = 0;
+        if (!strcmp(tok, "UP")) b = BTN_UP;
+        else if (!strcmp(tok, "DOWN")) b = BTN_DOWN;
+        else if (!strcmp(tok, "LEFT")) b = BTN_LEFT;
+        else if (!strcmp(tok, "RIGHT")) b = BTN_RIGHT;
+        else if (!strcmp(tok, "A")) b = BTN_A;
+        else if (!strcmp(tok, "B")) b = BTN_B;
+        else if (!strcmp(tok, "START")) b = BTN_START;
+        else if (!strcmp(tok, "SELECT")) b = BTN_SELECT;
+        else if (!strcmp(tok, "ALL")) b = BTN_ANY;
+        m |= b << sh;
     }
     return m;
 }
@@ -127,10 +132,10 @@ static int last_int(const char *s, int def) {
     const char *p = s + strlen(s);
     while (p > s && !isdigit((unsigned char)p[-1])) p--;
     if (p == s) return def;
-    const char *e = p;
     while (p > s && isdigit((unsigned char)p[-1])) p--;
     if (p > s && p[-1] == '-') p--;
-    (void)e;
+    /* only a number of its own counts ("P2A" is a button, not a 2) */
+    if (p > s && !isspace((unsigned char)p[-1]) && p[-1] != '+') return def;
     return atoi(p);
 }
 

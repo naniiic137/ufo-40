@@ -1,0 +1,30 @@
+# CUTLASS CUP: a Super Shot that hits your body is caught: mash B to send
+# it back, or it slips over your head.
+game cutlass
+wait 5
+cheat match 0 1
+cheat cpu 1 0
+wait 2
+cheat play
+cheat pos 0 60 100
+cheat superball 1 150 100 -5
+wait 20
+expect caught_by == 0
+expect st0 == 5
+press B 1
+press B 1
+press B 1
+press B 1
+press B 1
+press B 1
+wait 2
+expect caught_by == -1
+expect ball_kind == 1
+expect ball_team == 0
+expect ball_vx100 > 300
+# too slow this time
+cheat play
+cheat pos 0 60 100
+cheat superball 1 150 100 -5
+wait 90
+expect score_r == 1

@@ -1,0 +1,14 @@
+# CUTLASS CUP: a ball that hits a body bounces off and stuns that player.
+game cutlass
+wait 5
+cheat match 0 1
+cheat cpu 1 0
+wait 2
+cheat play
+cheat pos 1 260 100
+cheat ball 230 100 3 0
+wait 12
+expect st1 == 4
+expect stun1 > 0
+expect ball_vx100 < 0
+expect meter1 == 0

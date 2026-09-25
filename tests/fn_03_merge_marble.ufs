@@ -1,0 +1,21 @@
+# FENNEC FOUNTAIN: pushing a block onto a 1, or a 1 onto a block, adds them;
+# at five a block turns to marble, which pushes anything.
+game fennec
+wait 5
+cheat setroom #########/#K.31...#/#########
+cheat moves RR
+expect tile41 == 14
+expect tile31 == 0
+expect nb == 1
+cheat setroom #########/#K.13...#/#########
+cheat moves RR
+expect tile41 == 14
+expect px == 3
+expect nb == 1
+cheat setroom #########/#K.41...#/#########
+cheat moves RR
+expect tile41 == 55
+cheat setroom #########/#K.54...#/#########
+cheat moves RR
+expect tile41 == 55
+expect tile51 == 14

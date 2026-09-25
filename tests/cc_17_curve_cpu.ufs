@@ -1,0 +1,20 @@
+# CUTLASS CUP: a rolling strike up or down curves the ball; and a whole
+# CPU-against-CPU match keeps on scoring.
+game cutlass
+wait 5
+cheat match 0 1
+cheat cpu 1 0
+wait 2
+cheat play
+cheat pos 0 50 100
+cheat ball 70 92 0 0
+hold UP
+press A 1
+press B 1
+release UP
+wait 4
+expect ball_curve == 1
+cheat match 3 5
+cheat demo
+wait 5400
+expect points >= 4

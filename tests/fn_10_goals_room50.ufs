@@ -1,0 +1,14 @@
+# FENNEC FOUNTAIN goals: beating room 50 earns the Saucer, and with every
+# drop the Alien (checked when room 50 is beaten).
+game fennec
+wait 30
+cheat drops 30
+cheat room 50
+cheat solve
+expect goals == 2
+wait 110
+cheat drops 49
+cheat room 50
+cheat solve
+expect drops == 50
+expect goals == 6

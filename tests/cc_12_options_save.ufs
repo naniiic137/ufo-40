@@ -1,0 +1,33 @@
+# CUTLASS CUP: GOAL, TIME, LAWS and SPEED are options, and they are saved.
+game cutlass
+wait 20
+press DOWN
+press DOWN
+press DOWN
+press A
+wait 5
+press RIGHT
+press RIGHT
+press RIGHT
+press DOWN
+press RIGHT
+press RIGHT
+press DOWN
+press RIGHT
+press DOWN
+press RIGHT
+press RIGHT
+wait 2
+expect goal == 11
+expect timeopt == 2
+expect laws == 0
+expect speed == 2
+press B
+wait 5
+reload
+game cutlass
+wait 5
+expect goal == 11
+expect timeopt == 2
+expect laws == 0
+expect speed == 2

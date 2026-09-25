@@ -1,0 +1,22 @@
+# BANNERFALL: one unit a turn each, plus the host's extra percentage as a
+# running total; matching pools spawn matching units; the timer counts from
+# 9, then 6 in Double Time and 4 in Triple Time.
+game bannerfall
+wait 5
+cheat battle 2
+expect matched == 0
+expect handicap == 50
+cheat clear
+cheat spawn
+expect count_r == 2
+expect count_l == 1
+cheat clear
+cheat spawn
+expect count_r == 1
+cheat battle 5
+expect matched == 1
+expect timer == 9
+cheat turn 40
+expect timer == 6
+cheat turn 60
+expect timer == 4

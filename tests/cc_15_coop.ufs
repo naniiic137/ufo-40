@@ -1,0 +1,21 @@
+# CUTLASS CUP co-op: two players team up against CPU pairs; two wins beat
+# the other four fighters and win the Cup.
+game cutlass
+wait 5
+cheat coop 0 3
+expect state == 3
+wait 35
+press A
+wait 130
+expect np == 4
+cheat win 0
+wait 170
+expect defeated == 2
+press A
+wait 35
+press A
+wait 130
+cheat win 0
+wait 170
+expect defeated == 4
+expect goals == 7

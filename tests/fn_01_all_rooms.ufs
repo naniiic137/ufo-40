@@ -1,0 +1,5 @@
+# FENNEC FOUNTAIN: every one of the fifty rooms can be solved (each stored
+# solution is replayed on the real rules).
+game fennec
+wait 5
+expect check_all == 50

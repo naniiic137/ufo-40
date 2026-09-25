@@ -1,0 +1,28 @@
+# BANNERFALL: a unit that kills and survives is promoted (2 damage); with
+# champions on, every fifth promotion calls a champion as the next spawn.
+game bannerfall
+wait 5
+cheat battle 1
+cheat clear
+cheat unit 3 2 1 0
+cheat unit 4 2 1 1 1
+cheat resolve
+expect promo_at32 == 1
+expect promos_l == 0
+# a promoted unit hits for two
+cheat unit 4 2 1 1
+cheat resolve
+expect hp_at42 == 1
+# battle 24 summons champions from promotions
+cheat battle 24
+cheat clear
+cheat promos 4
+cheat unit 3 2 1 0
+cheat unit 4 2 1 1 1
+cheat resolve
+expect promos_l == 0
+expect hero_due_l == 1
+cheat clear
+cheat spawn
+expect champs_l == 1
+expect hero_due_l == 0

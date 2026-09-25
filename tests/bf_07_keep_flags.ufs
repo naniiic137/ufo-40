@@ -1,0 +1,17 @@
+# BANNERFALL: a unit that marches into the enemy keep takes a banner and
+# comes back on its own side; every banner taken is one more unit per turn.
+game bannerfall
+wait 5
+cheat battle 18
+cheat clear
+expect flags_r == 5
+cheat unit 7 2 1 0
+cheat resolve
+expect unit_at72 == 0
+expect flags_r == 4
+expect taken_l == 1
+expect keep_hits_l == 1
+expect count_l == 1
+cheat clear
+cheat spawn
+expect count_l == 2

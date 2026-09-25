@@ -1,0 +1,22 @@
+# FENNEC FOUNTAIN: lapis never moves for the fennec, only for a block with
+# an equal or higher number.
+game fennec
+wait 5
+cheat setroom #########/#K.b....#/#########
+cheat moves RR
+expect px == 2
+expect tile31 == 22
+cheat setroom #########/#K.2b...#/#########
+cheat moves RR
+expect tile41 == 12
+expect tile51 == 22
+# ...but a 1 adds itself to it: lapis 3
+cheat setroom #########/#K.1b...#/#########
+cheat moves RR
+expect px == 3
+expect tile41 == 23
+# a lapis 1 adds itself like any 1
+cheat setroom #########/#K.3a...#/#########
+cheat moves RR
+expect tile41 == 14
+expect nb == 1

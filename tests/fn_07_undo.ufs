@@ -1,0 +1,16 @@
+# FENNEC FOUNTAIN: B takes back a step, as many as you like.
+game fennec
+wait 5
+cheat setroom #########/#K.2....#/#########
+cheat moves RR
+expect px == 3
+expect tile41 == 12
+expect undo == 2
+press B
+wait 4
+expect px == 2
+expect tile31 == 12
+press B
+wait 4
+expect px == 1
+expect undo == 0

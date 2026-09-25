@@ -1,0 +1,27 @@
+# CUTLASS CUP: when the clock runs out the leader wins; a tie goes to the
+# next point.
+game cutlass
+wait 5
+cheat match 0 1
+cheat cpu 1 0
+cheat cpu 0 0
+wait 2
+cheat play
+cheat timeleft 30
+cheat score 2 1
+wait 40
+expect mstate == 4
+expect winner == 0
+cheat match 0 1
+cheat cpu 1 0
+wait 2
+cheat play
+cheat timeleft 30
+cheat score 1 1
+wait 40
+expect sudden == 1
+expect mstate == 2
+cheat ball 300 100 3 0
+wait 110
+expect mstate == 4
+expect winner == 0

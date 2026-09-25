@@ -1,0 +1,13 @@
+# FENNEC FOUNTAIN: geckos copy every step the fennec takes, and push like it.
+game fennec
+wait 5
+cheat setroom ##########/#K.......#/#........#/#g.1.....#/##########
+expect gx0 == 1
+cheat moves R
+expect px == 2
+expect gx0 == 2
+cheat moves R
+expect gx0 == 3
+expect tile43 == 11
+cheat moves D
+expect gy0 == 3
