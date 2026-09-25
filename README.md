@@ -5,7 +5,7 @@
 <h1 align="center">UFO 40</h1>
 
 <p align="center">
-  <b>A pretend 1980s console with forty cartridges (well, eight so far), built from scratch<br>
+  <b>A pretend 1980s console with forty cartridges (well, nine so far), built from scratch<br>
   for the PlayStation Vita, Windows and the web.</b><br><br>
   <a href="https://naniiic137.github.io/ufo-40/"><b>▶ Play it in your browser</b></a> ·
   <a href="https://github.com/naniiic137/ufo-40/releases">Download for Vita / Windows</a>
@@ -36,7 +36,7 @@ on **Windows/Linux** and in the **browser** through Emscripten. A headless build
 drives the whole console from scripted input for testing and for every
 screenshot and GIF on this page.
 
-## The library (8 of 40 loaded)
+## The library (9 of 40 loaded)
 
 <p align="center"><img src="docs/shots/library.png" width="640" alt="The UFO 40 game library with 40 cartridge slots"></p>
 
@@ -50,6 +50,7 @@ screenshot and GIF on this page.
 | 15 | **FENNEC FOUNTAIN** | puzzle | Fen the fennec pushes numbered stones to unplug the oasis springs. Big numbers push small ones and 1s add up; fifty rooms around a hub garden, plus a room editor. |
 | 16 | **TINTAIL** | puzzle | Kama the chameleon sneaks across Salt Island past toads and storks by taking the colour of the ground. Fifteen single-screen levels, pears and lost hatchlings to carry home. |
 | 25 | **OPEN HOUSE** | strategy | Summer parties in a whitewashed house by the sea. Draw guests from your rolodex, dodge the police and the fire marshal, and get four star guests under one roof within 25 nights. |
+| 28 | **DUNE EXPRESS** | stealth | Desert outlaws rob the Governor's tax trains. Move while the guards stand still, hide while they walk, and take the villages' money off twenty trains to Baraka the camel. |
 | other | *coming soon* | | still in the saucer's cargo hold |
 
 Every cartridge has three goals: a **Beacon** (a side challenge), the
@@ -250,6 +251,37 @@ Meet the quota before the last shift ends:
   name, portrait and line (the Saucer Pilot, the Wish Fish, the Rai Singer,
   the Goat...), the list names and the music.
 
+### 28 · DUNE EXPRESS
+
+<p align="center">
+  <img src="docs/shots/dune.gif" width="640" alt="Dune Express: Khaled breaks a crate, crosses the roofs and drops in behind a guard for the strongbox">
+</p>
+<p align="center">
+  <img src="docs/shots/dune_turns.png" width="320" alt="Sahar walks past a stunned guard during her turn">
+  <img src="docs/shots/dune_roofs.png" width="320" alt="Dusk on the longest train, a guard on the next roof">
+</p>
+
+*A tribute to **Rail Heist** (UFO 50 #28).*
+
+- **Plays the same:** rob a moving train and escape to your mount at the far
+  end before the train reaches town. While every guard stands still it's real
+  time; once one is up and about it goes in turns, ten seconds for you (the
+  clock runs) and a few for the lawmen (it stops).
+- **The rules:** a guard shoots an outlaw he sees straight ahead, once, and
+  then can only punch and throw; a gunshot wakes everyone nearby. Duck behind
+  anything a tile high, punch through walls, floors and ceilings, carry and
+  throw barrels, crates, anvils, powder sticks and geese, hide in a barrel,
+  and load the gun slowly. Levers flip every iron gate, the crank gun turns
+  on the lawmen from behind, and a punched ram charges.
+- **Structure:** twenty missions in order for the same three outlaws, one or
+  two a mission, with loot, a rescue, a full belt of bullets and the Governor
+  to finish; angel, devil and time stars; 2P Versus on a longer train dealt
+  fresh each time.
+- **Ours:** Khaled, the Veil, Sahar and Baraka, the Salt Line and all twenty
+  trains (every one is won by a scripted run in the tests, without a kill and
+  under its time star), the powder sticks, geese, rams and hamsa, and the
+  music.
+
 ## Install on PS Vita
 
 You need a Vita running HENkaku / h-encore / Ensō with **VitaShell**.
@@ -365,8 +397,8 @@ src/platform/headless/ scripted test runner, PNG / GIF / WAV writers, Vita LiveA
     plays notes with lengths, ties and repeat blocks.
   - Sound effects use the same notation and take over one channel for a
     moment, just like old hardware.
-  - Every track and jingle is original: 37 compositions across the console and
-    the six cartridges.
+  - Every track and jingle is original: 57 compositions across the console and
+    the nine cartridges.
 - **Art.** Sprites are written as strings of palette letters in the C source
   (`k` ink, `y` yellow, `C` cyan and so on), so there are no binary assets at
   all. The Vita LiveArea images are drawn by the engine itself
