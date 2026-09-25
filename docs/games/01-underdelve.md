@@ -10,24 +10,64 @@ forum threads (listed under Sources). No UFO 50 images, video, maps, music or
 text were used as references.
 
 **Map type: fixed.** Barbuta's castle is one hand-made map, so ours is too
-(`underdelve_rooms.c`). It follows the original's coarse structure where the
-text describes it; the rooms, their layouts and which grid cell holds what
-are ours (no feature stands in the cell the wiki gives it in Barbuta):
+(`underdelve_rooms.c`). Only its coarse structure is kept, as the text
+sources describe it: an 8×8 grid that wraps at the sides, a shop near the
+start, the boss in a tower in a corner region with three ways up into it,
+the same order in which items open the way, the same kinds of rooms and
+secrets, and the hint-givers, traps and pools. The plan itself, which room
+sits where and how the rooms join, is ours, drawn for this mine; it is not
+a shift, mirror or rotation of Barbuta's.
 
-| Structure | Barbuta (text sources) | UNDERDELVE |
-|---|---|---|
-| Map size | 8×8 flip screens [W] | 8×8 rooms (64 screens) |
-| Wrap-around | leaving one side brings you in on the other [MG], [SD] | rows open at the edge wrap east ↔ west |
-| Start | the left side of the map [GR] | Mo's camp, west side |
-| Shops | two, near the start [W] | Burlap's Post and the Owl's Exchange, just east of the camp, one above and one below |
-| Final boss | a tower, top right [W], [GR] | the Old Lode's nest, top right; the Sunstone just east of it, round the wrap |
-| Life vendor | next to the boss [W], [GR] | the Lantern Keeper, next door |
-| Weapon trader | bottom right [W] | the Salamander Forge, bottom right |
-| Blood sword | push blocks, then die on the spikes below [W] | Block Room over Hungry Spikes |
-| Key puzzle | ladders climbed in an order carved elsewhere, mirrored [W] | Tally Ladders, and the Carved Tablet far away |
-| Bat altar | the west side [W] | Canary Altar, west |
-| Platform item | reached through a pool that looks deadly [W], [GR] | Poison Pool → Crank Vault |
-| Three ways to the boss | a switch, a locked door, a 500-cash hammer [GR], [SB] | the lever, the Deep Gate, the smith |
+| Kept from Barbuta (coarse) | UNDERDELVE |
+|---|---|
+| 8×8 flip screens [W] | 8×8 rooms (64 screens) |
+| leaving one side brings you in on the other [MG], [SD] | rows open at the edge wrap east ↔ west |
+| two shops near the start [W] | the Owl's Exchange straight under Mo's camp, down a ladder in the camp floor; Burlap's Post two rooms east |
+| the boss in a tower in a corner region [W], [GR] | the headframe, along the top row: the Old Lode's nest, with the Sunstone east of it |
+| three ways up: a switch, a locked door, a 500-cash hammer [GR], [SB] | the lever drops the slab over the trapdoor shaft; the Deep Gate opens the locked shaft into the gate hall, whose ladder climbs on to the headframe walk; the smith breaks the cracked wall at the end of the hammer loft |
+| a life vendor next to the boss [W], [GR] | the Lantern Keeper, next door |
+| a weapon trader [W] | the Salamander Forge, on the bottom row |
+| blood sword: push blocks, then die on the spikes below [W] | Block Room over Hungry Spikes |
+| key puzzle: ladders climbed in an order carved elsewhere, mirrored [W] | Tally Ladders, and the Carved Tablet three rooms east |
+| bat altar [W] | the Canary Altar, under the Owl's Exchange |
+| platform item through a pool that looks deadly [W], [GR] | Poison Pool → Crank Vault |
+
+### The plan
+
+Rows run from the top of the mine down; columns run west to east, and the
+east edge joins the west one.
+
+| | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 |
+|---|---|---|---|---|---|---|---|---|
+| 1 | Headframe Walk | Keeper's Rest | Heart of the Delve | Sunlit Headframe | Collapsed Drift | Headframe Stairs | Shrine Loft | Hammer Loft |
+| 2 | Gate Hall | Trapdoor Shaft | Old Attic | Bone Shaft | Timber Loft | Echo Chamber | Rafters | Smith's Camp |
+| 3 | Locked Shaft | Shrine Hall | Echo Vault | Crystal Seam | Glowcap Grotto | Stalactite Run | Old Pump Room | False Wall |
+| 4 | Burlap's Post | West Tunnel | Fork Ledge | Collapsed Stope | East Sump | Shellback Hall | **Mo's Camp** | Gem Grotto |
+| 5 | Lift Cavern | Swooper Roost | Crumbly Strongroom | Drip Gallery | Deep Chest | Rail Yard | Owl's Exchange | Nugget Ledge |
+| 6 | Block Room | Gem Chest Hall | Tally Ladders | Lever Nook | Timber Hall | Carved Tablet | Canary Altar | Deep Crossing |
+| 7 | Hungry Spikes | Slag Heap | Cinder Steps | Ember Well | Poison Pool | Crank Vault | Fire Falls | Magma Bridge |
+| 8 | Crystal Stair | Salamander Forge | Ember Gallery | Mushroom Stair | Toad Pond | Ooze Works | Lava Walk | Drip Cistern |
+
+- **The camp** stands on the east side of the fourth row, a corridor with
+  no wall in it that runs right round the mine. Its ladder climbs to the old
+  pump room; a ladder in its floor drops to the Owl's Exchange, and under
+  that one shaft carries on down through the Canary Altar and the Fire
+  Falls to the Lava Walk's stepping stones.
+- **The tower** holds the west half of the top row: the headframe walk,
+  the Keeper's rest, the nest and the sunlit room. From the camp, the pump
+  room climbs to the rafters and the smith; his hammer loft opens east,
+  through the cracked wall and round the wrap, onto the headframe walk. The
+  locked shaft sits two rooms below the walk: through the Deep Gate into the
+  gate hall, then up its ladder. The trapdoor shaft is reached through the
+  old attic.
+- **Walls** at a room edge are few: round the tower and its gate hall,
+  round the sealed tally and lever rooms and the crank vault, on the west
+  side of the Owl's Exchange, the Canary Altar, the Salamander Forge and the
+  Lava Walk, and at three dead ends. The camp's row has none.
+- **Crystal, drips and lifts** stand on side ways: with nothing at all Mo
+  can reach 58 of the 64 rooms (all but the tower's five and the tally's
+  room, whose ladder lies under crystal). The crank runs the fork's own
+  ledge and the lift cavern; the pot gets him through the drip gallery.
 
 The zones by depth are ours: the Headframe and Upper Workings (rows 1-2),
 the Glowcap Hollows (rows 3-4), the Crystal Veins (rows 5-6) and the Ember
@@ -156,7 +196,9 @@ design: every spot reachable on foot in every room (`reach_lost`), the rooms
 reachable from the camp with given items and gates (`reach_rooms_I_F`),
 things that can't be walked up to (`reach_missing_I_F`), rooms whose way in
 would drop a returning Mo onto spikes (`respawn_traps`) and foes placed on
-a way in (`entry_foes`).
+a way in (`entry_foes`). Two routes are played by buttons alone: the
+opening (camp, gem grotto, Owl's Exchange) and the smith's way from the
+camp into the headframe.
 
 ## Sources
 

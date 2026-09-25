@@ -99,8 +99,9 @@ the top.
   fork for crystal, a gear crank for the lifts, gloves, a brass tally, a
   canary and a hungry pick. There are three ways up to the Old Lode: a
   lever, the Deep Gate and a 500-ore sledgehammer.
-- **Ours:** Mo the mole, the mine and its 64 screens (and which cell holds
-  what), the shopkeepers and glow-worms, every tile and the music.
+- **Ours:** Mo the mole, the mine and its 64 screens, and its plan: which
+  room sits where and how the rooms join (only the coarse structure is
+  Barbuta's). The shopkeepers and glow-worms, every tile and the music.
 
 <details>
 <summary>The whole mine: all 64 screens, stitched from headless screenshots (spoilers)</summary>
@@ -521,7 +522,8 @@ src/platform/headless/ scripted test runner, PNG / GIF / WAV writers, Vita LiveA
   - Underdelve checks its mine with probes built on its own physics: every
     room walked and jumped from every way in, the rooms reachable from the
     camp with each route into the tower, and no way into a room that drops a
-    returning Mo onto spikes. Its opening is also played by buttons alone.
+    returning Mo onto spikes. Its opening and the smith's way into the
+    tower are also played by buttons alone.
   - Tin Troop has a route test for every level that plays its obstacles the
     intended way, and Skywell has a demo climber that checks generated pits
     can be climbed.
@@ -536,7 +538,7 @@ Example test (`tests/ud_02_hazard_death.ufs`):
 game underdelve
 wait 15
 cheat no_gloom
-cheat room 5 0 170 130
+cheat room 1 0 170 130
 cheat clear_enemies
 wait 5
 expect lanterns == 6
