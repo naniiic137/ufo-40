@@ -72,11 +72,11 @@ and the music and sound volumes are in every game's pause menu too.
 | 01 | **UNDERDELVE** | Barbuta | an 8×8 wrapping map, one-hit deaths and six lives, committed jumps, a roaming death that moves whenever you change room, items that open the way, three paths to the final boss | Mo the mole, a dark mine, the Gloom, 64 new screens |
 | 02 | **GRUB SHIFT** | Bug Hunter | a random 6×5 field, seven one-shot tool modules, energy pods that blow up in threes, grubs that evolve by colour, a daily shop, a kill quota | Tilly the farm robot, the grub species, 41 tools |
 | 03 | **ROOFCAT** | Ninpek | one long auto-scrolling town of stacked rooftops where left walks you back against the scroll, high and double jumps, one star at a time (three, farther and faster, with power-ups), points only from eggs, a spirit that floats back after a death, two bonus stretches, a 35-hit boss hit only in the eye, a harder second loop | Pepper the courier cat, a whitewashed seaside town, Old Crab |
-| 05 | **PETAL PARADE** | Magic Garden | a 12×12 field, a trail of followers you must never run into, saving them on star pads for rising points, potions by strength, a witch who plants mushrooms | Lina the gardener, petalpups, sun circles, Madame Nettle |
+| 05 | **PETAL PARADE** | Magic Garden | a 12×12 field where you never stop and turn only at the next tile, a trail you must never run into, each follower left on the moving star tiles saved for 10 × its place, potions by strength, a witch who plants mushrooms when a star area goes unused, 200 to win | Posy the gardener, petalpups, sun circles, Madame Nettle |
 | 06 | **TIN TROOP** | Mortol | 20 lives that carry through ten levels, the arrow, bomb and stone sacrifices, bodies as ledges and weights, water, fire and plants, a ship that drops the next life | a toy army in a toymaker's house, the Jack of the Chest, 10 new levels |
 | 07 | **SKYWELL** | Velgress | a random shaft of crumbling platforms, a roller that only follows you up, stun instead of damage, four-way shooting, a shop between levels, a key bird, a locked fourth level | Kip the scrap-diver, the Grinder, the Tinker, the Well Eye |
 | 09 | **BANNERFALL** | Attactics | a 6×8 field between two keeps, a countdown turn where you drag troops within your half, the same end-of-turn order and clashes, eight unit types with promotions and heroes, the original's 24 campaign battles, ranked, survival and 2P versus | the Marigold Guard and the Thistle Host, all units and battle names |
-| 14 | **CUTLASS CUP** | Bushido Ball | first to 8 points, aimed and curved strikes, lobs, secondary weapons, charged super shots, the fouls and penalty points, six fighters, a tournament, 2P versus and co-op doubles | six corsairs, the galley *Sabra*, judge Rais Mabrouk |
+| 14 | **CUTLASS CUP** | Bushido Ball | first to 8 points, a ball that gets faster with every return, aimed, lobbed and curved strikes, secondary weapons and charged super shots, the fouls and penalty points, six fighters, a five-match tournament, 2P versus and co-op doubles | six corsairs, the galley *Merry Mackerel*, old Bosun Crabbe |
 | 15 | **FENNEC FOUNTAIN** | Block Koala | pushing numbered blocks (big pushes small, 1s add up), blocks that turn to marble, blue and black blocks, mimics, unlimited undo, fifty rooms behind gates, a room editor | Fen the fennec, an oasis, 50 new rooms |
 | 16 | **TINTAIL** | Camouflage | sneaking on a grid past watchers by taking the colour of the ground you stand on, hollow logs, sun and rain pads, hatchlings to carry home, a danger view, undo | Kama the chameleon, Salt Island, toads and storks, 15 new levels |
 | 25 | **OPEN HOUSE** | Party House | drawing guests from a rolodex into a house with limited space, the original's 46 guest abilities, costs and trouble, police, fire marshal and bans, set guest lists and a random list, win within 25 nights, 2P hot-seat | a whitewashed house by the sea, all 46 guests' names and faces |
@@ -181,23 +181,28 @@ the top.
 *Tribute to Magic Garden (UFO 50 #5).*
 
 <p align="center">
-  <img src="docs/shots/petalparade.gif" width="640" alt="Petal Parade: Lina leads a line of petalpups onto a sun circle">
+  <img src="docs/shots/petalparade.gif" width="640" alt="Petal Parade: Posy leads a line of petalpups along a sun circle">
 </p>
 <p align="center">
   <img src="docs/shots/petalparade_title.png" width="320" alt="Petal Parade title">
   <img src="docs/shots/petalparade_night.png" width="320" alt="The moonlit garden">
 </p>
 
-- **Plays like Magic Garden:** you never stop walking. Pups you walk over
-  follow in a line, and running into it ends the game, as does a wall, an
-  angry pup or a mushroom. Let the line go on a star pad and each pup scores
-  more than the last. Let it go anywhere else and they turn angry. Saved pups
-  fill a counter that brews potions of four strengths; drink one to smash
-  what's in your way for a while. A witch plants mushrooms if you dawdle.
-  Save 200 to win.
-- **Ours:** Lina the palace gardener, the petalpups and the brambles they turn
+- **Plays like Magic Garden:** Posy never stops walking, and a turn waits for
+  the next tile. Pups she walks over follow in a line; running into it ends
+  the run, as does the hedge, a bramble or a toadstool, and a hop clears
+  exactly one tile. Let the line go and every pup standing on the sun circle
+  is saved, scoring 10 × its place in the line; the rest turn into brambles,
+  which look where they are about to hop. The sun circle (a line, a ring or
+  a cross) moves on every 10 seconds, and if nobody was saved on it the witch
+  plants a toadstool. Saved pups fill a six-jar counter; extra pups make the
+  jar riper, and jars ripen on the ground. Nectar lets Posy smash brambles
+  for a rising chain (only blue and gold break toadstools). Save 200 to win;
+  scores go on a board of five.
+- **Ours:** Posy the palace gardener, the petalpups and the brambles they turn
   into, the sun circles, the nectar jars, Madame Nettle and four seasons of
-  garden.
+  garden. A demo player in the tests wins a whole run with real button
+  presses.
 
 ### 06 · TIN TROOP
 
@@ -293,28 +298,31 @@ the top.
 ### 14 · CUTLASS CUP
 
 <p align="center">
-  <img src="docs/shots/cutlass.gif" width="640" alt="Cutlass Cup: Karim and Omar rally on the galley deck">
+  <img src="docs/shots/cutlass.gif" width="640" alt="Cutlass Cup: Silas and Bruno rally on the galley deck">
 </p>
 <p align="center">
   <img src="docs/shots/cutlass_select.png" width="320" alt="Choose your crew">
-  <img src="docs/shots/cutlass_rally.png" width="320" alt="Karim charges a Super Shot">
+  <img src="docs/shots/cutlass_rally.png" width="320" alt="Silas charges a broadside">
 </p>
 
 *A tribute to **Bushido Ball** (UFO 50 #14).*
 
 - **Plays the same:** knock the ball past your rival for a point, first to 8.
-  Up and down aim, back lobs, and a rolling strike goes faster or curves.
-- **Meter:** two strikes fill half a bar. A double tap throws your secondary
-  weapon, and holding the button charges a Super Shot, which can be caught
-  and mashed back.
-- **Laws:** stalling, weapon fouls and serve interference; the third foul
+  The ball gets faster with every return (a lob slows things down again), up
+  and down aim, and a rolling strike goes faster or curves. The judge rolls
+  the ball out to whoever lost the last point.
+- **Meter:** two strikes fill half a bar. A double tap throws your trick, and
+  holding the button charges a broadside, which spare bars upgrade; one that
+  hits you is caught and must be mashed back.
+- **Fouls:** dawdling, a blade on your rival and jumping the serve; the third
   gives away a point.
 - **Modes:** six fighters with the original's stats and kits, a five-match
-  tournament with continues, 2P versus and 2P co-op doubles. Like the
-  original, there's no music during play.
-- **Ours:** the harbour and the galley *Sabra*, the judge Rais Mabrouk, and
-  Hamdi, Leila, Nour, Karim, Zina and Omar with their coins, sea urchins,
-  harpoon, sirocco, darts and powder pots. The tunes are ours too.
+  tournament with unlimited continues, 2P versus and 2P co-op doubles. Like
+  the original, there's no music during play. A demo player in the tests
+  beats three rivals with real button presses.
+- **Ours:** the harbour and the galley *Merry Mackerel*, old Bosun Crabbe, and
+  Finn, Mae, Greta, Silas, Wren and Bruno with their coins, sea urchins,
+  harpoon, squall, darts and powder pots. The tunes are ours too.
 
 ### 15 · FENNEC FOUNTAIN
 
