@@ -2,16 +2,16 @@
 game underdelve
 wait 15
 cheat no_gloom
-cheat room 4 1 5 130
+cheat room 3 4 5 130
 cheat clear_enemies
 wait 5
 hold RIGHT 320
 expect deaths >= 1
 cheat lanterns 6
 cheat give 1
-cheat room 4 1 5 130
+cheat room 3 4 5 130
 cheat clear_enemies
 wait 5
 hold RIGHT 340
 expect lanterns == 6
-expect room_x == 5
+expect room_x == 4

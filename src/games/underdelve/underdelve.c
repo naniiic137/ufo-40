@@ -30,8 +30,8 @@ enum { ST_TITLE, ST_PLAY, ST_DYING, ST_GAMEOVER, ST_VIEW, ST_ENDING, ST_RELIGHT 
 enum { W_PICK = 0, W_SPARKER, W_HUNGRY };
 
 /* the tally ladders: four ladders in TALLY LADDERS, climbed in this order */
-#define KEY_ROOM_X 4
-#define KEY_ROOM_Y 4
+#define KEY_ROOM_X 2
+#define KEY_ROOM_Y 5
 static const int KEY_LADDER_COL[4] = {3, 7, 13, 17};
 static const int KEY_ORDER[4] = {2, 0, 3, 1};
 
@@ -464,8 +464,8 @@ static void new_game(void) {
     last_life = false;
     run.lanterns = MAX_LANTERNS;
     run.weapon = W_PICK;
-    run.gloom_x = 6;
-    run.gloom_y = 2;
+    run.gloom_x = 2;
+    run.gloom_y = 6;
     reset_player();
     /* find the camp */
     for (int ry = 0; ry < UD_MAP_H; ry++)

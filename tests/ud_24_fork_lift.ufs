@@ -5,13 +5,13 @@
 game underdelve
 wait 15
 cheat no_gloom
-cheat room 6 2 196 110
+cheat room 2 3 196 110
 cheat clear_enemies
 wait 320
 expect lift_y == 128
 expect py == 114
 cheat give 4
-cheat room 6 2 196 110
+cheat room 2 3 196 110
 cheat clear_enemies
 wait 320
 expect lift_y == 32

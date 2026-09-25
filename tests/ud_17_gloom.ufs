@@ -5,12 +5,12 @@
 # every lantern goes out at once: the delve is over.
 game underdelve
 wait 15
-cheat room 2 5 30 130
+cheat room 6 3 70 130
 cheat clear_enemies
-cheat gloom_at 5 4
+cheat gloom_at 2 2
 cheat gloom_mark
-hold RIGHT 300
-expect room_x == 3
+hold RIGHT 260
+expect room_x == 7
 expect gloom_step == 1
 cheat clear_enemies
 cheat gloom
@@ -23,7 +23,7 @@ wait 10
 expect gloom_px <= 134
 expect lanterns == 6
 hold LEFT 20
-expect room_x == 2
+expect room_x == 6
 expect state == 1
 expect lanterns == 6
 expect gloom_here == 0

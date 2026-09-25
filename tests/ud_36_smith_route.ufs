@@ -1,0 +1,45 @@
+# UNDERDELVE: the smith's way into the headframe, by buttons alone (only
+# the 500 ore is set up). From the camp, up its ladder into the old pump
+# room; a hop through the plank under the pump room's ladder and up again to
+# the rafters; east along them to the smith's camp. Pay him, climb to the
+# hammer loft, and walk east through the broken wall and round the wrap onto
+# the headframe walk, inside the tower.
+game underdelve
+wait 15
+cheat no_gloom
+cheat money 500
+expect room_x == 6
+expect room_y == 3
+hold RIGHT 48
+expect px == 83
+hold UP 230
+expect room_x == 6
+expect room_y == 2
+expect py == 130
+expect grounded == 1
+hold RIGHT 122
+hold A 3
+wait 40
+expect px == 205
+expect py == 98
+hold UP 230
+expect room_x == 6
+expect room_y == 1
+expect grounded == 1
+hold RIGHT 200
+expect room_x == 7
+expect room_y == 1
+press UP
+wait 5
+expect hammer == 1
+expect money == 0
+hold RIGHT 72
+hold UP 230
+expect room_x == 7
+expect room_y == 0
+expect grounded == 1
+hold RIGHT 200
+expect room_x == 0
+expect room_y == 0
+expect deaths == 0
+expect lanterns == 6

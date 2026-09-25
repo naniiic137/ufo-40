@@ -1,16 +1,17 @@
 # UNDERDELVE: the opening, by buttons alone. The cartridge boots straight
-# into Mo's camp. Walk east through the shrine hall (the dustmoths drift
-# about) into the gem grotto, hop up two planks for its gem, walk back,
-# strike the dustmoth that drifts down onto the walkway, climb down the
-# ladder to the owl's exchange, strike the chest there open and spend the
-# ore on the copper pot and the climbing gloves. Not a lantern lost.
+# into Mo's camp. Walk east (the loose rock over the camp floor comes down
+# behind him) into the gem grotto, hop up two planks for its gem, walk back
+# into the camp, climb down the ladder in the camp floor to the owl's
+# exchange, strike the chest there open and spend the ore on the copper pot
+# and the climbing gloves. Not a lantern lost.
 game underdelve
 wait 15
 expect state == 1
-expect room_x == 1
-expect room_y == 5
-hold RIGHT 620
-expect room_x == 3
+expect room_x == 6
+expect room_y == 3
+hold RIGHT 300
+expect room_x == 7
+expect room_y == 3
 expect deaths == 0
 hold RIGHT 75
 hold A 3
@@ -22,17 +23,15 @@ wait 40
 expect py == 66
 hold RIGHT 55
 expect money == 100
-hold LEFT 200
-expect room_x == 2
-hold LEFT 46
-wait 10
-press B
-wait 20
-expect enemies == 1
+hold LEFT 250
+expect room_x == 6
+expect px == 230
+expect py == 130
+expect tile_3_8 == 97
 expect deaths == 0
 hold DOWN 240
-expect room_x == 2
-expect room_y == 6
+expect room_x == 6
+expect room_y == 4
 hold RIGHT 30
 press B
 wait 20

@@ -1,4 +1,4 @@
-# UNDERDELVE: a new delve starts at Mo's camp, on the west side of an 8x8
+# UNDERDELVE: a new delve starts at Mo's camp, on the east side of an 8x8
 # mine, with six lanterns. Mo walks, and his jumps are committed: pushing the
 # other way in mid-air changes nothing.
 game underdelve
@@ -6,8 +6,8 @@ wait 15
 cheat no_gloom
 expect state == 1
 expect map_errors == 0
-expect room_x == 1
-expect room_y == 5
+expect room_x == 6
+expect room_y == 3
 expect lanterns == 6
 expect grounded == 1
 hold RIGHT 20

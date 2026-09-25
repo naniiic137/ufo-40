@@ -6,10 +6,10 @@
 # Alien too. After the ending, A goes back to the library.
 game underdelve
 wait 15
-cheat room 6 0 250 40
+cheat room 1 0 250 40
 wait 30
 hold RIGHT 80
-expect room_x == 7
+expect room_x == 2
 expect boss_state == 0
 expect sealed == 0
 expect boss_hp == 8
@@ -33,7 +33,7 @@ wait 160
 expect boss_dead == 1
 expect sealed == 0
 hold RIGHT 220
-expect room_x == 0
+expect room_x == 3
 hold RIGHT 92
 hold RIGHT+A 3
 hold RIGHT 60

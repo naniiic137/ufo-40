@@ -4,13 +4,13 @@
 game underdelve
 wait 15
 cheat no_gloom
-cheat room 7 7 67 130
+cheat room 1 7 67 130
 cheat clear_enemies
 wait 5
 press UP
 expect weapon == 1
 cheat weapon 0
-cheat room 3 4 115 4
+cheat room 0 6 115 4
 wait 160
 expect lanterns == 5
 expect py < 40

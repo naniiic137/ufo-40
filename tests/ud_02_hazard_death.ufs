@@ -3,7 +3,7 @@
 game underdelve
 wait 15
 cheat no_gloom
-cheat room 6 0 170 130
+cheat room 1 0 170 130
 cheat clear_enemies
 wait 5
 expect lanterns == 6
