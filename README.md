@@ -50,7 +50,7 @@ screenshot and GIF on this page.
 
 | # | Cartridge | Tribute to | What plays the same | What's ours |
 |---|---|---|---|---|
-| 01 | **UNDERDELVE** | Barbuta | an 8×8 wrapping map, one-hit deaths, six spare lives and no continue, one fixed jump with no air control, a roaming death that moves a room whenever you do, hidden walls and ladders, a death taken on purpose, items that open the way, three paths to the final boss | Mo the mole, a dark mine, the Gloom, 64 new screens |
+| 01 | **UNDERDELVE** | Barbuta | an 8×8 wrapping map, one-hit deaths, six spare lives and no continue, one fixed jump with no air control, a roaming death that moves a room whenever you do, traps, hidden walls and ladders, hint-givers, a death taken on purpose, items that open the way, three paths to the final boss | Mo the mole, a dark mine, the Gloom, the glow-worms, 64 new screens |
 | 02 | **GRUB SHIFT** | Bug Hunter | a 6×5 field dealt afresh each morning, seven tools that each work once a shift, a shop open any time, pods that blow up in threes, grubs that grow by colour into adults, queens and eggs, 30 kills in 10, 9 or 8 shifts | Tilly the farm robot, the grub species, 41 tools |
 | 03 | **ROOFCAT** | Ninpek | one long auto-scrolling world, double jumps, thrown stars, a spirit that floats back after a death, token pickups, one final boss, a harder second loop | Harissa the courier cat, a Tunisian seaside town, Old Crab |
 | 05 | **PETAL PARADE** | Magic Garden | a 12×12 field, a trail of followers you must never run into, saving them on star pads for rising points, potions by strength, a witch who plants mushrooms | Lina the gardener, petalpups, sun circles, Madame Nettle |
@@ -91,13 +91,16 @@ the top.
   steered once he leaves the ground. Foes come back when you re-enter a room
   and show no damage until they die. The Gloom moves one room whenever Mo
   does; if it finds him it rises in the middle and comes at twice his speed.
-  There are hidden walls, invisible ladders and ledges, and one death you
-  must take on purpose. Items open the way: a copper pot for drips, a tuning
+  Nothing is explained. The first step right from the camp drops a rock
+  from the ceiling; walls hide gems, cracked rock gives way to the pick,
+  ladders and ledges hide, still pools are safe and churning ones aren't,
+  and one death must be taken on purpose. Glow-worms each give one
+  cryptic hint. Items open the way: a copper pot for drips, a tuning
   fork for crystal, a gear crank for the lifts, gloves, a brass tally, a
   canary and a hungry pick. There are three ways up to the Old Lode: a
   lever, the Deep Gate and a 500-ore sledgehammer.
-- **Ours:** Mo the mole, the mine and its 64 screens, the shopkeepers, every
-  tile and the music.
+- **Ours:** Mo the mole, the mine and its 64 screens (and which cell holds
+  what), the shopkeepers and glow-worms, every tile and the music.
 
 <details>
 <summary>The whole mine: all 64 screens, stitched from headless screenshots (spoilers)</summary>
@@ -120,9 +123,11 @@ the top.
   morning, and seven tool slots that each work once per shift. The shop is
   open any time: swap a tool in and use it at once. Rolls shove grubs and
   squash them from planters; shots can't go uphill. Energy pods blow up when
-  three share a tile. A colour grows when its larvae survive the night, and
-  grown grubs age into queens and then eggs; an egg left at the end of a
-  shift fails the contract. Clear 30 grubs before the shifts run out.
+  three share a tile. Each night one colour whose grubs survived grows a
+  level (larva, adult, queen), and its new grubs hatch at that level;
+  queens left overnight turn into eggs, and an egg left at the end of a
+  shift fails the contract. Clear 30 grubs before the shifts run out; stop
+  after a win and the streak waits for you.
 - **Ours:** Tilly the farm robot, the dome, the grub species and the names
   and looks of all 41 tools. Three contracts in a row make Employee of the
   Month.

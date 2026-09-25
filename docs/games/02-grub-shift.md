@@ -47,23 +47,24 @@ too (`gs_new_contract`, `deal_terrain`). Generator rules:
 | Lobs | hit one tile, any height | [W] |
 | Blasts | only reach tiles at the pod's height; being high is safe | [W] |
 | Aiming preview | aiming shows every tile the attack will reach, chains and sparks included | [L] |
+| Tool cards | rolls and straight shots drawn as a solid line from Tilly, hops, lobs and area tools as dots | [W] |
 | Quota | 30 grubs per contract | [S], [L] |
 | Shifts | 10 on contracts 1-3, 9 on 4-6, 8 after | [W], [S] |
-| Growing | a colour grows when its larvae survive a night: they become adults and its grubs hatch as adults from then on. One colour a night, two per contract | [W], [S] |
-| Ageing | each night every adult becomes a queen and every queen an egg (not on the last night) | [W], [S], [ST] |
+| Growing | each night one type (colour) with grubs still alive evolves: all its grubs go up a level (larva, adult, queen) and its new grubs hatch at that level from then on. One type a night, two per contract; a field cleared by nightfall evolves nothing | [W], [S] |
+| Eggs from queens | every queen left alive becomes an egg overnight (not on the last night) | [W] |
 | Eggs | an egg left at the end of a shift hatches: you're fired | [W] |
 | Eggs don't count | nor do drones | [W] |
 | Losing | an egg hatches, the quota isn't met, or Tilly is caught by a blast, sparks or her own attack | [W] |
 | Colours | three larva colours, each growing into one of a pair of species; which one flips each contract | [W], [D] |
 | Abilities | only attacks and blasts trigger them (not squashes, pits, pods or sprays) | [W] |
 | Sparkmite (Shreknid) | popped, sprays sparks 2 tiles each way at its height; higher ground stops them | [W] |
-| Hivebug (Dragonfloosh) | grows up with a drone; while it's beside it the hivebug can't be hurt, squashed or popped by OVERDRIVE, but can be shoved (a pit kills it); a drone shoved away dies and doesn't count | [W], [D] |
-| Moundmaker (Feloris) | when it appears and every morning, raises its own tile and lowers the planters beside it, unless another moundmaker or a pod is on them | [W], [FD] |
+| Hivebug (Dragonfloosh) | grows up with a drone; while it's beside it the hivebug can't be hurt, squashed or popped by OVERDRIVE, but can be shoved (a pit kills it); a move that kills its drones and also hits it kills both, in either order; a drone shoved away dies and doesn't count | [W], [D] |
+| Moundmaker (Feloris) | once, when it appears, raises its own tile and lowers the planters beside it, unless another moundmaker or a pod is on them | [W] |
 | Sourmite (Quasnar) | spoils the pods beside it (so no pod blast can reach it); when it dies they turn back into pods | [W] |
 | Sour pods | picking one up costs energy (not below 0); shooting one adds another; three become an egg; a grub shoved into one grows a stage, a drone becomes a larva, an egg hatches | [W] |
 | Shellbug (Armodon) | one extra hit against attacks and blasts | [W] |
 | Burrower (Cephalug) | popped by an attack or blast, leaves a hole | [W] |
-| Streak | a won contract leads to the next; a lost one ends the streak | [W], [S] |
+| Streak | a won contract leads to the next; stopping after a win keeps the streak (the title offers the next contract); a lost contract or NEW CONTRACT ends it | [W], [S], [SV] |
 
 ### The 41 tools
 
@@ -98,12 +99,12 @@ Costs and effects follow the wiki's module list [W]; the names are ours.
 | SEED | Resupply | 2 | drop a pod on any free tile |
 | TILL | Shift | 2 | lower one planter, raise another tile |
 | OVERDRIVE | Power Up | 4 | for the shift, grubs Tilly touches die, no abilities |
-| GATHER | Collect | 2 | collect a pod and every pod around it |
+| GATHER | Collect | 2 | collect every pod in a 3x3 centred on any tile |
 | RELOAD | Barrage | 4 | recharge all attacks |
 | REFUEL | Accelerate | 4 | recharge all moves |
 | BOOST | Maximize | 4 | for the shift, straight tools reach all the way, in 8 directions |
 | BORE | Dig | 4 | open a hole next to a hole; a grub there dies, no ability |
-| VOLATILE | Intensify | 4 | for the shift, grubs killed by attacks explode |
+| VOLATILE | Intensify | 4 | for the shift, grubs killed by attacks, blasts or sparks explode (it chains) |
 | REWIND | Devolve | 3 | any grub (or egg) and its neighbours become larvae |
 | MIST | Spray | 2 | mist two free tiles for the contract |
 | RESTOCK | Replenish | 4 | four new pods fall (a third on a tile blows) |
@@ -118,7 +119,7 @@ Costs and effects follow the wiki's module list [W]; the names are ours.
 - Ground each morning: "some terrain spawns naturally at the beginning of
   the day, including one hole and a number of platforms" [W] is read as a
   fresh deal every day (a pile-up would fill 30 tiles in days).
-- Growth: a colour grows to adults once; the grubs then age nightly.
+- Which type evolves when several could: one at random.
 - Nightly pods fall on distinct tiles, never on Tilly or a grub.
 - BOOST adds diagonals; VOLATILE counts kills; CRACK is a normal blast.
 - Numbers of grubs and pods per morning (sources give none).
@@ -141,8 +142,8 @@ Costs and effects follow the wiki's module list [W]; the names are ours.
 Only the platform needs every UFO 40 cartridge has:
 
 - the START pause menu (resume, restart, controls, quit);
-- saving: the contract in progress and the streak are saved, and CONTINUE
-  SHIFT resumes them;
+- saving: the contract in progress is saved and CONTINUE SHIFT resumes it
+  (Bug Hunter itself only lets you stop between contracts);
 - the three UFO 40 goals, which replicate Bug Hunter's own three:
 
 | UFO 40 goal | Condition | Bug Hunter's goal |
@@ -171,7 +172,7 @@ function of it. Headless tests set up exact situations with cheats (`bug`,
 `pods`, `sour`, `elev`, `hole`, `chip`, `use`) and check the results; others
 play through the UI with real buttons. A bot that looks two moves ahead and
 breaks eggs first plays whole contracts as a balance check (it wins about
-half of contract 1).
+two contract 1s in five).
 
 ## Sources
 
@@ -199,9 +200,8 @@ half of contract 1).
 - [D] Steam thread "Bug Hunter advice?": colours alternate species by job,
   shoving a hivebug away from its drone, spray.
   https://steamcommunity.com/app/1147860/discussions/0/694249731368441297/
-- [ST] Static Canvas, "The UFO 50 Diaries: Bug Hunter": the longer they
-  survive the more they evolve. https://staticcanvas.substack.com/p/the-ufo-50-diaries-bug-hunter
-- [FD] Search summary of the fandom wiki: "on their turn, all Felorises raise
-  their ground".
 - [R] Review summary found by search: "a six by five grid".
 - [WP] Wikipedia, "UFO 50": the 5×6 grid. https://en.wikipedia.org/wiki/UFO_50
+- [SV] Steam thread "Which games save progress?": Bug Hunter lets you save
+  and quit, or carry on, after completing a job, not in the middle of one.
+  https://steamcommunity.com/app/1147860/discussions/0/4849904176633630339/

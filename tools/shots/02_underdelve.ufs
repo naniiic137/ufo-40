@@ -29,8 +29,5 @@ wait 30
 shot underdelve_grotto
 cheat room 7 0 60 130
 cheat lanterns 6
-wait 10
-hold RIGHT 60
-press B
-wait 170
+wait 150
 shot underdelve_boss
