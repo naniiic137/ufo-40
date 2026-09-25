@@ -1,22 +1,35 @@
-# UNDERDELVE: buying the Copper Pot at the trading post, and being refused when broke.
+# UNDERDELVE: Burlap sells the copper pot (100), an old boot (50) and the
+# tuning fork (200); the owl sells gloves (100) and the pot cheaper (50).
 game underdelve
 wait 10
 press A
 wait 5
-cheat room 2 0 145 130
+cheat no_gloom
+cheat room 1 3 211 130
+cheat money 180
 wait 10
-cheat money 100
 press UP
-expect items !& 1
-cheat dismiss
-wait 5
-cheat money 300
-press UP
+wait 2
 expect items & 1
+expect money == 80
+press UP
+expect money == 80
+cheat pos 243 130
+wait 10
+press UP
+expect items & 256
+expect money == 30
+cheat pos 275 130
+wait 10
+press UP
+expect items !& 2
+cheat money 200
+press UP
+expect items & 2
 expect money == 0
-expect state == 4
-press A
-wait 25
-press A
-wait 5
-expect state == 1
+cheat room 1 6 99 130
+cheat money 100
+wait 10
+press UP
+expect items & 8
+expect money == 0

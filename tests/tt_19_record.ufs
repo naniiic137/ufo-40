@@ -1,0 +1,47 @@
+# TIN TROOP: a level starts with 20 plus the best change of every level
+# before it; replays only keep a better result. Goals: Beacon for 2-C,
+# Saucer for the Jack, Alien for 75 soldiers at the end.
+game tintroop
+wait 5
+cheat level 0
+wait 10
+cheat lives 24
+cheat win
+expect best_0 == 4
+expect start_1 == 24
+cheat level 0
+wait 10
+cheat lives 22
+cheat win
+expect best_0 == 4
+cheat level 0
+wait 10
+cheat lives 27
+cheat win
+expect best_0 == 7
+expect start_1 == 27
+expect goals == 0
+cheat best 1 5
+cheat best 2 5
+cheat best 3 5
+cheat best 4 5
+cheat level 5
+wait 10
+cheat win
+expect goals & 1
+cheat best 6 10
+cheat best 7 10
+cheat best 8 5
+cheat level 9
+wait 10
+expect lives_start == 72
+cheat lives 74
+cheat win
+expect goals & 2
+expect goals !& 4
+cheat level 1
+wait 10
+cheat lives 34
+cheat win
+expect best_1 == 7
+expect goals & 4

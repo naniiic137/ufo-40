@@ -1,0 +1,21 @@
+# TIN TROOP: the troop's record is saved between levels.
+game tintroop
+wait 5
+cheat level 0
+wait 10
+cheat lives 23
+cheat win
+expect cleared == 1
+reload
+game tintroop
+wait 5
+expect cleared == 1
+expect best_0 == 3
+expect start_1 == 23
+press A
+wait 5
+expect state == 1
+press A
+wait 110
+expect level == 1
+expect lives == 23

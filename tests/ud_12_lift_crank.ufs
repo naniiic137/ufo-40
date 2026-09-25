@@ -1,15 +1,13 @@
-# UNDERDELVE: the mine lift only runs once Mo has the Gear Crank, and carries him up.
+# UNDERDELVE: the mine lifts only run once Mo has the gear crank.
 game underdelve
 wait 10
 press A
 wait 5
-cheat room 3 3 144 100
-cheat clear_enemies
 cheat no_gloom
-wait 60
-expect py >= 110
-wait 240
-expect py >= 110
+cheat room 5 3 44 100
+cheat clear_enemies
+wait 200
+expect px < 60
 cheat give 4
-wait 300
-expect py < 60
+wait 400
+expect px > 150

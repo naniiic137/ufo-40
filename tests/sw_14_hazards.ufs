@@ -1,0 +1,23 @@
+# SKYWELL: metal platforms stun Kip from below; zapper pillars stun on touch.
+game skywell
+wait 5
+press A
+cheat level 4
+cheat clear
+cheat plat 0 0 0 13
+cheat plat 10 90 -40 3
+wait 2
+cheat pos 100 -12
+wait 3
+hold A 10
+expect stun > 0
+cheat level 2
+cheat clear
+cheat plat 0 0 0 13
+cheat plat 8 96 -40 2
+wait 2
+cheat pos 70 -12
+wait 3
+hold RIGHT+A 14
+wait 4
+expect stun > 0

@@ -660,40 +660,6 @@ static const char CAGE_OPEN[] =
     "..kaaaaaaaaaaak."
     "..kkkkkkkkkkkkk."
     "................";
-static const char ALTAR[] =
-    "...........kk..."
-    "..........kPrk.."
-    "..........kwkk.."
-    ".....kkkkkkrPk.."
-    ".....kvmvmkkPk.."
-    ".....kkkkkkrPk.."
-    "..........kPk..."
-    "...........k...."
-    ".kkkkkkkkkkkkkk."
-    ".kgggggggggggsk."
-    ".kssssssssssssk."
-    "..kkkkkkkkkkkk.."
-    "...ksdsddsdsdk.."
-    "...kdsdddsddsk.."
-    "..kssssssssssk.."
-    "..kkkkkkkkkkkk..";
-static const char ALTAR_EMPTY[] =
-    "................"
-    "................"
-    "................"
-    "................"
-    "................"
-    "................"
-    "................"
-    "................"
-    ".kkkkkkkkkkkkkk."
-    ".kgggggggggggsk."
-    ".kssssssssssssk."
-    "..kkkkkkkkkkkk.."
-    "...ksdsddsdsdk.."
-    "...kdsdddsddsk.."
-    "..kssssssssssk.."
-    "..kkkkkkkkkkkk..";
 static const char SUNSTONE[] =
     "......kkkk......"
     "....kkyyyykk...."
@@ -865,6 +831,148 @@ static const char VENDOR2[] =
     ".kpVppppppppVpk."
     ".kpppppppppppppk"
     ".kkkkkkkkkkkkkkk";
+
+static const char SMITH1[] =
+    "..........kkkk.."
+    ".........kgssgk."
+    ".........kgsssk."
+    "....kkkk..kkkk.."
+    "...knnnnk..kk..."
+    "..knddddnk.kt..."
+    "..kdwdddddkkt..."
+    "..kdkdddKKdkt..."
+    "..kddddddPPkt..."
+    ".ktttttttkkkt..."
+    "kdktbbbbtkdkk..."
+    "kdktbbbbtkdk...."
+    ".kktttttttk....."
+    "..kdddkdddk....."
+    "..kKKk.kKKk....."
+    "..kkk..kkk......";
+static const char SMITH2[] =
+    "................"
+    "................"
+    "....kkkk........"
+    "...knnnnk......."
+    "..knddddnk......"
+    "..kdwdddddk....."
+    "..kdkdddKKdk...."
+    "..kddddddPPk...."
+    ".ktttttttkk....."
+    "kdktbbbbtkdk.kk."
+    "kdktbbbbtkdkkgsk"
+    ".kktttttttkktgsk"
+    "..kdddkdddkt.kk."
+    "..kKKk.kKKkt...."
+    "..kkk..kkk.t...."
+    "...........k....";
+static const char LEVER_UP[] =
+    "................"
+    "................"
+    "..........kk...."
+    ".........krrk..."
+    ".........kwrk..."
+    "..........kk...."
+    ".........kgk...."
+    "........kgk....."
+    ".......kgk......"
+    "......kgk......."
+    "....kkkkkkkk...."
+    "...ksssssssssk.."
+    "...kgggggggggk.."
+    "...kssdssdsssk.."
+    "...kkkkkkkkkkk.."
+    "................";
+static const char LEVER_DOWN[] =
+    "................"
+    "................"
+    "................"
+    "................"
+    "................"
+    "....kk.........."
+    "...krrk........."
+    "...kwrk........."
+    "....kkgk........"
+    "......kgk......."
+    "....kkkkkkkk...."
+    "...ksssssssssk.."
+    "...kgggggggggk.."
+    "...kssdssdsssk.."
+    "...kkkkkkkkkkk.."
+    "................";
+static const char SHRINE[] =
+    "................"
+    "................"
+    ".......kk......."
+    "......kggk......"
+    ".....kgllgk....."
+    "....kgllllgk...."
+    "...kkkkkkkkkk..."
+    "...kgsssssssk..."
+    "...kgsknnksgk..."
+    "...kgsknnksgk..."
+    "...kgsssssssk..."
+    "..kkkkkkkkkkkk.."
+    "..kgggggggggsk.."
+    "..kssssssssssk.."
+    "..kkkkkkkkkkkk.."
+    "................";
+static const char SHRINE_OPEN[] =
+    "................"
+    "................"
+    ".......kk......."
+    "......kggk......"
+    ".....kgllgk....."
+    "....kgllllgk...."
+    "...kkkkkkkkkk..."
+    "...kgsssssssk..."
+    "...kgskyaksgk..."
+    "...kgskaaksgk..."
+    "...kgsssssssk..."
+    "..kkkkkkkkkkkk.."
+    "..kgggggggggsk.."
+    "..kssssssssssk.."
+    "..kkkkkkkkkkkk.."
+    "................";
+static const char PUSH[] =
+    "kkkkkkkkkkkkkkkk"
+    "kheeeeeeeeeeeetk"
+    "ketttttttttttttk"
+    "ketbtttttttttbtk"
+    "kettbtttttttbttk"
+    "ketttbtttttbtttk"
+    "kettttbtttbttttk"
+    "ketttttbtbtttttk"
+    "ketttttbtbtttttk"
+    "kettttbtttbttttk"
+    "ketttbtttttbtttk"
+    "kettbtttttttbttk"
+    "ketbtttttttttbtk"
+    "ketttttttttttttk"
+    "ktbbbbbbbbbbbbbk"
+    "kkkkkkkkkkkkkkkk";
+static const char I_BOOT[] =
+    "............"
+    "..kkkk......"
+    "..ktttk....."
+    "..ktbtk....."
+    "..ktttk....."
+    "..ktbtk....."
+    "..ktttkkkk.."
+    ".kttttttttk."
+    ".ktbbbbbttk."
+    ".kkkkkkkkkk."
+    "............"
+    "............";
+static const char AXE[] =
+    "..kk...."
+    ".kssk..."
+    "kslsk..."
+    "kssktk.."
+    ".kk.ktk."
+    "....ktk."
+    ".....kk."
+    "........";
 
 /* item icons 12x12 */
 static const char I_POT[] =
@@ -1501,7 +1609,9 @@ static const ArtDef ART[] = {
     {S_T_CRYS_DECOR, 16, 16, T_CRYS_DECOR}, {S_T_BGROCK, 16, 16, T_BGROCK},
     {S_NUGGET, 11, 9, NUGGET}, {S_GEM1, 10, 8, GEM1}, {S_GEM2, 10, 8, GEM2},
     {S_CHEST, 16, 16, CHEST}, {S_CHEST_OPEN, 16, 16, CHEST_OPEN}, {S_CAGE, 16, 16, CAGE},
-    {S_CAGE_OPEN, 16, 16, CAGE_OPEN}, {S_ALTAR, 16, 16, ALTAR}, {S_ALTAR_EMPTY, 16, 16, ALTAR_EMPTY},
+    {S_CAGE_OPEN, 16, 16, CAGE_OPEN}, {S_SMITH1, 16, 16, SMITH1}, {S_SMITH2, 16, 16, SMITH2},
+    {S_LEVER_UP, 16, 16, LEVER_UP}, {S_LEVER_DOWN, 16, 16, LEVER_DOWN}, {S_SHRINE, 16, 16, SHRINE},
+    {S_SHRINE_OPEN, 16, 16, SHRINE_OPEN}, {S_PUSH, 16, 16, PUSH}, {S_I_BOOT, 12, 12, I_BOOT}, {S_AXE, 8, 8, AXE},
     {S_SUNSTONE, 16, 16, SUNSTONE}, {S_PEDESTAL, 16, 8, PEDESTAL}, {S_LIFT, 16, 7, LIFT},
     {S_KEEPER_TOAD1, 16, 16, KEEPER_TOAD1}, {S_KEEPER_TOAD2, 16, 16, KEEPER_TOAD2},
     {S_KEEPER_OWL1, 16, 16, KEEPER_OWL1}, {S_KEEPER_OWL2, 16, 16, KEEPER_OWL2},

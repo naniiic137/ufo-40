@@ -1,0 +1,32 @@
+# SKYWELL: every platform crumbles once stood on - clouds fast, crates a
+# little slower, rocks after a second. Lightfoot slows it.
+game skywell
+wait 5
+press A
+cheat clear
+cheat god
+cheat plat 0 0 0 13
+cheat plat 1 40 -40 2
+cheat plat 2 100 -40 2
+cheat plat 3 160 -40 2
+wait 5
+cheat pos 46 -52
+wait 14
+expect count_1 == 0
+cheat pos 106 -52
+wait 12
+expect count_2 == 1
+wait 8
+expect count_2 == 0
+cheat pos 166 -52
+wait 50
+expect count_3 == 1
+wait 15
+expect count_3 == 0
+cheat give 3
+cheat plat 1 40 -40 2
+cheat pos 46 -52
+wait 14
+expect count_1 == 1
+wait 6
+expect count_1 == 0

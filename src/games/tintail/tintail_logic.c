@@ -1,6 +1,6 @@
 /* TINTAIL - the rules: terrain, sight, storks, the chameleon's beat, and a
  * breadth-first solver the tests use to prove every level can be escaped.
- * Pure C with no shell dependencies (build with -DTT_NO_SHELL for tools). */
+ * Pure C with no shell dependencies (build with -DTN_NO_SHELL for tools). */
 #include "tintail.h"
 
 static const int8_t DX[4] = {0, 1, 0, -1}, DY[4] = {-1, 0, 1, 0};
@@ -23,7 +23,7 @@ static int parse_stork(const char *spec, TtStork *s) {
         while (*p >= '0' && *p <= '9') cnt = cnt * 10 + (*p++ - '0');
         if (cnt == 0) cnt = 1;
         for (int k = 0; k < cnt; k++) {
-            if (s->len >= TT_PATH_MAX) return 2;
+            if (s->len >= TN_PATH_MAX) return 2;
             s->px[s->len] = (uint8_t)x;
             s->py[s->len] = (uint8_t)y;
             s->dir[s->len] = (uint8_t)d;
@@ -37,29 +37,29 @@ static int parse_stork(const char *spec, TtStork *s) {
     return 0;
 }
 
-int tt_parse(const TtLevelDef *def, TtLevel *lv, TtState *st) {
+int tn_parse(const TtLevelDef *def, TtLevel *lv, TtState *st) {
     memset(lv, 0, sizeof *lv);
-    lv->baby_x = lv->baby_y = TT_NONE;
-    lv->start_x = lv->hole_x = TT_NONE;
-    for (int y = 0; y < TT_H; y++) {
+    lv->baby_x = lv->baby_y = TN_NONE;
+    lv->start_x = lv->hole_x = TN_NONE;
+    for (int y = 0; y < TN_H; y++) {
         const char *g = def->ground[y], *t = def->things[y];
-        if (!g || !t || (int)strlen(g) != TT_W || (int)strlen(t) != TT_W) return 1;
-        for (int x = 0; x < TT_W; x++) {
+        if (!g || !t || (int)strlen(g) != TN_W || (int)strlen(t) != TN_W) return 1;
+        for (int x = 0; x < TN_W; x++) {
             int k;
             switch (g[x]) {
-            case 'g': k = TT_GRASS; break;
-            case 's': k = TT_SAND; break;
-            case 'w': k = TT_SWAMP; break;
-            case 'r': k = TT_ROCK; break;
-            case 'u': k = TT_SWITCHGRASS; lv->wet0[y][x] = 1; break;
-            case 'd': k = TT_SWITCHGRASS; break;
-            case '~': k = TT_SEA; break;
-            case 'T': k = TT_PALM; break;
-            case 'B': k = TT_BOULDER; break;
-            case 'o': k = TT_BUSH; break;
-            case '-': k = TT_LOG_H; break;
-            case '|': k = TT_LOG_V; break;
-            case 'H': k = TT_HOLE; lv->hole_x = (uint8_t)x; lv->hole_y = (uint8_t)y; break;
+            case 'g': k = TN_GRASS; break;
+            case 's': k = TN_SAND; break;
+            case 'w': k = TN_SWAMP; break;
+            case 'r': k = TN_ROCK; break;
+            case 'u': k = TN_SWITCHGRASS; lv->wet0[y][x] = 1; break;
+            case 'd': k = TN_SWITCHGRASS; break;
+            case '~': k = TN_SEA; break;
+            case 'T': k = TN_PALM; break;
+            case 'B': k = TN_BOULDER; break;
+            case 'o': k = TN_BUSH; break;
+            case '-': k = TN_LOG_H; break;
+            case '|': k = TN_LOG_V; break;
+            case 'H': k = TN_HOLE; lv->hole_x = (uint8_t)x; lv->hole_y = (uint8_t)y; break;
             default: return 2;
             }
             lv->kind[y][x] = (uint8_t)k;
@@ -73,10 +73,10 @@ int tt_parse(const TtLevelDef *def, TtLevel *lv, TtState *st) {
                 lv->nfruit++;
                 break;
             case 'Y': lv->baby_x = (uint8_t)x; lv->baby_y = (uint8_t)y; break;
-            case 'R': if (lv->nrain < TT_MAX_SWITCH) { lv->rain_x[lv->nrain] = (uint8_t)x; lv->rain_y[lv->nrain++] = (uint8_t)y; } break;
-            case 'S': if (lv->nsun < TT_MAX_SWITCH) { lv->sun_x[lv->nsun] = (uint8_t)x; lv->sun_y[lv->nsun++] = (uint8_t)y; } break;
+            case 'R': if (lv->nrain < TN_MAX_SWITCH) { lv->rain_x[lv->nrain] = (uint8_t)x; lv->rain_y[lv->nrain++] = (uint8_t)y; } break;
+            case 'S': if (lv->nsun < TN_MAX_SWITCH) { lv->sun_x[lv->nsun] = (uint8_t)x; lv->sun_y[lv->nsun++] = (uint8_t)y; } break;
             case '^': case '>': case 'v': case '<':
-                if (lv->ntoad >= TT_MAX_TOADS) return 4;
+                if (lv->ntoad >= TN_MAX_TOADS) return 4;
                 lv->toad_x[lv->ntoad] = (uint8_t)x;
                 lv->toad_y[lv->ntoad] = (uint8_t)y;
                 lv->toad_dir[lv->ntoad] = (uint8_t)(t[x] == '^' ? DIR_UP : t[x] == '>' ? DIR_RIGHT : t[x] == 'v' ? DIR_DOWN : DIR_LEFT);
@@ -86,19 +86,19 @@ int tt_parse(const TtLevelDef *def, TtLevel *lv, TtState *st) {
             }
         }
     }
-    if (lv->start_x == TT_NONE || lv->hole_x == TT_NONE) return 6;
+    if (lv->start_x == TN_NONE || lv->hole_x == TN_NONE) return 6;
     lv->period = 1;
-    for (int i = 0; i < TT_MAX_STORKS && def->storks[i]; i++) {
+    for (int i = 0; i < TN_MAX_STORKS && def->storks[i]; i++) {
         if (parse_stork(def->storks[i], &lv->stork[i])) return 7;
         lv->nstork++;
         int cyc = lv->stork[i].len * lv->stork[i].speed;
         lv->period = lv->period / gcd(lv->period, cyc) * cyc;
     }
-    if (st) tt_reset(lv, st);
+    if (st) tn_reset(lv, st);
     return 0;
 }
 
-void tt_reset(const TtLevel *lv, TtState *st) {
+void tn_reset(const TtLevel *lv, TtState *st) {
     memset(st, 0, sizeof *st);
     st->x = st->px = lv->start_x;
     st->y = st->py = lv->start_y;
@@ -108,14 +108,14 @@ void tt_reset(const TtLevel *lv, TtState *st) {
     st->by = lv->baby_y;
 }
 
-int tt_colour(const TtLevel *lv, const TtState *st, int x, int y) {
-    if (x < 0 || y < 0 || x >= TT_W || y >= TT_H) return TC_NONE;
+int tn_colour(const TtLevel *lv, const TtState *st, int x, int y) {
+    if (x < 0 || y < 0 || x >= TN_W || y >= TN_H) return TC_NONE;
     switch (lv->kind[y][x]) {
-    case TT_GRASS: return TC_GRASS;
-    case TT_SAND: return TC_SAND;
-    case TT_SWAMP: return TC_SWAMP;
-    case TT_ROCK: return TC_ROCK;
-    case TT_SWITCHGRASS: {
+    case TN_GRASS: return TC_GRASS;
+    case TN_SAND: return TC_SAND;
+    case TN_SWAMP: return TC_SWAMP;
+    case TN_ROCK: return TC_ROCK;
+    case TN_SWITCHGRASS: {
         bool wet = st->sw == SW_START ? lv->wet0[y][x] : st->sw == SW_WET;
         return wet ? TC_GRASS : TC_SAND; /* dry grass is the colour of sand */
     }
@@ -124,19 +124,19 @@ int tt_colour(const TtLevel *lv, const TtState *st, int x, int y) {
 }
 
 static bool is_log(const TtLevel *lv, int x, int y) {
-    return lv->kind[y][x] == TT_LOG_H || lv->kind[y][x] == TT_LOG_V;
+    return lv->kind[y][x] == TN_LOG_H || lv->kind[y][x] == TN_LOG_V;
 }
 
-bool tt_walkable(const TtLevel *lv, int x, int y) {
-    if (x < 0 || y < 0 || x >= TT_W || y >= TT_H) return false;
+bool tn_walkable(const TtLevel *lv, int x, int y) {
+    if (x < 0 || y < 0 || x >= TN_W || y >= TN_H) return false;
     int k = lv->kind[y][x];
-    if (k == TT_SEA || k == TT_PALM || k == TT_BOULDER || k == TT_BUSH) return false;
+    if (k == TN_SEA || k == TN_PALM || k == TN_BOULDER || k == TN_BUSH) return false;
     for (int i = 0; i < lv->ntoad; i++)
         if (lv->toad_x[i] == x && lv->toad_y[i] == y) return false;
     return true;
 }
 
-void tt_stork_at(const TtLevel *lv, int i, uint32_t beat, int *x, int *y, int *dir) {
+void tn_stork_at(const TtLevel *lv, int i, uint32_t beat, int *x, int *y, int *dir) {
     const TtStork *s = &lv->stork[i];
     int n = (int)((beat / s->speed) % s->len);
     *x = s->px[n];
@@ -146,7 +146,7 @@ void tt_stork_at(const TtLevel *lv, int i, uint32_t beat, int *x, int *y, int *d
 
 static bool sight_blocker(const TtLevel *lv, const int *sx, const int *sy, int ns, int x, int y) {
     int k = lv->kind[y][x];
-    if (k == TT_PALM || k == TT_BOULDER || k == TT_BUSH) return true;
+    if (k == TN_PALM || k == TN_BOULDER || k == TN_BUSH) return true;
     for (int i = 0; i < lv->ntoad; i++)
         if (lv->toad_x[i] == x && lv->toad_y[i] == y) return true;
     for (int i = 0; i < ns; i++)
@@ -169,13 +169,13 @@ static bool line_clear(const TtLevel *lv, const int *sx, const int *sy, int ns, 
 }
 
 static void cone(const TtLevel *lv, const int *sx, const int *sy, int ns, int ox, int oy, int dir, int range, int id,
-                 uint8_t danger[TT_H][TT_W]) {
+                 uint8_t danger[TN_H][TN_W]) {
     int fx = DX[dir], fy = DY[dir], lx = -fy, ly = fx;
     for (int d = 1; d <= range; d++) {
         int hw = d / 2;
         for (int l = -hw; l <= hw; l++) {
             int x = ox + fx * d + lx * l, y = oy + fy * d + ly * l;
-            if (x < 0 || y < 0 || x >= TT_W || y >= TT_H) continue;
+            if (x < 0 || y < 0 || x >= TN_W || y >= TN_H) continue;
             if (danger[y][x]) continue;
             if (sight_blocker(lv, sx, sy, ns, x, y)) continue; /* a blocker hides itself too */
             if (line_clear(lv, sx, sy, ns, ox, oy, x, y)) danger[y][x] = (uint8_t)id;
@@ -183,11 +183,11 @@ static void cone(const TtLevel *lv, const int *sx, const int *sy, int ns, int ox
     }
 }
 
-void tt_danger(const TtLevel *lv, const TtState *st, uint32_t beat, uint8_t danger[TT_H][TT_W]) {
+void tn_danger(const TtLevel *lv, const TtState *st, uint32_t beat, uint8_t danger[TN_H][TN_W]) {
     (void)st;
-    memset(danger, 0, TT_H * TT_W);
-    int sx[TT_MAX_STORKS], sy[TT_MAX_STORKS], sd[TT_MAX_STORKS];
-    for (int i = 0; i < lv->nstork; i++) tt_stork_at(lv, i, beat, &sx[i], &sy[i], &sd[i]);
+    memset(danger, 0, TN_H * TN_W);
+    int sx[TN_MAX_STORKS], sy[TN_MAX_STORKS], sd[TN_MAX_STORKS];
+    for (int i = 0; i < lv->nstork; i++) tn_stork_at(lv, i, beat, &sx[i], &sy[i], &sd[i]);
     /* storks first: they are the ones that move, and they're the closer threat */
     for (int i = 0; i < lv->nstork; i++) {
         /* a stork doesn't block its own sight: take it out of the list */
@@ -200,39 +200,39 @@ void tt_danger(const TtLevel *lv, const TtState *st, uint32_t beat, uint8_t dang
         cone(lv, sx, sy, lv->nstork, lv->toad_x[i], lv->toad_y[i], lv->toad_dir[i], 4, 1 + i, danger);
 }
 
-bool tt_hidden(const TtLevel *lv, const TtState *st, int who) {
+bool tn_hidden(const TtLevel *lv, const TtState *st, int who) {
     int x = who ? st->bx : st->x, y = who ? st->by : st->y;
     if (is_log(lv, x, y)) return true;
     if (st->camo_t > 0 || st->camo == TC_NONE) return false;
-    return st->camo == tt_colour(lv, st, x, y);
+    return st->camo == tn_colour(lv, st, x, y);
 }
 
-int tt_collected(const TtState *st) {
+int tn_collected(const TtState *st) {
     return (st->fruit & 1) + ((st->fruit >> 1) & 1) + (st->baby ? 1 : 0);
 }
 
 /* ------------------------------------------------------------------ */
 /* one beat                                                             */
 
-static bool can_camo_with(const TtLevel *lv, const TtState *st, uint8_t dn[TT_H][TT_W]) {
+static bool can_camo_with(const TtLevel *lv, const TtState *st, uint8_t dn[TN_H][TN_W]) {
     if (st->camo_t > 0 || is_log(lv, st->x, st->y)) return false;
-    int c = tt_colour(lv, st, st->x, st->y);
+    int c = tn_colour(lv, st, st->x, st->y);
     if (c == TC_NONE || c == st->camo) return false;
     if (dn[st->y][st->x]) return false;
     if (st->baby && dn[st->by][st->bx]) return false;
     return true;
 }
 
-bool tt_can_camo(const TtLevel *lv, const TtState *st) {
-    uint8_t dn[TT_H][TT_W];
-    tt_danger(lv, st, st->beat, dn);
+bool tn_can_camo(const TtLevel *lv, const TtState *st) {
+    uint8_t dn[TN_H][TN_W];
+    tn_danger(lv, st, st->beat, dn);
     return can_camo_with(lv, st, dn);
 }
 
 static bool stork_on(const TtLevel *lv, uint32_t beat, int x, int y, int *who) {
     for (int i = 0; i < lv->nstork; i++) {
         int sx, sy;
-        tt_stork_at(lv, i, beat, &sx, &sy, NULL);
+        tn_stork_at(lv, i, beat, &sx, &sy, NULL);
         if (sx == x && sy == y) { if (who) *who = i; return true; }
     }
     return false;
@@ -240,19 +240,19 @@ static bool stork_on(const TtLevel *lv, uint32_t beat, int x, int y, int *who) {
 
 static bool can_enter(const TtLevel *lv, int fx, int fy, int dir) {
     int x = fx + DX[dir], y = fy + DY[dir];
-    if (!tt_walkable(lv, x, y)) return false;
+    if (!tn_walkable(lv, x, y)) return false;
     bool horiz = dir == DIR_LEFT || dir == DIR_RIGHT;
     /* logs: in and out through the ends only */
     int k = lv->kind[y][x], kf = lv->kind[fy][fx];
-    if (k == TT_LOG_H && !horiz) return false;
-    if (k == TT_LOG_V && horiz) return false;
-    if (kf == TT_LOG_H && !horiz) return false;
-    if (kf == TT_LOG_V && horiz) return false;
+    if (k == TN_LOG_H && !horiz) return false;
+    if (k == TN_LOG_V && horiz) return false;
+    if (kf == TN_LOG_H && !horiz) return false;
+    if (kf == TN_LOG_V && horiz) return false;
     return true;
 }
 
 /* the core, with the danger maps for this beat and the next supplied */
-static int step_core(const TtLevel *lv, TtState *st, int act, uint8_t dn[TT_H][TT_W], uint8_t dn1[TT_H][TT_W]) {
+static int step_core(const TtLevel *lv, TtState *st, int act, uint8_t dn[TN_H][TN_W], uint8_t dn1[TN_H][TN_W]) {
     int ev = 0;
     if (st->dead || st->won) return 0;
     bool moved = false;
@@ -260,12 +260,12 @@ static int step_core(const TtLevel *lv, TtState *st, int act, uint8_t dn[TT_H][T
         /* still changing colour */
         st->camo_t--;
         if (st->camo_t == 0) {
-            st->camo = (uint8_t)tt_colour(lv, st, st->x, st->y);
+            st->camo = (uint8_t)tn_colour(lv, st, st->x, st->y);
             ev |= TE_CAMO_DONE;
         }
     } else if (act == ACT_CAMO) {
         if (can_camo_with(lv, st, dn)) {
-            st->camo_t = TT_CAMO_BEATS - 1;
+            st->camo_t = TN_CAMO_BEATS - 1;
             ev |= TE_CAMO_START;
         } else {
             ev |= TE_REFUSED;
@@ -323,7 +323,7 @@ static int step_core(const TtLevel *lv, TtState *st, int act, uint8_t dn[TT_H][T
     for (int w = 0; w < 1 + (st->baby ? 1 : 0); w++) {
         int x = w ? st->bx : st->x, y = w ? st->by : st->y;
         int id = dn1[y][x];
-        if (id && !tt_hidden(lv, st, w)) {
+        if (id && !tn_hidden(lv, st, w)) {
             st->dead = 1;
             st->baby_eaten = (uint8_t)w;
             if (id >= 11) { st->eaten_by = 1; st->eater = (uint8_t)(id - 11); }
@@ -334,17 +334,17 @@ static int step_core(const TtLevel *lv, TtState *st, int act, uint8_t dn[TT_H][T
     return ev;
 }
 
-int tt_step(const TtLevel *lv, TtState *st, int act) {
-    uint8_t dn[TT_H][TT_W], dn1[TT_H][TT_W];
-    tt_danger(lv, st, st->beat, dn);
-    tt_danger(lv, st, st->beat + 1, dn1);
+int tn_step(const TtLevel *lv, TtState *st, int act) {
+    uint8_t dn[TN_H][TN_W], dn1[TN_H][TN_W];
+    tn_danger(lv, st, st->beat, dn);
+    tn_danger(lv, st, st->beat + 1, dn1);
     return step_core(lv, st, act, dn, dn1);
 }
 
 /* ------------------------------------------------------------------ */
 /* the solver                                                           */
 
-#define NPOS (TT_W * TT_H)
+#define NPOS (TN_W * TN_H)
 
 static uint32_t pack(const TtState *st, int period) {
     int baby = 0;
@@ -358,7 +358,7 @@ static uint32_t pack(const TtState *st, int period) {
     v = v * 5 + (uint32_t)baby;
     v = v * 2 + (st->camo_t ? 1 : 0);
     v = v * TC_COUNT + st->camo;
-    v = v * NPOS + (uint32_t)(st->y * TT_W + st->x);
+    v = v * NPOS + (uint32_t)(st->y * TN_W + st->x);
     return v;
 }
 
@@ -371,8 +371,8 @@ static void unpack(const TtLevel *lv, uint32_t v, TtState *st) {
     st->fruit = (uint8_t)(v % 4); v /= 4;
     st->sw = (uint8_t)(v % 3); v /= 3;
     st->beat = v;
-    st->x = st->px = (uint8_t)(pos % TT_W);
-    st->y = st->py = (uint8_t)(pos / TT_W);
+    st->x = st->px = (uint8_t)(pos % TN_W);
+    st->y = st->py = (uint8_t)(pos / TN_W);
     if (baby) {
         st->baby = 1;
         st->bx = (uint8_t)(st->x + DX[baby - 1]);
@@ -383,11 +383,11 @@ static void unpack(const TtLevel *lv, uint32_t v, TtState *st) {
     }
 }
 
-int tt_solve(const TtLevel *lv, bool need_all, char *out, int out_max) {
+int tn_solve(const TtLevel *lv, bool need_all, char *out, int out_max) {
     int P = lv->period;
     uint32_t total = (uint32_t)P * 3 * 4 * 5 * 2 * TC_COUNT * NPOS;
     uint8_t *seen = (uint8_t *)calloc(total / 8 + 1, 1);
-    uint8_t (*dcache)[TT_H][TT_W] = malloc(sizeof(*dcache) * (size_t)P);
+    uint8_t (*dcache)[TN_H][TN_W] = malloc(sizeof(*dcache) * (size_t)P);
     int cap = 1 << 16, n = 0, head = 0;
     uint32_t *qs = (uint32_t *)malloc(sizeof(uint32_t) * (size_t)cap);
     int32_t *qp = (int32_t *)malloc(sizeof(int32_t) * (size_t)cap);
@@ -395,12 +395,12 @@ int tt_solve(const TtLevel *lv, bool need_all, char *out, int out_max) {
     int result = -1, goal = -1, goal_act = 0;
     if (!seen || !dcache || !qs || !qp || !qa) goto done;
     TtState st0;
-    tt_reset(lv, &st0);
-    for (int p = 0; p < P; p++) tt_danger(lv, &st0, (uint32_t)p, dcache[p]);
+    tn_reset(lv, &st0);
+    for (int p = 0; p < P; p++) tn_danger(lv, &st0, (uint32_t)p, dcache[p]);
     uint32_t s0 = pack(&st0, P);
     seen[s0 >> 3] |= (uint8_t)(1 << (s0 & 7));
     qs[0] = s0; qp[0] = -1; qa[0] = 0; n = 1;
-    int need = lv->nfruit + (lv->baby_x != TT_NONE ? 1 : 0);
+    int need = lv->nfruit + (lv->baby_x != TN_NONE ? 1 : 0);
     while (head < n && goal < 0) {
         TtState st;
         unpack(lv, qs[head], &st);
@@ -411,7 +411,7 @@ int tt_solve(const TtLevel *lv, bool need_all, char *out, int out_max) {
             step_core(lv, &nx, act, dcache[ph], dcache[(ph + 1) % P]);
             if (nx.dead) continue;
             if (nx.won) {
-                if (need_all && tt_collected(&nx) < need) continue;
+                if (need_all && tn_collected(&nx) < need) continue;
                 goal = head;
                 goal_act = act;
                 break;

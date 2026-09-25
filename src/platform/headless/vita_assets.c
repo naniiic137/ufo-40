@@ -83,7 +83,13 @@ void vita_assets_render(const char *dir) {
         }
         ui_logo(140, 58, 2, 0);
         tiny_center("FORTY GAMES FROM ANOTHER WORLD", 140, 150, C_SKY);
-        tiny_center("3 OF 40 CARTRIDGES LOADED", 140, 158, C_SLATE);
+        {
+            char line[48];
+            int loaded = 0;
+            for (int i = 0; i < GAME_SLOTS; i++) loaded += GAMES[i] != NULL;
+            snprintf(line, sizeof line, "%d OF 40 CARTRIDGES LOADED", loaded);
+            tiny_center(line, 140, 158, C_SLATE);
+        }
         snprintf(path, sizeof path, "%s/livearea/contents/bg.png", dir);
         scale_write(path, &s, 3, 840, 500);
     }

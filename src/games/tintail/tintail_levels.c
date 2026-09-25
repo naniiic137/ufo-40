@@ -6,10 +6,10 @@
  *         R rain pad  S sun pad
  * storks: "x y beats-per-step MOVES", a loop that ends where it began.
  * Every level is proved escapable with all three collectibles by the solver
- * (tests/tt_10_all_levels.ufs). */
+ * (tests/tn_10_all_levels.ufs). */
 #include "tintail.h"
 
-const TtLevelDef TT_LEVEL_DEFS[TT_LEVELS] = {
+const TtLevelDef TN_LEVEL_DEFS[TN_LEVELS] = {
     /* 1: learn to change colour */
     {"DRIFTWOOD SHORE",
      {"~~~~~~~~~~~~~~~~~~~~",

@@ -1,25 +1,22 @@
-# ROOFCAT: beating the Magpie King delivers the parcel (Saucer); the night
-# route follows, and clearing it too earns the Alien.
+# ROOFCAT: after the ending the chase goes round again after dark, keeping
+# score and lives. Clearing the second loop earns the Alien.
 game roofcat
 wait 5
-cheat stage 3 1
+cheat area 4 1
 cheat arena
 wait 10
-cheat win_stage
-wait 40
-wait 220
-expect state == 5
-expect goals & 2
-expect goals !& 4
+cheat win
+wait 240
+expect state == 4
 wait 250
 press A
 wait 5
 expect loop == 2
-expect stage == 0
-cheat stage 3 2
+expect area == 0
+cheat area 4 2
 cheat arena
 wait 10
-cheat win_stage
-wait 260
-expect state == 5
+cheat win
+wait 240
+expect state == 4
 expect goals & 4

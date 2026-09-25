@@ -1,0 +1,18 @@
+# PETAL PARADE: walking into the hedge ends the game; there are no lives.
+game petalparade
+wait 5
+press A
+cheat clear
+wait 72
+expect hy == 0
+expect state == 1
+wait 8
+expect state == 2
+expect has_game == 0
+wait 95
+expect state == 3
+press A
+wait 70
+press A
+wait 3
+expect state == 0

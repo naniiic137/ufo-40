@@ -1,0 +1,22 @@
+# TIN TROOP 4-A: no ship; soldiers march out of the last door passed.
+game tintroop
+wait 5
+cheat level 8
+cheat no_foes
+cheat freeze
+wait 2
+expect mode == 2
+expect door_x == 3
+wait 40
+expect mode == 3
+# pass the second door, then fall: the next soldier comes out of it
+cheat pos 290 121
+hold RIGHT 20
+expect door_x == 30
+cheat respawn 1
+wait 2
+expect mode == 2
+expect px == 302
+# hold B in the doorway to give up and start again
+hold B 95
+expect state == 5

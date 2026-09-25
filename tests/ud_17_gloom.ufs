@@ -1,0 +1,21 @@
+# UNDERDELVE: the Gloom wanders one room at a time as Mo moves between rooms.
+# When it finds him it rises in the middle of the room, faster than he is,
+# and if it touches him every lantern goes out at once.
+game underdelve
+wait 10
+press A
+wait 5
+cheat room 1 5 30 130
+cheat clear_enemies
+cheat gloom_at 4 4
+cheat room 2 5 30 130
+cheat clear_enemies
+expect gloom_y >= 3
+cheat gloom
+wait 25
+expect gloom_here == 1
+expect lanterns == 6
+wait 200
+expect state >= 2
+wait 80
+expect state == 3

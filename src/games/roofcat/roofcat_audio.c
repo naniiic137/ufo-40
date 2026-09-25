@@ -1,8 +1,8 @@
 /* ROOFCAT - original music (UFO-MML) and sound effects. */
 #include "roofcat.h"
 
-int RC_MUS_STAGE[RC_STAGES] = {-1, -1, -1, -1};
-int RC_MUS_BOSS = -1, RC_MUS_CLEAR, RC_MUS_OVER, RC_MUS_END, RC_MUS_TITLE;
+int RC_MUS_AREA[RC_AREAS] = {-1, -1, -1, -1};
+int RC_MUS_BOSS = -1, RC_MUS_OVER, RC_MUS_END, RC_MUS_TITLE;
 
 /* ---- stage 1: "Rooftop Run" - C major, bouncy. C G Am F | C G F G */
 static const char S1_LEAD[] =
@@ -83,23 +83,19 @@ static const char BOSS_BASS[] = "@6 v15 q5 l8 [[o2 g o3 g]4 [o2 e- o3 e-]4 [o2 f
 static const char BOSS_DRUMS[] = "[o2@13v13c8 o8@9v6c8 o6@11v12c8 o2@13v12c8 o2@13v13c8 o8@9v6c8 o6@11v12c8 o8@10v8c8]8";
 
 /* ---- jingles */
-static const char CLEAR_P1[] = "@16 v12 o5 l8 c e g o6 c4 o5 g8 o6 c2";
-static const char CLEAR_P2[] = "@22 v8 o4 l8 g o5 c e g4 e8 g2";
-static const char CLEAR_TRI[] = "@6 v14 o2 l4 c g o3 c o2 g8 o3 c2";
 static const char OVER_P1[] = "@5 v12 o5 l8 c o4 b a g4 f4 e2.";
 static const char OVER_TRI[] = "@6 v13 o2 l4 a g f e a2";
 
 void rc_audio_load(void) {
     if (RC_MUS_BOSS >= 0) return;
-    RC_MUS_STAGE[0] = song_define("rc_rooftops", 150, true, S1_LEAD, S1_HARM, S1_BASS, S1_DRUMS);
-    RC_MUS_STAGE[1] = song_define("rc_souk", 138, true, S2_LEAD, S2_HARM, S2_BASS, S2_DRUMS);
-    RC_MUS_STAGE[2] = song_define("rc_harbour", 126, true, S3_LEAD, S3_HARM, S3_BASS, S3_DRUMS);
-    RC_MUS_STAGE[3] = song_define("rc_fort", 164, true, S4_LEAD, S4_HARM, S4_BASS, S4_DRUMS);
+    RC_MUS_AREA[0] = song_define("rc_rooftops", 150, true, S1_LEAD, S1_HARM, S1_BASS, S1_DRUMS);
+    RC_MUS_AREA[1] = song_define("rc_souk", 138, true, S2_LEAD, S2_HARM, S2_BASS, S2_DRUMS);
+    RC_MUS_AREA[2] = song_define("rc_fort", 164, true, S4_LEAD, S4_HARM, S4_BASS, S4_DRUMS);
+    RC_MUS_AREA[3] = song_define("rc_harbour", 126, true, S3_LEAD, S3_HARM, S3_BASS, S3_DRUMS);
     RC_MUS_BOSS = song_define("rc_boss", 172, true, BOSS_LEAD, BOSS_HARM, BOSS_BASS, BOSS_DRUMS);
-    RC_MUS_CLEAR = song_define("rc_clear", 150, false, CLEAR_P1, CLEAR_P2, CLEAR_TRI, "@12 v8 o6 c2");
     RC_MUS_OVER = song_define("rc_over", 100, false, OVER_P1, "", OVER_TRI, "");
     RC_MUS_END = song_define("rc_ending", 112, true, S1_LEAD, S1_HARM, S1_BASS, S1_DRUMS);
-    RC_MUS_TITLE = RC_MUS_STAGE[0];
+    RC_MUS_TITLE = RC_MUS_AREA[0];
 
     sfx_define("rc_jump", CH_P2, 240, "@32 v10 o5 c16");
     sfx_define("rc_jump2", CH_P2, 240, "@32 v10 o6 c16");
@@ -116,4 +112,8 @@ void rc_audio_load(void) {
     sfx_define("rc_bosshit", CH_P2, 240, "@37 v11 o4 c16");
     sfx_define("rc_shoot", CH_NOISE, 240, "@36 v8 o5 c32");
     sfx_define("rc_letter", CH_P1, 160, "@15 v12 o6 e8 g8 b8 o7 e4");
+    sfx_define("rc_secret", CH_P1, 180, "@39 v11 o6 c16 e16 g16 o7 c16 e8");
+    sfx_define("rc_splash", CH_NOISE, 200, "@36 v9 o4 c16 @21 v7 o6 c16");
+    sfx_define("rc_fuse", CH_NOISE, 240, "@21 v7 o8 c32 c32 c32 c32 c32 c32");
+    sfx_define("rc_beam", CH_P2, 240, "@33 v11 o7 c16 o6 c16");
 }

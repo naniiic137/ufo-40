@@ -25,19 +25,17 @@ press B
 wait 30
 gifstop
 shot roofcat_run
-cheat stage 1 1
-cheat cam 1280
-wait 60
+cheat area 1 1
+wait 70
 shot roofcat_souk
-cheat stage 2 1
-cheat cam 640
-wait 60
+cheat area 3 1
+wait 70
 shot roofcat_harbour
-cheat stage 3 1
+cheat area 4 1
+wait 20
 cheat arena
 wait 170
 shot roofcat_boss
-cheat stage 0 2
-cheat cam 960
-wait 60
+cheat area 0 2
+wait 90
 shot roofcat_night

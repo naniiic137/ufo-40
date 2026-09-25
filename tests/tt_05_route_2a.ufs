@@ -1,0 +1,56 @@
+# TIN TROOP 2-A: swimming, the parachute over the basin, the dive tunnel.
+game tintroop
+wait 5
+cheat level 3
+cheat no_foes
+wait 120
+# the tub: hop the rim, swim across holding A, leap out onto the far rim
+cheat pos 100 121
+wait 2
+hold RIGHT+A 20
+hold RIGHT 30
+expect mode == 4
+hold RIGHT+A 340
+hold RIGHT 1
+hold RIGHT+A 30
+hold RIGHT 10
+expect mode == 3
+expect px > 415
+# the basin: its far side is too tall to climb out onto; the next soldier
+# parachutes over it
+cheat pos 682 105
+wait 100
+expect mode == 4
+cheat respawn 1
+wait 2
+expect mode == 1
+hold RIGHT 60
+wait 60
+expect mode == 3
+expect py == 61
+# the sink: dive under the wall and come up the other side
+cheat pos 845 101
+wait 2
+hold RIGHT 30
+expect mode == 4
+hold RIGHT 150
+expect breath > 0
+hold RIGHT+A 60
+expect px > 965
+hold RIGHT 1
+hold RIGHT+A 40
+hold RIGHT 20
+expect mode == 3
+expect px > 1010
+# the gate: a stone on the switch
+cheat pos 1062 121
+wait 3
+press DOWN+B
+wait 40
+expect gate0 == 1
+cheat pos 1080 121
+hold RIGHT 80
+expect px > 1150
+cheat pos 1300 121
+hold RIGHT 80
+expect state == 4

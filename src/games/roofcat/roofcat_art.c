@@ -1,9 +1,8 @@
-/* ROOFCAT - pixel art (palette-letter strings, see gfx.h). */
+/* ROOFCAT - pixel art (palette-letter strings, see gfx.h). All drawn for UFO 40. */
 #include "roofcat.h"
 
 Sprite rc_spr[R_SPRITE_COUNT];
 
-/* Harissa, facing right */
 static const char CAT_RUN1[] =
     "................"
     ".........k...k.."
@@ -208,7 +207,6 @@ static const char CAT_IDLE[] =
     "..kok.kok.kok..."
     "..kk..kk..kk...."
     "................";
-
 static const char STAR1[] =
     "...ww..."
     "..wllw.."
@@ -234,8 +232,6 @@ static const char WISP_SHOT[] =
     "ICwwCI"
     ".ICCI."
     "..II..";
-
-/* foes */
 static const char PIGEON1[] =
     "................"
     "................"
@@ -292,176 +288,6 @@ static const char GULL2[] =
     "kkk..kwwlk......"
     ".....kwlk......."
     "......kk........";
-static const char RAT1[] =
-    "................"
-    "................"
-    "................"
-    "................"
-    "........kk.kk..."
-    ".......kKkkKk..."
-    "..kkkkkkggggk..."
-    ".kgggggggkgggk.."
-    "kgggggggggggKKk."
-    "kkgggggggggkkk.."
-    "k.kkggggggk....."
-    "k...kk.kk.k....."
-    ".k..k...k.k....."
-    "................"
-    "................"
-    "................";
-static const char RAT2[] =
-    "................"
-    "................"
-    "................"
-    "........kk.kk..."
-    ".......kKkkKk..."
-    "..kkkkkkggggk..."
-    ".kgggggggkgggk.."
-    "kgggggggggggKKk."
-    "kkgggggggggkkk.."
-    ".kkkggggggkk...."
-    ".k..k....k.k...."
-    "k..k......k.k..."
-    "................"
-    "................"
-    "................"
-    "................";
-static const char SLINGER1[] =
-    "................"
-    ".....kkkkk......"
-    "....ktttttk....."
-    "...kthhhhhtk...."
-    "...kthkhkhtk...."
-    "...kthhhhhtk...."
-    "....kthrrhk....."
-    ".kk.kkttttk....."
-    "kttkktttttk....."
-    ".kttttttttk....."
-    "...kttttttk....."
-    "...kttkkttk....."
-    "...ktk..ktk....."
-    "..kttk..kttk...."
-    "..kkk....kkk...."
-    "................";
-static const char SLINGER2[] =
-    "..kk............"
-    ".kssk.kkkkk....."
-    ".ksskktttttk...."
-    "..kktthhhhhtk..."
-    "...ktthkhkhtk..."
-    "...kkthhhhhtk..."
-    ".....kthrrhk...."
-    ".....kkttttk...."
-    "....kttttttk...."
-    "....kttttttk...."
-    "....kttttttk...."
-    "....kttkkttk...."
-    "....ktk..ktk...."
-    "...kttk..kttk..."
-    "...kkk....kkk..."
-    "................";
-static const char MIRAGE1[] =
-    "......kkkk......"
-    "....kkPPPPkk...."
-    "...kPVVVVVVPk..."
-    "..kPVwkVVwkVPk.."
-    "..kPVkkVVkkVPk.."
-    "..kPVVVVVVVVPk.."
-    "..kPVVkkkkVVPk.."
-    "..kPVVVVVVVVPk.."
-    "..kPPVVVVVVPPk.."
-    "..kPkPVVVVPkPk.."
-    "...k.kPPPPk.k..."
-    ".....k.kk.k....."
-    "................"
-    "................"
-    "................"
-    "................";
-static const char MIRAGE2[] =
-    "......kkkk......"
-    "....kkPPPPkk...."
-    "...kPVVVVVVPk..."
-    "..kPVwkVVwkVPk.."
-    "..kPVkkVVkkVPk.."
-    "..kPVVVVVVVVPk.."
-    "..kPVVVkkVVVPk.."
-    "..kPVVVVVVVVPk.."
-    "..kPPVVVVVVPPk.."
-    "...kPkPVVPkPk..."
-    "....k.kPPk.k...."
-    "......k..k......"
-    "................"
-    "................"
-    "................"
-    "................";
-static const char BOBBER1[] =
-    ".......y........"
-    "......yak......."
-    ".......k........"
-    ".......k........"
-    ".....kkkkk......"
-    "....krrrrrk....."
-    "...krwwrrrrk...."
-    "...krwrrrrrk...."
-    "...krrrrrrrk...."
-    "...kvrrrrrvk...."
-    "....kvvvvvk....."
-    ".....kkkkk......"
-    ".......k........"
-    "......kkk......."
-    "................"
-    "................";
-static const char BOBBER2[] =
-    "......y.a......."
-    ".......yk......."
-    ".......k........"
-    ".......k........"
-    ".....kkkkk......"
-    "....krrrrrk....."
-    "...krwwrrrrk...."
-    "...krwrrrrrk...."
-    "...krrrrrrrk...."
-    "...kvrrrrrvk...."
-    "....kvvvvvk....."
-    ".....kkkkk......"
-    ".......k........"
-    "......kkk......."
-    "................"
-    "................";
-static const char VENT1[] =
-    "..kkkkkkkkkkkk.."
-    "..kssssssssssk.."
-    "..kkkkkkkkkkkk.."
-    "...knnnnnnnnk..."
-    "...knyknnykkk..."
-    "...knnnnnnnnk..."
-    "...ktttttttttk.."
-    "...kteetteettk.."
-    "...ktttttttttk.."
-    "...kteetteettk.."
-    "...ktttttttttk.."
-    "...kteetteettk.."
-    "...ktttttttttk.."
-    "...kteetteettk.."
-    "...ktttttttttk.."
-    "...kkkkkkkkkkk..";
-static const char VENT2[] =
-    "..kkkkkkkkkkkk.."
-    "..kssssssssssk.."
-    "..kkkkkkkkkkkk.."
-    "...knnnnnnnnk..."
-    "...knakknakkk..."
-    "...knnnnnnnnk..."
-    "...ktttttttttk.."
-    "...kteetteettk.."
-    "...ktttttttttk.."
-    "...kteetteettk.."
-    "...ktttttttttk.."
-    "...kteetteettk.."
-    "...ktttttttttk.."
-    "...kteetteettk.."
-    "...ktttttttttk.."
-    "...kkkkkkkkkkk..";
 static const char MAGPIE1[] =
     "................"
     "......kkkk......"
@@ -496,7 +322,6 @@ static const char MAGPIE2[] =
     "................"
     "................"
     "................";
-
 static const char PEBBLE[] = ".kk.kglkksdkk.kk";
 static const char SEED[] = ".kk.kaek.kk.";
 static const char BUBBLE[] =
@@ -515,14 +340,6 @@ static const char BOMB[] =
     "kdddddk"
     "kndddnk"
     ".kkkkk.";
-static const char SHARD[] =
-    ".kkk."
-    "kteek"
-    "kttek"
-    ".kbk."
-    "..k..";
-
-/* pickups */
 static const char FISH[] =
     "..kkkk...."
     ".kCCCCkk.k"
@@ -538,32 +355,6 @@ static const char DATE[] =
     ".kbttbk."
     ".kbbbbk."
     "..kkkk..";
-static const char ORANGE_[] =
-    "....zk.."
-    "..kkjk.."
-    ".kooaok."
-    "koaaooak"
-    "kooooook"
-    "kroooork"
-    ".krrrrk."
-    "..kkkk..";
-static const char POMEGRANATE[] =
-    "...kk..."
-    "..kvvk.."
-    ".kvrrvk."
-    "kvrKrrvk"
-    "kvrrrrvk"
-    "kvrrrrvk"
-    ".kvvvvk."
-    "..kkkk..";
-static const char BREAD[] =
-    "..kkkkkk.."
-    ".keeeeeek."
-    "kehheheehk"
-    "keeeheeeek"
-    "ktteeeettk"
-    ".kttttttk."
-    "..kkkkkk..";
 static const char LETTER[] =
     "kkkkkkkkkk"
     "kcccccccck"
@@ -602,116 +393,6 @@ static const char HEART[] =
     ".krrrk."
     "..krk.."
     "...k...";
-
-/* bosses */
-static const char BOSS_PIGEON1[] =
-    "................................................"
-    "................................................"
-    "........................kkkkkk.................."
-    "......................kkggggggkk................"
-    ".....................kggggggggggk..............."
-    "....................kggggkkggggggk.............."
-    "....................kgggkwrkggggggk............."
-    "....................kgggkrrkgggggaaak..........."
-    "....................kggggkkggggggaaaaak........."
-    "....................kgggggggggggggkaak.........."
-    "....................kjjjjgggggggggkkk..........."
-    "...........kkkkkkkkkjjjzjjjjjggggk.............."
-    ".........kkggggggggjjjzzzjjjjjgggk.............."
-    ".......kkgggggggggggjjjzjjjjggggggk............."
-    "......kggllllgggggggggjjjgggggggggk............."
-    ".....kgllllllllgggggggggggggggggggk............."
-    "....kgllllllllllllggggggggggggggggk............."
-    "...kgllllllggllllllgggggggggggggggk............."
-    "..kglllllllggglllllggggggggggggggk.............."
-    ".kgglllllllgggglllllgggggggggggggk.............."
-    "kggglllllllgggggllllgggggggggggggk.............."
-    "kgggglllllgggggggllggggggggggggggk.............."
-    "kkgggggllgggggggggggggggggggggggk..............."
-    ".kkggggggggggggggggggggggggggggk................"
-    "..kkkgggggggggggggggggggggggggk................."
-    "....kkkkggggggggggggggggggkkkk.................."
-    "........kkkkkkkkkkkkkkkkkk......................"
-    "..............ook....ook........................"
-    ".............oook...oook........................"
-    "............oo.ok..oo.ok........................"
-    "................................................"
-    "................................................";
-static const char BOSS_PIGEON2[] =
-    "................................................"
-    "........................kkkkkk.................."
-    "......................kkggggggkk................"
-    ".....................kggggggggggk..............."
-    "....................kggggkkggggggk.............."
-    "....................kgggkwrkggggggk............."
-    "....................kgggkrrkgggggak............."
-    "....................kggggkkggggggaaaak.........."
-    "....................kgggggggggggggkaaaak........"
-    "....................kjjjjgggggggggkk.k.........."
-    "...........kkkkkkkkkjjjzjjjjjggggk.............."
-    ".........kkggggggggjjjzzzjjjjjgggk.............."
-    ".......kkgggggggggggjjjzjjjjggggggk............."
-    "......kggllllgggggggggjjjgggggggggk............."
-    ".....kgllllllllgggggggggggggggggggk............."
-    "....kgllllllllllllggggggggggggggggk............."
-    "...kgllllllggllllllgggggggggggggggk............."
-    "..kglllllllggglllllggggggggggggggk.............."
-    ".kgglllllllgggglllllgggggggggggggk.............."
-    "kggglllllllgggggllllgggggggggggggk.............."
-    "kgggglllllgggggggllggggggggggggggk.............."
-    "kkgggggllgggggggggggggggggggggggk..............."
-    ".kkggggggggggggggggggggggggggggk................"
-    "..kkkgggggggggggggggggggggggggk................."
-    "....kkkkggggggggggggggggggkkkk.................."
-    "........kkkkkkkkkkkkkkkkkk......................"
-    "................ook..ook........................"
-    "...............oook.oook........................"
-    "..............oo.okoo.ok........................"
-    "................................................"
-    "................................................"
-    "................................................";
-static const char POT[] =
-    "......kkkkkkkkkkkk......"
-    ".....keeeeeeeeeeeek....."
-    "......kkkkkkkkkkkk......"
-    ".......kttttttttk......."
-    "......kttteeeetttk......"
-    "....kkteeeeeeeeeetkk...."
-    "...kteeeehhheeeeeeetk..."
-    "..kteeehhhheeeeeeeeetk.."
-    "..ktrrrrrrrrrrrrrrrrtk.."
-    "..kteeeeeeeeeeeeeeeetk.."
-    "..ktecececececececetk..."
-    "..kteeeeeeeeeeeeeeeetk.."
-    "..ktrrrrrrrrrrrrrrrrtk.."
-    "...kteeeeeeeeeeeeeetk..."
-    "....kttteeeeeeeettk....."
-    ".....kktttttttttkk......"
-    ".......kkkkkkkkkk......."
-    "........................"
-    "........................"
-    "........................";
-static const char POT_EYES[] =
-    "......kkkkkkkkkkkk......"
-    ".....keeeeeeeeeeeek....."
-    "......kkkkkkkkkkkk......"
-    ".......kttttttttk......."
-    "......kttteeeetttk......"
-    "....kkteeeeeeeeeetkk...."
-    "...kteekkkeeeekkkeetk..."
-    "..kteekwwkeeeekwwkeetk.."
-    "..ktrrkwkkrrrrkwkkrrtk.."
-    "..kteekkkeeeeeekkkeetk.."
-    "..kteeeeeekkkkeeeeeetk.."
-    "..kteeeeekrrrrkeeeeetk.."
-    "..ktrrrrrrkkkkrrrrrrtk.."
-    "...kteeeeeeeeeeeeeetk..."
-    "....kttteeeeeeeettk....."
-    ".....kktttttttttkk......"
-    ".......kkkkkkkkkk......."
-    "........................"
-    "........................"
-    "........................";
 static const char CRAB1[] =
     "..kkk......................kkk.."
     ".krrrk....................krrrk."
@@ -754,40 +435,6 @@ static const char CRAB2[] =
     "....k..k..k..k....k..k..k..k...."
     "................................"
     "................................";
-static const char MKING1[] =
-    "........kk..............kk......"
-    ".......kyyk....kkkk....kwwk....."
-    "......kyayyk..kkkkkk..kwwwwk...."
-    "......kkkkkk.kkkwkkkkkwwwwwk...."
-    "..kkk..kkkkkkkkkkkkkkwwwwwk....."
-    ".kwwwkkkkkkkkkkkkkkkwwwwkk......"
-    "kwwwwwkkkkkkkkkkkkkkkkkk........"
-    "kwwwwwwkkkkkkNNNNkkkkaaaa......."
-    ".kkwwwwwkkkkNNBBNNkkkk.........."
-    "...kkwwwwkkkNBBBBNkkk..........."
-    ".....kkkkkkkNNBBNNkk............"
-    "........kkkkkNNNNkk............."
-    "..........kkkkkkkk.............."
-    "..........kk.kk.kk.............."
-    ".........kk..kk..kk............."
-    "................................";
-static const char MKING2[] =
-    "........kk......................"
-    ".......kyyk....kkkk............."
-    "......kyayyk..kkkkkk............"
-    "......kkkkkk.kkkwkkkk..........."
-    ".......kkkkkkkkkkkkkkk.........."
-    "......kkkkkkkkkkkkkkkkaaaa......"
-    "...kkkkkkkkkkNNNNkkkkk.........."
-    "..kwwwwkkkkkNNBBNNkkkkkk........"
-    ".kwwwwwwkkkkNBBBBNkkwwwwk......."
-    "kwwwwwwkkkkkNNBBNNkkwwwwwk......"
-    "kwwwwwkk.kkkkNNNNkk.kwwwwwk....."
-    ".kkkkk....kkkkkkkk...kwwwwwk...."
-    "..........kk.kk.kk....kkkkk....."
-    ".........kk..kk..kk............."
-    "................................"
-    "................................";
 static const char PARCEL[] =
     "..kkkkkkkkkkkk.."
     ".kPPPPPkkPPPPPk."
@@ -808,13 +455,468 @@ static const char CAT_HEAD[] =
     "kozozk."
     "koKook."
     ".kkkk..";
-static const char POW[] =
-    "..kk..."
-    ".kyak.."
-    "kyywak."
-    "kawyyk."
-    ".kaak.."
-    "..kk...";
+static const char PIGEON_ROLL[] =
+    "................"
+    "................"
+    "................"
+    "................"
+    "......kkkk......"
+    "....kkggggkk...."
+    "...kglllgggak..."
+    "...kglllgkgak..."
+    "..kgglllggggak.."
+    "..kgggggggjjgk.."
+    "..kggjjjjjjzgk.."
+    "...kgggjzjggk..."
+    "...kkgggggggk..."
+    ".....kkkkkkk...."
+    "................"
+    "................";
+static const char CROW1[] =
+    "................"
+    "................"
+    "................"
+    "................"
+    "................"
+    ".....kkkk......."
+    "....knnnnk......"
+    "...knwknnnk....."
+    ".aaknkknnnk....."
+    "..akknnnnnkk...."
+    "...knnnnnnnnk..."
+    "...kndnnnnndnk.."
+    "...knndnnndnnk.."
+    "...kndnnnnndnk.."
+    "...kkkkkkkkkkk.."
+    "................";
+static const char CROW2[] =
+    "................"
+    "................"
+    "................"
+    "................"
+    "................"
+    ".....kkkk......."
+    "....knnnnk......"
+    "...knwknnnk....."
+    "aaaknkknnnk....."
+    ".a.kknnnnnkk...."
+    "...knnnnnnnnk..."
+    "...kndnnnnndnk.."
+    "...knndnnndnnk.."
+    "...kndnnnnndnk.."
+    "...kkkkkkkkkkk.."
+    "................";
+static const char GECKO1[] =
+    "................"
+    "................"
+    "................"
+    "................"
+    "................"
+    "................"
+    "................"
+    "................"
+    "................"
+    "..kkk..........."
+    ".kziwk....kk...."
+    "kzzzzkkkkkzzk..."
+    ".kkzzzzzzzzzzkkk"
+    "..kzkzzjjjzkzzzk"
+    "..kk.kk..kk.kkk."
+    "................";
+static const char GECKO2[] =
+    "................"
+    "................"
+    "................"
+    "................"
+    "................"
+    "................"
+    "................"
+    "................"
+    "................"
+    "..kkk..........."
+    ".kziwk....kk...."
+    "kzzzzkkkkkzzk..."
+    ".kkzzzzzzzzzzkk."
+    "...kzzzjjjzzkzzk"
+    "...kk..kkk..kk.k"
+    "................";
+static const char LAMP[] =
+    "....kkkk...."
+    "...kaaaak..."
+    "..kkkkkkkk.."
+    "..kyyyyyyk.."
+    ".kywcyyycyk."
+    ".kyccyyccyk."
+    ".kyyyyyyyyk."
+    ".kyccyyccyk."
+    ".kywcyyycyk."
+    "..kyyyyyyk.."
+    "..kkkkkkkk.."
+    "...kaaaak..."
+    "....kkkk...."
+    "............";
+static const char SPIKE[] =
+    "...k..."
+    "..kgk.."
+    ".kglgk."
+    "kglwlgk"
+    ".kglgk."
+    "..kgk.."
+    "...k...";
+static const char FFISH1[] =
+    "....kkkk...."
+    "..kkyyyykk.k"
+    ".kywkyyyyykk"
+    "kyyyyyyyyyak"
+    ".kaaaaayykkk"
+    "..kkkkkkk..k"
+    "............"
+    "............";
+static const char FFISH2[] =
+    "...k........"
+    "..kyk.kk...."
+    "..kkkyyyykkk"
+    ".kywkyyyyyak"
+    "kyyyyyyyyyak"
+    ".kaaaaayykkk"
+    "..kkkkkkk..."
+    "....kyk.....";
+static const char WASP1[] =
+    ".ll..ll."
+    "lwwlkwwl"
+    ".lkkykl."
+    ".kykykk."
+    "kykykyk."
+    ".kkykyk."
+    "..kkkk.k"
+    "........";
+static const char WASP2[] =
+    "........"
+    ".ll..ll."
+    "lwwlkwwl"
+    ".kkykkk."
+    "kykykyk."
+    ".kkykyk."
+    "..kkkk.k"
+    "........";
+static const char SNAIL1[] =
+    "................"
+    "........kkkk...."
+    ".......krrrrk..."
+    "......krowrork.."
+    "......kroorrrk.."
+    ".k.k..krrorork.."
+    "kwkwk.krroorrk.."
+    "khhhkkkrrrrrk..."
+    "khhhhhhkkkkkhk.."
+    ".khhhhhhhhhhhhk."
+    "..kkkkkkkkkkkk.."
+    "................";
+static const char SNAIL2[] =
+    "................"
+    "........kkkk...."
+    ".......krrrrk..."
+    "......krowrork.."
+    ".k.k..kroorrrk.."
+    "kwkwk.krrorork.."
+    "khhhk.krroorrk.."
+    "khhhkkkrrrrrk..."
+    "khhhhhhkkkkkhk.."
+    ".khhhhhhhhhhhhk."
+    "..kkkkkkkkkkkk.."
+    "................";
+static const char TOAD1[] =
+    "................"
+    "....kk....kk...."
+    "...kwkk..kkwk..."
+    "..kzkzzkkzzkzk.."
+    ".kzzzzzzzzzzzzk."
+    "kjzzzzzzzzzzzzjk"
+    "kjjzzzzzzzzzzjjk"
+    "kjjzcccccccczjjk"
+    ".kjjcccccccjjjk."
+    "..kkjjjjjjjjkk.."
+    ".kzzk......kzzk."
+    "kkkk........kkkk";
+static const char TOAD2[] =
+    "....kk....kk...."
+    "...kwkk..kkwk..."
+    "..kzkzzkkzzkzk.."
+    ".kzzzzzzzzzzzzk."
+    "kjzzzzzzzzzzzzjk"
+    "kjjzzzzzzzzzzjjk"
+    "kjjzcccccccczjjk"
+    ".kjjcccccccjjjk."
+    "..kkjjjjjjjjkk.."
+    "..kzk......kzk.."
+    "..kzk......kzk.."
+    ".kkk........kkk.";
+static const char PELICAN1[] =
+    "..........kk...."
+    "...kkk...kllk..."
+    "..kwwwk.kllk...."
+    "aaaakwk.kkkkkkk."
+    "kaaaaakkkwwwwwwk"
+    ".kkkaakwwwwwwlwk"
+    "....kkwwwwwwllk."
+    ".....kkwwwllkk.."
+    ".......kkkkk...."
+    "................"
+    "................"
+    "................";
+static const char PELICAN2[] =
+    "................"
+    "...kkk.........."
+    "..kwwwk........."
+    "aaaakwk..kkkkkk."
+    "kaaaaakkkwwwwwwk"
+    ".kkkaakwwwwwwlwk"
+    "....kkwwwwwwllk."
+    ".....kkwwlllkk.."
+    "......klllk....."
+    ".......kllk....."
+    "........kk......"
+    "................";
+static const char JAR1[] =
+    "...kkkkkk..."
+    "..keeeeeek.."
+    "...kttttk..."
+    "..kteeeetk.."
+    ".kteewweetk."
+    ".ktekweketk."
+    ".kteeeeeetk."
+    ".ktbbbbbbtk."
+    ".kteeeeeetk."
+    "..kteeeetk.."
+    "...kkkkkk..."
+    "............";
+static const char JAR2[] =
+    "..keeeeeek.."
+    "...kttttk..."
+    "..kteeeetk.."
+    ".kteewweetk."
+    ".ktekweketk."
+    ".kteeeeeetk."
+    ".ktbbbbbbtk."
+    ".kteeeeeetk."
+    "..kteeeetk.."
+    "...kkkkkk..."
+    "...k....k..."
+    "..kk....kk..";
+static const char CRACKER1[] =
+    "......k....."
+    ".....kak...."
+    "......k....."
+    "..kkkkkkkk.."
+    ".krrkrrkrrk."
+    ".krwkrwkrwk."
+    ".krrkrrkrrk."
+    ".kyykyykyyk."
+    ".krrkrrkrrk."
+    ".krrkrrkrrk."
+    ".kyykyykyyk."
+    ".krrkrrkrrk."
+    "..kkkkkkkk.."
+    "............";
+static const char CRACKER2[] =
+    ".....y.y...."
+    "......a....."
+    "......k....."
+    "..kkkkkkkk.."
+    ".korkorkork."
+    ".kowkowkowk."
+    ".korkorkork."
+    ".kyykyykyyk."
+    ".korkorkork."
+    ".korkorkork."
+    ".kyykyykyyk."
+    ".korkorkork."
+    "..kkkkkkkk.."
+    "............";
+static const char PUFFER1[] =
+    "...k..k..k.."
+    "..kkkkkkkk.."
+    ".kllllllllk."
+    "kllwkllllllk"
+    "kllkkllllllk"
+    "kaallllllllk"
+    "kllccccccllk"
+    ".kllccccllk."
+    "..kkllllkk.."
+    "...k.kk.k..."
+    "............"
+    "............";
+static const char PUFFER2[] =
+    ".k.k..k..k.k"
+    "..kkkkkkkk.."
+    "kkllllllllkk"
+    "kllwkllllllk"
+    "kllkkllllllk"
+    "kaallllllllk"
+    "kllccccccllk"
+    "kkllccccllkk"
+    "..kkllllkk.."
+    ".k.k.kk.k.k."
+    "............"
+    "............";
+static const char SPIDER1[] =
+    "k...kk...k"
+    ".k.kddk.k."
+    "..kddddk.."
+    "kkkdwwdkkk"
+    "..kddddk.."
+    ".k.kddk.k."
+    "k...kk...k"
+    "..........";
+static const char SPIDER2[] =
+    ".k..kk..k."
+    "k..kddk..k"
+    ".kkddddkk."
+    "..kdwwdk.."
+    ".kkddddkk."
+    "k..kddk..k"
+    ".k..kk..k."
+    "..........";
+static const char FLASHER1[] =
+    "................"
+    "......kkkk......"
+    ".....knnnnk....."
+    "....knwknnnk...."
+    "..aaknkknnnk...."
+    "...akknnnnnkk..."
+    "..kIIk.nnnnnnk.."
+    ".kICCIknwwnnnk.."
+    ".kCIICknwwwnnk.."
+    ".kICCIknnwwnnk.."
+    "..kIIk.knnnnk..."
+    "...k....knnk...."
+    "........k..k...."
+    ".......kk..kk..."
+    "................"
+    "................";
+static const char FLASHER2[] =
+    "................"
+    "......kkkk......"
+    ".....knnnnk....."
+    "....knwknnnk...."
+    "..aaknkknnnk...."
+    "...akknnnnnkk..."
+    "..kwwk.nnnnnnk.."
+    ".kwwwwknwwnnnk.."
+    ".kwwwwknwwwnnk.."
+    ".kwwwwknnwwnnk.."
+    "..kwwk.knnnnk..."
+    "...k....knnk...."
+    "........k..k...."
+    ".......kk..kk..."
+    "................"
+    "................";
+static const char SHEET1[] =
+    "................"
+    "....kkkkkkkk...."
+    "...kwwwwwwwwk..."
+    "..kwwkwwwkwwwk.."
+    "..kwwkwwwkwwwk.."
+    "..kwwwwwwwwwwk.."
+    "..kuuuuuuuuuuk.."
+    "..kwwwwwwwwwwk.."
+    "..kwwwwwwwwwwk.."
+    "..kuuuuuuuuuuk.."
+    "..kwwwwwwwwwwk.."
+    "..kwwwwwwwwwwk.."
+    "..kwkwwkwwkwwk.."
+    "..kk.kkk.kk.kk.."
+    "................"
+    "................";
+static const char SHEET2[] =
+    "................"
+    "................"
+    ".....kkkkkkkk..."
+    "...kkwwwwwwwwk.."
+    "..kwwkwwwkwwwwk."
+    ".kwwwkwwwkwwwwk."
+    ".kwwwwwwwwwwwk.."
+    ".kuuuuuuuuuuuk.."
+    "..kwwwwwwwwwwk.."
+    "..kwwwwwwwwwwwk."
+    "..kuuuuuuuuuuuk."
+    "...kwwwwwwwwwk.."
+    "...kwkwwkwwkwk.."
+    "...kk.kk.kk.kk.."
+    "................"
+    "................";
+static const char MOTH1[] =
+    "............"
+    ".kk......kk."
+    "kgglk..klggk"
+    "kglllkklllgk"
+    ".kgllkkllgk."
+    "..kgkddkgk.."
+    "...kddddk..."
+    "....kddk...."
+    ".....kk....."
+    "............";
+static const char MOTH2[] =
+    "...kk..kk..."
+    "..kglk.klgk."
+    "..kgllkllgk."
+    "...kglklgk.."
+    "....kddk...."
+    "....kddk...."
+    "...kddddk..."
+    "....kddk...."
+    ".....kk....."
+    "............";
+static const char ORB[] =
+    "..kkkk.."
+    ".kPPPPk."
+    "kPKwPPPk"
+    "kPwPPPVk"
+    "kPPPPPVk"
+    "kPPPPVVk"
+    ".kVVVVk."
+    "..kkkk..";
+static const char FIG[] =
+    "...zk..."
+    "...kk..."
+    "..kVVk.."
+    ".kVPVVk."
+    "kVPVVVpk"
+    "kVVVVVpk"
+    ".kppppk."
+    "..kkkk..";
+static const char TEA[] =
+    "..z.z..."
+    "...zz..."
+    ".kkkkkk."
+    ".kIaaIk."
+    ".kaaaak."
+    ".kaaaak."
+    "..kaak.."
+    ".kkkkkk.";
+static const char CROWN_[] =
+    "k...k...k"
+    "kk.kyk.kk"
+    "kykyyykyk"
+    "kyyyyyyyk"
+    "kyryyyryk"
+    "kyyyyyyyk"
+    "kkkkkkkkk";
+static const char CLAW[] =
+    "......kkkkk........."
+    "....kkrrrrrk........"
+    "...krrrorrrrk......."
+    "..krrorrrrrrk......."
+    "..krrrrrkkkkk......."
+    "..krrrrk............"
+    "..krrrrrkk.........."
+    "..krrorrrrkkk......."
+    "...krrrrrrrrrk......"
+    "....kkrrrrrrrrkk...."
+    "......kkkrrrrrrrkkkk"
+    "........kkrrrrrrrrrk"
+    "..........kkkkkkkkkk"
+    "....................";
 
 typedef struct { int id, w, h; const char *px; } Art;
 static const Art ART[] = {
@@ -823,20 +925,22 @@ static const Art ART[] = {
     {R_CAT_FALL, 16, 16, CAT_FALL}, {R_CAT_THROW, 16, 16, CAT_THROW}, {R_CAT_SPIRIT1, 16, 16, CAT_SPIRIT1},
     {R_CAT_SPIRIT2, 16, 16, CAT_SPIRIT2}, {R_CAT_HURT, 16, 16, CAT_HURT}, {R_CAT_IDLE, 16, 16, CAT_IDLE},
     {R_STAR1, 8, 8, STAR1}, {R_STAR2, 8, 8, STAR2}, {R_WISP_SHOT, 6, 6, WISP_SHOT},
-    {R_PIGEON1, 16, 16, PIGEON1}, {R_PIGEON2, 16, 16, PIGEON2}, {R_GULL1, 16, 10, GULL1}, {R_GULL2, 16, 10, GULL2},
-    {R_RAT1, 16, 16, RAT1}, {R_RAT2, 16, 16, RAT2}, {R_SLINGER1, 16, 16, SLINGER1}, {R_SLINGER2, 16, 16, SLINGER2},
-    {R_MIRAGE1, 16, 16, MIRAGE1}, {R_MIRAGE2, 16, 16, MIRAGE2}, {R_BOBBER1, 16, 16, BOBBER1},
-    {R_BOBBER2, 16, 16, BOBBER2}, {R_VENT1, 16, 16, VENT1}, {R_VENT2, 16, 16, VENT2},
-    {R_MAGPIE1, 16, 16, MAGPIE1}, {R_MAGPIE2, 16, 16, MAGPIE2},
-    {R_PEBBLE, 4, 4, PEBBLE}, {R_SEED, 4, 3, SEED}, {R_BUBBLE, 6, 6, BUBBLE}, {R_BOMB, 7, 8, BOMB},
-    {R_SHARD, 5, 5, SHARD},
-    {R_FISH, 10, 6, FISH}, {R_DATE, 8, 7, DATE}, {R_ORANGE, 8, 8, ORANGE_}, {R_POMEGRANATE, 8, 8, POMEGRANATE},
-    {R_BREAD, 10, 7, BREAD}, {R_LETTER, 10, 8, LETTER}, {R_LANTERN, 8, 12, LANTERN_}, {R_CATNIP, 8, 8, CATNIP},
-    {R_HEART, 7, 6, HEART},
-    {R_BOSS_PIGEON1, 48, 32, BOSS_PIGEON1}, {R_BOSS_PIGEON2, 48, 32, BOSS_PIGEON2},
-    {R_POT, 24, 20, POT}, {R_POT_EYES, 24, 20, POT_EYES}, {R_CRAB1, 32, 20, CRAB1}, {R_CRAB2, 32, 20, CRAB2},
-    {R_MKING1, 32, 16, MKING1}, {R_MKING2, 32, 16, MKING2},
-    {R_PARCEL, 16, 12, PARCEL}, {R_CAT_HEAD, 7, 6, CAT_HEAD}, {R_POW, 7, 6, POW},
+    {R_PIGEON1, 16, 16, PIGEON1}, {R_PIGEON2, 16, 16, PIGEON2}, {R_PIGEON_ROLL, 16, 16, PIGEON_ROLL},
+    {R_GULL1, 16, 10, GULL1}, {R_GULL2, 16, 10, GULL2}, {R_CROW1, 16, 16, CROW1}, {R_CROW2, 16, 16, CROW2},
+    {R_GECKO1, 16, 16, GECKO1}, {R_GECKO2, 16, 16, GECKO2}, {R_LAMP, 12, 14, LAMP}, {R_SPIKE, 7, 7, SPIKE},
+    {R_FFISH1, 12, 8, FFISH1}, {R_FFISH2, 12, 8, FFISH2}, {R_WASP1, 8, 8, WASP1}, {R_WASP2, 8, 8, WASP2},
+    {R_SNAIL1, 16, 12, SNAIL1}, {R_SNAIL2, 16, 12, SNAIL2}, {R_TOAD1, 16, 12, TOAD1}, {R_TOAD2, 16, 12, TOAD2},
+    {R_PELICAN1, 16, 12, PELICAN1}, {R_PELICAN2, 16, 12, PELICAN2}, {R_JAR1, 12, 12, JAR1}, {R_JAR2, 12, 12, JAR2},
+    {R_CRACKER1, 12, 14, CRACKER1}, {R_CRACKER2, 12, 14, CRACKER2}, {R_PUFFER1, 12, 12, PUFFER1},
+    {R_PUFFER2, 12, 12, PUFFER2}, {R_SPIDER1, 10, 8, SPIDER1}, {R_SPIDER2, 10, 8, SPIDER2},
+    {R_MAGPIE1, 16, 16, MAGPIE1}, {R_MAGPIE2, 16, 16, MAGPIE2}, {R_FLASHER1, 16, 16, FLASHER1},
+    {R_FLASHER2, 16, 16, FLASHER2}, {R_SHEET1, 16, 16, SHEET1}, {R_SHEET2, 16, 16, SHEET2},
+    {R_MOTH1, 12, 10, MOTH1}, {R_MOTH2, 12, 10, MOTH2},
+    {R_PEBBLE, 4, 4, PEBBLE}, {R_SEED, 4, 3, SEED}, {R_BUBBLE, 6, 6, BUBBLE}, {R_BOMB, 7, 8, BOMB}, {R_ORB, 8, 8, ORB},
+    {R_FISH, 10, 6, FISH}, {R_DATE, 8, 7, DATE}, {R_FIG, 8, 8, FIG}, {R_TEA, 8, 8, TEA}, {R_CROWN, 9, 7, CROWN_},
+    {R_LETTER, 10, 8, LETTER}, {R_LANTERN, 8, 12, LANTERN_}, {R_CATNIP, 8, 8, CATNIP}, {R_HEART, 7, 6, HEART},
+    {R_CRAB1, 32, 20, CRAB1}, {R_CRAB2, 32, 20, CRAB2}, {R_CLAW, 20, 14, CLAW},
+    {R_PARCEL, 16, 12, PARCEL}, {R_CAT_HEAD, 7, 6, CAT_HEAD},
 };
 
 void rc_art_load(void) {

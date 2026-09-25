@@ -1,0 +1,24 @@
+# SKYWELL: a run starts at the foot of a freshly generated shaft; every
+# floor can be reached; only the Grinder ends a run.
+game skywell
+wait 5
+expect state == 0
+press A
+wait 5
+expect state == 1
+expect level == 1
+expect floor == 1
+expect gen_ok == 0
+expect plats > 40
+cheat pos 100 60
+wait 30
+expect state == 2
+wait 90
+expect state == 4
+press A
+wait 5
+expect state == 4
+wait 60
+press A
+wait 5
+expect state == 0

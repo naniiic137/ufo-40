@@ -1,0 +1,38 @@
+# README media: TIN TROOP
+shotscale 2
+game tintroop
+wait 60
+shot tintroop_title
+cheat level 0
+wait 150
+cheat pos 470 121
+wait 30
+hold RIGHT 30
+press B
+wait 170
+hold RIGHT 90
+hold RIGHT+A 12
+shot tintroop_shelf
+cheat level 3
+wait 150
+cheat pos 250 115
+wait 40
+shot tintroop_bath
+cheat level 9
+wait 40
+cheat pos 142 121
+cheat seed
+wait 110
+wait 100
+hold RIGHT 116
+gifstart tintroop 3 2
+hold UP 90
+hold RIGHT 20
+wait 20
+cheat burn
+cheat mouth
+wait 20
+hold RIGHT 2
+press B
+wait 110
+gifstop

@@ -1,0 +1,17 @@
+# TIN TROOP: underwater the breath runs out; a drowned soldier floats up
+# and is a raft for the next.
+game tintroop
+wait 5
+cheat level 3
+cheat no_foes
+wait 120
+cheat pos 250 135
+wait 20
+expect mode == 4
+expect breath < 240
+wait 240
+expect mode != 4
+expect lives == 19
+wait 60
+expect count_float == 1
+expect body_0_y == 109

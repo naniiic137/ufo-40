@@ -1,0 +1,29 @@
+# SKYWELL: a jump, then one more in mid-air; each Double Jump bought adds
+# another; holding A hops again on landing.
+game skywell
+wait 5
+press A
+cheat clear
+cheat plat 0 0 0 13
+wait 5
+expect ground == 1
+expect ky == -12
+hold A 14
+expect ky < -40
+expect ky > -52
+wait 1
+press A
+expect air_used == 1
+press A
+expect air_used == 1
+wait 80
+expect ground == 1
+cheat give 2
+hold A 14
+wait 1
+press A
+press A
+expect air_used == 2
+wait 90
+hold A 40
+expect ground == 0

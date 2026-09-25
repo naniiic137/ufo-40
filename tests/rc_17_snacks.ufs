@@ -1,0 +1,20 @@
+# ROOFCAT: snacks are worth 5; after 100 they are worth 20, after 200 they
+# are worth 100.
+game roofcat
+wait 5
+cheat area 0 1
+cheat clear_foes
+cheat cam 0
+cheat put 60 83
+wait 5
+cheat snack 60 88
+wait 3
+expect score == 5
+cheat snacks 100
+cheat snack 60 88
+wait 3
+expect score == 25
+cheat snacks 200
+cheat snack 60 88
+wait 3
+expect score == 125

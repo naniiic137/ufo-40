@@ -7,41 +7,33 @@ cheat contract 1 1003
 wait 30
 shot grubshift_board
 cheat clear
+cheat tilly 0 2
 cheat elev 0 0 1
 cheat elev 1 0 1
-cheat elev 7 5 1
-cheat hole 6 1
-cheat pods 5 3 1
-cheat pods 6 4 1
-cheat pods 1 3 2
+cheat hole 5 0
+cheat pods 2 2 1
+cheat pods 3 2 2
+cheat pods 4 1 1
+cheat bug 2 2 1 0
+cheat bug 3 2 2 1
 cheat bug 4 2 3 1
-cheat bug 6 2 1 0
-cheat bug 4 4 2 2
-cheat bug 7 4 4 1
-cheat bug 6 3 3 0
-cheat bug 1 5 1 3
-cheat bug 2 1 4 0
+cheat bug 3 1 1 1
+cheat bug 1 4 5 2
+cheat bug 5 3 4 1
+cheat chip 0 15
 gifstart grubshift 2 2
 wait 20
-press RIGHT 1
-wait 6
-press RIGHT 1
-wait 6
-press RIGHT 1
-wait 6
-press RIGHT 1
-wait 6
-press RIGHT 1
-wait 6
-press RIGHT 1
-wait 10
 press A
 wait 12
 press RIGHT
+wait 6
+press RIGHT
+wait 6
+press DOWN
 wait 12
 shot grubshift_target
 press A
-wait 70
+wait 80
 gifstop
 wait 10
 shot grubshift_boom

@@ -1,0 +1,29 @@
+# SKYWELL: a jelly splits in two when shot; squids can be bounced on;
+# minnows can be stood on.
+game skywell
+wait 5
+press A
+cheat level 3
+cheat clear
+cheat god
+cheat plat 0 0 0 13
+wait 2
+cheat pos 100 -12
+cheat foe 2 96 -70
+wait 2
+hold UP+B 24
+expect foe_2 == 0
+expect foe_3 >= 1
+cheat clear
+cheat plat 0 0 0 13
+cheat foe 1 90 -40
+cheat pos 100 -60
+wait 30
+expect ground == 1
+expect ky == -52
+cheat clear
+cheat plat 0 0 0 13
+cheat foe 4 96 -70
+cheat pos 100 -100
+wait 28
+expect ky < -80

@@ -1,0 +1,33 @@
+# UNDERDELVE: in the key room, climbing the four ladders in the order carved
+# on the tablet (read back to front) brings out the chest with the brass key.
+# A wrong ladder starts the sequence over.
+game underdelve
+wait 10
+press A
+wait 5
+cheat no_gloom
+cheat room 3 4 150 130
+wait 10
+expect key_solved == 0
+cheat pos 211 130
+hold UP 140
+expect key_step == 1
+cheat pos 115 130
+hold UP 140
+expect key_step == 0
+cheat pos 211 130
+hold UP 140
+cheat pos 51 130
+hold UP 140
+cheat pos 275 130
+hold UP 140
+cheat pos 115 130
+hold UP 140
+expect key_step == 4
+expect key_solved == 1
+cheat pos 30 130
+wait 20
+press LEFT 1
+press B
+wait 20
+expect items & 16

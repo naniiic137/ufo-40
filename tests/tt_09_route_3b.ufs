@@ -1,0 +1,75 @@
+# TIN TROOP 3-B: the pantry puts it all together.
+game tintroop
+wait 5
+cheat level 7
+cheat no_foes
+cheat freeze
+wait 120
+# the block column: Pop its foot
+cheat pos 232 121
+wait 2
+press UP+B
+wait 40
+cheat pos 210 121
+hold RIGHT 60
+expect px > 262
+# the pit: a stone late in a jump, then hop it
+cheat pos 366 121
+wait 2
+hold RIGHT 2
+hold RIGHT+A 22
+press DOWN+B
+wait 40
+expect stone_y == 140
+cheat pos 366 121
+wait 2
+hold RIGHT+A 20
+wait 20
+hold RIGHT 6
+hold RIGHT+A 20
+hold RIGHT 10
+expect mode == 3
+expect px > 425
+# the tall crate: a vine
+cheat pos 492 121
+cheat seed
+wait 160
+wait 80
+cheat pos 480 121
+hold RIGHT 12
+hold UP 120
+hold RIGHT 30
+expect py == 61
+# the jar room: a stone opens the gate
+cheat pos 762 121
+wait 3
+press DOWN+B
+wait 40
+expect gate0 == 1
+# a stone on the weight pan lifts the step pan beside the jar
+cheat pos 870 121
+wait 50
+expect pan_off == 20
+press DOWN+B
+wait 60
+cheat pos 920 121
+wait 2
+hold RIGHT+A 20
+hold RIGHT 6
+wait 6
+expect py < 108
+hold RIGHT+A 20
+hold RIGHT 12
+expect py == 91
+# onto the counter and away
+wait 10
+cheat pos 1020 91
+wait 4
+hold RIGHT+A 20
+hold RIGHT 30
+expect py == 71
+cheat pos 1430 121
+hold RIGHT 4
+hold RIGHT+A 20
+hold RIGHT 90
+expect state == 4

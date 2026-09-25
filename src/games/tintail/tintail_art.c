@@ -3,7 +3,7 @@
  * The ground tiles are drawn in code (tintail.c). */
 #include "tintail.h"
 
-Sprite tt_spr[TS_SPRITE_COUNT];
+Sprite tn_spr[TS_SPRITE_COUNT];
 
 /* Kama the chameleon, from above: casque head (right), eye turret, splayed
  * feet, and the curled tail. w/l/g are the skin ramp that camouflage repaints. */
@@ -310,36 +310,36 @@ static void make_rot(Sprite *s, const char *src, int n, int rot) {
     spr_make(s, n, n, buf);
 }
 
-void tt_art_load(void) {
-    if (tt_spr[TS_PEAR].px) return;
-    make_rot(&tt_spr[TS_KAMA_R], KAMA_R, 16, 0);
-    make_rot(&tt_spr[TS_KAMA_R2], KAMA_R2, 16, 0);
-    make_rot(&tt_spr[TS_KAMA_U], KAMA_R, 16, 1);
-    make_rot(&tt_spr[TS_KAMA_U2], KAMA_R2, 16, 1);
-    make_rot(&tt_spr[TS_KAMA_D], KAMA_R, 16, 2);
-    make_rot(&tt_spr[TS_KAMA_D2], KAMA_R2, 16, 2);
-    make_rot(&tt_spr[TS_BABY_R], BABY_R, 10, 0);
-    make_rot(&tt_spr[TS_BABY_U], BABY_R, 10, 1);
-    make_rot(&tt_spr[TS_BABY_D], BABY_R, 10, 2);
-    make_rot(&tt_spr[TS_TOAD_R], TOAD_R, 16, 0);
-    make_rot(&tt_spr[TS_TOAD_U], TOAD_R, 16, 1);
-    make_rot(&tt_spr[TS_TOAD_D], TOAD_R, 16, 2);
-    make_rot(&tt_spr[TS_TOAD_BLINK], TOAD_BLINK, 16, 0);
-    make_rot(&tt_spr[TS_TOAD_BLINK_U], TOAD_BLINK, 16, 1);
-    make_rot(&tt_spr[TS_TOAD_BLINK_D], TOAD_BLINK, 16, 2);
-    make_rot(&tt_spr[TS_STORK_R], STORK_R, 16, 0);
-    make_rot(&tt_spr[TS_STORK_R2], STORK_R2, 16, 0);
-    make_rot(&tt_spr[TS_STORK_U], STORK_R, 16, 1);
-    make_rot(&tt_spr[TS_STORK_U2], STORK_R2, 16, 1);
-    make_rot(&tt_spr[TS_STORK_D], STORK_R, 16, 2);
-    make_rot(&tt_spr[TS_STORK_D2], STORK_R2, 16, 2);
-    spr_make(&tt_spr[TS_FALCON], 24, 16, FALCON);
-    spr_make(&tt_spr[TS_FALCON2], 24, 16, FALCON2);
-    spr_make(&tt_spr[TS_PEAR], 10, 11, PEAR);
-    spr_make(&tt_spr[TS_HERO], 40, 24, HERO);
-    spr_make(&tt_spr[TS_PALM], 16, 16, PALM);
-    spr_make(&tt_spr[TS_BOULDER], 16, 16, BOULDER);
-    spr_make(&tt_spr[TS_BUSH], 16, 16, BUSH);
-    spr_make(&tt_spr[TS_RAIN], 16, 16, RAINPAD);
-    spr_make(&tt_spr[TS_SUN], 16, 16, SUNPAD);
+void tn_art_load(void) {
+    if (tn_spr[TS_PEAR].px) return;
+    make_rot(&tn_spr[TS_KAMA_R], KAMA_R, 16, 0);
+    make_rot(&tn_spr[TS_KAMA_R2], KAMA_R2, 16, 0);
+    make_rot(&tn_spr[TS_KAMA_U], KAMA_R, 16, 1);
+    make_rot(&tn_spr[TS_KAMA_U2], KAMA_R2, 16, 1);
+    make_rot(&tn_spr[TS_KAMA_D], KAMA_R, 16, 2);
+    make_rot(&tn_spr[TS_KAMA_D2], KAMA_R2, 16, 2);
+    make_rot(&tn_spr[TS_BABY_R], BABY_R, 10, 0);
+    make_rot(&tn_spr[TS_BABY_U], BABY_R, 10, 1);
+    make_rot(&tn_spr[TS_BABY_D], BABY_R, 10, 2);
+    make_rot(&tn_spr[TS_TOAD_R], TOAD_R, 16, 0);
+    make_rot(&tn_spr[TS_TOAD_U], TOAD_R, 16, 1);
+    make_rot(&tn_spr[TS_TOAD_D], TOAD_R, 16, 2);
+    make_rot(&tn_spr[TS_TOAD_BLINK], TOAD_BLINK, 16, 0);
+    make_rot(&tn_spr[TS_TOAD_BLINK_U], TOAD_BLINK, 16, 1);
+    make_rot(&tn_spr[TS_TOAD_BLINK_D], TOAD_BLINK, 16, 2);
+    make_rot(&tn_spr[TS_STORK_R], STORK_R, 16, 0);
+    make_rot(&tn_spr[TS_STORK_R2], STORK_R2, 16, 0);
+    make_rot(&tn_spr[TS_STORK_U], STORK_R, 16, 1);
+    make_rot(&tn_spr[TS_STORK_U2], STORK_R2, 16, 1);
+    make_rot(&tn_spr[TS_STORK_D], STORK_R, 16, 2);
+    make_rot(&tn_spr[TS_STORK_D2], STORK_R2, 16, 2);
+    spr_make(&tn_spr[TS_FALCON], 24, 16, FALCON);
+    spr_make(&tn_spr[TS_FALCON2], 24, 16, FALCON2);
+    spr_make(&tn_spr[TS_PEAR], 10, 11, PEAR);
+    spr_make(&tn_spr[TS_HERO], 40, 24, HERO);
+    spr_make(&tn_spr[TS_PALM], 16, 16, PALM);
+    spr_make(&tn_spr[TS_BOULDER], 16, 16, BOULDER);
+    spr_make(&tn_spr[TS_BUSH], 16, 16, BUSH);
+    spr_make(&tn_spr[TS_RAIN], 16, 16, RAINPAD);
+    spr_make(&tn_spr[TS_SUN], 16, 16, SUNPAD);
 }

@@ -1,0 +1,43 @@
+# SKYWELL: two keys earn the Beacon; climbing out of level 3 the Saucer;
+# with all three keys the fourth level opens, and shutting the Well Eye
+# earns the Alien.
+game skywell
+wait 5
+press A
+cheat keys 1
+cheat god
+cheat level 1
+expect goals == 0
+cheat keys 2
+cheat level 3
+cheat done
+expect goals & 2
+expect state == 5
+reload
+game skywell
+wait 5
+press A
+cheat keys 3
+cheat level 3
+cheat done
+expect state == 3
+wait 30
+press B
+wait 5
+expect level == 4
+cheat god
+cheat top 14
+wait 3
+expect boss_on == 1
+expect eye_hp == 60
+cheat eye_hp 1
+cheat clear
+cheat plat 0 0 0 13
+cheat pos 100 -12
+hold UP+B 60
+expect boss_dead == 1
+cheat plat 0 0 -960 13
+cheat pos 100 -972
+wait 3
+expect state == 5
+expect goals & 4

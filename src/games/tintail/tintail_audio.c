@@ -1,7 +1,7 @@
 /* TINTAIL - original music (UFO-MML) and sound effects. */
 #include "tintail.h"
 
-int TT_MUS_MAP = -1, TT_MUS_LEVEL, TT_MUS_GATE, TT_MUS_WIN, TT_MUS_EATEN, TT_MUS_END, TT_MUS_TITLE;
+int TN_MUS_MAP = -1, TN_MUS_LEVEL, TN_MUS_GATE, TN_MUS_WIN, TN_MUS_EATEN, TN_MUS_END, TN_MUS_TITLE;
 
 /* "Salt Island" - the title and the island map. G major, easy-going.
  * G | Am | Em | D | C | Am | D | G */
@@ -61,31 +61,31 @@ static const char END_ARP[] =
     "| [c e a e]2 | [c e a e]2 | [d g b g]2 | [c e g e]2";
 static const char END_BASS[] = "@6 v13 q6 o2 c2 g2 | e2 g2 | d2 a2 | c2 g2 | a2 e2 | a2 e2 | g2 d2 | c1";
 
-void tt_audio_load(void) {
-    if (TT_MUS_MAP >= 0) return;
-    TT_MUS_MAP = song_define("tt_island", 96, true, MAP_LEAD, MAP_ARP, MAP_BASS, MAP_DRUMS);
-    TT_MUS_TITLE = TT_MUS_MAP;
-    TT_MUS_LEVEL = song_define("tt_tiptoe", 112, true, LV_LEAD, LV_HARM, LV_BASS, LV_DRUMS);
-    TT_MUS_GATE = song_define("tt_sungate", 104, true, GATE_LEAD, GATE_HARM, GATE_BASS, GATE_DRUMS);
-    TT_MUS_END = song_define("tt_firstlight", 84, true, END_LEAD, END_ARP, END_BASS, "");
-    TT_MUS_WIN = song_define("tt_escape", 150, false, "@39 v12 o5 l16 g b o6 d g b o7 d4", "@16 v8 o5 l8 g o6 d g4.",
+void tn_audio_load(void) {
+    if (TN_MUS_MAP >= 0) return;
+    TN_MUS_MAP = song_define("tn_island", 96, true, MAP_LEAD, MAP_ARP, MAP_BASS, MAP_DRUMS);
+    TN_MUS_TITLE = TN_MUS_MAP;
+    TN_MUS_LEVEL = song_define("tn_tiptoe", 112, true, LV_LEAD, LV_HARM, LV_BASS, LV_DRUMS);
+    TN_MUS_GATE = song_define("tn_sungate", 104, true, GATE_LEAD, GATE_HARM, GATE_BASS, GATE_DRUMS);
+    TN_MUS_END = song_define("tn_firstlight", 84, true, END_LEAD, END_ARP, END_BASS, "");
+    TN_MUS_WIN = song_define("tn_escape", 150, false, "@39 v12 o5 l16 g b o6 d g b o7 d4", "@16 v8 o5 l8 g o6 d g4.",
                              "@6 v13 o2 l8 g o3 d g4.", "");
-    TT_MUS_EATEN = song_define("tt_eaten", 120, false, "@37 v11 o5 l8 e d+ d c+4.", "@5 v6 o4 l8 g f+ f e4.",
+    TN_MUS_EATEN = song_define("tn_eaten", 120, false, "@37 v11 o5 l8 e d+ d c+4.", "@5 v6 o4 l8 g f+ f e4.",
                                "@6 v12 o2 l8 e d+ d c+4.", "");
 
-    sfx_define("tt_step", CH_NOISE, 240, "@9 v3 o8 c32");
-    sfx_define("tt_bump", CH_P2, 200, "@37 v7 o3 c16");
-    sfx_define("tt_camo", CH_P2, 200, "@39 v9 o5 c32 e32 g32 o6 c32 e32");
-    sfx_define("tt_hidden", CH_P2, 220, "@35 v8 o6 g32 o7 c16");
-    sfx_define("tt_no", CH_P2, 200, "@42 v8 o4 c16 r32 c16");
-    sfx_define("tt_pear", CH_P1, 200, "@35 v11 o6 c16 e16 g16");
-    sfx_define("tt_baby", CH_P1, 200, "@39 v10 o6 e16 g16 o7 c8");
-    sfx_define("tt_rain", CH_NOISE, 120, "@10 v8 o7 c4 @9 v5 o8 c4");
-    sfx_define("tt_sun", CH_P1, 160, "@16 v10 o5 c8 e8 g8 o6 c8");
-    sfx_define("tt_log", CH_TRI, 200, "@41 v12 o3 c16");
-    sfx_define("tt_spot", CH_P1, 180, "@1 v12 o6 c8 o5 c8");
-    sfx_define("tt_gulp", CH_NOISE, 160, "@34 v12 o4 c8");
-    sfx_define("tt_swoop", CH_NOISE, 100, "@36 v10 o5 c4");
-    sfx_define("tt_undo", CH_P2, 240, "@33 v8 o6 c32 o5 g32 e32");
-    sfx_define("tt_node", CH_P2, 220, "@42 v8 o6 e32");
+    sfx_define("tn_step", CH_NOISE, 240, "@9 v3 o8 c32");
+    sfx_define("tn_bump", CH_P2, 200, "@37 v7 o3 c16");
+    sfx_define("tn_camo", CH_P2, 200, "@39 v9 o5 c32 e32 g32 o6 c32 e32");
+    sfx_define("tn_hidden", CH_P2, 220, "@35 v8 o6 g32 o7 c16");
+    sfx_define("tn_no", CH_P2, 200, "@42 v8 o4 c16 r32 c16");
+    sfx_define("tn_pear", CH_P1, 200, "@35 v11 o6 c16 e16 g16");
+    sfx_define("tn_baby", CH_P1, 200, "@39 v10 o6 e16 g16 o7 c8");
+    sfx_define("tn_rain", CH_NOISE, 120, "@10 v8 o7 c4 @9 v5 o8 c4");
+    sfx_define("tn_sun", CH_P1, 160, "@16 v10 o5 c8 e8 g8 o6 c8");
+    sfx_define("tn_log", CH_TRI, 200, "@41 v12 o3 c16");
+    sfx_define("tn_spot", CH_P1, 180, "@1 v12 o6 c8 o5 c8");
+    sfx_define("tn_gulp", CH_NOISE, 160, "@34 v12 o4 c8");
+    sfx_define("tn_swoop", CH_NOISE, 100, "@36 v10 o5 c4");
+    sfx_define("tn_undo", CH_P2, 240, "@33 v8 o6 c32 o5 g32 e32");
+    sfx_define("tn_node", CH_P2, 220, "@42 v8 o6 e32");
 }

@@ -1,11 +1,10 @@
 # ROOFCAT: being squeezed between the screen edge and a wall costs a life.
 game roofcat
 wait 5
-cheat stage 0 1
+cheat area 0 1
 cheat clear_foes
-cheat cam 2600
-cheat put 13 83
-wait 2
-hold LEFT 40
+cheat cam 1058
+cheat put 2 83
+wait 40
 expect lives == 2
 expect spirit == 1

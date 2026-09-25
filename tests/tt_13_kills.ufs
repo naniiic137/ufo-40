@@ -1,0 +1,25 @@
+# TIN TROOP: a lance kills every foe in its path; every third foe brings a
+# soldier back; brass tags give soldiers.
+game tintroop
+wait 5
+cheat level 0
+cheat no_foes
+wait 120
+cheat pos 100 121
+cheat foe mouse 140 130
+cheat foe mouse 160 130
+cheat foe mouse 180 130
+cheat freeze
+wait 2
+hold RIGHT 2
+press B
+wait 30
+expect kills == 3
+expect lives == 20
+expect count_foes == 0
+cheat put 5 35 12
+wait 40
+cheat pos 320 121
+hold RIGHT 40
+expect lives == 25
+expect tile_35_12 == 32

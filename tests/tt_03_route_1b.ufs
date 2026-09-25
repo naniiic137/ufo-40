@@ -1,0 +1,93 @@
+# TIN TROOP 1-B, obstacle by obstacle.
+game tintroop
+wait 5
+cheat level 1
+cheat no_foes
+wait 120
+# the roofed pit: a stone dropped late in a jump lands at the bottom to hop on
+cheat pos 146 121
+wait 2
+hold RIGHT 2
+hold RIGHT+A 22
+press DOWN+B
+wait 40
+expect stone_y == 140
+cheat pos 146 121
+wait 2
+hold RIGHT+A 20
+wait 20
+expect py == 131
+hold RIGHT 8
+hold RIGHT+A 20
+hold RIGHT 10
+expect mode == 3
+expect px > 205
+expect py == 121
+# the tower of blocks: Pop the foot and squeeze through
+cheat pos 292 121
+wait 2
+press UP+B
+wait 40
+cheat pos 280 121
+hold RIGHT 60
+expect px > 330
+# the three-high crate in the dart hall: lance, then climb
+cheat pos 490 121
+wait 2
+hold RIGHT 2
+press B
+wait 50
+cheat pos 478 121
+wait 2
+hold RIGHT+A 20
+hold RIGHT 12
+hold RIGHT+A 20
+hold RIGHT 16
+expect py == 91
+# the stair: a lance up the first step, a jump up the second
+cheat pos 750 121
+wait 2
+hold RIGHT 2
+press B
+wait 50
+cheat pos 738 121
+wait 2
+hold RIGHT+A 20
+hold RIGHT 12
+hold RIGHT+A 20
+hold RIGHT 20
+hold RIGHT+A 20
+hold RIGHT 20
+expect py == 71
+# the spike field: four boxes two tiles apart, then the floor
+cheat pos 862 71
+wait 2
+hold RIGHT 4
+hold RIGHT+A 20
+hold RIGHT 4
+wait 16
+expect py == 91
+hold RIGHT+A 20
+hold RIGHT 12
+wait 6
+expect py == 91
+expect px > 925
+hold RIGHT 6
+hold RIGHT+A 20
+hold RIGHT 12
+wait 6
+expect py == 91
+expect px > 965
+hold RIGHT 6
+hold RIGHT+A 20
+hold RIGHT 12
+wait 6
+expect py == 91
+expect px > 1005
+hold RIGHT+A 20
+hold RIGHT 20
+expect mode == 3
+expect px > 1045
+cheat pos 1270 121
+hold RIGHT 80
+expect state == 4
