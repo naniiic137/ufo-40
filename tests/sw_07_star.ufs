@@ -1,4 +1,5 @@
-# SKYWELL: a star block shoots Kip up about six floors, untouchable.
+# SKYWELL: land on a star block and Kip shoots up, untouchable, for about
+# six floors as long as A stays held; letting go ends the flight early.
 game skywell
 wait 5
 press A
@@ -6,8 +7,22 @@ cheat clear
 cheat plat 0 0 0 13
 cheat plat 4 100 -24 1
 wait 5
-cheat pos 100 -12
-hold A 8
+# jump and come down on it, holding A all the way
+hold A 40
 expect star > 0
-wait 50
+expect inv > 0
+hold A 50
 expect ky < -200
+expect star == 0
+# a second star, touched without holding A: a short hop
+cheat clear
+cheat plat 0 80 -300 3
+cheat plat 4 100 -324 1
+cheat pos 100 -312
+wait 30
+hold A 30
+wait 12
+expect count_4 == 0
+expect star == 0
+expect ky > -400
+expect ky < -330

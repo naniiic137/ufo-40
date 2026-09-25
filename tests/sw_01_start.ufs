@@ -1,7 +1,14 @@
 # SKYWELL: a run starts at the foot of a freshly generated shaft; every
-# floor can be reached; only the Grinder ends a run.
+# floor can be reached; only the Grinder ends a run, and A goes straight
+# back into a new pit. SELECT on the title shows how to play.
 game skywell
 wait 5
+expect state == 0
+press SELECT
+expect state == 6
+press A
+press A
+press A
 expect state == 0
 press A
 wait 5
@@ -9,16 +16,28 @@ expect state == 1
 expect level == 1
 expect floor == 1
 expect gen_ok == 0
-expect plats > 40
+expect plats > 30
+# the Roots have clouds, boxes, bricks and coin blocks: no mines, TNT,
+# zappers, bubbles or metal
+expect count_6 == 0
+expect count_7 == 0
+expect count_8 == 0
+expect count_9 == 0
+expect count_10 == 0
+expect foe_0 > 0
 cheat pos 100 60
 wait 30
 expect state == 2
-wait 90
+wait 40
 expect state == 4
+wait 30
 press A
 wait 5
+expect state == 1
+expect floor == 1
+cheat pos 100 60
+wait 80
 expect state == 4
-wait 60
-press A
+press B
 wait 5
 expect state == 0

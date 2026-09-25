@@ -1,0 +1,106 @@
+# SKYWELL: level 1 cleared from the foot of the shaft to the Tinker by a
+# plain scripted player: nothing but button presses (recorded once from
+# the demo climber, played back here through the real pad). The pit is
+# the one seed 7 builds.
+game skywell
+wait 5
+cheat seed 7
+press A
+expect state == 1
+hold A 10
+wait 1
+hold A 16
+hold LEFT+A 2
+hold LEFT 6
+hold LEFT+A 2
+hold RIGHT+A 1
+hold LEFT+A 9
+hold LEFT 1
+hold LEFT+A 18
+hold LEFT 5
+hold A 16
+wait 1
+hold A 8
+hold LEFT+A 10
+hold LEFT 2
+hold A 10
+wait 1
+hold A 11
+hold LEFT+A 7
+hold LEFT 4
+hold RIGHT+A 18
+hold RIGHT 1
+hold RIGHT+A 18
+hold RIGHT 9
+wait 1
+hold A 12
+hold LEFT 1
+hold LEFT+A 18
+hold LEFT 4
+hold RIGHT+A 13
+hold RIGHT 1
+hold RIGHT+A 18
+hold RIGHT 2
+wait 3
+hold A 10
+wait 1
+hold A 11
+hold LEFT+A 2
+hold UP+LEFT+A+B 2
+hold LEFT+A 3
+hold LEFT 4
+hold RIGHT+A 6
+hold UP+RIGHT+A+B 7
+hold UP+RIGHT+B 1
+hold UP+RIGHT+A+B 1
+hold UP+RIGHT+B 1
+hold LEFT 15
+wait 3
+hold LEFT 5
+hold LEFT+A 1
+hold LEFT+A+B 1
+hold A 2
+hold LEFT+A 2
+hold A 3
+hold LEFT 1
+hold LEFT+A 18
+hold LEFT 5
+hold LEFT+A 12
+hold A 1
+hold LEFT 1
+hold LEFT+A 18
+hold LEFT 3
+hold A 2
+wait 2
+hold A 18
+wait 3
+hold LEFT 6
+hold LEFT+A 2
+hold UP+LEFT+A+B 7
+hold RIGHT+A 1
+hold LEFT+A+B 1
+hold RIGHT+A 1
+hold LEFT+A 1
+hold RIGHT+A 1
+hold LEFT+A 1
+hold DOWN+LEFT+A+B 8
+hold LEFT+A 7
+hold RIGHT+A 1
+hold DOWN+RIGHT+A+B 2
+hold RIGHT+A 4
+hold UP+RIGHT+A+B 9
+hold UP+LEFT+A+B 6
+hold UP+RIGHT+B 1
+hold UP+RIGHT+A+B 2
+hold RIGHT+A 16
+hold RIGHT 11
+wait 1
+hold LEFT+A 1
+hold LEFT 3
+hold UP+LEFT+B 1
+hold UP+LEFT+A+B 10
+hold LEFT+A 8
+hold LEFT 13
+expect state == 3
+expect level == 1
+expect top_floor == 30

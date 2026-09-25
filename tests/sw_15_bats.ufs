@@ -1,0 +1,42 @@
+# SKYWELL: bats are fair game. One shot pops a bat; landing on one pops it
+# and bounces Kip up with her jumps back; one left behind by a fast climb
+# ends up in the Grinder.
+game skywell
+wait 5
+press A
+cheat clear
+cheat plat 0 0 0 13
+wait 2
+# close by, it wakes and comes: a shot across pops it
+cheat foe 0 60 -14
+wait 10
+expect bats_awake == 1
+hold LEFT 1
+hold B 20
+expect foe_0 == 0
+expect stun == 0
+# one below her as she drops: she lands on it
+cheat clear
+cheat plat 0 0 0 13
+cheat pos 100 -110
+cheat foe 0 97 -60
+wait 22
+expect foe_0 == 0
+expect air_used == 0
+expect vy10 < 0
+expect stun == 0
+# a bat on her heels while she rides a star up: it can't keep up, and the
+# Grinder rising behind her takes it
+cheat level 1
+cheat clear
+cheat plat 0 0 0 13
+cheat plat 4 130 -24 1
+cheat plat 0 0 -230 13
+cheat foe 0 60 -14
+wait 4
+expect bats_awake == 1
+hold RIGHT+A 24
+hold A 60
+wait 60
+expect foe_0 == 0
+expect state == 1

@@ -11,7 +11,7 @@
 #define JUMP_V 4.2f
 #define AIR_V 3.6f
 #define RUN 1.4f
-#define SHOT_CD 9
+#define SHOT_CD 10
 #define SHOT_V 5.0f
 #define SHOT_LIFE 22
 #define GRINDER_Y 166 /* screen y of the Grinder's teeth */
@@ -22,10 +22,18 @@
 #define BOSS_FLOOR 14 /* floor 104 */
 #define EYE_HP 60
 #define HAND_HP 14
+#define STUN_BASE 24  /* frames without control after a knock */
+#define STUN_STEP 5   /* each Recovery takes this much off */
+#define STUN_MIN 9
+#define SAFE_T 40     /* blinking frames after a knock */
+#define BAT_V 0.75f   /* slower than Kip runs or climbs */
+#define STAR_T 52     /* frames of star boost while A is held */
+#define BOMB_FUSE 60  /* a TNT block goes off this long after its plunger is pushed */
+#define COIN_SHOT_T 50 /* a coin block lasts this long after it is first shot */
 
-enum { S_TITLE, S_PLAY, S_DEAD, S_SHOP, S_OVER, S_END };
+enum { S_TITLE, S_PLAY, S_DEAD, S_SHOP, S_OVER, S_END, S_HELP };
 enum { PT_BASE, PT_CLOUD, PT_CRATE, PT_ROCK, PT_STAR, PT_COIN, PT_MINE, PT_BOMB, PT_ZAP, PT_BUBBLE, PT_METAL };
-enum { FE_BAT, FE_MINNOW, FE_JELLY, FE_JELLY_S, FE_SQUID, FE_TICK };
+enum { FE_BAT, FE_MINNOW, FE_JELLY, FE_JELLY_S, FE_SQUID };
 enum { IT_RECOVERY, IT_POWER, IT_DJUMP, IT_LIGHTFOOT, IT_MAGNET, IT_LIGHTNING, IT_COUNT };
 static const int IT_PRICE[IT_COUNT] = {20, 15, 30, 10, 5, 20};
 static const char *const IT_NAME[IT_COUNT] = {"RECOVERY", "POWER", "DOUBLE JUMP", "LIGHTFOOT", "MAGNET", "LIGHTNING"};
@@ -33,8 +41,11 @@ static const char *const IT_DESC[IT_COUNT] = {
     "SHAKE OFF A KNOCK SOONER", "SHOTS HIT HARDER", "ONE MORE JUMP IN THE AIR",
     "PLATFORMS CRUMBLE SLOWER", "SHOTS PICK UP COGS", "SHOTS PASS CLOUDS BY"};
 
-typedef struct { float x, y; int w; uint8_t type, alive, stood, shot; int t, hp; float vx; } Plat;
-typedef struct { float x, y, vx, vy; uint8_t kind, alive; int hp, t; } Foe;
+/* t: crumble (or fuse) countdown; hp: a zapper's field (0 across, 1 up and
+ * down); shot: a TNT block's plunger is down; flash: metal lights up */
+typedef struct { float x, y; int w; uint8_t type, alive, stood, shot; int t, hp; float vx; int flash; } Plat;
+/* state: a bat is awake; a squid is 0 warning, 1 falling, 2 on the Grinder */
+typedef struct { float x, y, vx, vy; uint8_t kind, alive; int hp, t, state; } Foe;
 typedef struct { float x, y, vx, vy; int life; uint8_t mine, alive; } Shot;
 typedef struct { float x, y, vy; uint8_t alive, loose; } Coin;
 typedef struct { float x, y, vx, vy; int life, col, kind; } Part;
@@ -78,7 +89,8 @@ static struct {
 } boss;
 
 static int offer[3];
-static int state, state_t, frame_t, shake, shop_sel, squid_t, top_floor;
+static int state, state_t, frame_t, shake, shop_sel, squid_t, top_floor, help_page;
+#define HELP_PAGES 3
 static float cam_y;
 static bool sheet_mode, god;
 static int64_t forced_seed = -1; /* tests and README media pick the pit */
@@ -130,7 +142,7 @@ static int crumble_time(int base) { return base + base * run.items[IT_LIGHTFOOT]
 static int add_plat(int type, float x, float y, int w) {
     for (int i = 0; i < MAX_PLATS; i++)
         if (!plats[i].alive) {
-            plats[i] = (Plat){x, y, w, (uint8_t)type, 1, 0, 0, 0, type == PT_COIN ? 6 : 0, 0};
+            plats[i] = (Plat){x, y, w, (uint8_t)type, 1, 0, 0, 0, 0, 0, 0};
             if (type == PT_METAL) plats[i].vx = (i % 2) ? 0.6f : -0.6f;
             return i;
         }
@@ -140,8 +152,8 @@ static int add_plat(int type, float x, float y, int w) {
 static int add_foe(int kind, float x, float y) {
     for (int i = 0; i < MAX_FOES; i++)
         if (!foes[i].alive) {
-            static const int HP[6] = {1, 99, 2, 1, 2, 99};
-            foes[i] = (Foe){x, y, 0, 0, (uint8_t)kind, 1, HP[kind], 0};
+            static const int HP[5] = {1, 99, 1, 1, 2};
+            foes[i] = (Foe){x, y, 0, 0, (uint8_t)kind, 1, HP[kind], 0, 0};
             if (kind == FE_MINNOW) foes[i].vx = (i % 2) ? 0.6f : -0.6f;
             return i;
         }
@@ -154,7 +166,7 @@ static void add_coin(float x, float y, bool loose) {
 }
 
 static void foe_size(int k, float *w, float *h) {
-    static const float W[6] = {10, 24, 12, 8, 12, 8}, H[6] = {8, 8, 12, 8, 12, 8};
+    static const float W[5] = {10, 24, 12, 8, 12}, H[5] = {8, 8, 12, 8, 12};
     *w = W[k];
     *h = H[k];
 }
@@ -162,21 +174,24 @@ static void foe_size(int k, float *w, float *h) {
 /* ------------------------------------------------------------------ */
 /* the generator                                                        */
 
-/* weights per level for: cloud crate rock coin mine bomb zap bubble metal */
+/* weights per level for: cloud crate rock coin mine bomb zap bubble metal.
+ * Level 1 is clouds, boxes and bricks; level 2 adds TNT, cloud mines and
+ * zappers; level 3 swaps clouds for bubbles; level 4 has cloud mines and
+ * bouncing metal. */
 static int pick_type(int level, int f) {
     static const int W[4][9] = {
-        {30, 30, 22, 6, 5, 7, 0, 0, 0},
-        {20, 26, 22, 6, 6, 8, 12, 0, 0},
-        {10, 22, 20, 6, 8, 8, 0, 26, 0},
-        {8, 18, 24, 4, 6, 8, 0, 6, 26},
+        {32, 32, 26, 7, 0, 0, 0, 0, 0},
+        {22, 26, 20, 6, 8, 8, 10, 0, 0},
+        {0, 24, 20, 6, 0, 0, 0, 34, 0},
+        {22, 20, 22, 4, 12, 0, 0, 0, 20},
     };
     static const int T[9] = {PT_CLOUD, PT_CRATE, PT_ROCK, PT_COIN, PT_MINE, PT_BOMB, PT_ZAP, PT_BUBBLE, PT_METAL};
     int w[9], sum = 0;
     for (int i = 0; i < 9; i++) {
         w[i] = W[level - 1][i];
-        /* higher floors: fewer rocks, more of the tricky kinds */
+        /* higher floors: fewer bricks, more of the tricky kinds */
         if (T[i] == PT_ROCK) w[i] = imax(4, w[i] - f / 3);
-        if (T[i] == PT_MINE || T[i] == PT_BOMB) w[i] += f / 6;
+        if ((T[i] == PT_MINE || T[i] == PT_BOMB) && w[i]) w[i] += f / 6;
         sum += w[i];
     }
     int r = rng_range(&rng, 0, sum - 1);
@@ -202,22 +217,23 @@ static void gen_level(void) {
     for (int f = 1; f <= SW_FLOORS; f++) {
         float y = (float)(-f * SW_FLOOR_H);
         if (f == SW_FLOORS) { add_plat(PT_BASE, 0, y, SW_COLS); break; }
-        int n = rng_range(&rng, 1, f < 10 ? 3 : 2);
+        /* the reef has fewer platforms: its fish make up the difference */
+        int n = rng_range(&rng, 1, run.level == 3 ? 2 : f < 10 ? 3 : 2);
         float cx_now[3];
         int made = 0;
         for (int k = 0; k < n; k++) {
             int type = pick_type(run.level, f);
-            int w = type == PT_ZAP ? 2 : type == PT_MINE ? 2 : type == PT_METAL ? 3 : rng_range(&rng, 2, 4);
+            if (k == 0 && (type == PT_MINE || type == PT_BOMB || type == PT_ZAP)) type = PT_CRATE; /* never make the only way on a trap */
+            int w = type == PT_ZAP ? 1 : type == PT_MINE ? 2 : type == PT_METAL ? 3 : rng_range(&rng, 2, 4);
             int col;
             if (k == 0) {
                 /* the first one is always within a jump of something below */
                 float target = prev_cx[rng_range(&rng, 0, n_prev - 1)] + (float)rng_range(&rng, -60, 60);
                 col = iclamp((int)(target / SW_TILE) - w / 2, 0, SW_COLS - w);
-                if (type == PT_MINE || type == PT_BOMB) type = PT_CRATE; /* never make the only way on a trap */
             } else {
                 col = rng_range(&rng, 0, SW_COLS - w);
             }
-            if (type == PT_ZAP) col = iclamp(col, 1, SW_COLS - 3);
+            if (type == PT_ZAP) col = iclamp(col, 2, SW_COLS - 3); /* room for its field either side */
             /* keep platforms on one floor from overlapping */
             bool clash = false;
             for (int j = 0; j < made; j++)
@@ -225,20 +241,23 @@ static void gen_level(void) {
             if (clash && k > 0) continue;
             if (f == star_floor && k == n - 1) { type = PT_STAR; w = 1; }
             float jy = y + (float)rng_range(&rng, -4, 4);
-            add_plat(type, (float)(col * SW_TILE), jy, w);
+            int pi = add_plat(type, (float)(col * SW_TILE), jy, w);
+            if (pi >= 0 && type == PT_ZAP) plats[pi].hp = rng_range(&rng, 0, 1);
             cx_now[made++] = (col + w / 2.0f) * SW_TILE;
-            if (type != PT_MINE && rng_range(&rng, 0, 2) == 0)
+            if (type != PT_MINE && type != PT_ZAP && rng_range(&rng, 0, 2) == 0)
                 for (int c = 0; c < w; c++) add_coin((float)(col * SW_TILE + c * SW_TILE + 5), jy - 14, false);
         }
         for (int j = 0; j < made; j++) prev_cx[j] = cx_now[j];
         n_prev = imax(1, made);
-        /* creatures */
-        if (run.level == 1 && f > 2 && rng_range(&rng, 0, 3) == 0)
-            add_foe(FE_BAT, (float)rng_range(&rng, 16, SHAFT_W - 26), y - 20);
+        /* creatures: in the Roots, bats sleep hanging under a platform */
+        if (run.level == 1 && f > 2 && made > 0 && rng_range(&rng, 0, 3) == 0) {
+            float bx = cx_now[rng_range(&rng, 0, made - 1)] - 5 + (float)rng_range(&rng, -8, 8);
+            add_foe(FE_BAT, fclamp(bx, 0, SHAFT_W - 10), y + 5);
+        }
         if (run.level == 3 && f > 2) {
-            int r = rng_range(&rng, 0, 5);
-            if (r == 0) add_foe(FE_MINNOW, (float)rng_range(&rng, 0, SHAFT_W - 24), y - 16);
-            if (r == 1) add_foe(FE_JELLY, (float)rng_range(&rng, 10, SHAFT_W - 22), y - 18);
+            int r = rng_range(&rng, 0, 4);
+            if (r <= 1) add_foe(FE_MINNOW, (float)rng_range(&rng, 0, SHAFT_W - 24), y - 16);
+            if (r == 2) add_foe(FE_JELLY, (float)rng_range(&rng, 10, SHAFT_W - 22), y - 18);
         }
     }
     top_floor = 1;
@@ -351,62 +370,188 @@ static int bot_target = -1;
 static bool kb(int mask) { return autoplay ? (bot_now & (uint32_t)mask) != 0 : btn(mask); }
 static bool kbp(int mask) { return autoplay ? (bot_now & (uint32_t)mask) && !(bot_prev & (uint32_t)mask) : btnp(mask); }
 
+/* The climber can write down the buttons it presses as script lines, so a
+ * test can play the same climb back through the real pad. */
+static bool bot_log;
+static uint32_t log_mask;
+static int log_run;
+
+static void bot_log_flush(void) {
+    if (log_run <= 0) return;
+    if (!log_mask) {
+        printf("wait %d\n", log_run);
+    } else {
+        static const char *const NAME[6] = {"UP", "DOWN", "LEFT", "RIGHT", "A", "B"};
+        char buf[48] = "hold ";
+        bool first = true;
+        for (int b = 0; b < 6; b++)
+            if (log_mask & (1u << b)) {
+                if (!first) strcat(buf, "+");
+                strcat(buf, NAME[b]);
+                first = false;
+            }
+        printf("%s %d\n", buf, log_run);
+    }
+    log_run = 0;
+}
+
+static void bot_log_frame(void) {
+    if (bot_now != log_mask) { bot_log_flush(); log_mask = bot_now; }
+    log_run++;
+}
+
+/* The demo climber looks ahead: for each way it could move and jump, it
+ * plays Kip's motion forward and picks the highest safe landing. */
+static bool bot_support(float x, float feet, int *on) {
+    for (int i = 0; i < MAX_PLATS; i++) {
+        Plat *p = &plats[i];
+        if (!p->alive || p->type == PT_MINE) continue;
+        if (x + KW <= p->x || x >= p->x + p->w * SW_TILE) continue;
+        float top = p->y - (p->type == PT_STAR ? 6 : 0);
+        if (fabsf(feet - top) < 0.6f) { *on = i; return true; }
+    }
+    return false;
+}
+
+/* jump_now: jump on the first frame; air_at: frame of a jump in the air
+ * (-1 for none). Returns a score (higher is better). */
+static float bot_sim(int dir, bool jump_now, int air_at, int *land) {
+    float x = K.x, y = K.y, vy = K.vy;
+    bool ground = K.ground;
+    int jumps = (1 + run.items[IT_DJUMP]) - K.air_used;
+    float death = cam_y + GRINDER_Y - KH - 2;
+    int standing = -1;
+    if (ground) bot_support(x, y + KH, &standing);
+    if (jump_now) {
+        if (ground) vy = -JUMP_V;
+        else { vy = -AIR_V; jumps--; }
+        ground = false;
+    }
+    for (int t = 1; t <= 90; t++) {
+        if (t == air_at) {
+            if (ground || jumps <= 0) return -1e9f;
+            vy = -AIR_V;
+            jumps--;
+        }
+        x = fclamp(x + dir * RUN, 0, SHAFT_W - KW);
+        if (ground) {
+            int on = -1;
+            if (bot_support(x, y + KH, &on)) {
+                if (air_at < 0 && t >= 20) {
+                    /* walking along: score where she ends up */
+                    Plat *p = &plats[on];
+                    *land = on;
+                    return -(p->y) - 20 - (p->t > 0 && p->t < 40 ? 200 : 0);
+                }
+                continue;
+            }
+            ground = false;
+            vy = 0;
+        }
+        vy = fminf(vy + GRAV, 4.0f);
+        float ob = y + KH;
+        y += vy;
+        float nb = y + KH;
+        if (y > death) return -1e9f;
+        if (vy < 0) continue;
+        for (int i = 0; i < MAX_PLATS; i++) {
+            Plat *p = &plats[i];
+            if (!p->alive || p->type == PT_MINE) continue;
+            if (x + KW <= p->x || x >= p->x + p->w * SW_TILE) continue;
+            float top = p->y - (p->type == PT_STAR ? 6 : 0);
+            if (!(ob <= top + 0.5f && nb >= top)) continue;
+            if (p->t > 0 && p->t < t + 8) continue; /* gone before she lands */
+            if (air_at > t) return -1e9f;           /* lands before the planned jump */
+            *land = i;
+            float score = -top;
+            if (i == standing) score -= 25;
+            if (p->type == PT_BOMB || p->type == PT_ZAP) score -= 60;
+            if (p->type == PT_STAR) score += 200;
+            if (p->t > 0) score -= 10;
+            score -= (float)t * 0.2f + (air_at >= 0 ? 6 : 0);
+            return score;
+        }
+    }
+    return -1e8f;
+}
+
 static void bot_think(void) {
     bot_prev = bot_now;
     bot_now = 0;
-    float kx = K.x + KW / 2, kb_y = K.y + KH;
-    /* the best platform above: close by, ideally one jump up, not a trap */
-    int best = -1;
-    float best_score = 1e9f;
-    for (int i = 0; i < MAX_PLATS; i++) {
-        Plat *p = &plats[i];
-        if (!p->alive || p->type == PT_MINE || p->type == PT_BOMB) continue;
-        float rise = kb_y - p->y;
-        if (rise < 10 || rise > 70) continue;
-        float l = p->x + 3, r = p->x + p->w * SW_TILE - 3;
-        float dx = kx < l ? l - kx : kx > r ? kx - r : 0;
-        float score = dx + (rise > 40 ? 40 : 0) - rise * 0.2f + (p->t > 0 ? 25 : 0);
-        if (score < best_score) { best_score = score; best = i; }
-    }
-    bot_target = best;
-    if (best >= 0) {
-        Plat *p = &plats[best];
-        float l = p->x + 3, r = p->x + p->w * SW_TILE - 3;
-        float aim = fclamp(kx, l, r);
-        if (aim > kx + 1) bot_now |= BTN_RIGHT;
-        if (aim < kx - 1) bot_now |= BTN_LEFT;
-        float dx = fabsf(aim - kx);
-        if (K.ground) {
-            if (dx < 26) bot_now |= BTN_A;
-        } else if (K.vy < -0.4f) {
-            bot_now |= BTN_A; /* hold for the full height */
-        } else if (kb_y > p->y - 2 && K.air_used < 1 + run.items[IT_DJUMP]) {
-            /* near the top and still short: jump again */
-            if (!(bot_prev & BTN_A)) bot_now |= BTN_A;
+    float kx = K.x + KW / 2;
+    int jumps_air = (1 + run.items[IT_DJUMP]) - K.air_used;
+    float best = -1e10f;
+    int best_dir = 0, land = -1, best_air = -1;
+    bool best_jump = false;
+    static const int AIR_AT[] = {-1, 6, 10, 14, 18, 22, 26, 30};
+    for (int j = 0; j < 2; j++) {
+        if (j && !K.ground && jumps_air <= 0) continue;
+        for (int a = 0; a < ARRAY_LEN(AIR_AT); a++) {
+            for (int d = -1; d <= 1; d++) {
+                int l = -1;
+                float s = bot_sim(d, j == 1, AIR_AT[a], &l);
+                if (s > best) { best = s; best_dir = d; best_jump = j == 1; best_air = AIR_AT[a]; land = l; }
+            }
         }
-    } else if (K.ground) {
-        bot_now |= BTN_A;
     }
-    /* shoot what's in the way */
+    (void)best_air;
+    bot_target = land;
+    if (best_dir > 0) bot_now |= BTN_RIGHT;
+    if (best_dir < 0) bot_now |= BTN_LEFT;
+    if (K.stun > 0) {
+        /* nothing to do but get ready to jump as it wears off */
+    } else if (best_jump) {
+        if (K.ground || !(bot_prev & BTN_A)) bot_now |= BTN_A;
+    } else if (!K.ground && K.vy < 0 && (bot_prev & BTN_A)) {
+        bot_now |= BTN_A; /* keep holding for the full height */
+    }
+    /* shoot what's coming: awake bats and jellies close by */
     for (int i = 0; i < MAX_FOES; i++) {
         Foe *f = &foes[i];
-        if (!f->alive || f->kind == FE_MINNOW || f->kind == FE_TICK) continue;
-        if (fabsf(f->x - K.x) < 12 && f->y < K.y && f->y > K.y - 90) bot_now |= BTN_UP | BTN_B;
-        else if (fabsf(f->y - K.y) < 10 && fabsf(f->x - K.x) < 90) bot_now |= BTN_B;
+        if (!f->alive) continue;
+        if (!((f->kind == FE_BAT && f->state) || f->kind == FE_JELLY || f->kind == FE_JELLY_S)) continue;
+        float w, h;
+        foe_size(f->kind, &w, &h);
+        float dx = f->x + w / 2 - kx, dy = f->y + h / 2 - (K.y + KH / 2);
+        if (fabsf(dy) < 9 && fabsf(dx) < 80) {
+            if ((dx > 0) == (K.dir > 0)) bot_now |= BTN_B;
+            else bot_now = (bot_now & ~(uint32_t)(BTN_LEFT | BTN_RIGHT)) | (dx > 0 ? BTN_RIGHT : BTN_LEFT);
+        } else if (fabsf(dx) < 10 && dy < 0 && dy > -70) {
+            bot_now |= BTN_UP | BTN_B;
+        } else if (fabsf(dx) < 10 && dy > 0 && dy < 70 && !K.ground) {
+            bot_now |= BTN_DOWN | BTN_B;
+        }
     }
     if (owl.on && !owl.done && fabsf(owl.x + 8 - kx) < 14) bot_now |= BTN_UP | BTN_B;
     if (boss.on && !boss.dead && fabsf(SHAFT_W / 2.0f - kx) < 16) bot_now |= BTN_UP | BTN_B;
+    if (bot_log) bot_log_frame();
 }
 
+/* A knock flings Kip sideways, out of control for a moment. It costs her
+ * the jump she was standing on, but not her jumps in the air: she can
+ * jump again as soon as she comes round. */
 static void stun_kip(float from_x) {
     if (K.inv > 0 || K.star > 0 || god) return;
-    int st = imax(12, 36 - 8 * run.items[IT_RECOVERY]);
+    int st = imax(STUN_MIN, STUN_BASE - STUN_STEP * run.items[IT_RECOVERY]);
     K.stun = st;
-    K.inv = st + 30;
-    K.vx = (K.x + KW / 2 < from_x ? -1.6f : 1.6f);
-    K.vy = -1.2f;
+    K.inv = st + SAFE_T;
+    K.vx = (K.x + KW / 2 < from_x ? -1.5f : 1.5f);
+    K.vy = -1.6f;
+    K.ground = false;
+    K.air_used = 0;
     shake = imax(shake, 5);
     sfx_play_name("sw_stun");
+}
+
+static void kill_foe(int i, int col);
+static void add_eshot(float x, float y, float vx, float vy, bool mine);
+
+/* landing on any creature is safe: Kip bounces off it with her jumps back */
+static void bounce_kip(void) {
+    K.vy = -JUMP_V;
+    K.air_used = 0;
+    K.ground = false;
+    sfx_play_name("sw_boing");
 }
 
 static void fire(void) {
@@ -427,13 +572,26 @@ static void fire(void) {
     sfx_play_name("sw_shoot");
 }
 
+/* a star block launches Kip up, untouchable; holding A keeps her going */
 static void star_touch(int i) {
     plats[i].alive = 0;
-    K.star = 52;
-    K.inv = 70;
+    K.star = STAR_T;
+    K.inv = STAR_T + 20;
     K.stun = 0;
+    K.air_used = 0;
     burst(plats[i].x + 8, plats[i].y, C_YELLOW, 14, 1.6f);
     sfx_play_name("sw_star");
+}
+
+/* a cloud mine puffs into a row of clouds, whether shot or bumped */
+static void mine_puff(int i) {
+    Plat *p = &plats[i];
+    float cx = p->x + p->w * 8, y = p->y;
+    p->alive = 0;
+    int c0 = iclamp((int)(cx / SW_TILE) - 3, 0, SW_COLS - 1), c1 = iclamp((int)(cx / SW_TILE) + 3, 0, SW_COLS - 1);
+    add_plat(PT_CLOUD, (float)(c0 * SW_TILE), y, c1 - c0 + 1);
+    burst(cx, y, C_WHITE, 16, 1.4f);
+    sfx_play_name("sw_puff");
 }
 
 static void land_effects(int i) {
@@ -446,14 +604,18 @@ static void land_effects(int i) {
     case PT_ROCK: if (!p->t) p->t = crumble_time(60); break;
     case PT_COIN: if (!p->t) p->t = crumble_time(90); break;
     case PT_BOMB:
-        if (!p->t) {
-            p->t = crumble_time(30);
-            int k = add_foe(FE_TICK, p->x + p->w * SW_TILE / 2.0f - 4, p->y - 10);
-            if (k >= 0) foes[k].t = 90;
+        /* her weight pushes the plunger down: it goes off a second later */
+        if (!p->shot) {
+            p->shot = 1;
+            p->t = BOMB_FUSE;
             sfx_play_name("sw_tick");
         }
         break;
-    case PT_MINE: stun_kip(p->x + p->w * 8); break;
+    case PT_METAL:
+        /* metal throws her straight back up, jumps restored */
+        p->flash = 8;
+        bounce_kip();
+        break;
     case PT_STAR: star_touch(i); break;
     default: break;
     }
@@ -466,14 +628,17 @@ static void kip_update(void) {
     if (K.inv > 0) K.inv--;
     if (K.shoot_cd > 0) K.shoot_cd--;
     if (K.star > 0) {
-        /* the star carries her up about six floors, untouchable */
+        /* the star carries her up about six floors, untouchable, as long
+         * as A is held; letting go ends the climb early */
         K.star--;
         K.vy = -4.0f;
         K.vx = (float)hx * RUN;
+        if (hx) K.dir = hx;
+        if (!kb(BTN_A) && K.star < STAR_T - 6) K.star = 0;
         if (K.star == 0) { K.vy = -1.0f; K.air_used = 0; }
     } else if (K.stun > 0) {
         K.stun--;
-        K.vx *= 0.96f;
+        K.vx *= 0.97f;
         K.vy = fminf(K.vy + GRAV, 4.0f);
     } else {
         if (hx) K.dir = hx;
@@ -498,49 +663,68 @@ static void kip_update(void) {
     if (K.vy >= 0) {
         for (int i = 0; i < MAX_PLATS; i++) {
             Plat *p = &plats[i];
-            if (!p->alive) continue;
+            if (!p->alive || p->type == PT_MINE) continue;
             float px = p->x, pw = (float)(p->w * SW_TILE);
             if (K.x + KW <= px || K.x >= px + pw) continue;
-            if (ob <= p->y + 0.5f && nb >= p->y) {
-                if (p->type == PT_MINE || p->type == PT_STAR) { land_effects(i); continue; }
-                K.y = p->y - KH;
+            float top = p->y - (p->type == PT_STAR ? 6 : 0); /* a star stands proud of its row */
+            if (ob <= top + 0.5f && nb >= top) {
+                K.y = top - KH;
                 K.vy = 0;
                 K.ground = true;
                 K.air_used = 0;
-                land_effects(i);
                 if (p->type == PT_METAL) K.x = fclamp(K.x + p->vx, 0, SHAFT_W - KW);
+                land_effects(i);
                 break;
             }
         }
-        /* minnows are fish you can stand on */
+        /* every creature is safe to land on: Kip bounces off it, and a
+         * bat or a jelly doesn't survive it. Fish are wide enough to ride. */
         if (!K.ground)
             for (int i = 0; i < MAX_FOES; i++) {
                 Foe *f = &foes[i];
-                if (!f->alive || f->kind != FE_MINNOW) continue;
-                if (K.x + KW <= f->x || K.x >= f->x + 24) continue;
-                if (ob <= f->y + 0.5f && nb >= f->y) {
+                if (!f->alive || (f->kind == FE_SQUID && f->state == 0)) continue;
+                float w, h;
+                foe_size(f->kind, &w, &h);
+                if (K.x + KW <= f->x || K.x >= f->x + w) continue;
+                if (!(ob <= f->y + 4.5f && nb >= f->y)) continue;
+                if (f->kind == FE_MINNOW) {
                     K.y = f->y - KH; K.vy = 0; K.ground = true; K.air_used = 0;
                     K.x = fclamp(K.x + f->vx, 0, SHAFT_W - KW);
                     break;
                 }
+                K.y = f->y - KH;
+                bounce_kip();
+                if (f->kind == FE_BAT || f->kind == FE_JELLY || f->kind == FE_JELLY_S) kill_foe(i, C_VIOLET);
+                break;
             }
     } else {
         /* metal is hard from below */
         for (int i = 0; i < MAX_PLATS; i++) {
             Plat *p = &plats[i];
             if (!p->alive || p->type != PT_METAL) continue;
-            if (overlap(K.x, K.y, KW, KH, p->x, p->y, p->w * SW_TILE, 8)) { K.y = p->y + 8; K.vy = 1; stun_kip(p->x + p->w * 8); }
+            if (overlap(K.x, K.y, KW, KH, p->x, p->y, p->w * SW_TILE, 8)) { K.y = p->y + 8; K.vy = 1; p->flash = 8; stun_kip(p->x + p->w * 8); }
         }
     }
-    /* touch: stars, mines, zapper pillars */
+    /* touch: cloud mines, zapper fields, metal edges */
     for (int i = 0; i < MAX_PLATS; i++) {
         Plat *p = &plats[i];
         if (!p->alive) continue;
         float pw = (float)(p->w * SW_TILE);
-        if (p->type == PT_STAR && overlap(K.x, K.y, KW, KH, p->x, p->y - 8, 16, 16)) star_touch(i);
-        if (p->type == PT_MINE && overlap(K.x, K.y, KW, KH, p->x, p->y - 4, pw, 12)) stun_kip(p->x + pw / 2);
-        if (p->type == PT_ZAP && (overlap(K.x, K.y, KW, KH, p->x - 8, p->y - 24, 8, 32) || overlap(K.x, K.y, KW, KH, p->x + pw, p->y - 24, 8, 32)))
-            stun_kip(p->x + pw / 2);
+        if (p->type == PT_MINE && overlap(K.x, K.y, KW, KH, p->x, p->y - 4, pw, 12)) {
+            /* bumping a mine still makes its clouds, but it knocks her about */
+            float mx = p->x + pw / 2;
+            mine_puff(i);
+            stun_kip(mx);
+            continue;
+        }
+        if (p->type == PT_ZAP) {
+            float fx[2], fy[2], fw, fh;
+            if (p->hp == 0) { fx[0] = p->x - 32; fx[1] = p->x + 16; fy[0] = fy[1] = p->y; fw = 32; fh = 8; }
+            else { fx[0] = fx[1] = p->x; fy[0] = p->y - 32; fy[1] = p->y + 8; fw = 16; fh = 32; }
+            for (int s = 0; s < 2; s++)
+                if (overlap(K.x, K.y, KW, KH, fx[s] + 2, fy[s] + 2, fw - 4, fh - 4)) stun_kip(p->x + 8);
+        }
+        if (p->type == PT_METAL && !K.ground && K.stun == 0 && overlap(K.x, K.y + 2, KW, KH - 4, p->x, p->y + 2, pw, 6)) stun_kip(p->x + pw / 2);
     }
     /* coins and the key */
     for (int i = 0; i < MAX_COINS; i++) {
@@ -583,7 +767,25 @@ static void plats_update(void) {
         /* standing on it keeps it marked, stepping off lets it land again */
         bool on = K.ground && K.x + KW > p->x && K.x < p->x + p->w * SW_TILE && fabsf(K.y + KH - p->y) < 0.6f;
         if (!on) p->stood = 0;
-        if (p->t > 0 && --p->t == 0) break_plat(i);
+        if (p->flash > 0) p->flash--;
+        if (p->type == PT_ZAP) {
+            if (p->shot > 0) p->shot--;
+        } else if (p->type == PT_BOMB) {
+            /* a TNT block goes off when its fuse ends, or when the Grinder
+             * reaches it: three shots, straight up and to both diagonals */
+            bool grind = p->y + 6 > cam_y + GRINDER_Y;
+            if ((p->shot && p->t > 0 && --p->t == 0) || grind) {
+                float cx = p->x + p->w * 8, cy = p->y - 2;
+                for (int k = -1; k <= 1; k++) add_eshot(cx, cy, k * 1.4f, -2.0f, true);
+                p->alive = 0;
+                burst(cx, p->y + 4, C_ORANGE, 14, 1.6f);
+                shake = imax(shake, 4);
+                sfx_play_name("sw_boom");
+                continue;
+            }
+        } else if (p->t > 0 && --p->t == 0) {
+            break_plat(i);
+        }
         if (p->y > cam_y + 200) p->alive = 0;
     }
 }
@@ -591,54 +793,54 @@ static void plats_update(void) {
 static void shoot_plat(Shot *s, int i) {
     Plat *p = &plats[i];
     switch (p->type) {
-    case PT_CLOUD: case PT_BUBBLE:
-        if (!run.items[IT_LIGHTNING]) { break_plat(i); }
+    case PT_CLOUD:
+        if (!run.items[IT_LIGHTNING]) break_plat(i);
         return; /* shots go straight through clouds */
+    case PT_BUBBLE:
+        break_plat(i); /* Lightning doesn't spare bubbles */
+        return;
     case PT_CRATE: if (!p->t || p->t > 12) p->t = 12; break;
-    case PT_ROCK: if (!p->t) p->t = imax(20, 60 - 15 * run.items[IT_POWER]); break;
+    case PT_ROCK: if (!p->t || p->t > 60) p->t = imax(20, 60 - 15 * run.items[IT_POWER]); break;
     case PT_COIN:
-        if (p->hp > 0) { p->hp--; add_coin(p->x + p->w * 8 - 3, p->y - 8, true); sfx_play_name("sw_cog"); }
-        else if (!p->t) p->t = 60;
+        /* every hit knocks out a cog; the first one starts it crumbling */
+        add_coin(p->x + p->w * 8 - 3, p->y - 8, true);
+        sfx_play_name("sw_cog");
+        if (!p->t || p->t > COIN_SHOT_T) p->t = COIN_SHOT_T;
         break;
-    case PT_MINE: {
-        /* a shot mine puffs out into a row of safe clouds */
-        float cx = p->x + p->w * 8, y = p->y;
-        p->alive = 0;
-        int c0 = iclamp((int)(cx / SW_TILE) - 3, 0, SW_COLS - 1), c1 = iclamp((int)(cx / SW_TILE) + 3, 0, SW_COLS - 1);
-        add_plat(PT_CLOUD, (float)(c0 * SW_TILE), y, c1 - c0 + 1);
-        burst(cx, y, C_WHITE, 16, 1.4f);
-        sfx_play_name("sw_puff");
+    case PT_MINE: mine_puff(i); break;
+    case PT_ZAP:
+        /* a hit on the middle block swings its field round */
+        if (!p->shot) { p->hp ^= 1; p->shot = 12; sfx_play_name("sw_zap"); }
         break;
-    }
-    case PT_BOMB:
-        if (!p->t) {
-            p->t = 30;
-            int k = add_foe(FE_TICK, p->x + p->w * 8 - 4, p->y - 10);
-            if (k >= 0) foes[k].t = 90;
-        }
-        break;
+    case PT_METAL: p->flash = 8; break; /* shots bounce off metal */
+    case PT_BOMB: break;
     default: break;
     }
     s->alive = 0;
     part_add(s->x, s->y, 0, 0, 6, C_YELLOW, 1);
 }
 
-static void hurt_foe(int i, int dmg) {
+static void kill_foe(int i, int col) {
     Foe *f = &foes[i];
-    if (f->kind == FE_MINNOW || f->kind == FE_TICK) return;
-    f->hp -= dmg;
-    sfx_play_name("sw_hit");
-    if (f->hp > 0) return;
     float w, h;
     foe_size(f->kind, &w, &h);
     f->alive = 0;
-    burst(f->x + w / 2, f->y + h / 2, f->kind == FE_BAT ? C_VIOLET : C_CYAN, 10, 1.2f);
+    burst(f->x + w / 2, f->y + h / 2, f->kind == FE_BAT ? col : C_CYAN, 10, 1.2f);
+    sfx_play_name("sw_hit");
     if (f->kind == FE_JELLY) {
         /* a jelly splits in two */
         int a = add_foe(FE_JELLY_S, f->x - 2, f->y + 2), b = add_foe(FE_JELLY_S, f->x + 6, f->y + 2);
-        if (a >= 0) foes[a].vx = -0.7f;
-        if (b >= 0) foes[b].vx = 0.7f;
+        if (a >= 0) foes[a].vx = -0.9f;
+        if (b >= 0) foes[b].vx = 0.9f;
     }
+}
+
+static void hurt_foe(int i, int dmg) {
+    Foe *f = &foes[i];
+    if (f->kind == FE_MINNOW || (f->kind == FE_SQUID && f->state == 0)) return;
+    f->hp -= dmg;
+    sfx_play_name("sw_hit");
+    if (f->hp <= 0) kill_foe(i, C_VIOLET);
 }
 
 static void shots_update(void) {
@@ -657,7 +859,7 @@ static void shots_update(void) {
         if (!s->alive) continue;
         for (int k = 0; k < MAX_FOES; k++) {
             Foe *f = &foes[k];
-            if (!f->alive || f->kind == FE_MINNOW || f->kind == FE_TICK) continue;
+            if (!f->alive || f->kind == FE_MINNOW || (f->kind == FE_SQUID && f->state == 0)) continue;
             float w, h;
             foe_size(f->kind, &w, &h);
             if (overlap(s->x - 2, s->y - 2, 4, 4, f->x, f->y, w, h)) { hurt_foe(k, dmg); s->alive = 0; break; }
@@ -713,22 +915,26 @@ static void add_eshot(float x, float y, float vx, float vy, bool mine) {
 
 static void foes_update(void) {
     float kcx = K.x + KW / 2, kcy = K.y + KH / 2;
+    float floor_y = cam_y + GRINDER_Y; /* where the Grinder's teeth are */
     for (int i = 0; i < MAX_FOES; i++) {
         Foe *f = &foes[i];
         if (!f->alive) continue;
         float w, h;
         foe_size(f->kind, &w, &h);
-        if (f->kind != FE_TICK) f->t++;
+        f->t++;
         if (f->y > cam_y + 200) { f->alive = 0; continue; }
         switch (f->kind) {
         case FE_BAT:
-            if (f->hp > 0 && f->vx == 0 && f->vy == 0 && fabsf(f->x + w / 2 - kcx) < 70 && fabsf(f->y - kcy) < 70) { f->vy = 0.01f; sfx_play_name("sw_bat"); }
-            if (f->vx != 0 || f->vy != 0) {
-                /* awake: chase */
+            if (!f->state) {
+                /* asleep until Kip comes close, or passes underneath */
+                float dx = fabsf(f->x + w / 2 - kcx), dy = kcy - (f->y + h / 2);
+                if ((dx < 32 && dy > 0 && dy < 110) || (dx < 40 && fabsf(dy) < 40)) { f->state = 1; f->t = 0; sfx_play_name("sw_bat"); }
+            } else {
+                /* awake: it flutters after her, slower than she can climb */
                 float dx = kcx - (f->x + w / 2), dy = kcy - (f->y + h / 2), d = sqrtf(dx * dx + dy * dy) + 0.01f;
-                f->vx = dx / d * 0.9f;
-                f->vy = dy / d * 0.9f;
-                f->x += f->vx;
+                f->vx = dx / d * BAT_V;
+                f->vy = dy / d * BAT_V + sinf(f->t * 0.25f) * 0.5f;
+                f->x = fclamp(f->x + f->vx, 0, SHAFT_W - w);
                 f->y += f->vy;
             }
             break;
@@ -738,9 +944,11 @@ static void foes_update(void) {
             break;
         case FE_JELLY:
             if (f->y > cam_y - 20) {
+                /* jellies swim at her in quick pulses */
+                float pulse = 0.35f + 0.9f * fmaxf(0, sinf(f->t * 0.12f));
                 float dx = kcx - (f->x + 6), dy = kcy - (f->y + 6), d = sqrtf(dx * dx + dy * dy) + 0.01f;
-                f->x += dx / d * 0.3f;
-                f->y += dy / d * 0.3f + sinf(f->t * 0.08f) * 0.2f;
+                f->x = fclamp(f->x + dx / d * pulse, 0, SHAFT_W - w);
+                f->y += dy / d * pulse;
             }
             break;
         case FE_JELLY_S:
@@ -749,32 +957,26 @@ static void foes_update(void) {
             if (f->x < 0 || f->x > SHAFT_W - 8) f->vx = -f->vx;
             break;
         case FE_SQUID:
-            f->y += 0.8f;
-            if (f->y > cam_y + GRINDER_Y) { f->alive = 0; burst(f->x + 6, cam_y + GRINDER_Y, C_PINK, 8, 1.0f); }
-            break;
-        case FE_TICK:
-            if (--f->t <= 0) {
-                f->alive = 0;
-                for (int k = 0; k < 8; k++) {
-                    float a = k * 0.785f;
-                    add_eshot(f->x + 4, f->y + 4, cosf(a) * 1.6f, sinf(a) * 1.6f, true);
-                }
-                burst(f->x + 4, f->y + 4, C_ORANGE, 12, 1.6f);
-                sfx_play_name("sw_boom");
-            }
-            break;
-        }
-        if (!f->alive || f->kind == FE_MINNOW || f->kind == FE_TICK) continue;
-        if (overlap(K.x, K.y, KW, KH, f->x, f->y, w, h)) {
-            if (f->kind == FE_SQUID && K.vy > 0 && K.y + KH < f->y + 6) {
-                /* bounce off the squid's head */
-                K.vy = -JUMP_V;
-                K.air_used = 0;
-                sfx_play_name("sw_boing");
+            if (f->state == 0) {
+                /* its mark shows at the top of the screen, then it drops */
+                f->y = cam_y - 14;
+                if (f->t >= 60) { f->state = 1; f->t = 0; }
+            } else if (f->state == 1) {
+                f->y += 1.2f;
+                if (f->y + h >= floor_y) { f->y = floor_y - h + 2; f->state = 2; f->t = 0; burst(f->x + 6, floor_y, C_PINK, 8, 1.0f); }
             } else {
-                stun_kip(f->x + w / 2);
+                /* stuck on the Grinder for a moment: a last thing to bounce on */
+                f->y = floor_y - h + 2;
+                if (f->t >= 70) { f->alive = 0; burst(f->x + 6, floor_y, C_PINK, 10, 1.2f); }
             }
+            break;
         }
+        if (!f->alive) continue;
+        /* anything the Grinder catches is gone (bats can be lured into it) */
+        if (f->kind != FE_SQUID && f->y + h > floor_y + 2) { kill_foe(i, C_RED); continue; }
+        if (f->kind == FE_MINNOW || (f->kind == FE_SQUID && f->state == 0)) continue;
+        /* touching one from the side or below knocks her about */
+        if (overlap(K.x, K.y, KW, KH, f->x + 1, f->y + 2, w - 2, h - 2)) stun_kip(f->x + w / 2);
     }
     /* squids come down one at a time in the reef */
     if (run.level == 3) {
@@ -876,7 +1078,10 @@ static void boss_update(void) {
 static void play_update(void) {
     frame_t++;
     kip_update();
-    if (state != S_PLAY) return;
+    if (state != S_PLAY) {
+        if (bot_log) { bot_log_flush(); bot_log = false; autoplay = false; }
+        return;
+    }
     plats_update();
     shots_update();
     foes_update();
@@ -910,13 +1115,23 @@ static void sw_update(void) {
         frame_t++;
         game_set_pausable(false);
         if (btnp(BTN_B)) game_exit_to_library();
+        if (btnp(BTN_SELECT)) { sfx_play_name("ui_ok"); state = S_HELP; state_t = 0; help_page = 0; break; }
         if (btnp(BTN_A) || btnp(BTN_START)) { sfx_play_name("ui_ok"); input_consume(); new_run(); }
+        break;
+    case S_HELP:
+        frame_t++;
+        if (btnp(BTN_A) || btnp(BTN_RIGHT)) {
+            sfx_play_name("ui_move");
+            if (++help_page >= HELP_PAGES) { state = S_TITLE; state_t = 0; }
+        }
+        if (btnp(BTN_LEFT) && help_page > 0) { help_page--; sfx_play_name("ui_move"); }
+        if (btnp(BTN_B) || btnp(BTN_SELECT) || btnp(BTN_START)) { sfx_play_name("ui_back"); state = S_TITLE; state_t = 0; }
         break;
     case S_PLAY: play_update(); break;
     case S_DEAD:
         frame_t++;
         if (shake > 0) shake--;
-        if (state_t > 80) { state = S_OVER; state_t = 0; music_restart(SW_MUS_OVER); }
+        if (state_t > 50) { state = S_OVER; state_t = 0; music_restart(SW_MUS_OVER); }
         break;
     case S_SHOP:
         frame_t++;
@@ -940,7 +1155,9 @@ static void sw_update(void) {
         }
         break;
     case S_OVER:
-        if (state_t > 60 && (btnp(BTN_A) || btnp(BTN_START))) { state = S_TITLE; state_t = 0; music_play(SW_MUS_TITLE); }
+        /* straight back into a new pit, or back to the title */
+        if (state_t > 20 && (btnp(BTN_A) || btnp(BTN_START))) { sfx_play_name("ui_ok"); input_consume(); new_run(); }
+        else if (state_t > 20 && btnp(BTN_B)) { state = S_TITLE; state_t = 0; music_play(SW_MUS_TITLE); }
         break;
     case S_END:
         frame_t++;
@@ -1019,23 +1236,41 @@ static void draw_plat(const Plat *p) {
             m[C_SLATE] = TH()->rock;
             spr_draw_ex(&sw_spr[K_ROCK], tx, y, 0, m, -1);
             break;
-        case PT_COIN: spr_draw(&sw_spr[p->hp > 0 ? K_COINBLOCK : K_CRATE], tx, y, 0); break;
+        case PT_COIN: spr_draw(&sw_spr[K_COINBLOCK], tx, y, 0); break;
         case PT_MINE: spr_draw(&sw_spr[K_MINE], tx, y - 4, (frame_t / 8 + c) % 2 ? SPR_FLIPX : 0); break;
-        case PT_BOMB: spr_draw(&sw_spr[K_BOMB], tx, y, 0); break;
+        case PT_BOMB:
+            /* the plunger sinks and the block blinks while its fuse burns */
+            if (p->shot && (p->t < 20 ? (frame_t / 2) % 2 : (frame_t / 6) % 2)) {
+                pal_identity(m);
+                m[C_RED] = C_YELLOW;
+                m[C_MAROON] = C_ORANGE;
+                spr_draw_ex(&sw_spr[K_BOMB], tx, y, 0, m, -1);
+            } else {
+                spr_draw(&sw_spr[K_BOMB], tx, y, 0);
+            }
+            gfx_rect(tx + 6, y - (p->shot ? 1 : 4), 4, p->shot ? 1 : 4, C_GREY);
+            gfx_hline(tx + 4, tx + 11, y - (p->shot ? 2 : 5), C_LIGHT);
+            break;
         case PT_ZAP: spr_draw(&sw_spr[K_ZAPBLOCK], tx, y, 0); break;
-        case PT_METAL: spr_draw(&sw_spr[K_METAL], tx, y, 0); break;
+        case PT_METAL:
+            if (p->flash > 0) { pal_identity(m); m[C_GREY] = C_WHITE; m[C_LIGHT] = C_WHITE; m[C_SLATE] = C_LIGHT; spr_draw_ex(&sw_spr[K_METAL], tx, y, 0, m, -1); }
+            else spr_draw(&sw_spr[K_METAL], tx, y, 0);
+            break;
         case PT_STAR: spr_draw(&sw_spr[K_STARBLOCK], tx, y - 8 + ((frame_t / 10) % 2), 0); break;
         }
     }
     if (p->type == PT_ZAP) {
-        /* the sparking pillars either side */
-        int pw = p->w * SW_TILE;
-        for (int s = 0; s < 2; s++) {
-            int px = s ? x + pw : x - 8;
-            gfx_rect(px + 2, y - 24, 4, 32, C_DUSK);
-            for (int k = 0; k < 4; k++) {
-                int zy = y - 24 + ((frame_t * 3 + k * 9 + s * 5) % 32);
-                gfx_pset(px + 1 + (k + frame_t / 2) % 6, zy, k % 2 ? C_YELLOW : C_CYAN);
+        /* the field: two crackling bars, across or up and down */
+        for (int s2 = 0; s2 < 2; s2++) {
+            int fx, fy, fw, fh;
+            if (p->hp == 0) { fx = s2 ? x + 16 : x - 32; fy = y + 1; fw = 32; fh = 6; }
+            else { fx = x + 5; fy = s2 ? y + 8 : y - 32; fw = 6; fh = 32; }
+            gfx_dither(fx, fy, fw, fh, C_NAVY, 8);
+            for (int k = 0; k < 6; k++) {
+                int t = frame_t * 3 + k * 7 + s2 * 5;
+                int zx = p->hp == 0 ? fx + t % fw : fx + (k + frame_t / 2) % fw;
+                int zy = p->hp == 0 ? fy + (k + frame_t / 2) % fh : fy + t % fh;
+                gfx_pset(zx, zy, k % 2 ? C_YELLOW : C_CYAN);
             }
         }
     }
@@ -1049,14 +1284,21 @@ static void draw_foes(void) {
         if (y < -20 || y > SCREEN_H + 10) continue;
         bool alt = (f->t / 8) % 2;
         switch (f->kind) {
-        case FE_BAT: spr_draw(&sw_spr[(f->vx == 0 && f->vy == 0) ? K_BAT_SLEEP : alt ? K_BAT1 : K_BAT2], x - 1, y - 1, f->vx > 0 ? SPR_FLIPX : 0); break;
+        case FE_BAT: spr_draw(&sw_spr[!f->state ? K_BAT_SLEEP : alt ? K_BAT1 : K_BAT2], x - 1, y - 1, f->vx > 0 ? SPR_FLIPX : 0); break;
         case FE_MINNOW: spr_draw(&sw_spr[alt ? K_MINNOW1 : K_MINNOW2], x, y, f->vx > 0 ? SPR_FLIPX : 0); break;
         case FE_JELLY: spr_draw(&sw_spr[K_JELLY], x, y + (alt ? 1 : 0), 0); break;
         case FE_JELLY_S: spr_draw(&sw_spr[K_JELLY_SMALL], x, y, 0); break;
-        case FE_SQUID: spr_draw(&sw_spr[alt ? K_SQUID1 : K_SQUID2], x, y, 0); break;
-        case FE_TICK:
-            spr_draw(&sw_spr[K_TICKMINE], x, y, 0);
-            if (f->t < 30 && (f->t / 3) % 2) gfx_circb(x + 4, y + 4, 6, C_RED);
+        case FE_SQUID:
+            if (f->state == 0) {
+                /* the mark where the next squid will drop */
+                if ((f->t / 4) % 2) {
+                    gfx_rect(x + 5, 2, 2, 7, C_PINK);
+                    gfx_rect(x + 5, 11, 2, 2, C_PINK);
+                }
+                gfx_hline(x, x + 11, 0, C_PINK);
+            } else {
+                spr_draw(&sw_spr[alt ? K_SQUID1 : K_SQUID2], x, y, 0);
+            }
             break;
         }
     }
@@ -1083,7 +1325,14 @@ static void draw_kip(void) {
     else spr = K_STAND;
     if (K.inv > 0 && K.stun == 0 && K.star == 0 && (frame_t / 3) % 2) return;
     if (K.star > 0 && (frame_t / 2) % 2) spr_draw_outline(&sw_spr[spr], x, y, fl, C_YELLOW);
-    else spr_draw(&sw_spr[spr], x, y, fl);
+    else if (!K.ground && K.stun == 0 && K.star == 0 && K.air_used >= 1 + run.items[IT_DJUMP]) {
+        /* out of jumps: her suit turns red */
+        uint8_t m[PAL_COUNT];
+        pal_identity(m);
+        m[C_BLUE] = C_RED;
+        m[C_NAVY] = C_MAROON;
+        spr_draw_ex(&sw_spr[spr], x, y, fl, m, -1);
+    } else spr_draw(&sw_spr[spr], x, y, fl);
     if (K.stun > 0) {
         for (int k = 0; k < 3; k++) {
             float a = (float)(frame_t * 0.2f + k * 2.1f);
@@ -1271,9 +1520,10 @@ static void draw_title(void) {
         snprintf(buf, sizeof buf, "MOST COGS %d  MOST KEYS %d", sv.most_cogs, sv.most_keys);
         tiny_center(buf, 160, 136, C_GREY);
     }
-    gfx_rect(236, 150, 84, 30, C_INK);
-    text_draw(GLYPH_A " START", 240, 156, C_LIGHT);
-    text_draw(GLYPH_B " LIBRARY", 240, 167, C_LIGHT);
+    gfx_rect(236, 142, 84, 38, C_INK);
+    text_draw(GLYPH_A " START", 240, 146, C_LIGHT);
+    text_draw(GLYPH_B " LIBRARY", 240, 157, C_LIGHT);
+    text_draw("SELECT HELP", 240, 168, C_LIGHT);
 }
 
 static void draw_shop(void) {
@@ -1314,7 +1564,50 @@ static void draw_over(void) {
     text_center(buf, 160, 90, C_LIGHT);
     snprintf(buf, sizeof buf, "BEST FLOOR %d", sv.best_floor);
     tiny_center(buf, 160, 106, C_YELLOW);
-    if (state_t > 60 && (state_t / 20) % 2) text_center("PRESS " GLYPH_A, 160, 130, C_WHITE);
+    if (state_t > 20) {
+        text_center(GLYPH_A " CLIMB AGAIN", 160, 124, (state_t / 20) % 2 ? C_WHITE : C_LIGHT);
+        text_center(GLYPH_B " TITLE", 160, 138, C_GREY);
+    }
+}
+
+/* how to play: three pages from the title screen */
+static void draw_help(void) {
+    gfx_cls(C_NIGHT);
+    for (int y = 0; y < 180; y += 4) gfx_dither(0, y, 320, 2, C_DUSK, 2);
+    static const uint8_t grad[] = {C_WHITE, C_ICE, C_CYAN};
+    ui_fancy_center("HOW TO PLAY", 160, 6, 2, grad, 3, C_NAVY, C_INK);
+    static const char *const PAGE[HELP_PAGES] = {
+        "CLIMB! THE GRINDER AT THE FOOT OF THE SCREEN RISES\n"
+        "WHENEVER YOU CLIMB ABOVE THE MIDDLE. IT IS THE ONLY\n"
+        "THING THAT CAN END YOUR RUN, SO TAKE YOUR TIME.\n\n"
+        GLYPH_A "  JUMP. HOLD IT TO JUMP HIGHER, AND TO HOP\n"
+        "   AGAIN THE MOMENT YOU LAND. " GLYPH_A " IN THE AIR JUMPS\n"
+        "   ONCE MORE. OUT OF JUMPS, YOUR SUIT TURNS RED.\n"
+        GLYPH_B "  SHOOT. HOLD " GLYPH_UP " TO SHOOT UP, " GLYPH_DOWN " IN THE AIR\n"
+        "   TO SHOOT DOWN.",
+        "PLATFORMS CRUMBLE SOON AFTER YOU LAND: CLOUDS AT\n"
+        "ONCE, BOXES A BIT LATER, BRICKS AFTER A SECOND.\n"
+        "SHOTS BREAK CLOUDS TOO. SHOOT COIN BLOCKS FOR COGS.\n\n"
+        "BUMPING A CREATURE OR A HAZARD KNOCKS YOU FLYING\n"
+        "FOR A MOMENT. WHEN YOU COME ROUND YOU STILL HAVE\n"
+        "YOUR JUMP IN THE AIR: USE IT!\n\n"
+        "LANDING ON A CREATURE IS SAFE: YOU BOUNCE OFF IT\n"
+        "WITH YOUR JUMPS BACK. BATS AND JELLIES POP.",
+        "BATS SLEEP UNTIL YOU PASS CLOSE OR UNDERNEATH.\n"
+        "SHOOT THEM, BOUNCE ON THEM, OR OUTCLIMB THEM.\n\n"
+        "STAR BLOCKS: LAND ON ONE AND HOLD " GLYPH_A " TO FLY.\n"
+        "SHOOT A ZAPPER'S MIDDLE TO TURN ITS FIELD ROUND.\n"
+        "TNT GOES OFF A SECOND AFTER YOU STEP ON IT.\n"
+        "CLOUD MINES BURST INTO CLOUDS. SHOOT THEM FIRST.\n\n"
+        "THE TINKER SELLS GEAR FOR COGS AFTER EACH LEVEL.\n"
+        "SHOOT THE OWL ON FLOOR 12 FOR A KEY.",
+    };
+    ui_panel(10, 30, 300, 128, C_INK, C_DUSK);
+    text_draw(PAGE[help_page], 18, 38, C_LIGHT);
+    char buf[16];
+    snprintf(buf, sizeof buf, "%d/%d", help_page + 1, HELP_PAGES);
+    tiny_center(buf, 160, 162, C_GREY);
+    text_center(GLYPH_A " NEXT   " GLYPH_B " BACK", 160, 170, C_LIGHT);
 }
 
 static void draw_end(void) {
@@ -1363,6 +1656,7 @@ static void sw_draw(void) {
     case S_SHOP: draw_shop(); break;
     case S_OVER: draw_over(); break;
     case S_END: draw_end(); break;
+    case S_HELP: draw_help(); break;
     }
 }
 
@@ -1438,6 +1732,15 @@ static int sw_query(const char *key, int *out) {
     if (!strcmp(key, "plats")) { int n = 0; for (int i = 0; i < MAX_PLATS; i++) n += plats[i].alive; *out = n; return 1; }
     if (!strcmp(key, "foes")) { int n = 0; for (int i = 0; i < MAX_FOES; i++) n += foes[i].alive; *out = n; return 1; }
     if (!strcmp(key, "coins")) { int n = 0; for (int i = 0; i < MAX_COINS; i++) n += coins[i].alive; *out = n; return 1; }
+    if (!strcmp(key, "bats_awake")) { int n = 0; for (int i = 0; i < MAX_FOES; i++) n += foes[i].alive && foes[i].kind == FE_BAT && foes[i].state; *out = n; return 1; }
+    if (!strcmp(key, "eshots")) { int n = 0; for (int i = 0; i < MAX_ESHOTS; i++) n += eshots[i].alive; *out = n; return 1; }
+    if (!strcmp(key, "eshot_up")) { int n = 0; for (int i = 0; i < MAX_ESHOTS; i++) n += eshots[i].alive && eshots[i].vy < 0; *out = n; return 1; }
+    if (!strcmp(key, "inv")) { *out = K.inv; return 1; }
+    if (!strcmp(key, "vy10")) { *out = (int)lroundf(K.vy * 10); return 1; }
+    if (!strcmp(key, "zap_dir")) { *out = -1; for (int i = 0; i < MAX_PLATS; i++) if (plats[i].alive && plats[i].type == PT_ZAP) { *out = plats[i].hp; break; } return 1; }
+    if (!strcmp(key, "squid_state")) { *out = -1; for (int i = 0; i < MAX_FOES; i++) if (foes[i].alive && foes[i].kind == FE_SQUID) { *out = foes[i].state; break; } return 1; }
+    if (!strcmp(key, "foe0_y")) { *out = 9999; for (int i = 0; i < MAX_FOES; i++) if (foes[i].alive) { *out = (int)lroundf(foes[i].y); break; } return 1; }
+    if (!strcmp(key, "foe0_x")) { *out = 9999; for (int i = 0; i < MAX_FOES; i++) if (foes[i].alive) { *out = (int)lroundf(foes[i].x); break; } return 1; }
     if (!strncmp(key, "count_", 6)) {
         /* count_T for platform type T */
         int t = atoi(key + 6), n = 0;
@@ -1503,6 +1806,7 @@ static int sw_cheat(const char *cmd) {
     if (sscanf(cmd, "eye_hp %d", &a) == 1) { boss.eye_hp = a; return 1; }
     if (!strcmp(cmd, "sheet")) { sheet_mode = !sheet_mode; return 1; }
     if (!strcmp(cmd, "autoplay")) { autoplay = !autoplay; bot_now = bot_prev = 0; return 1; }
+    if (!strcmp(cmd, "botlog")) { autoplay = bot_log = true; bot_now = bot_prev = 0; log_mask = 0; log_run = 0; return 1; }
     return 0;
 }
 
@@ -1513,10 +1817,13 @@ const GameDef GAME_SKYWELL = {
     "ACTION CLIMBER",
     "THE PLATFORMS CRUMBLE, THE GRINDER FOLLOWS. KEEP CLIMBING.",
     {"HOLD 2 KEYS", "CLIMB OUT OF THE SKYWELL", "SHUT THE WELL EYE"},
-    "D-PAD\tRUN, AIM UP/DOWN\n"
-    GLYPH_A "\tJUMP, JUMP AGAIN\n"
-    GLYPH_B "\tSHOOT\n"
-    "START\tPAUSE\n\n"
+    "D-PAD\tRUN; HOLD " GLYPH_UP "/" GLYPH_DOWN " TO AIM\n"
+    GLYPH_A "\tJUMP (HOLD TO GO HIGHER)\n"
+    GLYPH_A " IN AIR\tJUMP AGAIN\n"
+    GLYPH_B "\tSHOOT (" GLYPH_DOWN " ONLY IN THE AIR)\n"
+    "START\tPAUSE\n"
+    "SELECT\tHOW TO PLAY (TITLE)\n\n"
+    "LAND ON A CREATURE TO BOUNCE OFF IT.\n"
     "ONLY THE GRINDER CAN END A CLIMB.",
     C_CYAN, C_EARTH,
     sw_load, sw_start, sw_update, sw_draw, sw_quit, sw_label, sw_query, sw_cheat,

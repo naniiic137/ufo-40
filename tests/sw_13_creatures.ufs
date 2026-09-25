@@ -1,19 +1,52 @@
-# SKYWELL: a jelly splits in two when shot; squids can be bounced on;
-# minnows can be stood on.
+# SKYWELL: the reef's creatures. A jelly splits in two when it is shot or
+# landed on; a squid shows its mark at the top of the screen, drops, and
+# sits on the Grinder for a moment where it can be bounced on; fish are
+# wide enough to ride.
 game skywell
 wait 5
 press A
-cheat level 3
 cheat clear
-cheat god
 cheat plat 0 0 0 13
 wait 2
 cheat pos 100 -12
-cheat foe 2 96 -70
+cheat foe 2 96 -80
 wait 2
-hold UP+B 24
+hold UP+B 12
 expect foe_2 == 0
-expect foe_3 >= 1
+expect foe_3 == 2
+# landing on a jelly splits it too, and bounces Kip up with her jumps back
+wait 30
+cheat clear
+cheat plat 0 0 0 13
+cheat pos 100 -102
+cheat foe 2 98 -80
+wait 10
+expect foe_2 == 0
+expect foe_3 == 2
+expect air_used == 0
+expect vy10 < 0
+# a squid: first its mark, then the drop
+cheat level 1
+cheat clear
+cheat plat 0 120 0 5
+cheat pos 150 -12
+wait 40
+cheat foe 4 40 0
+wait 2
+expect squid_state == 0
+wait 60
+expect squid_state == 1
+wait 150
+expect squid_state == 2
+# on the Grinder it is a last thing to bounce off
+cheat pos 42 -60
+wait 26
+expect vy10 < 0
+expect state == 1
+wait 60
+expect squid_state == -1
+# fish are platforms
+cheat level 1
 cheat clear
 cheat plat 0 0 0 13
 cheat foe 1 90 -40
@@ -21,9 +54,3 @@ cheat pos 100 -60
 wait 30
 expect ground == 1
 expect ky == -52
-cheat clear
-cheat plat 0 0 0 13
-cheat foe 4 96 -70
-cheat pos 100 -100
-wait 28
-expect ky < -80

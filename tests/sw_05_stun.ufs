@@ -1,24 +1,61 @@
-# SKYWELL: foes don't hurt - they stun Kip and knock her about. Recovery
-# shortens the stun.
+# SKYWELL: a bat sleeps until Kip passes close or underneath, then flutters
+# after her, slower than she runs. Its touch doesn't hurt: it knocks her
+# flying for a moment, and when she comes round she still has her jump in
+# the air. Recovery shortens the knock.
 game skywell
 wait 5
 press A
 cheat clear
 cheat plat 0 0 0 13
 wait 5
-cheat pos 100 -12
-cheat foe 0 60 -40
-wait 60
+# a bat up and to the left stays asleep while Kip is out of the way
+cheat foe 0 20 -100
+wait 30
+expect bats_awake == 0
+# she walks underneath it: it wakes
+hold LEFT 40
+expect bats_awake == 1
+# she runs away and it falls behind
+hold RIGHT 60
+expect kx > 120
+expect foe0_x < 60
+# standing still, it catches up and bumps her: knocked, not hurt
+wait 130
 expect stun > 0
 expect state == 1
+wait 30
+expect stun == 0
+# in the air, a knock gives her back her jump in the air
 cheat clear
 cheat plat 0 0 0 13
-wait 60
-expect stun == 0
-cheat give 0
-cheat give 0
-cheat pos 100 -12
-cheat foe 0 60 -40
-wait 52
+cheat plat 0 80 -60 3
+cheat pos 100 -72
+wait 20
+hold A 10
+wait 1
+press A
+expect air_used == 1
+cheat foe 0 98 -124
+wait 8
 expect stun > 0
-expect stun <= 20
+expect air_used == 0
+wait 18
+expect stun == 0
+expect ground == 0
+press A
+expect air_used == 1
+expect vy10 < 0
+# and she makes it back onto the ledge
+wait 40
+expect ground == 1
+expect ky == -72
+cheat clear
+cheat plat 0 80 -60 3
+wait 60
+# two Recoveries shorten the knock
+cheat give 0
+cheat give 0
+cheat foe 0 108 -84
+wait 20
+expect stun > 0
+expect stun <= 14

@@ -1,23 +1,65 @@
-# SKYWELL: metal platforms stun Kip from below; zapper pillars stun on touch.
+# SKYWELL: metal platforms (level 4) glide side to side; landing on one
+# throws Kip back up with her jumps restored, hitting one from below knocks
+# her about, and shots bounce off it. A zapper's middle block is safe to
+# stand on, but its field knocks her about; a shot on the middle block
+# turns the field round.
 game skywell
 wait 5
 press A
-cheat level 4
 cheat clear
 cheat plat 0 0 0 13
 cheat plat 10 90 -40 3
 wait 2
 cheat pos 100 -12
 wait 3
+# from below: a knock
 hold A 10
 expect stun > 0
-cheat level 2
+# shots don't break it
+cheat level 1
 cheat clear
 cheat plat 0 0 0 13
-cheat plat 8 96 -40 2
+cheat plat 10 20 -60 3
+cheat pos 40 -12
 wait 2
-cheat pos 70 -12
-wait 3
-hold RIGHT+A 14
-wait 4
+hold UP+B 30
+expect count_10 == 1
+# from above: a bounce
+cheat clear
+cheat plat 0 0 0 13
+cheat plat 10 90 -40 3
+cheat pos 100 -80
+wait 19
+expect vy10 < -30
+expect air_used == 0
+expect stun == 0
+# the zapper: the field across knocks her about as she walks into it
+cheat level 1
+cheat clear
+cheat plat 0 0 0 13
+cheat plat 8 96 -8 1
+cheat pos 20 -12
+wait 2
+expect zap_dir == 0
+hold RIGHT 40
 expect stun > 0
+# a shot on the middle turns the field upright, and another turns it back
+cheat level 1
+cheat clear
+cheat plat 0 0 0 13
+cheat plat 8 96 -80 1
+cheat pos 100 -12
+wait 2
+hold UP+B 2
+wait 10
+expect zap_dir == 1
+wait 20
+hold UP+B 2
+wait 10
+expect zap_dir == 0
+# standing on the middle block with the field across is safe
+cheat pos 100 -92
+wait 30
+expect ground == 1
+expect ky == -92
+expect stun == 0

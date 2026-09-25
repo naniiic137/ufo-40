@@ -1,5 +1,7 @@
-# SKYWELL: a cloud mine stuns on touch; shot, it puffs into safe clouds.
-# A bomb platform leaves a ticking mine that bursts into shots.
+# SKYWELL: a cloud mine bursts into a row of clouds - shot, or bumped (which
+# knocks Kip about too). A TNT block's plunger goes down when Kip lands on
+# it, and a second later it bursts into three shots: straight up and to
+# both diagonals. The Grinder sets TNT off as well.
 game skywell
 wait 5
 press A
@@ -7,17 +9,44 @@ cheat clear
 cheat plat 0 0 0 13
 cheat plat 6 96 -40 2
 wait 5
-cheat pos 100 -12
+# shot from below: safe clouds
 hold UP+B 6
 wait 4
 expect count_6 == 0
 expect count_1 == 1
+expect stun == 0
+# bumped: clouds all the same, and a knock
 cheat clear
 cheat plat 0 0 0 13
-cheat plat 7 90 -40 2
-cheat god
-cheat pos 94 -52
-wait 5
-expect foe_5 == 1
-wait 100
-expect foe_5 == 0
+cheat plat 6 96 -40 2
+wait 30
+hold A 12
+wait 2
+expect count_6 == 0
+expect count_1 == 1
+expect stun > 0
+# TNT: land on it and step off; it goes off a second later
+cheat clear
+cheat plat 0 0 0 13
+cheat plat 7 96 -30 1
+wait 60
+cheat pos 100 -12
+wait 2
+hold A 8
+wait 24
+expect ground == 1
+expect ky == -42
+hold RIGHT 20
+wait 10
+expect count_7 == 1
+expect eshots == 0
+wait 30
+expect count_7 == 0
+expect eshot_up == 3
+# the Grinder sets it off where it stands
+cheat clear
+cheat plat 0 0 0 13
+cheat plat 7 40 14 1
+wait 2
+expect count_7 == 0
+expect eshot_up == 3
