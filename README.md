@@ -78,7 +78,7 @@ and the music and sound volumes are in every game's pause menu too.
 | 09 | **BANNERFALL** | Attactics | a 6×8 field between two keeps, a countdown turn where you drag troops within your half, the same end-of-turn order and clashes, eight unit types with promotions and heroes, the original's 24 campaign battles, ranked, survival and 2P versus | the Marigold Guard and the Thistle Host, all units and battle names |
 | 14 | **CUTLASS CUP** | Bushido Ball | first to 8 points, aimed and curved strikes, lobs, secondary weapons, charged super shots, the fouls and penalty points, six fighters, a tournament, 2P versus and co-op doubles | six corsairs, the galley *Sabra*, judge Rais Mabrouk |
 | 15 | **FENNEC FOUNTAIN** | Block Koala | pushing numbered blocks (never into a heavier one, a 1 that can't move is taken in), grey at five, blue and black blocks, mimics, arrows, stone patches and doors, unlimited undo and a room menu, fifty rooms behind gates, a room editor | Fen the fennec, a dry spring garden, 50 new rooms |
-| 16 | **TINTAIL** | Camouflage | sneaking on a grid past watchers by taking the colour of the ground you stand on, hollow logs, sun and rain pads, hatchlings to carry home, a danger view, undo | Kama the chameleon, Salt Island, toads and storks, 15 new levels |
+| 16 | **TINTAIL** | Camouflage | sneaking on a grid past watchers by taking the colour of the ground you stand on, hollow logs, sun and rain pads, hatchlings with their own colour, a danger view you can't move in, undo, a branching map | Twig the chameleon, Salt Island, toads and storks, 15 new levels |
 | 25 | **OPEN HOUSE** | Party House | drawing guests from a rolodex into a house with limited space, the original's 46 guest abilities, costs and trouble, police, fire marshal and bans, set guest lists and a random list, win within 25 nights, 2P hot-seat | a whitewashed house by the sea, all 46 guests' names and faces |
 | 28 | **DUNE EXPRESS** | Rail Heist | real time until a guard is alert, then 10-second turns, one-bullet lawmen who hit each other too, punches through walls and floors, carrying and throwing, hiding in barrels, levers, a crank gun, rams, three outlaws, three stars a mission with the original's time goals, 2P versus | Wade, Hush and Pearl, the Governor's tax trains, Biscuit the camel, 20 new trains |
 | 04, 08, 10–13, 17–24, 26–27, 29–40 | *coming soon* | | | still in the saucer's cargo hold |
@@ -344,27 +344,27 @@ the top.
 ### 16 · TINTAIL
 
 <p align="center">
-  <img src="docs/shots/tintail.gif" width="640" alt="Tintail: Kama changes colour to slip past three watching toads">
+  <img src="docs/shots/tintail.gif" width="640" alt="Tintail: Twig changes colour to slip past three watching toads">
 </p>
 <p align="center">
-  <img src="docs/shots/tintail_danger.png" width="320" alt="Holding B shows every predator's danger area">
-  <img src="docs/shots/tintail_map.png" width="320" alt="The Salt Island map">
+  <img src="docs/shots/tintail_danger.png" width="320" alt="Holding B turns every watched tile pink">
+  <img src="docs/shots/tintail_map.png" width="320" alt="The branching Salt Island map">
 </p>
 
 *A tribute to **Camouflage** (UFO 50 #16).*
 
-- **Plays the same:** a grid stealth puzzle in real time. Kama takes the
+- **Plays the same:** a grid stealth puzzle in real time. Twig takes the
   colour of the tile she stands on; matching the ground, she walks through a
-  predator's sight unseen. One colour at a time, and she's exposed while she
-  changes, so every crossing has to be planned a step ahead.
+  predator's sight unseen. One colour at a time, she's exposed while she
+  changes and can't change in danger, so every crossing is planned ahead.
 - **The island:** toads watch fixed areas, storks walk fixed loops (they block
   the toads' view, and walk into you whatever colour you are), hollow logs
-  hide you, and sun and rain pads dry or wet the grass. A button shows every
-  danger area, and if you're eaten you can undo a few steps.
-- **Structure:** fifteen single-screen levels in order across the island,
-  each with two prickly pears and a hatchling that follows one step behind.
-  Only the best single escape counts toward completion.
-- **Ours:** Kama, the toads, storks and falcon, Salt Island and the Sun Gate,
+  hide you, and sun and rain pads dry or wet the grass. Hold B and every
+  watched tile turns pink, but you can't move. If you're eaten you can undo.
+- **Structure:** fifteen single-screen levels on a branching map, each with
+  two prickly pears and a hatchling that follows one step behind in its own
+  colour. Only the best single escape counts toward completion.
+- **Ours:** Twig, the toads, storks and falcon, Salt Island and the Sun Gate,
   all fifteen levels (a solver in the tests proves each one), and the music.
 
 ### 25 · OPEN HOUSE

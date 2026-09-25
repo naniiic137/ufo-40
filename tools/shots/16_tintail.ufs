@@ -29,7 +29,7 @@ hold B
 wait 40
 release B
 cheat autosolve
-wait 330
+wait 460
 gifstop
 # the stork flats, halfway
 cheat level 5

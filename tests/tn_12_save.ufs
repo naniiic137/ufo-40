@@ -24,4 +24,4 @@ expect beaten1 == 1
 expect best1 == 3
 expect beaten2 == 0
 expect deaths == 1
-expect unlocked == 2
+expect unlocked == 3

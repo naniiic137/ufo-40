@@ -66,6 +66,7 @@ typedef struct TtState {
     uint8_t x, y, face;
     uint8_t px, py;                   /* the tile the chameleon was on before its last step */
     uint8_t camo, camo_t;             /* colour; beats left of a colour change */
+    uint8_t bcamo;                    /* the hatchling's own colour */
     uint8_t baby;                     /* 0 waiting, 1 following */
     uint8_t bx, by;
     uint8_t fruit;                    /* bit per fruit */
@@ -112,7 +113,7 @@ extern const TtLevelDef TN_LEVEL_DEFS[TN_LEVELS];
 #ifndef TN_NO_SHELL
 /* art & audio */
 enum {
-    TS_KAMA_R, TS_KAMA_R2, TS_KAMA_U, TS_KAMA_U2, TS_KAMA_D, TS_KAMA_D2,
+    TS_TWIG_R, TS_TWIG_R2, TS_TWIG_U, TS_TWIG_U2, TS_TWIG_D, TS_TWIG_D2,
     TS_BABY_R, TS_BABY_U, TS_BABY_D,
     TS_TOAD_R, TS_TOAD_U, TS_TOAD_D, TS_TOAD_BLINK, TS_TOAD_BLINK_U, TS_TOAD_BLINK_D,
     TS_STORK_R, TS_STORK_R2, TS_STORK_U, TS_STORK_U2, TS_STORK_D, TS_STORK_D2,

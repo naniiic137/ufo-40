@@ -2,7 +2,7 @@
  *
  * ground: g grass  s sand  w swamp  r rock  u/d switch grass (wet / dry)
  *         ~ sea  T palm  B boulder  o bush  - | hollow log  H the burrow
- * things: K Kama  F prickly pear  Y hatchling  ^ > v < a toad facing that way
+ * things: K Twig  F prickly pear  Y hatchling  ^ > v < a toad facing that way
  *         R rain pad  S sun pad
  * storks: "x y beats-per-step MOVES", a loop that ends where it began.
  * Every level is proved escapable with all three collectibles by the solver
@@ -95,9 +95,9 @@ const TtLevelDef TN_LEVEL_DEFS[TN_LEVELS] = {
       "..........v.........",
       "..........F.........",
       "....................",
-      "...>....Y........<..",
+      "...>.............<..",
       "....................",
-      ".K...........F......",
+      ".K...........FY.....",
       "....................",
       "....................",
       "...................."},
@@ -264,8 +264,8 @@ const TtLevelDef TN_LEVEL_DEFS[TN_LEVELS] = {
       ".>............Y..F..",
       "...................."},
      {"3 1 2 R12L12", "15 4 2 L12R12", "5 8 2 R12L12"}},
-    /* 12: a dry wadi of straw; the rain pad greens it */
-    {"CRACKED WADI",
+    /* 12: a dry gully of straw; the rain pad greens it */
+    {"CRACKED GULLY",
      {"~~~~~~~~~~~~~~~~~~~~",
       "~sssssooooooooossss~",
       "~sssssTTTTdTTTTssss~",
@@ -303,7 +303,7 @@ const TtLevelDef TN_LEVEL_DEFS[TN_LEVELS] = {
       ".....v.....v....v...",
       "....................",
       ".K..................",
-      ".....F...Y..........",
+      ".....F........Y.....",
       "................F...",
       "...............S....",
       "..S......R..........",

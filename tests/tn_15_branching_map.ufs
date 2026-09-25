@@ -1,0 +1,26 @@
+# TINTAIL: the island's trails branch: each level opens the next two, so a
+# stuck level can be passed by; the Sun Gate opens only from level 14.
+game tintail
+wait 5
+cheat beaten 1
+cheat map
+wait 5
+expect open2 == 1
+expect open3 == 1
+expect open4 == 0
+expect unlocked == 3
+press RIGHT
+wait 2
+press RIGHT
+wait 2
+press RIGHT
+wait 2
+expect cursor == 2
+press A
+wait 5
+expect level == 3
+cheat beaten 13
+expect open14 == 1
+expect open15 == 0
+cheat beaten 14
+expect open15 == 1

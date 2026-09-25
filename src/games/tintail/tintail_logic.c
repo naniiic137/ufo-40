@@ -200,11 +200,14 @@ void tn_danger(const TtLevel *lv, const TtState *st, uint32_t beat, uint8_t dang
         cone(lv, sx, sy, lv->nstork, lv->toad_x[i], lv->toad_y[i], lv->toad_dir[i], 4, 1 + i, danger);
 }
 
+/* each of them wears its own colour: the hatchling takes the colour of its
+ * own tile when the chameleon changes, and both are exposed while changing */
 bool tn_hidden(const TtLevel *lv, const TtState *st, int who) {
     int x = who ? st->bx : st->x, y = who ? st->by : st->y;
     if (is_log(lv, x, y)) return true;
-    if (st->camo_t > 0 || st->camo == TC_NONE) return false;
-    return st->camo == tn_colour(lv, st, x, y);
+    int c = who ? st->bcamo : st->camo;
+    if (st->camo_t > 0 || c == TC_NONE) return false;
+    return c == tn_colour(lv, st, x, y);
 }
 
 int tn_collected(const TtState *st) {
@@ -217,7 +220,11 @@ int tn_collected(const TtState *st) {
 static bool can_camo_with(const TtLevel *lv, const TtState *st, uint8_t dn[TN_H][TN_W]) {
     if (st->camo_t > 0 || is_log(lv, st->x, st->y)) return false;
     int c = tn_colour(lv, st, st->x, st->y);
-    if (c == TC_NONE || c == st->camo) return false;
+    if (c == TC_NONE) return false;
+    /* nothing would change */
+    int bc = st->baby ? tn_colour(lv, st, st->bx, st->by) : TC_NONE;
+    if (c == st->camo && (!st->baby || bc == TC_NONE || bc == st->bcamo)) return false;
+    /* never inside danger, the hatchling's included */
     if (dn[st->y][st->x]) return false;
     if (st->baby && dn[st->by][st->bx]) return false;
     return true;
@@ -261,6 +268,10 @@ static int step_core(const TtLevel *lv, TtState *st, int act, uint8_t dn[TN_H][T
         st->camo_t--;
         if (st->camo_t == 0) {
             st->camo = (uint8_t)tn_colour(lv, st, st->x, st->y);
+            if (st->baby) {
+                int bc = tn_colour(lv, st, st->bx, st->by);
+                if (bc != TC_NONE) st->bcamo = (uint8_t)bc;
+            }
             ev |= TE_CAMO_DONE;
         }
     } else if (act == ACT_CAMO) {
@@ -296,6 +307,7 @@ static int step_core(const TtLevel *lv, TtState *st, int act, uint8_t dn[TN_H][T
             }
         if (!st->baby && lv->baby_x == st->x && lv->baby_y == st->y) {
             st->baby = 1;
+            st->bcamo = TC_NONE; /* white until the next change */
             st->bx = st->px;
             st->by = st->py;
             ev |= TE_BABY;
@@ -357,6 +369,7 @@ static uint32_t pack(const TtState *st, int period) {
     v = v * 4 + st->fruit;
     v = v * 5 + (uint32_t)baby;
     v = v * 2 + (st->camo_t ? 1 : 0);
+    v = v * TC_COUNT + st->bcamo;
     v = v * TC_COUNT + st->camo;
     v = v * NPOS + (uint32_t)(st->y * TN_W + st->x);
     return v;
@@ -366,6 +379,7 @@ static void unpack(const TtLevel *lv, uint32_t v, TtState *st) {
     memset(st, 0, sizeof *st);
     int pos = (int)(v % NPOS); v /= NPOS;
     st->camo = (uint8_t)(v % TC_COUNT); v /= TC_COUNT;
+    st->bcamo = (uint8_t)(v % TC_COUNT); v /= TC_COUNT;
     st->camo_t = (uint8_t)(v % 2); v /= 2;
     int baby = (int)(v % 5); v /= 5;
     st->fruit = (uint8_t)(v % 4); v /= 4;
@@ -385,7 +399,7 @@ static void unpack(const TtLevel *lv, uint32_t v, TtState *st) {
 
 int tn_solve(const TtLevel *lv, bool need_all, char *out, int out_max) {
     int P = lv->period;
-    uint32_t total = (uint32_t)P * 3 * 4 * 5 * 2 * TC_COUNT * NPOS;
+    uint32_t total = (uint32_t)P * 3 * 4 * 5 * 2 * TC_COUNT * TC_COUNT * NPOS;
     uint8_t *seen = (uint8_t *)calloc(total / 8 + 1, 1);
     uint8_t (*dcache)[TN_H][TN_W] = malloc(sizeof(*dcache) * (size_t)P);
     int cap = 1 << 16, n = 0, head = 0;

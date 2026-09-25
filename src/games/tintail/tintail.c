@@ -6,7 +6,8 @@
 #include "tintail.h"
 
 #define TS 16
-#define OY 20             /* the level sits under a 20-pixel bar */
+#define OY 0              /* the level fills the top 160 pixels */
+#define HUD_Y 160         /* the bar at the bottom: level, visibility, pickups */
 #define HIST_MAX 2048
 #define TOTAL_POINTS (TN_LEVELS + (TN_LEVELS - 1) * 3)
 
@@ -44,10 +45,20 @@ static void load_save(void) {
 }
 
 static bool beaten(int lv) { return (sv.beaten >> lv) & 1; }
-static int unlocked_upto(void) {
+
+/* The island's trails branch: each level opens the next two, so a hard one
+ * can be passed by; the last two open only from the one before. */
+static bool trail(int a, int b) { return b == a + 1 || (b == a + 2 && b < TN_LEVELS - 2); }
+static bool is_open(int lv) {
+    if (lv == 0) return true;
+    for (int a = 0; a < lv; a++)
+        if (trail(a, lv) && beaten(a)) return true;
+    return false;
+}
+static int open_count(void) {
     int n = 0;
-    while (n < TN_LEVELS - 1 && beaten(n)) n++;
-    return n; /* the furthest level you may enter */
+    for (int i = 0; i < TN_LEVELS; i++) n += is_open(i);
+    return n;
 }
 static int points(void) {
     int p = 0;
@@ -133,7 +144,7 @@ static void on_escape(void) {
     bool first = !beaten(cur);
     sv.beaten |= (uint16_t)(1u << cur);
     if (got > sv.best[cur]) sv.best[cur] = (uint8_t)got;
-    if (cur + 1 < TN_LEVELS && first) sv.cursor = (uint8_t)(cur + 1);
+    if (cur + 1 < TN_LEVELS && first && is_open(cur + 1)) sv.cursor = (uint8_t)(cur + 1);
     else sv.cursor = (uint8_t)cur;
     check_goals();
     save_now();
@@ -166,6 +177,8 @@ static void do_beat(void) {
             act = c == 'U' ? ACT_UP : c == 'R' ? ACT_RIGHT : c == 'D' ? ACT_DOWN : c == 'L' ? ACT_LEFT : c == 'C' ? ACT_CAMO : ACT_WAIT;
         } else if (autoplay) {
             autoplay = NULL;
+        } else if (btn(BTN_B)) {
+            act = ACT_WAIT; /* looking at the danger: no moving, no changing */
         } else if (queued >= 0) {
             act = queued;
         } else if (btn(BTN_UP)) act = ACT_UP;
@@ -247,11 +260,12 @@ static void update_play(void) {
         sfx_play_name("ui_pause");
         return;
     }
-    if (btnp(BTN_UP)) queued = ACT_UP;
+    if (btn(BTN_B)) queued = -1;
+    else if (btnp(BTN_UP)) queued = ACT_UP;
     else if (btnp(BTN_DOWN)) queued = ACT_DOWN;
     else if (btnp(BTN_LEFT)) queued = ACT_LEFT;
     else if (btnp(BTN_RIGHT)) queued = ACT_RIGHT;
-    if (btnp(BTN_A)) queued = ACT_CAMO;
+    if (btnp(BTN_A) && !btn(BTN_B)) queued = ACT_CAMO;
     if (++beat_t >= TN_BEAT) {
         beat_t = 0;
         do_beat();
@@ -275,10 +289,12 @@ static void update_caught(void) {
     if (caught_t == 22) sfx_play_name(falcon ? "tn_swoop" : "tn_gulp");
     if (caught_t == 48) { sfx_play_name("tn_gulp"); music_restart(TN_MUS_EATEN); }
     if (caught_t < 60) return;
-    if (btn_repeat(BTN_UP) || btn_repeat(BTN_DOWN)) { menu_sel ^= 1; sfx_play_name("ui_move"); }
+    if (btn_repeat(BTN_UP)) { menu_sel = (menu_sel + 2) % 3; sfx_play_name("ui_move"); }
+    if (btn_repeat(BTN_DOWN)) { menu_sel = (menu_sel + 1) % 3; sfx_play_name("ui_move"); }
     if (btnp(BTN_A)) {
         if (menu_sel == 0) undo();
-        else { sfx_play_name("ui_ok"); enter_level(cur); }
+        else if (menu_sel == 1) { sfx_play_name("ui_ok"); enter_level(cur); }
+        else { sfx_play_name("ui_ok"); go_map(); }
     }
 }
 
@@ -303,9 +319,17 @@ static const int16_t NODE_X[TN_LEVELS] = {34, 58, 80, 70, 98, 124, 116, 146, 170
 static const int16_t NODE_Y[TN_LEVELS] = {104, 122, 106, 82, 72, 88, 116, 130, 112, 86, 70, 92, 114, 94, 66};
 
 static void update_map(void) {
-    int n = sv.cursor, top = unlocked_upto();
-    if (btn_repeat(BTN_RIGHT) || btn_repeat(BTN_UP)) { if (n < top) { n++; sfx_play_name("tn_node"); } }
-    if (btn_repeat(BTN_LEFT) || btn_repeat(BTN_DOWN)) { if (n > 0) { n--; sfx_play_name("tn_node"); } }
+    int n = sv.cursor;
+    if (!is_open(n)) n = 0;
+    /* along the trails: to the next or the previous open level */
+    if (btn_repeat(BTN_RIGHT) || btn_repeat(BTN_UP)) {
+        for (int k = n + 1; k < TN_LEVELS; k++)
+            if (is_open(k)) { n = k; sfx_play_name("tn_node"); break; }
+    }
+    if (btn_repeat(BTN_LEFT) || btn_repeat(BTN_DOWN)) {
+        for (int k = n - 1; k >= 0; k--)
+            if (is_open(k)) { n = k; sfx_play_name("tn_node"); break; }
+    }
     sv.cursor = (uint8_t)n;
     if (btnp(BTN_A) && state_t > 10) { sfx_play_name("ui_ok"); save_now(); enter_level(n); return; }
     if (btnp(BTN_B)) { sfx_play_name("ui_back"); state = S_TITLE; state_t = 0; game_set_pausable(false); }
@@ -541,17 +565,17 @@ static void draw_facing(int base_r, int base_u, int base_d, int dir, int x, int 
     else spr_draw_ex(&tn_spr[base_r], x, y, dir == DIR_LEFT ? SPR_FLIPX : 0, remap, -1);
 }
 
-/* Kama's colours: the ramp of her camouflage; hidden, even her outline blends */
-static void kama_remap(uint8_t *map, int camo, bool hidden, bool flicker) {
+/* Twig's colours: the ramp of her camouflage; hidden, even her outline blends */
+static void twig_remap(uint8_t *map, int camo, bool hidden, bool flicker) {
     pal_identity(map);
-    int c = flicker ? ((frame_t / 2) % 2 ? camo : TC_NONE) : camo;
+    int c = flicker ? (frame_t / 3) % TC_COUNT : camo;
     pal_swap(map, C_WHITE, RAMP[c][0]);
     pal_swap(map, C_LIGHT, RAMP[c][1]);
     pal_swap(map, C_GREY, RAMP[c][2]);
     if (hidden) pal_swap(map, C_INK, RAMP[c][2]);
 }
 
-static void draw_kama(void) {
+static void draw_twig(void) {
     if (state == S_CAUGHT && !S.baby_eaten && caught_t > 40) return;
     float t = state == S_PLAY || state == S_ESCAPE || state == S_MENU ? lerp_t() : 1.0f;
     int fx = S.x, fy = S.y, bx0 = prev_S.x, by0 = prev_S.y;
@@ -561,7 +585,7 @@ static void draw_kama(void) {
     bool in_log = L.kind[S.y][S.x] == TN_LOG_H || L.kind[S.y][S.x] == TN_LOG_V;
     bool hidden = tn_hidden(&L, &S, 0) && !S.dead;
     uint8_t map[PAL_COUNT];
-    kama_remap(map, S.camo_t ? TC_NONE : S.camo, hidden, S.camo_t > 0);
+    twig_remap(map, S.camo_t ? TC_NONE : S.camo, hidden, S.camo_t > 0);
     bool walk = (fx != bx0 || fy != by0) && t < 1.0f;
     int frame = walk && (int)(t * 4) % 2;
     if (state == S_ESCAPE && escape_t > 6) {
@@ -577,14 +601,14 @@ static void draw_kama(void) {
         gfx_noclip();
         return;
     }
-    draw_facing(frame ? TS_KAMA_R2 : TS_KAMA_R, frame ? TS_KAMA_U2 : TS_KAMA_U, frame ? TS_KAMA_D2 : TS_KAMA_D, S.face, px, py, map);
+    draw_facing(frame ? TS_TWIG_R2 : TS_TWIG_R, frame ? TS_TWIG_U2 : TS_TWIG_U, frame ? TS_TWIG_D2 : TS_TWIG_D, S.face, px, py, map);
     if (hidden && (frame_t / 40) % 3 == 0) gfx_pset(px + 13 - (S.face == DIR_LEFT ? 11 : 0), py + 5, C_WHITE);
     gfx_noclip();
 }
 
 static void draw_baby_at(int x, int y, int face, int camo, bool hidden, int bob) {
     uint8_t map[PAL_COUNT];
-    kama_remap(map, camo, hidden, false);
+    twig_remap(map, camo, hidden, false);
     int px = x + 3, py = y + 3 - bob;
     if (face == DIR_UP) spr_draw_ex(&tn_spr[TS_BABY_U], px, py, 0, map, -1);
     else if (face == DIR_DOWN) spr_draw_ex(&tn_spr[TS_BABY_D], px, py, 0, map, -1);
@@ -609,7 +633,12 @@ static void draw_baby(void) {
     int k = L.kind[S.by][S.bx];
     if (k == TN_LOG_H || k == TN_LOG_V) return;
     int face = S.x > S.bx ? DIR_RIGHT : S.x < S.bx ? DIR_LEFT : S.y < S.by ? DIR_UP : DIR_DOWN;
-    draw_baby_at((int)(x * TS), OY + (int)(y * TS), face, S.camo_t ? TC_NONE : S.camo, tn_hidden(&L, &S, 1) && !S.dead, 0);
+    uint8_t map[PAL_COUNT];
+    twig_remap(map, S.bcamo, tn_hidden(&L, &S, 1) && !S.dead, S.camo_t > 0);
+    int bxp = (int)(x * TS) + 3, byp = OY + (int)(y * TS) + 3;
+    if (face == DIR_UP) spr_draw_ex(&tn_spr[TS_BABY_U], bxp, byp, 0, map, -1);
+    else if (face == DIR_DOWN) spr_draw_ex(&tn_spr[TS_BABY_D], bxp, byp, 0, map, -1);
+    else spr_draw_ex(&tn_spr[TS_BABY_R], bxp, byp, face == DIR_LEFT ? SPR_FLIPX : 0, map, -1);
 }
 
 static void draw_toads(void) {
@@ -648,11 +677,11 @@ static void draw_danger(void) {
         for (int x = 0; x < TN_W; x++) {
             if (!dn[y][x]) continue;
             int px = x * TS, py = OY + y * TS;
-            gfx_dither(px, py, TS, TS, C_RED, lvl);
-            if (y == 0 || !dn[y - 1][x]) gfx_hline(px, px + TS - 1, py, C_ORANGE);
-            if (y == TN_H - 1 || !dn[y + 1][x]) gfx_hline(px, px + TS - 1, py + TS - 1, C_ORANGE);
-            if (x == 0 || !dn[y][x - 1]) gfx_vline(px, py, py + TS - 1, C_ORANGE);
-            if (x == TN_W - 1 || !dn[y][x + 1]) gfx_vline(px + TS - 1, py, py + TS - 1, C_ORANGE);
+            gfx_dither(px, py, TS, TS, C_PINK, lvl);
+            if (y == 0 || !dn[y - 1][x]) gfx_hline(px, px + TS - 1, py, C_MAGENTA);
+            if (y == TN_H - 1 || !dn[y + 1][x]) gfx_hline(px, px + TS - 1, py + TS - 1, C_MAGENTA);
+            if (x == 0 || !dn[y][x - 1]) gfx_vline(px, py, py + TS - 1, C_MAGENTA);
+            if (x == TN_W - 1 || !dn[y][x + 1]) gfx_vline(px + TS - 1, py, py + TS - 1, C_MAGENTA);
         }
 }
 
@@ -692,37 +721,44 @@ static void draw_caught_fx(void) {
 /* ------------------------------------------------------------------ */
 /* drawing: the level screen                                            */
 
+/* an eye: open when that one is in view, shut when hidden */
+static void draw_eye(int x, int y, bool seen) {
+    if (seen) {
+        gfx_rect(x, y + 1, 9, 5, C_WHITE);
+        gfx_rect(x + 1, y, 7, 7, C_WHITE);
+        gfx_rect(x + 3, y + 2, 3, 3, C_INK);
+    } else {
+        gfx_hline(x, x + 8, y + 3, C_SLATE);
+        gfx_hline(x + 1, x + 7, y + 4, C_SLATE);
+    }
+}
+
 static void draw_hud(void) {
-    gfx_rect(0, 0, SCREEN_W, OY, C_INK);
-    gfx_hline(0, SCREEN_W - 1, OY - 1, C_DUSK);
+    gfx_rect(0, HUD_Y, SCREEN_W, SCREEN_H - HUD_Y, C_INK);
+    gfx_hline(0, SCREEN_W - 1, HUD_Y, C_DUSK);
     char buf[48];
     snprintf(buf, sizeof buf, "%d", cur + 1);
-    gfx_rect(3, 4, 14, 12, C_FOREST);
-    gfx_rectb(3, 4, 14, 12, C_LEAF);
-    text_center(buf, 10, 7, C_WHITE);
-    text_draw(TN_LEVEL_DEFS[cur].name, 22, 6, C_CREAM);
-    int x = 206;
+    gfx_rect(3, HUD_Y + 4, 14, 12, C_FOREST);
+    gfx_rectb(3, HUD_Y + 4, 14, 12, C_LEAF);
+    text_center(buf, 10, HUD_Y + 7, C_WHITE);
+    text_draw(TN_LEVEL_DEFS[cur].name, 22, HUD_Y + 6, C_CREAM);
+    /* who can be seen */
+    bool alive = state == S_PLAY || state == S_MENU;
+    draw_eye(186, HUD_Y + 6, alive && !tn_hidden(&L, &S, 0));
+    if (S.baby) draw_eye(200, HUD_Y + 6, alive && !tn_hidden(&L, &S, 1));
+    int x = 232;
     for (int i = 0; i < L.nfruit; i++) {
         bool got = (S.fruit >> i) & 1;
-        if (got) spr_draw(&tn_spr[TS_PEAR], x, 4, 0);
-        else spr_draw_ex(&tn_spr[TS_PEAR], x, 4, 0, NULL, C_DUSK);
+        if (got) spr_draw(&tn_spr[TS_PEAR], x, HUD_Y + 4, 0);
+        else spr_draw_ex(&tn_spr[TS_PEAR], x, HUD_Y + 4, 0, NULL, C_DUSK);
         x += 11;
     }
     if (L.baby_x != TN_NONE) {
         uint8_t map[PAL_COUNT];
-        kama_remap(map, S.baby ? TC_GRASS : TC_NONE, false, false);
-        if (S.baby) spr_draw_ex(&tn_spr[TS_BABY_R], x, 5, 0, map, -1);
-        else spr_draw_ex(&tn_spr[TS_BABY_R], x, 5, 0, NULL, C_DUSK);
+        twig_remap(map, S.baby ? TC_GRASS : TC_NONE, false, false);
+        if (S.baby) spr_draw_ex(&tn_spr[TS_BABY_R], x, HUD_Y + 5, 0, map, -1);
+        else spr_draw_ex(&tn_spr[TS_BABY_R], x, HUD_Y + 5, 0, NULL, C_DUSK);
     }
-    /* the colour Kama wears */
-    int c = S.camo_t ? TC_NONE : S.camo;
-    gfx_rect(252, 5, 10, 10, C_INK);
-    gfx_rect(253, 6, 8, 8, RAMP[c][0]);
-    gfx_rect(253, 6, 8, 2, RAMP[c][1]);
-    gfx_rectb(252, 5, 10, 10, C_GREY);
-    text_draw(GLYPH_SKULL, 272, 6, C_SLATE);
-    snprintf(buf, sizeof buf, "%lu", (unsigned long)(sv.deaths > 9999 ? 9999 : sv.deaths));
-    text_draw(buf, 281, 6, C_GREY);
 }
 
 static void draw_level(void) {
@@ -746,7 +782,7 @@ static void draw_level(void) {
     }
     draw_toads();
     draw_baby();
-    draw_kama();
+    draw_twig();
     draw_storks();
     if (state == S_CAUGHT) draw_caught_fx();
     for (int i = 0; i < ARRAY_LEN(parts); i++) {
@@ -767,10 +803,6 @@ static void draw_level(void) {
         tiny_center(buf, 160, y + 5, C_LIME);
         static const uint8_t grad[] = {C_WHITE, C_LIME, C_LEAF};
         ui_fancy_center(TN_LEVEL_DEFS[cur].name, 160, y + 13, 1, grad, 3, C_INK, C_FOREST);
-    }
-    if (state == S_PLAY && intro_t == 0 && hist_n < 40 && cur == 0) {
-        gfx_rect(40, 168, 240, 11, C_INK);
-        text_center(GLYPH_A " CHANGE COLOUR    HOLD " GLYPH_B " SEE WHO WATCHES", 160, 170, (frame_t / 30) % 2 ? C_CREAM : C_WHITE);
     }
 }
 
@@ -795,9 +827,8 @@ static void draw_play(void) {
         draw_menu_panel("SELECT", M, 3, menu_sel);
     } else if (state == S_CAUGHT && caught_t >= 60) {
         gfx_darken_rect(0, OY, SCREEN_W, SCREEN_H - OY, 1);
-        static const char *const M[2] = {"UNDO", "RESTART LEVEL"};
-        draw_menu_panel(S.baby_eaten ? "THE HATCHLING!" : "GULP!", M, 2, menu_sel);
-        tiny_center(menu_sel ? "THE LEVEL AND ITS PEARS START OVER" : "REWIND A FEW STEPS", 160, 124, C_GREY);
+        static const char *const M[3] = {"UNDO", "RESTART LEVEL", "ISLAND MAP"};
+        draw_menu_panel(S.baby_eaten ? "THE HATCHLING!" : "GULP!", M, 3, menu_sel);
     } else if (state == S_ESCAPE && escape_t > 16) {
         int n = tn_collected(&S), need = L.nfruit + (L.baby_x != TN_NONE);
         gfx_rect(0, 70, SCREEN_W, 40, C_INK);
@@ -862,19 +893,20 @@ static void draw_island(int t) {
 
 static void draw_map(void) {
     draw_island(frame_t);
-    int top = unlocked_upto();
-    /* the trail */
-    for (int i = 0; i + 1 < TN_LEVELS; i++) {
-        int x0 = NODE_X[i], y0 = NODE_Y[i], x1 = NODE_X[i + 1], y1 = NODE_Y[i + 1];
-        int n = imax(iabs(x1 - x0), iabs(y1 - y0)) / 4;
-        for (int k = 1; k < n; k++) {
-            int x = x0 + (x1 - x0) * k / n, y = y0 + (y1 - y0) * k / n;
-            gfx_rect(x, y, 2, 2, i < top ? C_CREAM : C_FOREST);
+    /* the trails */
+    for (int a = 0; a < TN_LEVELS; a++)
+        for (int b = a + 1; b < TN_LEVELS; b++) {
+            if (!trail(a, b)) continue;
+            int x0 = NODE_X[a], y0 = NODE_Y[a], x1 = NODE_X[b], y1 = NODE_Y[b];
+            int n = imax(iabs(x1 - x0), iabs(y1 - y0)) / 4;
+            for (int k = 1; k < n; k++) {
+                int x = x0 + (x1 - x0) * k / n, y = y0 + (y1 - y0) * k / n;
+                gfx_rect(x, y, 2, 2, beaten(a) ? C_CREAM : C_FOREST);
+            }
         }
-    }
     for (int i = 0; i < TN_LEVELS; i++) {
         int x = NODE_X[i], y = NODE_Y[i];
-        bool open = i <= top, done = beaten(i);
+        bool open = is_open(i), done = beaten(i);
         int need = i == TN_LEVELS - 1 ? 0 : 3;
         gfx_circ(x, y + 1, 6, C_INK);
         gfx_circ(x, y, 6, !open ? C_SLATE : done ? C_YELLOW : C_WHITE);
@@ -888,11 +920,11 @@ static void draw_map(void) {
             text_draw(GLYPH_STAR, x + 3, y - 13, C_WHITE);
         }
     }
-    /* Kama on the current node */
+    /* Twig on the current node */
     int c = sv.cursor;
     uint8_t map[PAL_COUNT];
-    kama_remap(map, TC_GRASS, false, false);
-    spr_draw_ex(&tn_spr[(frame_t / 12) % 2 ? TS_KAMA_R2 : TS_KAMA_R], NODE_X[c] - 8, NODE_Y[c] - 22 - ((frame_t / 12) % 2), 0, map, -1);
+    twig_remap(map, TC_GRASS, false, false);
+    spr_draw_ex(&tn_spr[(frame_t / 12) % 2 ? TS_TWIG_R2 : TS_TWIG_R], NODE_X[c] - 8, NODE_Y[c] - 22 - ((frame_t / 12) % 2), 0, map, -1);
     /* the panel */
     gfx_rect(0, 0, SCREEN_W, 18, C_INK);
     gfx_hline(0, SCREEN_W - 1, 18, C_DUSK);
@@ -901,10 +933,6 @@ static void draw_map(void) {
     char buf[64];
     snprintf(buf, sizeof buf, "%d%%", completion());
     text_draw(buf, 214, 5, C_YELLOW);
-    tiny_draw("DONE", 240, 7, C_GREY);
-    text_draw(GLYPH_SKULL, 266, 5, C_SLATE);
-    snprintf(buf, sizeof buf, "%lu", (unsigned long)(sv.deaths > 9999 ? 9999 : sv.deaths));
-    text_draw(buf, 276, 5, C_GREY);
     ui_panel(4, 150, 312, 27, C_NIGHT, C_LEAF);
     snprintf(buf, sizeof buf, "LEVEL %d", c + 1);
     tiny_draw(buf, 12, 154, C_LIME);
@@ -924,7 +952,6 @@ static void draw_map(void) {
     } else {
         tiny_draw("THE LAST CLIMB", 212, 160, C_YELLOW);
     }
-    if ((frame_t / 30) % 2) text_draw(GLYPH_A, 298, 157, C_WHITE);
 }
 
 static void draw_scaled_remap(const Sprite *k, int x, int y, int scale, const uint8_t *map) {
@@ -945,10 +972,10 @@ static void draw_title(void) {
     ellipse(160, 180, 190, 56, C_FOREST);
     ellipse(160, 186, 170, 50, C_JADE);
     for (int i = 0; i < 7; i++) spr_draw(&tn_spr[TS_BUSH], 6 + i * 48, 148 + (i % 2) * 8, i % 2 ? SPR_FLIPX : 0);
-    /* Kama, big, changing colour every few seconds */
+    /* Twig, big, changing colour every few seconds */
     int c = (frame_t / 90) % TC_COUNT;
     uint8_t map[PAL_COUNT];
-    kama_remap(map, c, false, (frame_t % 90) < 10);
+    twig_remap(map, c, false, (frame_t % 90) < 10);
     draw_scaled_remap(&tn_spr[TS_HERO], 58, 92 - ((frame_t / 30) % 2), 3, map);
     spr_draw(&tn_spr[TS_PEAR], 206, 150, 0);
     static const uint8_t grad[] = {C_WHITE, C_LIME, C_LEAF, C_JADE};
@@ -967,7 +994,7 @@ static void draw_story(void) {
     text_draw("EVERY SPRING THE CHAMELEONS OF SALT\n"
               "ISLAND CLIMB TO THE SUN GATE ON THE\n"
               "EASTERN CAPE TO GREET THE FIRST SUNRISE.\n\n"
-              "KAMA, THE SMALLEST, IS LATE. THE TOADS\n"
+              "TWIG, THE SMALLEST, IS LATE. THE TOADS\n"
               "AND STORKS ARE HUNGRY. MATCH THE GROUND\n"
               "AND NOTHING CAN SEE YOU.", 26, 46, C_LIGHT);
     tiny_draw("PICK UP THE LOST HATCHLINGS ON THE WAY.", 26, 124, C_LIME);
@@ -988,21 +1015,21 @@ static void draw_ending(void) {
     for (int i = 0; i < 5; i++) gfx_rect(70 + i * 12, 110 + i * 14, 180 - i * 24, 14, i % 2 ? C_LIGHT : C_WHITE);
     gfx_rect(0, 170, SCREEN_W, 10, C_BROWN);
     uint8_t map[PAL_COUNT];
-    kama_remap(map, (state_t / 120) % TC_COUNT, false, (state_t % 120) < 8);
+    twig_remap(map, (state_t / 120) % TC_COUNT, false, (state_t % 120) < 8);
     draw_scaled_remap(&tn_spr[TS_HERO], 120, 70, 2, map);
     int babies = 0;
     for (int i = 0; i < TN_LEVELS - 1; i++) babies += sv.best[i] >= 3; /* the levels escaped with everything */
     for (int i = 0; i < 14; i++) {
         bool got = i < babies;
         int x = 76 + (i % 7) * 26, y = 128 + (i / 7) * 16;
-        kama_remap(map, 1 + i % 4, false, false);
+        twig_remap(map, 1 + i % 4, false, false);
         spr_draw_ex(&tn_spr[TS_BABY_U], x, y - ((frame_t / 10 + i) % 6 == 0), 0, got ? map : NULL, got ? -1 : C_EARTH);
     }
     ui_panel(40, 8, 240, 38, C_NIGHT, C_YELLOW);
     static const uint8_t grad[] = {C_WHITE, C_CREAM, C_YELLOW};
     ui_fancy_center("FIRST LIGHT", 160, 12, 2, grad, 3, C_INK, C_BROWN);
     char buf[48];
-    snprintf(buf, sizeof buf, "%d%% OF SALT ISLAND " GLYPH_DOT " %lu GULPS", completion(), (unsigned long)sv.deaths);
+    snprintf(buf, sizeof buf, "%d%% OF SALT ISLAND", completion());
     tiny_center(buf, 160, 34, C_LIGHT);
     if (state_t > 200 && (state_t / 20) % 2) text_center("PRESS " GLYPH_A, 160, 60, C_BROWN);
 }
@@ -1021,10 +1048,10 @@ static void draw_sheet(void) {
         uint8_t map[PAL_COUNT];
         int px = 8 + c * 40;
         gfx_rect(px, 120, 32, 32, RAMP[c][0]);
-        kama_remap(map, c, c != TC_NONE, false);
-        spr_draw_ex(&tn_spr[TS_KAMA_R], px + 8, 128, 0, map, -1);
-        kama_remap(map, c, false, false);
-        spr_draw_ex(&tn_spr[TS_KAMA_R], px + 8, 156, 0, map, -1);
+        twig_remap(map, c, c != TC_NONE, false);
+        spr_draw_ex(&tn_spr[TS_TWIG_R], px + 8, 128, 0, map, -1);
+        twig_remap(map, c, false, false);
+        spr_draw_ex(&tn_spr[TS_TWIG_R], px + 8, 156, 0, map, -1);
     }
 }
 
@@ -1064,10 +1091,10 @@ static void tn_label(int x, int y, int w, int h, int t) {
     gfx_dither(x, y + 18, w, 4, C_YELLOW, 8);
     gfx_dither(x, y + 28, w, 4, C_JADE, 8);
     for (int i = 0; i < 5; i++) spr_draw(&tn_spr[TS_BUSH], x - 4 + i * 30, y + 40 + (i % 2) * 4, i % 2 ? SPR_FLIPX : 0);
-    /* Kama changing colour on her branch while a toad squints */
+    /* Twig changing colour on her branch while a toad squints */
     int c = (t / 60) % 2 ? TC_GRASS : TC_NONE;
     uint8_t map[PAL_COUNT];
-    kama_remap(map, c, false, (t % 60) < 8);
+    twig_remap(map, c, false, (t % 60) < 8);
     spr_draw_ex(&tn_spr[TS_HERO], x + 20, y + 22, 0, map, -1);
     spr_draw(&tn_spr[(t / 50) % 4 == 0 ? TS_TOAD_BLINK : TS_TOAD_R], x + w - 30, y + 30, SPR_FLIPX);
     spr_draw(&tn_spr[TS_PEAR], x + 66, y + 20, 0);
@@ -1098,7 +1125,10 @@ static int tn_query(const char *key, int *out) {
     if (!strcmp(key, "points")) { *out = points(); return 1; }
     if (!strcmp(key, "deaths")) { *out = (int)sv.deaths; return 1; }
     if (!strcmp(key, "cursor")) { *out = sv.cursor; return 1; }
-    if (!strcmp(key, "unlocked")) { *out = unlocked_upto() + 1; return 1; }
+    if (!strcmp(key, "unlocked")) { *out = open_count(); return 1; }
+    if (!strncmp(key, "open", 4) && key[4]) { *out = is_open(atoi(key + 4) - 1); return 1; }
+    if (!strcmp(key, "bcamo")) { *out = S.bcamo; return 1; }
+    if (!strcmp(key, "bhidden")) { *out = tn_hidden(&L, &S, 1); return 1; }
     if (!strcmp(key, "danger")) {
         uint8_t dn[TN_H][TN_W];
         tn_danger(&L, &S, S.beat, dn);
@@ -1179,15 +1209,13 @@ const GameDef GAME_TINTAIL = {
     "TINTAIL",
     "1985",
     "PUZZLE",
-    "KAMA THE CHAMELEON SNEAKS ACROSS SALT ISLAND. MATCH THE GROUND TO HIDE.",
+    "TWIG THE CHAMELEON SNEAKS ACROSS SALT ISLAND. MATCH THE GROUND TO HIDE.",
     {"REACH 30% OF SALT ISLAND", "REACH THE SUN GATE", "REACH 100% OF SALT ISLAND"},
     "D-PAD\tSTEP\n"
     GLYPH_A "\tCHANGE COLOUR\n"
     "HOLD " GLYPH_B "\tSEE WHO WATCHES\n"
     "SELECT\tRESTART / MAP\n"
-    "START\tPAUSE\n\n"
-    "MATCH THE GROUND TO PASS\n"
-    "THROUGH DANGER UNSEEN.",
+    "START\tPAUSE",
     C_LEAF, C_YELLOW,
     tn_load, tn_start, tn_update, tn_draw, tn_quit, tn_label, tn_query, tn_cheat,
     "CAMOUFLAGE", 16,

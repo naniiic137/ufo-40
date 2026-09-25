@@ -1,0 +1,32 @@
+# TINTAIL: the hatchling keeps its own colour. It joins white, and takes the
+# colour of its own tile when Twig changes (both exposed while they change).
+# Holding B shows the danger but Twig can't move or change meanwhile.
+game tintail
+wait 5
+cheat level 1
+wait 2
+press DOWN
+wait 10
+press DOWN
+wait 10
+expect baby == 1
+expect bcamo == 0
+expect bhidden == 0
+press A
+wait 4
+expect camo_t > 0
+expect bhidden == 0
+wait 20
+expect camo == 2
+expect bcamo == 2
+expect bhidden == 1
+expect hidden == 1
+# looking: no steps, no changes
+expect x == 2
+hold B RIGHT 40
+expect x == 2
+hold B A 20
+expect camo_t == 0
+press RIGHT
+wait 10
+expect x == 3
