@@ -56,12 +56,12 @@ screenshot and GIF on this page.
 | 05 | **PETAL PARADE** | Magic Garden | a 12×12 field, a trail of followers you must never run into, saving them on star pads for rising points, potions by strength, a witch who plants mushrooms | Lina the gardener, petalpups, sun circles, Madame Nettle |
 | 06 | **TIN TROOP** | Mortol | 20 lives that carry through ten levels, the arrow, bomb and stone sacrifices, bodies as ledges and weights, water, fire and plants, a ship that drops the next life | a toy army in a toymaker's house, the Jack of the Chest, 10 new levels |
 | 07 | **SKYWELL** | Velgress | a random shaft of crumbling platforms, a roller that only follows you up, stun instead of damage, four-way shooting, a shop between levels, a key bird, a locked fourth level | Kip the scrap-diver, the Grinder, the Tinker, the Well Eye |
-| 09 | **BANNERFALL** | Attactics | a 6×8 field between two keeps, a countdown turn where you drag troops between lanes, the same end-of-turn order, eight unit types with promotions and heroes, a 24-battle campaign, ranked, survival and 2P versus | the Marigold Guard and the Thistle Host, all units and battles |
+| 09 | **BANNERFALL** | Attactics | a 6×8 field between two keeps, a countdown turn where you drag troops within your half, the same end-of-turn order and clashes, eight unit types with promotions and heroes, the original's 24 campaign battles, ranked, survival and 2P versus | the Marigold Guard and the Thistle Host, all units and battle names |
 | 14 | **CUTLASS CUP** | Bushido Ball | first to 8 points, aimed and curved strikes, lobs, secondary weapons, charged super shots, the fouls and penalty points, six fighters, a tournament, 2P versus and co-op doubles | six corsairs, the galley *Sabra*, judge Rais Mabrouk |
 | 15 | **FENNEC FOUNTAIN** | Block Koala | pushing numbered blocks (big pushes small, 1s add up), blocks that turn to marble, blue and black blocks, mimics, unlimited undo, fifty rooms behind gates, a room editor | Fen the fennec, an oasis, 50 new rooms |
 | 16 | **TINTAIL** | Camouflage | sneaking on a grid past watchers by taking the colour of the ground you stand on, hollow logs, sun and rain pads, hatchlings to carry home, a danger view, undo | Kama the chameleon, Salt Island, toads and storks, 15 new levels |
 | 25 | **OPEN HOUSE** | Party House | drawing guests from a rolodex into a house with limited space, the original's 46 guest abilities, costs and trouble, police, fire marshal and bans, set guest lists and a random list, win within 25 nights, 2P hot-seat | a whitewashed house by the sea, all 46 guests' names and faces |
-| 28 | **DUNE EXPRESS** | Rail Heist | real time until a guard is alert, then short turns, one-bullet lawmen, punches through walls and floors, carrying and throwing, hiding in barrels, levers, a crank gun, a ram, three outlaws, angel/devil/time stars, 2P versus | desert outlaws, the Governor's tax trains, Baraka the camel, 20 new missions |
+| 28 | **DUNE EXPRESS** | Rail Heist | real time until a guard is alert, then 10-second turns, one-bullet lawmen who hit each other too, punches through walls and floors, carrying and throwing, hiding in barrels, levers, a crank gun, rams, three outlaws, three stars a mission with the original's time goals, 2P versus | Wade, Hush and Pearl, the Governor's tax trains, Biscuit the camel, 20 new trains |
 | 04, 08, 10–13, 17–24, 26–27, 29–40 | *coming soon* | | | still in the saucer's cargo hold |
 
 Every cartridge has three goals, which follow the original's own three: a
@@ -243,17 +243,21 @@ the top.
 
 - **Plays the same:** a 6 × 8 field between two keeps and one new unit a turn
   on a random row. While the timer counts down from 9 you drag units up, down
-  or back (forward only to where you picked them up). Then everyone attacks
-  and marches in Attactics' order.
+  or back within your half (forward only to where you picked them up). Then
+  everyone attacks and marches in Attactics' order; when two foes step into
+  the same tile, the side with the longer line behind pushes through.
 - **The troops:** eight units with the original's rules. Footmen in a column
-  of three shrug off melee, bowmen stand and shoot, wardens stop arrows until
-  they're hurt, riders move twice, and powdermen blow up. Every fifth
-  promotion calls a champion.
+  of three shrug off melee, bowmen shoot down their lane unless a friend is in
+  the way, wardens stop arrows until they're hurt, riders move twice, and
+  powdermen blow up. Every fifth promotion calls a champion. Battles that
+  bring a new troop open with a line about it, and the campaign map shows
+  what the next battle brings.
 - **The CPU** never moves its troops, but it gets extra ones. The 24-battle
   campaign uses the original's banners, unit pools and percentages. Ranked,
   Survival and 2P Versus are there too.
 - **Ours:** the Marigold Guard and the Thistle Host, every unit's name and
-  look, the keeps, the battle names, the march and the battle music.
+  look, the keeps, the battle names and every line of text, the march and the
+  battle music.
 
 ### 14 · CUTLASS CUP
 
@@ -361,33 +365,37 @@ the top.
 ### 28 · DUNE EXPRESS
 
 <p align="center">
-  <img src="docs/shots/dune.gif" width="640" alt="Dune Express: Khaled breaks a crate, crosses the roofs and drops in behind a guard for the strongbox">
+  <img src="docs/shots/dune.gif" width="640" alt="Dune Express: Wade breaks a crate, crosses the roofs and drops in behind a guard for the strongbox">
 </p>
 <p align="center">
-  <img src="docs/shots/dune_turns.png" width="320" alt="Sahar walks past a stunned guard during her turn">
+  <img src="docs/shots/dune_turns.png" width="320" alt="Pearl walks past a stunned guard during her turn">
   <img src="docs/shots/dune_roofs.png" width="320" alt="Dusk on the longest train, a guard on the next roof">
 </p>
 
 *A tribute to **Rail Heist** (UFO 50 #28).*
 
-- **Plays the same:** rob a moving train and escape to your mount at the far
-  end before the train reaches town. While every guard stands still it's real
-  time; once one is up and about it goes in turns, ten seconds for you (the
-  clock runs) and a few for the lawmen (it stops).
+- **Plays the same:** rob a moving train and escape to your mount at the back
+  before the train reaches town. Each heist opens with a look along the whole
+  train, inside and out. While every guard stands still it's real time; once
+  one is up and about it goes in turns, ten seconds for you (the clock runs)
+  and three and a half for the lawmen (it stops).
 - **The rules:** a guard shoots an outlaw he sees straight ahead, once, and
-  then can only punch and throw; a gunshot wakes everyone nearby. Duck behind
-  anything a tile high, punch through walls, floors and ceilings, carry and
-  throw barrels, crates, anvils, powder sticks and geese, hide in a barrel,
-  and load the gun slowly. Levers flip every iron gate, the crank gun turns
-  on the lawmen from behind, and a punched ram charges.
+  then can only punch and throw; his bullet takes whoever is first in line,
+  another lawman too, and a gunshot wakes everyone nearby. Duck behind
+  anything a tile high, punch through walls, floors and ceilings, push, carry
+  and throw barrels, crates, anvils, powder sticks and geese, hide and roll in
+  a barrel, stand on a guard's head, and load the gun slowly. Levers flip
+  every iron gate, the crank gun turns on the lawmen from behind, and rams
+  run down whoever is in front.
 - **Structure:** twenty missions in order for the same three outlaws, one or
-  two a mission, with loot, a rescue, a full belt of bullets and the Governor
-  to finish; angel, devil and time stars; 2P Versus on a longer train dealt
-  fresh each time.
-- **Ours:** Khaled, the Veil, Sahar and Baraka, the Salt Line and all twenty
-  trains (every one is won by a scripted run in the tests, without a kill and
-  under its time star), the powder sticks, geese, rams and hamsa, and the
-  music.
+  two a mission (a pair starts at opposite ends and takes turns), with loot,
+  a rescue, a full belt of bullets and the Governor to finish; three stars a
+  mission (no kills, every guard down, and Rail Heist's own time goals); 2P
+  Versus on a longer train dealt fresh each time.
+- **Ours:** Wade, Hush and Pearl, Old Hettie and Biscuit the camel, the Salt
+  Line and all twenty trains (every one is won by a scripted run in the
+  tests, without a kill and under its time goal), the powder sticks, geese,
+  rams and the lucky horseshoe, and the music.
 
 ## Install on PS Vita
 

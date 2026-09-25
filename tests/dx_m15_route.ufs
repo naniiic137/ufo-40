@@ -1,94 +1,47 @@
-# DUNE EXPRESS: mission 15, RESUPPLY, can be won with the buttons alone:
-# the Veil starts empty: bullets on the floor, a crate held up to take the first
-# guard's shot, the patrol punched from behind, over the roof and down behind the next
-# guard for the spare rounds in the barrel; a full belt, and out behind the last guard
+# DUNE EXPRESS: mission 15, FULL BELT, can be won with the buttons alone,
+# unseen and under the time star: Hush starts empty; a bullet off the floor,
+# then a roll behind the crate for the second and the crate lifted while
+# ducked, so the first guard spends his bullet on it; over the wall by the
+# roof, the patrol punched from behind and two more bullets; a roll behind the
+# barrel, lifted the same way: the next guard shoots it open and out fall the
+# spare rounds; a full belt, and out behind the last guard
 game dune
 wait 5
 cheat mission 15
 wait 1
-hold RIGHT 51
-hold RIGHT 39
-hold RIGHT DOWN 76
+hold RIGHT 90
 hold DOWN
+press A
+wait 80
 press B
+wait 10
 release DOWN
+wait 3
+hold RIGHT 60
+hold RIGHT 67
+hold UP 70
+wait 230
+wait 212
+hold RIGHT 38
+hold DOWN 70
+hold RIGHT 16
+press B
+wait 3
+hold RIGHT 150
+hold DOWN
+press A
+wait 70
+press B
 wait 20
-hold RIGHT 39
-hold RIGHT 1
+release DOWN
+wait 3
+hold RIGHT 60
+hold RIGHT 142
+wait 215
+hold RIGHT 66
 press B
-wait 5
-hold RIGHT 16
-hold RIGHT 16
-hold RIGHT 16
-hold RIGHT 16
-hold RIGHT 16
-hold RIGHT 8
-hold UP 24
-hold UP 24
-hold UP 24
-hold RIGHT 25
-wait 178
-wait 210
-hold RIGHT 13
-hold DOWN 24
-hold DOWN 24
-hold DOWN 4
-hold RIGHT 1
-wait 2
-wait 2
-wait 2
-wait 2
-wait 2
-hold RIGHT 25
-hold RIGHT 1
-press B
-wait 5
-hold RIGHT 128
-hold LEFT 153
-hold UP 24
-hold UP 24
-hold UP 24
-hold RIGHT 135
-wait 2
-wait 210
-hold RIGHT 19
-wait 581
-wait 210
-hold RIGHT 12
-hold RIGHT A 40
-wait 5
-hold RIGHT 127
-hold DOWN 24
-hold DOWN 24
-hold DOWN 4
-hold RIGHT 1
-wait 2
-wait 2
-wait 2
-wait 2
-wait 2
-hold LEFT 25
-hold LEFT 1
-press B
-wait 5
-hold LEFT 63
-hold LEFT 1
-press B
-wait 30
-hold LEFT 12
-hold RIGHT 25
-hold RIGHT 180
-wait 5
-wait 210
-hold RIGHT 51
-hold RIGHT 1
-press B
-wait 5
-hold RIGHT 16
-hold RIGHT 16
-hold RIGHT 16
-hold RIGHT 16
-hold RIGHT 16
+wait 3
+hold RIGHT 90
 wait 10
 expect result == 1
 expect state == 4

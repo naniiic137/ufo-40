@@ -1,0 +1,25 @@
+# DUNE EXPRESS: a thing thrown past a guard's eyes puts him on alert (no
+# shot, it's not an outlaw) and on his turn he goes to look where it fell.
+game dune
+wait 5
+cheat mission 1
+cheat law 0 32 6 0 0
+cheat law 1 55 6 1 0
+cheat pos 19 6
+cheat face 1
+wait 2
+hold DOWN
+press B
+release DOWN
+wait 2
+expect carry == 2
+press B
+wait 40
+expect law0_state == 2
+expect law0_stun == 0
+expect law0_armed == 1
+expect alive == 1
+expect phase == 1
+wait 600
+wait 100
+expect law0_x < 500

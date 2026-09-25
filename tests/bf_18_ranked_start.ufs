@@ -1,0 +1,16 @@
+# BANNERFALL ranked: a new player starts at rank 10 (the host brings 10% more);
+# the rank never drops below 0.
+game bannerfall
+wait 5
+expect rank == 10
+expect best_rank == 10
+cheat ranked
+expect handicap == 10
+cheat rank 0
+cheat ranked
+cheat clear
+cheat flags 1 3
+cheat unit 0 2 1 1
+cheat endturn
+wait 200
+expect rank == 0

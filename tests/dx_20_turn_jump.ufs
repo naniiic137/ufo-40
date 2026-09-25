@@ -1,0 +1,23 @@
+# DUNE EXPRESS: when the outlaws' ten seconds run out they are locked in
+# place, but a jump already in the air finishes: jump right at the end of
+# your turn and you land during the lawmen's.
+game dune
+wait 5
+cheat mission 4
+cheat law 1 30 6 1 1
+cheat pos 4 6
+cheat face 1
+wait 2
+expect phase == 1
+wait 585
+hold RIGHT A 13
+expect phase == 2
+expect ground == 0
+expect tx == 5
+wait 30
+expect ground == 1
+expect tx >= 6
+expect phase == 2
+# locked: pressing does nothing now
+hold RIGHT 20
+expect tx <= 7

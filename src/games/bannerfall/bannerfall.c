@@ -50,20 +50,27 @@ static int state, state_t, frame_t;
 static int sub, sub_t, plan_t;
 static int res_phase, res_t, res_len[PH_COUNT];
 static int title_sel, level_sel, cur_level;
-static int shake, banner_t, banner_kind;
+static int shake, banner_t, banner_kind, tip_t;
 static bool two_players, sheet_mode;
 static int result_status, rank_delta;
 static bool new_best;
 static uint32_t result_score;
+static uint16_t spawn_mask[2], spawn_total[2]; /* unit types spawned this battle (tests) */
 
 /* versus setup */
-static int vs_preset, vs_row[2];
-static uint8_t vs_count[2][U_TYPES], vs_flags[2];
+/* versus setup: each army's pool is 8 places in 2 rows of 4 (player 2's is
+ * the mirror image), plus its banners. cur: -1 the mode banner (player 1
+ * only), 0..7 a place, 8 the banners row. */
+#define VS_SLOTS 8
+static int vs_preset, vs_cur[2];
+static uint8_t vs_slot[2][VS_SLOTS], vs_rand[2][VS_SLOTS], vs_flags[2];
 
-static const uint8_t PHASE_LEN[PH_COUNT] = {18, 20, 16, 20, 14};
+/* the end of a turn plays out in about a second: knives, attacks, moves, keeps, riders */
+static const uint8_t PHASE_LEN[PH_COUNT] = {12, 14, 12, 14, 10};
 
+/* one title per ten ranks; below 10 there is none */
 static const char *RANK_TITLES[21] = {
-    "RECRUIT", "PICKET", "TROOPER", "VETERAN", "SERGEANT", "BANNERMAN", "CAPTAIN",
+    "", "PICKET", "TROOPER", "VETERAN", "SERGEANT", "BANNERMAN", "CAPTAIN",
     "KNIGHT", "MARSHAL", "COMMANDER", "WARLORD", "THANE", "MARGRAVE", "HIGH MARSHAL",
     "LORD OF LANES", "KEEPBREAKER", "FLAGTAKER", "IRON DUKE", "GRAND DUKE", "LEGEND", "MYTH",
 };
@@ -101,6 +108,8 @@ static void load_save(void) {
     Save tmp;
     if (game_save_read(game_current_index(), &tmp, (int)sizeof tmp) == (int)sizeof tmp && tmp.magic == SAVE_MAGIC) sv = tmp;
     else { memset(&sv, 0, sizeof sv); sv.magic = SAVE_MAGIC; }
+    /* ranked starts at rank 10 (older saves that never won a ranked battle too) */
+    if (sv.rank == 0 && sv.best_rank == 0) sv.rank = sv.best_rank = 10;
 }
 
 static int beaten_count(void) {
@@ -129,7 +138,13 @@ static void reset_hands(void) {
 
 static void begin_turn(void) {
     sev.n = 0;
+    bool hero = B.a[0].hero_due || B.a[1].hero_due; /* five promotions called a champion */
     bf_spawn(&B, &sev);
+    for (int i = 0; i < sev.n; i++)
+        if (sev.ev[i].type == BE_SPAWN) {
+            spawn_mask[sev.ev[i].a & 1] |= (uint16_t)(1u << sev.ev[i].b);
+            spawn_total[sev.ev[i].a & 1]++;
+        }
     sub = P_SPAWN;
     sub_t = 0;
     if (B.turn == 40 || B.turn == 60) {
@@ -137,9 +152,10 @@ static void begin_turn(void) {
         banner_t = 90;
         sfx_play_name("bf_double");
     }
-    bool hero = false;
-    for (int i = 0; i < sev.n; i++)
-        if (sev.ev[i].b == U_CHAMP) hero = true;
+    if (hero && banner_t <= 0) {
+        banner_kind = 3;
+        banner_t = 70;
+    }
     sfx_play_name(hero ? "bf_hero" : "bf_spawn");
 }
 
@@ -149,20 +165,24 @@ static void start_battle(void) {
     rev.n = 0;
     shake = 0;
     banner_t = 0;
+    tip_t = B.mode == MODE_CAMPAIGN && BF_LEVELS_DEF[cur_level].tip ? 240 : 0;
     state = S_PLAY;
     state_t = 0;
     input_set_versus(two_players);
     game_set_pausable(true);
     music_play(BF_MUS_BATTLE);
+    spawn_mask[0] = spawn_mask[1] = spawn_total[0] = spawn_total[1] = 0;
     begin_turn();
 }
 
-static void start_campaign_battle(int level) {
+static void start_campaign_battle_seeded(int level, uint64_t seed) {
     cur_level = level;
     two_players = false;
-    bf_setup_level(&B, level, new_seed());
+    bf_setup_level(&B, level, seed);
     start_battle();
 }
+
+static void start_campaign_battle(int level) { start_campaign_battle_seeded(level, new_seed()); }
 
 static void start_ranked(void) {
     two_players = false;
@@ -178,49 +198,57 @@ static void start_survival(void) {
 
 static const char *VS_POOLS[3] = {"FFBR", "FFBRPW", "FFBRPWSX"};
 
-static void vs_preset_counts(int p) {
-    memset(vs_count, 0, sizeof vs_count);
-    const char *pool = VS_POOLS[iclamp(p, 0, 2)];
-    for (int s = 0; s < 2; s++) {
-        Army a;
-        memset(&a, 0, sizeof a);
-        bf_pool_from_letters(&a, pool);
-        for (int i = 0; i < a.pool_n; i++) vs_count[s][a.pool[i]]++;
-        vs_flags[s] = 3;
+/* a place's mirror image across the field: same row, other end */
+static int vs_mirror(int i) { return (i / 4) * 4 + 3 - i % 4; }
+
+/* the presets: both armies field the same pool, player 2's mirrored */
+static void vs_preset_slots(int p, uint8_t out[2][VS_SLOTS]) {
+    memset(out, 0, 2 * VS_SLOTS);
+    Army a;
+    memset(&a, 0, sizeof a);
+    bf_pool_from_letters(&a, VS_POOLS[iclamp(p, 0, 2)]);
+    for (int i = 0; i < a.pool_n && i < VS_SLOTS; i++) {
+        out[0][i] = a.pool[i];
+        out[1][vs_mirror(i)] = a.pool[i];
     }
 }
 
-static void army_from_counts(Army *a, const uint8_t *count) {
+/* the random setting: a different pool for each side, never a champion */
+static void vs_reroll(void) {
+    memset(vs_rand, 0, sizeof vs_rand);
+    for (int s2 = 0; s2 < 2; s2++) {
+        int n = rng_range(&seeds, 4, VS_SLOTS);
+        for (int i = 0; i < n; i++) vs_rand[s2][s2 ? vs_mirror(i) : i] = (uint8_t)rng_range(&seeds, U_FOOT, U_POWDER);
+    }
+}
+
+static void army_from_slots(Army *a, const uint8_t *slot) {
     a->pool_n = 0;
-    for (int t = 1; t < U_TYPES; t++)
-        for (int k = 0; k < count[t] && a->pool_n < BF_POOL_MAX; k++) a->pool[a->pool_n++] = (uint8_t)t;
+    for (int i = 0; i < VS_SLOTS; i++)
+        if (slot[i]) a->pool[a->pool_n++] = slot[i];
     if (a->pool_n == 0) a->pool[a->pool_n++] = U_FOOT;
+}
+
+static bool vs_mirrored(uint8_t slot[2][VS_SLOTS]) {
+    for (int i = 0; i < VS_SLOTS; i++)
+        if (slot[1][vs_mirror(i)] != slot[0][i]) return false;
+    return true;
 }
 
 static void start_versus(void) {
     two_players = true;
     bf_setup(&B, MODE_VERSUS, new_seed());
-    if (vs_preset == VS_RANDOM) {
-        /* a different random pool for each player, no champions in it */
-        for (int s = 0; s < 2; s++) {
-            Army *a = &B.a[s];
-            a->pool_n = 0;
-            int n = rng_range(&seeds, 3, 6);
-            for (int i = 0; i < n; i++) a->pool[a->pool_n++] = (uint8_t)rng_range(&seeds, U_FOOT, U_POWDER);
-        }
-    } else {
-        if (vs_preset != VS_CUSTOM) vs_preset_counts(vs_preset);
-        for (int s = 0; s < 2; s++) {
-            army_from_counts(&B.a[s], vs_count[s]);
-            B.a[s].flags = B.a[s].start_flags = vs_preset == VS_CUSTOM ? vs_flags[s] : 3;
-        }
+    uint8_t slot[2][VS_SLOTS];
+    if (vs_preset == VS_RANDOM) memcpy(slot, vs_rand, sizeof slot);
+    else if (vs_preset == VS_CUSTOM) memcpy(slot, vs_slot, sizeof slot);
+    else vs_preset_slots(vs_preset, slot);
+    for (int s2 = 0; s2 < 2; s2++) {
+        army_from_slots(&B.a[s2], slot[s2]);
+        B.a[s2].flags = B.a[s2].start_flags = vs_preset == VS_CUSTOM ? vs_flags[s2] : 3;
+        B.a[s2].heroes = 1; /* champions from promotions in every 2P battle */
     }
-    /* champions from promotions in every 2P battle */
-    B.a[0].heroes = B.a[1].heroes = 1;
-    int cl[U_TYPES] = {0}, cr[U_TYPES] = {0};
-    for (int i = 0; i < B.a[0].pool_n; i++) cl[B.a[0].pool[i]]++;
-    for (int i = 0; i < B.a[1].pool_n; i++) cr[B.a[1].pool[i]]++;
-    B.matched = memcmp(cl, cr, sizeof cl) == 0;
+    /* matching spawns only when the pools mirror place for place; never in random */
+    B.matched = vs_preset != VS_RANDOM && vs_mirrored(slot);
     start_battle();
 }
 
@@ -397,9 +425,12 @@ static void hand_update(int p) {
         return;
     }
     if (dx || dy) {
-        h->cx = iclamp(h->cx + dx, 0, BF_COLS - 1);
-        h->cy = iclamp(h->cy + dy, 0, BF_ROWS - 1);
-        sfx_play_name("bf_move");
+        /* the hand roams its own half of the field only */
+        int lo = p ? BF_COLS - BF_ZONE : 0, hi = p ? BF_COLS - 1 : BF_ZONE - 1;
+        int nx = iclamp(h->cx + dx, lo, hi), ny = iclamp(h->cy + dy, 0, BF_ROWS - 1);
+        if (nx != h->cx || ny != h->cy) sfx_play_name("bf_move");
+        h->cx = nx;
+        h->cy = ny;
     }
     if (press(BTN_A) && sub == P_PLAN) {
         Unit *u = &B.g[h->cy][h->cx];
@@ -418,6 +449,7 @@ static void update_play(void) {
     bool ff = !two_players && btn(BTN_B);
     int speed = ff ? 3 : 1;
     if (banner_t > 0) banner_t--;
+    if (tip_t > 0) tip_t--;
     hand_update(0);
     if (two_players) hand_update(1);
     switch (sub) {
@@ -466,7 +498,8 @@ static void go_campaign(void) {
 static void go_versus_setup(void) {
     state = S_VERSUS;
     state_t = 0;
-    vs_row[0] = vs_row[1] = 0;
+    vs_cur[0] = -1;
+    vs_cur[1] = 0;
     input_set_versus(true);
     game_set_pausable(false);
     music_play(BF_MUS_CAMPAIGN);
@@ -511,35 +544,56 @@ static void update_campaign(void) {
 }
 
 static void update_versus(void) {
-    /* rows: 0 mode, then (custom) 1 flags, 2..9 units, then fight */
-    int rows = vs_preset == VS_CUSTOM ? 11 : 2;
     for (int p = 0; p < 2; p++) {
         bool (*rep)(int) = p ? btn_repeat2 : btn_repeat;
-        int *row = &vs_row[p];
-        if (p == 1 && vs_preset != VS_CUSTOM) break;
-        int lo = p == 1 ? 1 : 0, hi = p == 1 ? 9 : rows - 1;
-        if (*row < lo) *row = lo;
-        if (*row > hi) *row = hi;
-        if (rep(BTN_UP) && *row > lo) { (*row)--; sfx_play_name("ui_move"); }
-        if (rep(BTN_DOWN) && *row < hi) { (*row)++; sfx_play_name("ui_move"); }
-        int d = rep(BTN_RIGHT) - rep(BTN_LEFT);
-        if (!d) continue;
-        if (*row == 0 && p == 0) {
-            vs_preset = (vs_preset + d + VS_PRESETS) % VS_PRESETS;
-            if (vs_preset == VS_CUSTOM) { vs_preset_counts(VS_ADVANCED); vs_count[0][U_CHAMP] = vs_count[1][U_CHAMP] = 0; }
+        bool (*press)(int) = p ? btnp2 : btnp;
+        int *c = &vs_cur[p];
+        if (*c == -1) {
+            /* player 1 on the mode banner: left / right picks the mode */
+            int d = rep(BTN_RIGHT) - rep(BTN_LEFT);
+            if (d) {
+                vs_preset = (vs_preset + d + VS_PRESETS) % VS_PRESETS;
+                if (vs_preset == VS_RANDOM) vs_reroll();
+                sfx_play_name("ui_move");
+            }
+            if (rep(BTN_DOWN)) {
+                if (vs_preset == VS_CUSTOM) { *c = 0; sfx_play_name("ui_move"); }
+                else if (vs_preset == VS_RANDOM) { vs_reroll(); sfx_play_name("bf_spawn"); } /* down deals new pools */
+            }
+            continue;
+        }
+        if (vs_preset != VS_CUSTOM) { *c = p ? 0 : -1; continue; }
+        /* in the custom pools: the d-pad picks a place, A and B turn through the troops */
+        int row = *c >= VS_SLOTS ? 2 : *c / 4, col = *c % 4;
+        if (rep(BTN_UP)) {
+            if (row == 0) { if (p == 0) *c = -1; }
+            else *c = row == 2 ? 4 : *c - 4;
             sfx_play_name("ui_move");
-        } else if (*row == 1 && vs_preset == VS_CUSTOM) {
-            vs_flags[p] = (uint8_t)iclamp(vs_flags[p] + d, 1, 5);
-            sfx_play_name("ui_move");
-        } else if (*row >= 2 && *row <= 9 && vs_preset == VS_CUSTOM) {
-            int t = *row - 1;
-            vs_count[p][t] = (uint8_t)iclamp(vs_count[p][t] + d, 0, 3);
+        } else if (rep(BTN_DOWN) && row < 2) {
+            *c = row == 0 ? *c + 4 : VS_SLOTS;
             sfx_play_name("ui_move");
         }
+        if (*c < 0) continue;
+        row = *c >= VS_SLOTS ? 2 : *c / 4;
+        int d = rep(BTN_RIGHT) - rep(BTN_LEFT);
+        if (row < 2) {
+            if (d) {
+                int nc = iclamp(col + d, 0, 3);
+                if (nc != col) { *c = row * 4 + nc; sfx_play_name("ui_move"); }
+            }
+            int k = press(BTN_A) - press(BTN_B);
+            if (k) {
+                uint8_t *t = &vs_slot[p][*c];
+                *t = (uint8_t)((*t + k + U_TYPES) % U_TYPES); /* empty, then the eight troops */
+                sfx_play_name("bf_drag");
+            }
+        } else {
+            int k = d + press(BTN_A) - press(BTN_B);
+            if (k) { vs_flags[p] = (uint8_t)iclamp(vs_flags[p] + k, 1, 5); sfx_play_name("ui_move"); }
+        }
     }
-    if (btnp(BTN_B)) { sfx_play_name("ui_back"); go_title(); return; }
-    bool on_fight = vs_row[0] == rows - 1;
-    if (btnp(BTN_START) || (btnp(BTN_A) && on_fight)) {
+    if (vs_cur[0] == -1 && btnp(BTN_B)) { sfx_play_name("ui_back"); go_title(); return; }
+    if (btnp(BTN_START) || (vs_cur[0] == -1 && btnp(BTN_A))) {
         sfx_play_name("ui_ok");
         start_versus();
     }
@@ -692,8 +746,21 @@ static void draw_keep(const Board *b, int side) {
         for (int k = 1; k < 5; k++) gfx_vline(gx + k * 2, gy + 4, gy + 16, C_NIGHT); /* portcullis */
         gfx_hline(gx, gx + 9, gy + 9, C_NIGHT);
     }
-    /* banners on their towers: standing, or fallen once taken */
+    /* the promotion counter on the keep top: four stars, the fifth calls a champion */
     const Army *a = &b->a[side];
+    if (a->heroes) {
+        int px0 = x0 + 4;
+        gfx_rect(px0 - 1, top + 1, 41, 8, C_INK);
+        for (int i = 0; i < 4; i++) {
+            int c = i < B.a[side].promos ? C_YELLOW : C_DUSK, sx = px0 + 4 + i * 10, sy = top + 4;
+            gfx_pset(sx, sy - 2, c);
+            gfx_hline(sx - 2, sx + 2, sy - 1, c);
+            gfx_hline(sx - 1, sx + 1, sy, c);
+            gfx_pset(sx - 2, sy + 1, c);
+            gfx_pset(sx + 2, sy + 1, c);
+        }
+    }
+    /* banners on their towers: standing, or fallen once taken */
     int tx = side == SIDE_L ? x0 + 3 : x0 + w - 19;
     if (a->flags == BF_NO_FLAGS) {
         char buf[16];
@@ -724,21 +791,45 @@ static int unit_sprite(int type, int frame) {
     return base[type] + (frame & 1);
 }
 
-static void draw_unit_at(const Unit *u, int px, int py, int frame, bool flash, bool lifted) {
-    const Sprite *s = &bf_spr[unit_sprite(u->type, frame)];
+/* the sprite a unit shows now: a warden at 3 HP or less has lost its shield */
+static int unit_sprite_now(const Unit *u, int frame) {
+    if (u->type == U_WARD && u->hp < 4) return BS_WARDX1 + (frame & 1);
+    return unit_sprite(u->type, frame);
+}
+
+/* guard: a footman standing in a column of three, shrugging off blows */
+static void draw_unit_at(const Unit *u, int px, int py, int frame, bool flash, bool lifted, bool guard) {
+    const Sprite *s = &bf_spr[unit_sprite_now(u, frame)];
     int sx = px + (TW - s->w) / 2, sy = py + TH - s->h - 4 - (lifted ? 4 : 0);
     int fl = u->side == SIDE_R ? SPR_FLIPX : 0;
     /* shadow */
     gfx_dither(px + 6, py + TH - 6, TW - 12, 3, C_INK, lifted ? 6 : 9);
+    if (guard && !flash) {
+        int oc = u->side == SIDE_L ? C_CREAM : C_PINK;
+        spr_draw_ex(s, sx - 1, sy, fl, NULL, oc);
+        spr_draw_ex(s, sx + 1, sy, fl, NULL, oc);
+        spr_draw_ex(s, sx, sy - 1, fl, NULL, oc);
+    }
     if (flash) spr_draw_ex(s, sx, sy, fl, NULL, C_WHITE);
     else spr_draw_ex(s, sx, sy, fl, BF_TEAM_MAP[u->side], -1);
-    /* hit points and promotion */
+    /* hit points: bars, or stars once promoted (a promoted unit hits for two) */
     int hp = u->hp, maxhp = BF_UNITS[u->type].hp;
-    int bw = maxhp * 3;
+    int step = u->promo ? 4 : 3;
+    int bw = maxhp * step;
     int bx = px + (TW - bw) / 2, by = py + TH - 3;
-    gfx_rect(bx - 1, by - 1, bw + 1, 3, C_INK);
-    for (int i = 0; i < maxhp; i++) gfx_rect(bx + i * 3, by, 2, 1, i < hp ? (u->side == SIDE_L ? C_YELLOW : C_PINK) : C_DUSK);
-    if (u->promo) spr_draw(&bf_spr[BS_STAR], px + (u->side == SIDE_L ? 2 : TW - 7), sy - 1, 0);
+    int on = u->side == SIDE_L ? C_YELLOW : C_PINK;
+    if (!u->promo) {
+        gfx_rect(bx - 1, by - 1, bw + 1, 3, C_INK);
+        for (int i = 0; i < maxhp; i++) gfx_rect(bx + i * 3, by, 2, 1, i < hp ? on : C_DUSK);
+    } else {
+        gfx_rect(bx - 1, by - 2, bw + 1, 5, C_INK);
+        for (int i = 0; i < maxhp; i++) {
+            int c = i < hp ? on : C_DUSK, x = bx + i * 4 + 1;
+            gfx_pset(x, by - 1, c);
+            gfx_hline(x - 1, x + 1, by, c);
+            gfx_pset(x, by + 1, c);
+        }
+    }
 }
 
 static const BEvent *find_ev(int phase, int type, int id) {
@@ -808,7 +899,8 @@ static void draw_units(void) {
             }
             for (int p = 0; p < 2; p++)
                 if (hand[p].grab && hand[p].cx == x && hand[p].cy == y && state == S_PLAY) lifted = true;
-            draw_unit_at(u, tile_x(x) + (int)ox, tile_y(y) + (int)oy, frame, flash, lifted);
+            bool guard = u->type == U_FOOT && bf_in_column(b, x, y);
+            draw_unit_at(u, tile_x(x) + (int)ox, tile_y(y) + (int)oy, frame, flash, lifted, guard);
         }
     /* projectiles */
     if (phase < 0) return;
@@ -875,24 +967,39 @@ static void draw_particles(void) {
     }
 }
 
+/* the countdown: a number in the middle, bars on either side that drain
+ * toward it; 9 counts, 6 in Double Time, 4 in Triple Time */
 static void draw_timer(void) {
     int counts = bf_timer_counts(&B);
     int total = counts * COUNT_FRAMES;
     int left = sub == P_PLAN ? total - plan_t : sub == P_SPAWN ? total : 0;
+    left = iclamp(left, 0, total); /* a frozen test board shows a full count */
     int shown = (left + COUNT_FRAMES - 1) / COUNT_FRAMES;
-    int w = counts * 10;
-    int x0 = 160 - w / 2;
-    for (int i = 0; i < counts; i++) {
-        bool on = i < shown;
-        int c = on ? (shown <= 3 ? C_ORANGE : C_CREAM) : C_DUSK;
-        gfx_rect(x0 + i * 10, 4, 8, 7, C_INK);
-        gfx_rect(x0 + i * 10 + 1, 5, 6, 5, c);
+    const int BW = 54;
+    int fill = total > 0 ? (BW * left + total - 1) / total : 0;
+    bool hurry = shown <= 3;
+    int bar = hurry ? C_ORANGE : C_CREAM;
+    /* left bar drains toward the middle from its outer end, the right one mirrors it */
+    gfx_rect(160 - 12 - BW - 1, 4, BW + 2, 8, C_INK);
+    gfx_rect(160 + 12 - 1, 4, BW + 2, 8, C_INK);
+    gfx_rect(160 - 12 - BW, 5, BW, 6, C_DUSK);
+    gfx_rect(160 + 12, 5, BW, 6, C_DUSK);
+    if (fill > 0) {
+        gfx_rect(160 - 12 - fill, 5, fill, 6, bar);
+        gfx_rect(160 + 12, 5, fill, 6, bar);
+        gfx_hline(160 - 12 - fill, 160 - 13, 5, C_WHITE);
+        gfx_hline(160 + 12, 160 + 11 + fill, 5, C_WHITE);
     }
+    gfx_rect(160 - 10, 1, 20, 14, C_INK);
     if (sub == P_RESOLVE || sub == P_OVER) {
-        gfx_rect(x0 - 2, 3, w + 3, 9, C_NIGHT);
+        gfx_rect(160 - 12 - BW - 1, 3, 2 * BW + 26, 10, C_NIGHT);
         text_center(sub == P_OVER ? "HALT!" : "MARCH!", 160, 4, (frame_t / 4) % 2 ? C_YELLOW : C_ORANGE);
+    } else {
+        char buf[12];
+        snprintf(buf, sizeof buf, "%d", shown);
+        text_draw_scaled(buf, 160 - text_width_scaled(buf, 2) / 2 + 1, 1, hurry && (frame_t / 4) % 2 ? C_RED : hurry ? C_ORANGE : C_WHITE, 2);
     }
-    if (btn(BTN_B) && !two_players && sub != P_OVER) tiny_draw(GLYPH_RIGHT GLYPH_RIGHT, x0 + w + 4, 6, C_LIME);
+    if (btn(BTN_B) && !two_players && sub != P_OVER) tiny_draw(GLYPH_RIGHT GLYPH_RIGHT, 160 + 12 + BW + 4, 6, C_LIME);
 }
 
 static void draw_hud(void) {
@@ -917,7 +1024,7 @@ static void draw_info_side(int p, int x0, int w) {
     const Unit *u = &b->g[h->cy][h->cx];
     int y0 = 160;
     if (u->type) {
-        const Sprite *s = &bf_spr[unit_sprite(u->type, 0)];
+        const Sprite *s = &bf_spr[unit_sprite_now(u, 0)];
         spr_draw_ex(s, x0 + 2, y0 + 2, u->side == SIDE_R ? SPR_FLIPX : 0, BF_TEAM_MAP[u->side], -1);
         int tx = x0 + 4 + s->w;
         text_draw(BF_UNITS[u->type].name, tx, y0 + 1, u->side == SIDE_L ? C_YELLOW : C_MAGENTA);
@@ -933,13 +1040,6 @@ static void draw_info_side(int p, int x0, int w) {
     } else {
         tiny_draw(two_players ? "HOLD A: GRAB  D-PAD: DRAG" : "HOLD A + D-PAD: DRAG A UNIT   HOLD B: FAST", x0 + 4, y0 + 7, C_SLATE);
     }
-    /* champion counter */
-    const Army *a = &B.a[p];
-    if (a->heroes) {
-        int cx = x0 + w - 32;
-        tiny_draw("CHAMP", cx - 22, y0 + 11, C_GREY);
-        for (int i = 0; i < 5; i++) gfx_rect(cx + i * 6, y0 + 11, 4, 4, i < a->promos ? C_YELLOW : C_DUSK);
-    }
 }
 
 static void draw_bottom(void) {
@@ -949,6 +1049,9 @@ static void draw_bottom(void) {
         draw_info_side(0, 0, 160);
         gfx_vline(160, 160, 179, C_DUSK);
         draw_info_side(1, 161, 159);
+    } else if (tip_t > 0 && B.mode == MODE_CAMPAIGN && BF_LEVELS_DEF[cur_level].tip) {
+        /* the battle's lesson, for the first few seconds */
+        tiny_center(BF_LEVELS_DEF[cur_level].tip, 160, 166, (tip_t / 8) % 4 ? C_YELLOW : C_CREAM);
     } else {
         draw_info_side(0, 0, 320);
         if (B.a[SIDE_R].handicap > 0) {
@@ -978,7 +1081,7 @@ static void draw_play(void) {
         static const uint8_t grad[] = {C_YELLOW, C_ORANGE, C_RED};
         int y = 70 + (banner_t > 80 ? (banner_t - 80) * 3 : 0);
         gfx_rect(0, y - 4, SCREEN_W, 26, C_INK);
-        ui_fancy_center(banner_kind == 1 ? "DOUBLE TIME!" : "TRIPLE TIME!", 160, y, 2, grad, 3, C_INK, C_MAROON);
+        ui_fancy_center(banner_kind == 1 ? "QUICK MARCH!" : banner_kind == 2 ? "DOUBLE QUICK!" : "A CHAMPION ARRIVES!", 160, y, 2, grad, 3, C_INK, C_MAROON);
     }
     if (sub == P_OVER) {
         int lvl = imin(10, sub_t / 3);
@@ -1086,6 +1189,29 @@ static void draw_pool(const char *letters, int x, int y, int side, int maxw) {
     }
 }
 
+/* the troops a battle brings in that no earlier battle had (a bit per type;
+ * the champion called by promotions counts as the champion) */
+static int new_troops(int lvl) {
+    int seen = 0, here = 0;
+    for (int i = 0; i <= lvl; i++) {
+        const LevelDef *d = &BF_LEVELS_DEF[i];
+        int m = 0;
+        for (int side = 0; side < 2; side++) {
+            Army a;
+            memset(&a, 0, sizeof a);
+            bf_pool_from_letters(&a, side ? d->pool_r : d->pool_l);
+            for (int k = 0; k < a.pool_n; k++) m |= 1 << a.pool[k];
+        }
+        if (d->heroes) m |= 1 << U_CHAMP;
+        if (i < lvl) seen |= m;
+        else here = m;
+    }
+    return here & ~seen;
+}
+
+/* the next battle to win is shown, still locked: its name and new troops */
+static bool level_named(int i) { return level_open(i) || (i > 0 && level_open(i - 1)); }
+
 static void camp_pos(int i, int *x, int *y) {
     int r = i / 6, c = r % 2 ? 5 - i % 6 : i % 6;
     *x = 22 + c * 23;
@@ -1159,7 +1285,7 @@ static void draw_campaign(void) {
     ui_panel(160, 18, 156, 146, C_NIGHT, C_AMBER);
     snprintf(buf, sizeof buf, "BATTLE %d", level_sel + 1);
     tiny_draw(buf, 166, 23, C_GREY);
-    text_draw(level_open(level_sel) ? d->name : "? ? ?", 166, 31, C_YELLOW);
+    text_draw(level_named(level_sel) ? d->name : "? ? ?", 166, 31, C_YELLOW);
     if (level_open(level_sel)) {
         snprintf(buf, sizeof buf, "YOUR BANNERS %d", d->flags_l);
         tiny_draw(buf, 166, 44, C_CREAM);
@@ -1173,6 +1299,20 @@ static void draw_campaign(void) {
         } else tiny_draw("EVEN NUMBERS", 166, 104, C_GREY);
         if (d->heroes) tiny_draw("5 PROMOTIONS CALL A CHAMPION", 166, 112, C_YELLOW);
         if ((sv.beaten >> level_sel) & 1) text_draw(GLYPH_CHECK " WON", 166, 124, C_LIME);
+    } else if (level_named(level_sel)) {
+        snprintf(buf, sizeof buf, "WIN BATTLE %d TO OPEN IT", level_sel);
+        tiny_draw(buf, 166, 44, C_SLATE);
+        int nt = new_troops(level_sel), row = 0;
+        if (nt) tiny_draw("NEW TROOPS", 166, 58, C_YELLOW);
+        for (int t = U_FOOT; t < U_TYPES; t++) {
+            if (!((nt >> t) & 1)) continue;
+            int yy = 68 + row * 22;
+            spr_draw_ex(&bf_spr[unit_sprite(t, 0)], 166, yy, 0, BF_TEAM_MAP[0], -1);
+            tiny_draw(BF_UNITS[t].name, 186, yy + 1, C_CREAM);
+            tiny_draw(BF_UNITS[t].line1, 186, yy + 9, C_GREY);
+            row++;
+        }
+        if (!nt) tiny_draw("NO NEW TROOPS", 166, 58, C_GREY);
     } else {
         text_draw("WIN THE BATTLE\nBEFORE IT FIRST.", 166, 48, C_SLATE);
     }
@@ -1200,8 +1340,9 @@ static void draw_brief(void) {
     draw_pool(d->pool_r, 40, 102, SIDE_R, 240);
     if (d->handicap) snprintf(buf, sizeof buf, "THE HOST BRINGS %d%% MORE TROOPS.", d->handicap);
     else snprintf(buf, sizeof buf, "THE ARMIES ARE EVEN.");
-    text_center(buf, 160, 126, C_PINK);
-    if (state_t > 20 && (state_t / 20) % 2) text_center("PRESS " GLYPH_A " TO MARCH", 160, 142, C_WHITE);
+    text_center(buf, 160, 122, C_PINK);
+    if (d->tip) tiny_center(d->tip, 160, 134, C_YELLOW);
+    if (state_t > 20 && (state_t / 20) % 2) text_center("PRESS " GLYPH_A " TO MARCH", 160, 146, C_WHITE);
 }
 
 static void draw_ranked(void) {
@@ -1239,46 +1380,57 @@ static void draw_survival_menu(void) {
     if (state_t > 10 && (state_t / 20) % 2) text_center("PRESS " GLYPH_A " TO MARCH", 160, 136, C_WHITE);
 }
 
+/* one army's pool: 2 rows of 4 places */
+static void draw_vs_pool(int p, const uint8_t *slot, int x0, int y0, bool cursor) {
+    int col = p == 0 ? C_YELLOW : C_MAGENTA;
+    for (int i = 0; i < VS_SLOTS; i++) {
+        int x = x0 + (i % 4) * 26, y = y0 + (i / 4) * 24;
+        bool sel = cursor && vs_cur[p] == i;
+        gfx_rect(x, y, 22, 20, sel ? C_DUSK : C_NIGHT);
+        gfx_rectb(x, y, 22, 20, sel && (frame_t / 8) % 2 ? col : C_DUSK);
+        if (slot[i]) {
+            const Sprite *sp = &bf_spr[unit_sprite(slot[i], sel ? (frame_t / 10) & 1 : 0)];
+            spr_draw_ex(sp, x + (22 - sp->w) / 2, y + 2, p ? SPR_FLIPX : 0, BF_TEAM_MAP[p], -1);
+        }
+    }
+}
+
 static void draw_versus(void) {
     gfx_cls(C_NIGHT);
     static const uint8_t grad[] = {C_CREAM, C_YELLOW, C_AMBER};
     ui_fancy_center("2P VERSUS", 160, 4, 2, grad, 3, C_INK, C_MAROON);
-    static const char *PRESETS[VS_PRESETS] = {"BEGINNER", "MODERATE", "ADVANCED", "CUSTOM", "RANDOM"};
+    static const char *PRESETS[VS_PRESETS] = {"RECRUITS", "REGULARS", "FULL MUSTER", "CUSTOM", "RANDOM"};
     char buf[64];
     snprintf(buf, sizeof buf, GLYPH_LEFT " %s " GLYPH_RIGHT, PRESETS[vs_preset]);
-    text_center(buf, 160, 26, vs_row[0] == 0 ? C_WHITE : C_GREY);
-    if (vs_row[0] == 0) ui_cursor(160 - text_width(buf) / 2 - 10, 26, frame_t);
-    int fight_row = vs_preset == VS_CUSTOM ? 10 : 1;
-    if (vs_preset == VS_CUSTOM) {
-        for (int p = 0; p < 2; p++) {
-            int x0 = p == 0 ? 20 : 170, col = p == 0 ? C_YELLOW : C_MAGENTA;
-            ui_panel(x0 - 4, 38, 138, 104, C_INK, col);
-            tiny_draw(p == 0 ? "PLAYER 1 - GOLD" : "PLAYER 2 - VIOLET", x0, 41, col);
-            for (int r = 1; r <= 9; r++) {
-                int y = 40 + r * 10;
-                bool s = vs_row[p] == r;
-                if (r == 1) snprintf(buf, sizeof buf, "BANNERS %d", vs_flags[p]);
-                else snprintf(buf, sizeof buf, "%-10s x%d", BF_UNITS[r - 1].name, vs_count[p][r - 1]);
-                if (s) gfx_rect(x0 - 2, y - 1, 132, 8, C_DUSK);
-                tiny_draw(buf, x0 + 2, y, s ? C_WHITE : C_GREY);
-            }
-        }
-    } else if (vs_preset == VS_RANDOM) {
-        text_center("EACH SIDE GETS ITS OWN RANDOM", 160, 60, C_LIGHT);
-        text_center("MIX OF TROOPS. 3 BANNERS EACH.", 160, 72, C_LIGHT);
-    } else {
-        vs_preset_counts(vs_preset);
-        text_center("BOTH SIDES FIELD", 160, 50, C_LIGHT);
-        draw_pool(VS_POOLS[vs_preset], 160 - (int)strlen(VS_POOLS[vs_preset]) * 9, 64, SIDE_L, 200);
-        text_center("3 BANNERS EACH", 160, 90, C_LIGHT);
+    bool on_banner = vs_cur[0] == -1;
+    text_center(buf, 160, 26, on_banner ? C_WHITE : C_GREY);
+    if (on_banner) ui_cursor(160 - text_width(buf) / 2 - 10, 26, frame_t);
+    uint8_t slot[2][VS_SLOTS];
+    if (vs_preset == VS_RANDOM) memcpy(slot, vs_rand, sizeof slot);
+    else if (vs_preset == VS_CUSTOM) memcpy(slot, vs_slot, sizeof slot);
+    else vs_preset_slots(vs_preset, slot);
+    bool custom = vs_preset == VS_CUSTOM;
+    for (int p = 0; p < 2; p++) {
+        int x0 = p == 0 ? 14 : 202, col = p == 0 ? C_YELLOW : C_MAGENTA;
+        ui_panel(x0 - 6, 38, 116, 92, C_INK, col);
+        tiny_draw(p == 0 ? "PLAYER 1 - GOLD" : "PLAYER 2 - VIOLET", x0, 42, col);
+        draw_vs_pool(p, slot[p], x0, 52, custom);
+        int fl = custom ? vs_flags[p] : 3;
+        bool sel = custom && vs_cur[p] == VS_SLOTS;
+        snprintf(buf, sizeof buf, "%sBANNERS %d%s", sel ? GLYPH_LEFT " " : "", fl, sel ? " " GLYPH_RIGHT : "");
+        tiny_draw(buf, x0, 104, sel ? C_WHITE : C_GREY);
+        for (int i = 0; i < fl; i++) spr_draw_ex(&bf_spr[BS_FLAG1], x0 + i * 12, 113, p ? SPR_FLIPX : 0, BF_TEAM_MAP[p], -1);
     }
-    tiny_center("5 PROMOTIONS CALL A CHAMPION", 160, 108 + (vs_preset == VS_CUSTOM ? 36 : 0), C_YELLOW);
-    bool fs = vs_row[0] == fight_row;
-    text_center("FIGHT!", 160, 156, fs ? C_WHITE : C_GREY);
-    if (fs) ui_cursor(160 - text_width("FIGHT!") / 2 - 10, 156, frame_t);
-    tiny_center(plat_kind() == PLAT_PC || plat_kind() == PLAT_HEADLESS ? "KEYS: P1 WASD + F    P2 ARROWS + K    OR TWO PADS"
-                                                                       : "TWO GAMEPADS, OR P1 WASD + F / P2 ARROWS + K",
-                160, 170, C_SLATE);
+    /* the middle column: what this mode does */
+    const char *what = vs_preset == VS_RANDOM ? "EACH SIDE\nDRAWS FROM\nITS OWN\nPOOL.\n\n" GLYPH_DOWN " DEALS\nNEW POOLS"
+                     : custom ? (vs_mirrored(slot) ? "MIRRORED\nPOOLS:\nMATCHING\nTROOPS." : "PICK EACH\nPLACE WITH\n" GLYPH_A " AND " GLYPH_B ".")
+                     : "BOTH SIDES\nFIELD THE\nSAME TROOPS\nEACH TURN.";
+    text_wrap(what, 134, 56, 56, C_LIGHT, 9);
+    tiny_center("5 PROMOTIONS CALL A CHAMPION", 160, 138, C_YELLOW);
+    text_center(on_banner ? GLYPH_A " FIGHT   " GLYPH_B " BACK" : "START: FIGHT", 160, 148, on_banner ? C_WHITE : C_GREY);
+    tiny_center(plat_kind() == PLAT_PC || plat_kind() == PLAT_HEADLESS ? "KEYS: P1 WASD + F/G    P2 ARROWS + K/L    OR TWO PADS"
+                                                                       : "TWO GAMEPADS, OR P1 WASD + F/G / P2 ARROWS + K/L",
+                160, 168, C_SLATE);
 }
 
 static void draw_result(void) {
@@ -1351,7 +1503,7 @@ static void draw_sheet(void) {
         }
     for (int t = 1; t < U_TYPES; t++) {
         Unit u = {(uint8_t)t, (uint8_t)(t % 2), BF_UNITS[t].hp, (uint8_t)(t > 5), 0};
-        draw_unit_at(&u, 2 + (t - 1) * 36, 120, 0, false, false);
+        draw_unit_at(&u, 2 + (t - 1) * 36, 120, 0, false, false, t == U_FOOT);
         spr_draw_scaled(&bf_spr[unit_sprite(t, 0)], 2 + (t - 1) * 36, 146, 2, 0);
     }
 }
@@ -1386,6 +1538,10 @@ static void bf_start(void) {
     sheet_mode = false;
     title_sel = 0;
     two_players = false;
+    vs_preset = VS_BEGINNER;
+    vs_preset_slots(VS_ADVANCED, vs_slot); /* custom starts from the advanced pools */
+    vs_flags[0] = vs_flags[1] = 3;
+    vs_reroll();
     check_goals();
     go_title();
 }
@@ -1418,8 +1574,12 @@ static void bf_label(int x, int y, int w, int h, int t) {
 }
 
 static int bf_query(const char *key, int *out) {
+    if (!strcmp(key, "camp_sel")) { *out = level_sel; return 1; }
+    if (!strcmp(key, "camp_named")) { *out = level_named(level_sel); return 1; }
+    if (!strcmp(key, "camp_new")) { *out = new_troops(level_sel); return 1; }
     if (!strcmp(key, "state")) { *out = state; return 1; }
     if (!strcmp(key, "sub")) { *out = sub; return 1; }
+    if (!strcmp(key, "plan_t")) { *out = plan_t; return 1; }
     if (!strcmp(key, "status")) { *out = B.status; return 1; }
     if (!strcmp(key, "mode")) { *out = B.mode; return 1; }
     if (!strcmp(key, "turn")) { *out = B.turn; return 1; }
@@ -1450,6 +1610,33 @@ static int bf_query(const char *key, int *out) {
     if (!strcmp(key, "cy2")) { *out = hand[1].cy; return 1; }
     if (!strcmp(key, "versus")) { *out = input_versus(); return 1; }
     if (!strcmp(key, "two_players")) { *out = two_players; return 1; }
+    if (!strcmp(key, "banner")) { *out = banner_t > 0 ? banner_kind : 0; return 1; }
+    if (!strcmp(key, "tip")) { *out = tip_t > 0; return 1; }
+    if (!strcmp(key, "vs_preset")) { *out = vs_preset; return 1; }
+    if (!strcmp(key, "vs_cur")) { *out = vs_cur[0]; return 1; }
+    if (!strcmp(key, "vs_cur2")) { *out = vs_cur[1]; return 1; }
+    if (!strcmp(key, "pool_n_l")) { *out = B.a[SIDE_L].pool_n; return 1; }
+    if (!strcmp(key, "pool_n_r")) { *out = B.a[SIDE_R].pool_n; return 1; }
+    if (!strcmp(key, "timer_left")) { *out = sub == P_PLAN ? (bf_timer_counts(&B) * COUNT_FRAMES - plan_t + COUNT_FRAMES - 1) / COUNT_FRAMES : -1; return 1; }
+    if (!strcmp(key, "spawn_mask_l")) { *out = spawn_mask[0]; return 1; }
+    if (!strcmp(key, "spawn_mask_r")) { *out = spawn_mask[1]; return 1; }
+    if (!strcmp(key, "spawn_total_l")) { *out = spawn_total[0]; return 1; }
+    if (!strcmp(key, "spawn_total_r")) { *out = spawn_total[1]; return 1; }
+    if (!strncmp(key, "vs_slot", 7) && strlen(key) == 9) {
+        /* vs_slotPI: player P's custom place I */
+        int pp = key[7] - '0', i = key[8] - '0';
+        if (pp < 0 || pp > 1 || i < 0 || i >= VS_SLOTS) return 0;
+        *out = vs_slot[pp][i];
+        return 1;
+    }
+    if (!strncmp(key, "vs_rand", 7) && strlen(key) == 9) {
+        int pp = key[7] - '0', i = key[8] - '0';
+        if (pp < 0 || pp > 1 || i < 0 || i >= VS_SLOTS) return 0;
+        *out = vs_rand[pp][i];
+        return 1;
+    }
+    if (!strcmp(key, "vs_flags")) { *out = vs_flags[0]; return 1; }
+    if (!strcmp(key, "vs_flags2")) { *out = vs_flags[1]; return 1; }
     /* unit_at XY / hp_at XY / side_at XY / promo_at XY (X and Y single digits) */
     static const char *KEYS[4] = {"unit_at", "hp_at", "side_at", "promo_at"};
     for (int k = 0; k < 4; k++) {
@@ -1471,6 +1658,11 @@ static int bf_cheat(const char *cmd) {
         /* start campaign battle N straight away */
         cur_level = iclamp(a - 1, 0, BF_LEVELS - 1);
         start_campaign_battle(cur_level);
+        return 1;
+    }
+    if (sscanf(cmd, "battle_seed %d %d", &a, &b2) == 2) {
+        /* campaign battle N dealt from a fixed seed (the scripted battles) */
+        start_campaign_battle_seeded(iclamp(a - 1, 0, BF_LEVELS - 1), (uint64_t)b2);
         return 1;
     }
     if (!strcmp(cmd, "ranked")) { start_ranked(); return 1; }
@@ -1523,13 +1715,17 @@ const GameDef GAME_BANNERFALL = {
     "STRATEGY",
     "TWO KEEPS, SIX LANES. DRAG YOUR TROOPS INTO PLACE BEFORE THE DRUMS SOUND.",
     {"WIN THE FIRST 12 BATTLES", "WIN ALL 24 BATTLES", "WIN ALL 24 AND REACH RANK 100"},
-    "D-PAD\tMOVE THE HAND\n"
-    "HOLD " GLYPH_A "\tGRAB A UNIT AND DRAG IT\n"
-    "HOLD " GLYPH_B "\tFAST-FORWARD\n"
-    "START\tPAUSE\n\n"
-    "DRAG UP, DOWN OR BACK, AND FORWARD\n"
-    "ONLY AS FAR AS WHERE IT STARTED.\n"
-    "2P KEYS: WASD + F / ARROWS + K",
+    "D-PAD\tMOVE THE HAND (YOUR HALF)\n"
+    "HOLD " GLYPH_A "\tGRAB A UNIT, D-PAD DRAGS IT:\n"
+    "\tUP, DOWN, BACK; FORWARD ONLY\n"
+    "\tTO WHERE YOU PICKED IT UP.\n"
+    "\tONTO A FRIEND: THEY SWAP.\n"
+    "HOLD " GLYPH_B "\tFAST-FORWARD (1 PLAYER)\n"
+    "START\tPAUSE\n"
+    "AT 0 ALL ATTACK AND MARCH: KNIVES,\n"
+    "ATTACKS, MOVES, KEEPS, RIDERS AGAIN.\n"
+    "2P SETUP: " GLYPH_A "/" GLYPH_B " CHANGE A PLACE\n"
+    "2P KEYS: WASD+F/G, ARROWS+K/L",
     C_AMBER, C_VIOLET,
     bf_load, bf_start, bf_update, bf_draw, bf_quit, bf_label, bf_query, bf_cheat,
     "ATTACTICS", 9,

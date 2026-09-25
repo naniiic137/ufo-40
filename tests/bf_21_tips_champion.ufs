@@ -1,0 +1,28 @@
+# BANNERFALL: a battle that brings in a new troop opens with a line about it
+# (battle 1: footmen in columns of three; no line on battles that bring
+# nothing new, nor on 20); a champion called by the fifth
+# promotion arrives with a banner.
+game bannerfall
+wait 5
+cheat battle 1
+expect tip == 1
+wait 300
+expect tip == 0
+cheat battle 2
+expect tip == 1
+cheat battle 3
+expect tip == 0
+# battle 20's champions come with no line (Attactics' level 20 has none)
+cheat battle 20
+expect tip == 0
+cheat battle 24
+cheat clear
+cheat promos 4
+cheat unit 3 2 1 0
+cheat unit 4 2 1 1 1
+cheat endturn
+wait 50
+expect hero_due_l == 0
+expect champs_l == 1
+expect banner == 3
+expect promos_l == 0

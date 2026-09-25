@@ -20,12 +20,18 @@ typedef struct Save {
 static Save sv;
 static DxWorld W;
 static int state, state_t, frame_t, cur, menu_sel;
+/* which way the world slides past: the trains run left (the front is at the
+ * start of a mission, the camel waits at the back); only the ending rides right */
+static int drift = -1;
+static int wrap(int v, int m) { return ((v % m) + m) % m; }
 static float cam_x;
 static int cam_lock = -1; /* the headless runner can hold the camera still */
 static int result_stars, result_new, alert_t[DX_MAX_ACTORS];
 static int last_ev[9], last_phase;
 static bool versus;
 static uint32_t vs_seed;
+/* the opening look along the train: 1 panning, 2 waiting for a button */
+static int intro;
 
 typedef struct Part {
     float x, y, vx, vy;
@@ -82,7 +88,10 @@ static void start_mission(int m) {
     if (dx_load(&W, &DX_MISSIONS_DEF[m], m) != 0) return;
     state = S_PLAY;
     state_t = 0;
-    cam_x = W.a[W.ctrl].x - 100;
+    /* the camera looks the train over from the far end back to the outlaw;
+     * a button then starts the heist and the clock */
+    intro = 1;
+    cam_x = (float)(W.w * DX_T - SCREEN_W);
     memset(parts, 0, sizeof parts);
     memset(last_ev, 0, sizeof last_ev);
     memset(alert_t, 0, sizeof alert_t);
@@ -93,6 +102,7 @@ static void start_mission(int m) {
 
 static void start_versus(void) {
     versus = true;
+    intro = 0;
     vs_seed = rng_next(&g_rng);
     dx_versus_train(&W, vs_seed);
     state = S_VS_INTRO;
@@ -143,7 +153,7 @@ static DxInput read_input(bool p2) {
     if (p2) {
         in.left = btn2(BTN_LEFT); in.right = btn2(BTN_RIGHT); in.up = btn2(BTN_UP); in.down = btn2(BTN_DOWN);
         in.a = btn2(BTN_A); in.b = btn2(BTN_B); in.a_pressed = btnp2(BTN_A); in.b_pressed = btnp2(BTN_B);
-        in.select_pressed = btnp2(BTN_SELECT);
+        in.down_pressed = btnp2(BTN_DOWN) || btnp(BTN_DOWN);
         /* hot seat on one pad works too */
         in.left |= btn(BTN_LEFT); in.right |= btn(BTN_RIGHT); in.up |= btn(BTN_UP); in.down |= btn(BTN_DOWN);
         in.a |= btn(BTN_A); in.b |= btn(BTN_B); in.a_pressed |= btnp(BTN_A); in.b_pressed |= btnp(BTN_B);
@@ -151,7 +161,7 @@ static DxInput read_input(bool p2) {
     }
     in.left = btn(BTN_LEFT); in.right = btn(BTN_RIGHT); in.up = btn(BTN_UP); in.down = btn(BTN_DOWN);
     in.a = btn(BTN_A); in.b = btn(BTN_B); in.a_pressed = btnp(BTN_A); in.b_pressed = btnp(BTN_B);
-    in.select_pressed = btnp(BTN_SELECT);
+    in.down_pressed = btnp(BTN_DOWN);
     return in;
 }
 
@@ -184,13 +194,27 @@ static void follow_camera(void) {
 }
 
 static void update_play(void) {
+    if (intro && !versus) {
+        const DxActor *me = &W.a[W.ctrl];
+        float want = fclamp(me->x + 6 - SCREEN_W / 2 + 30, 0, (float)(W.w * DX_T - SCREEN_W));
+        bool any = btnp(BTN_A) || btnp(BTN_B) || btnp(BTN_LEFT) || btnp(BTN_RIGHT) || btnp(BTN_UP) || btnp(BTN_DOWN);
+        if (intro == 1) {
+            cam_x -= 5;
+            if (cam_x <= want) { cam_x = want; intro = 2; }
+            if (any && state_t > 10) { cam_x = want; intro = 0; input_consume(); }
+        } else if (any) {
+            intro = 0;
+            input_consume();
+        }
+        return;
+    }
     DxInput in = read_input(false), in2 = read_input(true);
     if (versus) input_set_versus(true);
     dx_step(&W, &in, versus ? &in2 : NULL);
     follow_camera();
     sounds_and_effects();
     /* dust behind the train's wheels, smoke from a blast */
-    if (frame_t % 6 == 0) part_add(cam_x + 330, OY + 9 * DX_T - 2, -3.0f, -0.2f, 90, C_TAN, 1);
+    if (frame_t % 6 == 0) part_add(cam_x - 10, OY + 9 * DX_T - 2, 3.0f, -0.2f, 90, C_TAN, 1);
     for (int i = 0; i < ARRAY_LEN(parts); i++) {
         Part *p = &parts[i];
         if (p->life <= 0) continue;
@@ -199,7 +223,7 @@ static void update_play(void) {
         p->y += p->vy;
         if (p->kind == 0) p->vy += 0.12f;
     }
-    if (W.result) finish();
+    if (W.result && W.end_t <= 0) finish(); /* a failed heist: the fall plays out first */
 }
 
 /* ------------------------------------------------------------------ */
@@ -227,7 +251,7 @@ static void draw_sky(void) {
         gfx_circ(s ? 240 : 260, s ? 92 : 34, s ? 18 : 12, s ? C_YELLOW : C_WHITE);
     }
     /* dunes, far and near, slide by as the train runs */
-    int far = (int)(cam_x * 0.1f + frame_t * 0.2f), near = (int)(cam_x * 0.3f + frame_t * 0.8f);
+    int far = (int)(cam_x * 0.1f - drift * frame_t * 0.2f), near = (int)(cam_x * 0.3f - drift * frame_t * 0.8f);
     for (int x = 0; x < SCREEN_W; x++) {
         int h1 = 100 + (int)(8 * sinf((x + far) * 0.02f) + 5 * sinf((x + far) * 0.051f));
         gfx_vline(x, h1, 140, s == 2 ? C_DUSK : s == 1 ? C_WINE : C_EARTH);
@@ -235,7 +259,7 @@ static void draw_sky(void) {
         gfx_vline(x, h2, 180, s == 2 ? C_NIGHT : s == 1 ? C_TAN : C_HIDE);
     }
     /* telegraph poles whip past */
-    int pole = (int)(cam_x * 1.2f + frame_t * 3.0f) % 160;
+    int pole = wrap((int)(cam_x * 1.2f - drift * frame_t * 3.0f), 160);
     for (int x = -pole; x < SCREEN_W; x += 160) {
         gfx_rect(x, 60, 3, 90, s == 2 ? C_INK : C_BROWN);
         gfx_rect(x - 6, 64, 15, 2, s == 2 ? C_INK : C_BROWN);
@@ -246,7 +270,7 @@ static void draw_sky(void) {
 static void draw_rails(void) {
     int y = OY + 9 * DX_T;
     gfx_rect(0, y, SCREEN_W, SCREEN_H - y, sky_of(cur) == 2 ? C_INK : C_BROWN);
-    int off = (int)(cam_x + frame_t * 4) % 12;
+    int off = wrap((int)(cam_x - drift * frame_t * 4), 12);
     for (int x = -off; x < SCREEN_W; x += 12) gfx_rect(x, y + 4, 6, 3, sky_of(cur) == 2 ? C_DUSK : C_TAN);
     gfx_hline(0, SCREEN_W - 1, y + 2, C_GREY);
     gfx_hline(0, SCREEN_W - 1, y + 3, C_SLATE);
@@ -259,7 +283,7 @@ static int car_colour(int car) {
 
 /* a wheel: rim, hub and a crank pin turning with the train */
 static void draw_wheel(int x, int y) {
-    float ang = frame_t * 0.35f;
+    float ang = -drift * frame_t * 0.35f;
     gfx_circ(x, y, 7, C_INK);
     gfx_circb(x, y, 6, C_SLATE);
     gfx_line(x, y, x + (int)lroundf(cosf(ang) * 4), y + (int)lroundf(sinf(ang) * 4), C_SLATE);
@@ -328,6 +352,15 @@ static void draw_tile(int tx, int ty, int px, int py) {
         break;
     default: break;
     }
+    /* a plank or plate that has taken punches cracks, and flashes as it's struck */
+    int d = t == TL_ARMOR ? W.dmg[ty][tx] * 3 / DX_ARMOR_HP : W.dmg[ty][tx];
+    if (d > 0) {
+        gfx_line(px + 3, py + 2, px + 8, py + 8, C_INK);
+        gfx_line(px + 8, py + 8, px + 6, py + 13, C_INK);
+        if (d > 1) { gfx_line(px + 13, py + 3, px + 9, py + 9, C_INK); gfx_line(px + 9, py + 9, px + 12, py + 14, C_INK); }
+    }
+    if (W.tflash[ty][tx] > 4) gfx_rect(px, py, DX_T, DX_T, C_WHITE);
+    else if (W.tflash[ty][tx] > 0) gfx_dither(px, py, DX_T, DX_T, C_WHITE, 8);
 }
 
 /* the inside of a car: its back wall, with the desert passing in the windows */
@@ -342,51 +375,21 @@ static void draw_car_back(int car) {
     int x0 = W.car_x0[car] * DX_T - (int)cam_x, x1 = (W.car_x1[car] + 1) * DX_T - (int)cam_x;
     if (x1 < 0 || x0 > SCREEN_W) return;
     int y0 = OY + 3 * DX_T, y1 = OY + 8 * DX_T;
-    gfx_rect(x0, y0, x1 - x0, y1 - y0, W.seen[car] ? PAL_DARKER[car_colour(car)] : car_colour(car));
-    if (!W.seen[car]) {
-        /* the open doorways at the ends of a car nobody has entered yet: dark */
-        for (int e = 0; e < 2; e++) {
-            int tx = e ? W.car_x1[car] : W.car_x0[car];
-            for (int ty = 4; ty <= 6; ty++)
-                if (W.tile[ty][tx] == TL_AIR) gfx_rect(tx * DX_T - (int)cam_x, OY + ty * DX_T, DX_T, DX_T, C_NIGHT);
-        }
+    gfx_rect(x0, y0, x1 - x0, y1 - y0, PAL_DARKER[car_colour(car)]);
+    for (int x = x0 + 12; x + 18 < x1; x += 28) {
+        gfx_rect(x, OY + 4 * DX_T + 4, 18, 12, SKY[sky_of(cur)][1]);
+        int d = wrap((int)(-drift * frame_t * 2) + x, 18);
+        gfx_rect(x + (18 - d) % 18, OY + 4 * DX_T + 12, 5, 4, SKY[sky_of(cur)][3]);
+        gfx_rectb(x - 1, OY + 4 * DX_T + 3, 20, 14, C_INK);
     }
-    if (W.seen[car]) {
-        for (int x = x0 + 12; x + 18 < x1; x += 28) {
-            gfx_rect(x, OY + 4 * DX_T + 4, 18, 12, SKY[sky_of(cur)][1]);
-            int d = (int)(frame_t * 2 + x) % 18;
-            gfx_rect(x + (18 - d) % 18, OY + 4 * DX_T + 12, 5, 4, SKY[sky_of(cur)][3]);
-            gfx_rectb(x - 1, OY + 4 * DX_T + 3, 20, 14, C_INK);
-        }
-    }
-}
-
-/* the fog: a car nobody has entered shows its outside */
-static void draw_car_front(int car) {
-    if (W.seen[car] || !car_has_roof(car)) return;
-    /* the end walls and their doorways stay as they are; the fog is the inside */
-    int x0 = (W.car_x0[car] + 1) * DX_T - (int)cam_x, x1 = W.car_x1[car] * DX_T - (int)cam_x;
-    if (x1 < 0 || x0 > SCREEN_W) return;
-    int y0 = OY + 4 * DX_T, y1 = OY + 7 * DX_T;
-    int c = car_colour(car);
-    gfx_rect(x0, y0, x1 - x0, y1 - y0, c);
-    gfx_hline(x0, x1 - 1, y0, PAL_LIGHTER[c]);
-    gfx_hline(x0, x1 - 1, y1 - 3, PAL_DARKER[c]);
-    for (int x = x0 + 10; x + 16 < x1; x += 26) {
-        gfx_rect(x, y0 + 8, 14, 12, C_INK);
-        gfx_rect(x + 1, y0 + 9, 12, 5, C_NIGHT);
-    }
-    char b[8];
-    snprintf(b, sizeof b, "%d", car + 1);
-    tiny_draw(b, x0 + 4, y1 - 10, PAL_LIGHTER[c]);
 }
 
 static void person_colours(uint8_t *map, const DxActor *a) {
     pal_identity(map);
     int skin = C_HIDE, shirt = C_RED, sash = C_YELLOW, pants = C_BROWN, boots = C_TAN;
     if (a->kind == AK_OUTLAW) {
-        if (a->who == OUT_KHALED) { skin = C_EARTH; shirt = C_CREAM; sash = C_RED; pants = C_TAN; boots = C_BROWN; }
-        else if (a->who == OUT_VEIL) { skin = C_TAN; shirt = C_NAVY; sash = C_BLUE; pants = C_NIGHT; boots = C_DUSK; }
+        if (a->who == OUT_WADE) { skin = C_EARTH; shirt = C_CREAM; sash = C_RED; pants = C_TAN; boots = C_BROWN; }
+        else if (a->who == OUT_HUSH) { skin = C_TAN; shirt = C_NAVY; sash = C_BLUE; pants = C_NIGHT; boots = C_DUSK; }
         else { skin = C_HIDE; shirt = C_PURPLE; sash = C_MAGENTA; pants = C_WINE; boots = C_BROWN; }
     } else if (a->kind == AK_GUARD) {
         skin = C_HIDE; shirt = C_BLUE; sash = C_WHITE; pants = C_RED; boots = C_INK;
@@ -403,9 +406,6 @@ static void person_colours(uint8_t *map, const DxActor *a) {
 static void draw_actor(int i) {
     DxActor *a = &W.a[i];
     if (a->escaped == 1 || a->hidden) return;
-    int car = dx_car_at(&W, a->x + 6);
-    bool inside = a->y + 30 > 4 * DX_T && a->y < 7 * DX_T;
-    if (car >= 0 && inside && !W.seen[car] && a->kind != AK_OUTLAW) return; /* hidden by the fog */
     int px = (int)a->x - 2 - (int)cam_x, py = (int)a->y - 1 + OY;
     int frame = DS_STAND;
     if (!a->alive) frame = DS_DOWN;
@@ -426,7 +426,7 @@ static void draw_actor(int i) {
     spr_draw_ex(&dx_body[frame], px, py, flip, map, -1);
     /* the hat */
     int hat = a->kind == AK_GUARD ? DO_HAT_G : a->kind == AK_GOVERNOR ? DO_HAT_GOV
-            : a->who == OUT_KHALED ? DO_HAT_K : a->who == OUT_VEIL ? DO_HAT_V : DO_HAT_S;
+            : a->who == OUT_WADE ? DO_HAT_W : a->who == OUT_HUSH ? DO_HAT_H : DO_HAT_P;
     int hy = py;
     if (frame == DS_DUCK || frame == DS_ROLL) hy += 14;
     if (frame != DS_ROLL && frame != DS_DOWN && frame != DS_CLIMB) spr_draw(&dx_obj[hat], px, hy, flip);
@@ -456,9 +456,6 @@ static void draw_actor(int i) {
 static void draw_obj(int i) {
     DxObj *o = &W.o[i];
     if (!o->alive) return;
-    int car = dx_car_at(&W, o->x + o->w / 2.0f);
-    bool inside = o->y + o->h > 4 * DX_T && o->y < 7 * DX_T;
-    if (car >= 0 && inside && !W.seen[car] && o->held < 0 && o->type != OB_CAMEL) return;
     int px = (int)o->x - 1 - (int)cam_x, py = (int)o->y - 2 + OY;
     int flip = o->face ? 0 : SPR_FLIPX;
     switch (o->type) {
@@ -472,12 +469,14 @@ static void draw_obj(int i) {
     case OB_GOOSE: spr_draw(&dx_obj[(o->held >= 0 || o->thrower) && (frame_t / 5) % 2 ? DO_GOOSE2 : DO_GOOSE], px, py, flip ^ SPR_FLIPX); break;
     case OB_RAM: spr_draw(&dx_obj[DO_RAM], px - 1, py, flip ^ SPR_FLIPX); break;
     case OB_GUN: {
+        /* green while it guards the train, red once it's turned on the
+         * lawmen, dark when its six rounds are spent */
         uint8_t map[PAL_COUNT];
         pal_identity(map);
-        if (o->friendly) pal_swap(map, C_LIGHT, C_LIME);
+        pal_swap(map, C_LIGHT, o->friendly ? C_RED : C_LIME);
         if (o->ammo <= 0) { pal_swap(map, C_LIGHT, C_DUSK); pal_swap(map, C_GREY, C_DUSK); }
         spr_draw_ex(&dx_obj[DO_GUN], px, py, flip, map, -1);
-        if (o->timer > 10 && o->ammo > 0 && (frame_t / 3) % 2) gfx_circ(px + (o->face ? 15 : 0), py + 4, 3, C_LIME);
+        if (o->burst == 0 && o->timer > 0 && o->ammo > 0 && (frame_t / 3) % 2) gfx_circ(px + (o->face ? 15 : 0), py + 4, 3, o->friendly ? C_RED : C_LIME);
         break;
     }
     case OB_LEVER: spr_draw(&dx_obj[DO_LEVER], px, py, o->face ? SPR_FLIPX : 0); break;
@@ -486,7 +485,7 @@ static void draw_obj(int i) {
     case OB_AMMO: spr_draw(&dx_obj[DO_AMMO], px, py, 0); break;
     case OB_POWER: spr_draw(&dx_icon[o->content ? (o->content - 1) % 8 : 0], px, py - ((frame_t / 10) % 2), 0); break;
     case OB_CAMEL: {
-        /* whoever made it out sits up on Baraka */
+        /* whoever made it out sits up on Biscuit */
         int k = 0;
         for (int j = 0; j < W.na; j++) {
             const DxActor *r = &W.a[j];
@@ -496,11 +495,11 @@ static void draw_obj(int i) {
             int rx = px + 4 + k * 8, ry = py - 13;
             gfx_clip(rx - 2, 0, 20, py + 9);
             spr_draw_ex(&dx_body[DS_STAND], rx, ry, 0, map, -1);
-            spr_draw(&dx_obj[r->who == OUT_KHALED ? DO_HAT_K : r->who == OUT_VEIL ? DO_HAT_V : DO_HAT_S], rx, ry, 0);
+            spr_draw(&dx_obj[r->who == OUT_WADE ? DO_HAT_W : r->who == OUT_HUSH ? DO_HAT_H : DO_HAT_P], rx, ry, 0);
             gfx_noclip();
             k++;
         }
-        spr_draw(&dx_obj[(frame_t / 10) % 2 ? DO_CAMEL : DO_CAMEL2], px - 2, py, 0);
+        spr_draw(&dx_obj[(frame_t / 10) % 2 ? DO_CAMEL : DO_CAMEL2], px - 2, py, SPR_FLIPX);
         break;
     }
     default: break;
@@ -523,7 +522,6 @@ static void draw_world(void) {
         if (W.a[i].kind == AK_OUTLAW) draw_actor(i);
     for (int i = 0; i < W.no; i++)
         if (W.o[i].held >= 0) draw_obj(i);
-    for (int c = 0; c < W.ncars; c++) draw_car_front(c);
     for (int i = 0; i < DX_MAX_SHOTS; i++) {
         DxShot *s = &W.s[i];
         if (!s->alive) continue;
@@ -577,7 +575,7 @@ static void draw_hud(void) {
     person_colours(map, me);
     gfx_clip(200, 1, 16, 17);
     spr_draw_ex(&dx_body[DS_STAND], 200, 2, 0, map, -1);
-    spr_draw(&dx_obj[me->who == OUT_KHALED ? DO_HAT_K : me->who == OUT_VEIL ? DO_HAT_V : DO_HAT_S], 200, 2, 0);
+    spr_draw(&dx_obj[me->who == OUT_WADE ? DO_HAT_W : me->who == OUT_HUSH ? DO_HAT_H : DO_HAT_P], 200, 2, 0);
     gfx_noclip();
     for (int k = 0; k < DX_MAX_AMMO; k++) gfx_rect(220 + k * 5, 6, 3, 7, k < me->ammo ? C_YELLOW : C_DUSK);
     int ix = 254;
@@ -595,28 +593,29 @@ static void draw_play(void) {
         gfx_rect(0, OY, SCREEN_W, 2, C_RED);
         gfx_rect(0, SCREEN_H - 2, SCREEN_W, 2, C_RED);
     }
-    if (state == S_PLAY && state_t < 150 && !versus) {
+    if (state == S_PLAY && intro && !versus) {
         const DxMission *m = &DX_MISSIONS_DEF[cur];
         int y = 150;
         gfx_rect(0, y, SCREEN_W, 14, C_INK);
         tiny_center(m->brief, 160, y + 4, C_CREAM);
+        if (intro == 2 && (frame_t / 16) % 2) text_center("PRESS A BUTTON TO START", 160, 134, C_WHITE);
     }
 }
 
 /* ------------------------------------------------------------------ */
 /* menus                                                                */
 
-static const char *OUTLAW_NAME[3] = {"KHALED", "THE VEIL", "SAHAR"};
+static const char *OUTLAW_NAME[3] = {"WADE", "HUSH", "PEARL"};
 
 static void draw_title(void) {
     cur = 14;
     cam_x = frame_t * 0.5f;
     draw_sky();
     draw_rails();
-    /* the night train: three cars and the engine, the windows lit */
+    /* the night train: the engine at the front (left) and three cars, the windows lit */
     int y0 = OY + 72, yb = OY + 124, wy = OY + 136;
     for (int c = 0; c < 3; c++) {
-        int x = -30 + c * 104, w = 98, col = car_colour(c + 2);
+        int x = 252 - c * 104, w = 98, col = car_colour(c + 2);
         gfx_rect(x + 2, y0 + 6, w - 4, yb - y0 - 6, col);
         gfx_rect(x, y0, w, 7, C_MAROON);
         gfx_hline(x + 1, x + w - 2, y0, PAL_LIGHTER[C_MAROON]);
@@ -635,40 +634,40 @@ static void draw_title(void) {
             }
         }
         gfx_rect(x, yb, w, 5, C_INK);
-        gfx_rect(x + w, yb + 1, 6, 3, C_INK);
+        gfx_rect(x - 6, yb + 1, 6, 3, C_INK);
         draw_wheel(x + 14, wy); draw_wheel(x + 30, wy);
         draw_wheel(x + w - 30, wy); draw_wheel(x + w - 14, wy);
     }
     /* the engine */
-    int ex = 282;
+    int ex = 2;
     gfx_rect(ex, y0 - 4, 36, yb - y0 + 4, C_MAROON);           /* the cab */
     gfx_rect(ex - 2, y0 - 8, 40, 6, C_INK);
-    gfx_rect(ex + 6, y0 + 8, 20, 16, C_INK);
-    gfx_rect(ex + 7, y0 + 9, 18, 14, C_AMBER);
-    gfx_rect(ex + 7, y0 + 9, 18, 5, C_YELLOW);
-    gfx_rect(ex + 36, y0 + 20, 60, yb - y0 - 20, C_SLATE);   /* the boiler, off the right edge */
-    for (int k = 0; k < 3; k++) gfx_vline(ex + 44 + k * 14, y0 + 20, yb - 1, C_GREY);
-    gfx_rect(ex, yb, 40, 5, C_INK);
-    draw_wheel(ex + 16, wy); draw_wheel(ex + 32, wy);
+    gfx_rect(ex + 10, y0 + 8, 20, 16, C_INK);
+    gfx_rect(ex + 11, y0 + 9, 18, 14, C_AMBER);
+    gfx_rect(ex + 11, y0 + 9, 18, 5, C_YELLOW);
+    gfx_rect(ex - 60, y0 + 20, 60, yb - y0 - 20, C_SLATE);   /* the boiler, off the left edge */
+    for (int k = 0; k < 3; k++) gfx_vline(ex - 9 - k * 14, y0 + 20, yb - 1, C_GREY);
+    gfx_rect(ex - 4, yb, 40, 5, C_INK);
+    draw_wheel(ex + 20, wy); draw_wheel(ex + 4, wy);
     /* the engine's smoke streams back and thins out */
     for (int k = 0; k < 8; k++) {
         int t = (frame_t + k * 10) % 80;
-        int sx = 322 - t * 2, sy = y0 - 10 - t / 5 - (int)(2 * sinf((t + k * 9) * 0.15f));
+        int sx = -2 + t * 2, sy = y0 - 10 - t / 5 - (int)(2 * sinf((t + k * 9) * 0.15f));
         int r = 2 + t / 20;
         if (t < 40) gfx_circ(sx, sy, r, t < 16 ? C_GREY : C_SLATE);
         else gfx_dither_circle(sx, sy, r, C_SLATE, 8);
     }
-    /* Khaled on the roof */
+    /* Wade on the roof */
     {
         DxActor a;
         memset(&a, 0, sizeof a);
-        a.kind = AK_OUTLAW; a.who = OUT_KHALED; a.face = 1;
+        a.kind = AK_OUTLAW; a.who = OUT_WADE; a.face = 1;
         uint8_t map[PAL_COUNT];
         person_colours(map, &a);
-        int kx = 20 + (frame_t / 2) % 220, fr = (frame_t / 8) % 2 ? DS_WALK1 : DS_WALK2;
+        int kx = 284 - (frame_t / 2) % 220, fr = (frame_t / 8) % 2 ? DS_WALK1 : DS_WALK2;
         if ((frame_t / 2) % 220 > 200) fr = DS_STAND;
-        spr_draw_ex(&dx_body[fr], kx, y0 - 31, 0, map, -1);
-        spr_draw(&dx_obj[DO_HAT_K], kx, y0 - 31, 0);
+        spr_draw_ex(&dx_body[fr], kx, y0 - 31, SPR_FLIPX, map, -1);
+        spr_draw(&dx_obj[DO_HAT_W], kx, y0 - 31, SPR_FLIPX);
     }
     static const uint8_t grad[] = {C_WHITE, C_CREAM, C_AMBER, C_ORANGE};
     ui_fancy_center("DUNE", 160, 6, 3, grad, 4, C_INK, C_MAROON);
@@ -712,8 +711,8 @@ static void draw_menu(void) {
     bool vs_sel = menu_sel == DX_MISSIONS;
     if (vs_sel) gfx_rect(10, 150, 146, 12, C_DUSK);
     text_draw("2P VERSUS", 14, 152, vs_sel ? C_WHITE : C_GREY);
-    tiny_draw("STARS: " "ANGEL (NO KILLS)", 164, 150, C_ICE);
-    tiny_draw("DEVIL (ALL GUARDS) " GLYPH_DOT " TIME", 164, 158, C_ORANGE);
+    tiny_draw("STARS: " "MERCY (NO KILLS)", 164, 150, C_ICE);
+    tiny_draw("RUTHLESS (ALL GUARDS) " GLYPH_DOT " SWIFT", 164, 158, C_ORANGE);
 }
 
 static void update_menu(void) {
@@ -748,7 +747,7 @@ static void draw_outlaw_big(int who, int x, int y, int scale, int rows) {
             uint8_t p = dx_body[DS_STAND].px[sy * 16 + sx];
             if (p != TRANSPARENT) gfx_rect(x + sx * scale, y + sy * scale, scale, scale, map[p]);
         }
-    const Sprite *hat = &dx_obj[who == OUT_KHALED ? DO_HAT_K : who == OUT_VEIL ? DO_HAT_V : DO_HAT_S];
+    const Sprite *hat = &dx_obj[who == OUT_WADE ? DO_HAT_W : who == OUT_HUSH ? DO_HAT_H : DO_HAT_P];
     for (int sy = 0; sy < hat->h; sy++)
         for (int sx = 0; sx < 16; sx++) {
             uint8_t p = hat->px[sy * 16 + sx];
@@ -778,14 +777,14 @@ static void draw_brief(void) {
     tiny_draw(b, tx, 118, C_YELLOW);
     for (int s = 0; s < 3; s++) {
         bool got = (sv.stars[cur] >> s) & 1;
-        static const char *const N[3] = {"ANGEL", "DEVIL", "TIME"};
+        static const char *const N[3] = {"MERCY", "RUTHLESS", "SWIFT"};
         mini_star(tx + s * 46, 130, got ? (s == 0 ? C_ICE : s == 1 ? C_RED : C_YELLOW) : C_DUSK);
         tiny_draw(N[s], tx + 8 + s * 46, 130, got ? C_WHITE : C_SLATE);
     }
     if (state_t > 20 && (state_t / 20) % 2) text_center("PRESS " GLYPH_A, 160, 146, C_WHITE);
 }
 
-static const char *WHY_TEXT[] = {"", "SHOT!", "OFF THE TRAIN!", "FLATTENED!", "BLOWN SKY HIGH!", "TRAMPLED!", "THE TRAIN REACHED PORT SIDI.", "CAUGHT BY THE CRANK GUN!"};
+static const char *WHY_TEXT[] = {"", "SHOT!", "OFF THE TRAIN!", "FLATTENED!", "BLOWN SKY HIGH!", "TRAMPLED!", "THE TRAIN REACHED COPPER BEND.", "CAUGHT BY THE CRANK GUN!"};
 
 static void draw_result(void) {
     draw_play();
@@ -797,7 +796,7 @@ static void draw_result(void) {
         tiny_center(won ? "TEN COINS OFF THE TRAIN." : "THEY HELD OUT FOR TEN TURNS.", 160, 84, C_CREAM);
     } else if (won) {
         ui_fancy_center("CLEAN GETAWAY!", 160, 58, 2, g1, 4, C_INK, C_NIGHT);
-        static const char *const N[3] = {"ANGEL", "DEVIL", "TIME"};
+        static const char *const N[3] = {"MERCY", "RUTHLESS", "SWIFT"};
         for (int s = 0; s < 3; s++) {
             bool got = (result_stars >> s) & 1;
             int x = 86 + s * 52;
@@ -835,16 +834,18 @@ static void update_result(void) {
 static void draw_ending(void) {
     cur = 19;
     cam_x = frame_t * 0.4f;
+    drift = 1;
     draw_sky();
     draw_rails();
-    /* Sahar up on Baraka, heading for the coast */
+    drift = -1;
+    /* Pearl up on Biscuit, heading for the coast */
     int bob = (frame_t / 10) % 2;
-    draw_outlaw_big(OUT_SAHAR, 134, 84 + bob, 2, 17);
+    draw_outlaw_big(OUT_PEARL, 134, 84 + bob, 2, 17);
     spr_draw_scaled(&dx_obj[bob ? DO_CAMEL : DO_CAMEL2], 128, 100, 2, 0);
     ui_panel(20, 10, 280, 56, C_NIGHT, C_AMBER);
     static const uint8_t grad[] = {C_WHITE, C_CREAM, C_AMBER};
-    ui_fancy_center("THE LAST SCORE", 160, 16, 2, grad, 3, C_INK, C_MAROON);
-    text_center("THE BAND SPLITS THE LAST OF THE GOLD.\nSAHAR AND BARAKA RIDE FOR THE COAST.", 160, 38, C_LIGHT);
+    ui_fancy_center("ONE LAST RIDE", 160, 16, 2, grad, 3, C_INK, C_MAROON);
+    text_center("THE BAND SPLITS THE LAST OF THE GOLD.\nPEARL AND BISCUIT RIDE FOR THE COAST.", 160, 38, C_LIGHT);
     char b[48];
     snprintf(b, sizeof b, GLYPH_STAR " %d OF 60 STARS", total_stars());
     text_center(b, 160, 168, C_YELLOW);
@@ -948,7 +949,7 @@ static void de_quit(void) {
 static void de_label(int x, int y, int w, int h, int t) {
     for (int yy = 0; yy < h; yy++) gfx_hline(x, x + w - 1, y + yy, yy < 20 ? C_VIOLET : yy < 34 ? C_ORANGE : C_AMBER);
     gfx_circ(x + 110, y + 34, 12, C_YELLOW);
-    for (int xx = 0; xx < w; xx++) gfx_vline(x + xx, y + 44 + (int)(3 * sinf((xx + t) * 0.05f)), y + h - 1, C_TAN);
+    for (int xx = 0; xx < w; xx++) gfx_vline(x + xx, y + 44 + (int)(3 * sinf((xx - t) * 0.05f)), y + h - 1, C_TAN);
     /* a car, an outlaw crouched on the roof, the camel keeping pace */
     gfx_rect(x + 10, y + 34, 70, 21, C_WINE);
     gfx_rect(x + 10, y + 32, 70, 3, C_MAROON);
@@ -961,12 +962,12 @@ static void de_label(int x, int y, int w, int h, int t) {
     gfx_circ(x + 68, y + 56, 4, C_INK);
     DxActor fake;
     memset(&fake, 0, sizeof fake);
-    fake.who = OUT_SAHAR;
+    fake.who = OUT_PEARL;
     uint8_t map[PAL_COUNT];
     person_colours(map, &fake);
     spr_draw_ex(&dx_body[DS_DUCK], x + 46, y + 1, 0, map, -1);
-    spr_draw(&dx_obj[DO_HAT_S], x + 46, y + 15, 0);
-    spr_draw(&dx_obj[(t / 10) % 2 ? DO_CAMEL : DO_CAMEL2], x + 96, y + 28, 0);
+    spr_draw(&dx_obj[DO_HAT_P], x + 46, y + 15, 0);
+    spr_draw(&dx_obj[(t / 10) % 2 ? DO_CAMEL : DO_CAMEL2], x + 96, y + 28, SPR_FLIPX);
     static const uint8_t grad[] = {C_WHITE, C_CREAM, C_AMBER};
     ui_fancy_text("DUNE EXPRESS", x + 4, y + 3, 1, grad, 3, C_INK, -1);
 }
@@ -974,6 +975,16 @@ static void de_label(int x, int y, int w, int h, int t) {
 static int de_query(const char *key, int *out) {
     DxActor *me = &W.a[W.ctrl];
     if (!strcmp(key, "state")) { *out = state; return 1; }
+    if (!strcmp(key, "intro")) { *out = intro; return 1; }
+    if (!strcmp(key, "cam")) { *out = (int)cam_x; return 1; }
+    if (!strcmp(key, "rolling")) { *out = me->rolling; return 1; }
+    if (!strcmp(key, "end_t")) { *out = W.end_t; return 1; }
+    if (!strcmp(key, "gun_ammo") || !strcmp(key, "gun_friendly")) {
+        for (int i = 0; i < W.no; i++)
+            if (W.o[i].alive && W.o[i].type == OB_GUN) { *out = key[4] == 'a' ? W.o[i].ammo : W.o[i].friendly; return 1; }
+        *out = -1;
+        return 1;
+    }
     if (!strcmp(key, "mission")) { *out = cur + 1; return 1; }
     if (!strcmp(key, "x")) { *out = (int)me->x; return 1; }
     if (!strcmp(key, "y")) { *out = (int)me->y; return 1; }
@@ -993,6 +1004,7 @@ static int de_query(const char *key, int *out) {
     if (!strcmp(key, "phase")) { *out = W.phase; return 1; }
     if (!strcmp(key, "turn_t")) { *out = W.turn_t; return 1; }
     if (!strcmp(key, "master")) { *out = W.master; return 1; }
+    if (!strcmp(key, "elapsed")) { *out = W.elapsed; return 1; }
     if (!strcmp(key, "result")) { *out = W.result; return 1; }
     if (!strcmp(key, "why")) { *out = W.why; return 1; }
     if (!strcmp(key, "loot")) { *out = W.loot; return 1; }
@@ -1010,7 +1022,6 @@ static int de_query(const char *key, int *out) {
     if (!strcmp(key, "blast")) { *out = me->blast; return 1; }
     if (!strcmp(key, "fist")) { *out = me->fist; return 1; }
     if (!strcmp(key, "quick")) { *out = me->quick; return 1; }
-    if (!strcmp(key, "seen_cars")) { int n = 0; for (int c = 0; c < W.ncars; c++) n += W.seen[c]; *out = n; return 1; }
     if (!strncmp(key, "tile", 4)) {
         /* tileXXXY: the tile at column XXX, row Y */
         int v = atoi(key + 4);
@@ -1072,7 +1083,13 @@ static int de_query(const char *key, int *out) {
 static int de_cheat(const char *cmd) {
     int a, b;
     DxActor *me = &W.a[W.ctrl];
-    if (sscanf(cmd, "mission %d", &a) == 1) { start_mission(iclamp(a, 1, DX_MISSIONS) - 1); return 1; }
+    if (sscanf(cmd, "mission %d", &a) == 1) {
+        /* straight into mission N, past its opening look along the train */
+        start_mission(iclamp(a, 1, DX_MISSIONS) - 1);
+        intro = 0;
+        cam_x = W.a[W.ctrl].x - 100;
+        return 1;
+    }
     if (sscanf(cmd, "pos %d %d", &a, &b) == 2) { me->x = (float)(a * DX_T + 2); me->y = (float)((b - 1) * DX_T + 2); me->vx = me->vy = 0; me->climb = 0; me->ground = 1; return 1; }
     if (sscanf(cmd, "face %d", &a) == 1) { me->face = (uint8_t)a; return 1; }
     if (sscanf(cmd, "ammo %d", &a) == 1) { me->ammo = (uint8_t)a; return 1; }
@@ -1107,7 +1124,6 @@ static int de_cheat(const char *cmd) {
     if (!strcmp(cmd, "win")) { W.result = DX_WON; finish(); return 1; }
     if (!strcmp(cmd, "versus")) { start_versus(); state = S_PLAY; return 1; }
     if (sscanf(cmd, "camx %d", &a) == 1) { cam_lock = a; return 1; }
-    if (!strcmp(cmd, "see_all")) { for (int c = 0; c < W.ncars; c++) W.seen[c] = 1; return 1; }
     if (!strcmp(cmd, "sheet")) { sheet_mode = !sheet_mode; return 1; }
     if (!strcmp(cmd, "menu")) { go_menu(); return 1; }
     return 0;
@@ -1120,13 +1136,14 @@ const GameDef GAME_DUNE = {
     "STEALTH",
     "DESERT OUTLAWS ROB THE GOVERNOR'S TRAINS. MOVE WHILE THE GUARDS WAIT.",
     {"BEAT MISSION 10", "BEAT ALL 20 MISSIONS", "BEAT THE GAME WITH 40 STARS"},
-    "D-PAD\tWALK / CLIMB / DUCK\n"
-    GLYPH_DOWN GLYPH_LEFT GLYPH_RIGHT "\tROLL\n"
-    GLYPH_A "\tJUMP\n"
+    "D-PAD\tWALK, CLIMB, " GLYPH_DOWN " DUCKS\n"
+    GLYPH_A "\tJUMP (HOLD: HIGHER)\n"
+    GLYPH_DOWN "+" GLYPH_A "\tROLL (HOLD " GLYPH_DOWN ")\n"
     GLYPH_B "\tPUNCH / THROW\n"
     GLYPH_DOWN "+" GLYPH_B "\tPICK UP / PUT DOWN\n"
-    "HOLD " GLYPH_UP "\tDRAW THE GUN, " GLYPH_B " FIRES\n"
-    "SELECT\tSWAP OUTLAWS\n"
+    "WALK ON\tPUSH A BOX ALONG\n"
+    "BARREL\t" GLYPH_DOWN " HIDE, " GLYPH_LEFT GLYPH_RIGHT " ROLL, " GLYPH_UP " OUT\n"
+    "HOLD " GLYPH_UP "\tLOAD + DRAW, " GLYPH_B " FIRES\n"
     "START\tPAUSE",
     C_ORANGE, C_WINE,
     de_load, de_start, de_update, de_draw, de_quit, de_label, de_query, de_cheat,

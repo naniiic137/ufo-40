@@ -1,0 +1,34 @@
+# BANNERFALL: without a unit in hand the cursor roams only your own half of
+# the field (your four columns); in 2P the violet hand keeps to its half.
+game bannerfall
+wait 5
+cheat battle 1
+cheat clear
+expect cx == 1
+press RIGHT
+press RIGHT
+expect cx == 3
+press RIGHT
+press RIGHT
+expect cx == 3
+press LEFT
+press LEFT
+press LEFT
+press LEFT
+expect cx == 0
+press UP
+press UP
+press UP
+expect cy == 0
+cheat versus 0
+cheat clear
+expect cx2 == 6
+press P2LEFT
+press P2LEFT
+press P2LEFT
+expect cx2 == 4
+press P2RIGHT
+press P2RIGHT
+press P2RIGHT
+press P2RIGHT
+expect cx2 == 7

@@ -1,4 +1,6 @@
-# DUNE EXPRESS: walking, jumping, climbing a ladder onto the roof, ducking.
+# DUNE EXPRESS: walking, jumping (hold A for the full height, tap it for a
+# hop), climbing a ladder onto the roof, ducking (it doesn't move you) and
+# the roll: down + A, rolling on at walking speed while down is held.
 game dune
 wait 5
 cheat mission 1
@@ -12,6 +14,18 @@ wait 8
 expect ground == 0
 wait 50
 expect ground == 1
+# a held jump climbs well over two tiles, a tapped one about one
+cheat pos 4 6
+wait 3
+hold A 16
+expect y < 46
+wait 60
+cheat pos 4 6
+wait 3
+press A 2
+wait 8
+expect y > 60
+wait 60
 cheat pos 10 6
 hold UP 70
 expect ty == 2
@@ -19,10 +33,21 @@ expect climb == 0
 hold RIGHT 20
 expect tx >= 11
 expect ty == 2
-cheat pos 3 6
+cheat clear_law
+cheat pos 6 6
 wait 2
 hold DOWN 5
 expect duck == 1
 hold DOWN RIGHT 20
 expect duck == 1
-expect tx >= 4
+expect tx == 6
+hold DOWN
+press A
+wait 20
+expect rolling == 1
+expect duck == 1
+expect tx >= 8
+release DOWN
+wait 3
+expect rolling == 0
+expect duck == 0

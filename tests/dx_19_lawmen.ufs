@@ -1,0 +1,57 @@
+# DUNE EXPRESS lawmen never jump: a patrol turns back at a box in his way
+# (and never sees the outlaw ducked behind it); an alert lawman punches a box
+# out of his way; a gunshot sends every lawman nearby to where it came from,
+# breaking through walls; an outlaw can stand on a lawman's head, since
+# lawmen only look straight ahead.
+game dune
+wait 5
+cheat mission 4
+cheat pos 11 6
+cheat face 1
+hold DOWN 668
+expect alive == 1
+expect law1_x > 205
+expect law1_x < 216
+expect law1_y == 82
+hold DOWN 90
+expect alive == 1
+expect law1_face == 1
+expect law1_state == 1
+# an alert guard going for a shot breaks the crate in his way
+cheat mission 1
+cheat law 1 45 2 1 0
+cheat pos 23 6
+cheat face 1
+hold UP 135
+press B
+expect law0_state == 2
+expect objs2 == 2
+hold DOWN 600
+hold DOWN 90
+expect objs2 == 1
+expect law0_y == 82
+expect law0_x > 290
+# a shot behind a wall: the guard comes for it
+cheat mission 1
+cheat pos 4 6
+cheat face 0
+hold UP 135
+expect gun == -1
+press B
+expect ammo == 0
+expect law0_state == 2
+wait 620
+expect law0_x < 210
+expect law0_face == 0
+# up on a guard's head, on the roof
+cheat mission 2
+cheat pos 26 2
+cheat face 1
+wait 2
+hold RIGHT A 22
+hold A 12
+wait 10
+expect alive == 1
+expect ground == 1
+expect y == -12
+expect law1_state == 0

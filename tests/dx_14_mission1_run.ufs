@@ -1,6 +1,6 @@
 # DUNE EXPRESS: mission 1 played through with the buttons alone: break the
 # crate for a bullet, up the ladder, over the roofs, down the hatch behind
-# the guard, open the strongbox and out to Baraka.
+# the guard, open the strongbox and out to Biscuit.
 game dune
 wait 5
 cheat mission 1

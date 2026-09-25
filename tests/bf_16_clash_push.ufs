@@ -1,0 +1,42 @@
+# BANNERFALL: two foes stepping into the same free tile hit each other as
+# usual; then the one with the longer line of its own men behind it pushes
+# into the tile (and its line follows), and an even line holds both still.
+game bannerfall
+wait 5
+cheat battle 18
+cheat clear
+# row 1: a line of three gold against one violet: gold pushes in
+cheat unit 1 1 1 0
+cheat unit 2 1 1 0
+cheat unit 3 1 1 0
+cheat unit 5 1 1 1
+# row 3: one against one: both hold
+cheat unit 3 3 1 0
+cheat unit 5 3 1 1
+# row 5: three violet against one gold: violet pushes in
+cheat unit 2 5 1 0
+cheat unit 4 5 1 1
+cheat unit 5 5 1 1
+cheat unit 6 5 1 1
+cheat resolve
+expect unit_at41 == 1
+expect side_at41 == 0
+expect hp_at41 == 2
+expect unit_at31 == 1
+expect unit_at21 == 1
+expect unit_at11 == 0
+expect hp_at51 == 2
+expect side_at51 == 1
+expect unit_at33 == 1
+expect unit_at53 == 1
+expect unit_at43 == 0
+expect hp_at33 == 2
+expect hp_at53 == 2
+expect unit_at35 == 1
+expect side_at35 == 1
+expect hp_at35 == 2
+expect unit_at45 == 1
+expect unit_at55 == 1
+expect unit_at65 == 0
+expect hp_at25 == 2
+expect side_at25 == 0

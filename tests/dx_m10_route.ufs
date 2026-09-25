@@ -1,103 +1,50 @@
-# DUNE EXPRESS: mission 10, TWO BY TWO, can be won with the buttons alone:
-# Khaled breaks in behind the first guard and takes his strongbox, the Veil
-# follows; both cross the roofs; a crate thrown from the hatch stuns the last guard;
-# Khaled takes the second strongbox and rides off, and the Veil walks out behind the patrol
+# DUNE EXPRESS: mission 10, TWO BY TWO, can be won with the buttons alone,
+# unseen and under the time star. Wade starts at the front, Hush at the back
+# and they take a turn each: Wade punches through the car's end wall, punches
+# the guard from behind, takes the first strongbox and climbs to the roofs;
+# Hush punches the last guard from behind, takes the second box and rides
+# off, and Wade runs the roofs to the camel.
 game dune
 wait 5
 cheat mission 10
 wait 1
-hold RIGHT 102
-hold RIGHT 1
+hold RIGHT 100
 press B
-wait 8
-press B
-wait 8
-hold RIGHT 64
-hold RIGHT 1
-press B
-wait 5
-hold RIGHT 62
-hold RIGHT 1
-press B
-wait 30
-hold RIGHT 38
-hold LEFT 51
-hold RIGHT 38
-hold RIGHT 25
-hold UP 24
-hold UP 24
-hold UP 24
-wait 82
-wait 210
-hold RIGHT 166
-hold RIGHT 1
-press B
-wait 5
-hold RIGHT 76
-hold UP 24
-hold UP 24
-hold UP 24
-wait 277
-wait 210
-hold RIGHT 25
-hold RIGHT A 40
-wait 5
-hold RIGHT 229
-hold DOWN 24
-hold DOWN 24
-hold DOWN 4
-hold RIGHT 1
-wait 2
-wait 2
-wait 2
-wait 2
-wait 2
-hold RIGHT DOWN 25
-hold DOWN
-press B
-hold LEFT DOWN 24
-release DOWN
 wait 3
-hold RIGHT 1
-hold RIGHT 1
 press B
-wait 30
-hold UP 24
-hold UP 24
-hold UP 24
-wait 76
-wait 210
-hold RIGHT 25
-hold RIGHT A 40
-wait 5
-hold RIGHT 216
-wait 314
-wait 210
-hold DOWN 24
-hold DOWN 24
-hold DOWN 4
-hold RIGHT 1
-wait 2
-wait 2
-wait 2
-wait 2
-wait 2
-hold RIGHT 51
-hold RIGHT 1
+wait 3
 press B
-wait 30
-hold RIGHT 37
-hold LEFT 50
-hold RIGHT 38
-hold RIGHT 89
-hold RIGHT 1
+wait 3
 press B
-wait 5
-hold RIGHT 51
-hold RIGHT 176
-wait 2
-wait 210
-hold RIGHT 58
+wait 3
+press B
+wait 3
+press B
+wait 3
+hold RIGHT 62
+press B
+wait 3
+hold RIGHT 64
+press B
+wait 4
+hold RIGHT 56
+hold UP 66
+hold RIGHT 23
+hold RIGHT A 30
+hold RIGHT 140
+wait 10
+wait 211
+hold LEFT 21
+press B
+wait 3
+hold LEFT 63
+press B
+wait 4
+hold LEFT 34
+hold RIGHT 180
+hold RIGHT 287
+wait 212
+hold RIGHT 60
 wait 10
 expect result == 1
 expect state == 4

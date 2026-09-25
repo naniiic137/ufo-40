@@ -1,0 +1,18 @@
+# DUNE EXPRESS: a shot outlaw is thrown off in an arc to the rails; the
+# heist fails at once, and the result comes up once the fall has played out.
+game dune
+wait 5
+cheat mission 1
+cheat pos 12 6
+cheat face 1
+wait 2
+expect alive == 0
+expect result == 2
+expect why == 1
+expect state == 3
+expect end_t > 50
+wait 12
+expect y < 70
+wait 70
+expect state == 4
+expect y > 150

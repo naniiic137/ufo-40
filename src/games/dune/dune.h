@@ -31,6 +31,10 @@
 #define DX_QUICKDRAW 60
 #define DX_MAX_AMMO 6
 #define DX_DEATH_Y (9 * DX_T)   /* below the undercarriage: off the train */
+#define DX_TILE_HP 3            /* punches a plank wall, floor or roof takes */
+#define DX_ARMOR_HP 30          /* and a plate of armor */
+#define DX_GUN_SHOTS 6          /* a crank gun: two bursts of three */
+#define DX_END_FRAMES 70        /* a failed heist: the fall plays out first */
 
 /* tiles */
 enum {
@@ -40,7 +44,7 @@ enum {
 
 /* actors */
 enum { AK_OUTLAW, AK_GUARD, AK_GOVERNOR };
-enum { OUT_KHALED, OUT_VEIL, OUT_SAHAR };
+enum { OUT_WADE, OUT_HUSH, OUT_PEARL };
 enum { LS_GUARD, LS_PATROL, LS_ALERT };
 
 typedef struct DxActor {
@@ -57,6 +61,10 @@ typedef struct DxActor {
     uint8_t punch_t, anim;
     uint8_t carries_default;            /* a lawman who starts carrying something */
     int16_t throw_cd;
+    uint8_t rolling, jump_hold, dying;  /* dying: a shot body flying off the train */
+    uint8_t has_tgt;                    /* lawmen: a place to search (a noise, a sighting) */
+    float tgt_x, tgt_y;                 /* tgt_y: the feet */
+    int16_t push_t, look_t;
 } DxActor;
 
 /* things */
@@ -78,6 +86,9 @@ typedef struct DxObj {
     int8_t ammo;            /* the crank gun's bullets */
     uint8_t friendly;       /* crank gun turned on the lawmen */
     uint8_t loot_id;        /* coins remember whose box they came from */
+    uint8_t suspect;        /* a barrel a lawman saw roll: he'll shoot it once alert */
+    uint8_t burst;          /* crank gun: shots left in this burst */
+    int8_t roll;            /* an occupied barrel rolling: -1, 0, 1 */
 } DxObj;
 
 typedef struct DxShot {
@@ -108,14 +119,14 @@ typedef struct DxMission {
 extern const DxMission DX_MISSIONS_DEF[DX_MISSIONS];
 
 typedef struct DxInput {
-    uint8_t left, right, up, down, a, b, a_pressed, b_pressed, select_pressed;
+    uint8_t left, right, up, down, a, b, a_pressed, b_pressed, down_pressed;
 } DxInput;
 
 typedef struct DxWorld {
     int w;
     uint8_t tile[DX_H][DX_MAX_W];
     uint8_t car_of[DX_MAX_W];       /* car index per column, 255 in a gap */
-    uint8_t ncars, seen[DX_MAX_CARS];
+    uint8_t ncars;
     int16_t car_x0[DX_MAX_CARS], car_x1[DX_MAX_CARS];
     DxActor a[DX_MAX_ACTORS];
     int na;
@@ -137,6 +148,9 @@ typedef struct DxWorld {
     uint8_t coins;                  /* 2P: coins the outlaws hold */
     int16_t ev_shot, ev_boom, ev_punch, ev_coin, ev_stun, ev_break, ev_gate, ev_alert, ev_turn; /* sounds */
     uint8_t rescue_open;            /* mission 13: the cell was opened */
+    uint8_t dmg[DX_H][DX_MAX_W];    /* punches a tile has taken */
+    uint8_t tflash[DX_H][DX_MAX_W]; /* a struck tile flashes white */
+    int16_t end_t;                  /* frames until a failed heist ends */
     Rng rng;
 } DxWorld;
 
@@ -159,7 +173,7 @@ enum {
 };
 enum {
     DO_BARREL, DO_CRATE, DO_ANVIL, DO_DYNAMITE, DO_GOOSE, DO_GOOSE2, DO_RAM, DO_GUN, DO_LEVER, DO_LOOT, DO_COIN,
-    DO_AMMO, DO_POWER, DO_CAMEL, DO_CAMEL2, DO_HAT_K, DO_HAT_V, DO_HAT_S, DO_HAT_G, DO_HAT_GOV, DO_ICONS, DO_COUNT
+    DO_AMMO, DO_POWER, DO_CAMEL, DO_CAMEL2, DO_HAT_W, DO_HAT_H, DO_HAT_P, DO_HAT_G, DO_HAT_GOV, DO_ICONS, DO_COUNT
 };
 extern Sprite dx_body[DS_FRAMES];
 extern Sprite dx_obj[DO_COUNT];

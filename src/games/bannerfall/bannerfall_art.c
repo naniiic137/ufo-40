@@ -111,6 +111,42 @@ static const char WARD2[] =
     "...kbk..kkkkkk.."
     "..kkkk..........";
 
+/* the warden once its shield has broken: a plain soldier with a short blade */
+static const char WARDX1[] =
+    "................"
+    "....kkkkk......."
+    "...kllwllk......"
+    "...klllllk......"
+    "...kgggggk...k.."
+    "....khhkhk..klk."
+    "....khhhhk..klk."
+    "...kkooookk.klk."
+    "..kaoooooaakhk.."
+    "..kaoooooookk..."
+    "..kakoooork....."
+    "...kkooorkk....."
+    "....kbbkbk......"
+    "....kbk.kbk....."
+    "....kbk.kbk....."
+    "...kkkk.kkkk....";
+static const char WARDX2[] =
+    "................"
+    "................"
+    "....kkkkk......."
+    "...kllwllk......"
+    "...klllllk......"
+    "...kgggggk...k.."
+    "....khhkhk..klk."
+    "....khhhhk..klk."
+    "...kkooookk.klk."
+    "..kaoooooaakhk.."
+    "..kaoooooookk..."
+    "..kakoooork....."
+    "...kkooorkk....."
+    "...kbk.bk......."
+    "...kbk..kbk....."
+    "..kkkk..kkkk....";
+
 static const char RIDER1[] =
     "...................."
     ".......kkkk........."
@@ -377,6 +413,7 @@ static const Art ART[] = {
     {BS_WARD1, 16, 16, WARD1}, {BS_WARD2, 16, 16, WARD2}, {BS_RIDER1, 20, 16, RIDER1}, {BS_RIDER2, 20, 16, RIDER2},
     {BS_PIKE1, 16, 16, PIKE1}, {BS_PIKE2, 16, 16, PIKE2}, {BS_SHADE1, 16, 16, SHADE1}, {BS_SHADE2, 16, 16, SHADE2},
     {BS_POWDER1, 16, 16, POWDER1}, {BS_POWDER2, 16, 16, POWDER2}, {BS_CHAMP1, 20, 16, CHAMP1}, {BS_CHAMP2, 20, 16, CHAMP2},
+    {BS_WARDX1, 16, 16, WARDX1}, {BS_WARDX2, 16, 16, WARDX2},
     {BS_ARROW, 7, 3, ARROW}, {BS_KNIFE, 3, 6, KNIFE}, {BS_STAR, 5, 3, STAR},
     {BS_FLAG1, 10, 12, FLAG1}, {BS_FLAG2, 10, 12, FLAG2}, {BS_FLAG_DOWN, 10, 12, FLAG_DOWN},
     {BS_TUFT, 5, 3, TUFT}, {BS_FLOWER, 3, 3, FLOWER}, {BS_HAND, 8, 8, HAND}, {BS_HAND_GRAB, 8, 8, HAND_GRAB},

@@ -1,0 +1,70 @@
+# BANNERFALL 2P setup: each army's pool is 8 places in two rows of four.
+# Custom: the d-pad picks a place and A / B turn it through empty and the
+# eight troops; below the pool, the banners (1-5). Pools that mirror place
+# for place give matching spawns. Random deals each side its own pool (down
+# deals again) and never matches.
+game bannerfall
+wait 30
+press DOWN
+press DOWN
+press DOWN
+wait 3
+press A
+wait 10
+expect state == 7
+expect vs_cur == -1
+expect vs_preset == 0
+# to CUSTOM (the advanced pools, mirrored)
+press LEFT
+press LEFT
+expect vs_preset == 3
+press DOWN
+expect vs_cur == 0
+expect vs_slot00 == 1
+press A
+expect vs_slot00 == 2
+press B
+press B
+expect vs_slot00 == 0
+press B
+expect vs_slot00 == 8
+press A
+press A
+expect vs_slot00 == 1
+# player 2 drives its own cursor down to its banners and adds two
+expect vs_cur2 == 0
+press P2DOWN
+press P2DOWN
+expect vs_cur2 == 8
+press P2A
+press P2RIGHT
+expect vs_flags2 == 5
+press P2B
+expect vs_flags2 == 4
+# the pools still mirror: matching spawns
+press UP
+expect vs_cur == -1
+press A
+wait 5
+expect state == 3
+expect matched == 1
+expect flags_r == 4
+expect flags_l == 3
+# break the mirror (player 1's first place only): no matching
+game bannerfall
+wait 30
+press DOWN
+press DOWN
+press DOWN
+wait 3
+press A
+wait 10
+press LEFT
+press LEFT
+press DOWN
+press A
+press UP
+press A
+wait 5
+expect state == 3
+expect matched == 0

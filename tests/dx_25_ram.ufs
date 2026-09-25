@@ -1,0 +1,32 @@
+# DUNE EXPRESS: a ram plods back and forth (here in its pen) and runs down
+# whoever is in front of it, lawman or outlaw; poked from behind it charges
+# at a run.
+game dune
+wait 5
+cheat mission 12
+expect otype6_x == 193
+wait 60
+expect otype6_x > 200
+wait 120
+expect otype6_x < 230
+expect otype6_x > 175
+# a guard in the pen is run down
+cheat mission 12
+cheat law 0 14 6 0 0
+wait 120
+expect law0_alive == 0
+expect kills == 1
+# poked from behind it charges; it runs down an outlaw too
+cheat mission 12
+cheat pos 11 6
+cheat face 1
+wait 1
+press B
+wait 10
+expect otype6_x > 215
+cheat mission 12
+cheat pos 14 6
+cheat face 0
+wait 120
+expect alive == 0
+expect why == 5

@@ -1,20 +1,25 @@
-# DUNE EXPRESS: with two outlaws, SELECT swaps between them while things are
-# quiet; in turns they take a turn each.
+# DUNE EXPRESS: with two outlaws on the train they take a turn each, one
+# moving while the other waits; there is no button to swap them. With no
+# lawman up to take a turn, the turns still pass straight from one outlaw to
+# the other, so nobody is left behind.
 game dune
 wait 5
 cheat mission 10
 wait 2
-expect ctrl == 0
+expect who == 0
 expect phase == 1
-wait 598
+press SELECT
+expect who == 0
+wait 596
 expect phase == 2
 wait 212
 expect phase == 1
-expect ctrl == 1
-cheat mission 2
+expect who == 1
 cheat mission 10
 cheat clear_law
 wait 2
-expect phase == 0
-press SELECT
-expect ctrl == 1
+expect phase == 1
+expect who == 0
+wait 600
+expect phase == 1
+expect who == 1

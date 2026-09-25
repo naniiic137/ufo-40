@@ -1,0 +1,26 @@
+# BANNERFALL 2P random: a pool for each side (never a champion), dealt again
+# with down; three banners each and no matching spawns.
+game bannerfall
+wait 30
+press DOWN
+press DOWN
+press DOWN
+wait 3
+press A
+wait 10
+press LEFT
+expect vs_preset == 4
+expect vs_rand00 != 0
+expect vs_rand00 != 8
+press DOWN
+press DOWN
+press DOWN
+expect vs_cur == -1
+press A
+wait 5
+expect state == 3
+expect matched == 0
+expect flags_l == 3
+expect flags_r == 3
+expect pool_n_l >= 4
+expect pool_n_r >= 4

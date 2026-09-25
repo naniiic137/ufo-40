@@ -1,6 +1,7 @@
 # DUNE EXPRESS: a punch stuns (a stunned guard starts to patrol, and his stun
-# only counts down in the lawmen's time), breaks standard walls, and ducking
-# punches the floor out from under you.
+# only counts down in the lawmen's time); a plank wall takes three punches,
+# cracking as it goes, and three ducking punches take the floor out from
+# under you.
 game dune
 wait 5
 cheat mission 1
@@ -14,14 +15,23 @@ expect phase == 1
 wait 100
 expect law0_stun > 170
 cheat mission 1
+cheat clear_law
 cheat pos 12 6
 cheat face 0
 expect tile115 == 2
 press B
+expect tile115 == 2
+press B
+expect tile115 == 2
+press B
 expect tile115 == 0
 cheat mission 1
+cheat clear_law
 cheat pos 16 6
 hold DOWN
+press B
+press B
+expect tile167 == 3
 press B
 wait 40
 release DOWN

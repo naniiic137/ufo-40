@@ -1,0 +1,41 @@
+# DUNE EXPRESS: every heist opens with a look along the whole train, from
+# the far end back to the outlaw; the clock doesn't run until a button
+# starts the heist (a button during the look skips it).
+game dune
+wait 30
+press A
+wait 25
+press A
+wait 25
+expect state == 2
+press A
+wait 2
+expect state == 3
+expect intro == 1
+expect master == 10800
+expect cam > 600
+wait 60
+expect intro == 1
+expect master == 10800
+wait 100
+expect intro == 2
+expect cam == 0
+wait 60
+expect master == 10800
+press A
+wait 10
+expect intro == 0
+expect master < 10800
+expect alive == 1
+# a press during the look skips straight to the heist
+cheat menu
+wait 25
+press A
+wait 25
+press A
+wait 15
+expect intro == 1
+press B
+wait 3
+expect intro == 0
+expect cam < 100

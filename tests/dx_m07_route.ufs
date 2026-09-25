@@ -1,7 +1,8 @@
-# DUNE EXPRESS: mission 7, IRON GATES, can be won with the buttons alone:
-# punch the first lever, carry it through its gate and set it down; the same
-# with the second so the last gate can be flipped open from inside; the strongbox;
-# a fresh turn to break through the end wall behind the last guard and run
+# DUNE EXPRESS: mission 7, IRON GATES, can be won with the buttons alone,
+# unseen and under the time star: punch the first lever, carry it through its
+# gate and set it down; the same with the second so the last gate can be
+# flipped open from inside; the strongbox; wait out the lawmen, punch through
+# the end wall (three punches a plank), the last guard from behind and out
 game dune
 wait 5
 cheat mission 7
@@ -56,23 +57,22 @@ press B
 wait 8
 press B
 wait 8
-hold RIGHT 63
-hold RIGHT 1
+wait 3
 press B
-wait 5
-hold RIGHT 16
-hold RIGHT 16
-hold RIGHT 16
-hold RIGHT 16
-hold RIGHT 1
+wait 3
 press B
-wait 8
-hold RIGHT 16
-hold RIGHT 16
-hold RIGHT 16
-hold RIGHT 16
-hold RIGHT 16
-hold RIGHT 16
+wait 3
+press B
+wait 3
+press B
+wait 3
+hold RIGHT 66
+press B
+wait 3
+hold RIGHT 36
+press B
+wait 3
+hold RIGHT 110
 wait 10
 expect result == 1
 expect state == 4
