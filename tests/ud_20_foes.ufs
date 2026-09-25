@@ -2,8 +2,7 @@
 # grubs and axe newts two; hop toads and shellbacks three; a mimic sack ten.
 # The mimic stays a chest until Mo comes near.
 game underdelve
-wait 10
-wait 5
+wait 15
 cheat no_gloom
 cheat room 0 0 30 130
 expect hp_moth == 1

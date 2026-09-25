@@ -2,8 +2,7 @@
 # mine, with six lanterns. Mo walks, and his jumps are committed: pushing the
 # other way in mid-air changes nothing.
 game underdelve
-wait 10
-wait 5
+wait 15
 cheat no_gloom
 expect state == 1
 expect map_errors == 0

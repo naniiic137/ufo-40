@@ -1,8 +1,7 @@
 # UNDERDELVE: holding against the crates in the block room slides them along
 # and opens the hole under them, down to the hungry spikes.
 game underdelve
-wait 10
-wait 5
+wait 15
 cheat no_gloom
 cheat room 2 3 60 130
 cheat clear_enemies

@@ -2,8 +2,7 @@
 # wall in the loft above his camp for 500 ore; the lever in the ember deep
 # drops the slab over the trapdoor shaft.
 game underdelve
-wait 10
-wait 5
+wait 15
 cheat no_gloom
 cheat room 2 0 250 130
 cheat clear_enemies

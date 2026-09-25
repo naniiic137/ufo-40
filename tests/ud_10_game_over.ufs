@@ -1,8 +1,7 @@
 # UNDERDELVE: losing the last lantern ends the delve and erases the run; the
 # next one starts over from the camp.
 game underdelve
-wait 10
-wait 5
+wait 15
 cheat no_gloom
 cheat room 1 4 20 130
 cheat clear_enemies

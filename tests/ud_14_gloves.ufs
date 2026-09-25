@@ -1,7 +1,6 @@
 # UNDERDELVE: climbing gloves make Mo climb twice as fast.
 game underdelve
-wait 10
-wait 5
+wait 15
 cheat no_gloom
 cheat room 0 5 83 130
 hold UP 40

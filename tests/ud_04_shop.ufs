@@ -1,8 +1,7 @@
 # UNDERDELVE: Burlap sells the copper pot (100), an old boot (50) and the
 # tuning fork (200); the owl sells gloves (100) and the pot cheaper (50).
 game underdelve
-wait 10
-wait 5
+wait 15
 cheat no_gloom
 cheat room 1 3 211 130
 cheat money 180

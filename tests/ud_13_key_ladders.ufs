@@ -2,8 +2,7 @@
 # on the tablet (read back to front) brings out the chest with the brass key.
 # A wrong ladder starts the sequence over.
 game underdelve
-wait 10
-wait 5
+wait 15
 cheat no_gloom
 cheat room 3 4 150 130
 wait 10

@@ -2,8 +2,7 @@
 # long enough and lowers a ladder to the canary's cage. The canary joins him
 # for the fight with the Old Lode and picks off the wisps.
 game underdelve
-wait 10
-wait 5
+wait 15
 cheat no_gloom
 cheat give 2
 cheat room 0 3 158 130

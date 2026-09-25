@@ -2,8 +2,7 @@
 # hits twice as hard, but it sits where only a death on its spikes can take
 # him: the sacrifice.
 game underdelve
-wait 10
-wait 5
+wait 15
 cheat no_gloom
 cheat room 6 7 67 130
 cheat clear_enemies
