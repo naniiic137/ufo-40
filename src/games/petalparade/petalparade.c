@@ -9,7 +9,7 @@
 #define MID 4              /* the frame of a step where Posy is half-way in */
 #define AIR 8              /* frames a hop lasts: always exactly one half-way check */
 #define POWER_COUNT 48     /* the nectar countdown */
-#define COUNT_FRAMES 24    /* frames per count: faster than one a second */
+#define COUNT_FRAMES 10    /* frames per count: 6 a second, so 8 s in all */
 #define POWER_FRAMES (POWER_COUNT * COUNT_FRAMES)
 #define BRAMBLE_EVERY 540  /* a bramble crawls out on its own every 9 s */
 #define BRAMBLE_HOP 45     /* each bramble hops a tile every 3/4 s */
@@ -19,6 +19,7 @@
 #define DAZE_FRAMES 240    /* hopped over, a bramble is dizzy for 4 s */
 #define HITCH 6            /* the garden holds still a moment on a smash */
 #define SPIN 12            /* Posy's twirl when she lets the line go */
+#define SPROUT 24          /* a new pup grows out of the ground before it can join */
 #define BASE_PUPS 3
 #define HISCORES 5
 #define MAX_TRAIL (PP_N * PP_N)
@@ -52,6 +53,8 @@ typedef struct Game {
     uint16_t power, star_t, bramble_t;
     uint8_t star_used, star_kind;
     uint8_t step_t, air, freeze, spin, cackle, recorded;
+    uint8_t sprout[PP_N][PP_N];          /* frames until a new pup is up */
+    uint32_t frames, powered_frames;     /* for the economy test */
     uint8_t spawns_off;
     Rng rng;
 } Game;
@@ -346,6 +349,7 @@ static void touch(int x, int y, bool entry) {
         else game_over();
         break;
     case C_PUP:
+        if (G.sprout[y][x]) break; /* still growing: she walks over it */
         G.cell[y][x] = C_EMPTY;
         if (G.n_trail < MAX_TRAIL) {
             G.tx[G.n_trail] = G.vac_x;
@@ -452,12 +456,21 @@ static void play_update(void) {
     if (state != S_PLAY) return;
     if (G.spin > 0) G.spin--;
     if (G.cackle > 0) G.cackle--;
+    G.frames++;
+    if (G.power) G.powered_frames++;
     if (G.freeze > 0) { G.freeze--; return; } /* the little hitch after a smash */
 
     if (G.spawns_off & OFF_POSY) {
         /* tests: Posy holds still */
     } else if (++G.step_t >= STEP) {
         G.step_t = 0;
+        /* centred on her tile, she touches what is straight ahead: with
+         * nectar it is smashed now, so a turn waiting for this tile can
+         * still take her the other way */
+        int ax = G.hx + DX[G.dir], ay = G.hy + DY[G.dir];
+        if (G.power && !G.air && inb(ax, ay) &&
+            (G.cell[ay][ax] == C_BRAMBLE || (G.cell[ay][ax] == C_TOADSTOOL && G.mush_power)))
+            smash(ax, ay);
         move_posy();
         touch(G.hx, G.hy, true);
         if (state != S_PLAY) return;
@@ -477,6 +490,7 @@ static void play_update(void) {
     for (int y = 0; y < PP_N; y++)
         for (int x = 0; x < PP_N; x++) {
             if (G.daze[y][x] > 0) G.daze[y][x]--;
+            if (G.sprout[y][x] > 0) G.sprout[y][x]--;
             if (G.cell[y][x] == C_JAR && ++G.jar_age[y][x] >= RIPEN_FRAMES && G.jar_level[y][x] < 4) {
                 G.jar_age[y][x] = 0;
                 G.jar_level[y][x]++;
@@ -495,11 +509,11 @@ static void play_update(void) {
             G.bramble_t = 0;
             if (random_free(3, true, &x, &y)) { new_bramble(x, y); burst(cell_cx(x), cell_cy(y), C_JADE, 6); }
         }
-        /* keep the loose pups topped up */
+        /* keep the loose pups topped up; a new one sprouts first */
         int want = BASE_PUPS + G.pups_bonus;
         if (count_cells(C_PUP) < want) {
             int x, y;
-            if (random_free(3, true, &x, &y)) G.cell[y][x] = C_PUP;
+            if (random_free(3, true, &x, &y)) { G.cell[y][x] = C_PUP; G.sprout[y][x] = SPROUT; }
         }
     }
 }
@@ -511,8 +525,12 @@ static void play_update(void) {
 enum { BOT_COLLECT, BOT_DELIVER, BOT_KILL };
 
 /* can Posy walk into (x,y) k tiles from now without a hop? */
+static bool bot_wants_jar(int x, int y);
+
 static bool bot_blocked(int x, int y, int k) {
     if (!inb(x, y)) return true;
+    /* a jar it is saving for later is stepped round, not drunk by accident */
+    if (G.cell[y][x] == C_JAR && k < 99 && !bot_wants_jar(x, y)) return true;
     for (int i = 0; i < G.n_trail; i++)
         if (G.tx[i] == x && G.ty[i] == y && i <= G.n_trail - k) return true;
     int c = G.cell[y][x];
@@ -527,11 +545,17 @@ static bool bot_blocked(int x, int y, int k) {
     return false;
 }
 
+/* It drinks a jar only when there is something to clear with it: a bramble,
+ * or a toadstool and a jar ripe enough (blue or gold) to break it. */
+static bool bot_wants_jar(int x, int y) {
+    return count_cells(C_BRAMBLE) >= 2 || (G.jar_level[y][x] >= 3 && count_cells(C_TOADSTOOL) > 0);
+}
+
 static bool bot_target(int mode, int x, int y, int run) {
     int c = G.cell[y][x];
     if (mode == BOT_KILL) return c == C_BRAMBLE || (c == C_TOADSTOOL && G.mush_power);
     if (mode == BOT_DELIVER) return run >= G.n_trail;
-    return c == C_PUP || c == C_JAR;
+    return (c == C_PUP && !G.sprout[y][x]) || (c == C_JAR && bot_wants_jar(x, y));
 }
 
 /* breadth-first over tiles, turning but never reversing; returns the first
@@ -750,7 +774,19 @@ static void draw_things(void) {
             int px = FX + x * PP_TILE, py = FY + y * PP_TILE;
             int bob = ((frame_t / 12) + x + y) % 2;
             switch (G.cell[y][x]) {
-            case C_PUP: spr_draw(&pp_spr[(frame_t / 10 + x) % 2 ? P_PUP1 : P_PUP2], px + 1, py + 1 - bob, 0); break;
+            case C_PUP:
+                if (G.sprout[y][x]) {
+                    /* a shoot pushing up, two leaves, then the pup's ears */
+                    int g = (SPROUT - G.sprout[y][x]) * 6 / SPROUT;
+                    gfx_rect(px + 5, py + 10 - g, 2, g + 1, C_FOREST);
+                    gfx_rect(px + 3, py + 9 - g, 2, 1, C_LIME);
+                    gfx_rect(px + 7, py + 8 - g, 2, 1, C_LIME);
+                    if (g >= 4) { gfx_pset(px + 4, py + 6 - g, C_PINK); gfx_pset(px + 7, py + 6 - g, C_PINK); }
+                    gfx_dither(px + 2, py + 10, 8, 2, C_EARTH, 8);
+                } else {
+                    spr_draw(&pp_spr[(frame_t / 10 + x) % 2 ? P_PUP1 : P_PUP2], px + 1, py + 1 - bob, 0);
+                }
+                break;
             case C_BRAMBLE:
                 if (G.daze[y][x]) {
                     spr_draw(&pp_spr[P_BRAMBLE_DAZED], px + 1, py + 1, 0);
@@ -856,14 +892,12 @@ static void draw_play(void) {
     draw_parts();
     gfx_camera(0, 0);
     draw_hud();
-    /* the nectar countdown sits at the top middle */
+    /* the nectar countdown sits at the top middle (nothing there without it) */
     gfx_rect(88, 0, 144, 11, C_INK);
     if (G.power) {
         char buf[8];
         snprintf(buf, sizeof buf, "%d", (G.power + COUNT_FRAMES - 1) / COUNT_FRAMES);
         text_center(buf, 160, 2, G.power < COUNT_FRAMES * 8 && (frame_t / 4) % 2 ? C_RED : G.mush_power ? C_SKY : C_YELLOW);
-    } else {
-        tiny_center("PETAL PARADE", 160, 3, C_PINK);
     }
 }
 
@@ -899,11 +933,8 @@ static void draw_title(void) {
     spr_draw(&pp_spr[(frame_t / 30) % 3 == 0 ? P_WITCH_CACKLE : P_WITCH], 262, 88, 0);
     static const uint8_t grad[] = {C_PINK, C_MAGENTA, C_VIOLET, C_PURPLE};
     ui_fancy_center("PETAL PARADE", 160, 18, 3, grad, 4, C_INK, C_PURPLE);
-    text_center("LEAD THE PUPS HOME TO THE SUN CIRCLES", 160, 48, C_LIME);
     tiny_center("TOP SCORES", 160, 64, C_SLATE);
     draw_board(72, -1);
-    gfx_rect(0, 170, 320, 10, C_INK);
-    text_center(GLYPH_A " START   " GLYPH_B " LIBRARY", 160, 171, C_LIGHT);
 }
 
 static void draw_over(void) {
@@ -1043,6 +1074,7 @@ static int pp_query(const char *key, int *out) {
     if (!strcmp(key, "star_kind")) { *out = G.star_kind; return 1; }
     if (!strcmp(key, "star_used")) { *out = G.star_used; return 1; }
     if (!strcmp(key, "new_rank")) { *out = new_rank; return 1; }
+    if (!strcmp(key, "powered_pct")) { *out = G.frames ? (int)(100 * G.powered_frames / G.frames) : 0; return 1; }
     if (!strcmp(key, "bot")) { *out = bot_buttons(); return 1; }
     if (!strncmp(key, "hi", 2) && key[2] >= '0' && key[2] < '0' + HISCORES && !key[3]) { *out = (int)sv.hi[key[2] - '0']; return 1; }
     if (!strcmp(key, "jar_level")) {
@@ -1052,6 +1084,7 @@ static int pp_query(const char *key, int *out) {
     }
     if (!strncmp(key, "daze_", 5)) { int x = atoi(key + 5), y = atoi(strchr(key + 5, '_') + 1); *out = G.daze[y][x]; return 1; }
     if (!strncmp(key, "cell_", 5)) { int x = atoi(key + 5), y = atoi(strchr(key + 5, '_') + 1); *out = G.cell[y][x]; return 1; }
+    if (!strncmp(key, "sprout_", 7)) { int x = atoi(key + 7), y = atoi(strchr(key + 7, '_') + 1); *out = G.sprout[y][x]; return 1; }
     if (!strncmp(key, "look_", 5)) { int x = atoi(key + 5), y = atoi(strchr(key + 5, '_') + 1); *out = G.look[y][x]; return 1; }
     if (!strncmp(key, "pad_", 4)) { int x = atoi(key + 4), y = atoi(strchr(key + 4, '_') + 1); *out = G.pad[y][x]; return 1; }
     return 0;
@@ -1067,6 +1100,7 @@ static int pp_cheat(const char *cmd) {
         memset(G.cell, 0, sizeof G.cell);
         memset(G.pad, 0, sizeof G.pad);
         memset(G.daze, 0, sizeof G.daze);
+        memset(G.sprout, 0, sizeof G.sprout);
         G.n_trail = 0;
         G.hx = 5; G.hy = 9; G.px = 5; G.py = 10;
         G.vac_x = G.px; G.vac_y = G.py;

@@ -1,0 +1,12 @@
+# PETAL PARADE: the jar economy doesn't saturate. The demo player plays the
+# safe way (small drops, a jar only when there are brambles to clear), and
+# with 8-second nectar it is powered well under half the run and wins far
+# short of the 20,000 points the Alien needs.
+seed 7
+game petalparade
+wait 20
+botuntil state == 1 100
+botuntil state != 1 30000
+expect state == 4
+expect powered_pct < 50
+expect score < 20000

@@ -10,12 +10,12 @@ cheat jarlevel 5 8 2
 cheat put jar 5 6
 wait 12
 expect mult == 2
-expect power == 1150
+expect power == 478
 wait 16
 expect mult == 2
-expect power == 1150
+expect power == 478
 cheat still
-wait 1149
+wait 477
 expect power == 1
 expect mult == 2
 wait 1
