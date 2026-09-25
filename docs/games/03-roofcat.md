@@ -16,7 +16,8 @@ layouts or text were used as references.
 |---|---|---|
 | World | one long continuous world in several stages [MG] | one town in four areas that run straight into each other |
 | Length | about nine to ten minutes a loop [WP], [PC], [SH] | 52 screens: about nine minutes of scrolling, then the fight |
-| Busy | "enemies come at you fast, in great numbers" [TE]; learn what spawns on each screen [SH] | 126 placed foes plus the ones that fly in |
+| Shape | rows of platforms; "hang around the top platforms" [SH], down + jump drops through [W] | every screen in tiers: the lowest roofs (with pits) and one-way tiers above; the top is safer but broken by gaps |
+| Busy | "enemies come at you fast, in great numbers" [TE], "too many hazards on screen" [ST]; learn what spawns on each screen [SH] | about 360 foes written in, plus waves that fly in; on average about 5, 6, 8 and 9 awake on screen in the four areas |
 | Bonus areas | two, a solid mass of cherries [W], [MG] | the roof garden (screens 14-15) and the fish market (43-44) |
 | Mushrooms | about halfway [SH] | the firecrackers, screens 24-27 of 52 |
 | Hidden sandwiches | several hidden spots [W], [MG] | five hidden letter spots |
@@ -30,17 +31,17 @@ layouts or text were used as references.
 |---|---|---|
 | Auto-scroll | steady, to the right; stops at the boss | [W], [MG] |
 | No input | she keeps her place on the screen and drifts off platforms | [MG], [SA] |
-| Left | holds her ground (stands still in the town) | [SA], [SE] |
-| Right | runs ahead of the scroll | [W] |
+| Left, right | move her against the screen at the same pace: left walks her back through the town (tapping it holds her place), right runs ahead; with the scroll stopped she simply walks | [PD], [SA], [W] |
 | Falling off the bottom | costs a life | [MM] |
 | Jump | A; held longer, higher | [MM] |
 | Double jump | A again in the air, once; also after walking off an edge | [W], [MM], [SC] |
 | Drop through | down + A through a one-way ledge | [W], [SH] |
 | Stars | B; hold to keep throwing; short range | [W], [MM], [SC] |
 | One star at first | a new star only when the last is gone | [W] |
-| Power-ups | every third defeated foe drops catnip while she holds fewer than two; each allows one more star on screen | [W], [MG] |
+| Power-ups | every third defeated foe drops catnip while she holds fewer than two; each allows one more star on screen and throws farther and faster (range 112, 144, 176; a star every 9, 7, 5 frames) | [W], [MG] |
 | Losing power-ups | back to one star on a lost life | [W], [SC] |
 | One hit | any foe, shot, spike or cloud costs a life | [W], [ST] |
+| The hit | she is stunned a moment, then knocked off the bottom of the screen | [PC] |
 | Lives | three, as heads in the HUD | [ST], [MM] |
 | Spirit | floats down from the top, flies anywhere through everything, can't be hurt, twin shots much slower than stars, can't pick anything up | [W], [MG], [MM] |
 | Coming back | when its short time is up or with A, where the spirit is, with no invincibility | [W], [MM] |
@@ -51,8 +52,8 @@ layouts or text were used as references.
 | Sandwiches | standing on a hidden spot calls down a letter worth 500 | [W], [MG] |
 | Crowns | a jumping jar left alone for 16 hops becomes a crown worth 300 | [W] |
 | Bonus snacks | 5 each; 100 eaten in a stretch turn the rest into 20s, 100 more into 100s | [W] |
-| Boss | 35 hit points; only the eye takes damage; stand on the legs as they rise; bursts of green shots; flying fish and falling orbs | [W], [SC] |
-| Loop 2 | the same town after dark, keeping score and lives, with the swaps below | [W], [SH] |
+| Boss | 35 hit points, every hit on the eye counts; the eye sits low by the water; the legs rise at different heights as footing ("wait for a low tentacle platform"); bursts of green shots; flying fish and falling orbs | [W], [SC] |
+| Loop 2 | the same town after dark, keeping score, lives and catnip, with the swaps below; the same boss | [W], [SH] |
 | Endings | the parcel comes home; after the second loop, a whole stack | [W] |
 | Goals | Beacon: 3 letters in a run; Saucer: beat loop 1; Alien: beat loop 2 | [W] |
 | High scores and records | a board of five; most foes defeated, most letters found | [W] |
@@ -73,39 +74,35 @@ behaviour. Names and art are ours.
 | Gull | 2 | 100 | floats slowly in from the right edge, bobbing up and down | Floats |
 | Spike lamp | 10 | 200 on the spot | still or swinging, with two spikes circling | Mine |
 | Flying fish | 1 | 200 | waits until its spot is on screen and she is near, leaps in a fixed arc, hangs at the top | Fish (yellow) [W], [SC] |
-| Wasp | 1 | 100 | comes in from the left edge, heads right, eases to her height while behind her | Bee |
+| Wasp | 1 | 100 | comes in from the left edge heading right, eases to her height while behind her, then darts ahead | Bee [W] |
 | Snail | 1 | 100 | crawls along a platform, or along its underside | Snail (red) |
 | Toad | 4 | 300 | jumps now and then (onto other platforms too), lobs stones in an arc | Bog |
 | Pelican | 2 | 200 | flies fast from the right; drops a bomb when she is below | Manta |
 | Bomb | – | – | bursts into eight shards | Bomb |
-| Jumping jar | 2 | 200 | hops toward her (from the roofs or out of the water); dives when she is right under it; 16 hops and it is a crown; four at most; hops away while she is a spirit | Karakasa [W], [SC] |
-| Firecracker | 8 | 200 on the spot | lights a short fuse when she is near, then leaves a choking cloud | Shroom |
+| Jumping jar | 2 | 200 | hops toward her (from the roofs or out of the water); dives when she is right under it; 16 hops and it is a crown; four at most; hops away to the left while she is a spirit | Karakasa [W], [SC] |
+| Firecracker | 8 | 200 on the spot | lights a short fuse when she is near, then leaves a choking cloud that takes seven seconds to clear | Shroom [W], [SC] |
 | Spider | 1 | 100 | hangs under a ledge, going up and down at random | Octospider |
 | Magpie | 1 | 200 | appears out of nowhere, flies straight at her, bursts into two shards at the edge | Ghost |
 | Flasher | 2 | 300 | phases in, fires one fast beam across the screen toward her, phases out and turns up again | Warps [W], [SC] |
 | Orb (boss) | – | – | falls slowly until it hits something, then splits down-left and down-right | Orb |
 | Pufferfish | 1 | 200 | a flying fish that fires up to three bubbles at where she is; stars pop them | White fish |
-| Laundry (loop 2) | 2 | 100 | rises out of a crow's chimney to her height, then sails at her, bobbing | Rag |
+| Laundry (loop 2) | 2 | 100 | rises out of a crow's chimney to her height (with a spirit, it can rise right off the top), then sails at her, bobbing | Rag [W] |
 | Green snail (loop 2) | 2 | 200 | a tougher snail | Green snail |
 | Dust moth (loop 2) | 2 | 200 | flies about its spot, shedding spore clouds | Noil |
 
-Loop 2 [W]: crow chimneys hold purple crows or laundry, geckos spit a second
-seed, spike lamps get three spikes, snails turn green, most flying fish
-become pufferfish (not in the boss fight), and firecrackers are either
-livelier or dust moths.
+Loop 2 [W]: every crow chimney lets out laundry instead (the wiki swaps the
+snakes for "purple lizards" and says the Rag takes their pits, so ours is
+purple), geckos spit a second seed, spike lamps get three spikes, snails
+turn green, most flying fish become pufferfish (not in the boss fight), and
+firecrackers are either livelier or dust moths.
 
 ### Readings we had to choose
 
-- Numbers: scroll, run and jump speeds, the spirit's four seconds and when
-  foes fire are ours; no source gives them.
-- Holding LEFT stands her exactly still ("hold left", "tap left" [SA], [SE]).
+- Numbers: scroll, run and jump speeds, the spirit's four seconds, how
+  often foes fire or roll, and the stun's third of a second; no source gives them.
 - The screen edge squeezing her against a wall costs a life.
 - The Beacon's three letters must come in one run.
-- Loop 2 crows: the wiki swaps snakes for both purple lizards and rags, so
-  the chimneys take turns.
 - The board keeps five scores, without initials. A run ends after loop 2.
-
-Not included: two-player co-op (the Vita has one controller).
 
 ## What is ours
 
@@ -125,15 +122,21 @@ Not included: two-player co-op (the Vita has one controller).
 
 Only what every UFO 40 cartridge has: the START pause menu, the high-score
 save, and the three UFO 40 goals, which replicate Ninpek's own (gift, gold,
-cherry). The previous version's checkpoint/continue, its 5,000-point boss
-bonus and its loose snacks outside the bonus areas were removed.
+cherry). Removed as invented: the old checkpoint/continue, a boss bonus,
+loose snacks outside the bonus areas, a purple crow that still shot in loop
+2, laundry fleeing a spirit, firecrackers ignoring a spirit, catnip wiped
+at loop 2 and the kill count wiped on a death, a faster boss in loop 2, the
+boss health bar and a pause between eye hits.
+
+Open: two-player co-op (two cats with their own lives, scores and stars, a
+revive lantern) is not in yet.
 
 ## Controls
 
 | Input | Action |
 |---|---|
 | D-pad right | run ahead |
-| D-pad left | hold your ground |
+| D-pad left | walk back (tap to hold your place) |
 | A | jump (hold for higher); again in the air to double jump |
 | Down + A | drop through a ledge |
 | B | throw a star (hold to keep throwing) |
@@ -142,16 +145,20 @@ bonus and its loose snacks outside the bonus areas were removed.
 
 ## Tests
 
-`tests/rc_*.ufs`, 23 scripts. `rc_23_first_section` runs the demo player
-(a simple, sensible player in `roofcat.c` that chooses the buttons each
-frame) through the whole first area with real button presses.
+`tests/rc_*.ufs`, 26 scripts. `rc_23_first_section` runs the demo player
+through the whole first area with real button presses. The demo player
+(`roofcat.c`) looks about a second ahead: it tries standing, walking back
+and running, each with or without a jump, against where every shot and foe
+will be, and takes the move that stays safe the longest; it climbs to the
+higher tiers when it can. `rc_26_density` rides a whole loop and checks the
+foes on screen rise area by area.
 
 ## Sources
 
-- [W] UFO 50 Wiki (Miraheze), "Ninpek": controls, shurikens and power-ups,
-  lives from score, ghost mode, the enemy table (hit points, eggs,
-  behaviour, loop 2), scoring items, bonus areas, the boss, goals, stats,
-  "HE IS NO NINJA". https://ufo50.miraheze.org/wiki/Ninpek
+- [W] UFO 50 Wiki (Miraheze), "Ninpek": controls, shurikens and power-ups
+  (count, range and fire rate), lives from score, ghost mode, the enemy
+  table (hit points, eggs, behaviour, loop 2), scoring items, bonus areas,
+  the boss, goals, stats, "HE IS NO NINJA". https://ufo50.miraheze.org/wiki/Ninpek
 - [MG] MoeGamer, "UFO 50: Ninpek's epic quest for a sandwich": the fixed
   sprite and the scroll, one continuous world with stages and bonus areas,
   eggs, sandwiches on hidden spots, balloons, the ghost.
@@ -161,21 +168,26 @@ frame) through the whole first area with real button presses.
   https://steamcommunity.com/sharedfiles/filedetails/?id=3350227767
 - [SC] Steam guide "Ninpek Cherry Clear Guide": double jump after falling
   off, power-ups reset on death, fish hang at the top, running under jars
-  makes them dive, flashers fire once and teleport, the eye.
+  makes them dive, flashers fire once and teleport, the spore cloud "takes
+  forever to go away", only the eye takes damage, wait for a low tentacle.
   https://steamcommunity.com/sharedfiles/filedetails/?id=3336087646
-- [SH] Steam thread "Is Ninpek too hard": learn each screen, drop through,
-  the mushroom area about halfway, about ten minutes a run, loop 2.
+- [SH] Steam thread "Is Ninpek too hard": learn each screen, stay on the top
+  platforms, drop through, the mushroom area about halfway, about ten
+  minutes a run, loop 2.
   https://steamcommunity.com/app/1147860/discussions/0/4849904631719370097/
-- [SA] Steam thread "Ninpek Auto-running": tapping and holding left.
+- [SA] Steam thread "Ninpek Auto-running": tapping left to adjust, SonSon.
   https://steamcommunity.com/app/1147860/discussions/0/595153277396484459/
-- [SE] Search summaries quoting reviews: "holding position requires you to
-  constantly tap left".
-- [ST] Static Canvas, "The UFO 50 Diaries: Ninpek": three lives, hitboxes.
+- [PD] pixeldie, "Ranking every UFO 50 game after 100 hours": the ninja keeps
+  his place on screen, so holding position means tapping left.
+  https://pixeldie.com/2024/11/13/ranking-every-ufo-50-game-after-100-hours/
+- [ST] Static Canvas, "The UFO 50 Diaries: Ninpek": three lives, too many
+  hazards on screen, hitboxes.
   https://staticcanvas.substack.com/p/the-ufo-50-diaries-ninpek
-- [TE] Torrential Equilibrium review (via the research notes): early foes
-  come fast and in numbers.
+- [TE] Torrential Equilibrium review: a few minutes in, foes come fast and
+  in numbers. https://torrentialequilibrium.net/?p=11164
 - [WP] Wikipedia, "UFO 50": a nine-minute run. https://en.wikipedia.org/wiki/UFO_50
-- [PC] popcar, "Reviewing every UFO 50 game": about ten minutes.
+- [PC] popcar, "Reviewing every UFO 50 game": about ten minutes; a hit
+  stuns you and knocks you off the bottom.
   https://popcar.bearblog.dev/reviewing-every-ufo50-game/
 - [SV] Steam thread "Which games save progress?": Ninpek does not save mid-run.
   https://steamcommunity.com/app/1147860/discussions/0/4849904176633630339/

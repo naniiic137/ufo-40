@@ -53,9 +53,10 @@ After the boot animation a **main menu** opens: **Play** (the library),
 **jukebox** with every tune in the console and its cartridges, and window
 size and fullscreen on PC), **Save data** (each cartridge's save and goals;
 delete one save, reset one cartridge's goals, or delete everything after two
-confirmations; it also shows where the saves live), **Controls** (the buttons
-on the Vita, keyboard, gamepad and touch), **Credits** and, on PC, **Quit**.
-It remembers where you were.
+confirmations; it also shows where the saves live and marks a damaged file),
+**Controls** (the buttons on the Vita, keyboard, gamepad and touch), **Credits**
+and, on PC, **Quit**. It remembers where you were. Everything saves by itself,
+and the music and sound volumes are in every game's pause menu too.
 
 <p align="center">
   <img src="docs/shots/jukebox.png" width="320" alt="The jukebox">
@@ -70,7 +71,7 @@ It remembers where you were.
 |---|---|---|---|---|
 | 01 | **UNDERDELVE** | Barbuta | an 8×8 wrapping map, one-hit deaths and six lives, committed jumps, a roaming death that moves whenever you change room, items that open the way, three paths to the final boss | Mo the mole, a dark mine, the Gloom, 64 new screens |
 | 02 | **GRUB SHIFT** | Bug Hunter | a random 6×5 field, seven one-shot tool modules, energy pods that blow up in threes, grubs that evolve by colour, a daily shop, a kill quota | Tilly the farm robot, the grub species, 41 tools |
-| 03 | **ROOFCAT** | Ninpek | one long auto-scrolling town where holding left keeps your ground, high and double jumps, one star at a time (three with power-ups), points only from eggs, a spirit that floats back after a death, two bonus stretches, a 35-hit boss hit only in the eye, a harder second loop | Pepper the courier cat, a whitewashed seaside town, Old Crab |
+| 03 | **ROOFCAT** | Ninpek | one long auto-scrolling town of stacked rooftops where left walks you back against the scroll, high and double jumps, one star at a time (three, farther and faster, with power-ups), points only from eggs, a spirit that floats back after a death, two bonus stretches, a 35-hit boss hit only in the eye, a harder second loop | Pepper the courier cat, a whitewashed seaside town, Old Crab |
 | 05 | **PETAL PARADE** | Magic Garden | a 12×12 field, a trail of followers you must never run into, saving them on star pads for rising points, potions by strength, a witch who plants mushrooms | Lina the gardener, petalpups, sun circles, Madame Nettle |
 | 06 | **TIN TROOP** | Mortol | 20 lives that carry through ten levels, the arrow, bomb and stone sacrifices, bodies as ledges and weights, water, fire and plants, a ship that drops the next life | a toy army in a toymaker's house, the Jack of the Chest, 10 new levels |
 | 07 | **SKYWELL** | Velgress | a random shaft of crumbling platforms, a roller that only follows you up, stun instead of damage, four-way shooting, a shop between levels, a key bird, a locked fourth level | Kip the scrap-diver, the Grinder, the Tinker, the Well Eye |
@@ -155,17 +156,20 @@ the top.
   <img src="docs/shots/roofcat_night.png" width="320" alt="The Night Route">
 </p>
 
-- **Plays like Ninpek:** one nine-minute town that scrolls on its own. With no
-  input you ride along, hold left to keep your ground, and run ahead with
-  right. Hold A to jump higher, double jump (also after walking off an edge),
-  and drop through ledges. One star at a time, two and three with the
-  power-up every third kill drops, lost with a life. Points come only from
-  the eggs foes drop (and letters, crowns and snacks). Three lives; a spirit
-  floats down after a death and comes back where it is, with no grace
-  period. Lanterns at 3,000, 7,000 and every 5,000 must be shot for a life.
-  Two bonus stretches are a solid mass of snacks. Old Crab has 35 hit points
-  and only the eye counts. Then a harder second loop. Every foe follows
-  Ninpek's roster, and the board keeps the five best scores.
+- **Plays like Ninpek:** one nine-minute town that scrolls on its own, built in
+  tiers (the top is the safer way through) and busier the further you get.
+  With no input you ride along; left walks you back (tap it to hold your
+  place) and right runs ahead. Hold A to jump higher, double jump (also
+  after walking off an edge), and drop through ledges. One star at a time;
+  the power-up every third kill drops adds a star and throws farther and
+  faster, and is lost with a life. Points come only from the eggs foes drop
+  (and letters, crowns and snacks). Three lives; a hit stuns you and knocks
+  you off the screen, then a spirit floats down and comes back where it is,
+  with no grace period. Lanterns at 3,000, 7,000 and every 5,000 must be
+  shot for a life. Two bonus stretches are a solid mass of snacks. Old Crab
+  has 35 hit points and only its eye counts; it sits low by the water, so
+  wait for a low leg. Then a harder second loop. Every foe follows Ninpek's
+  roster, and the board keeps the five best scores.
 - **Ours:** Pepper the courier cat and Grandma Rosa's parcel, a whitewashed
   seaside town (the rooftops, the Spice Market, the fort walls and the
   harbour), the Magpie Mob, Old Crab and the Night Route. All 52 screens.
@@ -530,7 +534,8 @@ src/platform/headless/ scripted test runner, PNG / GIF / WAV writers, Vita LiveA
   - Each game saves its own run or checkpoint (or, like Roofcat, just its
     high scores).
   - The main menu's Save data screen deletes one game's save, resets its
-    goals or deletes everything.
+    goals (which clears its save too, since games rebuild goals from their
+    saved progress) or deletes everything, play counts included.
   - Where they're stored: the exe folder or `%APPDATA%\UFO40` on PC,
     `ux0:data/UFO40/` on Vita and `localStorage` in the browser.
 - **Testing.**
