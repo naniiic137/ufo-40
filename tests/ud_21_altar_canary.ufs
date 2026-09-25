@@ -1,0 +1,22 @@
+# UNDERDELVE: behind crystal on the altar, a stone wakes when Mo stands on it
+# long enough and lowers a ladder to the canary's cage. The canary joins him
+# for the fight with the Old Lode and picks off the wisps.
+game underdelve
+wait 10
+press A
+wait 5
+cheat no_gloom
+cheat give 2
+cheat room 0 3 158 130
+cheat clear_enemies
+wait 10
+press B
+wait 20
+expect tile_11_8 == 46
+cheat pos 195 130
+wait 150
+hold UP 150
+hold RIGHT 90
+expect items & 32
+cheat room 6 0 60 130
+expect canary == 1

@@ -1,12 +1,17 @@
-# UNDERDELVE: crystal walls block Mo until he has the Tuning Fork, then shatter.
+# UNDERDELVE: crystal bubbles shrug off the pick until Mo carries the tuning
+# fork; then a strike pops them.
 game underdelve
 wait 10
 press A
 wait 5
-cheat room 3 0 280 130
+cheat no_gloom
+cheat room 5 2 236 130
 cheat clear_enemies
-hold RIGHT 60
-expect room_x == 3
+wait 10
+press B
+wait 20
+expect tile_16_8 == 88
 cheat give 2
-hold RIGHT 40
-expect room_x == 4
+press B
+wait 20
+expect tile_16_8 == 46

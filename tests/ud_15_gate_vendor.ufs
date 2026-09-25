@@ -1,23 +1,20 @@
-# UNDERDELVE: the Deep Gate stays shut without the Brass Key and opens with it;
-# the Lantern Keeper sells lanterns for 100 ore.
+# UNDERDELVE: the Deep Gate over the locked shaft stays shut without the
+# brass key and opens for it. The Lantern Keeper sells lanterns for 100 ore.
 game underdelve
 wait 10
 press A
 wait 5
-cheat room 3 5 200 130
 cheat no_gloom
-wait 5
-hold RIGHT 40
+cheat room 4 1 147 130
+cheat clear_enemies
+hold UP 240
+expect room_y == 1
 expect gate_open == 0
-expect room_x == 3
-cheat dismiss
 cheat give 16
-hold RIGHT 30
+hold UP 240
 expect gate_open == 1
-cheat dismiss
-hold RIGHT 100
-expect room_x == 4
-cheat room 2 5 210 130
+expect room_y == 0
+cheat room 5 0 115 130
 cheat lanterns 3
 cheat money 250
 wait 5

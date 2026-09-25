@@ -1,16 +1,14 @@
-# UNDERDELVE: losing the last lantern ends the run and erases the save.
+# UNDERDELVE: losing the last lantern ends the delve and erases the run; the
+# next one starts over from the camp.
 game underdelve
 wait 10
 press A
 wait 5
+cheat no_gloom
+cheat room 1 4 20 130
 cheat clear_enemies
 cheat lanterns 1
-cheat room 0 0 150 130
-wait 5
-hold RIGHT 40
-wait 150
+hold RIGHT 60
+wait 80
 expect state == 3
 expect has_save == 0
-press A
-wait 5
-expect state == 0

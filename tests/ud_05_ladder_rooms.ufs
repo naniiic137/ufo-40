@@ -1,11 +1,15 @@
-# UNDERDELVE: climbing down a ladder carries Mo into the room below, and back up again.
+# UNDERDELVE: ladders carry Mo between rooms, and the map wraps left to right.
 game underdelve
 wait 10
 press A
 wait 5
+cheat no_gloom
+cheat room 0 5 83 130
+hold UP 200
+expect room_y == 4
+expect room_x == 0
+cheat room 0 4 20 130
 cheat clear_enemies
-hold DOWN 50
-expect climbing == 1
-expect room_y == 1
-hold UP 70
-expect room_y == 0
+hold LEFT 40
+expect room_x == 7
+expect room_y == 4
