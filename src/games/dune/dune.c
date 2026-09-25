@@ -877,7 +877,7 @@ static void draw_ending(void) {
     spr_draw_scaled(&dx_obj[bob ? DO_CAMEL : DO_CAMEL2], 128, 100, 2, 0);
     ui_panel(20, 10, 280, 56, C_NIGHT, C_AMBER);
     static const uint8_t grad[] = {C_WHITE, C_CREAM, C_AMBER};
-    ui_fancy_center("THE LAST SCORE", 160, 16, 2, grad, 3, C_INK, C_MAROON);
+    ui_fancy_center("ONE LAST RIDE", 160, 16, 2, grad, 3, C_INK, C_MAROON);
     text_center("THE BAND SPLITS THE LAST OF THE GOLD.\nPEARL AND BISCUIT RIDE FOR THE COAST.", 160, 38, C_LIGHT);
     char b[48];
     snprintf(b, sizeof b, GLYPH_STAR " %d OF 60 STARS", total_stars());
