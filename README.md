@@ -44,6 +44,24 @@ on **Windows/Linux** and in the **browser** through Emscripten. A headless build
 drives the whole console from scripted input for testing and for every
 screenshot and GIF on this page.
 
+## The console
+
+<p align="center"><img src="docs/shots/menu.png" width="640" alt="The UFO 40 main menu"></p>
+
+After the boot animation a **main menu** opens: **Play** (the library),
+**Options** (music and sound volumes you hear change as you set them, a
+**jukebox** with every tune in the console and its cartridges, and window
+size and fullscreen on PC), **Save data** (each cartridge's save and goals;
+delete one save, reset one cartridge's goals, or delete everything after two
+confirmations; it also shows where the saves live), **Controls** (the buttons
+on the Vita, keyboard, gamepad and touch), **Credits** and, on PC, **Quit**.
+It remembers where you were.
+
+<p align="center">
+  <img src="docs/shots/jukebox.png" width="320" alt="The jukebox">
+  <img src="docs/shots/savedata.png" width="320" alt="The save data screen">
+</p>
+
 ## The library (12 of 40 loaded)
 
 <p align="center"><img src="docs/shots/library.png" width="640" alt="The UFO 40 game library with 40 cartridge slots"></p>
@@ -52,7 +70,7 @@ screenshot and GIF on this page.
 |---|---|---|---|---|
 | 01 | **UNDERDELVE** | Barbuta | an 8×8 wrapping map, one-hit deaths and six lives, committed jumps, a roaming death that moves whenever you change room, items that open the way, three paths to the final boss | Mo the mole, a dark mine, the Gloom, 64 new screens |
 | 02 | **GRUB SHIFT** | Bug Hunter | a random 6×5 field, seven one-shot tool modules, energy pods that blow up in threes, grubs that evolve by colour, a daily shop, a kill quota | Tilly the farm robot, the grub species, 41 tools |
-| 03 | **ROOFCAT** | Ninpek | one long auto-scrolling world, double jumps, thrown stars, a spirit that floats back after a death, token pickups, one final boss, a harder second loop | Harissa the courier cat, a Tunisian seaside town, Old Crab |
+| 03 | **ROOFCAT** | Ninpek | one long auto-scrolling town where holding left keeps your ground, high and double jumps, one star at a time (three with power-ups), points only from eggs, a spirit that floats back after a death, two bonus stretches, a 35-hit boss hit only in the eye, a harder second loop | Pepper the courier cat, a whitewashed seaside town, Old Crab |
 | 05 | **PETAL PARADE** | Magic Garden | a 12×12 field, a trail of followers you must never run into, saving them on star pads for rising points, potions by strength, a witch who plants mushrooms | Lina the gardener, petalpups, sun circles, Madame Nettle |
 | 06 | **TIN TROOP** | Mortol | 20 lives that carry through ten levels, the arrow, bomb and stone sacrifices, bodies as ledges and weights, water, fire and plants, a ship that drops the next life | a toy army in a toymaker's house, the Jack of the Chest, 10 new levels |
 | 07 | **SKYWELL** | Velgress | a random shaft of crumbling platforms, a roller that only follows you up, stun instead of damage, four-way shooting, a shop between levels, a key bird, a locked fourth level | Kip the scrap-diver, the Grinder, the Tinker, the Well Eye |
@@ -126,10 +144,10 @@ the top.
 *Tribute to Ninpek (UFO 50 #3).*
 
 <p align="center">
-  <img src="docs/shots/roofcat.gif" width="640" alt="Roofcat: Harissa runs and throws jasmine stars">
+  <img src="docs/shots/roofcat.gif" width="640" alt="Roofcat: Pepper runs over the rooftops and throws stars">
 </p>
 <p align="center">
-  <img src="docs/shots/roofcat_souk.png" width="320" alt="The Spice Souk">
+  <img src="docs/shots/roofcat_market.png" width="320" alt="The roof garden in the Spice Market">
   <img src="docs/shots/roofcat_harbour.png" width="320" alt="The harbour at night">
 </p>
 <p align="center">
@@ -137,13 +155,22 @@ the top.
   <img src="docs/shots/roofcat_night.png" width="320" alt="The Night Route">
 </p>
 
-- **Plays like Ninpek:** one continuous auto-scrolling town, a double jump and
-  stars thrown at a steady rate. Foes drop tokens instead of points, a spirit
-  floats back down after a death, and extra lives come from score. There are
-  hidden spots, one boss at the very end and a harder second loop.
-- **Ours:** Harissa the courier cat and Grandma Zohra's parcel, a whitewashed
-  seaside town (the rooftops, the Spice Souk, the fort walls and the harbour),
-  the Magpie Mob, Old Crab and the Night Route.
+- **Plays like Ninpek:** one nine-minute town that scrolls on its own. With no
+  input you ride along, hold left to keep your ground, and run ahead with
+  right. Hold A to jump higher, double jump (also after walking off an edge),
+  and drop through ledges. One star at a time, two and three with the
+  power-up every third kill drops, lost with a life. Points come only from
+  the eggs foes drop (and letters, crowns and snacks). Three lives; a spirit
+  floats down after a death and comes back where it is, with no grace
+  period. Lanterns at 3,000, 7,000 and every 5,000 must be shot for a life.
+  Two bonus stretches are a solid mass of snacks. Old Crab has 35 hit points
+  and only the eye counts. Then a harder second loop. Every foe follows
+  Ninpek's roster, and the board keeps the five best scores.
+- **Ours:** Pepper the courier cat and Grandma Rosa's parcel, a whitewashed
+  seaside town (the rooftops, the Spice Market, the fort walls and the
+  harbour), the Magpie Mob, Old Crab and the Night Route. All 52 screens.
+  A demo player in the tests gets through the first area with real button
+  presses.
 
 ### 05 · PETAL PARADE
 
@@ -393,7 +420,7 @@ Download `UFO40-windows.zip` from the releases and run `ufo40.exe`.
 
 - Saves go to `%APPDATA%\UFO40`. If you put an empty `portable.txt` next to the
   exe, it keeps them in a `saves` folder beside it instead.
-- **F11** or **Alt+Enter** toggles fullscreen. The window scale is in Settings.
+- **F11** or **Alt+Enter** toggles fullscreen. The window scale is in Options.
 
 ## Controls
 
@@ -406,7 +433,7 @@ Download `UFO40-windows.zip` from the releases and run `ufo40.exe`.
 | SELECT | Shift or Backspace | SELECT | Back / Select |
 
 - **START** opens the pause menu in every game: Resume, Restart, Controls, Quit.
-- **SELECT** opens Settings in the library.
+- **SELECT** opens Options in the library, and **B** goes back to the main menu.
 - **Two players:** the 2-player modes of Bannerfall and Cutlass Cup take two
   gamepads, or split the keyboard: player 1 on WASD + F/G, player 2 on the
   arrows + K/L. On the Vita (one controller) those modes are locked.
@@ -466,7 +493,8 @@ src/engine/            platform-independent core (no dependencies)
                        ADSR envelopes, vibrato, sweeps, arpeggios; UFO-MML sequencer
   input.c rng.c        pressed / held / released / auto-repeat; PCG32
   save.c scene.c       CRC32-checked saves; scenes with palette-fade transitions
-src/shell/             the console: boot, 40-slot library, settings, pause menu, goal toasts
+src/shell/             the console: boot, main menu, 40-slot library, options and jukebox,
+                       save data, pause menu, goal toasts
 src/games/*/           one folder per cartridge: rules, art, audio, levels
 src/platform/sdl2/     PC + PS Vita + Emscripten in one file
 src/platform/headless/ scripted test runner, PNG / GIF / WAV writers, Vita LiveArea art
@@ -499,7 +527,10 @@ src/platform/headless/ scripted test runner, PNG / GIF / WAV writers, Vita LiveA
   (`ufo40_headless --vita-assets vita/sce_sys`) and saved as 8-bit indexed PNGs.
 - **Saves.**
   - Global progress (goals and settings) goes in one CRC-checked file.
-  - Each game saves its own run or checkpoint.
+  - Each game saves its own run or checkpoint (or, like Roofcat, just its
+    high scores).
+  - The main menu's Save data screen deletes one game's save, resets its
+    goals or deletes everything.
   - Where they're stored: the exe folder or `%APPDATA%\UFO40` on PC,
     `ux0:data/UFO40/` on Vita and `localStorage` in the browser.
 - **Testing.**

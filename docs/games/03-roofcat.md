@@ -5,171 +5,177 @@
 ## Tribute to
 
 **Ninpek** (UFO 50 game #3, Mossmouth). The mechanics were researched from
-text only: the community wiki, written reviews and Steam guides (listed under
-Sources). No UFO 50 images, video, sprites, music, stage layouts or text were
-used as references.
+text only: the community wiki, written reviews and Steam guides and threads
+(listed under Sources). No UFO 50 images, video, sprites, music, stage
+layouts or text were used as references.
 
 **Map type: fixed.** Ninpek is one hand-made world, so ours is too
-(`roofcat_levels.c`). It matches the original's structure where the text
-sources describe it:
+(`roofcat_levels.c`, all our own screens):
 
 | Structure | Ninpek | ROOFCAT |
 |---|---|---|
-| World | one long continuous world, split into several distinct stages [MG] | one continuous town in four areas that flow into each other without stopping |
-| Bonus areas | "a couple of bonus areas" with cherries [MG] | two bonus stretches (the roof garden, the fish market) full of snacks and no foes |
-| Bosses | one, at the end of the world [W], [MG] | one: Old Crab, at the end of the harbour |
-| Length | under nine minutes to finish [WP] | 48 screens at the scroll speed ≈ 8½ minutes plus the fight |
-| Second loop | a harder second loop [W] | the Night Route |
-| Hidden sandwiches | several hidden spots [W] | five hidden letter spots |
-| Balloons at fixed places | some 1-up balloons sit at predetermined spots [W], [MG] | four placed lanterns |
-
-The screens are our own designs. The order of what each area teaches is
-ours too: rooftops teach gaps, jumps and walkers; the souk adds shooters and
-the first bonus stretch; the fort brings divers, beams and spike lamps; the
-harbour has water and fish, then the second bonus stretch and the fight.
+| World | one long continuous world in several stages [MG] | one town in four areas that run straight into each other |
+| Length | about nine to ten minutes a loop [WP], [PC], [SH] | 52 screens: about nine minutes of scrolling, then the fight |
+| Busy | "enemies come at you fast, in great numbers" [TE]; learn what spawns on each screen [SH] | 126 placed foes plus the ones that fly in |
+| Bonus areas | two, a solid mass of cherries [W], [MG] | the roof garden (screens 14-15) and the fish market (43-44) |
+| Mushrooms | about halfway [SH] | the firecrackers, screens 24-27 of 52 |
+| Hidden sandwiches | several hidden spots [W], [MG] | five hidden letter spots |
+| Balloons at places | some 1-up balloons at set spots [W], [MG] | four placed lanterns |
+| Boss | one, at the end [W] | Old Crab, in the harbour |
+| Second loop | the same world, harder [W] | the Night Route |
 
 ## Mechanics checklist
 
-| Mechanic | How ROOFCAT does it | Source |
+| Mechanic | ROOFCAT | Source |
 |---|---|---|
-| Auto-scroll | the screen and Harissa keep moving right; standing still carries her along | [W], [MG] |
-| Scroll carries the rooftops | idle, she drifts off the end of whatever she stands on | [MG] |
-| Death by the scroll | squeezed between the left edge and a wall costs a life | our reading of the auto-scroll |
-| Double jump | a second press in mid-air | [W], [MM] |
-| Drop through | down + jump drops through a one-way ledge | [W] |
-| Throwing | B throws a short-range star; holding B keeps throwing | [W], [MM] |
-| One star at first | only one star on screen at a time | [W] |
-| Power-ups | every third defeated foe drops catnip while she holds fewer than two; each allows one more star on screen (up to three) | [W], [MG] |
-| Losing power-ups | all catnip is lost with a life | [W] |
-| Ghost mode | losing a life turns her into a spirit that floats down from the top of the screen, flies freely, fires twin shots much slower than stars, passes through everything and can't collect anything | [W], [MG] |
-| Coming back | the spirit ends on a timer or when A is pressed; she returns where the spirit is, with no invincibility | [W], [MG] |
-| Game over | when the last life is lost | [W] |
-| No points for kills | foes drop a token instead; the token scores when picked up | [MG] |
-| Token values | green 100, silver 200, violet 300 by foe | [W] egg colours |
-| Direct points | spike lamps and firecrackers pay 200 when destroyed | [W] mines and shrooms |
-| Crowns | a jumping jar left alone for 16 hops turns into a crown worth 300 | [W] (the wiki says 300; MoeGamer says 500) |
-| Snacks | 5 points each; after 100 collected they become 20-point snacks, after 100 more 100-point snacks | [W] cherry → onigiri → coffee |
-| Lost letters | standing on a hidden spot calls down a letter worth 500 | [W], [MG] sandwiches |
-| Extra lives at scores | at 3,000, then 7,000, then every 5,000 a lantern drifts up; pop it with a star | [W], [MG] |
-| Extra lives at places | lanterns wait at four spots in the town | [W], [MG] |
-| Boss | 35 hit points; only a hit in the eye counts; bursts of shots; the fight is over water and the legs rising out of it are the only footing; flying fish and falling orbs join in | [W] |
-| Orbs | fall slowly and split into a left half and a right half | [W] |
-| Loop 2 | the same world again after the ending, keeping score and lives, with the changes below | [W] |
-| Ending | the parcel comes home; the second loop brings home a whole stack | [W] (sandwich / tower of sandwiches) |
+| Auto-scroll | steady, to the right; stops at the boss | [W], [MG] |
+| No input | she keeps her place on the screen and drifts off platforms | [MG], [SA] |
+| Left | holds her ground (stands still in the town) | [SA], [SE] |
+| Right | runs ahead of the scroll | [W] |
+| Falling off the bottom | costs a life | [MM] |
+| Jump | A; held longer, higher | [MM] |
+| Double jump | A again in the air, once; also after walking off an edge | [W], [MM], [SC] |
+| Drop through | down + A through a one-way ledge | [W], [SH] |
+| Stars | B; hold to keep throwing; short range | [W], [MM], [SC] |
+| One star at first | a new star only when the last is gone | [W] |
+| Power-ups | every third defeated foe drops catnip while she holds fewer than two; each allows one more star on screen | [W], [MG] |
+| Losing power-ups | back to one star on a lost life | [W], [SC] |
+| One hit | any foe, shot, spike or cloud costs a life | [W], [ST] |
+| Lives | three, as heads in the HUD | [ST], [MM] |
+| Spirit | floats down from the top, flies anywhere through everything, can't be hurt, twin shots much slower than stars, can't pick anything up | [W], [MG], [MM] |
+| Coming back | when its short time is up or with A, where the spirit is, with no invincibility | [W], [MM] |
+| Game over | with no lives left; the score goes on the high-score board | [W] |
+| Extra lives | lanterns at 3,000, 7,000, then every 5,000, plus four at set places; shoot one for a life | [W], [MG] |
+| Points only on pickup | foes score nothing; they drop an egg worth 100, 200 or 300 by kind | [W], [MG] |
+| On-the-spot points | spike lamps and firecrackers pay 200 when destroyed | [W] |
+| Sandwiches | standing on a hidden spot calls down a letter worth 500 | [W], [MG] |
+| Crowns | a jumping jar left alone for 16 hops becomes a crown worth 300 | [W] |
+| Bonus snacks | 5 each; 100 eaten in a stretch turn the rest into 20s, 100 more into 100s | [W] |
+| Boss | 35 hit points; only the eye takes damage; stand on the legs as they rise; bursts of green shots; flying fish and falling orbs | [W], [SC] |
+| Loop 2 | the same town after dark, keeping score and lives, with the swaps below | [W], [SH] |
+| Endings | the parcel comes home; after the second loop, a whole stack | [W] |
+| Goals | Beacon: 3 letters in a run; Saucer: beat loop 1; Alien: beat loop 2 | [W] |
+| High scores and records | a board of five; most foes defeated, most letters found | [W] |
+| No mid-run save | every run starts from the first rooftop | [SV] |
+| "He is no ninja" | a game over in a bonus stretch says "SHE IS NO ROOFCAT." | [W] |
 
 ### The foes
 
-Every Ninpek foe type [W] has a counterpart with the same hit points, points
-and behaviour. The designs, names and art are ours.
+Every Ninpek foe [W] has a counterpart with the same hit points, egg and
+behaviour. Names and art are ours.
 
-| Ours | Hit points | Token | Behaviour | Ninpek |
+| Ours | HP | Egg | Behaviour | Ninpek |
 |---|---|---|---|---|
-| Pigeon | 2 | 100 | walks its platform back and forth; now and then tucks in and rolls | Chops |
-| Crow | 4 | 200 | pops out of a chimney, turns to face her, fires two evenly spaced pebbles | Snake |
+| Pigeon | 2 | 100 | walks its platform; now and then rolls, and while rolling only a star from behind hurts it | Chops [W], [SC] |
+| Racing pigeon | 2 | 200 | a much faster pigeon | Skips |
+| Crow | 4 | 200 | pops out of a roof chimney, faces her, fires two evenly spaced pebbles shortly before it ducks back | Snake |
 | Gecko | 1 | 100 | spits a seed that bounces along the roofs | Slime |
-| Gull | 2 | 100 | floats slowly in from the right edge to the left | Floats |
-| Spike lamp | 10 | 200 on the spot | stays put while spikes circle it | Mine |
-| Flying fish | 1 | 200 | waits in the water, then leaps in a fixed arc | Yellow fish |
-| Wasp | 1 | 100 | homes in on her, then speeds up | Bee |
-| Snail | 1 | 100 | crawls slowly back and forth | Red snail |
-| Toad | 4 | 300 | sits, now and then hops, lobs stones | Bog |
-| Pelican | 2 | 200 | flies fast from right to left and drops a bomb when she's below | Manta |
-| Bomb | — | — | bursts into eight shards | Bomb |
-| Jumping jar | 2 | 200 | small hops toward her; 16 hops and it becomes a crown | Karakasa |
-| Firecracker | 8 | 200 on the spot | lights a short fuse when she's near, then explodes | Shroom |
-| Pufferfish | 1 | 200 | surfaces and puffs up to three bubbles that drift after her | White fish |
-| Racing pigeon | 2 | 200 | a pigeon, much faster | Skips |
-| Spider | 1 | 100 | hangs under a ledge, bobbing up and down at random | Octospider |
-| Magpie | 1 | 200 | locks onto her and dives in a straight line | Ghost |
-| Flasher | 2 | 300 | shoots one fast beam across the whole screen | Warps |
-| Laundry sheet (loop 2) | 2 | 100 | rises to her height, then sails across | Rag |
+| Gull | 2 | 100 | floats slowly in from the right edge, bobbing up and down | Floats |
+| Spike lamp | 10 | 200 on the spot | still or swinging, with two spikes circling | Mine |
+| Flying fish | 1 | 200 | waits until its spot is on screen and she is near, leaps in a fixed arc, hangs at the top | Fish (yellow) [W], [SC] |
+| Wasp | 1 | 100 | comes in from the left edge, heads right, eases to her height while behind her | Bee |
+| Snail | 1 | 100 | crawls along a platform, or along its underside | Snail (red) |
+| Toad | 4 | 300 | jumps now and then (onto other platforms too), lobs stones in an arc | Bog |
+| Pelican | 2 | 200 | flies fast from the right; drops a bomb when she is below | Manta |
+| Bomb | – | – | bursts into eight shards | Bomb |
+| Jumping jar | 2 | 200 | hops toward her (from the roofs or out of the water); dives when she is right under it; 16 hops and it is a crown; four at most; hops away while she is a spirit | Karakasa [W], [SC] |
+| Firecracker | 8 | 200 on the spot | lights a short fuse when she is near, then leaves a choking cloud | Shroom |
+| Spider | 1 | 100 | hangs under a ledge, going up and down at random | Octospider |
+| Magpie | 1 | 200 | appears out of nowhere, flies straight at her, bursts into two shards at the edge | Ghost |
+| Flasher | 2 | 300 | phases in, fires one fast beam across the screen toward her, phases out and turns up again | Warps [W], [SC] |
+| Orb (boss) | – | – | falls slowly until it hits something, then splits down-left and down-right | Orb |
+| Pufferfish | 1 | 200 | a flying fish that fires up to three bubbles at where she is; stars pop them | White fish |
+| Laundry (loop 2) | 2 | 100 | rises out of a crow's chimney to her height, then sails at her, bobbing | Rag |
 | Green snail (loop 2) | 2 | 200 | a tougher snail | Green snail |
-| Dust moth (loop 2) | 2 | 200 | flutters about, shedding clouds of dust | Noil |
+| Dust moth (loop 2) | 2 | 200 | flies about its spot, shedding spore clouds | Noil |
 
-Loop 2 changes, as in [W]: crows turn purple, geckos spit two seeds, most
-flying fish become pufferfish (not in the boss fight), spike lamps get three
-spikes instead of two, and firecrackers light up from farther away with a
-shorter fuse. The "purple lizard" and "more active shroom" variants aren't
-described beyond that, so our versions are a purple crow and a jumpier
-firecracker.
+Loop 2 [W]: crow chimneys hold purple crows or laundry, geckos spit a second
+seed, spike lamps get three spikes, snails turn green, most flying fish
+become pufferfish (not in the boss fight), and firecrackers are either
+livelier or dust moths.
 
 ### Readings we had to choose
 
-- **Starting lives:** 3. The sources don't give the number.
-- **Spirit length:** 4 seconds ("a short delay").
-- **Variable jump height** (letting go of A early cuts the jump short) is our
-  reading of the controls.
+- Numbers: scroll, run and jump speeds, the spirit's four seconds and when
+  foes fire are ours; no source gives them.
+- Holding LEFT stands her exactly still ("hold left", "tap left" [SA], [SE]).
+- The screen edge squeezing her against a wall costs a life.
+- The Beacon's three letters must come in one run.
+- Loop 2 crows: the wiki swaps snakes for both purple lizards and rags, so
+  the chimneys take turns.
+- The board keeps five scores, without initials. A run ends after loop 2.
+
+Not included: two-player co-op (the Vita has one controller).
 
 ## What is ours
 
 - **Name:** ROOFCAT (1984, Beamdown Softworks).
-- **Hero:** Harissa, a spicy courier cat. She throws jasmine stars.
-- **Story:** the Magpie Mob snatched Grandma Zohra's birthday parcel, and
-  Harissa chases it across a sunny Mediterranean seaside town to Old Crab's
-  water.
-- **Areas:** Whitewash Rooftops, the Spice Souk (with the roof garden), the
-  Fort Walls at dusk, and the Harbour at Night (with the fish market).
-- **Night Route:** the same town after dark.
-- **Foes, pickups and the boss:** all our own designs, listed above. Snacks
-  are dates, then figs, then glasses of mint tea. Lost letters stand in for
-  sandwiches, paper lanterns for balloons and catnip for the glowing star.
-- **Levels:** 48 hand-built screens plus the arena (`roofcat_levels.c`).
-- **Music:** one original track per area (bright major, Hijaz-flavoured souk,
-  driving fort, breezy harbour), a boss theme and jingles.
+- **Hero:** Pepper, a quick courier cat who throws tin stars.
+- **Story:** the Magpie Mob snatched Grandma Rosa's birthday parcel, and
+  Pepper chases it across a whitewashed seaside town to Old Crab's water.
+- **Areas:** Whitewash Rooftops, the Spice Market (with the roof garden),
+  the Fort Walls at dusk and the Harbour at Night (with the fish market).
+- **Foes, pickups and the boss:** listed above. Eggs are fish tokens; the
+  snacks are dates, then figs, then glasses of tea; letters stand in for
+  sandwiches, paper lanterns for balloons, catnip for the glowing star.
+- **Levels:** 52 screens plus the arena, all drawn for this game.
+- **Music:** one original track per area, a boss theme and jingles.
 
 ## Additions: none
 
-Only the platform needs every UFO 40 cartridge has:
-
-- the START pause menu;
-- saving: each area reached is a checkpoint that CONTINUE resumes from (a
-  game over erases it);
-- the three UFO 40 goals, which replicate Ninpek's own three:
-
-| UFO 40 goal | Condition | Ninpek's goal |
-|---|---|---|
-| Beacon | find 3 lost letters in a run | gift: eat three sandwiches |
-| Saucer | deliver the parcel (beat the first loop) | gold: beat the game |
-| Alien | clear the Night Route (beat the second loop) | cherry: beat the second loop |
-
-Removed in the faithfulness audit: a boss at the end of every stage (Ninpek
-has one), the stage-clear screens, the 15,000-point Beacon, foe types with no
-Ninpek counterpart (the phasing mirage, the rat-spawning chimney), fruit worth
-200-500 points, the faster second loop, and power-ups speeding up the throw.
-The score for extra lives now follows 3,000 / 7,000 / +5,000.
-
-## Also fixed in this pass
-
-- **Vita shimmer.** The carried cat used to alternate between two screen
-  columns every frame. Carried things now move by the camera's whole-pixel
-  step, and the SDL loop runs exactly one update per 60 Hz vsync. Test:
-  `rc_15_no_jitter`.
-- Stars now really expire at their range (a timer bug kept them flying).
-- Pigeons and magpies no longer face backwards.
+Only what every UFO 40 cartridge has: the START pause menu, the high-score
+save, and the three UFO 40 goals, which replicate Ninpek's own (gift, gold,
+cherry). The previous version's checkpoint/continue, its 5,000-point boss
+bonus and its loose snacks outside the bonus areas were removed.
 
 ## Controls
 
 | Input | Action |
 |---|---|
-| D-pad left/right | hold ground / run ahead |
-| A | jump, then press again in the air to double jump |
+| D-pad right | run ahead |
+| D-pad left | hold your ground |
+| A | jump (hold for higher); again in the air to double jump |
 | Down + A | drop through a ledge |
-| B | throw a jasmine star (hold to keep throwing) |
-| Spirit mode: D-pad | float |
-| Spirit mode: B | twin shots |
-| Spirit mode: A | come back to life |
+| B | throw a star (hold to keep throwing) |
+| Spirit: D-pad / B / A | fly / twin shots / come back |
 | START | pause |
+
+## Tests
+
+`tests/rc_*.ufs`, 23 scripts. `rc_23_first_section` runs the demo player
+(a simple, sensible player in `roofcat.c` that chooses the buttons each
+frame) through the whole first area with real button presses.
 
 ## Sources
 
-- [W] UFO 50 Wiki (Miraheze), "Ninpek": controls, power-ups, lives at 3,000
-  and 7,000 then every 5,000, ghost mode, the full enemy table with hit points
-  and egg colours, scoring items, the boss, loop 2 changes, goals.
-  https://ufo50.miraheze.org/wiki/Ninpek
-- [MG] MoeGamer, "UFO 50: Ninpek's epic quest for a sandwich": one continuous
-  world with stages and bonus areas, eggs instead of points, sandwiches on
-  hidden spots, the ghost floating down from the top, the glowing star twice
-  per life. https://moegamer.net/2024/09/22/ufo-50-ninpeks-epic-quest-for-a-sandwich/
-- [MM] Steam guide "The missing manuals - How to play UFO 50 games": B attacks
-  continuously when held; double jump.
-- [WP] Wikipedia, "UFO 50": "takes under nine minutes to complete".
+- [W] UFO 50 Wiki (Miraheze), "Ninpek": controls, shurikens and power-ups,
+  lives from score, ghost mode, the enemy table (hit points, eggs,
+  behaviour, loop 2), scoring items, bonus areas, the boss, goals, stats,
+  "HE IS NO NINJA". https://ufo50.miraheze.org/wiki/Ninpek
+- [MG] MoeGamer, "UFO 50: Ninpek's epic quest for a sandwich": the fixed
+  sprite and the scroll, one continuous world with stages and bonus areas,
+  eggs, sandwiches on hidden spots, balloons, the ghost.
+  https://moegamer.net/2024/09/22/ufo-50-ninpeks-epic-quest-for-a-sandwich/
+- [MM] Steam guide "The missing manuals - How to play UFO 50 games": hold A
+  to jump higher, two jumps, hold B, head icons for extra lives, the ghost.
+  https://steamcommunity.com/sharedfiles/filedetails/?id=3350227767
+- [SC] Steam guide "Ninpek Cherry Clear Guide": double jump after falling
+  off, power-ups reset on death, fish hang at the top, running under jars
+  makes them dive, flashers fire once and teleport, the eye.
+  https://steamcommunity.com/sharedfiles/filedetails/?id=3336087646
+- [SH] Steam thread "Is Ninpek too hard": learn each screen, drop through,
+  the mushroom area about halfway, about ten minutes a run, loop 2.
+  https://steamcommunity.com/app/1147860/discussions/0/4849904631719370097/
+- [SA] Steam thread "Ninpek Auto-running": tapping and holding left.
+  https://steamcommunity.com/app/1147860/discussions/0/595153277396484459/
+- [SE] Search summaries quoting reviews: "holding position requires you to
+  constantly tap left".
+- [ST] Static Canvas, "The UFO 50 Diaries: Ninpek": three lives, hitboxes.
+  https://staticcanvas.substack.com/p/the-ufo-50-diaries-ninpek
+- [TE] Torrential Equilibrium review (via the research notes): early foes
+  come fast and in numbers.
+- [WP] Wikipedia, "UFO 50": a nine-minute run. https://en.wikipedia.org/wiki/UFO_50
+- [PC] popcar, "Reviewing every UFO 50 game": about ten minutes.
+  https://popcar.bearblog.dev/reviewing-every-ufo50-game/
+- [SV] Steam thread "Which games save progress?": Ninpek does not save mid-run.
+  https://steamcommunity.com/app/1147860/discussions/0/4849904176633630339/
