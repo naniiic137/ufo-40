@@ -330,7 +330,8 @@ static void update_room(void) {
     else if (btn_repeat(BTN_RIGHT)) dir = DIR_RIGHT;
     if (dir >= 0) queued = dir;
     if (btn_repeat(BTN_B)) { undo(); queued = -1; }
-    if (testing && btnp(BTN_SELECT)) { leave_room(); return; }
+    /* custom rooms may have no door: SELECT walks out of them */
+    if (cur_room >= 100 && btnp(BTN_SELECT)) { leave_room(); return; }
     if (autoplay && *autoplay && anim_t >= 8 && queued < 0) {
         char c = *autoplay++;
         queued = c == 'U' ? DIR_UP : c == 'R' ? DIR_RIGHT : c == 'D' ? DIR_DOWN : DIR_LEFT;
@@ -793,7 +794,8 @@ static void draw_room_screen(void) {
     spr_draw(&fn_spr[FS_DROP], SCREEN_W - 44, 5, 0);
     snprintf(buf, sizeof buf, "%d/50", drops());
     text_draw(buf, SCREEN_W - 36, 4, C_CYAN);
-    tiny_draw(testing ? "B UNDO  SELECT EDIT" : "B UNDO  DOOR: LEAVE", SCREEN_W / 2 - 34, 172, C_SLATE);
+    tiny_draw(testing ? "B UNDO  SELECT EDIT" : cur_room >= 100 ? "B UNDO  SELECT LEAVE" : "B UNDO  DOOR: LEAVE",
+              SCREEN_W / 2 - 34, 172, C_SLATE);
 }
 
 /* ------------------------------------------------------------------ */
