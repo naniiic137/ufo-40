@@ -1,0 +1,34 @@
+# README media: CUTLASS CUP
+shotscale 2
+seed 14
+game cutlass
+wait 40
+shot cutlass_title
+press A
+wait 20
+press RIGHT
+press RIGHT
+press RIGHT
+wait 30
+shot cutlass_select
+cheat tourney 3
+wait 40
+shot cutlass_bracket
+cheat match 3 5
+cheat demo
+cheat level 4
+wait 200
+cheat meter 0 6
+cheat meter 1 6
+gifstart cutlass 3 2
+wait 420
+gifstop
+shot cutlass_rally
+cheat play
+cheat pos 0 70 70
+cheat pos 1 250 120
+cheat cpu 0 0
+cheat cpu 1 0
+cheat superball 4 110 70 3
+wait 26
+shot cutlass_whirl

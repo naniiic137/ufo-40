@@ -1,0 +1,34 @@
+# CUTLASS CUP: B strikes the ball toward the other side; up/down aim it,
+# back lobs it into the air; every two strikes fill half a bar.
+game cutlass
+wait 5
+cheat match 0 1
+cheat cpu 1 0
+wait 2
+cheat play
+cheat pos 0 60 100
+cheat ball 70 100 0 0
+press B
+wait 6
+expect ball_team == 0
+expect ball_vx100 > 250
+expect ball_vy100 == 0
+expect meter0 == 0
+# aim down
+cheat ball 70 100 0 0
+wait 10
+hold DOWN
+press B
+wait 6
+release DOWN
+expect ball_vy100 > 50
+expect meter0 == 1
+# back: a lob
+cheat pos 0 60 100
+cheat ball 70 100 0 0
+wait 10
+hold LEFT
+press B
+wait 4
+release LEFT
+expect ball_z > 4

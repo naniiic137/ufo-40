@@ -32,6 +32,10 @@ CORE_SRC += src/games/bannerfall/bannerfall.c
 CORE_SRC += src/games/bannerfall/bannerfall_logic.c
 CORE_SRC += src/games/bannerfall/bannerfall_art.c
 CORE_SRC += src/games/bannerfall/bannerfall_audio.c
+CORE_SRC += src/games/cutlass/cutlass.c
+CORE_SRC += src/games/cutlass/cutlass_match.c
+CORE_SRC += src/games/cutlass/cutlass_art.c
+CORE_SRC += src/games/cutlass/cutlass_audio.c
 
 HEADLESS_SRC += src/platform/headless/main_headless.c
 HEADLESS_SRC += src/platform/headless/imgwrite.c

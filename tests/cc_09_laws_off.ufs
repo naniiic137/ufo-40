@@ -1,0 +1,13 @@
+# CUTLASS CUP: with LAWS off nobody fouls.
+game cutlass
+wait 5
+cheat laws 0
+cheat match 0 1
+cheat cpu 1 0
+wait 2
+cheat play
+cheat pos 0 30 60
+cheat ball 100 150 0 0
+wait 320
+expect fouls_l == 0
+expect score_r == 0

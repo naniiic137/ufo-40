@@ -1,0 +1,26 @@
+# CUTLASS CUP: a double tap throws the secondary weapon for half a bar; a
+# hit stuns and takes half a bar away.
+game cutlass
+wait 5
+cheat match 0 1
+cheat cpu 1 0
+wait 2
+cheat play
+cheat pos 0 60 100
+cheat pos 1 200 100
+cheat meter 0 2
+cheat meter 1 3
+press B 1
+press B 1
+expect projs1 == 1
+expect meter0 == 1
+wait 60
+expect st1 == 4
+expect meter1 == 2
+expect projs1 == 0
+# with no meter the double tap is just two swings
+cheat meter 0 0
+wait 30
+press B 1
+press B 1
+expect projs == 0
