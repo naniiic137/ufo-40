@@ -1,0 +1,53 @@
+# README media: OPEN HOUSE
+shotscale 2
+seed 25
+game openhouse
+wait 90
+shot openhouse_title
+# a lively party on guest list 3
+cheat new 3 1
+cheat give 34 1
+cheat give 41 1
+cheat give 27 1
+cheat give 18 1
+cheat give 23 1
+cheat give 39 1
+cheat give 5 2
+cheat cap 12
+cheat door 0 5 34 27 41 18 23 1
+wait 40
+gifstart openhouse 3 2
+wait 20
+press A
+wait 30
+press A
+wait 30
+press LEFT
+wait 10
+press LEFT
+wait 10
+press LEFT
+wait 16
+press A
+wait 20
+press RIGHT
+wait 10
+press A
+wait 40
+gifstop
+shot openhouse_party
+cheat end
+wait 50
+cheat next
+wait 10
+cheat pop 60
+cheat cash 12
+press RIGHT
+wait 6
+press DOWN
+wait 6
+press DOWN
+wait 6
+press RIGHT
+wait 20
+shot openhouse_shop

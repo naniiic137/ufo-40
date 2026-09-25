@@ -1,0 +1,29 @@
+# OPEN HOUSE 2P: the players take alternate nights with their own houses and
+# share the shop's stock.
+game openhouse
+wait 5
+cheat new 1 2
+expect players == 2
+expect turn == 1
+cheat end
+cheat next
+expect state == 13
+cheat pop 50
+cheat shop 0
+cheat shop 0
+cheat shop 0
+cheat shop 0
+expect have0 == 8
+cheat leave
+expect turn == 2
+expect night == 1
+expect state == 4
+cheat end
+cheat next
+cheat pop 50
+cheat shop 0
+expect have0 == 4
+expect bought0 == 4
+cheat leave
+expect turn == 1
+expect night == 2

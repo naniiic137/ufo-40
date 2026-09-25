@@ -1,0 +1,28 @@
+# OPEN HOUSE: the run in progress, the lists won and the streak are saved;
+# CONTINUE picks the run up again.
+game openhouse
+wait 30
+press A
+wait 5
+press A
+wait 5
+press A
+wait 25
+press A
+wait 5
+expect state == 5
+expect scen == 1
+press A
+wait 20
+expect n == 1
+reload
+game openhouse
+wait 30
+expect has_run == 1
+press A
+wait 5
+press A
+wait 5
+expect state == 5
+expect n == 1
+expect night == 1

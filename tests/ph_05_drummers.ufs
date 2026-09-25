@@ -1,0 +1,28 @@
+# OPEN HOUSE: drummers pay 1, 4, 9, 16 together; a paparazzo collects a
+# guest's pay at once (a drummer's is the whole band's) and it pays again at
+# the end.
+game openhouse
+wait 5
+cheat new 1 1
+cheat give 13 4
+cheat cap 8
+cheat door 13
+expect vpop0 == 1
+cheat door 13
+expect vpop0 == 2
+expect vpop1 == 2
+cheat door 13 13
+expect vpop3 == 4
+cheat end
+expect pop == 16
+cheat new 1 1
+cheat give 13 3
+cheat give 18 1
+cheat cap 8
+cheat door 13 13 13 18
+cheat act 3 0
+expect got_pop == 9
+expect pop == 9
+cheat end
+expect pop == 12
+expect penalty == 7

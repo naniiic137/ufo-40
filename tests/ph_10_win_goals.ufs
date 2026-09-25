@@ -1,0 +1,31 @@
+# OPEN HOUSE: four stars in the house at once wins. Goals: win a list
+# (Beacon), all five (Saucer), five Random lists in a row (Alien).
+game openhouse
+wait 5
+cheat new 1 1
+cheat give 37 4
+cheat cap 8
+cheat door 37 37 37
+expect over == 0
+cheat door 37
+expect over == 4
+expect state == 14
+expect winner == 1
+expect won == 1
+expect goals == 1
+cheat won 15
+cheat new 5 1
+cheat give 44 4
+cheat door 44 44 44 44
+expect won == 31
+expect goals == 3
+cheat new 6 1
+cheat give 38 4
+cheat door 38 38 38 38
+expect streak == 1
+cheat streak 4
+cheat new 6 1
+cheat give 40 4
+cheat door 40 40 40 40
+expect streak == 5
+expect goals == 7

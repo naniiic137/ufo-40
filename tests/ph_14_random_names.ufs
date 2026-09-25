@@ -1,0 +1,15 @@
+# OPEN HOUSE: a Random list deals two stars and eleven other guests (plus
+# neighbours and cousins); buying every neighbour gives them real names.
+game openhouse
+wait 5
+cheat new 6 1
+expect npool == 15
+expect poolstars == 2
+cheat new 1 1
+cheat pop 100
+cheat shop 0
+cheat shop 0
+cheat shop 0
+expect named == 0
+cheat shop 0
+expect named == 4

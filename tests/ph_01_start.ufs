@@ -1,0 +1,19 @@
+# OPEN HOUSE: a scenario starts with 4 old neighbours, 2 rich cousins and 4
+# rowdy mates, a house of 5, no popularity or cash, night 1 of 25; the shop
+# sells the list's 13 guests plus neighbours and cousins.
+game openhouse
+wait 5
+cheat new 1 1
+expect cards == 10
+expect have0 == 4
+expect have1 == 2
+expect have2 == 4
+expect cap == 5
+expect pop == 0
+expect cash == 0
+expect night == 1
+expect npool == 15
+expect poolstars == 1
+cheat new 2 1
+expect npool == 15
+expect poolstars == 2

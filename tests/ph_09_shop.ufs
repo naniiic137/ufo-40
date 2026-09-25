@@ -1,0 +1,42 @@
+# OPEN HOUSE shop: every non-star guest four times a scenario, stars without
+# limit; a new space costs $2, then $1 more each time up to $12; 34 at most.
+game openhouse
+wait 5
+cheat new 1 1
+cheat pop 400
+cheat cash 100
+cheat shop 0
+cheat shop 0
+cheat shop 0
+cheat shop 0
+cheat shop 0
+expect have0 == 8
+expect bought0 == 4
+cheat shop 37
+cheat shop 37
+cheat shop 37
+expect have37 == 3
+cheat shop 26
+expect have26 == 0
+cheat expand
+expect cap == 6
+expect cash == 98
+cheat expand
+cheat expand
+cheat expand
+cheat expand
+cheat expand
+cheat expand
+cheat expand
+cheat expand
+cheat expand
+cheat expand
+expect cap == 16
+expect cash == 23
+cheat expand
+expect cap == 17
+expect cash == 11
+cheat cap 34
+cheat cash 50
+cheat expand
+expect cap == 34

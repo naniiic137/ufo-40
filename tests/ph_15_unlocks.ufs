@@ -1,0 +1,26 @@
+# OPEN HOUSE: list 1 is open from the start; each win opens the next list,
+# and the Random list opens after list 5.
+game openhouse
+wait 30
+press A
+wait 5
+press A
+wait 5
+expect state == 2
+press DOWN
+press A
+wait 5
+expect state == 2
+cheat won 1
+press A
+wait 5
+expect state == 3
+cheat menu
+cheat won 31
+wait 3
+press UP
+press UP
+press A
+wait 5
+expect state == 3
+expect scen == 6

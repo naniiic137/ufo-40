@@ -1,0 +1,43 @@
+# OPEN HOUSE: the tailor's +1 lasts all scenario, the upstart gains 1 each
+# visit, the moon child is trouble every other visit, and the granny,
+# bookworm, poet, barista and storyteller count the room.
+game openhouse
+wait 5
+cheat new 1 1
+cheat give 23 1
+cheat give 26 1
+cheat give 32 1
+cheat door 0 23
+cheat act 1 0
+expect vpop0 == 2
+cheat door 26 32
+expect vpop2 == 1
+expect trouble == 1
+cheat end
+cheat next
+cheat leave
+cheat door 0 26 32
+expect vpop0 == 2
+expect vpop1 == 2
+expect trouble == 0
+cheat new 1 1
+cheat give 21 1
+cheat cap 6
+cheat door 0 0 21
+expect vpop2 == 3
+cheat new 1 1
+cheat give 22 1
+cheat cap 6
+cheat door 22
+expect vpop0 == 6
+cheat new 1 1
+cheat give 25 1
+cheat give 24 1
+cheat door 2 2 25 24
+expect vpop2 == 5
+expect vcash3 == 4
+cheat new 1 1
+cheat give 17 1
+cheat door 0 0 0 0 17
+expect vpop4 == 5
+expect vcash4 == -1

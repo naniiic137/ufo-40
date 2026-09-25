@@ -1,0 +1,58 @@
+# OPEN HOUSE actions: a reshuffle sends everyone out but used actions stay
+# used; the band leader refreshes them; the usher lets in the next guest and
+# collects their pay; the fortune teller swaps a guest for a star; the
+# matchmaker boots two side by side; the old sage calms everyone.
+game openhouse
+wait 5
+cheat new 1 1
+cheat give 7 1
+cheat give 11 1
+cheat cap 8
+cheat door 2 7 11
+cheat act 1 0
+cheat act 1 0
+expect n == 0
+cheat door 7
+expect canact0 == 0
+cheat new 1 1
+cheat give 7 1
+cheat give 27 1
+cheat door 2 7 27
+cheat act 1 0
+expect canact0 == 0
+cheat act 1 0
+expect canact0 == 1
+cheat new 1 1
+cheat give 28 1
+cheat door 28
+cheat act 0 0
+expect n == 2
+expect collected >= 1
+cheat new 1 1
+cheat give 29 1
+cheat give 37 1
+cheat door 29 0
+cheat act 0 1
+expect stars == 1
+expect wout0 == 1
+cheat new 1 1
+cheat give 30 1
+cheat cap 9
+cheat door 0 0 30
+cheat act 2 0
+expect n == 1
+cheat new 1 1
+cheat give 30 1
+cheat give 0 6
+cheat cap 10
+cheat door 0 0 0 0 0 0 0 30 0
+cheat act 7 7
+expect n == 9
+cheat new 1 1
+cheat give 31 1
+cheat door 2 2 31
+expect trouble == 2
+cheat act 2 0
+expect trouble == 0
+cheat door 2
+expect trouble == 1

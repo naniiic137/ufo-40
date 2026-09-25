@@ -1,0 +1,19 @@
+# OPEN HOUSE: after the 25th party without four stars the list is lost;
+# losing a Random list ends the streak.
+game openhouse
+wait 5
+cheat new 1 1
+cheat night 25
+cheat end
+cheat next
+expect done == 1
+expect state == 15
+expect winner == 0
+cheat streak 3
+cheat new 6 1
+cheat night 25
+cheat end
+cheat next
+expect state == 15
+expect streak == 0
+expect best_streak == 3

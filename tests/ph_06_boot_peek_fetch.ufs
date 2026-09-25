@@ -1,0 +1,32 @@
+# OPEN HOUSE actions, once a party: the bouncer boots a guest (even himself),
+# the parrot sees who is at the door, the cabbie fetches a chosen guest.
+game openhouse
+wait 5
+cheat new 1 1
+cheat give 7 1
+cheat door 2 7
+cheat act 1 0
+expect n == 1
+expect wout2 == 1
+expect canact0 == 0
+cheat new 1 1
+cheat give 7 1
+cheat door 7
+cheat act 0 0
+expect n == 0
+cheat new 1 1
+cheat give 9 1
+cheat door 9
+cheat act 0 0
+expect peek >= 0
+cheat decide 0
+expect peek == -1
+expect n == 1
+cheat new 1 1
+cheat give 3 1
+cheat give 37 1
+cheat door 3
+cheat act 0 37
+expect n == 2
+expect stars == 1
+expect canact0 == 0

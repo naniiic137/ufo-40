@@ -46,6 +46,10 @@ CORE_SRC += src/games/tintail/tintail_logic.c
 CORE_SRC += src/games/tintail/tintail_levels.c
 CORE_SRC += src/games/tintail/tintail_art.c
 CORE_SRC += src/games/tintail/tintail_audio.c
+CORE_SRC += src/games/openhouse/openhouse.c
+CORE_SRC += src/games/openhouse/openhouse_logic.c
+CORE_SRC += src/games/openhouse/openhouse_art.c
+CORE_SRC += src/games/openhouse/openhouse_audio.c
 
 HEADLESS_SRC += src/platform/headless/main_headless.c
 HEADLESS_SRC += src/platform/headless/imgwrite.c

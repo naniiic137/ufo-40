@@ -1,0 +1,23 @@
+# OPEN HOUSE: three TROUBLE! guests at once bring the police: no pay, and one
+# guest you pick misses the next party. A surfer cancels one TROUBLE!.
+game openhouse
+wait 5
+cheat new 1 1
+cheat door 2 2
+expect trouble == 2
+expect over == 0
+cheat door 2
+expect over == 2
+expect state == 10
+expect pop == 0
+cheat ban 0
+expect banned != 0
+expect state == 13
+cheat leave
+expect night == 2
+expect wout2 == 1
+cheat new 1 1
+cheat give 5 1
+cheat door 2 2 5 2
+expect trouble == 2
+expect over == 0

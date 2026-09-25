@@ -8,6 +8,7 @@ extern const GameDef GAME_BANNERFALL;
 extern const GameDef GAME_CUTLASS;
 extern const GameDef GAME_FENNEC;
 extern const GameDef GAME_TINTAIL;
+extern const GameDef GAME_OPENHOUSE;
 
 const GameDef *const GAMES[GAME_SLOTS] = {
     &GAME_UNDERDELVE,
@@ -18,4 +19,5 @@ const GameDef *const GAMES[GAME_SLOTS] = {
     [13] = &GAME_CUTLASS,
     [14] = &GAME_FENNEC,
     [15] = &GAME_TINTAIL,
+    [24] = &GAME_OPENHOUSE,
 };

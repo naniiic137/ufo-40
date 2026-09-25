@@ -1,0 +1,20 @@
+# OPEN HOUSE: a party that ends well pays every guest's popularity and cash;
+# a guest that charges cash you don't have costs 7 popularity instead.
+game openhouse
+wait 5
+cheat new 1 1
+cheat door 0 0 1
+expect n == 3
+cheat end
+expect over == 1
+expect pop == 2
+expect cash == 1
+expect state == 12
+cheat new 1 1
+cheat give 19 2
+cheat cash 1
+cheat door 19 19
+cheat end
+expect pop == 1
+expect cash == 0
+expect penalty == 7

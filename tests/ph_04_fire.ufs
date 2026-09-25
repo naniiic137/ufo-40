@@ -1,0 +1,16 @@
+# OPEN HOUSE: a socialite brings a random guest along; if there is no room
+# the fire marshal shuts the party down. A full house with nothing left to
+# do ends the party.
+game openhouse
+wait 5
+cheat new 1 1
+cheat give 14 1
+cheat door 0 0 0 14
+expect n == 5
+# full, and nobody left with anything to do: the party ends by itself
+expect over == 1
+cheat new 1 1
+cheat give 14 1
+cheat door 0 0 0 0 14
+expect over == 3
+expect state == 10
