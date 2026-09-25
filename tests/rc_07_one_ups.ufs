@@ -3,8 +3,8 @@
 game roofcat
 wait 5
 cheat area 0 1
-cheat clear_foes
 cheat cam 0
+cheat clear_foes
 wait 10
 expect lanterns == 0
 cheat score 2990
@@ -18,15 +18,15 @@ cheat score 12000
 expect next_life == 17000
 # touching a lantern does nothing
 cheat clear_foes
-cheat put 60 83
-cheat lantern 62 86
+cheat put 60 115
+cheat lantern 62 118
 wait 2
 expect lives == 3
 expect lanterns == 1
 # a star pops it: one more life
 cheat clear_foes
-cheat put 40 83
-cheat lantern 100 86
+cheat put 40 115
+cheat lantern 100 118
 press B
 wait 20
 expect lives == 4

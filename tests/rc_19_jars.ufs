@@ -5,11 +5,11 @@
 game roofcat
 wait 5
 cheat area 0 1
-cheat clear_foes
 cheat cam 0
-cheat put 20 83
+cheat clear_foes
+cheat put 20 115
 wait 5
-cheat foe jar 250 80
+cheat foe jar 250 112
 cheat hops 15
 wait 100
 expect count_jar == 0
@@ -18,7 +18,7 @@ expect crowns == 1
 # she runs on and it misses
 cheat cam 1600
 cheat clear_foes
-cheat put 140 83
+cheat put 140 115
 cheat foe jar 140 36
 wait 1
 expect mode_jar == 6
@@ -28,11 +28,11 @@ expect count_jar == 0
 expect spirit == 0
 # at most four awake
 cheat clear_foes
-cheat dormant jar 200 80
-cheat dormant jar 220 80
-cheat dormant jar 240 80
-cheat dormant jar 260 80
-cheat dormant jar 280 80
+cheat dormant jar 200 112
+cheat dormant jar 220 112
+cheat dormant jar 240 112
+cheat dormant jar 260 112
+cheat dormant jar 280 112
 wait 2
 expect count_jar == 4
 expect all_jar == 5
@@ -43,7 +43,7 @@ waituntil spirit == 1 100
 cheat cam 1600
 cheat clear_foes
 cheat put 280 20
-cheat foe jar 100 80
+cheat foe jar 100 112
 expect wx_jar == 1703
 wait 150
 expect wx_jar < 1680

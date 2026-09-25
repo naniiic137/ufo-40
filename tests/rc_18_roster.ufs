@@ -6,9 +6,9 @@
 game roofcat
 wait 5
 cheat area 0 1
-cheat clear_foes
 cheat cam 0
-cheat put 20 83
+cheat clear_foes
+cheat put 20 115
 wait 5
 cheat foe pigeon 300 40
 expect hp_pigeon == 2
@@ -59,7 +59,7 @@ expect egg_magpie == 200
 expect egg_flasher == 300
 expect egg_wasp == 100
 cheat clear_foes
-cheat foe toad 80 80
+cheat foe toad 80 112
 expect hp_toad == 4
 expect egg_toad == 300
 press B 1

@@ -4,11 +4,11 @@
 game roofcat
 wait 5
 cheat area 0 1
-cheat clear_foes
 cheat cam 0
-cheat put 60 83
+cheat clear_foes
+cheat put 60 115
 wait 20
-cheat foe snail 110 80
+cheat foe snail 110 112
 press B 1
 wait 20
 expect count_snail == 0
@@ -20,8 +20,8 @@ expect score == 100
 expect tokens == 0
 # a spike lamp: ten stars, 200 on the spot, no egg
 cheat clear_foes
-cheat put 40 83
-cheat foe lamp 120 82
+cheat put 40 115
+cheat foe lamp 120 114
 hold B 200
 expect count_lamp == 0
 expect score == 300

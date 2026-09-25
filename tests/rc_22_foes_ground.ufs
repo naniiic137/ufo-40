@@ -9,29 +9,29 @@
 game roofcat
 wait 5
 cheat area 0 1
-cheat clear_foes
 cheat cam 0
-cheat put 40 83
+cheat clear_foes
+cheat put 40 115
 wait 5
 # rolling toward her: stars bounce off its front
-cheat foe pigeon 160 80
+cheat foe pigeon 160 112
 cheat roll -1
 press B 1
 wait 20
 expect hp_pigeon == 2
 # rolling away: a star from behind hurts
 cheat clear_foes
-cheat foe pigeon 110 80
+cheat foe pigeon 110 112
 cheat roll 1
 press B 1
 wait 20
 expect hp_pigeon == 1
 # the firecracker and its cloud
 cheat clear_foes
-cheat foe cracker 150 80
+cheat foe cracker 150 112
 wait 5
 expect sub_cracker == 0
-cheat put 100 83
+cheat put 100 115
 wait 3
 expect sub_cracker == 1
 hold LEFT 50
@@ -44,11 +44,11 @@ wait 120
 expect count_cloud == 0
 # a flying fish waits until she is near
 cheat clear_foes
-cheat put 40 83
+cheat put 40 115
 cheat dormant ffish 250 148
 wait 5
 expect count_ffish == 0
-cheat put 220 83
+cheat put 220 115
 wait 2
 expect count_ffish == 1
 wait 70
@@ -57,14 +57,14 @@ wait 30
 expect sub_ffish == 3
 # the pufferfish: three bubbles from the top of its leap
 cheat clear_foes
-cheat put 200 83
+cheat put 200 115
 cheat dormant puffer 240 148
 wait 90
 expect all_bubble == 3
 # a flasher: hidden, then in, one beam, out
 cheat clear_foes
-cheat put 60 83
-cheat foe flasher 200 80
+cheat put 60 115
+cheat foe flasher 200 112
 wait 10
 expect sub_flasher == 0
 wait 50
@@ -72,13 +72,13 @@ expect sub_flasher == 2
 expect count_beam == 1
 wait 60
 expect sub_flasher == 0
-# a snail under the stairs' ledge on screen 22
+# a snail under the awning on screen 22
 cheat cam 7040
 cheat clear_foes
-cheat dormant snail 180 64
+cheat dormant snail 256 80
 wait 2
 expect mode_snail == 1
-expect y_snail == 64
+expect y_snail == 80
 # a swinging lamp
 cheat foe lamp 200 40
 cheat mode lamp 3
@@ -86,7 +86,6 @@ wait 30
 expect y_lamp > 50
 # an orb on the roof: two halves, falling away left and right
 cheat clear_foes
-cheat put 40 83
+cheat put 40 115
 cheat orb 200 40
-wait 90
-expect count_orbhalf == 2
+waituntil count_orbhalf == 2 200

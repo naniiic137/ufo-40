@@ -5,9 +5,9 @@
 game roofcat
 wait 5
 cheat area 0 1
-cheat clear_foes
 cheat cam 340
-cheat put 95 83
+cheat clear_foes
+cheat put 95 115
 wait 40
 expect lives == 2
 expect spirit == 1
@@ -34,8 +34,8 @@ expect spirit == 0
 expect lives == 2
 # no grace period: a foe on top of her takes the next life at once (she is
 # stunned for a moment, falls off the screen, and the spirit comes down)
-cheat put 150 83
-cheat foe pigeon 150 80
+cheat put 150 115
+cheat foe pigeon 150 112
 wait 2
 expect dying == 1
 expect spirit == 0

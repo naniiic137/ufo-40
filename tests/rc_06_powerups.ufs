@@ -3,18 +3,18 @@
 game roofcat
 wait 5
 cheat area 0 1
-cheat clear_foes
 cheat cam 0
-cheat put 40 83
+cheat clear_foes
+cheat put 40 115
 wait 20
-cheat foe snail 90 80
+cheat foe snail 90 112
 press B
 wait 30
-cheat foe snail 90 80
+cheat foe snail 90 112
 press B
 wait 30
 expect count_catnip == 0
-cheat foe snail 90 80
+cheat foe snail 90 112
 press B
 wait 12
 expect count_catnip == 1

@@ -1,19 +1,23 @@
 # ROOFCAT: one continuous town of four areas of thirteen screens plus the
-# arena, about nine minutes of scrolling. Five hidden letter spots, four
-# lanterns at fixed places, two bonus stretches that are a solid mass of
-# snacks (and no snacks anywhere else), and a busy town: over 120 foes.
+# arena, about nine minutes of scrolling. Every screen has tiers above the
+# lowest roofs (the top ones are the safe way through), foes stand where
+# they can stand, and the town is busy: over 350 foes written in. Five
+# hidden letter spots, four lanterns at fixed places, two bonus stretches
+# that are a solid mass of snacks (and no snacks anywhere else).
 game roofcat
 wait 5
 cheat area 0 1
 expect world_len == 53
 expect chunk_errors == 0
+expect misplaced == 0
 expect scroll_seconds >= 540
 expect scroll_seconds <= 570
+expect tier_rows_x10 >= 30
 expect secrets == 5
 expect placed_lanterns == 4
 expect bonus_snacks >= 250
 expect stray_snacks == 0
-expect placed_foes >= 120
+expect placed_foes >= 350
 # the firecrackers come about halfway (screens 24-27 of 52)
 expect first_cracker_screen >= 22
 expect first_cracker_screen <= 27

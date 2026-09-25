@@ -24,22 +24,22 @@ cheat area 1 2
 cheat cam 5100
 expect all_crow == 0
 expect all_sheet == 2
-# screens 24-25: four firecrackers take turns, livelier or a dust moth
+# screens 24-25: seven firecrackers take turns, livelier or a dust moth
 cheat area 1 2
 cheat cam 7600
-expect all_cracker == 2
+expect all_cracker == 4
 expect mode_cracker == 5
-expect all_moth == 2
-# the docks and the boats: two of the first three flying fish are pufferfish
+expect all_moth == 3
+# the docks and the boats: two of every three flying fish are pufferfish
 cheat area 3 2
-expect all_ffish == 1
+expect all_ffish == 2
 expect all_puffer == 2
 # geckos: two seeds, one right after the other
 cheat area 0 2
-cheat clear_foes
 cheat cam 0
-cheat put 40 83
-cheat foe gecko 150 80
+cheat clear_foes
+cheat put 40 115
+cheat foe gecko 150 112
 waituntil count_seed == 1 60
 wait 16
 expect count_seed == 2

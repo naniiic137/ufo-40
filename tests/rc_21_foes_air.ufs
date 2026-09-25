@@ -6,9 +6,9 @@
 game roofcat
 wait 5
 cheat area 0 1
-cheat clear_foes
 cheat cam 0
-cheat put 150 83
+cheat clear_foes
+cheat put 150 115
 wait 5
 cheat dormant wasp 300 40
 wait 1
@@ -24,7 +24,7 @@ expect x_gull < 300
 expect x_gull > 270
 # a magpie: harmless and out of reach while it appears
 cheat clear_foes
-cheat put 40 83
+cheat put 40 115
 cheat foe magpie 200 20
 wait 10
 expect sub_magpie == 0
@@ -37,7 +37,7 @@ expect all_shard == 2
 expect spirit == 0
 # a pelican bomb
 cheat clear_foes
-cheat put 150 83
+cheat put 150 115
 cheat foe pelican 300 20
 waituntil count_bomb == 1 120
 waituntil count_bomb == 0 120

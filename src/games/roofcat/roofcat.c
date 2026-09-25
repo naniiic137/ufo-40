@@ -10,7 +10,7 @@
 #define PW 10
 #define PH 13
 #define GRAV 0.19f
-#define JUMP1 (-3.55f)
+#define JUMP1 (-3.8f)   /* a full jump just clears the next tier up */
 #define JUMP2 (-3.2f)
 #define RUN 1.3f         /* holding right: this much faster than the screen */
 #define MAX_COLS (RC_WORLD_CHUNKS * RC_CHUNK_W)
@@ -23,9 +23,10 @@
 #define START_LIVES 3
 #define STUN_FRAMES 20   /* the moment she is stunned by a hit, before she falls */
 #define CLOUD_FRAMES 420 /* a firecracker's cloud hangs about for seven seconds */
-#define LEG_USABLE (FLOOR_Y + 44) /* a crab leg higher than this is footing */
+#define LEG_USABLE (FLOOR_Y + 14) /* a crab leg higher than this is footing */
 #define BOSS_HP 35
-#define FLOOR_Y 96       /* the rooftop line (row 6) */
+#define GROUND_ROW 8     /* the lowest rooftops; one-way tiers above at rows 6, 4 and 2 */
+#define FLOOR_Y (GROUND_ROW * 16)
 #define FISH_RANGE 72.0f /* fish (and jars in the water) wait for her this close */
 #define MAX_JARS 4       /* jumping jars on screen at once */
 #define HISCORES 5
@@ -289,7 +290,7 @@ static void spawn_chunk(int c) {
                 break;
             case 'J': type = E_JAR; mode = M_WATER; break;
             case 'a': type = E_WASP; break;
-            case 'n': type = E_SNAIL; if (solid_at(tx, y - 1) && !floor_at(tx, y + 1)) mode = M_CEILING; break;
+            case 'n': type = E_SNAIL; if (floor_at(tx, y - 1) && !floor_at(tx, y + 1)) mode = M_CEILING; break;
             case 't': type = E_TOAD; break;
             case 'e': type = E_PELICAN; break;
             case 'j': type = E_JAR; break;
@@ -794,7 +795,7 @@ static void patrol(Ent *e, float speed) {
 static void patrol_ceiling(Ent *e, float speed) {
     float nx = e->x + speed * e->dir;
     float ahead = e->dir > 0 ? nx + e->w : nx - 1;
-    if (box_solid(nx, e->y, e->w, e->h) || !solid_at((int)ahead >> 4, ((int)e->y - 1) >> 4)) e->dir = -e->dir;
+    if (box_solid(nx, e->y, e->w, e->h) || !floor_at((int)ahead >> 4, ((int)e->y - 1) >> 4)) e->dir = -e->dir;
     else e->x = nx;
 }
 
@@ -858,7 +859,7 @@ static void update_foe(Ent *e) {
         if (e->sub > 0) { e->sub--; patrol(e, walk * 3.0f); }
         else {
             patrol(e, walk);
-            if (rng_range(&rng, 0, 179) == 0) e->sub = 40;
+            if (rng_range(&rng, 0, 359) == 0) e->sub = 40; /* now and then */
         }
         break;
     }
@@ -1090,15 +1091,15 @@ static void lamp_spike(const Ent *e, int k, float *sx, float *sy) {
 /* ---- the boss: Old Crab ---- */
 
 #define EYE_X (arena_x + 258)
-#define EYE_Y (FLOOR_Y - 32)
+#define EYE_Y (FLOOR_Y - 2) /* just above the water: a low leg lines her up with it */
 
 static const float LEG_X[4] = {60, 108, 156, 204};
 
 static void spawn_boss(void) {
-    Ent *b = spawn(E_BOSS, arena_x + 232, FLOOR_Y - 12);
+    Ent *b = spawn(E_BOSS, arena_x + 244, FLOOR_Y - 4);
     if (!b) return;
     boss_i = (int)(b - ents);
-    b->w = 80; b->h = 60;
+    b->w = 60; b->h = 40;
     b->hp = BOSS_HP;
     b->t = 0;
     for (int i = 0; i < 4; i++) {
@@ -1124,7 +1125,7 @@ static void boss_hit(Ent *b) {
 /* The height a leg reaches on a rise: low, middle or high. Half the rises are
  * low ones, so with four legs taking turns a low one is up most of the time. */
 static float leg_top(int n, int cycle) {
-    static const float TOPS[4] = {FLOOR_Y + 20, FLOOR_Y + 4, FLOOR_Y + 20, FLOOR_Y - 12};
+    static const float TOPS[4] = {FLOOR_Y + 8, FLOOR_Y - 12, FLOOR_Y + 8, FLOOR_Y - 32};
     return TOPS[(cycle + n) % 4];
 }
 
@@ -1148,8 +1149,8 @@ static void update_legs(void) {
         int low_up = 0;
         for (int i = 0; i < MAX_ENTS; i++)
             if (ents[i].alive && ents[i].type == E_LEG && ents[i].y == (float)ents[i].k) {
-                leg_seen |= ents[i].k == (int)FLOOR_Y + 20 ? 4 : ents[i].k == (int)FLOOR_Y + 4 ? 2 : 1;
-                low_up |= ents[i].k == (int)FLOOR_Y + 20;
+                leg_seen |= ents[i].k == (int)FLOOR_Y + 8 ? 4 : ents[i].k == (int)FLOOR_Y - 12 ? 2 : 1;
+                low_up |= ents[i].k == (int)FLOOR_Y + 8;
             }
         arena_frames++;
         low_up_frames += low_up;
@@ -1620,7 +1621,7 @@ static void draw_sky(void) {
         int base = i * 36 - off % 36;
         uint32_t h = (uint32_t)((i + off / 36) * 2654435761u);
         int hgt = 18 + (int)(h % 26);
-        int x = base, gy = 104;
+        int x = base, gy = 128;
         gfx_rect(x, gy - hgt, 30, hgt, t->far);
         if ((h >> 8) % 3 == 0) gfx_circ(x + 15, gy - hgt, 9, t->far_hi);
         if ((h >> 10) % 4 == 0) gfx_rect(x + 12, gy - hgt - 18, 6, 18, t->far);
@@ -1628,26 +1629,26 @@ static void draw_sky(void) {
     }
     /* below the horizon: the depth you fall into between buildings */
     if (theme == 0) {
-        gfx_rect(0, 104, 320, 56, C_BLUE);
-        for (int y = 106; y < 160; y += 4)
+        gfx_rect(0, 128, 320, 32, C_BLUE);
+        for (int y = 130; y < 160; y += 4)
             for (int x = (y * 5 + frame_t / 6) % 16; x < 320; x += 16) gfx_hline(x, x + 4, y, C_SKY);
     } else if (theme == 1) {
-        gfx_rect(0, 104, 320, 56, C_MAROON);
-        gfx_dither(0, 104, 320, 56, C_INK, 6);
+        gfx_rect(0, 128, 320, 32, C_MAROON);
+        gfx_dither(0, 128, 320, 32, C_INK, 6);
     } else if (theme == 2) {
-        gfx_rect(0, 104, 320, 56, C_WINE);
-        gfx_dither(0, 104, 320, 56, C_PURPLE, 6);
+        gfx_rect(0, 128, 320, 32, C_WINE);
+        gfx_dither(0, 128, 320, 32, C_PURPLE, 6);
     } else {
-        gfx_rect(0, 108, 320, 72, C_NAVY);
-        for (int y = 110; y < 160; y += 3)
+        gfx_rect(0, 132, 320, 48, C_NAVY);
+        for (int y = 134; y < 160; y += 3)
             for (int x = (y * 7 + frame_t / 4) % 12; x < 320; x += 12) gfx_hline(x, x + 3, y, (y / 3) % 2 ? C_BLUE : C_NIGHT);
         /* the lighthouse far out on the mole (out of sight in Old Crab's water) */
         int lx = in_arena ? -100 : 290 - off % 380;
-        gfx_rect(lx, 60, 10, 48, C_LIGHT);
-        gfx_rect(lx, 70, 10, 5, C_RED);
-        gfx_rect(lx, 86, 10, 5, C_RED);
-        gfx_rect(lx - 2, 54, 14, 6, C_INK);
-        if ((frame_t / 20) % 2) gfx_dither(lx + 10, 52, 60, 8, C_YELLOW, 6);
+        gfx_rect(lx, 84, 10, 48, C_LIGHT);
+        gfx_rect(lx, 94, 10, 5, C_RED);
+        gfx_rect(lx, 110, 10, 5, C_RED);
+        gfx_rect(lx - 2, 78, 14, 6, C_INK);
+        if ((frame_t / 20) % 2) gfx_dither(lx + 10, 76, 60, 8, C_YELLOW, 6);
     }
     /* clouds / bunting (parallax 0.5) */
     int off2 = icam / 2;
@@ -2284,7 +2285,7 @@ static Ent *first_of(int type) {
  * safe roof and comes back. Its answer is a button mask the headless runner
  * presses for real. */
 static bool bot_drift;
-static int bot_hold, bot_want, bot_run, bot_wait; /* A to hold; a jump waiting for A to come up; run; wait */
+static int bot_hold, bot_want, bot_run; /* A to hold; a jump waiting for A to come up; frames to run */
 
 static bool danger_near(float x0, float x1, float y0, float y1) {
     for (int i = 0; i < MAX_ENTS; i++) {
@@ -2373,37 +2374,164 @@ static bool foe_above_ahead(void) {
     for (int i = 0; i < MAX_ENTS; i++) {
         const Ent *e = &ents[i];
         if (!e->alive || e->state == -1 || !IS_FOE(e->type) || !hittable(e) || e->type == E_CROW) continue;
+        if (!strchr((const char[]){E_PIGEON, E_RPIGEON, E_GECKO, E_SNAIL, E_TOAD, E_JAR, E_CRACKER, E_FLASHER, 0}, e->type)) continue; /* only what stands on something */
         if (e->x > pl.x && e->x < pl.x + 120 && e->y + e->h <= pl.y + 3 && e->y + e->h > pl.y - 44) return true;
     }
     return false;
 }
 
-/* is there a floor under world x at the row her feet stand on (or a little lower)? */
-static bool floor_ahead(float x, int feet_row) {
-    for (int r = feet_row; r < imin(feet_row + 2, RC_ROWS); r++) {
-        char t = tile_at((int)x >> 4, r);
-        if (t == '^' || t == '~') return false;
-        if (floor_at((int)x >> 4, r)) return true;
+/* a tier to climb onto: floor one tier (two rows) above her feet, just ahead */
+static bool tier_above(void) {
+    int up = (((int)pl.y + PH) >> 4) - 2;
+    if (up < 1) return false;
+    for (int dx = -2; dx <= 36; dx += 4) {
+        int tx = ((int)pl.x + PW / 2 + dx) >> 4;
+        if (floor_at(tx, up) && !floor_at(tx, up - 1)) return true;
     }
     return false;
-}
-
-/* how far from world x to the far side of the gap (or glass, or water) ahead? */
-static int gap_width(float x, int feet_row) {
-    int s = 0, w = 0;
-    while (s < 24 && floor_ahead(x + (float)s, feet_row)) s += 2;
-    while (w < 200 && !floor_ahead(x + (float)(s + w), feet_row)) w += 4;
-    return s + w;
 }
 
 static void bot_jump(int frames) {
     if (bot_hold == 0 && bot_want == 0) bot_want = frames;
 }
 
+/* ---- the demo player's look-ahead ------------------------------------------
+ * Everything that can hurt her, and how it moves, copied so the demo player
+ * can try a move a second or so ahead without touching the game. */
+/* a spike circling a lamp, for the look-ahead only */
+#define E_SPIKE_T 250
+
+typedef struct Threat {
+    float x, y, vx, vy;
+    int w, h, kind, fast, tt; /* tt: the thing's own clock, for what moves on a curve */
+    float p0, p1, p2;         /* the curve: centre (and angle) */
+} Threat;
+#define MAX_THREATS 96
+#define LOOK_AHEAD 48
+
+static int gather_threats(Threat *t) {
+    int n = 0;
+    for (int i = 0; i < MAX_ENTS && n < MAX_THREATS - 4; i++) {
+        const Ent *e = &ents[i];
+        if (!e->alive || e->state == -1 || harmless(e->type)) continue;
+        if (e->type == E_CROW && e->sub != 1) continue;
+        if ((e->type == E_FFISH || e->type == E_PUFFER || e->type == E_MAGPIE || e->type == E_FLASHER) && e->sub == 0) continue;
+        if (e->type == E_JAR && e->mode == M_WATER && e->sub == 0) continue;
+        if (e->type == E_SHEET && !hittable(e)) continue;
+        Threat th = {e->x, e->y, 0, 0, e->w, e->h, e->type, e->sub == 1, e->t, e->hx, e->hy, 0};
+        switch (e->type) {
+        case E_PEBBLE: case E_SEED: case E_BUBBLE: case E_SHRAP: case E_BEAM: case E_ORBHALF: case E_BOMB: case E_ORB:
+        case E_MAGPIE: case E_FFISH: case E_PUFFER:
+            th.vx = e->vx; th.vy = e->vy; break;
+        case E_WASP:
+            th.vx = SCROLL + (e->sub == 1 ? 3.0f : 1.3f);
+            th.vy = e->sub == 0 ? fclamp((pcy() - (e->y + 3)) * 0.04f, -0.8f, 0.8f) : 0;
+            break;
+        case E_PIGEON: case E_RPIGEON:
+            th.vx = (e->type == E_RPIGEON ? 1.3f : 0.5f) * (e->sub > 0 ? 3.0f : 1.0f) * (float)e->dir; break;
+        case E_SNAIL: th.vx = 0.25f * (float)e->dir; break;
+        case E_GULL: th.vx = -0.25f; break; /* and it bobs, see step_threat */
+        case E_PELICAN: th.vx = -2.2f; break;
+        case E_SHEET: if (e->sub) th.vx = 1.3f * (float)e->dir; break;
+        case E_JAR: if (e->mode == M_DIVE) th.vy = e->vy + 1.0f; break;
+        case E_LAMP:
+            for (int k = 0; k < e->n && n < MAX_THREATS - 1; k++) {
+                float sx, sy;
+                lamp_spike(e, k, &sx, &sy);
+                (void)sx; (void)sy;
+                t[n++] = (Threat){0, 0, 0, 0, 6, 6, E_SPIKE_T, 0, e->t, e->x + e->w / 2, e->y + e->h / 2, (float)k * 6.283f / (float)e->n};
+            }
+            break;
+        }
+        t[n++] = th;
+    }
+    return n;
+}
+
+static void step_threat(Threat *t, float px, float py) {
+    t->tt++;
+    switch (t->kind) {
+    case E_GULL: t->x += t->vx; t->y = t->p1 + sinf((float)t->tt * 0.05f) * 8; return;
+    case E_MOTH:
+        t->x = t->p0 + sinf((float)t->tt * 0.03f) * 26;
+        t->y = t->p1 - 10 + sinf((float)t->tt * 0.07f) * 14;
+        return;
+    case E_SPIKE_T: {
+        float a = (float)t->tt * 0.045f + t->p2;
+        t->x = t->p0 + cosf(a) * 22 - 3;
+        t->y = t->p1 + sinf(a) * 22 - 3;
+        return;
+    }
+    case E_WASP:
+        /* eases to her height while behind her, darts once level */
+        if (!t->fast) {
+            if (t->x + t->w / 2 >= px + PW / 2) t->vy = 0;
+            else if (fabsf(py + PH / 2 - (t->y + 3)) < 2) { t->fast = 1; t->vx = SCROLL + 3.0f; t->vy = 0; }
+            else t->vy = fclamp((py + PH / 2 - (t->y + 3)) * 0.04f, -0.8f, 0.8f);
+        }
+        break;
+    case E_SEED:
+        t->vy += 0.16f;
+        if (t->vy > 0 && box_solid(t->x + t->vx, t->y + t->vy, t->w, t->h)) t->vy = -2.4f;
+        break;
+    case E_PEBBLE: if (t->vy != 0) t->vy += 0.13f; break;
+    case E_BOMB: t->vy += 0.15f; break;
+    case E_FFISH: case E_PUFFER: t->vy += 0.14f; break;
+    }
+    t->x += t->vx;
+    t->y += t->vy;
+}
+
+/* Frames until she is hit, falls out or lands in glass or water if she holds
+ * DIR and (JUMP) jumps now; LOOK_AHEAD+1 if she comes through. -1 if she
+ * can't jump. */
+static int try_move(const Threat *th0, int n, int dir, bool jump) {
+    Threat th[MAX_THREATS];
+    memcpy(th, th0, sizeof(Threat) * (size_t)n);
+    float px = pl.x, py = pl.y, vy = pl.vy;
+    bool air = !pl.ground;
+    if (jump) {
+        if (!air) vy = JUMP1;
+        else if (pl.jumps < 2) vy = JUMP2;
+        else return -1;
+        air = true;
+    }
+    for (int f = 1; f <= LOOK_AHEAD; f++) {
+        float nx = px + SCROLL + (float)dir * RUN;
+        if (!box_solid(nx, py, PW, PH)) px = nx;
+        if (px < cam_x + SCROLL * (float)f) px = cam_x + SCROLL * (float)f;
+        if (air) {
+            float feet = py + PH;
+            vy = fminf(vy + GRAV, 4.0f);
+            if (vy < 0 && box_solid(px, py + vy, PW, PH)) vy = 0;
+            py += vy;
+            int ty = (int)(py + PH) >> 4;
+            if (vy > 0 && feet <= (float)(ty * 16) + 0.5f) {
+                bool fl = false;
+                for (int tx = (int)px >> 4; tx <= ((int)px + PW - 1) >> 4; tx++) fl |= floor_at(tx, ty);
+                if (fl) { py = (float)(ty * 16 - PH); vy = 0; air = false; }
+            }
+        } else {
+            int ty = ((int)py + PH) >> 4;
+            bool fl = false;
+            for (int tx = (int)px >> 4; tx <= ((int)px + PW - 1) >> 4; tx++) fl |= floor_at(tx, ty);
+            if (!fl) air = true;
+        }
+        if (py > 164) return f;
+        char hz = tile_at(((int)px + PW / 2) >> 4, ((int)py + PH - 2) >> 4);
+        if (hz == '^' || hz == '~') return f;
+        for (int i = 0; i < n; i++) {
+            step_threat(&th[i], px, py);
+            if (rects_overlap((int)px + 1, (int)py + 2, PW - 2, PH - 3, (int)th[i].x, (int)th[i].y, th[i].w, th[i].h)) return f;
+        }
+    }
+    return LOOK_AHEAD + 1;
+}
+
 static int bot_buttons(void) {
     switch (state) {
     case S_TITLE: case S_ENDING: return (state_t / 3) % 2 ? BTN_A : 0;
-    case S_INTRO: case S_OVER: bot_hold = bot_want = bot_run = bot_wait = 0; return 0; /* it stops at a game over */
+    case S_INTRO: case S_OVER: bot_hold = bot_want = bot_run = 0; return 0; /* it stops at a game over */
     }
     int m = BTN_B, sx = (int)pl.x - cam_px();
     if (pl.spirit) {
@@ -2427,56 +2555,49 @@ static int bot_buttons(void) {
         if (age > 44 && there && (safe || pl.spirit_t < 30) && (frame_t % 2)) m |= BTN_A;
         return m;
     }
-    int feet_row = ((int)pl.y + PH) >> 4;
-    /* keep to the left half of the screen */
-    if (sx < 36) m |= BTN_RIGHT;
+    /* the plan when all is well: ride along with some room ahead, climb to
+     * the higher tiers, jump to throw at foes standing above */
+    Threat th[MAX_THREATS];
+    int n = gather_threats(th);
+    int dir = 0;
+    bool want_jump = false, ahead = foe_in_line(1, 150);
+    if (sx < 36) dir = 1;
+    if (sx > 150) bot_drift = true;
+    if (sx < 100) bot_drift = false;
+    if (bot_drift && !ahead && pl.ground) dir = -1;
+    if (bot_run > 0) { dir = 1; bot_run--; }
     if (pl.ground) {
-        bool gap = !floor_ahead(pl.x + PW + 8, feet_row) || !floor_ahead(pl.x + PW + 1, feet_row);
-        bool wall = box_solid(pl.x + PW + 2, pl.y, 6, PH);
-        int eta = threat_eta();
-        bool close = (eta >= 0 && eta <= 14) || danger_near(pl.x - 2, pl.x + PW + 6, pl.y - 2, pl.y + PH + 2);
-        /* the air a jump from here would pass through */
-        bool air = shot_near(pl.x - 8, pl.x + 80, pl.y - 46, pl.y) || danger_near(pl.x + 16, pl.x + 80, pl.y - 46, pl.y - 6);
-        if (close) bot_jump(12);
-        else if (gap || wall) {
-            if (air && sx > 64 && bot_wait < 40) { bot_wait++; m |= BTN_LEFT; m &= ~BTN_RIGHT; } /* hold on a moment */
-            else {
-                /* run just far enough: a jump alone drifts about 18 px with the scroll */
-                int w = wall ? 16 : gap_width(pl.x + PW + 1, feet_row);
-                bot_jump(16);
-                bot_run = iclamp((PW + 1 + w + 8 - 18) * 10 / 13, 4, 50);
-                bot_wait = 0;
-            }
-        } else {
-            bot_wait = 0;
-            bool ahead = foe_in_line(1, 150);
-            if (sx > 170) bot_drift = true;
-            if (sx < 110) bot_drift = false;
-            if (foe_above_ahead() && !air) bot_jump(16); /* jump to throw at it */
-            else if (!ahead && foe_in_line(-1, 110)) m |= BTN_LEFT; /* turn round to throw behind */
-            else if (bot_drift && !ahead) m |= BTN_LEFT; /* drift back: room ahead to take a run at gaps */
-        }
-    } else {
-        /* in the air: steer onto something, double jump if nothing is under */
-        bool under = false;
-        for (int dx = 0; dx <= 24 && !under; dx += 8)
-            for (int r = feet_row; r < RC_ROWS && !under; r++) {
-                char t = tile_at(((int)pl.x + dx) >> 4, r);
-                if (t == '^' || t == '~') break;
-                if (floor_at(((int)pl.x + dx) >> 4, r)) under = true;
-            }
-        for (int i = 0; i < MAX_ENTS && !under; i++)
-            if (ents[i].alive && ents[i].type == E_LEG && ents[i].y < LEG_USABLE && pl.x + PW > ents[i].x - 16 && pl.x < ents[i].x + ents[i].w + 16) under = true;
-        if (!under) m |= BTN_RIGHT;
-        if (!under && pl.vy > 0.3f && pl.jumps < 2) bot_jump(16);
-        { int eta = threat_eta(); if (eta >= 0 && eta <= 10 && pl.jumps < 2) bot_jump(12); }
-        /* a wall taller than one jump: the second jump near the top */
-        if (box_solid(pl.x + PW + 1, pl.y, 8, PH) && pl.vy > -0.8f && pl.jumps < 2) { bot_jump(16); bot_run = imax(bot_run, 20); }
+        if (box_solid(pl.x + PW + 2, pl.y, 6, PH)) { want_jump = true; dir = 1; bot_run = 20; } /* a wall */
+        else if (tier_above()) want_jump = true;                                          /* up a tier */
+        else if (foe_above_ahead()) want_jump = true;                                     /* throw at it */
+        else if (!ahead && foe_in_line(-1, 110)) dir = -1;                                /* turn round */
+    } else if (box_solid(pl.x + PW + 1, pl.y, 8, PH) && pl.vy > -0.8f && pl.jumps < 2) {
+        want_jump = true; /* a wall taller than one jump: the second jump near the top */
+        dir = 1;
     }
-    if (bot_run > 0) { m |= BTN_RIGHT; m &= ~BTN_LEFT; bot_run--; }
-    if (sx > 200 && pl.ground) m &= ~BTN_RIGHT;
-    /* after holding back she faces left: turn round to throw ahead again */
-    if (pl.face < 0 && !(m & BTN_LEFT)) m |= BTN_RIGHT;
+    if (want_jump && !pl.ground && pl.jumps >= 2) want_jump = false;
+    /* look ahead: if that plan gets her hurt, take the move that keeps her
+     * safe the longest (standing, walking back, running, each with or
+     * without a jump) */
+    int best_t = try_move(th, n, dir, want_jump);
+    if (want_jump && best_t <= LOOK_AHEAD) {
+        int t0 = try_move(th, n, dir, false);
+        if (t0 > best_t) { best_t = t0; want_jump = false; }
+    }
+    if (best_t <= LOOK_AHEAD) {
+        static const int DIRS[3] = {0, 1, -1};
+        for (int j = 0; j < 2; j++)
+            for (int k = 0; k < 3; k++) {
+                int t = try_move(th, n, DIRS[k], j == 1);
+                if (t > best_t) { best_t = t; dir = DIRS[k]; want_jump = j == 1; }
+            }
+        if (dir != 1) bot_run = 0;
+    }
+    if (want_jump) bot_jump(16);
+    if (dir > 0) m |= BTN_RIGHT;
+    else if (dir < 0) m |= BTN_LEFT;
+    /* after walking back she faces left: turn round to throw ahead again */
+    else if (pl.face < 0 && ahead) m |= BTN_RIGHT;
     if (bot_hold > 0) {
         m |= BTN_A;
         bot_hold--;
@@ -2595,6 +2716,41 @@ static int rc_query(const char *key, int *out) {
         *out = n;
         return 1;
     }
+    if (!strcmp(key, "tier_rows_x10")) {
+        /* rows above the lowest roofs that hold a platform, per screen (tenths) */
+        int n = 0;
+        for (int c = 0; c < RC_WORLD_CHUNKS - 1; c++)
+            for (int y = 1; y < GROUND_ROW; y++) {
+                const char *r = RC_WORLD[c].rows[y];
+                bool any = false;
+                for (int x = 0; x < RC_CHUNK_W; x++) any |= r[x] == '=' || solid_c(r[x]);
+                n += any;
+            }
+        *out = n * 10 / (RC_WORLD_CHUNKS - 1);
+        return 1;
+    }
+    if (!strcmp(key, "misplaced")) {
+        /* foes written into the level where they can't be: walkers need a
+         * floor under them, crows a chimney, spiders a ledge above, fish and
+         * water jars water, lanterns and hidden spots something to stand on
+         * or float by (lanterns may float) */
+        int bad = 0;
+        for (int c = 0; c < RC_WORLD_CHUNKS; c++)
+            for (int y = 0; y < RC_ROWS; y++)
+                for (int x = 0; x < RC_CHUNK_W; x++) {
+                    char t = RC_WORLD[c].rows[y][x];
+                    char below = y + 1 < RC_ROWS ? RC_WORLD[c].rows[y + 1][x] : '.';
+                    char above = y > 0 ? RC_WORLD[c].rows[y - 1][x] : '.';
+                    bool fb = solid_c(below) || below == '=', fa = solid_c(above) || above == '=';
+                    if (strchr("pPgtjxF!", t) && !fb) bad++;
+                    if (t == 'c' && below != 'C') bad++;
+                    if (t == 's' && !fa) bad++;
+                    if (t == 'n' && !fb && !fa) bad++;
+                    if ((t == 'f' || t == 'J') && y != RC_ROWS - 1) bad++;
+                }
+        *out = bad;
+        return 1;
+    }
     if (!strcmp(key, "stray_snacks")) {
         /* snacks outside the bonus stretches (there should be none) */
         int n = 0;
@@ -2671,9 +2827,9 @@ static int rc_query(const char *key, int *out) {
         for (int c = 0; c < RC_WORLD_CHUNKS; c++) {
             const Chunk *ch = &RC_WORLD[c];
             for (int y = 0; y < RC_ROWS; y++) if ((int)strlen(ch->rows[y]) != RC_CHUNK_W) errs++;
-            /* seamless joins: rooftop at row 6 on both edges, open sky above */
-            if (!solid_c(ch->rows[6][0]) || !solid_c(ch->rows[6][RC_CHUNK_W - 1])) errs++;
-            for (int y = 0; y < 6; y++)
+            /* seamless joins: the ground rooftop on both edges, nothing solid above */
+            if (!solid_c(ch->rows[GROUND_ROW][0]) || !solid_c(ch->rows[GROUND_ROW][RC_CHUNK_W - 1])) errs++;
+            for (int y = 0; y < GROUND_ROW; y++)
                 if (solid_c(ch->rows[y][0]) || solid_c(ch->rows[y][RC_CHUNK_W - 1])) errs++;
         }
         *out = errs;
@@ -2736,7 +2892,7 @@ static int rc_cheat(const char *cmd) {
         Ent *e = spawn(type, cam_x + a, (float)b);
         if (e) {
             foe_setup(e);
-            if (type == E_SNAIL && solid_at(((int)cam_x + a) >> 4, (b >> 4) - 1) && !floor_at(((int)cam_x + a) >> 4, (b >> 4) + 1)) {
+            if (type == E_SNAIL && floor_at(((int)cam_x + a) >> 4, (b >> 4) - 1) && !floor_at(((int)cam_x + a) >> 4, (b >> 4) + 1)) {
                 e->mode = M_CEILING; e->y = (float)b; e->hy = e->y;
             }
             e->state = -1;

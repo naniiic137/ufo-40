@@ -6,12 +6,12 @@
 game roofcat
 wait 5
 cheat area 0 1
-cheat clear_foes
 cheat cam 0
-cheat put 150 83
+cheat clear_foes
+cheat put 150 115
 wait 5
 # a wasp at her height: level at once, and fast
-cheat dormant wasp 300 80
+cheat dormant wasp 300 114
 wait 2
 expect sub_wasp == 1
 expect x_wasp < 0
@@ -27,7 +27,7 @@ cheat clear_foes
 cheat kill
 waituntil spirit == 1 100
 cheat put 100 40
-cheat foe cracker 150 80
+cheat foe cracker 150 112
 wait 3
 expect sub_cracker == 1
 cheat clear_foes
@@ -44,7 +44,7 @@ cheat kill
 waituntil spirit == 1 100
 wait 45
 expect boss_hp == 35
-cheat put 150 58
+cheat put 150 120
 hold B 3
 wait 40
 expect boss_hp == 33

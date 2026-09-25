@@ -3,8 +3,8 @@
 game roofcat
 wait 5
 cheat area 0 1
-cheat clear_foes
 cheat cam 1058
+cheat clear_foes
 cheat put 2 83
 waituntil spirit == 1 120
 expect lives == 2

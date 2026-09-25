@@ -9,11 +9,11 @@ cheat arena
 wait 10
 expect in_arena == 1
 expect boss_hp == 35
-cheat put 170 50
+cheat put 170 119
 press B 1
 wait 20
 expect boss_hp == 34
-cheat put 60 83
+cheat put 60 115
 press B 1
 wait 30
 expect boss_hp == 34

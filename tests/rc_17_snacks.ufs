@@ -5,8 +5,8 @@
 game roofcat
 wait 5
 cheat area 1 1
-cheat clear_foes
 cheat cam 4440
+cheat clear_foes
 expect snack_value0 == 5
 cheat bonus 0 99
 expect snack_value0 == 5
@@ -18,7 +18,7 @@ cheat bonus 0 200
 expect snack_value0 == 100
 expect snack_value1 == 5
 cheat bonus 0 0
-cheat put 40 83
+cheat put 40 115
 hold RIGHT 200
 expect bonus0 >= 60
 expect bonus1 == 0

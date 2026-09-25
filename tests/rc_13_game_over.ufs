@@ -14,8 +14,8 @@ expect state == 0
 press A
 wait 75
 expect state == 2
-cheat clear_foes
 cheat cam 4500
+cheat clear_foes
 cheat lives 0
 cheat kill
 waituntil state == 3 200

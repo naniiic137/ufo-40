@@ -3,21 +3,21 @@
 game roofcat
 wait 5
 cheat area 0 1
-cheat clear_foes
 cheat cam 0
-wait 30
+cheat clear_foes
+wait 45
 expect grounded == 1
-expect py == 83
+expect py == 115
 # a tap: a low hop
 press A 1
 wait 7
-expect py > 70
+expect py > 100
 wait 40
 expect grounded == 1
 # held: a full jump
 hold A 8
 wait 7
-expect py < 60
+expect py < 90
 wait 40
 expect grounded == 1
 # double jump, once
@@ -35,7 +35,7 @@ expect jumps == 0
 # jump in mid-air: that is the double jump, and it saves her
 cheat cam 340
 cheat clear_foes
-cheat put 80 83
+cheat put 80 115
 wait 30
 expect grounded == 0
 expect spirit == 0
