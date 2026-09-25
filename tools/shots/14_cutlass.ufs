@@ -9,7 +9,8 @@ cheat level 4
 wait 200
 cheat meter 0 6
 cheat meter 1 6
-wait 282
+waituntil st0 == 6 3000
+wait 14
 shot cutlass_rally
 gifstart cutlass 3 2
 wait 420
