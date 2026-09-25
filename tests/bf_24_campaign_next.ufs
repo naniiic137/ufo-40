@@ -1,0 +1,24 @@
+# BANNERFALL: on the campaign map the next battle to win shows its name and
+# the troops it brings in, still locked (so battle 1's footmen are known to
+# be only the start); the battles after it stay hidden.
+game bannerfall
+wait 30
+press A
+wait 20
+expect state == 1
+expect camp_sel == 0
+expect camp_named == 1
+expect camp_new == 2
+press RIGHT
+wait 5
+expect camp_sel == 1
+expect camp_named == 1
+expect camp_new == 4
+press A
+wait 5
+expect camp_sel == 1
+expect state == 1
+press RIGHT
+wait 5
+expect camp_sel == 2
+expect camp_named == 0

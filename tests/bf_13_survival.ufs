@@ -1,10 +1,12 @@
 # BANNERFALL survival: the enemy keep has no banners; each turn you survive
-# scores 1, plus 1 more for every hit on their keep so far.
+# scores 1, plus 1 more for every hit on their keep so far. The two armies
+# draw their troops on their own (no matching spawns in survival).
 game bannerfall
 wait 5
 cheat survival
 expect flags_l == 3
 expect flags_r == 255
+expect matched == 0
 cheat clear
 cheat unit 7 2 1 0
 cheat endturn

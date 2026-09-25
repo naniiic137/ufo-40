@@ -1189,6 +1189,29 @@ static void draw_pool(const char *letters, int x, int y, int side, int maxw) {
     }
 }
 
+/* the troops a battle brings in that no earlier battle had (a bit per type;
+ * the champion called by promotions counts as the champion) */
+static int new_troops(int lvl) {
+    int seen = 0, here = 0;
+    for (int i = 0; i <= lvl; i++) {
+        const LevelDef *d = &BF_LEVELS_DEF[i];
+        int m = 0;
+        for (int side = 0; side < 2; side++) {
+            Army a;
+            memset(&a, 0, sizeof a);
+            bf_pool_from_letters(&a, side ? d->pool_r : d->pool_l);
+            for (int k = 0; k < a.pool_n; k++) m |= 1 << a.pool[k];
+        }
+        if (d->heroes) m |= 1 << U_CHAMP;
+        if (i < lvl) seen |= m;
+        else here = m;
+    }
+    return here & ~seen;
+}
+
+/* the next battle to win is shown, still locked: its name and new troops */
+static bool level_named(int i) { return level_open(i) || (i > 0 && level_open(i - 1)); }
+
 static void camp_pos(int i, int *x, int *y) {
     int r = i / 6, c = r % 2 ? 5 - i % 6 : i % 6;
     *x = 22 + c * 23;
@@ -1262,7 +1285,7 @@ static void draw_campaign(void) {
     ui_panel(160, 18, 156, 146, C_NIGHT, C_AMBER);
     snprintf(buf, sizeof buf, "BATTLE %d", level_sel + 1);
     tiny_draw(buf, 166, 23, C_GREY);
-    text_draw(level_open(level_sel) ? d->name : "? ? ?", 166, 31, C_YELLOW);
+    text_draw(level_named(level_sel) ? d->name : "? ? ?", 166, 31, C_YELLOW);
     if (level_open(level_sel)) {
         snprintf(buf, sizeof buf, "YOUR BANNERS %d", d->flags_l);
         tiny_draw(buf, 166, 44, C_CREAM);
@@ -1276,6 +1299,20 @@ static void draw_campaign(void) {
         } else tiny_draw("EVEN NUMBERS", 166, 104, C_GREY);
         if (d->heroes) tiny_draw("5 PROMOTIONS CALL A CHAMPION", 166, 112, C_YELLOW);
         if ((sv.beaten >> level_sel) & 1) text_draw(GLYPH_CHECK " WON", 166, 124, C_LIME);
+    } else if (level_named(level_sel)) {
+        snprintf(buf, sizeof buf, "WIN BATTLE %d TO OPEN IT", level_sel);
+        tiny_draw(buf, 166, 44, C_SLATE);
+        int nt = new_troops(level_sel), row = 0;
+        if (nt) tiny_draw("NEW TROOPS", 166, 58, C_YELLOW);
+        for (int t = U_FOOT; t < U_TYPES; t++) {
+            if (!((nt >> t) & 1)) continue;
+            int yy = 68 + row * 22;
+            spr_draw_ex(&bf_spr[unit_sprite(t, 0)], 166, yy, 0, BF_TEAM_MAP[0], -1);
+            tiny_draw(BF_UNITS[t].name, 186, yy + 1, C_CREAM);
+            tiny_draw(BF_UNITS[t].line1, 186, yy + 9, C_GREY);
+            row++;
+        }
+        if (!nt) tiny_draw("NO NEW TROOPS", 166, 58, C_GREY);
     } else {
         text_draw("WIN THE BATTLE\nBEFORE IT FIRST.", 166, 48, C_SLATE);
     }
@@ -1537,6 +1574,9 @@ static void bf_label(int x, int y, int w, int h, int t) {
 }
 
 static int bf_query(const char *key, int *out) {
+    if (!strcmp(key, "camp_sel")) { *out = level_sel; return 1; }
+    if (!strcmp(key, "camp_named")) { *out = level_named(level_sel); return 1; }
+    if (!strcmp(key, "camp_new")) { *out = new_troops(level_sel); return 1; }
     if (!strcmp(key, "state")) { *out = state; return 1; }
     if (!strcmp(key, "sub")) { *out = sub; return 1; }
     if (!strcmp(key, "plan_t")) { *out = plan_t; return 1; }

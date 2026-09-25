@@ -36,7 +36,7 @@ const LevelDef BF_LEVELS_DEF[BF_LEVELS] = {
     {"HOLLOW WOODS", 5, 5, "SRFFXX", "FFRPPW", 40, 0, NULL},
     {"CALL TO ARMS", 5, 5, "RBFFWXPS", "FFBRSPXW", 60, 0, NULL},
     {"CROWDED LANES", 5, 5, "RBFWWXPS", "FBRSPXWW", 60, 0, NULL},
-    {"CHAMPIONS RISE", 5, 5, "WSBC", "FBRSPX", 100, 0, "THE CHAMPION: A PIKE'S REACH AND A RIDER'S LEGS."},
+    {"CHAMPIONS RISE", 5, 5, "WSBC", "FBRSPX", 100, 0, NULL},
     {"PLAIN STEEL", 5, 5, "FFFF", "FFBRSPXW", 20, 0, NULL},
     {"BARRELS AND BOWS", 5, 5, "XXBB", "SSPP", 60, 0, NULL},
     {"THE GREY FIELD", 5, 5, "RBFFWXPS", "FFBRSPXW", 70, 0, NULL},
@@ -163,7 +163,6 @@ void bf_setup_survival(Board *b, uint64_t seed) {
     bf_pool_from_letters(&b->a[SIDE_R], FULL_POOL);
     b->a[SIDE_R].flags = b->a[SIDE_R].start_flags = BF_NO_FLAGS;
     b->a[SIDE_L].heroes = 1;
-    b->matched = 1;
 }
 
 /* ------------------------------------------------------------------ */
