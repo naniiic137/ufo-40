@@ -5,7 +5,7 @@
 <h1 align="center">UFO 40</h1>
 
 <p align="center">
-  <b>A pretend 1980s console with forty cartridges (well, six so far), built from scratch<br>
+  <b>A pretend 1980s console with forty cartridges (well, seven so far), built from scratch<br>
   for the PlayStation Vita, Windows and the web.</b><br><br>
   <a href="https://naniiic137.github.io/ufo-40/"><b>▶ Play it in your browser</b></a> ·
   <a href="https://github.com/naniiic137/ufo-40/releases">Download for Vita / Windows</a>
@@ -36,7 +36,7 @@ on **Windows/Linux** and in the **browser** through Emscripten. A headless build
 drives the whole console from scripted input for testing and for every
 screenshot and GIF on this page.
 
-## The library (6 of 40 loaded)
+## The library (7 of 40 loaded)
 
 <p align="center"><img src="docs/shots/library.png" width="640" alt="The UFO 40 game library with 40 cartridge slots"></p>
 
@@ -48,6 +48,7 @@ screenshot and GIF on this page.
 | 09 | **BANNERFALL** | strategy | The Marigold Guard holds a meadow against the Thistle Host. Drag your troops between six lanes before the drums sound; eight unit types, a 24-battle campaign, ranked, survival and 2P versus. |
 | 14 | **CUTLASS CUP** | sports | Six corsairs knock a ball past each other on a galley deck: lobs, curve shots, secondary weapons and super shots, in a tournament, 2P versus or 2P co-op doubles. |
 | 15 | **FENNEC FOUNTAIN** | puzzle | Fen the fennec pushes numbered stones to unplug the oasis springs. Big numbers push small ones and 1s add up; fifty rooms around a hub garden, plus a room editor. |
+| 16 | **TINTAIL** | puzzle | Kama the chameleon sneaks across Salt Island past toads and storks by taking the colour of the ground. Fifteen single-screen levels, pears and lost hatchlings to carry home. |
 | other | *coming soon* | | still in the saucer's cargo hold |
 
 Every cartridge has three goals: a **Beacon** (a side challenge), the
@@ -193,6 +194,32 @@ Meet the quota before the last shift ends:
   drops, and a workshop for building ten rooms of your own.
 - **Ours:** Fen and Zizi the fennecs, Grand Vizier Humph and his bath, the
   oasis garden, all fifty rooms (every wall and every block) and the music.
+
+### 16 · TINTAIL
+
+<p align="center">
+  <img src="docs/shots/tintail.gif" width="640" alt="Tintail: Kama changes colour to slip past three watching toads">
+</p>
+<p align="center">
+  <img src="docs/shots/tintail_danger.png" width="320" alt="Holding B shows every predator's danger area">
+  <img src="docs/shots/tintail_map.png" width="320" alt="The Salt Island map">
+</p>
+
+*A tribute to **Camouflage** (UFO 50 #16).*
+
+- **Plays the same:** a grid stealth puzzle in real time. Kama takes the
+  colour of the tile she stands on; matching the ground, she walks through a
+  predator's sight unseen. One colour at a time, and she's exposed while she
+  changes, so every crossing has to be planned a step ahead.
+- **The island:** toads watch fixed areas, storks walk fixed loops (they block
+  the toads' view, and walk into you whatever colour you are), hollow logs
+  hide you, and sun and rain pads dry or wet the grass. A button shows every
+  danger area, and if you're eaten you can undo a few steps.
+- **Structure:** fifteen single-screen levels in order across the island,
+  each with two prickly pears and a hatchling that follows one step behind.
+  Only the best single escape counts toward completion.
+- **Ours:** Kama, the toads, storks and falcon, Salt Island and the Sun Gate,
+  all fifteen levels (a solver in the tests proves each one), and the music.
 
 ## Install on PS Vita
 
