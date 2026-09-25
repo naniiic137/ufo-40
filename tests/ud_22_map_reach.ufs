@@ -1,0 +1,8 @@
+# UNDERDELVE: Mo's jump is one fixed arc that only carries his walking speed.
+# The 64 rooms were first built around a longer jump; this walks and jumps
+# every room from every way in (all gates open) and checks that no spot that
+# jump reached is out of reach now. It also checks the map's edges line up.
+game underdelve
+wait 5
+expect reach_lost == 0
+expect map_errors == 0

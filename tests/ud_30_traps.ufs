@@ -1,0 +1,37 @@
+# UNDERDELVE: traps. The floor right of Mo's start is a trigger (a faint seam
+# across its top is the only tell): step on it and a loose rock drops from
+# the ceiling above. Keep walking and it misses; it stays where it lands, in
+# the way back. Stop on the trigger and it kills. Jump over it and nothing
+# happens. Other traps wait across the mine.
+game underdelve
+wait 15
+expect px == 35
+expect tile_3_1 == 65
+hold RIGHT 60
+expect deaths == 0
+expect tile_3_1 == 46
+expect tile_3_8 == 97
+hold LEFT 40
+expect px == 64
+cheat newgame
+wait 5
+hold RIGHT 10
+wait 60
+expect deaths == 1
+expect lanterns == 5
+wait 120
+expect state == 1
+cheat newgame
+wait 5
+hold RIGHT+A 3
+hold RIGHT 45
+expect deaths == 0
+expect tile_3_1 == 65
+cheat no_gloom
+cheat room 1 3 110 130
+cheat clear_enemies
+wait 5
+expect tile_3_1 == 65
+hold LEFT 60
+wait 60
+expect deaths == 1

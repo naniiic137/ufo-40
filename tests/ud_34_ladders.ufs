@@ -1,0 +1,23 @@
+# UNDERDELVE: ladders are taken hold of from the ground only. A jump past a
+# ladder with UP held stays a jump (every jump is committed); standing, UP
+# takes the ladder, even one whose foot is just above Mo's head.
+game underdelve
+wait 15
+cheat no_gloom
+cheat pos 83 130
+wait 10
+expect grounded == 1
+press A
+hold UP 15
+expect grounded == 0
+expect climbing == 0
+wait 40
+expect grounded == 1
+hold UP 5
+expect climbing == 1
+cheat room 2 2 243 130
+cheat clear_enemies
+wait 20
+expect climbing == 0
+hold UP 20
+expect climbing == 1

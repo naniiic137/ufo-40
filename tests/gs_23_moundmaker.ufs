@@ -1,19 +1,46 @@
-# GRUB SHIFT: a moundmaker that grows up raises its own tile and flattens
-# the planters beside it.
+# GRUB SHIFT: a moundmaker makes itself a private planter: when it grows up
+# it raises its own tile and flattens the planters beside it (not diagonal
+# ones, not one holding a pod, not one under another moundmaker). It does
+# this once, when it appears.
 game grubshift
 wait 5
 cheat contract 1 7
 cheat clear
-cheat evolvers 1 1
 cheat tilly 0 0
+# a larva shoved into sour pods grows up on the spot
 cheat bug 3 2 3 0
-cheat elev 4 2 1
-cheat elev 3 1 1
+cheat sour 4 2 1
+cheat elev 5 2 1
+cheat elev 4 1 1
 cheat elev 4 3 1
+cheat elev 5 3 1
+cheat pods 4 3 1
+cheat tilly 2 2
+cheat use 0 3 2
+expect lv_at42 == 1
+expect elev_at42 == 1
+expect elev_at41 == 0
+expect elev_at52 == 0
+expect elev_at43 == 1
+expect elev_at53 == 1
+# a second moundmaker next door keeps its planter
+cheat clear
+cheat tilly 0 0
+cheat bug 2 2 3 1
+cheat bug 3 3 3 0
+cheat elev 2 2 1
+cheat sour 3 2 1
+cheat tilly 3 4
+cheat use 1 3 3
+expect lv_at32 == 1
+cheat tilly 0 0
+expect elev_at22 == 1
+# only once: the next morning's ground is dealt afresh and the moundmaker
+# (grown into a queen overnight) does not raise its planter again
+cheat clear
+cheat tilly 0 0
+cheat bug 3 2 3 1
 cheat rest
 wait 120
-expect lv_at32 == 1
-expect elev_at32 == 1
-expect elev_at42 == 0
-expect elev_at31 == 0
-expect elev_at43 == 1
+expect lv_at32 == 2
+expect elev_at32 == 0

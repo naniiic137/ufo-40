@@ -69,8 +69,8 @@ and the music and sound volumes are in every game's pause menu too.
 
 | # | Cartridge | Tribute to | What plays the same | What's ours |
 |---|---|---|---|---|
-| 01 | **UNDERDELVE** | Barbuta | an 8×8 wrapping map, one-hit deaths and six lives, committed jumps, a roaming death that moves whenever you change room, items that open the way, three paths to the final boss | Mo the mole, a dark mine, the Gloom, 64 new screens |
-| 02 | **GRUB SHIFT** | Bug Hunter | a random 6×5 field, seven one-shot tool modules, energy pods that blow up in threes, grubs that evolve by colour, a daily shop, a kill quota | Tilly the farm robot, the grub species, 41 tools |
+| 01 | **UNDERDELVE** | Barbuta | an 8×8 wrapping map, one-hit deaths, six spare lives and no continue, one fixed jump with no air control, a roaming death that moves a room whenever you do, traps, hidden walls and ladders, hint-givers, a death taken on purpose, items that open the way, three paths to the final boss | Mo the mole, a dark mine, the Gloom, the glow-worms, 64 new screens |
+| 02 | **GRUB SHIFT** | Bug Hunter | a 6×5 field dealt afresh each morning, seven tools that each work once a shift, a shop open any time, pods that blow up in threes, grubs that grow by colour into adults, queens and eggs, 30 kills in 10, 9 or 8 shifts | Tilly the farm robot, the grub species, 41 tools |
 | 03 | **ROOFCAT** | Ninpek | one long auto-scrolling town of stacked rooftops where left walks you back against the scroll, high and double jumps, one star at a time (three, farther and faster, with power-ups), points only from eggs, a spirit that floats back after a death, two bonus stretches, a 35-hit boss hit only in the eye, a harder second loop | Pepper the courier cat, a whitewashed seaside town, Old Crab |
 | 05 | **PETAL PARADE** | Magic Garden | a 12×12 field, a trail of followers you must never run into, saving them on star pads for rising points, potions by strength, a witch who plants mushrooms | Lina the gardener, petalpups, sun circles, Madame Nettle |
 | 06 | **TIN TROOP** | Mortol | 20 lives that carry through ten levels, the arrow, bomb and stone sacrifices, bodies as ledges and weights, water, fire and plants, a ship that drops the next life | a toy army in a toymaker's house, the Jack of the Chest, 10 new levels |
@@ -96,7 +96,7 @@ cartridge in the library.
   <img src="docs/shots/underdelve.gif" width="640" alt="Underdelve gameplay: Mo the mole swings his pick in the Glowcap Grotto">
 </p>
 <p align="center">
-  <img src="docs/shots/underdelve_title.png" width="320" alt="Underdelve title">
+  <img src="docs/shots/underdelve_camp.png" width="320" alt="Mo's camp, where the cartridge starts">
   <img src="docs/shots/underdelve_grotto.png" width="320" alt="The Glowcap Grotto">
 </p>
 
@@ -104,15 +104,23 @@ An 8×8 mine that wraps round at the sides, in four zones: the Ember Deep at
 the bottom, then the Crystal Veins, the Glowcap Hollows and the headframe at
 the top.
 
-- **Plays like Barbuta:** any touch costs one of six lanterns. Jumps are
-  locked in once you leave the ground. Foes come back when you re-enter a
-  room and show no damage until they die. The Gloom moves one room every
-  time you change room. Items open the way: a copper pot for drips, a tuning
-  fork for crystal, a gear crank for the lifts, gloves, a key, a canary and a
-  hungry pick. There are three ways up to the Old Lode: a lever, the Deep
-  Gate and a 500-ore sledgehammer.
-- **Ours:** Mo the mole, the mine and its 64 screens, the shopkeepers and
-  every tile.
+- **Plays like Barbuta:** it boots straight into the mine. Any touch kills;
+  Mo has six spare lanterns, then the delve is over, with no continue. He
+  walks slowly, his pick barely reaches, and his one fixed jump can't be
+  steered once he leaves the ground. Foes come back when you re-enter a room
+  and show no damage until they die. The Gloom moves one room whenever Mo
+  does; if it finds him it rises in the middle and comes at twice his speed.
+  Nothing is explained. The first step right from the camp drops a rock
+  from the ceiling; walls hide gems, cracked rock gives way to the pick,
+  ladders and ledges hide, still pools are safe and churning ones aren't,
+  and one death must be taken on purpose. Glow-worms each give one
+  cryptic hint. Items open the way: a copper pot for drips, a tuning
+  fork for crystal, a gear crank for the lifts, gloves, a brass tally, a
+  canary and a hungry pick. There are three ways up to the Old Lode: a
+  lever, the Deep Gate and a 500-ore sledgehammer.
+- **Ours:** Mo the mole, the mine and its 64 screens, and its plan: which
+  room sits where and how the rooms join (only the coarse structure is
+  Barbuta's). The shopkeepers and glow-worms, every tile and the music.
 
 <details>
 <summary>The whole mine: all 64 screens, stitched from headless screenshots (spoilers)</summary>
@@ -131,11 +139,15 @@ the top.
   <img src="docs/shots/grubshift_target.png" width="320" alt="Aiming a toss">
 </p>
 
-- **Plays like Bug Hunter:** a new 6×5 field every contract and seven tool
-  slots that each work once per shift. Energy pods blow up when three share a
-  tile. A grub's colour decides what it grows into, and a hatched egg fails
-  the contract. A shop of new tools opens each morning, and you have 30 grubs
-  to clear before the days run out.
+- **Plays like Bug Hunter:** a 6×5 field whose ground is dealt afresh each
+  morning, and seven tool slots that each work once per shift. The shop is
+  open any time: swap a tool in and use it at once. Rolls shove grubs and
+  squash them from planters; shots can't go uphill. Energy pods blow up when
+  three share a tile. Each night one colour whose grubs survived grows a
+  level (larva, adult, queen), and its new grubs hatch at that level;
+  queens left overnight turn into eggs, and an egg left at the end of a
+  shift fails the contract. Clear 30 grubs before the shifts run out; stop
+  after a win and the streak waits for you.
 - **Ours:** Tilly the farm robot, the dome, the grub species and the names
   and looks of all 41 tools. Three contracts in a row make Employee of the
   Month.
@@ -565,8 +577,13 @@ src/platform/headless/ scripted test runner, PNG / GIF / WAV writers, Vita LiveA
 - **Testing.**
   - Tests are plain text scripts (`tests/*.ufs`) that press buttons, wait,
     use cheats to set up situations and then `expect` game state.
-  - Grub Shift keeps its rules in one pure struct. A greedy autoplay bot plays
-    whole contracts from it as a balance smoke test.
+  - Grub Shift keeps its rules in one pure struct. An autoplay bot that looks
+    two moves ahead plays whole contracts from it as a balance smoke test.
+  - Underdelve checks its mine with probes built on its own physics: every
+    room walked and jumped from every way in, the rooms reachable from the
+    camp with each route into the tower, and no way into a room that drops a
+    returning Mo onto spikes. Its opening and the smith's way into the
+    tower are also played by buttons alone.
   - Tin Troop has a route test for every level that plays its obstacles the
     intended way, and Skywell has a demo climber that checks generated pits
     can be climbed.
@@ -579,11 +596,9 @@ Example test (`tests/ud_02_hazard_death.ufs`):
 # UNDERDELVE: spikes kill in one hit; a lantern goes out and Mo comes back
 # where he entered the room.
 game underdelve
-wait 10
-press A
-wait 5
+wait 15
 cheat no_gloom
-cheat room 5 0 170 130
+cheat room 1 0 170 130
 cheat clear_enemies
 wait 5
 expect lanterns == 6

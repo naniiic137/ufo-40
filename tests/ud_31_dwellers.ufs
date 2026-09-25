@@ -1,0 +1,16 @@
+# UNDERDELVE: cave dwellers. Glow-worms live in a few rooms; press UP beside
+# one and it says its one cryptic line (a hint about the altar, the still
+# pools, the dead man's door, the mirrored carving or the fake walls).
+game underdelve
+wait 15
+cheat no_gloom
+cheat room 1 2 10 130
+cheat clear_enemies
+wait 5
+expect hint == 0
+hold RIGHT 30
+press UP
+wait 5
+expect hint == 1
+wait 400
+expect hint == 0

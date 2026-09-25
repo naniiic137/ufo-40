@@ -1,0 +1,28 @@
+# UNDERDELVE: the hungry pick, by buttons alone. Shove the crates in the
+# block room and the hole under them drops Mo down a shaft onto spikes. That
+# death costs a lantern, and he comes back in the sealed chamber beside the
+# shaft, where only the dead can go; a hop over a gap in its floor, and the
+# chest there holds the hungry pick.
+game underdelve
+wait 15
+cheat no_gloom
+cheat room 0 5 60 130
+cheat clear_enemies
+hold RIGHT 150
+expect room_x == 0
+expect room_y == 6
+wait 120
+expect deaths == 1
+expect lanterns == 5
+expect state == 1
+expect px > 200
+expect py < 40
+hold RIGHT 8
+hold RIGHT+A 3
+hold RIGHT 20
+expect py < 40
+press B
+wait 20
+expect weapon == 2
+expect items & 128
+expect deaths == 1

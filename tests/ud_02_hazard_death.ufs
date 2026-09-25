@@ -1,11 +1,9 @@
 # UNDERDELVE: spikes kill in one hit; a lantern goes out and Mo comes back
 # where he entered the room.
 game underdelve
-wait 10
-press A
-wait 5
+wait 15
 cheat no_gloom
-cheat room 5 0 170 130
+cheat room 1 0 170 130
 cheat clear_enemies
 wait 5
 expect lanterns == 6

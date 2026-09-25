@@ -1,17 +1,15 @@
 # UNDERDELVE: ceiling drips are deadly until Mo wears the copper pot.
 game underdelve
-wait 10
-press A
-wait 5
+wait 15
 cheat no_gloom
-cheat room 3 1 5 130
+cheat room 3 4 5 130
 cheat clear_enemies
 wait 5
 hold RIGHT 320
 expect deaths >= 1
 cheat lanterns 6
 cheat give 1
-cheat room 3 1 5 130
+cheat room 3 4 5 130
 cheat clear_enemies
 wait 5
 hold RIGHT 340

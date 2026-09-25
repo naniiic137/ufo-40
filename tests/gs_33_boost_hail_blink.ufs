@@ -1,0 +1,32 @@
+# GRUB SHIFT: BOOST lets the straight tools reach all the way and in all 8
+# directions for the rest of the shift. BLINK can land on sour pods (and
+# pays for it). HAIL hits every planter, Tilly's own too if she stands on one.
+game grubshift
+wait 5
+cheat contract 1 7
+cheat clear
+cheat tilly 0 0
+cheat chip 6 30
+cheat use 6 0 0
+expect fx & 2
+cheat bug 4 4 1 0
+cheat use 5 4 4
+expect kills == 1
+cheat clear
+cheat tilly 0 0
+cheat energy 3
+cheat sour 5 4 1
+cheat chip 3 7
+cheat use 3 5 4
+expect px == 5
+expect py == 4
+expect energy == 2
+cheat clear
+cheat tilly 2 2
+cheat elev 2 2 1
+cheat elev 4 4 1
+cheat bug 4 4 1 0
+cheat chip 4 21
+cheat use 4 2 2
+expect kills == 2
+expect status == 2

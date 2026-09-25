@@ -1,11 +1,9 @@
 # UNDERDELVE: crystal bubbles shrug off the pick until Mo carries the tuning
 # fork; then a strike pops them.
 game underdelve
-wait 10
-press A
-wait 5
+wait 15
 cheat no_gloom
-cheat room 5 2 236 130
+cheat room 3 2 236 130
 cheat clear_enemies
 wait 10
 press B

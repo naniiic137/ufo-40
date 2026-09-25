@@ -1,18 +1,39 @@
-# GRUB SHIFT: buying through the shop UI and resting through the REST button.
+# GRUB SHIFT: buying through the shop with real buttons, as in Bug Hunter:
+# highlight a tool, press DOWN to open the shop for it, pick an offer and
+# press A. The bought tool replaces that slot and works at once, and the shop
+# fills the gap with another tool of the same price. CLOCK OUT ends the shift.
 game grubshift
 wait 5
 cheat contract 1 7
 cheat energy 4
 cheat shop 6 17
 wait 5
-press UP
+expect focus == 0
+expect hand_sel == 0
+press DOWN
 wait 2
-press A
+expect focus == 1
+press DOWN
+press DOWN
+press DOWN
 wait 2
+expect shop_sel == 6
 press A
 wait 2
 expect chip0 == 17
+expect spent0 == 0
 expect energy == 0
+expect focus == 0
+expect shop6 != 17
+expect shop6 != 255
+expect cost6 == 4
+# B closes the shop without buying
+press DOWN
+wait 2
+expect focus == 1
+press B
+wait 2
+expect focus == 0
 press RIGHT
 press RIGHT
 press RIGHT
@@ -21,6 +42,7 @@ press RIGHT
 press RIGHT
 press RIGHT
 wait 2
+expect hand_sel == 7
 press A
 wait 2
 expect day == 2

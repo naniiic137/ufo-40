@@ -9,26 +9,29 @@
 #define PW 10           /* player hitbox */
 #define PH 14
 #define GRAV 0.20f
-#define JUMP_V (-3.72f)
-#define WALK 1.0f
-#define JUMP_DX 1.25f
+#define JUMP_V (-3.72f) /* one fixed jump: a little over two tiles high */
+#define WALK 1.0f       /* slow and stiff: full speed at once, no run */
+#define JUMP_DX WALK    /* a jump carries Mo's walking speed, no more */
 #define MAX_FALL 4.0f
 #define CLIMB_SLOW 0.75f
 #define CLIMB_FAST 1.5f
-#define MAX_LANTERNS 6
+#define GLOOM_SPEED 2.0f /* twice Mo's pace: much faster than he is */
+#define GLOOM_RISE 40    /* frames it takes to rise before it can move or touch */
+#define MAX_LANTERNS 6   /* spare lives: with the one Mo is on, seven in all */
 #define BOSS_HP 8
 #define SMITH_PRICE 500
 #define LANTERN_PRICE 100
 #define VISIT_GOAL 25
 #define PUSH_FRAMES 24
 #define ALTAR_FRAMES 120
+#define RELIGHT_FRAMES 40 /* the lantern flickers alight before Mo can move again */
 
-enum { ST_TITLE, ST_PLAY, ST_DYING, ST_GAMEOVER, ST_VIEW, ST_ENDING };
-enum { W_PICK = 0, W_ROD, W_HUNGRY };
+enum { ST_TITLE, ST_PLAY, ST_DYING, ST_GAMEOVER, ST_VIEW, ST_ENDING, ST_RELIGHT };
+enum { W_PICK = 0, W_SPARKER, W_HUNGRY };
 
-/* the key ladders: four ladders in KEY LADDERS, climbed in this order */
-#define KEY_ROOM_X 3
-#define KEY_ROOM_Y 4
+/* the tally ladders: four ladders in TALLY LADDERS, climbed in this order */
+#define KEY_ROOM_X 2
+#define KEY_ROOM_Y 5
 static const int KEY_LADDER_COL[4] = {3, 7, 13, 17};
 static const int KEY_ORDER[4] = {2, 0, 3, 1};
 
@@ -61,7 +64,7 @@ static Run run;
 
 enum {
     E_NONE, E_MOTH, E_TOAD, E_GRUB, E_SPITTER, E_SWOOPER, E_SACK, E_BEETLE, E_WISP, E_GLOOM, E_BOSS,
-    E_AXE, E_SHARD, E_DRIP, E_BOLT, E_LOOT, E_PUFF, E_CANARY, E_DEBRIS
+    E_AXE, E_SHARD, E_DRIP, E_BOLT, E_LOOT, E_PUFF, E_CANARY, E_DEBRIS, E_ROCK
 };
 #define IS_FOE(t) ((t) >= E_MOTH && (t) <= E_BOSS && (t) != E_GLOOM)
 
@@ -111,14 +114,17 @@ typedef struct Player {
     int climb_col; /* ladder column being climbed */
 } Player;
 static Player pl;
+static float jump_dx = JUMP_DX; /* a variable only so the jump probe can compare speeds */
 
 static int shake, frame_t, room_t;
+static const char *hint_line; /* a cave dweller's line, shown while hint_t counts down */
+static int hint_t;
 static bool arena_sealed;
 static int boss_i = -1;
 static int gloom_timer;
 static int crumble_hits;
 static int key_step;
-static bool died_on_sacrifice;
+static bool last_life; /* the death in progress ends the delve */
 static bool sheet_mode;
 static int ending_t;
 static Rng rng;
@@ -148,6 +154,7 @@ static char tile(int tx, int ty) {
 static bool solid_char(char c) {
     switch (c) {
     case '#': case 'B': case 'X': case 'D': case 'I': case 'U': case 'P': case 'j': return true;
+    case 'x': case 'A': case 'a': return true; /* a trap's trigger, its loose rock, the rock fallen */
     case 'G': return !run.gate_open;
     case 'Q': return !run.lever;
     case 'W': return !run.hammer;
@@ -280,9 +287,7 @@ static int enemy_hp(int type) {
 }
 
 static void add_enemy(int type, int tx, int ty) {
-    /* never spawn right on top of Mo (room entry or respawn) */
-    float dx = (float)(tx * 16 + 8) - (pl.x + PW / 2), dy = (float)(ty * 16 + 8) - (pl.y + PH / 2);
-    if (dx * dx + dy * dy < 40.0f * 40.0f) return;
+    /* every foe is always where the map puts it; none sits on a way in */
     Ent *e = spawn(type, (float)(tx * 16), (float)(ty * 16));
     if (!e) return;
     e->hp = enemy_hp(type);
@@ -291,7 +296,10 @@ static void add_enemy(int type, int tx, int ty) {
     case E_MOTH: e->w = 12; e->h = 9; e->x += 2; e->y += 3; break;
     case E_TOAD: e->w = 12; e->h = 9; e->x += 2; e->y += 7; e->t = 40 + rng_range(&rng, 0, 60); break;
     case E_GRUB: e->w = 13; e->h = 6; e->x += 1; e->y += 10; break;
-    case E_SPITTER: e->w = 14; e->h = 11; e->x += 1; e->y += 5; e->t = 60 + rng_range(&rng, 0, 50); break;
+    case E_SPITTER:
+        /* it never turns round: the map says which way it faces */
+        e->w = 14; e->h = 11; e->x += 1; e->y += 5; e->t = 60 + rng_range(&rng, 0, 50);
+        break;
     case E_SWOOPER: e->w = 10; e->h = 10; e->x += 3; e->y += 3; break;
     case E_SACK: e->w = 12; e->h = 12; e->x += 2; e->y += 4; break;
     case E_BEETLE: e->w = 14; e->h = 8; e->x += 1; e->y += 8; break;
@@ -348,12 +356,31 @@ static void gloom_step(void) {
     }
 }
 
+/* A trap: a floor tile that looks a little off ('x') and a loose rock in the
+ * ceiling above it ('A'). Stepping on the tile drops the rock down its
+ * column; it kills what it lands on and stays there as rock ('a'). */
+static void drop_trap(int tx, bool already) {
+    for (int ty = UD_ROOM_H - 1; ty >= 0; ty--) {
+        if (tiles[ty][tx] != 'A') continue;
+        tiles[ty][tx] = '.';
+        if (already) {
+            int land = ty;
+            while (land + 1 < UD_ROOM_H && !solid_char(tiles[land + 1][tx])) land++;
+            tiles[land][tx] = 'a';
+        } else {
+            Ent *e = spawn(E_ROCK, (float)(tx * 16), (float)(ty * 16));
+            if (e) { e->w = 16; e->h = 16; }
+        }
+    }
+}
+
 static void enter_room(bool reset_spawn) {
     memset(ents, 0, sizeof ents);
     boss_i = -1;
     arena_sealed = false;
     room_t = 0;
     crumble_hits = 0;
+    hint_t = 0;
     key_step = 0;
     pl.push_t = 0;
     pl.altar_t = 0;
@@ -367,7 +394,12 @@ static void enter_room(bool reset_spawn) {
             case 'm': add_enemy(E_MOTH, x, y); tiles[y][x] = '.'; break;
             case 't': add_enemy(E_TOAD, x, y); tiles[y][x] = '.'; break;
             case 'g': add_enemy(E_GRUB, x, y); tiles[y][x] = '.'; break;
-            case 'p': add_enemy(E_SPITTER, x, y); tiles[y][x] = '.'; break;
+            case 'p': case 'q': /* an axe newt facing left (p) or right (q) */
+                add_enemy(E_SPITTER, x, y);
+                for (int i = MAX_ENTS - 1; i >= 0; i--)
+                    if (ents[i].alive && ents[i].type == E_SPITTER && (int)ents[i].hx >> 4 == x && (int)ents[i].hy >> 4 == y) { ents[i].dir = c == 'q' ? 1 : -1; break; }
+                tiles[y][x] = '.';
+                break;
             case 'w': add_enemy(E_SWOOPER, x, y); tiles[y][x] = '.'; break;
             case 'k': add_enemy(E_SACK, x, y); tiles[y][x] = '.'; break;
             case 'e': add_enemy(E_BEETLE, x, y); tiles[y][x] = '.'; break;
@@ -375,6 +407,7 @@ static void enter_room(bool reset_spawn) {
             case 'b':
                 tiles[y][x] = '.';
                 if (!run.boss_dead) {
+                    /* the Old Lode waits overhead in its nest: the fight is on at once */
                     Ent *e = spawn(E_BOSS, (float)(x * 16 - 16), 24);
                     if (e) {
                         e->w = 40; e->h = 30; e->hp = BOSS_HP; e->state = 0; e->t = 60; e->dir = 1;
@@ -387,6 +420,10 @@ static void enter_room(bool reset_spawn) {
         }
         tiles[y][UD_ROOM_W] = 0;
     }
+    /* traps already sprung: their rock lies where it fell */
+    for (int y = 0; y < UD_ROOM_H; y++)
+        for (int x = 0; x < UD_ROOM_W; x++)
+            if (rd->rows[y][x] == 'x' && here_taken(x, y)) drop_trap(x, true);
     setup_lifts();
     /* the canary only comes out for the final fight */
     if ((run.items & UD_ITEM_CANARY) && boss_i >= 0) {
@@ -424,10 +461,11 @@ static void reset_player(void) {
 
 static void new_game(void) {
     memset(&run, 0, sizeof run);
+    last_life = false;
     run.lanterns = MAX_LANTERNS;
     run.weapon = W_PICK;
-    run.gloom_x = 5;
-    run.gloom_y = 2;
+    run.gloom_x = 2;
+    run.gloom_y = 6;
     reset_player();
     /* find the camp */
     for (int ry = 0; ry < UD_MAP_H; ry++)
@@ -451,6 +489,8 @@ static void new_game(void) {
     save_run();
 }
 
+static void place_at_spawn(void);
+
 static void continue_game(void) {
     if (!load_run(&run)) { new_game(); return; }
     reset_player();
@@ -461,26 +501,33 @@ static void continue_game(void) {
     state_t = 0;
     game_set_pausable(true);
     enter_room(false);
+    place_at_spawn();
 }
 
 /* ------------------------------------------------------------------ */
 /* player                                                               */
 
+/* One touch and Mo dies. With a spare lantern left, one goes out and he
+ * comes back in this room; with none left, the delve is over. The run is
+ * saved (or erased) at once, so quitting can't dodge a death. */
 static void kill_player(void) {
     if (state != ST_PLAY) return;
     state = ST_DYING;
     state_t = 0;
     run.deaths++;
-    run.lanterns = run.lanterns > 0 ? run.lanterns - 1 : 0;
+    last_life = run.lanterns == 0;
+    if (!last_life) run.lanterns--;
     shake = 10;
     sfx_play_name("ud_die");
+    if (last_life) game_save_erase(game_current_index());
+    else save_run();
 }
 
 /* the Gloom takes every lantern at once */
 static void gloom_catches(void) {
     if (state != ST_PLAY) return;
-    kill_player();
     run.lanterns = 0;
+    kill_player();
     shake = 20;
 }
 
@@ -491,12 +538,29 @@ static void hazards(void) {
         int ty = feet >> 4;
         char c = tile(tx, ty);
         if ((c == '^' || c == 'K') && (feet & 15) >= 8) {
-            died_on_sacrifice = c == 'K';
+            int ax, ay;
+            if (c == 'K' && room_has('r', &ax, &ay)) {
+                /* these spikes carry Mo somewhere the living can't reach */
+                run.spawn_x = (int16_t)(ax * 16 + 3);
+                run.spawn_y = (int16_t)(ay * 16 + 2);
+            }
             kill_player();
             return;
         }
         if (c == '~' && (feet & 15) >= 7) { kill_player(); return; }
     }
+}
+
+/* stepping onto a trap's floor tile springs it */
+static void check_traps(void) {
+    if (!pl.ground || pl.climbing) return;
+    int cx = ((int)pl.x + PW / 2) >> 4, fy = ((int)pl.y + PH) >> 4;
+    if (tile(cx, fy) != 'x' || here_taken(cx, fy)) return;
+    taken_set(cx, fy);
+    drop_trap(cx, false);
+    sfx_play_name("ud_slam");
+    shake = 3;
+    save_run();
 }
 
 static bool can_stand_at(float x, float feet_y) {
@@ -532,7 +596,7 @@ static void move_x(float dx) {
         if (box_solid(pl.x + s, pl.y, PW, PH)) {
             int tx = (int)(s > 0 ? pl.x + PW : pl.x - 1) >> 4;
             for (int ty = (int)pl.y >> 4; ty <= ((int)pl.y + PH - 1) >> 4; ty++)
-                if (tile(tx, ty) == 'G' && !run.gate_open && (run.items & UD_ITEM_KEY)) {
+                if (tile(tx, ty) == 'G' && !run.gate_open && (run.items & UD_ITEM_TALLY)) {
                     run.gate_open = 1;
                     sfx_play_name("ud_gate");
                     shake = 12;
@@ -632,7 +696,7 @@ static void start_climb(int ltx) {
         if (tile(ltx, ty) == 'h') taken_set(ltx, ty);
 }
 
-/* the key ladders: reaching the top of each one, in the right order */
+/* the tally ladders: reaching the top of each one, in the right order */
 static void key_ladder_top(int col) {
     if (!here(KEY_ROOM_X, KEY_ROOM_Y) || run.key_solved) return;
     int which = -1;
@@ -674,7 +738,7 @@ static void update_player(void) {
         if (btnp(BTN_A) && dir != 0) {
             pl.climbing = false;
             pl.vy = -2.6f;
-            pl.vx = dir * JUMP_DX;
+            pl.vx = dir * jump_dx;
             pl.face = dir;
             sfx_play_name("ud_jump");
             return;
@@ -697,8 +761,8 @@ static void update_player(void) {
             int top_ty = ((int)ny + 2) >> 4;
             char above = tile_any(ltx, ((int)floorf(ny)) >> 4);
             if ((above == 'G' && !run.gate_open) || (above == 'Q' && !run.lever)) {
-                /* a gate or slab over the shaft: the brass key opens the gate */
-                if (above == 'G' && (run.items & UD_ITEM_KEY)) {
+                /* a gate or slab over the shaft: the brass tally opens the gate */
+                if (above == 'G' && (run.items & UD_ITEM_TALLY)) {
                     run.gate_open = 1;
                     sfx_play_name("ud_gate");
                     shake = 12;
@@ -742,7 +806,9 @@ static void update_player(void) {
 
     /* ---- grab a ladder ---- */
     int ltx;
-    if (btn(BTN_UP) && overlapping_ladder(&ltx) && pl.attack == 0) {
+    /* ladders are taken hold of from the ground only: no catching one in
+     * mid-air, so every jump and every fall stays committed */
+    if (btn(BTN_UP) && pl.ground && overlapping_ladder(&ltx) && pl.attack == 0) {
         /* avoid re-grabbing a ladder top we stand on */
         int feet_ty = ((int)pl.y + PH) >> 4;
         bool top_only = pl.ground && !is_ladder(ltx, ((int)pl.y + PH - 1) >> 4) && is_ladder(ltx, feet_ty);
@@ -757,11 +823,19 @@ static void update_player(void) {
             return;
         }
     }
-    if (!pl.ground && (btn(BTN_UP) || btn(BTN_DOWN)) && overlapping_ladder(&ltx)) { start_climb(ltx); return; }
+    if (btn(BTN_UP) && pl.ground && pl.attack == 0) {
+        /* reaching up for a ladder whose foot is just over Mo's head */
+        int cx = ((int)pl.x + PW / 2) >> 4, above = ((int)pl.y - 4) >> 4;
+        if (above >= 0 && is_ladder(cx, above) && !is_ladder(cx, ((int)pl.y) >> 4)) {
+            pl.y = (float)(above * 16 + 16 - 6);
+            start_climb(cx);
+            return;
+        }
+    }
 
     /* ---- attack ---- */
     if (btnp(BTN_B) && pl.attack == 0) {
-        if (run.weapon == W_ROD) {
+        if (run.weapon == W_SPARKER) {
             if (pl.rod_cd == 0) {
                 int bolts = 0;
                 for (int i = 0; i < MAX_ENTS; i++) bolts += ents[i].alive && ents[i].type == E_BOLT;
@@ -780,19 +854,19 @@ static void update_player(void) {
     }
     if (pl.attack > 0) {
         pl.attack--;
-        if (run.weapon != W_ROD && pl.attack == 10) player_attack_hit();
+        if (run.weapon != W_SPARKER && pl.attack == 10) player_attack_hit();
     }
 
     /* ---- walking / jumping ---- */
     if (pl.ground) {
-        if (pl.attack > 0 && run.weapon != W_ROD) pl.vx = 0;
+        if (pl.attack > 0 && run.weapon != W_SPARKER) pl.vx = 0;
         else {
             pl.vx = dir * WALK;
             if (dir) pl.face = dir;
         }
-        if (btnp(BTN_A) && !(pl.attack > 0 && run.weapon != W_ROD)) {
+        if (btnp(BTN_A) && !(pl.attack > 0 && run.weapon != W_SPARKER)) {
             pl.vy = JUMP_V;
-            pl.vx = dir * JUMP_DX;
+            pl.vx = dir * jump_dx;
             pl.ground = false;
             pl.lift_on = -1;
             sfx_play_name("ud_jump");
@@ -897,7 +971,7 @@ static void give(uint16_t what, float x, float y) {
     sfx_play_name("ud_item");
     static const struct { uint16_t bit; int icon; } ICONS[] = {
         {UD_ITEM_POT, S_I_POT}, {UD_ITEM_FORK, S_I_FORK}, {UD_ITEM_CRANK, S_I_CRANK}, {UD_ITEM_GLOVES, S_I_GLOVES},
-        {UD_ITEM_KEY, S_I_KEY}, {UD_ITEM_CANARY, S_I_CANARY}, {UD_ITEM_ROD, S_I_ROD}, {UD_ITEM_HUNGRY, S_I_HUNGRY},
+        {UD_ITEM_TALLY, S_I_TALLY}, {UD_ITEM_CANARY, S_I_CANARY}, {UD_ITEM_SPARKER, S_I_SPARKER}, {UD_ITEM_HUNGRY, S_I_HUNGRY},
         {UD_ITEM_BOOT, S_I_BOOT},
     };
     for (int i = 0; i < ARRAY_LEN(ICONS); i++)
@@ -910,6 +984,18 @@ static bool chest_hidden(int tx, int ty) {
 }
 
 /* the weapon strikes whatever tile is in front of Mo */
+/* ore inside a room's crumbly wall (none where the wall hides a way on or
+ * a gem behind it) */
+static int crumbly_ore(void) {
+    static const struct { const char *room; int ore; } ORE[] = {
+        {"CRUMBLY STRONGROOM", 50},
+        {"HEADFRAME STAIRS", 100},
+    };
+    for (int i = 0; i < ARRAY_LEN(ORE); i++)
+        if (!strcmp(ORE[i].room, R()->name)) return ORE[i].ore;
+    return 0;
+}
+
 static void strike_tile(int tx, int ty) {
     char c = tile(tx, ty);
     if ((c == 'c' || c == 'C') && !here_taken(tx, ty) && !chest_hidden(tx, ty)) {
@@ -927,7 +1013,8 @@ static void strike_tile(int tx, int ty) {
             sfx_play_name("ud_clink");
         }
     } else if (c == 'U') {
-        /* a crumbly wall gives way after a few blows, and ore drops out */
+        /* a crumbly wall gives way after a few blows: behind it a way on,
+         * or ore in the rock itself (how much depends on the wall) */
         if (++crumble_hits >= 3) {
             for (int y = 0; y < UD_ROOM_H; y++)
                 for (int x = 0; x < UD_ROOM_W; x++)
@@ -935,7 +1022,8 @@ static void strike_tile(int tx, int ty) {
             debris((float)(tx * 16 + 8), (float)(ty * 16 + 8), C_TAN, 12);
             sfx_play_name("ud_shatter");
             shake = 6;
-            give(UD_MONEY | 50, (float)(tx * 16 + 2), (float)(ty * 16));
+            int ore = crumbly_ore();
+            if (ore) give((uint16_t)(UD_MONEY | ore), (float)(tx * 16 + 2), (float)(ty * 16));
             save_run();
         } else {
             debris((float)(tx * 16 + 8), (float)(ty * 16 + 8), C_TAN, 3);
@@ -1094,6 +1182,7 @@ static void update_boss(Ent *e) {
         if (e->t <= 0) {
             e->alive = false;
             run.boss_dead = 1;
+            boss_i = -1; /* its slot will be reused */
             run.kills++;
             debris(e->x + e->w / 2, e->y + e->h / 2, C_PINK, 24);
             sfx_play_name("ud_boom");
@@ -1128,11 +1217,13 @@ static void update_ents(void) {
             break;
         }
         case E_TOAD:
-            /* hops about at random, up to four tiles at a time */
+            /* hops four tiles at a time, left or right at random
+             * (3.0 up at 0.18 gravity is 33 frames in the air: 1.92 a frame) */
             if (ent_ground(e) && e->vy >= 0 && --e->t <= 0) {
                 e->dir = rng_chance(&rng, 50) ? 1 : -1;
                 e->vy = -3.0f;
-                e->vx = (0.5f + rng_float(&rng) * 1.2f) * e->dir;
+                e->vx = 1.92f * e->dir;
+                e->hx = e->x; /* where the hop began */
                 e->t = 50 + rng_range(&rng, 0, 50);
             }
             hopper_move(e);
@@ -1143,7 +1234,6 @@ static void update_ents(void) {
             break;
         case E_SPITTER:
             /* stays put and throws an axe four tiles ahead, on a beat */
-            e->dir = player_cx() > e->x + e->w / 2 ? 1 : -1;
             if (--e->t <= 0) {
                 Ent *s = spawn(E_AXE, e->x + e->w / 2 - 4, e->y);
                 if (s) { s->w = 7; s->h = 7; s->vx = 1.6f * e->dir; s->vy = -2.3f; }
@@ -1180,11 +1270,13 @@ static void update_ents(void) {
             if (e->state == 0) {
                 if (fabsf(player_cx() - (e->x + e->w / 2)) < 48 && fabsf(player_cy() - (e->y + e->h / 2)) < 48) e->state = 1;
             } else {
+                /* one tile a hop (2.4 up at 0.18 gravity: 27 frames aloft) */
                 if (ent_ground(e) && e->vy >= 0 && ++e->t > 36) {
                     e->t = 0;
                     e->dir = rng_chance(&rng, 50) ? 1 : -1;
                     e->vy = -2.4f;
-                    e->vx = 0.8f * e->dir;
+                    e->vx = 0.6f * e->dir;
+                    e->hx = e->x;
                 }
                 hopper_move(e);
             }
@@ -1201,7 +1293,7 @@ static void update_ents(void) {
             /* it cannot be stopped; it is faster than Mo; leave the room */
             float dx = player_cx() - (e->x + e->w / 2), dy = player_cy() - (e->y + e->h / 2);
             float d = sqrtf(dx * dx + dy * dy) + 0.01f;
-            float sp = e->t2 < 40 ? 0.0f : 1.35f;
+            float sp = e->t2 < GLOOM_RISE ? 0.0f : GLOOM_SPEED;
             e->x += dx / d * sp;
             e->y += dy / d * sp;
             break;
@@ -1275,6 +1367,23 @@ static void update_ents(void) {
             e->y += e->vy;
             if (--e->t <= 0) e->alive = false;
             break;
+        case E_ROCK: {
+            /* a trap's rock: falls straight down and stays where it lands */
+            e->vy = fminf(e->vy + GRAV, MAX_FALL);
+            float ny = e->y + e->vy;
+            int tx = ((int)e->x + 8) >> 4, below = ((int)ny + 16) >> 4;
+            if (below >= UD_ROOM_H || solid_at(tx, below)) {
+                int ty = below - 1;
+                if (ty >= 0 && ty < UD_ROOM_H) tiles[ty][tx] = 'a';
+                e->alive = false;
+                shake = 8;
+                sfx_play_name("ud_slam");
+                debris((float)(tx * 16 + 8), (float)(ty * 16 + 14), C_GREY, 8);
+            } else {
+                e->y = ny;
+            }
+            break;
+        }
         case E_CANARY: {
             /* follows Mo; pecks wisps out of the air */
             Ent *target = NULL;
@@ -1322,7 +1431,7 @@ static void check_contacts(void) {
             }
             break;
         case E_GLOOM:
-            if (e->t2 >= 40 && rects_overlap(px, py, pw, ph, (int)e->x + 3, (int)e->y + 3, e->w - 6, e->h - 6)) gloom_catches();
+            if (e->t2 >= GLOOM_RISE && rects_overlap(px, py, pw, ph, (int)e->x + 3, (int)e->y + 3, e->w - 6, e->h - 6)) gloom_catches();
             break;
         case E_PUFF: case E_DEBRIS: case E_CANARY: case E_BOLT: case E_LOOT:
             break;
@@ -1398,14 +1507,37 @@ static bool player_near_tile(char c, int *otx, int *oty) {
 }
 
 static bool owned(int it) {
-    if (it == UD_ITEM_ROD) return run.weapon == W_ROD;
+    if (it == UD_ITEM_SPARKER) return run.weapon == W_SPARKER;
     return (run.items & it) != 0;
+}
+
+/* The cave dwellers ('u'): glow-worms who each have one cryptic line, as
+ * Barbuta's blobs do. Our own words. */
+static const struct { const char *room, *line; } HINTS[] = {
+    {"SHRINE HALL", "THE STONE BY THE CAGE HEARS ONLY\nTHOSE WHO STAND AND WAIT."},
+    {"EMBER GALLERY", "NOT EVERY POOL IS HUNGRY.\nTHE SLEEPING ONES LET YOU WADE."},
+    {"BONE SHAFT", "SOME DOORS DOWN HERE OPEN\nONLY FOR THE DEAD."},
+    {"FIRE FALLS", "THE CARVINGS WERE MADE FOR SOMEONE\nON THE FAR SIDE OF THE STONE."},
+    {"DEEP CROSSING", "HALF THE ROCK IN THIS MINE\nIS ONLY PRETENDING."},
+};
+
+static const char *room_hint(void) {
+    for (int i = 0; i < ARRAY_LEN(HINTS); i++)
+        if (!strcmp(HINTS[i].room, R()->name)) return HINTS[i].line;
+    return NULL;
 }
 
 static void shop_and_specials(void) {
     int tx, ty;
     const RoomDef *rd = R();
+    if (hint_t > 0) hint_t--;
     if (!btnp(BTN_UP)) return;
+    if (player_near_tile('u', &tx, &ty) && room_hint()) {
+        hint_line = room_hint();
+        hint_t = 300;
+        sfx_play_name("ud_clink");
+        return;
+    }
     for (int k = 0; k < 3; k++)
         if (player_near_tile((char)('1' + k), &tx, &ty)) {
             int it = rd->shop_item[k];
@@ -1413,11 +1545,11 @@ static void shop_and_specials(void) {
             if (run.money < rd->shop_price[k]) { sfx_play_name("ud_nope"); return; }
             run.money = (uint16_t)(run.money - rd->shop_price[k]);
             sfx_play_name("ud_buy");
-            if (it == UD_ITEM_ROD) {
-                /* a trade: the pick for the rod */
-                run.weapon = W_ROD;
-                run.items |= UD_ITEM_ROD;
-                show_loot((float)(tx * 16 + 2), (float)(ty * 16 - 12), S_I_ROD);
+            if (it == UD_ITEM_SPARKER) {
+                /* a trade: the pick for the sparker */
+                run.weapon = W_SPARKER;
+                run.items |= UD_ITEM_SPARKER;
+                show_loot((float)(tx * 16 + 2), (float)(ty * 16 - 12), S_I_SPARKER);
             } else {
                 give((uint16_t)it, (float)(tx * 16 + 2), (float)(ty * 16 - 12));
             }
@@ -1508,6 +1640,7 @@ static void play_update(void) {
     frame_t++;
     update_lifts();
     update_player();
+    check_traps();
     if (state != ST_PLAY) return;
     hazards();
     if (state != ST_PLAY) return;
@@ -1518,8 +1651,8 @@ static void play_update(void) {
     collect_tiles();
     if (state != ST_PLAY) return;
     shop_and_specials();
-    /* the arena door slams shut once Mo is in */
-    if (boss_i >= 0 && ents[boss_i].alive && pl.x > 40 && pl.y > 60 && !arena_sealed) {
+    /* the way back closes behind Mo once he is inside the nest */
+    if (boss_i >= 0 && ents[boss_i].alive && ents[boss_i].state != 5 && !arena_sealed && pl.x > 40 && pl.y > 60) {
         arena_sealed = true;
         sfx_play_name("ud_door");
         shake = 6;
@@ -1542,21 +1675,31 @@ static void title_update(void) {
     if (btnp(BTN_B)) game_exit_to_library();
 }
 
-static void respawn(void) {
-    int ax, ay;
-    reset_player();
-    if (died_on_sacrifice && room_has('r', &ax, &ay)) {
-        /* the spikes carry Mo somewhere the living can't reach */
-        run.spawn_x = (int16_t)(ax * 16 + 3);
-        run.spawn_y = (int16_t)(ay * 16 + 2);
-    }
-    died_on_sacrifice = false;
+/* back where Mo came into the room: if that was on a ladder, holding it */
+static void place_at_spawn(void) {
     pl.x = run.spawn_x;
     pl.y = run.spawn_y;
     pl.ground = true;
-    state = ST_PLAY;
+    int ltx;
+    if (!can_stand_at(pl.x, pl.y + PH) && overlapping_ladder(&ltx)) {
+        pl.ground = false;
+        pl.climbing = true;
+        pl.climb_col = ltx;
+        pl.x = (float)(ltx * 16 + 8 - PW / 2);
+    }
+}
+
+static void respawn(void) {
+    reset_player();
+    pl.x = run.spawn_x;
+    pl.y = run.spawn_y;
+    state = ST_PLAY; /* for enter_room; the relight follows */
     enter_room(false);
+    place_at_spawn();
     save_run();
+    /* a spare lantern flickers alight where he came in; then he is back */
+    state = ST_RELIGHT;
+    state_t = 0;
 }
 
 static void ud_update(void) {
@@ -1565,12 +1708,17 @@ static void ud_update(void) {
     case ST_TITLE: title_update(); break;
     case ST_PLAY: play_update(); break;
     case ST_VIEW: frame_t++; break;
+    case ST_RELIGHT:
+        state_t++;
+        frame_t++;
+        if (state_t >= RELIGHT_FRAMES) state = ST_PLAY;
+        break;
     case ST_DYING:
         state_t++;
         frame_t++;
         update_ents();
         if (state_t == 70) {
-            if (run.lanterns == 0) {
+            if (last_life) {
                 state = ST_GAMEOVER;
                 state_t = 0;
                 game_save_erase(game_current_index());
@@ -1582,25 +1730,18 @@ static void ud_update(void) {
         }
         break;
     case ST_GAMEOVER:
+        /* no continues: the next delve starts from the camp */
         state_t++;
         if (state_t > 60 && (btnp(BTN_A) || btnp(BTN_START))) {
-            state = ST_TITLE;
-            has_save = false;
-            title_sel = 0;
-            state_t = 0;
-            music_play(UD_MUS_TITLE);
+            input_consume();
+            new_game();
         }
         break;
     case ST_ENDING:
         state_t++;
         frame_t++;
         game_set_pausable(false);
-        if (state_t > 240 && (btnp(BTN_A) || btnp(BTN_START))) {
-            state = ST_TITLE;
-            has_save = false;
-            title_sel = 0;
-            state_t = 0;
-        }
+        if (state_t > 240 && (btnp(BTN_A) || btnp(BTN_START))) game_exit_to_library();
         break;
     }
 }
@@ -1661,9 +1802,9 @@ static int item_icon(int it) {
     case UD_ITEM_FORK: return S_I_FORK;
     case UD_ITEM_CRANK: return S_I_CRANK;
     case UD_ITEM_GLOVES: return S_I_GLOVES;
-    case UD_ITEM_KEY: return S_I_KEY;
+    case UD_ITEM_TALLY: return S_I_TALLY;
     case UD_ITEM_CANARY: return S_I_CANARY;
-    case UD_ITEM_ROD: return S_I_ROD;
+    case UD_ITEM_SPARKER: return S_I_SPARKER;
     case UD_ITEM_HUNGRY: return S_I_HUNGRY;
     case UD_ITEM_BOOT: return S_I_BOOT;
     default: return S_I_LANTERN;
@@ -1722,12 +1863,21 @@ static void draw_room(void) {
             char c = tiles[ty][tx];
             int x = tx * 16, y = ty * 16;
             switch (c) {
-            case '#': {
+            case '#': case 'A': case 'a': {
+                /* a trap's loose rock looks like any other; so does the rock once fallen */
                 uint32_t h = (uint32_t)(tx * 7 + ty * 13 + run.room_x * 3 + run.room_y * 5);
                 spr_draw_ex(&ud_spr[(h % 3) ? S_T_ROCK : S_T_ROCK2], x, y, (h & 4) ? SPR_FLIPX : 0, zmap, -1);
                 draw_tile_edges(x, y, tx, ty);
                 break;
             }
+            case 'x':
+                /* a trap's trigger: rock like the rest, with a seam across its top as the one tell */
+                spr_draw_ex(&ud_spr[S_T_ROCK], x, y, 0, zmap, -1);
+                draw_tile_edges(x, y, tx, ty);
+                gfx_hline(x + 2, x + 13, y + 4, p->n);
+                gfx_pset(x + 2, y + 5, p->n);
+                gfx_pset(x + 13, y + 5, p->n);
+                break;
             case 'F': {
                 spr_draw_ex(&ud_spr[S_T_ROCK], x, y, 0, zmap, -1);
                 /* a faint crack gives the fake wall away */
@@ -1774,7 +1924,8 @@ static void draw_room(void) {
                 break;
             case '~': case 'y': {
                 bool surface = tile(tx, ty - 1) != c;
-                int fr = ((frame_t / 20) + tx) & 1;
+                /* deadly ooze churns; the harmless kind lies still, the only tell */
+                int fr = c == 'y' ? 1 : ((frame_t / 20) + tx) & 1;
                 spr_draw_ex(&ud_spr[surface ? (fr ? S_T_OOZE1 : S_T_OOZE2) : S_T_OOZEBODY], x, y, 0, omap, -1);
                 break;
             }
@@ -1805,6 +1956,7 @@ static void draw_room(void) {
             case 'O': spr_draw(&ud_spr[here_taken(tx, ty) ? S_SHRINE_OPEN : S_SHRINE], x, y, 0); break;
             case 'n': spr_draw(&ud_spr[here_taken(tx, ty) ? S_CAGE_OPEN : S_CAGE], x, y, 0); break;
             case 'L': spr_draw(&ud_spr[run.lever ? S_LEVER_DOWN : S_LEVER_UP], x, y, 0); break;
+            case 'u': spr_draw(&ud_spr[(frame_t / 24 + tx) % 2 ? S_DWELLER1 : S_DWELLER2], x, y, pl.x < x ? SPR_FLIPX : 0); break;
             case 'N':
                 spr_draw(&ud_spr[(frame_t / 40) % 3 == 0 ? S_SMITH1 : S_SMITH2], x, y, pl.x < x ? SPR_FLIPX : 0);
                 if (!run.hammer) draw_price(x + 8, y - 10, SMITH_PRICE, NULL);
@@ -1848,13 +2000,11 @@ static void draw_room(void) {
         spr_draw(&ud_spr[S_T_SEAL], 0, 2 * 16, 0);
         spr_draw(&ud_spr[S_T_SEAL], 0, 3 * 16, 0);
     }
-    /* lifts */
-    bool powered = (run.items & UD_ITEM_CRANK) != 0;
+    /* lifts (they stand still, unlabelled, until Mo has the crank) */
     for (int i = 0; i < n_lifts; i++) {
         Lift *l = &lifts[i];
         for (int k = 0; k < l->w_px / 16; k++) spr_draw(&ud_spr[S_LIFT], (int)l->x + k * 16, (int)l->y, 0);
         if (l->axis == 1) gfx_vline((int)l->x + l->w_px / 2, 0, (int)l->y - 1, C_SLATE);
-        if (!powered && (frame_t / 30) % 2) tiny_draw("OFF", (int)l->x + l->w_px / 2 - 5, (int)l->y + 8, C_RED);
     }
 }
 
@@ -1876,7 +2026,7 @@ static void draw_ent(Ent *e) {
     case E_WISP: spr_draw(&ud_spr[f2 ? S_WISP1 : S_WISP2], x - 1, y - 1, 0); break;
     case E_GLOOM:
         /* fades in, flickers */
-        if (e->t2 < 40 && (e->t2 / 3) % 2) break;
+        if (e->t2 < GLOOM_RISE && (e->t2 / 3) % 2) break;
         spr_draw(&ud_spr[(e->t2 / 16) % 2 ? S_GLOOM1 : S_GLOOM2], x - 4, y - 4 + (int)(sinf(e->t2 * 0.07f) * 2), 0);
         break;
     case E_BOSS: {
@@ -1893,6 +2043,7 @@ static void draw_ent(Ent *e) {
     case E_LOOT: if (e->t > 20 || (e->t / 3) % 2) spr_draw_outline(&ud_spr[e->col], x, y, 0, C_INK); break;
     case E_PUFF: spr_draw(&ud_spr[e->t < 6 ? S_PUFF1 : e->t < 12 ? S_PUFF2 : S_PUFF3], x, y, 0); break;
     case E_DEBRIS: gfx_rect(x, y, 2, 2, e->col); break;
+    case E_ROCK: spr_draw_ex(&ud_spr[S_T_ROCK2], x, y, 0, zmap, -1); break;
     case E_CANARY: spr_draw(&ud_spr[(e->t2 / 4) % 2 ? S_CANARY1 : S_CANARY2], x - 1, y - 1, e->dir < 0 ? SPR_FLIPX : 0); break;
     }
 }
@@ -1904,13 +2055,24 @@ static void draw_player(void) {
         else if (state_t < 48) spr_draw(&ud_spr[state_t < 36 ? S_PUFF1 : state_t < 42 ? S_PUFF2 : S_PUFF3], (int)pl.x - 1, (int)pl.y + 1, 0);
         return;
     }
+    if (state == ST_RELIGHT) {
+        /* a spare lantern sputters, catches and glows, and Mo is back */
+        int t = state_t, cx = (int)pl.x + PW / 2, cy = (int)pl.y + PH / 2;
+        bool lit = t > 18 || (t / 3) % 2;
+        if (lit) gfx_dither_circle(cx, cy, 4 + imin(t, 24) / 2, C_AMBER, 5);
+        if (t < RELIGHT_FRAMES - 10) {
+            if (lit || t % 5 == 0) spr_draw(&ud_spr[lit ? S_LANTERN_HUD : S_LANTERN_HUD_OFF], cx - 3, cy - 4, 0);
+            return;
+        }
+        if ((t / 2) % 2) return; /* he flickers in */
+    }
     int fl = pl.face < 0 ? SPR_FLIPX : 0;
     int x = (int)pl.x - 3, y = (int)pl.y - 2;
     int spr = S_MO_IDLE;
     if (pl.climbing) {
         spr = S_MO_CLIMB1;
         fl = ((int)pl.y / 6) % 2 ? SPR_FLIPX : 0;
-    } else if (pl.attack > 0 && run.weapon != W_ROD) {
+    } else if (pl.attack > 0 && run.weapon != W_SPARKER) {
         spr = pl.attack > 12 ? S_MO_SWING1 : S_MO_SWING2;
     } else if (pl.attack > 0) {
         spr = S_MO_SWING2;
@@ -1922,9 +2084,9 @@ static void draw_player(void) {
         spr = (frame_t % 180) < 6 ? S_MO_BLINK : S_MO_IDLE;
     }
     if (pl.attack > 0 && !pl.climbing) {
-        if (run.weapon == W_ROD) {
+        if (run.weapon == W_SPARKER) {
             int wx = pl.face > 0 ? (int)pl.x + 7 : (int)pl.x - 13;
-            spr_draw(&ud_spr[S_ROD_FWD], wx, (int)pl.y + 5, fl);
+            spr_draw(&ud_spr[S_SPARKER_FWD], wx, (int)pl.y + 5, fl);
         } else if (pl.attack > 12) {
             int wx = pl.face > 0 ? (int)pl.x - 10 : (int)pl.x + 4;
             spr_draw(&ud_spr[S_PICK_UP], wx, (int)pl.y - 7, fl);
@@ -1949,12 +2111,12 @@ static void draw_hud(void) {
             if (rx == run.gloom_x && ry == run.gloom_y) gfx_rect(x + 1, y, 2, 2, (frame_t / 10) % 2 ? C_RED : C_PINK);
         }
     /* items */
-    static const int order[9] = {UD_ITEM_POT, UD_ITEM_FORK, UD_ITEM_CRANK, UD_ITEM_GLOVES, UD_ITEM_KEY,
-                                 UD_ITEM_CANARY, UD_ITEM_BOOT, UD_ITEM_ROD, UD_ITEM_HUNGRY};
+    static const int order[9] = {UD_ITEM_POT, UD_ITEM_FORK, UD_ITEM_CRANK, UD_ITEM_GLOVES, UD_ITEM_TALLY,
+                                 UD_ITEM_CANARY, UD_ITEM_BOOT, UD_ITEM_SPARKER, UD_ITEM_HUNGRY};
     for (int i = 0; i < 9; i++) {
         int x = 46 + i * 13, y = 3;
         ui_panel(x - 1, y - 1, 13, 14, C_NIGHT, C_NIGHT);
-        bool have = order[i] == UD_ITEM_ROD ? run.weapon == W_ROD : (run.items & order[i]) != 0;
+        bool have = order[i] == UD_ITEM_SPARKER ? run.weapon == W_SPARKER : (run.items & order[i]) != 0;
         if (have) spr_draw(&ud_spr[item_icon(order[i])], x, y, 0);
         else gfx_rect(x + 5, y + 5, 2, 2, C_DUSK);
     }
@@ -1963,7 +2125,6 @@ static void draw_hud(void) {
     spr_draw(&ud_spr[S_NUGGET], 166, 2, 0);
     snprintf(buf, sizeof buf, "%d", run.money);
     text_draw(buf, 179, 3, C_YELLOW);
-    tiny_draw(R()->name, 166, 13, C_SLATE);
     /* lanterns */
     for (int i = 0; i < MAX_LANTERNS; i++)
         spr_draw(&ud_spr[i < run.lanterns ? S_LANTERN_HUD : S_LANTERN_HUD_OFF], 268 + i * 8, 5, 0);
@@ -2109,6 +2270,11 @@ static void ud_draw(void) {
             if ((pass == 0) == !top) draw_ent(e);
         }
     if (state != ST_VIEW) draw_player();
+    if (hint_t > 0 && hint_line) {
+        /* what the glow-worm says */
+        ui_panel(24, 6, 272, 28, C_INK, C_LIME);
+        text_center(hint_line, 160, 10, C_LIGHT);
+    }
     gfx_camera(0, 0);
     gfx_noclip();
     draw_hud();
@@ -2122,23 +2288,30 @@ static void ud_load(void) {
     ud_audio_load();
 }
 
+/* Like the original, the cartridge boots straight into the mine. Only a
+ * delve left unfinished asks first: carry on, or start again. */
 static void ud_start(void) {
     rng_seed(&rng, g_rng.state ^ 0xD31FEull);
     Run tmp;
     has_save = load_run(&tmp);
-    state = ST_TITLE;
     state_t = 0;
     title_sel = 0;
     sheet_mode = false;
     shake = 0;
+    last_life = false;
+    if (!has_save) {
+        new_game();
+        return;
+    }
+    state = ST_TITLE;
     game_set_pausable(false);
     music_play(UD_MUS_TITLE);
 }
 
 static void ud_quit(void) {
-    if (state == ST_PLAY || state == ST_DYING) {
-        /* resolve a death first so quitting cannot dodge it */
-        if (state == ST_DYING && run.lanterns == 0) { game_save_erase(game_current_index()); return; }
+    if (state == ST_PLAY || state == ST_DYING || state == ST_RELIGHT) {
+        /* the death in progress is already saved (or the run erased) */
+        if (state == ST_DYING && last_life) { game_save_erase(game_current_index()); return; }
         save_run();
     }
 }
@@ -2166,6 +2339,9 @@ static int count_type(int type) {
     return n;
 }
 
+static int ud_query2(const char *key, int *out);
+static int gloom_mark_x, gloom_mark_y; /* test hook: where the Gloom was when marked */
+
 static int ud_query(const char *key, int *out) {
     if (!strcmp(key, "state")) { *out = state; return 1; }
     if (!strcmp(key, "room_x")) { *out = run.room_x; return 1; }
@@ -2189,10 +2365,24 @@ static int ud_query(const char *key, int *out) {
     if (!strcmp(key, "gloom_x")) { *out = run.gloom_x; return 1; }
     if (!strcmp(key, "gloom_y")) { *out = run.gloom_y; return 1; }
     if (!strcmp(key, "gloom_here")) { *out = count_type(E_GLOOM); return 1; }
+    if (!strcmp(key, "gloom_step")) {
+        /* map cells the Gloom has moved since gloom_mark (the map wraps east-west) */
+        int dx = iabs(run.gloom_x - gloom_mark_x);
+        *out = imin(dx, UD_MAP_W - dx) + iabs(run.gloom_y - gloom_mark_y);
+        return 1;
+    }
+    if (!strcmp(key, "gloom_px")) { *out = -1; for (int i = 0; i < MAX_ENTS; i++) if (ents[i].alive && ents[i].type == E_GLOOM) *out = (int)ents[i].x; return 1; }
     if (!strcmp(key, "wisps")) { *out = count_type(E_WISP); return 1; }
     if (!strcmp(key, "canary")) { *out = count_type(E_CANARY); return 1; }
     if (!strcmp(key, "has_save")) { Run tmp; *out = load_run(&tmp); return 1; }
     if (!strcmp(key, "boss_hp")) { *out = boss_i >= 0 && ents[boss_i].alive ? ents[boss_i].hp : 0; return 1; }
+    if (!strcmp(key, "boss_state")) { *out = boss_i >= 0 && ents[boss_i].alive ? ents[boss_i].state : -1; return 1; }
+    if (!strcmp(key, "sealed")) { *out = arena_sealed; return 1; }
+    if (!strcmp(key, "hint")) { *out = hint_t > 0; return 1; }
+    if (!strcmp(key, "lift_y")) { *out = n_lifts > 0 ? (int)lifts[0].y : -1; return 1; }
+    if (!strcmp(key, "lift_x")) { *out = n_lifts > 0 ? (int)lifts[0].x : -1; return 1; }
+    if (!strcmp(key, "on_lift")) { *out = pl.lift_on; return 1; }
+    if (!strcmp(key, "vx100")) { *out = (int)(pl.vx * 100); return 1; }
     if (!strcmp(key, "enemies")) { *out = foes_alive(); return 1; }
     if (!strcmp(key, "visited")) { *out = visited_count(); return 1; }
     if (!strncmp(key, "tile_", 5)) {
@@ -2202,22 +2392,36 @@ static int ud_query(const char *key, int *out) {
         *out = (unsigned char)tile(tx, ty);
         return 1;
     }
-    if (!strncmp(key, "hp_", 3)) {
+    if (!strncmp(key, "hp_", 3) || !strncmp(key, "fx_", 3) || !strncmp(key, "fy_", 3) || !strncmp(key, "fdir_", 5) || !strncmp(key, "fhop_", 5) ||
+        !strncmp(key, "fground_", 8)) {
+        /* a foe of a kind (the first, or the Nth with a number after the
+         * name): hit points, position, facing, on the ground, last hop */
         static const struct { const char *n; int t; } T[] = {{"moth", E_MOTH}, {"toad", E_TOAD}, {"grub", E_GRUB},
-            {"newt", E_SPITTER}, {"swooper", E_SWOOPER}, {"mimic", E_SACK}, {"shellback", E_BEETLE}, {"wisp", E_WISP}};
+            {"newt", E_SPITTER}, {"swooper", E_SWOOPER}, {"sack", E_SACK}, {"shellback", E_BEETLE}, {"wisp", E_WISP},
+            {"axe", E_AXE}};
+        char nm[16];
+        snprintf(nm, sizeof nm, "%s", strchr(key, '_') + 1);
+        int nth = 1, len = (int)strlen(nm);
+        if (len > 0 && nm[len - 1] >= '1' && nm[len - 1] <= '9') { nth = nm[len - 1] - '0'; nm[len - 1] = 0; }
         *out = -1;
         for (int k = 0; k < ARRAY_LEN(T); k++)
-            if (!strcmp(key + 3, T[k].n))
+            if (!strcmp(nm, T[k].n))
                 for (int i = 0; i < MAX_ENTS; i++)
-                    if (ents[i].alive && ents[i].type == T[k].t) { *out = ents[i].hp; return 1; }
+                    if (ents[i].alive && ents[i].type == T[k].t && --nth == 0) {
+                        Ent *e = &ents[i];
+                        *out = key[1] == 'p' ? e->hp : key[1] == 'x' ? (int)e->x : key[1] == 'y' ? (int)e->y
+                             : key[1] == 'h' ? (int)fabsf(e->x - e->hx)
+                             : key[1] == 'd' ? e->dir : (ent_ground(e) && e->vy >= 0);
+                        return 1;
+                    }
         return 1;
     }
     if (!strcmp(key, "map_errors")) {
         /* every room edge must match its neighbour's edge; the map wraps left-right */
         int errs = 0;
-#define OPEN_H(c) ((c) != '#' && (c) != 'B' && (c) != 'j')
-#define OPEN_B(c) ((c) != '#' && (c) != 'B' && (c) != '^' && (c) != '~' && (c) != 'K' && (c) != 'j')
-#define OPEN_T(c) ((c) != '#' && (c) != 'B')
+#define OPEN_H(c) ((c) != '#' && (c) != 'B' && (c) != 'j' && (c) != 'x' && (c) != 'A')
+#define OPEN_B(c) ((c) != '#' && (c) != 'B' && (c) != '^' && (c) != '~' && (c) != 'K' && (c) != 'j' && (c) != 'x' && (c) != 'A')
+#define OPEN_T(c) ((c) != '#' && (c) != 'B' && (c) != 'x' && (c) != 'A')
         for (int ry = 0; ry < UD_MAP_H; ry++)
             for (int rx = 0; rx < UD_MAP_W; rx++) {
                 const RoomDef *a = &UD_ROOMS[ry][rx];
@@ -2238,11 +2442,516 @@ static int ud_query(const char *key, int *out) {
         *out = errs;
         return 1;
     }
+    return ud_query2(key, out);
+}
+
+/* Probe (tests / level checks): compares how much of each room Mo can reach
+ * on foot with this jump against another jump speed. */
+/* can Mo stand in tile (tx,ty), somewhere in it, without it killing him? */
+static bool probe_standable(int tx, int ty, float *ox) {
+    char c = tile(tx, ty);
+    if (c == '^' || c == 'K' || c == '~') return false;
+    for (int off = 3; off >= 0; off -= 3) {
+        float sx = (float)(tx * 16 + off), sy = (float)((ty + 1) * 16 - PH);
+        if (!box_solid(sx, sy, PW, PH) && can_stand_at(sx, sy + PH)) { if (ox) *ox = sx; return true; }
+    }
+    return false;
+}
+
+enum { SIDE_L = 1, SIDE_R = 2, SIDE_T = 4, SIDE_B = 8, SIDE_ALL = 15 };
+static int probe_exits;            /* the sides probe moves left the room by */
+static bool probe_fork, probe_blocks; /* crystal popped, crates pushed */
+static bool probe_debug;
+
+/* note it if Mo has left the room (the same test as check_edges) */
+static bool probe_left_room(void) {
+    float cx = pl.x + PW / 2, cy = pl.y + PH / 2;
+    int side = cx < 0 ? SIDE_L : cx >= 320 ? SIDE_R : cy < 0 ? SIDE_T : cy >= 160 ? SIDE_B : 0;
+    probe_exits |= side;
+    if (side && probe_debug) printf("    left by %d at %d,%d\n", side, (int)pl.x, (int)pl.y);
+    return side != 0;
+}
+
+/* where does Mo end up standing after this start (jump or walk-off)? */
+
+static bool probe_move(float sx, float sy, int dir, bool jump, int *lx, int *ly) {
+    if (box_solid(sx, sy, PW, PH)) return false; /* never from inside rock */
+    reset_player();
+    pl.x = sx;
+    pl.y = sy;
+    pl.ground = !jump;
+    if (jump) { pl.vy = JUMP_V; pl.vx = dir * jump_dx; }
+    for (int f = 0; f < 400; f++) {
+        if (pl.ground) {
+            /* walking: keep going until the ground runs out */
+            float before = pl.x;
+            move_x(dir * WALK);
+            if (probe_left_room()) return false;
+            if (pl.x == before) return false; /* walked into a wall */
+            if (!can_stand_at(pl.x, pl.y + PH)) { pl.ground = false; pl.vx = dir * WALK; pl.vy = 0.3f; }
+            continue;
+        }
+        if (pl.vx != 0) move_x(pl.vx);
+        pl.vy += GRAV;
+        if (pl.vy > MAX_FALL) pl.vy = MAX_FALL;
+        move_y(pl.vy);
+        if (probe_left_room()) return false;
+        if (pl.ground) {
+            *lx = ((int)pl.x + PW / 2) >> 4;
+            *ly = ((int)pl.y + PH - 1) >> 4;
+            return *lx >= 0 && *lx < UD_ROOM_W && *ly >= 0 && *ly < UD_ROOM_H;
+        }
+    }
+    return false;
+}
+
+/* Jumping off a ladder (A with left or right while climbing), from every
+ * height along rows a..b of column cx. Writes the landing tiles. */
+static int probe_ladder_jumps(int cx, int a, int b, int *lxs, int *lys, int max) {
+    int n = 0;
+    for (int y = a * 16 - PH + 2; y <= b * 16 + 16 - PH && n < max - 1; y += 3)
+        for (int dir = -1; dir <= 1 && n < max; dir += 2) {
+            float sx = (float)(cx * 16 + 8 - PW / 2), sy = (float)y;
+            if (box_solid(sx, sy, PW, PH)) continue;
+            reset_player();
+            pl.x = sx;
+            pl.y = sy;
+            pl.vy = -2.6f;
+            pl.vx = dir * jump_dx;
+            for (int f = 0; f < 300; f++) {
+                move_x(pl.vx);
+                pl.vy += GRAV;
+                if (pl.vy > MAX_FALL) pl.vy = MAX_FALL;
+                move_y(pl.vy);
+                if (probe_left_room()) break;
+                if (pl.ground) {
+                    int lx = ((int)pl.x + PW / 2) >> 4, ly = ((int)pl.y + PH - 1) >> 4;
+                    if (lx >= 0 && lx < UD_ROOM_W && ly >= 0 && ly < UD_ROOM_H) { lxs[n] = lx; lys[n] = ly; n++; }
+                    break;
+                }
+            }
+        }
+    return n;
+}
+
+/* Every tile Mo can stand on in this room, from the given ways in (SIDE_*):
+ * walking, walking off ledges, jumping (left, up, right) and ladders. Also
+ * notes which ways out he can reach (probe_exits). */
+static void probe_room_reach_from(int rx, int ry, int ins, uint8_t reach[UD_ROOM_H][UD_ROOM_W]) {
+    run.room_x = (uint8_t)rx;
+    run.room_y = (uint8_t)ry;
+    enter_room(false);
+    for (int i = 0; i < MAX_ENTS; i++) ents[i].alive = false;
+    /* crumbly walls give way to the pick; the fork pops crystal; crates can be shoved */
+    for (int y = 0; y < UD_ROOM_H; y++)
+        for (int x = 0; x < UD_ROOM_W; x++) {
+            char c = tiles[y][x];
+            if (c == 'U' || (c == 'X' && probe_fork) || (c == 'P' && probe_blocks)) tiles[y][x] = '.';
+        }
+    /* a powered lift is a moving floor: model its whole track as planks (or a
+     * ladder for one that rises) */
+    if (run.items & UD_ITEM_CRANK)
+        for (int i = 0; i < n_lifts; i++) {
+            const LiftDef *ld = &R()->lifts[i];
+            if (ld->axis == 0)
+                for (int x = ld->tx; x < ld->tx + ld->w + ld->range && x < UD_ROOM_W; x++) { if (tiles[ld->ty][x] == '.' || tiles[ld->ty][x] == '~') tiles[ld->ty][x] = '='; }
+            else
+                for (int y = ld->ty - ld->range; y <= ld->ty; y++) if (y >= 0 && tiles[y][ld->tx + ld->w / 2] == '.') tiles[y][ld->tx + ld->w / 2] = 'H';
+        }
+    n_lifts = 0;
+    probe_exits = 0;
+    memset(reach, 0, UD_ROOM_H * UD_ROOM_W);
+    int qx[UD_ROOM_H * UD_ROOM_W], qy[UD_ROOM_H * UD_ROOM_W], qn = 0;
+#define PUSHQ(X, Y) do { if ((X) >= 0 && (X) < UD_ROOM_W && (Y) >= 0 && (Y) < UD_ROOM_H && !reach[Y][X] && probe_standable(X, Y, NULL)) { reach[Y][X] = 1; qx[qn] = (X); qy[qn] = (Y); qn++; } } while (0)
+    /* a ladder column through row R0: everywhere along it Mo can step off,
+     * and the rooms above and below if it runs on into them */
+#define LADDER_SEG(CX, R0) do { \
+        int a_ = (R0), b_ = (R0); \
+        while (a_ > 0 && is_ladder((CX), a_ - 1)) a_--; \
+        while (b_ < UD_ROOM_H - 1 && is_ladder((CX), b_ + 1)) b_++; \
+        if (a_ == 0 && is_ladder((CX), -1)) probe_exits |= SIDE_T; \
+        if (b_ == UD_ROOM_H - 1 && is_ladder((CX), UD_ROOM_H)) probe_exits |= SIDE_B; \
+        for (int r_ = a_ - 1; r_ <= b_; r_++) { PUSHQ((CX), r_); PUSHQ((CX) - 1, r_); PUSHQ((CX) + 1, r_); } \
+        if (!lad_done[CX]) { \
+            int lxs_[160], lys_[160], ln_; \
+            lad_done[CX] = 1; \
+            ln_ = probe_ladder_jumps((CX), a_, b_, lxs_, lys_, 160); \
+            for (int k_ = 0; k_ < ln_; k_++) PUSHQ(lxs_[k_], lys_[k_]); \
+        } \
+    } while (0)
+    uint8_t lad_done[UD_ROOM_W];
+    memset(lad_done, 0, sizeof lad_done);
+    /* ways in: the side edges (walking in, or falling in mid-air), falling in
+     * from above, ladders from above or below */
+    for (int y = 0; y < UD_ROOM_H; y++)
+        for (int side = SIDE_L; side <= SIDE_R; side <<= 1) {
+            if (!(ins & side)) continue;
+            int ex = side == SIDE_L ? 0 : UD_ROOM_W - 1;
+            if (solid_at(ex, y) || solid_at(side == SIDE_L ? -1 : UD_ROOM_W, y)) continue;
+            PUSHQ(ex, y);
+            int lx, ly;
+            float sx = side == SIDE_L ? 0.0f : (float)(320 - PW), sy = (float)((y + 1) * 16 - PH);
+            if (!box_solid(sx, sy, PW, PH) && probe_move(sx, sy, side == SIDE_L ? 1 : -1, true, &lx, &ly)) PUSHQ(lx, ly);
+            if (!box_solid(sx, sy, PW, PH)) {
+                reset_player();
+                pl.x = sx; pl.y = sy; pl.vy = 0.3f; pl.vx = side == SIDE_L ? WALK : -WALK;
+                for (int f = 0; f < 200 && !pl.ground; f++) {
+                    move_x(pl.vx);
+                    pl.vy += GRAV; if (pl.vy > MAX_FALL) pl.vy = MAX_FALL;
+                    move_y(pl.vy);
+                    if (probe_left_room()) break;
+                }
+                if (pl.ground) PUSHQ(((int)pl.x + PW / 2) >> 4, ((int)pl.y + PH - 1) >> 4);
+            }
+        }
+    for (int x = 0; x < UD_ROOM_W; x++) {
+        if ((ins & SIDE_T) && !solid_at(x, 0) && !solid_at(x, -1)) {
+            reset_player();
+            pl.x = (float)(x * 16 + 3); pl.y = -6; pl.vy = 0.5f;
+            for (int f = 0; f < 200 && !pl.ground; f++) {
+                pl.vy += GRAV; if (pl.vy > MAX_FALL) pl.vy = MAX_FALL;
+                move_y(pl.vy);
+                if (pl.y + PH / 2 >= 160) { probe_exits |= SIDE_B; break; }
+            }
+            if (pl.ground) PUSHQ(((int)pl.x + PW / 2) >> 4, ((int)pl.y + PH - 1) >> 4);
+        }
+        if ((ins & SIDE_T) && is_ladder(x, 0) && is_ladder(x, -1)) LADDER_SEG(x, 0);
+        if ((ins & SIDE_B) && is_ladder(x, UD_ROOM_H - 1) && is_ladder(x, UD_ROOM_H)) LADDER_SEG(x, UD_ROOM_H - 1);
+    }
+    for (int qh = 0; qh < qn; qh++) {
+        int tx = qx[qh], ty = qy[qh];
+        PUSHQ(tx - 1, ty);
+        PUSHQ(tx + 1, ty);
+        float sx;
+        probe_standable(tx, ty, &sx);
+        float sy = (float)((ty + 1) * 16 - PH);
+        for (int dir = -1; dir <= 1; dir++)
+            for (int off = -9; off <= 15; off += 2) {
+                /* every take-off point in the tile, out to the very edge of a ledge */
+                int lx, ly;
+                float x0 = (float)(tx * 16 + off);
+                if (box_solid(x0, sy, PW, PH) || !can_stand_at(x0, sy + PH)) continue;
+                if (probe_move(x0, sy, dir, true, &lx, &ly)) PUSHQ(lx, ly);
+            }
+        for (int dir = -1; dir <= 1; dir += 2) {
+            int lx, ly;
+            if (probe_move(sx, sy, dir, false, &lx, &ly)) PUSHQ(lx, ly);
+        }
+        /* ladders through this tile or just below it: the whole ladder */
+        for (int cx = tx - 1; cx <= tx + 1; cx++) {
+            if (is_ladder(cx, ty)) LADDER_SEG(cx, ty);
+            else if (is_ladder(cx, ty + 1) && !solid_at(cx, ty)) LADDER_SEG(cx, ty + 1); /* not under crystal */
+            else if (cx == tx && ty > 0 && is_ladder(cx, ty - 1)) LADDER_SEG(cx, ty - 1); /* reached up for */
+        }
+        /* standing at a side edge that's open: out that way */
+        if (tx == 0 && !solid_at(-1, ty)) probe_exits |= SIDE_L;
+        if (tx == UD_ROOM_W - 1 && !solid_at(UD_ROOM_W, ty)) probe_exits |= SIDE_R;
+    }
+#undef LADDER_SEG
+#undef PUSHQ
+}
+
+static void probe_room_reach(int rx, int ry, uint8_t reach[UD_ROOM_H][UD_ROOM_W]) {
+    probe_room_reach_from(rx, ry, SIDE_ALL, reach);
+}
+
+/* Which rooms can Mo get to from the camp with what he has now (run.items,
+ * the gates, the lever, the smith's wall), walking, jumping and climbing?
+ * Crumbly walls are always broken, crystal only with the fork (or
+ * probe_fork), crates only with probe_blocks. Deaths on purpose are not
+ * counted. Returns the number of rooms, with a bit per room in *mask. */
+static uint8_t probe_all[UD_MAP_H][UD_MAP_W][UD_ROOM_H][UD_ROOM_W]; /* union of reach per room */
+
+static int probe_rooms(uint64_t *mask, bool verbose) {
+    static uint8_t seen[UD_MAP_H][UD_MAP_W];
+    static uint8_t r[UD_ROOM_H][UD_ROOM_W];
+    memset(probe_all, 0, sizeof probe_all);
+    int qx[UD_MAP_W * UD_MAP_H * 4], qy[UD_MAP_W * UD_MAP_H * 4], qs[UD_MAP_W * UD_MAP_H * 4], qn = 0;
+    memset(seen, 0, sizeof seen);
+    probe_fork = probe_fork || (run.items & UD_ITEM_FORK);
+    /* the camp: Mo starts inside it */
+    int cx0 = 0, cy0 = 0;
+    for (int ry = 0; ry < UD_MAP_H; ry++)
+        for (int rx = 0; rx < UD_MAP_W; rx++)
+            for (int y = 0; y < UD_ROOM_H; y++)
+                if (strchr(UD_ROOMS[ry][rx].rows[y], '@')) { cx0 = rx; cy0 = ry; }
+    qx[qn] = cx0; qy[qn] = cy0; qs[qn] = SIDE_ALL; qn++;
+    seen[cy0][cx0] = SIDE_ALL;
+    uint64_t m = 0;
+    for (int qh = 0; qh < qn; qh++) {
+        int rx = qx[qh], ry = qy[qh];
+        m |= 1ull << (ry * UD_MAP_W + rx);
+        probe_room_reach_from(rx, ry, qs[qh], r);
+        int ex = probe_exits;
+        for (int y = 0; y < UD_ROOM_H; y++)
+            for (int x = 0; x < UD_ROOM_W; x++) probe_all[ry][rx][y][x] |= r[y][x];
+        if (verbose) printf("  room %d,%d %-18s in %x out %x\n", rx, ry, UD_ROOMS[ry][rx].name, qs[qh], ex);
+        for (int side = SIDE_L; side <= SIDE_B; side <<= 1) {
+            if (!(ex & side)) continue;
+            int nx = rx, ny = ry, in = 0;
+            if (side == SIDE_L) { nx = wrap_x(rx - 1); in = SIDE_R; }
+            if (side == SIDE_R) { nx = wrap_x(rx + 1); in = SIDE_L; }
+            if (side == SIDE_T) { ny = ry - 1; in = SIDE_B; }
+            if (side == SIDE_B) { ny = ry + 1; in = SIDE_T; }
+            if (ny < 0 || ny >= UD_MAP_H || (seen[ny][nx] & in)) continue;
+            seen[ny][nx] |= (uint8_t)in;
+            qx[qn] = nx; qy[qn] = ny; qs[qn] = in; qn++;
+        }
+    }
+    int n = 0;
+    for (int i = 0; i < 64; i++) n += (int)((m >> i) & 1);
+    if (mask) *mask = m;
+    return n;
+}
+
+static int probe_jumps(float old_dx, bool verbose) {
+    Run keep = run;
+    Player keep_pl = pl;
+    run.gate_open = run.lever = run.hammer = run.boss_dead = 1;
+    run.items = 0xFFFF;
+    int lost_total = 0;
+    for (int ry = 0; ry < UD_MAP_H; ry++)
+        for (int rx = 0; rx < UD_MAP_W; rx++) {
+            static uint8_t now[UD_ROOM_H][UD_ROOM_W], before[UD_ROOM_H][UD_ROOM_W];
+            float was = jump_dx;
+            probe_room_reach(rx, ry, now);
+            jump_dx = old_dx;
+            probe_room_reach(rx, ry, before);
+            jump_dx = was;
+            for (int y = 0; y < UD_ROOM_H; y++)
+                for (int x = 0; x < UD_ROOM_W; x++)
+                    if (before[y][x] && !now[y][x]) {
+                        if (verbose) printf("  unreachable now: room %d,%d (%s) tile %d,%d\n", rx, ry, UD_ROOMS[ry][rx].name, x, y);
+                        lost_total++;
+                    }
+        }
+    if (verbose) printf("  %d tiles lost\n", lost_total);
+    run = keep;
+    pl = keep_pl;
+    enter_room(false);
+    return lost_total;
+}
+
+/* After probe_rooms: the things Mo walks up to (chests, gems, shops, the
+ * shrines, lever, smith, altar, cage, vendor, tablet) that he can't stand in
+ * or next to. Prints them if verbose. */
+static int probe_poi_missing(bool verbose) {
+    int missing = 0;
+    for (int ry = 0; ry < UD_MAP_H; ry++)
+        for (int rx = 0; rx < UD_MAP_W; rx++)
+            for (int y = 0; y < UD_ROOM_H; y++)
+                for (int x = 0; x < UD_ROOM_W; x++) {
+                    char c = UD_ROOMS[ry][rx].rows[y][x];
+                    if (!strchr("cC*nLNV123Ojsv", c)) continue;
+                    int ty = c == 'j' ? y - 1 : y; /* the altar stone is stood on */
+                    bool ok = false;
+                    for (int dx = -1; dx <= 1; dx++)
+                        if (x + dx >= 0 && x + dx < UD_ROOM_W && ty >= 0) ok |= probe_all[ry][rx][ty][x + dx] != 0;
+                    if (!ok) {
+                        missing++;
+                        if (verbose) printf("  can't reach '%c' in %s (%d,%d) at %d,%d\n", c, UD_ROOMS[ry][rx].name, rx, ry, x, y);
+                    }
+                }
+    return missing;
+}
+
+/* Respawn traps: a way into a room (at a side edge, mid-air or on the
+ * ground, or dropping in from above) where Mo, coming back to it after a
+ * death and falling straight down, would land on spikes or ooze again. */
+static int probe_respawn_traps(bool verbose) {
+    Run keep = run;
+    Player keep_pl = pl;
+    run.gate_open = run.lever = run.hammer = run.boss_dead = 1;
+    memset(run.visited, 1, sizeof run.visited);
+    int traps = 0;
+    for (int ry = 0; ry < UD_MAP_H; ry++)
+        for (int rx = 0; rx < UD_MAP_W; rx++) {
+            run.room_x = (uint8_t)rx;
+            run.room_y = (uint8_t)ry;
+            enter_room(false);
+            n_lifts = 0;
+            for (int k = 0; k < UD_ROOM_H + 2 * UD_ROOM_W; k++) {
+                float sx, sy;
+                if (k < UD_ROOM_H) { sx = 0; sy = (float)(k * 16 + 2); }
+                else if (k < UD_ROOM_H * 2) { sx = (float)(320 - PW); sy = (float)((k - UD_ROOM_H) * 16 + 2); }
+                else if (k < UD_ROOM_H * 2 + UD_ROOM_W) { sx = (float)((k - 2 * UD_ROOM_H) * 16 + 3); sy = -6; }
+                else break;
+                if (box_solid(sx, sy, PW, PH)) continue;
+                if (k >= UD_ROOM_H * 2 && solid_at((int)sx >> 4, -1)) continue; /* no way in from above here */
+                if (k < UD_ROOM_H * 2 && solid_at(k < UD_ROOM_H ? -1 : UD_ROOM_W, k % UD_ROOM_H)) continue;
+                reset_player();
+                pl.x = sx;
+                pl.y = sy;
+                pl.vy = 0.3f;
+                int ltx;
+                if (overlapping_ladder(&ltx)) continue; /* he comes back holding the ladder */
+                bool dead = false;
+                for (int f = 0; f < 300 && !pl.ground; f++) {
+                    pl.vy += GRAV;
+                    if (pl.vy > MAX_FALL) pl.vy = MAX_FALL;
+                    move_y(pl.vy);
+                    if (pl.y > 170) { dead = run.room_y == UD_MAP_H - 1; break; }
+                }
+                if (pl.ground) {
+                    int feet = (int)pl.y + PH - 1;
+                    for (int tx = ((int)pl.x + 1) >> 4; tx <= ((int)pl.x + PW - 2) >> 4; tx++) {
+                        char c = tile(tx, feet >> 4);
+                        if ((c == '^' || c == '~') && (feet & 15) >= 7) dead = true;
+                    }
+                }
+                if (dead) {
+                    traps++;
+                    if (verbose) printf("  respawn trap: %s (%d,%d) entering at %d,%d\n", UD_ROOMS[ry][rx].name, rx, ry, (int)sx, (int)sy);
+                }
+            }
+        }
+    run = keep;
+    pl = keep_pl;
+    enter_room(false);
+    return traps;
+}
+
+/* Foes placed within 40 px of a way into their room (a side opening, a hole
+ * or ladder in the top or bottom row): Mo could walk in onto them. */
+static int probe_entry_foes(bool verbose) {
+    int n = 0;
+    for (int ry = 0; ry < UD_MAP_H; ry++)
+        for (int rx = 0; rx < UD_MAP_W; rx++) {
+            const RoomDef *rd = &UD_ROOMS[ry][rx];
+            for (int fy = 0; fy < UD_ROOM_H; fy++)
+                for (int fx = 0; fx < UD_ROOM_W; fx++) {
+                    if (!strchr("mtgpqwke", rd->rows[fy][fx])) continue;
+                    bool near = false;
+                    for (int k = 0; k < UD_ROOM_H; k++) {
+                        char l = rd->rows[k][0], r = rd->rows[k][UD_ROOM_W - 1];
+                        if (!solid_char(l) && iabs(fx * 16) < 40 && iabs(fy - k) * 16 < 40) near = true;
+                        if (!solid_char(r) && iabs((UD_ROOM_W - 1 - fx) * 16) < 40 && iabs(fy - k) * 16 < 40) near = true;
+                    }
+                    for (int k = 0; k < UD_ROOM_W; k++) {
+                        if (!solid_char(rd->rows[0][k]) && iabs(fx - k) * 16 < 40 && fy * 16 < 40) near = true;
+                        char bc = rd->rows[UD_ROOM_H - 1][k]; /* ooze in the floor is no way in */
+                        if (!solid_char(bc) && bc != '~' && iabs(fx - k) * 16 < 40 && (UD_ROOM_H - 1 - fy) * 16 < 40) near = true;
+                    }
+                    if (near) {
+                        n++;
+                        if (verbose) printf("  foe '%c' near a way in: %s (%d,%d) at %d,%d\n", rd->rows[fy][fx], rd->name, rx, ry, fx, fy);
+                    }
+                }
+        }
+    return n;
+}
+
+/* queries that need the probes above */
+static int ud_query2(const char *key, int *out) {
+    if (!strcmp(key, "entry_foes")) { *out = probe_entry_foes(true); return 1; }
+    if (!strcmp(key, "respawn_traps")) { *out = probe_respawn_traps(true); return 1; }
+    /* spots the rooms were built to reach with a longer (1.25 px/frame) jump
+     * that the true, walking-speed jump can no longer reach */
+    if (!strcmp(key, "reach_lost")) { *out = probe_jumps(1.25f, false); return 1; }
+    /* reach_rooms_ITEMS_FLAGS / reach_missing_ITEMS_FLAGS: rooms Mo can get to
+     * from the camp, or things he can't walk up to, with these items and
+     * gates (flags: 1 tally gate, 2 lever, 4 smith's wall, 8 boss beaten) */
+    int it = 0, fl = 0;
+    bool rooms = sscanf(key, "reach_rooms_%d_%d", &it, &fl) == 2;
+    if (rooms || sscanf(key, "reach_missing_%d_%d", &it, &fl) == 2) {
+        Run keep = run;
+        Player keep_pl = pl;
+        run.items = (uint16_t)it;
+        run.gate_open = (fl & 1) != 0;
+        run.lever = (fl & 2) != 0;
+        run.hammer = (fl & 4) != 0;
+        run.boss_dead = (fl & 8) != 0;
+        probe_fork = false;
+        memset(run.visited, 1, sizeof run.visited);
+        *out = probe_rooms(NULL, false);
+        if (!rooms) *out = probe_poi_missing(false);
+        probe_fork = false;
+        run = keep;
+        pl = keep_pl;
+        enter_room(false);
+        return 1;
+    }
     return 0;
 }
 
 static int ud_cheat(const char *cmd) {
     int a = 0, b = 0, c = 0, d = 0;
+    if (!strncmp(cmd, "probe_jumps", 11)) { probe_jumps((float)atof(cmd + 11), true); return 1; }
+    if (!strncmp(cmd, "probe_one", 9)) {
+        /* probe_one X Y IN [ITEMS]: one room from one way in, with the exits it finds */
+        Run keep = run;
+        Player keep_pl = pl;
+        static uint8_t r[UD_ROOM_H][UD_ROOM_W];
+        d = run.items;
+        if (sscanf(cmd + 9, "%d %d %d %d", &a, &b, &c, &d) < 3) return 0;
+        run.items = (uint16_t)d;
+        probe_fork = (run.items & UD_ITEM_FORK) != 0;
+        memset(run.visited, 1, sizeof run.visited);
+        probe_room_reach_from(a, b, c, r);
+        probe_fork = false;
+        printf("  exits %x\n", probe_exits);
+        for (int y = 0; y < UD_ROOM_H; y++) {
+            printf("  ");
+            for (int x = 0; x < UD_ROOM_W; x++) putchar(r[y][x] ? 'o' : UD_ROOMS[b][a].rows[y][x]);
+            printf("\n");
+        }
+        run = keep;
+        pl = keep_pl;
+        enter_room(false);
+        return 1;
+    }
+    if (!strncmp(cmd, "probe_map", 9)) {
+        /* probe_map ITEMS FLAGS: which rooms are reachable with these items and
+         * gates (FLAGS: 1 tally gate, 2 lever, 4 smith, 8 boss dead, 16 crates shoved) */
+        Run keep = run;
+        Player keep_pl = pl;
+        if (sscanf(cmd + 9, "%d %d", &a, &b) != 2) return 0;
+        run.items = (uint16_t)a;
+        run.gate_open = (b & 1) != 0;
+        run.lever = (b & 2) != 0;
+        run.hammer = (b & 4) != 0;
+        run.boss_dead = (b & 8) != 0;
+        probe_blocks = (b & 16) != 0;
+        probe_fork = false;
+        memset(run.visited, 1, sizeof run.visited);
+        uint64_t m;
+        int n = probe_rooms(&m, true);
+        printf("  %d rooms reachable:\n", n);
+        for (int y = 0; y < UD_MAP_H; y++) {
+            printf("  ");
+            for (int x = 0; x < UD_MAP_W; x++) printf("%c", (m >> (y * UD_MAP_W + x)) & 1 ? '#' : '.');
+            printf("\n");
+        }
+        printf("  %d things out of reach\n", probe_poi_missing(true));
+        probe_blocks = probe_fork = false;
+        run = keep;
+        pl = keep_pl;
+        enter_room(false);
+        return 1;
+    }
+    if (!strncmp(cmd, "probe_room", 10)) {
+        /* probe_room X Y DX: print a room with the tiles Mo can stand on marked */
+        float dx = 1;
+        if (sscanf(cmd + 10, "%d %d %f", &a, &b, &dx) != 3) return 0;
+        Run keep = run;
+        Player keep_pl = pl;
+        float was = jump_dx;
+        static uint8_t r[UD_ROOM_H][UD_ROOM_W];
+        run.gate_open = run.lever = run.hammer = run.boss_dead = 1;
+        run.items = 0xFFFF;
+        jump_dx = dx;
+        probe_room_reach(a, b, r);
+        jump_dx = was;
+        for (int y = 0; y < UD_ROOM_H; y++) {
+            printf("  ");
+            for (int x = 0; x < UD_ROOM_W; x++) putchar(r[y][x] ? 'o' : UD_ROOMS[b][a].rows[y][x]);
+            printf("\n");
+        }
+        run = keep;
+        pl = keep_pl;
+        enter_room(false);
+        return 1;
+    }
     if (!strncmp(cmd, "room", 4)) {
         int n = sscanf(cmd + 4, "%d %d %d %d", &a, &b, &c, &d);
         if (n < 2) return 0;
@@ -2310,6 +3019,7 @@ static int ud_cheat(const char *cmd) {
         return 1;
     }
     if (!strcmp(cmd, "gloom")) { run.gloom_x = run.room_x; run.gloom_y = run.room_y; gloom_timer = 1; return 1; }
+    if (!strcmp(cmd, "gloom_mark")) { gloom_mark_x = run.gloom_x; gloom_mark_y = run.gloom_y; return 1; }
     if (sscanf(cmd, "gloom_at %d %d", &a, &b) == 2) { run.gloom_x = (uint8_t)a; run.gloom_y = (uint8_t)b; return 1; }
     if (!strcmp(cmd, "lever")) { run.lever = 1; return 1; }
     if (!strcmp(cmd, "hammer")) { run.hammer = 1; return 1; }
@@ -2327,10 +3037,8 @@ const GameDef GAME_UNDERDELVE = {
     "D-PAD\tWALK / CLIMB\n"
     "UP\tBUY, PULL, PAY\n"
     GLYPH_A "\tJUMP (NO AIR CONTROL)\n"
-    GLYPH_B "\tSWING PICK / FIRE ROD\n"
-    "START\tPAUSE\n\n"
-    "ONE HIT LOSES A LANTERN.\n"
-    "THE GLOOM TAKES THEM ALL. RUN.",
+    GLYPH_B "\tSWING PICK / SPARKER\n"
+    "START\tPAUSE",
     C_TAN, C_YELLOW,
     ud_load, ud_start, ud_update, ud_draw, ud_quit, ud_label, ud_query, ud_cheat,
     "BARBUTA", 1,

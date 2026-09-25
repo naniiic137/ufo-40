@@ -1,0 +1,18 @@
+# GRUB SHIFT: GATHER can be centred on any tile with a pod somewhere in its
+# 3x3, even an empty one, and scoops up all of them.
+game grubshift
+wait 5
+cheat contract 1 7
+cheat clear
+cheat tilly 0 0
+cheat energy 0
+cheat pods 2 1 1
+cheat pods 4 3 2
+cheat pods 3 3 1
+cheat chip 6 27
+cheat use 6 3 2
+expect energy == 4
+expect spent6 == 1
+cheat chip 5 27
+cheat use 5 0 4
+expect spent5 == 0

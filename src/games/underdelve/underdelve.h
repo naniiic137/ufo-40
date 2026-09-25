@@ -18,9 +18,9 @@ enum {
     UD_ITEM_FORK = 1 << 1,    /* the pick pops crystal bubbles */
     UD_ITEM_CRANK = 1 << 2,   /* the mine lifts run */
     UD_ITEM_GLOVES = 1 << 3,  /* faster climbing */
-    UD_ITEM_KEY = 1 << 4,     /* the Deep Gate */
+    UD_ITEM_TALLY = 1 << 4,   /* the Deep Gate */
     UD_ITEM_CANARY = 1 << 5,  /* deals with the wisps at the end */
-    UD_ITEM_ROD = 1 << 6,     /* weapon: fires sparks */
+    UD_ITEM_SPARKER = 1 << 6, /* weapon: fires sparks */
     UD_ITEM_HUNGRY = 1 << 7,  /* weapon: double damage */
     UD_ITEM_BOOT = 1 << 8,    /* an old boot. That's all it is. */
     UD_ITEM_LANTERN = 1 << 9, /* shop only */
@@ -55,7 +55,7 @@ enum {
     /* hero */
     S_MO_IDLE, S_MO_BLINK, S_MO_WALK1, S_MO_WALK2, S_MO_JUMP, S_MO_FALL,
     S_MO_CLIMB1, S_MO_CLIMB2, S_MO_SWING1, S_MO_SWING2, S_MO_HURT,
-    S_PICK_UP, S_PICK_FWD, S_ROD_FWD, S_HUNGRY_FWD,
+    S_PICK_UP, S_PICK_FWD, S_SPARKER_FWD, S_HUNGRY_FWD,
     /* tiles (neutral palette, remapped per zone) */
     S_T_ROCK, S_T_ROCK2, S_T_BRICK, S_T_PLANK, S_T_LADDER, S_T_ROPE, S_T_SPIKES,
     S_T_CRYSTAL, S_T_DRIP, S_T_OOZE1, S_T_OOZE2, S_T_OOZEBODY, S_T_GATE, S_T_SEAL,
@@ -67,7 +67,7 @@ enum {
     S_VENDOR1, S_VENDOR2, S_SMITH1, S_SMITH2, S_LEVER_UP, S_LEVER_DOWN, S_SHRINE, S_SHRINE_OPEN,
     S_PUSH,
     /* item icons 12x12 */
-    S_I_POT, S_I_FORK, S_I_CRANK, S_I_GLOVES, S_I_KEY, S_I_CANARY, S_I_ROD, S_I_HUNGRY, S_I_LANTERN,
+    S_I_POT, S_I_FORK, S_I_CRANK, S_I_GLOVES, S_I_TALLY, S_I_CANARY, S_I_SPARKER, S_I_HUNGRY, S_I_LANTERN,
     S_I_BOOT,
     /* enemies */
     S_MOTH1, S_MOTH2, S_TOAD1, S_TOAD2, S_GRUB1, S_GRUB2, S_SPIT1, S_SPIT2,
@@ -78,6 +78,7 @@ enum {
     /* projectiles & fx */
     S_STONE, S_SHARD, S_DRIP_FALL, S_SPARK, S_BOLT, S_COIN, S_PUFF1, S_PUFF2, S_PUFF3, S_AXE,
     S_LANTERN_HUD, S_LANTERN_HUD_OFF,
+    S_DWELLER1, S_DWELLER2, /* a glow-worm who gives a hint */
     S_COUNT
 };
 

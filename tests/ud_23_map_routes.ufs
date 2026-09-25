@@ -1,0 +1,25 @@
+# UNDERDELVE: the mine can be crossed on foot. From the camp, with nothing
+# at all, Mo can walk, jump, climb and fall into 58 of the 64 rooms: the
+# tower's five wait behind the three ways up, and the tally's room lies
+# under crystal (the tuning fork: 59). Each way on its own - the brass
+# tally's gate, the lever's trapdoor or the smith's wall - opens the tower
+# up to the Old Lode's nest (the sunlit room needs the Old Lode beaten);
+# the lever and the smith need no item at all.
+# Every chest, gem, shrine, shop, lever, altar and keeper can be walked up to,
+# save three, which take more than walking and have their own tests: the
+# fork's chest (from the rising lift), the canary's cage (the altar's
+# ladder) and the hungry pick's chest (a death on purpose).
+game underdelve
+wait 5
+expect reach_rooms_0_0 == 58
+expect reach_rooms_2_0 == 59
+expect reach_rooms_0_2 == 62
+expect reach_rooms_0_4 == 62
+expect reach_rooms_2_1 == 63
+expect reach_rooms_2_2 == 63
+expect reach_rooms_2_4 == 63
+expect reach_rooms_2_15 == 64
+expect reach_missing_65535_15 == 3
+# No foe is placed on a way into its room (foes are never removed near
+# the entry: every one is always where the map puts it).
+expect entry_foes == 0

@@ -1,0 +1,36 @@
+# GRUB SHIFT: the shop always shows eight tools: five for 2 pods, one for 3
+# and two for 4 (SHOO, the one 5, sits with the 4s). A bought tool is
+# replaced at once by another of the same price, and buying over a spent
+# slot gives a fresh tool you can use straight away.
+game grubshift
+wait 5
+cheat contract 1 7
+expect cost0 == 2
+expect cost1 == 2
+expect cost2 == 2
+expect cost3 == 2
+expect cost4 == 2
+expect cost5 == 3
+expect cost6 >= 4
+expect cost7 >= 4
+cheat energy 10
+cheat buy 5 6
+expect energy == 7
+expect cost5 == 3
+cheat buy 0 6
+expect energy == 5
+expect cost0 == 2
+cheat clear
+cheat tilly 2 2
+cheat bug 3 2 1 0
+cheat use 5 3 2
+expect kills == 1
+expect spent5 == 1
+cheat shop 1 11
+cheat buy 1 5
+expect chip5 == 11
+expect spent5 == 0
+expect shop1 != 11
+cheat bug 3 2 1 0
+cheat use 5 3 2
+expect kills == 2

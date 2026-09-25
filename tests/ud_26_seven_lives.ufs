@@ -1,0 +1,61 @@
+# UNDERDELVE: six spare lanterns and the one Mo is on: seven lives. Each
+# death (here, walking into spikes) costs a spare and brings him back where
+# he came into the room; with none left, the next death ends the delve.
+# There is no continue: A starts a new delve from the camp. A death is
+# saved at once, so quitting in the middle of it doesn't bring the lantern back.
+game underdelve
+wait 15
+cheat no_gloom
+cheat room 1 0 170 130
+cheat clear_enemies
+hold RIGHT 60
+expect deaths == 1
+expect lanterns == 5
+reload
+game underdelve
+wait 10
+press A
+wait 10
+expect state == 1
+expect lanterns == 5
+cheat no_gloom
+cheat room 1 0 170 130
+cheat clear_enemies
+hold RIGHT 60
+wait 90
+expect deaths == 2
+expect lanterns == 4
+expect state == 1
+hold RIGHT 60
+wait 90
+expect deaths == 3
+expect lanterns == 3
+expect state == 1
+hold RIGHT 60
+wait 90
+expect deaths == 4
+expect lanterns == 2
+expect state == 1
+hold RIGHT 60
+wait 90
+expect deaths == 5
+expect lanterns == 1
+expect state == 1
+hold RIGHT 60
+wait 90
+expect deaths == 6
+expect lanterns == 0
+expect state == 1
+hold RIGHT 60
+wait 90
+expect deaths == 7
+expect state == 3
+expect has_save == 0
+wait 30
+press A
+wait 10
+expect state == 1
+expect lanterns == 6
+expect room_x == 6
+expect room_y == 3
+expect deaths == 0

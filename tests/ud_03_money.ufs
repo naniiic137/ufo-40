@@ -1,9 +1,7 @@
 # UNDERDELVE: ore comes from chests you strike open, loose gems, and miner's
 # shrines that open once their room is clear. Foes drop nothing.
 game underdelve
-wait 10
-press A
-wait 5
+wait 15
 cheat no_gloom
 cheat room 7 4 242 34
 cheat clear_enemies
@@ -11,13 +9,13 @@ wait 20
 press B
 wait 20
 expect money == 50
-cheat room 2 5 150 60
+cheat room 7 3 150 60
 cheat clear_enemies
 wait 20
 hold RIGHT 20
 wait 20
 expect money == 150
-cheat room 1 5 30 130
+cheat room 1 2 30 130
 wait 5
 expect money == 150
 cheat clear_enemies

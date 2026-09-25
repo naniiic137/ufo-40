@@ -1,0 +1,44 @@
+# GRUB SHIFT: a hivebug with its drone beside it can't be hurt, squashed or
+# popped by OVERDRIVE, but it can be shoved, even into a pit. Once it is
+# shoved away from its drone, the drone dies and the hivebug is fair game.
+# A drone shoved into sour pods turns into a larva.
+game grubshift
+wait 5
+cheat contract 1 7
+cheat clear
+cheat tilly 0 2
+cheat bug 1 2 7 0
+cheat bug 1 1 2 1
+cheat sour 2 2 1
+cheat chip 5 0
+cheat use 5 1 2
+expect lv_at22 == 0
+expect drones == 0
+cheat clear
+cheat tilly 0 2
+cheat elev 0 2 1
+cheat bug 1 2 2 1
+cheat bug 1 1 7 0
+cheat use 0 1 2
+expect kills == 0
+expect bug_at22 == 2
+expect drones == 1
+cheat clear
+cheat tilly 0 2
+cheat bug 1 2 2 1
+cheat bug 1 3 7 0
+cheat hole 2 2
+cheat use 3 1 2
+expect kills == 1
+cheat clear
+cheat tilly 0 2
+cheat bug 1 2 2 1
+cheat bug 0 1 7 0
+cheat chip 6 26
+cheat use 6 0 2
+cheat use 1 1 2
+expect kills == 1
+expect drones == 0
+expect bug_at22 == 2
+cheat use 2 2 2
+expect kills == 2

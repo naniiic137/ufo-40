@@ -11,7 +11,8 @@
 #define RAISE_PX 6
 
 enum { S_TITLE, S_BRIEF, S_PLAY, S_NIGHT, S_RESULT, S_CERT };
-enum { F_HAND, F_SHOP, F_TARGET, F_TARGET2, F_BUYSLOT };
+/* F_SHOP: the shop is open for the tool slot hand_sel (DOWN on a slot opens it) */
+enum { F_HAND, F_SHOP, F_TARGET, F_TARGET2 };
 
 typedef struct Save {
     uint32_t magic;
@@ -19,12 +20,12 @@ typedef struct Save {
     uint8_t mask_set, pad[3];
     Board board;
 } Save;
-#define SAVE_MAGIC 0x47530003u
+#define SAVE_MAGIC 0x47530004u
 
 static Save sv;
 static Board B, before_night;
 static int state, state_t, focus, hand_sel, shop_sel, title_sel;
-static int cur_x, cur_y, first_x, first_y, buy_offer;
+static int cur_x, cur_y, first_x, first_y;
 static int shake, frame_t;
 static float tilly_dx, tilly_dy; /* drawn position (tile units) */
 static Events evq;
@@ -79,6 +80,18 @@ static void begin_contract(void) {
     tilly_dy = B.py;
     save_now();
     music_play(GS_MUS_TITLE);
+}
+
+/* The title's choices. As in Bug Hunter, a player may stop between jobs
+ * after a win and carry on later: only a new contract or a loss ends a
+ * streak. (Mid-contract saving is the UFO 40 platform's.) */
+enum { OPT_CONTINUE, OPT_NEXT, OPT_NEW };
+static int title_options(int opt[3]) {
+    int n = 0;
+    if (sv.in_progress) opt[n++] = OPT_CONTINUE;
+    else if (sv.streak > 0) opt[n++] = OPT_NEXT;
+    opt[n++] = OPT_NEW;
+    return n;
 }
 
 static void enter_play(void) {
@@ -224,7 +237,8 @@ static void play_input(void) {
     switch (focus) {
     case F_HAND:
         if (dx) { hand_sel = (hand_sel + dx + 8) % 8; sfx_play_name("ui_move"); }
-        if (dy < 0) { focus = F_SHOP; shop_sel = hand_sel >= 4 ? 7 : 6; sfx_play_name("ui_move"); }
+        /* DOWN on a tool opens the shop to replace that tool */
+        if (dy > 0 && hand_sel < SLOTS) { focus = F_SHOP; shop_sel = 0; sfx_play_name("ui_ok"); break; }
         if (btnp(BTN_A)) {
             if (hand_sel == SLOTS) {
                 do_rest();
@@ -244,28 +258,17 @@ static void play_input(void) {
         }
         break;
     case F_SHOP:
+        /* eight offers in two columns; A buys the one under the cursor into
+         * the tool slot the shop was opened from */
         if (dx) { shop_sel ^= 1; sfx_play_name("ui_move"); }
         if (dy < 0 && shop_sel >= 2) { shop_sel -= 2; sfx_play_name("ui_move"); }
-        else if (dy > 0) {
-            if (shop_sel < 6) shop_sel += 2;
-            else { focus = F_HAND; hand_sel = shop_sel == 7 ? 7 : 5; }
-            sfx_play_name("ui_move");
-        }
+        if (dy > 0 && shop_sel < OFFERS - 2) { shop_sel += 2; sfx_play_name("ui_move"); }
         if (btnp(BTN_B)) { focus = F_HAND; sfx_play_name("ui_back"); }
-        if (btnp(BTN_A)) {
-            int c = B.shop[shop_sel];
-            if (c == TOOL_NONE || B.energy < CHIPS[c].cost) sfx_play_name("gs_nope");
-            else { focus = F_BUYSLOT; buy_offer = shop_sel; hand_sel = 0; sfx_play_name("ui_ok"); }
-        }
-        break;
-    case F_BUYSLOT:
-        if (dx) { hand_sel = (hand_sel + dx + SLOTS) % SLOTS; sfx_play_name("ui_move"); }
-        if (btnp(BTN_B)) { focus = F_SHOP; sfx_play_name("ui_back"); }
         if (btnp(BTN_A)) {
             Events ev;
             ev.n = 0;
-            if (gs_buy(&B, buy_offer, hand_sel, &ev)) { play_events(&ev); save_now(); }
-            focus = F_HAND;
+            if (gs_buy(&B, shop_sel, hand_sel, &ev)) { play_events(&ev); save_now(); focus = F_HAND; }
+            else sfx_play_name("gs_nope");
         }
         break;
     case F_TARGET: case F_TARGET2:
@@ -322,13 +325,15 @@ static void gs_update(void) {
     switch (state) {
     case S_TITLE: {
         game_set_pausable(false);
-        int n = sv.in_progress ? 2 : 1;
+        int opt[3], n = title_options(opt);
         if (btnp(BTN_UP)) { title_sel = (title_sel + n - 1) % n; sfx_play_name("ui_move"); }
         if (btnp(BTN_DOWN)) { title_sel = (title_sel + 1) % n; sfx_play_name("ui_move"); }
         if (btnp(BTN_B)) game_exit_to_library();
         if (btnp(BTN_A) || btnp(BTN_START)) {
             sfx_play_name("ui_ok");
-            if (sv.in_progress && title_sel == 0) { B = sv.board; enter_play(); }
+            int o = opt[iclamp(title_sel, 0, n - 1)];
+            if (o == OPT_CONTINUE) { B = sv.board; enter_play(); }
+            else if (o == OPT_NEXT) begin_contract(); /* the streak carries on */
             else { sv.streak = 0; begin_contract(); }
         }
         break;
@@ -510,29 +515,30 @@ static void draw_board(const Board *b, bool with_targets) {
             }
         }
     }
-    /* attack preview: the tiles a line shot or area attack will hit */
-    if (focus == F_TARGET && with_targets && v[cur_y][cur_x] && chip != TOOL_NONE) {
-        int k = CHIPS[chip].kind;
-        if (chip == CH_ZAP || chip == CH_ARC || chip == CH_BEAM || chip == CH_FLARE || chip == CH_TRACK) {
-            int dx = isign(cur_x - b->px), dy = isign(cur_y - b->py);
-            for (int x = b->px + dx, y = b->py + dy;; x += dx, y += dy) {
-                gfx_rectb(tile_px(x) + 3, tile_py(b, x, y) + 3, TW - 6, TH - 6, C_RED);
-                if (x == cur_x && y == cur_y) break;
+    /* attack preview: play the attack out on a copy of the field and outline
+     * every tile it reaches, chain reactions and sparks included; a tile
+     * that would catch Tilly flashes white */
+    if (focus == F_TARGET && with_targets && v[cur_y][cur_x] && chip != TOOL_NONE && !CHIPS[chip].two_step &&
+        (CHIPS[chip].kind == KIND_ATTACK || chip == CH_SEED)) {
+        static Board sim;
+        static Events sev;
+        sim = *b;
+        sev.n = 0;
+        uint8_t reach[GH][GW];
+        memset(reach, 0, sizeof reach);
+        if (gs_apply(&sim, hand_sel, cur_x, cur_y, 0, 0, &sev))
+            for (int i = 0; i < sev.n; i++) {
+                const Event *e = &sev.ev[i];
+                if (e->type == EV_AREA && e->x >= 0 && e->y >= 0 && e->x < GW && e->y < GH) reach[e->y][e->x] |= 1;
+                if (e->type == EV_DIE) reach[b->py][b->px] |= 2;
             }
-        } else if (chip == CH_PULSE || chip == CH_QUAKE) {
-            int cx = chip == CH_PULSE ? b->px : cur_x, cy = chip == CH_PULSE ? b->py : cur_y;
-            for (int d = 0; d < 9; d++) {
-                int x = cx + d % 3 - 1, y = cy + d / 3 - 1;
-                if ((x != cx || y != cy) && x >= 0 && y >= 0 && x < GW && y < GH)
-                    gfx_rectb(tile_px(x) + 3, tile_py(b, x, y) + 3, TW - 6, TH - 6, C_RED);
-            }
-        } else if (chip == CH_HAIL) {
-            for (int y = 0; y < GH; y++)
-                for (int x = 0; x < GW; x++)
-                    if (b->elev[y][x]) gfx_rectb(tile_px(x) + 3, tile_py(b, x, y) + 3, TW - 6, TH - 6, C_RED);
-        } else if (k == KIND_ATTACK) {
-            gfx_rectb(tile_px(cur_x) + 3, tile_py(b, cur_x, cur_y) + 3, TW - 6, TH - 6, C_RED);
-        }
+        for (int y = 0; y < GH; y++)
+            for (int x = 0; x < GW; x++)
+                if (reach[y][x]) {
+                    int col = (reach[y][x] & 2) && (frame_t / 6) % 2 ? C_WHITE : C_RED;
+                    gfx_rectb(tile_px(x) + 3, tile_py(b, x, y) + 3, TW - 6, TH - 6, col);
+                    gfx_rectb(tile_px(x) + 4, tile_py(b, x, y) + 4, TW - 8, TH - 8, C_INK);
+                }
     }
     /* cursor */
     if ((focus == F_TARGET || focus == F_TARGET2) && with_targets) {
@@ -552,17 +558,28 @@ static void draw_pattern(int chip, int x, int y, int col) {
     e.py = 2;
     uint8_t v[GH][GW];
     switch (chip) {
-    case CH_WARP: case CH_DETONATE: case CH_GATHER: e.pods[0][1] = 1; e.pods[4][5] = 1; e.pods[1][4] = 1; break;
-    case CH_DEVOLVE: e.bsp[1][2] = 1; e.bsp[3][4] = 1; e.bsp[2][5] = 1; break;
+    case CH_BLINK: case CH_IGNITE: case CH_GATHER: e.pods[0][1] = 1; e.pods[4][5] = 1; e.pods[1][4] = 1; break;
+    case CH_REWIND: e.bsp[1][2] = 1; e.bsp[3][4] = 1; e.bsp[2][5] = 1; break;
     case CH_CRACK: e.bsp[0][2] = 1; e.blv[0][2] = LV_EGG; e.bsp[3][5] = 1; e.blv[3][5] = LV_EGG; break;
-    case CH_PERCH: case CH_SHIFT: case CH_HAIL: e.elev[1][2] = 1; e.elev[1][1] = 1; e.elev[3][4] = 1; e.elev[4][5] = 1; break;
-    case CH_DIVE: case CH_DIG: case CH_QUAKE: e.hole[1][4] = 1; e.hole[4][1] = 1; break;
+    case CH_PERCH: case CH_TILL: case CH_HAIL: e.elev[1][2] = 1; e.elev[1][1] = 1; e.elev[3][4] = 1; e.elev[4][5] = 1; break;
+    case CH_DIVE: case CH_BORE: case CH_QUAKE: e.hole[1][4] = 1; e.hole[4][1] = 1; break;
     default: break;
     }
     gs_targets(&e, chip, v);
     if (chip == CH_PULSE) /* show the blast ring rather than the confirm tile */
         for (int yy = 1; yy <= 3; yy++)
             for (int xx = 2; xx <= 4; xx++) v[yy][xx] = !(xx == 3 && yy == 2);
+    /* rolls and straight shots cross every tile on the way: a solid line from
+     * Tilly out to each tile they reach; hops, lobs and area tools are dots */
+    bool continuous = chip == CH_ROLL || chip == CH_SCURRY || chip == CH_STREAK || chip == CH_RUSH || chip == CH_HUSTLE ||
+                      chip == CH_ZAP || chip == CH_ARC || chip == CH_BEAM || chip == CH_FLARE || chip == CH_TRACK;
+    if (continuous)
+        for (int dy = -2; dy <= 2; dy++)
+            for (int dx = -2; dx <= 2; dx++) {
+                int gx = 3 + dx, gy = 2 + dy;
+                if ((dx || dy) && gx >= 0 && gy >= 0 && gx < GW && gy < GH && v[gy][gx])
+                    for (int t = 0; t <= 3 * imax(iabs(dx), iabs(dy)); t++) gfx_rect(x + 6 + isign(dx) * t, y + 6 + isign(dy) * t, 2, 2, col);
+            }
     for (int dy = -2; dy <= 2; dy++)
         for (int dx = -2; dx <= 2; dx++) {
             int gx = 3 + dx, gy = 2 + dy;
@@ -667,15 +684,13 @@ static void draw_play(void) {
     for (int i = 0; i < OFFERS; i++) {
         int cx = shx + (i % 2) * 58, cy = shy + 11 + (i / 2) * 24;
         draw_card(cx, cy, 55, 22, B.shop[i], focus == F_SHOP && shop_sel == i, false, true);
-        if (focus == F_BUYSLOT && buy_offer == i) gfx_rectb(cx - 2, cy - 2, 59, 26, C_LIME);
     }
     /* info box */
     int info_chip = -1;
-    if (focus == F_SHOP || focus == F_BUYSLOT) info_chip = B.shop[focus == F_SHOP ? shop_sel : buy_offer];
+    if (focus == F_SHOP) info_chip = B.shop[shop_sel];
     else if (hand_sel < SLOTS) info_chip = B.chips[hand_sel];
     ui_panel(203, 129, 115, 21, C_INK, C_DUSK);
-    if (focus == F_BUYSLOT) tiny_draw("PICK A SLOT TO REPLACE", 206, 132, C_LIME), tiny_draw("A OK   B BACK", 206, 140, C_GREY);
-    else if (hand_sel == SLOTS && focus == F_HAND) {
+    if (hand_sel == SLOTS && focus == F_HAND) {
         tiny_draw("END THE SHIFT. GRUBS GROW,", 206, 132, C_GREY);
         tiny_draw("PODS FALL, TOOLS RECHARGE.", 206, 140, C_GREY);
     } else if (info_chip >= 0 && info_chip != TOOL_NONE) {
@@ -697,20 +712,27 @@ static void draw_play(void) {
     gfx_rect(0, 151, 320, 29, C_INK);
     gfx_hline(0, 319, 151, C_DUSK);
     for (int i = 0; i < SLOTS; i++) {
-        bool sel = (focus == F_HAND || focus == F_BUYSLOT || focus == F_TARGET || focus == F_TARGET2) && hand_sel == i;
+        bool sel = (focus == F_HAND || focus == F_TARGET || focus == F_TARGET2) && hand_sel == i;
         draw_card(4 + i * 36, 154, 34, 24, B.chips[i], sel, B.spent[i] != 0, false);
+        /* the slot the open shop will fill */
+        if (focus == F_SHOP && hand_sel == i) gfx_rectb(3 + i * 36 - (frame_t / 8) % 2, 153 - (frame_t / 8) % 2, 36 + 2 * ((frame_t / 8) % 2), 26 + 2 * ((frame_t / 8) % 2), C_LIME);
     }
     bool rsel = focus == F_HAND && hand_sel == SLOTS;
     ui_panel(258, 154, 58, 24, C_NIGHT, rsel ? C_WHITE : C_VIOLET);
-    text_center("REST", 287, 158, rsel ? C_WHITE : C_LIGHT);
-    tiny_center("END SHIFT", 287, 169, C_GREY);
+    text_center("CLOCK", 287, 157, rsel ? C_WHITE : C_LIGHT);
+    tiny_center("OUT", 287, 169, C_GREY);
     if (rsel) gfx_rectb(257 - (frame_t / 8) % 2, 153 - (frame_t / 8) % 2, 60 + 2 * ((frame_t / 8) % 2), 26 + 2 * ((frame_t / 8) % 2), C_YELLOW);
+    const char *prompt = NULL;
     if (focus == F_TARGET || focus == F_TARGET2) {
-        gfx_rect(BX - 2, 20, 196, 7, C_NIGHT);
-        const char *prompt = "CHOOSE A TARGET - A: CONFIRM  B: CANCEL";
+        prompt = "CHOOSE A TARGET - A: CONFIRM  B: CANCEL";
         int chip = B.chips[hand_sel];
-        if (chip == CH_SHIFT) prompt = focus == F_TARGET ? "SHIFT: PICK A PLANTER TO LOWER" : "SHIFT: PICK A TILE TO RAISE";
-        if (chip == CH_SPRAY) prompt = focus == F_TARGET ? "SPRAY: PICK THE FIRST TILE" : "SPRAY: PICK THE SECOND TILE";
+        if (chip == CH_TILL) prompt = focus == F_TARGET ? "TILL: PICK A PLANTER TO LOWER" : "TILL: PICK A TILE TO RAISE";
+        if (chip == CH_MIST) prompt = focus == F_TARGET ? "MIST: PICK THE FIRST TILE" : "MIST: PICK THE SECOND TILE";
+    } else if (focus == F_SHOP) {
+        prompt = "SHOP - A: SWAP INTO THE GREEN SLOT  B: CLOSE";
+    }
+    if (prompt) {
+        gfx_rect(BX - 2, 20, 196, 7, C_NIGHT);
         tiny_draw(prompt, BX + 2, 21, C_YELLOW);
     }
 }
@@ -768,10 +790,11 @@ static void draw_title(void) {
     static const uint8_t grad[] = {C_LIME, C_LEAF, C_JADE, C_FOREST};
     ui_fancy_center("GRUB SHIFT", 160, 18, 3, grad, 4, C_INK, C_TEAL);
     text_center("PEST CONTROL ON THE NIGHT SHIFT", 160, 46, C_LEAF);
-    const char *items[2];
-    int n = 0;
-    if (sv.in_progress) items[n++] = "CONTINUE SHIFT";
-    items[n++] = "NEW CONTRACT";
+    int opt[3], n = title_options(opt);
+    char next[32];
+    snprintf(next, sizeof next, "CONTRACT %d (%d IN A ROW)", sv.streak + 1, sv.streak);
+    const char *items[3];
+    for (int i = 0; i < n; i++) items[i] = opt[i] == OPT_CONTINUE ? "CONTINUE SHIFT" : opt[i] == OPT_NEXT ? next : "NEW CONTRACT";
     for (int i = 0; i < n; i++) {
         int y = 64 + i * 12;
         bool s = i == title_sel;
@@ -807,7 +830,7 @@ static void draw_result(void) {
     static const uint8_t gl[] = {C_PINK, C_RED, C_WINE};
     const char *head = result_kind == ST_WON ? "CONTRACT DONE!" : "YOU'RE FIRED!";
     ui_fancy_center(head, 160, 48, 2, result_kind == ST_WON ? gw : gl, 3, C_INK, C_INK);
-    const char *why = result_kind == ST_WON ? "THE GRUBS RETREAT FROM THE DOME."
+    const char *why = result_kind == ST_WON ? "EVERY PLANTER SAFE. GOOD SHIFT, TILLY!"
                       : result_kind == ST_DEAD ? "TILLY GOT CAUGHT IN THE BLAST."
                       : result_kind == ST_HATCHED ? "AN EGG HATCHED. THE DOME IS OVERRUN."
                       : "THE QUOTA WAS NOT MET.";
@@ -935,12 +958,63 @@ static int gs_query(const char *key, int *out) {
     if (!strncmp(key, "chip", 4)) { *out = B.chips[atoi(key + 4) % SLOTS]; return 1; }
     if (!strncmp(key, "spent", 5)) { *out = B.spent[atoi(key + 5) % SLOTS]; return 1; }
     if (!strncmp(key, "pair", 4)) { *out = B.pair_sp[atoi(key + 4) % PAIR_COUNT]; return 1; }
+    if (!strncmp(key, "stage", 5) && key[5]) { *out = B.stage[atoi(key + 5) % PAIR_COUNT]; return 1; }
+    if (!strcmp(key, "grown_mask")) { *out = B.grown_mask; return 1; }
+    if (!strcmp(key, "grown_larvae")) {
+        /* larvae of a colour that has grown (hatchlings of such a colour come out as adults) */
+        int n = 0;
+        for (int y = 0; y < GH; y++)
+            for (int x = 0; x < GW; x++)
+                n += B.bsp[y][x] && B.bsp[y][x] != SP_DRONE && B.blv[y][x] == LV_LARVA && ((B.grown_mask >> gs_pair_of(B.bsp[y][x])) & 1);
+        *out = n;
+        return 1;
+    }
+    if (!strncmp(key, "opening_unsafe", 14)) {
+        /* of N seeded first contracts, how many open with anything unfair:
+         * Tilly dead or on a pit, an egg or a grown grub, a third pod */
+        int n = atoi(key + 14), bad = 0;
+        for (int i = 0; i < n; i++) {
+            Board t;
+            gs_new_contract(&t, 1, i & 7, 5000 + (uint64_t)i * 131);
+            bool ok = t.status == ST_PLAYING && !t.hole[t.py][t.px] && gs_count_bugs(&t, LV_EGG) == 0 &&
+                      gs_count_bugs(&t, LV_ADULT) == 0 && gs_count_bugs(&t, LV_QUEEN) == 0 && gs_count_bugs(&t, -1) == 5;
+            for (int y = 0; y < GH; y++)
+                for (int x = 0; x < GW; x++) ok &= t.pods[y][x] <= 2;
+            bad += !ok;
+        }
+        *out = bad;
+        return 1;
+    }
+    if (!strcmp(key, "grown_types")) { *out = (B.grown_mask & 1) + ((B.grown_mask >> 1) & 1) + ((B.grown_mask >> 2) & 1); return 1; }
+    if (!strncmp(key, "shop", 4) && key[4] >= '0' && key[4] <= '7') { *out = B.shop[key[4] - '0']; return 1; }
+    if (!strncmp(key, "cost", 4) && key[4] >= '0' && key[4] <= '7') { *out = B.shop[key[4] - '0'] == TOOL_NONE ? 0 : CHIPS[B.shop[key[4] - '0']].cost; return 1; }
+    if (!strcmp(key, "focus")) { *out = focus; return 1; }
+    if (!strcmp(key, "hand_sel")) { *out = hand_sel; return 1; }
+    if (!strcmp(key, "shop_sel")) { *out = shop_sel; return 1; }
+    if (!strcmp(key, "cur_x")) { *out = cur_x; return 1; }
+    if (!strcmp(key, "cur_y")) { *out = cur_y; return 1; }
+    if (!strcmp(key, "sour_total")) { int n = 0; for (int y = 0; y < GH; y++) for (int x = 0; x < GW; x++) n += B.sour[y][x]; *out = n; return 1; }
+    if (!strcmp(key, "pods_total")) { int n = 0; for (int y = 0; y < GH; y++) for (int x = 0; x < GW; x++) n += B.pods[y][x]; *out = n; return 1; }
     if (!strncmp(key, "pods_at", 7)) { int x = key[7] - '0', y = key[8] - '0'; *out = B.pods[y][x]; return 1; }
     if (!strncmp(key, "sour_at", 7)) { int x = key[7] - '0', y = key[8] - '0'; *out = B.sour[y][x]; return 1; }
     if (!strncmp(key, "hole_at", 7)) { int x = key[7] - '0', y = key[8] - '0'; *out = B.hole[y][x]; return 1; }
     if (!strncmp(key, "elev_at", 7)) { int x = key[7] - '0', y = key[8] - '0'; *out = B.elev[y][x]; return 1; }
     if (!strncmp(key, "bug_at", 6)) { int x = key[6] - '0', y = key[7] - '0'; *out = B.bsp[y][x]; return 1; }
     if (!strncmp(key, "lv_at", 5)) { int x = key[5] - '0', y = key[6] - '0'; *out = B.bsp[y][x] ? B.blv[y][x] : -1; return 1; }
+    if (!strncmp(key, "botout", 6)) {
+        /* botoutS_N: of N seeded contract-1 games, how many the bot ends with status S */
+        int s = atoi(key + 6), n = 20, cnt = 0;
+        const char *u = strchr(key, '_');
+        if (u) n = atoi(u + 1);
+        for (int i = 0; i < n; i++) {
+            Board t;
+            gs_new_contract(&t, 1, i & 7, 1000 + (uint64_t)i * 77);
+            gs_bot_contract(&t);
+            cnt += t.status == s;
+        }
+        *out = cnt;
+        return 1;
+    }
     if (!strncmp(key, "botwins", 7)) {
         /* balance probe: how many of N seeded contracts does the greedy bot win? */
         int n = atoi(key + 7), wins = 0, contract = 1;
@@ -997,7 +1071,8 @@ static int gs_cheat(const char *cmd) {
     if (sscanf(cmd, "energy %d", &a) == 1) { B.energy = (uint16_t)a; return 1; }
     if (sscanf(cmd, "kills %d", &a) == 1) { B.kills = (uint16_t)a; return 1; }
     if (sscanf(cmd, "day %d", &a) == 1) { B.day = (uint8_t)a; return 1; }
-    if (sscanf(cmd, "evolvers %d %d", &a, &b2) == 2) { B.evolvers[0] = (uint8_t)a; B.evolvers[1] = (uint8_t)b2; return 1; }
+    if (sscanf(cmd, "stage %d %d", &a, &b2) == 2) { B.stage[a % PAIR_COUNT] = (uint8_t)b2; return 1; }
+    if (sscanf(cmd, "grown %d", &a) == 1) { B.grown_mask = (uint8_t)a; return 1; }
     if (sscanf(cmd, "shop %d %d", &a, &b2) == 2) { B.shop[a] = (uint8_t)b2; return 1; }
     if (sscanf(cmd, "chip %d %d", &a, &b2) == 2) { B.chips[a % SLOTS] = (uint8_t)b2; B.spent[a % SLOTS] = 0; return 1; }
     int n = sscanf(cmd, "use %d %d %d %d %d", &a, &b2, &c, &e2, &f);
@@ -1024,6 +1099,26 @@ static int gs_cheat(const char *cmd) {
     }
     if (!strcmp(cmd, "bot_turn")) { Events ev; ev.n = 0; if (gs_bot_turn(&B, &ev)) play_events(&ev); return 1; }
     if (!strcmp(cmd, "sheet")) { sheet_mode = !sheet_mode; return 1; }
+    if (!strcmp(cmd, "dump")) {
+        /* print the field (probe scripts): height, grub level/species, pods */
+        printf("  day %d kills %d energy %d status %d\n", B.day, B.kills, B.energy, B.status);
+        for (int y = 0; y < GH; y++) {
+            printf("  ");
+            for (int x = 0; x < GW; x++) {
+                char g = '.';
+                if (B.bsp[y][x] == SP_DRONE) g = 'd';
+                else if (B.bsp[y][x]) g = "LAQE"[B.blv[y][x]];
+                printf("%c%c%c%c ", B.hole[y][x] ? 'O' : B.elev[y][x] ? '^' : '_', (B.px == x && B.py == y) ? '@' : g,
+                       B.pods[y][x] ? '0' + B.pods[y][x] : B.sour[y][x] ? 'a' + B.sour[y][x] - 1 : ' ',
+                       B.bsp[y][x] && B.bsp[y][x] != SP_DRONE ? '0' + B.bsp[y][x] : ' ');
+            }
+            printf("\n");
+        }
+        printf("  tools:");
+        for (int i = 0; i < SLOTS; i++) printf(" %s%s", CHIPS[B.chips[i]].name, B.spent[i] ? "*" : "");
+        printf("\n");
+        return 1;
+    }
     return 0;
 }
 
@@ -1037,10 +1132,10 @@ const GameDef GAME_GRUBSHIFT = {
     "D-PAD\tMOVE CURSOR\n"
     GLYPH_A "\tPICK TOOL / TARGET / BUY\n"
     GLYPH_B "\tCANCEL\n"
-    "UP\tFROM TOOLS TO THE SHOP\n"
+    "DOWN\tSHOP FOR THAT TOOL\n"
     "START\tPAUSE\n\n"
     "EACH TOOL WORKS ONCE PER SHIFT.\n"
-    "REST ENDS THE SHIFT.",
+    "CLOCK OUT ENDS THE SHIFT.",
     C_JADE, C_LIME,
     gs_load, gs_start, gs_update, gs_draw, gs_quit, gs_label, gs_query, gs_cheat,
     "BUG HUNTER", 2,

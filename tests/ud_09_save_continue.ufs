@@ -1,10 +1,10 @@
-# UNDERDELVE: the run is saved when leaving, and CONTINUE restores it.
+# UNDERDELVE: the run is saved when leaving, and CONTINUE restores it (a
+# cartridge with a delve in progress asks first; a fresh one boots straight
+# into the mine).
 game underdelve
-wait 10
-press A
-wait 5
+wait 15
 cheat no_gloom
-cheat room 1 5 150 130
+cheat room 1 2 150 130
 cheat money 123
 cheat give 1
 wait 5
@@ -17,5 +17,5 @@ wait 10
 expect state == 1
 expect money == 123
 expect room_x == 1
-expect room_y == 5
+expect room_y == 2
 expect items & 1

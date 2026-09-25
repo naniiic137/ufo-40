@@ -5,29 +5,69 @@
 ## Tribute to
 
 **Barbuta** (UFO 50 game #1, Mossmouth). The mechanics were researched from
-text only: the community wiki, written walkthroughs, reviews and forum threads
-(listed under Sources). No UFO 50 images, video, maps, music or text were used
-as references.
+text only: the community wiki, written guides and walkthroughs, reviews and
+forum threads (listed under Sources). No UFO 50 images, video, maps, music or
+text were used as references.
 
 **Map type: fixed.** Barbuta's castle is one hand-made map, so ours is too
-(`underdelve_rooms.c`). It copies the original's structure where the text
-describes it, never its layouts:
+(`underdelve_rooms.c`). Only its coarse structure is kept, as the text
+sources describe it: an 8×8 grid that wraps at the sides, a shop near the
+start, the boss in a tower in a corner region with three ways up into it,
+the same order in which items open the way, the same kinds of rooms and
+secrets, and the hint-givers, traps and pools. The plan itself, which room
+sits where and how the rooms join, is ours, drawn for this mine; it is not
+a shift, mirror or rotation of Barbuta's.
 
-| Structure | Barbuta (text sources) | UNDERDELVE |
-|---|---|---|
-| Map size | 8×8 rooms [W] | 8×8 rooms (64 screens) |
-| Wrap-around | leaving one side brings you in on the other [MG], [SD] | rows open at the edge wrap east ↔ west |
-| Start | the left side of the map [GR] | Mo's camp, west side (A6) |
-| Final boss / tower | top right [GR] | the Old Lode at G1, the Sunstone at H1 |
-| Life vendor | next to the boss [W], [GR] | the Lantern Keeper at F1 |
-| Shops | one mid-left, one lower-left [W] (B4, B7) | Burlap's Post at B4, the Owl's Exchange at B7 |
-| Weapon trader | bottom right [W] (G8) | the Lizard Forge at G8 |
-| Blood sword area | middle left, with a push-block room [W], [GR] (C4/C5/B5) | Block Room C4 and Hungry Spikes C5 |
-| Key puzzle | a room of ladders with the order carved elsewhere, mirrored [W] (D5, hint H7) | Key Ladders D5, Carved Tablet H7 |
-| Companion altar | left side [W] (A4) | Canary Altar A4 |
-| Platform activator | reached through a pool that looks deadly [W], [GR] (D7/E7) | Poison Pool D7 → Crank Vault E7 |
-| Money | coins 50 and jewels 100, in chests (struck open), one in a wall; skull boxes pay a jewel when their room is clear [W] | 5 coin spots (50), 3 gem spots (100), 2 shrines (100): 750 ore in all |
-| Three paths to the boss | a switch, a locked door, a 500-cash hammer [GR], [SD] | the lever, the Deep Gate, the smith |
+| Kept from Barbuta (coarse) | UNDERDELVE |
+|---|---|
+| 8×8 flip screens [W] | 8×8 rooms (64 screens) |
+| leaving one side brings you in on the other [MG], [SD] | rows open at the edge wrap east ↔ west |
+| two shops near the start [W] | the Owl's Exchange straight under Mo's camp, down a ladder in the camp floor; Burlap's Post two rooms east |
+| the boss in a tower in a corner region [W], [GR] | the headframe, along the top row: the Old Lode's nest, with the Sunstone east of it |
+| three ways up: a switch, a locked door, a 500-cash hammer [GR], [SB] | the lever drops the slab over the trapdoor shaft; the Deep Gate opens the locked shaft into the gate hall, whose ladder climbs on to the headframe walk; the smith breaks the cracked wall at the end of the hammer loft |
+| a life vendor next to the boss [W], [GR] | the Lantern Keeper, next door |
+| a weapon trader [W] | the Salamander Forge, on the bottom row |
+| blood sword: push blocks, then die on the spikes below [W] | Block Room over Hungry Spikes |
+| key puzzle: ladders climbed in an order carved elsewhere, mirrored [W] | Tally Ladders, and the Carved Tablet three rooms east |
+| bat altar [W] | the Canary Altar, under the Owl's Exchange |
+| platform item through a pool that looks deadly [W], [GR] | Poison Pool → Crank Vault |
+
+### The plan
+
+Rows run from the top of the mine down; columns run west to east, and the
+east edge joins the west one.
+
+| | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 |
+|---|---|---|---|---|---|---|---|---|
+| 1 | Headframe Walk | Keeper's Rest | Heart of the Delve | Sunlit Headframe | Collapsed Drift | Headframe Stairs | Shrine Loft | Hammer Loft |
+| 2 | Gate Hall | Trapdoor Shaft | Old Attic | Bone Shaft | Timber Loft | Echo Chamber | Rafters | Smith's Camp |
+| 3 | Locked Shaft | Shrine Hall | Echo Vault | Crystal Seam | Glowcap Grotto | Stalactite Run | Old Pump Room | False Wall |
+| 4 | Burlap's Post | West Tunnel | Fork Ledge | Collapsed Stope | East Sump | Shellback Hall | **Mo's Camp** | Gem Grotto |
+| 5 | Lift Cavern | Swooper Roost | Crumbly Strongroom | Drip Gallery | Deep Chest | Rail Yard | Owl's Exchange | Nugget Ledge |
+| 6 | Block Room | Gem Chest Hall | Tally Ladders | Lever Nook | Timber Hall | Carved Tablet | Canary Altar | Deep Crossing |
+| 7 | Hungry Spikes | Slag Heap | Cinder Steps | Ember Well | Poison Pool | Crank Vault | Fire Falls | Magma Bridge |
+| 8 | Crystal Stair | Salamander Forge | Ember Gallery | Mushroom Stair | Toad Pond | Ooze Works | Lava Walk | Drip Cistern |
+
+- **The camp** stands on the east side of the fourth row, a corridor with
+  no wall in it that runs right round the mine. Its ladder climbs to the old
+  pump room; a ladder in its floor drops to the Owl's Exchange, and under
+  that one shaft carries on down through the Canary Altar and the Fire
+  Falls to the Lava Walk's stepping stones.
+- **The tower** holds the west half of the top row: the headframe walk,
+  the Keeper's rest, the nest and the sunlit room. From the camp, the pump
+  room climbs to the rafters and the smith; his hammer loft opens east,
+  through the cracked wall and round the wrap, onto the headframe walk. The
+  locked shaft sits two rooms below the walk: through the Deep Gate into the
+  gate hall, then up its ladder. The trapdoor shaft is reached through the
+  old attic.
+- **Walls** at a room edge are few: round the tower and its gate hall,
+  round the sealed tally and lever rooms and the crank vault, on the west
+  side of the Owl's Exchange, the Canary Altar, the Salamander Forge and the
+  Lava Walk, and at three dead ends. The camp's row has none.
+- **Crystal, drips and lifts** stand on side ways: with nothing at all Mo
+  can reach 58 of the 64 rooms (all but the tower's five and the tally's
+  room, whose ladder lies under crystal). The crank runs the fork's own
+  ledge and the lift cavern; the pot gets him through the drip gallery.
 
 The zones by depth are ours: the Headframe and Upper Workings (rows 1-2),
 the Glowcap Hollows (rows 3-4), the Crystal Veins (rows 5-6) and the Ember
@@ -37,123 +77,164 @@ Deep (rows 7-8).
 
 | Mechanic | How UNDERDELVE does it | Source |
 |---|---|---|
-| One-hit death | any foe, shot, spike, ooze or drip costs a lantern | [W], [MG] |
-| Lives | six lanterns; lose them all and the delve restarts from the camp, no continue | [GR], [W] |
-| Respawn | after a death Mo comes back where he entered the room | [GR] |
-| Committed jumps | a fixed arc, no air control; walking off a ledge keeps momentum | [W] |
-| Slow walker | Mo moves slowly | [W] |
-| Short weapon | the pick barely reaches past Mo; most foes take 2-3 hits | [W] |
-| No hit feedback | nothing shows until a foe dies (no flash, no sound, no health bar) | [W] |
-| Knight | the shellback can only be hurt from behind | [W] |
-| Flip-screen map | a map in the HUD shows where Mo is and where the Gloom is | [W], [MG] |
-| Foes come back | every foe returns when Mo re-enters a room; ore and items stay taken | [W] |
-| Chests | opened by striking them | [GR] |
-| Crumbly walls | the pick chips unstable walls; ore can hide inside | [W] |
-| Fake walls, hidden blocks, hidden ladders | walk-through rock, invisible ledges that show when touched, ladders that appear once climbed | [W], [GR], [SD] |
-| Push blocks | holding against crates slides them and opens a way down | [GR] |
-| Roaming Death | the Gloom moves one room in a random direction every time Mo changes room; if it's in his room it rises in the middle, is faster than he is and can't be hurt; its touch puts out every lantern at once | [W], [MG], [SR] |
+| No title screen | the cartridge boots straight into the camp | [MG] |
+| Controls | D-pad walks and climbs; A jumps; B thrusts the weapon | [W], [MM] |
+| One fixed jump | the same arc every time (tap or hold); no air control: every jump and every fall is committed | [W], [MM] |
+| Jump speed | a jump carries Mo's walking speed; a standing jump goes straight up | [W], [MM] (reading) |
+| Slow, stiff walker | full speed at once, no run; slower than every other UFO 40 hero | [W], [MG], [LN] |
+| Low jump | a little over two tiles; some drops can't be climbed back up | [TH] |
+| Ladders | taken from the ground only (no catching one in mid-air) | [W] |
+| Short weapon | the pick reaches barely past Mo; most foes take 2-3 hits | [W], [LZ] |
+| No hit feedback | nothing shows until a foe dies | [W] |
+| One-hit death | any foe, shot, spike, ooze, drip or falling rock | [W], [MM], [LZ] |
+| Lives | six spare lanterns and the one Mo is on: seven lives | [MM], [GR] |
+| Respawn | a spare lantern flickers alight where Mo came into the room; he keeps his items and ore | [MM], [GR], [LZ] |
+| Game over | with no lantern left, a death ends the delve; no continues, the next delve starts from the camp | [MM], [W] |
+| Buying lives | the Lantern Keeper, just before the boss: 100 a lantern, up to six | [W], [GR] |
+| Roaming Death | the Gloom moves one map cell, in a random direction, every time Mo changes room; the HUD map shows it; nothing explains it | [W], [GR], [SM] |
+| Roaming Death in a room | rises in the middle, then chases Mo at twice his speed; can't be hurt; its touch ends the delve (every lantern at once); leaving the room escapes it | [W], [MG] |
+| HUD | ore, items, lanterns and the map; no room names | [MM], [MG] |
+| Flip-screen map | 8×8 screens | [W] |
+| Foes | always where the map puts them, and back whenever Mo re-enters a room; ore and items stay taken | [W] |
+| Traps | a floor tile with a faint seam drops a loose rock from the ceiling; it kills and stays where it lands. One right beside the start | [GR], [SS], [MG] |
+| Hint-givers | five glow-worms, each with one cryptic line (UP beside them) | [LZ] |
+| Money | chests struck open (50 or 100), loose gems (100), miner's shrines that pay 100 once their room is clear, ore in cracked rock | [W] |
+| Secrets | walk-through rock hiding gems, cracked rock that gives way to three blows (a gem behind it or ore inside), invisible blocks, ladders that appear once climbed | [W], [GR], [SD], [SC], [LZ] |
+| Still pools | the harmless ooze lies still; only deadly ooze churns | [SD] |
+| Deaths on purpose | dying on one room's spikes brings Mo back where only the dead can go (the hungry pick) | [W], [TT] |
+| Push blocks | holding against crates slides them and opens a way down | [W], [GR] |
 | Ceiling drips | deadly without the umbrella (our copper pot) | [W] |
-| Magic bubbles | crystal bubbles that the pick pops once Mo has the pin (our tuning fork) | [W], [GR] |
-| Red platforms | the mine lifts only run with the necklace (our gear crank) | [W] |
-| Candy | climbing gloves: faster climbing | [W], [GR] |
-| Key | opens the tower door (our Deep Gate) | [W] |
+| Magic bubbles | crystal the pick pops once Mo has the pin (our tuning fork) | [W] |
+| Red platforms | the mine lifts only run with the necklace (our gear crank) | [W], [GR] |
+| Candy | climbing gloves: twice as fast on ladders | [W] |
+| Key | opens the tower door (our brass tally and the Deep Gate) | [W] |
 | Trash | an old boot, 50 ore, useless | [W] |
-| Bat | the canary; in the final fight it deals with the wisps | [W] |
-| Stand-on-a-block secret | standing on the altar stone long enough lowers a ladder to the canary | [GR] |
-| Rod | traded for the pick; fires shots | [W] |
-| Blood sword | the hungry pick hits twice as hard; getting it means dying on its spikes, which drop Mo where only the dead can go | [W], [GR] |
-| Shop prices | pot 100 (Burlap) or 50 (Owl), boot 50, fork 200, gloves 100, lanterns 100 | [W] |
-| Items aren't explained | nothing tells Mo what an item does; he just gets it | [MG] |
-| Final boss | 8 hits; drifts overhead dropping two shots at once and now and then drops to the floor, where it can be hurt; wisps cross the arena on a wave | [W] |
-| Win | beat the boss and reach the Sunstone | [W] |
+| Bat | the canary, from the altar; in the final fight it picks off the wisps | [W] |
+| Altar | stand on the altar stone and wait | [W], [SB] |
+| Rod | the sparker, traded for the pick; fires shots | [W] |
+| Blood sword | the hungry pick hits twice as hard | [W] |
+| Shop prices | pot 100 (Burlap) or 50 (Owl), boot 50, fork 200, gloves 100, lanterns 100, the smith 500 | [W], [GR] |
+| Items aren't explained | nothing tells Mo what an item does | [MG] |
+| Boss start | the fight starts as Mo reaches the nest; the way back closes behind him | [TH] |
+| Final boss | 8 hits; drifts overhead dropping two shots at once, now and then drops to the floor, where it can be hurt; wisps cross the arena on a wave | [W] |
+| Goals | see Additions | [W], [GR] |
 
 ### Foes
 
 | Ours | Hits | Behaviour | Barbuta |
 |---|---|---|---|
-| Bat-moth | 1 | flies through walls, changing direction at random | Bat |
-| Hop toad | 3 | hops at random up to four tiles, bouncing off walls | Hopper |
+| Dustmoth | 1 | flies through walls, changing direction at random | Bat |
+| Hop toad | 3 | hops four tiles left or right at random, bouncing off walls | Hopper |
 | Grub | 2 | crawls to and fro, turning at walls and ledges | Slime |
-| Axe newt | 2 | stays put and throws an axe four tiles ahead on a beat | Lizard |
+| Axe newt | 2 | stays put facing the way the map sets and throws an axe four tiles ahead on a beat | Lizard |
 | Swooper | 1 | hovers, then swoops at Mo | Fly |
-| Mimic sack | 10 | a chest until Mo is within three tiles, then hops a tile at a time | Mimic |
+| Grabsack | 10 | a chest until Mo is within three tiles, then hops a tile at a time | Mimic |
 | Shellback | 3 | walks to and fro; only hurt from behind | Knight |
-| Wisp | 1 | drifts across the arena on a wave; the canary picks them off | Ghost |
+| Wisp | 1 | drifts across the arena on a wave | Ghost |
 | The Old Lode | 8 | see above | The Malignance |
 | The Gloom | — | see above | The Roaming Death |
 
 ### Readings we had to choose
 
-- The Gloom's speed (a little faster than Mo) and the moment it takes to rise
-  are ours; the sources only say it is much faster than the player.
-- The Gloom never enters the boss arena or the Sunstone room.
-- The switch path ("a gap in the floor"): our lever drops the slab that seals
-  the trapdoor shaft up to the Lantern Keeper.
-- The bat altar is behind crystal, as the sources imply the pin comes first.
+- Numbers (walk 1 px/frame, jump 2.2 tiles, Gloom 2 px/frame): no source
+  gives any.
+- The jump keeps walking speed ("single fixed jump", "no mid-air adjustment").
+- Ladders: a hop off one (A with a direction) is kept; Mo can reach a ladder
+  whose foot is just above his head.
+- Buying: UP at a shop, as up enters Barbuta's doors [MM].
 
 ## What is ours
 
 - **Name:** UNDERDELVE (released 1983 by the fictional Beamdown Softworks).
 - **Hero:** Mo, a mole miner with a yellow hard hat and a pickaxe.
 - **Setting:** the Underdelve, an abandoned mine gone dark. The Old Lode, a
-  living geode, sits in the headframe with the Sunstone.
+  living geode, nests in the headframe beside the Sunstone.
 - **Lives:** lanterns.
-- **Items:** Copper Pot, Tuning Fork, Gear Crank, Climbing Gloves, Brass Key,
-  the Canary, Old Boot, Spark Rod, Hungry Pick.
-- **Characters:** Burlap the toad, the Owl, the Forge lizard, the Lantern
-  Keeper, and the Smith with his sledgehammer.
-- **Map:** 64 original hand-built screens (`underdelve_rooms.c`). Every
-  room's edges are checked by the `map_errors` test.
+- **Items:** Copper Pot, Tuning Fork, Gear Crank, Climbing Gloves, Brass
+  Tally, the Canary, Old Boot, the Sparker, Hungry Pick.
+- **Characters:** Burlap the toad, the Owl, the Forge salamander, the Lantern
+  Keeper, the Smith with his sledgehammer, and the glow-worms and their lines.
+- **Foes:** dustmoths, hop toads, grubs, axe newts, swoopers, grabsacks,
+  shellbacks, wisps, the Gloom and the Old Lode.
+- **Map:** 64 original hand-built screens (`underdelve_rooms.c`) and where
+  each one stands.
 - **Music:** four original UFO-MML tracks (the mine theme, the Ember Deep
-  theme, the boss theme, the victory theme) plus jingles.
+  theme, the boss theme, the victory theme) plus jingles. Barbuta has no
+  music; Hamza keeps ours, and the death jingle, by choice.
 
 ## Additions: none
 
 Only the platform needs every UFO 40 cartridge has:
 
 - the START pause menu;
-- saving: the delve is saved whenever Mo changes room or finds something,
-  and CONTINUE resumes it (a game over erases it, as Barbuta has no continues);
+- saving: the delve is saved as it goes (each death at once), and a
+  cartridge with a delve in progress asks CONTINUE or NEW DELVE; a game over
+  erases it (Barbuta itself doesn't save);
 - the three UFO 40 goals, which replicate Barbuta's own three:
 
 | UFO 40 goal | Condition | Barbuta's goal |
 |---|---|---|
 | Beacon | explore 25 rooms | gift: visit 25 rooms |
-| Saucer | bring the Sunstone home | gold: liberate the castle |
+| Saucer | bring the Sunstone home (after beating the Old Lode) | gold: liberate the castle |
 | Alien | win with all six lanterns lit | cherry: win with max eggs |
-
-Removed in the faithfulness audit: the old 6×6 map; loose ore everywhere and
-ore dropped by foes; one-hit foes; hit flashes and clinks; item-explaining
-messages; the Gloom's random chance to appear; ropes that needed gloves; the
-Crank and the Rod being bought; the Hungry Pick's "pay a lantern" altar; the
-canary following Mo everywhere; the boss's health bar and landing sparks; and
-the "free the canary" and "no deaths" goals.
 
 ## Controls
 
 | Input | Action |
 |---|---|
 | D-pad left/right | walk |
-| D-pad up/down | climb ladders; up also buys, pulls the lever, pays the smith |
-| A | jump (committed arc) |
-| B | swing the pick / fire the rod |
+| D-pad up/down | climb (a ladder is taken from the ground); UP also buys, pulls the lever, pays the smith, asks a glow-worm |
+| A | jump (one fixed arc) |
+| B | thrust the pick / fire the sparker |
 | START | pause menu |
+
+## Testing hooks
+
+Headless tests drive Mo with real button presses (`ud_*.ufs`); cheats only
+set up a room. Probes built on the game's own physics check the level
+design: every spot reachable on foot in every room (`reach_lost`), the rooms
+reachable from the camp with given items and gates (`reach_rooms_I_F`),
+things that can't be walked up to (`reach_missing_I_F`), rooms whose way in
+would drop a returning Mo onto spikes (`respawn_traps`) and foes placed on
+a way in (`entry_foes`). Two routes are played by buttons alone: the
+opening (camp, gem grotto, Owl's Exchange) and the smith's way from the
+camp into the headframe.
 
 ## Sources
 
-- [W] UFO 50 Wiki (Miraheze), "Barbuta": the 8×8 castle, items and where they
-  are, prices, money, every foe's hit points and behaviour, the Roaming Death,
-  the Malignance, goals. https://ufo50.miraheze.org/wiki/Barbuta
+- [W] UFO 50 Wiki (Miraheze), "Barbuta": controls, the committed jump, the
+  8×8 castle, items, prices, money, foes, the Roaming Death, the Malignance,
+  goals. https://ufo50.miraheze.org/wiki/Barbuta
+- [MM] Steam guide "The missing manuals - How to play UFO 50 games": one
+  jump height whether tapped or held, the thrust, up into doors, six eggs,
+  the sidebar (cash, items, map), "no continues, nor a save system".
+  https://steamcommunity.com/sharedfiles/filedetails/?id=3350227767
 - [GR] Game Rant, "UFO 50: Barbuta Walkthrough (All Items, Secrets, and
-  Cherry)": six eggs, respawning in the room, the three paths, the hammer
-  path's 500, striking chests and bubbles, the block push, the purple block,
-  the invisible platform, the blood sword's spike respawn, where things are in
-  broad strokes. https://gamerant.com/barbuta-walkthrough-items-secrets-cherry-ufo-50/
-- [MG] MoeGamer, "UFO 50: Kicking things off with Barbuta": the skull takes
-  every life, the map wraps horizontally, items aren't explained, the minimap.
-  https://moegamer.net/2024/09/20/ufo-50-kicking-things-off-with-barbuta/
-- [SD] Steam threads "Barbuta Discussion" and "Barbuta: Can't seem to find a
-  way to beat this game": the map loops, invisible ladders, block pushing, the
-  three routes.
-- [SR] Search summaries of the fandom wiki: "The Roaming Death ... will
-  instantly defeat the Knight and cause a game over upon contact".
+  Cherry)": the first tile to the right that drops the ceiling, respawning
+  in the room, the egg vendor, the three paths and the hammer's 500.
+  https://gamerant.com/barbuta-walkthrough-items-secrets-cherry-ufo-50/
+- [SS] Set Side B, "A walkthrough of Barbuta": the first screen's trap.
+  https://setsideb.com/a-walkthrough-of-barbuta-ufo-50-1/
+- [MG] MoeGamer, "UFO 50: Kicking things off with Barbuta": no title screen,
+  sedate walking, the mean first-screen trap, the skull, the wrap, items
+  never explained. https://moegamer.net/2024/09/20/ufo-50-kicking-things-off-with-barbuta/
+- [SD] Steam thread "Barbuta Discussion": the loop, invisible ladders, the
+  still (non-animated) pools.
+  https://steamcommunity.com/app/1147860/discussions/0/4852154959746326166
+- [SB] Steam thread "Barbuta: Can't seem to find a way to beat this game":
+  the invisible block, the lever, the altar.
+  https://steamcommunity.com/app/1147860/discussions/0/592887778739535799/
+- [SM] Steam thread on the map dot: learn what it is by meeting it.
+  https://steamcommunity.com/app/1147860/discussions/0/4699034745340532462
+- [TH] Thoughts on Series, "Thoughts on Barbuta": one-way drops, the boss
+  room closing behind you.
+  https://thoughtsonseries.substack.com/p/thoughts-on-barbuta-ufo-50
+- [LZ] Lizstar, UFO 50 #1: one-hit deaths, the short sword, hint-giving
+  blobs, cracked blocks, lives as eggs you hatch out of.
+  https://lizstar64.github.io/reviews/2024/10/03/UFO50-1.html
+- [SC] Static Canvas, "The UFO 50 Diaries: Barbuta": hidden walls covering
+  secrets. https://staticcanvas.substack.com/p/the-ufo-50-diaries-barbuta
+- [LN] Lost Nostalgia, UFO 50 games 1-25: "painfully sluggish".
+  https://lostnostalgia.com/ufo-50s-every-game-played-and-graded-1-25
+- [TT] Search summaries of the TV Tropes recap: dying on purpose to come back
+  somewhere out of reach.

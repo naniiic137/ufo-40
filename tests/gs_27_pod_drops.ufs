@@ -1,0 +1,114 @@
+# GRUB SHIFT: fizz pods fall on random tiles (never on Tilly or a grub).
+# One that falls into a pit is lost; a third pod on a tile blows it open
+# into a sinkhole and blasts the tiles around it - so it's dangerous to
+# stand next to a tile holding two. Every other tile here is sour, so the
+# four pods of RESTOCK have only one place to go.
+game grubshift
+wait 5
+cheat contract 1 7
+cheat clear
+cheat tilly 0 0
+cheat pods 3 2 2
+cheat bug 4 2 1 0
+cheat sour 1 0 1
+cheat sour 2 0 1
+cheat sour 3 0 1
+cheat sour 4 0 1
+cheat sour 5 0 1
+cheat sour 0 1 1
+cheat sour 1 1 1
+cheat sour 2 1 1
+cheat sour 3 1 1
+cheat sour 4 1 1
+cheat sour 5 1 1
+cheat sour 0 2 1
+cheat sour 1 2 1
+cheat sour 2 2 1
+cheat sour 5 2 1
+cheat sour 0 3 1
+cheat sour 1 3 1
+cheat sour 2 3 1
+cheat sour 3 3 1
+cheat sour 4 3 1
+cheat sour 5 3 1
+cheat sour 0 4 1
+cheat sour 1 4 1
+cheat sour 2 4 1
+cheat sour 3 4 1
+cheat sour 4 4 1
+cheat sour 5 4 1
+cheat chip 6 35
+cheat use 6 0 0
+expect hole_at32 == 1
+expect kills == 1
+expect status == 0
+cheat clear
+cheat tilly 0 0
+cheat hole 3 2
+cheat sour 1 0 1
+cheat sour 2 0 1
+cheat sour 3 0 1
+cheat sour 4 0 1
+cheat sour 5 0 1
+cheat sour 0 1 1
+cheat sour 1 1 1
+cheat sour 2 1 1
+cheat sour 3 1 1
+cheat sour 4 1 1
+cheat sour 5 1 1
+cheat sour 0 2 1
+cheat sour 1 2 1
+cheat sour 2 2 1
+cheat sour 4 2 1
+cheat sour 5 2 1
+cheat sour 0 3 1
+cheat sour 1 3 1
+cheat sour 2 3 1
+cheat sour 3 3 1
+cheat sour 4 3 1
+cheat sour 5 3 1
+cheat sour 0 4 1
+cheat sour 1 4 1
+cheat sour 2 4 1
+cheat sour 3 4 1
+cheat sour 4 4 1
+cheat sour 5 4 1
+cheat chip 5 35
+cheat use 5 0 0
+expect pods_total == 0
+expect status == 0
+cheat clear
+cheat tilly 2 2
+cheat pods 3 2 2
+cheat sour 0 0 1
+cheat sour 1 0 1
+cheat sour 2 0 1
+cheat sour 3 0 1
+cheat sour 4 0 1
+cheat sour 5 0 1
+cheat sour 0 1 1
+cheat sour 1 1 1
+cheat sour 2 1 1
+cheat sour 3 1 1
+cheat sour 4 1 1
+cheat sour 5 1 1
+cheat sour 0 2 1
+cheat sour 1 2 1
+cheat sour 4 2 1
+cheat sour 5 2 1
+cheat sour 0 3 1
+cheat sour 1 3 1
+cheat sour 2 3 1
+cheat sour 3 3 1
+cheat sour 4 3 1
+cheat sour 5 3 1
+cheat sour 0 4 1
+cheat sour 1 4 1
+cheat sour 2 4 1
+cheat sour 3 4 1
+cheat sour 4 4 1
+cheat sour 5 4 1
+cheat chip 4 35
+cheat use 4 2 2
+expect hole_at32 == 1
+expect status == 2

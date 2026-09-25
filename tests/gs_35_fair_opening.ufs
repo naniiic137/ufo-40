@@ -1,0 +1,6 @@
+# GRUB SHIFT: nothing unfair at the start of a first contract, over 60
+# seeds: Tilly alive and off the pits, five larvae (no grown grub, no egg),
+# and no tile holding a third pod.
+game grubshift
+wait 5
+expect opening_unsafe60 == 0

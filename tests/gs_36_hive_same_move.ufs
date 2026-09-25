@@ -1,0 +1,36 @@
+# GRUB SHIFT: if one move kills a hivebug's drones and also hits the
+# hivebug, both die, whichever the move reaches first. A hit on the
+# hivebug alone does nothing while a drone guards it.
+game grubshift
+wait 5
+cheat contract 1 7
+cheat clear
+cheat tilly 0 2
+cheat bug 1 2 2 1
+cheat bug 2 2 7 0
+cheat use 5 2 2
+expect drones == 0
+expect kills == 1
+cheat clear
+cheat tilly 0 2
+cheat bug 1 2 7 0
+cheat bug 2 2 2 1
+cheat use 6 2 2
+expect bugs == 1
+expect drones == 1
+cheat clear
+cheat tilly 0 2
+cheat chip 4 13
+cheat bug 1 2 7 0
+cheat bug 2 2 2 1
+cheat use 4 5 2
+expect drones == 0
+expect kills == 2
+cheat clear
+cheat tilly 0 2
+cheat bug 2 2 2 1
+cheat bug 2 1 7 0
+cheat chip 3 11
+cheat use 3 2 2
+expect kills == 2
+expect drones == 1

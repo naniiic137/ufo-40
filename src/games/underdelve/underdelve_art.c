@@ -203,7 +203,7 @@ static const char PICK_FWD[] =
     "..........kglk.."
     "..........kgk..."
     "...........k....";
-static const char ROD_FWD[] =
+static const char SPARKER_FWD[] =
     "..........kkk..."
     ".........kCIck.."
     "kkkkkkkkkkIwIk.."
@@ -1027,7 +1027,7 @@ static const char I_GLOVES[] =
     "..kaaaaaaak."
     "..kkkkkkkkk."
     "............";
-static const char I_KEY[] =
+static const char I_TALLY[] =
     "............"
     "..kkkk......"
     ".kyyyyk....."
@@ -1053,7 +1053,7 @@ static const char I_CANARY[] =
     "....kokk...."
     "....kk......"
     "............";
-static const char I_ROD[] =
+static const char I_SPARKER[] =
     "........kkk."
     ".......kCIck"
     "......kkIwIk"
@@ -1593,12 +1593,49 @@ static const char LANTERN_HUD_OFF[] =
     ".kkkkk."
     ".......";
 
+/* ------------------------------------------------------------ cave dweller */
+/* a glow-worm, the mine's old-timer: it has a hint for anyone who asks */
+static const char DWELLER1[] =
+    "................"
+    "................"
+    ".......kkkk....."
+    "......kllllk...."
+    "......klklkk...."
+    "......kllllk...."
+    ".......kllk....."
+    "..kkk..kllk....."
+    ".kzizk.kllk....."
+    ".kiiik.kgllk...."
+    "..kiiikkgllk...."
+    "...kkiikkgllk..."
+    ".....kkkkkkkk..."
+    "................"
+    "................"
+    "................";
+static const char DWELLER2[] =
+    "................"
+    "................"
+    "................"
+    ".......kkkk....."
+    "......kllllk...."
+    "......klklkk...."
+    "......kllllk...."
+    "..kkk..kllk....."
+    ".kicik.kllk....."
+    ".kcccik.kllk...."
+    "..kiiikkgllk...."
+    "...kkiikkgllk..."
+    ".....kkkkkkkk..."
+    "................"
+    "................"
+    "................";
+
 static const ArtDef ART[] = {
     {S_MO_IDLE, 16, 16, MO_IDLE}, {S_MO_BLINK, 16, 16, MO_BLINK}, {S_MO_WALK1, 16, 16, MO_WALK1},
     {S_MO_WALK2, 16, 16, MO_WALK2}, {S_MO_JUMP, 16, 16, MO_JUMP}, {S_MO_FALL, 16, 16, MO_FALL},
     {S_MO_CLIMB1, 16, 16, MO_CLIMB}, {S_MO_CLIMB2, 16, 16, MO_CLIMB}, {S_MO_SWING1, 16, 16, MO_SWING1},
     {S_MO_SWING2, 16, 16, MO_SWING2}, {S_MO_HURT, 16, 16, MO_HURT},
-    {S_PICK_UP, 16, 8, PICK_UP}, {S_PICK_FWD, 16, 9, PICK_FWD}, {S_ROD_FWD, 16, 6, ROD_FWD},
+    {S_PICK_UP, 16, 8, PICK_UP}, {S_PICK_FWD, 16, 9, PICK_FWD}, {S_SPARKER_FWD, 16, 6, SPARKER_FWD},
     {S_HUNGRY_FWD, 16, 9, HUNGRY_FWD},
     {S_T_ROCK, 16, 16, T_ROCK}, {S_T_ROCK2, 16, 16, T_ROCK2}, {S_T_BRICK, 16, 16, T_BRICK},
     {S_T_PLANK, 16, 16, T_PLANK}, {S_T_LADDER, 16, 16, T_LADDER}, {S_T_ROPE, 16, 16, T_ROPE},
@@ -1618,8 +1655,8 @@ static const ArtDef ART[] = {
     {S_KEEPER_LIZ1, 16, 16, KEEPER_LIZ1}, {S_KEEPER_LIZ2, 16, 16, KEEPER_LIZ2},
     {S_VENDOR1, 16, 16, VENDOR1}, {S_VENDOR2, 16, 16, VENDOR2},
     {S_I_POT, 12, 12, I_POT}, {S_I_FORK, 12, 12, I_FORK}, {S_I_CRANK, 12, 12, I_CRANK},
-    {S_I_GLOVES, 12, 12, I_GLOVES}, {S_I_KEY, 12, 12, I_KEY}, {S_I_CANARY, 12, 12, I_CANARY},
-    {S_I_ROD, 12, 12, I_ROD}, {S_I_HUNGRY, 12, 12, I_HUNGRY}, {S_I_LANTERN, 12, 12, I_LANTERN},
+    {S_I_GLOVES, 12, 12, I_GLOVES}, {S_I_TALLY, 12, 12, I_TALLY}, {S_I_CANARY, 12, 12, I_CANARY},
+    {S_I_SPARKER, 12, 12, I_SPARKER}, {S_I_HUNGRY, 12, 12, I_HUNGRY}, {S_I_LANTERN, 12, 12, I_LANTERN},
     {S_MOTH1, 16, 12, MOTH1}, {S_MOTH2, 16, 12, MOTH2}, {S_TOAD1, 16, 16, TOAD1}, {S_TOAD2, 16, 16, TOAD2},
     {S_GRUB1, 16, 8, GRUB1}, {S_GRUB2, 16, 8, GRUB2}, {S_SPIT1, 16, 16, SPIT1}, {S_SPIT2, 16, 16, SPIT2},
     {S_SWOOP_HANG, 16, 16, SWOOP_HANG}, {S_SWOOP1, 16, 12, SWOOP1}, {S_SWOOP2, 16, 12, SWOOP2},
@@ -1631,6 +1668,7 @@ static const ArtDef ART[] = {
     {S_STONE, 6, 6, STONE}, {S_SHARD, 6, 8, SHARD}, {S_DRIP_FALL, 4, 6, DRIP_FALL}, {S_SPARK, 6, 6, SPARK},
     {S_BOLT, 8, 6, BOLT}, {S_COIN, 6, 6, COIN}, {S_PUFF1, 12, 12, PUFF1}, {S_PUFF2, 12, 12, PUFF2},
     {S_PUFF3, 12, 12, PUFF3}, {S_LANTERN_HUD, 7, 9, LANTERN_HUD}, {S_LANTERN_HUD_OFF, 7, 9, LANTERN_HUD_OFF},
+    {S_DWELLER1, 16, 16, DWELLER1}, {S_DWELLER2, 16, 16, DWELLER2},
 };
 
 void ud_art_load(void) {

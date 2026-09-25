@@ -1,15 +1,13 @@
 # UNDERDELVE: ladders carry Mo between rooms, and the map wraps left to right.
 game underdelve
-wait 10
-press A
-wait 5
+wait 15
 cheat no_gloom
-cheat room 0 5 83 130
+cheat room 6 3 83 130
 hold UP 200
-expect room_y == 4
-expect room_x == 0
-cheat room 0 4 20 130
+expect room_y == 2
+expect room_x == 6
+cheat room 0 3 20 130
 cheat clear_enemies
 hold LEFT 40
 expect room_x == 7
-expect room_y == 4
+expect room_y == 3

@@ -1,0 +1,33 @@
+# UNDERDELVE: with no catching ladders in mid-air, the lava walk is crossed
+# on stepping stones: climb down the shaft from the fire falls, hop off the
+# ladder onto the first, then jump from the edge of each stone to the next.
+# One jump wrong and the lava has you.
+game underdelve
+wait 15
+cheat no_gloom
+cheat room 6 6 51 130
+cheat clear_enemies
+wait 5
+expect grounded == 1
+hold DOWN 200
+expect room_y == 7
+expect climbing == 1
+hold RIGHT+A 3
+wait 40
+expect px == 74
+expect py == 114
+hold RIGHT 3
+hold RIGHT+A 3
+wait 40
+hold RIGHT 12
+hold RIGHT+A 3
+wait 40
+hold RIGHT 12
+hold RIGHT+A 3
+wait 40
+hold RIGHT 12
+hold RIGHT+A 3
+hold RIGHT 30
+expect px > 240
+expect py == 130
+expect deaths == 0

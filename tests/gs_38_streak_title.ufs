@@ -1,0 +1,42 @@
+# GRUB SHIFT: as in Bug Hunter, you may stop between contracts after a win
+# and carry on later. Back at the title (or after closing the game) the next
+# contract of the streak is offered first; only NEW CONTRACT or a lost
+# contract ends the streak.
+game grubshift
+wait 5
+cheat contract 1 7
+cheat clear
+cheat kills 29
+cheat bug 3 2 1 0
+cheat use 5 3 2
+wait 150
+expect streak == 1
+press B
+wait 10
+expect state == 0
+expect in_progress == 0
+reload
+game grubshift
+wait 10
+expect streak == 1
+press A
+wait 10
+expect state == 1
+expect contract == 2
+expect streak == 1
+wait 40
+press A
+wait 10
+cheat clear
+cheat kills 29
+cheat bug 3 2 1 0
+cheat use 5 3 2
+wait 150
+expect streak == 2
+press B
+wait 10
+press DOWN
+press A
+wait 10
+expect contract == 1
+expect streak == 0

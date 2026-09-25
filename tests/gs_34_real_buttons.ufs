@@ -1,0 +1,92 @@
+# GRUB SHIFT: a shift played with the buttons alone. The cursor starts on
+# the first tool; RIGHT/LEFT pick a tool, A takes it, the d-pad aims and A
+# fires; B backs out without spending the tool. CLOCK OUT ends the shift.
+game grubshift
+wait 5
+cheat contract 1 7
+cheat clear
+cheat tilly 2 2
+cheat bug 4 2 1 0
+cheat bug 2 4 5 0
+wait 5
+press RIGHT
+press RIGHT
+press RIGHT
+press RIGHT
+press RIGHT
+expect hand_sel == 5
+expect chip5 == 11
+press A
+expect focus == 2
+press LEFT
+press LEFT
+press LEFT
+press LEFT
+press LEFT
+press LEFT
+press UP
+press UP
+press UP
+press UP
+press UP
+press RIGHT
+press RIGHT
+press RIGHT
+press RIGHT
+press DOWN
+press DOWN
+expect cur_x == 4
+expect cur_y == 2
+press A
+wait 5
+expect kills == 1
+expect spent5 == 1
+expect focus == 0
+press RIGHT
+press A
+expect focus == 2
+press B
+expect focus == 0
+expect spent6 == 0
+press LEFT
+press LEFT
+press LEFT
+press LEFT
+press LEFT
+press LEFT
+expect hand_sel == 0
+press A
+press LEFT
+press LEFT
+press LEFT
+press LEFT
+press LEFT
+press LEFT
+press UP
+press UP
+press UP
+press UP
+press UP
+press RIGHT
+press RIGHT
+press DOWN
+press DOWN
+press DOWN
+expect cur_x == 2
+expect cur_y == 3
+press A
+wait 5
+expect px == 2
+expect py == 3
+expect spent0 == 1
+press RIGHT
+press RIGHT
+press RIGHT
+press RIGHT
+press RIGHT
+press RIGHT
+press RIGHT
+expect hand_sel == 7
+press A
+wait 2
+expect day == 2
