@@ -3,7 +3,6 @@
 # for the fight with the Old Lode and picks off the wisps.
 game underdelve
 wait 10
-press A
 wait 5
 cheat no_gloom
 cheat give 2

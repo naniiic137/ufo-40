@@ -3,7 +3,6 @@
 # other way in mid-air changes nothing.
 game underdelve
 wait 10
-press A
 wait 5
 cheat no_gloom
 expect state == 1

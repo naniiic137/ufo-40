@@ -2,7 +2,6 @@
 # where he entered the room.
 game underdelve
 wait 10
-press A
 wait 5
 cheat no_gloom
 cheat room 5 0 170 130

@@ -3,7 +3,6 @@
 # A wrong ladder starts the sequence over.
 game underdelve
 wait 10
-press A
 wait 5
 cheat no_gloom
 cheat room 3 4 150 130

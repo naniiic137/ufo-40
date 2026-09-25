@@ -1,0 +1,24 @@
+# UNDERDELVE: the mine lifts stand still until Mo has the gear crank. With
+# it, the lift in the fork's ledge room rises to the ledge and waits there;
+# Mo steps across and strikes the chest open for the tuning fork. Without
+# the crank the ledge can't be reached from the lift.
+game underdelve
+wait 15
+cheat no_gloom
+cheat room 2 2 196 110
+cheat clear_enemies
+wait 320
+expect lift_y == 128
+expect py == 114
+cheat give 4
+cheat room 2 2 196 110
+cheat clear_enemies
+wait 320
+expect lift_y == 32
+expect py == 18
+hold RIGHT 32
+expect py == 18
+press B
+wait 20
+expect items & 2
+expect deaths == 0

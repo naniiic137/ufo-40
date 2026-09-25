@@ -2,12 +2,11 @@
 # next one starts over from the camp.
 game underdelve
 wait 10
-press A
 wait 5
 cheat no_gloom
 cheat room 1 4 20 130
 cheat clear_enemies
-cheat lanterns 1
+cheat lanterns 0
 hold RIGHT 60
 wait 80
 expect state == 3

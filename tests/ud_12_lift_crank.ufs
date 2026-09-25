@@ -1,7 +1,6 @@
 # UNDERDELVE: the mine lifts only run once Mo has the gear crank.
 game underdelve
 wait 10
-press A
 wait 5
 cheat no_gloom
 cheat room 5 3 44 100

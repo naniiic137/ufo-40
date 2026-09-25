@@ -3,7 +3,6 @@
 # drops the slab over the trapdoor shaft.
 game underdelve
 wait 10
-press A
 wait 5
 cheat no_gloom
 cheat room 2 0 250 130

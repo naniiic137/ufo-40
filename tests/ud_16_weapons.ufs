@@ -3,7 +3,6 @@
 # him: the sacrifice.
 game underdelve
 wait 10
-press A
 wait 5
 cheat no_gloom
 cheat room 6 7 67 130

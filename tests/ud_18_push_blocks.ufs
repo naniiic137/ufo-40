@@ -2,7 +2,6 @@
 # and opens the hole under them, down to the hungry spikes.
 game underdelve
 wait 10
-press A
 wait 5
 cheat no_gloom
 cheat room 2 3 60 130

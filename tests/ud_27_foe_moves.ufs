@@ -1,0 +1,26 @@
+# UNDERDELVE: how foes move. A hop toad hops four tiles at a time, left or
+# right. A grabsack sits as a chest until Mo comes within three tiles, then
+# hops a tile at a time. An axe newt faces the way Mo came into the room and
+# never turns round, throwing its axe that way on a beat.
+game underdelve
+wait 15
+cheat no_gloom
+cheat room 7 7 20 130
+wait 125
+expect fground_toad == 1
+expect fhop_toad >= 60
+expect fhop_toad <= 66
+cheat room 4 5 20 130
+wait 40
+expect fx_sack == 130
+expect fhop_sack == 0
+cheat pos 88 130
+wait 70
+expect fhop_sack >= 13
+expect fhop_sack <= 18
+cheat room 6 6 300 130
+expect fdir_newt == 1
+cheat pos 10 130
+wait 200
+expect fdir_newt == 1
+expect deaths == 0

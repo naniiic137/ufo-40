@@ -2,7 +2,6 @@
 # brass key and opens for it. The Lantern Keeper sells lanterns for 100 ore.
 game underdelve
 wait 10
-press A
 wait 5
 cheat no_gloom
 cheat room 4 1 147 130

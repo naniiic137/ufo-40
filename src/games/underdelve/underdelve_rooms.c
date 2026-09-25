@@ -8,7 +8,7 @@
  *         X  crystal bubble (the tuning fork lets the pick pop it)
  *         D  drip source   ~  ooze          y  ooze that turns out to be harmless
  *         F  fake wall     I  hidden block  U  crumbly wall (hit it)
- *         P  push block (hold against it)   G  the Deep Gate (brass key)
+ *         P  push block (hold against it)   G  the Deep Gate (brass tally)
  *         Q  trapdoor slab (the lever)       W  cracked wall (the smith)
  *         Z  boss seal     j  altar stone (stand on it)  J  altar ladder
  * Things: c  chest (first)  C  chest (second)  *  loose gem (100)
@@ -18,7 +18,7 @@
  *         @  start          b  boss          r  where the spikes take you
  *         v  the carved tablet
  * Decor:  T  torch  o  timber beam  M  glowcap  Y  crystals
- * Foes:   m bat-moth  t hop toad  g grub  p axe newt  w swooper  k mimic sack
+ * Foes:   m dustmoth  t hop toad  g grub  p axe newt  w swooper  k grabsack
  *         e shellback
  */
 #include "underdelve.h"
@@ -235,7 +235,7 @@ const RoomDef UD_ROOMS[UD_MAP_H][UD_MAP_W] = {
 {"FORK LEDGE", {
 "####################",
 "#..............c...#",
-"#.............=====#",
+"#............======#",
 "#..................#",
 "#..M...............#",
 "#.....====.........#",
@@ -385,7 +385,7 @@ const RoomDef UD_ROOMS[UD_MAP_H][UD_MAP_W] = {
 "#..................#",
 "#....====...===....#",
 "#..................#",
-"..==......m.......=#",
+"..==......m....==..#",
 "...................#",
 "############H#######"}, NO_SHOP, {0, 0}, 0, NO_LIFTS, 0},
 },
@@ -423,7 +423,7 @@ const RoomDef UD_ROOMS[UD_MAP_H][UD_MAP_W] = {
 "...................#",
 "...................#",
 "####################"}, NO_SHOP, {UD_ITEM_HUNGRY, 0}, 0, NO_LIFTS, 0},
-{"KEY LADDERS", {
+{"TALLY LADDERS", {
 "##########H#########",
 "#.........H........#",
 "#.........H........#",
@@ -433,7 +433,7 @@ const RoomDef UD_ROOMS[UD_MAP_H][UD_MAP_W] = {
 "#..H...H..H..H...H.#",
 "#..H...H..H..H...H.#",
 "#c.H...H..H..H...H.#",
-"####################"}, NO_SHOP, {UD_ITEM_KEY, 0}, 0, NO_LIFTS, 0},
+"####################"}, NO_SHOP, {UD_ITEM_TALLY, 0}, 0, NO_LIFTS, 0},
 {"ECHO VAULT", {
 "###############H####",
 "#.....Y........H...#",
@@ -467,7 +467,7 @@ const RoomDef UD_ROOMS[UD_MAP_H][UD_MAP_W] = {
 "......==.....==.....",
 "...e.......k........",
 "########H###########"}, NO_SHOP, {0, 0}, 0, NO_LIFTS, 0},
-{"COIN LEDGE", {
+{"NUGGET LEDGE", {
 "############H#######",
 "#.....Y.....H......#",
 "#...........H..c...#",
@@ -538,7 +538,7 @@ const RoomDef UD_ROOMS[UD_MAP_H][UD_MAP_W] = {
 {"GEM CHEST HALL", {
 "##########H#########",
 "#.........H....c...#",
-"#.........H..=====.#",
+"#.........H=======.#",
 "#....====.H........#",
 "#.........H........#",
 "#...p.....H...=====#",
@@ -653,7 +653,7 @@ const RoomDef UD_ROOMS[UD_MAP_H][UD_MAP_W] = {
 "#..H....T....T.....#",
 "#..H...............#",
 "#..H.......v.......#",
-"#..H..=========....#",
+"#..H.==========....#",
 "#..H...............#",
 "...H...............#",
 "...H....w..........#",
@@ -667,7 +667,7 @@ const RoomDef UD_ROOMS[UD_MAP_H][UD_MAP_W] = {
 "##...===...h...===.#",
 "#..........h.......#",
 "#.....e....h.......#",
-"#..........h..====.#",
+"#..........h.=====.#",
 "...........h........",
 ".....==.............",
 "####################"}, NO_SHOP, {0, 0}, 0, NO_LIFTS, 0},
@@ -726,7 +726,7 @@ const RoomDef UD_ROOMS[UD_MAP_H][UD_MAP_W] = {
 "...............H....",
 "....e..........H....",
 "####################"}, NO_SHOP, {0, 0}, 0, NO_LIFTS, 0},
-{"LIZARD FORGE", {
+{"SALAMANDER FORGE", {
 "############H#######",
 "#....T......H.T....#",
 "#...........H......#",
@@ -736,7 +736,7 @@ const RoomDef UD_ROOMS[UD_MAP_H][UD_MAP_W] = {
 "#..B.....B..H......#",
 "...B.....B..H.......",
 "....1..S....H...c...",
-"####################"}, {UD_ITEM_ROD, 0, 0}, {0, 0, 0}, {COIN, 0}, 0, NO_LIFTS, 2},
+"####################"}, {UD_ITEM_SPARKER, 0, 0}, {0, 0, 0}, {COIN, 0}, 0, NO_LIFTS, 2},
 {"EAST SUMP", {
 "####################",
 "#.....Y.......Y....#",

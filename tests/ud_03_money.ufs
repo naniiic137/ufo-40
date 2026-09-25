@@ -2,7 +2,6 @@
 # shrines that open once their room is clear. Foes drop nothing.
 game underdelve
 wait 10
-press A
 wait 5
 cheat no_gloom
 cheat room 7 4 242 34

@@ -2,7 +2,6 @@
 # tuning fork (200); the owl sells gloves (100) and the pot cheaper (50).
 game underdelve
 wait 10
-press A
 wait 5
 cheat no_gloom
 cheat room 1 3 211 130

@@ -1,29 +1,47 @@
-# UNDERDELVE: the Old Lode (8 hits) can only be hurt when it slams down.
-# Beating it opens the east wall; the Sunstone wins the game (Saucer), and
-# with all six lanterns still lit, the Alien too.
+# UNDERDELVE: the Old Lode lies shut in its nest, harmless, until Mo strikes
+# it. Then the door slams and the fight begins. It takes 8 hits, and only
+# while it sits on the floor after a slam. Beating it opens the east wall;
+# the Sunstone wins the game (Saucer), and with all six lanterns still lit,
+# the Alien too. After the ending, A goes back to the library.
 game underdelve
-wait 10
-press A
-wait 5
+wait 15
 cheat room 6 0 60 130
 wait 5
+expect boss_state == 6
+expect sealed == 0
 expect boss_hp == 8
+hold RIGHT 60
+expect lanterns == 6
+press B
+wait 20
+expect boss_state == 4
+expect sealed == 1
+expect boss_hp == 8
+hold LEFT 40
 press B
 wait 20
 expect boss_hp == 8
 cheat boss_ground
-cheat pos 100 130
-wait 2
+hold RIGHT 28
 press B
 wait 20
 expect boss_hp == 7
 cheat boss_hp 1
 press B
 wait 20
+expect boss_state == 5
 wait 160
 expect boss_dead == 1
-cheat room 7 0 150 98
-hold RIGHT 30
+expect sealed == 0
+hold RIGHT 220
+expect room_x == 7
+hold RIGHT 92
+hold RIGHT+A 3
+hold RIGHT 60
 expect state == 5
 expect goals & 2
 expect goals & 4
+wait 250
+press A
+wait 60
+expect_scene library

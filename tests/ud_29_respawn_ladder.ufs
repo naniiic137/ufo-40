@@ -1,0 +1,22 @@
+# UNDERDELVE: after a death Mo comes back where he came into the room. If
+# he came in on a ladder he comes back holding it, rather than dropping down
+# the shaft into what killed him. Across the whole mine, no way into a room
+# drops a returning Mo onto spikes or ooze.
+game underdelve
+wait 15
+cheat no_gloom
+cheat room 2 5 195 130
+cheat clear_enemies
+hold DOWN 60
+expect room_y == 6
+expect climbing == 1
+hold DOWN 250
+wait 100
+expect deaths == 1
+expect lanterns == 5
+expect state == 1
+expect room_y == 6
+expect climbing == 1
+wait 120
+expect deaths == 1
+expect respawn_traps == 0
