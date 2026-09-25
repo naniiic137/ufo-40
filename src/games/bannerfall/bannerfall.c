@@ -1116,7 +1116,7 @@ static void draw_campaign(void) {
         gfx_hline(rx, rx + 3, yy, C_SKY);
         gfx_pset(rx + 1, yy, (yy + frame_t / 8) % 5 ? C_SKY : C_ICE);
     }
-    static const int8_t TREES[][2] = {{12, 26}, {48, 50}, {130, 26}, {118, 80}, {30, 108}, {66, 138}, {140, 140}, {100, 110}, {16, 76}};
+    static const int16_t TREES[][2] = {{12, 26}, {48, 50}, {130, 26}, {118, 80}, {30, 108}, {66, 138}, {140, 140}, {100, 110}, {16, 76}};
     for (int i = 0; i < ARRAY_LEN(TREES); i++) tree(TREES[i][0], TREES[i][1]);
     /* the road */
     for (int i = 0; i + 1 < BF_LEVELS; i++) {
