@@ -19,7 +19,7 @@ static void lib_enter(void) {
     launch_t = 0;
     shake_t = 0;
     game_set_pausable(true);
-    music_play(MUS_LIBRARY);
+    shell_menu_music();
 }
 
 static int available_count(void) {
@@ -60,7 +60,10 @@ static void lib_update(void) {
     }
     if (btnp(BTN_SELECT)) {
         sfx_play_name("ui_ok");
-        scene_goto(&SCENE_SETTINGS);
+        shell_open_options(&SCENE_LIBRARY);
+    } else if (btnp(BTN_B)) {
+        sfx_play_name("ui_back");
+        scene_goto(&SCENE_MENU);
     }
 }
 
@@ -231,8 +234,9 @@ static void lib_draw(void) {
     gfx_rect(0, 167, SCREEN_W, 13, C_NIGHT);
     gfx_hline(0, SCREEN_W - 1, 166, C_DUSK);
     int fx = ui_hint(6, 170, GLYPH_A, "PLAY", C_LIGHT);
+    fx = ui_hint(fx, 170, GLYPH_B, "MENU", C_LIGHT);
     fx = text_draw("SELECT", fx, 170, C_WHITE);
-    text_draw("SETTINGS", fx + 4, 170, C_LIGHT);
+    text_draw("OPTIONS", fx + 4, 170, C_LIGHT);
     snprintf(buf, sizeof buf, "SLOT %02d/40", g_library_cursor + 1);
     text_draw(buf, SCREEN_W - 6 - text_width(buf), 170, C_GREY);
 }

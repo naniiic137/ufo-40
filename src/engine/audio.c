@@ -317,6 +317,7 @@ int song_find(const char *name) {
 int song_count(void) { return n_songs; }
 const char *song_name(int id) { return (id >= 0 && id < n_songs) ? songs[id].name : ""; }
 bool song_loops(int id) { return id >= 0 && id < n_songs && songs[id].loop; }
+int song_bpm(int id) { return (id >= 0 && id < n_songs) ? songs[id].bpm : 0; }
 int song_channel_ticks(int id, int ch) { return (id >= 0 && id < n_songs) ? songs[id].tr[ch].ticks : 0; }
 int song_channel_loop_ticks(int id, int ch) { return (id >= 0 && id < n_songs) ? songs[id].tr[ch].loop_ticks : 0; }
 

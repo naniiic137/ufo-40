@@ -1,9 +1,22 @@
-# ROOFCAT: dying with no lives left is game over.
+# ROOFCAT: dying with no lives to spare is game over. Dying in a bonus
+# stretch earns a remark on the game over screen.
 game roofcat
 wait 5
 cheat area 0 1
 cheat lives 0
 cheat kill
-wait 100
-expect state == 3
-expect has_checkpoint == 0
+waituntil state == 3 200
+wait 65
+expect over_in_bonus == 0
+press A
+wait 20
+expect state == 0
+press A
+wait 75
+expect state == 2
+cheat cam 4500
+cheat clear_foes
+cheat lives 0
+cheat kill
+waituntil state == 3 200
+expect over_in_bonus == 1

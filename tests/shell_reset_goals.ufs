@@ -1,0 +1,51 @@
+# SHELL: RESET GOALS sticks. Bannerfall rebuilds its goals from its save
+# (the Beacon for the first 12 battles won), so the save goes with the
+# goals: the next launch gives nothing back, and neither does the next win.
+game bannerfall
+wait 10
+cheat beaten 4095
+reload
+game bannerfall
+wait 10
+expect goals.bannerfall == 1
+expect save_state.bannerfall == 1
+reload
+wait 30
+press A
+wait 30
+press DOWN
+press DOWN
+press A
+wait 30
+expect_scene savedata
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+expect savedata_cart == 8
+press A
+expect savedata_step == 1
+press DOWN
+press A
+expect savedata_ask == 2
+press RIGHT
+press A
+expect savedata_step == 0
+expect goals.bannerfall == 0
+expect save_state.bannerfall == 0
+# launched again: the Beacon stays dark
+reload
+game bannerfall
+wait 10
+expect goals.bannerfall == 0
+# one battle won: still dark (it takes twelve)
+cheat battle 1
+cheat clear
+cheat flags 5 1
+cheat unit 7 2 1 0
+cheat endturn
+wait 200
+expect won == 1
+expect goals.bannerfall == 0

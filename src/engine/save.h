@@ -18,7 +18,8 @@ typedef struct Progress {
     uint8_t scale;              /* PC window scale */
     uint8_t fullscreen;
     uint8_t last_game;
-    uint8_t reserved[15];
+    uint8_t menu_pos;           /* main menu cursor (was reserved: old files read 0) */
+    uint8_t reserved[14];
 } Progress;
 
 extern Progress g_progress;
@@ -37,6 +38,9 @@ bool progress_pop_toast(int *game, int *goal_bit);
 /* Per-game save blobs ("gameNN.sav"). */
 bool game_save_write(int game, const void *data, int len);
 int game_save_read(int game, void *data, int len); /* bytes or -1 */
+/* Bytes in the save file whether it reads back or not (0 = no file): a
+ * file that is there but fails its checks is damaged. */
+int game_save_raw_size(int game);
 void game_save_erase(int game);
 
 #endif

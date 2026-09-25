@@ -34,7 +34,9 @@ static int shot_scale = 1;
 int plat_kind(void) { return PLAT_HEADLESS; }
 const char *plat_name(void) { return "HEADLESS"; }
 void plat_apply_video(int scale, int fullscreen) { (void)scale; (void)fullscreen; }
-void plat_request_quit(void) {}
+static bool quit_requested;
+void plat_request_quit(void) { quit_requested = true; }
+const char *plat_save_where(void) { return save_dir; }
 
 static void mkdirs(const char *path) {
     char tmp[512];
@@ -152,6 +154,8 @@ static bool query(const char *key, int *out) {
         *out = g >= 0 ? g_progress.goals[g] : -1;
         return true;
     }
+    if (!strcmp(key, "quit_requested")) { *out = quit_requested; return true; }
+    if (shell_query(key, out)) return true;
     if (gi >= 0 && GAMES[gi] && GAMES[gi]->query && GAMES[gi]->query(key, out)) return true;
     return false;
 }
@@ -299,6 +303,80 @@ static int run_script(const char *path) {
             remove(pth);
             for (int i = 0; i < GAME_SLOTS; i++) { snprintf(pth, sizeof pth, "%s/game%02d.sav", save_dir, i + 1); remove(pth); }
             progress_defaults();
+        } else if (!strcmp(cmd, "botplay")) {
+            /* botplay FRAMES : the running cartridge's demo player chooses the
+             * buttons each frame (its "bot" query), and they are pressed for real */
+            int n = atoi(arg), gi = game_current_index();
+            for (int i = 0; i < n; i++) {
+                int mask = 0;
+                if (gi >= 0 && GAMES[gi]->query && GAMES[gi]->query("bot", &mask)) held = (uint32_t)mask;
+                step(1);
+            }
+            held = 0;
+        } else if (!strcmp(cmd, "waituntil")) {
+            /* waituntil KEY OP VALUE MAXFRAMES : step (buttons as they are) until the condition holds */
+            char key[96], op[8];
+            int val = 0, maxf = 0, got = 0, i = 0;
+            checks++;
+            if (sscanf(arg, "%95s %7s %d %d", key, op, &val, &maxf) != 4) { fail("bad waituntil: %s%ld", arg, 0); continue; }
+            for (; i < maxf; i++) {
+                if (query(key, &got) && compare(got, op, val)) break;
+                step(1);
+            }
+            if (i >= maxf) {
+                failures++;
+                fprintf(stderr, "FAIL %s:%d: %s %s %d not reached in %d frames (got %d)\n", script_name, line_no, key, op, val, maxf, got);
+            }
+        } else if (!strcmp(cmd, "botuntil")) {
+            /* botuntil KEY OP VALUE MAXFRAMES : the demo player plays until the
+             * condition holds (or the frames run out, which fails) */
+            char key[96], op[8];
+            int val = 0, maxf = 0, gi = game_current_index();
+            checks++;
+            if (sscanf(arg, "%95s %7s %d %d", key, op, &val, &maxf) != 4) { fail("bad botuntil: %s%ld", arg, 0); continue; }
+            int got = 0, i = 0;
+            for (; i < maxf; i++) {
+                if (query(key, &got) && compare(got, op, val)) break;
+                int mask = 0;
+                if (gi >= 0 && GAMES[gi]->query && GAMES[gi]->query("bot", &mask)) held = (uint32_t)mask;
+                step(1);
+            }
+            held = 0;
+            if (i >= maxf) {
+                failures++;
+                fprintf(stderr, "FAIL %s:%d: %s %s %d not reached in %d frames (got %d)\n", script_name, line_no, key, op, val, maxf, got);
+            }
+        } else if (!strcmp(cmd, "fake_save")) {
+            /* fake_save GAME BYTES : give a cartridge a valid save file of that size */
+            char name[64] = {0};
+            int bytes = 0;
+            sscanf(arg, "%63s %d", name, &bytes);
+            int gi = app_find_game(name);
+            if (gi < 0 || bytes <= 0 || bytes > 4096) { fail("bad fake_save '%s'%ld", arg, 0); continue; }
+            uint8_t blob[4096];
+            for (int i = 0; i < bytes; i++) blob[i] = (uint8_t)(i * 7 + gi);
+            game_save_write(gi, blob, bytes);
+        } else if (!strcmp(cmd, "junk_save")) {
+            /* junk_save GAME BYTES : a save file that fails its checks (damaged) */
+            char name[64] = {0};
+            int bytes = 0;
+            sscanf(arg, "%63s %d", name, &bytes);
+            int gi = app_find_game(name);
+            if (gi < 0 || bytes <= 0 || bytes > 4096) { fail("bad junk_save '%s'%ld", arg, 0); continue; }
+            uint8_t blob[4096];
+            for (int i = 0; i < bytes; i++) blob[i] = (uint8_t)(0xA5 ^ i);
+            char fname[32];
+            snprintf(fname, sizeof fname, "game%02d.sav", gi + 1);
+            plat_save_write(fname, blob, bytes);
+        } else if (!strcmp(cmd, "set_goals")) {
+            /* set_goals GAME BITS : set a cartridge's goals (1 beacon, 2 saucer, 4 alien) */
+            char name[64] = {0};
+            int bits = 0;
+            sscanf(arg, "%63s %d", name, &bits);
+            int gi = app_find_game(name);
+            if (gi < 0) { fail("bad set_goals '%s'%ld", arg, 0); continue; }
+            g_progress.goals[gi] = (uint8_t)(bits & 7);
+            progress_save();
         } else if (!strcmp(cmd, "audio")) {
             audio_on = strncmp(arg, "on", 2) == 0;
         } else if (!strcmp(cmd, "check_songs")) {

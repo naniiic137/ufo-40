@@ -1,0 +1,15 @@
+# ROOFCAT: a sensible player gets through the whole first area. The demo
+# player presses real buttons each frame: it keeps B held, stays in the left
+# half of the screen, jumps gaps and walls, hops over what is about to hit
+# it, turns round for what comes from behind, and as a spirit floats to a
+# safe roof before coming back. It must reach the second area (screen 13,
+# about two and a half minutes in) without a game over, scoring on the way.
+game roofcat
+wait 20
+botuntil state == 2 200
+expect area == 0
+botuntil area == 1 9000
+expect state == 2
+expect lives >= 0
+expect score >= 1500
+expect kills >= 10

@@ -1,0 +1,34 @@
+# SHELL: a save file that fails its checks shows as DAMAGED in SAVE DATA,
+# and DELETE SAVE can remove it. Other saves are untouched.
+junk_save fennec 30
+fake_save grubshift 40
+reload
+expect save_state.fennec == 2
+expect save.fennec == 0
+expect save_state.grubshift == 1
+wait 30
+press A
+wait 30
+press DOWN
+press DOWN
+press A
+wait 30
+expect_scene savedata
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+expect savedata_cart == 14
+press A
+expect savedata_step == 1
+press A
+expect savedata_ask == 1
+press RIGHT
+press A
+expect save_state.fennec == 0
+expect save_state.grubshift == 1
+expect save.grubshift == 40

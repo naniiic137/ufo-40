@@ -1,14 +1,73 @@
-# The console boots, the boot screen can be skipped, the library opens,
-# settings open and close, and a cartridge launches into the game runner.
+# SHELL: the boot animation leads to the main menu. Every item opens its
+# screen and B comes back; PLAY opens the library, whose B returns to the
+# menu and whose SELECT still opens the options (and B goes back to it).
+# A cartridge launches from the library into the game runner.
 wait 30
 expect_scene boot
 press A
 wait 30
+expect_scene menu
+expect menu_sel == 0
+expect menu_items == 5
+# OPTIONS
+press DOWN
+expect menu_sel == 1
+press A
+wait 30
+expect_scene settings
+press B
+wait 30
+expect_scene menu
+expect menu_sel == 1
+# SAVE DATA
+press DOWN
+press A
+wait 30
+expect_scene savedata
+press B
+wait 30
+expect_scene menu
+# CONTROLS: left and right change the system shown
+press DOWN
+press A
+wait 30
+expect_scene controls
+expect controls_tab == 1
+press RIGHT
+expect controls_tab == 2
+press LEFT
+press LEFT
+press LEFT
+expect controls_tab == 3
+press B
+wait 30
+expect_scene menu
+# CREDITS
+press DOWN
+press A
+wait 30
+expect_scene credits
+press B
+wait 30
+expect_scene menu
+# the list wraps: DOWN from CREDITS is PLAY again (no QUIT except on PC)
+press DOWN
+expect menu_sel == 0
+press A
+wait 30
 expect_scene library
+# SELECT in the library still opens the options, and B returns there
 press SELECT
 wait 30
 expect_scene settings
 press B
+wait 30
+expect_scene library
+# B in the library goes back to the main menu
+press B
+wait 30
+expect_scene menu
+press A
 wait 30
 expect_scene library
 press A

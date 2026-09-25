@@ -1,0 +1,46 @@
+# SHELL: OPTIONS changes the music and sound volumes with the d-pad. The
+# change is heard at once (the menu tune goes quiet at 0 and comes back) and
+# it is still there after the console is switched off and on.
+audio on
+wait 30
+press A
+wait 30
+expect_scene menu
+press DOWN
+press A
+wait 30
+expect_scene settings
+expect options_sel == 0
+expect music_vol == 7
+expect sfx_vol == 8
+expect music_is.library == 1
+# music all the way down: silence (the menu tune keeps playing, unheard)
+hold LEFT 80
+expect music_vol == 0
+wait 60
+expect music_is.library == 1
+expect audio.peak < 3
+# and up again: the same tune is heard at once
+hold RIGHT 80
+expect music_vol == 10
+wait 30
+expect audio.peak > 20
+press LEFT
+press LEFT
+press LEFT
+expect music_vol == 7
+press RIGHT
+press RIGHT
+expect music_vol == 9
+# sound effects: two steps down
+press DOWN
+expect options_sel == 1
+press LEFT
+press LEFT
+expect sfx_vol == 6
+press B
+wait 30
+expect_scene menu
+reload
+expect music_vol == 9
+expect sfx_vol == 6

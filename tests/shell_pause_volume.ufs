@@ -1,0 +1,22 @@
+# SHELL: the pause menu has the music and sound volumes, so a run never has
+# to be left to change them. The change is kept.
+game roofcat
+wait 20
+press A
+wait 80
+press START
+expect paused == 1
+press DOWN
+press DOWN
+press DOWN
+press LEFT
+press LEFT
+expect music_vol == 5
+press DOWN
+press RIGHT
+expect sfx_vol == 9
+press START
+expect paused == 0
+reload
+expect music_vol == 5
+expect sfx_vol == 9

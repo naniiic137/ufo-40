@@ -1,0 +1,16 @@
+# ROOFCAT: the town is busy from the start and gets busier area by area, as
+# Ninpek does ("the enemies come at you fast, in great numbers"). Riding the
+# whole first loop without a hit or a throw (nothing can take a life here),
+# the average number of foes awake on screen rises in every area (in tenths:
+# at least 4, 5.5, 7 and 8, against about 2.4 falling to 1.7 before). The bonus
+# stretches are left out of the count.
+game roofcat
+wait 20
+press A
+wait 75
+cheat godmode
+waituntil in_arena == 1 40000
+expect density0 >= 40
+expect density1 >= 55
+expect density2 >= 70
+expect density3 >= 80

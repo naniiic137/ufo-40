@@ -7,6 +7,12 @@ static int pause_sel, pause_page, confirm_sel, pause_t;
 static int toast_timer, toast_game_i, toast_bit_i;
 
 int g_library_cursor;
+int g_jukebox_song = -1;
+
+/* which cartridge defined each song, recorded while the cartridges load */
+#define OWNER_MAX 256
+static int8_t song_owner[OWNER_MAX];
+static bool owners_ready;
 
 /* ---- services for games ---------------------------------------------- */
 
@@ -31,10 +37,99 @@ void app_init(void) {
     progress_load();
     audio_set_volume(g_progress.music_vol, g_progress.sfx_vol);
     shell_audio_init();
+    if (!owners_ready) memset(song_owner, -1, sizeof song_owner); /* the console's own songs */
     for (int i = 0; i < GAME_SLOTS; i++)
-        if (GAMES[i] && GAMES[i]->load) GAMES[i]->load();
+        if (GAMES[i] && GAMES[i]->load) {
+            int s0 = song_count();
+            GAMES[i]->load();
+            for (int s = s0; s < song_count() && s < OWNER_MAX; s++) song_owner[s] = (int8_t)i;
+        }
+    owners_ready = true;
+    g_jukebox_song = -1;
     g_library_cursor = g_progress.last_game < GAME_SLOTS ? g_progress.last_game : 0;
     scene_set(&SCENE_BOOT);
+}
+
+int shell_song_owner(int song) { return song >= 0 && song < OWNER_MAX ? song_owner[song] : -1; }
+
+void shell_menu_music(void) {
+    /* a song picked in the jukebox keeps playing through the menus */
+    if (g_jukebox_song >= 0 && music_playing() == g_jukebox_song && !music_finished()) return;
+    g_jukebox_song = -1;
+    music_play(MUS_LIBRARY);
+}
+
+/* ---- save data --------------------------------------------------------- */
+
+static uint8_t save_scratch[65536];
+
+int shell_save_size(int game) {
+    if (game < 0 || game >= GAME_SLOTS) return 0;
+    int n = game_save_read(game, save_scratch, (int)sizeof save_scratch);
+    return n > 0 ? n : 0;
+}
+
+void shell_delete_save(int game) {
+    if (game >= 0 && game < GAME_SLOTS) game_save_erase(game);
+}
+
+/* Games rebuild goals from their saved progress (battles won, rooms done,
+ * streaks...), so the goals only stay reset if that progress goes too. */
+void shell_reset_goals(int game) {
+    if (game < 0 || game >= GAME_SLOTS) return;
+    game_save_erase(game);
+    g_progress.goals[game] = 0;
+    progress_save();
+}
+
+int shell_save_state(int game) {
+    if (shell_save_size(game) > 0) return SAVE_OK;
+    return game >= 0 && game < GAME_SLOTS && game_save_raw_size(game) > 0 ? SAVE_DAMAGED : SAVE_NONE;
+}
+
+void shell_delete_all(void) {
+    for (int i = 0; i < GAME_SLOTS; i++) game_save_erase(i);
+    memset(g_progress.goals, 0, sizeof g_progress.goals);
+    memset(g_progress.played, 0, sizeof g_progress.played);
+    g_progress.last_game = 0;
+    g_library_cursor = 0;
+    progress_save(); /* volumes, video and the menu position stay */
+}
+
+/* ---- test hooks ---------------------------------------------------------- */
+
+bool menu_query(const char *key, int *out);
+bool options_query(const char *key, int *out);
+bool jukebox_query(const char *key, int *out);
+bool savedata_query(const char *key, int *out);
+
+bool shell_query(const char *key, int *out) {
+    if (!strcmp(key, "music_vol")) { *out = g_progress.music_vol; return true; }
+    if (!strcmp(key, "sfx_vol")) { *out = g_progress.sfx_vol; return true; }
+    if (!strcmp(key, "music_playing")) { *out = music_playing(); return true; }
+    if (!strcmp(key, "jukebox_song")) { *out = g_jukebox_song; return true; }
+    if (!strcmp(key, "library_cursor")) { *out = g_library_cursor; return true; }
+    if (!strncmp(key, "music_is.", 9)) {
+        int id = song_find(key + 9);
+        *out = id >= 0 && music_playing() == id && !music_finished();
+        return true;
+    }
+    if (!strncmp(key, "save.", 5)) {
+        int g = app_find_game(key + 5);
+        *out = g >= 0 ? shell_save_size(g) : -1;
+        return true;
+    }
+    if (!strncmp(key, "save_state.", 11)) {
+        int g = app_find_game(key + 11);
+        *out = g >= 0 ? shell_save_state(g) : -1;
+        return true;
+    }
+    if (!strncmp(key, "played.", 7)) {
+        int g = app_find_game(key + 7);
+        *out = g >= 0 ? g_progress.played[g] : -1;
+        return true;
+    }
+    return menu_query(key, out) || options_query(key, out) || jukebox_query(key, out) || savedata_query(key, out);
 }
 
 void app_update(void) { engine_update(); }
@@ -109,12 +204,17 @@ static void runner_leave(void) {
     paused = false;
 }
 
-static const char *PAUSE_ITEMS[] = {"RESUME", "RESTART", "CONTROLS", "QUIT TO LIBRARY"};
+/* The volumes sit in the pause menu too, so a run never has to be left to
+ * turn the music down. */
+enum { PI_RESUME, PI_RESTART, PI_CONTROLS, PI_MUSIC, PI_SFX, PI_QUIT, PI_COUNT };
+static const char *PAUSE_ITEMS[PI_COUNT] = {"RESUME", "RESTART", "CONTROLS", "MUSIC", "SOUND FX", "QUIT TO LIBRARY"};
+static bool vol_dirty;
 
 static void unpause(void) {
     paused = false;
     music_duck(false);
     input_consume();
+    if (vol_dirty) { progress_save(); vol_dirty = false; }
 }
 
 static void pause_update(void) {
@@ -139,21 +239,33 @@ static void pause_update(void) {
         }
         return;
     }
-    if (btn_repeat(BTN_UP)) { pause_sel = (pause_sel + 3) % 4; sfx_play_name("ui_move"); }
-    if (btn_repeat(BTN_DOWN)) { pause_sel = (pause_sel + 1) % 4; sfx_play_name("ui_move"); }
+    if (btn_repeat(BTN_UP)) { pause_sel = (pause_sel + PI_COUNT - 1) % PI_COUNT; sfx_play_name("ui_move"); }
+    if (btn_repeat(BTN_DOWN)) { pause_sel = (pause_sel + 1) % PI_COUNT; sfx_play_name("ui_move"); }
+    /* the music plays at its real level while its volume is being set */
+    music_duck(pause_sel != PI_MUSIC);
+    int dir = btn_repeat(BTN_RIGHT) ? 1 : btn_repeat(BTN_LEFT) ? -1 : 0;
+    if (dir && (pause_sel == PI_MUSIC || pause_sel == PI_SFX)) {
+        uint8_t *v = pause_sel == PI_MUSIC ? &g_progress.music_vol : &g_progress.sfx_vol;
+        *v = (uint8_t)iclamp(*v + dir, 0, 10);
+        app_apply_settings();
+        vol_dirty = true;
+        sfx_play_name(pause_sel == PI_MUSIC ? "ui_move" : "ui_toast");
+    }
     if (btnp(BTN_START) || btnp(BTN_B)) { sfx_play_name("ui_back"); unpause(); return; }
     if (btnp(BTN_A)) {
         switch (pause_sel) {
-        case 0: sfx_play_name("ui_ok"); unpause(); break;
-        case 1: pause_page = 2; confirm_sel = 1; sfx_play_name("ui_ok"); break;
-        case 2: pause_page = 1; sfx_play_name("ui_ok"); break;
-        case 3:
+        case PI_RESUME: sfx_play_name("ui_ok"); unpause(); break;
+        case PI_RESTART: pause_page = 2; confirm_sel = 1; sfx_play_name("ui_ok"); break;
+        case PI_CONTROLS: pause_page = 1; sfx_play_name("ui_ok"); break;
+        case PI_QUIT:
             sfx_play_name("ui_back");
+            if (vol_dirty) { progress_save(); vol_dirty = false; }
             paused = false;
             music_duck(false);
             music_fade(20);
             scene_goto(&SCENE_LIBRARY);
             break;
+        default: break;
         }
     }
 }
@@ -197,24 +309,29 @@ static void draw_pause(void) {
         text_center(GLYPH_A " BACK", 160, 144, C_GREY);
         return;
     }
-    ui_panel(92, 44, 136, 92, C_NIGHT, C_SLATE);
-    gfx_rect(93, 45, 134, 15, C_DUSK);
-    text_center("PAUSED", 160, 49, C_WHITE);
-    tiny_center(g->title, 160, 64, C_GREY);
+    int py = 30;
+    ui_panel(84, py, 152, 120, C_NIGHT, C_SLATE);
+    gfx_rect(85, py + 1, 150, 15, C_DUSK);
+    text_center("PAUSED", 160, py + 5, C_WHITE);
+    tiny_center(g->title, 160, py + 20, C_GREY);
     if (pause_page == 2) {
-        text_center("RESTART GAME?", 160, 80, C_YELLOW);
-        tiny_center("UNSAVED PROGRESS IS LOST", 160, 92, C_GREY);
-        text_draw("YES", 126, 108, confirm_sel == 0 ? C_WHITE : C_SLATE);
-        text_draw("NO", 180, 108, confirm_sel == 1 ? C_WHITE : C_SLATE);
-        ui_cursor(confirm_sel == 0 ? 118 : 172, 108, pause_t);
+        text_center("RESTART GAME?", 160, py + 40, C_YELLOW);
+        tiny_center("UNSAVED PROGRESS IS LOST", 160, py + 52, C_GREY);
+        text_draw("YES", 126, py + 68, confirm_sel == 0 ? C_WHITE : C_SLATE);
+        text_draw("NO", 180, py + 68, confirm_sel == 1 ? C_WHITE : C_SLATE);
+        ui_cursor(confirm_sel == 0 ? 118 : 172, py + 68, pause_t);
         return;
     }
-    for (int i = 0; i < 4; i++) {
-        int y = 76 + i * 13;
+    for (int i = 0; i < PI_COUNT; i++) {
+        int y = py + 32 + i * 13;
         bool sel = i == pause_sel;
-        if (sel) gfx_rect(100, y - 3, 120, 13, C_DUSK);
-        text_draw(PAUSE_ITEMS[i], 116, y, sel ? C_WHITE : C_GREY);
-        if (sel) ui_cursor(106, y, pause_t);
+        if (sel) gfx_rect(92, y - 3, 136, 13, C_DUSK);
+        text_draw(PAUSE_ITEMS[i], 108, y, sel ? C_WHITE : C_GREY);
+        if (sel) ui_cursor(98, y, pause_t);
+        if (i == PI_MUSIC || i == PI_SFX) {
+            int v = i == PI_MUSIC ? g_progress.music_vol : g_progress.sfx_vol;
+            for (int k = 0; k < 10; k++) gfx_rect(170 + k * 5, y, 4, 7, k < v ? (sel ? C_YELLOW : C_AMBER) : C_INK);
+        }
     }
 }
 

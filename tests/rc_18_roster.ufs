@@ -1,19 +1,67 @@
-# ROOFCAT: foe toughness and what they drop. A toad takes four stars and
-# drops a 300 token; a crow takes four; a spike lamp takes ten and a snail one.
+# ROOFCAT: every foe's toughness and egg, as in Ninpek's roster: pigeon 2/100,
+# racing pigeon 2/200, crow 4/200, gecko 1/100, gull 2/100, spike lamp 10/on
+# the spot, flying fish 1/200, wasp 1/100, snail 1/100, toad 4/300, pelican
+# 2/200, jumping jar 2/200, firecracker 8/on the spot, pufferfish 1/200,
+# spider 1/100, magpie 1/200, flasher 2/300. A toad takes four stars.
 game roofcat
 wait 5
 cheat area 0 1
-cheat clear_foes
 cheat cam 0
-cheat put 20 83
-wait 5
-cheat foe toad 100 80
-expect hp_toad == 4
-expect hp_crow == -1
-cheat foe crow 200 64
-expect hp_crow == 4
 cheat clear_foes
-cheat foe toad 80 80
+cheat put 20 115
+wait 5
+cheat foe pigeon 300 40
+expect hp_pigeon == 2
+cheat foe rpigeon 300 40
+expect hp_rpigeon == 2
+cheat foe crow 300 40
+expect hp_crow == 4
+cheat foe gecko 300 40
+expect hp_gecko == 1
+cheat foe gull 300 40
+expect hp_gull == 2
+cheat foe lamp 300 40
+expect hp_lamp == 10
+cheat foe ffish 300 40
+expect hp_ffish == 1
+cheat foe snail 300 40
+expect hp_snail == 1
+cheat foe pelican 300 40
+expect hp_pelican == 2
+cheat foe jar 300 40
+expect hp_jar == 2
+cheat foe cracker 300 40
+expect hp_cracker == 8
+cheat foe puffer 300 40
+expect hp_puffer == 1
+cheat foe spider 300 40
+expect hp_spider == 1
+cheat foe magpie 300 40
+expect hp_magpie == 1
+cheat foe flasher 300 40
+expect hp_flasher == 2
+cheat foe wasp 300 40
+expect hp_wasp == 1
+expect egg_pigeon == 100
+expect egg_rpigeon == 200
+expect egg_crow == 200
+expect egg_gecko == 100
+expect egg_gull == 100
+expect egg_lamp == 0
+expect egg_ffish == 200
+expect egg_snail == 100
+expect egg_pelican == 200
+expect egg_jar == 200
+expect egg_cracker == 0
+expect egg_puffer == 200
+expect egg_spider == 100
+expect egg_magpie == 200
+expect egg_flasher == 300
+expect egg_wasp == 100
+cheat clear_foes
+cheat foe toad 80 112
+expect hp_toad == 4
+expect egg_toad == 300
 press B 1
 wait 25
 press B 1
@@ -25,8 +73,3 @@ press B 1
 wait 25
 expect count_toad == 0
 expect token_value == 300
-cheat clear_foes
-cheat foe lamp 70 70
-expect hp_lamp == 10
-cheat foe snail 200 80
-expect hp_snail == 1

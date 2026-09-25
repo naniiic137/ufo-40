@@ -1,20 +1,25 @@
-# ROOFCAT: snacks are worth 5; after 100 they are worth 20, after 200 they
-# are worth 100.
+# ROOFCAT: in a bonus stretch snacks are worth 5; once 100 of that stretch's
+# snacks are eaten the rest are worth 20, after 200 they are worth 100. Each
+# stretch counts on its own. Running along the roof of the first stretch
+# eats plenty, each for 5.
 game roofcat
 wait 5
-cheat area 0 1
+cheat area 1 1
+cheat cam 4440
 cheat clear_foes
-cheat cam 0
-cheat put 60 83
-wait 5
-cheat snack 60 88
-wait 3
-expect score == 5
-cheat snacks 100
-cheat snack 60 88
-wait 3
-expect score == 25
-cheat snacks 200
-cheat snack 60 88
-wait 3
-expect score == 125
+expect snack_value0 == 5
+cheat bonus 0 99
+expect snack_value0 == 5
+cheat bonus 0 100
+expect snack_value0 == 20
+cheat bonus 0 199
+expect snack_value0 == 20
+cheat bonus 0 200
+expect snack_value0 == 100
+expect snack_value1 == 5
+cheat bonus 0 0
+cheat put 40 115
+hold RIGHT 200
+expect bonus0 >= 60
+expect bonus1 == 0
+expect snack_points_ok == 1

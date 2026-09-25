@@ -57,6 +57,7 @@ int song_find(const char *name);
 int song_count(void);
 const char *song_name(int id);
 bool song_loops(int id);
+int song_bpm(int id);
 int song_channel_ticks(int id, int ch);       /* length of one pass, for tests */
 int song_channel_loop_ticks(int id, int ch);  /* length from loop point */
 

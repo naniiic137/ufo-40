@@ -1,0 +1,94 @@
+# SHELL: SAVE DATA deletes one cartridge's save or resets its goals without
+# touching the others, and DELETE ALL DATA asks twice (NO is the default
+# both times) before it erases every save and goal. Volumes stay.
+fake_save underdelve 64
+fake_save grubshift 40
+fake_save roofcat 20
+set_goals roofcat 3
+set_goals grubshift 1
+reload
+expect save.roofcat == 20
+wait 30
+press A
+wait 30
+press DOWN
+press DOWN
+expect menu_sel == 2
+press A
+wait 30
+expect_scene savedata
+expect savedata_cart == 0
+press DOWN
+press DOWN
+expect savedata_cart == 2
+# ROOFCAT: DELETE SAVE is offered first; NO is the default answer
+press A
+expect savedata_step == 1
+press A
+expect savedata_step == 2
+expect savedata_ask == 1
+press A
+expect savedata_step == 1
+expect save.roofcat == 20
+# again, and this time YES
+press A
+press RIGHT
+press A
+expect savedata_step == 0
+expect save.roofcat == 0
+expect save.grubshift == 40
+expect save.underdelve == 64
+expect goals.roofcat == 3
+# RESET GOALS (DELETE SAVE is greyed out now, so it is the first offer)
+press A
+press A
+expect savedata_ask == 2
+press RIGHT
+press A
+expect goals.roofcat == 0
+expect goals.grubshift == 1
+expect save.grubshift == 40
+# DELETE ALL DATA is the last row; up from ROOFCAT wraps round to it
+press UP
+press UP
+press UP
+expect savedata_cart == -1
+# step 1 YES, step 2 B: nothing is deleted
+press A
+expect savedata_ask == 3
+press RIGHT
+press A
+expect savedata_ask == 4
+press B
+expect savedata_step == 0
+expect save.grubshift == 40
+# step 1 YES, step 2 NO (the default): nothing is deleted
+press A
+press RIGHT
+press A
+expect savedata_ask == 4
+press A
+expect savedata_step == 0
+expect save.grubshift == 40
+expect goals.grubshift == 1
+# step 1 NO: nothing
+press A
+press A
+expect savedata_step == 0
+expect save.underdelve == 64
+# YES twice: everything goes, the volumes stay
+press A
+press RIGHT
+press A
+press RIGHT
+press A
+expect savedata_step == 0
+expect save.grubshift == 0
+expect save.underdelve == 0
+expect total_goals == 0
+expect music_vol == 7
+reload
+expect save.grubshift == 0
+expect goals.grubshift == 0
+expect total_goals == 0
+expect music_vol == 7

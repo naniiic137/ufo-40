@@ -1,0 +1,44 @@
+# ROOFCAT: how the flying foes move, after Ninpek's.
+# Wasps come in from the left edge at their own height and head right.
+# Gulls float slowly in from the right edge. Magpies appear out of nowhere,
+# then fly straight at where she was and burst into two shards at the edge.
+# Pelicans drop a bomb on her that bursts into eight shards.
+game roofcat
+wait 5
+cheat area 0 1
+cheat cam 0
+cheat clear_foes
+cheat put 150 115
+wait 5
+cheat dormant wasp 300 40
+wait 1
+expect x_wasp < 0
+wait 40
+expect x_wasp > 30
+cheat clear_foes
+cheat dormant gull 330 40
+wait 2
+expect x_gull >= 320
+wait 60
+expect x_gull < 300
+expect x_gull > 270
+# a magpie: harmless and out of reach while it appears
+cheat clear_foes
+cheat put 40 115
+cheat foe magpie 200 20
+wait 10
+expect sub_magpie == 0
+wait 20
+expect sub_magpie == 1
+# she runs on; it keeps its line and bursts at the edge of the screen
+hold RIGHT 40
+waituntil count_magpie == 0 200
+expect all_shard == 2
+expect spirit == 0
+# a pelican bomb
+cheat clear_foes
+cheat put 150 115
+cheat foe pelican 300 20
+waituntil count_bomb == 1 120
+waituntil count_bomb == 0 120
+expect bomb_shards == 8

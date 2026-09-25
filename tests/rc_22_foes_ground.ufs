@@ -1,0 +1,91 @@
+# ROOFCAT: foes of the rooftops and the water, after Ninpek's.
+# A rolling pigeon only takes a star from behind. A firecracker lights its
+# fuse when she comes near and leaves a choking cloud. Flying fish wait for
+# her to come within reach, leap in a fixed arc and hang at the top; the
+# pufferfish there fires three bubbles at her, which stars can pop. A
+# flasher phases in, fires one beam across the screen and phases out. A snail
+# under a ledge crawls along its underside; some spike lamps swing.
+# Orbs split into two halves that fall away left and right.
+game roofcat
+wait 5
+cheat area 0 1
+cheat cam 0
+cheat clear_foes
+cheat put 40 115
+wait 5
+# rolling toward her: stars bounce off its front
+cheat foe pigeon 160 112
+cheat roll -1
+press B 1
+wait 20
+expect hp_pigeon == 2
+# rolling away: a star from behind hurts
+cheat clear_foes
+cheat foe pigeon 110 112
+cheat roll 1
+press B 1
+wait 20
+expect hp_pigeon == 1
+# the firecracker and its cloud
+cheat clear_foes
+cheat foe cracker 150 112
+wait 5
+expect sub_cracker == 0
+cheat put 100 115
+wait 3
+expect sub_cracker == 1
+hold LEFT 50
+wait 20
+expect count_cracker == 0
+expect count_cloud == 1
+wait 300
+expect count_cloud == 1
+wait 120
+expect count_cloud == 0
+# a flying fish waits until she is near
+cheat clear_foes
+cheat put 40 115
+cheat dormant ffish 250 148
+wait 5
+expect count_ffish == 0
+cheat put 220 115
+wait 2
+expect count_ffish == 1
+wait 70
+expect sub_ffish == 2
+wait 30
+expect sub_ffish == 3
+# the pufferfish: three bubbles from the top of its leap
+cheat clear_foes
+cheat put 200 115
+cheat dormant puffer 240 148
+wait 90
+expect all_bubble == 3
+# a flasher: hidden, then in, one beam, out
+cheat clear_foes
+cheat put 60 115
+cheat foe flasher 200 112
+wait 10
+expect sub_flasher == 0
+wait 50
+expect sub_flasher == 2
+expect count_beam == 1
+wait 60
+expect sub_flasher == 0
+# a snail under the awning on screen 22
+cheat cam 7040
+cheat clear_foes
+cheat dormant snail 256 80
+wait 2
+expect mode_snail == 1
+expect y_snail == 80
+# a swinging lamp
+cheat foe lamp 200 40
+cheat mode lamp 3
+wait 30
+expect y_lamp > 50
+# an orb on the roof: two halves, falling away left and right
+cheat clear_foes
+cheat put 40 115
+cheat orb 200 40
+waituntil count_orbhalf == 2 200

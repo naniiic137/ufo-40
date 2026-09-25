@@ -1,0 +1,79 @@
+# ROOFCAT: each catnip also throws stars farther and faster (range 112, 144,
+# 176; a new star every 9, 7, 5 frames). A hit stuns her for a moment and
+# knocks her off the bottom of the screen before the spirit comes down.
+# Catnip is lost with a life but the count toward the next one runs on, and
+# it carries into the second loop.
+game roofcat
+wait 5
+cheat area 0 1
+cheat cam 0
+cheat clear_foes
+wait 20
+# one star, gone after 112 px
+press B 1
+wait 27
+expect stars == 1
+wait 6
+expect stars == 0
+# with one catnip: 144 px
+cheat power 1
+press B 1
+wait 36
+expect stars == 1
+wait 6
+expect stars == 0
+# with two: 176 px
+cheat power 2
+press B 1
+wait 45
+expect stars == 1
+wait 6
+expect stars == 0
+# faster too: held B throws a new star every 5 frames
+hold B 11
+expect stars == 3
+wait 60
+cheat power 1
+hold B 8
+expect stars == 2
+wait 60
+# the kill count runs on through a lost life
+cheat power 0
+cheat put 40 115
+cheat foe snail 90 112
+press B
+wait 30
+cheat foe snail 90 112
+press B
+wait 30
+expect kills == 2
+cheat kill
+expect dying == 1
+expect spirit == 0
+expect power == 0
+wait 10
+expect dying == 1
+expect lives == 3
+waituntil spirit == 1 100
+expect lives == 2
+expect py < 0
+waituntil spirit == 0 300
+wait 30
+cheat clear_foes
+cheat put 40 115
+cheat foe snail 90 112
+press B
+wait 12
+expect count_catnip == 1
+# catnip carries into the night
+cheat power 2
+cheat area 4 1
+cheat arena
+wait 10
+cheat win
+wait 240
+wait 250
+press A
+wait 5
+expect loop == 2
+expect power == 2

@@ -14,10 +14,10 @@ static void boot_update(void) {
     if (t > 8 && btnp(BTN_ANY)) {
         sfx_play_name("ui_ok");
         music_fade(10);
-        scene_goto(&SCENE_LIBRARY);
+        scene_goto(&SCENE_MENU);
         return;
     }
-    if (t > 330) scene_goto_speed(&SCENE_LIBRARY, 3);
+    if (t > 330) scene_goto_speed(&SCENE_MENU, 3);
 }
 
 static int saucer_x(void) {
