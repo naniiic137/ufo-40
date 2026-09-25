@@ -1,0 +1,13 @@
+# OPEN HOUSE: the guest book (the whole deck) opens from its own button by
+# the door, with A; no SELECT button is needed.
+game openhouse
+wait 5
+cheat new 1 1
+expect cur == 100
+press DOWN
+press DOWN
+expect cur == 102
+press A
+expect state == 16
+press B
+expect state == 5

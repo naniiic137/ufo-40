@@ -79,7 +79,7 @@ and the music and sound volumes are in every game's pause menu too.
 | 14 | **CUTLASS CUP** | Bushido Ball | first to 8 points, aimed and curved strikes, lobs, secondary weapons, charged super shots, the fouls and penalty points, six fighters, a tournament, 2P versus and co-op doubles | six corsairs, the galley *Sabra*, judge Rais Mabrouk |
 | 15 | **FENNEC FOUNTAIN** | Block Koala | pushing numbered blocks (never into a heavier one, a 1 that can't move is taken in), grey at five, blue and black blocks, mimics, arrows, stone patches and doors, unlimited undo and a room menu, fifty rooms behind gates, a room editor | Fen the fennec, a dry spring garden, 50 new rooms |
 | 16 | **TINTAIL** | Camouflage | sneaking on a grid past watchers by taking the colour of the ground you stand on, hollow logs, sun and rain pads, hatchlings with their own colour, a danger view you can't move in, undo, a branching map | Twig the chameleon, Salt Island, toads and storks, 15 new levels |
-| 25 | **OPEN HOUSE** | Party House | drawing guests from a rolodex into a house with limited space, the original's 46 guest abilities, costs and trouble, police, fire marshal and bans, set guest lists and a random list, win within 25 nights, 2P hot-seat | a whitewashed house by the sea, all 46 guests' names and faces |
+| 25 | **OPEN HOUSE** | Party House | drawing guests from a deck into a house with limited space, the original's 46 guest abilities, costs and trouble, police, fire marshal and bans, set guest lists and a random list, win by ending a party with four stars within 25 nights, 2P hot-seat | a whitewashed house by the sea, all 46 guests' names and faces |
 | 28 | **DUNE EXPRESS** | Rail Heist | real time until a guard is alert, then 10-second turns, one-bullet lawmen who hit each other too, punches through walls and floors, carrying and throwing, hiding in barrels, levers, a crank gun, rams, three outlaws, three stars a mission with the original's time goals, 2P versus | Wade, Hush and Pearl, the Governor's tax trains, Biscuit the camel, 20 new trains |
 | 04, 08, 10–13, 17–24, 26–27, 29–40 | *coming soon* | | | still in the saucer's cargo hold |
 
@@ -379,20 +379,20 @@ the top.
 
 *A tribute to **Party House** (UFO 50 #25).*
 
-- **Plays the same:** open the door and a random guest from your rolodex
-  walks in. Three TROUBLE! guests bring the police, and guests brought along
+- **Plays the same:** open the door and a random guest from your guest book
+  walks in. Three rowdy guests bring the police, and guests brought along
   can overflow the house for the fire marshal; either way nobody pays and one
-  guest misses the next party. End the party in time and everyone pays
-  popularity (to buy guests) and cash (to add space).
+  guest misses the next party. End the party in time and everyone pays fame
+  (to buy guests) and cash (to add space).
 - **The guests:** all 46 of Party House's guests with their costs, pay,
   talents and trouble, from fetchers, bouncers and peekers to drummers,
-  upstarts and the nine star guests. Win by getting four stars into one
-  party within 25 nights.
+  upstarts and the nine star guests. Win by ending a party well with four
+  stars in it, within 25 nights.
 - **Structure:** five set guest lists with the original's pools, then a
   Random list and the five-win streak. 2P Versus takes alternate nights and
   shares the shop.
 - **Ours:** the house by the sea, the nosy neighbour's lamp, every guest's
-  name, portrait and line (the Saucer Pilot, the Wish Fish, the Rai Singer,
+  name, portrait and line (the Saucer Pilot, the Wish Fish, the Punk Singer,
   the Goat...), the list names and the music.
 
 ### 28 · DUNE EXPRESS

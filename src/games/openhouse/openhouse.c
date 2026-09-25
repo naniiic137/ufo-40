@@ -37,6 +37,7 @@ static const char *msg;
 #define PANEL_X 220
 #define CUR_DOOR 100
 #define CUR_END 101
+#define CUR_BOOK 102
 
 /* ------------------------------------------------------------------ */
 /* save & goals                                                         */
@@ -121,6 +122,7 @@ static void on_scenario_over(void) {
 /* the party is over and paid (or shut down and a guest banned) */
 static void after_party(void) {
     if (sv.parties < 60000) sv.parties++;
+    if (G.done) { on_scenario_over(); return; } /* four stars: won */
     PhPlayer *p = ph_me(&G);
     if (p->night >= PH_NIGHTS) {
         ph_next_turn(&G);
@@ -161,7 +163,6 @@ static void note_arrivals(void) {
 
 static void after_change(int was_trouble) {
     PhParty *pa = &G.party;
-    if (pa->over == PO_WON) { state = S_WIN; state_t = 0; on_scenario_over(); return; }
     if (pa->over == PO_POLICE || pa->over == PO_FIRE) {
         state = S_BUST;
         state_t = 0;
@@ -227,7 +228,9 @@ static void use_action(int slot) {
 
 static void move_grid_cursor(int *c, int n, bool allow_panel) {
     if (*c >= CUR_DOOR) {
-        if (btn_repeat(BTN_UP) || btn_repeat(BTN_DOWN)) { *c = *c == CUR_DOOR ? CUR_END : CUR_DOOR; sfx_play_name("ph_move"); }
+        int lim = allow_panel ? CUR_BOOK : CUR_END;
+        if (btn_repeat(BTN_UP)) { *c = *c == CUR_DOOR ? lim : *c - 1; sfx_play_name("ph_move"); }
+        if (btn_repeat(BTN_DOWN)) { *c = *c == lim ? CUR_DOOR : *c + 1; sfx_play_name("ph_move"); }
         if (btn_repeat(BTN_LEFT) && n > 0) { *c = imin(n - 1, PH_ROW - 1); sfx_play_name("ph_move"); }
         return;
     }
@@ -246,10 +249,10 @@ static void update_party(void) {
     PhParty *pa = &G.party;
     move_grid_cursor(&cur, pa->n, true);
     info_card = cur < CUR_DOOR && cur < pa->n ? pa->house[cur] : (cur == CUR_DOOR && pa->peek >= 0 ? pa->peek : -1);
-    if (btnp(BTN_SELECT)) { back_state = S_PARTY; state = S_LIST; state_t = 0; fcur = 0; sfx_play_name("ui_ok"); return; }
     if (!btnp(BTN_A)) return;
     if (cur == CUR_DOOR) open_door();
     else if (cur == CUR_END) { state = S_CONFIRM; menu_sel = 1; sfx_play_name("ui_ok"); }
+    else if (cur == CUR_BOOK) { back_state = S_PARTY; state = S_LIST; state_t = 0; fcur = 0; sfx_play_name("ui_ok"); }
     else use_action(cur);
 }
 
@@ -343,16 +346,21 @@ static void update_shop(void) {
         if (btn_repeat(BTN_UP) && shop_cur >= SHOP_COLS) shop_cur -= SHOP_COLS;
         if (btn_repeat(BTN_DOWN)) { if (shop_cur + SHOP_COLS < G.npool) shop_cur += SHOP_COLS; else shop_cur = G.npool; }
     } else {
-        if (btn_repeat(BTN_LEFT) || btn_repeat(BTN_RIGHT)) shop_cur = shop_cur == G.npool ? G.npool + 1 : G.npool;
+        /* left to right: SPACE, GUEST BOOK, NEXT PARTY */
+        const int order[3] = {G.npool, G.npool + 2, G.npool + 1};
+        int k = 0;
+        while (k < 2 && order[k] != shop_cur) k++;
+        if (btn_repeat(BTN_LEFT) && k > 0) shop_cur = order[k - 1];
+        if (btn_repeat(BTN_RIGHT) && k < 2) shop_cur = order[k + 1];
         if (btn_repeat(BTN_UP)) shop_cur = imax(0, G.npool - 1 - (G.npool - 1) % SHOP_COLS);
     }
     if (shop_cur != c0) sfx_play_name("ph_move");
-    if (btnp(BTN_SELECT)) { back_state = S_SHOP; state = S_LIST; state_t = 0; fcur = 0; sfx_play_name("ui_ok"); return; }
     if (!btnp(BTN_A)) return;
+    if (shop_cur == G.npool + 2) { back_state = S_SHOP; state = S_LIST; state_t = 0; fcur = 0; sfx_play_name("ui_ok"); return; }
     if (shop_cur < G.npool) {
         int ty = G.pool[shop_cur];
         if (ph_buy(&G, ty)) sfx_play_name(PH_GUESTS[ty].traits & T_STAR ? "ph_star" : "ph_buy");
-        else { sfx_play_name("ph_no"); say(!(PH_GUESTS[ty].traits & T_STAR) && G.bought[ty] >= PH_STOCK ? "SOLD OUT" : "NOT ENOUGH POPULARITY"); }
+        else { sfx_play_name("ph_no"); say(!(PH_GUESTS[ty].traits & T_STAR) && G.bought[ty] >= PH_STOCK ? "SOLD OUT" : "NOT ENOUGH FAME"); }
     } else if (shop_cur == G.npool) {
         if (ph_expand(&G)) sfx_play_name("ph_build");
         else { sfx_play_name("ph_no"); say(ph_me(&G)->cap >= PH_MAX_HOUSE ? "THE HOUSE CAN'T GROW" : "NOT ENOUGH CASH"); }
@@ -447,7 +455,7 @@ static void oh_update(void) {
     case S_LIST:
         if (btn_repeat(BTN_UP) && fcur > 0) fcur--;
         if (btn_repeat(BTN_DOWN)) fcur++;
-        if (btnp(BTN_B) || btnp(BTN_SELECT) || btnp(BTN_A)) { state = back_state; sfx_play_name("ui_back"); }
+        if (btnp(BTN_B) || btnp(BTN_A)) { state = back_state; sfx_play_name("ui_back"); }
         break;
     }
 }
@@ -498,8 +506,8 @@ static void icon_trouble(int x, int y, int col) {
     gfx_line(x + 5, y, x + 1, y + 4, col);
 }
 
-static const char *const SECRET_NAMES[8] = {"UNCLE SAMI", "AUNT LINA", "OLD HEDI", "MISS ROSA",
-                                            "COUSIN ZIED", "COUSIN AYA", "COUSIN NOUR", "COUSIN IMED"};
+static const char *const SECRET_NAMES[8] = {"UNCLE BERT", "AUNT MAVIS", "OLD GUS", "MISS PENNY",
+                                            "COUSIN TOM", "COUSIN MAE", "COUSIN NED", "COUSIN IVY"};
 
 static const char *card_name(int card) {
     const PhCard *c = &ph_me(&G)->card[card];
@@ -611,28 +619,18 @@ static void draw_topbar(void) {
     icon_cash(140, 4);
     snprintf(b, sizeof b, "%d", p->cash);
     text_draw(b, 150, 4, C_LIME);
-    /* stars in the house */
-    int st = ph_stars(&G);
-    for (int i = 0; i < 4; i++) icon_star(180 + i * 9, 4, i < st ? C_YELLOW : C_DUSK);
-    /* trouble: three marks, and the neighbour's window */
-    int tr = ph_trouble(&G);
-    for (int i = 0; i < 3; i++) icon_trouble(222 + i * 9, 5, i < tr ? C_RED : C_DUSK);
-    bool lamp = tr >= 2;
-    gfx_rect(252, 2, 12, 11, lamp ? C_YELLOW : C_NIGHT);
-    gfx_rectb(252, 2, 12, 11, C_SLATE);
-    gfx_vline(258, 3, 12, C_SLATE);
-    if (lamp && (frame_t / 16) % 2) text_draw("SHH!", 268, 4, C_YELLOW);
-    else {
-        snprintf(b, sizeof b, "%d/%d", G.party.n, p->cap);
-        text_draw(b, 270, 4, C_GREY);
-    }
+    /* the neighbour's window lights up at two rowdies: one more brings the police */
+    bool lamp = ph_trouble(&G) >= 2;
+    gfx_rect(300, 2, 12, 11, lamp ? C_YELLOW : C_NIGHT);
+    gfx_rectb(300, 2, 12, 11, C_SLATE);
+    gfx_vline(306, 3, 12, C_SLATE);
 }
 
 static void draw_info(int card, int x, int y, int w) {
     if (card < 0) return;
     const PhCard *c = &ph_me(&G)->card[card];
     const PhGuest *t = &PH_GUESTS[c->type];
-    ui_panel(x, y, w, 70, C_NIGHT, t->traits & T_STAR ? C_AMBER : C_DUSK);
+    ui_panel(x, y, w, 60, C_NIGHT, t->traits & T_STAR ? C_AMBER : C_DUSK);
     tiny_draw(card_name(card), x + 4, y + 4, t->traits & T_STAR ? C_YELLOW : C_WHITE);
     int yy = y + 12;
     int v = G.party.where[card] == W_HOUSE ? ph_value_pop(&G, card) : t->pop + c->bonus;
@@ -643,7 +641,7 @@ static void draw_info(int card, int x, int y, int w) {
     draw_num(m, x + 43, yy + 1, C_LIME, m > 0 ? "+" : "");
     if (ph_is_wild(&G, card) || (t->traits & T_TROUBLE)) icon_trouble(x + w - 12, yy + 1, C_RED);
     tiny_lines(t->does[0] ? t->does : "NO SPECIAL TALENT.", x + 4, yy + 10, C_LIGHT);
-    tiny_lines(t->flavour, x + 4, y + 52, C_SLATE);
+    tiny_lines(t->flavour, x + 4, y + 44, C_SLATE);
 }
 
 static void draw_panel(void) {
@@ -663,24 +661,18 @@ static void draw_panel(void) {
         spr_draw_scaled(&ph_spr[PS_DOOR], dx, dy + 4, 2, 0);
     }
     bool hi_door = state == S_PARTY && cur == CUR_DOOR, hi_end = state == S_PARTY && cur == CUR_END;
-    int by = 64;
+    bool hi_book = state == S_PARTY && cur == CUR_BOOK;
+    int by = 62;
     gfx_rect(x, by, 92, 12, hi_door ? C_JADE : C_DUSK);
     text_center(pa->peek >= 0 ? "LET THEM IN" : "OPEN THE DOOR", x + 46, by + 3, hi_door ? C_WHITE : C_GREY);
-    gfx_rect(x, by + 15, 92, 12, hi_end ? C_WINE : C_DUSK);
-    text_center("END THE PARTY", x + 46, by + 18, hi_end ? C_WHITE : C_GREY);
-    if (hi_door || hi_end) ui_cursor(x - 8, (hi_door ? by : by + 15) + 3, frame_t);
+    gfx_rect(x, by + 14, 92, 12, hi_end ? C_WINE : C_DUSK);
+    text_center("END THE PARTY", x + 46, by + 17, hi_end ? C_WHITE : C_GREY);
+    gfx_rect(x, by + 28, 92, 12, hi_book ? C_NAVY : C_DUSK);
+    text_center("GUEST BOOK", x + 46, by + 31, hi_book ? C_WHITE : C_GREY);
+    if (hi_door || hi_end || hi_book) ui_cursor(x - 8, (hi_door ? by : hi_end ? by + 14 : by + 28) + 3, frame_t);
     int shown = info_card;
     if (state == S_TARGET || state == S_BAN) shown = tcur < pa->n ? pa->house[tcur] : -1;
-    draw_info(shown, x - 2, 94, 98);
-    if (shown < 0) {
-        ui_panel(x - 2, 94, 98, 70, C_NIGHT, C_DUSK);
-        char b[80];
-        int waiting = 0;
-        for (int i = 0; i < ph_me(&G)->ncards; i++) waiting += pa->where[i] == W_POOL;
-        snprintf(b, sizeof b, "STARS NEEDED: 4\nIN THE ROLODEX: %d\nWAITING TO COME: %d", ph_me(&G)->ncards, waiting);
-        tiny_lines(b, x + 2, 100, C_LIGHT);
-        tiny_draw("SELECT: THE ROLODEX", x + 2, 150, C_SLATE);
-    }
+    draw_info(shown, x - 2, 106, 98);
 }
 
 static void draw_party_screen(void) {
@@ -699,25 +691,9 @@ static void draw_party_screen(void) {
     }
     draw_panel();
     draw_topbar();
-    /* the bottom line: what the buttons do here */
+    /* the bottom line: only the question after a shutdown */
     gfx_rect(0, 166, SCREEN_W, 14, C_INK);
-    const char *hint = "";
-    switch (state) {
-    case S_PARTY: {
-        if (cur < CUR_DOOR && cur < pa->n) {
-            int c = pa->house[cur];
-            int act = PH_GUESTS[ph_me(&G)->card[c].type].action;
-            hint = ph_can_act(&G, cur) ? GLYPH_A " USE THEIR TALENT" : act == A_NONE ? "JUST HERE FOR THE PARTY"
-                 : pa->used[c] ? "USED THEIR TALENT TONIGHT" : "NOTHING THEY CAN DO RIGHT NOW";
-        }
-        else hint = cur == CUR_DOOR ? GLYPH_A " LET SOMEONE IN   SELECT: THE ROLODEX" : GLYPH_A " SEND EVERYONE HOME AND GET PAID";
-        break;
-    }
-    case S_TARGET: hint = GLYPH_A " CHOOSE A GUEST   " GLYPH_B " CANCEL"; break;
-    case S_BAN: hint = "WHO TAKES THE BLAME? THEY MISS THE NEXT PARTY."; break;
-    default: break;
-    }
-    text_draw(hint, 6, 169, C_GREY);
+    if (state == S_BAN) text_draw("WHO TAKES THE BLAME? THEY MISS THE NEXT PARTY.", 6, 169, C_GREY);
     if (msg_t > 0 && msg) {
         ui_panel(60, 70, 150, 20, C_NIGHT, C_ORANGE);
         text_center(msg, 135, 76, C_CREAM);
@@ -751,13 +727,12 @@ static void draw_peek(void) {
     text_center("AT THE DOOR...", 120, 46, C_SKY);
     spr_draw_scaled(&ph_spr[ty], 60, 60, 2, 0);
     text_draw(card_name(pa->peek), 98, 62, C_WHITE);
-    if (PH_GUESTS[ty].traits & (T_TROUBLE | T_MOON)) tiny_draw(PH_GUESTS[ty].traits & T_MOON ? "MOODY TONIGHT?" : "TROUBLE!", 98, 74, C_RED);
+    if (PH_GUESTS[ty].traits & (T_TROUBLE | T_MOON)) tiny_draw(PH_GUESTS[ty].traits & T_MOON ? "MOODY TONIGHT?" : "RUCKUS!", 98, 74, C_RED);
     if (PH_GUESTS[ty].traits & T_STAR) tiny_draw("A STAR GUEST!", 98, 74, C_YELLOW);
     bool room = pa->n < ph_me(&G)->cap;
     text_draw("LET THEM IN", 110, 96, menu_sel == 0 ? (room ? C_WHITE : C_SLATE) : C_GREY);
     text_draw("TURN THEM AWAY", 110, 108, menu_sel == 1 ? C_WHITE : C_GREY);
     ui_cursor(100, menu_sel ? 108 : 96, frame_t);
-    text_center(GLYPH_B " LEAVE THEM WAITING", 120, 119, C_SLATE);
 }
 
 static void draw_confirm(void) {
@@ -780,7 +755,7 @@ static void draw_bust(void) {
     ui_panel(40, 46, 190, 50, C_NIGHT, c);
     static const uint8_t g1[] = {C_WHITE, C_SKY, C_BLUE}, g2[] = {C_WHITE, C_YELLOW, C_RED};
     ui_fancy_center(police ? "THE POLICE!" : "FIRE MARSHAL!", 135, 52, 2, police ? g1 : g2, 3, C_INK, C_NIGHT);
-    tiny_center(police ? "THREE TROUBLEMAKERS. NO PAY TONIGHT." : "TOO MANY GUESTS. NO PAY TONIGHT.", 135, 78, C_CREAM);
+    tiny_center(police ? "THREE ROWDIES. NO PAY TONIGHT." : "TOO MANY GUESTS. NO PAY TONIGHT.", 135, 78, C_CREAM);
     int vx = -40 + imin(t * 4, 128);
     gfx_rect(0, 130, PANEL_X - 4, 24, C_NIGHT);
     gfx_hline(0, PANEL_X - 5, 153, C_SLATE);
@@ -798,13 +773,12 @@ static void draw_result(void) {
     int t = imin(state_t, 30);
     char b[48];
     icon_pop(58, 66);
-    snprintf(b, sizeof b, "POPULARITY %+d", pa->end_pop * t / 30);
+    snprintf(b, sizeof b, "FAME %+d", pa->end_pop * t / 30);
     text_draw(b, 70, 66, C_YELLOW);
     icon_cash(58, 80);
     snprintf(b, sizeof b, "CASH %+d", pa->end_cash * t / 30);
     text_draw(b, 70, 80, C_LIME);
-    if (pa->penalty) { snprintf(b, sizeof b, "UNPAID GUESTS: -%d POP.", pa->penalty); tiny_draw(b, 58, 95, C_ORANGE); }
-    if (pa->got_pop || pa->got_cash) { snprintf(b, sizeof b, "COLLECTED EARLY: %+d POP %+d$", pa->got_pop, pa->got_cash); tiny_draw(b, 58, 104, C_GREY); }
+    if (pa->penalty) { snprintf(b, sizeof b, "UNPAID GUESTS: -%d FAME", pa->penalty); tiny_draw(b, 58, 95, C_ORANGE); }
     if (state_t > 40 && (state_t / 20) % 2) text_center("PRESS " GLYPH_A, 115, 116, C_WHITE);
 }
 
@@ -855,16 +829,19 @@ static void draw_shop(void) {
         int x = 6 + (i % SHOP_COLS) * 43, y = 20 + (i / SHOP_COLS) * 43;
         draw_card(G.pool[i], x, y, shop_cur == i, ph_can_buy(&G, G.pool[i]));
     }
-    /* space and the next party */
-    bool hs = shop_cur == G.npool, hn = shop_cur == G.npool + 1;
+    /* space, the guest book and the next party */
+    bool hs = shop_cur == G.npool, hn = shop_cur == G.npool + 1, hb = shop_cur == G.npool + 2;
     int cost = ph_expand_cost(p);
-    gfx_rect(6, 152, 104, 20, hs ? C_TEAL : C_INK);
-    gfx_rectb(6, 152, 104, 20, hs ? C_CYAN : C_DUSK);
-    snprintf(b, sizeof b, "+1 SPACE  $%d", cost);
-    text_draw(p->cap >= PH_MAX_HOUSE ? "HOUSE IS AT ITS BIGGEST" : b, 12, 158, p->cash >= cost && p->cap < PH_MAX_HOUSE ? C_WHITE : C_SLATE);
-    gfx_rect(116, 152, 102, 20, hn ? C_JADE : C_INK);
-    gfx_rectb(116, 152, 102, 20, hn ? C_LIME : C_DUSK);
-    text_center("NEXT PARTY " GLYPH_RIGHT, 167, 158, hn ? C_WHITE : C_GREY);
+    gfx_rect(6, 152, 70, 20, hs ? C_TEAL : C_INK);
+    gfx_rectb(6, 152, 70, 20, hs ? C_CYAN : C_DUSK);
+    snprintf(b, sizeof b, "+1 SPACE $%d", cost);
+    text_center(p->cap >= PH_MAX_HOUSE ? "FULL SIZE" : b, 41, 158, p->cash >= cost && p->cap < PH_MAX_HOUSE ? C_WHITE : C_SLATE);
+    gfx_rect(80, 152, 66, 20, hb ? C_NAVY : C_INK);
+    gfx_rectb(80, 152, 66, 20, hb ? C_SKY : C_DUSK);
+    text_center("GUEST BOOK", 113, 158, hb ? C_WHITE : C_GREY);
+    gfx_rect(150, 152, 68, 20, hn ? C_JADE : C_INK);
+    gfx_rectb(150, 152, 68, 20, hn ? C_LIME : C_DUSK);
+    text_center("NEXT PARTY", 184, 158, hn ? C_WHITE : C_GREY);
     /* the card on the counter */
     if (shop_cur < G.npool) {
         int ty = G.pool[shop_cur];
@@ -879,14 +856,8 @@ static void draw_shop(void) {
         if (t->traits & T_DRUM) tiny_draw("SEE BELOW", 226, 82, C_GREY);
         tiny_lines(t->does[0] ? t->does : "NO SPECIAL TALENT.", 226, 90, C_LIGHT);
         tiny_lines(t->flavour, 226, 128, C_SLATE);
-        int have = 0;
-        for (int i = 0; i < p->ncards; i++) have += p->card[i].type == ty;
-        snprintf(b, sizeof b, "IN YOUR ROLODEX: %d", have);
-        tiny_draw(b, 226, 152, C_GREY);
-        if (!(t->traits & T_STAR)) { snprintf(b, sizeof b, "LEFT TO BUY: %d", PH_STOCK - G.bought[ty]); tiny_draw(b, 226, 160, C_GREY); }
     } else {
         ui_panel(222, 20, 94, 152, C_INK, C_DUSK);
-        tiny_lines(shop_cur == G.npool ? "ONE MORE GUEST FITS\nIN THE HOUSE.\n\nEACH NEW SPACE COSTS\n$1 MORE, UP TO $12." : "THROW THE NEXT\nPARTY.", 226, 26, C_LIGHT);
     }
     if (msg_t > 0 && msg) {
         ui_panel(40, 80, 150, 20, C_NIGHT, C_ORANGE);
@@ -897,7 +868,7 @@ static void draw_shop(void) {
 static void draw_list(void) {
     gfx_cls(C_NIGHT);
     PhPlayer *p = ph_me(&G);
-    text_center("THE ROLODEX", 160, 4, C_CREAM);
+    text_center("THE GUEST BOOK", 160, 4, C_CREAM);
     tiny_draw("GUEST", 20, 16, C_SLATE);
     tiny_draw("HERE", 180, 16, C_SLATE);
     tiny_draw("TO COME", 214, 16, C_SLATE);
@@ -920,7 +891,6 @@ static void draw_list(void) {
         shown++;
     }
     if (fcur > 0 && fcur >= rows) fcur = rows - 1;
-    text_center(GLYPH_UP GLYPH_DOWN " SCROLL   " GLYPH_B " BACK", 160, 170, C_SLATE);
 }
 
 /* ------------------------------------------------------------------ */
@@ -993,7 +963,6 @@ static void draw_mode(void) {
         text_draw(M[i], 116, y, off ? C_DUSK : i == menu_sel ? C_WHITE : C_GREY);
         if (i == menu_sel) ui_cursor(104, y, frame_t);
     }
-    tiny_center(menu_sel == 2 ? "TAKE TURNS, NIGHT BY NIGHT. SHARED SHOP." : "", 160, 108, C_SLATE);
     char b[48];
     snprintf(b, sizeof b, "STREAK %d  " GLYPH_DOT "  BEST %d", sv.streak, sv.best_streak);
     tiny_center(b, 160, 130, C_CREAM);
@@ -1030,17 +999,16 @@ static void draw_scen(void) {
                 tiny_draw(PH_GUESTS[ty].name, 176 + k * 60, 96, C_YELLOW);
                 k++;
             }
-            tiny_draw("STAR GUESTS TONIGHT", 176, 108, C_AMBER);
+
         } else {
-            tiny_lines("TWO STARS AND ELEVEN\nGUESTS, DEALT AT RANDOM.\n\nWIN FIVE IN A ROW!", 176, 32, C_LIGHT);
+
             char b[40];
             snprintf(b, sizeof b, "STREAK %d  BEST %d", sv.streak, sv.best_streak);
             tiny_draw(b, 176, 76, C_CREAM);
         }
     } else {
-        tiny_lines(s == PH_RANDOM ? "WIN GUEST LIST 5 TO\nOPEN THIS ONE." : "WIN THE LIST BEFORE\nTO OPEN THIS ONE.", 176, 32, C_SLATE);
+
     }
-    tiny_lines("25 NIGHTS TO THROW A PARTY WITH\nFOUR STAR GUESTS AT ONCE.", 16, 124, C_GREY);
     if (msg_t > 0 && msg) text_draw(msg, 16, 150, C_ORANGE);
 }
 
@@ -1060,7 +1028,6 @@ static void draw_intro(void) {
         snprintf(b, sizeof b, "%d", PH_GUESTS[ty].cost);
         tiny_center(b, x + 14, y + 18, C_YELLOW);
     }
-    tiny_lines("YOU START WITH 4 OLD NEIGHBOURS, 2 RICH COUSINS\nAND 4 ROWDY MATES (TROUBLE!). THE HOUSE HOLDS 5.", 20, 128, C_LIGHT);
     if (state_t > 20 && (state_t / 20) % 2) text_center("PRESS " GLYPH_A, 160, 154, C_WHITE);
 }
 
@@ -1189,7 +1156,7 @@ static void oh_label(int x, int y, int w, int h, int t) {
         bool lit = (t / 30 + i) % 5 != 0;
         gfx_rect(x + 26 + i * 24, y + 30, 12, 16, lit ? C_YELLOW : C_DUSK);
     }
-    static const int GUESTS[4] = {G_PILOT, G_RAI, G_GRANNY, G_GOAT};
+    static const int GUESTS[4] = {G_PILOT, G_PUNK, G_GRANNY, G_GOAT};
     for (int i = 0; i < 4; i++) spr_draw(&ph_spr[GUESTS[i]], x + 24 + i * 24, y + 30 - ((t / 10 + i) % 2), 0);
     for (int i = 0; i < 8; i++) gfx_rect(x + 18 + i * 14, y + 19 + (i % 2) * 2, 3, 4, (t / 15 + i) % 2 ? C_ORANGE : C_AMBER);
     static const uint8_t grad[] = {C_WHITE, C_CREAM, C_YELLOW};
@@ -1208,6 +1175,7 @@ static int oh_query(const char *key, int *out) {
     if (!strcmp(key, "over")) { *out = G.party.over; return 1; }
     if (!strcmp(key, "trouble")) { *out = ph_trouble(&G); return 1; }
     if (!strcmp(key, "stars")) { *out = ph_stars(&G); return 1; }
+    if (!strcmp(key, "cur")) { *out = cur; return 1; }
     if (!strcmp(key, "cards")) { *out = p->ncards; return 1; }
     if (!strcmp(key, "peek")) { *out = G.party.peek; return 1; }
     if (!strcmp(key, "banned")) { *out = p->banned; return 1; }
@@ -1335,10 +1303,7 @@ const GameDef GAME_OPENHOUSE = {
     "D-PAD\tMOVE THE CURSOR\n"
     GLYPH_A "\tOPEN THE DOOR / USE /\n\tCHOOSE / BUY\n"
     GLYPH_B "\tCANCEL / BACK\n"
-    "SELECT\tTHE ROLODEX\n"
-    "START\tPAUSE\n\n"
-    "THREE TROUBLE! GUESTS AT ONCE\n"
-    "BRING THE POLICE.",
+    "START\tPAUSE",
     C_WINE, C_YELLOW,
     oh_load, oh_start, oh_update, oh_draw, oh_quit, oh_label, oh_query, oh_cheat,
     "PARTY HOUSE", 25,

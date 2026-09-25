@@ -18,7 +18,7 @@ list; the Random Scenario deals its own pool (see the generator rules below).
 
 | Mechanic | How OPEN HOUSE does it | Source |
 |---|---|---|
-| Goal | throw a party with four star guests in it at once | [W] "four star guests are present at the party at once"; [S] |
+| Goal | end a party well with four star guests in it; four stars at a shut-down party don't count (ph_10) | [W] "a successful party where four star guests are present"; [S] |
 | Time limit | the scenario fails after 25 parties (24 shops) | [W] |
 | Starting rolodex | 4 Old Friends, 2 Rich Pals, 4 Wild Buddies | [W], [G] |
 | House | 5 spaces to start; each expansion adds one; the first costs $2, each next one $1 more, up to $12; at most 34 spaces | [W], [S] "maximum house size: 34" |
@@ -27,7 +27,7 @@ list; the Random Scenario deals its own pool (see the generator rules below).
 | Party end | the house is full and no ability can be used, the player ends it, or a shutdown | [W] |
 | Scoring | a party that ends without a shutdown pays every guest's popularity and cash | [W] |
 | Unpaid guests | a guest who charges cash you don't have costs 7 popularity instead | [W] |
-| Police | three TROUBLE! guests at once bring the police; the second one sets off a warning | [W], [G] |
+| Police | three rowdy guests at once (the original's red X; ours say RUCKUS!) bring the police; at two the neighbour's lamp comes on (the original's cat) | [W], [G] |
 | Fire marshal | guests brought in by others that overflow the house bring the fire department | [W], [S] |
 | Shutdown | no rewards, and you pick one guest who can't come to the next party | [W], [S] |
 | Shop | after every party, buy guests with popularity and expansions with cash; bought guests stay for the scenario | [W] |
@@ -49,11 +49,11 @@ successful party. ⊚ marks an action (once a party).
 |---|---|---|---|---|---|
 | OLD NEIGHBOUR | Old Friend | 2 | +1 | | |
 | RICH COUSIN | Rich Pal | 3 | | +1 | |
-| ROWDY MATE | Wild Buddy | — | +2 | | TROUBLE!, can't be bought |
+| ROWDY MATE | Wild Buddy | — | +2 | | RUCKUS!, can't be bought |
 | CABBIE | Driver | 3 | | | ⊚ fetch a chosen guest from the rolodex (needs a free space) |
 | SLEUTH | Private I. | 4 | +2 | −1 | ⊚ fetch a chosen guest |
-| SURFER | Hippy | 4 | +1 | | cancels one TROUBLE! |
-| KITTEN | Cute Dog | 7 | +2 | | cancels one TROUBLE! |
+| SURFER | Hippy | 4 | +1 | | cancels one RUCKUS! |
+| KITTEN | Cute Dog | 7 | +2 | | cancels one RUCKUS! |
 | BOUNCER | Security | 4 | | | ⊚ boot a guest (may be itself); out till the next party |
 | STRONGMAN | Wrestler | 9 | +2 | | ⊚ boot a guest |
 | PARROT | Watch Dog | 4 | +2 | | ⊚ see who is at the door; let them in or turn them away |
@@ -71,27 +71,27 @@ successful party. ⊚ marks an action (once a party).
 | GRANNY | Mascot | 5 | +1 | | +1 more for each Old Neighbour at the party |
 | BOOKWORM | Introvert | 4 | +1 | | +1 more for each empty space |
 | TAILOR | Stylist | 7 | | −1 | ⊚ a guest's popularity goes up by 1 for the rest of the scenario (if under 9) |
-| BARISTA | Bartender | 11 | +1 | | +2 cash for each TROUBLE! in the house |
-| POET | Writer | 8 | +1 | | +2 popularity for each TROUBLE! in the house |
+| BARISTA | Bartender | 11 | +1 | | +2 cash for each RUCKUS! in the house |
+| POET | Writer | 8 | +1 | | +2 popularity for each RUCKUS! in the house |
 | UPSTART | Climber | 12 | ★ | | 1 more popularity every time it enters, up to 9 |
 | BAND LEADER | Cheerleader | 5 | +1 | | ⊚ refreshes the other guests' used actions (not other band leaders) |
 | USHER | Greeter | 5 | +1 | | ⊚ lets in the next guest and collects their pay now, with anyone they bring |
 | FORTUNE TELLER | Magician | 5 | +1 | | ⊚ swaps a non-star guest for a random star from the rolodex, or a star for a non-star |
 | MATCHMAKER | Cupid | 8 | +1 | | ⊚ boots two guests side by side |
-| OLD SAGE | Counselor | 7 | | | ⊚ removes TROUBLE! from everyone in the house |
-| MOON CHILD | Werewolf | 5 | +4 | | TROUBLE! every other time it comes (the first time too) |
-| GOAT | Monkey | 3 | +4 | | TROUBLE! |
-| RAI SINGER | Rock Star | 5 | +3 | +2 | TROUBLE! |
-| SMUGGLER | Gangster | 6 | | +4 | TROUBLE! |
-| CARD SHARK | Gambler | 7 | +2 | +3 | TROUBLE! |
+| OLD SAGE | Counselor | 7 | | | ⊚ removes RUCKUS! from everyone in the house |
+| MOON CHILD | Werewolf | 5 | +4 | | RUCKUS! every other time it comes (the first time too) |
+| GOAT | Monkey | 3 | +4 | | RUCKUS! |
+| PUNK SINGER | Rock Star | 5 | +3 | +2 | RUCKUS! |
+| SMUGGLER | Gangster | 6 | | +4 | RUCKUS! |
+| CARD SHARK | Gambler | 7 | +2 | +3 | RUCKUS! |
 | SAUCER PILOT ☆ | Alien | 40 | | | |
-| SULTAN ☆ | Leprechaun | 50 | | +3 | |
+| TYCOON ☆ | Leprechaun | 50 | | +3 | |
 | WISH FISH ☆ | Genie | 55 | | | ⊚ fetch a chosen guest |
 | SEA SERPENT ☆ | Dragon | 30 | | −3 | |
-| CYCLOPS ☆ | Dinosaur | 25 | | | TROUBLE! |
+| CYCLOPS ☆ | Dinosaur | 25 | | | RUCKUS! |
 | PHOENIX ☆ | Mermaid | 35 | | | brings one random guest |
 | SHADOW ☆ | Ghost | 45 | | | ⊚ boot a guest |
-| SPHINX ☆ | Unicorn | 45 | | | cancels one TROUBLE! |
+| SPHINX ☆ | Unicorn | 45 | | | cancels one RUCKUS! |
 | CHAMPION ☆ | Superhero | 50 | +3 | | |
 
 ### The scenarios ([SO], [G])
@@ -100,10 +100,10 @@ Every shop also sells Old Neighbours and Rich Cousins.
 
 | # | Ours | Party House | Stars | The other guests |
 |---|---|---|---|---|
-| 1 | SAUCER NIGHT | Alien Invitation | Saucer Pilot | Cabbie, Goat, Bouncer, Coat Check, Parrot, Surfer, Rai Singer, Storyteller, Pastry Chef, Socialite, Drummer, Merchant |
+| 1 | SAUCER NIGHT | Alien Invitation | Saucer Pilot | Cabbie, Goat, Bouncer, Coat Check, Parrot, Surfer, Punk Singer, Storyteller, Pastry Chef, Socialite, Drummer, Merchant |
 | 2 | HIGH TIDE, LOW TIDE | High or Low | Phoenix, Champion | Sleuth, Bookworm, Fireworker, Granny, Smuggler, Kitten, Card Shark, Doorman, Poet, Strongman, Upstart |
-| 3 | THREE WISHES | Best Wishes | Wish Fish, Cyclops | Goat, Surfer, Paparazzo, Band Leader, Rai Singer, Tour Guide, Tailor, Old Sage, Strongman, Pop Idol, Barista |
-| 4 | THE ACCOUNTS | Money Management | Sea Serpent, Sultan | Sleuth, Coat Check, Bouncer, Paparazzo, Storyteller, Pastry Chef, Smuggler, Tour Guide, Tailor, Kitten, Doorman |
+| 3 | THREE WISHES | Best Wishes | Wish Fish, Cyclops | Goat, Surfer, Paparazzo, Band Leader, Punk Singer, Tour Guide, Tailor, Old Sage, Strongman, Pop Idol, Barista |
+| 4 | THE ACCOUNTS | Money Management | Sea Serpent, Tycoon | Sleuth, Coat Check, Bouncer, Paparazzo, Storyteller, Pastry Chef, Smuggler, Tour Guide, Tailor, Kitten, Doorman |
 | 5 | MIDSUMMER MAGIC | A Magical Night | Shadow, Sphinx | Bookworm, Parrot, Moon Child, Usher, Fortune Teller, Card Shark, Drummer, Matchmaker, Merchant, Pop Idol, Upstart |
 
 ### The Random Scenario generator
@@ -120,18 +120,18 @@ some deals really are hard, as players describe.
 - **Unlocking.** Set scenario 1 is open at the start; winning a scenario opens
   the next; the Random Scenario opens once scenario 5 is won. 2P Versus uses
   the scenarios you have opened.
-- **Winning** happens the moment four stars are in the house, as long as that
-  admission didn't also bring the police or the fire marshal.
-- **Popularity and cash** start at 0.
+- **Winning** is checked when a party ends without a shutdown (by the player,
+  or because the house is full and no action is left).
+- **Popularity** (ours is FAME) **and cash** start at 0.
 - **Turning a guest away** (parrot, doorman) keeps them out of this party only.
 - **Booted, swapped and turned-away guests** are out until the next party.
 - **Fetching** picks a guest type from the guests still in the rolodex.
 - **Paying up:** a party's cash income comes first, then each guest that
   charges cash is paid in turn; one you can't pay in full costs 7 popularity
   and no cash. Popularity never drops below 0.
-- **TROUBLE! count:** each TROUBLE! guest counts once, minus one for each guest
+- **RUCKUS! count:** each RUCKUS! guest counts once, minus one for each guest
   that cancels trouble. The Old Sage's cure lasts until they leave the house.
-  The poet and barista count every TROUBLE! guest in the house, cancelled
+  The poet and barista count every RUCKUS! guest in the house, cancelled
   by a surfer or not.
 - **Drummers:** each one pays the number of drummers present (so 1, 4, 9, 16
   in all); a paparazzo or usher collecting one drummer collects the whole
@@ -156,10 +156,13 @@ some deals really are hard, as players describe.
 ## What is ours
 
 - **Name:** OPEN HOUSE (1986, Beamdown Softworks).
-- **Setting:** summer nights in a whitewashed house by the sea, with lanterns,
-  jasmine and a nosy neighbour whose window lights up when things get loud.
+- **Setting:** summer nights in a whitewashed house by the sea, with lanterns
+  and a nosy neighbour whose window lights up when things get loud.
 - **Every guest's name, portrait and line of flavour** (the abilities and
-  numbers are Party House's), the scenario names and all text.
+  numbers are Party House's), the scenario names and all text: FAME for
+  popularity, RUCKUS! for trouble, the GUEST BOOK for the rolodex, and the
+  secret names Uncle Bert, Aunt Mavis, Old Gus, Miss Penny and Cousins Tom,
+  Mae, Ned and Ivy.
 - **Pixel art and music:** the house, the door, the neighbour, the shop, the
   guests; a lounge theme, a party groove, the shop tune and jingles.
 
@@ -184,8 +187,11 @@ Only the platform needs every UFO 40 cartridge has:
 | D-pad | move the cursor |
 | A | open the door, use a guest's action, choose, buy |
 | B | cancel, back |
-| SELECT | the rolodex list |
 | START | pause menu |
+
+The guest book (the whole deck) is a button under the door and in the shop.
+Helper lines, the star and trouble counters and the house count were
+removed from the screens; the neighbour's lamp is the only warning.
 
 ## Testing hooks
 
