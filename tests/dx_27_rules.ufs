@@ -2,7 +2,8 @@
 # kills without a sound (nobody turns alert, no turns start); an unarmed
 # guard walked into takes the auto punch; the horseshoe takes one bullet,
 # not two; spring boots jump again in the air, higher; at zero the train
-# reaches town; a lawman won't use a ladder with a box on it.
+# reaches town; a lawman won't use a ladder with a box on it; a gun left
+# drawn fires by itself at a lawman in its sight on the lawmen's turn.
 game dune
 wait 5
 # the anvil, thrown into a guard's back
@@ -101,3 +102,18 @@ expect law0_state == 2
 wait 600
 wait 210
 expect law0_y == 82
+# the drawn gun on the lawmen's turn
+cheat mission 1
+cheat face 1
+cheat law 0 8 6 1 1
+hold UP 132
+expect gun == -1
+expect phase == 1
+expect law0_alive == 1
+wait 460
+expect phase == 1
+expect law0_alive == 1
+wait 20
+expect law0_alive == 0
+expect kills == 1
+expect ammo == 0
