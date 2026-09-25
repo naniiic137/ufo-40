@@ -39,6 +39,7 @@ jobs:
           mkdir -p UFO40-windows
           cp build/ufo40.exe build/SDL2.dll UFO40-windows/
           cp LICENSE UFO40-windows/LICENSE.txt
+          cp LICENSE-ASSETS.md UFO40-windows/LICENSE-ASSETS.txt
           cp "SDL2-${SDL2_VERSION}/LICENSE.txt" UFO40-windows/SDL2-LICENSE.txt
           printf 'UFO 40 for Windows\r\n\r\nRun ufo40.exe. Saves go to %%APPDATA%%\UFO40.\r\nCreate an empty file named portable.txt next to ufo40.exe to keep saves in a "saves" folder here instead.\r\n\r\nF11 or Alt+Enter toggles fullscreen.\r\n' > UFO40-windows/README.txt
           (cd UFO40-windows && zip -r ../UFO40-windows.zip .)

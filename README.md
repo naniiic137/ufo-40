@@ -14,6 +14,10 @@
 > **Disclaimer.** UFO 40 is a fan-made parody tribute. It contains no code, art,
 > music or levels from UFO 50 and is not affiliated with or endorsed by Mossmouth.
 
+> **Vibe-coded.** UFO 40 is a vibe-coded project. It was built by directing an AI
+> coding assistant (Claude Code), which wrote the code, pixel art, music, levels
+> and tests from my descriptions, research notes and play-testing feedback.
+
 ---
 
 ## What is this?
@@ -623,14 +627,19 @@ expect px < 180
 
 ## Credits and license
 
-- Design, code, pixel art, music and levels were made for UFO 40 by
-  **Hamza Ben Ismail** ([@naniiic137](https://github.com/naniiic137)),
-  from Nabeul, Tunisia.
+- A vibe-coded project by [@naniiic137](https://github.com/naniiic137): the
+  design, code, pixel art, music and levels were generated with an AI coding
+  assistant (Claude Code), directed and play-tested by naniiic137.
 - Inspired by the idea and games of **UFO 50** by Mossmouth. Go play the real thing.
 - [SDL2](https://www.libsdl.org/) (zlib license) handles windows, input and
   audio on every platform. [vitasdk](https://vitasdk.org/) and
   [Emscripten](https://emscripten.org/) handle the Vita and web builds.
 
-Code is released under the **MIT License**. The pixel art, music, sound effects
-and level designs made for this project are released under the same license.
-See [LICENSE](LICENSE).
+UFO 40 is **non-commercial**. You may play, share, study and change it for any
+non-commercial purpose, but you may not sell it or use it commercially.
+
+- **Code:** [PolyForm Noncommercial License 1.0.0](LICENSE).
+- **Pixel art, music, sound effects, text and level designs:**
+  [Creative Commons Attribution-NonCommercial 4.0](LICENSE-ASSETS.md).
+- Third-party parts keep their own licences: SDL2 (zlib) and stb_image_write
+  (public domain).

@@ -160,7 +160,7 @@ Deep (rows 7-8).
   each one stands.
 - **Music:** four original UFO-MML tracks (the mine theme, the Ember Deep
   theme, the boss theme, the victory theme) plus jingles. Barbuta has no
-  music; Hamza keeps ours, and the death jingle, by choice.
+  music; the owner keeps ours, and the death jingle, by choice.
 
 ## Additions: none
 
