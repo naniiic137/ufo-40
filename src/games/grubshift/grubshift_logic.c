@@ -178,7 +178,7 @@ static void sour_pass(Board *b, Events *ev) {
 
 /* A moundmaker's private planter: it raises its own tile and lowers the
  * planters beside it, except under another moundmaker or a pod. It does this
- * when it appears and again every morning. */
+ * once, when it appears (hatching grown or growing up). */
 static void mound_turn(Board *b, int x, int y, Events *ev) {
     if (b->hole[y][x]) return;
     if (!b->elev[y][x]) { b->elev[y][x] = 1; emit(ev, EV_RAISE, x, y, 0, 0, 1); }
@@ -324,12 +324,15 @@ typedef struct {
     int qh, qt;
     uint8_t boomed[GH][GW];
     uint8_t revert[GH][GW]; /* sour pods to turn sweet again once the dust settles */
+    Hit held[32];           /* hits on a shielded hivebug, tried again once the move is done */
+    int nheld;
 } HitQ;
 
 static void hitq_init(HitQ *h) {
     h->qh = h->qt = 0;
     memset(h->boomed, 0, sizeof h->boomed);
     memset(h->revert, 0, sizeof h->revert);
+    h->nheld = 0;
 }
 
 static void push_hit(HitQ *h, int x, int y, int cause) {
@@ -362,8 +365,8 @@ static void kill_bug(Board *b, HitQ *h, int x, int y, int cause, Events *ev) {
     if (sp == SP_SOUR && grown)
         for (int d = 0; d < 8; d++)
             if (inb(x + DIR8[d][0], y + DIR8[d][1])) h->revert[y + DIR8[d][1]][x + DIR8[d][0]] = 1;
-    if (!damaging(cause) || !grown) return; /* stomps, pits, pods and sprays never trigger abilities */
-    if (sp == SP_SPARK) {
+    if (!damaging(cause)) return; /* stomps, pits, pods and sprays never trigger abilities */
+    if (grown && sp == SP_SPARK) {
         /* sparks fly two tiles each way at the grub's own height; higher
          * ground stops them, lower ground and pits pass beneath */
         int e0 = b->elev[y][x];
@@ -374,14 +377,15 @@ static void kill_bug(Board *b, HitQ *h, int x, int y, int cause, Events *ev) {
                 emit(ev, EV_SPARK, x, y, sx, sy, 0);
                 if (!b->hole[sy][sx] && b->elev[sy][sx] == e0) push_hit(h, sx, sy, CAUSE_SPARK);
             }
-    } else if (sp == SP_BURROW) {
+    } else if (grown && sp == SP_BURROW) {
         b->hole[y][x] = 1;
         b->pods[y][x] = 0;
         b->sour[y][x] = 0;
         b->elev[y][x] = 0;
         emit(ev, EV_HOLE, x, y, 0, 0, 0);
     }
-    if ((b->fx & FX_VOLATILE) && cause == CAUSE_ATTACK && !b->hole[y][x]) blast(b, h, x, y, b->elev[y][x], ev);
+    /* VOLATILE: every grub killed by an attack, a blast or sparks explodes, so it chains */
+    if ((b->fx & FX_VOLATILE) && !b->hole[y][x]) blast(b, h, x, y, b->elev[y][x], ev);
 }
 
 static void check_drones(Board *b, Events *ev) {
@@ -395,6 +399,7 @@ static void check_drones(Board *b, Events *ev) {
 }
 
 static void run_hits(Board *b, HitQ *h, Events *ev) {
+again:
     while (h->qh < h->qt) {
         Hit hit = h->q[h->qh++];
         int x = hit.x, y = hit.y, cause = hit.cause;
@@ -425,6 +430,9 @@ static void run_hits(Board *b, HitQ *h, Events *ev) {
         }
         if (!b->bsp[y][x]) continue;
         if ((damaging(cause) || cause == CAUSE_TOUCH || cause == CAUSE_STOMP) && shielded(b, x, y)) {
+            /* held back: if the same move also kills every drone beside it,
+             * the hivebug dies too, whichever tile the move reached first */
+            if (h->nheld < (int)(sizeof h->held / sizeof h->held[0])) h->held[h->nheld++] = hit;
             emit(ev, EV_HIT, x, y, 0, 0, b->bsp[y][x]);
             continue;
         }
@@ -434,6 +442,18 @@ static void run_hits(Board *b, HitQ *h, Events *ev) {
             continue;
         }
         kill_bug(b, h, x, y, cause, ev);
+    }
+    /* the move is done: a held hit lands on a hivebug that has lost its drones */
+    {
+        int n = h->nheld;
+        bool replay = false;
+        h->nheld = 0;
+        for (int i = 0; i < n; i++) {
+            Hit hit = h->held[i];
+            if (b->bsp[hit.y][hit.x] == SP_HIVE && !shielded(b, hit.x, hit.y)) { push_hit(h, hit.x, hit.y, hit.cause); replay = true; }
+            else if (h->nheld < (int)(sizeof h->held / sizeof h->held[0])) h->held[h->nheld++] = hit;
+        }
+        if (replay) goto again;
     }
     for (int y = 0; y < GH; y++)
         for (int x = 0; x < GW; x++)
@@ -715,9 +735,12 @@ void gs_targets(const Board *b, int chip, uint8_t out[GH][GW]) {
                 if (b->elev[y][x] && !b->hole[y][x]) out[y][x] = 1;
         break;
     case CH_GATHER:
+        /* any tile as the centre, as long as some pod lies in its 3x3 */
         for (int y = 0; y < GH; y++)
             for (int x = 0; x < GW; x++)
-                if (b->pods[y][x] || b->sour[y][x]) out[y][x] = 1;
+                for (int dy = -1; dy <= 1; dy++)
+                    for (int dx = -1; dx <= 1; dx++)
+                        if (inb(x + dx, y + dy) && (b->pods[y + dy][x + dx] || b->sour[y + dy][x + dx])) out[y][x] = 1;
         break;
     case CH_BORE:
         for (int y = 0; y < GH; y++)
@@ -949,40 +972,35 @@ bool gs_buy(Board *b, int offer, int slot, Events *ev) {
     return true;
 }
 
-/* The night, after the queens have settled into eggs: every grown grub ages
- * (adult to queen). Then one colour whose larvae are still alive grows up:
- * those larvae become adults and its new grubs hatch as adults from now on.
- * At most two colours ever grow in a contract; larvae of the others stay
- * harmless larvae. */
+/* The night, after the queens have settled into eggs: one type of grub that
+ * still has grubs alive evolves. Every grub of that colour goes up a level
+ * (larva to adult, adult to queen) and the colour's new grubs hatch at the
+ * new level from then on. One type a night; at most two types in a
+ * contract (the wiki's own rule, taken as written). A field cleared by
+ * nightfall evolves nothing. */
 static void grow_night(Board *b, Events *ev) {
-    for (int y = 0; y < GH; y++)
-        for (int x = 0; x < GW; x++)
-            if (b->bsp[y][x] && b->bsp[y][x] != SP_DRONE && b->blv[y][x] == LV_ADULT) {
-                place_bug(b, x, y, b->bsp[y][x], LV_QUEEN);
-                emit(ev, EV_GROW, x, y, 0, 0, b->bsp[y][x]);
-            }
     int cand[PAIR_COUNT], n = 0, grown_types = 0;
     for (int c = 0; c < PAIR_COUNT; c++) grown_types += (b->grown_mask >> c) & 1;
-    for (int c = 0; c < PAIR_COUNT && grown_types < 2; c++) {
-        if ((b->grown_mask >> c) & 1) continue;
+    for (int c = 0; c < PAIR_COUNT; c++) {
+        if (b->stage[c] >= LV_QUEEN) continue;
+        if (!((b->grown_mask >> c) & 1) && grown_types >= 2) continue;
         bool alive = false;
         for (int y = 0; y < GH; y++)
             for (int x = 0; x < GW; x++)
-                alive |= b->bsp[y][x] && b->bsp[y][x] != SP_DRONE && b->blv[y][x] == LV_LARVA && gs_pair_of(b->bsp[y][x]) == c;
+                alive |= b->bsp[y][x] && b->bsp[y][x] != SP_DRONE && b->blv[y][x] < LV_EGG && gs_pair_of(b->bsp[y][x]) == c;
         if (alive) cand[n++] = c;
     }
-    if (n > 0) {
-        int c = cand[rng_range(&b->rng, 0, n - 1)];
-        b->stage[c] = LV_ADULT;
-        b->grown_mask |= (uint8_t)(1 << c);
-    }
-    /* larvae of a grown colour grow up (tonight's, or ones sent back by REWIND) */
+    if (n == 0) return;
+    int c = cand[rng_range(&b->rng, 0, n - 1)];
+    b->stage[c]++;
+    b->grown_mask |= (uint8_t)(1 << c);
     for (int y = 0; y < GH; y++)
         for (int x = 0; x < GW; x++) {
-            int sp = b->bsp[y][x];
-            if (!sp || sp == SP_DRONE || b->blv[y][x] != LV_LARVA || !((b->grown_mask >> gs_pair_of(sp)) & 1)) continue;
-            place_bug(b, x, y, sp, LV_ADULT);
-            on_grow(b, x, y, ev);
+            int sp = b->bsp[y][x], lv = b->blv[y][x];
+            if (!sp || sp == SP_DRONE || gs_pair_of(sp) != c || lv >= LV_QUEEN) continue;
+            place_bug(b, x, y, sp, lv + 1);
+            if (lv == LV_LARVA) on_grow(b, x, y, ev); /* the species appears */
+            else emit(ev, EV_GROW, x, y, 0, 0, sp);
         }
 }
 
@@ -1015,15 +1033,12 @@ void gs_rest(Board *b, Events *ev) {
             }
     check_drones(b, ev);
     grow_night(b, ev);
-    /* the next morning: fresh ground, the moundmakers raise their planters,
-     * pods fall and new grubs hatch */
+    /* the next morning: fresh ground, pods fall and new grubs hatch (a
+     * moundmaker makes its planter only once, when it appears) */
     b->day++;
     b->fx = 0;
     memset(b->spent, 0, sizeof b->spent);
     deal_terrain(b, ev);
-    for (int y = 0; y < GH; y++)
-        for (int x = 0; x < GW; x++)
-            if (grown_sp(b, x, y, SP_MOUND)) mound_turn(b, x, y, ev);
     drop_pods(b, b->pods_n, false, ev);
     if (b->status == ST_DEAD) return;
     spawn_bugs(b, b->spawn_n, ev);

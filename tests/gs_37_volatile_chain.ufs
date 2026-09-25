@@ -1,0 +1,17 @@
+# GRUB SHIFT: under VOLATILE every grub killed by an attack, a blast or
+# sparks explodes in turn, so one shot can chain across the field.
+game grubshift
+wait 5
+cheat contract 1 7
+cheat clear
+cheat tilly 0 2
+cheat pods 2 2 1
+cheat bug 3 2 1 0
+cheat bug 4 2 1 0
+cheat bug 5 2 1 0
+cheat chip 6 32
+cheat use 6 0 2
+expect fx & 4
+cheat use 5 2 2
+expect kills == 3
+expect status == 0

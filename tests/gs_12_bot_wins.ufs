@@ -1,9 +1,11 @@
-# GRUB SHIFT: the greedy autoplay bot can win contract 1 on a fixed seed
-# (proves a full contract is playable end to end), and wins a fair share of
-# 20 seeded contracts (balance smoke test).
+# GRUB SHIFT: the autoplay bot (two moves ahead, eggs first) can win
+# contract 1 on a fixed seed, which proves a full contract is playable end
+# to end, and it wins a fair share of 20 seeded contracts (balance smoke
+# test). Under Bug Hunter's growth rule, grubs left overnight can come back
+# as queens; the bot wins roughly two in five.
 game grubshift
 wait 5
-cheat contract 1 1000
+cheat contract 1 1001
 cheat autoplay
 expect status == 1
 expect kills >= 30

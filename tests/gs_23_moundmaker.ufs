@@ -1,7 +1,7 @@
 # GRUB SHIFT: a moundmaker makes itself a private planter: when it grows up
 # it raises its own tile and flattens the planters beside it (not diagonal
 # ones, not one holding a pod, not one under another moundmaker). It does
-# it again every morning, after the ground is dealt afresh.
+# this once, when it appears.
 game grubshift
 wait 5
 cheat contract 1 7
@@ -35,14 +35,12 @@ cheat use 1 3 3
 expect lv_at32 == 1
 cheat tilly 0 0
 expect elev_at22 == 1
-# every morning: its own tile up, its neighbours down
+# only once: the next morning's ground is dealt afresh and the moundmaker
+# (grown into a queen overnight) does not raise its planter again
 cheat clear
 cheat tilly 0 0
 cheat bug 3 2 3 1
 cheat rest
 wait 120
-expect elev_at32 == 1
-expect elev_at42 == 0
-expect elev_at22 == 0
-expect elev_at31 == 0
-expect elev_at33 == 0
+expect lv_at32 == 2
+expect elev_at32 == 0

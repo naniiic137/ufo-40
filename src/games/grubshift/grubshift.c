@@ -82,6 +82,18 @@ static void begin_contract(void) {
     music_play(GS_MUS_TITLE);
 }
 
+/* The title's choices. As in Bug Hunter, a player may stop between jobs
+ * after a win and carry on later: only a new contract or a loss ends a
+ * streak. (Mid-contract saving is the UFO 40 platform's.) */
+enum { OPT_CONTINUE, OPT_NEXT, OPT_NEW };
+static int title_options(int opt[3]) {
+    int n = 0;
+    if (sv.in_progress) opt[n++] = OPT_CONTINUE;
+    else if (sv.streak > 0) opt[n++] = OPT_NEXT;
+    opt[n++] = OPT_NEW;
+    return n;
+}
+
 static void enter_play(void) {
     state = S_PLAY;
     state_t = 0;
@@ -313,13 +325,15 @@ static void gs_update(void) {
     switch (state) {
     case S_TITLE: {
         game_set_pausable(false);
-        int n = sv.in_progress ? 2 : 1;
+        int opt[3], n = title_options(opt);
         if (btnp(BTN_UP)) { title_sel = (title_sel + n - 1) % n; sfx_play_name("ui_move"); }
         if (btnp(BTN_DOWN)) { title_sel = (title_sel + 1) % n; sfx_play_name("ui_move"); }
         if (btnp(BTN_B)) game_exit_to_library();
         if (btnp(BTN_A) || btnp(BTN_START)) {
             sfx_play_name("ui_ok");
-            if (sv.in_progress && title_sel == 0) { B = sv.board; enter_play(); }
+            int o = opt[iclamp(title_sel, 0, n - 1)];
+            if (o == OPT_CONTINUE) { B = sv.board; enter_play(); }
+            else if (o == OPT_NEXT) begin_contract(); /* the streak carries on */
             else { sv.streak = 0; begin_contract(); }
         }
         break;
@@ -555,6 +569,17 @@ static void draw_pattern(int chip, int x, int y, int col) {
     if (chip == CH_PULSE) /* show the blast ring rather than the confirm tile */
         for (int yy = 1; yy <= 3; yy++)
             for (int xx = 2; xx <= 4; xx++) v[yy][xx] = !(xx == 3 && yy == 2);
+    /* rolls and straight shots cross every tile on the way: a solid line from
+     * Tilly out to each tile they reach; hops, lobs and area tools are dots */
+    bool continuous = chip == CH_ROLL || chip == CH_SCURRY || chip == CH_STREAK || chip == CH_RUSH || chip == CH_HUSTLE ||
+                      chip == CH_ZAP || chip == CH_ARC || chip == CH_BEAM || chip == CH_FLARE || chip == CH_TRACK;
+    if (continuous)
+        for (int dy = -2; dy <= 2; dy++)
+            for (int dx = -2; dx <= 2; dx++) {
+                int gx = 3 + dx, gy = 2 + dy;
+                if ((dx || dy) && gx >= 0 && gy >= 0 && gx < GW && gy < GH && v[gy][gx])
+                    for (int t = 0; t <= 3 * imax(iabs(dx), iabs(dy)); t++) gfx_rect(x + 6 + isign(dx) * t, y + 6 + isign(dy) * t, 2, 2, col);
+            }
     for (int dy = -2; dy <= 2; dy++)
         for (int dx = -2; dx <= 2; dx++) {
             int gx = 3 + dx, gy = 2 + dy;
@@ -765,10 +790,11 @@ static void draw_title(void) {
     static const uint8_t grad[] = {C_LIME, C_LEAF, C_JADE, C_FOREST};
     ui_fancy_center("GRUB SHIFT", 160, 18, 3, grad, 4, C_INK, C_TEAL);
     text_center("PEST CONTROL ON THE NIGHT SHIFT", 160, 46, C_LEAF);
-    const char *items[2];
-    int n = 0;
-    if (sv.in_progress) items[n++] = "CONTINUE SHIFT";
-    items[n++] = "NEW CONTRACT";
+    int opt[3], n = title_options(opt);
+    char next[32];
+    snprintf(next, sizeof next, "CONTRACT %d (%d IN A ROW)", sv.streak + 1, sv.streak);
+    const char *items[3];
+    for (int i = 0; i < n; i++) items[i] = opt[i] == OPT_CONTINUE ? "CONTINUE SHIFT" : opt[i] == OPT_NEXT ? next : "NEW CONTRACT";
     for (int i = 0; i < n; i++) {
         int y = 64 + i * 12;
         bool s = i == title_sel;
@@ -804,7 +830,7 @@ static void draw_result(void) {
     static const uint8_t gl[] = {C_PINK, C_RED, C_WINE};
     const char *head = result_kind == ST_WON ? "CONTRACT DONE!" : "YOU'RE FIRED!";
     ui_fancy_center(head, 160, 48, 2, result_kind == ST_WON ? gw : gl, 3, C_INK, C_INK);
-    const char *why = result_kind == ST_WON ? "THE GRUBS RETREAT FROM THE DOME."
+    const char *why = result_kind == ST_WON ? "EVERY PLANTER SAFE. GOOD SHIFT, TILLY!"
                       : result_kind == ST_DEAD ? "TILLY GOT CAUGHT IN THE BLAST."
                       : result_kind == ST_HATCHED ? "AN EGG HATCHED. THE DOME IS OVERRUN."
                       : "THE QUOTA WAS NOT MET.";
