@@ -21,7 +21,7 @@ cheat resolve
 expect unit_at32 == 4
 expect unit_at24 == 4
 expect unit_at34 == 3
-# shade
+# shade: a knife up hits the foe; down, a friend is in the way
 cheat clear
 cheat unit 3 2 6 0
 cheat unit 3 0 1 1
@@ -30,4 +30,11 @@ cheat unit 3 5 1 1
 cheat resolve
 expect unit_at42 == 6
 expect hp_at20 == 2
+expect hp_at25 == 3
+# nothing in between: the knife flies to the foe at the far end
+cheat clear
+cheat unit 3 0 6 0
+cheat unit 3 5 1 1
+cheat resolve
 expect hp_at25 == 2
+expect unit_at40 == 6

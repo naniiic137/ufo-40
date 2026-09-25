@@ -1,0 +1,402 @@
+# BANNERFALL: every campaign battle, ranked and survival spawn their whole
+# pools for both armies and nothing else (the log behind the report on
+# unit variety). Each battle is fast-forwarded with B for about 48 turns
+# with banners that can't run out.
+seed 40
+game bannerfall
+wait 5
+# battle 1 Morning Muster: F vs F
+cheat battle 1
+cheat flags 99 99
+hold B 4000
+expect level == 1
+expect spawn_mask_l & 2
+expect spawn_mask_r & 2
+expect spawn_mask_l !& 508
+expect spawn_mask_r !& 508
+# battle 2 Bows At Dawn: BF vs FF
+cheat battle 2
+cheat flags 99 99
+hold B 4000
+expect level == 2
+expect spawn_mask_l & 2
+expect spawn_mask_r & 2
+expect spawn_mask_l & 4
+expect spawn_mask_l !& 504
+expect spawn_mask_r !& 508
+# battle 3 The Long Field: BF vs BF
+cheat battle 3
+cheat flags 99 99
+hold B 4000
+expect level == 3
+expect spawn_mask_l & 2
+expect spawn_mask_r & 2
+expect spawn_mask_l & 4
+expect spawn_mask_r & 4
+expect spawn_mask_l !& 504
+expect spawn_mask_r !& 504
+# battle 4 Rain Of Reeds: WFFF vs FBBB
+cheat battle 4
+cheat flags 99 99
+hold B 4000
+expect level == 4
+expect spawn_mask_l & 2
+expect spawn_mask_r & 2
+expect spawn_mask_r & 4
+expect spawn_mask_l & 8
+expect spawn_mask_l !& 500
+expect spawn_mask_r !& 504
+# battle 5 Hoofbeats: RBFF vs FFBR
+cheat battle 5
+cheat flags 99 99
+hold B 4000
+expect level == 5
+expect spawn_mask_l & 2
+expect spawn_mask_r & 2
+expect spawn_mask_l & 4
+expect spawn_mask_r & 4
+expect spawn_mask_l & 16
+expect spawn_mask_r & 16
+expect spawn_mask_l !& 488
+expect spawn_mask_r !& 488
+# battle 6 Full Gallop: RBFF vs FFBR
+cheat battle 6
+cheat flags 99 99
+hold B 4000
+expect level == 6
+expect spawn_mask_l & 2
+expect spawn_mask_r & 2
+expect spawn_mask_l & 4
+expect spawn_mask_r & 4
+expect spawn_mask_l & 16
+expect spawn_mask_r & 16
+expect spawn_mask_l !& 488
+expect spawn_mask_r !& 488
+# battle 7 Last Banner: WRBF vs FFBR
+cheat battle 7
+cheat flags 99 99
+hold B 4000
+expect level == 7
+expect spawn_mask_l & 2
+expect spawn_mask_r & 2
+expect spawn_mask_l & 4
+expect spawn_mask_r & 4
+expect spawn_mask_l & 8
+expect spawn_mask_l & 16
+expect spawn_mask_r & 16
+expect spawn_mask_l !& 480
+expect spawn_mask_r !& 488
+# battle 8 Long Reach: RBFFPP vs FFBRWP
+cheat battle 8
+cheat flags 99 99
+hold B 4000
+expect level == 8
+expect spawn_mask_l & 2
+expect spawn_mask_r & 2
+expect spawn_mask_l & 4
+expect spawn_mask_r & 4
+expect spawn_mask_r & 8
+expect spawn_mask_l & 16
+expect spawn_mask_r & 16
+expect spawn_mask_l & 32
+expect spawn_mask_r & 32
+expect spawn_mask_l !& 456
+expect spawn_mask_r !& 448
+# battle 9 Hedge Of Pikes: PPPFFW vs FFFFRR
+cheat battle 9
+cheat flags 99 99
+hold B 4000
+expect level == 9
+expect spawn_mask_l & 2
+expect spawn_mask_r & 2
+expect spawn_mask_l & 8
+expect spawn_mask_r & 16
+expect spawn_mask_l & 32
+expect spawn_mask_l !& 468
+expect spawn_mask_r !& 492
+# battle 10 Mud And Mettle: RBFFWP vs FFFBRP
+cheat battle 10
+cheat flags 99 99
+hold B 4000
+expect level == 10
+expect spawn_mask_l & 2
+expect spawn_mask_r & 2
+expect spawn_mask_l & 4
+expect spawn_mask_r & 4
+expect spawn_mask_l & 8
+expect spawn_mask_l & 16
+expect spawn_mask_r & 16
+expect spawn_mask_l & 32
+expect spawn_mask_r & 32
+expect spawn_mask_l !& 448
+expect spawn_mask_r !& 456
+# battle 11 Night Knives: BBFFPSSR vs FFBBRSSP
+cheat battle 11
+cheat flags 99 99
+hold B 4000
+expect level == 11
+expect spawn_mask_l & 2
+expect spawn_mask_r & 2
+expect spawn_mask_l & 4
+expect spawn_mask_r & 4
+expect spawn_mask_l & 16
+expect spawn_mask_r & 16
+expect spawn_mask_l & 32
+expect spawn_mask_r & 32
+expect spawn_mask_l & 64
+expect spawn_mask_r & 64
+expect spawn_mask_l !& 392
+expect spawn_mask_r !& 392
+# battle 12 Thorn Ridge: PPRR vs BBRR
+cheat battle 12
+cheat flags 99 99
+hold B 4000
+expect level == 12
+expect spawn_mask_r & 4
+expect spawn_mask_l & 16
+expect spawn_mask_r & 16
+expect spawn_mask_l & 32
+expect spawn_mask_l !& 462
+expect spawn_mask_r !& 490
+# battle 13 The Flood: SRBFWP vs FFFFFF
+cheat battle 13
+cheat flags 99 99
+hold B 4000
+expect level == 13
+expect spawn_mask_l & 2
+expect spawn_mask_r & 2
+expect spawn_mask_l & 4
+expect spawn_mask_l & 8
+expect spawn_mask_l & 16
+expect spawn_mask_l & 32
+expect spawn_mask_l & 64
+expect spawn_mask_l !& 384
+expect spawn_mask_r !& 508
+# battle 14 No Rest: RBFFWPS vs FFBBRSP
+cheat battle 14
+cheat flags 99 99
+hold B 4000
+expect level == 14
+expect spawn_mask_l & 2
+expect spawn_mask_r & 2
+expect spawn_mask_l & 4
+expect spawn_mask_r & 4
+expect spawn_mask_l & 8
+expect spawn_mask_l & 16
+expect spawn_mask_r & 16
+expect spawn_mask_l & 32
+expect spawn_mask_r & 32
+expect spawn_mask_l & 64
+expect spawn_mask_r & 64
+expect spawn_mask_l !& 384
+expect spawn_mask_r !& 392
+# battle 15 Powder Keg: RBFFWP vs FFFFRX
+cheat battle 15
+cheat flags 99 99
+hold B 4000
+expect level == 15
+expect spawn_mask_l & 2
+expect spawn_mask_r & 2
+expect spawn_mask_l & 4
+expect spawn_mask_l & 8
+expect spawn_mask_l & 16
+expect spawn_mask_r & 16
+expect spawn_mask_l & 32
+expect spawn_mask_r & 128
+expect spawn_mask_l !& 448
+expect spawn_mask_r !& 364
+# battle 16 Smoke And Sparks: WXPR vs FBRP
+cheat battle 16
+cheat flags 99 99
+hold B 4000
+expect level == 16
+expect spawn_mask_r & 2
+expect spawn_mask_r & 4
+expect spawn_mask_l & 8
+expect spawn_mask_l & 16
+expect spawn_mask_r & 16
+expect spawn_mask_l & 32
+expect spawn_mask_r & 32
+expect spawn_mask_l & 128
+expect spawn_mask_l !& 326
+expect spawn_mask_r !& 456
+# battle 17 Hollow Woods: SRFFXX vs FFRPPW
+cheat battle 17
+cheat flags 99 99
+hold B 4000
+expect level == 17
+expect spawn_mask_l & 2
+expect spawn_mask_r & 2
+expect spawn_mask_r & 8
+expect spawn_mask_l & 16
+expect spawn_mask_r & 16
+expect spawn_mask_r & 32
+expect spawn_mask_l & 64
+expect spawn_mask_l & 128
+expect spawn_mask_l !& 300
+expect spawn_mask_r !& 452
+# battle 18 Call To Arms: RBFFWXPS vs FFBRSPXW
+cheat battle 18
+cheat flags 99 99
+hold B 4000
+expect level == 18
+expect spawn_mask_l & 2
+expect spawn_mask_r & 2
+expect spawn_mask_l & 4
+expect spawn_mask_r & 4
+expect spawn_mask_l & 8
+expect spawn_mask_r & 8
+expect spawn_mask_l & 16
+expect spawn_mask_r & 16
+expect spawn_mask_l & 32
+expect spawn_mask_r & 32
+expect spawn_mask_l & 64
+expect spawn_mask_r & 64
+expect spawn_mask_l & 128
+expect spawn_mask_r & 128
+expect spawn_mask_l !& 256
+expect spawn_mask_r !& 256
+# battle 19 Crowded Lanes: RBFWWXPS vs FBRSPXWW
+cheat battle 19
+cheat flags 99 99
+hold B 4000
+expect level == 19
+expect spawn_mask_l & 2
+expect spawn_mask_r & 2
+expect spawn_mask_l & 4
+expect spawn_mask_r & 4
+expect spawn_mask_l & 8
+expect spawn_mask_r & 8
+expect spawn_mask_l & 16
+expect spawn_mask_r & 16
+expect spawn_mask_l & 32
+expect spawn_mask_r & 32
+expect spawn_mask_l & 64
+expect spawn_mask_r & 64
+expect spawn_mask_l & 128
+expect spawn_mask_r & 128
+expect spawn_mask_l !& 256
+expect spawn_mask_r !& 256
+# battle 20 Champions Rise: WSBC vs FBRSPX
+cheat battle 20
+cheat flags 99 99
+hold B 4000
+expect level == 20
+expect spawn_mask_r & 2
+expect spawn_mask_l & 4
+expect spawn_mask_r & 4
+expect spawn_mask_l & 8
+expect spawn_mask_r & 16
+expect spawn_mask_r & 32
+expect spawn_mask_l & 64
+expect spawn_mask_r & 64
+expect spawn_mask_r & 128
+expect spawn_mask_l & 256
+expect spawn_mask_l !& 178
+expect spawn_mask_r !& 264
+# battle 21 Plain Steel: FFFF vs FFBRSPXW
+cheat battle 21
+cheat flags 99 99
+hold B 4000
+expect level == 21
+expect spawn_mask_l & 2
+expect spawn_mask_r & 2
+expect spawn_mask_r & 4
+expect spawn_mask_r & 8
+expect spawn_mask_r & 16
+expect spawn_mask_r & 32
+expect spawn_mask_r & 64
+expect spawn_mask_r & 128
+expect spawn_mask_l !& 508
+expect spawn_mask_r !& 256
+# battle 22 Barrels And Bows: XXBB vs SSPP
+cheat battle 22
+cheat flags 99 99
+hold B 4000
+expect level == 22
+expect spawn_mask_l & 4
+expect spawn_mask_r & 32
+expect spawn_mask_r & 64
+expect spawn_mask_l & 128
+expect spawn_mask_l !& 378
+expect spawn_mask_r !& 414
+# battle 23 The Grey Field: RBFFWXPS vs FFBRSPXW
+cheat battle 23
+cheat flags 99 99
+hold B 4000
+expect level == 23
+expect spawn_mask_l & 2
+expect spawn_mask_r & 2
+expect spawn_mask_l & 4
+expect spawn_mask_r & 4
+expect spawn_mask_l & 8
+expect spawn_mask_r & 8
+expect spawn_mask_l & 16
+expect spawn_mask_r & 16
+expect spawn_mask_l & 32
+expect spawn_mask_r & 32
+expect spawn_mask_l & 64
+expect spawn_mask_r & 64
+expect spawn_mask_l & 128
+expect spawn_mask_r & 128
+expect spawn_mask_l !& 256
+expect spawn_mask_r !& 256
+# battle 24 Bannerfall: RBFFWXPS vs FFBRSPXW
+cheat battle 24
+cheat flags 99 99
+hold B 4000
+expect level == 24
+expect spawn_mask_l & 2
+expect spawn_mask_r & 2
+expect spawn_mask_l & 4
+expect spawn_mask_r & 4
+expect spawn_mask_l & 8
+expect spawn_mask_r & 8
+expect spawn_mask_l & 16
+expect spawn_mask_r & 16
+expect spawn_mask_l & 32
+expect spawn_mask_r & 32
+expect spawn_mask_l & 64
+expect spawn_mask_r & 64
+expect spawn_mask_l & 128
+expect spawn_mask_r & 128
+expect spawn_mask_l !& 0
+expect spawn_mask_r !& 256
+# ranked: the full pool on both sides
+cheat ranked
+cheat flags 99 99
+hold B 4000
+expect spawn_mask_l & 2
+expect spawn_mask_r & 2
+expect spawn_mask_l & 4
+expect spawn_mask_r & 4
+expect spawn_mask_l & 8
+expect spawn_mask_r & 8
+expect spawn_mask_l & 16
+expect spawn_mask_r & 16
+expect spawn_mask_l & 32
+expect spawn_mask_r & 32
+expect spawn_mask_l & 64
+expect spawn_mask_r & 64
+expect spawn_mask_l & 128
+expect spawn_mask_r & 128
+expect spawn_mask_r !& 256
+# survival: the full pool on both sides
+cheat survival
+cheat flags 99 255
+hold B 4000
+expect spawn_mask_l & 2
+expect spawn_mask_r & 2
+expect spawn_mask_l & 4
+expect spawn_mask_r & 4
+expect spawn_mask_l & 8
+expect spawn_mask_r & 8
+expect spawn_mask_l & 16
+expect spawn_mask_r & 16
+expect spawn_mask_l & 32
+expect spawn_mask_r & 32
+expect spawn_mask_l & 64
+expect spawn_mask_r & 64
+expect spawn_mask_l & 128
+expect spawn_mask_r & 128
+expect spawn_mask_r !& 256

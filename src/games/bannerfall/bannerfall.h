@@ -93,6 +93,7 @@ typedef struct LevelDef {
     const char *pool_l, *pool_r; /* unit letters: F B W R P S X C */
     uint16_t handicap;
     uint8_t heroes;              /* champions from promotions for the player */
+    const char *tip;             /* shown when a battle brings in something new, or NULL */
 } LevelDef;
 extern const LevelDef BF_LEVELS_DEF[BF_LEVELS];
 
@@ -105,6 +106,8 @@ void bf_setup_survival(Board *b, uint64_t seed);
 void bf_spawn(Board *b, BEvents *ev);
 void bf_resolve(Board *b, BEvents *ev, Board snaps[PH_COUNT + 1]);
 bool bf_in_zone(int side, int x);
+/* a unit standing in an unbroken column of 3+ of its own side (the footman's guard) */
+bool bf_in_column(const Board *b, int x, int y);
 /* Drag a unit one tile; returns true and updates *x,*y when it moved. */
 bool bf_drag(Board *b, int side, int *x, int *y, int dx, int dy, int pickup_col);
 int bf_count(const Board *b, int side, int type); /* type U_NONE = all */
@@ -116,6 +119,7 @@ int bf_survival_stage(int turn);                  /* 0..4 colour shift */
 enum {
     BS_FOOT1, BS_FOOT2, BS_BOW1, BS_BOW2, BS_WARD1, BS_WARD2, BS_RIDER1, BS_RIDER2,
     BS_PIKE1, BS_PIKE2, BS_SHADE1, BS_SHADE2, BS_POWDER1, BS_POWDER2, BS_CHAMP1, BS_CHAMP2,
+    BS_WARDX1, BS_WARDX2, /* a warden whose shield has broken (3 HP or less) */
     BS_ARROW, BS_KNIFE, BS_STAR, BS_FLAG1, BS_FLAG2, BS_FLAG_DOWN, BS_TUFT, BS_FLOWER,
     BS_HAND, BS_HAND_GRAB,
     BS_SPRITE_COUNT

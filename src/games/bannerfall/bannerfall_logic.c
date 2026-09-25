@@ -17,30 +17,30 @@ const UnitInfo BF_UNITS[U_TYPES] = {
 /* The campaign: flags, pools and the CPU's extra units follow Attactics'
  * 24 levels one for one; the names are ours. */
 const LevelDef BF_LEVELS_DEF[BF_LEVELS] = {
-    {"MORNING MUSTER", 2, 2, "F", "F", 0, 0},
-    {"BOWS AT DAWN", 3, 3, "BF", "FF", 50, 0},
-    {"THE LONG FIELD", 3, 3, "BF", "BF", 30, 0},
-    {"RAIN OF REEDS", 3, 3, "WFFF", "FBBB", 30, 0},
-    {"HOOFBEATS", 3, 3, "RBFF", "FFBR", 30, 0},
-    {"FULL GALLOP", 5, 5, "RBFF", "FFBR", 50, 0},
-    {"LAST BANNER", 1, 5, "WRBF", "FFBR", 50, 0},
-    {"LONG REACH", 5, 5, "RBFFPP", "FFBRWP", 40, 0},
-    {"HEDGE OF PIKES", 5, 5, "PPPFFW", "FFFFRR", 60, 0},
-    {"MUD AND METTLE", 5, 5, "RBFFWP", "FFFBRP", 50, 0},
-    {"NIGHT KNIVES", 5, 5, "BBFFPSSR", "FFBBRSSP", 40, 0},
-    {"THORN RIDGE", 5, 5, "PPRR", "BBRR", 50, 0},
-    {"THE FLOOD", 5, 5, "SRBFWP", "FFFFFF", 75, 0},
-    {"NO REST", 5, 5, "RBFFWPS", "FFBBRSP", 50, 0},
-    {"POWDER KEG", 5, 5, "RBFFWP", "FFFFRX", 40, 0},
-    {"SMOKE AND SPARKS", 5, 5, "WXPR", "FBRP", 40, 0},
-    {"HOLLOW WOODS", 5, 5, "SRFFXX", "FFRPPW", 40, 0},
-    {"CALL TO ARMS", 5, 5, "RBFFWXPS", "FFBRSPXW", 60, 0},
-    {"CROWDED LANES", 5, 5, "RBFWWXPS", "FBRSPXWW", 60, 0},
-    {"CHAMPIONS RISE", 5, 5, "WSBC", "FBRSPX", 100, 0},
-    {"PLAIN STEEL", 5, 5, "FFFF", "FFBRSPXW", 20, 0},
-    {"BARRELS AND BOWS", 5, 5, "XXBB", "SSPP", 60, 0},
-    {"THE GREY FIELD", 5, 5, "RBFFWXPS", "FFBRSPXW", 70, 0},
-    {"BANNERFALL", 5, 5, "RBFFWXPS", "FFBRSPXW", 80, 1},
+    {"MORNING MUSTER", 2, 2, "F", "F", 0, 0, "FOOTMEN IN A COLUMN OF THREE SHRUG OFF BLOWS."},
+    {"BOWS AT DAWN", 3, 3, "BF", "FF", 50, 0, "BOWMEN SHOOT DOWN THEIR ROW, BUT NEVER PAST A FRIEND."},
+    {"THE LONG FIELD", 3, 3, "BF", "BF", 30, 0, NULL},
+    {"RAIN OF REEDS", 3, 3, "WFFF", "FBBB", 30, 0, "A WARDEN'S SHIELD STOPS ARROWS UNTIL IT BREAKS."},
+    {"HOOFBEATS", 3, 3, "RBFF", "FFBR", 30, 0, "RIDERS RUN TWICE AS FAR WHEN THE WAY IS CLEAR."},
+    {"FULL GALLOP", 5, 5, "RBFF", "FFBR", 50, 0, NULL},
+    {"LAST BANNER", 1, 5, "WRBF", "FFBR", 50, 0, NULL},
+    {"LONG REACH", 5, 5, "RBFFPP", "FFBRWP", 40, 0, "PIKEMEN STRIKE TWO TILES AHEAD."},
+    {"HEDGE OF PIKES", 5, 5, "PPPFFW", "FFFFRR", 60, 0, NULL},
+    {"MUD AND METTLE", 5, 5, "RBFFWP", "FFFBRP", 50, 0, NULL},
+    {"NIGHT KNIVES", 5, 5, "BBFFPSSR", "FFBBRSSP", 40, 0, "SHADES THROW KNIVES UP AND DOWN AS THEY MARCH."},
+    {"THORN RIDGE", 5, 5, "PPRR", "BBRR", 50, 0, NULL},
+    {"THE FLOOD", 5, 5, "SRBFWP", "FFFFFF", 75, 0, NULL},
+    {"NO REST", 5, 5, "RBFFWPS", "FFBBRSP", 50, 0, NULL},
+    {"POWDER KEG", 5, 5, "RBFFWP", "FFFFRX", 40, 0, "POWDERMEN BLOW UP WHEN THEY FALL. KEEP CLEAR!"},
+    {"SMOKE AND SPARKS", 5, 5, "WXPR", "FBRP", 40, 0, NULL},
+    {"HOLLOW WOODS", 5, 5, "SRFFXX", "FFRPPW", 40, 0, NULL},
+    {"CALL TO ARMS", 5, 5, "RBFFWXPS", "FFBRSPXW", 60, 0, NULL},
+    {"CROWDED LANES", 5, 5, "RBFWWXPS", "FBRSPXWW", 60, 0, NULL},
+    {"CHAMPIONS RISE", 5, 5, "WSBC", "FBRSPX", 100, 0, "THE CHAMPION: A PIKE'S REACH AND A RIDER'S LEGS."},
+    {"PLAIN STEEL", 5, 5, "FFFF", "FFBRSPXW", 20, 0, NULL},
+    {"BARRELS AND BOWS", 5, 5, "XXBB", "SSPP", 60, 0, NULL},
+    {"THE GREY FIELD", 5, 5, "RBFFWXPS", "FFBRSPXW", 70, 0, NULL},
+    {"BANNERFALL", 5, 5, "RBFFWXPS", "FFBRSPXW", 80, 1, "EVERY FIFTH PROMOTION CALLS A CHAMPION!"},
 };
 
 static const char FULL_POOL[] = "RBFFWXPS";
@@ -237,8 +237,11 @@ typedef struct Combat {
 } Combat;
 
 static int atk_dmg(const Unit *u) { return u->promo ? 2 : 1; }
+static bool in_column3(const Board *b, int x, int y);
 
-/* A footman in a vertical line of 3+ allies (itself included). */
+/* A unit in a vertical line of 3+ allies (itself included). */
+bool bf_in_column(const Board *b, int x, int y) { return b->g[y][x].type && in_column3(b, x, y); }
+
 static bool in_column3(const Board *b, int x, int y) {
     const Unit *u = &b->g[y][x];
     int n = 1;
@@ -372,13 +375,16 @@ void bf_resolve(Board *b, BEvents *ev, Board snaps[PH_COUNT + 1]) {
         for (int x = 0; x < BF_COLS; x++) {
             Unit *u = &b->g[y][x];
             if (u->type != U_SHADE) continue;
+            /* like an arrow, but up and down: the first unit that way must be a foe */
             for (int dy = -1; dy <= 1; dy += 2)
-                for (int yy = y + dy; yy >= 0 && yy < BF_ROWS; yy += dy)
-                    if (is_enemy(b, x, yy, u->side)) {
+                for (int yy = y + dy; yy >= 0 && yy < BF_ROWS; yy += dy) {
+                    if (!is_unit(b, x, yy)) continue;
+                    if (b->g[yy][x].side != u->side) {
                         add_hit(&c, x, y, x, yy, atk_dmg(u), K_KNIFE);
                         add_ev(ev, BE_KNIFE, PH_KNIVES, x, y, x, yy, u->promo, u->side, u->id);
-                        break;
                     }
+                    break;
+                }
         }
     if (c.n) apply_hits(b, &c, ev, PH_KNIVES);
     if (snaps) snaps[1] = *b;
@@ -406,14 +412,18 @@ void bf_resolve(Board *b, BEvents *ev, Board snaps[PH_COUNT + 1]) {
                 acted[y][x] = true;
                 continue;
             }
+            /* a bowman shoots only when the first unit down its row is a foe:
+             * an ally in front blocks the shot */
             if (u->type == U_BOW)
-                for (int xx = x + d; xx >= 0 && xx < BF_COLS; xx += d)
-                    if (is_enemy(b, xx, y, s)) {
+                for (int xx = x + d; xx >= 0 && xx < BF_COLS; xx += d) {
+                    if (!is_unit(b, xx, y)) continue;
+                    if (b->g[y][xx].side != s) {
                         add_hit(&c, x, y, xx, y, atk_dmg(u), K_ARROW);
                         add_ev(ev, BE_ARROW, PH_ATTACK, x, y, xx, y, u->promo, s, u->id);
                         acted[y][x] = true;
-                        break;
                     }
+                    break;
+                }
         }
     /* remember who attacked by id: the dead are removed before moving */
     uint16_t acted_id[BF_ROWS * BF_COLS];
@@ -424,32 +434,50 @@ void bf_resolve(Board *b, BEvents *ev, Board snaps[PH_COUNT + 1]) {
     if (c.n) apply_hits(b, &c, ev, PH_ATTACK);
     if (snaps) snaps[2] = *b;
 
-    /* 3. moves (row by row; a clash when two enemies step into the same tile) */
+    /* 3. moves. First the clashes: two foes stepping into the same free tile
+     * hit each other as usual, and then the one with the longer line of its
+     * own men behind it pushes into the tile; an even line holds both still. */
+    uint16_t stay_id[BF_ROWS * BF_COLS];
+    int n_stay = 0;
+    c.n = 0;
+    for (int y = 0; y < BF_ROWS; y++)
+        for (int x = 0; x + 2 < BF_COLS; x++) {
+            Unit *l = &b->g[y][x], *r = &b->g[y][x + 2];
+            if (!l->type || l->side != SIDE_L || b->g[y][x + 1].type || !r->type || r->side != SIDE_R) continue;
+            bool l_acted = false, r_acted = false;
+            for (int i = 0; i < n_acted; i++) {
+                if (acted_id[i] == l->id) l_acted = true;
+                if (acted_id[i] == r->id) r_acted = true;
+            }
+            if (l_acted || r_acted) continue;
+            int nl = 0, nr = 0;
+            for (int xx = x; xx >= 0 && b->g[y][xx].type && b->g[y][xx].side == SIDE_L; xx--) nl++;
+            for (int xx = x + 2; xx < BF_COLS && b->g[y][xx].type && b->g[y][xx].side == SIDE_R; xx++) nr++;
+            int winner = nl > nr ? 1 : nr > nl ? 2 : 0;
+            add_ev(ev, BE_CLASH, PH_MOVE, x, y, x + 2, y, winner, 0, l->id);
+            if (!(l->type == U_WARD && l->hp >= 4)) add_hit(&c, x, y, x + 2, y, atk_dmg(l), K_MELEE);
+            if (!(r->type == U_WARD && r->hp >= 4)) add_hit(&c, x + 2, y, x, y, atk_dmg(r), K_MELEE);
+            if (winner != 1) stay_id[n_stay++] = l->id;
+            if (winner != 2) stay_id[n_stay++] = r->id;
+        }
+    if (c.n) apply_hits(b, &c, ev, PH_MOVE);
+
     Unit entered[2][BF_ROWS * 2];
     int entered_y[2][BF_ROWS * 2], n_entered[2] = {0, 0};
     uint16_t moved_id[BF_ROWS * BF_COLS];
     int n_moved = 0;
-    c.n = 0;
     for (int y = 0; y < BF_ROWS; y++) {
         bool want[BF_COLS];
         for (int x = 0; x < BF_COLS; x++) {
             Unit *u = &b->g[y][x];
             want[x] = false;
             if (!u->type) continue;
-            bool did = false;
+            bool held = false;
             for (int i = 0; i < n_acted; i++)
-                if (acted_id[i] == u->id) did = true;
-            want[x] = !did;
-        }
-        /* clashes: L at x, empty x+1, R at x+2 */
-        for (int x = 0; x + 2 < BF_COLS; x++) {
-            Unit *l = &b->g[y][x], *r = &b->g[y][x + 2];
-            if (l->type && l->side == SIDE_L && want[x] && !b->g[y][x + 1].type && r->type && r->side == SIDE_R && want[x + 2]) {
-                want[x] = want[x + 2] = false;
-                add_ev(ev, BE_CLASH, PH_MOVE, x, y, x + 2, y, 0, 0, l->id);
-                if (!(l->type == U_WARD && l->hp >= 4)) add_hit(&c, x, y, x + 2, y, atk_dmg(l), K_MELEE);
-                if (!(r->type == U_WARD && r->hp >= 4)) add_hit(&c, x + 2, y, x, y, atk_dmg(r), K_MELEE);
-            }
+                if (acted_id[i] == u->id) held = true;
+            for (int i = 0; i < n_stay; i++)
+                if (stay_id[i] == u->id) held = true;
+            want[x] = !held;
         }
         /* the left army marches right, front first */
         for (int x = BF_COLS - 1; x >= 0; x--) {
@@ -484,7 +512,6 @@ void bf_resolve(Board *b, BEvents *ev, Board snaps[PH_COUNT + 1]) {
             }
         }
     }
-    if (c.n) apply_hits(b, &c, ev, PH_MOVE);
     if (snaps) snaps[3] = *b;
 
     /* 4. keep attacks */

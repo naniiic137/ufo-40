@@ -1,4 +1,5 @@
-# BANNERFALL: a bowman shoots the first enemy down its row and doesn't move;
+# BANNERFALL: a bowman shoots when the first unit down its row is a foe, and
+# doesn't move; a friend in front blocks it;
 # a warden at 4+ HP shrugs arrows off, below that they hurt.
 game bannerfall
 wait 5
@@ -15,11 +16,13 @@ expect unit_at02 == 2
 expect hp_at52 == 2
 expect hp_at53 == 5
 expect hp_at54 == 2
-# arrows fly over allies
+# a friend in front blocks the shot: the bowman marches instead
 cheat clear
 cheat unit 0 1 2 0
 cheat unit 2 1 3 0
 cheat unit 6 1 1 1
 cheat resolve
-expect hp_at51 == 2
+expect hp_at51 == 3
+expect unit_at11 == 2
+expect unit_at01 == 0
 expect hp_at31 == 5
