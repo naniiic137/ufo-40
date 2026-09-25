@@ -126,3 +126,14 @@ void game_save_erase(int game) {
     uint8_t zero = 0;
     plat_save_write(name, &zero, 0);
 }
+
+int game_save_raw_size(int game) {
+    char name[32];
+    game_file(game, name, sizeof name);
+    int cap = 65536 + HEADER_SIZE;
+    uint8_t *buf = (uint8_t *)malloc((size_t)cap);
+    if (!buf) return 0;
+    int n = plat_save_read(name, buf, cap);
+    free(buf);
+    return n > 0 ? n : 0;
+}

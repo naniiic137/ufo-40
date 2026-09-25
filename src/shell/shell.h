@@ -44,8 +44,10 @@ const char *shell_song_title(int song);
 
 /* Save data helpers. */
 int shell_save_size(int game); /* bytes in the cartridge's save, 0 if none */
+enum { SAVE_NONE, SAVE_OK, SAVE_DAMAGED };
+int shell_save_state(int game);
 void shell_delete_save(int game);
-void shell_reset_goals(int game);
+void shell_reset_goals(int game); /* the goals and the save that would give them back */
 void shell_delete_all(void);   /* every save and goal; settings stay */
 
 /* State for the headless tests ("menu_sel", "music_vol", ...). */

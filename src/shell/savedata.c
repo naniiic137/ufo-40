@@ -13,7 +13,7 @@ enum { ASK_NONE, ASK_DELETE_SAVE, ASK_RESET_GOALS, ASK_ALL_1, ASK_ALL_2 };
 #define LIST_Y 30
 
 static int rows[GAME_SLOTS + 1], n_rows; /* cartridge slots, then -1 = DELETE ALL DATA */
-static int sizes[GAME_SLOTS];
+static int states[GAME_SLOTS]; /* SAVE_NONE, SAVE_OK or SAVE_DAMAGED */
 static int t, sel, top, step, act_sel, ask, yes, msg_t;
 static const char *msg;
 
@@ -22,7 +22,7 @@ static void refresh(void) {
     for (int i = 0; i < GAME_SLOTS; i++)
         if (GAMES[i]) {
             rows[n_rows++] = i;
-            sizes[i] = shell_save_size(i);
+            states[i] = shell_save_state(i);
         }
     rows[n_rows++] = -1;
     if (sel >= n_rows) sel = n_rows - 1;
@@ -42,7 +42,7 @@ static int cart(void) { return rows[sel]; }
 static bool act_enabled(int a) {
     int g = cart();
     if (g < 0) return false;
-    if (a == ACT_DELETE_SAVE) return sizes[g] > 0;
+    if (a == ACT_DELETE_SAVE) return states[g] != SAVE_NONE; /* a damaged file can go too */
     if (a == ACT_RESET_GOALS) return g_progress.goals[g] != 0;
     return true;
 }
@@ -154,7 +154,8 @@ static void draw_list(void) {
         }
         snprintf(buf, sizeof buf, "%02d %s", g + 1, GAMES[g]->title);
         text_draw(buf, 22, y, cur ? C_WHITE : C_GREY);
-        if (sizes[g] > 0) tiny_draw("SAVE", 146, y + 1, cur ? C_LIME : C_JADE);
+        if (states[g] == SAVE_OK) tiny_draw("SAVE", 146, y + 1, cur ? C_LIME : C_JADE);
+        else if (states[g] == SAVE_DAMAGED) tiny_draw("DAMAGED", 134, y + 1, cur ? C_RED : C_WINE);
         else tiny_draw("-", 152, y + 1, C_DUSK);
         goal_pips(164, y + 2, g);
     }
@@ -169,7 +170,7 @@ static void draw_detail(void) {
     char buf[64];
     if (g < 0) {
         text_draw("DELETE ALL", x + 8, y + 7, C_RED);
-        text_wrap("ERASES EVERY CARTRIDGE'S SAVE AND EVERY GOAL EARNED.", x + 8, y + 22, w - 14, C_LIGHT, 9);
+        text_wrap("ERASES EVERY SAVE, EVERY GOAL AND THE PLAY COUNTS.", x + 8, y + 22, w - 14, C_LIGHT, 9);
         text_wrap("VOLUMES AND VIDEO OPTIONS STAY.", x + 8, y + 62, w - 14, C_GREY, 9);
         tiny_draw("ASKS TWICE, NO IS THE DEFAULT", x + 8, y + 90, C_SLATE);
     } else {
@@ -181,7 +182,9 @@ static void draw_detail(void) {
             tiny_draw(buf, x + 8, y + 17, C_SKY);
         }
         tiny_draw("SAVE FILE", x + 8, y + 28, C_GREY);
-        text_draw(sizes[g] > 0 ? "YES" : "NONE", x + 60, y + 27, sizes[g] > 0 ? C_LIME : C_SLATE);
+        static const char *const st[3] = {"NONE", "YES", "DAMAGED"};
+        static const uint8_t stc[3] = {C_SLATE, C_LIME, C_RED};
+        text_draw(st[states[g]], x + 60, y + 27, stc[states[g]]);
         static const char *const names[3] = {"BEACON", "SAUCER", "ALIEN"};
         for (int b = 0; b < 3; b++) {
             int gy = y + 40 + b * 12;
@@ -240,11 +243,11 @@ static void draw_confirm(void) {
         break;
     case ASK_RESET_GOALS:
         snprintf(q, sizeof q, "RESET %s'S GOALS?", GAMES[g]->title);
-        snprintf(d, sizeof d, "ITS BEACON, SAUCER AND ALIEN GO DARK.");
+        snprintf(d, sizeof d, "ITS SAVE GOES TOO, SO NOTHING GIVES THEM BACK.");
         break;
     case ASK_ALL_1:
         snprintf(q, sizeof q, "DELETE ALL DATA?");
-        snprintf(d, sizeof d, "EVERY SAVE AND EVERY GOAL, ALL 40 SLOTS.");
+        snprintf(d, sizeof d, "EVERY SAVE, GOAL AND PLAY COUNT, ALL 40 SLOTS.");
         border = C_RED;
         break;
     default:
@@ -281,6 +284,7 @@ static void sd_draw(void) {
     gfx_hline(0, SCREEN_W - 1, 166, C_DUSK);
     int fx = ui_hint(6, 170, GLYPH_A, step == STEP_CONFIRM ? "CONFIRM" : "SELECT", C_LIGHT);
     ui_hint(fx, 170, GLYPH_B, "BACK", C_LIGHT);
+    tiny_draw("EVERYTHING SAVES BY ITSELF", SCREEN_W - 6 - tiny_width("EVERYTHING SAVES BY ITSELF"), 172, C_SLATE);
 }
 
 const Scene SCENE_SAVEDATA = {"savedata", sd_enter, sd_update, sd_draw, NULL};

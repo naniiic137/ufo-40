@@ -356,6 +356,18 @@ static int run_script(const char *path) {
             uint8_t blob[4096];
             for (int i = 0; i < bytes; i++) blob[i] = (uint8_t)(i * 7 + gi);
             game_save_write(gi, blob, bytes);
+        } else if (!strcmp(cmd, "junk_save")) {
+            /* junk_save GAME BYTES : a save file that fails its checks (damaged) */
+            char name[64] = {0};
+            int bytes = 0;
+            sscanf(arg, "%63s %d", name, &bytes);
+            int gi = app_find_game(name);
+            if (gi < 0 || bytes <= 0 || bytes > 4096) { fail("bad junk_save '%s'%ld", arg, 0); continue; }
+            uint8_t blob[4096];
+            for (int i = 0; i < bytes; i++) blob[i] = (uint8_t)(0xA5 ^ i);
+            char fname[32];
+            snprintf(fname, sizeof fname, "game%02d.sav", gi + 1);
+            plat_save_write(fname, blob, bytes);
         } else if (!strcmp(cmd, "set_goals")) {
             /* set_goals GAME BITS : set a cartridge's goals (1 beacon, 2 saucer, 4 alien) */
             char name[64] = {0};
