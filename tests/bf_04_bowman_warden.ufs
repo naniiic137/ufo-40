@@ -1,0 +1,25 @@
+# BANNERFALL: a bowman shoots the first enemy down its row and doesn't move;
+# a warden at 4+ HP shrugs arrows off, below that they hurt.
+game bannerfall
+wait 5
+cheat battle 18
+cheat clear
+cheat unit 0 2 2 0
+cheat unit 6 2 1 1
+cheat unit 0 3 2 0
+cheat unit 6 3 3 1
+cheat unit 0 4 2 0
+cheat unit 6 4 3 1 3
+cheat resolve
+expect unit_at02 == 2
+expect hp_at52 == 2
+expect hp_at53 == 5
+expect hp_at54 == 2
+# arrows fly over allies
+cheat clear
+cheat unit 0 1 2 0
+cheat unit 2 1 3 0
+cheat unit 6 1 1 1
+cheat resolve
+expect hp_at51 == 2
+expect hp_at31 == 5

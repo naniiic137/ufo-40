@@ -1,0 +1,31 @@
+# BANNERFALL goals: Beacon for the first 12 battles, Saucer for all 24,
+# Alien for all 24 plus rank 100.
+game bannerfall
+wait 5
+cheat beaten 2047
+cheat battle 12
+cheat clear
+cheat flags 5 1
+cheat unit 7 2 1 0
+cheat endturn
+wait 200
+expect goals == 1
+cheat beaten 8388607
+cheat battle 24
+cheat clear
+cheat flags 5 1
+cheat unit 7 2 1 0
+cheat endturn
+wait 200
+expect won == 24
+expect goals == 3
+# ranked: +10 for a win with all three banners
+cheat rank 95
+cheat ranked
+cheat clear
+cheat flags 3 1
+cheat unit 7 2 1 0
+cheat endturn
+wait 200
+expect rank == 105
+expect goals == 7

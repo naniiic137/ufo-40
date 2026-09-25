@@ -1,0 +1,23 @@
+# BANNERFALL: battles won, losses and rank are saved.
+game bannerfall
+wait 5
+cheat battle 1
+cheat clear
+cheat flags 2 1
+cheat unit 7 2 1 0
+cheat endturn
+wait 200
+cheat rank 30
+cheat battle 2
+cheat clear
+cheat flags 1 3
+cheat unit 0 2 1 1
+cheat endturn
+wait 200
+reload
+game bannerfall
+wait 5
+expect won == 1
+expect losses == 1
+expect rank == 30
+expect beaten == 1

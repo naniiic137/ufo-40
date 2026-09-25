@@ -1,0 +1,35 @@
+# BANNERFALL: a footman in a column of three allies takes no melee damage,
+# unless its attacker is a footman in such a column too. Arrows still hurt.
+game bannerfall
+wait 5
+cheat battle 1
+cheat clear
+cheat unit 3 1 1 0
+cheat unit 3 2 1 0
+cheat unit 3 3 1 0
+cheat unit 4 2 1 1
+cheat resolve
+expect hp_at32 == 3
+expect hp_at42 == 2
+# column against column: both sides take damage
+cheat clear
+cheat unit 3 1 1 0
+cheat unit 3 2 1 0
+cheat unit 3 3 1 0
+cheat unit 4 1 1 1
+cheat unit 4 2 1 1
+cheat unit 4 3 1 1
+cheat resolve
+expect hp_at32 == 2
+expect hp_at42 == 2
+# an arrow ignores the column
+cheat clear
+cheat unit 3 1 1 0
+cheat unit 3 2 1 0
+cheat unit 3 3 1 0
+cheat unit 7 2 2 1
+cheat resolve
+# (the column marches on after the volley)
+expect hp_at42 == 2
+expect hp_at41 == 3
+expect unit_at72 == 2

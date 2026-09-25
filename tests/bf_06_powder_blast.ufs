@@ -1,0 +1,17 @@
+# BANNERFALL: a powderman explodes when it dies: 3 damage to both armies in
+# its own column and the one ahead, one row up and down.
+game bannerfall
+wait 5
+cheat battle 18
+cheat clear
+cheat unit 4 2 7 1 1
+cheat unit 3 2 1 0
+cheat unit 3 3 3 0
+cheat unit 4 1 1 1
+cheat unit 1 2 1 0
+cheat resolve
+expect unit_at42 == 0
+expect unit_at32 == 0
+expect unit_at41 == 0
+expect hp_at43 == 2
+expect unit_at22 == 1

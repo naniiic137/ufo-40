@@ -1,0 +1,21 @@
+# BANNERFALL survival: the enemy keep has no banners; each turn you survive
+# scores 1, plus 1 more for every hit on their keep so far.
+game bannerfall
+wait 5
+cheat survival
+expect flags_l == 3
+expect flags_r == 255
+cheat clear
+cheat unit 7 2 1 0
+cheat endturn
+wait 60
+expect keep_hits_l == 1
+expect score == 2
+cheat freeze
+cheat clear
+cheat flags 1 255
+cheat unit 0 2 1 1
+cheat endturn
+wait 200
+expect state == 4
+expect best_survival == 2

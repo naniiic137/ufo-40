@@ -1,0 +1,26 @@
+# BANNERFALL 2P versus: the right army belongs to player 2, who drags with
+# its own hand (the keyboard splits in versus mode).
+game bannerfall
+wait 5
+cheat versus 0
+expect two_players == 1
+expect versus == 1
+expect matched == 1
+cheat clear
+cheat unit 6 3 1 1
+expect cx2 == 6
+expect cy2 == 3
+hold P2A
+wait 3
+press P2RIGHT
+expect unit_at73 == 1
+expect unit_at63 == 0
+press P2LEFT
+expect unit_at63 == 1
+press P2LEFT
+expect unit_at53 == 0
+expect unit_at63 == 1
+release P2A
+press RIGHT
+expect cx == 2
+expect cx2 == 6

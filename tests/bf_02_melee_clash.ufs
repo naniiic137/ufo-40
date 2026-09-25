@@ -1,0 +1,24 @@
+# BANNERFALL: units hit the enemy right in front of them and hold still;
+# two enemies stepping into the same empty tile clash and neither moves.
+game bannerfall
+wait 5
+cheat battle 1
+cheat clear
+# melee: adjacent footmen trade a hit
+cheat unit 3 1 1 0
+cheat unit 4 1 1 1
+# clash: one empty tile between them
+cheat unit 2 3 1 0
+cheat unit 4 3 1 1
+# a lone footman just marches
+cheat unit 1 5 1 0
+cheat resolve
+expect hp_at31 == 2
+expect hp_at41 == 2
+expect unit_at31 == 1
+expect unit_at41 == 1
+expect hp_at23 == 2
+expect hp_at43 == 2
+expect unit_at33 == 0
+expect unit_at25 == 1
+expect unit_at15 == 0

@@ -1,0 +1,47 @@
+# BANNERFALL: hold A on your own unit and drag it up, down or back; forward
+# only as far as the column it was picked up from, never past your four
+# columns and never onto an enemy. Moving onto an ally swaps them.
+game bannerfall
+wait 5
+cheat battle 1
+cheat clear
+cheat unit 2 2 1 0
+cheat unit 1 3 2 0
+cheat unit 1 1 1 1
+wait 2
+expect cx == 1
+expect cy == 2
+press RIGHT
+expect cx == 2
+hold A
+wait 3
+expect grab == 1
+press LEFT
+expect unit_at12 == 1
+expect unit_at22 == 0
+press RIGHT
+expect unit_at22 == 1
+# not past the column it was picked up from
+press RIGHT
+expect unit_at32 == 0
+expect unit_at22 == 1
+press LEFT
+# onto an ally: they swap
+press DOWN
+expect unit_at13 == 1
+expect unit_at12 == 2
+# not onto an enemy
+press UP
+press UP
+expect unit_at12 == 1
+expect unit_at11 == 1
+expect side_at11 == 1
+release A
+wait 3
+expect grab == 0
+# enemies can't be grabbed
+press UP
+hold A
+wait 3
+expect grab == 0
+release A
