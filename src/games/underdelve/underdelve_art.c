@@ -1593,6 +1593,43 @@ static const char LANTERN_HUD_OFF[] =
     ".kkkkk."
     ".......";
 
+/* ------------------------------------------------------------ cave dweller */
+/* a glow-worm, the mine's old-timer: it has a hint for anyone who asks */
+static const char DWELLER1[] =
+    "................"
+    "................"
+    ".......kkkk....."
+    "......kllllk...."
+    "......klklkk...."
+    "......kllllk...."
+    ".......kllk....."
+    "..kkk..kllk....."
+    ".kzizk.kllk....."
+    ".kiiik.kgllk...."
+    "..kiiikkgllk...."
+    "...kkiikkgllk..."
+    ".....kkkkkkkk..."
+    "................"
+    "................"
+    "................";
+static const char DWELLER2[] =
+    "................"
+    "................"
+    "................"
+    ".......kkkk....."
+    "......kllllk...."
+    "......klklkk...."
+    "......kllllk...."
+    "..kkk..kllk....."
+    ".kicik.kllk....."
+    ".kcccik.kllk...."
+    "..kiiikkgllk...."
+    "...kkiikkgllk..."
+    ".....kkkkkkkk..."
+    "................"
+    "................"
+    "................";
+
 static const ArtDef ART[] = {
     {S_MO_IDLE, 16, 16, MO_IDLE}, {S_MO_BLINK, 16, 16, MO_BLINK}, {S_MO_WALK1, 16, 16, MO_WALK1},
     {S_MO_WALK2, 16, 16, MO_WALK2}, {S_MO_JUMP, 16, 16, MO_JUMP}, {S_MO_FALL, 16, 16, MO_FALL},
@@ -1631,6 +1668,7 @@ static const ArtDef ART[] = {
     {S_STONE, 6, 6, STONE}, {S_SHARD, 6, 8, SHARD}, {S_DRIP_FALL, 4, 6, DRIP_FALL}, {S_SPARK, 6, 6, SPARK},
     {S_BOLT, 8, 6, BOLT}, {S_COIN, 6, 6, COIN}, {S_PUFF1, 12, 12, PUFF1}, {S_PUFF2, 12, 12, PUFF2},
     {S_PUFF3, 12, 12, PUFF3}, {S_LANTERN_HUD, 7, 9, LANTERN_HUD}, {S_LANTERN_HUD_OFF, 7, 9, LANTERN_HUD_OFF},
+    {S_DWELLER1, 16, 16, DWELLER1}, {S_DWELLER2, 16, 16, DWELLER2},
 };
 
 void ud_art_load(void) {

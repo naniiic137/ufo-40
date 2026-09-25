@@ -11,7 +11,7 @@ press UP
 expect weapon == 1
 cheat weapon 0
 cheat room 2 4 115 4
-wait 120
+wait 160
 expect lanterns == 5
 expect py < 40
 expect px > 200

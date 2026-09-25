@@ -78,6 +78,7 @@ enum {
     /* projectiles & fx */
     S_STONE, S_SHARD, S_DRIP_FALL, S_SPARK, S_BOLT, S_COIN, S_PUFF1, S_PUFF2, S_PUFF3, S_AXE,
     S_LANTERN_HUD, S_LANTERN_HUD_OFF,
+    S_DWELLER1, S_DWELLER2, /* a glow-worm who gives a hint */
     S_COUNT
 };
 

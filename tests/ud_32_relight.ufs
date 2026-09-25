@@ -1,0 +1,16 @@
+# UNDERDELVE: after a death a spare lantern flickers alight where Mo came
+# into the room, and only then is he back and able to move.
+game underdelve
+wait 15
+cheat no_gloom
+cheat room 5 0 170 130
+cheat clear_enemies
+hold RIGHT 60
+expect deaths == 1
+wait 60
+expect state == 6
+hold RIGHT 10
+expect state == 6
+wait 40
+expect state == 1
+expect px < 180

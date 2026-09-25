@@ -15,3 +15,6 @@ expect reach_rooms_0_2 == 63
 expect reach_rooms_0_4 == 63
 expect reach_rooms_0_15 == 64
 expect reach_missing_65535_15 == 3
+# No foe is placed on a way into its room (foes are never removed near
+# the entry: every one is always where the map puts it).
+expect entry_foes == 0
