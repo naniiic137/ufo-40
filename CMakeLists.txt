@@ -47,6 +47,11 @@ if(UFO40_VITA)
   add_executable(ufo40 ${UFO40_CORE_SRC} ${UFO40_SDL_SRC})
   set_target_properties(ufo40 PROPERTIES LINKER_LANGUAGE CXX)
   target_link_libraries(ufo40 SDL2::SDL2 ScePower_stub stdc++ m)
+  # vita-elf-create appends ~4 KB of module/import tables to the end of the code
+  # segment. When the code happens to end just short of a 64 KB boundary the data
+  # segment starts right there and the tool fails ("segment 1 overlaps"). vitasdk's
+  # linker script reserves __sce_headroom bytes before aligning the data segment.
+  target_link_options(ufo40 PRIVATE "-Wl,--defsym,__sce_headroom=0x4000")
   # SDL2's GL path (vitashark) also references the runtime shader compiler. We
   # never use it (the GXM renderer is forced in main_sdl.c), but the linker
   # still needs it, and it has to come after SDL2's own dependencies, which
