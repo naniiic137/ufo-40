@@ -945,8 +945,17 @@ static void draw_vs(void) {
     }
     static const uint8_t grad[] = {C_WHITE, C_YELLOW, C_ORANGE};
     if (state_t > 20) ui_fancy_center("VS", 160, 70, 3, grad, 3, C_INK, C_RED);
-    text_center(CC_FIGHTER[f0].name, 70, 150, C_YELLOW);
-    text_center(CC_FIGHTER[f1].name, 250, 150, C_MAGENTA);
+    if (mode == MODE_COOP) {
+        char a[32], b[32];
+        snprintf(a, sizeof a, "%s & %s", CC_FIGHTER[f0].name, CC_FIGHTER[pick[1]].name);
+        snprintf(b, sizeof b, "%s & %s", CC_FIGHTER[f1].name, CC_FIGHTER[opp[opp_i * 2 + 1]].name);
+        gfx_rect(0, 160, SCREEN_W, 14, C_NAVY);
+        text_center(a, 80, 163, C_YELLOW);
+        text_center(b, 240, 163, C_MAGENTA);
+    } else {
+        text_center(CC_FIGHTER[f0].name, 70, 150, C_YELLOW);
+        text_center(CC_FIGHTER[f1].name, 250, 150, C_MAGENTA);
+    }
     if (mode != MODE_VERSUS) {
         char buf[32];
         snprintf(buf, sizeof buf, "MATCH %d OF %d", opp_i + 1, matches_in_run());
@@ -1087,6 +1096,7 @@ static int cc_query(const char *key, int *out) {
     if (!strcmp(key, "score_l")) { *out = M.score[0]; return 1; }
     if (!strcmp(key, "score_r")) { *out = M.score[1]; return 1; }
     if (!strcmp(key, "points")) { *out = M.score[0] + M.score[1]; return 1; }
+    if (!strcmp(key, "strikes")) { int n = 0; for (int i = 0; i < M.np; i++) n += M.pl[i].strikes; *out = n; return 1; }
     if (!strcmp(key, "fouls_l")) { *out = M.fouls[0]; return 1; }
     if (!strcmp(key, "fouls_r")) { *out = M.fouls[1]; return 1; }
     if (!strcmp(key, "winner")) { *out = M.winner; return 1; }
