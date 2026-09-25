@@ -3,7 +3,7 @@
 
 int FN_MUS_HUB = -1, FN_MUS_ROOM, FN_MUS_PALACE, FN_MUS_WIN, FN_MUS_EDIT, FN_MUS_END;
 
-/* "Dry Oasis" - the hub, E phrygian over a darbuka. Em F Em D | Em F G Em */
+/* "Dry Gardens" - the hub, E phrygian over a hand drum. Em F Em D | Em F G Em */
 static const char HUB_LEAD[] =
     "@5 v11 q7 ["
     "| o5 e4 f8 g8 f4 e4 | o5 f4. e8 d4 c4 | o5 e8 f8 g8 a8 b4 a4 | o5 a4 g8 f8 e2"
@@ -55,7 +55,7 @@ static const char EDIT_BASS[] =
     "| a4 e4 a4 e4 | f4 o3 c4 o2 f4 o3 c4 | o2 g4 d4 g4 d4 | g4 d4 g4 g4";
 static const char EDIT_DRUMS[] = "[o2@13v10c8 o8@9v4c8 o6@11v8c8 o8@9v4c8]16";
 
-/* "The Oasis Flows" - the ending, D major */
+/* "The Gardens Flow" - the ending, D major */
 static const char END_LEAD[] =
     "@14 v11 q7"
     "| o5 f+4 a4 o6 d4 c+4 | o5 b4. a8 g2 | o5 e4 g4 b4 a4 | o5 f+2. r4"
@@ -67,11 +67,11 @@ static const char END_BASS[] = "@6 v13 q6 o2 d2 a2 | g2 d2 | e2 b2 | d2 a2 | d2 
 
 void fn_audio_load(void) {
     if (FN_MUS_HUB >= 0) return;
-    FN_MUS_HUB = song_define("fn_oasis", 96, true, HUB_LEAD, HUB_ARP, HUB_BASS, HUB_DRUMS);
+    FN_MUS_HUB = song_define("fn_dry_gardens", 96, true, HUB_LEAD, HUB_ARP, HUB_BASS, HUB_DRUMS);
     FN_MUS_ROOM = song_define("fn_stones", 84, true, ROOM_LEAD, ROOM_ARP, ROOM_BASS, "");
     FN_MUS_PALACE = song_define("fn_palace", 120, true, PALACE_LEAD, PALACE_HARM, PALACE_BASS, PALACE_DRUMS);
     FN_MUS_EDIT = song_define("fn_workshop", 126, true, EDIT_LEAD, "", EDIT_BASS, EDIT_DRUMS);
-    FN_MUS_END = song_define("fn_flows", 100, true, END_LEAD, END_ARP, END_BASS, "");
+    FN_MUS_END = song_define("fn_the_gardens_flow", 100, true, END_LEAD, END_ARP, END_BASS, "");
     FN_MUS_WIN = song_define("fn_spring", 150, false, "@39 v12 o5 l16 c e g o6 c e g o7 c4", "@16 v8 o5 l8 c g o6 c4.",
                              "@6 v13 o2 l8 c g o3 c4.", "");
 

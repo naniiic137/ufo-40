@@ -21,7 +21,7 @@ expect nb == 0
 cheat setroom #########/#K.2xx..#/#...xx..#/#########
 cheat moves RRD
 expect tile51 == 32
-# ending in a merge: no shrinking
-cheat setroom #########/#K.w1...#/#.......#/#########
+# ending in a merge: no shrinking, and a basalt 1 is added to the sandstone
+cheat setroom #######/#K.w1#/#.....#/#######
 cheat moves RRD
 expect tile41 == 12

@@ -1,0 +1,256 @@
+# FENNEC FOUNTAIN: every one of the fifty rooms is won with real button
+# presses (the demo player holds the direction of each stored move), and
+# the last room then earns the Saucer and, with all fifty drops, the Alien.
+game fennec
+wait 30
+cheat room 1
+wait 2
+botuntil won == 1 2400
+expect drops == 1
+wait 110
+cheat room 2
+wait 2
+botuntil won == 1 2400
+expect drops == 2
+wait 110
+cheat room 3
+wait 2
+botuntil won == 1 2400
+expect drops == 3
+wait 110
+cheat room 4
+wait 2
+botuntil won == 1 2400
+expect drops == 4
+wait 110
+cheat room 5
+wait 2
+botuntil won == 1 2400
+expect drops == 5
+wait 110
+cheat room 6
+wait 2
+botuntil won == 1 2400
+expect drops == 6
+wait 110
+cheat room 7
+wait 2
+botuntil won == 1 2400
+expect drops == 7
+wait 110
+cheat room 8
+wait 2
+botuntil won == 1 2400
+expect drops == 8
+wait 110
+cheat room 9
+wait 2
+botuntil won == 1 2400
+expect drops == 9
+wait 110
+cheat room 10
+wait 2
+botuntil won == 1 2400
+expect drops == 10
+wait 110
+cheat room 11
+wait 2
+botuntil won == 1 2400
+expect drops == 11
+wait 110
+cheat room 12
+wait 2
+botuntil won == 1 2400
+expect drops == 12
+wait 110
+cheat room 13
+wait 2
+botuntil won == 1 2400
+expect drops == 13
+wait 110
+cheat room 14
+wait 2
+botuntil won == 1 2400
+expect drops == 14
+wait 110
+cheat room 15
+wait 2
+botuntil won == 1 2400
+expect drops == 15
+wait 110
+cheat room 16
+wait 2
+botuntil won == 1 2400
+expect drops == 16
+wait 110
+cheat room 17
+wait 2
+botuntil won == 1 2400
+expect drops == 17
+wait 110
+cheat room 18
+wait 2
+botuntil won == 1 2400
+expect drops == 18
+wait 110
+cheat room 19
+wait 2
+botuntil won == 1 2400
+expect drops == 19
+wait 110
+cheat room 20
+wait 2
+botuntil won == 1 2400
+expect drops == 20
+wait 110
+cheat room 21
+wait 2
+botuntil won == 1 2400
+expect drops == 21
+wait 110
+cheat room 22
+wait 2
+botuntil won == 1 2400
+expect drops == 22
+wait 110
+cheat room 23
+wait 2
+botuntil won == 1 2400
+expect drops == 23
+wait 110
+cheat room 24
+wait 2
+botuntil won == 1 2400
+expect drops == 24
+wait 110
+cheat room 25
+wait 2
+botuntil won == 1 2400
+expect drops == 25
+wait 110
+cheat room 26
+wait 2
+botuntil won == 1 2400
+expect drops == 26
+wait 110
+cheat room 27
+wait 2
+botuntil won == 1 2400
+expect drops == 27
+wait 110
+cheat room 28
+wait 2
+botuntil won == 1 2400
+expect drops == 28
+wait 110
+cheat room 29
+wait 2
+botuntil won == 1 2400
+expect drops == 29
+wait 110
+cheat room 30
+wait 2
+botuntil won == 1 2400
+expect drops == 30
+wait 110
+cheat room 31
+wait 2
+botuntil won == 1 2400
+expect drops == 31
+wait 110
+cheat room 32
+wait 2
+botuntil won == 1 2400
+expect drops == 32
+wait 110
+cheat room 33
+wait 2
+botuntil won == 1 2400
+expect drops == 33
+wait 110
+cheat room 34
+wait 2
+botuntil won == 1 2400
+expect drops == 34
+wait 110
+cheat room 35
+wait 2
+botuntil won == 1 2400
+expect drops == 35
+wait 110
+cheat room 36
+wait 2
+botuntil won == 1 2400
+expect drops == 36
+wait 110
+cheat room 37
+wait 2
+botuntil won == 1 2400
+expect drops == 37
+wait 110
+cheat room 38
+wait 2
+botuntil won == 1 2400
+expect drops == 38
+wait 110
+cheat room 39
+wait 2
+botuntil won == 1 2400
+expect drops == 39
+wait 110
+cheat room 40
+wait 2
+botuntil won == 1 2400
+expect drops == 40
+wait 110
+cheat room 41
+wait 2
+botuntil won == 1 2400
+expect drops == 41
+wait 110
+cheat room 42
+wait 2
+botuntil won == 1 2400
+expect drops == 42
+wait 110
+cheat room 43
+wait 2
+botuntil won == 1 2400
+expect drops == 43
+wait 110
+cheat room 44
+wait 2
+botuntil won == 1 2400
+expect drops == 44
+wait 110
+cheat room 45
+wait 2
+botuntil won == 1 2400
+expect drops == 45
+wait 110
+cheat room 46
+wait 2
+botuntil won == 1 2400
+expect drops == 46
+wait 110
+cheat room 47
+wait 2
+botuntil won == 1 2400
+expect drops == 47
+wait 110
+cheat room 48
+wait 2
+botuntil won == 1 2400
+expect drops == 48
+wait 110
+cheat room 49
+wait 2
+botuntil won == 1 2400
+expect drops == 49
+wait 110
+cheat room 50
+wait 2
+botuntil won == 1 2400
+expect drops == 50
+wait 110
+expect goals == 6

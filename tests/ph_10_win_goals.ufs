@@ -1,31 +1,54 @@
-# OPEN HOUSE: four stars in the house at once wins. Goals: win a list
-# (Beacon), all five (Saucer), five Random lists in a row (Alien).
+# OPEN HOUSE: a party that ends well with four stars present wins; four
+# stars at a party the police shut down don't. Goals: win a list (Beacon),
+# all five (Saucer), five Random lists in a row (Alien).
 game openhouse
 wait 5
 cheat new 1 1
 cheat give 37 4
 cheat cap 8
-cheat door 37 37 37
+cheat door 37 37 37 37
+expect stars == 4
 expect over == 0
-cheat door 37
-expect over == 4
+expect winner == 0
+# end the party with the buttons: down to END THE PARTY, yes
+press DOWN
+press A
+press LEFT
+press A
+expect state == 12
+wait 45
+press A
+wait 5
 expect state == 14
 expect winner == 1
 expect won == 1
 expect goals == 1
+# four stars and three rowdies: the police, and no win
+cheat new 1 1
+cheat give 37 4
+cheat cap 10
+cheat door 37 37 37 37 2 2 2
+expect over == 2
+expect winner == 0
 cheat won 15
 cheat new 5 1
 cheat give 44 4
 cheat door 44 44 44 44
+cheat end
+cheat next
 expect won == 31
 expect goals == 3
 cheat new 6 1
 cheat give 38 4
 cheat door 38 38 38 38
+cheat end
+cheat next
 expect streak == 1
 cheat streak 4
 cheat new 6 1
 cheat give 40 4
 cheat door 40 40 40 40
+cheat end
+cheat next
 expect streak == 5
 expect goals == 7

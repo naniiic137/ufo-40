@@ -183,10 +183,10 @@ static const struct { uint8_t type; Person p; } PEOPLE[] = {
     {G_MATCHMAKER,  {SK_D, 'r', 'v', H_CURLY, K_FLOWER, 'K', F_BLUSH | F_GRIN, C_PLAIN, 'K', 'r', P_HEART}},
     {G_SAGE,        {SK_B, 'l', 'g', H_BALD, K_FEZ, 'r', F_WHITEBEARD, C_PLAIN, 'c', 'h', P_NONE}},
     {G_MOONCHILD,   {SK_A, 'V', 'p', H_WILD, K_NONE, 0, F_GRIN, C_PLAIN, 'N', 'y', P_MOON}},
-    {G_RAI,         {SK_C, 'k', 'n', H_CURLY, K_NONE, 0, F_SHADES | F_GRIN, C_COLLAR, 'r', 'k', P_MIC}},
+    {G_PUNK,         {SK_C, 'k', 'n', H_CURLY, K_NONE, 0, F_SHADES | F_GRIN, C_COLLAR, 'r', 'k', P_MIC}},
     {G_SMUGGLER,    {SK_B, 'k', 'n', H_SHORT, K_BAND, 'k', F_PATCH | F_MOUSTACHE, C_STRIPES, 'n', 'l', P_BOX}},
     {G_CARDSHARK,   {SK_A, 'k', 'n', H_SLICK, K_VISOR, 'j', F_MOUSTACHE, C_VEST, 'w', 'f', P_CARDS}},
-    {G_SULTAN,      {SK_C, 'k', 'n', H_SHORT, K_TURBAN, 'w', F_BEARD | F_GRIN, C_SASH, 'a', 'r', P_NONE}},
+    {G_TYCOON,      {SK_C, 'k', 'n', H_SHORT, K_TOPHAT, 'k', F_BEARD | F_GRIN, C_SASH, 'a', 'r', P_NONE}},
     {G_CHAMPION,    {SK_B, 'k', 'n', H_SHORT, K_BAND, 'r', F_GRIN, C_BELT, 'r', 'y', P_NONE}},
 };
 

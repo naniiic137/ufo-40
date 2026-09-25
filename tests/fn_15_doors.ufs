@@ -1,0 +1,47 @@
+# FENNEC FOUNTAIN: doors stand open while every plate is weighed down (by a
+# block or a creature); let go, a door with something in it stays open until
+# it is clear.
+game fennec
+wait 5
+cheat setroom ##########/#K1o.#...#/#....|...#/#....#...#/##########
+expect door_open == 0
+# the fennec can't walk through a shut door
+cheat setroom ##########/#K.o.#...#/#....|...#/#....#...#/##########
+press DOWN
+wait 12
+hold RIGHT 60
+expect px == 4
+# standing on the plate opens it
+press UP
+wait 12
+press LEFT
+wait 12
+expect px == 3
+expect door_open == 1
+# stepping off closes it again
+press DOWN
+wait 12
+expect door_open == 0
+# a block on the plate holds it open, and the fennec walks through
+cheat setroom ##########/#K1o.#...#/#....|...#/#....#...#/##########
+press RIGHT
+wait 12
+expect door_open == 1
+press DOWN
+wait 12
+hold RIGHT 60
+expect px == 7
+# a gecko in the doorway keeps it open after the plate is let go
+cheat setroom ##########/#.Ko.....#/#...g|...#/#....#...#/##########
+press RIGHT
+wait 12
+expect door_open == 1
+expect gx0 == 4
+press RIGHT
+wait 12
+expect gx0 == 5
+expect door_open == 1
+press RIGHT
+wait 12
+expect gx0 == 6
+expect door_open == 0

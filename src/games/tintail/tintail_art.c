@@ -5,9 +5,9 @@
 
 Sprite tn_spr[TS_SPRITE_COUNT];
 
-/* Kama the chameleon, from above: casque head (right), eye turret, splayed
+/* Twig the chameleon, from above: casque head (right), eye turret, splayed
  * feet, and the curled tail. w/l/g are the skin ramp that camouflage repaints. */
-static const char KAMA_R[] =
+static const char TWIG_R[] =
     "................"
     "................"
     "......kk..kk...."
@@ -24,7 +24,7 @@ static const char KAMA_R[] =
     ".kwwk..........."
     "..kk............"
     "................";
-static const char KAMA_R2[] =
+static const char TWIG_R2[] =
     "................"
     "................"
     ".....kk....kk..."
@@ -233,7 +233,7 @@ static const char BUSH[] =
     "................"
     "................";
 
-/* Kama from the side, for the title and the label: 40 x 24 */
+/* Twig from the side, for the title and the label: 40 x 24 */
 static const char HERO[] =
     "........................................"
     "...........................kkkk........."
@@ -312,12 +312,12 @@ static void make_rot(Sprite *s, const char *src, int n, int rot) {
 
 void tn_art_load(void) {
     if (tn_spr[TS_PEAR].px) return;
-    make_rot(&tn_spr[TS_KAMA_R], KAMA_R, 16, 0);
-    make_rot(&tn_spr[TS_KAMA_R2], KAMA_R2, 16, 0);
-    make_rot(&tn_spr[TS_KAMA_U], KAMA_R, 16, 1);
-    make_rot(&tn_spr[TS_KAMA_U2], KAMA_R2, 16, 1);
-    make_rot(&tn_spr[TS_KAMA_D], KAMA_R, 16, 2);
-    make_rot(&tn_spr[TS_KAMA_D2], KAMA_R2, 16, 2);
+    make_rot(&tn_spr[TS_TWIG_R], TWIG_R, 16, 0);
+    make_rot(&tn_spr[TS_TWIG_R2], TWIG_R2, 16, 0);
+    make_rot(&tn_spr[TS_TWIG_U], TWIG_R, 16, 1);
+    make_rot(&tn_spr[TS_TWIG_U2], TWIG_R2, 16, 1);
+    make_rot(&tn_spr[TS_TWIG_D], TWIG_R, 16, 2);
+    make_rot(&tn_spr[TS_TWIG_D2], TWIG_R2, 16, 2);
     make_rot(&tn_spr[TS_BABY_R], BABY_R, 10, 0);
     make_rot(&tn_spr[TS_BABY_U], BABY_R, 10, 1);
     make_rot(&tn_spr[TS_BABY_D], BABY_R, 10, 2);

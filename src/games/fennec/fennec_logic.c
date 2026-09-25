@@ -5,19 +5,16 @@
 
 static const int8_t DX[4] = {0, 1, 0, -1}, DY[4] = {-1, 0, 1, 0};
 
+/* a block's weight: its number; the water stone weighs nothing, marble 5 */
 int fn_weight(const FnBlock *b) {
     switch (b->kind) {
     case BK_MARBLE: return 5;
-    case BK_STONE: return 1;
+    case BK_STONE: return 0;
     default: return b->n;
     }
 }
 
 static int size_of(const FnBlock *b) { return b->kind == BK_BASALT ? b->n : 1; }
-
-static bool mergeable(const FnBlock *b) {
-    return (b->kind == BK_SAND || b->kind == BK_LAPIS || b->kind == BK_BASALT) && size_of(b) == 1;
-}
 
 static bool covers(const FnBlock *b, int x, int y) {
     int s = size_of(b);
@@ -29,6 +26,22 @@ int fn_block_at(const FnState *s, int x, int y) {
         if (covers(&s->b[i], x, y)) return i;
     return -1;
 }
+
+/* a "dot": a single 1, which a block pushed into it can take in */
+static bool is_dot(const FnBlock *c) {
+    return (c->kind == BK_SAND || c->kind == BK_LAPIS || c->kind == BK_BASALT) && c->n == 1;
+}
+
+/* can block b, pushed into the dot c that can't move, combine with it? Marble
+ * never changes, the water stone never merges, a big basalt can't grow and
+ * two basalt never meet */
+static bool can_absorb(const FnBlock *b, const FnBlock *c) {
+    if (!is_dot(c)) return false;
+    if (b->kind == BK_SAND || b->kind == BK_LAPIS) return true;
+    return b->kind == BK_BASALT && b->n == 1 && c->kind != BK_BASALT;
+}
+
+static bool is_arrow(int t) { return t >= FT_ARROW_U && t <= FT_ARROW_L; }
 
 /* ------------------------------------------------------------------ */
 /* who stands where                                                     */
@@ -54,8 +67,33 @@ static void build_occ(const FnState *s, Occ *m) {
     if (s->px < FN_W && s->py < FN_H) m->o[s->py][s->px] = OCC_FENNEC;
 }
 
-static bool open_tile(const FnRoom *r, int x, int y) {
+static bool in_room(const FnRoom *r, int x, int y) {
     return x >= 0 && y >= 0 && x < r->w && y < r->h && !r->wall[y][x];
+}
+
+/* a creature may stand anywhere but a wall or a shut door */
+static bool creature_can_enter(const FnRoom *r, const FnState *s, int x, int y) {
+    return in_room(r, x, y) && !(r->tile[y][x] == FT_DOOR && !s->door_open);
+}
+
+/* a block can't go onto a stone patch either */
+static bool block_can_enter(const FnRoom *r, const FnState *s, int x, int y) {
+    return creature_can_enter(r, s, x, y) && r->tile[y][x] != FT_PATCH;
+}
+
+/* an arrow lets a block onto it, and off it, only its own way */
+static bool arrows_allow(const FnRoom *r, const FnBlock *b, int dir) {
+    int sz = size_of(b);
+    for (int y = b->y; y < b->y + sz; y++)
+        for (int x = b->x; x < b->x + sz; x++) {
+            int t = r->tile[y][x];
+            if (is_arrow(t) && t - FT_ARROW_U != dir) return false;
+            int nx = x + DX[dir], ny = y + DY[dir];
+            if (nx < 0 || ny < 0 || nx >= FN_W || ny >= FN_H) continue;
+            t = r->tile[ny][nx];
+            if (is_arrow(t) && t - FT_ARROW_U != dir) return false;
+        }
+    return true;
 }
 
 /* ------------------------------------------------------------------ */
@@ -69,13 +107,15 @@ typedef struct Plan {
     uint8_t merged[FN_MAX_BLOCKS];   /* took part in a merge */
 } Plan;
 
-static bool plan_push(const FnRoom *r, const FnState *s, const Occ *m, Plan *p, int bi, int dir, bool by_block, int w) {
+/* Can block bi move one tile in dir? by_block: another block pushes it (a
+ * creature otherwise). Only the block a creature pushes is held to the
+ * arrows: a second block in the line goes over them, as in the original. */
+static bool plan_push(const FnRoom *r, const FnState *s, const Occ *m, Plan *p, int bi, int dir, bool by_block) {
     const FnBlock *b = &s->b[bi];
     if (p->moving[bi]) return true;
-    if (p->consumed[bi]) return true;
-    /* lapis only moves when a block pushes it; a block pushes only weights up to its own */
+    /* lapis only moves when a block pushes it */
     if (b->kind == BK_LAPIS && !by_block) return false;
-    if (by_block && w < fn_weight(b)) return false;
+    if (!by_block && !arrows_allow(r, b, dir)) return false;
     Plan save = *p;
     p->moving[bi] = 1;
     int sz = size_of(b), dx = DX[dir], dy = DY[dir];
@@ -83,30 +123,23 @@ static bool plan_push(const FnRoom *r, const FnState *s, const Occ *m, Plan *p, 
         for (int xx = b->x; xx < b->x + sz; xx++) {
             int tx = xx + dx, ty = yy + dy;
             if (covers(b, tx, ty)) continue;
-            if (!open_tile(r, tx, ty)) goto fail;
+            if (!block_can_enter(r, s, tx, ty)) goto fail;
             int o = m->o[ty][tx];
             if (o >= OCC_FENNEC) goto fail;
-            if (o < 0 || o == bi) continue;
-            if (p->moving[o]) continue; /* it moves out of the way too */
-            if (p->consumed[o]) continue;
+            if (o < 0 || o == bi || p->moving[o] || p->consumed[o]) continue;
             const FnBlock *c = &s->b[o];
-            bool both_basalt = b->kind == BK_BASALT && c->kind == BK_BASALT;
-            if (sz == 1 && mergeable(b) && mergeable(c) && !both_basalt && (c->n + p->grow[o] == 1 || b->n + p->grow[bi] == 1)) {
-                if (c->n + p->grow[o] == 1) {
-                    /* the pushed block lands on a 1 and adds it */
-                    p->consumed[o] = 1;
-                    p->grow[bi] = (uint8_t)(p->grow[bi] + 1);
-                    if (b->kind == BK_BASALT) p->newkind[bi] = c->kind; /* the non-basalt colour wins */
-                } else {
-                    /* a 1 pushed onto a block adds itself to it */
-                    p->consumed[bi] = 1;
-                    p->moving[bi] = 0;
-                    p->grow[o] = (uint8_t)(p->grow[o] + 1);
-                }
+            /* never into a heavier block: stuck */
+            if (fn_weight(c) > fn_weight(b)) goto fail;
+            if (plan_push(r, s, m, p, o, dir, true)) continue;
+            /* a dot that can't move is taken in: one heavier than the pusher */
+            if (sz == 1 && !p->grow[bi] && can_absorb(b, c)) {
+                p->consumed[o] = 1;
+                p->grow[bi] = 1;
+                if (b->kind == BK_BASALT) p->newkind[bi] = c->kind; /* a basalt 1 is added to the other block */
                 p->merged[bi] = p->merged[o] = 1;
                 continue;
             }
-            if (!plan_push(r, s, m, p, o, dir, true, fn_weight(b))) goto fail;
+            goto fail;
         }
     return true;
 fail:
@@ -127,7 +160,8 @@ static void apply_plan(FnState *s, const Plan *p, int dir, FnEvents *ev) {
         FnBlock *b = &s->b[i];
         if (b->kind == BK_NONE) continue;
         if (p->consumed[i]) {
-            add_ev(ev, FE_MERGE, i, b->x, b->y, b->x + DX[dir], b->y + DY[dir]);
+            /* the dot stays where it is and the pusher lands on it */
+            add_ev(ev, FE_MERGE, i, b->x, b->y, b->x, b->y);
             b->kind = BK_NONE;
             continue;
         }
@@ -139,8 +173,8 @@ static void apply_plan(FnState *s, const Plan *p, int dir, FnEvents *ev) {
         if (p->newkind[i]) b->kind = p->newkind[i];
         if (p->grow[i]) {
             b->n = (uint8_t)(b->n + p->grow[i]);
-            if (b->n >= 5 && b->kind != BK_STONE) {
-                /* five turns to marble, which never changes again */
+            if (b->n >= 5) {
+                /* five turns grey (marble), which never changes again */
                 b->kind = BK_MARBLE;
                 b->n = 5;
                 add_ev(ev, FE_MARBLE, i, b->x, b->y, b->x, b->y);
@@ -175,10 +209,36 @@ static void compact(FnState *s, FnEvents *ev) {
     if (ev)
         for (int k = 0; k < ev->n; k++) {
             FnEvent *e = &ev->ev[k];
-            if (e->type == FE_GECKO || e->type == FE_WALK || e->type == FE_BUMP || e->type == FE_WIN || e->type == FE_EXIT) continue;
+            if (e->type == FE_GECKO || e->type == FE_WALK || e->type == FE_BUMP || e->type == FE_WIN ||
+                e->type == FE_OPEN || e->type == FE_SHUT) continue;
             e->a = (uint8_t)(map[e->a] < 0 ? 255 : map[e->a]);
         }
     s->nb = (uint8_t)n;
+}
+
+/* ------------------------------------------------------------------ */
+/* plates and doors                                                     */
+
+static bool occupied(const FnState *s, int x, int y) {
+    if (s->px == x && s->py == y) return true;
+    for (int g = 0; g < s->ng; g++)
+        if (s->gx[g] == x && s->gy[g] == y) return true;
+    return fn_block_at(s, x, y) >= 0;
+}
+
+/* The doors stand open while every plate is weighed down. When the plates
+ * are let go, a door with something in its way stays open until it's clear. */
+static void update_doors(const FnRoom *r, FnState *s, FnEvents *ev) {
+    if (!r->nplates) return;
+    bool pressed = true, blocked = false;
+    for (int y = 0; y < r->h; y++)
+        for (int x = 0; x < r->w; x++) {
+            if (r->tile[y][x] == FT_PLATE && !occupied(s, x, y)) pressed = false;
+            if (r->tile[y][x] == FT_DOOR && occupied(s, x, y)) blocked = true;
+        }
+    uint8_t open = pressed || (s->door_open && blocked);
+    if (open != s->door_open) add_ev(ev, open ? FE_OPEN : FE_SHUT, 0, 0, 0, 0, 0);
+    s->door_open = open;
 }
 
 /* ------------------------------------------------------------------ */
@@ -188,7 +248,7 @@ static bool creature_move(const FnRoom *r, FnState *s, int x, int y, int dir, Fn
     int tx = x + DX[dir], ty = y + DY[dir];
     *pushed = -1;
     *merged = false;
-    if (!open_tile(r, tx, ty)) return false;
+    if (!creature_can_enter(r, s, tx, ty)) return false;
     Occ m;
     build_occ(s, &m);
     int o = m.o[ty][tx];
@@ -196,7 +256,7 @@ static bool creature_move(const FnRoom *r, FnState *s, int x, int y, int dir, Fn
     if (o >= 0) {
         Plan p;
         memset(&p, 0, sizeof p);
-        if (!plan_push(r, s, &m, &p, o, dir, false, 0)) return false;
+        if (!plan_push(r, s, &m, &p, o, dir, false)) return false;
         *pushed = o;
         *merged = p.merged[o] != 0;
         apply_plan(s, &p, dir, ev);
@@ -205,7 +265,7 @@ static bool creature_move(const FnRoom *r, FnState *s, int x, int y, int dir, Fn
 }
 
 bool fn_step(const FnRoom *r, FnState *s, int dir, FnEvents *ev) {
-    if (s->won || s->exited) return false;
+    if (s->won) return false;
     int dx = DX[dir], dy = DY[dir];
     int tx = s->px + dx, ty = s->py + dy;
     /* stopping a basalt push shrinks it */
@@ -216,20 +276,12 @@ bool fn_step(const FnRoom *r, FnState *s, int dir, FnEvents *ev) {
             s->push_blk = -1;
         }
     }
-    /* the way out */
-    if (tx == r->door_x && ty == r->door_y) {
-        add_ev(ev, FE_EXIT, 0, s->px, s->py, tx, ty);
-        s->px = (uint8_t)tx;
-        s->py = (uint8_t)ty;
-        s->exited = 1;
-        compact(s, ev);
-        return true;
-    }
     int pushed;
     bool merged;
     if (!creature_move(r, s, s->px, s->py, dir, ev, &pushed, &merged)) {
         add_ev(ev, FE_BUMP, 0, s->px, s->py, tx, ty);
         compact(s, ev);
+        update_doors(r, s, ev);
         return false;
     }
     add_ev(ev, FE_WALK, 0, s->px, s->py, tx, ty);
@@ -255,7 +307,6 @@ bool fn_step(const FnRoom *r, FnState *s, int dir, FnEvents *ev) {
         int p2;
         bool m2;
         int gx = s->gx[g], gy = s->gy[g];
-        if (gx + dx == r->door_x && gy + dy == r->door_y) continue;
         if (creature_move(r, s, gx, gy, dir, ev, &p2, &m2)) {
             add_ev(ev, FE_GECKO, g, gx, gy, gx + dx, gy + dy);
             s->gx[g] = (uint8_t)(gx + dx);
@@ -263,6 +314,7 @@ bool fn_step(const FnRoom *r, FnState *s, int dir, FnEvents *ev) {
         }
     }
     compact(s, ev);
+    update_doors(r, s, ev);
     for (int i = 0; i < s->nb; i++)
         if (s->b[i].kind == BK_STONE && s->b[i].x == r->goal_x && s->b[i].y == r->goal_y) {
             s->won = 1;
@@ -278,7 +330,6 @@ int fn_parse(const char *const *rows, FnRoom *room, FnState *st) {
     memset(room, 0, sizeof *room);
     memset(st, 0, sizeof *st);
     room->goal_x = room->goal_y = FN_NONE;
-    room->door_x = room->door_y = FN_NONE;
     st->push_blk = -1;
     st->push_dir = -1;
     st->px = st->py = FN_NONE;
@@ -299,18 +350,25 @@ int fn_parse(const char *const *rows, FnRoom *room, FnState *st) {
         int len = (int)strlen(rows[y]);
         for (int x = 0; x < len; x++) {
             char c = rows[y][x];
-            if (c != '#' && c != ' ') room->wall[y][x] = 0;
+            /* 'D' was the old way out, now wall (old custom rooms still load) */
+            if (c != '#' && c != ' ' && c != 'D') room->wall[y][x] = 0;
             if (claimed[y][x]) continue;
             switch (c) {
             case 'K': st->px = (uint8_t)x; st->py = (uint8_t)y; break;
-            case 'D': room->door_x = (uint8_t)x; room->door_y = (uint8_t)y; break;
             case 'G': room->goal_x = (uint8_t)x; room->goal_y = (uint8_t)y; break;
             case 'g':
                 if (st->ng < FN_MAX_GECKOS) { st->gx[st->ng] = (uint8_t)x; st->gy[st->ng] = (uint8_t)y; st->ng++; }
                 break;
+            case '^': room->tile[y][x] = FT_ARROW_U; break;
+            case '>': room->tile[y][x] = FT_ARROW_R; break;
+            case 'v': room->tile[y][x] = FT_ARROW_D; break;
+            case '<': room->tile[y][x] = FT_ARROW_L; break;
+            case ':': room->tile[y][x] = FT_PATCH; break;
+            case 'o': room->tile[y][x] = FT_PLATE; room->nplates++; break;
+            case '|': room->tile[y][x] = FT_DOOR; break;
             default: {
                 FnBlock b = {0, 0, (uint8_t)x, (uint8_t)y};
-                if (c == 'S') { b.kind = BK_STONE; b.n = 1; }
+                if (c == 'S') { b.kind = BK_STONE; b.n = 0; }
                 else if (c >= '1' && c <= '4') { b.kind = BK_SAND; b.n = (uint8_t)(c - '0'); }
                 else if (c == '5') { b.kind = BK_MARBLE; b.n = 5; }
                 else if (c >= 'a' && c <= 'd') { b.kind = BK_LAPIS; b.n = (uint8_t)(c - 'a' + 1); }
@@ -333,6 +391,7 @@ int fn_parse(const char *const *rows, FnRoom *room, FnState *st) {
         }
     }
     if (st->px == FN_NONE) return 4;
+    update_doors(room, st, NULL);
     return 0;
 }
 

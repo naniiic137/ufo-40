@@ -1,22 +1,42 @@
-# FENNEC FOUNTAIN: lapis never moves for the fennec, only for a block with
-# an equal or higher number.
+# FENNEC FOUNTAIN: lapis never moves for the fennec, only for a block of an
+# equal or higher number; a lapis block pushed into a 1 against a wall takes
+# it in like any block.
 game fennec
 wait 5
 cheat setroom #########/#K.b....#/#########
-cheat moves RR
+press RIGHT
+wait 12
+press RIGHT
+wait 12
 expect px == 2
 expect tile31 == 22
 cheat setroom #########/#K.2b...#/#########
-cheat moves RR
+press RIGHT
+wait 12
+press RIGHT
+wait 12
 expect tile41 == 12
 expect tile51 == 22
-# ...but a 1 adds itself to it: lapis 3
+# a 1 can't push a lapis 2
 cheat setroom #########/#K.1b...#/#########
-cheat moves RR
-expect px == 3
-expect tile41 == 23
-# a lapis 1 adds itself like any 1
+press RIGHT
+wait 12
+press RIGHT
+wait 12
+expect px == 2
+expect tile41 == 22
+# a lapis 1 that can move is pushed; against a wall it is taken in
 cheat setroom #########/#K.3a...#/#########
-cheat moves RR
+press RIGHT
+wait 12
+press RIGHT
+wait 12
+expect tile41 == 13
+expect tile51 == 21
+cheat setroom #######/#K.3a#/#######
+press RIGHT
+wait 12
+press RIGHT
+wait 12
 expect tile41 == 14
 expect nb == 1

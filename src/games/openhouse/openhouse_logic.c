@@ -6,13 +6,13 @@
 #define FETCH "BRING IN ANY GUEST YOU\nCHOOSE (NEEDS ROOM)."
 #define BOOT "SEND A GUEST HOME TILL\nTHE NEXT PARTY."
 #define PEEK "SEE WHO'S AT THE DOOR,\nTHEN LET THEM IN OR NOT."
-#define SHUF "EVERYONE OUT! THE ROLODEX\nIS SHUFFLED. USED ACTIONS\nSTAY USED."
-#define PEACE "CANCELS ONE TROUBLE!"
-#define TRBL "TROUBLE!"
+#define SHUF "EVERYONE OUT! THE GUEST\nBOOK IS SHUFFLED. USED\nACTIONS STAY USED."
+#define PEACE "CALMS ONE RUCKUS!"
+#define TRBL "RUCKUS!"
 
 const PhGuest PH_GUESTS[G_COUNT] = {
     /* name            cost pop cash action     traits */
-    {"OLD NEIGHBOUR",   2,  1,  0, A_NONE,      0, "", "BRINGS HUMMUS. ALWAYS\nHUMMUS."},
+    {"OLD NEIGHBOUR",   2,  1,  0, A_NONE,      0, "", "BRINGS A CASSEROLE.\nALWAYS A CASSEROLE."},
     {"RICH COUSIN",     3,  0,  1, A_NONE,      0, "", "PAYS FOR THE ICE."},
     {"ROWDY MATE",     -1,  2,  0, A_NONE,      T_TROUBLE, TRBL, "SINGS ON THE ROOF\nAT THREE IN THE MORNING."},
     {"CABBIE",          3,  0,  0, A_FETCH,     0, FETCH, "KNOWS EVERY ADDRESS\nIN TOWN."},
@@ -29,28 +29,28 @@ const PhGuest PH_GUESTS[G_COUNT] = {
     {"SOCIALITE",       5,  3,  0, A_NONE,      T_BRING1, "BRINGS ONE RANDOM GUEST\nALONG.", "NEVER ARRIVES ALONE."},
     {"POP IDOL",       11,  2,  3, A_NONE,      T_BRING2, "BRINGS TWO RANDOM GUESTS\nALONG.", "HAS AN ENTOURAGE."},
     {"COAT CHECK",      4, -1,  2, A_NONE,      0, "", "TIPS ONLY, THANK YOU."},
-    {"STORYTELLER",     5,  0, -1, A_NONE,      T_STORY, "+5 POPULARITY IF THE\nHOUSE ENDS UP FULL.", "NEEDS A PACKED ROOM."},
+    {"STORYTELLER",     5,  0, -1, A_NONE,      T_STORY, "+5 FAME IF THE\nHOUSE ENDS UP FULL.", "NEEDS A PACKED ROOM."},
     {"PAPARAZZO",       5,  1, -1, A_PHOTO,     0, "COLLECT ANOTHER GUEST'S\nPAY RIGHT NOW. THEY PAY\nAGAIN AT THE END.", "FLASH! YOUR GOOD SIDE."},
-    {"PASTRY CHEF",     5,  4, -1, A_NONE,      0, "", "BAKLAVA FOR EVERYONE."},
-    {"MERCHANT",        9,  0,  3, A_NONE,      0, "", "SELLS JASMINE AT THE\nDOOR."},
+    {"PASTRY CHEF",     5,  4, -1, A_NONE,      0, "", "CAKE FOR EVERYONE."},
+    {"MERCHANT",        9,  0,  3, A_NONE,      0, "", "SELLS ROSES AT THE\nDOOR."},
     {"GRANNY",          5,  1,  0, A_NONE,      T_GRANNY, "+1 FOR EACH OLD\nNEIGHBOUR HERE.", "KNOWS EVERY NEIGHBOUR\nBY NAME."},
     {"BOOKWORM",        4,  1,  0, A_NONE,      T_BOOK, "+1 FOR EACH EMPTY SPACE\nIN THE HOUSE.", "LIKES A QUIET CORNER."},
-    {"TAILOR",          7,  0, -1, A_STYLE,     0, "A GUEST GETS +1\nPOPULARITY FOR GOOD\n(UNDER 9 ONLY).", "A STITCH HERE, A TUCK\nTHERE."},
-    {"BARISTA",        11,  1,  0, A_NONE,      T_BARISTA, "+2 CASH FOR EACH\nTROUBLE! HERE.", "ROWDY GUESTS ARE\nTHIRSTY."},
-    {"POET",            8,  1,  0, A_NONE,      T_POET, "+2 POPULARITY FOR EACH\nTROUBLE! HERE.", "WRITES ABOUT THE CHAOS."},
-    {"UPSTART",        12,  0,  0, A_NONE,      T_UPSTART, "+1 POPULARITY EVERY TIME\nTHEY COME, UP TO 9.", "CLIMBING THE GUEST LIST."},
+    {"TAILOR",          7,  0, -1, A_STYLE,     0, "A GUEST GETS +1\nFAME FOR GOOD\n(UNDER 9 ONLY).", "A STITCH HERE, A TUCK\nTHERE."},
+    {"BARISTA",        11,  1,  0, A_NONE,      T_BARISTA, "+2 CASH FOR EACH\nRUCKUS! HERE.", "ROWDY GUESTS ARE\nTHIRSTY."},
+    {"POET",            8,  1,  0, A_NONE,      T_POET, "+2 FAME FOR EACH\nRUCKUS! HERE.", "WRITES ABOUT THE CHAOS."},
+    {"UPSTART",        12,  0,  0, A_NONE,      T_UPSTART, "+1 FAME EVERY TIME\nTHEY COME, UP TO 9.", "CLIMBING THE GUEST LIST."},
     {"BAND LEADER",     5,  1,  0, A_CHEER,     0, "EVERYONE ELSE CAN USE\nTHEIR ACTION AGAIN (NOT\nOTHER BAND LEADERS).", "ONE MORE TIME!"},
     {"USHER",           5,  1,  0, A_GREET,     0, "LET IN THE NEXT GUEST\nAND COLLECT THEIR PAY\nNOW (AND ANY THEY BRING).", "WELCOME, COME IN!"},
-    {"FORTUNE TELLER",  5,  1,  0, A_MAGIC,     0, "SWAP A GUEST FOR A STAR\nFROM THE ROLODEX, OR A\nSTAR FOR A GUEST.", "SEES A STAR IN YOUR\nFUTURE."},
+    {"FORTUNE TELLER",  5,  1,  0, A_MAGIC,     0, "SWAP A GUEST FOR A STAR\nFROM THE GUEST BOOK, OR\nA STAR FOR A GUEST.", "SEES A STAR IN YOUR\nFUTURE."},
     {"MATCHMAKER",      8,  1,  0, A_CUPID,     0, "SEND HOME TWO GUESTS\nSTANDING SIDE BY SIDE.", "THEY LEFT TOGETHER.\nHOW LOVELY."},
-    {"OLD SAGE",        7,  0,  0, A_CALM,      0, "TAKES THE TROUBLE! OUT\nOF EVERYONE HERE.", "A GOOD TALKING-TO."},
-    {"MOON CHILD",      5,  4,  0, A_NONE,      T_MOON, "TROUBLE! EVERY OTHER\nVISIT, THE FIRST TOO.", "WILD WHEN THE MOON\nIS FULL."},
+    {"OLD SAGE",        7,  0,  0, A_CALM,      0, "TAKES THE RUCKUS! OUT\nOF EVERYONE HERE.", "A GOOD TALKING-TO."},
+    {"MOON CHILD",      5,  4,  0, A_NONE,      T_MOON, "RUCKUS! EVERY OTHER\nVISIT, THE FIRST TOO.", "WILD WHEN THE MOON\nIS FULL."},
     {"GOAT",            3,  4,  0, A_NONE,      T_TROUBLE, TRBL, "HOW DID A GOAT GET IN?"},
-    {"RAI SINGER",      5,  3,  2, A_NONE,      T_TROUBLE, TRBL, "TOO LOUD. TOO GOOD."},
+    {"PUNK SINGER",     5,  3,  2, A_NONE,      T_TROUBLE, TRBL, "TOO LOUD. TOO GOOD."},
     {"SMUGGLER",        6,  0,  4, A_NONE,      T_TROUBLE, TRBL, "DON'T ASK WHAT'S IN\nTHE BOX."},
     {"CARD SHARK",      7,  2,  3, A_NONE,      T_TROUBLE, TRBL, "ANYONE FOR A LITTLE\nGAME?"},
     {"SAUCER PILOT",   40,  0,  0, A_NONE,      T_STAR, "STAR GUEST.", "PARKED ON THE ROOF."},
-    {"SULTAN",         50,  0,  3, A_NONE,      T_STAR, "STAR GUEST.", "TIPS IN GOLD."},
+    {"TYCOON",         50,  0,  3, A_NONE,      T_STAR, "STAR GUEST.", "TIPS IN GOLD."},
     {"WISH FISH",      55,  0,  0, A_FETCH,     T_STAR, "STAR GUEST. " FETCH, "ONE WISH A NIGHT."},
     {"SEA SERPENT",    30,  0, -3, A_NONE,      T_STAR, "STAR GUEST.", "EATS THE WHOLE BUFFET."},
     {"CYCLOPS",        25,  0,  0, A_NONE,      T_STAR | T_TROUBLE, "STAR GUEST. " TRBL, "ONE EYE, NO MANNERS."},
@@ -62,17 +62,17 @@ const PhGuest PH_GUESTS[G_COUNT] = {
 
 const PhScenario PH_SCEN[PH_SCENARIOS] = {
     {"SAUCER NIGHT", "ONE STAR GUEST, FOUR TIMES\nOVER. THE ROOF IS READY.", 13,
-     {G_CABBIE, G_GOAT, G_BOUNCER, G_COATCHECK, G_PARROT, G_SURFER, G_RAI, G_STORYTELLER, G_PASTRY,
+     {G_CABBIE, G_GOAT, G_BOUNCER, G_COATCHECK, G_PARROT, G_SURFER, G_PUNK, G_STORYTELLER, G_PASTRY,
       G_SOCIALITE, G_DRUMMER, G_MERCHANT, G_PILOT}},
     {"HIGH TIDE, LOW TIDE", "A CHEAP STAR THAT BRINGS\nFRIENDS, A DEAR ONE THAT\nDOESN'T.", 13,
      {G_SLEUTH, G_BOOKWORM, G_FIREWORKER, G_GRANNY, G_SMUGGLER, G_KITTEN, G_CARDSHARK, G_DOORMAN, G_POET,
       G_STRONGMAN, G_UPSTART, G_PHOENIX, G_CHAMPION}},
     {"THREE WISHES", "A WISH-GRANTING FISH AND\nA GIANT WITH NO MANNERS.", 13,
-     {G_GOAT, G_SURFER, G_PAPARAZZO, G_BANDLEADER, G_RAI, G_GUIDE, G_TAILOR, G_SAGE, G_STRONGMAN, G_IDOL,
+     {G_GOAT, G_SURFER, G_PAPARAZZO, G_BANDLEADER, G_PUNK, G_GUIDE, G_TAILOR, G_SAGE, G_STRONGMAN, G_IDOL,
       G_BARISTA, G_WISHFISH, G_CYCLOPS}},
     {"THE ACCOUNTS", "ONE STAR EATS YOUR CASH,\nTHE OTHER PAYS IN GOLD.", 13,
      {G_SLEUTH, G_COATCHECK, G_BOUNCER, G_PAPARAZZO, G_STORYTELLER, G_PASTRY, G_SMUGGLER, G_GUIDE, G_TAILOR,
-      G_KITTEN, G_DOORMAN, G_SERPENT, G_SULTAN}},
+      G_KITTEN, G_DOORMAN, G_SERPENT, G_TYCOON}},
     {"MIDSUMMER MAGIC", "NOBODY HERE CALMS THE\nPARTY BUT THE SPHINX.", 13,
      {G_BOOKWORM, G_PARROT, G_MOONCHILD, G_USHER, G_FORTUNE, G_CARDSHARK, G_DRUMMER, G_MATCHMAKER,
       G_MERCHANT, G_IDOL, G_UPSTART, G_SHADOW, G_SPHINX}},
@@ -241,15 +241,6 @@ static void admit(PhGame *g, int card) {
     }
 }
 
-static void check_win(PhGame *g) {
-    if (!g->party.over && ph_stars(g) >= 4) {
-        g->party.over = PO_WON;
-        ph_me(g)->won = 1;
-        g->winner = (uint8_t)(g->turn + 1);
-        g->done = 1;
-    }
-}
-
 static void remove_slot(PhGame *g, int slot, int where) {
     PhParty *pa = &g->party;
     int card = pa->house[slot];
@@ -287,7 +278,6 @@ bool ph_open_door(PhGame *g) {
     pa->peek = -1;
     pa->nlast = 0;
     admit(g, card);
-    check_win(g);
     return true;
 }
 
@@ -374,7 +364,6 @@ bool ph_act(PhGame *g, int slot, int target) {
                 pa->used[card] = 1;
                 pa->nlast = 0;
                 admit(g, i);
-                check_win(g);
                 return true;
             }
         return false;
@@ -418,7 +407,6 @@ bool ph_act(PhGame *g, int slot, int target) {
         if (!pa->over)
             for (int i = 0; i < pa->nlast; i++)
                 if (pa->where[pa->last[i]] == W_HOUSE) collect(g, pa->last[i]);
-        check_win(g);
         return true;
     }
     case A_MAGIC: {
@@ -434,7 +422,6 @@ bool ph_act(PhGame *g, int slot, int target) {
                 remove_slot(g, target, W_OUT);
                 pa->nlast = 0;
                 admit(g, i);
-                check_win(g);
                 return true;
             }
         return false;
@@ -486,6 +473,12 @@ void ph_end_party(PhGame *g) {
     pa->end_cash = (int16_t)(income - spent);
     pa->penalty = (int16_t)penalty;
     pa->over = PO_ENDED;
+    /* four stars at a party that ended well: the scenario is won */
+    if (ph_stars(g) >= 4) {
+        p->won = 1;
+        g->winner = (uint8_t)(g->turn + 1);
+        g->done = 1;
+    }
 }
 
 void ph_ban(PhGame *g, int card) {

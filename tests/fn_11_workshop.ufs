@@ -1,5 +1,5 @@
 # FENNEC FOUNTAIN workshop: build a room, play-test it, and completing it
-# earns the Beacon.
+# earns the Beacon. A places the chosen piece, B opens the pieces.
 game fennec
 wait 30
 cheat custom 0 ################/#K...S...G.....#/################
@@ -12,10 +12,16 @@ expect state == 6
 press RIGHT
 press A
 expect ed_char == 35
+# B opens the pieces; FLOOR is next to WALL
 press B
-expect ed_char == 46
-press SELECT
 expect state == 7
+press RIGHT
+press A
+expect state == 6
+press A
+expect ed_char == 46
+# down to PLAY TEST
+press B
 press DOWN
 press DOWN
 press DOWN

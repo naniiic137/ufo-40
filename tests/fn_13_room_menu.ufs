@@ -1,0 +1,51 @@
+# FENNEC FOUNTAIN: A opens the room menu (as in Block Koala): start over,
+# leave the room, or set one mark that B then jumps straight back to.
+game fennec
+wait 30
+cheat room 1
+wait 5
+expect state == 2
+press RIGHT
+wait 12
+press RIGHT
+wait 12
+expect px == 3
+# start over
+press A
+expect state == 9
+press A
+wait 5
+expect state == 2
+expect px == 1
+expect undo == 0
+# set the mark after one step, walk on, then B jumps back to it
+press RIGHT
+wait 12
+press A
+press DOWN
+press DOWN
+press A
+expect mark == 1
+press RIGHT
+wait 12
+press RIGHT
+wait 12
+press RIGHT
+wait 12
+expect px == 5
+press B
+wait 5
+expect px == 2
+expect mark == -1
+# without a mark B goes back one step at a time
+press B
+wait 5
+expect px == 1
+# leave the room: back in the garden at its hut
+press A
+press DOWN
+press A
+wait 5
+expect state == 1
+expect hub_x == 1
+expect hub_y == 14
