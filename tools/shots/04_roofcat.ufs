@@ -1,41 +1,29 @@
-# README media: ROOFCAT
+# README media: ROOFCAT (the gameplay is the demo player pressing real buttons)
 shotscale 2
 game roofcat
 wait 40
 shot roofcat_title
-press A
-wait 100
+botuntil state == 2 200
+botplay 700
 gifstart roofcat 3 2
-hold RIGHT 10
-press B
-hold RIGHT 20
-press A 2
-hold RIGHT 8
-press A 2
-hold RIGHT 20
-press B
-wait 20
-press B
-hold RIGHT 20
-press A 2
-wait 10
-press A 2
-hold RIGHT 30
-press B
-wait 30
+botplay 720
 gifstop
 shot roofcat_run
+# the roof garden: a bonus stretch full of snacks
 cheat area 1 1
-wait 70
-shot roofcat_souk
+cheat play
+botplay 520
+shot roofcat_market
 cheat area 3 1
-wait 70
+cheat play
+botplay 420
 shot roofcat_harbour
 cheat area 4 1
-wait 20
+cheat play
 cheat arena
-wait 170
+botplay 330
 shot roofcat_boss
 cheat area 0 2
-wait 90
+cheat play
+botplay 150
 shot roofcat_night
