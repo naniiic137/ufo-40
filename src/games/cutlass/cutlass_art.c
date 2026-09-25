@@ -113,7 +113,7 @@ static const char BODY_WIN[] =
     ".kbbk..kbbk.";
 
 /* heads, 10 x 10, facing right */
-static const char HEAD_HAMDI[] =
+static const char HEAD_FINN[] =
     "..kkkkkk.."
     ".krrrrrrk."
     "krrryrrrrk"
@@ -124,7 +124,7 @@ static const char HEAD_HAMDI[] =
     ".khhhhkkhk"
     "..keeeeek."
     "...kkkkk..";
-static const char HEAD_LEILA[] =
+static const char HEAD_MAE[] =
     "..kkkkkk.."
     ".kjjjjjjk."
     "kjjjjjjjjk"
@@ -135,7 +135,7 @@ static const char HEAD_LEILA[] =
     "jk.khhkkhk"
     "j..khhhhk."
     "....kkkk..";
-static const char HEAD_NOUR[] =
+static const char HEAD_GRETA[] =
     "...kkkk..."
     "..kaeeak.."
     "kkaaaaaakk"
@@ -146,7 +146,7 @@ static const char HEAD_NOUR[] =
     ".khhhhkkhk"
     "..khhhhhk."
     "...kkkkk..";
-static const char HEAD_KARIM[] =
+static const char HEAD_SILAS[] =
     "...kkkk..."
     "..krrrrk.."
     ".kkrrrrk.."
@@ -157,7 +157,7 @@ static const char HEAD_KARIM[] =
     "..kbbbbbhk"
     "...khhhhk."
     "....kkkk..";
-static const char HEAD_ZINA[] =
+static const char HEAD_WREN[] =
     "..kkkkkk.."
     ".kddddddk."
     "kddddddddk"
@@ -168,7 +168,7 @@ static const char HEAD_ZINA[] =
     ".kddddddk."
     "..kddddk.."
     "...kkkk...";
-static const char HEAD_OMAR[] =
+static const char HEAD_BRUNO[] =
     "..kkkkkk.."
     ".klwwwwlk."
     "klwwlwwwlk"
@@ -297,8 +297,8 @@ static const Art ART[] = {
     {CS_BODY_RUN1, 12, 12, BODY_RUN1}, {CS_BODY_WIND, 12, 12, BODY_WIND}, {CS_BODY_STRIKE, 12, 12, BODY_STRIKE},
     {CS_BODY_ROLL, 12, 12, BODY_ROLL}, {CS_BODY_STUN, 12, 12, BODY_IDLE}, {CS_BODY_CATCH, 12, 12, BODY_CATCH},
     {CS_BODY_WIN, 12, 12, BODY_WIN},
-    {CS_HEAD0, 10, 10, HEAD_HAMDI}, {CS_HEAD1, 10, 10, HEAD_LEILA}, {CS_HEAD2, 10, 10, HEAD_NOUR},
-    {CS_HEAD3, 10, 10, HEAD_KARIM}, {CS_HEAD4, 10, 10, HEAD_ZINA}, {CS_HEAD5, 10, 10, HEAD_OMAR},
+    {CS_HEAD0, 10, 10, HEAD_FINN}, {CS_HEAD1, 10, 10, HEAD_MAE}, {CS_HEAD2, 10, 10, HEAD_GRETA},
+    {CS_HEAD3, 10, 10, HEAD_SILAS}, {CS_HEAD4, 10, 10, HEAD_WREN}, {CS_HEAD5, 10, 10, HEAD_BRUNO},
     {CS_BALL, 6, 6, BALL}, {CS_COIN1, 4, 4, COIN1}, {CS_COIN2, 4, 4, COIN2}, {CS_URCHIN, 7, 7, URCHIN},
     {CS_DART, 6, 3, DART}, {CS_BOMB, 7, 8, BOMB}, {CS_DECOY, 8, 10, DECOY}, {CS_JUDGE1, 16, 14, JUDGE1},
     {CS_JUDGE2, 16, 14, JUDGE2}, {CS_GULL1, 9, 5, GULL1}, {CS_GULL2, 9, 5, GULL2}, {CS_CUP, 14, 14, CUP},

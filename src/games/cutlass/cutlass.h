@@ -19,7 +19,7 @@
 #define CC_MAX_FAKES 4
 #define CC_FIGHTERS 6
 
-enum { F_HAMDI, F_LEILA, F_NOUR, F_KARIM, F_ZINA, F_OMAR };
+enum { F_FINN, F_MAE, F_GRETA, F_SILAS, F_WREN, F_BRUNO };
 
 typedef struct FighterDef {
     const char *name, *title;
@@ -57,22 +57,26 @@ typedef struct Player {
     int strikes;              /* weapon strikes, two per half bar */
     int tap_t;                /* frames since the last strike press */
     int charge;
+    int super_level;          /* the Super Shot's level, set by how long it was charged */
     int mash;
     float home_y;
     /* the CPU's thinking */
     int ai_delay, ai_cool, ai_plan, ai_charge_t;
     float ai_ty, ai_tx, ai_err;
     bool ai_hold;
+    int8_t ai_skill;          /* -1: the match's CPU level; the demo player uses its own */
 } Player;
 
 /* ball kinds: normal, or a super shot */
-enum { BK_NORMAL, BK_COMET, BK_WALL, BK_MIRAGE, BK_WHIRL, BK_DJINN, BK_PLUNGE };
+enum { BK_NORMAL, BK_COMET, BK_WALL, BK_MIRAGE, BK_WHIRL, BK_FOG, BK_PLUNGE };
 
 typedef struct Ball {
     float x, y, z, vx, vy, vz;
+    float ox, oy;             /* where it was a frame ago */
     float curve;              /* vy change per frame */
     float speed;
     uint8_t kind, level, phase, live;
+    bool lob;                 /* launched into the air with back + strike */
     int8_t team;              /* last team to strike it, -1 = the judge */
     int8_t dir;               /* +1 heading right */
     int8_t hitter;            /* player index that last struck it */
@@ -91,6 +95,8 @@ typedef struct Proj {
     int t, life;
     float range, dist;
     bool reflected, hooked, full_range;
+    bool aim_up;              /* urchin: up was held when it was thrown or struck */
+    int hit_cd;               /* squall: frames until it can hit someone again */
 } Proj;
 
 enum { MS_READY, MS_SERVE, MS_PLAY, MS_POINT, MS_OVER };
@@ -111,6 +117,7 @@ typedef struct Match {
     int state, state_t;
     int receiver_team;
     bool serve_live;
+    float rally;              /* speed the ball has built up this point */
     int stall_t[2];
     int winner;               /* -1 while playing */
     int point_team, point_why; /* who scored and why (0 ball, FOUL_*) */

@@ -1,4 +1,5 @@
-# CUTLASS CUP: a ball that hits a body bounces off and stuns that player.
+# CUTLASS CUP: a ball that hits a body bounces off and stuns that player;
+# body hits give no meter.
 game cutlass
 wait 5
 cheat match 0 1

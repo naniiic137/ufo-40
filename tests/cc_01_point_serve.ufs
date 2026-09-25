@@ -1,11 +1,13 @@
-# CUTLASS CUP: a ball that leaves over the far side is a point; the judge
-# then serves to whoever lost the point.
+# CUTLASS CUP: a ball that leaves over the far side is a point. The judge
+# at the bottom middle then rolls the ball along the deck to whoever lost
+# the point. There is no music while the match is played.
 game cutlass
 wait 5
 cheat match 0 1
 cheat cpu 1 0
 wait 2
 expect mstate == 0
+expect music == -1
 cheat play
 cheat ball 300 100 3 0
 wait 5
@@ -19,3 +21,13 @@ wait 45
 expect mstate == 2
 expect serve_live == 1
 expect ball_live == 1
+expect ball_z == 0
+expect ball_y > 150
+expect ball_vx100 > 0
+cheat ball 10 100 -3 0
+wait 5
+expect score_r == 1
+wait 145
+expect receiver == 0
+expect ball_vx100 < 0
+expect ball_z == 0

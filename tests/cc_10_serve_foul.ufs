@@ -1,15 +1,17 @@
-# CUTLASS CUP: touching the other player's serve first is a foul.
+# CUTLASS CUP: striking the ball before the player it was rolled to is a
+# foul, and the judge rolls it out again.
 game cutlass
 wait 5
 cheat match 0 1
 cheat cpu 1 0
+cheat receiver 0
 wait 80
 expect mstate == 1
 expect receiver == 0
 wait 44
 expect mstate == 2
-wait 14
-cheat pos 1 138 56
+expect serve_live == 1
+cheat pos 1 150 158
 press P2B
 wait 6
 expect fouls_r == 1

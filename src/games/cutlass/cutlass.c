@@ -227,7 +227,7 @@ static void fx_from_match(void) {
     if (fx & FX_SERVE) sfx_play_name("cc_serve");
     if (fx & FX_FOUL) {
         sfx_play_name("cc_whistle");
-        static const char *WHY[4] = {"", "STALLING!", "WEAPON FOUL!", "SERVE FOUL!"};
+        static const char *WHY[4] = {"", "DAWDLING!", "BLADE FOUL!", "EARLY SWING!"};
         banner_text = WHY[iclamp(M.last_foul_kind, 0, 3)];
         banner_col = C_RED;
         banner_t = 70;
@@ -256,10 +256,10 @@ static void update_match(void) {
     fx_from_match();
     if (before != MS_OVER && M.state == MS_OVER) sfx_play_name("cc_whistle");
     if (M.state == MS_OVER && M.state_t > 100) finish_match();
-    /* roll dust and djinn smoke */
+    /* roll dust and sea-fog smoke */
     for (int i = 0; i < M.np; i++)
         if (M.pl[i].state == PS_ROLL && frame_t % 3 == 0) part_add(M.pl[i].x, M.pl[i].y, 0, -0.3f, 12, C_EARTH, 0);
-    if (M.ball.live && M.ball.kind == BK_DJINN && frame_t % 3 == 0) part_add(M.ball.x, M.ball.y - M.ball.z - 3, 0, -0.2f, 26, C_LIGHT, 2);
+    if (M.ball.live && M.ball.kind == BK_FOG && frame_t % 3 == 0) part_add(M.ball.x, M.ball.y - M.ball.z - 3, 0, -0.2f, 26, C_LIGHT, 2);
 }
 
 /* ------------------------------------------------------------------ */
@@ -385,7 +385,7 @@ static void cc_update(void) {
             sfx_play_name("ui_ok");
             state = S_VS;
             state_t = 0;
-        } else if (state_t > 600 || (state_t > 20 && btnp(BTN_B))) {
+        } else if (state_t > 20 && btnp(BTN_B)) {
             sfx_play_name("ui_back");
             go_title();
         }
@@ -477,16 +477,16 @@ static void draw_weapon_s(int f, int pose, int x0, int y0, int flip, bool chargi
     float dx = cosf(a), dy = sinf(a);
     if (flip) { hx = 15 - hx; dx = -dx; }
     float nx = -dy, ny = dx; /* across the blade */
-    int len = f == F_NOUR ? 18 : f == F_OMAR ? 16 : f == F_KARIM ? 13 : f == F_HAMDI ? 11 : f == F_ZINA ? 8 : 7;
+    int len = f == F_GRETA ? 18 : f == F_BRUNO ? 16 : f == F_SILAS ? 13 : f == F_FINN ? 11 : f == F_WREN ? 8 : 7;
     int blade = charging ? ((frame_t / 3) % 2 ? C_YELLOW : C_WHITE) : C_LIGHT;
     int edge = charging ? C_ORANGE : C_GREY;
-    if (f == F_NOUR || f == F_OMAR) {
+    if (f == F_GRETA || f == F_BRUNO) {
         for (int i = -2; i <= len; i++) {
             wpx(x0, y0, hx + dx * i, hy + dy * i, scale, C_BROWN);
             if (i % 2 == 0) wpx(x0, y0, hx + dx * i + nx * 0.6f, hy + dy * i + ny * 0.6f, scale, C_TAN);
         }
         float ex = hx + dx * len, ey = hy + dy * len;
-        if (f == F_NOUR) {
+        if (f == F_GRETA) {
             /* a hook */
             for (int i = 0; i <= 3; i++) wpx(x0, y0, ex + dx * i, ey + dy * i, scale, blade);
             for (int i = 1; i <= 3; i++) wpx(x0, y0, ex + dx * 3 - nx * i, ey + dy * 3 - ny * i, scale, blade);
@@ -506,12 +506,12 @@ static void draw_weapon_s(int f, int pose, int x0, int y0, int flip, bool chargi
     wpx(x0, y0, hx, hy, scale, C_AMBER);
     wpx(x0, y0, hx + nx, hy + ny, scale, C_AMBER);
     wpx(x0, y0, hx - nx, hy - ny, scale, C_AMBER);
-    int bc = f == F_ZINA ? C_SLATE : blade;
+    int bc = f == F_WREN ? C_SLATE : blade;
     for (int i = 1; i <= len; i++) {
-        float bend = (f == F_HAMDI || f == F_KARIM) ? (float)(i * i) / (len * 5.0f) : 0;
+        float bend = (f == F_FINN || f == F_SILAS) ? (float)(i * i) / (len * 5.0f) : 0;
         float px = hx + dx * i - nx * bend, py = hy + dy * i - ny * bend;
         wpx(x0, y0, px, py, scale, i == len ? C_WHITE : bc);
-        if (i < len - 1 && f != F_LEILA && f != F_ZINA) wpx(x0, y0, px + nx * 0.8f, py + ny * 0.8f, scale, edge);
+        if (i < len - 1 && f != F_MAE && f != F_WREN) wpx(x0, y0, px + nx * 0.8f, py + ny * 0.8f, scale, edge);
     }
 }
 
@@ -553,8 +553,6 @@ static void draw_player(int i) {
             float a = frame_t * 0.2f + k * 2.1f;
             gfx_pset((int)(p->x + cosf(a) * 6), (int)(p->y - 23 + sinf(a) * 2), C_YELLOW);
         }
-    /* a player tag in 2-player modes */
-    if (mode != MODE_TOURNEY && !p->cpu) tiny_draw(p->input ? "2" : "1", (int)p->x - 1, (int)p->y - 30, p->input ? C_MAGENTA : C_YELLOW);
     if (p->state == PS_CATCH && !p->cpu && (frame_t / 6) % 2) {
         gfx_rect((int)p->x - 17, (int)p->y - 34, 34, 8, C_INK);
         tiny_center("MASH " GLYPH_B "!", (int)p->x, (int)p->y - 33, C_YELLOW);
@@ -567,8 +565,8 @@ static void draw_ball_at(const Ball *b, bool fake) {
     if (!b->live) return;
     int x = (int)b->x, y = (int)b->y, z = (int)b->z;
     gfx_dither(x - 3, y - 1, 7, 3, C_BROWN, 12);
-    if (b->kind == BK_DJINN && !fake) return; /* invisible: only its smoke shows */
-    if (b->kind != BK_NORMAL && !fake) {
+    if (b->kind == BK_FOG && !fake) return; /* invisible: only its smoke shows */
+    if (b->kind != BK_NORMAL) { /* Mirage fakes look just like the real one */
         int c = SUPER_COL[b->kind];
         for (int k = 1; k <= 4; k++)
             gfx_dither(x - (int)(b->vx * k * 1.2f) - 2, y - z - 5 - (int)(b->vy * k * 1.2f), 5, 5, c, 12 - k * 2);
@@ -630,16 +628,6 @@ static void draw_hud_side(int team, int x0) {
         if (M.pl[i].team == team) { fx = i; break; }
     if (fx < 0) return;
     const Player *p = &M.pl[fx];
-    const char *nm = CC_FIGHTER[p->fighter].name;
-    char buf[32];
-    if (M.np == 4) {
-        const Player *q = &M.pl[fx + 1];
-        snprintf(buf, sizeof buf, "%s+%s", nm, CC_FIGHTER[q->fighter].name);
-        nm = buf;
-    }
-    int col = left ? C_YELLOW : C_MAGENTA;
-    if (left) tiny_draw(nm, x0, 2, col);
-    else tiny_draw(nm, x0 - tiny_width(nm), 2, col);
     /* score */
     char sc[8];
     snprintf(sc, sizeof sc, "%d", M.score[team]);
@@ -670,13 +658,13 @@ static void draw_hud(void) {
     gfx_hline(0, SCREEN_W - 1, 15, C_DUSK);
     draw_hud_side(0, 4);
     draw_hud_side(1, SCREEN_W - 4);
-    char buf[16];
+    /* the clock, only when a time limit is set */
     if (M.time_limit > 0) {
+        char buf[16];
         int s = (M.time_left + 59) / 60;
         snprintf(buf, sizeof buf, "%d:%02d", s / 60, s % 60);
-        if (M.sudden) snprintf(buf, sizeof buf, "SUDDEN");
-    } else snprintf(buf, sizeof buf, "TO %d", M.goal);
-    tiny_center(buf, 160, 10, C_GREY);
+        tiny_center(buf, 160, 10, M.sudden ? C_RED : C_GREY);
+    }
     tiny_center("-", 160, 3, C_LIGHT);
 }
 
@@ -688,11 +676,6 @@ static void draw_court(void) {
     draw_backdrop();
     draw_deck();
     draw_rail(CC_TOP - 9, false);
-    /* the judge behind the rail */
-    bool tossing = M.state == MS_SERVE && M.state_t > 20;
-    spr_draw(&cc_spr[tossing ? CS_JUDGE2 : CS_JUDGE1], 152, CC_TOP - 22, 0);
-    gfx_rect(150, CC_TOP - 9, 20, 5, C_BROWN);
-    gfx_hline(150, 169, CC_TOP - 9, C_TAN);
     spr_draw(&cc_spr[(frame_t / 40) % 2 ? CS_GULL1 : CS_GULL2], 40, CC_TOP - 14, 0);
     spr_draw(&cc_spr[(frame_t / 50) % 2 ? CS_GULL1 : CS_GULL2], 270, CC_TOP - 14, SPR_FLIPX);
     /* everything on the deck, back to front */
@@ -724,6 +707,9 @@ static void draw_court(void) {
         if (p->kind == 2) gfx_dither_circle((int)p->x, (int)p->y, 2 + (26 - p->life) / 6, p->col, p->life / 3 + 2);
         else gfx_rect((int)p->x, (int)p->y, 2, 2, p->col);
     }
+    /* the judge at the bottom middle, who rolls the ball out */
+    bool tossing = M.state == MS_SERVE && M.state_t > 20;
+    spr_draw(&cc_spr[tossing ? CS_JUDGE2 : CS_JUDGE1], 152, CC_BOT - 4, 0);
     draw_rail(CC_BOT + 6, true);
     gfx_camera(0, 0);
     draw_hud();
@@ -796,8 +782,8 @@ static void draw_title(void) {
     for (int y = 134; y < 180; y += 8) gfx_hline(0, SCREEN_W - 1, y, C_BROWN);
     draw_rail(130, false);
     int bob = (frame_t / 16) % 2;
-    draw_fighter_big(F_HAMDI, 40, 128 - 44 + bob, 0, (frame_t / 30) % 2 ? POSE_STRIKE : POSE_WIND);
-    draw_fighter_big(F_LEILA, 248, 128 - 44 + bob, 1, POSE_IDLE0);
+    draw_fighter_big(F_FINN, 40, 128 - 44 + bob, 0, (frame_t / 30) % 2 ? POSE_STRIKE : POSE_WIND);
+    draw_fighter_big(F_MAE, 248, 128 - 44 + bob, 1, POSE_IDLE0);
     spr_draw(&cc_spr[CS_BALL], 110 + (int)(sinf(frame_t * 0.05f) * 40), 100 - (int)(fabsf(sinf(frame_t * 0.05f)) * 30), 0);
     static const uint8_t grad[] = {C_WHITE, C_CREAM, C_YELLOW, C_AMBER};
     ui_fancy_center("CUTLASS CUP", 160, 8, 3, grad, 4, C_INK, C_NAVY);
@@ -824,7 +810,7 @@ static void draw_options(void) {
     ui_panel(70, 30, 180, 120, C_NIGHT, C_AMBER);
     static const uint8_t grad[] = {C_WHITE, C_CREAM, C_YELLOW};
     ui_fancy_center("OPTIONS", 160, 38, 2, grad, 3, C_INK, C_NAVY);
-    static const char *SPEED[3] = {"NORMAL", "FAST", "HYPER"};
+    static const char *SPEED[3] = {"CALM", "BRISK", "GALE"};
     char val[5][24];
     snprintf(val[0], 24, "%d", sv.goal);
     if (sv.time) snprintf(val[1], 24, "%d MIN", sv.time);
@@ -832,7 +818,7 @@ static void draw_options(void) {
     snprintf(val[2], 24, "%s", sv.laws ? "ON" : "OFF");
     snprintf(val[3], 24, "%s", SPEED[sv.speed]);
     val[4][0] = 0;
-    static const char *NAMES[5] = {"GOAL", "TIME", "LAWS", "SPEED", "DONE"};
+    static const char *NAMES[5] = {"POINTS", "TIME", "FOULS", "SPEED", "DONE"};
     for (int i = 0; i < 5; i++) {
         int y = 64 + i * 14;
         bool s = i == opt_sel;
@@ -858,10 +844,6 @@ static void draw_details(int f, int x, int y, int col) {
     draw_stat(x, y + 20, "SPEED", d->speed);
     draw_stat(x, y + 28, "CONTROL", d->control);
     draw_stat(x, y + 36, "POWER", d->power);
-    tiny_draw("BB:", x + 58, y + 20, C_SLATE);
-    tiny_draw(d->second, x + 70, y + 20, C_CYAN);
-    tiny_draw("HOLD:", x + 58, y + 28, C_SLATE);
-    tiny_draw(d->super, x + 78, y + 28, C_ORANGE);
 }
 
 static void draw_select(void) {
@@ -988,14 +970,9 @@ static void draw_result(void) {
 
 static void draw_continue(void) {
     gfx_cls(C_NIGHT);
-    int left = imax(0, 9 - state_t / 60);
     static const uint8_t g[] = {C_WHITE, C_CREAM, C_YELLOW};
-    ui_fancy_center("CONTINUE?", 160, 50, 2, g, 3, C_INK, C_NAVY);
-    char buf[16];
-    snprintf(buf, sizeof buf, "%d", left);
-    static const uint8_t g2[] = {C_YELLOW, C_ORANGE, C_RED};
-    ui_fancy_center(buf, 160, 76, 3, g2, 3, C_INK, C_INK);
-    draw_fighter_big(pick[0], 140, 110, 0, POSE_STUN);
+    ui_fancy_center("CONTINUE?", 160, 60, 2, g, 3, C_INK, C_NAVY);
+    draw_fighter_big(pick[0], 140, 96, 0, POSE_STUN);
     tiny_center(GLYPH_A " TRY AGAIN   " GLYPH_B " GIVE UP", 160, 166, C_GREY);
 }
 
@@ -1083,16 +1060,67 @@ static void cc_label(int x, int y, int w, int h, int t) {
     for (int yy = y + 36; yy < y + h; yy += 7) gfx_hline(x, x + w - 1, yy, C_EARTH);
     gfx_vline(x + w / 2, y + 36, y + h - 1, C_CREAM);
     int k = (t / 20) % 2;
-    spr_draw(&cc_fighter_spr[F_HAMDI][k ? POSE_STRIKE : POSE_WIND], x + 22, y + 30, 0);
-    draw_weapon(F_HAMDI, k ? POSE_STRIKE : POSE_WIND, x + 22, y + 30, 0, false);
-    spr_draw(&cc_fighter_spr[F_ZINA][POSE_IDLE0], x + w - 42, y + 30, SPR_FLIPX);
-    draw_weapon(F_ZINA, POSE_IDLE0, x + w - 42, y + 30, 1, false);
+    spr_draw(&cc_fighter_spr[F_FINN][k ? POSE_STRIKE : POSE_WIND], x + 22, y + 30, 0);
+    draw_weapon(F_FINN, k ? POSE_STRIKE : POSE_WIND, x + 22, y + 30, 0, false);
+    spr_draw(&cc_fighter_spr[F_WREN][POSE_IDLE0], x + w - 42, y + 30, SPR_FLIPX);
+    draw_weapon(F_WREN, POSE_IDLE0, x + w - 42, y + 30, 1, false);
     int bx = x + 44 + (t * 2) % (w - 90);
     gfx_dither(bx - 2, y + 51, 6, 2, C_BROWN, 10);
     spr_draw(&cc_spr[CS_BALL], bx - 3, y + 38, 0);
 }
 
+/* The demo player: player 1's buttons for the runner's "bot" query. It
+ * asks the CPU what it would do (at the best skill) and presses the real
+ * buttons for it; a press that follows a held button waits a frame so it
+ * is a fresh press. */
+static bool bot_b, bot_a, bot_b_next, bot_a_next;
+
+static int bot_buttons(void) {
+    if (state != S_MATCH) {
+        bot_b = bot_a = bot_b_next = bot_a_next = false;
+        return (state_t / 8) % 2 ? BTN_A : 0;
+    }
+    Pad pd;
+    M.pl[0].ai_skill = 4;
+    cc_ai_pad(&M, 0, &pd);
+    int mask = 0;
+    if (pd.dx > 0) mask |= BTN_RIGHT;
+    if (pd.dx < 0) mask |= BTN_LEFT;
+    if (pd.dy > 0) mask |= BTN_DOWN;
+    if (pd.dy < 0) mask |= BTN_UP;
+    bool b = pd.held, a = false;
+    if (pd.strike) {
+        if (bot_b) bot_b_next = true;
+        else b = true;
+    } else if (bot_b_next && !bot_b) {
+        b = true;
+        bot_b_next = false;
+    }
+    if (pd.roll) {
+        if (bot_a) bot_a_next = true;
+        else a = true;
+    } else if (bot_a_next && !bot_a) {
+        a = true;
+        bot_a_next = false;
+    }
+    bot_b = b;
+    bot_a = a;
+    return mask | (b ? BTN_B : 0) | (a ? BTN_A : 0);
+}
+
 static int cc_query(const char *key, int *out) {
+    if (!strcmp(key, "bot")) { *out = bot_buttons(); return 1; }
+    if (!strcmp(key, "rally100")) { *out = (int)lroundf(M.rally * 100); return 1; }
+    if (!strcmp(key, "ball_speed100")) { *out = (int)lroundf(sqrtf(M.ball.vx * M.ball.vx + M.ball.vy * M.ball.vy) * 100); return 1; }
+    if (!strcmp(key, "ball_lob")) { *out = M.ball.lob; return 1; }
+    if (!strcmp(key, "ball_level")) { *out = M.ball.level; return 1; }
+    if (!strcmp(key, "music")) { *out = music_playing(); return 1; }
+    if (!strcmp(key, "projvy100")) {
+        *out = 0;
+        for (int i = 0; i < CC_MAX_PROJ; i++)
+            if (M.pr[i].live) { *out = (int)lroundf(M.pr[i].vy * 100); break; }
+        return 1;
+    }
     if (!strcmp(key, "state")) { *out = state; return 1; }
     if (!strcmp(key, "mstate")) { *out = M.state; return 1; }
     if (!strcmp(key, "mode")) { *out = mode; return 1; }
@@ -1231,6 +1259,9 @@ static int cc_cheat(const char *cmd) {
     if (sscanf(cmd, "timeleft %d", &a) == 1) { M.time_limit = a; M.time_left = a; return 1; }
     if (sscanf(cmd, "timeopt %d", &a) == 1) { sv.time = (uint8_t)a; return 1; }
     if (sscanf(cmd, "level %d", &a) == 1) { M.ai_level = a; return 1; }
+    if (sscanf(cmd, "skill %d %d", &a, &b) == 2) { M.pl[a].ai_skill = (int8_t)b; return 1; }
+    if (sscanf(cmd, "receiver %d", &a) == 1) { M.receiver_team = a & 1; return 1; }
+    if (!strcmp(cmd, "lob")) { M.ball.lob = true; return 1; }
     if (!strcmp(cmd, "demo")) { demo = true; for (int i = 0; i < M.np; i++) M.pl[i].cpu = 1; return 1; }
     if (!strcmp(cmd, "save")) { save_now(); return 1; }
     if (sscanf(cmd, "win %d", &a) == 1) {
@@ -1251,11 +1282,11 @@ const GameDef GAME_CUTLASS = {
     "1985",
     "SPORTS",
     "BLADES, A BALL AND A GALLEY DECK. KNOCK IT PAST YOUR RIVAL INTO THE SEA.",
-    {"BEAT 3 OPPONENTS IN A RUN", "WIN THE TOURNAMENT", "WIN IT WITHOUT A CONTINUE"},
+    {"BEAT 3 OPPONENTS IN A RUN", "WIN THE CUTLASS CUP", "WIN THE CUP WITHOUT CONTINUING"},
     "D-PAD\tRUN\n"
     GLYPH_B "\tSTRIKE (UP/DOWN AIM, BACK LOB)\n"
-    GLYPH_B " " GLYPH_B "\tSECONDARY WEAPON (HALF BAR)\n"
-    "HOLD " GLYPH_B "\tSUPER SHOT (ONE BAR)\n"
+    GLYPH_B " " GLYPH_B "\tTRICK (HALF BAR)\n"
+    "HOLD " GLYPH_B "\tBROADSIDE (ONE BAR)\n"
     GLYPH_A "\tROLL\n"
     "START\tPAUSE\n"
     "2P KEYS: WASD F G / ARROWS K L",

@@ -1,5 +1,5 @@
-# CUTLASS CUP: a Super Shot that hits your body is caught: mash B to send
-# it back, or it slips over your head.
+# CUTLASS CUP: a Super Shot that hits your body is caught and you slide
+# back: mash B to send it back, or it slips over your head.
 game cutlass
 wait 5
 cheat match 0 1
@@ -11,6 +11,8 @@ cheat superball 1 150 100 -5
 wait 20
 expect caught_by == 0
 expect st0 == 5
+wait 6
+expect px0 < 60
 press B 1
 press B 1
 press B 1

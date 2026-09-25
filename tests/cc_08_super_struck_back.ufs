@@ -1,0 +1,18 @@
+# CUTLASS CUP: a Super Ball struck with your weapon flies back as a Super
+# Ball, faster than it came.
+game cutlass
+wait 5
+cheat match 0 1
+cheat cpu 1 0
+wait 2
+cheat play
+cheat pos 0 60 100
+cheat superball 1 150 100 -3
+wait 18
+press B
+wait 8
+expect caught_by == -1
+expect ball_team == 0
+expect ball_kind == 1
+expect ball_vx100 > 300
+expect st0 != 5

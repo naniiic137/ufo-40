@@ -1,0 +1,55 @@
+# CUTLASS CUP: every return is faster than the last. A lob adds nothing,
+# nor does returning a lob; striking out of a roll gives a big boost; a new
+# point starts slow again.
+game cutlass
+wait 5
+cheat match 0 1
+cheat cpu 1 0
+wait 2
+cheat play
+cheat pos 0 60 100
+cheat ball 70 100 0 0
+press B
+wait 6
+expect rally100 == 50
+expect ball_speed100 > 400
+expect ball_speed100 < 500
+cheat ball 70 100 0 0
+wait 10
+press B
+wait 6
+expect rally100 == 100
+expect ball_speed100 > 500
+# a lob adds nothing
+cheat ball 70 100 0 0
+wait 10
+hold LEFT
+press B
+wait 4
+release LEFT
+expect ball_lob == 1
+expect rally100 == 100
+# nor does returning one
+cheat pos 0 60 100
+cheat ball 70 100 0 0
+cheat lob
+wait 12
+press B
+wait 6
+expect ball_lob == 0
+expect rally100 == 100
+# out of a roll: much faster than any standing strike so far
+cheat pos 0 50 100
+cheat ball 80 100 0 0
+wait 12
+hold RIGHT
+press A 1
+press B 1
+release RIGHT
+wait 6
+expect ball_team == 0
+expect ball_speed100 > 650
+# the next point starts slow
+cheat ball 300 100 6 0
+wait 110
+expect rally100 == 0
