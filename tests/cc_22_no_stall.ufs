@@ -1,0 +1,19 @@
+# CUTLASS CUP: no match can stall. A coin or dart knocks the ball once and
+# is struck back once at most, so best CPUs always finish a match - here the
+# seed where a coin and the ball once shuttled forever, and two more pairs.
+seed 5
+game cutlass
+wait 5
+cheat match 0 1
+cheat demo
+cheat skill 0 4
+cheat level 4
+waituntil mstate == 4 15000
+cheat match 3 2
+cheat demo
+cheat level 4
+waituntil mstate == 4 15000
+cheat match 5 4
+cheat demo
+cheat level 4
+waituntil mstate == 4 15000

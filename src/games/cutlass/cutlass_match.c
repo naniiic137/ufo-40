@@ -5,11 +5,11 @@
 const FighterDef CC_FIGHTER[CC_FIGHTERS] = {
     /* name     title                 secondary        super          S  C  P  rx ry  shirt     dark      pants    sash */
     {"FINN", "THE YOUNG CORSAIR", "LUCKY COIN", "COMET", 2, 2, 3, 20, 12, C_RED, C_WINE, C_NAVY, C_YELLOW},
-    {"MAE", "THE DECKHAND", "SEA URCHIN", "WALL RUNNER", 3, 2, 2, 15, 10, C_TEAL, C_NIGHT, C_TAN, C_ORANGE},
+    {"MAE", "THE DECKHAND", "SEA URCHIN", "WALL RUNNER", 3, 2, 2, 12, 9, C_TEAL, C_NIGHT, C_TAN, C_ORANGE},
     {"GRETA", "THE HARPOONER", "HARPOON", "MIRAGE", 2, 3, 2, 21, 22, C_SKY, C_BLUE, C_CREAM, C_RED},
-    {"SILAS", "THE SABRE DANCER", "SQUALL", "WHIRL", 2, 1, 3, 18, 8, C_WHITE, C_LIGHT, C_WINE, C_AMBER},
-    {"WREN", "THE SHADOW", "DART", "SEA FOG", 3, 1, 2, 18, 11, C_DUSK, C_NIGHT, C_NIGHT, C_MAGENTA},
-    {"BRUNO", "THE GUNNER", "POWDER POT", "PLUNGE", 1, 3, 2, 10, 20, C_ORANGE, C_BROWN, C_SLATE, C_LIME},
+    {"SILAS", "THE SABRE DANCER", "SQUALL", "WHIRL", 2, 1, 3, 26, 7, C_WHITE, C_LIGHT, C_WINE, C_AMBER},
+    {"WREN", "THE SHADOW", "DART", "SEA FOG", 3, 1, 2, 13, 18, C_DUSK, C_NIGHT, C_NIGHT, C_MAGENTA},
+    {"BRUNO", "THE GUNNER", "POWDER POT", "PLUNGE", 1, 3, 2, 9, 58, C_ORANGE, C_BROWN, C_SLATE, C_LIME},
 };
 
 static const float MOVE_SPEED[4] = {0, 0.95f, 1.3f, 1.65f};
@@ -253,9 +253,8 @@ static void strike_ball(Match *m, int pi, const Pad *pad, int kind, bool sweet) 
     const FighterDef *f = &CC_FIGHTER[p->fighter];
     /* touching the other side's serve first is a foul */
     if (m->serve_live && b->team == -1 && p->team != m->receiver_team && m->laws) {
-        foul(m, p->team, FOUL_SERVE);
-        if (m->state == MS_PLAY) start_serve(m);
-        return;
+        foul(m, p->team, FOUL_SERVE); /* a foul, and play goes on */
+        if (m->state != MS_PLAY) return;
     }
     bool reflect = b->kind != BK_NORMAL && b->team != p->team;
     bool from_lob = b->lob;
@@ -290,7 +289,8 @@ static void strike_ball(Match *m, int pi, const Pad *pad, int kind, bool sweet) 
         /* one bar, whatever the level; the level came from the charge */
         int level = iclamp(p->super_level, 1, 3);
         p->meter = imax(0, p->meter - 2);
-        float s = (SUPER_BASE[p->fighter] + 0.8f * (level - 1)) * spd;
+        /* upgrades are faster, except Greta's, which only adds fakes */
+        float s = (SUPER_BASE[p->fighter] + (p->fighter == F_GRETA ? 0 : 0.8f * (level - 1))) * spd;
         b->speed = s;
         b->level = (uint8_t)level;
         b->z = imin((int)b->z, 6);
@@ -438,8 +438,18 @@ static void fire_secondary(Match *m, int pi, const Pad *pad) {
         if (r) { r->z = 10; r->vx = p->face * 1.6f * spd; r->vz = 2.2f * spd; r->aim_up = pad->dy < 0; }
         break;
     case F_GRETA:
+        /* the harpoon flies at the ball */
         r = new_proj(m, PR_HOOK, pi);
-        if (r) { r->vx = p->face * 5.0f * spd; r->range = 120; r->z = 8; }
+        if (r) {
+            const Ball *b = &m->ball;
+            float dx = b->live ? b->x - r->x : p->face * 100.0f, dy = b->live ? b->y - r->y : 0;
+            float len = sqrtf(dx * dx + dy * dy);
+            if (len < 1) { dx = (float)p->face; dy = 0; len = 1; }
+            r->vx = dx / len * 5.0f * spd;
+            r->vy = dy / len * 5.0f * spd;
+            r->range = 120;
+            r->z = 8;
+        }
         break;
     case F_SILAS:
         r = new_proj(m, PR_SLASH, pi);
@@ -497,7 +507,10 @@ static void blast(Match *m, Proj *r) {
         /* the blast launches the ball a little into the air, whatever its
          * height, with a strong curve */
         int dir = r->team == 0 ? 1 : -1;
-        if (m->serve_live && b->team == -1 && r->team != m->receiver_team) { foul(m, r->team, FOUL_SERVE); return; }
+        if (m->serve_live && b->team == -1 && r->team != m->receiver_team && m->laws) {
+            foul(m, r->team, FOUL_SERVE);
+            if (m->state != MS_PLAY) return;
+        }
         set_ball_normal(b);
         b->team = (int8_t)r->team;
         b->hitter = (int8_t)r->owner;
@@ -677,7 +690,9 @@ static void update_player(Match *m, int pi, const Pad *pad) {
             for (int i = 0; i < CC_MAX_PROJ; i++) {
                 Proj *r = &m->pr[i];
                 if (!r->live || !in_swing(p, r->x, r->y, 0)) continue;
-                if ((r->kind == PR_COIN || r->kind == PR_DART) && r->team != p->team) {
+                if ((r->kind == PR_COIN || r->kind == PR_DART) && r->team != p->team && r->reflected) {
+                    r->live = 0; /* struck back once already: knocked away */
+                } else if ((r->kind == PR_COIN || r->kind == PR_DART) && r->team != p->team) {
                     r->vx = -r->vx;
                     r->vy = -r->vy;
                     r->team = p->team;
@@ -926,12 +941,13 @@ static void hit_player(Match *m, Player *p, int frames) {
     m->fx_y = p->y;
 }
 
-static void proj_ball(Match *m, Proj *r, float push) {
+static bool proj_ball(Match *m, Proj *r, float push) {
     Ball *b = &m->ball;
-    if (!b->live || b->caught_by >= 0 || b->z >= 10) return;
-    if (fabsf(b->x - r->x) > 7 || fabsf(b->y - r->y) > 7) return;
-    if (m->serve_live && b->team == -1 && r->team != m->receiver_team) {
-        if (m->laws) { foul(m, r->team, FOUL_SERVE); if (m->state == MS_PLAY) start_serve(m); return; }
+    if (!b->live || b->caught_by >= 0 || b->z >= 10) return false;
+    if (fabsf(b->x - r->x) > 7 || fabsf(b->y - r->y) > 7) return false;
+    if (m->serve_live && b->team == -1 && r->team != m->receiver_team && m->laws) {
+        foul(m, r->team, FOUL_SERVE); /* a foul, and play goes on */
+        if (m->state != MS_PLAY) return true;
     }
     int dir = r->team == 0 ? 1 : -1;
     bool reflect = b->kind != BK_NORMAL && b->team != r->team;
@@ -953,8 +969,9 @@ static void proj_ball(Match *m, Proj *r, float push) {
     b->hitter = (int8_t)r->owner;
     b->t = 0;
     b->no_body = 6;
-    if (r->team == m->receiver_team) m->serve_live = false;
+    m->serve_live = false;
     m->fx |= FX_STRIKE;
+    return true;
 }
 
 static void update_proj(Match *m) {
@@ -968,8 +985,8 @@ static void update_proj(Match *m) {
         case PR_DART:
             r->x += r->vx;
             r->y += r->vy;
-            if (r->x < -8 || r->x > 328 || r->y < CC_TOP - 12 || r->y > CC_BOT + 12) { r->live = 0; break; }
-            proj_ball(m, r, 2.8f);
+            if (r->x < -8 || r->x > 328 || r->y < CC_TOP - 12 || r->y > CC_BOT + 12 || r->t > 150) { r->live = 0; break; }
+            if (!r->hooked && proj_ball(m, r, 2.8f)) r->hooked = true; /* it knocks the ball once */
             for (int j = 0; j < m->np; j++) {
                 Player *p = &m->pl[j];
                 if (p->team == r->team || p->state == PS_STUN || !body_at(p, r->x, r->y, 1)) continue;
@@ -1005,18 +1022,27 @@ static void update_proj(Match *m) {
         case PR_HOOK: {
             Ball *b = &m->ball;
             if (!r->hooked) {
-                r->dist += fabsf(r->vx);
+                /* out along its line, then back to Greta's hand */
+                if (r->reflected) {
+                    float hx = own->x + own->face * 6 - r->x, hy = own->y - r->y, d = sqrtf(hx * hx + hy * hy);
+                    if (d < 7) { r->live = 0; break; }
+                    r->vx = hx / d * 6.0f * m->spd;
+                    r->vy = hy / d * 6.0f * m->spd;
+                } else {
+                    r->dist += sqrtf(r->vx * r->vx + r->vy * r->vy);
+                    if (r->dist >= r->range) r->reflected = true;
+                }
                 r->x += r->vx;
-                if (r->dist >= r->range) r->vx = -r->vx * 1.2f;
+                r->y += r->vy;
                 float bs = sqrtf(b->vx * b->vx + b->vy * b->vy);
                 /* it can't catch a ball that is airborne, too fast or too far */
                 if (b->live && b->caught_by < 0 && b->z < 10 && bs < 5.0f * m->spd && fabsf(b->x - r->x) < 7 &&
                     fabsf(b->y - r->y) < 8 && r->dist <= r->range + 2) {
                     if (m->serve_live && b->team == -1 && r->team != m->receiver_team && m->laws) {
                         foul(m, r->team, FOUL_SERVE);
-                        if (m->state == MS_PLAY) start_serve(m);
-                        break;
+                        if (m->state != MS_PLAY) break;
                     }
+                    m->serve_live = false;
                     r->hooked = true;
                     r->full_range = r->dist >= r->range - 10;
                     set_ball_normal(b);
@@ -1028,11 +1054,9 @@ static void update_proj(Match *m) {
                     Player *p = &m->pl[j];
                     if (p->team == r->team || p->state == PS_STUN || !body_at(p, r->x, r->y, 1)) continue;
                     hit_player(m, p, STUN_MED);
-                    r->vx = -own->face * fabsf(r->vx);
+                    r->reflected = true; /* then back home */
                     break;
                 }
-                /* back home without a catch */
-                if ((r->x - own->x) * own->face < 4 && r->vx * own->face < 0) r->live = 0;
             } else {
                 /* reel the ball in */
                 float dx = own->x + own->face * 10 - r->x;
@@ -1309,7 +1333,10 @@ aim:
     if (p->meter >= 1 && p->ai_cool == 0 && !out->strike && !p->ai_hold && foe && live && !others_serve) {
         bool lined = fabsf(foe->y - p->y) < 12;
         bool trap = p->fighter == F_MAE || p->fighter == F_BRUNO;
-        bool hook = p->fighter == F_GRETA && coming && fabsf(b->y - p->y) < 8 && fabsf(b->x - p->x) < 110;
+        /* the harpoon flies at the ball: fired when the ball is near enough, low and slow enough to catch */
+        float hdx = b->x - p->x, hdy = b->y - p->y;
+        bool hook = p->fighter == F_GRETA && (coming || slow) && hdx * hdx + hdy * hdy < 105 * 105 && b->z < 8 &&
+                    sqrtf(b->vx * b->vx + b->vy * b->vy) < 4.5f * m->spd;
         if ((lined && !coming && rng_chance(&m->rng, 3 + lvl)) || (trap && !coming && rng_chance(&m->rng, 1 + lvl)) ||
             (hook && rng_chance(&m->rng, 4))) {
             p->ai_plan = 1;

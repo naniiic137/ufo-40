@@ -1,5 +1,5 @@
 # CUTLASS CUP: striking the ball before the player it was rolled to is a
-# foul, and the judge rolls it out again.
+# foul, and play goes on with the ball struck.
 game cutlass
 wait 5
 cheat match 0 1
@@ -15,4 +15,7 @@ cheat pos 1 150 158
 press P2B
 wait 6
 expect fouls_r == 1
-expect mstate == 1
+expect mstate == 2
+expect ball_team == 1
+expect ball_vx100 < 0
+expect serve_live == 0

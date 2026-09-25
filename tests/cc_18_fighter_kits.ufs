@@ -49,6 +49,7 @@ wait 8
 expect ball_kind == 3
 expect ball_level == 2
 expect fakes == 2
+expect ball_speed100 < 470
 # Silas: the squall, Whirl
 cheat match 3 0
 cheat cpu 1 0
@@ -103,7 +104,7 @@ expect st0 == 2
 wait 20
 hold B
 wait 34
-cheat ball 70 60 0 0
+cheat ball 67 60 0 0
 release B
 wait 8
 expect ball_kind == 6

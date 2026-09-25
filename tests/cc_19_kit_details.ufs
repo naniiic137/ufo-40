@@ -1,4 +1,6 @@
-# CUTLASS CUP: the kits in detail. Mae's urchin sends the ball upward when
+# CUTLASS CUP: the kits in detail. Greta's harpoon flies at the ball, off
+# her row, and strikes it back; Bruno's thin strike covers a tall stretch
+# of the deck. Mae's urchin sends the ball upward when
 # up was held as she threw it; Silas's squall hits again and again, and a
 # ball struck while it is out becomes a Super Ball; his Whirl with forward
 # held curves down at once instead of looping; Bruno's thrust reaches far
@@ -102,3 +104,25 @@ wait 2
 release RIGHT
 expect ball_vx100 < 0
 expect st0 == 3
+# Greta's harpoon flies at a ball well off her row
+cheat match 2 0
+cheat cpu 1 0
+wait 2
+cheat play
+cheat pos 0 60 100
+cheat meter 0 2
+cheat ball 110 65 0 0
+press B 1
+press B 1
+expect projs3 == 1
+waituntil ball_team == 0 90
+# Bruno's strike reaches far above and below him
+cheat match 5 0
+cheat cpu 1 0
+wait 2
+cheat play
+cheat pos 0 60 100
+cheat ball 66 148 0 0
+press B
+wait 6
+expect ball_team == 0

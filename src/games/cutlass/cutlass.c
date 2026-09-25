@@ -559,15 +559,13 @@ static void draw_player(int i) {
     }
 }
 
-static const uint8_t SUPER_COL[7] = {C_WHITE, C_ORANGE, C_CYAN, C_YELLOW, C_LIME, C_VIOLET, C_RED};
-
 static void draw_ball_at(const Ball *b, bool fake) {
     if (!b->live) return;
     int x = (int)b->x, y = (int)b->y, z = (int)b->z;
     gfx_dither(x - 3, y - 1, 7, 3, C_BROWN, 12);
     if (b->kind == BK_FOG && !fake) return; /* invisible: only its smoke shows */
-    if (b->kind != BK_NORMAL) { /* Mirage fakes look just like the real one */
-        int c = SUPER_COL[b->kind];
+    if (b->kind != BK_NORMAL) { /* every Super Ball (and Mirage fake) is bright orange */
+        int c = C_ORANGE;
         for (int k = 1; k <= 4; k++)
             gfx_dither(x - (int)(b->vx * k * 1.2f) - 2, y - z - 5 - (int)(b->vy * k * 1.2f), 5, 5, c, 12 - k * 2);
         gfx_circb(x, y - z - 3, 5 + (frame_t / 2) % 2, c);
@@ -627,30 +625,40 @@ static void draw_hud_side(int team, int x0) {
     for (int i = 0; i < M.np; i++)
         if (M.pl[i].team == team) { fx = i; break; }
     if (fx < 0) return;
-    const Player *p = &M.pl[fx];
     /* score */
     char sc[8];
     snprintf(sc, sizeof sc, "%d", M.score[team]);
     static const uint8_t grad[] = {C_WHITE, C_CREAM, C_YELLOW};
     int sx = left ? 140 - ui_fancy_width(sc, 2) : 182;
     ui_fancy_text(sc, sx, 1, 2, grad, 3, C_INK, -1);
-    /* meter: three bars, each two halves (the first player of the team) */
-    for (int b = 0; b < 3; b++) {
-        int bx = left ? x0 + b * 17 : x0 - 16 - b * 17;
-        gfx_rect(bx, 9, 16, 5, C_INK);
-        for (int h = 0; h < 2; h++) {
-            bool on = p->meter > b * 2 + h;
-            int c = on ? (p->meter >= (b + 1) * 2 ? C_ORANGE : C_AMBER) : C_DUSK;
-            gfx_rect(bx + 1 + h * 7, 10, 7, 3, c);
+    /* meters: three bars of two halves, one row per player of the side */
+    int row = 0;
+    for (int i = 0; i < M.np; i++) {
+        const Player *p = &M.pl[i];
+        if (p->team != team) continue;
+        int by = M.np == 4 ? 3 + row * 6 : 9;
+        for (int b = 0; b < 3; b++) {
+            int bx = left ? x0 + b * 17 : x0 - 16 - b * 17;
+            gfx_rect(bx, by, 16, 5, C_INK);
+            for (int h = 0; h < 2; h++) {
+                bool on = p->meter > b * 2 + h;
+                int c = on ? (p->meter >= (b + 1) * 2 ? C_ORANGE : C_AMBER) : C_DUSK;
+                gfx_rect(bx + 1 + h * 7, by + 1, 7, 3, c);
+            }
         }
+        row++;
     }
-    /* fouls: red marks */
-    int fxp = left ? x0 + 54 : x0 - 64;
-    for (int k = 0; k < 3; k++) {
-        bool on = M.fouls[team] > k;
-        gfx_rect(fxp + k * 4, 9, 3, 5, on ? C_RED : C_DUSK);
-        if (on) gfx_pset(fxp + k * 4 + 1, 9, C_PINK);
-    }
+}
+
+/* fouls: red marks on the bottom rail, each side's beside the judge */
+static void draw_fouls(void) {
+    for (int team = 0; team < 2; team++)
+        for (int k = 0; k < 3; k++) {
+            bool on = M.fouls[team] > k;
+            int x = team == 0 ? 146 - k * 5 : 170 + k * 5;
+            gfx_rect(x, CC_BOT + 7, 4, 4, on ? C_RED : C_BROWN);
+            if (on) gfx_pset(x + 1, CC_BOT + 7, C_PINK);
+        }
 }
 
 static void draw_hud(void) {
@@ -711,6 +719,7 @@ static void draw_court(void) {
     bool tossing = M.state == MS_SERVE && M.state_t > 20;
     spr_draw(&cc_spr[tossing ? CS_JUDGE2 : CS_JUDGE1], 152, CC_BOT - 4, 0);
     draw_rail(CC_BOT + 6, true);
+    draw_fouls();
     gfx_camera(0, 0);
     draw_hud();
     /* banners */
@@ -798,11 +807,10 @@ static void draw_title(void) {
         text_center(items[i], 160, y, col);
         if (s) ui_cursor(160 - text_width(items[i]) / 2 - 10, y, frame_t);
     }
-    char buf[64];
-    if ((title_sel == 1 || title_sel == 2) && vita_single()) snprintf(buf, sizeof buf, "NEEDS TWO CONTROLLERS");
-    else snprintf(buf, sizeof buf, "CUPS WON %d   BEST RUN %d/5", sv.cups, sv.best_defeated);
-    gfx_rect(80, 168, 160, 10, C_INK);
-    tiny_center(buf, 160, 170, C_LIGHT);
+    if ((title_sel == 1 || title_sel == 2) && vita_single()) {
+        gfx_rect(80, 168, 160, 10, C_INK);
+        tiny_center("NEEDS TWO CONTROLLERS", 160, 170, C_LIGHT);
+    }
 }
 
 static void draw_options(void) {
@@ -873,8 +881,6 @@ static void draw_select(void) {
         if (picked[0]) text_draw(GLYPH_CHECK, 144, 100, C_LIME);
         if (picked[1]) text_draw(GLYPH_CHECK, 298, 100, C_LIME);
     }
-    const char *hint = mode == MODE_TOURNEY ? GLYPH_A " PICK   " GLYPH_B " BACK" : "EACH PLAYER PICKS WITH THEIR OWN " GLYPH_A;
-    text_center(hint, 160, 164, C_GREY);
 }
 
 static void draw_bracket(void) {
@@ -905,11 +911,6 @@ static void draw_bracket(void) {
             if (done) gfx_line(138 + k * 70, y + 11, 200 + k * 70, y + 11, C_RED);
         }
         if (next) ui_cursor(82, y + 7, frame_t);
-    }
-    if (continues > 0) {
-        char buf[24];
-        snprintf(buf, sizeof buf, "CONTINUES %d", continues);
-        tiny_draw(buf, 228, 168, C_PINK);
     }
     if (state_t > 30 && (state_t / 20) % 2) text_center("PRESS " GLYPH_A " TO PLAY", 160, 166, C_WHITE);
 }
@@ -960,11 +961,6 @@ static void draw_result(void) {
     ui_fancy_center(buf, 160, 48, 2, result_win || mode == MODE_VERSUS ? gw : gl, 3, C_INK, C_INK);
     snprintf(buf, sizeof buf, "%d - %d", M.score[0], M.score[1]);
     text_center(buf, 160, 72, C_WHITE);
-    if (mode != MODE_VERSUS) {
-        snprintf(buf, sizeof buf, "OPPONENTS BEATEN %d", defeated);
-        text_center(buf, 160, 86, C_LIGHT);
-    }
-    for (int i = 0; i < 3; i++) ui_goal_icon(138 + i * 16, 104, 1 << i, (g_progress.goals[game_current_index()] >> i) & 1, frame_t);
     if (state_t > 60 && (state_t / 20) % 2) text_center("PRESS " GLYPH_A, 160, 124, C_WHITE);
 }
 
@@ -973,7 +969,6 @@ static void draw_continue(void) {
     static const uint8_t g[] = {C_WHITE, C_CREAM, C_YELLOW};
     ui_fancy_center("CONTINUE?", 160, 60, 2, g, 3, C_INK, C_NAVY);
     draw_fighter_big(pick[0], 140, 96, 0, POSE_STUN);
-    tiny_center(GLYPH_A " TRY AGAIN   " GLYPH_B " GIVE UP", 160, 166, C_GREY);
 }
 
 static void draw_ending(void) {

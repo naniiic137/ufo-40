@@ -1,5 +1,6 @@
 # CUTLASS CUP 2P versus: player 2 drives the right fighter with its own
-# buttons (the keyboard splits).
+# buttons (the keyboard splits). A player may go past the centre up to the
+# line just in front of the rival's circle.
 game cutlass
 wait 5
 cheat versus 1 4
@@ -12,3 +13,7 @@ hold P2DOWN 20
 expect py1 > 110
 hold RIGHT 20
 expect px0 > 70
+hold RIGHT 200
+expect px0 == 244
+hold P2LEFT 250
+expect px1 == 76

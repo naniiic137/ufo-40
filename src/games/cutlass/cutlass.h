@@ -13,7 +13,7 @@
 #define CC_CENTER 160
 #define CC_CIRCLE_L 58
 #define CC_CIRCLE_R 262
-#define CC_REACH 48        /* how far past the centre a player may go */
+#define CC_REACH 84        /* how far past the centre: just short of the rival's circle */
 #define CC_MAX_PLAYERS 4
 #define CC_MAX_PROJ 24
 #define CC_MAX_FAKES 4
