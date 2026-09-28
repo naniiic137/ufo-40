@@ -1,0 +1,36 @@
+# Promo clip: TINTAIL (slot 16), from tools/shots/16_tintail.ufs
+# (the caption sits at the top: the game has its own bar at the bottom)
+audio on
+volume 0 10
+overlay_text L 3 3 1 y 16 TINTAIL
+overlay_text L 3 15 0 l TRIBUTE TO CAMOUFLAGE
+seed 16
+game tintail
+wait 60
+cheat beaten 8
+cheat best 1 3
+cheat best 2 3
+cheat best 3 2
+cheat best 4 3
+cheat best 5 3
+cheat best 6 1
+cheat best 7 3
+cheat best 8 2
+cheat map
+wait 30
+# three toads and a winding colour path
+cheat level 4
+wait 2
+hold B
+wait 30
+release B
+record_start 16
+wav_start 16
+wait 20
+hold B
+wait 40
+release B
+cheat autosolve
+wait 460
+record_stop
+wav_stop

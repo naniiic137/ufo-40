@@ -1,0 +1,39 @@
+# Promo clip: GRUB SHIFT (slot 02), from tools/shots/03_grubshift.ufs
+audio on
+volume 0 10
+overlay_text L 3 160 1 y 02 GRUB SHIFT
+overlay_text L 3 172 0 l TRIBUTE TO BUG HUNTER
+game grubshift
+wait 40
+cheat contract 1 1003
+wait 30
+cheat clear
+cheat tilly 0 2
+cheat elev 0 0 1
+cheat elev 1 0 1
+cheat hole 5 0
+cheat pods 2 2 1
+cheat pods 3 2 2
+cheat pods 4 1 1
+cheat bug 2 2 1 0
+cheat bug 3 2 2 1
+cheat bug 4 2 3 1
+cheat bug 3 1 1 1
+cheat bug 1 4 5 2
+cheat bug 5 3 4 1
+cheat chip 0 15
+record_start 02
+wav_start 02
+wait 20
+press A
+wait 12
+press RIGHT
+wait 6
+press RIGHT
+wait 6
+press DOWN
+wait 12
+press A
+wait 80
+record_stop
+wav_stop

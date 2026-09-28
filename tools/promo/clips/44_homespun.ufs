@@ -1,0 +1,34 @@
+# Promo clip: HOMESPUN (slot 44): the demo player on a trip and against the
+# Grumm King, from tools/shots/44_homespun.ufs
+audio on
+volume 0 10
+overlay_text L 3 160 1 y 44 HOMESPUN
+overlay_text L 3 172 0 l TRIBUTE TO PILOT QUEST
+seed 44
+game homespun
+wait 30
+cheat newgame 4404
+wait 5
+cheat plants 6
+cheat huts 3 2
+cheat anvils 63 31
+cheat smoke 1 4
+cheat lab 1 0
+cheat bins 1 1
+cheat research 3
+cheat pipe 1
+cheat res glints 3120
+cheat res bars 212
+cheat res jerky 10
+cheat res data 64
+cheat at 272 105
+cheat face 0 1
+wait 40
+botuntil area == 3 20000
+botplay 40
+botuntil boss == 19 20000
+record_start 44
+wav_start 44
+botplay 600
+record_stop
+wav_stop

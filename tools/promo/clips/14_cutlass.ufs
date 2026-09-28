@@ -1,0 +1,21 @@
+# Promo clip: CUTLASS CUP (slot 14), from tools/shots/14_cutlass.ufs
+audio on
+volume 0 10
+overlay_text L 3 160 1 y 14 CUTLASS CUP
+overlay_text L 3 172 0 l TRIBUTE TO BUSHIDO BALL
+seed 14
+game cutlass
+wait 5
+cheat match 3 5
+cheat demo
+cheat level 4
+wait 200
+cheat meter 0 6
+cheat meter 1 6
+waituntil st0 == 6 3000
+wait 14
+record_start 14
+wav_start 14
+wait 420
+record_stop
+wav_stop

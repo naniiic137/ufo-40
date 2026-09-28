@@ -1,0 +1,16 @@
+# Promo clip: BOOMTOWN (slot 10), from tools/shots/10_boomtown.ufs
+audio on
+volume 0 10
+overlay_text L 3 160 1 y 10 BOOMTOWN
+overlay_text L 3 172 0 l TRIBUTE TO DEVILITION
+seed 5
+game boomtown
+wait 90
+botuntil round == 3 40000
+botuntil state == 3 400
+record_start 10
+wav_start 10
+botuntil state == 7 20000
+wait 40
+record_stop
+wav_stop

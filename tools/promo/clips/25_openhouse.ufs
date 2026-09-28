@@ -1,0 +1,46 @@
+# Promo clip: OPEN HOUSE (slot 25), from tools/shots/25_openhouse.ufs
+audio on
+volume 0 10
+overlay_text L 3 160 1 y 25 OPEN HOUSE
+overlay_text L 3 172 0 l TRIBUTE TO PARTY HOUSE
+seed 25
+game openhouse
+wait 90
+# a lively party on guest list 3
+cheat new 3 1
+cheat give 34 1
+cheat give 41 1
+cheat give 27 1
+cheat give 18 1
+cheat give 23 1
+cheat give 39 1
+cheat give 5 2
+cheat cap 12
+cheat door 0 5 34 27 41 18 23 1
+wait 40
+record_start 25
+wav_start 25
+wait 20
+press A
+wait 30
+press A
+wait 30
+press LEFT
+wait 10
+press LEFT
+wait 10
+press LEFT
+wait 16
+press A
+wait 20
+press RIGHT
+wait 10
+press A
+wait 40
+# the tally counts each guest up in turn
+press B
+press LEFT
+press A
+wait 240
+record_stop
+wav_stop

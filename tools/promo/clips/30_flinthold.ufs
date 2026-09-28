@@ -1,0 +1,29 @@
+# Promo clip: FLINTHOLD (slot 30), from tools/shots/30_flinthold.ufs
+audio on
+volume 0 10
+overlay_text L 3 160 1 y 30 FLINTHOLD
+overlay_text L 3 172 0 l TRIBUTE TO ROCK ON! ISLAND
+seed 30
+game flinthold
+wait 90
+# the island map, some stages done and the Scale Camp found
+cheat clear 1 3
+cheat clear 2 3
+cheat clear 3 1
+cheat clear 4 1
+cheat clear 5 3
+cheat clear 6 1
+cheat found 1
+cheat map
+cheat node 6
+wait 40
+# Four Ways in full swing: hunters, a hen run between fire pits, three roads
+cheat stage 5
+botuntil wave >= 5 60000
+botuntil phase == 1 5000
+botplay 300
+record_start 30
+wav_start 30
+botplay 480
+record_stop
+wav_stop

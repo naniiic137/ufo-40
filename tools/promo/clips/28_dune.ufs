@@ -1,0 +1,42 @@
+# Promo clip: DUNE EXPRESS (slot 28), from tools/shots/28_dune.ufs
+audio on
+volume 0 10
+overlay_text L 3 160 1 y 28 DUNE EXPRESS
+overlay_text L 3 172 0 l TRIBUTE TO RAIL HEIST
+seed 28
+game dune
+wait 150
+cheat mission 1
+wait 1
+record_start 28
+wav_start 28
+hold RIGHT 25
+hold RIGHT 1
+press B
+wait 20
+hold RIGHT 76
+hold UP 24
+hold UP 24
+hold UP 24
+hold RIGHT 204
+hold RIGHT A 50
+hold RIGHT 130
+hold DOWN 24
+hold DOWN 24
+hold DOWN 4
+hold RIGHT 1
+wait 2
+wait 2
+wait 2
+wait 2
+wait 2
+hold RIGHT 12
+press B
+wait 30
+hold RIGHT 39
+hold LEFT 37
+hold RIGHT 216
+wait 10
+wait 60
+record_stop
+wav_stop

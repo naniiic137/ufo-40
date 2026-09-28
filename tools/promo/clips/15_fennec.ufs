@@ -1,0 +1,23 @@
+# Promo clip: FENNEC FOUNTAIN (slot 15), from tools/shots/15_fennec.ufs
+audio on
+volume 0 10
+overlay_text L 3 160 1 y 15 FENNEC FOUNTAIN
+overlay_text L 3 172 0 l TRIBUTE TO BLOCK KOALA
+seed 15
+game fennec
+wait 40
+cheat drops 12
+press A
+wait 20
+press A
+wait 10
+cheat hub 5 20
+wait 10
+cheat room 43
+wait 20
+cheat autosolve
+record_start 15
+wav_start 15
+wait 440
+record_stop
+wav_stop

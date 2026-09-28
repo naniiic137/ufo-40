@@ -1,0 +1,19 @@
+# Promo clip: WET PAINT (slot 04), from tools/shots/04_wetpaint.ufs
+audio on
+volume 0 10
+overlay_text L 3 160 1 y 04 WET PAINT
+overlay_text L 3 172 0 l TRIBUTE TO PAINT CHASE
+seed 7
+game wetpaint
+wait 90
+botuntil state == 1 200
+# the smudger skit, just before Bo rams it
+wait 470
+cheat course 2
+cheat go
+botplay 700
+record_start 04
+wav_start 04
+botplay 540
+record_stop
+wav_stop

@@ -1,0 +1,15 @@
+# Promo clip: PETAL PARADE (slot 05), from tools/shots/05_petalparade.ufs
+audio on
+volume 0 10
+overlay_text L 3 160 1 y 05 PETAL PARADE
+overlay_text L 3 172 0 l TRIBUTE TO MAGIC GARDEN
+seed 5
+game petalparade
+wait 60
+botuntil state == 1 100
+botplay 1500
+record_start 05
+wav_start 05
+botplay 480
+record_stop
+wav_stop
