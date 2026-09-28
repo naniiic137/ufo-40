@@ -271,6 +271,18 @@ static void close_lost_pads(void) {
     if (!pads[0] && pads[1]) { pads[0] = pads[1]; pads[1] = NULL; }
 }
 
+/* Sticks: a direction turns on past 16000 and only turns off again below
+ * 10000, so a stick resting near the edge can't flicker into double presses. */
+static uint32_t stick_dirs(int ax, int ay, uint32_t was) {
+    uint32_t m = 0;
+    if (ax < ((was & BTN_LEFT) ? -10000 : -16000)) m |= BTN_LEFT;
+    if (ax > ((was & BTN_RIGHT) ? 10000 : 16000)) m |= BTN_RIGHT;
+    if (ay < ((was & BTN_UP) ? -10000 : -16000)) m |= BTN_UP;
+    if (ay > ((was & BTN_DOWN) ? 10000 : 16000)) m |= BTN_DOWN;
+    return m;
+}
+static uint32_t stick_was[3]; /* pad 0, pad 1, raw joystick */
+
 static uint32_t pad_mask(SDL_GameController *pad) {
     uint32_t m = 0;
     if (!pad) return 0;
@@ -284,11 +296,9 @@ static uint32_t pad_mask(SDL_GameController *pad) {
     if (SDL_GameControllerGetButton(pad, SDL_CONTROLLER_BUTTON_BACK)) m |= BTN_SELECT;
     int ax = SDL_GameControllerGetAxis(pad, SDL_CONTROLLER_AXIS_LEFTX);
     int ay = SDL_GameControllerGetAxis(pad, SDL_CONTROLLER_AXIS_LEFTY);
-    if (ax < -16000) m |= BTN_LEFT;
-    if (ax > 16000) m |= BTN_RIGHT;
-    if (ay < -16000) m |= BTN_UP;
-    if (ay > 16000) m |= BTN_DOWN;
-    return m;
+    int slot = pad == pads[1] ? 1 : 0;
+    stick_was[slot] = stick_dirs(ax, ay, stick_was[slot]);
+    return m | stick_was[slot];
 }
 
 static uint32_t read_input(void) {
@@ -349,13 +359,19 @@ static uint32_t read_input(void) {
 #endif
         if (SDL_JoystickNumAxes(joy) >= 2) {
             int ax = SDL_JoystickGetAxis(joy, 0), ay = SDL_JoystickGetAxis(joy, 1);
-            if (ax < -16000) m |= BTN_LEFT;
-            if (ax > 16000) m |= BTN_RIGHT;
-            if (ay < -16000) m |= BTN_UP;
-            if (ay > 16000) m |= BTN_DOWN;
+            stick_was[2] = stick_dirs(ax, ay, stick_was[2]);
+            m |= stick_was[2];
         }
     }
-    return m | touch_mask | (m2 << BTN_P2_SHIFT);
+    /* Debounce: a button that lets go for a single frame and comes straight
+     * back (a bouncing contact, a worn switch) is treated as held, so one
+     * press can never count twice. It costs one frame on real releases. */
+    static uint32_t prev_out, kept;
+    uint32_t now = m | touch_mask | (m2 << BTN_P2_SHIFT);
+    uint32_t keep = (prev_out & ~now) & ~kept;
+    kept = keep;
+    prev_out = now | keep;
+    return prev_out;
 }
 
 /* ------------------------------------------------------------------ */
