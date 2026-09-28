@@ -16,7 +16,8 @@ press A
 press LEFT
 press A
 expect state == 12
-wait 45
+waituntil tally == 3 2000
+wait 30
 press A
 wait 5
 expect state == 14

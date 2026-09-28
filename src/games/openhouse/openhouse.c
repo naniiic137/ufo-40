@@ -311,10 +311,10 @@ static void note_endless_best(void) {
 
 enum { TL_WAIT, TL_EARN, TL_PAY, TL_DONE };
 enum { WHY_HAND, WHY_FULL, WHY_NOBODY };
-#define TL_START 16      /* frames before the first guest */
-#define TL_UNIT 3        /* frames per point counted */
-#define TL_GUEST 8       /* frames between guests */
-#define TL_FAST 6        /* holding A: this many steps a frame */
+#define TL_START 40      /* frames before the first guest */
+#define TL_UNIT 8        /* frames per point counted */
+#define TL_GUEST 24      /* frames between guests */
+#define TL_FAST 10       /* holding A: this many steps a frame */
 static struct {
     int phase, slot, unit, wait, age;
     int pop, cash;               /* the counters in the top bar */
