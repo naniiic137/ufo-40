@@ -9,7 +9,7 @@ wait 20
 botuntil state == 3 400
 expect round == 1
 botuntil round == 5 60000
-botuntil state == 10 200000
+botuntil state == 9 200000
 expect result == 3
 expect king_hp == 0
 expect goals & 1

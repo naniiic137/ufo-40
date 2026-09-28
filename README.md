@@ -327,13 +327,15 @@ the top.
 - **Plays the same:** ten nights on a 10 × 8 square. Pieces come three at a
   time from bags of six (one strong, three middling, two weak); you place as
   many as you like, then light one fuse, and every piece its blast reaches
-  goes off in turn. The tiles a piece will hit show only while you place it.
+  goes off in turn. A small diagram shows what the chosen piece hits, but
+  once a piece is down its tiles no longer show.
   End a night with as many folk as bogles, or the town is overrun; clear
   them all and a new neighbour moves in. Pieces not used, in the cart or on
   the square, carry over.
 - **The pieces and the bogles:** the original's nine patterns, from the
   8-tile starburst and the roman candle that fires to the edge to the
-  skyrocket that flies up and lands on its perch. Big bogles take two hits
+  skyrocket that flies up and lands on its perch, which joins the row of
+  three in the rocket's place. Big bogles take two hits
   and stay hurt, old ones heal overnight, and each night brings a new hole
   and the original's count of bogles and pieces.
 - **The last night:** the Bog King rises in the middle four tiles with ten

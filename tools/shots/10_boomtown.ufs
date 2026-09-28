@@ -8,20 +8,20 @@ shot boomtown_title
 botuntil round == 3 40000
 botuntil state == 3 400
 gifstart boomtown 3 2
-botuntil state == 8 20000
+botuntil state == 7 20000
 wait 40
 gifstop
 botuntil round == 6 60000
 botuntil state == 4 4000
 botplay 7
 shot boomtown_place
-botuntil state == 7 20000
+botuntil state == 6 20000
 wait 20
 shot boomtown_chain
 botuntil round == 10 100000
 botuntil state == 3 400
 wait 20
 shot boomtown_king
-botuntil state == 10 40000
+botuntil state == 9 40000
 wait 240
 shot boomtown_end

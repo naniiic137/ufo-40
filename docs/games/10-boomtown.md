@@ -49,14 +49,15 @@ presses (cheats only set the square up).
 | Choosing | ← → along the three and the LIGHT button; A takes one to the square | [MM] | bm_01, bm_02 |
 | Placing | d-pad moves, B turns (only pieces that turn), A sets it down, hold B puts it back | [MM] | bm_02 |
 | Where | only on a free tile: not a bogle, folk, hole or firework | [SQ] | bm_02 |
-| Preview | the tiles it will hit show only while it is being placed | [SC], [SRCH] | shots |
+| Attack diagram | a 5 × 5 diagram by the clock shows what the highlighted (or held) firework hits; a roman candle has an arrow for its line, a skyrocket points up to its perch | [MM] | shots |
+| Preview | on the square, the tiles it will hit show only while it is being placed; placed fireworks never show theirs | [SC], [SRCH] | shots |
 | Starburst | the 8 tiles round it (bomb, tier 1) | [W], [SQ] | bm_03 |
 | Roman candle | every tile in a line in front, to the edge; turns (cannon, tier 1) | [W], [SQ] | bm_03, bm_09 |
 | Skyrocket | hits nothing itself: lit, it flies up and comes down on its perch (rocket, tier 1) | [W], [SQ] | bm_06 |
-| Perch | placed straight after its rocket, costs a firework of its own, the 8 tiles round it; set off by its rocket or by any blast | [W], [SQ], [BUG] | bm_06 |
+| Perch | takes the rocket's place in the row of three once the rocket is down; picked, placed and put back like any firework; costs one from the count, nothing from the bag; the 8 tiles round it; set off by its rocket or by any blast | [W], [SQ], [BUG] | bm_06 |
 | Two rockets | a red and a green: never more than two on the square | [W] | bm_06 |
 | Perch first | if the perch has gone off, the rocket flies off and hits nothing | [SQ] | bm_06 |
-| Rocket last | a rocket that was the last firework owes its perch to the next night | [BUG] | bm_06 |
+| Rocket last | a rocket that was the last firework owes its perch: it joins the row first thing the next night | [BUG] | bm_06 |
 | Banger | the 4 tiles beside it (plus, tier 2) | [W], [SQ] | bm_03 |
 | Pinwheel | the 4 corner tiles (cross, tier 2) | [W], [SQ] | bm_03 |
 | Jumping jack | the tiles 2 away, 4 ways (toad, tier 2) | [W], [SQ] | bm_03 |
@@ -70,10 +71,10 @@ presses (cheats only set the square up).
 | Old bogle | 2 hits; a wounded one heals at the night's end (elder) | [W], [SQ] | bm_04 |
 | End of a night | more bogles than folk: overrun, game over at once; otherwise the town holds | [W], [SQ], [MM] | bm_05 |
 | A clear | no bogles left: a new neighbour moves in on a random tile | [W], [SQ] | bm_05 |
-| Out of fireworks | with nothing in the cart, LIGHT is the only choice; with nothing anywhere the night ends | [SQ] | bm_14 |
+| Out of fireworks | with nothing left to place, play goes straight to choosing the fuse (no way back); with nothing anywhere the night ends | [SQ] | bm_14, bm_06 |
 | The last night | leftover bogles become holes; the Bog King fills the middle 2 × 2; fireworks in the 12 tiles round him go; 2 to 4 more holes; 13 fireworks | [W], [SQ] | bm_08 |
 | The Bog King | 10 hits; each blast tile on him is a hit, so a blast over two of his tiles is two | [W], [SRCH-D] | bm_09 |
-| Win or lose | he must go down in that one chain: win, or the town is lost | [SQ], [SRCH-D] | bm_09, bm_10 |
+| Win or lose | he must go down in that one chain: win, or the town is lost (a Bog King game-over, not "overrun") | [SQ], [SRCH-D] | bm_09, bm_10 |
 | Score | on a win only: 10,000 + 1,000 × (folk + fireworks on the square + in the cart) + the clock bonus | [W], [SQ] | bm_09 |
 | Clock bonus | 15,000 − 250 a minute, rounded to the nearest minute, never below 0 | [W], [SQ] | bm_12 |
 | The clock | on screen, runs through the run, stops while paused | [W] (meta message) | bm_12 |
@@ -92,10 +93,10 @@ presses (cheats only set the square up).
   the wiki only says leftover pieces carry. Both are true here.
 - **Pieces per round.** The missing-manuals guide says ten new pieces each
   round; we follow the wiki's and the Squirrel guide's table.
-- **The perch** replaces the rocket's place in the row, is placed at once
-  and can't be put back. If there is no piece left to pay for it, it waits
-  for the next night and comes first. If the perch took the last piece, the
-  rightmost firework on offer goes.
+- **The perch** takes the rocket's empty place in the row. If there is no
+  piece left to pay for it, it waits for the next night and comes first. If
+  the count drops below what is showing, the rightmost firework on offer
+  (never the perch) goes back.
 - **Rocket colours** are taken while that rocket or its perch is on the
   square, on offer or owed; a third rocket is rolled again as a starburst or
   a roman candle.
@@ -127,7 +128,8 @@ presses (cheats only set the square up).
 - **Setting:** a cobbled market square at night, sinkholes of bog water,
   the marsh with the King's eyes drawing nearer each night.
 - **Text:** the story, the night banners, the results, the ending tally and
-  the secret ("HAIL THE ORDER OF THE TEA COSY").
+  the secret ("THE TEA COSY SOCIETY MEETS AT MIDNIGHT"), the game-over
+  lines ("OVERRUN", and "SWAMPED" when the Bog King survives).
 - **Music:** "Lantern Lane" (title), "Midnight Market" (the nights), "The
   Bog King", "Sky Full of Sparks" (ending), and the "Mossbury Holds" and
   "Overrun" jingles.
@@ -149,7 +151,7 @@ Terminal, which UFO 40 does not have, so they are not included.
 | A | take it to the square / set it down / light the chosen fuse |
 | B | turn it (candle, twin tube, fountain) |
 | hold B | put it back |
-| LIGHT, d-pad, A | pick the one fuse to light; B goes back |
+| LIGHT, d-pad, A | pick the one fuse to light; B goes back (not when nothing is left to place) |
 | START | pause menu |
 
 ## Not confirmed

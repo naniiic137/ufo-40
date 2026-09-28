@@ -57,7 +57,7 @@ typedef struct BmGame {
     uint8_t row_col[BM_ROW];/* a rocket's colour on offer */
     uint8_t bag[6];         /* tiers of the bag being dealt */
     uint8_t bag_i;          /* next in the bag (6 = a new bag) */
-    uint8_t perch_owed;     /* a rocket's perch still to place (its colour) */
+    uint8_t perch_owed;     /* a rocket perch not yet paid for (its colour) */
     uint8_t king_hp;
     uint8_t folk_most;      /* the most folk this run */
     Rng rng;
@@ -91,8 +91,7 @@ int bm_attack(const BmGame *g, int x, int y, int kind, int dir, int8_t out[][2])
 bool bm_turns(int kind);
 int bm_tier(int kind);
 bool bm_free(const BmGame *g, int x, int y);
-bool bm_place(BmGame *g, int slot, int x, int y, int dir); /* true: its perch must follow */
-bool bm_place_perch(BmGame *g, int x, int y);
+bool bm_place(BmGame *g, int slot, int x, int y, int dir);
 void bm_fill_row(BmGame *g);
 int bm_row_count(const BmGame *g);
 void bm_chain_start(BmGame *g, BmChain *ch, int x, int y);

@@ -36,7 +36,7 @@ press RIGHT
 press A
 cheat cursor 0 3
 press A
-waituntil state == 8 400
+waituntil state == 7 400
 expect king_hits == 10
 expect king_hp == 0
 expect result == 3
@@ -47,7 +47,7 @@ expect goals & 4
 expect wins == 1
 expect best_score == 32500
 expect most_left == 6
-waituntil state == 10 300
+waituntil state == 9 300
 wait 330
 press A
 expect state == 0

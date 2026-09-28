@@ -53,11 +53,11 @@ press RIGHT
 press RIGHT
 press RIGHT
 press A
-expect state == 6
+expect state == 5
 cheat cursor 2 2
 press A
-expect state == 7
-waituntil state == 8 300
+expect state == 6
+waituntil state == 7 300
 expect fired == 2
 expect killed == 3
 expect occ_3_1 == 0

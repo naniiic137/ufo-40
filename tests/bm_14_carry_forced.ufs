@@ -1,6 +1,6 @@
 # BOOMTOWN: fireworks left on the square stay there for the next night, and
-# the ones not used stay in the cart. With none left in the cart the cursor
-# sits on LIGHT; with nothing anywhere the night ends by itself.
+# the ones not used stay in the cart. With nothing left to place, play goes
+# straight to choosing the fuse; with nothing anywhere the night ends itself.
 seed 24
 game boomtown
 wait 20
@@ -26,29 +26,28 @@ press RIGHT
 press A
 cheat cursor 8 7
 press A
-waituntil state == 8 300
+waituntil state == 7 300
 expect result == 1
 press A
 waituntil state == 2 200
 expect occ_2_5 == 4
 expect hand == 29
 waituntil state == 3 200
-# nothing in the cart: LIGHT it is
+# nothing left to place: straight to choosing the fuse, with no way back
 cheat clear
 cheat put folk 0 0
 cheat put piece 5 5 1
 cheat row 0 0 0
 cheat hand 0
 cheat pick
+expect state == 5
 expect sel == 3
-press LEFT
-expect sel == 3
-press A
-expect state == 6
 press B
-expect state == 3
+expect state == 5
 # nothing anywhere: the night ends by itself
 cheat put empty 5 5
+cheat pick
+expect state == 3
 wait 30
-expect state == 8
+expect state == 7
 expect result == 1

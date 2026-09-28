@@ -91,7 +91,7 @@ int bm_attack(const BmGame *g, int x, int y, int kind, int dir, int8_t out[][2])
 bool bm_colour_free(const BmGame *g, int col) {
     if (g->perch_owed == col) return false;
     for (int i = 0; i < BM_ROW; i++)
-        if (g->row[i] == BM_ROCKET && g->row_col[i] == col) return false;
+        if ((g->row[i] == BM_ROCKET || g->row[i] == BM_PERCH) && g->row_col[i] == col) return false;
     for (int y = 0; y < BM_H; y++)
         for (int x = 0; x < BM_W; x++) {
             const BmCell *c = &g->c[y][x];
@@ -139,15 +139,28 @@ int bm_row_count(const BmGame *g) {
     return n;
 }
 
-/* The row shows as many of the pieces in hand as fit in three places (an
- * owed perch holds one of them back). */
+/* The row shows as many of the pieces in hand as fit in three places. A
+ * rocket's perch takes the rocket's place in the row; it costs a piece
+ * from the count but nothing from the bag. A perch that could not be paid
+ * for waits for the next night and comes first. */
 void bm_fill_row(BmGame *g) {
-    int cap = g->hand - (g->perch_owed ? 1 : 0);
-    if (cap < 0) cap = 0;
-    int want = imin(BM_ROW, cap);
-    /* a rocket's perch took the last piece: the rightmost goes */
+    int want = imin(BM_ROW, imax(0, g->hand));
+    if (g->perch_owed && want > 0) {
+        int slot = -1;
+        for (int i = 0; i < BM_ROW && slot < 0; i++)
+            if (!g->row[i]) slot = i;
+        if (slot < 0) { /* a full row: the perch takes the rightmost place */
+            slot = BM_ROW - 1;
+            for (int i = BM_ROW - 1; i >= 0; i--)
+                if (g->row[i] != BM_PERCH) { slot = i; break; }
+        }
+        g->row[slot] = BM_PERCH;
+        g->row_col[slot] = g->perch_owed;
+        g->perch_owed = 0;
+    }
+    /* more on offer than left in the count: the rightmost (never a perch) goes */
     for (int i = BM_ROW - 1; i >= 0 && bm_row_count(g) > want; i--)
-        if (g->row[i]) { g->row[i] = BM_NONE; g->row_col[i] = 0; }
+        if (g->row[i] && g->row[i] != BM_PERCH) { g->row[i] = BM_NONE; g->row_col[i] = 0; }
     for (int i = 0; i < BM_ROW && bm_row_count(g) < want; i++)
         if (!g->row[i]) {
             int col;
@@ -228,28 +241,17 @@ void bm_round_begin(BmGame *g) {
 /* ------------------------------------------------------------------ */
 /* placing                                                              */
 
-/* Put the piece on offer in `slot` at (x,y). Returns true if it was a
- * skyrocket, whose perch comes next (and costs a piece of its own). */
+/* Put the piece on offer in `slot` at (x,y). A skyrocket's perch then takes
+ * its place in the row (or, with nothing left to pay for it, waits for the
+ * next night). */
 bool bm_place(BmGame *g, int slot, int x, int y, int dir) {
-    if (slot < 0 || slot >= BM_ROW || !g->row[slot] || !bm_free(g, x, y) || g->perch_owed) return false;
+    if (slot < 0 || slot >= BM_ROW || !g->row[slot] || !bm_free(g, x, y)) return false;
     int kind = g->row[slot];
     g->c[y][x] = (BmCell){BO_PIECE, (uint8_t)kind, (uint8_t)(bm_turns(kind) ? dir & 3 : 0), 0, g->row_col[slot], 0};
     g->row[slot] = BM_NONE;
     g->row_col[slot] = 0;
     g->hand--;
-    if (kind == BM_ROCKET) {
-        g->perch_owed = g->c[y][x].col;
-        return true;
-    }
-    bm_fill_row(g);
-    return false;
-}
-
-bool bm_place_perch(BmGame *g, int x, int y) {
-    if (!g->perch_owed || g->hand <= 0 || !bm_free(g, x, y)) return false;
-    g->c[y][x] = (BmCell){BO_PIECE, BM_PERCH, 0, 0, g->perch_owed, 0};
-    g->perch_owed = 0;
-    g->hand--;
+    if (kind == BM_ROCKET) g->perch_owed = g->c[y][x].col;
     bm_fill_row(g);
     return true;
 }

@@ -16,7 +16,7 @@
 #define SETTLE 40          /* frames the smoke clears after a chain */
 #define SECRET_SECS 355    /* 5:55 on the clock */
 
-enum { S_TITLE, S_STORY, S_NIGHT, S_PICK, S_PLACE, S_PERCH, S_AIM, S_CHAIN, S_RESULT, S_OVER, S_WIN };
+enum { S_TITLE, S_STORY, S_NIGHT, S_PICK, S_PLACE, S_AIM, S_CHAIN, S_RESULT, S_OVER, S_WIN };
 
 typedef struct Save {
     uint32_t magic;
@@ -32,6 +32,7 @@ static int state, state_t, frame_t, shake;
 static uint32_t run_frames;        /* the clock: the whole run, pauses excluded */
 static int sel;                    /* 0..2 a firework on offer, 3 the LIGHT button */
 static int cx, cy, pdir, place_slot, bhold;
+static bool forced;                /* nothing left to place: a fuse must be lit */
 static int result, settle_t, secret_t, final_score, final_bonus;
 static bool sheet_mode;
 static Rng seeds;
@@ -182,9 +183,11 @@ static void new_game(void) {
     music_play(BM_MUS_NIGHT);
 }
 
-/* the next thing to do once a firework is down */
+/* the next thing to do once a firework is down: with nothing left to place
+ * and fireworks on the square, straight to choosing the fuse */
 static void to_pick(void) {
-    if (G.perch_owed && G.hand > 0) { enter(S_PERCH); return; }
+    forced = G.hand <= 0 && bm_row_count(&G) == 0 && bm_pieces_on_board(&G) > 0;
+    if (forced) { sel = BM_ROW; enter(S_AIM); return; }
     enter(S_PICK);
     if (sel < BM_ROW && !G.row[sel]) {
         int s = -1;
@@ -264,7 +267,7 @@ static void move_cursor(void) {
 }
 
 static bool nothing_left(void) {
-    return G.hand <= 0 && bm_row_count(&G) == 0 && bm_pieces_on_board(&G) == 0 && !(G.perch_owed && G.hand > 0);
+    return G.hand <= 0 && bm_row_count(&G) == 0 && bm_pieces_on_board(&G) == 0;
 }
 
 static void pick_update(void) {
@@ -293,6 +296,7 @@ static void pick_update(void) {
         } else if (sel == BM_ROW) {
             if (bm_pieces_on_board(&G) > 0) {
                 sfx_play_name("bm_pick");
+                forced = false;
                 enter(S_AIM);
             } else {
                 sfx_play_name("bm_nope");
@@ -320,27 +324,17 @@ static void place_update(void) {
     }
     if (btnp(BTN_A)) {
         if (!bm_free(&G, cx, cy)) { sfx_play_name("bm_nope"); return; }
-        bool rocket = bm_place(&G, place_slot, cx, cy, pdir);
+        bm_place(&G, place_slot, cx, cy, pdir);
         sfx_play_name("bm_place");
         part_add(tile_cx(cx), tile_cy(cy) + 5, -0.4f, -0.2f, 10, C_GREY, 0);
         part_add(tile_cx(cx), tile_cy(cy) + 5, 0.4f, -0.2f, 10, C_GREY, 0);
-        (void)rocket;
-        to_pick();
-    }
-}
-
-static void perch_update(void) {
-    move_cursor();
-    if (btnp(BTN_A)) {
-        if (!bm_place_perch(&G, cx, cy)) { sfx_play_name("bm_nope"); return; }
-        sfx_play_name("bm_place");
         to_pick();
     }
 }
 
 static void aim_update(void) {
     move_cursor();
-    if (btnp(BTN_B)) { sfx_play_name("bm_cancel"); enter(S_PICK); return; }
+    if (btnp(BTN_B) && !forced) { sfx_play_name("bm_cancel"); enter(S_PICK); return; }
     if (btnp(BTN_A)) {
         if (G.c[cy][cx].occ == BO_PIECE) light(cx, cy);
         else sfx_play_name("bm_nope");
@@ -378,7 +372,7 @@ static void result_update(void) {
 /* the demo player: it chooses real buttons each frame for the runner's */
 /* "bot" query (botplay / botuntil in the tests)                        */
 
-enum { PLAN_NONE, PLAN_PLACE, PLAN_LIGHT, PLAN_PERCH };
+enum { PLAN_NONE, PLAN_PLACE, PLAN_LIGHT };
 static struct { int kind, slot, x, y, dir, valid, tick; } plan;
 static int bot_reserve = 4; /* fireworks it keeps back for the last night */
 
@@ -465,58 +459,45 @@ static int place_value(const BmGame *after, int had_pieces, const BmGame *before
     return v;
 }
 
-static int best_perch(const BmGame *g, int *bx, int *by) {
-    int best = -100000000;
-    *bx = -1;
-    *by = -1;
-    int had = bm_pieces_on_board(g) > 1;
-    for (int y = 0; y < BM_H; y++)
-        for (int x = 0; x < BM_W; x++) {
-            if (!bm_free(g, x, y)) continue;
-            static BmGame t;
-            t = *g;
-            if (!bm_place_perch(&t, x, y)) continue;
-            int v = place_value(&t, had, g, x, y, BM_PERCH, 0);
-            if (v > best) { best = v; *bx = x; *by = y; }
-        }
-    return best;
-}
-
-/* the best place for the firework in `slot` */
-static int best_spot(int slot, int *bx, int *by, int *bd) {
-    int kind = G.row[slot], best = -100000000;
-    int had = bm_pieces_on_board(&G) > 0;
+/* the best place for the firework in `slot` of square g */
+static int best_spot(const BmGame *g, int slot, int *bx, int *by, int *bd) {
+    int kind = g->row[slot], best = -100000000;
+    int had = bm_pieces_on_board(g) > 0;
     *bx = -1;
     *bd = 0;
     if (kind == BM_ROCKET) {
-        /* the rocket goes where the chain will light it; the perch is what counts */
-        Outcome now = best_light(&G);
-        BmChain ch;
-        static BmGame t;
-        t = G;
+        /* the rocket goes where the chain will light it; its perch is what counts */
+        Outcome now = best_light(g);
+        static BmChain ch;
+        static BmGame r;
+        r = *g;
         memset(&ch, 0, sizeof ch);
-        if (now.x >= 0) { bm_chain_start(&t, &ch, now.x, now.y); bm_chain_run(&t, &ch); }
+        if (now.x >= 0) { bm_chain_start(&r, &ch, now.x, now.y); bm_chain_run(&r, &ch); }
         for (int y = 0; y < BM_H; y++)
             for (int x = 0; x < BM_W; x++)
-                if (bm_free(&G, x, y)) {
+                if (bm_free(g, x, y)) {
                     int v = (ch.hitmap[y][x] ? 100 : 0) - iabs(x * 2 - BM_W) - iabs(y * 2 - BM_H);
                     if (v > best) { best = v; *bx = x; *by = y; }
                 }
         if (*bx < 0) return best;
-        t = G;
-        bm_place(&t, slot, *bx, *by, 0);
-        int px, py;
-        return best_perch(&t, &px, &py) - 40;
+        r = *g;
+        bm_place(&r, slot, *bx, *by, 0);
+        for (int s = 0; s < BM_ROW; s++)
+            if (r.row[s] == BM_PERCH) {
+                int px, py, pd;
+                return best_spot(&r, s, &px, &py, &pd) - 40;
+            }
+        return -100000; /* nothing left to pay for the perch tonight */
     }
     int dirs = kind == BM_TWIN ? 2 : bm_turns(kind) ? 4 : 1;
     for (int y = 0; y < BM_H; y++)
         for (int x = 0; x < BM_W; x++) {
-            if (!bm_free(&G, x, y)) continue;
+            if (!bm_free(g, x, y)) continue;
             for (int d = 0; d < dirs; d++) {
                 static BmGame t;
-                t = G;
+                t = *g;
                 bm_place(&t, slot, x, y, d);
-                int v = place_value(&t, had, &G, x, y, kind, d);
+                int v = place_value(&t, had, g, x, y, kind, d);
                 if (v > best) { best = v; *bx = x; *by = y; *bd = d; }
             }
         }
@@ -539,7 +520,7 @@ static void bot_think(void) {
     int best = -1000000;
     for (int s = 0; s < BM_ROW; s++) {
         if (!G.row[s]) continue;
-        int x, y, d, v = best_spot(s, &x, &y, &d);
+        int x, y, d, v = best_spot(&G, s, &x, &y, &d);
         if (x >= 0 && v > best) { best = v; plan.kind = PLAN_PLACE; plan.slot = s; plan.x = x; plan.y = y; plan.dir = d; }
     }
     /* nothing helps any more: light up what there is */
@@ -576,21 +557,11 @@ static int bot_buttons(void) {
             plan.valid = 1;
             plan.kind = PLAN_PLACE;
             plan.slot = place_slot;
-            best_spot(place_slot, &plan.x, &plan.y, &plan.dir);
+            best_spot(&G, place_slot, &plan.x, &plan.y, &plan.dir);
         }
         if (pdir != plan.dir && bm_turns(G.row[place_slot])) return BTN_B;
         int b = bot_steer(plan.x, plan.y);
         if (b == BTN_A) plan.valid = 0; /* think again after this one */
-        return b;
-    }
-    case S_PERCH: {
-        if (!plan.valid || plan.kind != PLAN_PERCH) {
-            plan.kind = PLAN_PERCH;
-            plan.valid = 1;
-            best_perch(&G, &plan.x, &plan.y);
-        }
-        int b = bot_steer(plan.x, plan.y);
-        if (b == BTN_A) plan.valid = 0;
         return b;
     }
     case S_AIM:
@@ -661,7 +632,6 @@ static void bm_update(void) {
         break;
     case S_PICK: pick_update(); break;
     case S_PLACE: place_update(); break;
-    case S_PERCH: perch_update(); break;
     case S_AIM: aim_update(); break;
     case S_CHAIN: chain_update(); break;
     case S_RESULT: result_update(); break;
@@ -898,6 +868,45 @@ static void draw_row(void) {
     text_draw("LIGHT", LIGHT_X + 19, ROW_Y + 9, can ? (on ? C_WHITE : C_LIGHT) : C_SLATE);
 }
 
+/* A small 5 x 5 diagram of what a firework hits, the piece in the middle,
+ * for the one highlighted in the row (or held). */
+static void draw_diagram(int x0, int y0, int kind, int dir, int col) {
+    const int C = 5;
+    int pc = piece_colour(kind, col);
+    gfx_rect(x0 - 1, y0 - 1, C * 5 + 2, C * 5 + 2, C_DUSK);
+    for (int gy = 0; gy < 5; gy++)
+        for (int gx = 0; gx < 5; gx++) gfx_rect(x0 + gx * C, y0 + gy * C, C - 1, C - 1, C_INK);
+    /* the pattern from the middle of the real square, cut to 2 tiles round */
+    int8_t t[BM_W + BM_H + 8][2];
+    int n = bm_attack(&G, 5, 4, kind, dir, t);
+    for (int i = 0; i < n; i++) {
+        int ox = t[i][0] - 5, oy = t[i][1] - 4;
+        if (ox < -2 || ox > 2 || oy < -2 || oy > 2) continue;
+        gfx_rect(x0 + (ox + 2) * C, y0 + (oy + 2) * C, C - 1, C - 1, pc);
+    }
+    int mx = x0 + 2 * C, my = y0 + 2 * C;
+    gfx_rect(mx, my, C - 1, C - 1, C_WHITE);
+    if (kind == BM_CANDLE) {
+        /* the line runs on to the edge: an arrow past the grid */
+        static const int DXS[4] = {0, 1, 0, -1}, DYS[4] = {-1, 0, 1, 0};
+        int ax = mx + 2 + DXS[dir & 3] * 15, ay = my + 2 + DYS[dir & 3] * 15;
+        for (int k = 0; k < 3; k++) {
+            int px = ax + DXS[dir & 3] * k, py = ay + DYS[dir & 3] * k;
+            int w = 2 - k;
+            if (DXS[dir & 3]) gfx_vline(px, py - w, py + w, pc);
+            else gfx_hline(px - w, px + w, py, pc);
+        }
+    } else if (kind == BM_ROCKET) {
+        /* up it goes, and down on its perch */
+        gfx_vline(mx + 2, y0 - 1, my - 1, pc);
+        gfx_hline(mx + 1, mx + 3, y0, pc);
+        gfx_pset(mx + 2, y0 - 2, pc);
+        tiny_draw("PERCH", x0 + C * 5 + 4, y0 + 2, C_SLATE);
+        gfx_circb(x0 + C * 5 + 14, y0 + 16, 4, pc);
+        gfx_pset(x0 + C * 5 + 14, y0 + 16, pc);
+    }
+}
+
 static void draw_left_panel(void) {
     char buf[24];
     ui_panel(2, 12, 74, 164, C_NIGHT, C_DUSK);
@@ -916,13 +925,14 @@ static void draw_left_panel(void) {
     gfx_circ(58, 170, 5, C_INK);
     gfx_circ(18, 170, 3, C_EARTH);
     gfx_circ(58, 170, 3, C_EARTH);
-    for (int i = 0; i < 6; i++) gfx_rect(12 + i * 9, 144 - (i % 2) * 3, 4, 8 + (i % 2) * 3, i % 3 == 0 ? C_RED : i % 3 == 1 ? C_BLUE : C_JADE);
-    spr_draw_scaled(&bm_spr[spr], 20, 82, 2, 0);
-    if (state == S_PLACE || state == S_PERCH) {
-        int kind = state == S_PERCH ? BM_PERCH : G.row[place_slot];
-        text_wrap(piece_name(kind), 8, 64, 66, C_YELLOW, 9);
-    } else if (state == S_PICK && sel < BM_ROW && G.row[sel]) {
-        text_wrap(piece_name(G.row[sel]), 8, 64, 66, C_CREAM, 9);
+    for (int i = 0; i < 4; i++) gfx_rect(12 + i * 8, 144 - (i % 2) * 3, 4, 8 + (i % 2) * 3, i % 3 == 0 ? C_RED : i % 3 == 1 ? C_BLUE : C_JADE);
+    spr_draw(&bm_spr[spr], 50, 126, 0);
+    int kind = 0, dir = 0, col = 0;
+    if (state == S_PLACE) { kind = G.row[place_slot]; dir = pdir; col = G.row_col[place_slot]; }
+    else if (state == S_PICK && sel < BM_ROW) { kind = G.row[sel]; col = G.row_col[sel]; }
+    if (kind) {
+        text_wrap(piece_name(kind), 8, 64, 66, state == S_PLACE ? C_YELLOW : C_CREAM, 9);
+        draw_diagram(12, 88, kind, dir, col);
     }
 }
 
@@ -961,10 +971,6 @@ static void draw_board(void) {
         if ((frame_t / 6) % 3) bm_draw_piece(FX + cx * TILE, FY + cy * TILE, kind, pdir, G.row_col[place_slot], frame_t);
         draw_cursor(bm_free(&G, cx, cy) ? C_YELLOW : C_RED);
         if (bhold > 4) gfx_rect(FX + cx * TILE, FY + cy * TILE + TILE + 1, TILE * bhold / HOLD_CANCEL, 2, C_RED);
-    } else if (state == S_PERCH) {
-        draw_preview(BM_PERCH, 0);
-        if ((frame_t / 6) % 3) bm_draw_piece(FX + cx * TILE, FY + cy * TILE, BM_PERCH, 0, G.perch_owed, frame_t);
-        draw_cursor(bm_free(&G, cx, cy) ? C_YELLOW : C_RED);
     } else if (state == S_AIM) {
         draw_cursor(G.c[cy][cx].occ == BO_PIECE ? C_ORANGE : C_GREY);
     }
@@ -1006,14 +1012,12 @@ static void draw_play(void) {
         case BR_LOST: draw_banner("THE BOG KING STANDS", "THE TOWN IS LOST", C_RED); break;
         default: draw_banner("OVERRUN!", "MORE BOGLES THAN FOLK", C_RED); break;
         }
-    } else if (state == S_PERCH) {
-        tiny_center("PLACE THE ROCKET'S PERCH", 160, ROW_Y - 3, C_RED);
     } else if (state == S_AIM) {
         tiny_center("WHICH FUSE?", 160, ROW_Y - 3, C_ORANGE);
     }
     if (secret_t > 0) {
         gfx_rect(40, 150, 240, 12, C_INK);
-        text_center("HAIL THE ORDER OF THE TEA COSY", 160, 152, (secret_t / 4) % 2 ? C_PINK : C_WHITE);
+        text_center("THE TEA COSY SOCIETY MEETS AT MIDNIGHT", 160, 152, (secret_t / 4) % 2 ? C_PINK : C_WHITE);
     }
 }
 
@@ -1068,11 +1072,12 @@ static void draw_over(void) {
     gfx_darken_rect(0, 0, SCREEN_W, SCREEN_H, 2);
     ui_panel(70, 40, 180, 92, C_INK, C_RED);
     static const uint8_t grad[] = {C_RED, C_WINE, C_MAROON};
-    ui_fancy_center("OVERRUN", 160, 48, 2, grad, 3, C_INK, -1);
+    bool king = result == BR_LOST;
+    ui_fancy_center(king ? "SWAMPED" : "OVERRUN", 160, 48, 2, grad, 3, C_INK, -1);
     char buf[48];
     snprintf(buf, sizeof buf, "YOU HELD OUT %d NIGHT%s", G.round - 1, G.round - 1 == 1 ? "" : "S");
     text_center(buf, 160, 74, C_LIGHT);
-    tiny_center("THE BOGLES DANCE IN THE SQUARE TILL DAWN", 160, 92, C_GREY);
+    tiny_center(king ? "THE BOG KING PULLS MOSSBURY INTO THE MARSH" : "THE BOGLES DANCE IN THE SQUARE TILL DAWN", 160, 92, C_GREY);
     if (state_t > 60 && (state_t / 20) % 2) text_center("PRESS " GLYPH_A, 160, 112, C_WHITE);
 }
 

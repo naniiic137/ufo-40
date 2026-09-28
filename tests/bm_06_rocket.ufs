@@ -1,7 +1,9 @@
-# BOOMTOWN: a skyrocket's perch goes down straight after it and costs a
-# firework of its own. Lit, the rocket flies up and comes down on its perch,
-# which goes off; if the perch went first, the rocket hits nothing. A rocket
-# that was the last firework owes its perch to the next night.
+# BOOMTOWN: a skyrocket's perch takes the rocket's place in the row of
+# three. It costs a firework from the count but nothing from the bag, and it
+# is picked, placed and put back like any other. Lit, the rocket flies up
+# and comes down on its perch, which goes off; if the perch went first, the
+# rocket hits nothing. A rocket that was the last firework owes its perch to
+# the next night.
 seed 16
 game boomtown
 wait 20
@@ -13,22 +15,34 @@ cheat clear
 cheat row 3 5 5
 cheat hand 10
 expect rowcol0 == 1
+expect bag_i == 3
 cheat cursor 1 1
 press A
 press A
-expect state == 5
+expect state == 3
 expect hand == 9
-expect perch_owed == 1
-# the perch can't be put back
+expect kind_1_1 == 3
+expect row0 == 4
+expect rowcol0 == 1
+expect bag_i == 3
+# it can be put back like any firework
+expect sel == 0
+press A
+expect state == 4
 hold B 30
-expect state == 5
+expect state == 3
+expect row0 == 4
+expect hand == 9
+# set it down: it costs one from the count, and the bag deals its place
 cheat cursor 8 6
+press A
 press A
 expect state == 3
 expect hand == 8
 expect kind_8_6 == 4
 expect col_8_6 == 1
-expect perch_owed == 0
+expect row0 != 4
+expect bag_i == 4
 cheat put bogle 7 5 0
 cheat put bogle 9 7 0
 cheat put folk 0 7
@@ -48,7 +62,7 @@ expect occ_8_6 == 4
 waituntil occ_8_6 == 0 100
 expect occ_7_5 == 0
 expect occ_9_7 == 0
-waituntil state == 8 200
+waituntil state == 7 200
 expect fired == 3
 expect result == 1
 press A
@@ -66,12 +80,13 @@ press RIGHT
 press A
 cheat cursor 2 1
 press A
-waituntil state == 8 300
+waituntil state == 7 300
 expect fired == 3
 expect occ_0_1 == 3
 press A
 waituntil state == 3 200
-# the last firework is a rocket: its perch waits for the next night
+# the last firework is a rocket: its perch waits for the next night, and
+# with nothing left to place the fuse must be chosen at once
 cheat clear
 cheat put folk 0 7
 cheat put folk 1 7
@@ -81,20 +96,18 @@ cheat sel 0
 cheat cursor 4 4
 press A
 press A
-expect state == 3
 expect hand == 0
 expect perch_owed == 1
-expect sel == 3
+expect row0 == 0
+expect state == 5
+press B
+expect state == 5
 press A
-cheat cursor 4 4
+waituntil state == 7 300
 press A
-waituntil state == 8 300
-press A
-waituntil state == 5 200
-expect perch_owed == 1
-cheat put empty 0 0
-cheat cursor 0 0
-press A
-expect state == 3
+waituntil state == 3 200
+expect round == 4
 expect perch_owed == 0
-expect kind_0_0 == 4
+expect row0 == 4
+expect rowcol0 == 1
+expect hand == 20
