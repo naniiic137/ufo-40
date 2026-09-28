@@ -8,6 +8,7 @@ cheat army 0 L
 cheat army 1 S
 cheat battle 6 1 0
 cheat field 0
+cheat unshuffle
 cheat place 0 100 128
 cheat place 1 250 128
 waituntil bphase == 1 200
@@ -21,11 +22,11 @@ waituntil bphase == 4 400
 expect shards0 == 2
 hold RIGHT 70
 expect angle == 0
-hold A 36
+hold A 48
 wait 1
 expect shards0 == 1
 waituntil bside == 1 600
-expect d1_hp == 1
+expect d1_hp == 2
 # the Plum squire's turn: two small moves away
 waituntil bphase == 1 60
 press A

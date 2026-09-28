@@ -8,6 +8,7 @@ cheat army 0 AS
 cheat army 1 SS
 cheat battle 6 1 0
 cheat field 0
+cheat unshuffle
 cheat place 0 100 128
 cheat place 1 100 40
 cheat place 2 150 128
@@ -20,7 +21,7 @@ hold A 12
 wait 1
 waituntil bphase == 2 400
 expect d2_poison == 1
-expect d2_hp == 4
+expect d2_hp == 5
 # the adder's second move, away
 hold UP 70
 hold A 12

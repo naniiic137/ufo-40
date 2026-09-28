@@ -358,15 +358,32 @@ static const char DROP[] =
     "iiiii"
     ".iii.";
 
-static const char BAG[] =
-    "..kkk.."
-    ".kbkbk."
-    "..kbk.."
-    ".ktttk."
-    "kttyttk"
-    "ktyyytk"
-    "kttyttk"
-    ".kkkkk.";
+static const char TREE[] =
+    "......kkkkk......"
+    "....kkfjfjfkk...."
+    "...kfjfjzjfjfk..."
+    "..kfjzjfjfjzjfk.."
+    ".kfjfjfjzjfjfjfk."
+    ".kjfjzjfjfjzjfjk."
+    "kfjfjfjfjzjfjfjfk"
+    "kjzjfjzjfjfjzjfjk"
+    "kfjfjfjfjfjfjfjfk"
+    ".kfjzjfjzjfjzjfk."
+    ".kjfjfjfjfjfjfjk."
+    "..kkfjfjfjfjfkk.."
+    "....kkkbbbkkk...."
+    "......kbbbk......"
+    "......kbebk......"
+    ".....kkbbbkk....."
+    ".....kkkkkkk.....";
+static const char SHARD2[] =
+    "...k..."
+    "..kKk.."
+    ".kKwKk."
+    "kKwwwKk"
+    ".kKwKk."
+    "..kKk.."
+    "...k...";
 
 /* ---- the two lords --------------------------------------------------------------- */
 static const char LORD0[] =
@@ -438,7 +455,8 @@ void rsh_art_load(void) {
     mk(RS_SKULL, 7, 7, SKULL);
     mk(RS_BOLT, 5, 7, BOLT);
     mk(RS_DROP, 5, 7, DROP);
-    mk(RS_BAG, 7, 8, BAG);
+    mk(RS_TREE, 17, 17, TREE);
+    mk(RS_SHARD2, 7, 7, SHARD2);
     mk(RS_LORD0, 16, 16, LORD0);
     mk(RS_LORD1, 16, 16, LORD1);
 }

@@ -1,6 +1,6 @@
-# RIMSHIRE: every knock between disks while a shot rolls hurts the other
-# side: the disk that is hit, and a foe knocked into another foe (both of
-# them). The shooter and its friends are never hurt.
+# RIMSHIRE: while a shot rolls, a foe struck by one of your disks takes
+# that disk's melee, and two foes knocked together take 1 each. The shooter
+# and its friends are never hurt.
 game rimshire
 cheat war 1
 cheat cpu 1 -1
@@ -8,6 +8,7 @@ cheat army 0 SS
 cheat army 1 SS
 cheat battle 6 1 0
 cheat field 0
+cheat unshuffle
 cheat place 0 100 128
 cheat place 1 100 20
 cheat place 2 160 128
@@ -19,8 +20,8 @@ hold RIGHT 40
 hold A 40
 wait 1
 waituntil moving == 0 600
-expect d2_hp == 2
-expect d3_hp == 3
+expect d2_hp == 3
+expect d3_hp == 4
 expect combo == 2
-expect d0_hp == 4
+expect d0_hp == 5
 expect hits == 3

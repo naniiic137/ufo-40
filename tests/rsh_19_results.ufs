@@ -1,6 +1,7 @@
-# RIMSHIRE: after a battle the beaten army goes home, where its reserves
-# join it; beaten at its own home it makes a second stand at once with
-# them; a castle falls with its army and the war with it.
+# RIMSHIRE: after a battle both trails are wiped; the beaten army goes
+# home, where its reserves join it, and moves next. Beaten at its own home
+# it makes a second stand at once with them; a castle falls with its army
+# and the war with it.
 game rimshire
 cheat war 1
 cheat cpu 1 -1
@@ -10,6 +11,7 @@ cheat reserve 1 SS
 cheat at 1 10 1
 cheat battle 9 1 0
 cheat field 0
+cheat unshuffle
 cheat place 0 100 128
 cheat place 1 150 128
 cheat hp 1 1
@@ -29,11 +31,15 @@ expect army1 == 2
 expect reserve1 == 0
 expect wins0 == 1
 expect losses1 == 1
+expect turn == 1
+expect trail0 == 1
+expect trail1 == 1
 # beaten at home (not a castle): a second stand with the reserves
 cheat army 1 S
 cheat reserve 1 S
 cheat battle 12 1 0
 cheat field 0
+cheat unshuffle
 cheat place 0 100 128
 cheat place 1 150 128
 cheat hp 1 1
@@ -58,6 +64,7 @@ cheat reserve 1 SS
 expect castle1 == 1
 cheat battle 13 3 0
 cheat field 0
+cheat unshuffle
 cheat place 0 100 128
 cheat place 1 150 128
 cheat hp 1 1

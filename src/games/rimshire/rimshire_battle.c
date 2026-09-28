@@ -1,10 +1,15 @@
-/* RIMSHIRE - the flick battles: a walled field of grass, stone, sand and
- * water whose four quarters come from the four board tiles around the spot
- * where the banners met. Each turn a side picks one of the first three
- * disks in its queue (five with COMMAND), aims it, charges it and lets it
- * go; the disk bounces off walls and disks, and every knock between disks
- * while the shot is rolling hurts the other side again. Water drowns disks
- * that can't swim; late in a battle the haze closes in from the edges.
+/* RIMSHIRE - the flick battles. The field's four corners come from the four
+ * board tiles around the spot where the banners met: woods (grass, trees
+ * and huts), crags (cliffs close the corner in, cut at an angle), dunes
+ * (sand round the edge and a bunker) and lakes (water round the edge and a
+ * pool). Each turn a side picks one of the first three disks in its queue
+ * (five with COMMAND), aims it, charges it and lets it go, as many times as
+ * the disk has moves, then may fire its projectile. While a shot rolls,
+ * every knock between one of your disks and a foe hurts the foe by your
+ * disk's own melee, and two foes knocked together take 1 each; your disks
+ * never hurt each other. Water drowns disks that can't swim; after five
+ * turns each the haze closes in, and the disk that ends its turn touching
+ * it is gone; five rounds with nothing touched is a stalemate.
  * Every rule and where it comes from is in docs/games/41-rimshire.md. */
 #include "rimshire.h"
 
@@ -12,18 +17,18 @@ RshBattle rb;
 
 #define WALL_E 0.84f
 #define DISK_E 0.90f
-#define HEAL_CAP 12
-#define DRAIN_CAP 10
+#define STUN_PIPS 2
 
 static const float RADIUS[3] = {6.0f, 8.0f, 11.0f};
 static const float MASS[3] = {1.0f, 1.6f, 3.0f};
+static const int HP_CAP[3] = {7, 10, 12};
 
 float rsh_pip_speed(int pips) { return pips <= 0 ? 0.0f : 1.3f + 0.95f * (float)pips; }
-static float proj_speed(int pips) { return pips <= 0 ? 0.0f : 1.8f + 1.1f * (float)pips; }
+static float proj_speed(int pips) { return pips <= 0 ? 0.0f : 1.4f + 0.8f * (float)pips; }
 
 int rsh_terrain_at(float x, float y) {
     int cx = (int)(x / RSH_CELL), cy = (int)(y / RSH_CELL);
-    if (cx < 0 || cy < 0 || cx >= RSH_CW || cy >= RSH_CH) return T_GRASS;
+    if (cx < 0 || cy < 0 || cx >= RSH_CW || cy >= RSH_CH) return T_STONE;
     return rb.cell[cy][cx];
 }
 
@@ -56,6 +61,11 @@ static void ev(RshPhys *p, int kind, float x, float y, int a) {
     p->ev[p->n_ev].y = (int16_t)y;
     p->ev[p->n_ev].a = (int16_t)a;
     p->n_ev++;
+}
+
+static int hp_cap(const RshDisk *d) {
+    if (d->kind == K_EMPRESS) return 12;
+    return HP_CAP[RSH_KIND[d->kind].size];
 }
 
 /* ------------------------------------------------------------------ */
@@ -93,22 +103,26 @@ static void attack(RshPhys *p, int i, int dmg, int fx) {
     if (d->hp <= 0) kill(p, i, 0);
 }
 
-/* healing: tonics, springs and the friar's balm; a leech is hurt by it */
-static void heal(RshPhys *p, int i, int n) {
+/* healing: tonics, springs and the friar's balm. It cures poison (the
+ * healing goes into that) and stun, and never goes past the disk's size
+ * cap. A leech is hurt instead, by 'sting'. */
+static void heal(RshPhys *p, int i, int n, int sting) {
     RshDisk *d = &p->d[i];
     if (!d->on || d->proj) return;
-    if (d->kind == K_LEECH) { attack(p, i, 2 * n, FX_NONE); return; }
-    d->hp = (int8_t)imin(d->hp + n, HEAL_CAP);
-    d->poison = 0;
+    if (RSH_KIND[d->kind].drain) { attack(p, i, sting, FX_NONE); return; }
+    if (d->poison) d->poison = 0;
+    else d->hp = (int8_t)imin(d->hp + n, imax(hp_cap(d), d->hp));
     d->stun = 0;
     p->heals += n;
     ev(p, BE_HEAL, d->x, d->y, n);
 }
 
+/* the hexer's spell: a ring of six embers where it stops */
 static void burst_embers(RshPhys *p, float x, float y) {
-    static const float OX[5] = {0, 20, -20, 12, -12}, OY[5] = {0, 6, 6, -18, -18};
-    for (int e = 0; e < 5; e++) {
-        float ex = fclamp(x + OX[e], 6, RSH_AW - 6), ey = fclamp(y + OY[e], 6, RSH_AH - 6);
+    for (int e = 0; e < 6; e++) {
+        float a = (float)e * (6.2831853f / 6.0f) + 0.26f;
+        float ex = fclamp(x + cosf(a) * 16.0f, 6, RSH_AW - 6), ey = fclamp(y + sinf(a) * 16.0f, 6, RSH_AH - 6);
+        if (rsh_terrain_at(ex, ey) == T_STONE) continue;
         for (int k = 0; k < RSH_MAXO; k++)
             if (!p->o[k].on) {
                 p->o[k] = (RshObj){1, O_EMBER, 1, 0, ex, ey, 3.0f};
@@ -124,43 +138,41 @@ static void chain_hit(RshPhys *p, int i, int j) {
     int s = p->chain_side;
     if (s < 0) return;
     RshDisk *a = &p->d[i], *b = &p->d[j];
+    p->touches++;
     if (a->proj || b->proj) {
-        int pi = a->proj ? i : j, xi = a->proj ? j : i;
-        RshDisk *pr = &p->d[pi], *x = &p->d[xi];
+        int xi = a->proj ? j : i;
+        RshDisk *pr = a->proj ? a : b, *x = &p->d[xi];
+        if (x->proj) return;
         switch (RSH_KIND[pr->kind].rkind) {
-        case RG_HIT: case RG_STUN:
+        case RG_HIT: case RG_STUN: case RG_EMBERS:
             if (x->side != s) { p->combo++; attack(p, xi, p->chain_dmg, p->chain_fx); }
             break;
-        case RG_EMBERS:
-            if (x->side != s) { p->combo++; attack(p, xi, p->chain_dmg, FX_NONE); }
-            burst_embers(p, pr->x, pr->y);
-            kill(p, pi, 0);
+        case RG_HEAL: /* the balm heals whoever it touches, friend or foe */
+            heal(p, xi, RSH_KIND[pr->kind].ranged, 4);
             break;
-        case RG_HEAL:
-            if (x->side == s) heal(p, xi, RSH_KIND[pr->kind].ranged);
-            else if (x->kind == K_LEECH) { p->combo++; heal(p, xi, RSH_KIND[pr->kind].ranged); }
-            break;
-        case RG_STAR:
-            if (x->side == s && x->stars < 9) { x->stars++; p->stars_given++; ev(p, BE_STAR, x->x, x->y, 0); }
+        case RG_STAR: /* so does the tune: +1 attack, five at most */
+            if (x->stars < RSH_MAX_STARS) { x->stars++; p->stars_given++; ev(p, BE_STAR, x->x, x->y, 0); }
             break;
         }
         return;
     }
-    if (a->side == s && b->side == s) return;
+    bool ea = a->side != s, eb = b->side != s;
+    if (!ea && !eb) return; /* your disks never hurt each other */
     p->combo++;
     if (p->combo > p->best_combo) p->best_combo = p->combo;
-    int landed = 0;
-    for (int k = 0; k < 2; k++) {
-        int xi = k ? j : i;
-        if (!p->d[xi].on || p->d[xi].side == s) continue;
-        attack(p, xi, p->chain_dmg, p->chain_fx);
-        landed += p->chain_dmg > 0;
+    if (ea && eb) {
+        /* two foes knocked together: 1 each */
+        attack(p, i, 1, FX_NONE);
+        attack(p, j, 1, FX_NONE);
+        return;
     }
-    /* the leech drinks from every melee hit of its own shot */
-    if (landed && !p->chain_ranged && p->chain_disk >= 0) {
-        RshDisk *l = &p->d[p->chain_disk];
-        if (l->on && RSH_KIND[l->kind].drain && l->hp < DRAIN_CAP) l->hp = (int8_t)imin(l->hp + landed, DRAIN_CAP);
-    }
+    /* one of yours and a foe: the foe takes your disk's melee and its sting */
+    int m = ea ? j : i, e = ea ? i : j;
+    RshDisk *md = &p->d[m];
+    const RshKind *mk = &RSH_KIND[md->kind];
+    attack(p, e, mk->melee + md->stars, mk->fx);
+    /* the leech drinks from every foe it touches */
+    if (mk->drain && md->on && md->hp < hp_cap(md)) md->hp++;
 }
 
 /* ------------------------------------------------------------------ */
@@ -204,6 +216,10 @@ static void collide(RshPhys *p, int i, int j) {
     }
 }
 
+/* pickups (coins, shards, tonics, embers) go to the first disk over them,
+ * whoever's turn it is, but never to a projectile; springs, coin rocks and
+ * shard rocks stand firm and pay a little for every knock (projectiles can
+ * mine rocks, not springs); trees and huts are just in the way */
 static void touch_obj(RshPhys *p, int i, int k) {
     RshDisk *d = &p->d[i];
     RshObj *o = &p->o[k];
@@ -213,21 +229,20 @@ static void touch_obj(RshPhys *p, int i, int k) {
         if (p->ocontact[i][k] && d2 > (rr + 1.5f) * (rr + 1.5f)) p->ocontact[i][k] = 0;
         return;
     }
-    int mult = RSH_KIND[d->kind].triple ? 3 : 1;
-    int solid = o->kind == O_WELL || o->kind == O_PILE || o->kind == O_CLUSTER;
+    int mult = RSH_KIND[d->kind].triple && !d->proj ? 3 : 1;
+    int solid = o->kind == O_WELL || o->kind == O_PILE || o->kind == O_CLUSTER || o->kind == O_TREE;
     if (!solid) {
         if (d->proj) return;
+        p->touches++;
         switch (o->kind) {
         case O_COIN: p->coins[d->side] += 2 * mult; ev(p, BE_PICK, o->x, o->y, O_COIN); break;
         case O_SHARD: p->shards[d->side] += o->left * mult; ev(p, BE_PICK, o->x, o->y, O_SHARD); break;
-        case O_TONIC: heal(p, i, 2); break;
+        case O_TONIC: heal(p, i, 2, 4); break;
         case O_EMBER: ev(p, BE_EMBER, o->x, o->y, 1); attack(p, i, 1, FX_NONE); break;
-        case O_BAG: if (d->stars < 9) d->stars++; p->stars_given++; ev(p, BE_STAR, o->x, o->y, 0); break;
         }
         o->on = 0;
         return;
     }
-    /* a spring, a coin pile or a shard cluster: it stands firm */
     float d0 = sqrtf(d2), nx = 1, ny = 0;
     if (d0 > 0.0001f) { nx = dx / d0; ny = dy / d0; }
     d->x -= nx * (rr - d0);
@@ -239,20 +254,43 @@ static void touch_obj(RshPhys *p, int i, int k) {
     }
     if (!p->ocontact[i][k]) {
         p->ocontact[i][k] = 1;
-        if (d->proj || rel > -0.2f) return;
+        if (rel > -0.2f || o->kind == O_TREE) return;
+        if (d->proj && o->kind == O_WELL) return;
+        p->touches++;
         ev(p, BE_STRIKE, o->x, o->y, o->kind);
-        if (o->kind == O_WELL) heal(p, i, 1);
+        if (o->kind == O_WELL) heal(p, i, 1, 3);
         else if (o->kind == O_PILE) p->coins[d->side] += mult;
         else p->shards[d->side] += mult;
         if (--o->left <= 0) o->on = 0;
     }
 }
 
+/* the cliffs of a crag corner: straight walls and the angled cut */
+static void touch_walls(RshPhys *p, RshDisk *d) {
+    for (int w = 0; w < rb.nwall; w++) {
+        const float *s = rb.wall[w];
+        float ex = s[2] - s[0], ey = s[3] - s[1], len2 = ex * ex + ey * ey;
+        float t = len2 > 0 ? ((d->x - s[0]) * ex + (d->y - s[1]) * ey) / len2 : 0;
+        t = fclamp(t, 0, 1);
+        float cx = s[0] + ex * t, cy = s[1] + ey * t, dx = d->x - cx, dy = d->y - cy;
+        float dd = dx * dx + dy * dy;
+        if (dd >= d->r * d->r || dd < 0.0001f) continue;
+        float dist = sqrtf(dd), nx = dx / dist, ny = dy / dist;
+        d->x = cx + nx * d->r;
+        d->y = cy + ny * d->r;
+        float vn = d->vx * nx + d->vy * ny;
+        if (vn < 0) {
+            d->vx -= (1.0f + WALL_E) * vn * nx;
+            d->vy -= (1.0f + WALL_E) * vn * ny;
+            ev(p, BE_WALL, d->x, d->y, 0);
+        }
+    }
+}
+
 static float friction(const RshPhys *p, const RshDisk *d) {
-    if (d->proj) return 0.05f;
+    if (d->proj) return 0.045f;
     switch (rsh_terrain_at(d->x, d->y)) {
-    case T_SAND: return (p->skills[d->side] & SK_HOBNAILS) ? 0.06f : 0.17f;
-    case T_STONE: return 0.05f;
+    case T_SAND: return (p->skills[d->side] & SK_HOBNAILS) ? 0.06f : 0.22f;
     case T_WATER: return 0.08f;
     default: return 0.06f;
     }
@@ -281,6 +319,7 @@ void rsh_phys_step(RshPhys *p) {
             if (d->x > RSH_AW - d->r) { d->x = RSH_AW - d->r; d->vx = -d->vx * WALL_E; ev(p, BE_WALL, d->x, d->y, 0); }
             if (d->y < d->r) { d->y = d->r; d->vy = -d->vy * WALL_E; ev(p, BE_WALL, d->x, d->y, 0); }
             if (d->y > RSH_AH - d->r) { d->y = RSH_AH - d->r; d->vy = -d->vy * WALL_E; ev(p, BE_WALL, d->x, d->y, 0); }
+            if (rb.nwall) touch_walls(p, d);
         }
         for (int i = 0; i < RSH_MAXD; i++) {
             if (!p->d[i].on) continue;
@@ -299,7 +338,7 @@ void rsh_phys_step(RshPhys *p) {
             bool mv = d->vx != 0 || d->vy != 0;
             for (int k = 0; k < RSH_MAXO && d->on; k++)
                 if (p->o[k].on && (mv || p->ocontact[i][k])) touch_obj(p, i, k);
-            /* water: anything that can't swim goes under */
+            /* water: anything that can't swim goes under once its middle is in */
             if (d->on && !d->proj && !RSH_KIND[d->kind].aqua && rsh_terrain_at(d->x, d->y) == T_WATER) kill(p, i, 1);
         }
     }
@@ -311,7 +350,7 @@ void rsh_phys_step(RshPhys *p) {
         if (nv <= 0.02f) {
             d->vx = d->vy = 0;
             if (d->proj) {
-                /* a projectile that comes to rest: the hexer's bursts */
+                /* a projectile that comes to rest: the hexer's spell bursts */
                 if (RSH_KIND[d->kind].rkind == RG_EMBERS) burst_embers(p, d->x, d->y);
                 kill(p, i, 0);
             }
@@ -344,12 +383,14 @@ static int proj_slot(const RshPhys *p) {
     return -1;
 }
 
+/* a projectile needs room to come out: not into a disk, a rock or a wall */
 bool rsh_proj_room(const RshPhys *p, int disk, int angle) {
     const RshDisk *d = &p->d[disk];
     float dx, dy;
     dir_of(angle, &dx, &dy);
     float x = d->x + dx * (d->r + 4.5f), y = d->y + dy * (d->r + 4.5f);
     if (x < 3 || y < 3 || x > RSH_AW - 3 || y > RSH_AH - 3) return false;
+    if (rsh_terrain_at(x, y) == T_STONE) return false;
     for (int i = 0; i < RSH_MAXD; i++) {
         const RshDisk *o = &p->d[i];
         if (!o->on || i == disk) continue;
@@ -358,7 +399,7 @@ bool rsh_proj_room(const RshPhys *p, int disk, int angle) {
     }
     for (int k = 0; k < RSH_MAXO; k++) {
         const RshObj *o = &p->o[k];
-        if (!o->on || !(o->kind == O_WELL || o->kind == O_PILE || o->kind == O_CLUSTER)) continue;
+        if (!o->on || !(o->kind == O_WELL || o->kind == O_PILE || o->kind == O_CLUSTER || o->kind == O_TREE)) continue;
         float ex = o->x - x, ey = o->y - y, rr = o->r + 3.0f;
         if (ex * ex + ey * ey < rr * rr) return false;
     }
@@ -423,14 +464,24 @@ int rsh_eligible(int side, int *out) {
     return n;
 }
 
+/* the most pips the chosen disk may charge now */
+static int max_pips(int ranged) {
+    const RshDisk *d = &rb.p.d[rb.sel];
+    const RshKind *k = &RSH_KIND[d->kind];
+    if (ranged) return k->pcharge;
+    return rb.stun_pick ? imin(STUN_PIPS, k->charge) : k->charge;
+}
+
 /* ------------------------------------------------------------------ */
 /* setting the field                                                     */
 
 static bool spot_free(const RshPhys *p, float x, float y, float r) {
     if (x < r + 4 || y < r + 4 || x > RSH_AW - r - 4 || y > RSH_AH - r - 4) return false;
     for (int dy = -1; dy <= 1; dy++)
-        for (int dx = -1; dx <= 1; dx++)
-            if (rsh_terrain_at(x + (float)dx * r, y + (float)dy * r) == T_WATER) return false;
+        for (int dx = -1; dx <= 1; dx++) {
+            int t = rsh_terrain_at(x + (float)dx * (r + 2), y + (float)dy * (r + 2));
+            if (t == T_WATER || t == T_STONE) return false;
+        }
     for (int i = 0; i < RSH_MAXD; i++) {
         const RshDisk *d = &p->d[i];
         if (!d->on) continue;
@@ -448,7 +499,7 @@ static bool spot_free(const RshPhys *p, float x, float y, float r) {
 
 /* the nearest free spot to (x, y), searching outward */
 static void find_spot(const RshPhys *p, float *x, float *y, float r) {
-    for (int ring = 0; ring < 40; ring++) {
+    for (int ring = 0; ring < 60; ring++) {
         for (int k = 0; k < 8 + ring * 4; k++) {
             float a = (float)k / (float)(8 + ring * 4) * 6.2831853f;
             float tx = *x + cosf(a) * (float)ring * 5.0f, ty = *y + sinf(a) * (float)ring * 5.0f;
@@ -457,47 +508,134 @@ static void find_spot(const RshPhys *p, float *x, float *y, float r) {
     }
 }
 
-/* A board tile of water beside the battle puts water along the field's
- * edge on that side: each watery quarter gets a shore along the two borders
- * it touches, its line different every battle. */
-static void shore(Rng *r, int q) {
-    int qx = (q & 1) * (RSH_CW / 2), qy = (q >> 1) * (RSH_CH / 2);
-    int top = !(q >> 1), left = !(q & 1);
-    int depth = rng_range(r, 2, 5);
-    for (int i = 0; i < RSH_CW / 2; i++) {
-        depth = iclamp(depth + rng_range(r, -1, 1), 2, 6);
-        int x = qx + i;
-        for (int k = 0; k < depth; k++) rb.cell[top ? k : RSH_CH - 1 - k][x] = T_WATER;
+/* quarter q in local coordinates: (0,0) is the field's corner, x and y run
+ * in toward the middle */
+static int loc_x(int q, float lx) { return (int)((q & 1) ? RSH_AW - lx : lx); }
+static int loc_y(int q, float ly) { return (int)((q >> 1) ? RSH_AH - ly : ly); }
+
+static void set_cell_world(int wx, int wy, int t) {
+    int cx = wx / RSH_CELL, cy = wy / RSH_CELL;
+    if (cx >= 0 && cy >= 0 && cx < RSH_CW && cy < RSH_CH) rb.cell[cy][cx] = (uint8_t)t;
+}
+
+/* a blob of sand or water centred at local (lx, ly) */
+static void blob(int q, float lx, float ly, int rx, int ry, int t) {
+    for (int dy = -ry; dy <= ry; dy += 4)
+        for (int dx = -rx; dx <= rx; dx += 4) {
+            float fx = (float)dx / (float)rx, fy = (float)dy / (float)ry;
+            if (fx * fx + fy * fy > 1.0f) continue;
+            int wx = loc_x(q, lx + (float)dx), wy = loc_y(q, ly + (float)dy);
+            int cx = wx / RSH_CELL, cy = wy / RSH_CELL;
+            if (cx >= 0 && cy >= 0 && cx < RSH_CW && cy < RSH_CH && rb.cell[cy][cx] != T_STONE) rb.cell[cy][cx] = (uint8_t)t;
+        }
+}
+
+/* sand or water round the two outer edges of a quarter, its line wobbling */
+static void edge_band(Rng *r, int q, int t) {
+    int half_w = RSH_CW / 2, half_h = RSH_CH / 2;
+    int depth = rng_range(r, 2, 4);
+    for (int i = 0; i < half_w; i++) {
+        depth = iclamp(depth + rng_range(r, -1, 1), 2, 5);
+        for (int k = 0; k < depth; k++) set_cell_world(loc_x(q, (float)(i * RSH_CELL + 4)), loc_y(q, (float)(k * RSH_CELL + 4)), t);
     }
-    depth = rng_range(r, 2, 5);
-    for (int i = 0; i < RSH_CH / 2; i++) {
-        depth = iclamp(depth + rng_range(r, -1, 1), 2, 7);
-        int y = qy + i;
-        for (int k = 0; k < depth; k++) rb.cell[y][left ? k : RSH_CW - 1 - k] = T_WATER;
+    depth = rng_range(r, 2, 4);
+    for (int i = 0; i < half_h; i++) {
+        depth = iclamp(depth + rng_range(r, -1, 1), 2, 6);
+        for (int k = 0; k < depth; k++) set_cell_world(loc_x(q, (float)(k * RSH_CELL + 4)), loc_y(q, (float)(i * RSH_CELL + 4)), t);
     }
 }
 
-static void add_obj(Rng *r, int kind, int left) {
-    RshPhys *p = &rb.p;
-    for (int k = 0; k < RSH_MAXO; k++) {
-        if (p->o[k].on) continue;
-        float rad = (kind == O_WELL || kind == O_PILE || kind == O_CLUSTER) ? 7.0f : 4.0f;
-        for (int tries = 0; tries < 60; tries++) {
-            float x = (float)rng_range(r, 110, RSH_AW - 110), y = (float)rng_range(r, 20, RSH_AH - 20);
-            if (!spot_free(p, x, y, rad + 2)) continue;
-            p->o[k] = (RshObj){1, (uint8_t)kind, (uint8_t)left, 0, x, y, rad};
-            return;
+static void add_wall(int q, float x0, float y0, float x1, float y1) {
+    if (rb.nwall >= 16) return;
+    float *w = rb.wall[rb.nwall++];
+    w[0] = (float)loc_x(q, x0);
+    w[1] = (float)loc_y(q, y0);
+    w[2] = (float)loc_x(q, x1);
+    w[3] = (float)loc_y(q, y1);
+}
+
+/* crags: cliffs close the corner in along both edges, cut at an angle in
+ * the very corner so disks can be banked round it */
+static void crag(Rng *r, int q) {
+    float dh = (float)rng_range(r, 22, 34), dv = (float)rng_range(r, 22, 34), c = (float)rng_range(r, 18, 30);
+    float hw = RSH_AW / 2.0f, hh = RSH_AH / 2.0f;
+    for (int cy = 0; cy < RSH_CH / 2; cy++)
+        for (int cx = 0; cx < RSH_CW / 2; cx++) {
+            float lx = (float)(cx * RSH_CELL + 4), ly = (float)(cy * RSH_CELL + 4);
+            if (ly < dh || lx < dv || lx + ly < dv + dh + c) set_cell_world(loc_x(q, lx), loc_y(q, ly), T_STONE);
         }
+    add_wall(q, dv + c, dh, hw, dh);
+    add_wall(q, dv, dh + c, dv, hh);
+    add_wall(q, dv, dh + c, dv + c, dh);
+    add_wall(q, hw, 0, hw, dh);
+    add_wall(q, 0, hh, dv, hh);
+    if (rng_chance(r, 40)) blob(q, (float)rng_range(r, 90, 150), (float)rng_range(r, 60, 100), 14, 10, T_SAND);
+}
+
+static void add_obj_at(int kind, int left, float x, float y) {
+    RshPhys *p = &rb.p;
+    float rad = (kind == O_WELL || kind == O_PILE || kind == O_CLUSTER) ? 7.0f : kind == O_TREE ? 8.0f : 4.0f;
+    for (int k = 0; k < RSH_MAXO; k++)
+        if (!p->o[k].on) { p->o[k] = (RshObj){1, (uint8_t)kind, (uint8_t)left, 0, x, y, rad}; return; }
+}
+
+static void add_obj(Rng *r, int kind, int left) {
+    float rad = (kind == O_WELL || kind == O_PILE || kind == O_CLUSTER) ? 7.0f : 4.0f;
+    for (int tries = 0; tries < 80; tries++) {
+        float x = (float)rng_range(r, 100, RSH_AW - 100), y = (float)rng_range(r, 20, RSH_AH - 20);
+        if (!spot_free(&rb.p, x, y, rad + 2)) continue;
+        add_obj_at(kind, left, x, y);
         return;
     }
 }
 
-static void add_side(int side) {
+static void corner(Rng *r, int q) {
+    switch (rb.quad[q]) {
+    case T_STONE: crag(r, q); break;
+    case T_SAND:
+        edge_band(r, q, T_SAND);
+        blob(q, (float)rng_range(r, 110, 150), (float)rng_range(r, 70, 100), rng_range(r, 14, 22), rng_range(r, 10, 16), T_SAND);
+        break;
+    case T_WATER:
+        edge_band(r, q, T_WATER);
+        blob(q, (float)rng_range(r, 115, 150), (float)rng_range(r, 75, 100), rng_range(r, 10, 16), rng_range(r, 8, 12), T_WATER);
+        break;
+    default:
+        if (rng_chance(r, 25)) blob(q, (float)rng_range(r, 100, 150), (float)rng_range(r, 60, 100), 12, 9, T_SAND);
+        else if (rng_chance(r, 20)) blob(q, (float)rng_range(r, 110, 150), (float)rng_range(r, 70, 100), 10, 8, T_WATER);
+        break;
+    }
+}
+
+/* woods: a few trees and huts to bounce off */
+static void trees(Rng *r, int q) {
+    int n = rng_range(r, 1, 3);
+    for (int i = 0; i < n; i++)
+        for (int tries = 0; tries < 30; tries++) {
+            float lx = (float)rng_range(r, 50, 180), ly = (float)rng_range(r, 30, 118);
+            float x = (float)loc_x(q, lx), y = (float)loc_y(q, ly);
+            if (!spot_free(&rb.p, x, y, 10)) continue;
+            add_obj_at(O_TREE, 0, x, y);
+            break;
+        }
+}
+
+/* every disk of a side, in a random order, dropped at random in its corner:
+ * Brass the top left, Plum the bottom right */
+static void add_side(Rng *r, int side) {
     RshSide *s = &rw.s[side];
     RshPhys *p = &rb.p;
+    int order[RSH_ARMY];
+    for (int a = 0; a < s->n_army; a++) order[a] = a;
+    for (int a = s->n_army - 1; a > 0; a--) {
+        int b = rng_range(r, 0, a), t = order[a];
+        order[a] = order[b];
+        order[b] = t;
+    }
     rb.qn[side] = 0;
-    for (int a = 0; a < s->n_army; a++) {
-        int i = proj_slot(p);
+    int q = side ? 3 : 0;
+    for (int n = 0; n < s->n_army; n++) {
+        int a = order[n], i = proj_slot(p);
         if (i < 0) break;
         RshDisk *d = &p->d[i];
         const RshKind *k = &RSH_KIND[s->army[a]];
@@ -509,9 +647,7 @@ static void add_side(int side) {
         d->hp = d->maxhp;
         d->r = RADIUS[k->size];
         d->m = MASS[k->size];
-        int col = a % 2, row = a / 2;
-        float x = 34.0f + (float)col * 36.0f + (float)(row % 2) * 8.0f, y = 128.0f + ((float)row - 1.5f) * 50.0f;
-        if (side) x = RSH_AW - x;
+        float x = (float)loc_x(q, (float)rng_range(r, 30, 140)), y = (float)loc_y(q, (float)rng_range(r, 28, 100));
         find_spot(p, &x, &y, d->r);
         d->x = x;
         d->y = y;
@@ -531,41 +667,40 @@ void rsh_battle_start(int attacker, uint32_t seed) {
     rb.proj = -1;
     rb.winner = -1;
     rb.ai_disk = -1;
-    /* the four quarters take the four tiles around the board node */
+    rb.attacker = attacker;
+    /* the four corners take the four tiles around the board node */
     int x = rw.bx, y = rw.by;
     rb.quad[0] = rw.tile[y][x];
     rb.quad[1] = rw.tile[y][x + 1];
     rb.quad[2] = rw.tile[y + 1][x];
     rb.quad[3] = rw.tile[y + 1][x + 1];
-    for (int q = 0; q < 4; q++) {
-        int t = rb.quad[q] == T_WATER ? T_GRASS : rb.quad[q];
-        for (int cy = 0; cy < RSH_CH / 2; cy++)
-            for (int cx = 0; cx < RSH_CW / 2; cx++) rb.cell[(q >> 1) * (RSH_CH / 2) + cy][(q & 1) * (RSH_CW / 2) + cx] = (uint8_t)t;
-    }
-    for (int q = 0; q < 4; q++)
-        if (rb.quad[q] == T_WATER) shore(&r, q);
+    for (int cy = 0; cy < RSH_CH; cy++)
+        for (int cx = 0; cx < RSH_CW; cx++) rb.cell[cy][cx] = T_GRASS;
+    for (int q = 0; q < 4; q++) corner(&r, q);
     for (int s = 0; s < 2; s++) {
         rb.p.skills[s] = rw.s[s].skills;
         rb.p.shards[s] = (rw.s[s].skills & SK_STOCKPILE) ? 5 : 2;
         rb.cpu[s] = rw.s[s].cpu;
     }
-    add_side(0);
-    add_side(1);
+    add_side(&r, 0);
+    add_side(&r, 1);
+    for (int q = 0; q < 4; q++)
+        if (rb.quad[q] == T_GRASS) trees(&r, q);
     /* what lies about the field */
-    int coins = 3 + rw.battle_coins;
+    int coins = rng_range(&r, 2, 4) + rw.battle_coins;
     for (int i = 0; i < coins; i++) add_obj(&r, O_COIN, 1);
-    for (int i = 0; i < 3; i++) add_obj(&r, O_SHARD, (uint8_t)rng_range(&r, 1, 2));
-    int tonics = rng_range(&r, 1, 2);
+    int shards = rng_range(&r, 2, 3);
+    for (int i = 0; i < shards; i++) add_obj(&r, O_SHARD, (uint8_t)(rng_chance(&r, 30) ? 2 : 1));
+    int tonics = rng_range(&r, 0, 2);
     for (int i = 0; i < tonics; i++) add_obj(&r, O_TONIC, 1);
-    add_obj(&r, O_BAG, 1);
-    add_obj(&r, O_WELL, 3);
-    add_obj(&r, O_PILE, 4);
-    if (rng_chance(&r, 60)) add_obj(&r, O_CLUSTER, 3);
+    if (rng_chance(&r, 60)) add_obj(&r, O_WELL, 5);
+    if (rng_chance(&r, 60)) add_obj(&r, O_PILE, 5);
+    if (rng_chance(&r, 50)) add_obj(&r, O_CLUSTER, 3);
     rb.side = attacker;
     rb.phase = B_INTRO;
     rb.sel = -1;
     rb.cam_x = attacker ? RSH_AW - SCREEN_W : 0;
-    rb.cam_y = (RSH_AH - RSH_VIEW_H) / 2;
+    rb.cam_y = attacker ? RSH_AH - RSH_VIEW_H : 0;
 }
 
 /* ------------------------------------------------------------------ */
@@ -594,7 +729,7 @@ static int nearest_enemy_angle(int i) {
 static void check_winner(void) {
     int a = rsh_disks_left(0), b = rsh_disks_left(1);
     if (a && b) return;
-    rb.winner = a ? 0 : b ? 1 : 2;
+    rb.winner = a ? B_WIN0 : b ? B_WIN1 : B_BOTH;
     rb.phase = B_OVER;
     rb.phase_t = 0;
 }
@@ -615,7 +750,7 @@ static void begin_turn(void) {
 static void choose(int i) {
     RshDisk *d = &rb.p.d[i];
     rb.sel = i;
-    rb.stars_at_pick = d->stars;
+    rb.stun_pick = d->stun;
     rb.moves = d->stun ? 1 : RSH_KIND[d->kind].moves;
     rb.move_i = 0;
     rb.ranged = RSH_KIND[d->kind].rkind != RG_NONE;
@@ -629,17 +764,14 @@ static void choose(int i) {
 static void end_turn(void) {
     RshDisk *d = rb.sel >= 0 ? &rb.p.d[rb.sel] : NULL;
     if (d && d->on) {
-        /* the haze takes a disk that ends its turn inside it */
+        /* the haze takes a disk that ends its turn touching it */
         if (rsh_touches_fog(d)) {
             d->on = 0;
             rb.p.kills[d->side]++;
             rb.fog_deaths++;
             ev(&rb.p, BE_KILL, d->x, d->y, d->kind);
         } else {
-            /* the stars it had when it was picked are spent; ones it picked
-             * up on the way are kept for its next turn */
-            d->stun = 0;
-            d->stars = (uint8_t)imax(0, d->stars - rb.stars_at_pick);
+            d->stun = 0; /* moving clears a stun */
         }
     }
     /* to the back of the queue */
@@ -651,11 +783,19 @@ static void end_turn(void) {
     rb.turns[s]++;
     rb.round = imin(rb.turns[0], rb.turns[1]);
     if (rb.round >= RSH_FOG_ROUND) rb.fog = imin(RSH_FOG_MAX, (rb.round - RSH_FOG_ROUND + 1) * RSH_FOG_STEP);
+    /* five rounds with nothing touched: a stalemate */
+    if (rb.p.touches == rb.touch_mark) rb.quiet++;
+    else rb.quiet = 0;
+    rb.touch_mark = rb.p.touches;
     rb.sel = -1;
     rb.side ^= 1;
     rb.phase = B_END;
     rb.phase_t = 0;
     check_winner();
+    if (rb.winner < 0 && rb.quiet >= RSH_STALE_TURNS) {
+        rb.winner = B_STALE;
+        rb.phase = B_OVER;
+    }
 }
 
 static const int DIR_ANGLE[16] = {
@@ -724,7 +864,7 @@ static void cam_follow(void) {
 /* the aim and the charge: hold A to add pips, let go to launch (a tap that
  * never reached one pip does nothing, or skips a projectile) */
 static void aim_step(uint32_t held, uint32_t pressed, uint32_t released, int ranged) {
-    int max = RSH_KIND[rb.p.d[rb.sel].kind].charge;
+    int max = max_pips(ranged);
     bool dpad = (held & (BTN_UP | BTN_DOWN | BTN_LEFT | BTN_RIGHT)) != 0;
     if (!rb.cam_free) rotate_aim(held);
     if (ranged) rb.no_room = !rsh_proj_room(&rb.p, rb.sel, rb.angle);
@@ -753,9 +893,7 @@ static void aim_step(uint32_t held, uint32_t pressed, uint32_t released, int ran
         rb.phase = B_ROLL;
         rb.phase_t = 0;
         rb.skip_ranged = 0;
-        (void)ranged;
-        rb.ranged = ranged ? 0 : rb.ranged;
-        if (ranged) rb.move_i = rb.moves; /* nothing melee after the projectile */
+        if (ranged) { rb.ranged = 0; rb.move_i = rb.moves; }
         else rb.move_i++;
     }
 }
@@ -763,8 +901,6 @@ static void aim_step(uint32_t held, uint32_t pressed, uint32_t released, int ran
 void rsh_battle_step(uint32_t held, uint32_t pressed, uint32_t released) {
     rb.phase_t++;
     rb.p.n_ev = 0;
-    int human = rb.cpu[rb.side] < 0;
-    (void)human;
     /* camera mode: hold B and the d-pad moves the view, at any time in your
      * turn, even while charging; let go and it follows the action again */
     rb.cam_free = (held & BTN_B) && (rb.phase == B_SELECT || rb.phase == B_AIM || rb.phase == B_RAIM);
@@ -803,6 +939,11 @@ void rsh_battle_step(uint32_t held, uint32_t pressed, uint32_t released) {
         break;
     case B_ROLL:
         rsh_phys_step(&rb.p);
+        /* healed on its way, a stunned disk gets its whole turn back */
+        if (rb.stun_pick && rb.sel >= 0 && rb.p.d[rb.sel].on && !rb.p.d[rb.sel].stun) {
+            rb.stun_pick = 0;
+            rb.moves = RSH_KIND[rb.p.d[rb.sel].kind].moves;
+        }
         if (rb.p.moving) break;
         rb.proj = -1;
         check_winner();
@@ -826,10 +967,11 @@ void rsh_battle_step(uint32_t held, uint32_t pressed, uint32_t released) {
 }
 
 /* ------------------------------------------------------------------ */
-/* the aim line: short by default; SIGHTLINE draws the whole path with its
- * bounces off the walls, up to the first disk it would meet */
+/* the aim line. Without SIGHTLINE, a few dots off the disk; with it, the
+ * path up to the first thing it meets (a short way only), then where the
+ * thing it strikes will go (kind 1) and where the shot bounces (kind 2) */
 
-int rsh_count_trace(int angle, int pips, int16_t *xs, int16_t *ys, int max) {
+int rsh_count_trace(int angle, int pips, int16_t *xs, int16_t *ys, uint8_t *kinds, int max) {
     if (rb.sel < 0) return 0;
     const RshDisk *d = &rb.p.d[rb.sel];
     bool ranged = rb.phase == B_RAIM;
@@ -841,13 +983,13 @@ int rsh_count_trace(int angle, int pips, int16_t *xs, int16_t *ys, int max) {
         for (int i = 0; i < 4 && n < max; i++) {
             xs[n] = (int16_t)(x + dx * (d->r + 5.0f + (float)i * 6.0f));
             ys[n] = (int16_t)(y + dy * (d->r + 5.0f + (float)i * 6.0f));
-            n++;
+            kinds[n++] = 0;
         }
         return n;
     }
-    int p = pips > 0 ? pips : RSH_KIND[d->kind].charge;
-    float v = ranged ? proj_speed(p) : rsh_pip_speed(p), fr = ranged ? 0.05f : 0.06f;
-    float left = v * v / (2.0f * fr);
+    int p = pips > 0 ? pips : max_pips(ranged);
+    float v = ranged ? proj_speed(p) : rsh_pip_speed(p), fr = ranged ? 0.045f : 0.06f;
+    float left = fminf(v * v / (2.0f * fr), 110.0f);
     if (ranged) { x += dx * (d->r + 4.5f); y += dy * (d->r + 4.5f); }
     float step = 3.0f, run = 0;
     while (left > 0 && n < max) {
@@ -859,30 +1001,56 @@ int rsh_count_trace(int angle, int pips, int16_t *xs, int16_t *ys, int max) {
         if (x > RSH_AW - r) { x = RSH_AW - r; dx = -dx; }
         if (y < r) { y = r; dy = -dy; }
         if (y > RSH_AH - r) { y = RSH_AH - r; dy = -dy; }
+        float hx = 0, hy = 0, hr = 0;
         bool hit = false;
         for (int i = 0; i < RSH_MAXD && !hit; i++) {
             const RshDisk *o = &rb.p.d[i];
             if (!o->on || i == rb.sel) continue;
             float ex = o->x - x, ey = o->y - y, rr = o->r + r;
-            hit = ex * ex + ey * ey < rr * rr;
+            if (ex * ex + ey * ey < rr * rr) { hit = true; hx = o->x; hy = o->y; hr = o->r; }
+        }
+        for (int k = 0; k < RSH_MAXO && !hit; k++) {
+            const RshObj *o = &rb.p.o[k];
+            if (!o->on || !(o->kind == O_WELL || o->kind == O_PILE || o->kind == O_CLUSTER || o->kind == O_TREE)) continue;
+            float ex = o->x - x, ey = o->y - y, rr = o->r + r;
+            if (ex * ex + ey * ey < rr * rr) { hit = true; hx = o->x; hy = o->y; hr = o->r; }
         }
         if (run >= 6.0f || hit) {
             run = 0;
             xs[n] = (int16_t)x;
             ys[n] = (int16_t)y;
-            n++;
+            kinds[n++] = 0;
         }
-        if (hit) break;
+        if (hit) {
+            float nx = hx - x, ny = hy - y, nl = sqrtf(nx * nx + ny * ny);
+            if (nl < 0.001f) break;
+            nx /= nl;
+            ny /= nl;
+            for (int i = 1; i <= 4 && n < max; i++) {
+                xs[n] = (int16_t)(hx + nx * (hr + (float)i * 5.0f));
+                ys[n] = (int16_t)(hy + ny * (hr + (float)i * 5.0f));
+                kinds[n++] = 1;
+            }
+            float vn = dx * nx + dy * ny, bx = dx - 2 * vn * nx, by = dy - 2 * vn * ny;
+            for (int i = 1; i <= 3 && n < max; i++) {
+                xs[n] = (int16_t)(x + bx * (float)i * 5.0f);
+                ys[n] = (int16_t)(y + by * (float)i * 5.0f);
+                kinds[n++] = 2;
+            }
+            break;
+        }
     }
     return n;
 }
 
 /* ------------------------------------------------------------------ */
 /* the computer's shots: it tries shots on a copy of the field and keeps
- * the one that does the most good. Early on it is sloppy (it takes one of
- * its better ideas, not the best, and its hand shakes); it never really
- * sees its own disks drowning coming. The player's demo player uses the
- * same search, with a steady hand and a healthy fear of water. */
+ * the one that scores best. Early on it is sloppy (it takes one of its
+ * better ideas, not the best, and its hand shakes); later its aim is
+ * perfect. It loves trick shots that knock many disks and pick up much,
+ * cares little which disks it hurts, and never quite sees its own disks
+ * drowning coming. The player's demo player uses the same search, with a
+ * steady hand, a sense of what each disk is worth and a fear of water. */
 
 typedef struct { int disk, angle, pips; float score; } Cand;
 
@@ -906,13 +1074,16 @@ static float score_shot(int disk, int final) {
     for (int i = 0; i < RSH_MAXD; i++) {
         const RshDisk *x0 = &b->d[i], *x1 = &a->d[i];
         if (!x0->on || x0->proj) continue;
-        int val = rsh_kind_value(x0->kind);
+        int val = pl.bot ? rsh_kind_value(x0->kind) : 12;
         if (x0->side != s) {
             if (!x1->on) sc += (float)(val * 6 + 10);
             else {
                 sc += 3.0f * (float)(x0->hp - x1->hp);
+                if (x1->hp < x0->hp) sc += pl.bot ? 0.0f : 3.0f; /* one more disk knocked */
                 if (x1->poison && !x0->poison) sc += 5.0f + (float)val * 0.5f;
                 if (x1->stun && !x0->stun) sc += 2.0f;
+                sc -= 4.0f * (float)(x1->stars - x0->stars); /* a foe tuned up */
+                if (x1->hp > x0->hp) sc -= 2.0f * (float)(x1->hp - x0->hp);
             }
         } else {
             if (!x1->on) {
@@ -925,8 +1096,9 @@ static float score_shot(int disk, int final) {
             }
         }
     }
-    sc += (float)(a->coins[s] - b->coins[s]) * 1.0f;
-    sc += (float)(a->shards[s] - b->shards[s]) * 2.0f;
+    float greed = pl.bot ? 1.0f : 2.5f;
+    sc += (float)(a->coins[s] - b->coins[s]) * greed;
+    sc += (float)(a->shards[s] - b->shards[s]) * 2.0f * greed;
     /* embers left by the shot: good near foes, bad near friends */
     for (int k = 0; k < RSH_MAXO; k++) {
         const RshObj *o = &a->o[k];
@@ -962,7 +1134,6 @@ static float score_shot(int disk, int final) {
                 float ang = (float)k * 0.785f;
                 if (rsh_terrain_at(me->x + cosf(ang) * (me->r + 10), me->y + sinf(ang) * (me->r + 10)) == T_WATER) { sc -= 1.5f; break; }
             }
-            /* and don't sit where a push sends you in: near walls is safer */
         }
     }
     return sc;
@@ -977,8 +1148,15 @@ static float run_sim(int disk, int angle, int pips, int ranged) {
     return score_shot(disk, pl.final_move);
 }
 
-static int pip_set(int disk, int i) {
-    int c = RSH_KIND[rb.p.d[disk].kind].charge;
+static int cand_max(int disk, int ranged) {
+    const RshDisk *d = &rb.p.d[disk];
+    const RshKind *k = &RSH_KIND[d->kind];
+    if (ranged) return k->pcharge;
+    return d->stun ? imin(STUN_PIPS, k->charge) : k->charge;
+}
+
+static int pip_set(int disk, int i, int ranged) {
+    int c = cand_max(disk, ranged);
     if (i == 0) return imax(1, c / 3);
     if (i == 1) return imax(1, (2 * c + 2) / 3);
     return c;
@@ -1038,7 +1216,7 @@ int rsh_ai_work(int budget) {
             int ai = rest % 32, pi = rest / 32;
             int disk = pl.el[di];
             int ang = (ai * 8 + (pl.side ? 4 : 0)) & 255;
-            int pips = pip_set(disk, ranged ? pi + 1 : pi);
+            int pips = pip_set(disk, ranged ? pi + 1 : pi, ranged);
             pl.final_move = final_for(disk);
             Cand c = {disk, ang, pips, run_sim(disk, ang, pips, ranged)};
             keep_top(c);
@@ -1046,7 +1224,7 @@ int rsh_ai_work(int budget) {
         } else if (pl.stage == 1) {
             /* refine round the best: finer angles, every power */
             Cand b = pl.coarse_best;
-            int c = RSH_KIND[rb.p.d[b.disk].kind].charge;
+            int c = cand_max(b.disk, ranged);
             int n = 7 * c;
             if (pl.idx >= n) { pl.stage = 2; break; }
             int off = (pl.idx % 7 - 3) * 2, pips = pl.idx / 7 + 1;
@@ -1069,7 +1247,7 @@ int rsh_ai_work(int budget) {
         int shake = (10 - lvl);
         if (shake > 0) pick.angle = (pick.angle + rng_range(&g_rng, -shake, shake) * 2) & 255;
         if (lvl < 5 && rng_chance(&g_rng, 40)) {
-            int c = RSH_KIND[rb.p.d[pick.disk].kind].charge;
+            int c = cand_max(pick.disk, ranged);
             pick.pips = iclamp(pick.pips + (rng_chance(&g_rng, 50) ? 1 : -1), 1, c);
         }
     }

@@ -1,0 +1,72 @@
+# RIMSHIRE: a seam is worked out after paying ten times.
+game rimshire
+cheat war 4
+cheat cpu 1 -1
+cheat at 0 4 2
+cheat turn 0
+press RIGHT
+waituntil moves_used == 1 60
+press RIGHT
+waituntil turn == 1 60
+# both banners pass their turns by retreating home, ten rounds over
+cheat at 1 12 2
+hold B 25
+waituntil turn == 0 60
+expect seam_left_5_2 == 9
+cheat at 0 6 2
+hold B 25
+waituntil turn == 1 60
+cheat at 1 12 2
+hold B 25
+waituntil turn == 0 60
+cheat at 0 6 2
+hold B 25
+waituntil turn == 1 60
+cheat at 1 12 2
+hold B 25
+waituntil turn == 0 60
+cheat at 0 6 2
+hold B 25
+waituntil turn == 1 60
+cheat at 1 12 2
+hold B 25
+waituntil turn == 0 60
+cheat at 0 6 2
+hold B 25
+waituntil turn == 1 60
+cheat at 1 12 2
+hold B 25
+waituntil turn == 0 60
+cheat at 0 6 2
+hold B 25
+waituntil turn == 1 60
+cheat at 1 12 2
+hold B 25
+waituntil turn == 0 60
+cheat at 0 6 2
+hold B 25
+waituntil turn == 1 60
+cheat at 1 12 2
+hold B 25
+waituntil turn == 0 60
+cheat at 0 6 2
+hold B 25
+waituntil turn == 1 60
+cheat at 1 12 2
+hold B 25
+waituntil turn == 0 60
+cheat at 0 6 2
+hold B 25
+waituntil turn == 1 60
+cheat at 1 12 2
+hold B 25
+waituntil turn == 0 60
+cheat at 0 6 2
+hold B 25
+waituntil turn == 1 60
+cheat at 1 12 2
+hold B 25
+waituntil turn == 0 60
+expect coins0 == 14
+expect node_5_2 == 1
+expect owner_5_2 == 0

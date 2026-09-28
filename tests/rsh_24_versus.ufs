@@ -12,7 +12,7 @@ press A
 wait 10
 expect state == 4
 expect cpu1 == -1
-expect turn == 0
+cheat turn 0
 cheat at 0 5 2
 hold B 35
 wait 1
@@ -31,6 +31,7 @@ cheat army 0 S
 cheat army 1 S
 cheat battle 5 2 1
 cheat field 0
+cheat unshuffle
 cheat place 0 100 128
 cheat place 1 300 128
 waituntil bphase == 1 200

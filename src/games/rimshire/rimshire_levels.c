@@ -4,38 +4,38 @@
  * docs/games/41-rimshire.md. */
 #include "rimshire.h"
 
-/*  name        letter size      hp cost melee moves ranged rkind     charge fx         aqua anch drain triple */
+/*  name        letter size      hp cost melee moves ranged rkind  charge pcharge fx      aqua anch drain triple */
 const RshKind RSH_KIND[K_COUNT] = {
-    {"SQUIRE",  'S', SZ_MID,    4, 3, 1, 2, 0, RG_NONE,   5, FX_NONE,   0, 0, 0, 0, "TOUGH AND CHEAP, BUT HITS SOFTLY."},
-    {"WARDEN",  'W', SZ_MID,    8, 6, 2, 2, 0, RG_NONE,   5, FX_NONE,   0, 0, 0, 0, "A SQUIRE GROWN UP: HARD AND HARD-HITTING."},
-    {"FERRET",  'F', SZ_SMALL,  3, 4, 1, 3, 0, RG_NONE,   6, FX_NONE,   0, 0, 0, 0, "THREE DASHES A TURN. SHOVES FOES INTO WATER."},
-    {"BRUTE",   'B', SZ_LARGE,  8, 5, 3, 1, 0, RG_NONE,   4, FX_STUN,   0, 0, 0, 0, "ONE SLOW, HEAVY BLOW THAT STUNS."},
-    {"SLINGER", 'L', SZ_MID,    4, 4, 1, 1, 3, RG_HIT,    5, FX_NONE,   0, 0, 0, 0, "A STONE FOR A SHARD: 3 DAMAGE."},
-    {"TOADKIN", 'T', SZ_MID,    5, 5, 2, 1, 2, RG_STUN,   5, FX_NONE,   1, 0, 0, 0, "SWIMS. ITS SPIT STUNS."},
-    {"OOZE",    'O', SZ_SMALL,  3, 3, 1, 2, 0, RG_NONE,   6, FX_NONE,   1, 0, 0, 0, "A CHEAP LITTLE SWIMMER."},
-    {"HEXER",   'H', SZ_MID,    5, 5, 1, 2, 1, RG_EMBERS, 5, FX_NONE,   0, 0, 0, 0, "LEAVES FIVE EMBERS THAT BURN ANYONE."},
-    {"MENHIR",  'M', SZ_MID,    8, 6, 2, 2, 0, RG_NONE,   4, FX_NONE,   0, 1, 0, 0, "NOTHING KNOCKS IT ABOUT."},
-    {"ADDER",   'A', SZ_SMALL,  3, 4, 0, 2, 0, RG_NONE,   6, FX_POISON, 0, 0, 0, 0, "NO BITE, BUT ITS POISON KILLS ON THE NEXT HIT."},
-    {"FRIAR",   'R', SZ_MID,    4, 5, 1, 2, 2, RG_HEAL,   5, FX_NONE,   0, 0, 0, 0, "ITS BALM HEALS FRIENDS 2 AND BURNS LEECHES."},
-    {"PIPER",   'P', SZ_MID,    6, 4, 1, 1, 1, RG_STAR,   6, FX_NONE,   0, 0, 0, 0, "ITS TUNE GIVES A FRIEND A STAR: +1 ATTACK."},
-    {"LEECH",   'E', SZ_MID,    6, 7, 2, 2, 0, RG_NONE,   5, FX_NONE,   0, 0, 1, 0, "DRINKS 1 FROM EVERY HIT, UP TO 10. HEALING HURTS IT."},
-    {"DELVER",  'D', SZ_MID,    4, 3, 1, 2, 0, RG_NONE,   5, FX_NONE,   0, 0, 0, 1, "PICKS UP THREE TIMES AS MUCH."},
-    {"WYRM",    'Y', SZ_LARGE,  8, 8, 2, 2, 3, RG_HIT,    4, FX_NONE,   0, 0, 0, 0, "THE BEST THERE IS, AND PRICED LIKE IT."},
-    {"EMPRESS", 'Q', SZ_MID,   12, 0, 2, 2, 0, RG_NONE,   6, FX_NONE,   0, 0, 0, 0, "THE PLUM EMPRESS HERSELF."},
+    {"SQUIRE",  'S', SZ_MID,    5, 3, 1, 2, 0, RG_NONE,   6, 0, FX_NONE,   0, 0, 0, 0, "QUICK AND STURDY, BUT HITS SOFTLY."},
+    {"WARDEN",  'W', SZ_MID,    8, 6, 2, 2, 0, RG_NONE,   5, 0, FX_NONE,   0, 0, 0, 0, "A SQUIRE GROWN UP: HARD AND HARD-HITTING."},
+    {"FERRET",  'F', SZ_SMALL,  3, 4, 1, 3, 0, RG_NONE,   6, 0, FX_NONE,   0, 0, 0, 0, "THREE DASHES A TURN. SHOVES BIG ONES ABOUT."},
+    {"BRUTE",   'B', SZ_LARGE,  8, 5, 3, 1, 0, RG_NONE,   4, 0, FX_STUN,   0, 0, 0, 0, "ONE SLOW, HEAVY BLOW THAT STUNS."},
+    {"SLINGER", 'L', SZ_MID,    4, 4, 1, 1, 3, RG_HIT,    4, 7, FX_NONE,   0, 0, 0, 0, "A STONE FOR A SHARD: 3 DAMAGE."},
+    {"TOADKIN", 'T', SZ_MID,    5, 5, 2, 1, 2, RG_STUN,   6, 5, FX_NONE,   1, 0, 0, 0, "SWIMS. ITS SPIT DOES 2 AND STUNS."},
+    {"OOZE",    'O', SZ_SMALL,  3, 3, 1, 2, 0, RG_NONE,   5, 0, FX_NONE,   1, 0, 0, 0, "A CHEAP LITTLE SWIMMER."},
+    {"HEXER",   'H', SZ_MID,    5, 5, 1, 2, 1, RG_EMBERS, 6, 7, FX_NONE,   0, 0, 0, 0, "ITS SPELL LEAVES A RING OF SIX EMBERS."},
+    {"MENHIR",  'M', SZ_MID,    8, 6, 2, 2, 0, RG_NONE,   4, 0, FX_NONE,   0, 1, 0, 0, "NOTHING KNOCKS IT ABOUT."},
+    {"ADDER",   'A', SZ_SMALL,  3, 4, 0, 2, 0, RG_NONE,   6, 0, FX_POISON, 0, 0, 0, 0, "NO BITE, BUT ITS POISON KILLS ON THE NEXT HIT."},
+    {"FRIAR",   'R', SZ_MID,    4, 5, 1, 2, 2, RG_HEAL,   3, 7, FX_NONE,   0, 0, 0, 0, "ITS BALM HEALS 2. LEECHES IT BURNS."},
+    {"PIPER",   'P', SZ_MID,    6, 4, 1, 1, 1, RG_STAR,   6, 7, FX_NONE,   0, 0, 0, 0, "ITS TUNE: +1 ATTACK FOR THE BATTLE."},
+    {"LEECH",   'E', SZ_MID,    6, 7, 2, 2, 0, RG_NONE,   5, 0, FX_NONE,   0, 0, 1, 0, "DRINKS 1 FROM EVERY FOE IT TOUCHES. HEALING HURTS."},
+    {"DELVER",  'D', SZ_MID,    4, 3, 1, 2, 0, RG_NONE,   5, 0, FX_NONE,   0, 0, 0, 1, "PICKS UP THREE TIMES AS MUCH."},
+    {"WYRM",    'Y', SZ_LARGE,  8, 8, 2, 2, 3, RG_HIT,    3, 7, FX_NONE,   0, 0, 0, 0, "BIG, SLOW AND FIERY. THE DEAREST OF ALL."},
+    {"EMPRESS", 'Q', SZ_MID,   12, 0, 2, 2, 0, RG_NONE,   6, 0, FX_NONE,   0, 0, 0, 0, "THE PLUM EMPRESS HERSELF."},
 };
 
 const char *const RSH_SKILL_NAME[RSH_SKILLS] = {
     "COMMAND", "STOCKPILE", "SCOUTING", "HAGGLING", "PROSPECTING", "SIGHTLINE", "HOBNAILS", "REMEDY",
 };
 const char *const RSH_SKILL_TEXT[RSH_SKILLS] = {
-    "CHOOSE FROM FIVE DISKS IN BATTLE, NOT THREE.",
-    "START EVERY BATTLE WITH 5 SHARDS, NOT 2.",
-    "THREE MOVES A TURN ON THE BOARD, NOT TWO.",
-    "4 COINS EVERY TIME YOU STOP BY AN INN.",
-    "YOUR SEAMS PAY 2 COINS A TURN, NOT 1.",
-    "A LONG AIM LINE THAT SHOWS THE BOUNCES.",
+    "CHOOSE FROM TWO MORE DISKS IN BATTLE.",
+    "START EVERY BATTLE WITH 3 MORE SHARDS.",
+    "ONE MORE SPACE ON THE BOARD EVERY TURN.",
+    "4 COINS EVERY TIME YOU ARRIVE AT AN INN.",
+    "YOUR SEAMS PAY TWICE AS MUCH.",
+    "AN AIM LINE THAT SHOWS WHERE A HIT SENDS THINGS.",
     "SAND NO LONGER SLOWS YOUR DISKS.",
-    "EVERY DISK HAS 1 MORE HIT POINT IN BATTLE.",
+    "EVERY DISK STARTS A BATTLE WITH 1 MORE HP.",
 };
 
 int rsh_kind_of_letter(char c) {

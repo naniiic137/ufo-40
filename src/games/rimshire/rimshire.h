@@ -29,7 +29,8 @@ typedef struct RshKind {
     int size, hp, cost;   /* cost 0: never for hire */
     int melee, moves;     /* damage of each melee move, and how many */
     int ranged, rkind;    /* the projectile: its damage (or heal) and what it does */
-    int charge;           /* most power pips */
+    int charge;           /* most power pips for a move */
+    int pcharge;          /* ... and for its projectile */
     int fx;               /* FX_* on melee hits */
     int aqua, anchored, drain, triple;
     const char *blurb;
@@ -60,7 +61,7 @@ extern const char *const RSH_SKILL_TEXT[RSH_SKILLS];
 enum { N_NONE, N_PLAIN, N_BASE0, N_BASE1, N_INN, N_TOME, N_SEAM, N_CHEST };
 enum { T_GRASS, T_STONE, T_SAND, T_WATER };
 #define RSH_ARMY 8         /* disks in the field ... */
-#define RSH_RESERVE 8      /* ... and in reserve */
+#define RSH_RESERVE 6      /* ... and in reserve */
 #define RSH_TRAIL 96
 
 typedef struct RshScenario {
@@ -96,7 +97,7 @@ typedef struct RshSide {
 } RshSide;
 
 /* war states */
-enum { W_PLAN, W_WALK, W_INN, W_TOME, W_BATTLE, W_OVER, W_CPU };
+enum { W_PLAN, W_WALK, W_INN, W_TOME, W_BATTLE, W_OVER, W_CPU, W_SWAP };
 
 typedef struct RshWar {
     int scen;                  /* 0..9, or -1 for a streak or versus war */
@@ -108,6 +109,8 @@ typedef struct RshWar {
     uint8_t tile[RSH_MH + 1][RSH_MW + 1]; /* tile (x,y) lies up-left of node (x,y) */
     uint8_t owner[RSH_MH][RSH_MW];        /* seams: 0 nobody, 1 Brass, 2 Plum */
     uint8_t visits[RSH_MH][RSH_MW];       /* inns: 3 visits and it closes */
+    uint8_t inn_offer[RSH_MH][RSH_MW][3]; /* each inn's three disks, the same all war */
+    uint8_t seam_left[RSH_MH][RSH_MW];    /* seams: turns of pay left (10) */
     uint16_t pool;
     uint8_t battle_coins;
     RshSide s[2];
@@ -115,11 +118,13 @@ typedef struct RshWar {
     int first_move;            /* the war's first turn: one move */
     int turns;                 /* turns taken, both sides */
     int moves;                 /* moves this turn */
+    int moves_used;
     int plan_n;                /* planned steps (d-pad) */
     int8_t plan_x[4], plan_y[4];
     int walk_i, walk_t;        /* walking the confirmed plan */
     int state, state_t;
-    uint8_t offer[3];          /* the inn's three disks (K_COUNT: bought) */
+    uint8_t offer[3];          /* the inn's three disks */
+    int swap_kind;             /* a disk bought with a full field army: who goes to the reserve */
     uint8_t tome[3];           /* the tome's three skills (bit index) */
     int menu_sel;
     int winner;                /* W_OVER: 0, 1, or 2 for a stalemate */
@@ -139,12 +144,11 @@ bool rsh_node_ok(int x, int y);
 bool rsh_road(int x0, int y0, int x1, int y1);
 int rsh_step_ok(int side, int fx, int fy, int dir, int *nx, int *ny); /* 0 no, 1 yes, 2 battle, 3 home */
 bool rsh_in_trail(int side, int x, int y);
-void rsh_plan_clear(void);
-bool rsh_plan_push(int dir);    /* the d-pad adds a step (or undoes the last) */
-bool rsh_plan_ready(void);      /* the plan may be confirmed */
-int rsh_plan_kind(int i);       /* planned step i: 1 a step, 2 a battle, 3 home */
-void rsh_plan_confirm(void);
+int rsh_try_step(int dir);      /* the d-pad: one space now; 0 if the road is closed */
+bool rsh_can_step(void);        /* the side to move has somewhere to go */
+int rsh_step_kind(int dir);     /* what a step that way would be: 0 none, 1 a step, 2 a battle, 3 home */
 void rsh_go_home(int side);     /* B: back to base, the turn ends */
+void rsh_swap_pick(int i);      /* send field disk i to the reserve (W_SWAP); -1 cancels */
 void rsh_war_update(void);      /* walking, the computer's turns */
 void rsh_inn_buy(int i);
 void rsh_inn_leave(void);
@@ -168,8 +172,11 @@ extern const int RSH_DX[4], RSH_DY[4];
 #define RSH_MAXO 28        /* pickups, springs, piles, embers */
 #define RSH_PIP_FRAMES 12  /* frames per power pip */
 #define RSH_RESET_FRAMES 180 /* held at full with no other input: the shot resets */
-#define RSH_HOME_HOLD 30   /* frames B is held on the board to retreat home */
-#define RSH_FOG_ROUND 6    /* the haze starts closing after this many rounds */
+#define RSH_HOME_HOLD 20   /* frames B is held on the board to retreat home */
+#define RSH_SEAM_TURNS 10  /* a seam pays this many times, then it is worked out */
+#define RSH_STALE_TURNS 10 /* five full rounds with nothing touched: a stalemate */
+#define RSH_MAX_STARS 5
+#define RSH_FOG_ROUND 5    /* the haze starts closing once both sides have had this many turns */
 #define RSH_FOG_STEP 14    /* ... this far each round */
 #define RSH_FOG_MAX 96
 
@@ -180,7 +187,7 @@ typedef struct RshDisk {
     float x, y, vx, vy, r, m;
 } RshDisk;
 
-enum { O_COIN, O_SHARD, O_TONIC, O_WELL, O_PILE, O_CLUSTER, O_EMBER, O_BAG };
+enum { O_COIN, O_SHARD, O_TONIC, O_WELL, O_PILE, O_CLUSTER, O_EMBER, O_TREE };
 typedef struct RshObj {
     uint8_t on, kind, left, pad;
     float x, y, r;
@@ -198,6 +205,7 @@ typedef struct RshPhys {
     int chain_dmg, chain_fx, chain_kind, chain_disk, chain_ranged;
     int combo, best_combo;
     int hits, kills[2], water_deaths, heals, stars_given;
+    int touches;               /* contacts and pickups: a battle with none for five rounds is a stalemate */
     int moving;                /* anything still moving */
     int frames;
     uint8_t sim;               /* a trial: no events */
@@ -206,6 +214,8 @@ typedef struct RshPhys {
 } RshPhys;
 
 enum { BE_HIT, BE_KILL, BE_WALL, BE_SPLASH, BE_PICK, BE_HEAL, BE_STAR, BE_EMBER, BE_STRIKE, BE_POISON, BE_STUN };
+
+enum { B_WIN0, B_WIN1, B_BOTH, B_STALE }; /* how a battle ended (rb.winner) */
 
 /* battle phases */
 enum { B_INTRO, B_SELECT, B_AIM, B_ROLL, B_RAIM, B_END, B_OVER, B_THINK };
@@ -231,6 +241,11 @@ typedef struct RshBattle {
     int cam_x, cam_y, cam_free;
     int cpu[2];                /* -1 a player */
     int fog_deaths;
+    int quiet, touch_mark;     /* turns in a row with nothing touched */
+    int attacker;
+    int nwall;                 /* the cliffs of mountain corners: line walls */
+    float wall[16][4];
+    int stun_pick;             /* the chosen disk was stunned when picked */
     int over_t;
     int proj;                  /* index of the projectile disk, or -1 */
     int skip_ranged;           /* last projectile was skipped (tests) */
@@ -261,7 +276,7 @@ extern int rsh_ai_busy;
  * what it held last frame, so presses are fresh */
 uint32_t rsh_battle_buttons(int side, int bot, uint32_t prev);
 int rsh_aim_dir_for(int from, int to); /* the d-pad bits that turn the aim toward 'to' */
-int rsh_count_trace(int angle, int pips, int16_t *xs, int16_t *ys, int max); /* the aim line */
+int rsh_count_trace(int angle, int pips, int16_t *xs, int16_t *ys, uint8_t *kinds, int max); /* the aim line */
 
 /* ---- art (rimshire_art.c) -------------------------------------------------------- */
 enum {
@@ -269,7 +284,7 @@ enum {
     RS_TOKEN0 = K_COUNT, RS_TOKEN1,
     RS_BASE, RS_CASTLE, RS_INN, RS_TOME, RS_SEAM, RS_CHEST,
     RS_COIN, RS_SHARD, RS_TONIC, RS_WELL, RS_PILE, RS_CLUSTER, RS_EMBER0, RS_EMBER1,
-    RS_STAR, RS_SKULL, RS_BOLT, RS_DROP, RS_BAG,
+    RS_STAR, RS_SKULL, RS_BOLT, RS_DROP, RS_TREE, RS_SHARD2,
     RS_LORD0, RS_LORD1,        /* the two lords, for the title and cards */
     RS_COUNT
 };

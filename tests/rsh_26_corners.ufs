@@ -1,0 +1,25 @@
+# RIMSHIRE: the field's corners follow the four board tiles round the
+# battle: crags close a corner in with cliffs (and an angled cut), woods
+# have trees, dunes and lakes run sand or water along the edges.
+game rimshire
+cheat war 6
+cheat cpu 1 -1
+# THE KEEP, node (0,0): crags round three corners
+cheat battle 0 0 0
+expect quad0 == 1
+expect walls > 0
+expect cell_0_0 == 1
+# a lake corner: water along the edges (MARSHMOOT, node (2,0))
+cheat war 3
+cheat cpu 1 -1
+cheat battle 2 0 0
+expect quad0 == 3
+expect cell_0_0 == 3
+expect cell_47_0 == 3
+# woods (THE LONG LANE, node 1): trees, no cliffs
+cheat war 1
+cheat cpu 1 -1
+cheat battle 1 1 0
+expect quad0 == 0
+expect walls == 0
+expect trees > 0

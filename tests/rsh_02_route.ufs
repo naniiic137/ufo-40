@@ -1,7 +1,6 @@
-# RIMSHIRE: the board. The d-pad draws the route a space at a time; the
-# first move of a war is a single space, later turns two; the way back
-# undoes a planned step; a route can't double back or cross itself; A goes
-# only once every move is used.
+# RIMSHIRE: the board. Each d-pad press moves the banner a space at once;
+# the first turn of a war is a single space, later turns two; every move is
+# used before the turn passes; a banner can't step back onto its own trail.
 game rimshire
 cheat war 1
 wait 5
@@ -9,16 +8,10 @@ expect turn == 0
 expect moves == 1
 expect first_move == 1
 press LEFT
-expect plan_n == 0
+wait 12
+expect nx0 == 0
+expect turn == 0
 press RIGHT
-expect plan_n == 1
-expect plan_ready == 1
-press RIGHT
-expect plan_n == 1
-press LEFT
-expect plan_n == 0
-press RIGHT
-press A
 waituntil turn == 1 60
 expect nx0 == 1
 expect trail0 == 2
@@ -28,27 +21,20 @@ expect first_move == 0
 expect moves == 2
 expect nx1 == 10
 expect trail1 == 3
-# two moves: through the inn (its menu opens on the way) and on
+# a step, and the inn's menu on the way
 press RIGHT
-press RIGHT
-expect plan_n == 2
-expect plan_ready == 1
-press A
 waituntil wstate == 2 60
 expect nx0 == 2
+expect moves_used == 1
 press B
+waituntil wstate == 0 60
+expect turn == 0
+# no stepping back onto the trail
+press LEFT
+wait 12
+expect nx0 == 2
+expect moves_used == 1
+press RIGHT
 waituntil turn == 1 60
 expect nx0 == 3
 expect trail0 == 4
-waituntil turn == 0 300
-# no doubling back onto the route
-press LEFT
-expect plan_n == 0
-# one move of two can't be sent
-press RIGHT
-expect plan_n == 1
-expect plan_ready == 0
-press A
-wait 5
-expect wstate == 0
-expect turn == 0

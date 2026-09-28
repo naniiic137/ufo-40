@@ -190,11 +190,7 @@ static void war_update(void) {
         {
             static const int PADS[4] = {BTN_RIGHT, BTN_DOWN, BTN_LEFT, BTN_UP};
             for (int d = 0; d < 4; d++)
-                if (pr & PADS[d]) sfx_play_name(rsh_plan_push(d) ? "rsh_step" : "rsh_nope");
-        }
-        if (pr & BTN_A) {
-            if (rsh_plan_ready()) { sfx_play_name("ui_ok"); rsh_plan_confirm(); }
-            else sfx_play_name("rsh_nope");
+                if ((pr & PADS[d]) && !rsh_try_step(d)) sfx_play_name("rsh_nope");
         }
         /* hold B to retreat all the way home (the turn ends) */
         if ((held & BTN_B) && !(me->nx == me->bx && me->ny == me->by)) {
@@ -212,7 +208,7 @@ static void war_update(void) {
             else {
                 int k = rw.offer[rw.menu_sel], c = me->coins;
                 rsh_inn_buy(rw.menu_sel);
-                sfx_play_name(k < K_COUNT && me->coins < c ? "rsh_buy" : "rsh_nope");
+                sfx_play_name(k < K_COUNT && (me->coins < c || rw.state == W_SWAP) ? "rsh_buy" : "rsh_nope");
             }
         } else if (pr & BTN_B) { sfx_play_name("ui_back"); rsh_inn_leave(); }
         break;
@@ -221,6 +217,15 @@ static void war_update(void) {
         if (pr & BTN_DOWN) { rw.menu_sel = (rw.menu_sel + 1) % 3; sfx_play_name("ui_move"); }
         if (pr & BTN_A) { sfx_play_name("rsh_star"); rsh_tome_pick(rw.menu_sel); }
         break;
+    case W_SWAP: {
+        /* a full field army: which disk goes to the reserve (B: none, no sale) */
+        int n = me->n_army;
+        if (pr & BTN_UP) { rw.menu_sel = (rw.menu_sel + n - 1) % n; sfx_play_name("ui_move"); }
+        if (pr & BTN_DOWN) { rw.menu_sel = (rw.menu_sel + 1) % n; sfx_play_name("ui_move"); }
+        if (pr & BTN_A) { sfx_play_name("rsh_buy"); rsh_swap_pick(rw.menu_sel); }
+        else if (pr & BTN_B) { sfx_play_name("ui_back"); rsh_swap_pick(-1); }
+        break;
+    }
     default: break;
     }
     rsh_war_update();
@@ -255,9 +260,9 @@ static void battle_update(void) {
         uint32_t h0 = pad_held(0), h1 = pad_held(1);
         bool go = ((h0 & ~prev_in[0]) & (BTN_A | BTN_START)) || (mode == MODE_VERSUS && ((h1 & ~prev_in[1]) & BTN_A));
         if (rb.over_t == 1) {
-            bool brass = rb.winner == 0;
-            if (rb.winner == 0) sv.battles_won++;
-            music_play(rb.winner == 2 ? RSH_MUS_LOSE : (brass || mode == MODE_VERSUS) ? RSH_MUS_WIN : RSH_MUS_LOSE);
+            bool brass = rb.winner == B_WIN0;
+            if (brass) sv.battles_won++;
+            music_play(rb.winner >= B_BOTH ? RSH_MUS_LOSE : (brass || mode == MODE_VERSUS) ? RSH_MUS_WIN : RSH_MUS_LOSE);
         }
         if (rb.p.best_combo > sv.best_combo) sv.best_combo = (uint16_t)rb.p.best_combo;
         rsh_battle_step(0, 0, 0);
@@ -302,30 +307,37 @@ static uint32_t map_bot(void) {
     bool odd = frame_t & 1;
     switch (rw.state) {
     case W_PLAN: {
-        int key = rw.turns;
+        /* the demo player picks its way a step at a time */
+        int key = rw.turns * 8 + rw.moves_used;
         if (bot_turn_key != key) {
             bot_turn_key = key;
-            rsh_plan_clear();
             bot_n = rsh_cpu_map_plan(0, bot_px, bot_py);
         }
-        if (bot_n < 0) return BTN_B;
+        if (bot_n <= 0) return BTN_B;
         if (odd) return 0;
-        if (rw.plan_n < bot_n) {
-            int fx = rw.plan_n ? rw.plan_x[rw.plan_n - 1] : rw.s[0].nx, fy = rw.plan_n ? rw.plan_y[rw.plan_n - 1] : rw.s[0].ny;
-            static const int PADS[4] = {BTN_RIGHT, BTN_DOWN, BTN_LEFT, BTN_UP};
-            for (int d = 0; d < 4; d++)
-                if (fx + RSH_DX[d] == bot_px[rw.plan_n] && fy + RSH_DY[d] == bot_py[rw.plan_n]) return PADS[d];
-            return BTN_B;
-        }
-        return rsh_plan_ready() ? BTN_A : BTN_B;
+        static const int PADS[4] = {BTN_RIGHT, BTN_DOWN, BTN_LEFT, BTN_UP};
+        for (int d = 0; d < 4; d++)
+            if (rw.s[0].nx + RSH_DX[d] == bot_px[0] && rw.s[0].ny + RSH_DY[d] == bot_py[0]) return PADS[d];
+        return BTN_B;
+    }
+    case W_SWAP: {
+        if (odd) return 0;
+        int weak = 0;
+        for (int i = 1; i < rw.s[0].n_army; i++)
+            if (rsh_kind_value(rw.s[0].army[i]) < rsh_kind_value(rw.s[0].army[weak])) weak = i;
+        if (rsh_kind_value(rw.s[0].army[weak]) >= rsh_kind_value(rw.swap_kind)) return BTN_B;
+        return rw.menu_sel != weak ? BTN_DOWN : BTN_A;
     }
     case W_INN: {
         if (odd) return 0;
         int best = 3, bv = 0;
-        int room = RSH_ARMY + RSH_RESERVE - rsh_army_size(0);
-        for (int i = 0; i < 3 && room > 0; i++) {
+        bool room = rw.s[0].n_army < RSH_ARMY || rw.s[0].n_reserve < RSH_RESERVE;
+        int weakest = 999;
+        for (int i = 0; i < rw.s[0].n_army; i++) weakest = imin(weakest, rsh_kind_value(rw.s[0].army[i]));
+        for (int i = 0; i < 3 && room; i++) {
             int k = rw.offer[i];
             if (k >= K_COUNT || RSH_KIND[k].cost > rw.s[0].coins) continue;
+            if (rw.s[0].n_army >= RSH_ARMY && rsh_kind_value(k) <= weakest) continue;
             if (rsh_kind_value(k) > bv) { bv = rsh_kind_value(k); best = i; }
         }
         if (rw.menu_sel != best) return BTN_DOWN;
@@ -531,6 +543,27 @@ static void draw_board(void) {
             int x = ox + (tx - 1) * RSH_NODE_GAP, y = oy + (ty - 1) * RSH_NODE_GAP;
             int x0 = imax(x, 0), y0 = imax(y, 15), x1 = imin(x + RSH_NODE_GAP, SCREEN_W), y1 = imin(y + RSH_NODE_GAP, 167);
             if (x1 > x0 && y1 > y0) ground(x0, y0, x1 - x0, y1 - y0, rw.tile[ty][tx], x0, y0);
+            /* woods get trees, crags a peak, dunes a ridge */
+            uint32_t h = hash2(tx, ty);
+            int dx = x + 5 + (int)(h % 6), dy = y + 6 + (int)((h >> 4) % 5);
+            switch (rw.tile[ty][tx]) {
+            case T_GRASS:
+                for (int k = 0; k < 2; k++) {
+                    int px = dx + k * 7, py = dy + (k ? 3 : 0);
+                    gfx_rect(px, py, 5, 4, C_FOREST);
+                    gfx_rect(px + 1, py - 1, 3, 1, C_JADE);
+                    gfx_pset(px + 2, py + 4, C_BROWN);
+                }
+                break;
+            case T_STONE:
+                for (int k = 0; k < 5; k++) gfx_hline(dx + 4 - k, dx + 4 + k, dy + k, k < 2 ? C_WHITE : C_SLATE);
+                gfx_hline(dx - 1, dx + 9, dy + 5, C_DUSK);
+                break;
+            case T_SAND:
+                gfx_hline(dx, dx + 6, dy + 4, C_HIDE);
+                gfx_hline(dx + 2, dx + 5, dy + 3, C_CREAM);
+                break;
+            }
         }
     /* roads */
     for (int y = 0; y < rw.h; y++)
@@ -544,19 +577,18 @@ static void draw_board(void) {
         for (int i = 1; i < sd->trail_n; i++)
             draw_road(nodex(sd->tx[i - 1]), nodey(sd->ty[i - 1]), nodex(sd->tx[i]), nodey(sd->ty[i]), RSH_SIDE_COL[s][0], RSH_SIDE_COL[s][2]);
     }
-    /* the plan being drawn */
+    /* the ways the banner may go now: arrows, red where a battle waits */
     if (rw.state == W_PLAN && rw.s[rw.turn].cpu < 0) {
         int fx = nodex(rw.s[rw.turn].nx), fy = nodey(rw.s[rw.turn].ny);
-        for (int i = 0; i < rw.plan_n; i++) {
-            int tx = nodex(rw.plan_x[i]), ty = nodey(rw.plan_y[i]);
-            for (int k = 0; k <= 10; k++) {
-                int px = fx + (tx - fx) * k / 10, py = fy + (ty - fy) * k / 10;
-                if ((k + frame_t / 4) % 3 == 0) gfx_rect(px - 1, py - 1, 3, 3, C_WHITE);
-            }
-            fx = tx;
-            fy = ty;
+        for (int d = 0; d < 4; d++) {
+            int k = rsh_step_kind(d);
+            if (!k) continue;
+            int off = 8 + (frame_t / 8) % 2;
+            int ax = fx + RSH_DX[d] * off, ay = fy + RSH_DY[d] * off, col = k == 2 ? C_RED : k == 3 ? C_SKY : C_WHITE;
+            gfx_rect(ax - 1, ay - 1, 3, 3, C_INK);
+            gfx_pset(ax, ay, col);
+            gfx_pset(ax + RSH_DX[d], ay + RSH_DY[d], col);
         }
-        if (rw.plan_n > 0 && rsh_plan_kind(rw.plan_n - 1) == 2 && (frame_t / 8) % 2) text_draw("!", fx + 4, fy - 12, C_RED);
     }
     /* nodes and what is on them */
     for (int y = 0; y < rw.h; y++)
@@ -631,14 +663,21 @@ static void draw_war_hud(void) {
         }
     }
     const char *who = rw.s[rw.turn].cpu >= 0 ? "PLUM IS MOVING" : mode == MODE_VERSUS ? (rw.turn ? "PLUM'S TURN" : "BRASS'S TURN") : "YOUR TURN";
-    snprintf(buf, sizeof buf, "%s " GLYPH_DOT " %d MOVE%s", who, rw.moves, rw.moves == 1 ? "" : "S");
+    snprintf(buf, sizeof buf, "%s " GLYPH_DOT " %d MOVE%s", who, rw.moves - rw.moves_used, rw.moves - rw.moves_used == 1 ? "" : "S");
     tiny_center(buf, SCREEN_W / 2, 2, C_WHITE);
     gfx_rect(0, 167, SCREEN_W, 13, C_NIGHT);
     gfx_hline(0, SCREEN_W - 1, 166, C_DUSK);
     if (rw.state == W_PLAN && rw.s[rw.turn].cpu < 0) {
-        int fx = ui_hint(4, 170, GLYPH_DPAD, "DRAW YOUR ROUTE", C_LIGHT);
-        fx = ui_hint(fx, 170, GLYPH_A, rsh_plan_ready() ? "GO" : "GO (USE EVERY MOVE)", rsh_plan_ready() ? C_YELLOW : C_SLATE);
+        int fx;
+        if (rsh_can_step()) {
+            snprintf(buf, sizeof buf, "MOVE (%d LEFT)", rw.moves - rw.moves_used);
+            fx = ui_hint(4, 170, GLYPH_DPAD, buf, C_LIGHT);
+        } else fx = text_draw("NOWHERE TO GO:", 4, 170, C_ORANGE) + 4;
         ui_hint(fx, 170, GLYPH_B, "HOLD: HOME", C_LIGHT);
+    } else if (rw.state == W_SWAP) {
+        int fx = ui_hint(4, 170, GLYPH_UP GLYPH_DOWN, "CHOOSE", C_LIGHT);
+        fx = ui_hint(fx, 170, GLYPH_A, "TO THE RESERVE", C_LIGHT);
+        ui_hint(fx, 170, GLYPH_B, "DON'T HIRE", C_LIGHT);
     } else if (rw.state == W_INN || rw.state == W_TOME) {
         int fx = ui_hint(4, 170, GLYPH_UP GLYPH_DOWN, "CHOOSE", C_LIGHT);
         ui_hint(fx, 170, GLYPH_A, rw.state == W_INN ? "BUY" : "LEARN", C_LIGHT);
@@ -654,7 +693,8 @@ static void draw_inn(void) {
     ui_panel(x, y, w, h, C_NIGHT, C_AMBER);
     int visits = rw.visits[s->ny][s->nx];
     char buf[80];
-    snprintf(buf, sizeof buf, "THE INN " GLYPH_DOT " VISIT %d OF 3", visits);
+    static const char *const VISIT[3] = {"THE INN: HIRE WHO YOU LIKE", "THE INN: TWO VISITS LEFT", "THE INN: ABOUT TO CLOSE"};
+    snprintf(buf, sizeof buf, "%s", VISIT[iclamp(visits - 1, 0, 2)]);
     text_draw(buf, x + 8, y + 5, C_YELLOW);
     snprintf(buf, sizeof buf, GLYPH_COIN "%d " GLYPH_DOT " ROOM FOR %d", s->coins, RSH_ARMY + RSH_RESERVE - rsh_army_size(rw.turn));
     tiny_draw(buf, x + w - 8 - tiny_width(buf), y + 7, C_LIGHT);
@@ -662,7 +702,7 @@ static void draw_inn(void) {
         int ry = y + 20 + i * 26, k = rw.offer[i];
         bool sel = rw.menu_sel == i;
         if (sel) gfx_rect(x + 4, ry - 2, w - 8, 24, C_DUSK);
-        if (k >= K_COUNT) { text_draw("SOLD", x + 36, ry + 6, C_SLATE); continue; }
+        if (k >= K_COUNT) continue;
         rsh_draw_disk_icon(k, rw.turn, x + 18, ry + 10, frame_t);
         const RshKind *kd = &RSH_KIND[k];
         text_draw(kd->name, x + 34, ry, sel ? C_WHITE : C_LIGHT);
@@ -675,6 +715,22 @@ static void draw_inn(void) {
     int ly = y + 20 + 3 * 26;
     if (rw.menu_sel == 3) gfx_rect(x + 4, ly - 2, w - 8, 11, C_DUSK);
     text_draw("LEAVE", x + 34, ly, rw.menu_sel == 3 ? C_WHITE : C_GREY);
+}
+
+static void draw_swap(void) {
+    const RshSide *s = &rw.s[rw.turn];
+    int x = 60, y = 24, w = 200, h = 22 + s->n_army * 13;
+    ui_panel(x, y, w, h, C_NIGHT, C_AMBER);
+    char buf[64];
+    snprintf(buf, sizeof buf, "ROOM FOR THE %s: WHO RESTS?", RSH_KIND[rw.swap_kind].name);
+    tiny_draw(buf, x + 8, y + 5, C_YELLOW);
+    for (int i = 0; i < s->n_army; i++) {
+        int ry = y + 16 + i * 13;
+        if (rw.menu_sel == i) gfx_rect(x + 4, ry - 2, w - 8, 12, C_DUSK);
+        text_draw(RSH_KIND[s->army[i]].name, x + 14, ry, rw.menu_sel == i ? C_WHITE : C_LIGHT);
+        snprintf(buf, sizeof buf, "HP %d  HIT %d", RSH_KIND[s->army[i]].hp, RSH_KIND[s->army[i]].melee);
+        tiny_draw(buf, x + w - 12 - tiny_width(buf), ry + 1, C_SKY);
+    }
 }
 
 static void draw_tome(void) {
@@ -694,7 +750,7 @@ static void draw_tome(void) {
 static void draw_war(void) {
     draw_board();
     draw_war_hud();
-    if (rw.msg_t > 0 && rw.state != W_INN && rw.state != W_TOME) {
+    if (rw.msg_t > 0 && rw.state != W_INN && rw.state != W_TOME && rw.state != W_SWAP) {
         int w = tiny_width(rw.msg) + 12;
         ui_panel(SCREEN_W - w - 4, 19, w, 13, C_NIGHT, C_YELLOW);
         tiny_draw(rw.msg, SCREEN_W - w + 2, 23, C_WHITE);
@@ -706,10 +762,11 @@ static void draw_war(void) {
     }
     if (rw.state == W_INN) draw_inn();
     if (rw.state == W_TOME) draw_tome();
-    if (state_t < 70 && rw.turns == 0) {
-        ui_panel(70, 70, 180, 30, C_NIGHT, C_YELLOW);
-        text_center(mode == MODE_CAMPAIGN ? RSH_SCEN[scen].name : mode == MODE_STREAK ? "A WAR OF THE STREAK" : "TWO BANNERS", 160, 76, C_WHITE);
-        tiny_center(rw.turn == 0 ? "BRASS MOVES FIRST" : "PLUM MOVES FIRST", 160, 88, C_LIGHT);
+    if (rw.state == W_SWAP) draw_swap();
+    if (state_t < 90 && rw.turns == 0) {
+        ui_panel(80, 18, 160, 22, C_NIGHT, C_YELLOW);
+        text_center(mode == MODE_CAMPAIGN ? RSH_SCEN[scen].name : mode == MODE_STREAK ? "A WAR OF THE STREAK" : "TWO BANNERS", 160, 21, C_WHITE);
+        tiny_center(rw.turn == 0 ? "BRASS MOVES FIRST" : "PLUM MOVES FIRST", 160, 31, C_LIGHT);
     }
 }
 
@@ -730,6 +787,11 @@ static void draw_field(void) {
             if (y > 0 && rb.cell[y - 1][x] != T_WATER) gfx_hline(sx, sx + 7, sy, C_CYAN);
             if (y < RSH_CH - 1 && rb.cell[y + 1][x] != T_WATER) gfx_hline(sx, sx + 7, sy + 7, C_NAVY);
         }
+    /* the cliffs' faces */
+    for (int w = 0; w < rb.nwall; w++) {
+        const float *wl = rb.wall[w];
+        gfx_line((int)wl[0] - cx, (int)wl[1] - cy + RSH_VIEW_Y, (int)wl[2] - cx, (int)wl[3] - cy + RSH_VIEW_Y, C_INK);
+    }
     /* the walls */
     gfx_rectb(-cx - 1, -cy - 1 + RSH_VIEW_Y, RSH_AW + 2, RSH_AH + 2, C_BROWN);
     gfx_rectb(-cx - 2, -cy - 2 + RSH_VIEW_Y, RSH_AW + 4, RSH_AH + 4, C_INK);
@@ -739,19 +801,19 @@ static void draw_field(void) {
         if (!o->on) continue;
         int id = RS_COIN;
         switch (o->kind) {
-        case O_SHARD: id = RS_SHARD; break;
+        case O_SHARD: id = o->left > 1 ? RS_SHARD2 : RS_SHARD; break;
         case O_TONIC: id = RS_TONIC; break;
         case O_WELL: id = RS_WELL; break;
         case O_PILE: id = RS_PILE; break;
         case O_CLUSTER: id = RS_CLUSTER; break;
         case O_EMBER: id = (frame_t / 6 + k) % 2 ? RS_EMBER0 : RS_EMBER1; break;
-        case O_BAG: id = RS_BAG; break;
+        case O_TREE: id = RS_TREE; break;
         }
         const Sprite *s = &rsh_spr[id];
         int sx = (int)o->x - cx, sy = (int)o->y - cy + RSH_VIEW_Y;
         if (s->px) spr_draw(s, sx - s->w / 2, sy - s->h / 2, 0);
         if (o->kind == O_WELL || o->kind == O_PILE || o->kind == O_CLUSTER)
-            for (int i = 0; i < o->left; i++) gfx_rect(sx - 5 + i * 3, sy + 8, 2, 2, C_WHITE);
+            for (int i = 0; i < o->left; i++) gfx_rect(sx - 7 + i * 3, sy + 8, 2, 2, C_WHITE);
     }
     /* the cursor ring and the aim */
     int el[5], n = rsh_eligible(rb.side, el);
@@ -770,12 +832,13 @@ static void draw_field(void) {
     if ((rb.phase == B_AIM || rb.phase == B_RAIM) && rb.sel >= 0) {
         const RshDisk *d = &rb.p.d[rb.sel];
         int16_t xs[160], ys[160];
-        int nd = rsh_count_trace(rb.angle, rb.pips, xs, ys, 160);
+        uint8_t ks[160];
+        int nd = rsh_count_trace(rb.angle, rb.pips, xs, ys, ks, 160);
         int col = rb.phase == B_RAIM ? (rb.no_room ? C_RED : C_CYAN) : C_WHITE;
         for (int i = 0; i < nd; i++) {
             int px = xs[i] - cx, py = ys[i] - cy + RSH_VIEW_Y;
             gfx_rect(px, py, 2, 2, C_INK);
-            gfx_pset(px, py, col);
+            gfx_pset(px, py, ks[i] == 1 ? C_ORANGE : ks[i] == 2 ? C_SKY : col);
         }
         /* the reticle, just off the disk's edge */
         float a = (float)rb.angle * (6.2831853f / 256.0f);
@@ -783,7 +846,7 @@ static void draw_field(void) {
         gfx_circb(rx, ry, 2, col);
         gfx_circb((int)d->x - cx, (int)d->y - cy + RSH_VIEW_Y, (int)d->r + 2, (frame_t / 8) % 2 ? C_YELLOW : C_WHITE);
         /* the power pips */
-        int max = RSH_KIND[d->kind].charge;
+        int max = rb.phase == B_RAIM ? RSH_KIND[d->kind].pcharge : rb.stun_pick ? imin(2, RSH_KIND[d->kind].charge) : RSH_KIND[d->kind].charge;
         int bx = (int)d->x - cx - max * 3, by = (int)d->y - cy + RSH_VIEW_Y - (int)d->r - 9;
         for (int p = 0; p < max; p++) {
             gfx_rect(bx + p * 6, by, 5, 4, C_INK);
@@ -855,9 +918,14 @@ static void draw_battle_hud(void) {
         snprintf(buf, sizeof buf, "%s STRIKES FIRST", SIDE_NAME[rb.side]);
         tiny_center(buf, 160, 88, RSH_SIDE_COL[rb.side][0]);
     }
+    if (rb.fog > 0 && rb.fog <= RSH_FOG_STEP && rb.phase != B_OVER && (frame_t / 20) % 4 != 3) {
+        ui_panel(50, 20, 220, 14, C_NIGHT, C_MAGENTA);
+        tiny_center("DON'T END YOUR TURN IN THE HAZE!", 160, 24, C_PINK);
+    }
     if (rb.phase == B_OVER) {
-        ui_panel(70, 64, 180, 40, C_NIGHT, rb.winner == 2 ? C_GREY : RSH_SIDE_COL[rb.winner][0]);
-        if (rb.winner == 2) text_center("BOTH ARMIES FALL", 160, 72, C_WHITE);
+        ui_panel(70, 64, 180, 40, C_NIGHT, rb.winner >= B_BOTH ? C_GREY : RSH_SIDE_COL[rb.winner][0]);
+        if (rb.winner == B_BOTH) text_center("BOTH ARMIES FALL", 160, 72, C_WHITE);
+        else if (rb.winner == B_STALE) text_center("A STALEMATE: BOTH GO HOME", 160, 72, C_WHITE);
         else {
             snprintf(buf, sizeof buf, "THE FIELD IS %s'S", SIDE_NAME[rb.winner]);
             text_center(buf, 160, 72, C_WHITE);
@@ -941,9 +1009,24 @@ static void draw_select(void) {
         else if (!open) text_draw(GLYPH_LOCK, 272, y, C_SLATE);
         if (sel) ui_cursor(26, y, frame_t);
     }
+    if (scen_open(sel_scen)) tiny_center(RSH_SCEN[sel_scen].intro, 160, 160, C_CREAM);
     int fx = ui_hint(4, 170, GLYPH_A, "TO WAR", C_LIGHT);
     ui_hint(fx, 170, GLYPH_B, "BACK", C_LIGHT);
 }
+
+/* Lady Brass writes to the front before every war (all our own words) */
+static const char *const LETTER[RSH_SCENARIOS][2] = {
+    {"THE PLUM BANNER IS ON THE LONG LANE.", "MEET IT HALFWAY, AND MIND YOUR SQUIRES."},
+    {"OLD TOMES LIE ON THE OUTER ROADS.", "READ ONE BEFORE THE PLUMS DO."},
+    {"THEY SAY THE MERE HAS NO BOTTOM.", "KEEP YOUR DISKS OUT OF IT, AND PUT THEIRS IN."},
+    {"THE HILLS ARE FULL OF COIN THIS YEAR.", "HOLD THE SEAMS AND THE INNS WILL LOVE YOU."},
+    {"I SEND YOU TWO ADDERS. BE KIND TO THEM;", "NOBODY ELSE IS."},
+    {"OUR HOME IS A CASTLE NOW, AND SO IS THEIRS.", "LOSE THERE AND WE LOSE EVERYTHING."},
+    {"TWO PIPERS MARCH WITH YOU. THEIR TUNES", "MAKE BRAVE DISKS BRAVER. ALL BATTLE LONG."},
+    {"NO COIN LIES ON THESE ROADS. YOUR DELVERS", "WILL HAVE TO DIG IT OUT OF THE FIELDS."},
+    {"THE RIVER SPLITS THE SHIRE IN TWO.", "THREE BRIDGES. CHOOSE WELL."},
+    {"THE PLUM EMPRESS HERSELF WAITS AT HOME.", "BRING HER DOWN, AND THEN THE REST. LOVE, B."},
+};
 
 static void draw_card(void) {
     draw_backdrop();
@@ -953,15 +1036,17 @@ static void draw_card(void) {
         snprintf(buf, sizeof buf, "WAR %d", scen + 1);
         text_center(buf, 160, 8, C_YELLOW);
         ui_fancy_center(sc->name, 160, 20, 2, GRAD_TITLE, 4, C_INK, C_WINE);
-        text_center(sc->intro, 160, 42, C_WHITE);
+        tiny_center(LETTER[scen][0], 160, 40, C_CREAM);
+        tiny_center(LETTER[scen][1], 160, 47, C_CREAM);
         int n = 0;
         for (int k = 0; k < K_COUNT; k++) n += (sc->fresh >> k) & 1;
         if (n) {
-            tiny_center(n == 1 ? "NEW IN THIS WAR" : "IN THIS WAR", 160, 58, C_SKY);
+            ui_panel(44, 56, 232, 14 + n * 22, C_NIGHT, C_DUSK);
+            tiny_center(n == 1 ? "NEW IN THIS WAR" : "IN THIS WAR", 160, 60, C_SKY);
             int i = 0;
             for (int k = 0; k < K_COUNT; k++) {
                 if (!((sc->fresh >> k) & 1)) continue;
-                int y = 70 + i * 22;
+                int y = 72 + i * 22;
                 rsh_draw_disk_icon(k, k == K_EMPRESS ? 1 : 0, 60, y + 6, frame_t);
                 snprintf(buf, sizeof buf, "%s " GLYPH_DOT " HP %d " GLYPH_DOT " " GLYPH_COIN "%d", RSH_KIND[k].name, RSH_KIND[k].hp, RSH_KIND[k].cost);
                 text_draw(buf, 76, y, C_WHITE);
@@ -1143,8 +1228,9 @@ static int rsh_query(const char *key, int *out) {
     if (!strcmp(key, "turn")) { *out = rw.turn; return 1; }
     if (!strcmp(key, "turns")) { *out = rw.turns; return 1; }
     if (!strcmp(key, "moves")) { *out = rw.moves; return 1; }
-    if (!strcmp(key, "plan_n")) { *out = rw.plan_n; return 1; }
-    if (!strcmp(key, "plan_ready")) { *out = rsh_plan_ready(); return 1; }
+    if (!strcmp(key, "moves_used")) { *out = rw.moves_used; return 1; }
+    if (!strcmp(key, "can_step")) { *out = rsh_can_step(); return 1; }
+    if (!strcmp(key, "swap_kind")) { *out = rw.swap_kind; return 1; }
     if (!strcmp(key, "winner")) { *out = rw.winner; return 1; }
     if (!strcmp(key, "pick")) { *out = rw.menu_sel; return 1; }
     if (!strcmp(key, "regroup")) { *out = rw.regroup; return 1; }
@@ -1166,6 +1252,7 @@ static int rsh_query(const char *key, int *out) {
     if (!strcmp(key, "wars_won")) { *out = sv.wars_won; return 1; }
     if (!strcmp(key, "offer0")) { *out = rw.offer[0]; return 1; }
     if (!strcmp(key, "tome0")) { *out = rw.tome[0]; return 1; }
+    if (sscanf(key, "seam_left_%d_%d", &a, &b) == 2) { *out = a >= 0 && b >= 0 && a < RSH_MW && b < RSH_MH ? rw.seam_left[b][a] : -1; return 1; }
     if (sscanf(key, "cleared%d", &a) == 1) { *out = a >= 1 && a <= RSH_SCENARIOS ? sv.cleared[a - 1] : -1; return 1; }
     if (sscanf(key, "offer%d", &a) == 1) { *out = a >= 0 && a < 3 ? rw.offer[a] : -1; return 1; }
     if (sscanf(key, "tome%d", &a) == 1) { *out = a >= 0 && a < 3 ? rw.tome[a] : -1; return 1; }
@@ -1204,6 +1291,13 @@ static int rsh_query(const char *key, int *out) {
     if (!strcmp(key, "round")) { *out = rb.round; return 1; }
     if (!strcmp(key, "fog")) { *out = rb.fog; return 1; }
     if (!strcmp(key, "fog_deaths")) { *out = rb.fog_deaths; return 1; }
+    if (!strcmp(key, "quiet")) { *out = rb.quiet; return 1; }
+    if (!strcmp(key, "walls")) { *out = rb.nwall; return 1; }
+    if (!strcmp(key, "trees")) {
+        *out = 0;
+        for (int k = 0; k < RSH_MAXO; k++) *out += rb.p.o[k].on && rb.p.o[k].kind == O_TREE;
+        return 1;
+    }
     if (!strcmp(key, "water_deaths")) { *out = rb.p.water_deaths; return 1; }
     if (!strcmp(key, "hits")) { *out = rb.p.hits; return 1; }
     if (!strcmp(key, "combo")) { *out = rb.p.best_combo; return 1; }
@@ -1267,6 +1361,7 @@ static void bare_field(int t) {
     for (int y = 0; y < RSH_CH; y++)
         for (int x = 0; x < RSH_CW; x++) rb.cell[y][x] = (uint8_t)t;
     for (int k = 0; k < RSH_MAXO; k++) rb.p.o[k].on = 0;
+    rb.nwall = 0;
 }
 
 static int rsh_cheat(const char *cmd) {
@@ -1345,6 +1440,15 @@ static int rsh_cheat(const char *cmd) {
         return 1;
     }
     if (sscanf(cmd, "field %d", &a) == 1) { bare_field(a); return 1; }
+    /* the queues back in the armies' order (the battle shuffles them) */
+    if (!strcmp(cmd, "unshuffle")) {
+        for (int sd = 0; sd < 2; sd++) {
+            rb.qn[sd] = 0;
+            for (int i = 0; i < RSH_MAXD; i++)
+                if (rb.p.d[i].on && !rb.p.d[i].proj && rb.p.d[i].side == sd) rb.queue[sd][rb.qn[sd]++] = (uint8_t)i;
+        }
+        return 1;
+    }
     if (sscanf(cmd, "pond %d %d %d %d", &a, &b, &c, &d) == 4) {
         for (int y = b; y < b + d && y < RSH_CH; y++)
             for (int x = a; x < a + c && x < RSH_CW; x++) rb.cell[y][x] = T_WATER;

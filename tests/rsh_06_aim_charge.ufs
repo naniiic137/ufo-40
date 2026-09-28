@@ -11,6 +11,7 @@ cheat army 1 S
 cheat reserve 1 -
 cheat battle 6 1 0
 cheat field 0
+cheat unshuffle
 cheat place 0 100 60
 cheat place 1 300 200
 waituntil bphase == 1 200
@@ -46,9 +47,9 @@ expect d0_x <= 255
 expect d0_y == 60
 expect bphase == 2
 expect move_i == 1
-# the pips stop at the squire's five
+# the pips stop at the squire's six
 hold A 100
-expect pips == 5
+expect pips == 6
 wait 1
 waituntil bside == 1 800
 expect launches == 2

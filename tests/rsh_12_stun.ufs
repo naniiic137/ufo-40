@@ -1,5 +1,6 @@
 # RIMSHIRE: the brute's one heavy blow does 3 and stuns: a stunned disk
-# moves only once on its next turn, and moving clears it.
+# moves only once on its next turn, and weakly (two pips at most); moving
+# clears it.
 game rimshire
 cheat war 1
 cheat cpu 1 -1
@@ -7,6 +8,7 @@ cheat army 0 B
 cheat army 1 S
 cheat battle 6 1 0
 cheat field 0
+cheat unshuffle
 cheat place 0 100 128
 cheat place 1 160 128
 waituntil bphase == 1 200
@@ -16,12 +18,13 @@ hold RIGHT 40
 hold A 24
 wait 1
 waituntil bside == 1 600
-expect d1_hp == 1
+expect d1_hp == 2
 expect d1_stun == 1
 waituntil bphase == 1 60
 press A
 expect bmoves == 1
-hold A 12
+hold A 60
+expect pips == 2
 wait 1
 waituntil bside == 0 600
 expect d1_stun == 0

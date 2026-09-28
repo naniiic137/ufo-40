@@ -8,12 +8,13 @@ cheat army 0 S
 cheat army 1 S
 cheat battle 6 1 0
 cheat field 0
+cheat unshuffle
 cheat place 0 100 60
 cheat place 1 300 200
 waituntil bphase == 1 200
 press A
 hold A 179
-expect pips == 5
+expect pips == 6
 hold A 1
 expect pips == 0
 expect charging == 1
@@ -24,4 +25,4 @@ expect launches == 1
 waituntil bphase == 2 400
 # aiming while charging: no reset
 hold A LEFT 200
-expect pips == 5
+expect pips == 6
