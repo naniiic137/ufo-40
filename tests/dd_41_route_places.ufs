@@ -1,0 +1,98 @@
+# DOT & DASH: a route test for the places inside things. In each, from
+# the way in, every person, door, treasure and thing can be reached on foot
+# (the demo player's moves, checked with the game's own physics), and the
+# demo player walks from the way in to the far door or boss.
+game dotdash
+wait 5
+cheat newgame
+cheat no_foes
+cheat nodash
+cheat god
+# Granny Thimble's
+cheat area 1 4 16
+wait 5
+expect unreachable == 0
+cheat bot_to obj:18
+botuntil bot_state == 2 3000
+# Fluff Hollow
+cheat area 3 4 16
+wait 5
+expect unreachable == 0
+cheat bot_to npc:9
+botuntil bot_state == 2 3000
+# the clockworks, up to Tock
+cheat area 6 4 23
+wait 5
+expect unreachable == 0
+cheat bot_to npc:6
+botuntil bot_state == 2 3000
+# between the walls (with the grate open) end to end
+cheat set grate_open
+cheat set power_off
+cheat set worm_friends
+cheat area 2 14 21
+wait 5
+# the nook in the first stud is behind cracked wood: a cracker opens it
+cheat obj 1
+hold RIGHT 1
+press B
+wait 30
+expect tile_20_19 == 0
+expect unreachable == 0
+cheat bot_to door:5
+botuntil bot_state == 2 15000
+# the Earwig's lair
+cheat area 5 4 18
+wait 5
+expect unreachable == 0
+# the SIEGE box, from its lid to the siege engine's field
+cheat area 4 4 19
+wait 5
+expect unreachable == 0
+cheat bot_tile 150 15
+botuntil bot_state == 2 9000
+# Dash's fur and Puffin's fluff
+cheat up tonic1
+cheat up tonic2
+cheat area 0 22 82
+cheat dash_at 172 657
+cheat tile 21 80
+wait 20
+hold DOWN 100
+waituntil trans == 0 60
+expect level_kind == 2
+expect level_id == 0
+expect unreachable == 0
+cheat area 3 30 16
+wait 5
+cheat bot_to npc:9
+botuntil bot_state == 2 2000
+hold DOWN 100
+waituntil trans == 0 60
+expect level_id == 1
+expect unreachable == 0
+# the deep stacks under Tuftville's archive
+cheat micro 0 83 25 4
+wait 5
+cheat bot_to door:15
+botuntil bot_state == 2 3000
+hold DOWN 100
+waituntil trans == 0 60
+expect scale == 3
+expect level_id == 4
+expect unreachable == 0
+# behind the throne (Nib is there once the Old Filament has spoken)
+cheat set filament_paid
+cheat set throne_open
+cheat grow
+cheat grow
+cheat micro 0 18 36 4
+wait 5
+cheat bot_to door:14
+botuntil bot_state == 2 3000
+hold DOWN 100
+waituntil trans == 0 60
+expect level_id == 3
+expect unreachable == 0
+cheat bot_to npc:44
+botuntil bot_state == 2 2000

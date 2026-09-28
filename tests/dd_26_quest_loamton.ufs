@@ -1,0 +1,139 @@
+# DOT & DASH: Loamton in the east pot. Captain Peat's supply crate lies at
+# the crash site on the coin pile (50). A thirsty soldier on patrol wants
+# water: a jar held under the drip from the ceiling (50 later, in town).
+# The Moss Smith beats a hard block into Dash's Plate. A stone tablet from
+# Clod's shop sends Old Cap of Tickburg to the clockworks, and a pep egg.
+game dotdash
+wait 5
+cheat newgame
+cheat no_foes
+cheat nodash
+cheat god
+cheat up tonic1
+cheat glints 100
+# the crate on the coins
+cheat area 0 72 80
+cheat nodash
+wait 5
+hold DOWN 100
+waituntil trans == 0 60
+expect town == 14
+cheat bot_to obj:31
+botuntil bot_state == 2 3000
+press B
+wait 20
+expect carry == 31
+cheat bot_free
+botuntil bot_state == 2 600
+hold UP 100
+waituntil trans == 0 60
+cheat bot_tile 111 66
+botuntil bot_state == 2 9000
+hold DOWN 100
+waituntil trans == 0 60
+expect town == 8
+cheat bot_to npc:27
+botuntil bot_state == 2 2000
+press UP
+wait 5
+cheat bot_talk
+botuntil bot_state == 2 900
+expect flag.crate_done == 1
+expect glints >= 150
+# the tablet from Clod's stand
+cheat bot_to stand:1
+botuntil bot_state == 2 2000
+press UP
+wait 5
+cheat bot_talk
+botuntil bot_state == 2 900
+press LEFT
+press A
+wait 20
+expect glints >= 140
+cheat bot_to obj:32
+botuntil bot_state == 2 2000
+press B
+wait 20
+expect carry == 32
+# up to the clock: Tickburg sits on its top
+cheat bot_free
+botuntil bot_state == 2 600
+hold UP 100
+waituntil trans == 0 60
+cheat bot_tile 65 16
+botuntil bot_state == 2 12000
+hold DOWN 100
+waituntil trans == 0 60
+expect town == 16
+cheat bot_to npc:32
+botuntil bot_state == 2 3000
+press UP
+wait 5
+cheat bot_talk
+botuntil bot_state == 2 900
+expect flag.tablet_given == 1
+# the little door at the foot of the clock
+cheat bot_free
+botuntil bot_state == 2 600
+hold UP 100
+waituntil trans == 0 60
+cheat bot_to door:10
+botuntil bot_state == 2 4000
+press UP
+waituntil level_id == 6 60
+waituntil trans == 0 60
+cheat bot_to npc:32
+botuntil bot_state == 2 3000
+press UP
+wait 5
+cheat bot_talk
+botuntil bot_state == 2 900
+expect flag.oldcap_done == 1
+expect up_33 == 1
+# water for the soldier: a jar, the drip over the east pot
+cheat area 0 110 66
+cheat nodash
+wait 5
+cheat obj 20
+cheat bot_tile 108 66
+botuntil bot_state == 2 3000
+waituntil carry == 21 400
+expect carry == 21
+cheat bot_tile 109 66
+botuntil bot_state == 2 3000
+hold DOWN 100
+waituntil trans == 0 60
+expect town == 9
+cheat bot_to npc:13
+botuntil bot_state == 2 3000
+press UP
+wait 5
+cheat bot_talk
+botuntil bot_state == 2 900
+expect flag.water_given == 1
+expect npcs_13 == 0
+cheat bot_free
+botuntil bot_state == 2 600
+hold UP 100
+waituntil trans == 0 60
+cheat bot_tile 112 66
+botuntil bot_state == 2 3000
+hold DOWN 100
+waituntil trans == 0 60
+cheat bot_to npc:13
+botuntil bot_state == 2 3000
+press UP
+wait 5
+cheat bot_talk
+botuntil bot_state == 2 900
+expect flag.water_paid == 1
+# the smith and a hard block
+cheat obj 14
+cheat bot_to npc:28
+botuntil bot_state == 2 3000
+press UP
+wait 5
+cheat bot_talk
+botuntil bot_state == 2 900
+expect up.plate == 1

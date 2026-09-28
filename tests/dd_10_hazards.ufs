@@ -11,10 +11,8 @@ cheat skip_dialog
 cheat micro 0 83 30 4
 cheat no_foes
 wait 5
-expect place_x.cave:30 == 538
-expect tile_540_22 == 38
 cheat hp 6
-cheat tile 540 22
+cheat stand_hazard
 wait 3
 expect hp == 5
 expect vy10 < 0
@@ -23,15 +21,14 @@ wait 80
 cheat micro 0 66 47 4
 cheat no_foes
 wait 5
-expect tile_300_25 == 39
 cheat hp 6
-cheat tile 300 25
+cheat stand_hazard
 wait 70
 expect hp == 5
 # spore stew: no harm from goo
 cheat give 19
 cheat skip_dialog
-cheat tile 300 25
+cheat stand_hazard
 wait 90
 expect hp == 6
 # bug musk: an ant walks right into Dot and nothing happens

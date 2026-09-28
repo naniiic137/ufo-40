@@ -946,7 +946,7 @@ void dd_on_boss_dead(int sub) {
         break;
     case F_SIEGE:
         dd_set(FL_SIEGE_DEAD);
-        dd_add_obj(O_BIGBANG, (float)(151 * DD_TS), (float)(13 * DD_TS - 8));
+        dd_add_obj(O_BIGBANG, (float)(151 * DD_TS), (float)(16 * DD_TS - 8));
         dd_set_message("THE SIEGE ENGINE FALLS! SOMETHING ROLLS OUT");
         music_play(DD_MUS[MU_SIEGE]);
         break;

@@ -315,6 +315,55 @@ static int up_id(const char *n) {
 }
 
 static int mark_hash = -1, mark_ents = -1;
+static int verify_bad = -1, verify_runs;
+
+/* every run of exposed ground in an area: shrink into its micro strip (and
+ * once more into a deep strip under it) and check every thing and every
+ * speck of ground can be reached on foot from the way in */
+static void verify_area(int area, bool deep) {
+    extern int dd_bot_unreachable(void);
+    uint32_t ups = dd_sv.ups;
+    dd_sv.ups |= (1u << U_TONIC1) | (1u << U_TONIC2);
+    uint8_t keep_flags[sizeof dd_sv.flags];
+    memcpy(keep_flags, dd_sv.flags, sizeof keep_flags);
+    dd_set(FL_THRONE_OPEN); /* the throne hall's gate open, the rest as it is */
+    dd_no_foes = true;
+    if (dd_scale == SC_FULL) dd_scale = SC_SMALL;
+    while (dd_depth > 0) dd_pop_level();
+    dd_goto_area(area, 4, 4);
+    verify_bad = 0;
+    verify_runs = 0;
+    for (int y = 1; y < dd_lv.h; y++)
+        for (int x = 0; x < dd_lv.w; x++) {
+            int x0, n;
+            if (!dd_strip_run(&dd_lv, y, x, &x0, &n) || x0 != x) continue;
+            int mid = x0 + n / 2;
+            dd_p.x = (float)(mid * DD_TS + 4) - dd_p.w / 2;
+            dd_p.y = (float)(y * DD_TS) - dd_p.h;
+            dd_p.ground = 1;
+            dd_change_scale(1);
+            while (dd_trans > 0) dd_play_update();
+            if (dd_depth != 1) { fprintf(stderr, "verify: no strip at %d,%d\n", mid, y); verify_bad++; continue; }
+            verify_runs++;
+            int b = dd_bot_unreachable();
+            if (b) { fprintf(stderr, "verify: area %d row %d x %d..%d: %d unreachable\n", area, y, x0, x0 + n - 1, b); verify_bad += b; }
+            if (deep && dd_p.ground) {
+                dd_change_scale(1);
+                while (dd_trans > 0) dd_play_update();
+                if (dd_depth == 2) {
+                    int b2 = dd_bot_unreachable();
+                    if (b2) { fprintf(stderr, "verify: deep under area %d row %d x %d: %d unreachable\n", area, y, mid, b2); verify_bad += b2; }
+                    dd_change_scale(-1);
+                    while (dd_trans > 0) dd_play_update();
+                }
+            }
+            dd_change_scale(-1);
+            while (dd_trans > 0) dd_play_update();
+            x = x0 + n - 1;
+        }
+    dd_sv.ups = ups;
+    memcpy(dd_sv.flags, keep_flags, sizeof keep_flags);
+}
 static int level_hash_now(void) {
     uint32_t h = 2166136261u;
     for (int i = 0; i < dd_lv.w * dd_lv.h; i++) h = (h ^ dd_lv.t[i]) * 16777619u;
@@ -385,6 +434,9 @@ static int dd_query(const char *key, int *out) {
     if (!strcmp(key, "has_save")) { *out = game_save_raw_size(game_current_index()) > 0; return 1; }
     if (!strcmp(key, "bot_state")) { *out = dd_bot_state; return 1; }
     if (!strcmp(key, "bot_plan")) { *out = dd_bot_plan_len(); return 1; }
+    if (!strcmp(key, "verify_bad")) { *out = verify_bad; return 1; }
+    if (!strcmp(key, "verify_runs")) { *out = verify_runs; return 1; }
+    if (!strcmp(key, "unreachable")) { extern int dd_bot_unreachable(void); *out = dd_bot_unreachable(); return 1; }
     if (!strcmp(key, "moves_here")) { extern int dd_bot_moves_here(void); *out = dd_bot_moves_here(); return 1; }
     if (!strcmp(key, "towns")) { *out = dd_town_count(); return 1; }
     if (!strcmp(key, "collected")) { *out = dd_sv.n_collect; return 1; }
@@ -396,6 +448,8 @@ static int dd_query(const char *key, int *out) {
     if (sscanf(key, "foes_%d", &a) == 1) { *out = count_ents(EK_FOE, a); return 1; }
     if (!strcmp(key, "foes")) { *out = count_ents(EK_FOE, -1); return 1; }
     if (sscanf(key, "objs_%d", &a) == 1) { *out = count_ents(EK_OBJ, a); return 1; }
+    if (sscanf(key, "shots_%d", &a) == 1) { *out = count_ents(EK_SHOT, a); return 1; }
+    if (!strcmp(key, "drips")) { *out = count_ents(EK_DRIP, -1); return 1; }
     if (sscanf(key, "picks_%d", &a) == 1) { *out = count_ents(EK_PICK, a); return 1; }
     if (sscanf(key, "npcs_%d", &a) == 1) { *out = count_ents(EK_NPC, a); return 1; }
     if (sscanf(key, "foehp_%d", &a) == 1) {
@@ -513,6 +567,18 @@ static int dd_cheat(const char *cmd) {
         while (dd_trans > 0) dd_play_update();
         return 1;
     }
+    if (!strcmp(cmd, "stand_hazard")) {
+        /* put Dot in the first thorn or goo tile of this level */
+        for (int y = 0; y < dd_lv.h; y++)
+            for (int x = 0; x < dd_lv.w; x++)
+                if (DD_TILE[lv_tile(&dd_lv, x, y)].flags & (TF_HURT | TF_GOO)) {
+                    dd_p.x = (float)(x * DD_TS + 4) - dd_p.w / 2;
+                    dd_p.y = (float)((y + 1) * DD_TS) - dd_p.h;
+                    dd_p.vx = dd_p.vy = 0;
+                    return 1;
+                }
+        return 1;
+    }
     if (!strcmp(cmd, "shrink")) { dd_p.ground = 1; dd_change_scale(1); while (dd_trans > 0) dd_play_update(); return 1; }
     if (!strcmp(cmd, "grow")) { dd_change_scale(-1); while (dd_trans > 0) dd_play_update(); return 1; }
     if (!strcmp(cmd, "full")) {
@@ -565,6 +631,22 @@ static int dd_cheat(const char *cmd) {
         if (j >= 0) { if (dd_carry >= 0) dd_ent[dd_carry].alive = 0; dd_ent[j].held = 1; dd_carry = j; }
         return 1;
     }
+    if (sscanf(cmd, "dump %d %d %d %d", &a, &b, &c, &d) == 4) {
+        /* print tiles x a..c, rows b..d: # solid, = one-way, ^ hazard, D Dot */
+        int dx = (int)((dd_p.x + dd_p.w / 2) / DD_TS), dy = (int)((dd_p.y + dd_p.h - 1) / DD_TS);
+        for (int y = b; y <= d; y++) {
+            char line[256];
+            int n = 0;
+            for (int x = a; x <= c && n < 250; x++) {
+                int f = DD_TILE[lv_tile(&dd_lv, x, y)].flags;
+                line[n++] = (x == dx && y == dy) ? 'D' : (f & TF_SOLID) ? '#' : (f & TF_ONEWAY) ? '=' : (f & (TF_HURT | TF_GOO)) ? '^' : '.';
+            }
+            line[n] = 0;
+            fprintf(stderr, "%3d %s\n", y, line);
+        }
+        return 1;
+    }
+    if (sscanf(cmd, "verify_area %d %d", &a, &b) == 2) { verify_area(a, b != 0); return 1; }
     if (!strcmp(cmd, "mark")) { mark_hash = level_hash_now(); mark_ents = ents_now(); return 1; }
     if (!strcmp(cmd, "nodash")) { if (dd_dash >= 0) dd_ent[dd_dash].alive = 0; dd_dash = -1; dd_sv.dash_away = 1; return 1; }
     if (!strcmp(cmd, "dash")) { if (dd_dash >= 0) dd_ent[dd_dash].alive = 0; dd_dash = -1; dd_spawn_dash_now(); return 1; }

@@ -8,7 +8,7 @@ int dd_bot_state;
 
 /* ---- the moves --------------------------------------------------------- */
 typedef struct Prog { int8_t dir; uint8_t a, s, d, up; } Prog;
-#define MAXPROG 80
+#define MAXPROG 120
 static Prog prog[MAXPROG];
 static int n_prog;
 
@@ -19,16 +19,16 @@ static void build_progs(void) {
         for (int k = 0; k < 4; k++) prog[n_prog++] = (Prog){(int8_t)d, 0, 0, WALK[k], 0};
     static const uint8_t A[] = {5, 12, 40};
     static const uint8_t S[] = {0, 12};
-    static const uint8_t D[] = {6, 12, 20, 30, 45, 70};
+    static const uint8_t D[] = {6, 9, 12, 16, 20, 25, 30, 45, 70};
     for (int up = 0; up <= 1; up++)
         for (int a = 0; a < 3; a++) {
             if (up && a < 2) continue;
             prog[n_prog++] = (Prog){0, A[a], 0, 0, (uint8_t)up};
             for (int d = -1; d <= 1; d += 2)
                 for (int s = 0; s < 2; s++)
-                    for (int k = 0; k < 6; k++) {
+                    for (int k = 0; k < 9; k++) {
                         if (n_prog >= MAXPROG) break;
-                        if (s == 1 && k < 2) continue;
+                        if (s == 1 && k < 3) continue;
                         prog[n_prog++] = (Prog){(int8_t)d, A[a], S[s], D[k], (uint8_t)up};
                     }
         }
@@ -106,6 +106,7 @@ static bool hazard(const Body *b) {
 }
 
 /* try one move from a node: the node it ends on and the frames it takes */
+static int simulate_body(Body b, const Prog *p, int *dest, int *frames);
 static int simulate(int tx, int ty, const Prog *p, int *dest, int *frames) {
     Body b;
     memset(&b, 0, sizeof b);
@@ -116,6 +117,10 @@ static int simulate(int tx, int ty, const Prog *p, int *dest, int *frames) {
     b.ground = 1;
     b.facing = p->dir >= 0;
     b.peak_y = (int16_t)b.y;
+    return simulate_body(b, p, dest, frames);
+}
+
+static int simulate_body(Body b, const Prog *p, int *dest, int *frames) {
     uint32_t prev = 0;
     int f;
     bool start_bad = hazard(&b); /* already in goo: moves may climb out */
@@ -133,8 +138,11 @@ static int simulate(int tx, int ty, const Prog *p, int *dest, int *frames) {
     if (TS == DD_TS && b.landed_fall > 12 * DD_TS && !dd_has(U_FEATHER)) return 0; /* would hurt */
     int nx = (int)((b.x + b.w / 2) / TS), ny = (int)((b.y + b.h - 1) / TS);
     if (!standable(nx, ny)) {
-        /* settled off-centre: still counts where the feet are */
-        if (nx < 0 || ny < 0 || nx >= LW || ny >= LH) return 0;
+        /* settled on the edge of a ledge: the node is the tile holding her */
+        int l = (int)((b.x + 0.5f) / TS), r = (int)((b.x + b.w - 0.5f) / TS);
+        if (l != nx && standable(l, ny)) nx = l;
+        else if (r != nx && standable(r, ny)) nx = r;
+        else return 0; /* standing on nothing we know (a creature, a thing) */
     }
     *dest = ny * LW + nx;
     *frames = f + 1;
@@ -271,6 +279,12 @@ void dd_bot_goto_place(const char *name) {
 
 static int here_node(void) {
     int tx = (int)((dd_p.x + dd_p.w / 2) / TS), ty = (int)((dd_p.y + dd_p.h - 1) / TS);
+    /* standing on the very edge of a ledge: count the tile that holds her */
+    if (!standable(tx, ty)) {
+        int l = (int)((dd_p.x + 0.5f) / TS), r = (int)((dd_p.x + dd_p.w - 0.5f) / TS);
+        if (l != tx && standable(l, ty)) tx = l;
+        else if (r != tx && standable(r, ty)) tx = r;
+    }
     return ty * LW + tx;
 }
 
@@ -361,16 +375,17 @@ static uint32_t plan_step(void) {
     if (!dd_p.ground) return 0;
     int here = here_node();
     int goal = goal_y * LW + goal_x;
-    /* arrived: in the goal tile, or standing on something in it */
-    if (here == goal || (here % LW == goal_x && here / LW == goal_y - 1)) { if (hunt_sub < 0) dd_bot_state = 2; return 0; }
-    /* line up on the middle of the tile first, so the practised move fits */
+    /* line up on the middle of the tile first, so the practised move fits
+     * (and so that arriving means standing right in the goal tile) */
     float cx = dd_p.x + dd_p.w / 2, want = (float)((here % LW) * TS) + (float)TS / 2;
     float dx = want - cx;
-    if (fabsf(dx) > 1.5f && center_t < 40) {
+    if (fabsf(dx) > 0.6f && center_t < 60) {
         center_t++;
-        if (fabsf(dd_p.vx) > 0.5f) return 0;
-        return dx > 0 ? BTN_RIGHT : BTN_LEFT;
+        if (fabsf(dd_p.vx) > 0.05f) return 0;   /* let the last tap settle */
+        return fabsf(dx) > 3.0f || (center_t % 3) == 0 ? (dx > 0 ? BTN_RIGHT : BTN_LEFT) : 0;
     }
+    /* arrived: in the goal tile, or standing on something in it */
+    if (here == goal || (here % LW == goal_x && here / LW == goal_y - 1)) { center_t = 0; if (hunt_sub < 0) dd_bot_state = 2; return 0; }
     if (fabsf(dd_p.vx) > 0.1f && wait_t < 20) { wait_t++; return 0; }
     wait_t = 0;
     center_t = 0;
@@ -383,7 +398,18 @@ static uint32_t plan_step(void) {
     exec_f = 0;
     exec_total = 0;
     int dest, frames;
-    if (simulate(here % LW, here / LW, &prog[exec_prog], &dest, &frames)) exec_total = frames;
+    /* try the move from where Dot really stands; if it wouldn't land where
+     * planned, find one that does from here */
+    Body real = dd_p;
+    real.jumping = 0;
+    if (!simulate_body(real, &prog[exec_prog], &dest, &frames) || dest != route_node[0]) {
+        for (int k = 0; k < n_prog; k++) {
+            if (prog[k].up && !BEAN) continue;
+            int d2, f2;
+            if (simulate_body(real, &prog[k], &d2, &f2) && d2 == route_node[0]) { exec_prog = k; frames = f2; dest = d2; break; }
+        }
+    }
+    exec_total = frames;
     const Prog *p = &prog[exec_prog];
     uint32_t b = prog_buttons(p, 0);
     exec_f = 1;
@@ -434,4 +460,59 @@ int dd_bot_moves_here(void) {
     for (int j = first[n]; j < first[n] + count[n]; j++)
         fprintf(stderr, "  move %d -> %d,%d (%d frames)\n", edge[j].prog, edge[j].dest % LW, edge[j].dest / LW, edge[j].cost);
     return count[n];
+}
+
+/* ---- proving a level: flood every tile reachable from where Dot stands,
+ * then check every treasure, thing and person in it can be reached ---- */
+static uint8_t reach_mark[NMAX];
+static int32_t queue_[NMAX];
+
+static int flood_from_here(void) {
+    ensure_graph();
+    memset(reach_mark, 0, (size_t)(LW * LH));
+    int start = here_node(), qh = 0, qt = 0, n = 0;
+    queue_[qt++] = start;
+    reach_mark[start] = 1;
+    while (qh < qt) {
+        int nd = queue_[qh++];
+        n++;
+        expand(nd);
+        for (int j = first[nd]; j < first[nd] + count[nd]; j++) {
+            int d = edge[j].dest;
+            if (!reach_mark[d]) { reach_mark[d] = 1; if (qt < NMAX) queue_[qt++] = d; }
+        }
+    }
+    return n;
+}
+
+static bool node_reached(int tx, int ty) {
+    /* the tile, or standing on something in it, or the ground just below */
+    for (int dy = -1; dy <= 3; dy++) {
+        int y = ty + dy;
+        if (tx >= 0 && y >= 0 && tx < LW && y < LH && reach_mark[y * LW + tx]) return true;
+    }
+    return false;
+}
+
+/* how many things in this level can't be reached from Dot (and says which) */
+int dd_bot_unreachable(void) {
+    flood_from_here();
+    int bad = 0;
+    for (int i = 0; i < DD_MAX_ENTS; i++) {
+        const Ent *e = &dd_ent[i];
+        if (!e->alive || e->held) continue;
+        if (e->kind != EK_PICK && e->kind != EK_OBJ && e->kind != EK_NPC && e->kind != EK_DOOR && e->kind != EK_STAND) continue;
+        int tx = (int)((e->x + e->w / 2) / TS), ty = (int)((e->y + e->h - 1) / TS);
+        bool ok = node_reached(tx, ty) || node_reached(tx - 1, ty) || node_reached(tx + 1, ty);
+        if (!ok) { bad++; fprintf(stderr, "  unreachable: kind %d sub %d at %d,%d\n", e->kind, e->sub, tx, ty); }
+    }
+    /* and the ground of every chunk of a strip */
+    if (dd_lv.d.kind == LV_STRIP)
+        for (int c = 0; c < dd_lv.d.n; c++)
+            for (int x = c * CHUNK_W + 2; x < (c + 1) * CHUNK_W - 2; x += 6) {
+                int y = dd_lv.surf[x] - 1;
+                if (!standable(x, y)) continue;
+                if (!node_reached(x, y) && !node_reached(x + 1, y) && !node_reached(x - 1, y)) { bad++; fprintf(stderr, "  unreachable ground at %d,%d\n", x, y); break; }
+            }
+    return bad;
 }

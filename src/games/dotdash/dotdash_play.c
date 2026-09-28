@@ -1680,7 +1680,7 @@ static void foe_contacts(void) {
         Ent *o = &dd_ent[j];
         if (!o->alive) continue;
         if (o->kind == EK_SHOT) {
-            if (!player_overlap(o)) continue;
+            if (o->sub >= 5 || !player_overlap(o)) continue; /* drips are harmless */
             /* the spin top flips shots away while Dot is jumping */
             if (dd_has(U_TOP1) && !dd_p.ground && dd_p.jumping) {
                 o->vx = -o->vx;
@@ -1911,6 +1911,7 @@ static void drip_update(int i) {
 static void drop_update(int i) {
     /* a falling drop of water (or honey): catch it in an empty jar */
     Ent *e = &dd_ent[i];
+    if (e->vy < 4.0f) e->vy += 0.12f;
     e->y += e->vy;
     if (dd_carry >= 0 && dd_ent[dd_carry].kind == EK_OBJ && dd_ent[dd_carry].sub == O_JAR && ent_overlap(e, &dd_ent[dd_carry])) {
         dd_ent[dd_carry].sub = e->sub == 5 ? O_JARWATER : O_JARHONEY;

@@ -21,8 +21,8 @@ cheat no_foes
 cheat god
 wait 5
 expect picks_2 == 2
-cheat bot_tile 541 18
-botuntil bot_state == 2 3000
+cheat bot_to pick:2
+botuntil bigs == 1 3000
 expect bigs == 1
 expect glints >= 53
 expect goals.dotdash == 0

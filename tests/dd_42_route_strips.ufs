@@ -1,0 +1,14 @@
+# DOT & DASH: a route test for the whole micro world. Every run of exposed
+# ground in the lumber room and between the walls holds a micro strip; for
+# each (136 in the room, 26 in the walls) the strip is built as a player
+# would find it and every treasure, thing, person and speck of ground in it
+# is checked reachable on foot from the way in, with the game's physics.
+game dotdash
+wait 5
+cheat newgame
+cheat verify_area 0 0
+expect verify_runs >= 130
+expect verify_bad == 0
+cheat verify_area 2 0
+expect verify_runs >= 20
+expect verify_bad == 0

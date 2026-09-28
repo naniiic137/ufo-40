@@ -321,7 +321,7 @@ static void room_tiles(void) {
     fill(146, 6, 149, 9, T_FABRIC2);
     /* the dust pile under the bookshelf, with a hump under the board's gap */
     fill(130, 80, 146, 83, T_DUST);
-    fill(129, 78, 131, 79, T_DUST);
+    fill(128, 78, 130, 79, T_DUST);
     /* the fried outlet behind the bookshelf */
     bgf(153, 79, 154, 83, BG_FRIED);
 }
@@ -420,7 +420,7 @@ static void area_hollow(void) {
         bgf(0, 0, 49, 19, BG_HOLLOW);
         frame_box(50, 20, T_DUST, 17);
         fill(28, 13, 33, 13, T_THREAD);
-        fill(8, 12, 12, 12, T_THREAD);
+        fill(8, 13, 12, 13, T_THREAD);
         return;
     }
     door(DR_HOLLOW_OUT, 3, 16);
@@ -432,7 +432,7 @@ static void area_hollow(void) {
     npc(N_TUFTY, 30, 16);
     npc(N_PUFFIN, 40, 16);
     glints_row(29, 12, 4);
-    glints_row(8, 11, 3);
+    glints_row(8, 12, 3);
 }
 
 static void area_clockworks(void) {
@@ -473,7 +473,8 @@ static void area_lair(void) {
     }
 }
 
-/* the SIEGE board game: a battlefield on a printed board */
+/* the SIEGE board game: a battlefield on a printed board, dice, walls and
+ * towers climbing in steps, and the siege engine's field at the far end */
 static void area_siege(void) {
     if (!spawning) {
         bgf(0, 0, 159, 23, BG_BOX);
@@ -482,44 +483,42 @@ static void area_siege(void) {
         fill(158, 0, 159, 23, T_CARD2);
         fill(0, 20, 159, 23, T_CARD);
         for (int x = 2; x < 158; x += 8) fill(x, 20, x + 3, 20, T_CARD2);
-        /* dice, towers and walls */
-        fill(18, 16, 22, 19, T_BONE);
-        fill(40, 14, 42, 19, T_CARD2);
-        fill(46, 11, 48, 19, T_CARD2);
-        fill(52, 15, 57, 15, T_LEDGE);
-        fill(62, 16, 66, 19, T_BONE);
-        fill(66, 12, 70, 12, T_LEDGE);
-        fill(78, 15, 80, 19, T_CARD2);
-        fill(84, 11, 86, 19, T_CARD2);
-        fill(84, 7, 89, 7, T_LEDGE);
+        fill(18, 16, 22, 19, T_BONE);            /* a die */
+        fill(34, 16, 36, 19, T_CARD2);           /* a castle wall */
+        fill(40, 12, 42, 19, T_CARD2);           /* a tower */
+        fill(46, 15, 51, 15, T_LEDGE);
+        fill(56, 16, 60, 19, T_BONE);            /* a die */
+        fill(62, 12, 67, 12, T_LEDGE);
+        fill(74, 16, 76, 19, T_CARD2);
+        fill(78, 12, 80, 19, T_CARD2);           /* the tall tower */
+        fill(82, 8, 86, 8, T_LEDGE);
         fill(90, 16, 94, 19, T_BONE);
-        fill(100, 13, 104, 13, T_LEDGE);
-        fill(108, 14, 110, 19, T_CARD2);
-        fill(118, 17, 121, 19, T_BONE);
-        fill(124, 12, 128, 12, T_LEDGE);
-        fill(127, 16, 128, 19, T_CARD2);
+        fill(98, 12, 103, 12, T_LEDGE);
+        fill(108, 15, 110, 19, T_CARD2);
+        fill(116, 16, 119, 19, T_BONE);
+        fill(122, 12, 127, 12, T_LEDGE);
         /* the siege engine's field */
-        fill(132, 14, 134, 14, T_LEDGE);
-        fill(150, 14, 153, 14, T_LEDGE);
+        fill(133, 16, 136, 16, T_LEDGE);
+        fill(149, 16, 152, 16, T_LEDGE);
         fill(155, 16, 157, 19, T_CARD2);
         return;
     }
     door(DR_SIEGE_OUT, 3, 19);
     upgrade_copy(U_FIZZ, 20, 15, true);
-    upgrade_copy(U_HEART0 + 5, 87, 6, true);
-    pick(P_GLINT50, 47, 10, 0);
-    pick(P_GLINT50, 102, 12, 0);
-    glints_row(52, 14, 5);
-    glints_row(66, 11, 5);
-    glints_row(124, 11, 5);
+    upgrade_copy(U_HEART0 + 5, 84, 7, true);
+    pick(P_GLINT50, 41, 11, 0);
+    pick(P_GLINT50, 100, 11, 0);
+    glints_row(46, 14, 5);
+    glints_row(62, 11, 5);
+    glints_row(122, 11, 5);
     foe(F_ANT, 30, 19);
-    foe(F_AXEANT, 58, 19);
-    foe(F_POD, 79, 14);
+    foe(F_AXEANT, 70, 19);
+    foe(F_POD, 79, 11);
     foe(F_ANT, 98, 19);
     foe(F_AXEANT, 114, 19);
-    foe(F_SPRING, 120, 16);
+    foe(F_SPRING, 120, 15);
     if (!dd_flag(FL_SIEGE_DEAD)) foe(F_SIEGE, 145, 19);
-    else if (!dd_flag(FL_BIGBANG_DONE) && !dd_obj_exists(O_BIGBANG, -1)) obj(O_BIGBANG, 151, 13);
+    else if (!dd_flag(FL_BIGBANG_DONE) && !dd_obj_exists(O_BIGBANG, -1)) obj(O_BIGBANG, 151, 15);
 }
 
 /* between the walls: studs with drilled holes, nogging boards, wires */
@@ -757,7 +756,7 @@ static const TownDef TOWN[TW_COUNT] = {
     [TW_KITCHEN] = {"CHEF MOREL'S KITCHEN", AR_ROOM, 83, 76, 1, MU_TOWN},
     [TW_TICKBURG] = {"TICKBURG", AR_ROOM, 17, 64, 2, MU_TOWN},
     [TW_GLIMMER] = {"GLIMMER", AR_ROOM, 18, 115, 2, MU_TOWN},
-    [TW_LATCH] = {"LATCHTOWN", AR_ROOM, 18, 18, 4, MU_LATCH},
+    [TW_LATCH] = {"LATCHTOWN", AR_ROOM, 18, 34, 4, MU_LATCH},
     [TW_WORMWOOD] = {"WORMWOOD", AR_CAVITY, 16, 64, 2, MU_TOWN},
     [TW_BLUEDUST] = {"THE BLUE DRIFT", AR_ROOM, 14, 130, 1, MU_MICRO},
 };
@@ -845,6 +844,9 @@ static void flat_ground(int mat_tile, int under) {
 static void house(int x, int w, int h, int roof) {
     bgf(OX + x, TOWN_H - h, OX + x + w - 1, TOWN_H - 1, BG_HOLLOW);
     fill(OX + x - 1, TOWN_H - h - 1, OX + x + w, TOWN_H - h - 1, roof);
+    /* a ladder of little ledges up the left wall to the roof */
+    for (int y = TOWN_H - 3; y > TOWN_H - h - 1 + 1; y -= 3)
+        if (x - 3 >= 0) fill(OX + imax(0, x - 3), y, OX + x - 2, y, T_LEDGE);
 }
 static void tnpc(int sub, int x) { npc(sub, OX + x, TOWN_H - 1); }
 static void tfoe(int sub, int x) { foe(sub, OX + x, TOWN_H - 1); }
@@ -886,12 +888,12 @@ static void town_chunk(int tw, int part) {
         }
         break;
     case TW_SNARL:
-        if (!spawning) { house(6, 8, 6, T_WAX); house(24, 10, 8, T_WAX); fill(OX + 18, TOWN_H - 4, OX + 21, TOWN_H - 4, T_LEDGE); }
+        if (!spawning) { house(6, 8, 6, T_WAX); house(24, 10, 6, T_WAX); fill(OX + 18, TOWN_H - 4, OX + 21, TOWN_H - 4, T_LEDGE); }
         tnpc(N_SMUDGE, 28);
         tfoe(F_WAXGUARD, 10);
         tfoe(F_WAXGUARD, 20);
         tfoe(F_WAXGUARD, 33);
-        if (!dd_flag(FL_SNARL_DONE) && spawning && !dd_obj_exists(O_ARTIFACT, -1)) obj(O_ARTIFACT, OX + 30, TOWN_H - 9);
+        if (!dd_flag(FL_SNARL_DONE) && spawning && !dd_obj_exists(O_ARTIFACT, -1)) obj(O_ARTIFACT, OX + 30, TOWN_H - 8);
         break;
     case TW_ROTIFER:
         if (!spawning) {
@@ -928,8 +930,8 @@ static void town_chunk(int tw, int part) {
         if (!spawning) {
             fill(OX + 8, TOWN_H + 1, OX + 32, TOWN_H + 8, T_AIR);
             fill(OX + 8, TOWN_H + 9, OX + 32, TOWN_H + 9, T_ROOT);
-            fill(OX + 6, TOWN_H + 3, OX + 7, TOWN_H + 3, T_LEDGE);
-            fill(OX + 6, TOWN_H + 6, OX + 7, TOWN_H + 6, T_LEDGE);
+            fill(OX + 8, TOWN_H + 6, OX + 9, TOWN_H + 6, T_LEDGE);    /* steps up under the hole */
+            fill(OX + 10, TOWN_H + 3, OX + 11, TOWN_H + 3, T_LEDGE);
             fill(OX + 8, TOWN_H, OX + 11, TOWN_H, T_AIR);
             for (int x = OX + 8; x <= OX + 11; x++) B->surf[x] = TOWN_H + 9;
         }
@@ -966,10 +968,10 @@ static void town_chunk(int tw, int part) {
         if (!spawning) house(24, 6, 4, T_MOSS);
         break;
     case TW_MOLD:
-        if (!spawning) { fill(OX + 18, TOWN_H - 5, OX + 21, TOWN_H - 1, T_MOSS); fill(OX + 16, TOWN_H - 6, OX + 23, TOWN_H - 6, T_LEAF); }
+        if (!spawning) { fill(OX + 18, TOWN_H - 3, OX + 21, TOWN_H - 1, T_MOSS); fill(OX + 16, TOWN_H - 4, OX + 23, TOWN_H - 4, T_LEAF); }
         /* a mold plant bearing three fruits: a thrown fruit splits into a seed */
-        obj(O_MOLDFRUIT, OX + 18, TOWN_H - 7);
-        obj(O_MOLDFRUIT, OX + 21, TOWN_H - 7);
+        obj(O_MOLDFRUIT, OX + 16, TOWN_H - 5);
+        obj(O_MOLDFRUIT, OX + 23, TOWN_H - 5);
         obj(O_MOLDFRUIT, OX + 28, TOWN_H - 1);
         break;
     case TW_REDCAVE:
@@ -977,8 +979,9 @@ static void town_chunk(int tw, int part) {
             fill(OX + 6, TOWN_H + 1, OX + 34, TOWN_H + 7, T_AIR);
             fill(OX + 6, TOWN_H, OX + 9, TOWN_H, T_AIR);
             for (int x = OX + 6; x <= OX + 9; x++) B->surf[x] = TOWN_H + 8;
-            fill(OX + 4, TOWN_H + 4, OX + 5, TOWN_H + 4, T_LEDGE);
             fill(OX + 6, TOWN_H + 8, OX + 34, TOWN_H + 8, T_SOIL);
+            fill(OX + 6, TOWN_H + 5, OX + 7, TOWN_H + 5, T_LEDGE);     /* steps up under the hole */
+            fill(OX + 8, TOWN_H + 2, OX + 9, TOWN_H + 2, T_LEDGE);
         }
         foe(F_LANCER, OX + 20, TOWN_H + 7);
         foe(F_LANCER, OX + 28, TOWN_H + 7);
@@ -1042,7 +1045,7 @@ static void town_chunk(int tw, int part) {
                 if (!dd_flag(FL_THRONE_OPEN)) fill(OX + 1, TOWN_H - 6, OX + 2, TOWN_H - 1, T_METAL);
                 fill(OX + 24, TOWN_H - 3, OX + 30, TOWN_H - 1, T_BRASS);
             }
-            if (!dd_flag(FL_PAID_QUEEN) || dd_flag(FL_SPROCKET_DEAD)) tnpc(N_TABITHA, 27);
+            if (!dd_flag(FL_PAID_QUEEN) || dd_flag(FL_SPROCKET_DEAD)) npc(N_TABITHA, OX + 27, TOWN_H - 4);
             door(DR_SEAM_HERMIT, OX + 33, TOWN_H - 1);
         } else {
             if (!spawning) {
@@ -1168,17 +1171,23 @@ static void gen_chunk(const LevelDesc *d, int i) {
     bool need = danger || extra_for(d, d->x0 + i, X_UP, 0) || extra_for(d, d->x0 + i, X_OBJ, 0);
     B->special[i] = danger;
     if (need || rng_chance(&r, deep ? 45 : 55)) {
-        int steps = danger ? 7 : rng_range(&r, 3, 5);
-        int W = danger ? 14 : rng_range(&r, 8, 12);
-        int e = rng_range(&r, 3, imax(3, CHUNK_W - 3 - 2 * steps - W));
+        /* the chamber stays roofed: its floor goes deep enough to keep two
+         * tiles of ground over it wherever the surface lies in this chunk */
+        int ch = danger ? 7 : 5, maxs = 0;
+        for (int xx = 0; xx < CHUNK_W; xx++) maxs = imax(maxs, B->surf[ox + xx]);
+        int e = danger ? rng_range(&r, 3, 5) : rng_range(&r, 3, 10);
         int s0 = B->surf[ox + e];
+        int steps = imax(2, (maxs + ch + 2 - s0 + 1) / 2);
+        while (s0 + 2 * steps > CHUNK_H - 3) steps--;
+        int F = s0 + 2 * steps;
         for (int k = 0; k < steps; k++) {
             int f = s0 + 2 * (k + 1);
             fill(ox + e + 2 * k, f - 4, ox + e + 2 * k + 2, f - 1, T_AIR);
         }
-        int F = imin(s0 + 2 * steps, CHUNK_H - 3);
-        int cx0 = e + 2 * steps, cx1 = imin(cx0 + W - 1, CHUNK_W - 3);
-        fill(ox + cx0 - 1, F - (danger ? 7 : 5), ox + cx1, F - 1, T_AIR);
+        int cx0 = e + 2 * steps;
+        int W = imin(danger ? 14 : rng_range(&r, 8, 12), CHUNK_W - 3 - cx0);
+        int cx1 = cx0 + W - 1;
+        fill(ox + cx0 - 1, F - ch, ox + cx1, F - 1, T_AIR);
         fill(ox + cx0 - 1, F, ox + cx1, F, solid_t);
         for (int xx = e; xx < e + 3; xx++) B->surf[ox + xx] = (uint8_t)imin(B->surf[ox + xx], s0);
         B->cave_x0[i] = (int8_t)cx0;
@@ -1187,12 +1196,18 @@ static void gen_chunk(const LevelDesc *d, int i) {
         if (danger) {
             /* thorns across the chamber floor with safe stones between */
             for (int xx = cx0 + 2; xx <= cx1 - 2; xx++)
-                if ((xx - cx0) % 4 != 0) lv_set(B, ox + xx, F - 1, mat == M_SOIL ? T_GOO : T_THORN);
+                if ((xx - cx0) % 4 == 3) lv_set(B, ox + xx, F - 1, mat == M_SOIL ? T_GOO : T_THORN); /* a bad tile in every four */
             fill(ox + cx0 + 3, F - 4, ox + cx0 + 6, F - 4, biome_ledge(mat));
             fill(ox + cx1 - 6, F - 4, ox + cx1 - 3, F - 4, biome_ledge(mat));
         } else if (rng_chance(&r, 35)) {
             fill(ox + cx0 + 2, F - 3, ox + cx0 + 5, F - 3, biome_ledge(mat));
         }
+    }
+    /* the surface as it is now (a stair may have opened the ground) */
+    for (x = 1; x < CHUNK_W - 1; x++) {
+        int y = 1;
+        while (y < CHUNK_H - 1 && !(DD_TILE[tile_at(ox + x, y)].flags & TF_SOLID)) y++;
+        B->surf[ox + x] = (uint8_t)y;
     }
     /* ledges above the ground */
     if (rng_chance(&r, 55)) {
@@ -1206,7 +1221,7 @@ static void gen_chunk(const LevelDesc *d, int i) {
     if (mat == M_FABRIC || mat == M_FUR) {
         for (int k = 0; k < 2; k++) {
             int lx = rng_range(&r, 2, CHUNK_W - 6);
-            int ly = B->surf[ox + lx] - rng_range(&r, 3, 5);
+            int ly = B->surf[ox + lx] - rng_range(&r, 3, 4);
             if (ly > 2 && tile_at(ox + lx, ly) == T_AIR) fill(ox + lx, ly, ox + lx + 3, ly, mat == M_FUR ? T_STRAND : T_THREAD);
         }
     }
@@ -1286,7 +1301,7 @@ static void spawn_chunk(const LevelDesc *d, int i) {
     for (int k = 0; k < 4; k++) {
         const Extra *e = extra_for(d, px, X_UP, k);
         if (!e) break;
-        static const int SAFE[4] = {1, 4, 8, 12};
+        static const int SAFE[4] = {1, 5, 9, 13};
         int tx = F > 0 ? ox + cx0 + SAFE[k] : ox + 20 + k * 3;
         int ty = F > 0 ? F - 1 : B->surf[tx] - 1;
         upgrade_copy(e->param, tx, ty, true);
