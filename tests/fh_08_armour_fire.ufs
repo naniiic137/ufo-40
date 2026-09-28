@@ -1,0 +1,47 @@
+# FLINTHOLD: armour. A clubtail shrugs off 80 % of bones and spears but none
+# of the fire. Pitch darkens a foe and slows it, and fire hurts it a fifth
+# more; a foe is never pitched twice. A barb slows what it hits.
+game flinthold
+wait 5
+cheat stage 1
+cheat hold
+cheat unit thrower 3 4
+cheat foe clubtail 0 48
+wait 30
+expect foe0_hp == 1180
+# a torch: 20 fire, all of it
+cheat stage 1
+cheat hold
+cheat unit torch 3 4
+cheat foe clubtail 0 48
+wait 30
+expect foe0_hp == 1000
+# pitch first, then a torch: the torch does 24
+cheat stage 1
+cheat hold
+cheat unit pitch 3 4
+cheat foe clubtail 0 48
+wait 20
+expect foe0_tarred == 1
+expect foe0_tar > 0
+cheat unit torch 4 4
+wait 18
+expect foe0_hp == 940
+# the pitch wears off and never comes back
+cheat killall
+cheat stage 1
+cheat hold
+cheat unit pitch 3 4
+cheat foe redback 0 48
+wait 20
+expect foe0_tar > 0
+wait 200
+expect foe0_tarred == 1
+expect foe0_tar == 0
+# a barb slows
+cheat stage 1
+cheat hold
+cheat unit barb 3 4
+cheat foe shagtusk 0 48
+wait 20
+expect foe0_slow > 0

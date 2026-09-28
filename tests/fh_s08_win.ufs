@@ -1,0 +1,8 @@
+# FLINTHOLD: stage 8, SKY SCARE, can be won: the demo player clears it with
+# real button presses (building, farming, upgrading, the horn and Pim's
+# bones), wave by wave.
+game flinthold
+wait 5
+cheat stage 8
+botuntil done8 >= 1 250000
+expect best8 > 0

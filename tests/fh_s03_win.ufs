@@ -1,0 +1,8 @@
+# FLINTHOLD: stage 3, FERNBRAKE, can be won: the demo player clears it with
+# real button presses (building, farming, upgrading, the horn and Pim's
+# bones), wave by wave.
+game flinthold
+wait 5
+cheat stage 3
+botuntil done3 >= 1 250000
+expect best3 > 0

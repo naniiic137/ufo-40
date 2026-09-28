@@ -1,0 +1,8 @@
+# FLINTHOLD: stage 2, THE COIL, can be won: the demo player clears it with
+# real button presses (building, farming, upgrading, the horn and Pim's
+# bones), wave by wave.
+game flinthold
+wait 5
+cheat stage 2
+botuntil done2 >= 1 250000
+expect best2 > 0

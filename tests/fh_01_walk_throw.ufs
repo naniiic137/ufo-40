@@ -1,0 +1,37 @@
+# FLINTHOLD: Pim walks with the d-pad (not through thickets), a fresh tap
+# the other way only turns her where she stands, and holding B throws the
+# way she faces again and again while she can't walk or turn.
+game flinthold
+wait 5
+cheat stage 1
+wait 2
+expect state == 3
+expect phase == 0
+expect tx == 16
+expect ty == 8
+expect face == 1
+expect px == 264
+# the thicket below stops her
+hold DOWN 30
+expect py <= 139
+expect py >= 136
+# the first frame of LEFT turns her, the rest walk her a pixel a frame
+hold LEFT 32
+expect face == 2
+expect px == 233
+# a one-frame tap the other way turns her without a step
+press RIGHT 1
+expect face == 0
+expect px == 233
+press LEFT 1
+expect face == 2
+# hold B: she throws (twice a second with bare bones) and can't walk or turn
+hold B 4
+expect shots >= 1
+hold B RIGHT 40
+expect px == 233
+expect face == 2
+hold B 1
+expect throwing == 1
+wait 1
+expect throwing == 0

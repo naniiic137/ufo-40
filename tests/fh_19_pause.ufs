@@ -1,0 +1,23 @@
+# FLINTHOLD: RESTART STAGE and BACK TO THE MAP sit in the START menu under
+# RESUME.
+game flinthold
+wait 5
+cheat stage 3
+cheat meat 77
+press START
+wait 2
+press DOWN
+wait 2
+press A
+wait 2
+expect state == 3
+expect meat == 30
+press START
+wait 2
+press DOWN
+wait 2
+press DOWN
+wait 2
+press A
+wait 2
+expect state == 2

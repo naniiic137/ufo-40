@@ -1,0 +1,8 @@
+# FLINTHOLD: stage 6, PALM SPRING, can be won: the demo player clears it with
+# real button presses (building, farming, upgrading, the horn and Pim's
+# bones), wave by wave.
+game flinthold
+wait 5
+cheat stage 6
+botuntil done6 >= 1 250000
+expect best6 > 0

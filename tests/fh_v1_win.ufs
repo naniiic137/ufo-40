@@ -1,0 +1,7 @@
+# FLINTHOLD: village 1, HEARTHOME: its defence can be won by the demo player
+# with real button presses.
+game flinthold
+wait 5
+cheat stage 11
+botuntil done11 >= 1 100000
+expect best11 > 0

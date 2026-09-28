@@ -1,0 +1,52 @@
+# FLINTHOLD: A on open ground offers a thrower, a hen and a fire pit; the
+# cost comes off the meat. Nothing goes next to the path, B closes the menu,
+# and a line you can't pay for does nothing.
+game flinthold
+wait 5
+cheat stage 1
+expect meat == 30
+# face the open tile (8,4) from above
+cheat pim 8 3 1
+wait 1
+press A
+expect menu_open == 1
+expect menu_n == 3
+expect menu0 == 0
+expect menu1 == 1
+expect menu2 == 2
+press A
+expect menu_open == 0
+expect obj_8_4 == 1
+expect kind_8_4 == 0
+expect units == 1
+expect meat == 20
+# a hen on the next tile: DOWN once, then A
+cheat pim 9 3 1
+wait 1
+press A
+press DOWN
+expect cursor == 1
+press A
+expect obj_9_4 == 2
+expect cook_9_4 == 0
+expect meat == 10
+# next to the path: no menu at all
+expect build_7_2 == 0
+cheat pim 7 3 3
+wait 1
+press A
+expect menu_open == 0
+# B closes a menu without buying
+cheat pim 4 4 1
+wait 1
+press A
+expect menu_open == 1
+press B
+expect menu_open == 0
+expect meat == 10
+# too little meat: the line is there but does nothing
+cheat meat 5
+press A
+press A
+expect obj_4_5 == 0
+expect meat == 5

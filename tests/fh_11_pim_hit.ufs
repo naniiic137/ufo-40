@@ -1,0 +1,27 @@
+# FLINTHOLD: a walker that runs into Pim knocks her down; she comes back at
+# the cave a moment later and the cave loses a heart. Gnats go for her when
+# she is close; gliders fly over her.
+game flinthold
+wait 5
+cheat stage 1
+cheat pim 3 2 2
+cheat spawn nipper 0
+waituntil zstate == 1 400
+expect cave == 29
+expect cave_hits == 1
+waituntil zstate == 0 200
+expect tx == 16
+expect ty == 8
+# a gnat
+cheat stage 1
+cheat pim 2 4 1
+cheat spawn gnat 0
+waituntil zstate == 1 300
+expect cave == 29
+# a glider passes over
+cheat stage 1
+cheat pim 1 3 1
+cheat spawn glider 0
+wait 400
+expect zstate == 0
+expect cave == 30

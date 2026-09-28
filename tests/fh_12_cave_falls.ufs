@@ -1,0 +1,21 @@
+# FLINTHOLD: a foe that reaches the cave takes hearts by its kind (a redback
+# 2, a shagtusk 10, Lord Jaw 30). At 0 the cave falls: try again or leave.
+game flinthold
+wait 5
+cheat stage 1
+cheat foe redback 0 390
+waituntil foes == 0 200
+expect cave == 28
+cheat foe shagtusk 0 396
+waituntil foes == 0 400
+expect cave == 18
+cheat foe jaw 0 396
+waituntil phase == 3 400
+expect cave == 0
+waituntil state == 5 200
+wait 70
+press A
+wait 2
+expect state == 3
+expect cave == 30
+expect phase == 0

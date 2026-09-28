@@ -1,0 +1,10 @@
+# FLINTHOLD: you can hold 99 meat at most; anything over is lost.
+game flinthold
+wait 5
+cheat stage 1
+cheat nospawn
+cheat meat 95
+cheat horn
+waituntil phase == 0 2000
+expect meat == 99
+expect wasted == 16
