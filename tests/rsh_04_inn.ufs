@@ -1,0 +1,54 @@
+# RIMSHIRE: an inn offers three disks for coins; new disks join the field
+# army, then the reserve (eight and eight at most); after three visits the
+# inn closes.
+game rimshire
+cheat war 1
+cheat coins 0 20
+cheat turn 0
+press RIGHT
+press RIGHT
+press A
+waituntil wstate == 2 60
+expect visits_2_1 == 1
+expect offer0 < 16
+expect pick == 0
+press A
+expect coins0 < 20
+expect army0 == 3
+expect offer0 == 16
+# a bought disk can't be bought again
+press A
+expect army0 == 3
+press UP
+expect pick == 3
+press A
+waituntil turn == 1 60
+expect node_2_1 == 4
+# a full field army sends new disks to the reserve
+cheat army 0 SSSSSSSS
+cheat reserve 0 -
+cheat coins 0 20
+cheat at 0 1 1
+cheat turn 0
+press RIGHT
+press RIGHT
+press A
+waituntil wstate == 2 60
+expect visits_2_1 == 2
+press A
+expect army0 == 8
+expect reserve0 == 1
+press UP
+press A
+waituntil turn == 1 60
+# the third visit is the last
+cheat at 0 1 1
+cheat turn 0
+press RIGHT
+press RIGHT
+press A
+waituntil wstate == 2 60
+expect visits_2_1 == 3
+press B
+waituntil turn == 1 60
+expect node_2_1 == 1

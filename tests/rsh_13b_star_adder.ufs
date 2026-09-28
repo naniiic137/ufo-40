@@ -1,0 +1,18 @@
+# RIMSHIRE: an adder with a star kills with its first bite.
+game rimshire
+cheat war 1
+cheat cpu 1 -1
+cheat army 0 A
+cheat army 1 W
+cheat battle 6 1 0
+cheat field 0
+cheat place 0 100 128
+cheat place 1 150 128
+cheat stars 0 1
+waituntil bphase == 1 200
+press A
+hold RIGHT 40
+hold A 12
+wait 1
+waituntil moving == 0 600
+expect d1_on == 0

@@ -1,0 +1,36 @@
+# RIMSHIRE: the hexer's shot bursts into five embers where it stops or
+# strikes; an ember burns the first disk to touch it, friend or foe.
+game rimshire
+cheat war 1
+cheat cpu 1 -1
+cheat army 0 H
+cheat army 1 S
+cheat battle 6 1 0
+cheat field 0
+cheat place 0 100 128
+cheat place 1 300 40
+waituntil bphase == 1 200
+press A
+hold UP 70
+hold A 12
+wait 1
+waituntil bphase == 2 400
+hold DOWN 70
+hold A 12
+wait 1
+waituntil bphase == 4 400
+hold RIGHT 70
+hold A 12
+wait 1
+waituntil bside == 1 600
+expect embers == 5
+# the Plum squire runs into them
+cheat place 1 190 128
+waituntil bphase == 1 60
+press A
+hold LEFT 70
+hold A 12
+wait 1
+waituntil moving == 0 400
+expect d1_hp < 4
+expect embers < 5

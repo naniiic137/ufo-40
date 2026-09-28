@@ -1,0 +1,55 @@
+# RIMSHIRE: a battle turn. LEFT/RIGHT and A pick a disk; the d-pad turns the
+# aim the short way round toward the held direction and stops there; holding
+# A adds a pip every 12 frames up to the disk's charge; letting go launches
+# (a tap that never reached a pip does nothing); the disk slides and stops;
+# a squire has two moves, then the other side's turn comes.
+game rimshire
+cheat war 1
+cheat cpu 1 -1
+cheat army 0 S
+cheat army 1 S
+cheat reserve 1 -
+cheat battle 6 1 0
+cheat field 0
+cheat place 0 100 60
+cheat place 1 300 200
+waituntil bphase == 1 200
+expect bside == 0
+expect eligible == 1
+press A
+expect bphase == 2
+expect sel == 0
+expect bmoves == 2
+hold RIGHT 40
+expect angle == 0
+hold UP 10
+expect angle == 236
+hold UP 40
+expect angle == 192
+hold RIGHT 40
+expect angle == 0
+# a tap: no shot
+press A 5
+expect launches == 0
+expect bphase == 2
+# three pips
+hold A 40
+expect pips == 3
+expect charging == 1
+wait 1
+expect launches == 1
+expect bphase == 3
+expect moving == 1
+waituntil moving == 0 600
+expect d0_x >= 235
+expect d0_x <= 255
+expect d0_y == 60
+expect bphase == 2
+expect move_i == 1
+# the pips stop at the squire's five
+hold A 100
+expect pips == 5
+wait 1
+waituntil bside == 1 800
+expect launches == 2
+waituntil bphase == 1 60

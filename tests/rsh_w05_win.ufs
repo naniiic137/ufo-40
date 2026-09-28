@@ -1,0 +1,10 @@
+# RIMSHIRE: with four wars won, the demo player picks war 5, ADDER NEST,
+# from the list and wins it: the Beacon.
+game rimshire
+cheat clear 1 1
+cheat clear 2 1
+cheat clear 3 1
+cheat clear 4 1
+expect goals == 0
+botuntil cleared5 == 1 400000
+expect goals == 1

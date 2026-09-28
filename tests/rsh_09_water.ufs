@@ -1,0 +1,24 @@
+# RIMSHIRE: water drowns any disk that can't swim, however it gets there;
+# swimmers (the ooze, the toadkin) float.
+game rimshire
+cheat war 1
+cheat cpu 1 -1
+cheat army 0 F
+cheat army 1 SO
+cheat battle 6 1 0
+cheat field 0
+cheat pond 30 0 18 32
+cheat place 0 100 128
+cheat place 1 200 128
+cheat place 2 300 40
+waituntil bphase == 1 200
+press A
+hold RIGHT 40
+hold A 48
+expect pips == 4
+wait 1
+waituntil moving == 0 800
+expect d1_on == 0
+expect water_deaths == 1
+expect d2_on == 1
+expect cell_35_5 == 3

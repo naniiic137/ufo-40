@@ -1,0 +1,17 @@
+# RIMSHIRE: with nine wars won, the demo player wins the last, THE EMPRESS,
+# against the Plum Empress in her reserves: the Saucer and the ending.
+game rimshire
+cheat clear 1 1
+cheat clear 2 1
+cheat clear 3 1
+cheat clear 4 1
+cheat clear 5 1
+cheat clear 6 1
+cheat clear 7 1
+cheat clear 8 1
+cheat clear 9 1
+expect goals == 1
+botuntil state == 7 400000
+expect cleared10 == 1
+expect goals == 3
+botuntil state == 0 2000

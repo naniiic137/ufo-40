@@ -1,0 +1,30 @@
+# RIMSHIRE: holding B and the d-pad moves the camera to look round the
+# field, even while charging; the aim stays put. Let go and the camera
+# follows the action again.
+game rimshire
+cheat war 1
+cheat cpu 1 -1
+cheat army 0 S
+cheat army 1 S
+cheat battle 6 1 0
+cheat field 0
+cheat place 0 60 60
+cheat place 1 300 200
+waituntil bphase == 1 200
+press A
+hold RIGHT 40
+wait 40
+expect cam_x == 0
+hold B RIGHT 30
+expect cam_free == 1
+expect cam_x == 64
+expect angle == 0
+hold A 10
+hold A B DOWN 20
+expect charging == 1
+expect pips == 2
+expect cam_y == 60
+expect angle == 0
+wait 1
+expect cam_free == 0
+expect launches == 1

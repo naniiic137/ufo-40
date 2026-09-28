@@ -1,0 +1,27 @@
+# RIMSHIRE: held at full power with nothing else pressed, the charge resets
+# after three seconds, so a lower power can be charged; turning the aim
+# while charging keeps it.
+game rimshire
+cheat war 1
+cheat cpu 1 -1
+cheat army 0 S
+cheat army 1 S
+cheat battle 6 1 0
+cheat field 0
+cheat place 0 100 60
+cheat place 1 300 200
+waituntil bphase == 1 200
+press A
+hold A 179
+expect pips == 5
+hold A 1
+expect pips == 0
+expect charging == 1
+hold A 13
+expect pips == 1
+wait 1
+expect launches == 1
+waituntil bphase == 2 400
+# aiming while charging: no reset
+hold A LEFT 200
+expect pips == 5

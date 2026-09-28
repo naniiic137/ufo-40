@@ -1,0 +1,30 @@
+# RIMSHIRE: a war is won when a battle would start and the other side has
+# no disks at all; stepping into the enemy with none loses it.
+game rimshire
+cheat war 1
+cheat army 1 -
+cheat reserve 1 -
+cheat at 0 11 1
+cheat turn 0
+press RIGHT
+expect plan_ready == 1
+press A
+waituntil state == 6 60
+expect winner == 0
+expect cleared1 == 1
+expect wars_won == 1
+wait 100
+press A
+wait 30
+expect state == 2
+# and lost
+cheat war 2
+cheat army 0 -
+cheat reserve 0 -
+cheat at 0 11 2
+cheat turn 0
+press RIGHT
+press A
+waituntil state == 6 60
+expect winner == 1
+expect cleared2 == 0

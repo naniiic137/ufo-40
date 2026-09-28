@@ -1,0 +1,51 @@
+# RIMSHIRE: the streak opens once the campaign is won. Each streak war is
+# on a new random board; wins count up, a loss ends the run; three in a row
+# earns the Alien. (The demo player is given a strong army and the Plum
+# banner none, so the test is about the counting, not the fighting.)
+game rimshire
+wait 10
+press DOWN
+press A
+wait 10
+expect state == 0
+cheat clearall
+press A
+wait 25
+expect state == 3
+expect mode == 1
+press A
+wait 10
+expect state == 4
+expect scen == 1
+cheat army 0 WWWYY
+cheat army 1 -
+cheat reserve 1 -
+cheat coins 1 0
+botuntil state == 6 60000
+expect winner == 0
+expect streak == 1
+botuntil state == 4 600
+cheat army 0 WWWYY
+cheat army 1 -
+cheat reserve 1 -
+cheat coins 1 0
+botuntil state == 6 60000
+expect streak == 2
+expect goals !& 4
+botuntil state == 4 600
+cheat army 0 WWWYY
+cheat army 1 -
+cheat reserve 1 -
+cheat coins 1 0
+botuntil state == 6 60000
+expect streak == 3
+expect goals & 4
+# a lost war ends the streak; the best is kept
+botuntil state == 4 600
+cheat army 0 -
+cheat reserve 0 -
+cheat coins 0 0
+botuntil state == 6 200000
+expect winner == 1
+expect streak == 0
+expect best_streak == 3

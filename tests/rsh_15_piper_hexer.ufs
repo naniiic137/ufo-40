@@ -1,0 +1,50 @@
+# RIMSHIRE: the piper's tune gives a friend a star (+1 attack, spent on its
+# next turn); the hexer's shot leaves five embers that burn anyone.
+game rimshire
+cheat war 1
+cheat cpu 1 -1
+cheat army 0 PS
+cheat army 1 S
+cheat battle 6 1 0
+cheat field 0
+cheat place 0 100 60
+cheat place 1 100 200
+cheat place 2 300 128
+waituntil bphase == 1 200
+press A
+expect sel == 0
+hold UP 70
+hold A 12
+wait 1
+waituntil bphase == 4 400
+cheat place 0 100 60
+hold DOWN 70
+hold A 24
+wait 1
+waituntil bside == 1 600
+expect d1_stars == 1
+# Plum waits its turn
+waituntil bphase == 1 60
+press A
+hold UP 70
+hold A 12
+wait 1
+waituntil bphase == 2 400
+hold A 12
+wait 1
+waituntil bside == 0 600
+# the starred squire hits for 2, then its star is spent
+cheat place 2 160 200
+waituntil bphase == 1 60
+press A
+expect sel == 1
+hold RIGHT 70
+hold A 24
+wait 1
+waituntil bphase == 2 400
+expect d2_hp == 2
+hold UP 70
+hold A 12
+wait 1
+waituntil bside == 1 600
+expect d1_stars == 0

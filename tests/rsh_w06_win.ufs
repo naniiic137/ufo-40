@@ -1,0 +1,6 @@
+# RIMSHIRE: the demo player, pressing real buttons, wins war 6, THE KEEP.
+game rimshire
+cheat war 6
+botuntil state == 6 400000
+expect winner == 0
+expect cleared6 == 1

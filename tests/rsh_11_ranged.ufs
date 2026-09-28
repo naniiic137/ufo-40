@@ -1,0 +1,65 @@
+# RIMSHIRE: a disk with a projectile fires it after its moves: the shot is
+# aimed and charged the same way, costs a shard, and hurts on contact. A tap
+# skips it for free; with no shards there is no shot.
+game rimshire
+cheat war 1
+cheat cpu 1 -1
+cheat army 0 L
+cheat army 1 S
+cheat battle 6 1 0
+cheat field 0
+cheat place 0 100 128
+cheat place 1 250 128
+waituntil bphase == 1 200
+expect shards0 == 2
+press A
+expect bmoves == 1
+hold LEFT 70
+hold A 12
+wait 1
+waituntil bphase == 4 400
+expect shards0 == 2
+hold RIGHT 70
+expect angle == 0
+hold A 36
+wait 1
+expect shards0 == 1
+waituntil bside == 1 600
+expect d1_hp == 1
+# the Plum squire's turn: two small moves away
+waituntil bphase == 1 60
+press A
+hold DOWN 70
+hold A 12
+wait 1
+waituntil bphase == 2 400
+hold A 12
+wait 1
+waituntil bside == 0 600
+waituntil bphase == 1 60
+# a tap skips the shot and keeps the shard
+press A
+hold UP 70
+hold A 12
+wait 1
+waituntil bphase == 4 400
+press A 3
+waituntil bside == 1 60
+expect skipped == 1
+expect shards0 == 1
+# with no shards, the turn ends after the move
+cheat shards 0 0
+waituntil bphase == 1 60
+press A
+hold A 12
+wait 1
+waituntil bphase == 2 400
+hold A 12
+wait 1
+waituntil bside == 0 600
+waituntil bphase == 1 60
+press A
+hold A 12
+wait 1
+waituntil bphase != 3 400
+expect bphase == 5

@@ -1,0 +1,6 @@
+# RIMSHIRE: the demo player, pressing real buttons, wins war 3, MARSHMOOT.
+game rimshire
+cheat war 3
+botuntil state == 6 400000
+expect winner == 0
+expect cleared3 == 1

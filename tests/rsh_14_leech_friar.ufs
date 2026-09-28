@@ -1,0 +1,51 @@
+# RIMSHIRE: the leech drinks 1 from every hit it lands (up to 10) and any
+# healing hurts it; the friar's balm heals a friend 2 and cures it.
+game rimshire
+cheat war 1
+cheat cpu 1 -1
+cheat army 0 E
+cheat army 1 SR
+cheat battle 6 1 0
+cheat field 0
+cheat place 0 100 128
+cheat place 1 150 128
+cheat place 2 300 200
+cheat place 3 300 40
+waituntil bphase == 1 200
+press A
+hold RIGHT 40
+hold A 12
+wait 1
+waituntil bphase == 2 400
+expect d1_hp == 2
+expect d0_hp == 7
+# second move up into a tonic: healing hurts a leech (twice the heal)
+cheat place 0 110 128
+cheat obj 2 110 100
+hold UP 70
+hold A 12
+wait 1
+waituntil bside == 1 600
+expect d0_hp == 3
+# Plum: the friar moves, then balms the hurt squire (right below it)
+cheat place 1 150 128
+cheat place 2 150 60
+waituntil bphase == 1 60
+press RIGHT
+press A
+expect sel == 2
+hold RIGHT 70
+hold A 12
+wait 1
+waituntil bphase == 2 400
+cheat place 2 150 60
+hold A 12
+wait 1
+waituntil bphase == 4 400
+cheat place 2 150 60
+hold DOWN 70
+expect angle == 64
+hold A 24
+wait 1
+waituntil bside == 0 600
+expect d1_hp == 4

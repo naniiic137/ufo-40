@@ -1,0 +1,6 @@
+# RIMSHIRE: the demo player, pressing real buttons, wins war 8, DEEP DIGGINGS.
+game rimshire
+cheat war 8
+botuntil state == 6 400000
+expect winner == 0
+expect cleared8 == 1

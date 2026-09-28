@@ -1,0 +1,44 @@
+# RIMSHIRE: two players: Brass on pad 1, Plum on pad 2, each with only their
+# own turns, on the board and in battle.
+game rimshire
+wait 10
+press DOWN
+press DOWN
+press A
+wait 25
+expect state == 3
+expect mode == 2
+press A
+wait 10
+expect state == 4
+expect cpu1 == -1
+expect turn == 0
+cheat at 0 5 2
+hold B 35
+wait 1
+expect athome0 == 1
+expect turn == 1
+cheat at 1 5 3
+hold B 40
+wait 1
+expect turn == 1
+expect athome1 == 0
+hold P2B 35
+wait 1
+expect athome1 == 1
+expect turn == 0
+cheat army 0 S
+cheat army 1 S
+cheat battle 5 2 1
+cheat field 0
+cheat place 0 100 128
+cheat place 1 300 128
+waituntil bphase == 1 200
+expect bside == 1
+press A
+expect bphase == 1
+press P2A
+expect bphase == 2
+hold P2A 24
+wait 1
+expect launches == 1

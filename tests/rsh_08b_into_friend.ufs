@@ -1,0 +1,20 @@
+# RIMSHIRE: a foe knocked into your own disk is hurt again; yours is not.
+game rimshire
+cheat war 1
+cheat cpu 1 -1
+cheat army 0 SS
+cheat army 1 S
+cheat battle 6 1 0
+cheat field 0
+cheat place 0 100 128
+cheat place 1 200 128
+cheat place 2 160 128
+waituntil bphase == 1 200
+press A
+hold RIGHT 40
+hold A 40
+wait 1
+waituntil moving == 0 600
+expect d2_hp == 2
+expect d1_hp == 4
+expect d0_hp == 4

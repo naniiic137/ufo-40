@@ -19,6 +19,7 @@ extern const GameDef GAME_TINTAIL;
 extern const GameDef GAME_OPENHOUSE;
 extern const GameDef GAME_DUNE;
 extern const GameDef GAME_FLINTHOLD;
+extern const GameDef GAME_RIMSHIRE;
 extern const GameDef GAME_WOBBLE;
 
 const GameDef *const GAMES[GAME_SLOTS] = {
@@ -37,5 +38,6 @@ const GameDef *const GAMES[GAME_SLOTS] = {
     [24] = &GAME_OPENHOUSE,  /* 25 Party House */
     [27] = &GAME_DUNE,       /* 28 Rail Heist */
     [29] = &GAME_FLINTHOLD,  /* 30 Rock On! Island */
+    [40] = &GAME_RIMSHIRE,   /* 41 Lords of Diskonia */
     [46] = &GAME_WOBBLE,     /* 47 Quibble Race */
 };

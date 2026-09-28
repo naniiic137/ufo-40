@@ -1,0 +1,43 @@
+# RIMSHIRE: after six rounds the haze closes in from the edges. A disk may
+# pass through it, but the disk that ends its turn touching it is gone.
+game rimshire
+cheat war 1
+cheat cpu 1 -1
+cheat army 0 S
+cheat army 1 S
+cheat battle 6 1 0
+cheat field 0
+cheat round 8
+expect fog == 42
+cheat place 0 70 128
+cheat place 1 300 128
+waituntil bphase == 1 200
+press A
+hold LEFT 70
+expect angle == 128
+hold A 12
+wait 1
+waituntil bphase == 2 400
+expect d0_on == 1
+expect d0_x < 50
+# the last move leaves the haze: it lives
+hold RIGHT 70
+hold A 40
+wait 1
+waituntil bside == 1 600
+expect d0_on == 1
+expect fog_deaths == 0
+# the Plum squire ends its turn in the haze
+waituntil bphase == 1 60
+press A
+hold RIGHT 70
+hold A 36
+wait 1
+waituntil bphase == 2 600
+hold A 12
+wait 1
+waituntil bphase >= 5 600
+expect d1_on == 0
+expect fog_deaths == 1
+waituntil bphase == 6 100
+expect bwinner == 0
