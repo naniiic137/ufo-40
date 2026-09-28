@@ -1,0 +1,38 @@
+# WET PAINT: the car can't turn round while it moves: pushing back brakes it
+# (down to a crawl), pushing ahead speeds it back up. A turn pressed between
+# tiles waits for the next tile centre, and is forgotten there if that way is
+# shut and the pad isn't held.
+game wetpaint
+wait 5
+cheat course 1
+cheat nofoes
+cheat noclock
+cheat go
+cheat car 0 12 0
+hold LEFT 10
+expect dir == 0
+expect speed == 5
+expect stopped == 0
+# let go: it speeds back up by itself, quicker with the pad held ahead
+wait 4
+expect speed == 9
+hold RIGHT 3
+expect speed == 15
+wait 2
+expect speed == 16
+# a turn up pressed half-way to (5,12) is taken at its centre
+cheat car 4 12 0
+wait 6
+press UP 1
+expect dir == 0
+wait 8
+expect dir == 3
+expect tx == 5
+# a turn up pressed just before (6,12), where up is a wall, is dropped there
+cheat car 5 12 0
+wait 8
+press UP 1
+wait 60
+expect dir == 0
+expect ty == 12
+expect tx >= 9

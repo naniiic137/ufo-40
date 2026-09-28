@@ -1,0 +1,29 @@
+# WET PAINT: 25 courses and the final, all sound (a start each, every floor
+# tile reachable, every garage opening onto floor). A cutscene opens each
+# group of five and the final; other courses start straight away.
+game wetpaint
+wait 5
+expect courses_ok == 26
+cheat cutscene 1
+expect state == 1
+expect cut == 0
+cheat cutscene 6
+expect cut == 1
+cheat cutscene 11
+expect cut == 2
+cheat cutscene 16
+expect cut == 3
+cheat cutscene 21
+expect cut == 4
+cheat cutscene 26
+expect cut == 5
+cheat cutscene 7
+expect state == 2
+expect cut == -1
+# the cutscene gives way to the course with A
+cheat cutscene 6
+wait 45
+press A
+wait 2
+expect state == 2
+expect course == 6

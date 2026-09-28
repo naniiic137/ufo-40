@@ -1,0 +1,30 @@
+# WET PAINT: a hedgehog's plough stops you head-on (it lives on), but it is
+# wrecked from behind or the side, or head-on at boost speed.
+game wetpaint
+wait 5
+cheat course 1
+cheat nogarages
+cheat noclock
+cheat still
+cheat go
+cheat put hedgehog 8 12 2
+cheat car 3 12 0
+wait 60
+expect stun > 0
+expect stuns == 1
+expect foes_hedgehog == 1
+expect kills == 0
+# from behind
+cheat killall
+cheat put hedgehog 8 12 2
+cheat car 12 12 2
+wait 50
+expect kills == 1
+expect stuns == 1
+# head-on, boosted off an arrow
+cheat put hedgehog 10 12 2
+cheat tile 4 12 8 0
+cheat car 3 12 0
+wait 50
+expect kills == 2
+expect stuns == 1

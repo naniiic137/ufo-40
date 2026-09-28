@@ -1,0 +1,34 @@
+# WET PAINT: foes paint pink wherever they go, over blue too, and running
+# into a plain one wrecks it. Tankers go twice a smudger's speed, still
+# under your own.
+game wetpaint
+wait 5
+cheat course 1
+cheat nogarages
+cheat noclock
+cheat go
+cheat wipe
+cheat car 20 0 0
+cheat paint 7 12 1
+cheat put roller 8 12 2
+wait 30
+expect paint_7_12 == 2
+expect paint_8_12 == 2
+cheat killall
+# head on into a smudger: it's gone, you drive on
+cheat put roller 8 12 2
+cheat car 3 12 0
+wait 40
+expect kills == 1
+expect foes == 0
+expect stun == 0
+expect stopped == 0
+# speeds over 30 frames: a smudger goes 1 1/4 tiles, a tanker 2 1/4
+cheat car 20 0 0
+cheat put roller 8 12 2
+wait 30
+expect foe_0_tx == 7
+cheat killall
+cheat put tanker 8 12 2
+wait 30
+expect foe_0_tx == 6

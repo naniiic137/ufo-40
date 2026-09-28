@@ -101,7 +101,7 @@ static void footer(const char *a_label, const char *b_label) {
 static void menu_draw(void) {
     ui_starfield(t, C_INK);
     ui_logo(160, 10, 3, t);
-    tiny_center("FORTY GAMES FROM ANOTHER WORLD", 160, 54, C_SKY);
+    tiny_center("FIFTY GAMES FROM ANOTHER WORLD", 160, 54, C_SKY);
     int bob = (int)(sinf((float)t * 0.06f) * 3.0f);
     ui_saucer(262, 118 + bob, t, 1);
     ui_saucer(36, 96 - bob, t + 13, 1);
@@ -125,7 +125,7 @@ static void menu_draw(void) {
     int w = text_width(buf);
     text_draw(buf, SCREEN_W - 6 - w, 170, C_YELLOW);
     ui_goal_icon(SCREEN_W - 18 - w, 169, GOAL_SAUCER, true, t);
-    snprintf(buf, sizeof buf, "%d/40 LOADED " GLYPH_DOT " %s", loaded_count(), plat_name());
+    snprintf(buf, sizeof buf, "%d/%d LOADED " GLYPH_DOT " %s", loaded_count(), GAME_SLOTS, plat_name());
     tiny_draw(buf, 104, 172, C_SLATE);
 }
 

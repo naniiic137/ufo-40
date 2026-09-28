@@ -1,0 +1,31 @@
+# WET PAINT: the car drives on by itself a pixel a frame (five tiles a
+# second), paints every tile it crosses blue, halts dead at a wall and sets
+# off again with any open way on the pad (even back the way it came).
+game wetpaint
+wait 5
+cheat course 1
+cheat nofoes
+cheat noclock
+cheat go
+cheat wipe
+cheat car 20 12 0
+wait 12
+expect tx == 21
+expect dir == 0
+expect paint_21_12 == 1
+expect paint_22_12 == 0
+expect speed == 16
+# no input: it keeps going to the wall at the end of the row and stops there
+wait 60
+expect tx == 25
+expect stopped == 1
+expect speed == 0
+expect paint_25_12 == 1
+wait 30
+expect tx == 25
+# straight back is allowed from a standstill
+hold LEFT 3
+wait 30
+expect dir == 2
+expect stopped == 0
+expect tx < 25

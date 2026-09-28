@@ -82,12 +82,12 @@ void vita_assets_render(const char *dir) {
             gfx_noclip();
         }
         ui_logo(140, 58, 2, 0);
-        tiny_center("FORTY GAMES FROM ANOTHER WORLD", 140, 150, C_SKY);
+        tiny_center("FIFTY GAMES FROM ANOTHER WORLD", 140, 150, C_SKY);
         {
             char line[48];
             int loaded = 0;
             for (int i = 0; i < GAME_SLOTS; i++) loaded += GAMES[i] != NULL;
-            snprintf(line, sizeof line, "%d OF 40 CARTRIDGES LOADED", loaded);
+            snprintf(line, sizeof line, "%d OF %d CARTRIDGES LOADED", loaded, GAME_SLOTS);
             tiny_center(line, 140, 158, C_SLATE);
         }
         snprintf(path, sizeof path, "%s/livearea/contents/bg.png", dir);

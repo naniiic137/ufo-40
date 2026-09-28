@@ -6,7 +6,10 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#define MAX_GAMES 40
+/* Fifty slots, one for each UFO 50 number (the name stayed 40). Progress
+ * files written when there were 40 slots still load: see progress_load. */
+#define MAX_GAMES 50
+#define LEGACY_GAMES 40
 
 enum { GOAL_BEACON = 1, GOAL_SAUCER = 2, GOAL_ALIEN = 4 };
 
@@ -28,6 +31,9 @@ uint32_t crc32_buf(const void *data, int len);
 
 void progress_defaults(void);
 bool progress_load(void);
+/* Size in bytes of the progress record from the 40-slot days (goals[40],
+ * played[40], then the same settings bytes). progress_load upgrades it. */
+#define PROGRESS_LEGACY40_SIZE (2 * LEGACY_GAMES + 20)
 bool progress_save(void);
 /* Returns true if the goal was newly earned (queues a toast). */
 bool progress_award(int game, int goal_bit);

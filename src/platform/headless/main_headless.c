@@ -368,6 +368,42 @@ static int run_script(const char *path) {
             char fname[32];
             snprintf(fname, sizeof fname, "game%02d.sav", gi + 1);
             plat_save_write(fname, blob, bytes);
+        } else if (!strcmp(cmd, "legacy_progress")) {
+            /* legacy_progress MUSIC SFX LAST SLOT BITS [SLOT BITS ...] : write a
+             * progress file in the old 40-slot layout (goals[40], played[40],
+             * settings), as a UFO 40 from before the library grew would have
+             * left it. SLOT is 1-based; each listed slot counts as played once. */
+            uint8_t old[PROGRESS_LEGACY40_SIZE + 16];
+            uint8_t *b = old + 16;
+            memset(old, 0, sizeof old);
+            char tmp[256];
+            snprintf(tmp, sizeof tmp, "%s", arg);
+            int vals[64], nv = 0;
+            for (char *tok = strtok(tmp, " \t"); tok && nv < 64; tok = strtok(NULL, " \t")) vals[nv++] = atoi(tok);
+            if (nv < 3 || (nv - 3) % 2) { fail("bad legacy_progress: %s%ld", arg, 0); continue; }
+            for (int i = 3; i + 1 < nv; i += 2) {
+                int slot = vals[i] - 1;
+                if (slot < 0 || slot >= LEGACY_GAMES) { fail("bad legacy_progress slot: %s%ld", arg, vals[i]); continue; }
+                b[slot] = (uint8_t)(vals[i + 1] & 7);
+                b[LEGACY_GAMES + slot] = 1;
+            }
+            uint8_t *st = b + 2 * LEGACY_GAMES;
+            st[0] = (uint8_t)vals[0]; st[1] = (uint8_t)vals[1]; st[2] = 3; st[3] = 0;
+            st[4] = (uint8_t)vals[2]; st[5] = 0;
+            uint32_t hdr[4] = {0x30344655u, 1u, (uint32_t)PROGRESS_LEGACY40_SIZE, crc32_buf(b, PROGRESS_LEGACY40_SIZE)};
+            for (int k = 0; k < 4; k++)
+                for (int j = 0; j < 4; j++) old[k * 4 + j] = (uint8_t)(hdr[k] >> (8 * j));
+            plat_save_write("progress.dat", old, (int)sizeof old);
+        } else if (!strcmp(cmd, "progress_bytes")) {
+            /* progress_bytes N : the progress file on disk holds N bytes of data */
+            checks++;
+            uint8_t buf[1024];
+            int n = plat_save_read("progress.dat", buf, (int)sizeof buf);
+            int want = atoi(arg);
+            if (n - 16 != want) {
+                failures++;
+                fprintf(stderr, "FAIL %s:%d: progress file holds %d bytes, expected %d\n", script_name, line_no, n - 16, want);
+            }
         } else if (!strcmp(cmd, "set_goals")) {
             /* set_goals GAME BITS : set a cartridge's goals (1 beacon, 2 saucer, 4 alien) */
             char name[64] = {0};

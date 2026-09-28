@@ -14,6 +14,9 @@ static const struct { const char *id, *title; } TITLES[] = {
     {"rc_rooftops", "ROOFTOP RUN"}, {"rc_market", "SPICE MARKET"}, {"rc_fort", "FORT AT MIDNIGHT"},
     {"rc_harbour", "HARBOUR BREEZE"}, {"rc_boss", "MAGPIE MAYHEM"}, {"rc_over", "OUT OF LIVES"},
     {"rc_ending", "PARCEL DELIVERED"},
+    {"wp_title", "WET PAINT"}, {"wp_race1", "FIRST COAT"}, {"wp_race2", "SECOND COAT"}, {"wp_race3", "TOP COAT"},
+    {"wp_final", "SHOWDOWN"}, {"wp_cut", "INTERMISSION"}, {"wp_end", "PLATINUM"}, {"wp_clear", "COURSE CLEAR"},
+    {"wp_miss", "NOT BLUE ENOUGH"}, {"wp_over", "RUN DRY"},
     {"pp_garden", "GARDEN WALTZ"}, {"pp_rush", "NECTAR RUSH"}, {"pp_title", "PETAL LULLABY"},
     {"pp_end", "TWO HUNDRED HOME"}, {"pp_over", "WILTED"},
     {"tt_nursery", "NURSERY MARCH"}, {"tt_bath", "BATHWATER"}, {"tt_kitchen", "KITCHEN GALOP"},
@@ -51,7 +54,7 @@ const char *shell_song_title(int song) {
     return buf;
 }
 
-#define MAX_ROWS 320
+#define MAX_ROWS 448 /* every song plus a heading per cartridge */
 #define LIST_Y 66
 #define ROW_H 10
 #define VISIBLE 9

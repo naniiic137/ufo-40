@@ -1,0 +1,35 @@
+# WET PAINT: 2 PLAYERS is a race on any course: blue against pink, no
+# garages, the power-ups as they are. Player 2 drives with the second pad.
+# Whoever has more paint when the clock runs out wins the round.
+game wetpaint
+wait 20
+press DOWN
+expect menu == 1
+press A
+wait 5
+expect state == 7
+press RIGHT
+expect vs_course == 2
+wait 10
+press A
+wait 5
+expect state == 2
+expect rival == 1
+expect rival_human == 1
+expect garages == 0
+cheat go
+expect rival_dir == 2
+# player 2's pad steers the pink car: up at the first gap on its left
+hold P2UP 90
+expect rival_dir == 3
+expect rival_tx == 15
+expect pink_tiles > 3
+cheat wipe
+cheat fill 1 100
+cheat time 1
+wait 2
+expect state == 4
+expect vs_blue_wins == 1
+expect vs_pink_wins == 0
+wait 220
+expect state == 7

@@ -5,7 +5,7 @@
 <h1 align="center">UFO 40</h1>
 
 <p align="center">
-  <b>A pretend 1980s console with forty cartridges (well, twelve so far), built from scratch<br>
+  <b>A pretend 1980s console with fifty cartridges (well, thirteen so far), built from scratch<br>
   for the PlayStation Vita, Windows and the web.</b><br><br>
   <a href="https://naniiic137.github.io/ufo-40/"><b>▶ Play it in your browser</b></a> ·
   <a href="https://github.com/naniiic137/ufo-40/releases">Download for Vita / Windows</a>
@@ -23,9 +23,11 @@
 ## What is this?
 
 UFO 40 is inspired by **UFO 50** by Mossmouth, a collection of fifty "lost" games
-from a console that never existed. This is a joke port with a shorter name
-and fewer games: forty cartridge slots on the equally fictional
-**Beamdown Softworks** console.
+from a console that never existed. It started as a joke port with a shorter
+name and fewer games, forty cartridge slots on the equally fictional
+**Beamdown Softworks** console. Then it kept going: UFO 40 is now a tribute
+that is growing to all 50 of UFO 50's games, one per slot. The name stayed 40;
+the library didn't.
 
 Each cartridge is a tribute to one UFO 50 game and sits in the slot with that
 game's number. It plays by the same rules: the controls, systems, foes, items,
@@ -36,6 +38,9 @@ the names, characters, setting, pixel art, levels and chiptune music. Where the
 original builds its levels at random, so does the tribute, with its own
 generator. Where the original's levels are hand-made, the tribute's are too,
 drawn from scratch.
+
+Once the tributes are in, the plan is to add some twists of my own on top,
+such as harder modes, kept apart from the faithful versions.
 
 Everything is written in plain C with no dependencies in the core:
 
@@ -67,15 +72,16 @@ and the music and sound volumes are in every game's pause menu too.
   <img src="docs/shots/savedata.png" width="320" alt="The save data screen">
 </p>
 
-## The library (12 of 40 loaded)
+## The library (13 of 50 loaded)
 
-<p align="center"><img src="docs/shots/library.png" width="640" alt="The UFO 40 game library with 40 cartridge slots"></p>
+<p align="center"><img src="docs/shots/library.png" width="640" alt="The UFO 40 game library with 50 cartridge slots"></p>
 
 | # | Cartridge | Tribute to | What plays the same | What's ours |
 |---|---|---|---|---|
 | 01 | **UNDERDELVE** | Barbuta | an 8×8 wrapping map, one-hit deaths, six spare lives and no continue, one fixed jump with no air control, a roaming death that moves a room whenever you do, traps, hidden walls and ladders, hint-givers, a death taken on purpose, items that open the way, three paths to the final boss | Mo the mole, a dark mine, the Gloom, the glow-worms, 64 new screens |
 | 02 | **GRUB SHIFT** | Bug Hunter | a 6×5 field dealt afresh each morning, seven tools that each work once a shift, a shop open any time, pods that blow up in threes, grubs that grow by colour into adults, queens and eggs, 30 kills in 10, 9 or 8 shifts | Tilly the farm robot, the grub species, 41 tools |
 | 03 | **ROOFCAT** | Ninpek | one long auto-scrolling town of stacked rooftops where left walks you back against the scroll, high and double jumps, one star at a time (three, farther and faster, with power-ups), points only from eggs, a spirit that floats back after a death, two bonus stretches, a 35-hit boss hit only in the eye, a harder second loop | Pepper the courier cat, a whitewashed seaside town, Old Crab |
+| 04 | **WET PAINT** | Paint Chase | a car that never stops and can't turn round (the pad back brakes), every tile it crosses painted, a clock and a goal share on each of 25 one-screen courses, points for every per cent over, three lives and no continue, foes that paint pink from flashing garages, boost arrows, bumpers, barriers, bollards, belts and four power-ups, a final against a rival with all your tricks, 2P versus | Bo's blue kart, Foxy Fuchsia, the Marshal, smudgers, dusters, gloops, hedgehogs, conkers and jellies, 26 new courses |
 | 05 | **PETAL PARADE** | Magic Garden | a 12×12 field where you never stop and turn only at the next tile, a trail you must never run into, each follower left on the moving star tiles saved for 10 × its place, potions by strength, a witch who plants mushrooms when a star area goes unused, 200 to win | Posy the gardener, petalpups, sun circles, Madame Nettle |
 | 06 | **TIN TROOP** | Mortol | 20 lives that carry through ten levels, the arrow, bomb and stone sacrifices, bodies as ledges and weights, water, fire and plants, a ship that drops the next life | a toy army in a toymaker's house, the Jack of the Chest, 10 new levels |
 | 07 | **SKYWELL** | Velgress | a random shaft of crumbling platforms, a roller that only follows you up, stun instead of damage, four-way shooting, a shop between levels, a key bird, a locked fourth level | Kip the scrap-diver, the Grinder, the Tinker, the Well Eye |
@@ -85,7 +91,7 @@ and the music and sound volumes are in every game's pause menu too.
 | 16 | **TINTAIL** | Camouflage | sneaking on a grid past watchers by taking the colour of the ground you stand on, hollow logs, sun and rain pads, hatchlings with their own colour, a danger view you can't move in, undo, a branching map | Twig the chameleon, Salt Island, toads and storks, 15 new levels |
 | 25 | **OPEN HOUSE** | Party House | drawing guests from a deck into a house with limited space, the original's 46 guest abilities, costs and trouble, police, fire marshal and bans, set guest lists and a random list, win by ending a party with four stars within 25 nights, 2P hot-seat | a whitewashed house by the sea, all 46 guests' names and faces |
 | 28 | **DUNE EXPRESS** | Rail Heist | real time until a guard is alert, then 10-second turns, one-bullet lawmen who hit each other too, punches through walls and floors, carrying and throwing, hiding in barrels, levers, a crank gun, rams, three outlaws, three stars a mission with the original's time goals, 2P versus | Wade, Hush and Pearl, the Governor's tax trains, Biscuit the camel, 20 new trains |
-| 04, 08, 10–13, 17–24, 26–27, 29–40 | *coming soon* | | | still in the saucer's cargo hold |
+| 08, 10–13, 17–24, 26–27, 29–50 | *coming soon* | | | still in the saucer's cargo hold |
 
 Every cartridge has three goals, which follow the original's own three: a
 **Beacon** (a side challenge), the **Saucer** (beating the game) and the
@@ -191,6 +197,40 @@ the top.
   harbour), the Magpie Mob, Old Crab and the Night Route. All 52 screens.
   A demo player in the tests gets through the first area with real button
   presses.
+
+### 04 · WET PAINT
+
+*Tribute to Paint Chase (UFO 50 #4).*
+
+<p align="center">
+  <img src="docs/shots/wetpaint.gif" width="640" alt="Wet Paint: Bo's blue kart paints the lanes while pink smudgers repaint them">
+</p>
+<p align="center">
+  <img src="docs/shots/wetpaint_night.png" width="320" alt="Course 22 by night: jellies, conkers and thorn hedges">
+  <img src="docs/shots/wetpaint_final.png" width="320" alt="The final showdown against Foxy Fuchsia">
+</p>
+
+- **Plays like Paint Chase:** only the d-pad. Bo's kart never stops: it
+  turns at the next tile, can't turn round (the pad back brakes, the pad
+  ahead speeds up again) and halts dead at a wall. Every tile it crosses
+  turns blue; when the clock runs out the blue share must reach the course's
+  goal, and every per cent over it is a point (an extra life each 120). Miss
+  it and a life goes and the course starts again; three misses and it's
+  over, with no continue.
+- **The foes** come out of flashing garages in twos and threes and paint
+  pink over everything: smudgers, dusters that fly over walls and spray, fast
+  tankers, a mother gloop who lays little ones, poppers that burst, hedgehogs
+  you can only hit from behind or the side, conkers that fire their spines
+  when you line up, and jellies you mustn't hit at full tilt. Boost arrows
+  (they stack), bumpers, thorn hedges, swing barriers, bollards and belts,
+  and four power-ups that work while their tile isn't blue: the sprinkler,
+  the tack shooter, the helper and the freeze pop.
+- **Structure:** 25 courses in one go, a cutscene before each five, then the
+  final against Foxy Fuchsia, who drives by your rules. 2P versus on any
+  course. A demo driver in the tests plays the first courses with real
+  button presses.
+- **Ours:** Bo, Foxy and the Marshal, the town square, park, docks, works
+  and night streets, all 26 courses, every foe and power-up, and the music.
 
 ### 05 · PETAL PARADE
 
@@ -492,7 +532,7 @@ Download `UFO40-windows.zip` from the releases and run `ufo40.exe`.
 
 - **START** opens the pause menu in every game: Resume, Restart, Controls, Quit.
 - **SELECT** opens Options in the library, and **B** goes back to the main menu.
-- **Two players:** the 2-player modes of Bannerfall and Cutlass Cup take two
+- **Two players:** the 2-player modes of Wet Paint, Bannerfall and Cutlass Cup take two
   gamepads, or split the keyboard: player 1 on WASD + F/G, player 2 on the
   arrows + K/L. On the Vita (one controller) those modes are locked.
 - On phones the web page shows an on-screen D-pad with A, B, START and SELECT.
@@ -551,7 +591,7 @@ src/engine/            platform-independent core (no dependencies)
                        ADSR envelopes, vibrato, sweeps, arpeggios; UFO-MML sequencer
   input.c rng.c        pressed / held / released / auto-repeat; PCG32
   save.c scene.c       CRC32-checked saves; scenes with palette-fade transitions
-src/shell/             the console: boot, main menu, 40-slot library, options and jukebox,
+src/shell/             the console: boot, main menu, 50-slot library, options and jukebox,
                        save data, pause menu, goal toasts
 src/games/*/           one folder per cartridge: rules, art, audio, levels
 src/platform/sdl2/     PC + PS Vita + Emscripten in one file
@@ -577,8 +617,8 @@ src/platform/headless/ scripted test runner, PNG / GIF / WAV writers, Vita LiveA
     plays notes with lengths, ties and repeat blocks.
   - Sound effects use the same notation and take over one channel for a
     moment, just like old hardware.
-  - Every track and jingle is original: 80 compositions across the console and
-    the twelve cartridges.
+  - Every track and jingle is original: 90 compositions across the console and
+    the thirteen cartridges.
 - **Art.** Sprites are written as strings of palette letters in the C source
   (`k` ink, `y` yellow, `C` cyan and so on), so there are no binary assets at
   all. The Vita LiveArea images are drawn by the engine itself
@@ -607,6 +647,8 @@ src/platform/headless/ scripted test runner, PNG / GIF / WAV writers, Vita LiveA
     can be climbed.
   - Fennec Fountain ships every room with its shortest solution, and a test
     plays all fifty with button presses on the real rules.
+  - Wet Paint checks that all 26 courses are sound, and its demo driver
+    (the same one that drives Foxy) plays a run from the title screen.
 
 Example test (`tests/ud_02_hazard_death.ufs`):
 

@@ -42,7 +42,7 @@ typedef struct Sfx {
     Track tr;
 } Sfx;
 
-#define MAX_SONGS 256 /* room for forty cartridges */
+#define MAX_SONGS 384 /* room for fifty cartridges */
 #define MAX_SFX 768
 
 static Song songs[MAX_SONGS];

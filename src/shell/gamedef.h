@@ -32,7 +32,8 @@ typedef struct GameDef {
     int tribute_no;
 } GameDef;
 
-#define GAME_SLOTS 40
+/* One slot per UFO 50 number: 01-50. */
+#define GAME_SLOTS MAX_GAMES
 
 extern const GameDef *const GAMES[GAME_SLOTS];
 

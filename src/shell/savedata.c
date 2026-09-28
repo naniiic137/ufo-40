@@ -247,7 +247,7 @@ static void draw_confirm(void) {
         break;
     case ASK_ALL_1:
         snprintf(q, sizeof q, "DELETE ALL DATA?");
-        snprintf(d, sizeof d, "EVERY SAVE, GOAL AND PLAY COUNT, ALL 40 SLOTS.");
+        snprintf(d, sizeof d, "EVERY SAVE, GOAL AND PLAY COUNT, ALL %d SLOTS.", GAME_SLOTS);
         border = C_RED;
         break;
     default:

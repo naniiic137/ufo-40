@@ -1,0 +1,25 @@
+# WET PAINT: a conker lets its spines go four ways the moment you line up
+# with it; they fly to a wall, stun you and wreck other foes on the way.
+# Bare, it is wrecked like any other.
+game wetpaint
+wait 5
+cheat course 1
+cheat nogarages
+cheat noclock
+cheat still
+cheat go
+cheat wipe
+cheat car 20 7 2
+cheat put conker 10 7 2
+cheat put roller 14 7 2
+wait 2
+expect foe_0_armed == 0
+expect shots >= 4
+wait 30
+expect foes_roller == 0
+expect kills == 1
+expect stuns == 1
+wait 300
+expect kills == 2
+expect foes == 0
+expect stuns == 1

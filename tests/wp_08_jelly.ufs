@@ -1,0 +1,30 @@
+# WET PAINT: a jelly can't be hit at boost speed: it throws you, and you
+# spin straight on to the wall leaving pink behind, then sit stunned. At
+# normal speed (or braking) it is wrecked.
+game wetpaint
+wait 5
+cheat course 1
+cheat nogarages
+cheat noclock
+cheat still
+cheat go
+cheat wipe
+cheat put jelly 10 12 2
+cheat tile 4 12 8 0
+cheat car 3 12 0
+wait 12
+expect boosted == 1
+wait 40
+expect spin == 1
+expect foes_jelly == 1
+wait 80
+expect spin == 0
+expect stuns == 1
+expect paint_20_12 == 2
+expect paint_24_12 == 2
+# at cruising speed it goes down
+cheat tile 4 12 0 0
+cheat car 3 12 0
+wait 90
+expect foes_jelly == 0
+expect kills == 1
