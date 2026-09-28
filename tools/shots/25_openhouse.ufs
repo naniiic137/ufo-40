@@ -65,3 +65,17 @@ press DOWN
 press A
 wait 20
 shot openhouse_allnight
+# the custom list's editor (the owner's): every guest, the phoenix just put in
+press B
+press RIGHT
+press A
+wait 10
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press LEFT
+press A
+wait 20
+shot openhouse_custom

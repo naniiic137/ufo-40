@@ -1,0 +1,88 @@
+# OPEN HOUSE (owner's addition): the custom list, its ALL NIGHT toggle and
+# its records are saved and come back next time. A save from before the
+# custom list (the third layout: a shop of 24 at most, seven bests) is
+# carried over, with the custom list starting as list 1's guests.
+game openhouse
+wait 30
+press A
+wait 5
+press A
+wait 5
+cheat custom
+wait 2
+# the cabbie out, the sleuth and the wish fish in, ALL NIGHT on
+press A
+press RIGHT
+press A
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press RIGHT
+press RIGHT
+press RIGHT
+expect ed_cur == 47
+press UP
+expect ed_cur == 39
+press A
+press RIGHT
+press DOWN
+press A
+expect cin3 == 0
+expect cin4 == 1
+expect cin39 == 1
+expect cguests == 12
+expect cstars == 2
+expect cendless == 1
+reload
+game openhouse
+wait 30
+expect cin3 == 0
+expect cin4 == 1
+expect cin39 == 1
+expect cin37 == 1
+expect cin0 == 1
+expect cguests == 12
+expect cstars == 2
+expect cendless == 1
+expect cwins == 0
+# a save from before the custom list, with a run in progress
+cheat new 4 1
+cheat pop 10
+cheat shop 4
+expect bought4 == 1
+expect cards == 11
+cheat door 0 1
+expect n == 2
+cheat oldsave3 9
+reload
+game openhouse
+wait 30
+expect won == 9
+expect streak == 2
+expect best_streak == 5
+expect has_run == 1
+expect nbest6 == 4
+expect nfame6 == 77
+expect nbest7 == 0
+expect cguests == 12
+expect cstars == 1
+expect cin3 == 1
+expect cin4 == 0
+expect cendless == 0
+expect cwins == 0
+expect cfastest == 0
+press A
+wait 5
+press A
+wait 5
+expect state == 5
+expect scen == 4
+expect players == 1
+expect n == 2
+expect night == 1
+expect npool == 15
+expect bought4 == 1
+expect cards == 11
+expect pop == 6

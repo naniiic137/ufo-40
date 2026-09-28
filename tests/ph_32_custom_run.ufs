@@ -1,0 +1,133 @@
+# OPEN HOUSE (owner's addition): a custom list needs a star and six guests
+# besides the locked ones; below that PLAY says why and stays in the editor.
+# A custom run sells only the chosen guests (plus neighbours and cousins),
+# plays 25 nights to four stars, and keeps its own record: its wins never
+# open lists, count for the streak or win goals.
+game openhouse
+wait 30
+press A
+wait 5
+press A
+wait 5
+cheat custom
+wait 2
+expect state == 19
+expect ed_cur == 3
+# LEFT off the first column reaches the buttons
+press LEFT
+press LEFT
+press LEFT
+press LEFT
+expect ed_cur == 48
+press DOWN
+press DOWN
+press A
+expect cguests == 0
+press UP
+press UP
+expect ed_cur == 48
+# no star: it says so, and A or B puts the warning away
+press A
+expect state == 19
+expect ed_warn == 1
+press A
+expect ed_warn == 0
+expect state == 19
+# the sea serpent (row 6, column 1)
+press RIGHT
+expect ed_cur == 0
+press UP
+expect ed_cur == 40
+press A
+expect cstars == 1
+# five guests is too few
+press DOWN
+press RIGHT
+press RIGHT
+press RIGHT
+expect ed_cur == 3
+press A
+press RIGHT
+press A
+press RIGHT
+press A
+press RIGHT
+press A
+press RIGHT
+press A
+expect ed_cur == 7
+expect cguests == 5
+press RIGHT
+expect ed_cur == 48
+press A
+expect state == 19
+expect ed_warn == 2
+press B
+expect ed_warn == 0
+expect state == 19
+# the sixth: the pop idol (row 2, column 8)
+press LEFT
+expect ed_cur == 7
+press DOWN
+expect ed_cur == 15
+press A
+expect cguests == 6
+press RIGHT
+expect ed_cur == 48
+press A
+wait 2
+expect state == 3
+expect scen == 8
+expect base == 7
+expect players == 1
+expect limit == 25
+expect goal == 4
+# the shop: neighbours, cousins, the six and the serpent, nobody else
+expect npool == 9
+expect poolcustom == 1
+expect inpool0 == 1
+expect inpool1 == 1
+expect inpool40 == 1
+expect inpool15 == 1
+expect inpool8 == 0
+expect inpool37 == 0
+wait 25
+press A
+wait 2
+expect state == 5
+cheat end
+waituntil tally == 3 400
+wait 8
+press A
+wait 2
+expect state == 13
+cheat pop 20
+cheat shop 8
+expect have8 == 0
+cheat shop 3
+expect have3 == 1
+# win it: four serpents at one party
+cheat leave
+wait 2
+expect state == 5
+expect night == 2
+cheat give 40 4
+cheat cap 10
+cheat door 40 40 40 40
+expect stars == 4
+press B
+press LEFT
+press A
+hold A
+waituntil tally == 3 400
+release A
+wait 8
+press A
+wait 2
+expect state == 14
+expect cwins == 1
+expect cfastest == 2
+expect won == 0
+expect streak == 0
+expect goals.openhouse == 0
+expect has_run == 0

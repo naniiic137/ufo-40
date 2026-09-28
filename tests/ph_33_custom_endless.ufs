@@ -1,0 +1,106 @@
+# OPEN HOUSE (owner's addition): the editor's ALL NIGHT toggle plays the
+# custom list as OPEN ALL NIGHT (no last night, a growing goal), with its own
+# best. From OPEN ALL NIGHT's grid the CUSTOM tile opens it with ALL NIGHT
+# on. Two players can't play it all night.
+game openhouse
+wait 30
+press A
+wait 5
+press A
+wait 5
+cheat custom
+wait 2
+expect cendless == 0
+press LEFT
+press LEFT
+press LEFT
+press LEFT
+press DOWN
+expect ed_cur == 49
+press A
+expect cendless == 1
+press UP
+press A
+wait 2
+expect state == 3
+expect scen == 7
+expect base == 7
+expect limit > 1000
+expect npool == 15
+expect poolcustom == 1
+wait 25
+press A
+wait 2
+cheat give 37 4
+cheat cap 10
+cheat door 37 37 37 37
+press B
+press LEFT
+press A
+waituntil tally == 3 400
+expect star_party == 1
+expect score == 1
+expect goal == 5
+expect nbest7 == 1
+expect nbest6 == 0
+expect nbest0 == 0
+# back to the grid: from OPEN ALL NIGHT's grid, CUSTOM opens with ALL NIGHT on
+cheat custom
+wait 2
+press LEFT
+press LEFT
+press LEFT
+press LEFT
+press DOWN
+press A
+expect cendless == 0
+press B
+wait 2
+expect state == 2
+expect scen_sel == 7
+press LEFT
+press A
+expect scen_endless == 1
+press RIGHT
+expect scen_sel == 7
+press A
+wait 2
+expect state == 19
+expect cendless == 1
+# two players: ALL NIGHT is for one
+press B
+press B
+press B
+wait 2
+expect state == 1
+expect osel == 0
+press DOWN
+press DOWN
+expect osel == 2
+press A
+wait 2
+expect state == 2
+press RIGHT
+press RIGHT
+press DOWN
+press DOWN
+press A
+wait 2
+expect state == 19
+press LEFT
+press LEFT
+press LEFT
+press LEFT
+press A
+expect ed_warn == 3
+expect state == 19
+press A
+press DOWN
+press A
+expect cendless == 0
+press UP
+press A
+wait 2
+expect state == 3
+expect players == 2
+expect scen == 8

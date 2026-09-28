@@ -7,7 +7,7 @@
 
 enum {
     S_TITLE, S_MODE, S_SCEN, S_INTRO, S_TURN, S_PARTY, S_TARGET, S_FETCH, S_PEEK, S_CONFIRM,
-    S_BUST, S_BAN, S_RESULT, S_SHOP, S_WIN, S_LOSE, S_LIST, S_CODE, S_RPICK
+    S_BUST, S_BAN, S_RESULT, S_SHOP, S_WIN, S_LOSE, S_LIST, S_CODE, S_RPICK, S_CUSTOM
 };
 
 typedef struct Save {
@@ -18,15 +18,45 @@ typedef struct Save {
     uint16_t random_wins, parties;
     uint16_t night_best[PH_BASES]; /* OPEN ALL NIGHT, per list played: the most star parties in one run */
     uint16_t night_fame[PH_BASES]; /* OPEN ALL NIGHT, per list played: the most fame held at once */
+    /* the custom list (the owner's) */
+    uint8_t cset[8];      /* a bit per guest type in it (the locked ones always) */
+    uint8_t cset_made;    /* 0: never set up; it starts as list 1's guests */
+    uint8_t cendless;     /* play it as OPEN ALL NIGHT */
+    uint8_t cfastest;     /* its own best: the fewest nights to a win, 0 none yet */
+    uint8_t cspare;
+    uint16_t cwins;       /* its own record: wins (they never count for the goals) */
     PhGame run;
 } Save;
-#define SAVE_MAGIC 0x50480003u
+#define SAVE_MAGIC 0x50480004u
+
+/* the third save layout (before the custom list): a smaller shop and one
+ * best fewer for OPEN ALL NIGHT; read once and carried over */
+#define SAVE_MAGIC_V3 0x50480003u
+typedef struct PhGameV3 {
+    uint8_t scen, npool, pool[PH_POOL_MAX_V3], bought[G_COUNT], players, turn, winner, done;
+    Rng rng;
+    PhPlayer pl[2];
+    PhParty party;
+    uint8_t goal, star_party;
+    uint16_t score, nights;
+    uint8_t strikes;
+    uint16_t top_pop;
+    uint8_t base;
+} PhGameV3;
+typedef struct SaveV3 {
+    uint32_t magic;
+    uint8_t won, streak, best_streak, has_run, run_phase;
+    uint8_t code[3];
+    uint16_t random_wins, parties;
+    uint16_t night_best[PH_BASES_V3], night_fame[PH_BASES_V3];
+    PhGameV3 run;
+} SaveV3;
 
 /* the second save layout (before the owner's two guests): the same size,
  * but the stock bought had 46 guests, so the bytes after it sat two earlier */
 #define SAVE_MAGIC_V2 0x50480002u
 typedef struct PhGameV2 {
-    uint8_t scen, npool, pool[PH_POOL_MAX], bought[PH_GUESTS_V2], players, turn, winner, done;
+    uint8_t scen, npool, pool[PH_POOL_MAX_V3], bought[PH_GUESTS_V2], players, turn, winner, done;
     Rng rng;
     PhPlayer pl[2];
     PhParty party;
@@ -41,7 +71,7 @@ typedef struct SaveV2 {
     uint8_t won, streak, best_streak, has_run, run_phase;
     uint8_t code[3];
     uint16_t random_wins, parties;
-    uint16_t night_best[PH_BASES], night_fame[PH_BASES];
+    uint16_t night_best[PH_BASES_V3], night_fame[PH_BASES_V3];
     PhGameV2 run;
 } SaveV2;
 
@@ -130,8 +160,8 @@ static void game_from_v1(PhGame *g, const PhGameV1 *o) {
 static void game_from_v2(PhGame *g, const PhGameV2 *o) {
     memset(g, 0, sizeof *g);
     g->scen = o->scen;
-    g->npool = o->npool > PH_POOL_MAX ? PH_POOL_MAX : o->npool;
-    memcpy(g->pool, o->pool, sizeof g->pool);
+    g->npool = o->npool > PH_POOL_MAX_V3 ? PH_POOL_MAX_V3 : o->npool;
+    memcpy(g->pool, o->pool, sizeof o->pool);
     memcpy(g->bought, o->bought, sizeof o->bought);
     g->players = o->players;
     g->turn = o->turn;
@@ -150,56 +180,103 @@ static void game_from_v2(PhGame *g, const PhGameV2 *o) {
     g->base = o->base;
 }
 
+/* the third layout had a shop of 24 at most; everything else is the same */
+static void game_from_v3(PhGame *g, const PhGameV3 *o) {
+    memset(g, 0, sizeof *g);
+    g->scen = o->scen;
+    g->npool = o->npool > PH_POOL_MAX_V3 ? PH_POOL_MAX_V3 : o->npool;
+    memcpy(g->pool, o->pool, sizeof o->pool);
+    memcpy(g->bought, o->bought, sizeof o->bought);
+    g->players = o->players;
+    g->turn = o->turn;
+    g->winner = o->winner;
+    g->done = o->done;
+    g->rng = o->rng;
+    memcpy(g->pl, o->pl, sizeof g->pl);
+    g->party = o->party;
+    g->goal = o->goal;
+    g->star_party = o->star_party;
+    g->score = o->score;
+    g->nights = o->nights;
+    g->strikes = o->strikes;
+    g->top_pop = o->top_pop;
+    g->base = o->base;
+}
+
 /* the albatross's flag took a padding byte and the stock grew into padding:
  * a save from before still has the same size and layout past them */
 _Static_assert(offsetof(PhParty, jinx) == offsetof(PhParty, wild) + PH_MAX_CARDS, "jinx sits in the old padding");
 _Static_assert(offsetof(PhParty, peek) == offsetof(PhParty, jinx) + 1, "the party keeps its layout");
-_Static_assert(sizeof(PhGameV2) == sizeof(PhGame) && offsetof(PhGameV2, rng) == offsetof(PhGame, rng), "same run size");
-_Static_assert(sizeof(SaveV2) == sizeof(Save), "same save size");
+_Static_assert(sizeof(PhGameV2) == sizeof(PhGameV3) && offsetof(PhGameV2, rng) == offsetof(PhGameV3, rng), "same run size");
+_Static_assert(sizeof(SaveV2) == sizeof(SaveV3), "same save size");
+_Static_assert(G_COUNT <= 8 * sizeof(((Save *)0)->cset), "a bit per guest");
+
+/* the start of every layout: the lists won, the streak and the rest */
+#define COPY_HEAD(o) do { \
+        memset(&sv, 0, sizeof sv); \
+        sv.magic = SAVE_MAGIC; \
+        sv.won = (o).won; \
+        sv.streak = (o).streak; \
+        sv.best_streak = (o).best_streak; \
+        sv.has_run = (o).has_run; \
+        sv.run_phase = (o).run_phase; \
+        memcpy(sv.code, (o).code, sizeof sv.code); \
+        sv.random_wins = (o).random_wins; \
+        sv.parties = (o).parties; \
+    } while (0)
+
+static bool custom_in(int type) { return (sv.cset[type >> 3] >> (type & 7)) & 1; }
+static void custom_put(int type, bool in) {
+    if (in) sv.cset[type >> 3] |= (uint8_t)(1 << (type & 7));
+    else sv.cset[type >> 3] &= (uint8_t)~(1 << (type & 7));
+}
+
+/* the custom list starts as list 1's guests; the locked ones are always in */
+static void custom_fix(void) {
+    if (!sv.cset_made) {
+        memset(sv.cset, 0, sizeof sv.cset);
+        for (int i = 0; i < PH_SCEN[0].n; i++) custom_put(PH_SCEN[0].pool[i], true);
+        sv.cset_made = 1;
+    }
+    for (int t = 0; t < G_COUNT; t++)
+        if (ph_custom_locked(t)) custom_put(t, true);
+    for (int t = G_COUNT; t < 8 * (int)sizeof sv.cset; t++) custom_put(t, false);
+}
 
 static void load_save(void) {
-    static union { Save now; SaveV2 v2; SaveV1 v1; } tmp;
+    static union { Save now; SaveV3 v3; SaveV2 v2; SaveV1 v1; } tmp;
     int n = game_save_read(game_current_index(), &tmp, (int)sizeof tmp);
     if (n == (int)sizeof tmp.now && tmp.now.magic == SAVE_MAGIC) sv = tmp.now;
-    else if (n == (int)sizeof tmp.v2 && tmp.v2.magic == SAVE_MAGIC_V2) {
+    else if (n == (int)sizeof tmp.v3 && tmp.v3.magic == SAVE_MAGIC_V3) {
+        /* a save from before the custom list keeps everything */
+        static SaveV3 o;
+        o = tmp.v3;
+        COPY_HEAD(o);
+        memcpy(sv.night_best, o.night_best, sizeof o.night_best);
+        memcpy(sv.night_fame, o.night_fame, sizeof o.night_fame);
+        game_from_v3(&sv.run, &o.run);
+    } else if (n == (int)sizeof tmp.v2 && tmp.v2.magic == SAVE_MAGIC_V2) {
         /* a save from before the owner's guests keeps everything */
         static SaveV2 o;
         o = tmp.v2;
-        memset(&sv, 0, sizeof sv);
-        sv.magic = SAVE_MAGIC;
-        sv.won = o.won;
-        sv.streak = o.streak;
-        sv.best_streak = o.best_streak;
-        sv.has_run = o.has_run;
-        sv.run_phase = o.run_phase;
-        memcpy(sv.code, o.code, sizeof sv.code);
-        sv.random_wins = o.random_wins;
-        sv.parties = o.parties;
-        memcpy(sv.night_best, o.night_best, sizeof sv.night_best);
-        memcpy(sv.night_fame, o.night_fame, sizeof sv.night_fame);
+        COPY_HEAD(o);
+        memcpy(sv.night_best, o.night_best, sizeof o.night_best);
+        memcpy(sv.night_fame, o.night_fame, sizeof o.night_fame);
         game_from_v2(&sv.run, &o.run);
     } else if (n == (int)sizeof tmp.v1 && tmp.v1.magic == SAVE_MAGIC_V1) {
         /* an older save keeps its lists won, streak, code and run */
         static SaveV1 o;
         o = tmp.v1;
-        memset(&sv, 0, sizeof sv);
-        sv.magic = SAVE_MAGIC;
-        sv.won = o.won;
-        sv.streak = o.streak;
-        sv.best_streak = o.best_streak;
-        sv.has_run = o.has_run;
-        sv.run_phase = o.run_phase;
-        memcpy(sv.code, o.code, sizeof sv.code);
-        sv.random_wins = o.random_wins;
-        sv.parties = o.parties;
+        COPY_HEAD(o);
         game_from_v1(&sv.run, &o.run);
     } else { memset(&sv, 0, sizeof sv); sv.magic = SAVE_MAGIC; }
+    custom_fix();
 }
 
-#define SCEN_ROWS (PH_ENDLESS + 1)   /* the five lists, Random, OPEN ALL NIGHT */
+#define SCEN_ROWS (PH_CUSTOM + 1)   /* the five lists, Random, OPEN ALL NIGHT, the custom list */
 
 static bool unlocked(int scen) {
-    if (scen == 0 || scen == PH_ENDLESS) return true; /* the owner's list is open from the start */
+    if (scen == 0 || scen == PH_ENDLESS || scen == PH_CUSTOM) return true; /* the owner's are open from the start */
     return (sv.won >> (scen - 1)) & 1;
 }
 
@@ -303,9 +380,9 @@ static void tally_step(void) {
         tally_begin_guest(tally_next(0));
     }
     if (T.phase == TL_EARN && T.slot >= n) {
-        /* then the guests who charge are paid */
+        /* then the guests who charge are paid; fame stops at its cap */
         T.phase = TL_PAY;
-        if (T.pop < 0) T.pop = 0;
+        T.pop = ph_add_pop(T.pop - T.got_pop, T.got_pop);
         tally_begin_guest(tally_next(0));
     }
     if (T.phase == TL_PAY && T.slot >= n) {
@@ -323,7 +400,9 @@ static void tally_step(void) {
             return;
         }
         if (T.unit < av + ac) {
-            T.got_cash++; T.cash++; T.nowc++;
+            /* cash stops at its cap: the guest still pays it, it just isn't kept */
+            if (T.cash < PH_CASH_CAP) { T.got_cash++; T.cash++; }
+            T.nowc++;
             T.unit++; T.wait = TL_UNIT; T.tick = 2;
             return;
         }
@@ -358,6 +437,13 @@ static void tally_update(void) {
     /* one tick a frame at most (every other frame when hurried) */
     if (T.tick && (steps == 1 || (frame_t & 1)))
         sfx_play_name(T.tick == 1 ? "ph_pop" : T.tick == 2 ? "ph_coin" : "ph_no");
+}
+
+/* the fame shown while the tally runs: the guests' fame goes in all
+ * together, so it only meets the cap (or 0) as a whole */
+static int tally_pop_shown(void) {
+    if (T.phase == TL_EARN || T.phase == TL_WAIT) return ph_add_pop(T.pop - T.got_pop, T.got_pop);
+    return imax(0, T.pop);
 }
 
 /* a party that ended well: the rules pay up, the tally shows it */
@@ -423,10 +509,46 @@ static void new_endless_run(int base) {
     save_now();
 }
 
+/* the custom list (the owner's): the shop sells the chosen guests, by the
+ * usual rules or (the editor's toggle) as OPEN ALL NIGHT */
+static int custom_count(bool stars) {
+    int n = 0;
+    for (int t = 0; t < G_COUNT; t++)
+        if (custom_in(t) && !ph_custom_locked(t) && ((PH_GUESTS[t].traits & T_STAR) != 0) == stars) n++;
+    return n;
+}
+
+static void new_custom_run(void) {
+    uint64_t seed = (uint64_t)rng_next(&g_rng) << 32 | rng_next(&g_rng);
+    uint8_t types[G_COUNT];
+    int n = 0;
+    for (int t = 0; t < G_COUNT; t++)
+        if (custom_in(t) && !ph_custom_locked(t)) types[n++] = (uint8_t)t;
+    bool endless = sv.cendless != 0;
+    int players = endless ? 1 : mode_players;
+    if (players == 1) {
+        if (sv.has_run && sv.run.scen == PH_RANDOM && !sv.run.done && !code_typed()) sv.streak = 0;
+        sv.has_run = 1;
+    }
+    run_code = -1;
+    ph_new_custom(&G, types, n, endless, players, seed);
+    endless_prev_best = sv.night_best[G.base % PH_BASES];
+    state = S_INTRO;
+    state_t = 0;
+    music_play(PH_MUS_TITLE);
+    if (players == 1) save_now();
+}
+
 static void on_scenario_over(void) {
     if (G.players == 1) {
         bool won = G.winner == 1;
-        if (won) {
+        if (won && G.base == PH_CUSTOM) {
+            /* the custom list keeps its own record; it never opens lists,
+             * counts for the streak or wins goals */
+            int nights = ph_me(&G)->night;
+            if (sv.cwins < 60000) sv.cwins++;
+            if (!sv.cfastest || nights < sv.cfastest) sv.cfastest = (uint8_t)nights;
+        } else if (won) {
             if (G.scen < PH_SCENARIOS) sv.won |= (uint8_t)(1 << G.scen);
             else {
                 sv.won |= 32;
@@ -788,21 +910,143 @@ static void update_mode(void) {
 }
 
 /* The lists sit in a grid of tiles (the owner's): three to a row (1 2 3,
- * 4 5 RANDOM), with OPEN ALL NIGHT as one wide tile underneath. LEFT and
- * RIGHT go round a row, UP and DOWN round the rows (keeping the column). */
+ * 4 5 RANDOM), with OPEN ALL NIGHT (two columns wide) and CUSTOM (the third
+ * column) underneath. LEFT and RIGHT go round a row, UP and DOWN round the
+ * rows (keeping the column; the wide tile keeps the one it was entered by). */
 #define SCEN_COLS 3
 static int scen_col;     /* the column UP and DOWN keep through the wide tile */
 
-static int scen_row(int i) { return i == PH_ENDLESS ? 2 : i / SCEN_COLS; }
+static int scen_row(int i) { return i >= PH_ENDLESS ? 2 : i / SCEN_COLS; }
+static int scen_at(int r, int col) { return r == 2 ? (col == 2 ? PH_CUSTOM : PH_ENDLESS) : r * SCEN_COLS + col; }
 
 static void scen_move(void) {
     int r = scen_row(scen_sel), s0 = scen_sel;
     if (r < 2) scen_col = scen_sel % SCEN_COLS;
-    if (btn_repeat(BTN_LEFT) && r < 2) scen_sel = r * SCEN_COLS + (scen_col + SCEN_COLS - 1) % SCEN_COLS;
-    else if (btn_repeat(BTN_RIGHT) && r < 2) scen_sel = r * SCEN_COLS + (scen_col + 1) % SCEN_COLS;
-    else if (btn_repeat(BTN_UP)) { r = (r + 2) % 3; scen_sel = r == 2 ? PH_ENDLESS : r * SCEN_COLS + scen_col; }
-    else if (btn_repeat(BTN_DOWN)) { r = (r + 1) % 3; scen_sel = r == 2 ? PH_ENDLESS : r * SCEN_COLS + scen_col; }
+    else if (scen_sel == PH_CUSTOM) scen_col = 2;
+    else if (scen_col == 2) scen_col = 0;
+    if (btn_repeat(BTN_LEFT)) {
+        if (r < 2) scen_sel = r * SCEN_COLS + (scen_col + SCEN_COLS - 1) % SCEN_COLS;
+        else if (scen_sel == PH_CUSTOM) { scen_sel = PH_ENDLESS; scen_col = 1; }
+        else { scen_sel = PH_CUSTOM; scen_col = 2; }
+    } else if (btn_repeat(BTN_RIGHT)) {
+        if (r < 2) scen_sel = r * SCEN_COLS + (scen_col + 1) % SCEN_COLS;
+        else if (scen_sel == PH_CUSTOM) { scen_sel = PH_ENDLESS; scen_col = 0; }
+        else { scen_sel = PH_CUSTOM; scen_col = 2; }
+    }
+    else if (btn_repeat(BTN_UP)) { r = (r + 2) % 3; scen_sel = scen_at(r, scen_col); }
+    else if (btn_repeat(BTN_DOWN)) { r = (r + 1) % 3; scen_sel = scen_at(r, scen_col); }
     if (scen_sel != s0) sfx_play_name("ph_move");
+}
+
+/* ------------------------------------------------------------------ */
+/* the custom list's editor (the owner's): every guest in a grid of eight   */
+/* by six, in roster order; A puts one in or takes it out. The buttons on   */
+/* the right play, switch OPEN ALL NIGHT on or off, clear and randomise.    */
+
+#define ED_COLS 8
+#define ED_ROWS 6
+#define ED_BTN G_COUNT      /* ed_cur past the guests: the buttons */
+enum { EB_PLAY, EB_NIGHT, EB_CLEAR, EB_RANDOM, EB_COUNT };
+enum { EW_NONE, EW_STAR, EW_GUESTS, EW_ONE_PLAYER };
+static int ed_cur, ed_row, ed_btn, ed_warn;
+_Static_assert(G_COUNT == ED_COLS * ED_ROWS, "every guest has a cell");
+_Static_assert(PH_CUSTOM_MIN == 6, "the editor's texts say six guests");
+
+static void open_custom(bool all_night) {
+    if (all_night && !sv.cendless) { sv.cendless = 1; save_now(); }
+    state = S_CUSTOM;
+    state_t = 0;
+    ed_cur = G_FIRST_BUYABLE;
+    ed_row = 0;
+    ed_btn = EB_PLAY;
+    ed_warn = EW_NONE;
+}
+
+/* a random custom list that can always be played: one to three stars and
+ * six to sixteen other guests from the whole roster */
+static void custom_randomise(void) {
+    uint8_t stars[G_COUNT], others[G_COUNT];
+    int ns = 0, no = 0;
+    for (int t = 0; t < G_COUNT; t++) {
+        if (ph_custom_locked(t)) continue;
+        custom_put(t, false);
+        if (PH_GUESTS[t].traits & T_STAR) stars[ns++] = (uint8_t)t;
+        else others[no++] = (uint8_t)t;
+    }
+    int want_s = 1 + (int)(rng_next(&g_rng) % 3u);
+    int want_o = PH_CUSTOM_MIN + (int)(rng_next(&g_rng) % 11u);
+    for (int k = 0; k < want_s && k < ns; k++) {
+        int i = k + (int)(rng_next(&g_rng) % (uint32_t)(ns - k));
+        uint8_t tmp = stars[k]; stars[k] = stars[i]; stars[i] = tmp;
+        custom_put(stars[k], true);
+    }
+    for (int k = 0; k < want_o && k < no; k++) {
+        int i = k + (int)(rng_next(&g_rng) % (uint32_t)(no - k));
+        uint8_t tmp = others[k]; others[k] = others[i]; others[i] = tmp;
+        custom_put(others[k], true);
+    }
+}
+
+static void custom_play(void) {
+    if (custom_count(true) < PH_CUSTOM_MIN_STARS) ed_warn = EW_STAR;
+    else if (custom_count(false) < PH_CUSTOM_MIN) ed_warn = EW_GUESTS;
+    else if (sv.cendless && mode_players == 2) ed_warn = EW_ONE_PLAYER;
+    if (ed_warn) { sfx_play_name("ph_no"); return; }
+    sfx_play_name("ui_ok");
+    new_custom_run();
+}
+
+static void update_custom(void) {
+    /* a warning stays up until A or B */
+    if (ed_warn) {
+        if (btnp(BTN_A) || btnp(BTN_B)) { ed_warn = EW_NONE; sfx_play_name("ui_back"); }
+        return;
+    }
+    int c0 = ed_cur;
+    if (ed_cur < ED_BTN) {
+        int r = ed_cur / ED_COLS, c = ed_cur % ED_COLS;
+        if (btn_repeat(BTN_LEFT)) { if (c == 0) { ed_row = r; ed_cur = ED_BTN + ed_btn; } else ed_cur--; }
+        else if (btn_repeat(BTN_RIGHT)) { if (c == ED_COLS - 1) { ed_row = r; ed_cur = ED_BTN + ed_btn; } else ed_cur++; }
+        else if (btn_repeat(BTN_UP)) ed_cur = ((r + ED_ROWS - 1) % ED_ROWS) * ED_COLS + c;
+        else if (btn_repeat(BTN_DOWN)) ed_cur = ((r + 1) % ED_ROWS) * ED_COLS + c;
+    } else {
+        int b = ed_cur - ED_BTN;
+        if (btn_repeat(BTN_UP)) ed_cur = ED_BTN + (b + EB_COUNT - 1) % EB_COUNT;
+        else if (btn_repeat(BTN_DOWN)) ed_cur = ED_BTN + (b + 1) % EB_COUNT;
+        else if (btn_repeat(BTN_LEFT)) ed_cur = ed_row * ED_COLS + ED_COLS - 1;
+        else if (btn_repeat(BTN_RIGHT)) ed_cur = ed_row * ED_COLS;
+        if (ed_cur >= ED_BTN) ed_btn = ed_cur - ED_BTN;
+    }
+    if (ed_cur != c0) sfx_play_name("ph_move");
+    if (btnp(BTN_B)) {
+        /* the list is saved as it is edited; B goes back to its tile */
+        sfx_play_name("ui_back");
+        state = S_SCEN;
+        state_t = 0;
+        scen_sel = PH_CUSTOM;
+        scen_col = 2;
+        return;
+    }
+    if (!btnp(BTN_A)) return;
+    if (ed_cur < ED_BTN) {
+        if (ph_custom_locked(ed_cur)) { sfx_play_name("ph_no"); say("ALWAYS INVITED"); return; }
+        bool in = !custom_in(ed_cur);
+        custom_put(ed_cur, in);
+        sfx_play_name(in ? (PH_GUESTS[ed_cur].traits & T_STAR ? "ph_star" : "ph_buy") : "ph_boot");
+        save_now();
+        return;
+    }
+    switch (ed_cur - ED_BTN) {
+    case EB_PLAY: custom_play(); return;
+    case EB_NIGHT: sv.cendless = !sv.cendless; sfx_play_name("ui_ok"); break;
+    case EB_CLEAR:
+        for (int t = 0; t < G_COUNT; t++)
+            if (!ph_custom_locked(t)) custom_put(t, false);
+        sfx_play_name("ph_boot");
+        break;
+    case EB_RANDOM: custom_randomise(); sfx_play_name("ph_shuffle"); break;
+    }
+    save_now();
 }
 
 static void update_scen(void) {
@@ -810,11 +1054,17 @@ static void update_scen(void) {
     if (btnp(BTN_B)) {
         sfx_play_name("ui_back");
         /* back out of OPEN ALL NIGHT's grid onto its tile */
-        if (scen_endless) { scen_endless = false; scen_sel = PH_ENDLESS; return; }
+        if (scen_endless) { scen_endless = false; scen_sel = PH_ENDLESS; scen_col = 0; return; }
         state = S_MODE; state_t = 0;
         return;
     }
     if (!btnp(BTN_A)) return;
+    if (scen_sel == PH_CUSTOM) {
+        /* the custom list's editor; from OPEN ALL NIGHT's grid it starts on ALL NIGHT */
+        sfx_play_name("ui_ok");
+        open_custom(scen_endless);
+        return;
+    }
     if (scen_endless) {
         /* OPEN ALL NIGHT on this list (the wide tile is the big mix) */
         if (!unlocked(scen_sel)) { sfx_play_name("ph_no"); say(scen_sel == PH_RANDOM ? "WIN SCENARIO 5 FIRST" : "WIN THE ONE BEFORE"); return; }
@@ -877,7 +1127,7 @@ static void oh_update(void) {
     case S_SCEN: update_scen(); break;
     case S_INTRO:
         if (state_t > 20 && btnp(BTN_A)) { sfx_play_name("ui_ok"); begin_party(); }
-        if (btnp(BTN_B)) { state = S_SCEN; state_t = 0; }
+        if (btnp(BTN_B)) { state = G.base == PH_CUSTOM ? S_CUSTOM : S_SCEN; state_t = 0; }
         break;
     case S_TURN:
         if (state_t > 30 && btnp(BTN_A)) { state = S_PARTY; state_t = 0; music_play(PH_MUS_PARTY); }
@@ -906,6 +1156,7 @@ static void oh_update(void) {
         break;
     case S_CODE: update_code(); break;
     case S_RPICK: update_rpick(); break;
+    case S_CUSTOM: update_custom(); break;
     case S_LIST:
         if (btn_repeat(BTN_UP) && fcur > 0) fcur--;
         if (btn_repeat(BTN_DOWN)) fcur++;
@@ -936,6 +1187,35 @@ static void tiny_lines(const char *s, int x, int y, int col) {
         s += n;
         if (*s == '\n') s++;
     }
+}
+
+/* the tiny font, word-wrapped to a width (a line break in the text is a
+ * space here); returns the y under the last line */
+static int tiny_wrap(const char *s, int x, int y, int w, int col) {
+    char line[160], word[64];
+    int ln = 0;
+    line[0] = 0;
+    while (*s) {
+        while (*s == ' ' || *s == '\n') s++;
+        int n = 0;
+        while (s[n] && s[n] != ' ' && s[n] != '\n' && n < 63) n++;
+        if (!n) break;
+        memcpy(word, s, (size_t)n);
+        word[n] = 0;
+        s += n;
+        char next[160];
+        snprintf(next, sizeof next, "%s%s%s", line, ln ? " " : "", word);
+        if (ln && tiny_width(next) > w) {
+            tiny_draw(line, x, y, col);
+            y += 6;
+            snprintf(line, sizeof line, "%s", word);
+        } else {
+            snprintf(line, sizeof line, "%s", next);
+        }
+        ln = (int)strlen(line);
+    }
+    if (ln) { tiny_draw(line, x, y, col); y += 6; }
+    return y;
 }
 
 static void icon_pop(int x, int y) {
@@ -1112,11 +1392,14 @@ static void draw_topbar(void) {
     /* during the tally the counters run up with it */
     bool counting = state == S_RESULT && T.phase != TL_DONE;
     icon_pop(60, 4);
-    snprintf(b, sizeof b, "%d", counting ? imax(0, T.pop) : p->pop);
-    text_draw(b, 70, 4, C_YELLOW);
+    int pop = counting ? tally_pop_shown() : p->pop, cash = counting ? T.cash : p->cash;
+    snprintf(b, sizeof b, "%d", pop);
+    int ex = text_draw(b, 70, 4, C_YELLOW);
+    if (pop >= PH_POP_CAP) tiny_draw("MAX", ex + 1, 5, C_ORANGE);   /* Party House's caps */
     icon_cash(104, 4);
-    snprintf(b, sizeof b, "%d", counting ? T.cash : p->cash);
-    text_draw(b, 114, 4, C_LIME);
+    snprintf(b, sizeof b, "%d", cash);
+    ex = text_draw(b, 114, 4, C_LIME);
+    if (cash >= PH_CASH_CAP) tiny_draw("MAX", ex + 1, 5, C_ORANGE);
     draw_star_meter(150, 4);
     /* the neighbour's window lights up at two rowdies: one more brings the police */
     draw_strikes(268, 5);
@@ -1362,10 +1645,12 @@ static void draw_shop(void) {
     text_draw(b, 94, 4, C_CREAM);
     icon_pop(130, 4);
     snprintf(b, sizeof b, "%d", p->pop);
-    text_draw(b, 140, 4, C_YELLOW);
+    int ex = text_draw(b, 140, 4, C_YELLOW);
+    if (p->pop >= PH_POP_CAP) tiny_draw("MAX", ex + 1, 5, C_ORANGE);
     icon_cash(176, 4);
     snprintf(b, sizeof b, "%d", p->cash);
-    text_draw(b, 186, 4, C_LIME);
+    ex = text_draw(b, 186, 4, C_LIME);
+    if (p->cash >= PH_CASH_CAP) tiny_draw("MAX", ex + 1, 5, C_ORANGE);
     snprintf(b, sizeof b, "HOUSE %d", p->cap);
     text_draw(b, 222, 4, C_SKY);
     for (int i = 0; i < G.npool; i++) {
@@ -1527,13 +1812,16 @@ static void draw_mode(void) {
     tiny_center(b, 160, 130, C_CREAM);
 }
 
-static const char *scen_name(int i) { return i == PH_ENDLESS ? "OPEN ALL NIGHT" : i == PH_RANDOM ? "RANDOM GUEST LIST" : PH_SCEN[i].name; }
+static const char *scen_name(int i) {
+    return i == PH_CUSTOM ? "CUSTOM LIST" : i == PH_ENDLESS ? "OPEN ALL NIGHT" : i == PH_RANDOM ? "RANDOM GUEST LIST" : PH_SCEN[i % PH_SCENARIOS].name;
+}
 /* the list an OPEN ALL NIGHT run plays */
-static const char *base_name(int b) { return b == PH_ENDLESS ? "THE BIG MIX" : scen_name(b); }
+static const char *base_name(int b) { return b == PH_ENDLESS ? "THE BIG MIX" : b == PH_CUSTOM ? "THE CUSTOM LIST" : scen_name(b); }
 
 /* a tile's place on the list grid */
 static void scen_tile(int i, int *x, int *y, int *w, int *h) {
-    if (i == PH_ENDLESS) { *x = 9; *y = 108; *w = 302; *h = 26; return; }
+    if (i == PH_ENDLESS) { *x = 9; *y = 108; *w = 200; *h = 26; return; }
+    if (i == PH_CUSTOM) { *x = 213; *y = 108; *w = 98; *h = 26; return; }
     *x = 9 + (i % SCEN_COLS) * 102;
     *y = 20 + (i / SCEN_COLS) * 44;
     *w = 98;
@@ -1586,22 +1874,35 @@ static void draw_scen(void) {
                 if (d) gfx_rect(dx + 6, dy + 6, 2, 2, C_INK);
             }
             if (!ns) { snprintf(b, sizeof b, "STREAK %d", sv.streak); tiny_draw(b, x + 54, y + 22, C_CREAM); }
-        } else {
+        } else if (i == PH_ENDLESS) {
             /* the wide tile: OPEN ALL NIGHT, or (picking for it) the big mix */
             gfx_circ(x + 12, y + 13, 7, C_CREAM);
             gfx_circ(x + 15, y + 11, 6, hi ? C_DUSK : C_INK);
             if (ns) {
-                text_draw("+ THE BIG MIX", x + 26, y + 9, col);
-                tiny_draw("THE WHOLE ROSTER, AT RANDOM", x + 130, y + 10, C_GREY);
+                text_draw("+ THE BIG MIX", x + 26, y + 5, col);
+                tiny_draw("THE WHOLE ROSTER, AT RANDOM", x + 26, y + 16, C_GREY);
             } else {
-                text_draw("+ OPEN ALL NIGHT", x + 26, y + 9, col);
-                tiny_draw("NO LAST NIGHT. PICK A LIST", x + 130, y + 10, C_SKY);
+                text_draw("+ OPEN ALL NIGHT", x + 26, y + 5, col);
+                tiny_draw("NO LAST NIGHT. PICK A LIST", x + 26, y + 16, C_SKY);
+            }
+        } else {
+            /* the custom list: a guest list with ticks */
+            gfx_rect(x + 5, y + 5, 11, 15, C_CREAM);
+            for (int k = 0; k < 3; k++) {
+                gfx_hline(x + 7, x + 9, y + 8 + k * 4, C_JADE);
+                gfx_hline(x + 11, x + 14, y + 8 + k * 4, C_SLATE);
+            }
+            tiny_draw("CUSTOM LIST", x + 21, y + 5, col);
+            if (sv.cwins && !ns) icon_star(x + w - 11, y + 2, C_YELLOW);
+            if (!ns) {
+                snprintf(b, sizeof b, "%d + %d STAR%s", custom_count(false), custom_count(true), custom_count(true) == 1 ? "" : "S");
+                tiny_draw(b, x + 21, y + 15, C_GREY);
             }
         }
         /* picking for OPEN ALL NIGHT: each list's own best */
         if (ns) {
             snprintf(b, sizeof b, "BEST %d", sv.night_best[i]);
-            if (i == PH_ENDLESS) tiny_draw(b, x + w - 4 - tiny_width(b), y + 10, C_YELLOW);
+            if (i >= PH_ENDLESS) tiny_draw(b, x + w - 4 - tiny_width(b), y + 5 + (i == PH_CUSTOM) * 10, C_YELLOW);
             else tiny_draw(b, x + w - 4 - tiny_width(b), y + h - 9, C_YELLOW);
         }
     }
@@ -1618,6 +1919,15 @@ static void draw_scen(void) {
             tiny_draw(b, 200, ty0 + 16, C_GREY);
         }
         tiny_draw("B: BACK", 270, ty0 + 24, C_SLATE);
+    } else if (s == PH_CUSTOM) {
+        tiny_lines("THE OWNER'S OWN: PICK THE GUESTS AND STARS\nTHE SHOP SELLS. 25 NIGHTS AND FOUR STARS\nTO WIN, OR PLAY IT ALL NIGHT.", 12, ty0, C_LIGHT);
+        snprintf(b, sizeof b, "WINS %d", sv.cwins);
+        tiny_draw(b, 200, ty0, C_CREAM);
+        if (sv.cfastest) snprintf(b, sizeof b, "FASTEST %d NIGHTS", sv.cfastest);
+        else snprintf(b, sizeof b, "FASTEST -");
+        tiny_draw(b, 200, ty0 + 8, C_YELLOW);
+        snprintf(b, sizeof b, "ALL NIGHT BEST %d", sv.night_best[PH_CUSTOM]);
+        tiny_draw(b, 200, ty0 + 16, C_GREY);
     } else if (s == PH_ENDLESS) {
         tiny_lines("THE OWNER'S ENDLESS MODE. PLAY ANY LIST\nYOU HAVE OPENED, RANDOM OR THE BIG MIX\nWITH NO LAST NIGHT, FOR A BEST SCORE.", 12, ty0, C_LIGHT);
         if (mode_players == 2) tiny_draw("ONE PLAYER ONLY.", 220, ty0, C_SLATE);
@@ -1646,6 +1956,108 @@ static void draw_scen(void) {
     }
 }
 
+/* the custom list's editor: the grid of guests, the guest under the
+ * cursor told in full, and the buttons */
+#define ED_X 4
+#define ED_Y 18
+#define ED_W 26
+#define ED_H 25
+#define ED_PX 214
+
+static void draw_custom(void) {
+    gfx_cls(C_NIGHT);
+    char b[64];
+    /* the top bar: the counters and the list's own record */
+    gfx_rect(0, 0, SCREEN_W, 15, C_INK);
+    gfx_hline(0, SCREEN_W - 1, 15, C_DUSK);
+    text_draw("CUSTOM LIST", 4, 4, C_CREAM);
+    int ng = custom_count(false), ns = custom_count(true);
+    snprintf(b, sizeof b, "GUESTS %d", ng);
+    text_draw(b, 82, 4, ng >= PH_CUSTOM_MIN ? C_LIME : C_ORANGE);
+    icon_star(140, 4, ns >= PH_CUSTOM_MIN_STARS ? C_YELLOW : C_ORANGE);
+    snprintf(b, sizeof b, "STARS %d", ns);
+    text_draw(b, 150, 4, ns >= PH_CUSTOM_MIN_STARS ? C_YELLOW : C_ORANGE);
+    if (sv.cendless) snprintf(b, sizeof b, "ALL NIGHT BEST %d", sv.night_best[PH_CUSTOM]);
+    else if (sv.cfastest) snprintf(b, sizeof b, "WINS %d  FASTEST %d", sv.cwins, sv.cfastest);
+    else snprintf(b, sizeof b, "WINS %d", sv.cwins);
+    tiny_draw(b, SCREEN_W - 4 - tiny_width(b), 5, C_GREY);
+    /* every guest: in (bright, a tick), out (a shadow) or locked in */
+    for (int t = 0; t < G_COUNT; t++) {
+        int x = ED_X + (t % ED_COLS) * ED_W, y = ED_Y + (t / ED_COLS) * ED_H;
+        const PhGuest *g = &PH_GUESTS[t];
+        bool star = g->traits & T_STAR, lock = ph_custom_locked(t), in = custom_in(t), hi = ed_cur == t;
+        gfx_rect(x, y, ED_W - 2, ED_H - 2, in ? (star ? C_BROWN : C_DUSK) : C_INK);
+        gfx_rectb(x, y, ED_W - 2, ED_H - 2, hi ? ((frame_t / 8) % 2 ? C_WHITE : C_YELLOW) : in ? (star ? C_AMBER : C_SLATE) : C_NIGHT);
+        spr_draw(&ph_spr[t], x + 4, y + 1, 0);
+        if (!in) gfx_darken_rect(x + 4, y + 1, 16, 16, 2);   /* out: the face in the shade */
+        if (star) icon_star(x + 17, y, in ? C_YELLOW : C_SLATE);
+        if (g->traits & (T_TROUBLE | T_MOON)) icon_trouble(x + 1, y + 1, in ? C_RED : C_SLATE);
+        if (g->cost >= 0) {
+            snprintf(b, sizeof b, "%d", g->cost);
+            tiny_draw(b, x + 2, y + 17, in ? C_YELLOW : C_SLATE);
+        }
+        if (lock) text_draw(GLYPH_LOCK, x + 17, y + 16, C_CREAM);
+        else if (in) text_draw(GLYPH_CHECK, x + 17, y + 16, C_LIME);
+    }
+    /* the guest under the cursor, or what the button does */
+    if (ed_cur < ED_BTN) {
+        const PhGuest *g = &PH_GUESTS[ed_cur];
+        bool star = g->traits & T_STAR, lock = ph_custom_locked(ed_cur);
+        ui_panel(ED_PX, ED_Y, 102, 96, C_INK, star ? C_AMBER : C_DUSK);
+        tiny_draw(g->name, ED_PX + 4, ED_Y + 4, star ? C_YELLOW : C_WHITE);
+        const char *st = ed_cur == G_ROWDY ? "IN EVERY GUEST BOOK" : lock ? "ALWAYS IN THE SHOP"
+                       : custom_in(ed_cur) ? "IN THE SHOP" : "NOT INVITED";
+        int sc = lock ? C_CREAM : custom_in(ed_cur) ? C_LIME : C_SLATE, sx = ED_PX + 4;
+        if (lock || custom_in(ed_cur)) sx = text_draw(lock ? GLYPH_LOCK : GLYPH_CHECK, sx, ED_Y + 11, sc) + 3;
+        tiny_draw(st, sx, ED_Y + 12, sc);
+        if (g->cost >= 0) snprintf(b, sizeof b, "COST %d FAME%s", g->cost, star ? ", NO LIMIT" : "");
+        else snprintf(b, sizeof b, "CAN'T BE BOUGHT");
+        tiny_draw(b, ED_PX + 4, ED_Y + 21, C_YELLOW);
+        icon_pop(ED_PX + 4, ED_Y + 29);
+        draw_num(g->pop, ED_PX + 13, ED_Y + 30, C_YELLOW, g->pop > 0 ? "+" : "");
+        icon_cash(ED_PX + 36, ED_Y + 29);
+        draw_num(g->cash, ED_PX + 45, ED_Y + 30, C_LIME, g->cash > 0 ? "+" : "");
+        if (g->traits & (T_TROUBLE | T_MOON)) icon_trouble(ED_PX + 88, ED_Y + 30, C_RED);
+        int yy = tiny_wrap(g->does[0] ? g->does : "NO SPECIAL TALENT.", ED_PX + 4, ED_Y + 41, 94, C_LIGHT);
+        tiny_wrap(g->flavour, ED_PX + 4, imax(yy + 3, ED_Y + 72), 94, C_SLATE);
+    } else {
+        static const char *const BUTTON_INFO[EB_COUNT] = {
+            [EB_PLAY] = "PLAY THIS LIST. IT\nNEEDS A STAR AND 6\nGUESTS BESIDES THE\nLOCKED ONES.",
+            [EB_NIGHT] = "ON: PLAY IT AS OPEN\nALL NIGHT, WITH NO\nLAST NIGHT (ONE\nPLAYER). OFF: 25\nNIGHTS, FOUR STARS\nTO WIN.",
+            [EB_CLEAR] = "TAKE EVERYONE OUT\nBUT THE LOCKED\nGUESTS.",
+            [EB_RANDOM] = "A RANDOM LIST: ONE\nTO THREE STARS AND\n6 TO 16 GUESTS."};
+        ui_panel(ED_PX, ED_Y, 102, 96, C_INK, C_DUSK);
+        tiny_lines(BUTTON_INFO[ed_cur - ED_BTN], ED_PX + 4, ED_Y + 6, C_LIGHT);
+    }
+    static const char *const LABEL[EB_COUNT] = {"PLAY", NULL, "CLEAR ALL", "RANDOMISE"};
+    for (int k = 0; k < EB_COUNT; k++) {
+        int y = 118 + k * 14;
+        bool hi = ed_cur == ED_BTN + k;
+        int fill = k == EB_PLAY ? C_JADE : k == EB_NIGHT ? C_NAVY : C_TEAL;
+        gfx_rect(ED_PX, y, 102, 12, hi ? fill : C_INK);
+        gfx_rectb(ED_PX, y, 102, 12, hi ? C_WHITE : C_DUSK);
+        const char *l = LABEL[k] ? LABEL[k] : sv.cendless ? "ALL NIGHT: ON" : "ALL NIGHT: OFF";
+        text_center(l, ED_PX + 51, y + 3, hi ? C_WHITE : k == EB_NIGHT && sv.cendless ? C_SKY : C_GREY);
+    }
+    text_draw(GLYPH_DPAD " MOVE  " GLYPH_A " IN/OUT  " GLYPH_B " BACK", ED_X, 170, C_SLATE);
+    if (msg_t > 0 && msg) {
+        ui_panel(40, 76, 150, 20, C_NIGHT, C_ORANGE);
+        text_center(msg, 115, 82, C_CREAM);
+    }
+    /* a list that can't be played says why */
+    if (ed_warn) {
+        static const char *const TITLE[] = {"", "PICK A STAR GUEST", "PICK AT LEAST 6 GUESTS", "OPEN ALL NIGHT IS 1P"};
+        static const char *const WHY[] = {"",
+            "YOU WIN WITH FOUR STARS AT ONE PARTY,\nSO THE SHOP MUST SELL AT LEAST ONE.\nA STAR CAN BE BOUGHT AGAIN AND AGAIN.",
+            "6 BESIDES THE LOCKED ONES AND THE STARS:\nHALF A SET LIST, SO THE SHOP HAS REAL\nCHOICES FOR CALMING THE ROWDY MATES\nAND EARNING THE FAME STARS COST.",
+            "TWO PLAYERS PLAY 25 NIGHTS.\nTURN ALL NIGHT OFF TO PLAY THIS LIST."};
+        ui_panel(30, 56, 260, 66, C_NIGHT, C_ORANGE);
+        text_center(TITLE[ed_warn], 160, 62, C_CREAM);
+        tiny_lines(WHY[ed_warn], 40, 76, C_LIGHT);
+        text_center("PRESS " GLYPH_A, 160, 110, (frame_t / 20) % 2 ? C_WHITE : C_GREY);
+    }
+}
+
 static void draw_rpick(void) {
     draw_scen();
     ui_panel(90, 60, 140, 46, C_NIGHT, C_SKY);
@@ -1665,16 +2077,19 @@ static void draw_intro(void) {
         snprintf(sub, sizeof sub, "%s, WITH NO LAST NIGHT%s", base_name(G.base), G.base == PH_ENDLESS ? ". NEW FACES EVERY 5 NIGHTS" : "");
         tiny_center(sub, 160, 32, C_GREY);
     } else {
-        tiny_center(G.scen < PH_SCENARIOS ? "THE GUESTS YOU CAN INVITE THIS SUMMER" : "TONIGHT'S RANDOM GUEST LIST", 160, 32, C_GREY);
+        tiny_center(G.scen < PH_SCENARIOS ? "THE GUESTS YOU CAN INVITE THIS SUMMER"
+                    : G.scen == PH_CUSTOM ? "THE GUESTS YOU PICKED, FOR 25 NIGHTS" : "TONIGHT'S RANDOM GUEST LIST", 160, 32, C_GREY);
     }
+    /* a big custom list packs its faces closer */
+    bool big = G.npool > 24;
     for (int i = 0; i < G.npool; i++) {
         int ty = G.pool[i];
-        int x = 22 + (i % 8) * 36, y = 44 + (i / 8) * 40;
+        int x = big ? 16 + (i % 12) * 24 : 22 + (i % 8) * 36, y = big ? 42 + (i / 12) * 24 : 44 + (i / 8) * 40;
         spr_draw(&ph_spr[ty], x + 6, y, 0);
-        if (PH_GUESTS[ty].traits & T_STAR) icon_star(x + 20, y - 2, C_YELLOW);
+        if (PH_GUESTS[ty].traits & T_STAR) icon_star(x + (big ? 16 : 20), y - 2, C_YELLOW);
         char b[8];
         snprintf(b, sizeof b, "%d", PH_GUESTS[ty].cost);
-        tiny_center(b, x + 14, y + 18, C_YELLOW);
+        tiny_center(b, x + 14, y + 17 + !big, C_YELLOW);
     }
     if (G.scen == PH_RANDOM && run_code >= 0) {
         char b[24];
@@ -1751,6 +2166,10 @@ static void draw_end(void) {
             k++;
         }
         if (G.players == 1 && G.scen == PH_RANDOM) { snprintf(b, sizeof b, "STREAK %d", sv.streak); tiny_center(b, 160, 116, C_CREAM); }
+        if (G.players == 1 && G.scen == PH_CUSTOM) {
+            snprintf(b, sizeof b, "YOUR LIST IN %d NIGHTS  " GLYPH_DOT "  FASTEST %d", ph_me(&G)->night, sv.cfastest);
+            tiny_center(b, 160, 116, C_CREAM);
+        }
     } else if (G.scen == PH_ENDLESS) {
         /* OPEN ALL NIGHT is over when its clock runs out */
         tiny_center("THREE SHUTDOWNS. THE NEIGHBOURS HAVE HAD ENOUGH.", 160, 88, C_GREY);
@@ -1800,6 +2219,7 @@ static void oh_draw(void) {
     case S_LIST: draw_list(); break;
     case S_CODE: draw_code(); break;
     case S_RPICK: draw_rpick(); break;
+    case S_CUSTOM: draw_custom(); break;
     }
 }
 
@@ -1850,6 +2270,22 @@ static void oh_label(int x, int y, int w, int h, int t) {
 static int oh_query(const char *key, int *out) {
     PhPlayer *p = ph_me(&G);
     if (!strcmp(key, "state")) { *out = state; return 1; }
+    /* the custom list and its editor */
+    if (!strcmp(key, "ed_cur")) { *out = ed_cur; return 1; }
+    if (!strcmp(key, "ed_warn")) { *out = ed_warn; return 1; }
+    if (!strncmp(key, "cin", 3)) { *out = custom_in(atoi(key + 3) % G_COUNT); return 1; }
+    if (!strcmp(key, "cguests")) { *out = custom_count(false); return 1; }
+    if (!strcmp(key, "cstars")) { *out = custom_count(true); return 1; }
+    if (!strcmp(key, "cendless")) { *out = sv.cendless; return 1; }
+    if (!strcmp(key, "cwins")) { *out = sv.cwins; return 1; }
+    if (!strcmp(key, "cfastest")) { *out = sv.cfastest; return 1; }
+    if (!strcmp(key, "poolcustom")) {
+        /* every guest the shop sells is a neighbour, a cousin or one picked */
+        int ok = 1;
+        for (int i = 0; i < G.npool; i++) ok &= custom_in(G.pool[i]) && G.pool[i] != G_ROWDY;
+        *out = ok;
+        return 1;
+    }
     if (!strcmp(key, "scen")) { *out = G.scen + 1; return 1; }
     if (!strcmp(key, "night")) { *out = p->night; return 1; }
     if (!strcmp(key, "pop")) { *out = p->pop; return 1; }
@@ -1919,7 +2355,7 @@ static int oh_query(const char *key, int *out) {
     if (!strcmp(key, "base")) { *out = G.base; return 1; }
     if (!strcmp(key, "scen_endless")) { *out = scen_endless; return 1; }
     if (!strcmp(key, "tally")) { *out = T.phase; return 1; }
-    if (!strcmp(key, "tallypop")) { *out = imax(0, T.pop); return 1; }
+    if (!strcmp(key, "tallypop")) { *out = tally_pop_shown(); return 1; }
     if (!strcmp(key, "tallycash")) { *out = T.cash; return 1; }
     if (!strcmp(key, "tallygot")) { *out = T.got_pop; return 1; }
     if (!strcmp(key, "tallyframes")) { *out = T.frames; return 1; }
@@ -1974,6 +2410,13 @@ static int oh_cheat(const char *cmd) {
         }
         return 1;
     }
+    int c3;
+    if (sscanf(cmd, "card %d %d %d", &a, &b, &c3) == 3) {
+        /* every card of type a: visits so far b, the tailor's bonus c3 */
+        for (int i = 0; i < p->ncards; i++)
+            if (p->card[i].type == a) { p->card[i].visits = (uint8_t)b; p->card[i].bonus = (int8_t)c3; }
+        return 1;
+    }
     if (sscanf(cmd, "pop %d", &a) == 1) { p->pop = (int16_t)a; return 1; }
     if (sscanf(cmd, "cash %d", &a) == 1) { p->cash = (int16_t)a; return 1; }
     if (sscanf(cmd, "cap %d", &a) == 1) { p->cap = (uint8_t)a; return 1; }
@@ -2015,6 +2458,35 @@ static int oh_cheat(const char *cmd) {
     }
     if (!strcmp(cmd, "expand")) { ph_expand(&G); return 1; }
     if (!strcmp(cmd, "end")) { start_tally(WHY_HAND); return 1; }
+    if (sscanf(cmd, "oldsave3 %d", &a) == 1) {
+        /* a save in the third layout (before the custom list), with the run
+         * in progress (checked before "oldsave2" and "oldsave") */
+        static SaveV3 o;
+        memset(&o, 0, sizeof o);
+        o.magic = SAVE_MAGIC_V3;
+        o.won = (uint8_t)a;
+        o.streak = 2;
+        o.best_streak = 5;
+        o.has_run = 1;
+        o.parties = 11;
+        o.night_best[PH_ENDLESS] = 4;
+        o.night_fame[PH_ENDLESS] = 77;
+        o.run.scen = G.scen;
+        o.run.npool = (uint8_t)imin(G.npool, PH_POOL_MAX_V3);
+        memcpy(o.run.pool, G.pool, sizeof o.run.pool);
+        memcpy(o.run.bought, G.bought, sizeof o.run.bought);
+        o.run.players = G.players;
+        o.run.turn = G.turn;
+        o.run.rng = G.rng;
+        memcpy(o.run.pl, G.pl, sizeof o.run.pl);
+        o.run.party = G.party;
+        o.run.goal = G.goal;
+        o.run.nights = G.nights;
+        o.run.base = G.base;
+        game_save_write(game_current_index(), &o, (int)sizeof o);
+        keep_old_save = true;
+        return 1;
+    }
     if (sscanf(cmd, "oldsave2 %d", &a) == 1) {
         /* a save in the second layout (before the owner's two guests), with
          * the run in progress (checked before "oldsave", which would match) */
@@ -2075,6 +2547,7 @@ static int oh_cheat(const char *cmd) {
     if (sscanf(cmd, "streak %d", &a) == 1) { sv.streak = (uint8_t)a; if (a > sv.best_streak) sv.best_streak = (uint8_t)a; save_now(); return 1; }
     if (!strcmp(cmd, "sheet")) { sheet_mode = !sheet_mode; return 1; }
     if (!strcmp(cmd, "menu")) { state = S_SCEN; state_t = 0; mode_players = 1; scen_endless = false; return 1; }
+    if (!strcmp(cmd, "custom")) { mode_players = 1; scen_endless = false; open_custom(false); return 1; }
     return 0;
 }
 

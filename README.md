@@ -98,7 +98,7 @@ when there is more above or below.
 | 15 | **FENNEC FOUNTAIN** | Block Koala | pushing numbered blocks (never into a heavier one, a 1 that can't move is taken in), grey at five, blue and black blocks, mimics, arrows, stone patches and doors, unlimited undo and a room menu, fifty rooms behind gates, a room editor | Fen the fennec, a dry spring garden, 50 new rooms |
 | 16 | **TINTAIL** | Camouflage | sneaking on a grid past watchers by taking the colour of the ground you stand on, hollow logs, sun and rain pads, hatchlings with their own colour, a danger view you can't move in, undo, a branching map | Twig the chameleon, Salt Island, toads and storks, 15 new levels |
 | 18 | **LOST LINKS** | Golfaria | a top-down open world where every roll is a stroke and strokes are your health, twenty to start and three more for each of twenty irons found underground, pins and safe zones, sand you can only chip out of, water and pits that send you back, jumping flowers, holes down to a whole layer underneath, parbot-style scorecrows, two kinds of bug, four abilities in the four corners, the four-piece star relic, a plate puzzle and a burrowing boss | Dimple the golf ball, the Brass Badger, slicers, sippers, larks, strays, twenty ball folk and a hidden village of Keepers, both layers of the world |
-| 25 | **OPEN HOUSE** | Party House | drawing guests from a deck into a house with limited space, the original's 46 guest abilities, costs and trouble, police, fire marshal and bans, set guest lists and a random list, win by ending a party with four stars within 25 nights, 2P hot-seat; the owner's endless OPEN ALL NIGHT and two guests of his own | a whitewashed house by the sea, all 48 guests' names and faces |
+| 25 | **OPEN HOUSE** | Party House | drawing guests from a deck into a house with limited space, the original's 46 guest abilities, costs and trouble, police, fire marshal and bans, set guest lists and a random list, win by ending a party with four stars within 25 nights, 2P hot-seat; the fame and cash caps; the owner's endless OPEN ALL NIGHT, a custom list and two guests of his own | a whitewashed house by the sea, all 48 guests' names and faces |
 | 28 | **DUNE EXPRESS** | Rail Heist | real time until a guard is alert, then 10-second turns, one-bullet lawmen who hit each other too, punches through walls and floors, carrying and throwing, hiding in barrels, levers, a crank gun, rams, three outlaws, three stars a mission with the original's time goals, 2P versus | Wade, Hush and Pearl, the Governor's tax trains, Biscuit the camel, 20 new trains |
 | 45 | **DOT & DASH** | Mini & Max | one room at four sizes, where holding down shrinks you into whatever you stand on and holding up grows you back, a generated micro world that is the same for everyone inside every speck, a tiny size for one-tile gaps, lifting things from under your feet to throw, stack and ride (and carrying one up to full size as a step), a dog who roams and sniffs out secrets, long falls that send you back to full size, 39 upgrades that level up wherever they're found, five shops, favours for tiny towns, a 500 door and a 1,000 true ending | Dot and her talking dog Dash, the lumber room, Queen Tabitha the cat, Sir Sprocket, 21 towns and landmarks |
 | 46 | **MANDIBLES** | Combatants | you are one slow ant who holds a button for a cross of nine commands (follow, hold, instinct, their soldier-only versions, the queen's workers or soldiers, surrender), shouted to ants in earshot, and spits in eight directions while followers spit with you, food carried home to queens who lay workers for 1 and soldiers for 2, free respawns while your army lives, red ants with twice the health and exploitable brains (locked aim, food first, stuck on corners, stuck on your queen), brawls in a dust cloud, giant spiders that eat both sides, a branching road of 12 fields to the capital and a pointless bonus one, 2P versus | the Bluebell Colony and the Rust Horde, General Stag, the longlegs, every command's name, all 16 fields |
@@ -594,6 +594,7 @@ the top.
 </p>
 <p align="center">
   <img src="docs/shots/openhouse_allnight.png" width="320" alt="Open All Night: pick a list to play with no last night">
+  <img src="docs/shots/openhouse_custom.png" width="320" alt="The custom list's editor: every guest, in or out">
 </p>
 
 *A tribute to **Party House** (UFO 50 #25).*
@@ -606,7 +607,8 @@ the top.
 - **The guests:** all 46 of Party House's guests with their costs, pay,
   talents and trouble, from fetchers, bouncers and peekers to drummers,
   upstarts and the nine star guests. Win by ending a party well with four
-  stars in it, within 25 nights.
+  stars in it, within 25 nights. Fame stops at 65 and cash at $30, as in
+  the original.
 - **Structure:** five set guest lists with the original's pools, then a
   Random list and the five-win streak. 2P Versus takes alternate nights and
   shares the shop.
@@ -623,7 +625,11 @@ the top.
   the Random list and OPEN ALL NIGHT: the **Crooner** (cost 10) scores a
   guest on the spot and gives everyone else their action back, once a
   party; the **Albatross** (cost 6, +6 fame, +$1) makes everyone who comes
-  in after him RUCKUS!.
+  in after him RUCKUS!. And a **custom list**: an editor with every guest
+  and star, where A puts one in the shop or takes it out (the neighbour,
+  cousin and rowdy mate are locked in), with CLEAR ALL, RANDOMISE and an
+  ALL NIGHT toggle. It needs a star and six guests, is saved, and keeps its
+  own record.
 
 ### 28 · DUNE EXPRESS
 

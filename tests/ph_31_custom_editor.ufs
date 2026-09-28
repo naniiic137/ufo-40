@@ -1,0 +1,136 @@
+# OPEN HOUSE (owner's addition): the CUSTOM tile opens an editor with every
+# guest and star in a grid of eight by six (roster order); A puts one in or
+# takes it out. The neighbour, the cousin and the rowdy mate are locked in.
+# CLEAR ALL keeps the locked ones; RANDOMISE deals a list that can be played.
+game openhouse
+wait 30
+press A
+wait 5
+press A
+wait 5
+expect state == 2
+expect scen_sel == 0
+press RIGHT
+press RIGHT
+press DOWN
+press DOWN
+expect scen_sel == 7
+press A
+wait 2
+expect state == 19
+expect ed_cur == 3
+# it starts as list 1's guests: twelve and the saucer pilot
+expect cguests == 12
+expect cstars == 1
+expect cin3 == 1
+expect cin37 == 1
+expect cin4 == 0
+# A takes the cabbie out and puts him back
+press A
+expect cin3 == 0
+expect cguests == 11
+press A
+expect cin3 == 1
+expect cguests == 12
+# the sleuth in
+press RIGHT
+expect ed_cur == 4
+press A
+expect cin4 == 1
+expect cguests == 13
+# the locked three stay in
+press LEFT
+press LEFT
+press LEFT
+press LEFT
+expect ed_cur == 0
+press A
+expect cin0 == 1
+press RIGHT
+press A
+expect cin1 == 1
+press RIGHT
+press A
+expect cin2 == 1
+expect ed_cur == 2
+expect cguests == 13
+expect cstars == 1
+# down to the saucer pilot (row 5, column 6) and out; the tycoon in
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press RIGHT
+press RIGHT
+press RIGHT
+expect ed_cur == 37
+press A
+expect cin37 == 0
+expect cstars == 0
+press RIGHT
+press A
+expect cin38 == 1
+expect cstars == 1
+# UP and DOWN wrap round the columns
+press DOWN
+press DOWN
+expect ed_cur == 6
+press UP
+expect ed_cur == 46
+press DOWN
+expect ed_cur == 6
+# RIGHT off the last column reaches the buttons (PLAY first)
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+expect ed_cur == 38
+press RIGHT
+expect ed_cur == 39
+press RIGHT
+expect ed_cur == 48
+press UP
+expect ed_cur == 51
+press DOWN
+expect ed_cur == 48
+press DOWN
+press DOWN
+expect ed_cur == 50
+# CLEAR ALL: everyone out but the locked three
+press A
+expect cguests == 0
+expect cstars == 0
+expect cin0 == 1
+expect cin1 == 1
+expect cin2 == 1
+expect cin3 == 0
+expect cin38 == 0
+# RANDOMISE: one to three stars and six to sixteen guests
+press DOWN
+expect ed_cur == 51
+press A
+expect cstars >= 1
+expect cstars <= 3
+expect cguests >= 6
+expect cguests <= 16
+expect cin0 == 1
+expect cin2 == 1
+# LEFT goes back to the row the buttons were entered from
+press LEFT
+expect ed_cur == 39
+press LEFT
+press LEFT
+press LEFT
+press LEFT
+press LEFT
+press LEFT
+press LEFT
+expect ed_cur == 32
+press LEFT
+expect ed_cur == 51
+press RIGHT
+expect ed_cur == 32
+# B goes back to the list grid, on the tile
+press B
+expect state == 2
+expect scen_sel == 7
