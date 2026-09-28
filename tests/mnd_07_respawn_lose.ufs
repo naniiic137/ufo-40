@@ -1,0 +1,32 @@
+# MANDIBLES: your ant is the only one that comes back. It hatches again at
+# the queen a moment later for one bead; with none in store it waits, and if
+# she stays empty for ten seconds the field is lost.
+game mandibles
+wait 5
+cheat mission 1 16
+cheat clear
+cheat red_store 0
+cheat store 1
+cheat mistakes 0
+cheat at 160 60
+cheat unit 2 1 168 60
+wait 40
+expect alive == 0
+cheat tag_remove 0
+expect status == 0
+wait 95
+expect alive == 1
+expect store == 0
+expect respawns == 1
+# die again with an empty queen
+cheat at 160 100
+cheat unit 2 1 168 100
+wait 20
+expect alive == 0
+wait 600
+expect status == 0
+wait 100
+expect status == 2
+wait 2
+expect state == 4
+expect result == 2

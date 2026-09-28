@@ -1,0 +1,9 @@
+# MANDIBLES: field 12, THE OLD COLONY, can be won. The demo player takes it
+# with button presses alone (fixed seed 1), then the win is saved.
+game mandibles
+wait 5
+cheat mission 12 1
+botuntil status == 1 40000
+wait 2
+expect state == 4
+expect won & 2048

@@ -1,0 +1,75 @@
+# MANDIBLES: hold A for the command menu; up/down move the cursor; letting
+# go shouts the order under it to your ants inside the shout radius (five
+# tiles). Soldier Follow reaches soldiers only; ants that took an order show
+# "!". A quick tap shouts the same order again. At your queen the last line
+# switches her between workers and soldiers.
+game mandibles
+wait 5
+cheat mission 1 13
+cheat clear
+cheat red_store 0
+cheat store 0
+cheat at 160 60
+# t0 soldier and t1 worker in earshot, t2 soldier out of it
+cheat unit 3 0 180 60
+cheat unit 2 0 160 80
+cheat unit 3 0 230 60
+cheat tag_order 0 2
+cheat tag_order 1 2
+cheat tag_order 2 2
+hold A
+wait 3
+expect cmd_open == 1
+expect cmd_sel == 0
+press DOWN
+expect cmd_sel == 1
+# the queen's line is skipped away from her
+press DOWN
+press DOWN
+press DOWN
+expect cmd_sel == 0
+press DOWN
+release A
+wait 2
+expect cmd_open == 0
+expect t0_order == 1
+expect t0_ack == 1
+expect t1_order == 2
+expect t2_order == 2
+# Follow reaches the worker too
+hold A
+press UP
+release A
+wait 2
+expect t1_order == 1
+# Halt: they stop where they are
+hold A
+press DOWN
+press DOWN
+release A
+wait 2
+expect t0_order == 2
+expect t1_order == 2
+expect cmd_sel == 2
+# Instinct, then a tap gives Instinct again
+hold A
+press DOWN
+release A
+wait 2
+expect t0_order == 0
+cheat tag_order 0 2
+press A
+wait 2
+expect t0_order == 0
+expect t2_order == 2
+# at the queen: the last line turns her to soldiers and back
+cheat at 52 80
+expect prod == 0
+hold A
+press DOWN
+release A
+wait 2
+expect prod == 1
+press A
+wait 2
+expect prod == 0

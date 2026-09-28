@@ -1,0 +1,33 @@
+# MANDIBLES: a longlegs is on nobody's side. It creeps after the nearest ant
+# it can see, red or blue, and bites for 3 (a blue ant in one bite, a red
+# one in two). Spit kills it; the first one you slay earns the Beacon.
+game mandibles
+wait 5
+cheat mission 1 19
+cheat clear
+cheat red_store 0
+cheat store 1
+cheat mistakes 0
+cheat at 60 120
+cheat unit 5 2 200 60
+cheat unit 2 0 205 60
+cheat tag_order 1 2
+wait 60
+expect t1_alive == 0
+cheat unit 2 1 210 66
+cheat tag_order 2 2
+wait 30
+expect t2_alive == 1
+expect t2_hp == 3
+wait 60
+expect t2_alive == 0
+expect goals !& 1
+# weaken it and finish it off with a spit
+cheat tag_hp 0 1
+cheat at 160 60
+wait 1
+hold B 60
+expect t0_alive == 0
+expect spiders_slain == 1
+expect spiders_saved == 1
+expect goals & 1

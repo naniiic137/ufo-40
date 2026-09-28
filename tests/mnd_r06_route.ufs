@@ -1,0 +1,9 @@
+# MANDIBLES: field 6, TWIN MOUNDS, can be won. The demo player takes it
+# with button presses alone (fixed seed 1), then the win is saved.
+game mandibles
+wait 5
+cheat mission 6 1
+botuntil status == 1 40000
+wait 2
+expect state == 4
+expect won & 32

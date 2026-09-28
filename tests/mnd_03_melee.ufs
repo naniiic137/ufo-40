@@ -1,0 +1,28 @@
+# MANDIBLES: when two enemy ants touch, the healthier one lives with the
+# difference: a red worker (6) that reaches your ant (3) lives on with 3,
+# and then a blue worker (3) and it both die.
+game mandibles
+wait 5
+cheat mission 1 12
+cheat clear
+cheat red_store 0
+cheat store 1
+cheat at 160 60
+cheat unit 2 1 170 60
+wait 30
+expect alive == 0
+expect t0_alive == 1
+expect t0_hp == 3
+# a blue worker meets a red worker with 3 left: 3 against 3, both go
+cheat unit 2 1 240 110 3
+cheat unit 2 0 243 110
+wait 2
+expect t1_alive == 0
+expect t2_alive == 0
+# a red worker at full health beats a blue soldier and keeps 3
+cheat unit 2 1 240 130
+cheat unit 3 0 243 130
+wait 2
+expect t3_alive == 1
+expect t3_hp == 3
+expect t4_alive == 0

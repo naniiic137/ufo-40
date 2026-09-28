@@ -73,6 +73,12 @@ CORE_SRC += src/games/dune/dune_logic.c
 CORE_SRC += src/games/dune/dune_levels.c
 CORE_SRC += src/games/dune/dune_art.c
 CORE_SRC += src/games/dune/dune_audio.c
+CORE_SRC += src/games/mandibles/mandibles.c
+CORE_SRC += src/games/mandibles/mandibles_logic.c
+CORE_SRC += src/games/mandibles/mandibles_maps.c
+CORE_SRC += src/games/mandibles/mandibles_bot.c
+CORE_SRC += src/games/mandibles/mandibles_art.c
+CORE_SRC += src/games/mandibles/mandibles_audio.c
 
 HEADLESS_SRC += src/platform/headless/main_headless.c
 HEADLESS_SRC += src/platform/headless/imgwrite.c

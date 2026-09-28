@@ -1,0 +1,46 @@
+# MANDIBLES: the road to the capital branches. Field 2 opens 3 (west, the
+# hard way) and 4 (north); both roads meet again at 6; 5 opens the wide lawn
+# (8) and the lawn opens the longlegs garden (11), a dead end; 7 opens 9 and
+# 10, and either of those opens the capital (12). The bonus field shows up
+# only once the capital is taken.
+game mandibles
+wait 5
+cheat won 1
+expect map_open == 3
+cheat won 3
+expect map_open == 15
+cheat won 11
+expect map_open == 47
+cheat won 27
+expect map_open & 32
+expect map_open & 128
+expect map_open !& 1024
+cheat won 155
+expect map_open & 1024
+expect map_open !& 2048
+cheat won 11
+cheat won 107
+expect map_open & 256
+expect map_open & 512
+expect map_open !& 2048
+cheat won 363
+expect map_open & 2048
+expect map_open !& 4096
+# the shortest road: 1 2 4 6 7 9 12 is seven fields
+cheat won 2411
+expect map_open & 4096
+expect won_count == 7
+# the cursor walks along open fields with the d-pad
+cheat won 3
+press A
+wait 5
+expect state == 1
+expect map_sel == 1
+press LEFT
+expect map_sel == 2
+press UP
+expect map_sel == 4
+press DOWN
+expect map_sel == 2
+press LEFT
+expect map_sel == 3

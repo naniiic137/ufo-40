@@ -1,0 +1,39 @@
+# MANDIBLES: the title offers the campaign and 2P versus; the campaign map
+# starts with only the first field open; A opens its briefing, A marches,
+# B steps back each time.
+game mandibles
+wait 5
+expect state == 0
+expect title_sel == 0
+press DOWN
+expect title_sel == 1
+press UP
+expect title_sel == 0
+press A
+wait 5
+expect state == 1
+expect map_sel == 1
+expect map_open == 1
+# nothing else is open, so the cursor stays put
+press LEFT
+expect map_sel == 1
+press A
+wait 5
+expect state == 2
+press B
+wait 5
+expect state == 1
+press A
+wait 20
+press A
+wait 5
+expect state == 3
+expect map == 1
+expect versus == 0
+# START pauses the field; the pause menu has the cartridge's own lines
+press START
+wait 5
+expect paused == 1
+press START
+wait 5
+expect paused == 0

@@ -1,0 +1,34 @@
+# MANDIBLES: the pause menu adds RESTART MISSION and RETREAT TO MAP; the
+# title, map, fields and capital each have their own tune.
+game mandibles
+wait 5
+expect music_is.mnd_title == 1
+press A
+wait 10
+expect music_is.mnd_map == 1
+cheat mission 2 30
+wait 5
+expect music_is.mnd_field == 1
+cheat at 100 100
+wait 5
+# START, down to RESTART MISSION, A: the field starts over
+press START
+wait 5
+press DOWN
+press A
+wait 5
+expect paused == 0
+expect state == 3
+expect map == 2
+expect field_t < 20
+# START, down twice to RETREAT TO MAP
+press START
+wait 5
+press DOWN
+press DOWN
+press A
+wait 5
+expect state == 1
+cheat mission 12 31
+wait 5
+expect music_is.mnd_capital == 1
