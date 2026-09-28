@@ -1,0 +1,32 @@
+# Video capture: record_start writes every frame as a PNG, wav_start the
+# same frames' audio (800 samples a frame), and overlays go on both.
+overlay_box 0 150 320 30 -2
+overlay_text c 160 154 1 y 50 SLOTS \x88 ONE CONSOLE
+overlay_text c 160 166 0 w A FAN-MADE TRIBUTE
+record_start rec_test
+wav_start rec_test
+wait 60
+record_stop
+wav_stop
+expect record.frames == 60
+expect wav.samples == 48000
+# the boot jingle was in the recorded audio, loud but not clipping
+expect wav.peak > 100
+expect wav.peak < 1000
+# stopped means stopped
+wait 10
+expect record.frames == 60
+expect wav.samples == 48000
+overlay_clear
+shot rec_test_plain
+# volume 0 0 silences music and sound effects for this run
+volume 0 0
+audio on
+wait 10
+expect audio.peak == 0
+audio off
+volume 10 10
+record_start rec_test2
+wait 5
+record_stop
+expect record.frames == 5

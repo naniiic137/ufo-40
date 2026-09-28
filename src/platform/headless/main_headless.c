@@ -4,6 +4,9 @@
  *   ufo40_headless --script tests/foo.ufs [--out DIR] [--save-dir DIR]
  *   ufo40_headless --frames 600 --shot-every 60 --out DIR
  *   ufo40_headless --vita-assets DIR
+ *
+ * For videos: record_start / record_stop write every frame as a PNG,
+ * wav_start / wav_stop the same frames' audio, overlay_* add captions.
  */
 #include "../../shell/shell.h"
 #include "imgwrite.h"
@@ -28,6 +31,22 @@ static int16_t audio_buf[800 * 2];
 static GifWriter gif;
 static int gif_every, gif_left, gif_count;
 static int shot_scale = 1;
+
+/* record_start / wav_start: every frame as a PNG, every frame's audio to a WAV */
+static char rec_dir[640];
+static bool rec_on;
+static int rec_frames;
+static FILE *wav_f;
+static uint32_t wav_samples;
+static float wav_peak;
+
+/* overlay_*: text and plates drawn over every saved frame (not the game's own
+ * screen), in the console's font, for captions in videos */
+#define OVL_MAX 16
+typedef struct { bool box; char align; int x, y, w, h, scale, col; char text[128]; } Overlay;
+static Overlay ovl[OVL_MAX];
+static int ovl_n;
+static uint8_t ovl_px[SCREEN_W * SCREEN_H];
 
 /* ---- platform services ------------------------------------------------ */
 
@@ -81,20 +100,73 @@ static void fail(const char *fmt, const char *a, long got) {
     fprintf(stderr, "\n");
 }
 
+/* Palette colour by number (0-31) or by its sprite letter (y = yellow...). */
+static int parse_col(const char *s) {
+    static const char LETTERS[] = "kndsglwmvroaycbtehqfjziNBuCIpVPK";
+    if (isdigit((unsigned char)s[0])) return atoi(s) % PAL_COUNT;
+    const char *p = strchr(LETTERS, s[0]);
+    return p && s[0] ? (int)(p - LETTERS) : C_WHITE;
+}
+
+/* Text with a one-pixel ink outline; scale 0 is the tiny 3x5 font. */
+static void ovl_draw_text(const Overlay *o) {
+    int w = o->scale ? text_width_scaled(o->text, o->scale) : tiny_width(o->text);
+    int x = o->align == 'c' ? o->x - w / 2 : o->align == 'r' ? o->x - w : o->x;
+    /* the eight outline offsets, then the text itself (k = 4 is the centre) */
+    for (int k = 0; k < 10; k++) {
+        if (k == 4) continue;
+        int dx = k < 9 ? k % 3 - 1 : 0, dy = k < 9 ? k / 3 - 1 : 0, col = k < 9 ? C_INK : o->col;
+        if (o->scale) text_draw_scaled(o->text, x + dx, o->y + dy, col, o->scale);
+        else tiny_draw(o->text, x + dx, o->y + dy, col);
+    }
+}
+
+/* The frame as saved: the game's screen with the overlays on a copy of it. */
+static const uint8_t *frame_pixels(void) {
+    if (!ovl_n) return g_screen.px;
+    memcpy(ovl_px, g_screen.px, sizeof ovl_px);
+    Surface s = {SCREEN_W, SCREEN_H, ovl_px};
+    int cx = gfx_cam_x(), cy = gfx_cam_y();
+    gfx_set_target(&s);
+    for (int i = 0; i < ovl_n; i++) {
+        const Overlay *o = &ovl[i];
+        if (!o->box) ovl_draw_text(o);
+        else if (o->col < 0) gfx_darken_rect(o->x, o->y, o->w, o->h, -o->col);
+        else gfx_rect(o->x, o->y, o->w, o->h, o->col);
+    }
+    gfx_set_target(NULL);
+    gfx_camera(cx, cy);
+    return ovl_px;
+}
+
 static void step(int n) {
     for (int i = 0; i < n; i++) {
         input_set_raw(held);
         app_update();
-        if (audio_on) audio_render(audio_buf, 800);
-        if (gif_left > 0) {
-            if ((gif_count++ % gif_every) == 0) {
-                app_draw();
+        if (audio_on || wav_f) audio_render(audio_buf, 800);
+        if (wav_f) {
+            fwrite(audio_buf, 4, 800, wav_f);
+            wav_samples += 800;
+            float pk;
+            audio_stats(&pk, NULL);
+            if (pk > wav_peak) wav_peak = pk;
+        }
+        bool gif_now = gif_left > 0 && (gif_count++ % gif_every) == 0;
+        if (gif_now || rec_on) {
+            app_draw();
+            const uint8_t *px = frame_pixels();
+            if (gif_now) {
                 int d = gif_every * 100 / 60;
                 if (d < 2) d = 2;
-                gif_frame(&gif, g_screen.px, d);
+                gif_frame(&gif, px, d);
             }
-            if (--gif_left == 0) gif_end(&gif);
+            if (rec_on) {
+                char path[700];
+                snprintf(path, sizeof path, "%s/%06d.png", rec_dir, rec_frames++);
+                png_write_indexed(path, SCREEN_W, SCREEN_H, px, PALETTE_RGB, PAL_COUNT, shot_scale);
+            }
         }
+        if (gif_left > 0 && --gif_left == 0) gif_end(&gif);
     }
 }
 
@@ -103,8 +175,27 @@ static void save_shot(const char *name) {
     mkdirs(out_dir);
     snprintf(path, sizeof path, "%s/%s.png", out_dir, name);
     app_draw();
-    png_write_indexed(path, SCREEN_W, SCREEN_H, g_screen.px, PALETTE_RGB, PAL_COUNT, shot_scale);
+    png_write_indexed(path, SCREEN_W, SCREEN_H, frame_pixels(), PALETTE_RGB, PAL_COUNT, shot_scale);
     printf("  shot %s\n", path);
+}
+
+/* A 16-bit stereo 48 kHz WAV header for n sample frames. */
+static void wav_header(FILE *f, uint32_t n) {
+    uint32_t data_bytes = n * 4, riff = data_bytes + 36;
+    uint8_t h[44] = {'R', 'I', 'F', 'F', 0, 0, 0, 0, 'W', 'A', 'V', 'E', 'f', 'm', 't', ' ', 16, 0, 0, 0, 1, 0, 2, 0,
+                     0x80, 0xBB, 0, 0, 0x00, 0xEE, 0x02, 0, 4, 0, 16, 0, 'd', 'a', 't', 'a', 0, 0, 0, 0};
+    memcpy(h + 4, &riff, 4);
+    memcpy(h + 40, &data_bytes, 4);
+    fwrite(h, 1, 44, f);
+}
+
+static void wav_stop(void) {
+    if (!wav_f) return;
+    fseek(wav_f, 0, SEEK_SET);
+    wav_header(wav_f, wav_samples);
+    fclose(wav_f);
+    wav_f = NULL;
+    printf("  wav %u samples (peak %.2f)\n", (unsigned)wav_samples, wav_peak);
 }
 
 static uint32_t parse_buttons(char *s) {
@@ -155,6 +246,9 @@ static bool query(const char *key, int *out) {
         return true;
     }
     if (!strcmp(key, "quit_requested")) { *out = quit_requested; return true; }
+    if (!strcmp(key, "record.frames")) { *out = rec_frames; return true; }
+    if (!strcmp(key, "wav.samples")) { *out = (int)wav_samples; return true; }
+    if (!strcmp(key, "wav.peak")) { *out = (int)(wav_peak * 1000); return true; }
     if (shell_query(key, out)) return true;
     if (gi >= 0 && GAMES[gi] && GAMES[gi]->query && GAMES[gi]->query(key, out)) return true;
     return false;
@@ -433,13 +527,7 @@ static int run_script(const char *path) {
             FILE *wf = fopen(wpath, "wb");
             if (wf) {
                 int total = (int)(secs * AUDIO_RATE);
-                uint32_t data_bytes = (uint32_t)total * 4;
-                uint8_t h[44] = {'R', 'I', 'F', 'F', 0, 0, 0, 0, 'W', 'A', 'V', 'E', 'f', 'm', 't', ' ', 16, 0, 0, 0, 1, 0, 2, 0,
-                                 0x80, 0xBB, 0, 0, 0x00, 0xEE, 0x02, 0, 4, 0, 16, 0, 'd', 'a', 't', 'a', 0, 0, 0, 0};
-                uint32_t riff = data_bytes + 36;
-                memcpy(h + 4, &riff, 4);
-                memcpy(h + 40, &data_bytes, 4);
-                fwrite(h, 1, 44, wf);
+                wav_header(wf, (uint32_t)total);
                 float peak_all = 0;
                 for (int done = 0; done < total; done += 800) {
                     int n = total - done < 800 ? total - done : 800;
@@ -452,6 +540,73 @@ static int run_script(const char *path) {
                 fclose(wf);
                 printf("  wav %s (peak %.2f)\n", wpath, peak_all);
             }
+        } else if (!strcmp(cmd, "record_start")) {
+            /* record_start NAME : every frame from here on as OUT/NAME/000000.png,
+             * 000001.png ... (at shotscale) until record_stop */
+            char name[128] = {0};
+            sscanf(arg, "%127s", name);
+            snprintf(rec_dir, sizeof rec_dir, "%s/%s", out_dir, name);
+            mkdirs(rec_dir);
+            rec_on = true;
+            rec_frames = 0;
+        } else if (!strcmp(cmd, "record_stop")) {
+            if (rec_on) printf("  recorded %d frames in %s\n", rec_frames, rec_dir);
+            rec_on = false;
+        } else if (!strcmp(cmd, "wav_start")) {
+            /* wav_start NAME : the audio of every frame from here on (800
+             * samples each, 48 kHz stereo) into OUT/NAME.wav until wav_stop */
+            char name[128] = {0}, wpath[700];
+            sscanf(arg, "%127s", name);
+            wav_stop();
+            mkdirs(out_dir);
+            snprintf(wpath, sizeof wpath, "%s/%s.wav", out_dir, name);
+            wav_f = fopen(wpath, "wb");
+            wav_samples = 0;
+            wav_peak = 0;
+            if (!wav_f) { fail("cannot write %s%ld", wpath, 0); continue; }
+            wav_header(wav_f, 0);
+        } else if (!strcmp(cmd, "wav_stop")) {
+            wav_stop();
+        } else if (!strcmp(cmd, "volume")) {
+            /* volume MUSIC SFX : 0-10 each, for this run only (not saved) */
+            int m = 10, s = 10;
+            sscanf(arg, "%d %d", &m, &s);
+            audio_set_volume(m, s);
+        } else if (!strcmp(cmd, "overlay_text") || !strcmp(cmd, "overlay_box")) {
+            /* overlay_text ALIGN(l/c/r) X Y SCALE(0 = tiny) COLOUR TEXT...
+             * overlay_box X Y W H COLOUR (a negative colour darkens N steps)
+             * Colours: 0-31 or the sprite letter (w white, y yellow, k ink...). */
+            if (ovl_n >= OVL_MAX) { fail("too many overlays%s%ld", "", 0); continue; }
+            Overlay *o = &ovl[ovl_n];
+            memset(o, 0, sizeof *o);
+            char col[8] = {0};
+            int used = 0;
+            if (cmd[8] == 't') {
+                o->align = 'l';
+                if (sscanf(arg, " %c %d %d %d %7s %n", &o->align, &o->x, &o->y, &o->scale, col, &used) < 5) {
+                    fail("bad overlay_text: %s%ld", arg, 0);
+                    continue;
+                }
+                /* \xNN puts in a glyph (\x88 is a star) */
+                char *t = o->text;
+                for (const char *s = arg + used; *s && t < o->text + sizeof o->text - 1; s++) {
+                    if (s[0] == '\\' && s[1] == 'x' && isxdigit((unsigned char)s[2]) && isxdigit((unsigned char)s[3])) {
+                        char hx[3] = {s[2], s[3], 0};
+                        *t++ = (char)strtol(hx, NULL, 16);
+                        s += 3;
+                    } else *t++ = *s;
+                }
+            } else {
+                o->box = true;
+                if (sscanf(arg, "%d %d %d %d %7s", &o->x, &o->y, &o->w, &o->h, col) < 5) {
+                    fail("bad overlay_box: %s%ld", arg, 0);
+                    continue;
+                }
+            }
+            o->col = col[0] == '-' ? -atoi(col + 1) : parse_col(col);
+            ovl_n++;
+        } else if (!strcmp(cmd, "overlay_clear")) {
+            ovl_n = 0;
         } else if (!strcmp(cmd, "log")) {
             printf("  %s\n", arg);
         } else if (!strcmp(cmd, "print")) {
@@ -464,6 +619,7 @@ static int run_script(const char *path) {
     }
     fclose(f);
     if (gif_left > 0) gif_end(&gif);
+    wav_stop();
     return failures;
 }
 
