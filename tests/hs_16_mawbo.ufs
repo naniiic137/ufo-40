@@ -1,6 +1,6 @@
 # HOMESPUN: once all three parts are home, Mawbo roams the Wilds. It fights
 # with every guardian's moves and some foes' too, takes 100 yo-yo hits, and
-# when beaten it flees to another screen. Beat it six times in one trip and
+# when beaten it drops a big tonic (+100 s) and flees to another screen. Beat it six times in one trip and
 # it drops the Grinning Idol; going home in between starts the count again.
 seed 44
 game homespun
@@ -46,6 +46,14 @@ press B
 wait 25
 expect mawbo_wins == 1
 expect mawbo_here == 0
+expect items >= 1
+cheat time 100
+hold UP 30
+hold DOWN 4
+hold RIGHT 12
+hold LEFT 24
+wait 5
+expect time >= 190
 # home in between: the count starts again
 cheat room 43 160 150
 hold DOWN 20

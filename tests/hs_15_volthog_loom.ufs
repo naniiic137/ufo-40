@@ -1,7 +1,8 @@
 # HOMESPUN: the Volthog, a mechanical boar of bolts and bombs, guards the
 # ruins and bars the only way to Mother Loom's lair; it is back on every
 # trip. Beating Mother Loom earns the Beacon at once: she moves to camp and
-# spins a spool of thread every 30 seconds.
+# spins a spool of thread every 30 seconds, 4 s sooner for each hand with
+# no job (8 s at the quickest).
 seed 44
 game homespun
 wait 5
@@ -54,3 +55,16 @@ press A
 cheat res thread 0
 idle 2
 expect thread == 4
+expect loom_ms == 30000
+# two idle hands: 22 s a spool; six: 8 s
+cheat huts 1 1
+expect loom_ms == 22000
+cheat huts 3 3
+expect loom_ms == 8000
+cheat res thread 0
+cheat acc 0
+idle 2
+expect thread == 15
+# put them to work and she slows again
+cheat anvils 63 63
+expect loom_ms == 30000

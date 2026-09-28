@@ -1,6 +1,6 @@
 # HOMESPUN: each dungeon's guardian holds a ship part. The hall's shutters
 # close behind Wick; when the guardian falls they open, it leaves a big
-# tonic (+100 s) and the part is free. Lose the trip and the part goes back
+# tonic (+100 s), 20 glints and one more roll, and the part is free. Lose the trip and the part goes back
 # to its guardian; bring it home and it goes into the Tumbleweed for good.
 seed 44
 game homespun
@@ -22,6 +22,7 @@ wait 25
 expect boss == -1
 expect shut == 0
 expect mobs == 0
+expect items >= 3
 hold UP 30
 hold DOWN 8
 wait 5

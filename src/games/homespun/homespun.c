@@ -7,7 +7,9 @@
  * economy is in homespun_base.c, the action in homespun_wild.c. */
 #include "homespun.h"
 
-#define HS_MAGIC 0x48530004u
+#define HS_MAGIC 0x48530005u
+/* Madame Shuffle's six chests, one of each (the price: 1 odd a go) */
+enum { GP_GLINT, GP_BARS4, GP_BARS8, GP_ODDS2, GP_JERKY, GP_DRIP };
 #define SAVE_EVERY_MS 30000u   /* while the console is on, the camp is saved this often */
 
 static int state, state_t, frame_t, title_sel, confirm_new, intro_page;
@@ -187,10 +189,13 @@ static void new_game(void) {
     game_set_pausable(false);
 }
 
-/* after the ending: a new camp on the same moon, the stones remembered */
+/* after the ending: a new camp, the stones remembered, the Wilds drawn again */
 static void new_loop(void) {
     HsSave keep = sv;
-    fresh_save(keep.seed);
+    /* the moon is the same, but its barriers and caves are drawn again */
+    uint32_t seed = rng_next(&g_rng) ^ keep.seed * 2654435761u;
+    if (seed == 0) seed = 1;
+    fresh_save(seed);
     sv.started = 1;
     sv.loop = (uint8_t)imin(255, keep.loop + 1);
     sv.marks = keep.marks;
@@ -203,7 +208,6 @@ static void new_loop(void) {
     sv.fadeouts = keep.fadeouts;
     sv.hits = keep.hits;
     sv.alive_s = keep.alive_s;
-    sv.excursion = keep.excursion;
     sv.room = HS_R_BASE;
     save_now();
 }
@@ -289,13 +293,7 @@ static void npc_talk(int who) {
         break;
     case N_SHUFFLE:
         hs_menu_clear("MADAME SHUFFLE");
-        for (int b = 0; b < 3; b++) {
-            static const int BET[3] = {1, 5, 10};
-            char l[28], c[20];
-            snprintf(l, sizeof l, "BET %d ODD%s", BET[b], BET[b] > 1 ? "S" : "");
-            snprintf(c, sizeof c, "%d/%d", sv.odds, BET[b]);
-            hs_menu_add(l, c, M_BET, BET[b], sv.odds >= BET[b]);
-        }
+        hs_menu_add("PICK A CHEST", "1 ODD", M_BET, 1, sv.odds >= 1);
         hm.open = 1;
         break;
     default: break;
@@ -362,8 +360,7 @@ static void pad_arrive(int p) {
 static void gamble_start(int bet) {
     gam_bet = bet;
     sv.odds = (uint16_t)(sv.odds - bet);
-    int prize[6] = {0, bet, 2 * bet, 3 * bet, 6 * bet, -bet}; /* bars; the last: jerky and odds */
-    for (int i = 0; i < 6; i++) gam_prize[i] = prize[i];
+    for (int i = 0; i < 6; i++) gam_prize[i] = i; /* GP_GLINT .. GP_DRIP, one of each */
     for (int i = 5; i > 0; i--) {
         int j = rng_range(&g_rng, 0, i), tt = gam_prize[i];
         gam_prize[i] = gam_prize[j];
@@ -377,19 +374,17 @@ static void gamble_start(int bet) {
 }
 
 static void gamble_pay(void) {
-    int p = gam_prize[gam_sel];
-    char b[64];
-    if (p > 0) {
-        hs_drop(IT_BAR, p, hs.px, hs.py + 12 * HS_U);
-        snprintf(b, sizeof b, "SHUFFLE: %d BAR%s! THE MOON LIKES YOU.", p, p > 1 ? "S" : "");
-    } else if (p < 0) {
-        hs_drop(IT_JERKY, -p, hs.px, hs.py + 12 * HS_U);
-        hs_drop(IT_ODD, -2 * p, hs.px, hs.py + 12 * HS_U);
-        snprintf(b, sizeof b, "SHUFFLE: JERKY AND ODDS! LUNCH IS ON ME.");
-    } else {
-        snprintf(b, sizeof b, "SHUFFLE: EMPTY! THE CHESTS GIVETH AND THE CHESTS TAKETH.");
+    int32_t x = hs.px, y = hs.py + 12 * HS_U;
+    const char *s = "";
+    switch (gam_prize[gam_sel]) {
+    case GP_GLINT: hs_drop(IT_GLINT, 1, x, y); s = "SHUFFLE: ONE GLINT. THE CHESTS GIVETH, BARELY."; break;
+    case GP_BARS4: hs_drop(IT_BAR, 4, x, y); s = "SHUFFLE: FOUR BARS! NOT BAD."; break;
+    case GP_BARS8: hs_drop(IT_BAR, 8, x, y); s = "SHUFFLE: EIGHT BARS! THE MOON LIKES YOU."; break;
+    case GP_ODDS2: hs_drop(IT_ODD, 2, x, y); s = "SHUFFLE: TWO ODDS BACK. PLAY AGAIN?"; break;
+    case GP_JERKY: hs_drop(IT_JERKY, 1, x, y); s = "SHUFFLE: JERKY! LUNCH IS ON ME."; break;
+    default: hs_spawn_drip(x, y + 8 * HS_U); s = "SHUFFLE: OH DEAR. SOMETHING WAS LIVING IN THAT ONE."; break;
     }
-    hs_say(b);
+    hs_say(s);
 }
 
 static void menu_do(int i) {
@@ -528,7 +523,12 @@ static void camp_a(void) {
             talk1("TOLLY: NO JERKY, NO WILDS. GRISTLE SMOKES IT, IF YOU BUILD HER A SMOKEHOUSE.");
         }
         break;
-    case P_NEST: talk1("MOTHER LOOM SPINS HER THREAD, ONE SPOOL EVERY HALF MINUTE."); break;
+    case P_NEST: {
+        char b[96];
+        snprintf(b, sizeof b, "MOTHER LOOM SPINS A SPOOL EVERY %d S. HANDS WITH NO JOB HELP HER GO FASTER.", hs_loom_ms() / 1000);
+        talk1(b);
+        break;
+    }
     default:
         hs_base_menu(p);
         if (hm.open) sfx_play_name("hs_talk");
@@ -668,9 +668,8 @@ static void draw_gamble(void) {
         if (gam_state == 3 && sel) {
             int p = gam_prize[i];
             char b[16];
-            if (p > 0) snprintf(b, sizeof b, "%dB", p);
-            else if (p < 0) snprintf(b, sizeof b, "JERKY");
-            else snprintf(b, sizeof b, "--");
+            static const char *const PRIZE[6] = {"1G", "4B", "8B", "2 ODDS", "JERKY", "DRIP!"};
+            snprintf(b, sizeof b, "%s", PRIZE[iclamp(p, 0, 5)]);
             tiny_center(b, x + 12, y + 22, C_YELLOW);
         }
     }
@@ -770,9 +769,9 @@ static void draw_launch(void) {
 static void draw_credits(void) {
     gfx_cls(C_INK);
     static const char *const L[] = {
-        "HOMESPUN", "", "WICK, COURIER PILOT", "OLD BURL, A JOLLY TREE", "GRISTLE THE SMOKER", "DR. ORRERY",
+        "HOMESPUN", "", "WICK, COURIER PILOT", "OLD BURL, WHO GROWS THE BUDS", "GRISTLE THE SMOKER", "DR. ORRERY",
         "TOLLY AT THE GATE", "KIT, HUSH, TANGER", "MADAME SHUFFLE", "THE NOODLERS", "MOTHER LOOM", "", "AND MAWBO",
-        "", "1988 BEAMDOWN SOFTWORKS", "", "THE STANDING STONES REMEMBER.", "A NEW CAMP WAITS ON THE SAME MOON.",
+        "", "1988 BEAMDOWN SOFTWORKS", "", "THE STANDING STONES REMEMBER.", "A NEW CAMP WAITS. THE WILDS HAVE SHIFTED.",
     };
     int y0 = 180 - state_t / 2;
     for (int i = 0; i < ARRAY_LEN(L); i++) {
@@ -930,8 +929,23 @@ static int hs_query(const char *key, int *out) {
     if (!strcmp(key, "menu_sel")) { *out = hm.sel; return 1; }
     if (!strcmp(key, "talk")) { *out = talk_n > 0; return 1; }
     if (!strcmp(key, "gamble")) { *out = gam_state; return 1; }
-    if (!strcmp(key, "gam_bars")) { int s = 0; for (int i = 0; i < 6; i++) s += gam_prize[i] > 0 ? gam_prize[i] : 0; *out = s; return 1; }
-    if (!strcmp(key, "gam_meat")) { int s = 0; for (int i = 0; i < 6; i++) s += gam_prize[i] < 0; *out = s; return 1; }
+    if (!strcmp(key, "gam_bars")) {
+        int s = 0;
+        for (int i = 0; i < 6; i++) s += gam_prize[i] == GP_BARS4 ? 4 : gam_prize[i] == GP_BARS8 ? 8 : 0;
+        *out = s;
+        return 1;
+    }
+    if (!strcmp(key, "gam_meat")) { int s = 0; for (int i = 0; i < 6; i++) s += gam_prize[i] == GP_JERKY; *out = s; return 1; }
+    if (!strcmp(key, "gam_drip")) { int s = 0; for (int i = 0; i < 6; i++) s += gam_prize[i] == GP_DRIP; *out = s; return 1; }
+    if (!strcmp(key, "gear_screen")) { *out = hw.gear_screen; return 1; }
+    {
+        /* loot tables, 10,000 rolls: lootT_K (K: 0 glints 1 bars 2 odds 3 jerky),
+         * envD_K (D: 0 open, 1 dungeon; K as before, 4 driplets) */
+        int t, k, o[5];
+        if (sscanf(key, "loot%d_%d", &t, &k) == 2) { hs_loot_stats(t, 10000, o); *out = o[k & 3]; return 1; }
+        if (sscanf(key, "env%d_%d", &t, &k) == 2) { hs_env_stats(t != 0, 10000, o); *out = o[iclamp(k, 0, 4)]; return 1; }
+    }
+    if (!strcmp(key, "loom_ms")) { *out = hs_loom_ms(); return 1; }
     if (!strcmp(key, "px")) { *out = hs.px / HS_U; return 1; }
     if (!strcmp(key, "py")) { *out = hs.py / HS_U; return 1; }
     if (!strcmp(key, "yoyo")) { *out = hs.yo_t; return 1; }
@@ -1070,6 +1084,19 @@ static int hs_cheat(const char *cmd) {
                 }
         }
         return 0;
+    }
+    if (sscanf(cmd, "gokind %d %d %d", &a, &b, &c) == 3 && a >= 0 && a < HS_CAVES) {
+        /* into the cave that holds this (the save shuffles them) */
+        for (int k = 0; k < HS_CAVES; k++)
+            if (hw.cave_kind[k] == a) { hs_sim_enter(HS_R_CAVE0 + k, b * HS_U, c * HS_U); area_music(); return 1; }
+        return 0;
+    }
+    if (!strcmp(cmd, "gogear")) {
+        /* just below the gear's chest spot */
+        hs_sim_enter(hw.gear_screen, 160 * HS_U, 88 * HS_U);
+        for (int i = 0; i < HS_MAX_THINGS; i++)
+            if (hs.thing[i].on && hs.thing[i].kind == TH_GEAR) { hs.px = (hs.thing[i].tx * HS_T + 8) * HS_U; hs.py = (hs.thing[i].ty * HS_T + 24) * HS_U; }
+        return 1;
     }
     if (sscanf(cmd, "gocave %d", &a) == 1 && a >= 0 && a < HS_CAVES) {
         /* just below a cave's mouth, on its screen */

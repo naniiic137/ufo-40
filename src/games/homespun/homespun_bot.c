@@ -218,7 +218,7 @@ static int neighbours(int r, int out[6], int how[6]) {
     }
     if (a == AR_CAVE) { out[n] = hw.cave_screen[r - HS_R_CAVE0]; how[n++] = D_DOWN; return n; }
     int d0 = hs_dun_of(r);
-    if ((r - HS_R_DUN0) % HS_DROOMS == 0) { out[n] = hw.cave_screen[d0]; how[n++] = D_DOWN; }
+    if ((r - HS_R_DUN0) % HS_DROOMS == 0) { out[n] = hw.cave_screen[hs_dun_cave(d0)]; how[n++] = D_DOWN; }
     /* the dungeon's doors only change when a crack breaks: keep them until then */
     static int8_t dok[HS_ROOMS][4];
     static uint64_t dsig = ~0ull;
@@ -284,12 +284,32 @@ static int boss_room(int d) {
     return -1;
 }
 
+/* strips for a trip there and back plus a fight, by rooms from camp */
+static int trip_jerky(int dist) { return (dist * 70 + 360) / 120 + 1; }
+
+static int dist_from_camp(int room) {
+    int d = 0;
+    route(HS_R_BASE, room, &d);
+    return d;
+}
+
+/* the guardian still to beat whose hall is nearest camp */
+static int next_dungeon(void) {
+    int best = -1, bd = 9999;
+    for (int d = 0; d < HS_DUNS; d++) {
+        if ((sv.parts | sv.carry) >> d & 1) continue;
+        int dd = dist_from_camp(boss_room(d));
+        if (dd < bd) { bd = dd; best = d; }
+    }
+    return best;
+}
+
 static int want_jerky(int g) {
     int cap = hs_cap(RES_JERKY);
     switch (g) {
-    case G_MAWBO: return cap;
-    case G_DUN2: return imin(cap, 10);
-    case G_LOOM: case G_DUN3: return cap;
+    case G_MAWBO: case G_LOOM: return cap;
+    case G_DUN1: case G_DUN2: case G_DUN3:
+        return imin(cap, imax(5, trip_jerky(dist_from_camp(boss_room(g - G_DUN1)))));
     default: return imin(cap, 5);
     }
 }
@@ -321,13 +341,13 @@ static int wild_goal(void) {
     if (!sv.lab_fixed && !(sv.carry & 8)) return G_GEAR;
     if (!sv.pipe && !sv.letter) return G_LETTER;
     if (!sv.pipe && sv.letter) return G_PIPE;
-    for (int d = 0; d < HS_DUNS; d++)
-        if (!((sv.parts | sv.carry) >> d & 1)) return G_DUN1 + d;
+    int nd = next_dungeon();
+    if (nd >= 0) return G_DUN1 + nd;
     if (!sv.loom_home) return G_LOOM;
     if (hs_bot_cherry && sv.parts == 7 && !sv.idol && !(sv.carry & 16)) {
         /* the players' way: hoard odds first (Kit's chests fill up every
          * trip), then buy tonics on the way to Mawbo */
-        if (sv.odds < 40 && !(sv.on_trip && tonic_trip == sv.excursion)) return G_ODDS;
+        if (sv.odds < 12 && !(sv.on_trip && tonic_trip == sv.excursion)) return G_ODDS;
         return G_MAWBO;
     }
     return G_NONE;
@@ -335,8 +355,14 @@ static int wild_goal(void) {
 
 /* goals that need a stronger camp first */
 static bool ready_for(int g) {
-    if (g == G_DUN2) return (sv.research >> RS_METAL & 1) != 0 || hs_hands() >= 6;
-    if (g == G_DUN3 || g == G_LOOM) return (sv.research >> RS_METAL & 1) && hs_cap(RES_JERKY) >= 10;
+    if (g >= G_DUN1 && g <= G_DUN3) {
+        /* a camp at work first, the steel yo-yo after the first guardian,
+         * and enough jerky for the way there and back */
+        int k = hs_parts_count();
+        int need = trip_jerky(dist_from_camp(boss_room(g - G_DUN1)));
+        return hs_hands() >= 2 + 2 * k && (k == 0 || (sv.research >> RS_METAL & 1)) && hs_cap(RES_JERKY) >= need - 1;
+    }
+    if (g == G_LOOM) return (sv.research >> RS_METAL & 1) && hs_cap(RES_JERKY) >= 10;
     if (g == G_MAWBO) return (sv.research >> RS_STAR & 1) && hs_cap(RES_JERKY) >= 20;
     return true;
 }
@@ -567,7 +593,7 @@ static int pick_items(void) {
         const HsItem *it = &hs.item[i];
         if (!it->on || !hs_box_free(it->x / HS_U, it->y / HS_U, 3)) continue;
         int d = iabs(it->x / HS_U - wx()) + iabs(it->y / HS_U - wy());
-        if (it->kind == IT_IDOL || it->kind == IT_BIGTONIC || it->kind == IT_TONIC) d -= 40;
+        if (it->kind == IT_IDOL || it->kind == IT_BIGTONIC) d -= 40;
         if (d < bd) { bd = d; best = i; }
     }
     if (best < 0) return -1;
@@ -578,7 +604,7 @@ static int pick_items(void) {
 
 static int goal_room(int g) {
     switch (g) {
-    case G_GEAR: return cave_room(K_GEAR);
+    case G_GEAR: return hw.gear_screen;
     case G_LETTER: return cave_room(K_HUSH);
     case G_PIPE: return cave_room(K_TANGER);
     case G_DUN1: case G_DUN2: case G_DUN3: return boss_room(g - G_DUN1);
@@ -627,7 +653,7 @@ static int wilds(void) {
     route(hs.room, HS_R_BASE, &dist_home);
     int secs = sv.time_f / 60;
     bool carrying = (sv.carry & 31) != 0;
-    int need = dist_home * 9 + 25;
+    int need = dist_home * 18 + 40;
     if (g == G_ODDS && kit_emptied()) g = G_HOME;
     if (g == G_MAWBO && tonic_trip != sv.excursion) {
         int tx, ty;
@@ -704,7 +730,6 @@ typedef struct Job { int spot, act, arg; } Job;
 
 static bool research_ready(int r) {
     if (sv.research >> r & 1) return false;
-    if (r == RS_STAR && !(sv.research >> RS_METAL & 1)) return false;
     if (r == RS_FUEL && !(sv.research >> RS_BIGBIN & 1)) return false;
     const HsResearch *x = &HS_RESEARCH[r];
     return sv.res[RES_BAR] >= x->bars && sv.res[RES_DATA] >= x->data && sv.res[RES_THREAD] >= x->thread;
@@ -734,7 +759,7 @@ static bool camp_job(Job *j) {
             if (sv.anvil_hand >> a & 1) { *j = (Job){P_ANVIL1 + a, M_ANVIL_FREE, a}; return true; }
     if (!sv.smoke_built && bars >= SMOKE_BUILD) { *j = (Job){P_SMOKE, M_SMOKE_BUILD, 0}; return true; }
     int next = sv.plants < HS_PLANTS ? hs_plant_cost(sv.plants) : 1 << 30;
-    int reserve = sv.smoke_built && sv.plants >= 5 ? JERKY_PRICE : 0;
+    int reserve = sv.smoke_built && sv.plants >= 3 ? JERKY_PRICE : 0;
     if (sv.plants < HS_PLANTS && glints >= next + reserve) { *j = (Job){P_BURL, M_PLANT, 0}; return true; }
     /* the first hut, then anvils for its hands, then more rooms */
     static const int HUT[3] = {HUT_COST0, HUT_COST1, HUT_COST2};
@@ -813,7 +838,7 @@ static int camp(void) {
         return b < 0 ? BTN_UP : (b ? b : BTN_UP);
     }
     /* early on, knock glints out of the Glowstone */
-    if (sv.plants < 5) {
+    if (sv.plants < 3) {
         if (iabs(wx() - 160) > 2 || iabs(wy() - 105) > 2) {
             int b = walk_to(160, 105, 2);
             return b < 0 ? 0 : b;
@@ -867,7 +892,7 @@ int hs_bot_buttons(void) {
     }
     /* the START menu: swap weapons with its second row, else leave it */
     /* the thunderpipe until the star yo-yo outhits it (3 a throw against 1 a shot) */
-    bool want_pipe = sv.pipe && !(sv.research >> RS_STAR & 1) && sv.plants >= HS_PLANTS && hs_total(RES_GLINT) >= 300;
+    bool want_pipe = sv.pipe && !(sv.research >> RS_STAR & 1) && sv.plants >= 4 && hs_total(RES_GLINT) >= 300;
     if (game_paused()) {
         if ((sv.weapon == 1) == want_pipe) { swap_phase = 0; return tap(BTN_START); }
         swap_phase++;

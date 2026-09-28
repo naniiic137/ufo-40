@@ -1,46 +1,49 @@
-# HOMESPUN: Old Burl plants glintbuds for 10, 20, 40 ... 10,240 glints
-# (eleven of them). Each bud makes a glint every 2 s of real time, every
-# 1.5 s with Fertilizer, straight into camp's stores.
+# HOMESPUN: Old Burl plants six glintbuds, for 10, 40, 160, 640, 2,560 and
+# 10,240 glints. Each bud makes a glint every 2 s of real time, every 1.5 s
+# with Fertilizer, straight into camp's stores.
 seed 44
 game homespun
 wait 5
 cheat newgame 102
 wait 5
-cheat res glints 30
+cheat res glints 60
 cheat at 32 56
 cheat face 0 -1
 press A
 expect menu == 1
 press A
 expect plants == 1
-expect glints == 20
+expect glints == 50
 press A
 expect plants == 2
-expect glints == 0
-# not enough for the third (40): nothing happens
+expect glints == 10
+# not enough for the third (160): nothing happens
 press A
 expect plants == 2
 press B
 expect menu == 0
 # two buds, 4 s: 4 glints
 wait 240
-expect glints == 4
-# eleven at most; the eleventh costs 10,240
-cheat plants 10
+expect glints == 14
+# six at most; the sixth costs 10,240
+cheat plants 5
 cheat bins 2 2
 cheat res glints 10240
 press A
 press A
-expect plants == 11
+expect plants == 6
 expect glints == 0
+press A
+expect plants == 6
 press B
-# eleven buds for 6 s: 33 glints
+# six buds for 6 s: 18 glints
 cheat res glints 0
+cheat acc 0
 wait 360
-expect glints == 33
+expect glints == 18
 # Fertilizer: one every 1.5 s
 cheat research 2
 cheat res glints 0
+cheat acc 0
 wait 360
-expect glints >= 44
-expect glints <= 45
+expect glints == 24

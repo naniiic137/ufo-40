@@ -1,8 +1,9 @@
 # HOMESPUN: four noodlers stand in the dungeons (in four of seven places,
-# chosen per save): 10 data for 3 odds, 15 thread for 5, a tonic (+60 s)
-# for 3 and one for 2. Madame Shuffle deals six chests for a bet of 1, 5 or
-# 10 odds; on average a bet of b pays 2b bars, and one chest in six holds
-# jerky (b strips) and odds. Kit's two chests fill up again every trip.
+# chosen per save): 10 data for 3 odds, 15 thread for 5, a tonic for 3 and
+# one for 2 (each +100 s). Madame Shuffle deals six shuffled chests for 1 odd
+# a go: 1 glint, 4 bars, 8 bars, 2 odds, a strip of jerky, or a driplet.
+# Kit's two chests fill up again every trip; like every chest out in the
+# open, each opens with ten rolls on the open's loot table.
 seed 44
 game homespun
 wait 5
@@ -38,7 +39,7 @@ press A
 press A
 press B
 expect odds == 29
-expect time >= 159
+expect time >= 199
 cheat govendor 3
 cheat clearmobs
 cheat time 100
@@ -46,37 +47,27 @@ press A
 press A
 press B
 expect odds == 27
-expect time >= 159
-# Shuffle's chests: a bet of 5
-cheat room 52 168 72
+expect time >= 199
+# Shuffle's chests: one go for one odd
+cheat gokind 4 168 72
 cheat face 0 -1
 press A
 expect menu == 1
-press DOWN
+expect menu_n == 1
 press A
-expect odds == 22
+expect odds == 26
 expect gamble == 1
-expect gam_bars == 60
+expect gam_bars == 12
 expect gam_meat == 1
+expect gam_drip == 1
 wait 100
 expect gamble == 2
 press RIGHT
 press A
 wait 60
 expect gamble == 0
-# a bet of 10
-press A
-press DOWN
-press DOWN
-press A
-expect odds == 12
-expect gam_bars == 120
-wait 100
-press A
-wait 60
-expect gamble == 0
-# Kit and her chests: 5 odds and 3 bars each
-cheat room 51 168 72
+# Kit and her chests: ten rolls each on the open's table
+cheat gokind 3 168 72
 cheat face 0 -1
 press A
 expect talk == 1
@@ -87,15 +78,12 @@ press A
 wait 10
 press A
 expect talk == 0
-cheat odds 0
+expect items == 0
 cheat at 120 104
 cheat face 0 -1
 press A
+expect items >= 1
 cheat at 200 104
+cheat face 0 -1
 press A
-wait 20
-hold DOWN 12
-hold LEFT 60
-hold UP 12
-wait 5
-expect odds >= 5
+expect items >= 2

@@ -7,6 +7,8 @@
 
 HsSim hs;
 static Rng lr; /* loot and foe dice, seeded per trip */
+/* what each kind of shot costs when it hits: most 30 s, the heavy ones 45 */
+static const int SHOT_S[10] = {30, 45, 30, 30, 30, 45, 45, 45, 0, 45}; /* pellet rock seed spore web bolt bomb blast slug shell */
 int hs_hurt_by[16]; /* hits taken, by shot kind; 14 a foe's touch, 15 Mawbo's (for tuning and tests) */
 
 #define PX(v) ((v) / HS_U)
@@ -140,28 +142,52 @@ void hs_drop(int kind, int amount, int32_t x, int32_t y) {
         }
 }
 
-static void loot(int tier, int32_t x, int32_t y) {
-    int r = rng_range(&lr, 0, 999);
+/* A foe's loot: one roll on its tier's table. Low: 99 % 3 glints, 1 % a
+ * bar. Normal: 70 % 5 glints, 10 % 1-2 bars, 10 % an odd, 10 % jerky. High:
+ * 50 % 20 glints, 25 % 1-3 bars, 12.5 % 1-3 odds, 12.5 % jerky. A boss's
+ * extra roll (tier 3): 81.25 % a glint, 6.25 % each a bar, an odd, jerky. */
+static void loot_pick(int tier, int *kind, int *amount) {
+    int r = rng_range(&lr, 0, 9999);
+    *amount = 1;
     switch (tier) {
     case 0:
-        if (r < 990) hs_drop(IT_GLINT, 3, x, y);
-        else hs_drop(IT_BAR, 1, x, y);
+        if (r < 9900) { *kind = IT_GLINT; *amount = 3; }
+        else *kind = IT_BAR;
         break;
     case 1:
-        if (r < 700) hs_drop(IT_GLINT, 5, x, y);
-        else if (r < 750) hs_drop(IT_BAR, 1, x, y);
-        else if (r < 800) hs_drop(IT_ODD, 1, x, y);
-        else if (r < 900) hs_drop(IT_JERKY, 1, x, y);
-        else hs_drop(IT_TONIC, 1, x, y);
+        if (r < 7000) { *kind = IT_GLINT; *amount = 5; }
+        else if (r < 8000) { *kind = IT_BAR; *amount = rng_range(&lr, 1, 2); }
+        else if (r < 9000) *kind = IT_ODD;
+        else *kind = IT_JERKY;
         break;
     case 2:
-        if (r < 500) hs_drop(IT_GLINT, 10, x, y);
-        else if (r < 750) hs_drop(IT_BAR, 1, x, y);
-        else if (r < 875) { hs_drop(IT_GLINT, 5, x, y); hs_drop(IT_ODD, 1, x, y); hs_drop(IT_BAR, 1, x, y); }
-        else hs_drop(IT_TONIC, 1, x, y);
+        if (r < 5000) { *kind = IT_GLINT; *amount = 20; }
+        else if (r < 7500) { *kind = IT_BAR; *amount = rng_range(&lr, 1, 3); }
+        else if (r < 8750) { *kind = IT_ODD; *amount = rng_range(&lr, 1, 3); }
+        else *kind = IT_JERKY;
         break;
     default:
+        if (r < 8125) *kind = IT_GLINT;
+        else if (r < 8750) *kind = IT_BAR;
+        else if (r < 9375) *kind = IT_ODD;
+        else *kind = IT_JERKY;
         break;
+    }
+}
+
+static void loot(int tier, int32_t x, int32_t y) {
+    int kind, amount;
+    loot_pick(tier, &kind, &amount);
+    hs_drop(kind, amount, x, y);
+}
+
+/* the tables rolled n times (tests): totals of glints, bars, odds, jerky */
+void hs_loot_stats(int tier, int n, int out[4]) {
+    out[0] = out[1] = out[2] = out[3] = 0;
+    for (int i = 0; i < n; i++) {
+        int kind, amount;
+        loot_pick(tier, &kind, &amount);
+        out[kind == IT_GLINT ? 0 : kind == IT_BAR ? 1 : kind == IT_ODD ? 2 : 3] += amount;
     }
 }
 
@@ -173,7 +199,6 @@ static void take_item(HsItem *it) {
     case IT_DATA: gain(RES_DATA, it->amount); sfx_play_name("hs_bar"); break;
     case IT_THREAD: gain(RES_THREAD, it->amount); sfx_play_name("hs_bar"); break;
     case IT_ODD: sv.odds = (uint16_t)imin(999, sv.odds + it->amount); sfx_play_name("hs_odd"); break;
-    case IT_TONIC: sv.time_f += TONIC_SMALL_S * 60 * it->amount; sfx_play_name("hs_tonic"); break;
     case IT_BIGTONIC: sv.time_f += TONIC_BIG_S * 60; sfx_play_name("hs_tonic"); break;
     case IT_IDOL:
         sv.carry |= 16;
@@ -375,11 +400,17 @@ static void kill_mob(int i) {
     if (m->spawn != 0xFF) sv.dead[hs.room] |= (uint16_t)(1 << m->spawn);
     fx_add(tier == 3 ? FX_BOOM : FX_PUFF, PX(m->x), PX(m->y));
     sfx_play_name(tier == 3 ? "hs_bossdown" : "hs_pop");
-    if (tier < 3) { loot(tier, m->x, m->y); return; }
+    /* what a boss calls up, and a driplet from a chest, drop nothing */
+    if (tier < 3) { if (m->spawn != 0xFF) loot(tier, m->x, m->y); return; }
     if (hs.boss == i) hs.boss = -1;
+    if (kind != E_MAWBO) { /* a boss: 20 glints and one roll besides its tonic */
+        hs_drop(IT_GLINT, 20, m->x, m->y);
+        loot(3, m->x, m->y);
+    }
     switch (kind) {
     case E_MAWBO:
         sv.mawbo_wins++;
+        hs_drop(IT_BIGTONIC, 1, m->x + SUB(12), m->y); /* each fight won is worth 100 s */
         sv.mawbo_hp = (int16_t)HS_FOE[E_MAWBO].hp;
         for (int k = 0; k < HS_MAX_MOBS; k++) /* its brood goes with it */
             if (hs.mob[k].on && hs.mob[k].spawn == 0xFF) hs.mob[k].on = 0;
@@ -437,15 +468,58 @@ static bool overlap(int ax, int ay, int ah, int bx, int by, int bh) {
     return iabs(ax - bx) < ah + bh && iabs(ay - by) < ah + bh;
 }
 
+/* A driplet jumps out (of a chest, a pot, a gamble): it drops nothing. */
+static void spawn_drip(int32_t x, int32_t y) {
+    int boss = hs.boss;
+    int i = hs_add_mob(E_DRIPLET, iclamp(PX(x) / HS_T, 1, HS_TW - 2), iclamp(PX(y) / HS_T, 1, HS_TH - 2), 0xFF);
+    hs.boss = boss;
+    if (i >= 0) {
+        hs.mob[i].x = x;
+        hs.mob[i].y = y;
+        hs.mob[i].stun = 20; /* a moment to see it coming */
+        fx_add(FX_PUFF, PX(x), PX(y));
+    }
+}
+
+/* The loot of pots (one roll) and chests (ten rolls): out in the open
+ * (caves too) 22/32 1-5 glints, 4/32 a bar, 3/32 an odd, 2/32 a driplet,
+ * 1/32 jerky; in a dungeon 16/26, 4/26, 3/26, 2/26, 1/26. */
+static void env_rolls(int rolls, bool dungeon, int *glints, int *bars, int *odds, int *jerky, int *drips) {
+    *glints = *bars = *odds = *jerky = *drips = 0;
+    for (int k = 0; k < rolls; k++) {
+        int r = dungeon ? rng_range(&lr, 0, 25) : rng_range(&lr, 0, 31);
+        int g = dungeon ? 16 : 22;
+        if (r < g) *glints += rng_range(&lr, 1, 5);
+        else if (r < g + 4) (*bars)++;
+        else if (r < g + 7) (*odds)++;
+        else if (r < g + 9) (*drips)++;
+        else (*jerky)++;
+    }
+}
+
+/* the environment table rolled n times (tests): glints, bars, odds, jerky, driplets */
+void hs_env_stats(bool dungeon, int n, int out[5]) { env_rolls(n, dungeon, &out[0], &out[1], &out[2], &out[3], &out[4]); }
+
+static void env_loot(int rolls, bool dungeon, int32_t x, int32_t y) {
+    int glints, bars, odds, jerky, drips;
+    env_rolls(rolls, dungeon, &glints, &bars, &odds, &jerky, &drips);
+    if (glints) hs_drop(IT_GLINT, glints, x, y);
+    if (bars) hs_drop(IT_BAR, bars, x, y);
+    if (odds) hs_drop(IT_ODD, odds, x, y);
+    if (jerky) hs_drop(IT_JERKY, jerky, x, y);
+    for (int k = 0; k < drips; k++) spawn_drip(x + SUB(rng_range(&lr, -10, 10)), y + SUB(rng_range(&lr, -6, 10)));
+}
+
+void hs_env_loot(int rolls, bool dungeon, int32_t x, int32_t y) { env_loot(rolls, dungeon, x, y); }
+void hs_spawn_drip(int32_t x, int32_t y) { spawn_drip(x, y); }
+
 static void break_pot(HsThing *t) {
     t->on = 0;
     sv.opened[hs.room] |= (uint16_t)(1 << t->idx);
     int32_t x = SUB(t->tx * HS_T + 8), y = SUB(t->ty * HS_T + 8);
     fx_add(FX_PUFF, PX(x), PX(y));
     sfx_play_name("hs_pot");
-    int r = rng_range(&lr, 0, 99);
-    if (r < 50) hs_drop(IT_GLINT, 3, x, y);
-    else if (r < 80) hs_drop(IT_ODD, 1, x, y);
+    env_loot(1, hs.area == AR_DUN, x, y);
 }
 
 /* a weapon's head at (x, y) pixels with half-size h: pots, cracks, the Glowstone */
@@ -469,7 +543,8 @@ static void weapon_world(int x, int y, int h, bool *stone_once) {
             *stone_once = true;
             int n = hs_yoyo_dmg();
             int32_t cx = SUB(s->x + s->w / 2), cy = SUB(s->y + s->h + 8);
-            if (rng_range(&lr, 0, 299) == 0) hs_drop(IT_BAR, 1, cx, cy); /* 1 in 300: a bar */
+            static const int ODDS[4] = {300, 300, 80, 10}; /* a bar: 1 in 300, 80 or 10 by the yo-yo */
+            if (rng_range(&lr, 0, ODDS[iclamp(n, 0, 3)] - 1) == 0) hs_drop(IT_BAR, 1, cx, cy);
             else hs_drop(IT_GLINT, n, cx, cy);
             fx_add(FX_SPARK, x, y);
             sfx_play_name("hs_stone");
@@ -873,7 +948,7 @@ static void shots_update(void) {
         if (s->kind == SH_BLAST) {
             if (overlap(wick_x(), wick_y(), WICK_HALF, PX(s->x), PX(s->y), 14)) {
                 if (hs.inv == 0) hs_hurt_by[SH_BLAST]++;
-                hurt(30, s->x, s->y);
+                hurt(SHOT_S[SH_BLAST], s->x, s->y);
             }
             if (--s->life <= 0) s->on = 0;
             continue;
@@ -909,7 +984,7 @@ static void shots_update(void) {
             }
         } else if (overlap(wick_x(), wick_y(), WICK_HALF, x, y, 3)) {
             if (hs.inv == 0) hs_hurt_by[s->kind]++;
-            hurt(30, s->x, s->y);
+            hurt(SHOT_S[s->kind % 10], s->x, s->y);
             s->on = 0;
         }
     }
@@ -976,20 +1051,8 @@ void hs_open_chest(int i) {
     int32_t x = SUB(t->tx * HS_T + 8), y = SUB(t->ty * HS_T + 18);
     sfx_play_name("hs_chest");
     if (t->kind == TH_CACHE) { hs_drop(IT_JERKY, 1, x, y); hs_drop(IT_JERKY, 1, x, y); return; }
-    switch (t->arg) {
-    case 0:
-        hs_drop(IT_ODD, rng_range(&lr, 2, 4), x, y);
-        if (rng_chance(&lr, 30)) hs_drop(IT_BAR, 1, x, y);
-        break;
-    case 1:
-        hs_drop(IT_ODD, rng_range(&lr, 3, 6), x, y);
-        hs_drop(IT_BAR, rng_range(&lr, 1, 2), x, y);
-        break;
-    default: /* Kit's */
-        hs_drop(IT_ODD, 5, x, y);
-        hs_drop(IT_BAR, 3, x, y);
-        break;
-    }
+    /* ten rolls on the table of the place: the open (and caves), or a dungeon */
+    env_loot(10, t->arg == 1, x, y);
 }
 
 /* ---- ways between rooms ------------------------------------------------------------------------ */
@@ -1034,7 +1097,7 @@ static void edges(void) {
     /* caves and dungeon ways-in lead back out below the cave mouth */
     bool way_in = hs.area == AR_CAVE || (hs.area == AR_DUN && (hs.room - HS_R_DUN0) % HS_DROOMS == 0);
     if (dir == D_DOWN && way_in) {
-        int c = hs.area == AR_CAVE ? hs.room - HS_R_CAVE0 : (hs.room - HS_R_DUN0) / HS_DROOMS;
+        int c = hs.area == AR_CAVE ? hs.room - HS_R_CAVE0 : hs_dun_cave((hs.room - HS_R_DUN0) / HS_DROOMS);
         int s = hw.cave_screen[c];
         go(s, hw.cave_x[s] * HS_T + 8, HS_T + 12);
         hs.dirx = 0;

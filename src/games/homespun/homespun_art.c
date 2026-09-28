@@ -537,7 +537,7 @@ void hs_draw_hud(void) {
     gfx_rect(mx - 1, my - 1, HS_OW_W * 3 + 2, HS_OW_H * 2 + 2, C_DUSK);
     int here = hs.room;
     if (hs.area == AR_CAVE) here = hw.cave_screen[hs.room - HS_R_CAVE0];
-    if (hs.area == AR_DUN) here = hw.cave_screen[hs_dun_of(hs.room)];
+    if (hs.area == AR_DUN) here = hw.cave_screen[hs_dun_cave(hs_dun_of(hs.room))];
     if (here >= 0 && here < HS_SCREENS && (engine_frame() / 15) % 2)
         gfx_rect(mx + (here % HS_OW_W) * 3, my + (here / HS_OW_W) * 2, 3, 2, C_YELLOW);
     if (hs.area != AR_OVER) tiny_draw(hs_room_name(hs.room), 208, 12, C_GREY);

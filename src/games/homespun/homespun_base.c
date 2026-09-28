@@ -18,7 +18,7 @@ const HsResearch HS_RESEARCH[RS_COUNT] = {
     {"STARFUEL",      "THE TUMBLEWEED CAN FLY",      1000, 1000,   0},
 };
 
-int hs_plant_cost(int n) { return 10 << iclamp(n, 0, 20); }
+int hs_plant_cost(int n) { return 10 << (2 * iclamp(n, 0, 10)); } /* 10, 40, 160, 640, 2,560, 10,240 */
 
 int hs_bin_level(void) { return sv.bins[0] + sv.bins[1]; }
 
@@ -49,6 +49,9 @@ int hs_yoyo_dmg(void) {
 
 int hs_hit_cost_s(int base_s) { return imax(1, base_s - 2 * sv.stone[ST_HIDE]); }
 int hs_jerky_seconds(void) { return JERKY_SECONDS + 20 * sv.stone[ST_HUNGER]; }
+
+/* hands with no job help Mother Loom spin */
+int hs_loom_ms(void) { return imax(LOOM_MIN_MS, LOOM_MS - LOOM_HAND_MS * imax(0, hs_free_hands())); }
 
 void hs_add(int res, int n) {
     int cap = hs_cap(res);
@@ -108,7 +111,7 @@ void hs_produce(uint32_t ms) {
     /* hands at the Thinker */
     if (sv.lab_fixed) add_made(RES_DATA, tick(&sv.acc_lab, ms, sv.lab_hands, haste(LAB_MS, 10)));
     /* Mother Loom */
-    if (sv.loom_home) add_made(RES_THREAD, tick(&sv.acc_loom, ms, 1, LOOM_MS));
+    if (sv.loom_home) add_made(RES_THREAD, tick(&sv.acc_loom, ms, 1, hs_loom_ms()));
 }
 
 /* ---- camp spots ------------------------------------------------------------------ */
@@ -182,7 +185,6 @@ static bool can(int bars, int glints, int data, int thread) {
 
 static bool research_open(int r) {
     if (sv.research >> r & 1) return false;
-    if (r == RS_STAR && !(sv.research >> RS_METAL & 1)) return false;
     if (r == RS_FUEL && !(sv.research >> RS_BIGBIN & 1)) return false;
     return true;
 }
@@ -197,7 +199,7 @@ void hs_base_menu(int p) {
             snprintf(c, sizeof c, "%dG", k);
             hs_menu_add("PLANT A GLINTBUD", c, M_PLANT, 0, sv.res[RES_GLINT] >= k);
         } else {
-            hs_menu_add("ALL ELEVEN BUDS GROW", "", M_NOTHING, 0, false);
+            hs_menu_add("ALL SIX BUDS GROW", "", M_NOTHING, 0, false);
         }
         snprintf(l, sizeof l, "BUDS GROWING: %d/%d", sv.plants, HS_PLANTS);
         hs_menu_add(l, "", M_NOTHING, 0, false);

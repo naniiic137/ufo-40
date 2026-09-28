@@ -1,6 +1,7 @@
 # HOMESPUN: B throws the yo-yo; each hit on the Glowstone knocks out one
 # glint (the damage of the yo-yo), and a glint must be walked over to be
-# collected: nothing is gathered by itself.
+# collected: nothing is gathered by itself. Now and then a bar comes out
+# instead, more often with the better yo-yos.
 seed 44
 game homespun
 wait 5
@@ -54,3 +55,94 @@ hold DOWN 16
 hold RIGHT 30
 wait 5
 expect glints == 9
+# a bar instead of glints: 1 in 300 with the plain yo-yo, 1 in 80 with the
+# steel one, 1 in 10 with the star (forty throws: some bars)
+cheat res bars 0
+cheat at 126 84
+cheat face 1 0
+press B
+wait 22
+press B
+wait 22
+press B
+wait 22
+press B
+wait 22
+press B
+wait 22
+press B
+wait 22
+press B
+wait 22
+press B
+wait 22
+press B
+wait 22
+press B
+wait 22
+press B
+wait 22
+press B
+wait 22
+press B
+wait 22
+press B
+wait 22
+press B
+wait 22
+press B
+wait 22
+press B
+wait 22
+press B
+wait 22
+press B
+wait 22
+press B
+wait 22
+press B
+wait 22
+press B
+wait 22
+press B
+wait 22
+press B
+wait 22
+press B
+wait 22
+press B
+wait 22
+press B
+wait 22
+press B
+wait 22
+press B
+wait 22
+press B
+wait 22
+press B
+wait 22
+press B
+wait 22
+press B
+wait 22
+press B
+wait 22
+press B
+wait 22
+press B
+wait 22
+press B
+wait 22
+press B
+wait 22
+press B
+wait 22
+press B
+wait 22
+hold DOWN 16
+hold RIGHT 30
+hold LEFT 8
+hold RIGHT 8
+wait 5
+expect bars >= 1

@@ -8,7 +8,7 @@ game homespun
 wait 5
 cheat newgame 120
 wait 5
-cheat plants 10
+cheat plants 6
 cheat res glints 0
 cheat acc 0
 cheat save
@@ -17,7 +17,7 @@ press UP
 press A
 wait 60
 expect_scene library
-# a minute of another cartridge: ten buds make 300 glints meanwhile
+# a minute of another cartridge: six buds make 180 glints meanwhile
 game fennec
 wait 3600
 press START
@@ -28,8 +28,8 @@ game homespun
 wait 25
 press A
 wait 5
-expect glints >= 300
-expect glints <= 330
+expect glints >= 180
+expect glints <= 200
 # a two-minute stall in the library: all of it comes in on the next frame
 cheat res glints 0
 press START
@@ -42,8 +42,8 @@ game homespun
 wait 25
 press A
 wait 5
-expect glints >= 600
-expect glints <= 640
+expect glints >= 360
+expect glints <= 385
 # switched off for an hour: none of it counts
 cheat res glints 0
 press START
@@ -75,7 +75,7 @@ press A
 wait 5
 expect glints == 1
 # saved every 30 s while another cartridge runs (then the power is cut)
-cheat plants 10
+cheat plants 6
 cheat res glints 0
 cheat acc 0
 press START
@@ -88,5 +88,5 @@ game homespun
 wait 25
 press A
 wait 5
-expect glints >= 140
-expect glints <= 155
+expect glints >= 84
+expect glints <= 93

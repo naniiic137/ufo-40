@@ -1,14 +1,14 @@
-/* HOMESPUN - the world. Each save's seed makes the Wilds: an 8 x 6 field of
- * screens whose roads form a random tree with extra loops, some of them
- * blocked for the whole save and some that open or close from trip to trip;
- * eleven caves whose contents (the three dungeons among them) are shuffled;
- * four hopstones; the ruins and Mother Loom's lair. The screens' tiles are
- * made again from the seed whenever Wick walks in. The three dungeons are
- * drawn by hand (their layouts never change); which cave leads to which one
- * is the seed's choice. Nothing here is the original's map. */
+/* HOMESPUN - the world. The Wilds are one 8 x 6 field of screens, the same
+ * for every save: made once from a constant (our own design, nothing of the
+ * original's map), with roads in a tree plus loops, eleven cave mouths, four
+ * hopstones, the ruins and Mother Loom's lair in the north-east. Each save
+ * (and each new loop) draws which barrier roads are shut, what each cave
+ * mouth leads to (the three dungeons among them), which chest holds the gear
+ * and where the noodlers stand. The three dungeons are drawn by hand. */
 #include "homespun.h"
 
 HsWorld hw;
+#define HS_LAYOUT 0x0DD5EEDu /* the one overworld every save shares */
 const int HS_DX[4] = {1, 0, -1, 0}, HS_DY[4] = {0, 1, 0, -1};
 
 /* ---- foes ------------------------------------------------------------------ */
@@ -27,19 +27,19 @@ const HsFoeDef HS_FOE[E_KINDS] = {
     {"SHELLBACK",      5, 1, 30, 16, 14},
     {"DRIPLET",        3, 1, 30, 24, 10},
     {"CLACKER",        6, 2, 30, 18, 14},
-    {"RED CLACKER",    8, 2, 30, 26, 14},
+    {"RED CLACKER",    8, 2, 45, 26, 14},
     {"OOZER",          7, 2, 30,  8, 14},
     {"PUFFCAP",        6, 2, 30,  0, 14},
     {"ZIPSNAKE",       6, 2, 30, 56, 12},
     {"BROODER",        8, 2, 30, 22, 14},
-    {"TREADLE",       10, 2, 30,  8, 16},
+    {"TREADLE",       10, 2, 45,  8, 16},
     {"LEECHLING",      6, 2, 30, 18, 10},
-    {"GRUMM KING",    24, 3, 30, 12, 26},
-    {"THORNMOTHER",   30, 3, 30,  0, 26},
-    {"ZIZZIK",        30, 3, 30, 12, 22},
-    {"VOLTHOG",       24, 3, 30, 14, 26},
-    {"MOTHER LOOM",   30, 3, 30, 14, 26},
-    {"MAWBO",        100, 3, 30, 10, 26},
+    {"GRUMM KING",    24, 3, 45, 12, 26},
+    {"THORNMOTHER",   30, 3, 45,  0, 26},
+    {"ZIZZIK",        30, 3, 45, 12, 22},
+    {"VOLTHOG",       24, 3, 45, 14, 26},
+    {"MOTHER LOOM",   30, 3, 45, 14, 26},
+    {"MAWBO",        100, 3, 60, 10, 26},
 };
 
 /* the letters foes have in the hand-drawn rooms ('o' is a pot) */
@@ -68,65 +68,52 @@ static void link(uint8_t *bits, int s, int dir) {
     bits[n] |= (uint8_t)(1 << ((dir + 2) & 3));
 }
 
-/* a shifting road is open on some trips: decided per edge and per trip */
-static bool shift_open(int s, int dir, uint32_t trip) {
-    int a = s, o = dir & 1; /* the edge's key: its left/top screen and orientation */
-    if (dir == D_LEFT) a = s - 1;
-    if (dir == D_UP) a = s - HS_OW_W;
-    return (mix(hw.seed ^ 0xB10Cu, (uint32_t)(a * 2 + o) * 7919u + trip * 104729u) >> 7) % 100 < 50;
+uint8_t hs_exits(int s) { return hw.open[s]; }
+bool hs_edge_open(int s, int dir) { return (hw.open[s] >> dir & 1) != 0; }
+
+int hs_dun_cave(int d) {
+    for (int c = 0; c < HS_CAVES; c++)
+        if (hw.cave_kind[c] == d) return c;
+    return 0;
 }
 
-static uint8_t hs_exits_trip(int s, uint32_t trip) {
-    uint8_t e = hw.open[s];
-    for (int d = 0; d < 4; d++)
-        if ((hw.shift[s] >> d & 1) && shift_open(s, d, trip)) e |= (uint8_t)(1 << d);
-    return e;
-}
-
-uint8_t hs_exits(int s) { return hs_exits_trip(s, sv.excursion); }
-bool hs_edge_open(int s, int dir) { return (hs_exits(s) >> dir & 1) != 0; }
-
-/* ---- the world generator ----------------------------------------------------------- */
+/* ---- the world ------------------------------------------------------------------------
+ * One overworld for every save, as the original has: its regions, roads, the
+ * rough of each screen, where the caves open, the hopstones, the ruins and the
+ * lair in the north-east, where pots and chests stand, all come from one
+ * constant. A save's own seed decides only which barrier roads are shut, what
+ * each cave mouth leads to, which chest spot holds the gear instead, and where
+ * the four noodlers stand. A new loop after an escape draws those again. */
 
 static int row_of(int s) { return s / HS_OW_W; }
 static int col_of(int s) { return s % HS_OW_W; }
 
+static int screen_has_chest(int s);
+
 void hs_world_make(uint32_t seed) {
     memset(&hw, 0, sizeof hw);
     hw.seed = seed;
+    hw.gear_screen = 0xFF;
     Rng r;
-    seed_rng(&r, seed, 1);
-    bool flip = rng_range(&r, 0, 1) == 1;  /* marsh west or east; crags west or east */
-    bool flip2 = rng_range(&r, 0, 1) == 1;
+    seed_rng(&r, HS_LAYOUT, 1);
     for (int s = 0; s < HS_SCREENS; s++) {
         int x = col_of(s), y = row_of(s), b;
-        bool west = flip ? x >= 4 : x < 4;
         if (y >= 4) b = B_MEADOW;
-        else if (y >= 2) b = (x == 3 || x == 4) ? B_WOODS : (west ? B_MARSH : B_DUNES);
-        else b = (flip2 ? x >= 4 : x < 4) ? B_CRAGS : B_ASH;
-        /* a few screens borrow a neighbour's look */
+        else if (y >= 2) b = (x == 3 || x == 4) ? B_WOODS : (x < 4 ? B_MARSH : B_DUNES);
+        else b = x < 4 ? B_CRAGS : B_ASH;
         if (y >= 2 && y <= 3 && rng_chance(&r, 15)) b = B_WOODS;
         hw.biome[s] = (uint8_t)b;
         hw.tier[s] = (uint8_t)(y >= 4 ? 0 : y >= 2 ? 1 : 2);
         hw.cave_of[s] = -1;
         hw.pad_of[s] = -1;
     }
-    /* the ruins in the top two rows, the lair beside them */
-    for (;;) {
-        int y = rng_range(&r, 0, 1), x = rng_range(&r, 1, HS_OW_W - 2);
-        int d = rng_range(&r, 0, 3);
-        if (d == D_DOWN) continue;
-        int ru = y * HS_OW_W + x, la = hs_neighbour(ru, d);
-        if (la < 0) continue;
-        hw.ruins = (uint8_t)ru;
-        hw.lair = (uint8_t)la;
-        hw.lair_dir = (uint8_t)d;
-        break;
-    }
-    hw.biome[hw.ruins] = B_ASH;
-    hw.biome[hw.lair] = B_ASH;
+    /* the ruins and, east of them, the lair: the north-east corner */
+    hw.ruins = (uint8_t)(HS_OW_W - 2);
+    hw.lair = (uint8_t)(HS_OW_W - 1);
+    hw.lair_dir = D_RIGHT;
+    hw.biome[hw.ruins] = hw.biome[hw.lair] = B_ASH;
     hw.tier[hw.ruins] = hw.tier[hw.lair] = 2;
-    /* a random tree of roads from the screen above camp (the lair left out) */
+    /* a tree of roads from the screen above camp (the lair left out) */
     uint8_t in[HS_SCREENS] = {0};
     int front[HS_SCREENS * 4][2], nf = 0;
     in[HS_START_SCREEN] = 1;
@@ -144,7 +131,8 @@ void hs_world_make(uint32_t seed) {
         for (int e = 0; e < 4; e++) { front[nf][0] = n; front[nf][1] = e; nf++; }
     }
     link(hw.open, hw.ruins, hw.lair_dir); /* only through the ruins */
-    /* extra roads: open, blocked for good, or shifting */
+    /* more roads: some always open, some the places where a barrier may stand */
+    uint8_t cand[HS_SCREENS] = {0};
     for (int s = 0; s < HS_SCREENS; s++)
         for (int d = 0; d < 2; d++) { /* right and down: each edge once */
             int n = hs_neighbour(s, d);
@@ -152,24 +140,18 @@ void hs_world_make(uint32_t seed) {
             if (hw.open[s] >> d & 1) continue;
             int roll = rng_range(&r, 0, 99);
             if (roll < 18) link(hw.open, s, d);
-            else if (roll < 40) link(hw.block, s, d);
-            else if (roll < 56) link(hw.shift, s, d);
+            else if (roll < 56) link(cand, s, d);
         }
-    /* caves */
+    /* cave mouths: eleven screens, not camp's, not the ruins or the lair */
     uint8_t used[HS_SCREENS] = {0};
     used[HS_START_SCREEN] = used[hw.ruins] = used[hw.lair] = 1;
     for (int c = 0; c < HS_CAVES; c++) {
-        int lo = 0, hi = 4;
-        if (c == K_DUN1) { lo = 2; hi = 3; }
-        if (c == K_DUN2) { lo = 1; hi = 3; }
-        if (c == K_DUN3) { lo = 0; hi = 1; }
         int s;
         for (int tries = 0;; tries++) {
-            s = rng_range(&r, lo * HS_OW_W, (hi + 1) * HS_OW_W - 1);
+            s = rng_range(&r, 0, 5 * HS_OW_W - 1);
             if (!used[s] || tries > 400) break;
         }
         used[s] = 1;
-        hw.cave_kind[c] = (uint8_t)c;
         hw.cave_screen[c] = (uint8_t)s;
         hw.cave_of[s] = (int8_t)c;
         int cx;
@@ -188,10 +170,32 @@ void hs_world_make(uint32_t seed) {
         hw.pad_screen[q + 1] = (uint8_t)s;
         hw.pad_of[s] = (int8_t)(q + 1);
     }
+
+    /* ---- what this save draws ---- */
+    Rng p;
+    seed_rng(&p, seed, 2);
+    /* the barriers: each possible place shut or open */
+    for (int s = 0; s < HS_SCREENS; s++)
+        for (int d = 0; d < 2; d++)
+            if ((cand[s] >> d & 1) && rng_chance(&p, 55)) link(hw.block, s, d);
+            else if (cand[s] >> d & 1) link(hw.open, s, d);
+    /* what each cave mouth leads to */
+    for (int c = 0; c < HS_CAVES; c++) hw.cave_kind[c] = (uint8_t)c;
+    for (int c = HS_CAVES - 1; c > 0; c--) {
+        int j = rng_range(&p, 0, c);
+        uint8_t t = hw.cave_kind[c];
+        hw.cave_kind[c] = hw.cave_kind[j];
+        hw.cave_kind[j] = t;
+    }
+    /* the gear takes the place of one chest out in the open */
+    int spots[HS_SCREENS], ns = 0;
+    for (int s = 0; s < HS_SCREENS; s++)
+        if (s != HS_START_SCREEN && s != hw.lair && s != hw.ruins && screen_has_chest(s)) spots[ns++] = s;
+    if (ns > 0) hw.gear_screen = (uint8_t)spots[rng_range(&p, 0, ns - 1)];
     /* four noodlers in seven places */
     int order[HS_VSPOTS];
     for (int i = 0; i < HS_VSPOTS; i++) order[i] = i;
-    for (int i = HS_VSPOTS - 1; i > 0; i--) { int j = rng_range(&r, 0, i), t = order[i]; order[i] = order[j]; order[j] = t; }
+    for (int i = HS_VSPOTS - 1; i > 0; i--) { int j = rng_range(&p, 0, i), t = order[i]; order[i] = order[j]; order[j] = t; }
     for (int i = 0; i < HS_VSPOTS; i++) hw.vendor_at[i] = 0xFF;
     for (int v = 0; v < V_KINDS; v++) hw.vendor_at[order[v]] = (uint8_t)v;
 }
@@ -575,7 +579,7 @@ static const char *const CAVE_ROWS[][HS_TH] = {
     {W20,
      "#...##........##...#",
      "#..................#",
-     "#.........G........#",
+     "#.........$........#",
      "#....x........x....#",
      "#..................#",
      "#..##....x.....##..#",
@@ -608,7 +612,7 @@ static const char *const CAVE_ROWS[][HS_TH] = {
 
 const char *hs_cave_name(int kind) {
     static const char *const N[] = {"THE BURROW", "BRAMBLE VAULT", "HIVE SPIRE", "KIT'S HIDEOUT", "SHUFFLE'S DEN",
-                                    "HUSH'S HOLLOW", "TANGER'S NOOK", "THE GEAR CAVE", "A DUSTY CAVE", "A DUSTY CAVE",
+                                    "HUSH'S HOLLOW", "TANGER'S NOOK", "A DEEP CAVE", "A DUSTY CAVE", "A DUSTY CAVE",
                                     "THE SMOKERS' CACHE"};
     return kind >= 0 && kind < HS_CAVES ? N[kind] : "";
 }
@@ -616,7 +620,7 @@ const char *hs_cave_name(int kind) {
 static int cave_template(int kind) {
     switch (kind) {
     case K_SIS: case K_GAMBLE: case K_HUSH: case K_TANGER: return 0;
-    case K_GEAR: return 1;
+    case K_LOOT3: return 1;
     case K_LOOT1: case K_LOOT2: return 2;
     default: return 3;
     }
@@ -699,7 +703,7 @@ static int blob_tile(int biome, Rng *r) {
 
 static void screen_tiles(int s, uint8_t t[HS_TH][HS_TW]) {
     Rng r;
-    seed_rng(&r, hw.seed, 1000u + (uint32_t)s);
+    seed_rng(&r, HS_LAYOUT, 1000u + (uint32_t)s);
     for (int y = 0; y < HS_TH; y++)
         for (int x = 0; x < HS_TW; x++)
             t[y][x] = (x == 0 || y == 0 || x == HS_TW - 1 || y == HS_TH - 1) ? T_WALL : T_FLOOR;
@@ -719,7 +723,7 @@ static void screen_tiles(int s, uint8_t t[HS_TH][HS_TW]) {
     int ccx = 9, ccy = 4; /* the middle */
     for (int d = 0; d < 4; d++) {
         bool open = (ex >> d & 1) != 0 || (s == HS_START_SCREEN && d == D_DOWN);
-        bool blocked = !open && (((hw.block[s] | hw.shift[s]) >> d) & 1);
+        bool blocked = !open && ((hw.block[s] >> d) & 1);
         bool shut = open && s == hw.ruins && d == hw.lair_dir && !sv.volt_down;
         int tt = shut ? T_SHUT : open ? T_PATH : blocked ? T_BLOCK : T_WALL;
         if (tt == T_WALL) continue;
@@ -826,7 +830,7 @@ static int screen_spawns(int s, HsSpawn *sp, int max) {
     uint8_t t[HS_TH][HS_TW];
     screen_tiles(s, t);
     Rng r;
-    seed_rng(&r, hw.seed, 5000u + (uint32_t)s);
+    seed_rng(&r, HS_LAYOUT, 5000u + (uint32_t)s);
     int tier = hw.tier[s], b = hw.biome[s] % 6;
     int want = s == HS_START_SCREEN ? 2 : rng_range(&r, 2, tier == 0 ? 3 : 4);
     int n = 0;
@@ -838,11 +842,20 @@ static int screen_spawns(int s, HsSpawn *sp, int max) {
         if (s == HS_START_SCREEN) kind = rng_chance(&r, 50) ? E_SPINNER : E_GRUBLET;
         int x = rng_range(&r, 2, HS_TW - 3), y = rng_range(&r, 2, HS_TH - 3);
         if (kind == E_SPLOSH) {
-            /* a fish needs water with dry land beside it */
-            if (t[y][x] != T_WATER) continue;
-            bool shore = false;
-            for (int d = 0; d < 4; d++) shore |= floorish(t[y + HS_DY[d]][x + HS_DX[d]]);
-            if (!shore) continue;
+            /* a fish needs water with dry land beside it: the first such tile
+             * from a random starting point */
+            int found = -1, start = rng_range(&r, 0, (HS_TW - 4) * (HS_TH - 4) - 1);
+            for (int k = 0; k < (HS_TW - 4) * (HS_TH - 4) && found < 0; k++) {
+                int c = (start + k) % ((HS_TW - 4) * (HS_TH - 4));
+                int wx = 2 + c % (HS_TW - 4), wy = 2 + c / (HS_TW - 4);
+                if (t[wy][wx] != T_WATER) continue;
+                bool shore = false;
+                for (int d = 0; d < 4; d++) shore |= floorish(t[wy + HS_DY[d]][wx + HS_DX[d]]);
+                if (shore) found = c;
+            }
+            if (found < 0) continue;
+            x = 2 + found % (HS_TW - 4);
+            y = 2 + found / (HS_TW - 4);
         } else if (!floorish(t[y][x]) || near_way(s, x, y)) {
             continue;
         }
@@ -857,7 +870,7 @@ static int screen_spawns(int s, HsSpawn *sp, int max) {
 static int text_spawns(const char *const *rows, HsSpawn *sp, int max, int tier_of_screen, int room) {
     int n = 0;
     Rng r;
-    seed_rng(&r, hw.seed, 7000u + (uint32_t)room);
+    seed_rng(&r, HS_LAYOUT, 7000u + (uint32_t)room);
     for (int y = 0; y < HS_TH; y++)
         for (int x = 0; x < HS_TW; x++) {
             char c = rows[y][x];
@@ -899,7 +912,7 @@ int hs_room_things(int room, HsThingSpawn *ts, int max) {
         uint8_t t[HS_TH][HS_TW];
         screen_tiles(room, t);
         Rng r;
-        seed_rng(&r, hw.seed, 9000u + (uint32_t)room);
+        seed_rng(&r, HS_LAYOUT, 9000u + (uint32_t)room);
         int pots = rng_range(&r, 0, 2), chest = rng_chance(&r, 14) || room == hw.lair;
         for (int tries = 0; tries < 100 && (pots > 0 || chest) && n < max; tries++) {
             int x = rng_range(&r, 2, HS_TW - 3), y = rng_range(&r, 2, HS_TH - 3);
@@ -911,7 +924,7 @@ int hs_room_things(int room, HsThingSpawn *ts, int max) {
             bool clash = false;
             for (int i = 0; i < n; i++) clash |= iabs(ts[i].tx - x) + iabs(ts[i].ty - y) < 2;
             if (clash) continue;
-            if (chest) { ts[n++] = (HsThingSpawn){TH_CHEST, (uint8_t)x, (uint8_t)y, 0}; chest = 0; }
+            if (chest) { ts[n++] = (HsThingSpawn){(uint8_t)(room == hw.gear_screen ? TH_GEAR : TH_CHEST), (uint8_t)x, (uint8_t)y, 0}; chest = 0; }
             else { ts[n++] = (HsThingSpawn){TH_POT, (uint8_t)x, (uint8_t)y, 0}; pots--; }
         }
         return n;
@@ -931,7 +944,7 @@ int hs_room_things(int room, HsThingSpawn *ts, int max) {
         for (int x = 0; x < HS_TW && n < max; x++) {
             char c = rows[y][x];
             if (c == 'o') ts[n++] = (HsThingSpawn){TH_POT, (uint8_t)x, (uint8_t)y, 0};
-            else if (c == '$') ts[n++] = (HsThingSpawn){TH_CHEST, (uint8_t)x, (uint8_t)y, 1};
+            else if (c == '$') ts[n++] = (HsThingSpawn){TH_CHEST, (uint8_t)x, (uint8_t)y, (uint8_t)(a == AR_DUN)};
             else if (c == 'V') {
                 int spot = vendor_spot(room, vn++);
                 if (spot >= 0 && hw.vendor_at[spot] != 0xFF)
@@ -939,8 +952,6 @@ int hs_room_things(int room, HsThingSpawn *ts, int max) {
             } else if (c == 'P') {
                 int d = hs_dun_of(room);
                 ts[n++] = (HsThingSpawn){TH_PART, (uint8_t)x, (uint8_t)y, (uint8_t)d};
-            } else if (c == 'G') {
-                ts[n++] = (HsThingSpawn){TH_GEAR, (uint8_t)x, (uint8_t)y, 0};
             } else if (c == 'M') {
                 ts[n++] = (HsThingSpawn){TH_CACHE, (uint8_t)x, (uint8_t)y, 0};
             } else if (c == 'N') {
@@ -948,22 +959,30 @@ int hs_room_things(int room, HsThingSpawn *ts, int max) {
                 ts[n++] = (HsThingSpawn){TH_NPC, (uint8_t)x, (uint8_t)y, (uint8_t)who};
                 if (kind == K_GAMBLE && n < max) ts[n++] = (HsThingSpawn){TH_TABLE, (uint8_t)x, (uint8_t)(y + 2), 0};
             } else if ((c == '2' || c == '3') && (kind == K_SIS || kind == K_LOOT1 || kind == K_LOOT2)) {
-                ts[n++] = (HsThingSpawn){TH_CHEST, (uint8_t)x, (uint8_t)y, (uint8_t)(kind == K_SIS ? 2 : 1)};
+                ts[n++] = (HsThingSpawn){TH_CHEST, (uint8_t)x, (uint8_t)y, 0};
             }
         }
     return n;
 }
 
+static int screen_has_chest(int s) {
+    HsThingSpawn ts[HS_MAX_THINGS];
+    int n = hs_room_things(s, ts, HS_MAX_THINGS);
+    for (int i = 0; i < n; i++)
+        if (ts[i].kind == TH_CHEST) return 1;
+    return 0;
+}
+
 /* ---- checks for the tests --------------------------------------------------------------------- */
 
-static int reach_all(uint32_t trip) {
+static int reach_all(void) {
     uint8_t seen[HS_SCREENS] = {0};
     int q[HS_SCREENS], qh = 0, qt = 0;
     seen[HS_START_SCREEN] = 1;
     q[qt++] = HS_START_SCREEN;
     while (qh < qt) {
         int s = q[qh++];
-        uint8_t e = hs_exits_trip(s, trip);
+        uint8_t e = hs_exits(s);
         for (int d = 0; d < 4; d++) {
             if (!(e >> d & 1)) continue;
             int n = hs_neighbour(s, d);
@@ -996,22 +1015,20 @@ static bool screen_sound(int s) {
 int hs_world_check(uint32_t seed) {
     HsSave keep = sv;
     hs_world_make(seed);
+    sv.volt_down = 1;
     int bad = 0;
-    for (uint32_t trip = 0; trip < 12 && !bad; trip++) {
-        sv.excursion = trip;
-        sv.volt_down = 1;
-        if (reach_all(trip) != HS_SCREENS) bad = 1;
-        for (int s = 0; s < HS_SCREENS && !bad; s++)
-            if (!screen_sound(s)) bad = 2 + s;
-    }
+    if (reach_all() != HS_SCREENS) bad = 1;
+    for (int s = 0; s < HS_SCREENS && !bad; s++)
+        if (!screen_sound(s)) bad = 2 + s;
     /* the lair only through the ruins */
     for (int d = 0; d < 4 && !bad; d++) {
         int n = hs_neighbour(hw.lair, d);
-        if (n >= 0 && n != hw.ruins && (((hw.open[hw.lair] | hw.shift[hw.lair]) >> d) & 1)) bad = 100;
+        if (n >= 0 && n != hw.ruins && ((hw.open[hw.lair] >> d) & 1)) bad = 100;
     }
     int vendors = 0;
     for (int i = 0; i < HS_VSPOTS; i++) vendors += hw.vendor_at[i] != 0xFF;
     if (vendors != 4 && !bad) bad = 101;
+    if (hw.gear_screen >= HS_SCREENS && !bad) bad = 102;
     sv = keep;
     return bad;
 }
@@ -1081,50 +1098,53 @@ int hs_dun_check(void) {
     return 0;
 }
 
-/* What the generator varies, over the first n seeds (bits for the tests):
- * 1 the dungeons' caves move from save to save, 2 the other caves' places
- * too, 4 every world has roadblocks, 8 shifting roads differ between trips
- * of one save, 16 the ruins move, 32 all nineteen foes turn up in a world. */
+/* What changes from save to save, over the first n seeds (bits for the tests):
+ * 1 the dungeons sit behind different cave mouths, 2 so do the other caves,
+ * 4 every save shuts some barriers and the sets differ, 8 the land itself
+ * (regions, roads that are always open, cave mouths, hopstones, the ruins)
+ * is the same in every save, 16 the ruins and the lair are in the north-east,
+ * 32 all nineteen foes turn up, 64 the gear's chest moves, 128 the
+ * noodlers move. */
 int hs_world_variety(int n) {
     HsSave keep = sv;
-    int bits = 4 | 32;
-    uint8_t first_d[HS_DUNS], first_c[HS_CAVES], first_r = 0;
+    int bits = 4 | 8 | 32;
+    HsWorld first;
+    sv.excursion = 0;
+    sv.volt_down = 0;
+    sv.loom_home = 0;
+    sv.parts = sv.carry = 0;
     for (int s = 1; s <= n; s++) {
         hs_world_make((uint32_t)s * 2654435761u);
-        sv.excursion = 0;
-        sv.volt_down = 0;
-        sv.loom_home = 0;
-        sv.parts = sv.carry = 0;
-        if (s == 1) {
-            for (int d = 0; d < HS_DUNS; d++) first_d[d] = hw.cave_screen[d];
-            for (int c = 0; c < HS_CAVES; c++) first_c[c] = hw.cave_screen[c];
-            first_r = hw.ruins;
-        } else {
-            for (int d = 0; d < HS_DUNS; d++)
-                if (hw.cave_screen[d] != first_d[d]) bits |= 1;
-            for (int c = K_SIS; c < HS_CAVES; c++)
-                if (hw.cave_screen[c] != first_c[c]) bits |= 2;
-            if (hw.ruins != first_r) bits |= 16;
-        }
         int blocks = 0;
         for (int i = 0; i < HS_SCREENS; i++) blocks += hw.block[i] != 0;
         if (!blocks) bits &= ~4;
-        for (uint32_t t = 1; t < 6; t++)
-            for (int i = 0; i < HS_SCREENS; i++)
-                if (hs_exits_trip(i, t) != hs_exits_trip(i, 0)) bits |= 8;
-        /* the foes a world can show: its screens, caves and dungeons */
-        uint32_t seen = 0;
-        for (int r = 0; r < HS_R_BASE; r++) {
-            if (r >= HS_R_DUN0 && !dun_room(r)) continue;
-            HsSpawn sp[HS_MAX_SPAWN];
-            int k = hs_room_spawns(r, sp, HS_MAX_SPAWN);
-            for (int i = 0; i < k; i++)
-                if (sp[i].kind < E_FIRST_BOSS) seen |= 1u << sp[i].kind;
+        if (s == 1) {
+            first = hw;
+            if (hw.ruins == HS_OW_W - 2 && hw.lair == HS_OW_W - 1) bits |= 16;
+            /* the foes a world can show: its screens, caves and dungeons */
+            uint32_t seen = 0;
+            for (int r = 0; r < HS_R_BASE; r++) {
+                if (r >= HS_R_DUN0 && !dun_room(r)) continue;
+                HsSpawn sp[HS_MAX_SPAWN];
+                int k = hs_room_spawns(r, sp, HS_MAX_SPAWN);
+                for (int i = 0; i < k; i++)
+                    if (sp[i].kind < E_FIRST_BOSS) seen |= 1u << sp[i].kind;
+            }
+            if (seen != (1u << E_FIRST_BOSS) - 1) bits &= ~32;
+            continue;
         }
-        if (seen != (1u << E_FIRST_BOSS) - 1 && s <= 3) {
-            /* fish need water: a world may lack them; check the rest */
-            if ((seen | (1u << E_SPLOSH)) != (1u << E_FIRST_BOSS) - 1) bits &= ~32;
+        for (int c = 0; c < HS_CAVES; c++) {
+            if (hw.cave_kind[c] != first.cave_kind[c]) bits |= hw.cave_kind[c] <= K_DUN3 ? 1 : 2;
+            if (hw.cave_screen[c] != first.cave_screen[c] || hw.cave_x[hw.cave_screen[c]] != first.cave_x[first.cave_screen[c]]) bits &= ~8;
         }
+        if (memcmp(hw.block, first.block, sizeof hw.block) == 0) bits &= ~4;
+        if (memcmp(hw.biome, first.biome, sizeof hw.biome) != 0 || memcmp(hw.pad_screen, first.pad_screen, sizeof hw.pad_screen) != 0 ||
+            hw.ruins != first.ruins)
+            bits &= ~8;
+        for (int i = 0; i < HS_SCREENS; i++)
+            if ((first.open[i] & ~hw.open[i] & ~hw.block[i]) != 0) bits &= ~8; /* an always-open road shut */
+        if (hw.gear_screen != first.gear_screen) bits |= 64;
+        if (memcmp(hw.vendor_at, first.vendor_at, sizeof hw.vendor_at) != 0) bits |= 128;
     }
     sv = keep;
     hs_world_make(sv.seed);

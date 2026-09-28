@@ -1,9 +1,11 @@
-# HOMESPUN: every save makes its own Wilds: the roads (a random tree with
-# extra loops, some blocked for the save, some that open or close from trip
-# to trip), which caves hold the three dungeons and everything else, the
-# ruins and the hopstones. 200 worlds are checked: every screen reachable on
-# every trip, every way into a screen open, the lair only through the
-# ruins, four noodlers. The dungeons are drawn by hand and checked too.
+# HOMESPUN: one overworld for every save (our own layout: its regions, the
+# roads that are always open, the cave mouths, the hopstones, the ruins and
+# Mother Loom's lair in the north-east). A save draws only which barrier
+# roads are shut, what each cave mouth leads to (the dungeons among them),
+# which chest spot holds the gear, and where the four noodlers stand.
+# Nothing changes from trip to trip but the foes, pots and chests coming
+# back. 200 saves are checked: every screen reachable, every way into a
+# screen open, the lair only through the ruins, four noodlers, a gear.
 seed 44
 game homespun
 wait 5
@@ -16,6 +18,8 @@ expect variety30 & 4
 expect variety30 & 8
 expect variety30 & 16
 expect variety30 & 32
+expect variety30 & 64
+expect variety30 & 128
 # within a trip beaten foes stay beaten; a new trip brings them all back
 cheat newgame 119
 wait 5

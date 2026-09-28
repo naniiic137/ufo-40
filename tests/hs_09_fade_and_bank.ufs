@@ -61,3 +61,12 @@ expect parts == 1
 wait 50
 press A
 expect state == 2
+# the gear lies out in the open, where one of the chests would be
+cheat lab 0 0
+cheat trip 5
+cheat gogear
+cheat clearmobs
+expect carry == 0
+hold UP 12
+wait 3
+expect carry == 8

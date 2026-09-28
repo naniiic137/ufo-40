@@ -1,12 +1,14 @@
 # HOMESPUN: with three parts in and Starfuel researched, the Tumbleweed
 # can launch (the Saucer). Launching with the Grinning Idol aboard is the
-# Alien, and a different ending. After the credits a new camp starts on
-# the same moon; each escape carves a mark to spend on a standing stone.
+# Alien, and a different ending. After the credits a new camp starts, its
+# barriers, caves and noodlers drawn again; each escape carves a mark to
+# spend on a standing stone.
 seed 44
 game homespun
 wait 5
 cheat newgame 117
 wait 5
+expect seed == 117
 cheat at 256 55
 cheat face 0 -1
 press A
@@ -37,6 +39,7 @@ expect state == 6
 wait 610
 expect state == 0
 expect loop == 1
+expect seed != 117
 expect parts == 0
 expect research == 0
 expect marks == 1

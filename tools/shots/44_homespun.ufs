@@ -7,7 +7,7 @@ wait 30
 # a camp a few hours in
 cheat newgame 4404
 wait 5
-cheat plants 9
+cheat plants 6
 cheat huts 3 2
 cheat anvils 63 31
 cheat smoke 1 4
@@ -36,7 +36,7 @@ botuntil boss == 19 20000
 botplay 300
 shot homespun_guardian
 # Madame Shuffle's chests
-cheat room 52 168 72
+cheat gokind 4 168 72
 cheat odds 20
 cheat face 0 -1
 wait 2

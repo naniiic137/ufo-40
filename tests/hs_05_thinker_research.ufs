@@ -33,12 +33,12 @@ cheat res bars 250
 cheat res data 100
 press A
 expect menu == 1
-# the Star yo-yo and Starfuel are not offered yet
-expect menu_n == 5
+# Starfuel is not offered yet (it waits for Big Bins)
+expect menu_n == 6
 press A
 expect research == 1
 expect bars == 100
-# the Star yo-yo is offered now; Fertilizer is under the cursor
+# Fertilizer is under the cursor now
 expect menu_n == 5
 press A
 expect research == 3

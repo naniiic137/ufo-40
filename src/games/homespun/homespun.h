@@ -50,7 +50,7 @@ enum { AR_BASE, AR_OVER, AR_CAVE, AR_DUN };
 enum { B_MEADOW, B_MARSH, B_WOODS, B_DUNES, B_CRAGS, B_ASH, B_CAVE, B_DUN, B_CAMP, B_COUNT };
 
 /* what a cave holds (shuffled per save) */
-enum { K_DUN1, K_DUN2, K_DUN3, K_SIS, K_GAMBLE, K_HUSH, K_TANGER, K_GEAR, K_LOOT1, K_LOOT2, K_MEAT };
+enum { K_DUN1, K_DUN2, K_DUN3, K_SIS, K_GAMBLE, K_HUSH, K_TANGER, K_LOOT3, K_LOOT1, K_LOOT2, K_MEAT };
 
 /* tiles */
 enum {
@@ -64,16 +64,16 @@ typedef struct HsThingSpawn { uint8_t kind, tx, ty, arg; } HsThingSpawn;
 #define HS_MAX_SPAWN 8
 #define HS_MAX_THINGSP 8
 
-/* The world as a save's seed makes it: which roads are open, blocked or
- * shifting, what each cave holds and where things stand. Tiles are made
- * again from the seed each time a screen is entered. */
+/* The world: one layout every save shares, plus what the save's seed
+ * draws (the barriers, what each cave holds, the gear's chest, the
+ * noodlers). Tiles are made again each time a screen is entered. */
 typedef struct HsWorld {
     uint32_t seed;
     uint8_t biome[HS_SCREENS];
     uint8_t tier[HS_SCREENS];     /* 0 low, 1 normal, 2 high */
     uint8_t open[HS_SCREENS];     /* bit per direction: always open */
-    uint8_t block[HS_SCREENS];    /* bit per direction: a roadblock this save */
-    uint8_t shift[HS_SCREENS];    /* bit per direction: open or blocked by trip */
+    uint8_t block[HS_SCREENS];    /* bit per direction: a barrier this save */
+    uint8_t gear_screen;          /* the chest spot that holds the gear this save */
     int8_t cave_of[HS_SCREENS];   /* cave index on this screen, -1 none */
     uint8_t cave_x[HS_SCREENS];   /* its mouth's tile x (top wall) */
     uint8_t cave_kind[HS_CAVES];
@@ -92,7 +92,7 @@ enum { RS_METAL, RS_FERT, RS_BIGBIN, RS_PILL, RS_STAR, RS_FUEL, RS_COUNT };
 enum { RES_GLINT, RES_BAR, RES_JERKY, RES_DATA, RES_THREAD, RES_COUNT };
 enum { ST_HASTE, ST_HIDE, ST_HUNGER }; /* the standing stones (after an escape) */
 
-#define HS_PLANTS 11
+#define HS_PLANTS 6
 #define HS_ANVILS 6
 #define HS_HUTS 2
 #define HS_BINS 2
@@ -125,7 +125,7 @@ typedef struct HsSave {
     int16_t mawbo_hp, pad1;
     uint16_t dead[HS_ROOMS];     /* foes beaten this trip, by spawn index */
     uint16_t opened[HS_ROOMS];   /* pots and chests used this trip */
-    uint32_t excursion;          /* trips begun: shifting roadblocks follow it */
+    uint32_t excursion;          /* trips begun (seeds each trip's dice) */
 } HsSave;
 extern HsSave sv;
 
@@ -141,7 +141,9 @@ extern HsSave sv;
 #define ANVIL_MS 120000        /* a hand at an anvil: a bar every 2 min ... */
 #define ANVIL_PILL_MS 30000    /* ... two a minute with the Pep Pill */
 #define LAB_MS 60000           /* a hand at the Thinker: 1 data a minute */
-#define LOOM_MS 30000          /* Mother Loom: 1 thread every 30 s (reading) */
+#define LOOM_MS 30000          /* Mother Loom: a spool every 30 s ... (reading) */
+#define LOOM_HAND_MS 4000      /* ... 4 s sooner for each idle hand ... */
+#define LOOM_MIN_MS 8000       /* ... but no quicker than 8 s (reading) */
 #define HUT_COST0 5
 #define HUT_COST1 20
 #define HUT_COST2 100
@@ -166,6 +168,7 @@ int hs_anvil_hands(void);
 int hs_yoyo_dmg(void);
 int hs_hit_cost_s(int base_s);    /* after the HIDE stone */
 int hs_jerky_seconds(void);       /* after the HUNGER stone */
+int hs_loom_ms(void);             /* how long a spool of thread takes now */
 /* Real time passing: ms of production for everything at camp. */
 void hs_produce(uint32_t ms);
 bool hs_pay(int bars, int glints, int data, int thread); /* false: not enough (nothing taken) */
@@ -242,8 +245,8 @@ enum { V_DATA, V_THREAD, V_TONIC3, V_TONIC2, V_KINDS };
 /* pickups */
 enum { IT_GLINT, IT_BAR, IT_JERKY, IT_ODD, IT_DATA, IT_THREAD, IT_TONIC, IT_BIGTONIC, IT_GEAR, IT_PART, IT_IDOL, IT_KINDS };
 
-#define TONIC_SMALL_S 30       /* a tonic a foe drops (reading) */
-#define TONIC_S 60             /* a tonic a noodler sells (reading) */
+
+#define TONIC_S 100            /* a tonic a noodler sells */
 #define TONIC_BIG_S 100        /* a boss's tonic */
 
 /* ---- the running sim (homespun_wild.c) ---------------------------------------------- */
@@ -346,6 +349,7 @@ const char *hs_room_name(int room);
 /* world checks for the tests: 0 if sound, else a code */
 int hs_world_check(uint32_t seed);
 int hs_dun_check(void);
+int hs_dun_cave(int d);           /* the cave mouth that leads into dungeon d */
 int hs_world_variety(int seeds); /* bits: what changes from save to save and trip to trip */
 void hs_kill_all(void);
 const char *hs_dun_name(int d);
@@ -359,6 +363,10 @@ bool hs_solid_px(int x, int y);  /* field pixels */
 int hs_front_spot(void);         /* the camp spot Wick faces, -1 none */
 int hs_front_thing(void);        /* the thing Wick faces in the Wilds, -1 none */
 void hs_open_chest(int i);
+void hs_spawn_drip(int32_t x, int32_t y);   /* a driplet that drops nothing */
+void hs_env_loot(int rolls, bool dungeon, int32_t x, int32_t y);
+void hs_loot_stats(int tier, int n, int out[4]);   /* tests: the foe tables, rolled n times */
+void hs_env_stats(bool dungeon, int n, int out[5]); /* tests: pots' and chests' table */
 int hs_add_mob(int kind, int tx, int ty, int spawn);
 bool hs_mob_tell(const HsMob *m); /* a leap or dive is about to come */
 void hs_drop(int kind, int amount, int32_t x, int32_t y);

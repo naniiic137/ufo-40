@@ -8,7 +8,7 @@ wait 5
 cheat newgame 111
 wait 5
 cheat trip 5
-cheat room 53 168 72
+cheat gokind 5 168 72
 cheat face 0 -1
 press A
 expect talk == 1
@@ -18,7 +18,7 @@ wait 10
 press A
 expect talk == 0
 expect letter == 1
-cheat room 54 168 72
+cheat gokind 6 168 72
 cheat face 0 -1
 press A
 wait 10
