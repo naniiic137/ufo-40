@@ -1,0 +1,66 @@
+# HOMESPUN: the clock is Wick's health. A low foe's touch costs 20 s and most
+# foes' 30 s, but the heavy hitters take more: a red clacker's or a
+# treadle's touch 45 s, a guardian's 45 s, Mawbo's 60 s, and a shell, bolt,
+# rock or blast 45 s. Each mark on the HIDE stone takes 2 s off every hit.
+# After a hit she is safe for a second and a half.
+seed 44
+game homespun
+wait 5
+cheat newgame 108
+wait 5
+cheat trip 5
+cheat clearmobs
+cheat at 168 88
+cheat time 300
+cheat spawn 0 10 5
+wait 2
+expect last_hit == 20
+expect time >= 279
+expect time <= 280
+expect hits == 1
+# still touching it: no second hit while she is safe
+cheat at 168 88
+wait 30
+expect hits == 1
+cheat clearmobs
+# a stingle (a normal foe): 30 s
+wait 100
+cheat time 300
+cheat at 168 88
+cheat spawn 4 10 5
+wait 2
+expect last_hit == 30
+expect time >= 269
+expect time <= 270
+cheat clearmobs
+# a red clacker: 45 s
+wait 100
+cheat at 168 88
+cheat spawn 12 10 5
+wait 2
+expect last_hit == 45
+cheat clearmobs
+# a guardian: 45 s
+wait 100
+cheat at 168 88
+cheat spawn 19 10 5
+wait 2
+expect last_hit == 45
+cheat clearmobs
+# Mawbo: 60 s
+wait 100
+cheat at 168 88
+cheat spawn 24 10 5
+wait 2
+expect last_hit == 60
+cheat clearmobs
+# three marks on the HIDE stone: 30 s becomes 24 s
+cheat stones 0 3 0
+wait 100
+cheat time 300
+cheat at 168 88
+cheat spawn 4 10 5
+wait 2
+expect last_hit == 24
+expect time >= 275
+expect time <= 276

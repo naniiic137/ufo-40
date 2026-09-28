@@ -1,0 +1,54 @@
+# HOMESPUN: two huts, each built for 5 bars and raised for 20 and 100,
+# hold a hand per room (six at most). Six anvils cost 5 bars each; a hand
+# at an anvil makes a bar every 2 minutes, two a minute with the Pep Pill.
+seed 44
+game homespun
+wait 5
+cheat newgame 104
+wait 5
+cheat res bars 250
+cheat at 28 95
+cheat face 0 -1
+press A
+expect menu == 1
+press A
+expect hands == 1
+expect bars == 245
+press A
+expect hands == 2
+expect bars == 225
+press A
+expect hands == 3
+expect bars == 125
+# three rooms is all a hut has
+press A
+expect hands == 3
+press B
+# an anvil, and a hand at it
+cheat at 64 87
+cheat face 0 -1
+press A
+press A
+expect anvils == 1
+expect bars == 120
+press A
+expect anvil_hands == 1
+expect free_hands == 2
+press B
+cheat res bars 0
+idle 4
+expect bars == 2
+# sending the hand home stops the work
+press A
+press A
+expect anvil_hands == 0
+press B
+idle 4
+expect bars == 2
+# the Pep Pill: two bars a minute
+press A
+press A
+press B
+cheat research 8
+idle 3
+expect bars == 8

@@ -1,0 +1,59 @@
+# HOMESPUN: everything saves by itself: camp, the goals it has earned and a
+# trip in progress (the room, the clock, what was found). CONTINUE picks up
+# where Wick left off.
+seed 44
+game homespun
+wait 5
+cheat newgame 118
+wait 5
+cheat plants 4
+cheat res glints 777
+cheat huts 1 0
+cheat loom 1
+cheat save
+reload
+game homespun
+wait 25
+expect state == 0
+press A
+wait 5
+expect state == 2
+expect plants == 4
+expect glints >= 777
+expect hands == 1
+expect loom == 1
+expect goals & 1
+# the goals come back from the save
+set_goals homespun 0
+reload
+game homespun
+wait 5
+expect goals & 1
+# a trip, left through the START menu
+wait 25
+press A
+cheat trip 4
+cheat clearmobs
+cheat at 120 88
+cheat face 1 0
+cheat drop 0 40
+hold RIGHT 20
+wait 5
+expect gain.glints == 40
+cheat goscreen 20
+wait 2
+press START
+press UP
+press A
+wait 60
+expect_scene library
+reload
+game homespun
+wait 25
+press A
+wait 5
+expect on_trip == 1
+expect room == 20
+expect gain.glints == 40
+expect time >= 470
+expect time <= 480

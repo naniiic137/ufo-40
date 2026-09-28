@@ -1,0 +1,136 @@
+# HOMESPUN: once all three parts are home, Mawbo roams the Wilds. It fights
+# with every guardian's moves and some foes' too, takes 100 yo-yo hits, and
+# when beaten it drops a big tonic (+100 s) and flees to another screen. Beat it six times in one trip and
+# it drops the Grinning Idol; going home in between starts the count again.
+seed 44
+game homespun
+wait 5
+cheat newgame 116
+wait 5
+# not while a part is still out there
+cheat parts 3
+cheat trip 5
+cheat carry 4
+cheat gomawbo
+wait 2
+expect mawbo_here == 0
+expect boss == -1
+cheat room 43 160 150
+hold DOWN 20
+wait 50
+press A
+expect parts == 7
+cheat trip 20
+cheat gomawbo
+wait 2
+expect mawbo_here == 1
+expect boss == 24
+expect boss_hp == 100
+# for half a minute it throws everything: pellets, rocks, seeds, webs, bolts, bombs
+cheat god
+wait 1900
+cheat god
+expect shot_seen & 1
+expect shot_seen & 2
+expect shot_seen & 4
+expect shot_seen & 16
+expect shot_seen & 32
+expect shot_seen & 64
+cheat gomawbo
+wait 2
+cheat bosshp 1
+cheat holdmobs
+cheat at 168 104
+cheat face 0 -1
+press B
+wait 25
+expect mawbo_wins == 1
+expect mawbo_here == 0
+expect items >= 1
+cheat time 100
+hold UP 30
+hold DOWN 4
+hold RIGHT 12
+hold LEFT 24
+wait 5
+expect time >= 190
+# home in between: the count starts again
+cheat room 43 160 150
+hold DOWN 20
+wait 50
+press A
+cheat trip 20
+expect mawbo_wins == 0
+cheat gomawbo
+wait 2
+expect boss == 24
+cheat bosshp 1
+cheat holdmobs
+cheat at 168 104
+cheat face 0 -1
+press B
+wait 25
+expect mawbo_wins == 1
+cheat gomawbo
+wait 2
+expect boss == 24
+cheat bosshp 1
+cheat holdmobs
+cheat at 168 104
+cheat face 0 -1
+press B
+wait 25
+expect mawbo_wins == 2
+cheat gomawbo
+wait 2
+expect boss == 24
+cheat bosshp 1
+cheat holdmobs
+cheat at 168 104
+cheat face 0 -1
+press B
+wait 25
+expect mawbo_wins == 3
+cheat gomawbo
+wait 2
+expect boss == 24
+cheat bosshp 1
+cheat holdmobs
+cheat at 168 104
+cheat face 0 -1
+press B
+wait 25
+expect mawbo_wins == 4
+cheat gomawbo
+wait 2
+expect boss == 24
+cheat bosshp 1
+cheat holdmobs
+cheat at 168 104
+cheat face 0 -1
+press B
+wait 25
+expect mawbo_wins == 5
+cheat gomawbo
+wait 2
+expect boss == 24
+cheat bosshp 1
+cheat holdmobs
+cheat at 168 104
+cheat face 0 -1
+press B
+wait 25
+expect mawbo_wins == 6
+expect mawbo_here == 0
+expect items >= 1
+hold UP 30
+hold DOWN 4
+wait 5
+expect carry == 16
+# it is gone for the rest of the trip
+cheat gomawbo
+wait 2
+expect boss == -1
+cheat room 43 160 150
+hold DOWN 20
+expect idol == 1

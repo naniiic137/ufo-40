@@ -1,0 +1,38 @@
+# HOMESPUN: one overworld for every save (our own layout: its regions, the
+# roads that are always open, the cave mouths, the hopstones, the ruins and
+# Mother Loom's lair in the north-east). A save draws only which barrier
+# roads are shut, what each cave mouth leads to (the dungeons among them),
+# which chest spot holds the gear, and where the four noodlers stand.
+# Nothing changes from trip to trip but the foes, pots and chests coming
+# back. 200 saves are checked: every screen reachable, every way into a
+# screen open, the lair only through the ruins, four noodlers, a gear.
+seed 44
+game homespun
+wait 5
+expect art_bad == 0
+expect dun_check == 0
+expect world_check200 == 0
+expect variety30 & 1
+expect variety30 & 2
+expect variety30 & 4
+expect variety30 & 8
+expect variety30 & 16
+expect variety30 & 32
+expect variety30 & 64
+expect variety30 & 128
+# within a trip beaten foes stay beaten; a new trip brings them all back
+cheat newgame 119
+wait 5
+cheat trip 3
+expect mobs >= 2
+cheat killall
+expect mobs == 0
+cheat goscreen 42
+cheat goscreen 43
+expect mobs == 0
+cheat room 43 160 150
+hold DOWN 20
+wait 50
+press A
+cheat trip 3
+expect mobs >= 2

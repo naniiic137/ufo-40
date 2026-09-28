@@ -1,0 +1,92 @@
+# HOMESPUN: camp works in real time while the console is on, whatever is
+# running: the library, the menus, another cartridge. A stalled frame loop
+# (a hidden browser tab) is caught up on the next frame; time while the
+# console is off never counts; the part of a unit already made is saved;
+# and camp is saved every 30 s even while another cartridge runs.
+seed 44
+game homespun
+wait 5
+cheat newgame 120
+wait 5
+cheat plants 6
+cheat res glints 0
+cheat acc 0
+cheat save
+press START
+press UP
+press A
+wait 60
+expect_scene library
+# a minute of another cartridge: six buds make 180 glints meanwhile
+game fennec
+wait 3600
+press START
+press UP
+press A
+wait 60
+game homespun
+wait 25
+press A
+wait 5
+expect glints >= 180
+expect glints <= 200
+# a two-minute stall in the library: all of it comes in on the next frame
+cheat res glints 0
+press START
+press UP
+press A
+wait 60
+clock_skip 120000
+wait 1
+game homespun
+wait 25
+press A
+wait 5
+expect glints >= 360
+expect glints <= 385
+# switched off for an hour: none of it counts
+cheat res glints 0
+press START
+press UP
+press A
+wait 30
+clock_skip 3600000
+reload
+wait 5
+expect realtime_s == 0
+game homespun
+wait 25
+press A
+wait 5
+expect glints <= 40
+# a unit's worth part-made is kept in the save: one bud, 1.5 s, off, on
+cheat plants 1
+cheat res glints 0
+cheat acc 0
+wait 90
+expect glints == 0
+press START
+press UP
+press A
+reload
+game homespun
+wait 25
+press A
+wait 5
+expect glints == 1
+# saved every 30 s while another cartridge runs (then the power is cut)
+cheat plants 6
+cheat res glints 0
+cheat acc 0
+press START
+press UP
+press A
+game fennec
+wait 1900
+reload
+game homespun
+wait 25
+press A
+wait 5
+expect glints >= 84
+expect glints <= 93

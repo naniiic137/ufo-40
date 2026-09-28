@@ -60,6 +60,9 @@ const char *plat_name(void) {
 
 void plat_request_quit(void) { quit_flag = true; }
 
+/* SDL's millisecond ticks run on while frames stall (a hidden tab, a hitch). */
+uint32_t plat_clock_ms(void) { return (uint32_t)SDL_GetTicks(); }
+
 const char *plat_save_where(void) {
 #ifdef __EMSCRIPTEN__
     (void)save_dir; /* the web keeps its saves in localStorage */

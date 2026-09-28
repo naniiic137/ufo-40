@@ -1,0 +1,31 @@
+# HOMESPUN: proof that the Alien can be earned. The three world proofs
+# already play the whole gold game from the title; this one starts from the
+# camp such a run ends with (six buds, three huts, every anvil and study,
+# the Tumbleweed whole) so it stays quick. From there the demo player does
+# what players do: gathers odds at Kit's chests, buys tonics from a noodler
+# on the way out, hunts Mawbo across the Wilds until it falls six times in
+# one trip, and flies home with the Grinning Idol. Trips that run dry fade
+# home and it tries again, with real time passing between spells of play.
+seed 202
+game homespun
+wait 5
+cheat newgame 202
+wait 5
+cheat plants 6
+cheat huts 3 3
+cheat anvils 63 7
+cheat lab 1 3
+cheat smoke 1 6
+cheat bins 2 2
+cheat research 63
+cheat parts 7
+cheat loom 1
+cheat pipe 1
+cheat res glints 12000
+cheat res bars 1000
+cheat res jerky 25
+expect idol == 0
+botloop escapes >= 1 1500 3600 300000
+expect goals & 4
+expect idol_escapes == 1
+expect escapes == 1

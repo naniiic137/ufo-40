@@ -1,0 +1,41 @@
+# HOMESPUN: Tolly won't let Wick through the gate without jerky. Walking
+# out eats every strip she carries: 120 seconds each (20 more per mark on
+# the HUNGER stone), and the clock runs down from there.
+seed 44
+game homespun
+wait 5
+cheat newgame 107
+wait 5
+cheat at 160 40
+hold UP 40
+expect talk == 1
+expect on_trip == 0
+expect area == 0
+press A
+expect talk == 0
+# three strips
+cheat res jerky 3
+cheat at 160 40
+hold UP 40
+expect on_trip == 1
+expect jerky == 0
+expect room == 43
+cheat clearmobs
+expect time >= 358
+expect time <= 360
+wait 120
+expect time >= 356
+expect time <= 358
+# home again (down off the screen above camp) and out with the HUNGER stone
+cheat at 160 150
+hold DOWN 20
+expect on_trip == 0
+wait 50
+press A
+cheat stones 0 0 2
+cheat res jerky 3
+cheat at 160 40
+hold UP 40
+expect on_trip == 1
+expect time >= 478
+expect time <= 480
