@@ -1,0 +1,64 @@
+# OPEN HOUSE (owner's addition): the end-of-party tally counts each guest's
+# fame and cash up in turn (the counters start from the old totals);
+# holding A speeds it up a lot, and a fresh A press is needed to go on.
+game openhouse
+wait 5
+cheat new 1 1
+cheat give 13 3
+cheat cap 8
+cheat door 13 13 13 0 0
+press B
+press LEFT
+press A
+expect state == 12
+# the rules have paid already (9 from the drummers, 2 neighbours)
+expect pop == 11
+expect tally == 0
+expect tallypop == 0
+wait 40
+expect tally == 1
+expect tallypop > 0
+expect tallypop < 11
+waituntil tally == 3 400
+expect tallypop == 11
+expect tallygot == 11
+expect tallyframes >= 80
+wait 10
+press A
+wait 2
+expect state == 13
+# the same party with A held down: much faster
+cheat new 1 1
+cheat give 13 3
+cheat cap 8
+cheat door 13 13 13 0 0
+press B
+press LEFT
+press A
+hold A
+waituntil tally == 3 60
+expect tallyframes <= 30
+expect tallypop == 11
+# still holding A: the count is done but nothing skips ahead
+wait 30
+expect state == 12
+release A
+wait 2
+press A
+wait 2
+expect state == 13
+# guests who charge are paid after the income; one you can't pay costs 7
+cheat new 1 1
+cheat give 19 2
+cheat cash 1
+cheat door 19 19
+press B
+press LEFT
+press A
+hold A
+waituntil tally == 3 120
+release A
+expect tallypop == 1
+expect tallycash == 0
+expect penalty == 7
+expect pop == 1

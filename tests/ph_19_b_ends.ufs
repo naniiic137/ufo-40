@@ -1,0 +1,42 @@
+# OPEN HOUSE (owner's addition): B during a party asks to end it. The
+# question starts on NO, so a stray B (or B then A) ends nothing; B, LEFT
+# to YES, A ends the party and starts the tally. B in a guest's target
+# choice only backs out of the choice.
+game openhouse
+wait 5
+cheat new 1 1
+cheat door 0 0
+expect state == 5
+press B
+expect state == 9
+expect osel == 1
+# A on NO: back to the party
+press A
+expect state == 5
+expect over == 0
+# B again inside the question backs out too
+press B
+expect state == 9
+press B
+expect state == 5
+expect over == 0
+# B, LEFT to YES, A: the party ends and is paid
+press B
+press LEFT
+expect osel == 0
+press A
+expect state == 12
+expect over == 1
+expect pop == 2
+expect tallywhy == 0
+# a bouncer's target choice: B cancels the choice, not the party
+cheat new 1 1
+cheat give 7 1
+cheat door 7
+press LEFT
+expect cur == 0
+press A
+expect state == 6
+press B
+expect state == 5
+expect over == 0

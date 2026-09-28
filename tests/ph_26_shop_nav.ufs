@@ -1,0 +1,69 @@
+# OPEN HOUSE (owner's addition): quicker shop moves. UP from the top row of
+# cards jumps to NEXT PARTY; B anywhere goes to NEXT PARTY and a second B
+# (or A) starts it. Everything wraps: no dead ends.
+game openhouse
+wait 5
+cheat new 1 1
+cheat door 0
+cheat end
+cheat next
+expect state == 13
+expect shopcur == 0
+# UP from the top row: NEXT PARTY (15 cards, so SPACE 15, NEXT 16, BOOK 17)
+press UP
+expect shopcur == 16
+# DOWN from NEXT PARTY: the top row, above it (column 5)
+press DOWN
+expect shopcur == 4
+press UP
+expect shopcur == 16
+# UP from NEXT PARTY: the last row, above it
+press UP
+expect shopcur == 14
+# the buttons: DOWN from each column's last card lands on the button below
+press LEFT
+press LEFT
+expect shopcur == 12
+press DOWN
+expect shopcur == 17
+press UP
+expect shopcur == 12
+# B from a card: straight to NEXT PARTY; a second B starts the party
+press UP
+press LEFT
+expect shopcur == 6
+press B
+expect shopcur == 16
+expect state == 13
+press B
+wait 2
+expect state == 5
+expect night == 2
+# A on NEXT PARTY starts it too
+cheat end
+cheat next
+expect shopcur == 0
+press B
+press A
+wait 2
+expect state == 5
+expect night == 3
+# OPEN ALL NIGHT's big mix has four rows: the grid scrolls, wrapping too
+cheat new 7 1
+cheat end
+cheat next
+expect npool == 20
+expect shoptop == 0
+press UP
+press UP
+expect shopcur == 19
+expect shoptop == 1
+press DOWN
+press DOWN
+expect shopcur == 4
+expect shoptop == 0
+press DOWN
+press DOWN
+press DOWN
+expect shopcur == 19
+expect shoptop == 1

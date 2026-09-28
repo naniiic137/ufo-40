@@ -1,0 +1,48 @@
+# OPEN HOUSE: the party ends by itself when the house is full and no guest
+# has an action left (Party House's rule), and also (owner's addition) when
+# nobody is left in the guest book to come in. A guest with an action left
+# keeps it going. Trouble and the fire marshal still come first.
+game openhouse
+wait 5
+# full, nobody with an action: the knock that fills the house ends it
+cheat new 1 1
+cheat door 0 0 0 0
+expect n == 4
+expect over == 0
+press A
+expect n == 5
+expect over == 1
+expect state == 12
+expect tallywhy == 1
+# full, but the bouncer can still act: it goes on
+cheat new 1 1
+cheat give 7 1
+cheat door 0 0 0 7
+press A
+expect n == 5
+expect over == 0
+expect state == 5
+expect canact3 == 1
+# the bouncer throws a guest out: a free space, still going
+press LEFT
+press LEFT
+expect cur == 3
+press A
+expect state == 6
+press A
+expect n == 4
+expect over == 0
+expect state == 5
+# nobody left to come in, room to spare, no actions: it ends
+cheat new 1 1
+cheat give 5 2
+cheat cap 20
+cheat door 0 0 0 0 1 1 5 5 2 2 2
+expect n == 11
+expect over == 0
+expect trouble == 1
+press A
+expect n == 12
+expect over == 1
+expect state == 12
+expect tallywhy == 2

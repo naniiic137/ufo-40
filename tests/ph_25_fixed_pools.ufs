@@ -1,0 +1,173 @@
+# OPEN HOUSE: the five set lists each sell a fixed set of guests and stars
+# that never changes, whatever the deal; only the Random list (and the
+# owner's OPEN ALL NIGHT big mix) picks guests at random. Each list is
+# started from the tile grid with the buttons, and list 1 twice.
+game openhouse
+wait 30
+cheat won 31
+press A
+wait 5
+press A
+wait 5
+expect state == 2
+expect scen_sel == 5
+press UP
+press LEFT
+press LEFT
+expect scen_sel == 0
+press A
+wait 25
+expect state == 3
+expect scen == 1
+expect npool == 15
+expect pool0 == 0
+expect pool1 == 1
+expect pool2 == 3
+expect pool3 == 33
+expect pool4 == 5
+expect pool5 == 7
+expect pool6 == 9
+expect pool7 == 16
+expect pool8 == 14
+expect pool9 == 17
+expect pool10 == 19
+expect pool11 == 34
+expect pool12 == 13
+expect pool13 == 20
+expect pool14 == 37
+cheat menu
+wait 2
+press RIGHT
+press A
+wait 25
+expect state == 3
+expect scen == 2
+expect npool == 15
+expect pool0 == 0
+expect pool1 == 1
+expect pool2 == 4
+expect pool3 == 22
+expect pool4 == 11
+expect pool5 == 21
+expect pool6 == 35
+expect pool7 == 6
+expect pool8 == 36
+expect pool9 == 10
+expect pool10 == 25
+expect pool11 == 8
+expect pool12 == 26
+expect pool13 == 42
+expect pool14 == 45
+cheat menu
+wait 2
+press RIGHT
+press A
+wait 25
+expect state == 3
+expect scen == 3
+expect npool == 15
+expect pool0 == 0
+expect pool1 == 1
+expect pool2 == 33
+expect pool3 == 5
+expect pool4 == 18
+expect pool5 == 27
+expect pool6 == 34
+expect pool7 == 12
+expect pool8 == 23
+expect pool9 == 31
+expect pool10 == 8
+expect pool11 == 15
+expect pool12 == 24
+expect pool13 == 41
+expect pool14 == 39
+cheat menu
+wait 2
+press DOWN
+press LEFT
+press LEFT
+expect scen_sel == 3
+press A
+wait 25
+expect state == 3
+expect scen == 4
+expect npool == 15
+expect pool0 == 0
+expect pool1 == 1
+expect pool2 == 4
+expect pool3 == 7
+expect pool4 == 16
+expect pool5 == 17
+expect pool6 == 18
+expect pool7 == 19
+expect pool8 == 12
+expect pool9 == 35
+expect pool10 == 6
+expect pool11 == 23
+expect pool12 == 10
+expect pool13 == 40
+expect pool14 == 38
+cheat menu
+wait 2
+press RIGHT
+press A
+wait 25
+expect state == 3
+expect scen == 5
+expect npool == 15
+expect pool0 == 0
+expect pool1 == 1
+expect pool2 == 9
+expect pool3 == 22
+expect pool4 == 28
+expect pool5 == 29
+expect pool6 == 32
+expect pool7 == 13
+expect pool8 == 36
+expect pool9 == 30
+expect pool10 == 20
+expect pool11 == 15
+expect pool12 == 26
+expect pool13 == 43
+expect pool14 == 44
+# list 1 again, on another deal: the same shop
+cheat menu
+wait 2
+press UP
+press LEFT
+expect scen_sel == 0
+press A
+wait 25
+expect state == 3
+expect scen == 1
+expect npool == 15
+expect pool0 == 0
+expect pool1 == 1
+expect pool2 == 3
+expect pool3 == 33
+expect pool4 == 5
+expect pool5 == 7
+expect pool6 == 9
+expect pool7 == 16
+expect pool8 == 14
+expect pool9 == 17
+expect pool10 == 19
+expect pool11 == 34
+expect pool12 == 13
+expect pool13 == 20
+expect pool14 == 37
+# Hamza's three: the fetcher, the full-house guest and the dancer sell in
+# list 1 as in the original's Alien Invitation; the second fetcher in lists
+# 2 and 4; the full-house guest in list 4; the dancer in list 5
+expect inpool3 == 1
+expect inpool17 == 1
+expect inpool13 == 1
+cheat new 2 1
+expect inpool4 == 1
+cheat new 4 1
+expect inpool4 == 1
+expect inpool17 == 1
+cheat new 5 1
+expect inpool13 == 1
+cheat new 3 1
+expect inpool39 == 1

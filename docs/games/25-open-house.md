@@ -24,7 +24,7 @@ list; the Random Scenario deals its own pool (see the generator rules below).
 | House | 5 spaces to start; each expansion adds one; the first costs $2, each next one $1 more, up to $12; at most 34 spaces | [W], [S] "maximum house size: 34" |
 | Currencies | popularity buys guests, cash buys space and pays some guests | [W] |
 | A party | open the door to let in a random guest from the rolodex, use guests' abilities, or end the party | [W] |
-| Party end | the house is full and no ability can be used, the player ends it, or a shutdown | [W] |
+| Party end | the house is full and no ability can be used, the player ends it, or a shutdown; also (owner's addition) when nobody is left to come in and no ability can be used | [W] |
 | Scoring | a party that ends without a shutdown pays every guest's popularity and cash | [W] |
 | Unpaid guests | the party's cash income comes in first, then each guest who charges cash is paid; one you can't pay costs 7 popularity instead | [W] "after accounting for any added cash by other guests first", "-7 popularity per guest that cannot be paid" |
 | No negative popularity | popularity never drops below 0; a popularity charge you can't pay does nothing | [S] "you can't go into negative Pop", "If you have a Pop penalty that you can't pay, nothing happens" |
@@ -120,8 +120,8 @@ Cousin), plus the Old Neighbours and Rich Cousins. Nothing is filtered, so
 some deals really are hard, as players describe.
 
 Every Random list is dealt from a six-digit code, as the original's are
-([S], [W]). The intro shows it; on the scenario menu, RIGHT on the Random
-row types a code in (the box starts on the last one), and the same code
+([S], [W]). The intro shows it; on the list grid, A on the Random tile
+offers DEAL A NEW LIST or TYPE A CODE (the box starts on the last one), and the same code
 deals the same list. Our reading: a typed-in code doesn't count for the
 streak, either way, so a known list can't be replayed into a streak.
 
@@ -129,7 +129,8 @@ streak, either way, so a known list can't be replayed into a streak.
 
 - **Unlocking.** Set scenario 1 is open at the start; winning a scenario opens
   the next; the Random Scenario opens once scenario 5 is won. 2P Versus uses
-  the scenarios you have opened.
+  the scenarios you have opened. OPEN ALL NIGHT (the owner's) is open from
+  the start, on the lists you have opened plus the big mix.
 - **Winning** is checked when a party ends without a shutdown (by the player,
   or because the house is full and no action is left). [W] names the goal as
   "a successful party", which fits; the exact moment isn't described.
@@ -192,12 +193,13 @@ value, the usher and a shutdown, streak resets or how 2P Versus is played.
 - **Pixel art and music:** the house, the door, the neighbour, the shop, the
   guests; a lounge theme, a party groove, the shop tune and jingles.
 
-## Additions: none
+## Platform additions
 
-Only the platform needs every UFO 40 cartridge has:
+The platform needs every UFO 40 cartridge has:
 
 - the START pause menu;
-- saving: scenarios won, the unlocks, the streak and the run in progress;
+- saving: scenarios won, the unlocks, the streak and the run in progress
+  (an older save is carried over; OPEN ALL NIGHT's bests are the owner's);
 - the three UFO 40 goals, which replicate Party House's own three:
 
 | UFO 40 goal | Condition | Party House's goal |
@@ -206,13 +208,105 @@ Only the platform needs every UFO 40 cartridge has:
 | Saucer | win all five set scenarios | gold: complete all 5 scenarios |
 | Alien | win five Random Scenarios in a row | cherry: achieve a streak of 5 |
 
+## Owner's additions
+
+The owner (Hamza) played OPEN HOUSE against his memory of Party House and
+asked for these. They are his own twists on top of the original, and they
+override the "no additions" rule for this cartridge. Everything not listed
+here still follows Party House.
+
+1. **B ends the party.** During a party B asks END THE PARTY?, with the
+   answer starting on NO: B then A does nothing, B again backs out, and
+   B, LEFT, A ends it. (The END THE PARTY button by the door still works.)
+2. **The party ends by itself** when nothing more can happen: the house is
+   full (the original's rule) *or* nobody is left in the guest book to come
+   in (a guest waiting at the door counts as someone), and no guest has an
+   action left. The police and the fire marshal still come first, and a
+   guest with an unused action (a bouncer, a fireworker...) keeps it going.
+   The tally says why it ended.
+3. **The tally.** A party that ends well is counted up guest by guest: the
+   house stays in view, the guest in turn lights up with its points rising
+   over it, and fame and cash tick up (one tick sound a point) in the top
+   bar and on a board where the door was. It follows the original's paying
+   order: every guest's fame and income first, then the guests who charge
+   are paid in the order they came, and one you can't pay shows -7 fame.
+   Holding A counts about five times faster; a fresh A press moves on, so
+   a held A never skips the result. (The rules pay out at once, as before;
+   the tally only shows it.)
+4. **OPEN ALL NIGHT** (the endless mode, one player). The wide tile under
+   the list grid opens a second grid to pick what to play: any of the five
+   set lists (with their fixed guests and stars), the Random list (a fresh
+   random deal), or THE BIG MIX: 20 guests from the whole roster (four
+   stars, fourteen others, plus neighbours and cousins), re-dealt every run,
+   where after every fifth night three guests leave the shop and three new
+   ones arrive ("NEW FACES IN TOWN!"). The shop grid scrolls for the fourth
+   row.
+   - There is no last night: the lantern counts the nights up.
+   - The score is **star parties**: a party that ends well with the goal's
+     number of stars scores one, and the goal starts at four stars and goes
+     up by one with each star party.
+   - The third shutdown (police or fire marshal) closes the house for good
+     ("LIGHTS OUT"); the first two work as usual (a ban), the third skips
+     the ban. The shutdowns so far show as three crosses by the lamp.
+   - Each list keeps its own best: the most star parties and the most fame
+     held at once, saved the moment they improve. They show on the tiles.
+   - It never touches the streak or the goals.
+5. **Guests the owner described.** He named three kinds, then nineteen
+   abilities. All but two are already Party House guests here with the
+   original's exact numbers (checked again against [W] and [S] for this
+   pass; nothing needed changing). See the table below.
+6. **Shop moves.** Every move wraps: LEFT and RIGHT go round a row of cards,
+   UP from the top row jumps to NEXT PARTY, DOWN from the last row reaches
+   the button under that column (SPACE under the first two, GUEST BOOK
+   under the middle, NEXT PARTY under the last two), the buttons go round
+   left and right, and UP and DOWN from a button go to the last and the
+   first row. B anywhere goes to NEXT PARTY, and a second B (or A) starts
+   the party.
+7. **The list grid.** The scenario menu is a grid of tiles, three to a row
+   (1 2 3 / 4 5 RANDOM) with OPEN ALL NIGHT as one wide tile underneath.
+   Each tile shows its name, its star guests (dice for Random), a star when
+   won and the stars it has. LEFT and RIGHT go round a row, UP and DOWN
+   round the rows (keeping the column through the wide tile), A picks.
+
+### The guest abilities the owner asked for
+
+| # | Owner's description | Ours | Party House | Changed? |
+|---|---|---|---|---|
+| a | fetch a specific guest from the rolodex | CABBIE, SLEUTH, WISH FISH ☆ | Driver, Private I., Genie | no |
+| b | +5 popularity if the house is full | STORYTELLER | Comedian | no |
+| c | dancers: more popularity the more dancers | DRUMMER (1, 4, 9, 16) | Dancer | no |
+| 1 | +1 for each empty space | BOOKWORM | Introvert | no |
+| 2 | move all guests outside | FIREWORKER, TOUR GUIDE (everyone out, reshuffled, used actions stay used) | Grillmaster, Athlete | no |
+| 3 | +1 for each Old Friend | GRANNY (each OLD NEIGHBOUR) | Mascot | no |
+| 4 | +2 for each trouble guest | POET | Writer | no |
+| 5 | +1 each time it enters, up to 9 | UPSTART | Climber | no |
+| 6 | score a guest and reset other actions | PAPARAZZO scores a guest; BAND LEADER resets the others' actions | Photographer; Cheerleader | no: no single original guest does both ([W], [S]) |
+| 7 | +1 popularity to any guest, for good | TAILOR (under 9) | Stylist | no |
+| 8 | clear all trouble | OLD SAGE | Counselor | no |
+| 9 | brings 2 guests, +2 pop, +3 cash | POP IDOL (cost 11) | Celebrity | no |
+| 10 | +2 cash for each trouble guest | BARISTA | Bartender | no |
+| 11 | star who is trouble; four of him win | CYCLOPS ☆ (four win if the trouble is calmed below three) | Dinosaur | no |
+| 12 | star who costs 3 cash | SEA SERPENT ☆ (paid at the end, like all cash) | Dragon | no |
+| 13 | star who gives 3 cash | TYCOON ☆ | Leprechaun | no |
+| 14 | star who cancels 1 trouble | SPHINX ☆ | Unicorn | no |
+| 15 | star who boots a guest | SHADOW ☆ | Ghost | no |
+| 16 | anyone who enters after him is trouble | none | none ([W] and [S] list no such guest) | not added |
+| 17 | open the door and score the guest(s) | USHER | Greeter | no |
+| 18 | swap a star and a non-star | FORTUNE TELLER | Magician | no |
+| 19 | boot two adjacent guests | MATCHMAKER | Cupid | no |
+
+The five set lists keep their fixed pools (the table above); only the Random
+list, and OPEN ALL NIGHT's Random and big mix, deal guests at random. The
+fetchers, the storyteller and the drummer sell in the lists the original's
+sell them in (Driver, Comedian and Dancer in Alien Invitation, and so on).
+
 ## Controls
 
 | Input | Action |
 |---|---|
 | D-pad | move the cursor |
 | A | open the door, use a guest's action, choose, buy |
-| B | cancel, back |
+| B | cancel, back; in a party, END THE PARTY? (owner's addition); in the shop, go to NEXT PARTY, again to start it |
 | START | pause menu |
 
 The guest book (the whole deck, each guest with a count) is a button under
@@ -228,7 +322,8 @@ The shop is a grid of guest cards, five to a row, each with its face, its
 price in fame (yellow when you can afford it) and its stock left as green
 bars (stars say STAR); the counter on the right describes the card under
 the cursor. Under the grid sit +1 SPACE, GUEST BOOK and NEXT PARTY. The
-D-pad moves around the grid; DOWN from the last row reaches the buttons.
+D-pad moves around the grid and wraps everywhere, UP from the top row
+jumps to NEXT PARTY and B goes there too (Owner's additions, 6).
 
 The grid shop is the owner's choice. The original's layout differs: its
 planner [MM] sorts what's on sale into categories that LEFT and RIGHT switch

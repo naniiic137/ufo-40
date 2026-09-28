@@ -1,0 +1,108 @@
+# OPEN HOUSE (owner's addition): OPEN ALL NIGHT can play any list: the five
+# set lists (their fixed guests and stars), Random, or the big mix. It has
+# no last night on any of them, and each list keeps its own best.
+game openhouse
+wait 30
+cheat won 7
+press A
+wait 5
+press A
+wait 5
+expect state == 2
+# the wide tile (down from list 4, the first not yet won), then EARLY JUNE
+expect scen_sel == 3
+press DOWN
+expect scen_sel == 6
+press A
+expect scen_endless == 1
+press DOWN
+expect scen_sel == 0
+press A
+wait 25
+expect state == 3
+expect scen == 7
+expect base == 0
+# EARLY JUNE's own fixed shop
+expect npool == 15
+expect poolstars == 1
+expect inpool37 == 1
+expect inpool3 == 1
+expect inpool17 == 1
+expect inpool13 == 1
+press A
+wait 2
+expect state == 5
+# past night 25 and on
+cheat nights 25
+press A
+press B
+press LEFT
+press A
+hold A
+waituntil tally == 3 100
+release A
+wait 8
+press A
+wait 2
+expect state == 13
+expect done == 0
+# a set list's shop never turns over (night 25 is a fifth night)
+expect fresh == 0
+expect npool == 15
+press B
+press B
+expect nights == 26
+cheat nights 30
+cheat give 37 4
+cheat cap 10
+cheat door 37 37 37 37
+press B
+press LEFT
+press A
+expect score == 1
+expect nbest0 == 1
+expect nbest2 == 0
+expect nbest6 == 0
+hold A
+waituntil tally == 3 200
+release A
+wait 8
+press A
+wait 2
+expect state == 13
+expect done == 0
+expect nights == 30
+# LEMON GROVE on OPEN ALL NIGHT keeps its own (empty) record
+cheat menu
+wait 2
+expect scen_sel == 0
+press UP
+expect scen_sel == 6
+press A
+expect scen_endless == 1
+press UP
+expect scen_sel == 3
+press UP
+press RIGHT
+press RIGHT
+expect scen_sel == 2
+press A
+wait 25
+expect base == 2
+expect night_best == 0
+expect nbest0 == 1
+expect inpool39 == 1
+expect inpool41 == 1
+# B backs out of OPEN ALL NIGHT's grid onto its tile
+cheat menu
+wait 2
+press DOWN
+press DOWN
+expect scen_sel == 6
+press A
+expect scen_endless == 1
+press DOWN
+press B
+expect scen_endless == 0
+expect scen_sel == 6
+expect state == 2
