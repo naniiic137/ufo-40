@@ -1,0 +1,72 @@
+# OPEN HOUSE: every Random list has a six-digit code; typing the same code
+# in deals the same list again (and doesn't count for the streak). The
+# planner: left and right switch GUESTS / STARS / HOUSE, up and down pick.
+game openhouse
+wait 5
+cheat won 63
+cheat menu
+wait 2
+press UP
+wait 2
+press RIGHT
+wait 2
+expect state == 17
+press UP
+press RIGHT
+press UP
+press UP
+press A
+wait 2
+expect state == 3
+expect code == 120000
+expect typed == 1
+expect npool == 15
+expect pool2 == 9
+expect pool3 == 18
+expect pool13 == 42
+expect pool14 == 38
+# again: the box starts on the last code
+cheat menu
+wait 2
+press RIGHT
+wait 2
+press A
+wait 2
+expect code == 120000
+expect pool2 == 9
+expect pool13 == 42
+# a dealt list shows its own code
+cheat menu
+wait 2
+press A
+wait 2
+expect state == 3
+expect typed == 0
+expect code >= 0
+expect code < 1000000
+# the planner
+cheat new 1 1
+cheat door 0
+cheat end
+cheat next
+expect state == 13
+expect shopcat == 0
+expect shoptype == 0
+press DOWN
+wait 2
+expect shoptype == 1
+press RIGHT
+wait 2
+expect shopcat == 1
+expect shoptype == 37
+press RIGHT
+wait 2
+expect shopcat == 2
+expect shoptype == -1
+press DOWN
+press DOWN
+wait 2
+press A
+wait 2
+expect state == 5
+expect night == 2
