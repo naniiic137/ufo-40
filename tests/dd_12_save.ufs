@@ -1,0 +1,71 @@
+# DOT & DASH: the game saves itself after nearly anything (glints, upgrades,
+# a size change, a fall). Quitting and coming back resumes at the same size,
+# in the same strip, with the same things, and taken glints stay taken.
+game dotdash
+wait 5
+cheat newgame
+cheat no_foes
+cheat nodash
+cheat area 0 19 82
+cheat nodash
+wait 5
+hold RIGHT 40
+expect glints == 3
+cheat give 2
+cheat give 5
+cheat skip_dialog
+cheat obj 0
+wait 2
+hold DOWN A 3
+expect satchel0 == 0
+wait 5
+hold DOWN 95
+waituntil trans == 0 60
+expect scale == 2
+expect level_row == 83
+wait 5
+hold RIGHT 30
+wait 60
+print px
+print level_x0
+reload
+game dotdash
+wait 30
+press A
+wait 20
+expect state == 2
+expect scale == 2
+expect depth == 1
+expect level_row == 83
+expect level_x0 == 17
+expect px > 2700
+expect glints == 3
+expect up_2 == 1
+expect up_5 == 1
+expect satchel0 == 0
+# grow back out: the glints on the rug are still gone
+hold UP 95
+waituntil trans == 0 60
+expect scale == 1
+expect picks_0 < 30
+# a save made inside Dash's fur comes back there, and growing leaves it
+cheat dash_at 200 657
+cheat tile 25 80
+wait 20
+hold DOWN 95
+waituntil trans == 0 60
+expect level_kind == 2
+wait 60
+reload
+game dotdash
+wait 30
+press A
+wait 20
+expect level_kind == 2
+expect scale == 2
+cheat no_foes
+hold UP 95
+waituntil trans == 0 60
+expect scale == 1
+expect level_kind == 0
+expect tx == 25

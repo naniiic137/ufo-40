@@ -270,6 +270,39 @@ static int count_ents(int kind, int sub) {
     return n;
 }
 
+static const char *const FLAG_NAME[FL_COUNT] = {
+    "intro", "met_granny", "specs_given", "tonic_given", "mitt_sold", "dash_clean", "puff_clean", "puff_paid",
+    "bluedust_done", "inky_done", "snarl_done", "scroll_done", "germ2_done", "pell_freed", "pell_guarded",
+    "silk_done", "egg_done", "twig_done", "crate_done", "letter1", "letter2", "letter_done", "smith_done",
+    "gear_done", "outpost", "rotifer_asked", "rotifer_dead", "rotifer_paid", "water_given", "water_paid",
+    "tablet_given", "oldcap_done", "blueeye_done", "morel_done", "seed_done", "redegg_done", "cowpoke_done",
+    "weepy_done", "shrew_free", "shrew_paid", "mage_beaten", "power_off", "earwig_dead", "wings_done",
+    "lumen", "lamp_off", "filament_asked", "bigbang_done", "throne_open", "catfood_done", "met_queen",
+    "paid_queen", "sprocket_dead", "escaped", "met_nib", "balance", "true_end", "siege_dead", "shrine",
+    "worm_friends", "puff_met", "tufty_asked", "bubbles_asked", "sticky_asked", "glue_done", "hopper_seen",
+    "volt_met", "knight_met", "filament_paid", "tock_met", "grate_open", "grass_seen", "seen_end",
+};
+static const char *const UP_ID[U_ABILITIES] = {
+    "mitt1", "mitt2", "tonic1", "tonic2", "bangle", "satchel1", "satchel2", "bean1", "bean2", "feather", "clogs1",
+    "clogs2", "musk", "buzz1", "buzz2", "fizz", "top1", "top2", "whistle", "stew", "shell", "plate", "wings",
+};
+static int flag_id(const char *n) {
+    for (int i = 0; i < FL_COUNT; i++) if (!strcmp(FLAG_NAME[i], n)) return i;
+    return -1;
+}
+static int up_id(const char *n) {
+    for (int i = 0; i < U_ABILITIES; i++) if (!strcmp(UP_ID[i], n)) return i;
+    return -1;
+}
+
+static int mark_hash = -1, mark_ents = -1;
+static int level_hash_now(void) {
+    uint32_t h = 2166136261u;
+    for (int i = 0; i < dd_lv.w * dd_lv.h; i++) h = (h ^ dd_lv.t[i]) * 16777619u;
+    return (int)(h & 0x7FFFFFFF);
+}
+static int ents_now(void) { int n = 0; for (int i = 0; i < DD_MAX_ENTS; i++) n += dd_ent[i].alive; return n; }
+
 static int dd_query(const char *key, int *out) {
     int a;
     if (!strcmp(key, "bot")) { *out = (int)dd_bot_buttons(); return 1; }
@@ -306,6 +339,7 @@ static int dd_query(const char *key, int *out) {
     if (!strcmp(key, "dash")) { *out = dd_dash >= 0; return 1; }
     if (!strcmp(key, "dash_x")) { *out = dd_dash >= 0 ? (int)dd_ent[dd_dash].x : -1; return 1; }
     if (!strcmp(key, "dash_y")) { *out = dd_dash >= 0 ? (int)dd_ent[dd_dash].y : -1; return 1; }
+    if (!strcmp(key, "dash_dist")) { *out = dd_dash >= 0 ? (int)fabsf(dd_ent[dd_dash].x - dd_p.x) : -1; return 1; }
     if (!strcmp(key, "dash_state")) { *out = dd_dash >= 0 ? dd_ent[dd_dash].state : -1; return 1; }
     if (!strcmp(key, "dash_away")) { *out = dd_sv.dash_away; return 1; }
     if (!strcmp(key, "sniff")) { *out = dd_sniff_x >= 0; return 1; }
@@ -320,6 +354,7 @@ static int dd_query(const char *key, int *out) {
     if (!strcmp(key, "biome")) { *out = dd_lv.d.kind == LV_STRIP ? dd_lv.biome[dd_chunk_of((int)dd_p.x)] : -1; return 1; }
     if (!strcmp(key, "town")) { *out = dd_town_at(&dd_lv, (int)(dd_p.x / DD_TS)); return 1; }
     if (!strcmp(key, "dialog")) { *out = dd_dialog_active(); return 1; }
+    if (!strcmp(key, "asking")) { extern bool dd_dialog_asking(void); *out = dd_dialog_asking(); return 1; }
     if (!strcmp(key, "trans")) { *out = dd_trans; return 1; }
     if (!strcmp(key, "dead")) { *out = dd_dead_t; return 1; }
     if (!strcmp(key, "hurt")) { *out = dd_hurt_t; return 1; }
@@ -333,6 +368,8 @@ static int dd_query(const char *key, int *out) {
     if (!strcmp(key, "moves_here")) { extern int dd_bot_moves_here(void); *out = dd_bot_moves_here(); return 1; }
     if (!strcmp(key, "towns")) { *out = dd_town_count(); return 1; }
     if (!strcmp(key, "collected")) { *out = dd_sv.n_collect; return 1; }
+    if (!strncmp(key, "flag.", 5)) { int f = flag_id(key + 5); if (f < 0) return 0; *out = dd_flag(f); return 1; }
+    if (!strncmp(key, "up.", 3)) { int u = up_id(key + 3); if (u < 0) return 0; *out = dd_has(u); return 1; }
     if (sscanf(key, "flag_%d", &a) == 1) { *out = dd_flag(a); return 1; }
     if (sscanf(key, "up_%d", &a) == 1) { *out = a < U_ABILITIES ? dd_has(a) : a < U_EGG0 ? (dd_sv.hearts_got >> (a - U_HEART0)) & 1 : (dd_sv.eggs_got >> (a - U_EGG0)) & 1; return 1; }
     if (sscanf(key, "qc_%d", &a) == 1) { *out = dd_sv.counts[iclamp(a, 0, 15)]; return 1; }
@@ -344,6 +381,11 @@ static int dd_query(const char *key, int *out) {
     if (sscanf(key, "foehp_%d", &a) == 1) {
         *out = -1;
         for (int i = 0; i < DD_MAX_ENTS; i++) if (dd_ent[i].alive && dd_ent[i].kind == EK_FOE && dd_ent[i].sub == a) { *out = dd_ent[i].hp; break; }
+        return 1;
+    }
+    if (sscanf(key, "foey_%d", &a) == 1) {
+        *out = -1;
+        for (int i = 0; i < DD_MAX_ENTS; i++) if (dd_ent[i].alive && dd_ent[i].kind == EK_FOE && dd_ent[i].sub == a) { *out = (int)dd_ent[i].y; break; }
         return 1;
     }
     if (sscanf(key, "foex_%d", &a) == 1) {
@@ -384,6 +426,10 @@ static int dd_query(const char *key, int *out) {
             return 1;
         }
     }
+    if (!strcmp(key, "level_hash")) { *out = level_hash_now(); return 1; }
+    if (!strcmp(key, "ents")) { *out = ents_now(); return 1; }
+    if (!strcmp(key, "same_as_mark")) { *out = level_hash_now() == mark_hash; return 1; }
+    if (!strcmp(key, "same_ents_as_mark")) { *out = ents_now() == mark_ents; return 1; }
     if (!strcmp(key, "strip_errors")) {
         /* every chunk of this strip: the ground is continuous and no cave traps you */
         int bad = 0;
@@ -406,6 +452,8 @@ static int dd_cheat(const char *cmd) {
     if (sscanf(cmd, "glints %d", &a) == 1) { dd_sv.glints = a; if (dd_sv.glints_total < a) dd_sv.glints_total = a; return 1; }
     if (sscanf(cmd, "give %d", &a) == 1) { dd_give_upgrade(a); if (dd_dialog_active()) dd_dialog_reset(); return 1; }
     if (sscanf(cmd, "flag %d", &a) == 1) { dd_set(a); return 1; }
+    if (sscanf(cmd, "set %63s", s) == 1 && flag_id(s) >= 0) { dd_set(flag_id(s)); return 1; }
+    if (sscanf(cmd, "up %63s", s) == 1 && up_id(s) >= 0) { dd_give_upgrade(up_id(s)); dd_dialog_reset(); return 1; }
     if (sscanf(cmd, "unflag %d", &a) == 1) { dd_sv.flags[a >> 3] &= (uint8_t)~(1u << (a & 7)); return 1; }
     if (sscanf(cmd, "hp %d", &a) == 1) { dd_hp = a; return 1; }
     if (sscanf(cmd, "hearts %d", &a) == 1) { dd_sv.hearts_got = (uint8_t)a; dd_hp_max = dd_hp_max_now(); dd_hp = dd_hp_max; return 1; }
@@ -469,11 +517,24 @@ static int dd_cheat(const char *cmd) {
         if (j >= 0) { dd_ent[j].home_x = (int16_t)b; dd_ent[j].home_y = (int16_t)c; }
         return 1;
     }
+    if (sscanf(cmd, "foe_under %d", &a) == 1) {
+        /* a creature in the air with Dot standing on it, 24 px up */
+        int w, h;
+        dd_foe_size(a, &w, &h);
+        float fx = dd_p.x + dd_p.w / 2 - (float)w / 2, fy = dd_p.y + dd_p.h - 24;
+        int j = dd_add_ent(EK_FOE, a, fx, fy);
+        if (j >= 0) { dd_ent[j].home_x = (int16_t)fx; dd_ent[j].home_y = (int16_t)fy; dd_ent[j].pad = 1; }
+        dd_p.y = fy - dd_p.h;
+        dd_p.vy = 0;
+        return 1;
+    }
     if (sscanf(cmd, "hold_foe %d", &a) == 1) {
         int j = dd_add_ent(EK_FOE, a, dd_p.x, dd_p.y - 8);
         if (j >= 0) { if (dd_carry >= 0) dd_ent[dd_carry].alive = 0; dd_ent[j].held = 1; dd_carry = j; }
         return 1;
     }
+    if (!strcmp(cmd, "mark")) { mark_hash = level_hash_now(); mark_ents = ents_now(); return 1; }
+    if (!strcmp(cmd, "nodash")) { if (dd_dash >= 0) dd_ent[dd_dash].alive = 0; dd_dash = -1; dd_sv.dash_away = 1; return 1; }
     if (!strcmp(cmd, "dash")) { if (dd_dash >= 0) dd_ent[dd_dash].alive = 0; dd_dash = -1; dd_spawn_dash_now(); return 1; }
     if (!strcmp(cmd, "kill_boss")) {
         for (int i = 0; i < DD_MAX_ENTS; i++)
@@ -483,6 +544,9 @@ static int dd_cheat(const char *cmd) {
     if (sscanf(cmd, "bot_tile %d %d", &a, &b) == 2) { dd_bot_goto(a, b); return 1; }
     if (sscanf(cmd, "bot_to %63s", s) == 1) { dd_bot_goto_place(s); return 1; }
     if (!strcmp(cmd, "bot_clear")) { dd_bot_clear(); return 1; }
+    if (!strcmp(cmd, "bot_talk")) { extern void dd_bot_talk(void); dd_bot_talk(); return 1; }
+    if (sscanf(cmd, "bot_hunt %d", &a) == 1) { extern void dd_bot_hunt(int sub); dd_bot_hunt(a); return 1; }
+    if (sscanf(cmd, "dash_at %d %d", &a, &b) == 2) { if (dd_dash < 0) dd_spawn_dash_now(); if (dd_dash >= 0) { dd_ent[dd_dash].x = (float)a; dd_ent[dd_dash].y = (float)b; dd_ent[dd_dash].state = 0; } return 1; }
     if (!strcmp(cmd, "title")) { dd_start(); return 1; }
     if (!strcmp(cmd, "newgame")) { fresh_game(); dd_sv.px = (int16_t)dd_p.x; dd_sv.py = (int16_t)dd_p.y; memcpy(dd_sv.stack, dd_stack, sizeof dd_stack); dd_set(FL_INTRO); enter_play(); return 1; }
     if (!strcmp(cmd, "ending")) { begin_ending(0); return 1; }

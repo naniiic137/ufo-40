@@ -117,6 +117,7 @@ void dd_dialog_draw(void) {
 }
 
 void dd_dialog_reset(void) { n_pages = 0; asking = false; ask_cb = NULL; }
+bool dd_dialog_asking(void) { return n_pages > 0 && asking && cur == n_pages - 1; }
 
 /* ------------------------------------------------------------------ */
 /* helpers                                                                */

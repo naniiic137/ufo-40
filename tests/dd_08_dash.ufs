@@ -1,0 +1,109 @@
+# DOT & DASH: Dash follows Dot, can be lifted and thrown (it hurts, and he
+# runs off with a yelp unless he wears his plate), comes back to the Pup
+# Whistle (double-tap UP), flies home and carries Dot up with Kite Wings,
+# and has a world of his own in his fur: clear the fleas and he sniffs out
+# treasure.
+game dotdash
+wait 5
+cheat newgame
+cheat no_foes
+wait 10
+expect dash == 1
+hold DOWN 95
+waituntil trans == 0 60
+expect scale == 1
+expect dash == 1
+# he trots after her
+hold RIGHT 40
+wait 90
+expect dash_dist < 40
+# lift him: stand on his back, B
+cheat tile 22 82
+wait 2
+cheat dash_at 172 657
+cheat tile 21 80
+wait 20
+expect riding == 100
+press B
+wait 20
+expect carry_kind == 1
+# thrown at an ant: the ant is done for, and Dash yelps and runs off
+cheat foe 0 210 658
+hold RIGHT 1
+wait 2
+press B
+wait 30
+expect foes_0 == 0
+expect dash == 0
+expect dash_away == 1
+# the whistle brings him running
+cheat give 18
+cheat skip_dialog
+press UP 2
+press UP 2
+wait 5
+expect dash == 1
+# with his plate he shrugs it off
+cheat give 21
+cheat skip_dialog
+cheat tile 22 82
+cheat dash_at 180 657
+cheat tile 23 80
+wait 20
+press B
+wait 20
+expect carry_kind == 1
+cheat foe 0 230 658
+hold RIGHT 1
+wait 2
+press B
+wait 30
+expect foes_0 == 0
+expect dash == 1
+# kite wings: thrown, he flies home; stood on, UP flies him up with Dot aboard
+cheat give 22
+cheat skip_dialog
+wait 60
+cheat tile 22 82
+cheat dash_at 172 657
+cheat tile 21 80
+wait 20
+expect riding == 100
+press UP 2
+wait 30
+expect dash_state == 5
+expect ty < 79
+waituntil ground == 1 400
+# his fur: stand on him and shrink, with the tonic
+cheat give 2
+cheat skip_dialog
+cheat tile 22 82
+wait 60
+cheat dash_at 172 657
+cheat tile 21 80
+wait 20
+expect riding == 100
+hold DOWN 95
+waituntil trans == 0 60
+expect scale == 2
+expect level_kind == 2
+expect level_id == 0
+expect foes_8 == 8
+# the popgun at the way in, and eight fleas to shoot
+cheat bot_tile 6 19
+botuntil bot_state == 2 600
+press B
+wait 20
+expect carry == 16
+cheat bot_hunt 8
+botuntil foes_8 == 0 6000
+expect flag_5 == 1
+cheat skip_dialog
+# back outside, in a micro strip with treasure, Dash sniffs it out
+hold UP 95
+waituntil trans == 0 60
+expect scale == 1
+cheat micro 0 83 30 4
+cheat dash
+wait 10
+expect sniff == 1

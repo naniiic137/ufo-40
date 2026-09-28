@@ -104,7 +104,7 @@ static int put(int kind, int sub, int tx, int ty) {
     else if (kind == EK_DOOR) { w = 8; h = 16; }
     else if (kind == EK_PICK) { w = 7; h = 7; }
     int i = dd_add_ent(kind, sub, (float)(tx * DD_TS + (DD_TS - w) / 2), (float)((ty + 1) * DD_TS - h));
-    if (i >= 0) { dd_ent[i].w = (int16_t)w; dd_ent[i].h = (int16_t)h; dd_ent[i].home_x = (int16_t)tx; dd_ent[i].home_y = (int16_t)ty; }
+    if (i >= 0) { dd_ent[i].w = (int16_t)w; dd_ent[i].h = (int16_t)h; dd_ent[i].home_x = (int16_t)dd_ent[i].x; dd_ent[i].home_y = (int16_t)dd_ent[i].y; }
     return i;
 }
 static void npc(int sub, int tx, int ty) {
@@ -355,8 +355,7 @@ static void room_ents(void) {
         (void)d;
     }
     foe(F_BEETLE, 116, 66);
-    foe(F_MOTH, 39, 40);
-    foe(F_MOTH, 40, 70);
+    foe(F_MOTH, 39, 57);
     foe(F_ANT, 96, 83);
     foe(F_ANT, 30, 82);
     foe(F_SPRING, 140, 57);
@@ -585,7 +584,6 @@ static void area_cavity(void) {
 
 static void sp_dashfur(void) {
     if (!spawning) {
-        bgf(0, 0, 59, 23, BG_DARK);
         fill(0, 20, 59, 23, T_FUR);
         fill(0, 0, 1, 23, T_FUR);
         fill(58, 0, 59, 23, T_FUR);
@@ -597,7 +595,8 @@ static void sp_dashfur(void) {
         fill(38, 16, 42, 19, T_FUR);
         return;
     }
-    static const int NX[8] = {10, 16, 22, 28, 34, 40, 46, 52};
+    obj(O_POPGUN, 6, 19);
+    static const int NX[8] = {9, 14, 18, 27, 32, 36, 46, 52};
     for (int k = 0; k < 8; k++)
         if (!((dd_sv.counts[QC_NIPS] >> k) & 1)) {
             int i = put(EK_FOE, F_NIP, NX[k], 19);
@@ -608,7 +607,6 @@ static void sp_dashfur(void) {
 
 static void sp_pufffur(void) {
     if (!spawning) {
-        bgf(0, 0, 49, 23, BG_DARK);
         fill(0, 20, 49, 23, T_DUST);
         fill(0, 0, 1, 23, T_DUST);
         fill(48, 0, 49, 23, T_DUST);
@@ -616,6 +614,7 @@ static void sp_pufffur(void) {
         fill(24, 17, 27, 19, T_DUST);
         return;
     }
+    obj(O_POPGUN, 5, 19);
     static const int MX[6] = {9, 16, 23, 30, 37, 43};
     for (int k = 0; k < 6; k++)
         if (!((dd_sv.counts[QC_MITES] >> k) & 1)) {
@@ -627,7 +626,6 @@ static void sp_pufffur(void) {
 /* inside the clockwork knight: a gauntlet to his mainspring */
 static void sp_sprocket(void) {
     if (!spawning) {
-        bgf(0, 0, 99, 23, BG_DARK);
         fill(0, 0, 99, 1, T_METAL);
         fill(0, 0, 1, 23, T_METAL);
         fill(98, 0, 99, 23, T_METAL);
@@ -658,7 +656,6 @@ static void sp_sprocket(void) {
 
 static void sp_hermit(void) {
     if (!spawning) {
-        bgf(0, 0, 29, 17, BG_DARK);
         frame_box(30, 18, T_CELL, 15);
         fill(8, 11, 12, 11, T_LEDGE);
         return;
@@ -669,7 +666,6 @@ static void sp_hermit(void) {
 
 static void sp_deepshelf(void) {
     if (!spawning) {
-        bgf(0, 0, 49, 21, BG_DARK);
         frame_box(50, 22, T_CELL2, 19);
         fill(10, 15, 14, 15, T_LEDGE);
         fill(18, 11, 22, 11, T_LEDGE);
@@ -1171,7 +1167,7 @@ static void gen_chunk(const LevelDesc *d, int i) {
         }
         int F = imin(s0 + 2 * steps, CHUNK_H - 3);
         int cx0 = e + 2 * steps, cx1 = imin(cx0 + W - 1, CHUNK_W - 3);
-        fill(ox + cx0 - 1, F - 5, ox + cx1, F - 1, T_AIR);
+        fill(ox + cx0 - 1, F - (danger ? 7 : 5), ox + cx1, F - 1, T_AIR);
         fill(ox + cx0 - 1, F, ox + cx1, F, solid_t);
         for (int xx = e; xx < e + 3; xx++) B->surf[ox + xx] = (uint8_t)imin(B->surf[ox + xx], s0);
         B->cave_x0[i] = (int8_t)cx0;

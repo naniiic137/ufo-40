@@ -1,0 +1,58 @@
+# DOT & DASH: the micro world is generated, but the same every time and for
+# everyone: it comes from the material and the position alone. Treasures
+# exist in two copies at fixed spots; take one and the other is a glint.
+game dotdash
+wait 5
+cheat newgame
+cheat no_foes
+cheat god
+cheat give 0
+cheat give 2
+cheat skip_dialog
+cheat micro 0 83 22 4
+wait 5
+expect level_kind == 1
+expect biome == 5
+cheat mark
+cheat grow
+cheat micro 0 66 45 4
+wait 5
+expect biome == 4
+expect same_as_mark == 0
+cheat grow
+cheat micro 0 83 22 4
+expect same_as_mark == 1
+expect same_ents_as_mark == 1
+# the same strip entered from another tile of the same rug is the same strip
+cheat grow
+cheat micro 0 83 33 2
+wait 5
+expect level_x0 == 17
+expect level_n == 19
+expect same_as_mark == 1
+# the second grip mitt: one copy in the books, one between the walls
+cheat grow
+cheat micro 0 52 142 4
+cheat no_foes
+wait 5
+expect objs_4 == 1
+cheat bot_to obj:4
+botuntil bot_state == 2 3000
+press B
+wait 20
+expect carry == 4
+hold RIGHT 1
+press B
+wait 30
+expect picks_4 == 1
+cheat bot_to pick:4
+botuntil up_1 == 1 3000
+cheat skip_dialog
+# the other copy has turned into a glint
+cheat bot_clear
+cheat grow
+cheat area 2 58 15
+cheat micro 2 16 58 4
+wait 5
+expect objs_4 == 0
+expect picks_1 >= 1

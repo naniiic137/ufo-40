@@ -1,0 +1,40 @@
+# DOT & DASH: glints are worth 1, 5 and 50 (the big ones sit two to a
+# dangerous cave). Once picked up they're gone for good, even though the
+# micro world is rebuilt every visit. 100 glints earns the Beacon.
+game dotdash
+wait 5
+cheat newgame
+cheat no_foes
+cheat nodash
+cheat area 0 19 82
+cheat nodash
+wait 5
+expect goals.dotdash == 0
+# three tiny glints lie on the rug
+hold RIGHT 40
+expect glints == 3
+# the dangerous cave in the rug: the demo player walks down past the thorns
+cheat give 2
+cheat skip_dialog
+cheat micro 0 83 30 4
+cheat no_foes
+cheat god
+wait 5
+expect picks_2 == 2
+cheat bot_tile 541 18
+botuntil bot_state == 2 3000
+expect bigs == 1
+expect glints >= 53
+expect goals.dotdash == 0
+print place_x.pick:2
+print place_y.pick:2
+cheat bot_to pick:2
+botuntil glints >= 100 3000
+expect bigs == 2
+expect goals.dotdash & 1
+# leave and come back: the big glints stay taken
+cheat bot_clear
+cheat grow
+cheat micro 0 83 30 4
+wait 5
+expect picks_2 == 0

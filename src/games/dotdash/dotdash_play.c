@@ -287,6 +287,7 @@ static int dash_away_t;
 static int save_wait;
 static bool save_dirty;
 static float ride_dx, ride_dy;
+static int ride_lr = -1;
 
 enum { PA_NONE, PA_SHRINK, PA_GROW, PA_DOOR, PA_DEATH, PA_SPECIAL };
 static int pa_door;
@@ -528,7 +529,7 @@ static void foe_update(int i) {
             bool bx = dd_body_blocked(&dd_lv, DD_TS, nx, e->y, e->w, e->h), by = dd_body_blocked(&dd_lv, DD_TS, e->x, ny, e->w, e->h);
             if (!bx) e->x = nx;
             if (!by) e->y = ny;
-            if ((bx && e->vx != 0) || (by && e->vy != 0) || e->st > 400) { e->cmd = 0; e->home_y = (int16_t)e->y; e->home_x = (int16_t)e->x; }
+            if ((bx && e->vx != 0) || (by && e->vy != 0) || e->st > 400) { e->cmd = 0; e->home_y = (int16_t)e->y; e->home_x = (int16_t)e->x; e->pad = 1; e->t = 0; }
         } else {
             ent_move(e, 0.25f, false);
             if ((e->param2 & 0x10000) || e->st > 300) e->cmd = 0;
@@ -539,7 +540,7 @@ static void foe_update(int i) {
     switch (e->sub) {
     case F_MOTH: {
         e->vx = 0;
-        float target = (float)e->home_y + sinf((float)e->t * 0.02f) * 30.0f;
+        float target = (float)e->home_y + sinf((float)e->t * 0.02f) * (e->pad ? 3.0f : 30.0f);
         e->vy = iclamp((int)((target - e->y) * 10), -6, 6) / 10.0f;
         float ny = e->y + e->vy;
         if (!dd_body_blocked(&dd_lv, DD_TS, e->x, ny, e->w, e->h)) e->y = ny;
@@ -582,7 +583,7 @@ static void foe_update(int i) {
         } else {
             float dx = px_c() - e->x;
             float nx = e->x + (fabsf(dx) < 100 ? (dx > 0 ? 0.25f : -0.25f) : 0);
-            float ny = (float)e->home_y + sinf((float)e->t * 0.04f + (float)i) * 8.0f;
+            float ny = (float)e->home_y + sinf((float)e->t * 0.04f) * (e->pad ? 2.0f : 8.0f);
             if (!dd_body_blocked(&dd_lv, DD_TS, nx, e->y, e->w, e->h)) e->x = nx;
             if (!dd_body_blocked(&dd_lv, DD_TS, e->x, ny, e->w, e->h)) e->y = ny;
             e->dir = dx > 0;
@@ -1741,6 +1742,8 @@ static void ride_check(float old_bottom) {
         float top = o->y + (o->kind == EK_FOE && o->sub == F_SPROCKET ? 16 : 0);
         dd_p.y = top - dd_p.h;
         dd_p.ground = 1;
+        if (dd_p.vy > 0) dd_p.vy = 0;
+        dd_p.coyote = 5;
         (void)ride_dx;
         (void)ride_dy;
     }
@@ -1776,6 +1779,15 @@ static void player_update(void) {
     if (small && dd_has(U_BANGLE) && dbl[1] && dd_p.ground) { dd_p.drop_t = 10; riding = -1; }
     if (small && dd_has(U_WHISTLE) && dbl[0]) call_dash();
     if (pressed(BTN_UP) && dd_p.ground && !(in & BTN_A)) { if (interact()) talk_lock = 1; }
+    /* DOWN tells a commanded flyer to stop and hover */
+    if (pressed(BTN_DOWN) && riding >= 0 && dd_ent[riding].kind == EK_FOE && dd_ent[riding].cmd) {
+        Ent *o = &dd_ent[riding];
+        o->cmd = 0;
+        o->home_x = (int16_t)o->x;
+        o->home_y = (int16_t)o->y;
+        o->t = 0;
+        o->pad = 1; /* a tamed flyer only drifts a little */
+    }
     if (!(in & BTN_UP)) talk_lock = 0;
     /* hold DOWN to shrink, hold UP to grow */
     bool still = dd_p.ground && !(in & (BTN_LEFT | BTN_RIGHT | BTN_A | BTN_B));
@@ -1800,18 +1812,14 @@ static void player_update(void) {
     float old_bottom = dd_p.y + dd_p.h;
     /* carried along by what she stands on */
     if (riding >= 0 && dd_ent[riding].alive) {
-        static float lx, ly;
-        static int lr = -1;
         Ent *o = &dd_ent[riding];
-        if (lr == riding) {
-            float dx = o->x - lx;
-            if (!dd_body_blocked(&dd_lv, ph->ts, dd_p.x + dx, dd_p.y, dd_p.w, dd_p.h)) dd_p.x += dx;
-            (void)ly;
+        if (ride_lr == riding) {
+            float dx = o->x - ride_dx;
+            if (fabsf(dx) < 8 && !dd_body_blocked(&dd_lv, ph->ts, dd_p.x + dx, dd_p.y, dd_p.w, dd_p.h)) dd_p.x += dx;
         }
-        lx = o->x;
-        ly = o->y;
-        lr = riding;
-    }
+        ride_dx = o->x;
+        ride_lr = riding;
+    } else ride_lr = -1;
     dd_body_step(&dd_p, bin, dd_in_prev, &dd_lv, ph, dd_has(U_BANGLE), bean);
     ride_check(old_bottom);
     if (pressed(BTN_A) && dd_p.jumping) sfx_play_name("dd_jump");

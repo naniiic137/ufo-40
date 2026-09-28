@@ -241,6 +241,8 @@ static int astar(int start, int goal, int max_expand) {
 
 /* ---- running a route with real presses ------------------------------------ */
 static int goal_x = -1, goal_y = -1, exec_f = -1, exec_prog, center_t, wait_t, fails;
+static int hunt_sub = -1, hunt_t;
+static uint32_t hunt_prev;
 static int exec_total;
 
 void dd_bot_goto(int tx, int ty) {
@@ -251,7 +253,7 @@ void dd_bot_goto(int tx, int ty) {
     center_t = 0;
     fails = 0;
 }
-void dd_bot_clear(void) { goal_x = goal_y = -1; dd_bot_state = 0; exec_f = -1; }
+void dd_bot_clear(void) { goal_x = goal_y = -1; dd_bot_state = 0; exec_f = -1; hunt_sub = -1; }
 int dd_bot_plan_len(void) { return route_len; }
 
 void dd_bot_goto_place(const char *name) {
@@ -265,8 +267,74 @@ static int here_node(void) {
     return ty * LW + tx;
 }
 
+/* hunting: walk into line with the nearest creature of a kind and shoot it
+ * with the popgun Dot carries */
+void dd_bot_hunt(int sub) { hunt_sub = sub; dd_bot_state = 1; exec_f = -1; hunt_t = 0; fails = 0; goal_x = goal_y = -1; }
+
+static uint32_t plan_step(void);
+
+static uint32_t hunt_buttons(void) {
+    int best = -1;
+    float bd = 1e9f, pcx = dd_p.x + dd_p.w / 2, pb = dd_p.y + dd_p.h;
+    for (int i = 0; i < DD_MAX_ENTS; i++) {
+        const Ent *e = &dd_ent[i];
+        if (!e->alive || e->kind != EK_FOE || e->sub != hunt_sub || e->held) continue;
+        float d = fabsf(e->x + e->w / 2 - pcx) + fabsf(e->y + e->h - pb) * 2;
+        if (d < bd) { bd = d; best = i; }
+    }
+    if (best < 0) { hunt_sub = -1; dd_bot_state = 2; return 0; }
+    if (dd_carry < 0 || dd_ent[dd_carry].kind != EK_OBJ || dd_ent[dd_carry].sub != O_POPGUN) { dd_bot_state = 3; return 0; }
+    const Ent *e = &dd_ent[best];
+    float dx = e->x + e->w / 2 - pcx, dy = e->y + e->h - pb;
+    hunt_t++;
+    bool clear = true;
+    for (float t = 0; t < fabsf(dx); t += 3)
+        if (dd_body_blocked(&dd_lv, TS, pcx + (dx > 0 ? t : -t), dd_p.y + 5, 1, 4)) { clear = false; break; }
+    if (exec_f < 0 && dd_p.ground && clear && fabsf(dy) < 10 && fabsf(dx) < 100 && fabsf(dx) > 2) {
+        bool facing_ok = (dx > 0) == (dd_p.facing != 0);
+        uint32_t b = 0;
+        if (!facing_ok) b = dx > 0 ? BTN_RIGHT : BTN_LEFT;
+        else if (!(hunt_prev & BTN_B)) b = BTN_B;
+        hunt_prev = b;
+        return b;
+    }
+    hunt_prev = 0;
+    /* walk to a tile on its level, a few tiles off */
+    if (exec_f < 0) {
+        int ftx = (int)((e->x + e->w / 2) / TS), fty = (int)((e->y + e->h - 1) / TS);
+        int side = dx > 0 ? -1 : 1;
+        if (!clear) side = -side;
+        goal_x = -1;
+        for (int k = 4; k <= 9 && goal_x < 0; k++)
+            for (int sgn = 0; sgn < 2 && goal_x < 0; sgn++) {
+                int gx = ftx + (sgn ? -side : side) * k;
+                if (standable(gx, fty)) { goal_x = gx; goal_y = fty; }
+            }
+        if (goal_x < 0) { goal_x = ftx; goal_y = fty; }
+    }
+    return plan_step();
+}
+
+/* talking: press A through the pages (a question is left for the test) */
+static int talk_mode, talk_t;
+void dd_bot_talk(void) { talk_mode = 1; talk_t = 0; dd_bot_state = 1; }
+
 uint32_t dd_bot_buttons(void) {
+    if (talk_mode) {
+        extern bool dd_dialog_asking(void);
+        if (!dd_dialog_active() || dd_dialog_asking()) { talk_mode = 0; dd_bot_state = 2; return 0; }
+        return (++talk_t % 4) < 2 ? BTN_A : 0;
+    }
+    if (hunt_sub >= 0 && dd_bot_state == 1) {
+        if (dd_state != ST_PLAY || dd_trans || dd_dead_t || dd_dialog_active()) return 0;
+        ensure_graph();
+        return hunt_buttons();
+    }
     if (dd_bot_state != 1 || goal_x < 0) return 0;
+    return plan_step();
+}
+
+static uint32_t plan_step(void) {
     if (dd_state != ST_PLAY || dd_trans || dd_dead_t) return 0;
     if (dd_dialog_active()) return 0;
     ensure_graph();
@@ -280,7 +348,7 @@ uint32_t dd_bot_buttons(void) {
     if (!dd_p.ground) return 0;
     int here = here_node();
     int goal = goal_y * LW + goal_x;
-    if (here == goal) { dd_bot_state = 2; return 0; }
+    if (here == goal) { if (hunt_sub < 0) dd_bot_state = 2; return 0; }
     /* line up on the middle of the tile first, so the practised move fits */
     float cx = dd_p.x + dd_p.w / 2, want = (float)((here % LW) * TS) + (float)TS / 2;
     float dx = want - cx;
@@ -294,7 +362,7 @@ uint32_t dd_bot_buttons(void) {
     center_t = 0;
     int len = astar(here, goal, 60000);
     if (len <= 0) {
-        if (++fails > 3) { dd_bot_state = 3; fprintf(stderr, "bot: no route from %d,%d to %d,%d\n", here % LW, here / LW, goal_x, goal_y); }
+        if (++fails > 3 && hunt_sub < 0) { dd_bot_state = 3; fprintf(stderr, "bot: no route from %d,%d to %d,%d\n", here % LW, here / LW, goal_x, goal_y); }
         return 0;
     }
     exec_prog = route_prog[0];
