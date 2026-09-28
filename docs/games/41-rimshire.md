@@ -55,7 +55,7 @@ with 22 inns, 15 tomes, 16 seams and 20 chests.
 | Mechanic | How RIMSHIRE does it | Source | Test |
 |---|---|---|---|
 | Turns on the board | Brass (the player) always moves first; one move on the war's first turn, then two a turn (three with SCOUTING); two players toss for who starts | [KB], [MH] | rsh_02, rsh_05 |
-| Moving | each d-pad press moves the banner one space at once; every move must be used | [KB], [OWNER] | rsh_02 |
+| Moving | the d-pad points at a road, A ("confirm") takes the banner one space along it; every move must be used | [KB], [OWNER] | rsh_02 |
 | The trail | a banner leaves a trail and can't step onto it again | [KB], [MH], [LIZ] | rsh_02 |
 | Going home | holding B takes the banner home at any time in its turn (even between moves), wipes its trail and ends the turn; not from home | [MM], [KB], [OWNER] | rsh_03 |
 | Nowhere to go | the only way out is home | [KB] | rsh_02 |
@@ -177,7 +177,7 @@ original's prompts: battle, "launch disk" and "camera mode"; board,
 
 | Input | Action |
 |---|---|
-| D-pad (board) | move one space |
+| D-pad, A (board) | point at a road, go one space |
 | Hold B (board) | retreat home; the turn ends |
 | A / B in the inn | hire / leave; UP and DOWN choose |
 | A in a tome | learn; UP and DOWN choose |
@@ -192,7 +192,7 @@ original's prompts: battle, "launch disk" and "camera mode"; board,
 | Control | Our reading | Why |
 |---|---|---|
 | Choosing a disk from the queue | LEFT / RIGHT, then A | no source names the input |
-| A step on the board | one d-pad press, one space, at once | the knowledge base says moves are made one by one with a retreat possible between them; no source names the input |
+| A step on the board | the d-pad points at a road, A goes one space | the owner's prompt shows A as "confirm" on the board, and the knowledge base says moves are made one by one with a retreat possible between them; no source spells out the input |
 | Retreat | B held a third of a second | the manual says hold B, the knowledge base says press |
 | Inn, tome and reserve menus | UP / DOWN and A; B leaves the inn or cancels the reserve choice | no source names these |
 | Camera | B held with the d-pad; letting go follows the action | the manual says hold B and move the d-pad; the owner's prompt says "camera mode" |
