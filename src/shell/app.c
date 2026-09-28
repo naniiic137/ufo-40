@@ -112,6 +112,7 @@ bool menu_query(const char *key, int *out);
 bool options_query(const char *key, int *out);
 bool jukebox_query(const char *key, int *out);
 bool savedata_query(const char *key, int *out);
+bool library_query(const char *key, int *out);
 
 bool shell_query(const char *key, int *out) {
     if (!strcmp(key, "music_vol")) { *out = g_progress.music_vol; return true; }
@@ -139,7 +140,8 @@ bool shell_query(const char *key, int *out) {
         *out = g >= 0 ? g_progress.played[g] : -1;
         return true;
     }
-    return menu_query(key, out) || options_query(key, out) || jukebox_query(key, out) || savedata_query(key, out);
+    return menu_query(key, out) || options_query(key, out) || jukebox_query(key, out) || savedata_query(key, out) ||
+           library_query(key, out);
 }
 
 void app_update(void) { engine_update(); }

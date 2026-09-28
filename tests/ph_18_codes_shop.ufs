@@ -1,6 +1,7 @@
 # OPEN HOUSE: every Random list has a six-digit code; typing the same code
 # in deals the same list again (and doesn't count for the streak). The
-# planner: left and right switch GUESTS / STARS / HOUSE, up and down pick.
+# shop is a grid of guest cards, five to a row, over SPACE / GUEST BOOK /
+# NEXT PARTY.
 game openhouse
 wait 5
 cheat won 63
@@ -44,28 +45,61 @@ expect state == 3
 expect typed == 0
 expect code >= 0
 expect code < 1000000
-# the planner
+# the shop grid (scenario 1 deals 15 guests: three rows of five)
 cheat new 1 1
 cheat door 0
 cheat end
 cheat next
 expect state == 13
-expect shopcat == 0
+expect npool == 15
+expect shopcur == 0
 expect shoptype == 0
-press DOWN
-wait 2
-expect shoptype == 1
 press RIGHT
-wait 2
-expect shopcat == 1
+expect shopcur == 1
+expect shoptype == 1
+# no wrap at the left edge
+press LEFT
+press LEFT
+expect shopcur == 0
+press DOWN
+expect shopcur == 5
+expect shoptype == 7
+press DOWN
+expect shopcur == 10
+# down from the last row: the buttons, starting on SPACE
+press DOWN
+expect shopcur == 15
+expect shoptype == -1
+# the buttons run SPACE, GUEST BOOK, NEXT PARTY
+press RIGHT
+expect shopcur == 17
+press RIGHT
+expect shopcur == 16
+press RIGHT
+expect shopcur == 16
+# up goes back to the start of the last row of cards
+press UP
+expect shopcur == 10
+press RIGHT
+press RIGHT
+press RIGHT
+press RIGHT
+expect shopcur == 14
 expect shoptype == 37
 press RIGHT
-wait 2
-expect shopcat == 2
-expect shoptype == -1
+expect shopcur == 14
+# the guest book opens and closes back into the shop
 press DOWN
-press DOWN
+press RIGHT
+expect shopcur == 17
+press A
 wait 2
+expect state == 16
+press B
+wait 2
+expect state == 13
+# NEXT PARTY
+press RIGHT
 press A
 wait 2
 expect state == 5

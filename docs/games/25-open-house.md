@@ -216,7 +216,7 @@ Only the platform needs every UFO 40 cartridge has:
 | START | pause menu |
 
 The guest book (the whole deck, each guest with a count) is a button under
-the door and in the planner. It doesn't split the deck into guests still to
+the door and in the shop. It doesn't split the deck into guests still to
 come and guests out: no source says the original shows the draws left.
 
 The party's top bar, like the original's panel [MM], shows the nights left
@@ -224,10 +224,17 @@ The party's top bar, like the original's panel [MM], shows the nights left
 that turn from blue to yellow for each star guest in the house. The trouble
 count stays hidden; the neighbour's lamp is the only warning.
 
-The planner follows the original's layout [MM]: LEFT and RIGHT switch
-between the categories GUESTS, STARS and HOUSE (a new space, the guest book,
-the next party); UP and DOWN pick an item. Guests are listed by price, white
-when you can afford them, with their stock left as white squares.
+The shop is a grid of guest cards, five to a row, each with its face, its
+price in fame (yellow when you can afford it) and its stock left as green
+bars (stars say STAR); the counter on the right describes the card under
+the cursor. Under the grid sit +1 SPACE, GUEST BOOK and NEXT PARTY. The
+D-pad moves around the grid; DOWN from the last row reaches the buttons.
+
+The grid shop is the owner's choice. The original's layout differs: its
+planner [MM] sorts what's on sale into categories that LEFT and RIGHT switch
+between, with UP and DOWN picking an item in one. We tried that and went
+back to the grid, which the owner prefers; everything else about the shop
+(the stock, prices and expansion costs) follows the original.
 
 ## Testing hooks
 

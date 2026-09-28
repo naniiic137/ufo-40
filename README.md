@@ -76,6 +76,12 @@ and the music and sound volumes are in every game's pause menu too.
 
 <p align="center"><img src="docs/shots/library.png" width="640" alt="The UFO 40 game library with 50 cartridge slots"></p>
 
+Eight full-size cartridges to a row, five rows at a time: the grid scrolls
+as the cursor moves down to slots 41–50, and a bar in the left margin shows
+when there is more above or below.
+
+<p align="center"><img src="docs/shots/library_scrolled.png" width="320" alt="The library scrolled down to slots 41-50"></p>
+
 | # | Cartridge | Tribute to | What plays the same | What's ours |
 |---|---|---|---|---|
 | 01 | **UNDERDELVE** | Barbuta | an 8×8 wrapping map, one-hit deaths, six spare lives and no continue, one fixed jump with no air control, a roaming death that moves a room whenever you do, traps, hidden walls and ladders, hint-givers, a death taken on purpose, items that open the way, three paths to the final boss | Mo the mole, a dark mine, the Gloom, the glow-worms, 64 new screens |
