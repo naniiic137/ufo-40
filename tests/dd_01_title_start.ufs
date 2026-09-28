@@ -27,13 +27,13 @@ expect flag_0 == 1
 hold RIGHT 30
 wait 60
 expect px > 60
-print px
 reload
 game dotdash
 wait 30
 expect has_save == 1
 press A
 wait 10
+# a new session always begins at full size in the room, at the rug
 expect state == 2
 expect scale == 0
-expect px > 60
+expect px == 52

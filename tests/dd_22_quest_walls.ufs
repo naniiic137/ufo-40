@@ -1,0 +1,89 @@
+# DOT & DASH: between the walls. Dr. Volt throws the breaker so the fried
+# outlet is a way in. The tin mage on the far board holds Barley the shrew
+# under a spell: beat him (5) and Barley pays 20, then mixes a mushroom drink
+# from a spore. A jar of acid eats through the rusty grate to three glints,
+# and a cracker opens the weak wood of the first stud.
+game dotdash
+wait 5
+cheat newgame
+cheat no_foes
+cheat nodash
+cheat god
+cheat area 0 81 83
+cheat nodash
+wait 5
+cheat bot_to npc:2
+botuntil bot_state == 2 2000
+press UP
+wait 5
+cheat bot_talk
+botuntil bot_state == 2 900
+expect asking == 1
+press LEFT
+press A
+wait 5
+expect flag.power_off == 1
+cheat skip_dialog
+# in through the west outlet
+cheat bot_to door:2
+botuntil bot_state == 2 2000
+press UP
+waituntil level_id == 2 60
+waituntil trans == 0 60
+cheat bot_to npc:14
+botuntil bot_state == 2 3000
+press UP
+wait 5
+cheat bot_talk
+botuntil bot_state == 2 900
+expect flag.shrew_free == 0
+# the tin mage on board C
+cheat obj 16
+cheat bot_hunt 17
+botuntil foes_17 == 0 8000
+expect flag.mage_beaten == 1
+cheat bot_clear
+cheat skip_dialog
+cheat bot_to npc:14
+botuntil bot_state == 2 3000
+press UP
+wait 5
+cheat bot_talk
+botuntil bot_state == 2 900
+expect flag.shrew_paid == 1
+# a spore becomes a mushroom drink
+cheat obj 12
+wait 2
+press UP
+wait 5
+cheat bot_talk
+botuntil bot_state == 2 900
+expect carry == 38
+# the grate: a jar of acid (filled from goo) melts it
+cheat obj 24
+cheat bot_to door:18
+botuntil bot_state == 2 3000
+press UP
+wait 5
+expect flag.grate_open == 1
+expect carry == 20
+cheat bot_talk
+botuntil bot_state == 2 900
+cheat bot_tile 101 30
+botuntil bot_state == 2 2000
+wait 5
+expect glints >= 10
+# the pink slime seep fills a jar for the chef
+cheat obj 20
+cheat bot_tile 89 30
+botuntil bot_state == 2 2000
+hold RIGHT 20
+wait 5
+expect carry == 22
+# the fried outlet leads back out, now the power is off
+cheat bot_to door:5
+botuntil bot_state == 2 3000
+press UP
+waituntil level_id == 0 60
+waituntil trans == 0 60
+expect tx >= 150

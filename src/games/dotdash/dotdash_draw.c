@@ -379,44 +379,49 @@ static int place_t;
 static const char *last_place;
 
 void dd_draw_hud(void) {
-    /* hearts */
-    int max = dd_hp_max, hp = dd_hp;
-    for (int k = 0; k < (max + 1) / 2; k++) {
-        int x = 4 + k * 8, y = 3;
+    /* top right: hearts, energy, glints */
+    int max = dd_hp_max, hp = dd_hp, nh = (max + 1) / 2;
+    char b[48];
+    int x0 = SCREEN_W - 4 - nh * 8;
+    for (int k = 0; k < nh; k++) {
+        int x = x0 + k * 8, y = 3;
         int full = hp - k * 2;
         spr_draw(&dd_spr[S_HEART], x, y, 0);
         if (full <= 0) spr_draw_ex(&dd_spr[S_HEART], x, y, 0, NULL, C_DUSK);
         else if (full == 1) { spr_draw_ex(&dd_spr[S_HEART], x, y, 0, NULL, C_DUSK); spr_draw(&dd_spr[S_HALF], x, y, 0); }
         if (max - k * 2 == 1) gfx_rect(x + 4, y, 4, 7, C_INK);
     }
-    /* glints */
-    char b[48];
+    /* energy: a little bolt and the level */
+    int ex = SCREEN_W - 58, ey = 12;
+    gfx_line(ex + 3, ey, ex, ey + 3, C_YELLOW);
+    gfx_hline(ex, ex + 3, ey + 3, C_YELLOW);
+    gfx_line(ex + 3, ey + 3, ex, ey + 6, C_YELLOW);
+    snprintf(b, sizeof b, "%d", dd_pep());
+    tiny_draw(b, ex + 6, ey + 1, C_LIME);
     snprintf(b, sizeof b, "%d", dd_sv.glints);
-    spr_draw(&dd_spr[S_GLINT5], 250, 3, 0);
-    text_shadow(b, 260, 3, C_YELLOW, C_INK);
-    /* pep pips */
-    for (int k = 0; k < 9; k++) gfx_rect(4 + k * 4, 12, 3, 2, k < dd_pep() ? C_LIME : C_NIGHT);
-    /* size: four dots, filled to the current size */
+    spr_draw(&dd_spr[S_GLINT5], SCREEN_W - 40, 11, 0);
+    text_shadow(b, SCREEN_W - 31, 11, C_YELLOW, C_INK);
+    /* top left: the size, the clock */
     static const char *SZ[4] = {"FULL", "SMALL", "MICRO", "DEEP"};
     for (int k = 0; k < 4; k++) {
-        int x = 294 + k * 6;
-        if (k == dd_scale) gfx_rect(x, 12, 4, 4, C_WHITE);
-        else gfx_rectb(x, 12, 4, 4, k <= (dd_has(U_TONIC2) ? 3 : dd_has(U_TONIC1) ? 2 : 1) ? C_GREY : C_DUSK);
+        int x = 4 + k * 6;
+        if (k == dd_scale) gfx_rect(x, 4, 4, 4, C_WHITE);
+        else gfx_rectb(x, 4, 4, 4, k <= (dd_has(U_TONIC2) ? 3 : dd_has(U_TONIC1) ? 2 : 1) ? C_GREY : C_DUSK);
     }
-    tiny_draw(SZ[dd_scale], 294 - tiny_width(SZ[dd_scale]) - 3, 12, C_GREY);
+    tiny_draw(SZ[dd_scale], 30, 4, C_GREY);
     /* carried and stored */
-    int ix = 132;
-    if (dd_scale == SC_FULL && dd_sv.carry) { gfx_rectb(ix - 1, 2, 10, 10, C_SLATE); dd_draw_obj(dd_sv.carry - 1, ix, 3, dd_sv.carry_param); }
+    int ix = 4;
+    if (dd_scale == SC_FULL && dd_sv.carry) { gfx_rectb(ix - 1, 12, 10, 10, C_SLATE); dd_draw_obj(dd_sv.carry - 1, ix, 13, dd_sv.carry_param); }
     if (dd_has(U_SATCHEL1))
         for (int k = 0; k < (dd_has(U_SATCHEL2) ? 2 : 1); k++) {
             int x = ix + 14 + k * 11;
-            gfx_rectb(x - 1, 2, 10, 10, C_BROWN);
-            if (dd_sv.satchel[k]) dd_draw_obj(dd_sv.satchel[k] - 1, x, 3, dd_sv.satchel_param[k]);
+            gfx_rectb(x - 1, 12, 10, 10, C_BROWN);
+            if (dd_sv.satchel[k]) dd_draw_obj(dd_sv.satchel[k] - 1, x, 13, dd_sv.satchel_param[k]);
         }
     /* the clock */
     int m = dd_sv.clock_min % 720;
     snprintf(b, sizeof b, "%d:%02d", m / 60 == 0 ? 12 : m / 60, m % 60);
-    tiny_draw(b, 204, 4, C_LIGHT);
+    tiny_draw(b, 58, 4, C_LIGHT);
     /* where we are */
     const char *pl = dd_place_name();
     if (pl != last_place && (last_place == NULL || strcmp(pl, last_place))) { place_t = 150; last_place = pl; }
@@ -442,41 +447,41 @@ void dd_draw_hud(void) {
 /* ------------------------------------------------------------------ */
 /* the bag                                                                */
 
+/* the things Dot owns, in the order they're shown */
+static int bag_list(int *out) {
+    int n = 0;
+    for (int u = 0; u < U_ABILITIES; u++) if (dd_has(u)) out[n++] = u;
+    for (int k = 0; k < 8; k++) if ((dd_sv.hearts_got >> k) & 1) out[n++] = U_HEART0 + k;
+    for (int k = 0; k < 8; k++) if ((dd_sv.eggs_got >> k) & 1) out[n++] = U_EGG0 + k;
+    return n;
+}
+int dd_bag_count(void) { int l[U_TOTAL]; return bag_list(l); }
+
 void dd_draw_bag(int page) {
-    gfx_dither(0, 0, SCREEN_W, SCREEN_H, C_INK, 10);
-    ui_panel(10, 8, 300, 164, C_NIGHT, C_AMBER);
+    int list[U_TOTAL], n = bag_list(list);
+    gfx_rect(0, 0, SCREEN_W, 58, C_INK);
+    gfx_hline(0, SCREEN_W - 1, 58, C_AMBER);
     char b[64];
-    if (page == 0) {
-        text_draw("THE BAG", 20, 14, C_YELLOW);
-        snprintf(b, sizeof b, "UPGRADES %d/%d", dd_upgrade_count(), U_TOTAL);
-        text_draw(b, 196, 14, C_CREAM);
-        for (int u = 0; u < U_ABILITIES; u++) {
-            int col = u % 2, row = u / 2;
-            int x = 20 + col * 146, y = 28 + row * 11;
-            bool on = dd_has(u);
-            if (on) spr_draw(&dd_spr[S_GIFT], x, y, 0);
-            else gfx_rectb(x, y, 8, 8, C_DUSK);
-            tiny_draw(on ? DD_UPNAME[u] : "???", x + 12, y + 2, on ? C_WHITE : C_DUSK);
-        }
-    } else {
-        text_draw("THE BAG", 20, 14, C_YELLOW);
-        int hb = 0, eg = 0;
-        for (int k = 0; k < 8; k++) { hb += (dd_sv.hearts_got >> k) & 1; eg += (dd_sv.eggs_got >> k) & 1; }
-        snprintf(b, sizeof b, "HEART BUTTONS  %d/8", hb);
-        text_draw(b, 24, 34, C_WHITE);
-        snprintf(b, sizeof b, "PEP EGGS       %d/8", eg);
-        text_draw(b, 24, 46, C_WHITE);
-        snprintf(b, sizeof b, "GLINTS         %d (%d IN ALL)", dd_sv.glints, dd_sv.glints_total);
-        text_draw(b, 24, 64, C_YELLOW);
-        snprintf(b, sizeof b, "BIG GLINTS     %d/24", dd_sv.bigs_found);
-        text_draw(b, 24, 76, C_YELLOW);
-        int m = dd_sv.clock_min % 720;
-        snprintf(b, sizeof b, "THE CLOCK      %d:%02d", m / 60 == 0 ? 12 : m / 60, m % 60);
-        text_draw(b, 24, 94, C_LIGHT);
-        text_draw("THE DOOR COSTS 500 GLINTS.", 24, 116, C_GREY);
-        if (dd_flag(FL_MET_NIB)) text_draw("TOCK CAN RESTORE THE BALANCE.", 24, 128, C_VIOLET);
+    snprintf(b, sizeof b, "UPGRADES %d/%d", dd_upgrade_count(), U_TOTAL);
+    tiny_draw(b, 4, 3, C_CREAM);
+    snprintf(b, sizeof b, "BIG GLINTS %d/24", dd_sv.bigs_found);
+    tiny_draw(b, 100, 3, C_YELLOW);
+    for (int i = 0; i < n; i++) {
+        int x = 4 + (i % 26) * 12, y = 12 + (i / 26) * 12;
+        int u = list[i];
+        if (u >= U_EGG0) spr_draw(&dd_spr[S_EGG], x + 1, y, 0);
+        else if (u >= U_HEART0) spr_draw(&dd_spr[u - U_HEART0 < 6 ? S_HEART : S_HALF], x, y + 1, 0);
+        else spr_draw(&dd_spr[S_GIFT], x, y, 0);
+        if (i == page) gfx_rectb(x - 2, y - 2, 12, 12, (engine_frame() / 8) % 2 ? C_WHITE : C_YELLOW);
     }
-    tiny_draw(GLYPH_LEFT GLYPH_RIGHT " PAGE   SELECT CLOSE", 20, 162, C_GREY);
+    if (n > 0) {
+        int u = list[iclamp(page, 0, n - 1)];
+        const char *nm = u < U_ABILITIES ? DD_UPNAME[u] : u < U_EGG0 ? (u - U_HEART0 < 6 ? "HEART BUTTON" : "HALF BUTTON") : "PEP EGG";
+        const char *ds = u < U_ABILITIES ? DD_UPDESC[u] : u < U_EGG0 ? "MORE HEARTS" : "THROWS, KICKS AND FLIPS HIT HARDER";
+        text_draw(nm, 4, 38, C_YELLOW);
+        text_draw(ds, 4 + text_width(nm) + 8, 38, C_WHITE);
+    }
+    tiny_draw(GLYPH_LEFT GLYPH_RIGHT " LOOK   " GLYPH_DOWN " BACK", 4, 50, C_GREY);
 }
 
 /* ------------------------------------------------------------------ */

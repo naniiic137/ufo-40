@@ -1,0 +1,79 @@
+# DOT & DASH: the first quest, played with real presses. Small on the rug,
+# into Granny Thimble's thimble, her spectacles for Professor Crumb up in
+# the west pot, and his Shrink Tonic. Then Granny's Grip Mitt for 20 glints.
+game dotdash
+wait 5
+cheat newgame
+cheat no_foes
+cheat nodash
+hold DOWN 95
+waituntil trans == 0 60
+expect scale == 1
+cheat bot_to door:0
+botuntil bot_state == 2 3000
+press UP
+waituntil level_id == 1 60
+waituntil trans == 0 60
+cheat bot_to npc:0
+botuntil bot_state == 2 2000
+press UP
+wait 5
+expect dialog == 1
+cheat bot_talk
+botuntil bot_state == 2 900
+expect flag.met_granny == 1
+# the spectacles on her table
+cheat bot_to obj:17
+botuntil bot_state == 2 2000
+press B
+wait 20
+expect carry == 17
+cheat bot_to door:1
+botuntil bot_state == 2 2000
+press UP
+waituntil level_id == 0 60
+waituntil trans == 0 60
+# up the ivy, over the rim, down to the professor
+cheat bot_to npc:1
+botuntil bot_state == 2 4000
+press UP
+wait 5
+cheat bot_talk
+botuntil bot_state == 2 900
+expect up.tonic1 == 1
+expect carry == -1
+expect flag.specs_given == 1
+# asking again is just a hint
+press UP
+wait 5
+expect dialog == 1
+cheat bot_talk
+botuntil bot_state == 2 900
+# back to Granny with 20 glints for the mitt; saying no keeps them
+cheat glints 25
+cheat bot_to door:0
+botuntil bot_state == 2 4000
+press UP
+waituntil level_id == 1 60
+waituntil trans == 0 60
+cheat bot_to npc:0
+botuntil bot_state == 2 2000
+press UP
+wait 5
+cheat bot_talk
+botuntil bot_state == 2 600
+expect asking == 1
+press A
+wait 5
+expect glints == 25
+expect up.mitt1 == 0
+press UP
+wait 5
+cheat bot_talk
+botuntil bot_state == 2 600
+expect asking == 1
+press LEFT
+press A
+wait 5
+expect up.mitt1 == 1
+expect glints == 5

@@ -118,16 +118,18 @@ static int simulate(int tx, int ty, const Prog *p, int *dest, int *frames) {
     b.peak_y = (int16_t)b.y;
     uint32_t prev = 0;
     int f;
+    bool start_bad = hazard(&b); /* already in goo: moves may climb out */
     for (f = 0; f < 160; f++) {
         uint32_t in = prog_buttons(p, f);
         dd_body_step(&b, in, prev, &dd_lv, PH, false, BEAN);
         prev = in;
-        if (hazard(&b)) return 0;
+        if (hazard(&b)) { if (!start_bad) return 0; }
+        else start_bad = false;
         if (b.y > LH * TS) return 0;
         bool active = (int)f < (int)p->s + p->d || f < p->a;
         if (!active && b.ground && fabsf(b.vx) < 0.05f && f > 2) break;
     }
-    if (f >= 160 || !b.ground) return 0;
+    if (f >= 160 || !b.ground || hazard(&b)) return 0;
     if (TS == DD_TS && b.landed_fall > 12 * DD_TS && !dd_has(U_FEATHER)) return 0; /* would hurt */
     int nx = (int)((b.x + b.w / 2) / TS), ny = (int)((b.y + b.h - 1) / TS);
     if (!standable(nx, ny)) {
@@ -322,8 +324,14 @@ void dd_bot_talk(void) { talk_mode = 1; talk_t = 0; dd_bot_state = 1; }
 uint32_t dd_bot_buttons(void) {
     if (talk_mode) {
         extern bool dd_dialog_asking(void);
-        if (!dd_dialog_active() || dd_dialog_asking()) { talk_mode = 0; dd_bot_state = 2; return 0; }
-        return (++talk_t % 4) < 2 ? BTN_A : 0;
+        if (!dd_dialog_active() || dd_dialog_asking()) {
+            /* stop on a frame with A let go, so the next press counts */
+            if (talk_t % 4 == 1) { talk_t++; return 0; }
+            talk_mode = 0;
+            dd_bot_state = 2;
+            return 0;
+        }
+        return (++talk_t % 4) == 1 ? BTN_A : 0;
     }
     if (hunt_sub >= 0 && dd_bot_state == 1) {
         if (dd_state != ST_PLAY || dd_trans || dd_dead_t || dd_dialog_active()) return 0;

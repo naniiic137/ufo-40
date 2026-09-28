@@ -1,0 +1,118 @@
+# DOT & DASH: Fluff Hollow under the bookshelf. Mother Fluff's sick Puffin:
+# stand by him and shrink into his fluff, shoot the six mites, and she pays
+# 20. Tufty wants blue dust from the top of the bookshelf for a new brother:
+# climb there small, shrink into the drift, carry it home (it rides in
+# Dot's pocket at full size) for 15.
+game dotdash
+wait 5
+cheat newgame
+cheat no_foes
+cheat nodash
+cheat god
+cheat up tonic1
+cheat area 0 124 83
+cheat nodash
+wait 5
+cheat bot_to door:6
+botuntil bot_state == 2 3000
+press UP
+waituntil level_id == 3 60
+waituntil trans == 0 60
+cheat bot_to npc:7
+botuntil bot_state == 2 2000
+press UP
+wait 5
+cheat bot_talk
+botuntil bot_state == 2 900
+cheat bot_to npc:9
+botuntil bot_state == 2 2000
+press UP
+wait 5
+cheat bot_talk
+botuntil bot_state == 2 900
+expect flag.puff_met == 1
+# into Puffin's fluff
+hold DOWN 100
+waituntil trans == 0 60
+expect scale == 2
+expect level_kind == 2
+expect level_id == 1
+expect foes_9 == 6
+cheat bot_to obj:16
+botuntil bot_state == 2 900
+press B
+wait 20
+expect carry == 16
+cheat bot_hunt 9
+botuntil foes_9 == 0 8000
+expect flag.puff_clean == 1
+cheat bot_clear
+cheat skip_dialog
+hold DOWN B 3
+wait 5
+hold UP 100
+waituntil trans == 0 60
+expect scale == 1
+expect level_id == 3
+cheat bot_to npc:7
+botuntil bot_state == 2 2000
+press UP
+wait 5
+cheat bot_talk
+botuntil bot_state == 2 900
+expect flag.puff_paid == 1
+expect glints >= 20
+# Tufty's wish
+cheat bot_to npc:8
+botuntil bot_state == 2 2000
+press UP
+wait 5
+cheat bot_talk
+botuntil bot_state == 2 900
+expect flag.tufty_asked == 1
+# up the bookshelf to the drift of blue dust on the top books
+cheat bot_to door:7
+botuntil bot_state == 2 2000
+press UP
+waituntil level_id == 0 60
+waituntil trans == 0 60
+cheat bot_tile 130 13
+botuntil bot_state == 2 8000
+hold DOWN 100
+waituntil trans == 0 60
+expect scale == 2
+expect town == 20
+cheat bot_to obj:37
+botuntil bot_state == 2 3000
+press B
+wait 20
+expect carry == 37
+# grow all the way: at full size the dust waits in her pocket
+hold UP 100
+waituntil trans == 0 60
+wait 5
+hold UP 100
+waituntil trans == 0 60
+expect scale == 0
+expect pocket == 37
+# shrink again beside the east pot and walk into the hollow
+cheat tile 124 83
+cheat nodash
+wait 5
+hold DOWN 100
+waituntil trans == 0 60
+expect scale == 1
+expect carry == 37
+cheat bot_to door:6
+botuntil bot_state == 2 3000
+press UP
+waituntil level_id == 3 60
+waituntil trans == 0 60
+cheat bot_to npc:8
+botuntil bot_state == 2 2000
+press UP
+wait 5
+cheat bot_talk
+botuntil bot_state == 2 900
+expect flag.bluedust_done == 1
+expect carry == -1

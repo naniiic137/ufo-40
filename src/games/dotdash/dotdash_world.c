@@ -220,7 +220,10 @@ static void room_tiles(void) {
     fill(38, 80, 52, 81, T_CERAMIC);
     fill(40, 66, 50, 79, T_SOIL);
     static const int IVY[] = {80, 77, 74, 71, 68, 65};
-    for (int k = 0; k < 6; k++) fill(54, IVY[k], 56, IVY[k], T_LEAF);
+    for (int k = 0; k < 6; k++) {
+        fill(54, IVY[k], 56, IVY[k], T_LEAF);
+        fill(34, IVY[k], 36, IVY[k], T_LEAF);
+    }
     bgf(45, 30, 45, 65, BG_STALK);
     for (int k = 0, y = 63; y >= 33; k++, y -= 3) {
         if (k % 2 == 0) fill(41, y, 44, y, T_LEAF);
@@ -532,27 +535,35 @@ static void area_cavity(void) {
             fill(STUD[k], 2, STUD[k] + 3, 26, T_WOOD);
             fill(STUD[k], 27, STUD[k] + 3, 30, T_AIR);
         }
-        /* board A between the first two studs, board B (Wormwood) and board C */
-        fill(24, 24, 49, 24, T_PLANK);
+        /* board A between the first two studs, board B (Wormwood) and board C;
+         * their ends are one-way where the climbing ledges come up under them */
+        fill(24, 24, 46, 24, T_PLANK);
+        fill(24, 24, 26, 24, T_LEDGE);
         fill(24, 28, 26, 28, T_LEDGE);
-        fill(54, 16, 79, 16, T_PLANK);
+        fill(54, 16, 76, 16, T_PLANK);
+        fill(77, 24, 79, 24, T_LEDGE);
+        fill(54, 16, 56, 16, T_LEDGE);
         fill(54, 28, 56, 28, T_LEDGE);
         fill(57, 24, 59, 24, T_LEDGE);
         fill(54, 20, 56, 20, T_LEDGE);
-        fill(84, 20, 109, 20, T_PLANK);
+        fill(87, 20, 106, 20, T_PLANK);
+        fill(87, 20, 89, 20, T_LEDGE);
         fill(84, 28, 86, 28, T_LEDGE);
         fill(87, 24, 89, 24, T_LEDGE);
         /* wires strung between studs */
         fill(4, 22, 19, 22, T_THREAD);
-        fill(4, 26, 6, 26, T_LEDGE);
-        fill(24, 12, 49, 12, T_THREAD);
+        fill(8, 28, 10, 28, T_LEDGE);
+        fill(4, 25, 6, 25, T_LEDGE);
+        fill(26, 12, 47, 12, T_THREAD);
         fill(44, 16, 46, 16, T_LEDGE);
         fill(40, 20, 42, 20, T_LEDGE);
-        /* the pink slime seep and the rusted grate's cubby */
+        /* the pink slime seep and the rusted grate's cubby, with a crate each side */
         fill(90, 31, 93, 31, T_SLIME);
         fill(98, 26, 107, 26, T_WOOD);
-        fill(98, 27, 98, 30, T_WOOD);
+        if (!dd_flag(FL_GRATE_OPEN)) fill(98, 27, 98, 30, T_WOOD);
         fill(107, 27, 107, 30, T_WOOD);
+        fill(95, 29, 96, 30, T_WOOD);
+        fill(108, 29, 109, 30, T_WOOD);
         /* a nook in the first stud behind weak, cracked wood */
         fill(21, 18, 22, 21, T_AIR);
         fill(20, 18, 20, 21, T_CRACK);
@@ -565,7 +576,7 @@ static void area_cavity(void) {
     pick(P_GLINT5, 21, 21, 0);
     pick(P_GLINT5, 22, 21, 0);
     npc(N_SHREW, 32, 30);
-    if (!dd_flag(FL_MAGE_BEATEN)) foe(F_TINMAGE, 96, 19);
+    if (!dd_flag(FL_MAGE_BEATEN) && spawning) put(EK_FOE, F_TINMAGE, 96, 19); /* quest creatures always come */
     if (!dd_flag(FL_GEAR_DONE) && !dd_obj_exists(O_GEAR, -1) && dd_flag(FL_POWER_OFF)) obj(O_GEAR, 108, 30);
     foe(F_ANT, 40, 30);
     foe(F_SPRING, 70, 30);

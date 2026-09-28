@@ -443,15 +443,14 @@ void dd_kill_foe(int i) {
     e->alive = 0;
     if (dd_carry == i) dd_carry = -1;
     if (riding == i) riding = -1;
-    dd_burst(e->x + e->w / 2, e->y + e->h / 2, sub == F_GERM ? C_LIME : C_WHITE, 10);
+    float ex = e->x, ey = e->y, ew = e->w;
+    dd_burst(ex + ew / 2, ey + e->h / 2, sub == F_GERM ? C_LIME : C_WHITE, 10);
     sfx_play_name("dd_pop");
-    if (!(FOE[sub].flags & FF_BOSS) && (engine_frame() + (unsigned)i) % 3 == 0) dd_add_pick(P_GLINT1, e->x + e->w / 2 - 3, e->y, 0);
-    if (sub == F_AXEANT) {
-        int j = dd_add_obj(O_AXE, e->x, e->y);
-        (void)j;
-    }
+    /* quests read the creature before its slot is reused */
     dd_on_kill(sub, i);
     if (FOE[sub].flags & FF_BOSS) dd_on_boss_dead(sub);
+    if (!(FOE[sub].flags & FF_BOSS) && (engine_frame() + (unsigned)i) % 3 == 0) dd_add_pick(P_GLINT1, ex + ew / 2 - 3, ey, 0);
+    if (sub == F_AXEANT) dd_add_obj(O_AXE, ex, ey);
 }
 
 static void damage_foe(int i, int dmg, float from_x) {
@@ -867,11 +866,20 @@ static void obj_update(int i) {
     e->t++;
     if (e->held) return;
     switch (e->state) {
-    case 0: /* resting */
+    case 0: { /* resting: on the tiles, or stacked on another thing */
+        float ob = e->y + e->h;
         ent_move(e, 0.25f, false);
         e->param2 &= ~0x10000;
+        if (!e->ground && e->vy >= 0)
+            for (int j = 0; j < DD_MAX_ENTS; j++) {
+                Ent *o = &dd_ent[j];
+                if (j == i || !o->alive || o->kind != EK_OBJ || o->state != 0 || o->held) continue;
+                if (e->x + e->w <= o->x + 1 || e->x >= o->x + o->w - 1) continue;
+                if (ob <= o->y + 1 && e->y + e->h >= o->y) { e->y = o->y - e->h; e->vy = 0; e->ground = 1; break; }
+            }
         if (e->ground) e->vx *= 0.7f;
         break;
+    }
     case 2: { /* flying */
         float g = e->sub == O_DART || e->param == -2 ? 0.0f : e->st == 1 ? 0.25f : 0.1f;
         if (e->param == -2 && e->t > 45) { e->alive = 0; return; }
@@ -915,7 +923,7 @@ static void obj_update(int i) {
     }
     /* fill a jar at a drip, a pool of slime or acid */
     if (e->sub == O_JAR && e->state == 0) {
-        int tx = (int)((e->x + 4) / DD_TS), ty = (int)((e->y + e->h) / DD_TS);
+        int tx = (int)((e->x + 4) / DD_TS), ty = (int)((e->y + e->h - 1) / DD_TS);
         int t = lv_tile(&dd_lv, tx, ty);
         if (t == T_SLIME) { e->sub = O_JARSLIME; sfx_play_name("dd_fill"); }
         else if (t == T_GOO) { e->sub = O_JARACID; sfx_play_name("dd_fill"); }
@@ -1087,17 +1095,29 @@ static void release_held(uint32_t in) {
     bool up = in & BTN_UP, down = in & BTN_DOWN;
     int face = dd_p.facing;
     if (down) {
-        /* set it down in front */
-        o->x = face ? dd_p.x + dd_p.w : dd_p.x - o->w;
-        o->y = dd_p.y + dd_p.h - o->h;
-        if (dd_body_blocked(&dd_lv, DD_TS, o->x, o->y, o->w, o->h)) o->x = dd_p.x + dd_p.w / 2 - o->w / 2, o->y = dd_p.y - o->h;
+        /* place it under Dot's feet: she steps up onto it (a way to build
+         * steps); with no room above her, it goes down in front instead */
+        float nx = dd_p.x + dd_p.w / 2 - o->w / 2, ny = dd_p.y + dd_p.h - o->h;
+        if (dd_p.ground && !dd_body_blocked(&dd_lv, DD_TS, dd_p.x, dd_p.y - o->h, dd_p.w, dd_p.h)) {
+            o->x = nx;
+            o->y = ny;
+            dd_p.y -= (float)o->h;
+            dd_p.vy = 0;
+            riding = i;
+        } else {
+            o->x = face ? dd_p.x + dd_p.w : dd_p.x - o->w;
+            o->y = dd_p.y + dd_p.h - o->h;
+            if (dd_body_blocked(&dd_lv, DD_TS, o->x, o->y, o->w, o->h)) o->x = nx, o->y = dd_p.y - o->h;
+        }
         o->state = 0;
+        o->vx = o->vy = 0;
         if (o->kind == EK_FOE) o->stun = 30;
         sfx_play_name("dd_drop");
         return;
     }
-    o->vx = up ? dd_p.vx * 0.5f : (face ? 4.0f : -4.0f) + dd_p.vx * 0.4f;
-    o->vy = up ? -6.0f : -0.5f;
+    /* UP hurls it in a high arc; otherwise a low, flat throw */
+    o->vx = up ? (face ? 2.2f : -2.2f) + dd_p.vx * 0.3f : (face ? 4.0f : -4.0f) + dd_p.vx * 0.4f;
+    o->vy = up ? -5.5f : -0.5f;
     if (!up) {
         /* a throw leaves from chest height, low and flat, so it finds what's on the ground */
         float nx = face ? dd_p.x + dd_p.w - 2 : dd_p.x - o->w + 2, ny = dd_p.y + dd_p.h - o->h - 3;
@@ -1602,6 +1622,7 @@ static bool interact(void) {
             if (dd_carry >= 0 && dd_ent[dd_carry].kind == EK_OBJ && dd_ent[dd_carry].sub == O_JARACID) {
                 dd_ent[dd_carry].sub = O_JAR;
                 dd_set(FL_GRATE_OPEN);
+                for (int y = 27; y <= 30; y++) lv_set(&dd_lv, 98, y, T_AIR);
                 for (int k = 0; k < 3; k++) dd_add_pick(P_GLINT5, (float)((100 + k * 2) * DD_TS), (float)(29 * DD_TS), 0);
                 dd_say("THE RUSTY GRATE", "THE ACID FIZZES THROUGH THE RUST. THE GRATE FALLS AWAY!");
                 dd_autosave();
@@ -1838,6 +1859,15 @@ static void player_update(void) {
     for (int ty = y0; ty <= y1; ty++)
         for (int tx = x0; tx <= x1; tx++) fl |= DD_TILE[lv_tile(&dd_lv, tx, ty)].flags;
     if (fl & TF_HURT) dd_hurt(1, dd_p.x + (dd_p.facing ? 8 : -8)), dd_p.vy = -3.5f;
+    /* wading into slime or acid with an empty jar fills it */
+    if ((fl & TF_GOO) && dd_carry >= 0 && dd_ent[dd_carry].kind == EK_OBJ && dd_ent[dd_carry].sub == O_JAR) {
+        int gt = 0;
+        for (int ty = y0; ty <= y1 && !gt; ty++)
+            for (int tx = x0; tx <= x1; tx++) { int t = lv_tile(&dd_lv, tx, ty); if (t == T_SLIME || t == T_GOO) { gt = t; break; } }
+        dd_ent[dd_carry].sub = gt == T_SLIME ? O_JARSLIME : O_JARACID;
+        sfx_play_name("dd_fill");
+        dd_popup(dd_p.x, dd_p.y - 16, gt == T_SLIME ? "SLIME!" : "ACID!", C_LIME);
+    }
     if ((fl & TF_GOO) && !dd_has(U_STEW)) {
         if (++goo_t % 30 == 1) dd_hurt(1, dd_p.x);
         dd_p.vx *= 0.7f;

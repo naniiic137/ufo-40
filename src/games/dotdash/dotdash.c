@@ -20,6 +20,7 @@ void dd_draw_world(void);
 void dd_draw_hud(void);
 void dd_draw_label(int x, int y, int w, int h, int t);
 void dd_draw_bag(int page);
+int dd_bag_count(void);
 void dd_draw_title(int sel, bool can_continue, int t);
 void dd_draw_ending(int kind, int t, int cy);
 
@@ -105,10 +106,18 @@ static void new_game(void) {
     music_play(DD_MUS[MU_TITLE]);
 }
 
+/* Every session begins in the room at full size: the game keeps what Dot
+ * has found, never where she was (or what was in her hands). */
 static void resume(void) {
+    memset(dd_sv.stack, 0, sizeof dd_sv.stack);
+    dd_sv.stack[0] = (LevelDesc){SC_SMALL, LV_AREA, AR_ROOM, 0, 0, 0, 0, 0};
+    dd_sv.depth = 0;
+    dd_sv.full = 1;
+    dd_sv.carry = 0;
+    dd_sv.dash_away = 0;
     dd_p = (Body){0};
-    dd_p.x = dd_sv.px;
-    dd_p.y = dd_sv.py;
+    dd_p.x = 26 * DD_TS0;
+    dd_p.y = 83 * DD_TS0 - 24;
     dd_p.facing = 1;
     enter_play();
 }
@@ -204,7 +213,13 @@ static void dd_update(void) {
         }
         break;
     case ST_PLAY:
-        if (btnp(BTN_SELECT) && !dd_dialog_active() && !dd_trans) { dd_state = ST_BAG; bag_page = 0; sfx_play_name("ui_pause"); break; }
+        /* at full size, UP goes up to the item strip at the top of the screen */
+        if (dd_scale == SC_FULL && btnp(BTN_UP) && !dd_dialog_active() && !dd_trans && dd_upgrade_count() > 0) {
+            dd_state = ST_BAG;
+            bag_page = 0;
+            sfx_play_name("ui_pause");
+            break;
+        }
         dd_play_update();
         if (ending_pending >= 0 && !dd_dialog_active() && !dd_trans) {
             int k = ending_pending;
@@ -212,10 +227,14 @@ static void dd_update(void) {
             begin_ending(k);
         }
         break;
-    case ST_BAG:
-        if (btnp(BTN_SELECT) || btnp(BTN_B) || btnp(BTN_A)) { dd_state = ST_PLAY; sfx_play_name("ui_back"); }
-        if (btnp(BTN_LEFT) || btnp(BTN_RIGHT)) { bag_page ^= 1; sfx_play_name("ui_move"); }
+    case ST_BAG: {
+        /* bag_page is the cursor over the owned things */
+        int n = dd_bag_count();
+        if (btnp(BTN_B) || btnp(BTN_A) || btnp(BTN_DOWN)) { dd_state = ST_PLAY; sfx_play_name("ui_back"); }
+        if (btn_repeat(BTN_LEFT) && n) { bag_page = (bag_page + n - 1) % n; sfx_play_name("ui_move"); }
+        if (btn_repeat(BTN_RIGHT) && n) { bag_page = (bag_page + 1) % n; sfx_play_name("ui_move"); }
         break;
+    }
     case ST_ENDING:
         if (dd_state_t > 60) credits_y++;
         if ((btnp(BTN_A) || btnp(BTN_START)) && dd_state_t > 240) { dd_state = ST_CREDITS; dd_state_t = 0; }
@@ -354,6 +373,7 @@ static int dd_query(const char *key, int *out) {
     if (!strcmp(key, "biome")) { *out = dd_lv.d.kind == LV_STRIP ? dd_lv.biome[dd_chunk_of((int)dd_p.x)] : -1; return 1; }
     if (!strcmp(key, "town")) { *out = dd_town_at(&dd_lv, (int)(dd_p.x / DD_TS)); return 1; }
     if (!strcmp(key, "dialog")) { *out = dd_dialog_active(); return 1; }
+    if (!strcmp(key, "bag")) { *out = dd_state == ST_BAG ? bag_page : -1; return 1; }
     if (!strcmp(key, "asking")) { extern bool dd_dialog_asking(void); *out = dd_dialog_asking(); return 1; }
     if (!strcmp(key, "trans")) { *out = dd_trans; return 1; }
     if (!strcmp(key, "dead")) { *out = dd_dead_t; return 1; }
