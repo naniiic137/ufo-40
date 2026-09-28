@@ -1,0 +1,80 @@
+# DOT & DASH: B picks up what Dot stands on and carries it overhead, B again
+# throws it. A thrown block hurts what it hits by Dot's pep (one, plus one
+# for every pep egg). Creatures can be lifted only with the Grip Mitt, and a
+# thrown creature is a weapon too. DOWN+B sets a thing down, UP+B throws it up.
+game dotdash
+wait 5
+cheat newgame
+cheat no_foes
+cheat area 0 20 82
+wait 10
+expect pep == 1
+cheat drop_obj 0 176 656
+wait 5
+hold RIGHT 10
+wait 5
+press B
+wait 20
+expect carry == 0
+expect carry_kind == 4
+# throw it at an ant
+cheat foe 0 222 658
+wait 2
+expect foes_0 == 1
+press B
+wait 30
+expect foes_0 == 0
+expect carry == -1
+# a lancer takes two hits of pep one...
+cheat obj 0
+cheat foe 1 200 656
+wait 2
+expect foehp_1 == 2
+press B
+wait 30
+expect foehp_1 == 1
+# ...and one with a pep egg
+cheat give 31
+cheat skip_dialog
+expect pep == 2
+cheat obj 0
+wait 2
+press B
+wait 30
+expect foes_1 == 0
+# no Grip Mitt: standing on an ant, B lifts nothing
+cheat foe 0 200 658
+cheat tile 26 79
+wait 20
+expect riding == 300
+press B
+wait 20
+expect carry == -1
+# with the mitt the ant comes up, and makes a fine missile
+cheat give 0
+cheat skip_dialog
+press B
+wait 20
+expect carry == 0
+expect carry_kind == 3
+cheat foe 7 240 658
+wait 2
+press B
+wait 40
+expect foes_7 == 0
+expect foes_0 == 0
+# DOWN+B sets a thing down; UP+B throws it straight up
+cheat obj 5
+wait 2
+hold DOWN B 3
+wait 5
+expect carry == -1
+expect objs_5 == 1
+hold RIGHT 6
+wait 3
+press B
+wait 20
+expect carry == 5
+hold UP B 3
+wait 4
+expect vy10 == 0

@@ -1,0 +1,39 @@
+# DOT & DASH: the title starts a new game, the story plays in three pages,
+# and Dot and Dash begin in the lumber room at full size. After a reload the
+# title offers CONTINUE, which puts Dot back where the game was saved.
+game dotdash
+wait 30
+expect state == 0
+press A
+wait 20
+expect state == 1
+press A
+wait 20
+press A
+wait 20
+expect state == 1
+press A
+wait 10
+expect state == 2
+expect scale == 0
+expect depth == 0
+expect dash == 1
+expect hp == 6
+expect hpmax == 6
+expect glints == 0
+expect clock == 1205
+expect flag_0 == 1
+# walk to the right a little, the game saves itself
+hold RIGHT 30
+wait 60
+expect px > 60
+print px
+reload
+game dotdash
+wait 30
+expect has_save == 1
+press A
+wait 10
+expect state == 2
+expect scale == 0
+expect px > 60

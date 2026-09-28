@@ -1,0 +1,96 @@
+# DOT & DASH: darts fly straight and far, axes hit hard, the popgun shoots
+# peas while held. Kick Clogs (UP+B) kick things and knock creatures back
+# (the second pair hurts them). The Spin Top: jumping into a hopper or a
+# shot flips it away instead of hurting Dot, and the second top hurts it.
+game dotdash
+wait 5
+cheat newgame
+cheat no_foes
+cheat area 0 20 82
+wait 10
+hold RIGHT 1
+# a dart reaches an ant a pebble can't
+cheat obj 2
+cheat foe 0 262 658
+wait 2
+press B
+wait 40
+expect foes_0 == 0
+# an axe fells a tin mouse at once
+cheat tile 20 82
+cheat obj 15
+cheat foe 16 205 654
+wait 2
+press B
+wait 25
+expect foes_16 == 0
+# the popgun fires a pea and stays in Dot's hands
+cheat tile 20 82
+cheat obj 16
+cheat foe 0 230 658
+wait 2
+press B
+wait 30
+expect carry == 16
+expect foes_0 == 0
+hold DOWN B 3
+wait 5
+expect carry == -1
+# kick clogs: a pebble kicked away, an ant knocked flying but not hurt
+cheat give 10
+cheat skip_dialog
+cheat tile 20 82
+cheat drop_obj 0 172 656
+wait 5
+hold UP B 3
+wait 30
+expect objs_0 == 1
+cheat foe 0 172 658
+wait 1
+hold UP B 3
+expect foestun_0 > 0
+expect foes_0 == 1
+wait 60
+cheat no_foes
+# the second pair hurts
+cheat give 11
+cheat skip_dialog
+cheat foe 0 172 658
+wait 1
+hold UP B 3
+wait 2
+expect foes_0 == 0
+# the spin top: a hopper met while jumping is flipped away, Dot unhurt
+cheat give 16
+cheat skip_dialog
+cheat no_foes
+cheat hp 6
+cheat tile 20 82
+wait 2
+hold A 6
+cheat foe 7 160 636
+wait 2
+expect hp == 6
+expect foes_7 == 1
+expect foestun_7 > 0
+waituntil ground == 1 60
+# the second top flips it for good
+cheat give 17
+cheat skip_dialog
+cheat no_foes
+cheat tile 20 82
+wait 2
+hold A 6
+cheat foe 7 160 636
+wait 2
+expect hp == 6
+expect foes_7 == 0
+# without the top, the same hopper hurts
+cheat newgame
+cheat no_foes
+cheat area 0 20 82
+wait 10
+hold A 6
+cheat foe 7 160 636
+wait 2
+expect hp == 5

@@ -73,6 +73,14 @@ CORE_SRC += src/games/dune/dune_logic.c
 CORE_SRC += src/games/dune/dune_levels.c
 CORE_SRC += src/games/dune/dune_art.c
 CORE_SRC += src/games/dune/dune_audio.c
+CORE_SRC += src/games/dotdash/dotdash.c
+CORE_SRC += src/games/dotdash/dotdash_world.c
+CORE_SRC += src/games/dotdash/dotdash_play.c
+CORE_SRC += src/games/dotdash/dotdash_npc.c
+CORE_SRC += src/games/dotdash/dotdash_draw.c
+CORE_SRC += src/games/dotdash/dotdash_bot.c
+CORE_SRC += src/games/dotdash/dotdash_art.c
+CORE_SRC += src/games/dotdash/dotdash_audio.c
 
 HEADLESS_SRC += src/platform/headless/main_headless.c
 HEADLESS_SRC += src/platform/headless/imgwrite.c

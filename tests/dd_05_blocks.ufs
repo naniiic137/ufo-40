@@ -1,0 +1,122 @@
+# DOT & DASH: the special blocks. Crackers blow up (and break cracked wood),
+# heart boxes and gift boxes break open, the boomerang comes home, rollers
+# roll, glue sticks, hourglasses freeze everything, quake blocks knock
+# creatures over, venom poisons and spreads, a mold fruit splits into a
+# seed, a spore grows a bouncy mushroom, a pupa hatches a flutter.
+game dotdash
+wait 5
+cheat newgame
+cheat no_foes
+cheat give 0
+cheat skip_dialog
+cheat area 2 14 21
+wait 10
+# a cracker at the cracked wood of the first stud
+expect tile_20_19 == 29
+cheat obj 1
+wait 2
+press B
+wait 20
+expect tile_20_19 == 0
+expect tile_20_20 == 0
+hold RIGHT 80
+wait 5
+expect glints >= 10
+# heart box: break it, walk over the heart, full health
+cheat area 0 20 82
+wait 5
+cheat hp 2
+cheat obj 3
+wait 2
+press B
+wait 25
+expect picks_3 == 1
+hold RIGHT 70
+expect hp == 6
+# gift box: the upgrade inside
+cheat tile 20 82
+cheat obj 4
+cheat objparam 16
+wait 2
+press B
+wait 25
+expect picks_4 == 1
+hold RIGHT 70
+expect up_16 == 1
+cheat skip_dialog
+# the boomerang block flies out and comes back to Dot's hands
+cheat tile 20 82
+cheat obj 5
+wait 2
+press B
+wait 3
+expect carry == -1
+wait 40
+expect carry == 5
+# a roller rolls along the ground, flattening creatures
+cheat tile 20 82
+cheat obj 6
+cheat foe 0 272 658
+wait 2
+press B
+wait 50
+expect foes_0 == 0
+# glue sticks where it hits: a new ledge on the thimble's side
+cheat tile 20 82
+cheat obj 7
+wait 2
+hold LEFT 2
+press B
+wait 20
+expect tile_17_82 == 30
+# an hourglass stops every creature
+cheat tile 24 82
+cheat obj 8
+cheat foe 0 272 658
+wait 2
+press B
+wait 20
+expect freeze > 0
+# a quake block knocks creatures over
+wait 200
+cheat tile 20 82
+cheat obj 9
+cheat foe 0 250 658
+wait 2
+hold UP B 3
+wait 70
+expect foestun_0 > 0
+# venom poisons, and poison spreads to a creature that touches
+cheat no_foes
+cheat tile 20 82
+cheat obj 10
+cheat foe 2 214 657
+cheat foe 2 218 657
+hold RIGHT 1
+wait 2
+press B
+wait 16
+expect foepoison_2 == 2
+wait 120
+expect foes_2 == 0
+# a mold fruit splits into a mold seed where it lands
+cheat tile 20 82
+cheat obj 11
+wait 2
+press B
+wait 30
+expect objs_34 == 1
+# a spore grows a bouncy mushroom
+cheat tile 20 82
+cheat obj 12
+wait 2
+press B
+wait 30
+expect objs_12 == 0
+# a pupa hatches a flutter
+cheat tile 20 82
+cheat obj 13
+wait 2
+press B
+wait 30
+expect foes_5 == 1

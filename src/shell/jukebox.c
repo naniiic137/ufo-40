@@ -38,6 +38,10 @@ static const struct { const char *id, *title; } TITLES[] = {
     {"ph_fourstars", "FOUR STARS"}, {"ph_lastnight", "LAST NIGHT"}, {"ph_siren", "SIRENS"}, {"ph_dusk", "DUSK"},
     {"dx_saltline", "SALT LINE"}, {"dx_quiet", "QUIET CARRIAGE"}, {"dx_guards", "GUARDS ON THE MOVE"},
     {"dx_theline", "THE LINE"}, {"dx_coastward", "COASTWARD"}, {"dx_getaway", "GETAWAY"}, {"dx_caught", "CAUGHT"},
+    {"dd_title", "DOT & DASH"}, {"dd_room", "FULL SIZE"}, {"dd_small", "BUTTON HIGH"}, {"dd_micro", "SPECK COUNTRY"},
+    {"dd_deep", "THE MOTES"}, {"dd_town", "LITTLE MARKET"}, {"dd_walls", "BETWEEN THE WALLS"}, {"dd_boss", "BIG TROUBLE"},
+    {"dd_latch", "LATCHTOWN"}, {"dd_siege", "SIEGE!"}, {"dd_ending", "THE PARTY"}, {"dd_true", "IN BALANCE"},
+    {"dd_upgrade", "SOMETHING NEW"}, {"dd_back", "BACK TO SIZE"},
 };
 
 const char *shell_song_title(int song) {

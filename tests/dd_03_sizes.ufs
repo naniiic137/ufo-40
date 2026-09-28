@@ -1,0 +1,87 @@
+# DOT & DASH: four sizes. Holding DOWN shrinks Dot into what she stands on
+# (the room first, then with the tonics the micro world and the deep world
+# inside each tile); holding UP grows her back one size. Growing to full
+# size moves the clock on a minute. Things she carries change size with her.
+game dotdash
+wait 5
+cheat newgame
+cheat no_foes
+wait 10
+expect scale == 0
+print tx
+# a short hold does nothing
+hold DOWN 40
+wait 5
+expect scale == 0
+# the full hold: the same spot in the room, small
+hold DOWN 95
+waituntil trans == 0 60
+expect scale == 1
+expect level_kind == 0
+expect tx >= 25
+expect tx <= 29
+expect ty == 82
+# and back to full size: a minute on the clock
+wait 5
+hold UP 95
+waituntil trans == 0 60
+expect scale == 0
+expect clock == 1206
+# down again, then down once more: no tonic, no micro world
+hold DOWN 95
+waituntil trans == 0 60
+expect scale == 1
+wait 5
+hold DOWN 95
+waituntil trans == 0 60
+expect scale == 1
+# with the Shrink Tonic: the floorboard under her feet has a world in it
+cheat give 2
+cheat skip_dialog
+wait 5
+cheat obj 0
+wait 2
+expect carry == 0
+hold DOWN 95
+waituntil trans == 0 60
+expect scale == 2
+expect level_kind == 1
+expect level_row == 83
+expect biome == 5
+expect carry == 0
+# no deeper without the second tonic
+wait 5
+hold DOWN 95
+waituntil trans == 0 60
+expect scale == 2
+cheat give 3
+cheat skip_dialog
+wait 5
+hold DOWN 95
+waituntil trans == 0 60
+expect scale == 3
+expect depth == 2
+expect biome == 12
+expect carry == 0
+# grow back up through every size, still carrying
+wait 5
+hold UP 95
+waituntil trans == 0 60
+expect scale == 2
+wait 5
+hold UP 95
+waituntil trans == 0 60
+expect scale == 1
+expect ty == 82
+expect carry == 0
+wait 5
+hold UP 95
+waituntil trans == 0 60
+expect scale == 0
+expect clock == 1207
+# at full size the pebble waits in Dot's pocket and comes back out small
+expect pocket == 0
+hold DOWN 95
+waituntil trans == 0 60
+expect scale == 1
+expect carry == 0
