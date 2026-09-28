@@ -855,6 +855,11 @@ static void mob_update(int i) {
     }
     default: break;
     }
+    if (d->tier == 3) {
+        /* bosses keep off the doorways */
+        m->x = iclamp(m->x, SUB(30), SUB(HS_FW - 30));
+        m->y = iclamp(m->y, SUB(30), SUB(HS_FH - 30));
+    }
     if (mob_harmful(m) && overlap(wick_x(), wick_y(), WICK_HALF, PX(m->x), PX(m->y), d->size / 2 - 1)) {
         if (hs.inv == 0) hs_hurt_by[m->kind == E_MAWBO ? 15 : 14]++;
         hurt(d->hit_s, m->x, m->y);

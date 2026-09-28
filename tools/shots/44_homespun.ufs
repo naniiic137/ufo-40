@@ -1,0 +1,55 @@
+# README media: HOMESPUN. The GIF and the Wilds and boss shots are the demo
+# player pressing real buttons; the camp is set up with cheats.
+shotscale 2
+seed 44
+game homespun
+wait 30
+# a camp a few hours in
+cheat newgame 4404
+wait 5
+cheat plants 9
+cheat huts 3 2
+cheat anvils 63 31
+cheat smoke 1 4
+cheat lab 1 0
+cheat bins 1 1
+cheat research 3
+cheat pipe 1
+cheat res glints 3120
+cheat res bars 212
+cheat res jerky 7
+cheat res data 64
+cheat at 272 105
+cheat face 0 1
+wait 40
+shot homespun_camp
+# out on a trip: the demo player heads for the Burrow
+cheat res jerky 10
+cheat lab 1 0
+botuntil area == 3 20000
+botplay 40
+gifstart homespun 4 2
+botplay 720
+gifstop
+# the Grumm King
+botuntil boss == 19 20000
+botplay 300
+shot homespun_guardian
+# Madame Shuffle's chests
+cheat room 52 168 72
+cheat odds 20
+cheat face 0 -1
+wait 2
+press A
+press A
+wait 40
+shot homespun_shuffle
+# Mawbo, once the three parts are home
+cheat parts 7
+cheat research 17
+cheat trip 20
+cheat gomawbo
+cheat botarena 1
+botplay 360
+shot homespun_mawbo
+cheat botarena 0

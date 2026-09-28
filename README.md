@@ -99,6 +99,7 @@ when there is more above or below.
 | 25 | **OPEN HOUSE** | Party House | drawing guests from a deck into a house with limited space, the original's 46 guest abilities, costs and trouble, police, fire marshal and bans, set guest lists and a random list, win by ending a party with four stars within 25 nights, 2P hot-seat | a whitewashed house by the sea, all 46 guests' names and faces |
 | 28 | **DUNE EXPRESS** | Rail Heist | real time until a guard is alert, then 10-second turns, one-bullet lawmen who hit each other too, punches through walls and floors, carrying and throwing, hiding in barrels, levers, a crank gun, rams, three outlaws, three stars a mission with the original's time goals, 2P versus | Wade, Hush and Pearl, the Governor's tax trains, Biscuit the camel, 20 new trains |
 | 30 | **FLINTHOLD** | Rock On! Island | waves down fixed roads to a cave with 30 hearts, a build phase as long as you like and a horn to start the wave, a pay-out between waves, a heroine who walks and throws eight ways, ten hunters in three upgrade trees, hens cooked by fire pits for meat (99 at most), fire pits that boost hunters, the original's beasts and bosses, 10 stages and 3 villages (two hidden), the Four Lords together in the last wave | Pim of the Hearth Clan, Flint Isle and its 13 layouts, the Four Lords of the Scale, every beast, hunter and villager |
+| 44 | **HOMESPUN** | Pilot Quest | a camp that keeps working in real time while the console is on, even in other cartridges; a yo-yo that knocks glints out of a crystal; plants, bars, huts, anvils, bins and research at the original's prices; jerky as two minutes of trip time a strip, and a clock that is also your health; Wilds generated per save with roadblocks that shift from trip to trip; three dungeons with a ship part each; a gun that costs a glint a shot; coins for hopstones, vendors and a gambling den; a spider that spins thread at camp; a super boss beaten six times in one trip; new-game-plus stones | Wick and the *Tumbleweed*, the moor-moon Oddmoor and its folk, the generator, three dungeons, all 19 foes and 6 bosses |
 | 47 | **WOBBLE DERBY** | Quibble Race | three punters and three runners a race, odds from a form book of twenty unseen races, rising bet caps and an open last race, one tip a race, five dirty tricks and a minder with the same prices and fines, a lender at 15 % compounded, sponsoring from a shortlist and a coach, meteors, garbage and smog, 26 runners in the same speed and clumsiness bands, 3-player hot-seat | Crater Downs, the 26 wobblers, the sixteen punters (five of them UFO 40 cameos), the Fixer, the Lender and the Wobble Wire |
 | 08, 11–13, 17–24, 26–27, 29, 31–46, 48–50 | *coming soon* | | | still in the saucer's cargo hold |
 
@@ -578,6 +579,47 @@ the top.
   waves, the nippers, redbacks, fangcats, clubtails, gliders, gnats, the
   shagtusk and the Four Lords (Snap, Jaw, Plate and Gale), the villagers
   and the music.
+
+### 44 · HOMESPUN
+
+<p align="center">
+  <img src="docs/shots/homespun.gif" width="640" alt="Homespun: Wick fights her way through the Burrow with her yo-yo">
+</p>
+<p align="center">
+  <img src="docs/shots/homespun_camp.png" width="320" alt="Wick's camp a few hours in: glintbuds, anvils with hands at work, the Glowstone and the crashed Tumbleweed">
+  <img src="docs/shots/homespun_mawbo.png" width="320" alt="Mawbo, the super boss, in the Wilds">
+</p>
+<p align="center">
+  <img src="docs/shots/homespun_guardian.png" width="320" alt="In the Burrow, Wick throws her yo-yo at a grummle beside the Grumm King">
+  <img src="docs/shots/homespun_shuffle.png" width="320" alt="Madame Shuffle's six chests, shuffling">
+</p>
+
+*A tribute to **Pilot Quest** (UFO 50 #44).*
+
+- **Plays the same:** at camp Wick's yo-yo knocks glints out of the
+  Glowstone, one a hit, and she has to walk over them. Old Burl plants
+  eleven glintbuds (10 glints doubling to 10,240), each making a glint every
+  2 s; the workbench turns 1,000 glints into a bar; huts give up to six
+  hands for six anvils (a bar every 2 minutes) and the Thinker (data), once a
+  gear comes home; bins raise what camp can hold; Dr. Orrery researches
+  better yo-yos, Fertilizer, Big Bins, the Pep Pill and Starfuel. All of it
+  keeps working in real time while the console is on, in the menus or in
+  another cartridge, but not while it is off.
+- **The Wilds:** Tolly lets Wick out only with jerky, and every strip she
+  carries becomes two minutes on the clock, which is also her health: a hit
+  costs 30 s, and if it runs out she loses everything she found. Each save
+  makes its own Wilds (which caves hold the dungeons and the folk, where the
+  roadblocks are), and some roads open or close from trip to trip. Three
+  dungeons each guard a ship part; odds from foes and chests pay for
+  hopstones, noodlers and Madame Shuffle's chests; Hush's letter to Tanger
+  earns the thunderpipe; the Volthog guards the way to Mother Loom, who
+  spins thread at camp once beaten. Then Mawbo roams the Wilds: beat it six
+  times in one trip for the Alien.
+- **Ours:** Wick and the *Tumbleweed*, the moor-moon Oddmoor, Old Burl,
+  Gristle, Dr. Orrery, Tolly, Kit, Hush, Tanger and Madame Shuffle, the
+  world generator and its six regions, the three dungeons, all 19 foes and
+  the six bosses, and the music.
+
 ### 47 · WOBBLE DERBY
 
 <p align="center">
