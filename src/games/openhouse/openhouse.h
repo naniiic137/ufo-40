@@ -163,6 +163,7 @@ bool ph_target_ok(const PhGame *g, int slot, int target);   /* for boot, photo, 
 bool ph_act(PhGame *g, int slot, int target);               /* target: a slot, or a guest type for a fetch */
 bool ph_peek_decide(PhGame *g, bool admit);
 bool ph_fetch_ok(const PhGame *g, int type);
+bool ph_fetch_card(PhGame *g, int slot, int card); /* fetch exactly this copy (the guest book's pick) */
 void ph_end_party(PhGame *g);
 bool ph_should_end(const PhGame *g);     /* full (or nobody left to come) and nothing left to do */
 int ph_pay_order(const PhGame *g, int cash, uint8_t unpaid[PH_MAX_HOUSE]); /* who can't be paid; the penalty */
@@ -202,7 +203,9 @@ enum {
     PI_NONE, PI_FETCH, PI_BRING, PI_BOOT, PI_PEEK, PI_SHUFFLE, PI_SCORE, PI_STYLE, PI_REFRESH,
     PI_SWAP, PI_CALM, PI_FAMEUP, PI_CASHUP, PI_MOON, PI_CURSE, PI_ENCORE,
     PI_ABILITIES,                    /* the number of ability families (PI_NONE included) */
-    PI_STAR = PI_ABILITIES, PI_FAME, PI_INF, PI_CROWN, PI_COUNT
+    PI_STAR = PI_ABILITIES, PI_FAME, PI_INF, PI_CROWN,
+    PI_NAME,                         /* a name tag: a copy with one of the secret real names */
+    PI_COUNT
 };
 extern const uint8_t PH_ICON_COL[PI_COUNT];  /* each icon's own colour */
 extern const char *const PH_ICON_NAME[PI_ABILITIES]; /* the legend's words */

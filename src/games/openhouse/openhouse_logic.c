@@ -413,6 +413,23 @@ bool ph_fetch_ok(const PhGame *g, int type) {
     return g->party.n < ph_me_c(g)->cap && ph_count_type(g, type, W_POOL) - (g->party.peek >= 0 && ph_me_c(g)->card[g->party.peek].type == type) > 0;
 }
 
+/* the guest book's pick (cabbie, sleuth, wish fish): exactly that copy,
+ * under the same rules as ph_fetch_ok: it's still to come (in the guest
+ * book, not waiting at the door) and there is room */
+bool ph_fetch_card(PhGame *g, int slot, int card) {
+    if (!ph_can_act(g, slot)) return false;
+    PhParty *pa = &g->party;
+    PhPlayer *p = ph_me(g);
+    int by = pa->house[slot];
+    if (PH_GUESTS[p->card[by].type].action != A_FETCH) return false;
+    if (card < 0 || card >= p->ncards || pa->where[card] != W_POOL || card == pa->peek) return false;
+    if (!ph_fetch_ok(g, p->card[card].type)) return false;
+    pa->used[by] = 1;
+    pa->nlast = 0;
+    admit(g, card);
+    return true;
+}
+
 bool ph_target_ok(const PhGame *g, int slot, int target) {
     const PhParty *pa = &g->party;
     const PhPlayer *p = ph_me_c(g);

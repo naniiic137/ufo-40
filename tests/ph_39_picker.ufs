@@ -1,5 +1,6 @@
-# OPEN HOUSE (owner's addition): the fetch list (cabbie, sleuth, wish fish)
-# shows each guest's cost, fame, cash, RUCKUS!, star and ability icon.
+# OPEN HOUSE (owner's addition): picking a guest to fetch (cabbie, sleuth,
+# wish fish) is the guest book in pick mode: one tile per guest still to
+# come, each with its cost, fame, cash, RUCKUS!, star and ability icon.
 game openhouse
 wait 5
 cheat new 3 1
@@ -12,32 +13,57 @@ press LEFT
 expect cur == 0
 press A
 expect state == 7
-# neighbour, cousin, rowdy mate, goat, saucer pilot, wish fish
-expect seen_pick_rows == 6
+expect book_mode == 2
+# fourteen still to come, eight to a row: neighbours 0-3, cousins 4-5 and
+# rowdy mates 6-7; then rowdy mates 8-9, goats 12-13, the saucer pilot 11
+# and the wish fish 14 (the three starting kinds, then by cost, stars last).
+# The third row is the cabbie, at the party.
+expect seen_pick_rows == 14
+expect book_rows == 3
 expect fetchsel == 0
+expect book_card == 0
 expect pick_cost == 2
 expect pick_pop == 1
 expect pick_cash == 0
-press DOWN
+press RIGHT
+press RIGHT
+press RIGHT
+press RIGHT
+expect book_card == 4
 expect pick_cash == 1
-press DOWN
+press RIGHT
+press RIGHT
+expect book_card == 6
 expect pick_trouble == 1
+# DOWN keeps the column, or the row's last tile
 press DOWN
+expect book_card == 14
+expect fetchsel == 39
+expect pick_star == 1
+expect pick_abil == 1
+press LEFT
+expect fetchsel == 37
+expect pick_cost == 40
+expect pick_star == 1
+expect pick_trouble == 0
+press LEFT
 expect fetchsel == 33
+expect book_card == 13
 expect pick_cost == 3
 expect pick_pop == 4
 expect pick_trouble == 1
 expect pick_star == 0
 expect pick_abil == 0
+# the cabbie's row (at the party) can't be picked: DOWN wraps to the top
 press DOWN
-expect fetchsel == 37
-expect pick_cost == 40
-expect pick_star == 1
-expect pick_trouble == 0
-press DOWN
+expect book_group == 0
+expect book_card == 3
+press UP
+expect book_card == 13
+press RIGHT
+press RIGHT
 expect fetchsel == 39
-expect pick_star == 1
-expect pick_abil == 1
 press A
 expect state == 5
 expect stars == 1
+expect hcard1 == 14

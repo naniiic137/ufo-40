@@ -18,9 +18,8 @@ press LEFT
 expect cur == 0
 press A
 expect state == 7
-press DOWN
-press DOWN
-press DOWN
+# the guest book to pick from: the socialite is the last still to come
+press LEFT
 expect fetchsel == 14
 press A
 expect state == 10

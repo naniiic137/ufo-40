@@ -1,0 +1,65 @@
+# OPEN HOUSE: the fetchers (cabbie, sleuth, wish fish) open the guest book
+# in pick mode. Only guests still to come can be chosen (not those at the
+# party, the one waiting at the door or those out tonight), and exactly the
+# copy picked comes in, with its own values. B cancels.
+game openhouse
+wait 5
+cheat new 1 1
+cheat give 3 1
+# neighbour card 2 has a tailor's +1
+cheat copy 2 1 0 0
+cheat cap 8
+cheat door 3 0 2
+# the cousins stay home, and rowdy mate 7 waits at the door
+cheat away 1
+cheat peek 7
+expect n == 3
+expect peek == 7
+press LEFT
+press LEFT
+press LEFT
+expect cur == 0
+press A
+expect state == 7
+expect book_mode == 2
+# to come: neighbours 1-3, rowdy mates 8-9; at the party: the cabbie,
+# neighbour 0, rowdy mate 6 and (at the door) rowdy mate 7; out: the cousins
+expect book_come == 5
+expect book_party == 4
+expect book_door == 1
+expect book_out == 2
+expect seen_pick_rows == 5
+expect seen_book_dim == 6
+expect book_card == 1
+# B cancels: the cabbie's ride is still there
+press B
+expect state == 5
+expect cur == 0
+expect canact0 == 1
+expect n == 3
+press A
+expect state == 7
+# the cursor keeps to the guests still to come, and wraps
+press DOWN
+expect book_group == 0
+press UP
+expect book_group == 0
+press LEFT
+expect book_card == 9
+press RIGHT
+expect book_card == 1
+press RIGHT
+expect book_card == 2
+expect book_pop == 2
+expect book_boost == 1
+expect pick_pop == 2
+expect book_kind == 3
+# A fetches exactly that copy
+press A
+expect state == 5
+expect n == 4
+expect hcard3 == 2
+expect vpop3 == 2
+expect canact0 == 0
+expect peek == 7
+expect wpool0 == 2

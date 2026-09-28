@@ -36,6 +36,7 @@ list; the Random Scenario deals its own pool (see the generator rules below).
 | Shop | after every party, buy guests with popularity and expansions with cash; bought guests stay for the scenario | [W] |
 | Stock | every non-star guest (Old Friend and Rich Pal too) can be bought 4 times a scenario; stars without limit | [W] |
 | Actions | a guest's action works once a party | [G] |
+| Rolodex (our GUEST BOOK) | a button by the door (and a slot in the shop between SPACE and NEXT PARTY) opens a list of every contact, one tile per copy: first those who may still come in, then, after a blue folder with an arrow, those at the party, then those kicked out. It shows who is left and prints no odds. The d-pad moves a cursor, the box beside it names and describes the guest under it, B goes back. In the shop it is every contact. Fetching (cabbie, sleuth, wish fish) picks from those still to come (ph_43, ph_44, ph_45) | [MM] "guests who may appear are shown first, while guests already in your party are shown after the blue folder symbol with the arrow on it", the controls and the info box; [SB] "May Come In/At Party/Kicked Out Of Party", "you can calculate the rough odds"; [SO] "check the Rolodex to see how many Cheerleaders ... we have left"; [TAS] each contact is marked kicked, invited or peeked on its own; [G] fetch lets you "choose a guest in your Rolodex", booted guests can't be fetched |
 | Wild Buddies | can't be bought or removed | [W], [S] |
 | Scenarios | five set scenarios, each a pool of guests with two stars (one in the first), and a Random Scenario | [W], [SO], [G] |
 | Winning | the gold for all five set scenarios, the gift for any one | [W] |
@@ -146,6 +147,22 @@ streak, either way, so a known list can't be replayed into a streak.
   booted ones (booted is sourced, see the checklist).
 - **Fetching** offers the guests still in the rolodex; that the player
   chooses is sourced ([W] "a specific guest", [S] "choose which guest").
+  The player picks one copy in the guest book's STILL TO COME group, and
+  exactly that copy comes in (copies can differ: a tailor's +1, the
+  upstart's visits, the moon child's mood, a real name). Not the guest
+  waiting at the door, and not one out tonight ([G]).
+- **The guest book's details** the sources don't give: a grid of tiles like
+  the house (eight to a row), the order inside a group (the guest at the
+  door first, then as the shop sells them: the three starting kinds, then
+  by cost, stars last; the same kind together, copies in the order they
+  were bought), and one tile per copy ([TAS] tracks each card on its own,
+  and [MM] says "a list of all your contacts"). The guest waiting at the
+  door sits first in AT THE PARTY with a DOOR tag and isn't counted in it.
+  Guests turned away after a peek or swapped out by the fortune teller are
+  out tonight like booted ones, so they show BOOTED too. The guest banned
+  after a shutdown shows in OUT TONIGHT with a red BANNED tag ([G] says only
+  "will not be in your Rolodex the next night"; the original may leave them
+  off).
 - **Paying up:** the order and the 7-point charge are sourced (checklist).
   The penalty is per unpaid guest, as [W] says; [S] instead says "7 Pop per
   missing Cash". The two only differ for the Sea Serpent (−3), so we follow
@@ -353,8 +370,8 @@ here still follows Party House.
 
 10. **Badges on every guest, and the icon guide.** Every guest wears the
     same small badges wherever it is shown: in the house, waiting at the
-    door, on the shop's cards, in the guest book, in the custom editor and
-    in the fetch list.
+    door, on the shop's cards, in the guest book (also when picking a
+    guest to fetch) and in the custom editor.
     - **Fame and cash**, only when not 0: a small fame coin and the number
       (yellow, red when it takes fame away), and the cash as $1 (green) or
       -$1 (red). In the house they are tonight's values (a drummer's band,
@@ -377,11 +394,8 @@ here still follows Party House.
       action that can be used right now has a blinking spark; once used
       tonight its icon is dimmed.
     - **The icon guide** (ICON GUIDE) tells every badge and icon in words.
-      It opens from the guest book (LEFT or RIGHT) and from the START
-      menu, and goes back where it came from.
-    - The fetch list (cabbie, sleuth, wish fish) shows every guest that can
-      come with its cost, pay, badges and how many are in the book; the one
-      under the cursor is told in full by the door.
+      It opens from the guest book (SELECT) and from the START menu, and
+      goes back where it came from (B, A or SELECT).
 11. **Red notices.** What goes wrong says so in small red text.
     - **The fire marshal**: OVER CAPACITY! on a red-ruled banner by the
       door, the guest who couldn't get in (with a red CAN'T GET IN tag),
@@ -394,7 +408,7 @@ here still follows Party House.
       blame).
     - **BANNED**: on the ban screen the guest under the cursor wears a red
       BANNED tag; after it the shop shows the banned guest in a red box,
-      the guest book tags their row, and the party they miss says so on
+      the guest book tags that one copy, and the party they miss says so on
       its bottom line. The tag goes once that party is over, and it is
       saved (in a byte that was spare).
     - **Can't happen**: a full door (THE HOUSE IS FULL, NO ROOM FOR THEM,
@@ -419,6 +433,34 @@ here still follows Party House.
     once won it turns gold (BEATEN, a gold border and a crown), which is
     saved. The goals count wins exactly as before (a win on list 1..5 or
     Random, all five set lists, five Random wins in a row).
+
+15. **The guest book, beyond the rolodex.** Hamza found the old book "not
+    even close to the real thing", so it now works like the rolodex (see
+    the checklist). What it adds to the original, or where we had to
+    choose:
+    - **It opens over the party** instead of taking the whole screen: the
+      top bar (nights, fame, cash, the star pips, the lamp) and the door
+      stay in view, and the box under the door tells the guest under the
+      cursor. In the shop the top bar stays and the counter tells the
+      guest. (Whether the original's list covers the screen is unknown.)
+    - **The counts.** Each divider counts its group; STILL TO COME also
+      counts the RUCKUS! guests and the stars among them. The box under the
+      door adds "N OF THIS KIND TO COME" for the guest under the cursor.
+      The original leaves all counting to the player; ours still prints no
+      odds.
+    - **Each copy's own marks.** A tailor's +1s turn the tile's fame
+      number ice blue (the scissors' colour), a copy with a real name
+      wears a name tag, the upstart's value and the moon child's next mood
+      are that copy's, and the box says so (TAILORED, CAME N TIMES, NEXT
+      TIME: RUCKUS!). A guest at the party shows tonight's values and its
+      action ready or used, as in the house.
+    - **Moves.** The d-pad goes over the tiles and across the dividers, and
+      every move wraps (like the shop). Browsing, A does nothing; B closes
+      it, back on the GUEST BOOK button; SELECT opens the icon guide.
+      Picking a guest to fetch, the cursor keeps to STILL TO COME, the
+      other groups are greyed, A fetches and B cancels.
+    - A small white card file marks the GUEST BOOK button by the door (the
+      original's "white thing by the door").
 
 ### The guest abilities the owner asked for
 
@@ -460,11 +502,15 @@ sell them in (Driver, Comedian and Dancer in Alien Invitation, and so on).
 | A | open the door, use a guest's action, choose, buy |
 | B | cancel, back; in a party, END THE PARTY? (owner's addition); in the shop, go to NEXT PARTY, again to start it |
 | START | pause menu, with ICON GUIDE (owner's addition, 10) |
+| SELECT | in the guest book: the ICON GUIDE (owner's addition, 15) |
 
-The guest book (the whole deck, each guest with a count and its badges) is
-a button under the door and in the shop; LEFT or RIGHT there turns to the
-icon guide, which the START menu opens too. It doesn't split the deck into guests still to
-come and guests out: no source says the original shows the draws left.
+The guest book (the rolodex) is a button under the door and in the shop.
+It lists every guest copy as a tile with its badges: during a party in
+three groups, STILL TO COME, AT THE PARTY (after a folder with an arrow)
+and OUT TONIGHT (greyed, tagged BOOTED or BANNED); in the shop as one
+group. The d-pad moves over the tiles, the box beside it tells the guest
+under the cursor and where it is tonight, and B closes it. The fetchers
+open the same book to pick a guest still to come.
 
 The party's top bar, like the original's panel [MM], shows the nights left
 (a lantern and a count that runs 25 to 1), fame, cash and four star pips
@@ -516,12 +562,21 @@ seeded random number generator, so the tests can replay parties exactly.
 - [MM] Steam guide "The missing manuals": the planner ("left and right on
   the d-pad switch between categories, while up and down select different
   items"), the party panel with parties left and four star symbols that
-  start blue. https://steamcommunity.com/sharedfiles/filedetails/?id=3350227767
+  start blue, the rolodex (guests who may appear first, those at the party
+  after the blue folder with the arrow), the controls (d-pad, A selects, B
+  goes back) and the info box. https://steamcommunity.com/sharedfiles/filedetails/?id=3350227767
 - [V] Michael O'Blivion, "Party All Night with the Definitive Party House
   Guest Tier List | UFO 50" (video; its description, chapters and English
   captions read as text): every guest's numbers again, "a cap on popularity
   and money gains", the popularity cap at 65 from its arithmetic ("if you
   capped popularity and bought an alien you have 25 left over").
   https://www.youtube.com/watch?v=RM_wP_LhCKs
+- [SB] Steam thread "I lost a 3 streak win in Party House" (Sapphire
+  Bullets' reply): the rolodex by the door lists the guests as "May Come
+  In/At Party/Kicked Out Of Party", and the player works out the odds.
+  https://steamcommunity.com/app/1147860/discussions/0/523083364935172735/
+- [TAS] TASVideos submission notes for Party House: each party shuffles
+  the rolodex; kicking, fetching and peeking mark single contacts and don't
+  change the order. https://tasvideos.org/10570S
 - [L] Lostnostalgia and Indie Hell Zone reviews: popularity buys guests, cash
   buys space, no card removal, the Random streak for the cherry.

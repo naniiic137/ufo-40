@@ -598,7 +598,11 @@ the top.
   <img src="docs/shots/openhouse_custom.png" width="320" alt="The custom list's editor: every guest, in or out">
 </p>
 <p align="center">
-  <img src="docs/shots/openhouse_picker.png" width="320" alt="The fetch list: each guest's cost, pay and badges">
+  <img src="docs/shots/openhouse_book.png" width="320" alt="The guest book during a party: every guest copy, still to come, at the party and out tonight">
+  <img src="docs/shots/openhouse_picker.png" width="320" alt="A cabbie picks from the same guest book: only guests still to come">
+</p>
+<p align="center">
+  <img src="docs/shots/openhouse_shopbook.png" width="320" alt="The guest book in the shop: every copy, the tailored one and the banned one marked">
   <img src="docs/shots/openhouse_notice.png" width="320" alt="The fire marshal, in red: who couldn't get in and who brought them">
 </p>
 <p align="center">
@@ -609,7 +613,10 @@ the top.
 *A tribute to **Party House** (UFO 50 #25).*
 
 - **Plays the same:** open the door and a random guest from your guest book
-  walks in. Three rowdy guests bring the police, and guests brought along
+  walks in. The guest book by the door works like the rolodex: every guest
+  copy as a tile with its own badges, in three groups (still to come, at
+  the party, out tonight), with a cursor and a box that tells the guest
+  under it; the fetchers pick from the same book. Three rowdy guests bring the police, and guests brought along
   can overflow the house for the fire marshal; either way nobody pays and one
   guest misses the next party. End the party in time and everyone pays fame
   (to buy guests) and cash (to add space).
@@ -641,8 +648,11 @@ the top.
   own record.
 - **Easy to read:** every guest wears small badges (fame, cash, RUCKUS!, a
   star and an icon for its ability, dimmed once used) in the house, the
-  shop, the guest book, the editor and the fetch list, with an ICON GUIDE
-  to explain them. Shutdowns say why in red (OVER CAPACITY!, TOO MUCH
+  shop, the guest book and the editor, with an ICON GUIDE to explain them
+  (SELECT in the guest book, or the START menu). The guest book opens over
+  the party with the top bar and the door in view, counts the RUCKUS! and
+  stars still to come, and marks each copy's own (a tailor's +1s, a real
+  name). Shutdowns say why in red (OVER CAPACITY!, TOO MUCH
   TROUBLE!, with the culprits marked), the banned guest wears a red BANNED
   tag until the party they miss, a peek leaves the guest waiting by the
   door while the party goes on, stars show a no-limit sign in the shop, and

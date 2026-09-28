@@ -55,6 +55,17 @@ wait 6
 press RIGHT
 wait 20
 shot openhouse_shop
+# the guest book in the shop: every copy, a tailored neighbour, one banned
+cheat copy 1 1 0 0
+cheat banned 7
+press B
+press LEFT
+press A
+wait 4
+press RIGHT
+wait 20
+shot openhouse_shopbook
+press B
 # the list grid, and OPEN ALL NIGHT's own grid
 cheat won 7
 cheat menu
@@ -99,29 +110,57 @@ press LEFT
 press A
 wait 30
 shot openhouse_peek
-# the fetch list (cabbie, sleuth, wish fish): cost, pay and badges
+# the guest book during a party (Party House's rolodex): every copy in
+# three groups; a tailored neighbour (+2) and one with a real name
+cheat new 3 1
+cheat give 34 1
+cheat give 41 1
+cheat give 27 1
+cheat give 18 1
+cheat give 23 1
+cheat give 39 1
+cheat give 5 1
+cheat give 7 1
+cheat give 32 1
+cheat copy 1 1 0 0
+cheat copy 2 0 0 2
+cheat cap 10
+cheat door 0 1 2 34 7 27 23 5
+cheat away 18
+cheat away 1
+cheat away 32
+wait 40
+press DOWN
+press DOWN
+press A
+wait 6
+press RIGHT
+wait 20
+shot openhouse_book
+press B
+# the fetchers pick from the same book: only those still to come
 cheat new 3 1
 cheat give 3 1
 cheat give 39 1
 cheat give 41 1
-cheat give 33 2
+cheat give 33 1
 cheat give 24 1
-cheat give 23 1
 cheat give 27 1
 cheat give 18 1
-cheat door 3 0 5
+cheat cap 8
+cheat door 3 0 1 2 27
+cheat away 2
+cheat away 1
 wait 40
+press LEFT
+press LEFT
 press LEFT
 press LEFT
 press LEFT
 press A
 wait 6
-press DOWN
-press DOWN
-press DOWN
-press DOWN
-press DOWN
-wait 10
+press LEFT
+wait 20
 shot openhouse_picker
 # the fire marshal, in red: who couldn't get in and who brought them
 press B
@@ -142,6 +181,6 @@ press DOWN
 press DOWN
 press A
 wait 4
-press RIGHT
+press SELECT
 wait 10
 shot openhouse_legend
