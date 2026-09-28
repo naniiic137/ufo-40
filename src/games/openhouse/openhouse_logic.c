@@ -317,7 +317,7 @@ static void admit(PhGame *g, int card) {
     PhParty *pa = &g->party;
     PhPlayer *p = ph_me(g);
     if (pa->over) return;
-    if (pa->n >= p->cap) { pa->over = PO_FIRE; return; }
+    if (pa->n >= p->cap) { pa->over = PO_FIRE; pa->overflow = (uint8_t)(card + 1); return; }
     PhCard *c = &p->card[card];
     const PhGuest *t = &PH_GUESTS[c->type];
     pa->where[card] = W_HOUSE;
@@ -337,7 +337,9 @@ static void admit(PhGame *g, int card) {
     for (int k = 0; k < bring && !pa->over; k++) {
         int d = ph_draw(g);
         if (d < 0) break;
-        if (pa->n >= p->cap) { pa->over = PO_FIRE; return; }
+        /* no room for the one they bring: the fire marshal (the UI shows who
+         * couldn't get in) */
+        if (pa->n >= p->cap) { pa->over = PO_FIRE; pa->overflow = (uint8_t)(d + 1); return; }
         admit(g, d);
     }
 }

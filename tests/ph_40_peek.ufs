@@ -1,0 +1,79 @@
+# OPEN HOUSE (owner's addition): a peek (parrot, doorman) doesn't take over
+# the screen. The guest at the door waits by the door with their badges;
+# the party goes on: other guests act, the door lets exactly them in, TURN
+# AWAY sends them off, and B still ends the party.
+game openhouse
+wait 5
+cheat new 1 1
+cheat cap 8
+cheat give 9 1
+cheat give 7 1
+cheat give 37 1
+cheat door 9 7 0
+cheat away 0
+cheat away 1
+cheat away 2
+# only the saucer pilot is left to come
+press LEFT
+press LEFT
+press LEFT
+expect cur == 0
+press A
+expect state == 5
+expect peektype == 37
+expect cur == 100
+expect seen_door != 0
+# the bouncer sends the neighbour home while the pilot waits
+press LEFT
+press LEFT
+expect cur == 1
+press A
+expect state == 6
+press RIGHT
+press RIGHT
+press A
+expect state == 5
+expect n == 2
+expect wout0 == 4
+expect peektype == 37
+expect seen_door != 0
+# the door lets in exactly the one who waited
+press RIGHT
+expect cur == 100
+press A
+expect n == 3
+expect slot2 == 37
+expect stars == 1
+expect peek == -1
+# peek, then TURN AWAY (under the door)
+cheat new 1 1
+cheat cap 8
+cheat give 9 1
+cheat give 37 1
+cheat door 9
+cheat away 0
+cheat away 1
+cheat away 2
+press LEFT
+press A
+expect peektype == 37
+press DOWN
+expect cur == 103
+press A
+expect peek == -1
+expect wout37 == 1
+expect n == 1
+# peek, then end the party with B
+cheat new 1 1
+cheat cap 8
+cheat give 9 1
+cheat door 9
+press LEFT
+press A
+expect peek >= 0
+expect state == 5
+press B
+expect state == 9
+press LEFT
+press A
+expect state == 12

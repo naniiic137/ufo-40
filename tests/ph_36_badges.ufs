@@ -1,0 +1,94 @@
+# OPEN HOUSE (owner's addition): every guest in the house wears badges: the
+# fame and cash they pay (only what isn't 0), RUCKUS!, the star and an
+# ability icon per family, dimmed once the action is used tonight. The
+# shop's stars wear the no-limit sign.
+game openhouse
+wait 5
+cheat new 3 1
+cheat cap 8
+cheat give 18 1
+cheat give 19 1
+cheat give 41 1
+cheat give 5 1
+cheat door 18 19 41 5 0
+expect n == 5
+# the paparazzo: +1 fame, -$1, a camera (pay now), ready
+expect bpop0 == 1
+expect bcash0 == -1
+expect babil0 == 6
+expect btrouble0 == 0
+expect bstar0 == 0
+expect bused0 == 0
+expect bready0 == 1
+# the pastry chef: +4 fame, -$1, no ability
+expect bpop1 == 4
+expect bcash1 == -1
+expect babil1 == 0
+# the cyclops: a star and RUCKUS!, no fame or cash
+expect bstar2 == 1
+expect btrouble2 == 1
+expect bpop2 == 0
+expect bcash2 == 0
+expect babil2 == 0
+# the surfer calms (a heart); the neighbour pays fame only
+expect babil3 == 10
+expect bpop4 == 1
+expect bcash4 == 0
+expect babil4 == 0
+# once they've walked in from the door, all five are drawn with badges
+wait 40
+expect seen_badges == 5
+# the paparazzo takes a picture (real presses): its icon dims
+expect cur == 100
+press LEFT
+press LEFT
+press LEFT
+press LEFT
+press LEFT
+expect cur == 0
+press A
+expect state == 6
+press A
+expect state == 5
+expect bused0 == 1
+expect bready0 == 0
+expect babil0 == 6
+# one icon per ability family
+expect abil3 == 1
+expect abil39 == 1
+expect abil14 == 2
+expect abil15 == 2
+expect abil42 == 2
+expect abil28 == 2
+expect abil7 == 3
+expect abil30 == 3
+expect abil43 == 3
+expect abil9 == 4
+expect abil10 == 4
+expect abil11 == 5
+expect abil12 == 5
+expect abil18 == 6
+expect abil23 == 7
+expect abil27 == 8
+expect abil29 == 9
+expect abil31 == 10
+expect abil44 == 10
+expect abil22 == 11
+expect abil13 == 11
+expect abil26 == 11
+expect abil24 == 12
+expect abil32 == 13
+expect abil47 == 14
+expect abil46 == 15
+expect abil0 == 0
+expect abil37 == 0
+# end the party and shop: both of LEMON GROVE's stars show the no-limit sign
+press B
+press LEFT
+press A
+expect state == 12
+waituntil tally == 3 900
+wait 10
+press A
+expect state == 13
+expect seen_inf == 2

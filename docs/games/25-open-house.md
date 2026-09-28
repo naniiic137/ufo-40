@@ -133,10 +133,10 @@ streak, either way, so a known list can't be replayed into a streak.
 
 ### Readings we had to choose
 
-- **Unlocking.** Set scenario 1 is open at the start; winning a scenario opens
-  the next; the Random Scenario opens once scenario 5 is won. 2P Versus uses
-  the scenarios you have opened. OPEN ALL NIGHT (the owner's) is open from
-  the start, on the lists you have opened plus the big mix.
+- **Unlocking.** Our first reading opened set scenario 1 at the start and
+  each win the next (Random after scenario 5). The owner has since opened
+  everything from the start (Owner's additions, 14): a win now only turns
+  its tile gold and counts for the goals.
 - **Winning** is checked when a party ends without a shutdown (by the player,
   or because the house is full and no action is left). [W] names the goal as
   "a successful party", which fits; the exact moment isn't described.
@@ -351,6 +351,75 @@ here still follows Party House.
      so it scrolls; the intro packs a big list's faces closer. A save from
      before the custom list (a shop of 24 at most) is carried over.
 
+10. **Badges on every guest, and the icon guide.** Every guest wears the
+    same small badges wherever it is shown: in the house, waiting at the
+    door, on the shop's cards, in the guest book, in the custom editor and
+    in the fetch list.
+    - **Fame and cash**, only when not 0: a small fame coin and the number
+      (yellow, red when it takes fame away), and the cash as $1 (green) or
+      -$1 (red). In the house they are tonight's values (a drummer's band,
+      a bookworm's empty spaces, a tailor's +1s); elsewhere the table's.
+      They sit on the dark top of a little plinth under the face: amber
+      for a star, wine for RUCKUS!.
+    - **RUCKUS!**: a red tag with a white "!" top left (in the house only
+      while the guest is RUCKUS! right now; elsewhere any guest that can
+      be, the moon child too). **Star**: a yellow star top right.
+    - **The ability**: one icon per family on a dark chip under the star.
+      Fetch a chosen guest (an arrow into a door), bring guests along
+      (">>", the socialite, pop idol, phoenix and usher), send home (a boot;
+      the matchmaker too), peek (an eye), everyone out (a firework), pay
+      now (a camera), +1 fame for good (scissors), actions again (a turning
+      arrow), star swap (two arrows), calm RUCKUS! (a heart; the surfer,
+      kitten, sphinx and old sage), fame bonus (a medal with a plus: the
+      drummer, storyteller, granny, bookworm, poet and upstart), cash
+      bonus (a dollar: the barista), moody (a crescent: the moon child),
+      curse (a gull: the albatross) and encore (a note: the crooner). An
+      action that can be used right now has a blinking spark; once used
+      tonight its icon is dimmed.
+    - **The icon guide** (ICON GUIDE) tells every badge and icon in words.
+      It opens from the guest book (LEFT or RIGHT) and from the START
+      menu, and goes back where it came from.
+    - The fetch list (cabbie, sleuth, wish fish) shows every guest that can
+      come with its cost, pay, badges and how many are in the book; the one
+      under the cursor is told in full by the door.
+11. **Red notices.** What goes wrong says so in small red text.
+    - **The fire marshal**: OVER CAPACITY! on a red-ruled banner by the
+      door, the guest who couldn't get in (with a red CAN'T GET IN tag),
+      the guest who brought one too many marked in red in the house, and
+      the reason on the bottom line. Which guest that is: the knock's
+      guests come in depth first, each bringing theirs, so the one still
+      owed a guest when the house overflowed.
+    - **The police**: TOO MUCH TROUBLE!, with every RUCKUS! guest marked in
+      red (they stay marked on the ban screen, to help pick who takes the
+      blame).
+    - **BANNED**: on the ban screen the guest under the cursor wears a red
+      BANNED tag; after it the shop shows the banned guest in a red box,
+      the guest book tags their row, and the party they miss says so on
+      its bottom line. The tag goes once that party is over, and it is
+      saved (in a byte that was spare).
+    - **Can't happen**: a full door (THE HOUSE IS FULL, NO ROOM FOR THEM,
+      NOBODY LEFT TO INVITE), NOT ENOUGH FAME or CASH, SOLD OUT (also a red
+      tag on the card) and a peeked guest there's no room for (a red NO
+      ROOM tag at the door) are red.
+12. **Peeking doesn't stop the party.** After a parrot or doorman peeks,
+    the guest at the door waits in the doorway with their badges and the
+    party goes on at once. The rules are unchanged: OPEN THE DOOR (now LET
+    THEM IN) lets in exactly that guest, TURN AWAY (a button under it
+    while they wait) keeps them out till the next party, other guests can
+    act meanwhile (a fetch, a swap or a reshuffle never takes the waiting
+    guest; the usher lets them in), and B can end the party. The panel
+    below tells them in full while the cursor is on either button.
+13. **The shop's stock.** A star's card wears a no-limit sign (the
+    infinity), since stars can be bought again and again; the others show
+    the buys left of four (4/4 down to a red SOLD OUT). The custom editor
+    shows the same sign by each star's cost, and its panel says NO LIMIT or
+    4 EACH.
+14. **Every list is open from the start**: the five lists, Random, OPEN
+    ALL NIGHT (on any list) and CUSTOM. Each tile says UNBEATEN in grey;
+    once won it turns gold (BEATEN, a gold border and a crown), which is
+    saved. The goals count wins exactly as before (a win on list 1..5 or
+    Random, all five set lists, five Random wins in a row).
+
 ### The guest abilities the owner asked for
 
 | # | Owner's description | Ours | Party House | Changed? |
@@ -390,10 +459,11 @@ sell them in (Driver, Comedian and Dancer in Alien Invitation, and so on).
 | D-pad | move the cursor |
 | A | open the door, use a guest's action, choose, buy |
 | B | cancel, back; in a party, END THE PARTY? (owner's addition); in the shop, go to NEXT PARTY, again to start it |
-| START | pause menu |
+| START | pause menu, with ICON GUIDE (owner's addition, 10) |
 
-The guest book (the whole deck, each guest with a count) is a button under
-the door and in the shop. It doesn't split the deck into guests still to
+The guest book (the whole deck, each guest with a count and its badges) is
+a button under the door and in the shop; LEFT or RIGHT there turns to the
+icon guide, which the START menu opens too. It doesn't split the deck into guests still to
 come and guests out: no source says the original shows the draws left.
 
 The party's top bar, like the original's panel [MM], shows the nights left
@@ -401,10 +471,10 @@ The party's top bar, like the original's panel [MM], shows the nights left
 that turn from blue to yellow for each star guest in the house. The trouble
 count stays hidden; the neighbour's lamp is the only warning.
 
-The shop is a grid of guest cards, five to a row, each with its face, its
-price in fame (yellow when you can afford it) and its stock left as green
-bars (stars say STAR); the counter on the right describes the card under
-the cursor. Under the grid sit +1 SPACE, GUEST BOOK and NEXT PARTY. The
+The shop is a grid of guest cards, five to a row, each with its face and
+badges, its price in fame (yellow when you can afford it), the buys left
+(a no-limit sign on stars) and what it pays; the counter on the right
+describes the card under the cursor, with its ability family. Under the grid sit +1 SPACE, GUEST BOOK and NEXT PARTY. The
 D-pad moves around the grid and wraps everywhere, UP from the top row
 jumps to NEXT PARTY and B goes there too (Owner's additions, 6).
 

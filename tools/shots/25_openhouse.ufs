@@ -79,3 +79,69 @@ press LEFT
 press A
 wait 20
 shot openhouse_custom
+# a peek: the guest at the door waits by it, badges and all
+cheat new 3 1
+cheat give 9 1
+cheat give 27 1
+cheat give 39 1
+cheat give 41 1
+cheat give 24 1
+cheat give 23 1
+cheat cap 10
+cheat door 9 34 27 23 24 1 0
+wait 40
+press LEFT
+press LEFT
+press LEFT
+press LEFT
+press LEFT
+press LEFT
+press A
+wait 30
+shot openhouse_peek
+# the fetch list (cabbie, sleuth, wish fish): cost, pay and badges
+cheat new 3 1
+cheat give 3 1
+cheat give 39 1
+cheat give 41 1
+cheat give 33 2
+cheat give 24 1
+cheat give 23 1
+cheat give 27 1
+cheat give 18 1
+cheat door 3 0 5
+wait 40
+press LEFT
+press LEFT
+press LEFT
+press A
+wait 6
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+wait 10
+shot openhouse_picker
+# the fire marshal, in red: who couldn't get in and who brought them
+press B
+cheat new 1 1
+cheat cap 7
+cheat give 14 1
+cheat give 19 1
+cheat give 34 1
+cheat give 18 1
+cheat give 9 1
+cheat door 0 34 19 1 18 9 14
+wait 70
+shot openhouse_notice
+# the icon guide
+cheat new 1 1
+wait 5
+press DOWN
+press DOWN
+press A
+wait 4
+press RIGHT
+wait 10
+shot openhouse_legend

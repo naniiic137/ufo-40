@@ -1,0 +1,61 @@
+# OPEN HOUSE (owner's addition): a shutdown says why in red. The fire
+# marshal: OVER CAPACITY!, with the guest who brought one too many marked
+# and the one who couldn't get in shown. The police: TOO MUCH TROUBLE!, with
+# the RUCKUS! guests marked. A door that can't open says so in red.
+game openhouse
+wait 5
+cheat new 1 1
+cheat cap 5
+cheat give 3 1
+cheat give 14 1
+cheat door 3 0 0 0
+expect n == 4
+# the cabbie fetches the socialite, who brings someone: no room for them
+press LEFT
+press LEFT
+press LEFT
+press LEFT
+expect cur == 0
+press A
+expect state == 7
+press DOWN
+press DOWN
+press DOWN
+expect fetchsel == 14
+press A
+expect state == 10
+expect over == 3
+expect notice == 1
+expect seen_notice == 1
+expect overflow >= 0
+expect fireby == 4
+expect culprit4 == 1
+expect culprit0 == 0
+expect seen_culprits == 1
+# the police: three RUCKUS! at once, each one marked
+cheat new 1 1
+cheat cap 8
+cheat door 0 2 2
+cheat away 0
+cheat away 1
+expect trouble == 2
+expect cur == 100
+press A
+expect state == 10
+expect over == 2
+expect notice == 2
+expect seen_notice == 2
+expect culprit0 == 0
+expect culprit1 == 1
+expect culprit2 == 1
+expect culprit3 == 1
+expect seen_culprits == 3
+# a full house: the door won't open, in red
+cheat new 1 1
+cheat give 7 1
+cheat door 7 0 0 0 0
+expect n == 5
+expect state == 5
+press A
+expect n == 5
+expect msgred == 1

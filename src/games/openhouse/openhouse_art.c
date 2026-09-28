@@ -435,6 +435,112 @@ static const char FIRE[] =
     "kkkkkkkkkkkkkkkk"
     ".kk.kk....kk.kk.";
 
+/* ------------------------------------------------------------------ */
+/* the icon set (the owner's): each guest's ability family, the star,   */
+/* fame and the no-limit sign. Rows split by '|', '#' is lit; every     */
+/* icon gets a one-pixel dark outline so it reads on any background.    */
+
+static const char *const ICON[PI_COUNT] = {
+    [PI_FETCH]   = "..#.#|...##|#####|...##|..#.#",   /* an arrow into a door: a chosen guest comes */
+    [PI_BRING]   = "#.#..|.#.#.|..#.#|.#.#.|#.#..",   /* >> more guests come in with them */
+    [PI_BOOT]    = "##...|##...|##...|####.|#####",   /* a boot */
+    [PI_PEEK]    = ".....|.###.|#.#.#|.###.|.....",   /* an eye */
+    [PI_SHUFFLE] = "#.#.#|.###.|##.##|.###.|#.#.#",   /* a firework: everyone out */
+    [PI_SCORE]   = ".....|..##.|#####|##.##|#####",   /* a camera: pay now */
+    [PI_STYLE]   = "#...#|.#.#.|..#..|##.##|##.##",   /* scissors: +1 fame for good */
+    [PI_REFRESH] = ".###.|#...#|#.#.#|..###|...#.",   /* a turning arrow: actions again */
+    [PI_SWAP]    = "...#.|#####|.....|#####|.#...",   /* two arrows: a swap */
+    [PI_CALM]    = "##.##|#####|#####|.###.|..#..",   /* a heart: calms RUCKUS! */
+    [PI_FAMEUP]  = ".###.|##.##|#...#|##.##|.###.",   /* a medal with a plus: more fame */
+    [PI_CASHUP]  = ".####|#.#..|.###.|..#.#|####.",   /* a dollar: more cash */
+    [PI_MOON]    = ".###.|##...|#....|##...|.###.",   /* a crescent: moody */
+    [PI_CURSE]   = ".....|#...#|##.##|..#..|.....",   /* a gull: the albatross's curse */
+    [PI_ENCORE]  = "..##.|..#.#|..#..|###..|###..",   /* a note: the encore */
+    [PI_STAR]    = "..#..|.###.|#####|.###.|.#.#.",
+    [PI_FAME]    = ".##.|####|####|.##.",            /* a fame coin, for the small numbers */
+    [PI_INF]     = ".##.##.|#..#..#|#..#..#|.##.##.", /* no limit */
+    [PI_CROWN]   = "#..#..#|##.#.##|#######|#######", /* a list beaten */
+};
+
+const uint8_t PH_ICON_COL[PI_COUNT] = {
+    [PI_NONE] = C_SLATE, [PI_FETCH] = C_SKY, [PI_BRING] = C_CYAN, [PI_BOOT] = C_ORANGE,
+    [PI_PEEK] = C_WHITE, [PI_SHUFFLE] = C_AMBER, [PI_SCORE] = C_LIGHT, [PI_STYLE] = C_ICE,
+    [PI_REFRESH] = C_LIME, [PI_SWAP] = C_MAGENTA, [PI_CALM] = C_PINK, [PI_FAMEUP] = C_YELLOW,
+    [PI_CASHUP] = C_LIME, [PI_MOON] = C_CREAM, [PI_CURSE] = C_ORANGE, [PI_ENCORE] = C_VIOLET,
+    [PI_STAR] = C_YELLOW, [PI_FAME] = C_YELLOW, [PI_INF] = C_SKY, [PI_CROWN] = C_YELLOW,
+};
+
+const char *const PH_ICON_NAME[PI_ABILITIES] = {
+    [PI_NONE] = "NO TALENT", [PI_FETCH] = "FETCH A GUEST", [PI_BRING] = "BRINGS GUESTS",
+    [PI_BOOT] = "SEND HOME", [PI_PEEK] = "PEEK AT THE DOOR", [PI_SHUFFLE] = "EVERYONE OUT",
+    [PI_SCORE] = "PAY NOW", [PI_STYLE] = "+1 FAME FOR GOOD", [PI_REFRESH] = "ACTIONS AGAIN",
+    [PI_SWAP] = "STAR SWAP", [PI_CALM] = "CALMS RUCKUS!", [PI_FAMEUP] = "FAME BONUS",
+    [PI_CASHUP] = "CASH BONUS", [PI_MOON] = "MOODY", [PI_CURSE] = "CURSE", [PI_ENCORE] = "ENCORE",
+};
+
+int ph_ability_icon(int type) {
+    if (type < 0 || type >= G_COUNT) return PI_NONE;
+    const PhGuest *g = &PH_GUESTS[type];
+    switch (g->action) {
+    case A_FETCH: return PI_FETCH;
+    case A_BOOT: case A_CUPID: return PI_BOOT;
+    case A_PEEK: return PI_PEEK;
+    case A_RESHUFFLE: return PI_SHUFFLE;
+    case A_PHOTO: return PI_SCORE;
+    case A_STYLE: return PI_STYLE;
+    case A_CHEER: return PI_REFRESH;
+    case A_GREET: return PI_BRING;
+    case A_MAGIC: return PI_SWAP;
+    case A_CALM: return PI_CALM;
+    case A_ENCORE: return PI_ENCORE;
+    default: break;
+    }
+    if (g->traits & T_PEACE) return PI_CALM;
+    if (g->traits & (T_BRING1 | T_BRING2)) return PI_BRING;
+    if (g->traits & T_JINX) return PI_CURSE;
+    if (g->traits & T_MOON) return PI_MOON;
+    if (g->traits & T_BARISTA) return PI_CASHUP;
+    if (g->traits & (T_DRUM | T_STORY | T_GRANNY | T_BOOK | T_POET | T_UPSTART)) return PI_FAMEUP;
+    return PI_NONE;
+}
+
+int ph_icon_w(int id) {
+    const char *s = id > 0 && id < PI_COUNT ? ICON[id] : NULL;
+    int w = 0;
+    while (s && s[w] && s[w] != '|') w++;
+    return w;
+}
+
+void ph_icon(int id, int x, int y, int col) {
+    if (id <= 0 || id >= PI_COUNT || !ICON[id]) return;
+    if (col < 0) col = PH_ICON_COL[id];
+    char m[8][8];
+    int w = 0, h = 0, c = 0;
+    memset(m, 0, sizeof m);
+    for (const char *p = ICON[id]; *p && h < 8; p++) {
+        if (*p == '|') { h++; c = 0; continue; }
+        if (c < 8) m[h][c] = *p == '#';
+        c++;
+        if (c > w) w = c;
+    }
+    h++;
+    /* the outline first, then the icon */
+    for (int j = -1; j <= h; j++)
+        for (int i = -1; i <= w; i++) {
+            if (j >= 0 && i >= 0 && j < h && i < w && m[j][i]) continue;
+            bool near = false;
+            static const int8_t d[4][2] = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
+            for (int k = 0; k < 4 && !near; k++) {
+                int u = i + d[k][0], v = j + d[k][1];
+                near = u >= 0 && v >= 0 && u < w && v < h && m[v][u];
+            }
+            if (near) gfx_pset(x + i, y + j, C_INK);
+        }
+    for (int j = 0; j < h; j++)
+        for (int i = 0; i < w; i++)
+            if (m[j][i]) gfx_pset(x + i, y + j, col);
+}
+
 void ph_art_load(void) {
     if (ph_spr[G_NEIGHBOUR].px) return;
     for (int i = 0; i < ARRAY_LEN(PEOPLE); i++) {
