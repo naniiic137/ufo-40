@@ -1,0 +1,181 @@
+# OPEN HOUSE: one press is one action, on every screen. Each press here is
+# held for 10 frames (a slow click) and must still act exactly once. The
+# A that ends a party (the door, YES) used to hurry the tally too.
+game openhouse
+wait 25
+# title: one step into the menu, not two
+press A 10
+expect state == 1
+expect osel == 1
+press DOWN 10
+expect osel == 2
+press UP 10
+expect osel == 1
+press A 10
+expect state == 2
+# the list grid: one tile a press
+expect scen_sel == 0
+press RIGHT 10
+expect scen_sel == 1
+press LEFT 10
+expect scen_sel == 0
+press A 10
+expect state == 3
+wait 25
+press A 10
+expect state == 5
+expect n == 0
+# the door: one guest a press
+press A 10
+expect n == 1
+press A 10
+expect n == 2
+expect state == 5
+# the cursor: one card a press
+press LEFT 10
+expect cur == 1
+press LEFT 10
+expect cur == 0
+press RIGHT 10
+expect cur == 1
+press RIGHT 10
+expect cur == 100
+# the guest book: A opens it, A closes it, nobody comes in
+press UP 10
+expect cur == 102
+press A 10
+expect state == 16
+press A 10
+expect state == 5
+expect n == 2
+# pause: A on RESUME doesn't reach the party
+press DOWN 10
+expect cur == 100
+press START
+expect paused == 1
+press A 10
+expect paused == 0
+expect state == 5
+expect n == 2
+# B asks, A on NO backs out: nothing ends
+press B 10
+expect state == 9
+expect osel == 1
+press A 10
+expect state == 5
+expect over == 0
+expect n == 2
+# YES with a slow A: the party ends, and the count is not hurried by it
+cheat new 1 1
+cheat give 13 3
+cheat cap 8
+cheat door 13 13 13 0 0
+press B
+press LEFT
+press A 10
+expect state == 12
+expect tally == 0
+expect tallygot == 0
+waituntil tally == 3 400
+wait 10
+# one A leaves the tally for the shop and buys nothing there
+expect cards == 13
+press A 10
+expect state == 13
+expect shopcur == 0
+expect cards == 13
+# the shop: one guest a press
+cheat pop 400
+cheat cash 100
+press A 10
+expect cards == 14
+press A 10
+expect cards == 15
+# SPACE: one room a press
+press UP 10
+expect shopcur == 16
+press LEFT 10
+press LEFT 10
+expect shopcur == 15
+press A 10
+expect cap == 9
+press A 10
+expect cap == 10
+# B goes to NEXT PARTY; only a second B starts it
+press B 10
+expect shopcur == 16
+expect state == 13
+press B 10
+expect state == 5
+expect night == 2
+expect n == 0
+# the door filling the house: the knock doesn't hurry the tally either
+cheat new 1 1
+cheat cap 2
+cheat door 0
+press A 10
+expect n == 2
+expect state == 12
+expect tally == 0
+expect tallygot == 0
+# the bouncer: A picks him, A boots one guest
+cheat new 1 1
+cheat give 7 1
+cheat door 0 7
+press LEFT
+expect cur == 1
+press A 10
+expect state == 6
+expect n == 2
+press A 10
+expect state == 5
+expect n == 1
+# the parrot: A peeks, A lets exactly one guest in
+cheat new 1 1
+cheat give 9 1
+cheat door 9
+press LEFT
+press A 10
+expect state == 8
+expect n == 1
+expect peek >= 0
+press A 10
+expect state == 5
+expect n == 2
+expect peek == -1
+# the cabbie: A opens the list, A fetches one guest
+cheat new 1 1
+cheat give 3 1
+cheat door 3
+press LEFT
+press A 10
+expect state == 7
+expect n == 1
+press A 10
+expect state == 5
+expect n == 2
+# the police: A goes to the ban, A bans one guest and buys nothing
+cheat new 1 1
+cheat door 2 2 2
+expect state == 10
+wait 101
+press A 10
+expect state == 11
+expect banned == 0
+expect cards == 10
+press A 10
+expect state == 13
+expect banned != 0
+expect shopcur == 0
+expect cards == 10
+# the custom list's editor: one guest in or out a press
+cheat custom
+expect state == 19
+expect ed_cur == 3
+expect cin3 == 1
+press A 10
+expect cin3 == 0
+press A 10
+expect cin3 == 1
+press RIGHT 10
+expect ed_cur == 4
