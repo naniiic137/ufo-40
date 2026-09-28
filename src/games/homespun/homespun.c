@@ -669,7 +669,7 @@ static void draw_gamble(void) {
             int p = gam_prize[i];
             char b[16];
             if (p > 0) snprintf(b, sizeof b, "%dB", p);
-            else if (p < 0) snprintf(b, sizeof b, "MEAT");
+            else if (p < 0) snprintf(b, sizeof b, "JERKY");
             else snprintf(b, sizeof b, "--");
             tiny_center(b, x + 12, y + 22, C_YELLOW);
         }
@@ -1105,8 +1105,8 @@ const GameDef GAME_HOMESPUN = {
     "HOMESPUN",
     "1988",
     "ADVENTURE",
-    "A COURIER PILOT CRASHES ON A MOOR-MOON. BUILD A CAMP THAT WORKS WHILE YOU'RE AWAY, THEN BRAVE THE WILDS ON TWO MINUTES OF JERKY A STRIP.",
-    {"TAME MOTHER LOOM", "FLY THE TUMBLEWEED HOME", "BEAT MAWBO SIX TIMES IN ONE TRIP, THEN FLY HOME WITH ITS IDOL"},
+    "CRASHED ON ODDMOOR, WICK BUILDS A CAMP AND BRAVES THE WILDS ON JERKY!",
+    {"TAME MOTHER LOOM", "FLY THE TUMBLEWEED HOME", "BEAT MAWBO 6 TIMES IN ONE TRIP; FLY ITS IDOL HOME"},
     GLYPH_DPAD "\tWALK (EIGHT WAYS)\n"
     GLYPH_B "\tTHROW THE YO-YO\n"
     GLYPH_A "\tTALK, BUILD, BUY, OPEN\n"

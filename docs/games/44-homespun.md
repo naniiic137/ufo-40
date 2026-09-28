@@ -113,6 +113,9 @@ original's map.
   from camp's stone to an awake one starts a trip, eating the jerky.
 - **Mawbo's count** starts again whenever Wick goes home or time runs out;
   the idol, like parts and the gear, only counts once it is home.
+- **Guardians' halls** shut behind Wick until the guardian falls, and
+  guardians keep off the doorways; nothing is written about how the
+  original's boss rooms behave.
 - **A HUD dot map:** the corner shows Wick's screen on an 8 × 6 grid, the
   way the era's top-down adventures did; it reveals nothing else.
 - **World size:** 48 screens; the original's size is not written anywhere.
