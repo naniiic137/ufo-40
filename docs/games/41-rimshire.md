@@ -50,6 +50,14 @@ with 22 inns, 15 tomes, 16 seams and 20 chests.
 | 9 | Three Bridges | two shores and three crossings (Land Bridges) | 15 × 7, 71 nodes |
 | 10 | The Empress | the Plum Empress in the enemy's reserve (The Regicide) | 16 × 7, 80 nodes |
 
+## The three goals
+
+| UFO 40 goal | Lords of Diskonia's own | RIMSHIRE |
+|---|---|---|
+| Beacon | gift: beat 5 levels [MH] | win five wars of the campaign |
+| Saucer | gold: beat 10 levels [MH] | win all ten, then the ending |
+| Alien | cherry: win in Streak mode 3 times in a row [MH], [SEARCH-DK] | win three streak wars in a row |
+
 ## Mechanics checklist
 
 | Mechanic | How RIMSHIRE does it | Source | Test |
@@ -245,7 +253,8 @@ and three streak wars in a row for the Alien (`rsh_23`).
 - [SEARCH-CASTLE] search-engine summary of the knowledge base and guides:
   reserves after a defeat, the second stand at a breached home, a castle
   falls with its owner.
-- [SEARCH-DK2] search-engine summaries: the streak is random, the AI gets
-  nasty with bounce combos.
+- [SEARCH-DK], [SEARCH-DK2] search-engine summaries: three streak wins in
+  a row for the cherry; the streak is random; the AI gets nasty with bounce
+  combos.
 - [OWNER] the owner's check of the original's on-screen prompts
   (`controls-41-44-46.md`).
