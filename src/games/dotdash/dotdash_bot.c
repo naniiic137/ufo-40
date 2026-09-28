@@ -260,7 +260,12 @@ int dd_bot_plan_len(void) { return route_len; }
 
 void dd_bot_goto_place(const char *name) {
     int tx, ty;
-    if (dd_find_place(name, &tx, &ty)) dd_bot_goto(tx, ty);
+    if (dd_find_place(name, &tx, &ty)) {
+        /* something floating: stand on the ground beneath it */
+        ensure_graph();
+        for (int k = 0; k < 10 && !standable(tx, ty) && ty + 1 < LH; k++) ty++;
+        dd_bot_goto(tx, ty);
+    }
     else { dd_bot_state = 3; fprintf(stderr, "bot: no place '%s' here\n", name); }
 }
 
@@ -356,7 +361,8 @@ static uint32_t plan_step(void) {
     if (!dd_p.ground) return 0;
     int here = here_node();
     int goal = goal_y * LW + goal_x;
-    if (here == goal) { if (hunt_sub < 0) dd_bot_state = 2; return 0; }
+    /* arrived: in the goal tile, or standing on something in it */
+    if (here == goal || (here % LW == goal_x && here / LW == goal_y - 1)) { if (hunt_sub < 0) dd_bot_state = 2; return 0; }
     /* line up on the middle of the tile first, so the practised move fits */
     float cx = dd_p.x + dd_p.w / 2, want = (float)((here % LW) * TS) + (float)TS / 2;
     float dx = want - cx;
@@ -382,6 +388,30 @@ static uint32_t plan_step(void) {
     uint32_t b = prog_buttons(p, 0);
     exec_f = 1;
     return b;
+}
+
+/* walk to the nearest spot clear of anyone to talk to, doors and stands, so
+ * that holding UP there grows Dot instead of starting a conversation */
+static bool spot_clear(int tx, int ty) {
+    if (!standable(tx, ty)) return false;
+    float x = node_x(tx), y = node_y(ty);
+    for (int i = 0; i < DD_MAX_ENTS; i++) {
+        const Ent *e = &dd_ent[i];
+        if (!e->alive || (e->kind != EK_NPC && e->kind != EK_DOOR && e->kind != EK_STAND)) continue;
+        if (rects_overlap((int)x - 2, (int)y, BW + 4, BH, (int)e->x, (int)e->y, e->w, e->h)) return false;
+    }
+    return true;
+}
+void dd_bot_free(void) {
+    ensure_graph();
+    int tx = (int)((dd_p.x + dd_p.w / 2) / TS), ty = (int)((dd_p.y + dd_p.h - 1) / TS);
+    for (int d = 0; d < 30; d++)
+        for (int sgn = -1; sgn <= 1; sgn += 2)
+            for (int dy = 0; dy <= 2; dy++) {
+                int x = tx + sgn * d, y = ty + (dy == 2 ? -1 : dy);
+                if (spot_clear(x, y)) { dd_bot_goto(x, y); return; }
+            }
+    dd_bot_state = 2;
 }
 
 bool dd_bot_can_reach(int fx, int fy, int tx, int ty) {

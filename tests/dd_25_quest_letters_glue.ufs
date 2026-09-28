@@ -1,0 +1,136 @@
+# DOT & DASH: Lichen in Fernby (the west pot) sends a letter to Sorrel in
+# Loamton (the east pot); her answer goes back, and the pair pay 30. Mason
+# builds with glue blocks: three lie in the micro world (on the west pot's
+# rim, on a leaf of its plant, on the east pot's rim), 10 glints apiece.
+game dotdash
+wait 5
+cheat newgame
+cheat no_foes
+cheat nodash
+cheat god
+cheat up tonic1
+cheat up satchel1
+cheat up satchel2
+cheat area 0 43 65
+cheat nodash
+wait 5
+hold DOWN 100
+waituntil trans == 0 60
+cheat bot_to npc:22
+botuntil bot_state == 2 2000
+press UP
+wait 5
+cheat bot_talk
+botuntil bot_state == 2 900
+expect flag.letter1 == 1
+expect objs_25 == 1
+cheat bot_to obj:25
+botuntil bot_state == 2 2000
+press B
+wait 20
+expect carry == 25
+expect carry_param == 0
+# over to the east pot
+cheat bot_free
+botuntil bot_state == 2 600
+hold UP 100
+waituntil trans == 0 60
+cheat bot_tile 111 66
+botuntil bot_state == 2 8000
+hold DOWN 100
+waituntil trans == 0 60
+expect town == 8
+cheat bot_to npc:26
+botuntil bot_state == 2 2000
+press UP
+wait 5
+cheat bot_talk
+botuntil bot_state == 2 900
+expect flag.letter2 == 1
+expect carry_param == 1
+# and back
+cheat bot_free
+botuntil bot_state == 2 600
+hold UP 100
+waituntil trans == 0 60
+cheat bot_tile 43 65
+botuntil bot_state == 2 8000
+hold DOWN 100
+waituntil trans == 0 60
+cheat bot_to npc:22
+botuntil bot_state == 2 2000
+press UP
+wait 5
+cheat bot_talk
+botuntil bot_state == 2 900
+expect flag.letter_done == 1
+expect glints >= 30
+# glue: the rim of the west pot
+cheat bot_free
+botuntil bot_state == 2 600
+hold UP 100
+waituntil trans == 0 60
+cheat bot_tile 51 61
+botuntil bot_state == 2 5000
+hold DOWN 100
+waituntil trans == 0 60
+cheat bot_to obj:7
+botuntil bot_state == 2 3000
+press B
+wait 20
+expect carry == 7
+hold DOWN A 3
+wait 5
+hold UP 100
+waituntil trans == 0 60
+# a leaf up the plant
+cheat bot_tile 47 35
+botuntil bot_state == 2 5000
+hold DOWN 100
+waituntil trans == 0 60
+cheat bot_to obj:7
+botuntil bot_state == 2 3000
+press B
+wait 20
+hold DOWN A 3
+wait 5
+hold UP 100
+waituntil trans == 0 60
+# the east pot's rim
+cheat bot_tile 120 62
+botuntil bot_state == 2 9000
+hold DOWN 100
+waituntil trans == 0 60
+cheat bot_to obj:7
+botuntil bot_state == 2 3000
+press B
+wait 20
+expect carry == 7
+expect satchel0 == 7
+expect satchel1 == 7
+hold UP 100
+waituntil trans == 0 60
+# to Mason in Fernby: three in a row
+cheat bot_tile 43 65
+botuntil bot_state == 2 9000
+hold DOWN 100
+waituntil trans == 0 60
+cheat bot_to npc:23
+botuntil bot_state == 2 2000
+press UP
+wait 5
+cheat bot_talk
+botuntil bot_state == 2 900
+hold DOWN A 3
+wait 3
+press UP
+wait 5
+cheat bot_talk
+botuntil bot_state == 2 900
+hold DOWN A 3
+wait 3
+press UP
+wait 5
+cheat bot_talk
+botuntil bot_state == 2 900
+expect qc_2 == 7

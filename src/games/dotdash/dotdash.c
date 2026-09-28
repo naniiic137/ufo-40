@@ -537,6 +537,18 @@ static int dd_cheat(const char *cmd) {
         if (j >= 0) { dd_ent[j].home_x = (int16_t)b; dd_ent[j].home_y = (int16_t)c; }
         return 1;
     }
+    if (sscanf(cmd, "above_foe %d", &a) == 1) {
+        /* Dot just over a creature (to drop on it) */
+        for (int i = 0; i < DD_MAX_ENTS; i++)
+            if (dd_ent[i].alive && dd_ent[i].kind == EK_FOE && dd_ent[i].sub == a) {
+                dd_p.x = dd_ent[i].x + dd_ent[i].w / 2 - dd_p.w / 2;
+                dd_p.y = dd_ent[i].y - dd_p.h - 2;
+                dd_p.vx = dd_p.vy = 0;
+                dd_p.peak_y = (int16_t)dd_p.y;
+                return 1;
+            }
+        return 1;
+    }
     if (sscanf(cmd, "foe_under %d", &a) == 1) {
         /* a creature in the air with Dot standing on it, 24 px up */
         int w, h;
@@ -564,6 +576,7 @@ static int dd_cheat(const char *cmd) {
     if (sscanf(cmd, "bot_tile %d %d", &a, &b) == 2) { dd_bot_goto(a, b); return 1; }
     if (sscanf(cmd, "bot_to %63s", s) == 1) { dd_bot_goto_place(s); return 1; }
     if (!strcmp(cmd, "bot_clear")) { dd_bot_clear(); return 1; }
+    if (!strcmp(cmd, "bot_free")) { extern void dd_bot_free(void); dd_bot_free(); return 1; }
     if (!strcmp(cmd, "bot_talk")) { extern void dd_bot_talk(void); dd_bot_talk(); return 1; }
     if (sscanf(cmd, "bot_hunt %d", &a) == 1) { extern void dd_bot_hunt(int sub); dd_bot_hunt(a); return 1; }
     if (sscanf(cmd, "dash_at %d %d", &a, &b) == 2) { if (dd_dash < 0) dd_spawn_dash_now(); if (dd_dash >= 0) { dd_ent[dd_dash].x = (float)a; dd_ent[dd_dash].y = (float)b; dd_ent[dd_dash].state = 0; } return 1; }

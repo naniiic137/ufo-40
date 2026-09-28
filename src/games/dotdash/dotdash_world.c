@@ -113,7 +113,7 @@ static void npc(int sub, int tx, int ty) {
     if (i >= 0) dd_ent[i].dir = (uint8_t)(tx * 7 % 2);
 }
 static void foe(int sub, int tx, int ty) {
-    if (!spawning || dd_no_foes) return;
+    if (!spawning || (dd_no_foes && sub < F_FIRST_BOSS)) return;
     if (iabs(tx * DD_TS - SPX) < 6 * DD_TS && iabs(ty * DD_TS - SPY) < 6 * DD_TS && sub < F_FIRST_BOSS) return;
     put(EK_FOE, sub, tx, ty);
 }
@@ -348,7 +348,7 @@ static void room_ents(void) {
     if (spawning) {
         /* things that come back while their quests are open */
         if (!dd_flag(FL_WEEPY_DONE) && !dd_obj_exists(O_THREAD, -1)) obj(O_THREAD, 147, 5);
-        static const int TW[3][2] = {{110, 48}, {115, 42}, {110, 36}};
+        static const int TW[3][2] = {{110, 51}, {115, 42}, {110, 39}};
         for (int k = 0; k < 3; k++)
             if (!((dd_sv.counts[QC_TWIGS] >> k) & 1) && !dd_obj_exists(O_TWIG, k)) {
                 int i = put(EK_OBJ, O_TWIG, TW[k][0], TW[k][1]);
@@ -577,7 +577,7 @@ static void area_cavity(void) {
     pick(P_GLINT5, 22, 21, 0);
     npc(N_SHREW, 32, 30);
     if (!dd_flag(FL_MAGE_BEATEN) && spawning) put(EK_FOE, F_TINMAGE, 96, 19); /* quest creatures always come */
-    if (!dd_flag(FL_GEAR_DONE) && !dd_obj_exists(O_GEAR, -1) && dd_flag(FL_POWER_OFF)) obj(O_GEAR, 108, 30);
+    if (!dd_flag(FL_GEAR_DONE) && !dd_obj_exists(O_GEAR, -1) && dd_flag(FL_POWER_OFF)) obj(O_GEAR, 114, 30);
     foe(F_ANT, 40, 30);
     foe(F_SPRING, 70, 30);
     foe(F_AXEANT, 65, 15);
@@ -1310,7 +1310,7 @@ static void spawn_chunk(const LevelDesc *d, int i) {
         if (j >= 0) dd_ent[j].param = e->param;
     }
     if ((e = extra_for(d, px, X_BUBBLE, 0)) && !((dd_sv.counts[QC_BUBBLES] >> e->param) & 1)) {
-        int tx = ox + 26, ty = B->surf[tx] - 5;
+        int tx = ox + 26, ty = B->surf[tx] - 2; /* a bubble drifting at head height */
         int j = spawning ? put(EK_NPC, N_BUBBLE, tx, ty) : -1;
         if (j >= 0) dd_ent[j].param = e->param;
     }
