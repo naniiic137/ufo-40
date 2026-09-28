@@ -284,6 +284,9 @@ static void add_shot(int kind, int team, int dir, int32_t x, int32_t y, int owne
             s->x = x;
             s->y = y;
             s->owner = (int8_t)owner;
+            s->lx = (int8_t)(x / WP_TU);
+            s->ly = (int8_t)(y / WP_TU);
+            s->hops = 0;
             return;
         }
 }
@@ -365,6 +368,31 @@ static void foe_pos(const WpFoe *f, int32_t *x, int32_t *y) {
 
 /* Which way a foe goes at a junction: never straight back unless it must,
  * and mostly towards tiles that aren't pink yet. A bumper counts as a way. */
+/* The first step (never straight back) towards the nearest tile that isn't
+ * pink yet, or -1. */
+static int toward_unpainted(int x0, int y0, int dir) {
+    static int16_t queue[WP_W * WP_H];
+    static int8_t first[WP_H][WP_W];
+    static uint8_t seen[WP_H][WP_W];
+    memset(seen, 0, sizeof seen);
+    int qh = 0, qt = 0;
+    seen[y0][x0] = 1;
+    queue[qt++] = (int16_t)(y0 * WP_W + x0);
+    while (qh < qt) {
+        int q = queue[qh++], x = q % WP_W, y = q / WP_W;
+        for (int k = 0; k < 4; k++) {
+            if (x == x0 && y == y0 && k == wp_opposite(dir)) continue;
+            int nx = x + WP_DX[k], ny = y + WP_DY[k];
+            if (wp_solid(nx, ny) || seen[ny][nx]) continue;
+            seen[ny][nx] = 1;
+            first[ny][nx] = (int8_t)(x == x0 && y == y0 ? k : first[y][x]);
+            if (wp.paint[ny][nx] != PAINT_PINK) return first[ny][nx];
+            queue[qt++] = (int16_t)(ny * WP_W + nx);
+        }
+    }
+    return -1;
+}
+
 static int foe_choose(int x, int y, int dir) {
     int opts[4], n = 0, good[4], ng = 0;
     for (int k = 0; k < 4; k++) {
@@ -377,6 +405,11 @@ static int foe_choose(int x, int y, int dir) {
     }
     if (n == 0) return open_dir(x, y, wp_opposite(dir)) ? wp_opposite(dir) : -1;
     if (ng > 0 && rng_chance(&wp.rng, 75)) return good[rng_range(&wp.rng, 0, ng - 1)];
+    /* hemmed in by pink: mostly it heads for the nearest bare patch */
+    if (ng == 0 && n > 1 && rng_chance(&wp.rng, 75)) {
+        int k = toward_unpainted(x, y, dir);
+        if (k >= 0) return k;
+    }
     return opts[rng_range(&wp.rng, 0, n - 1)];
 }
 
@@ -626,12 +659,19 @@ static void shot_update(WpShot *s) {
         if (s->x < 0 || s->y < 0 || !inb(x, y)) { s->on = 0; return; }
         switch (s->kind) {
         case SH_SPRAY:
-            if (paintable(x, y) && !wp_solid(x, y) && wp.paint[y][x] != PAINT_PINK) { wp.paint[y][x] = PAINT_PINK; s->on = 0; }
+        case SH_PAINT: {
+            /* a paint shot lands on the first tile it reaches, or the one
+             * after it if that is already its colour, and no further */
+            if (x == s->lx && y == s->ly) break;
+            s->lx = (int8_t)x;
+            s->ly = (int8_t)y;
+            s->hops++;
+            int team = s->kind == SH_SPRAY ? PAINT_PINK : s->team;
+            if (s->kind == SH_PAINT && wp_solid(x, y)) { s->on = 0; break; }
+            if (paintable(x, y) && !wp_solid(x, y) && wp.paint[y][x] != team) { wp.paint[y][x] = (uint8_t)team; s->on = 0; break; }
+            if (s->hops >= 2) s->on = 0;
             break;
-        case SH_PAINT:
-            if (wp_solid(x, y)) { s->on = 0; break; }
-            if (wp.paint[y][x] != s->team) { wp.paint[y][x] = s->team; s->on = 0; }
-            break;
+        }
         case SH_TACK:
         case SH_SPINE:
             if (wp_solid(x, y)) { s->on = 0; break; }

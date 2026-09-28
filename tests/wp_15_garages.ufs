@@ -7,14 +7,14 @@ cheat course 1
 cheat noclock
 cheat go
 cheat car 0 0 3
-expect garages == 1
+expect garages == 2
 expect garage0 == 0
 wait 62
 expect garage0 == 1
 wait 60
-expect foes == 1
+expect foes >= 1
 wait 30
-expect foes == 2
+expect foes >= 2
 expect garage0 == 3
 cheat killall
 wait 2
@@ -22,4 +22,4 @@ expect garage0 == 0
 wait 180
 expect garage0 == 1
 wait 90
-expect foes == 2
+expect foes >= 2

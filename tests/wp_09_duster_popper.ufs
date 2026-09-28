@@ -1,7 +1,7 @@
 # WET PAINT: a duster flies over walls; left long enough it flashes, sprays
-# paint four ways (each shot colours the first tile that isn't pink yet) and
-# flies off. A popper left alone flashes, then bursts, painting everything
-# within about four tiles pink.
+# paint four ways (each shot lands a tile or two out, like the sprinkler's)
+# and flies off. A popper left alone flashes, then bursts, painting
+# everything within about four tiles pink.
 game wetpaint
 wait 5
 cheat course 1
@@ -14,18 +14,25 @@ cheat put duster 2 2 0
 wait 60
 expect foe_0_on == 1
 expect foe_0_fx > 50
+# over the open road it sprays
+cheat killall
+cheat wipe
+cheat still
+cheat put duster 12 7 0
 cheat foeage 0 599
 wait 1
 expect shots >= 2
 wait 100
-expect pink_tiles >= 7
+expect pink_tiles >= 5
+expect paint_11_7 == 2
+expect paint_13_7 == 2
+expect paint_2_7 == 0
 expect foe_0_on == 1
 wait 30
 expect foes == 0
 expect kills == 0
 # the popper
 cheat wipe
-cheat still
 cheat put popper 12 7 0
 cheat foeage 0 779
 wait 2

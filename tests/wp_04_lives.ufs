@@ -33,15 +33,15 @@ wait 60
 press A
 wait 5
 expect state == 0
-# an extra life: 115 + 10 points crosses 120
+# an extra life: 100 + 22 points crosses 120
 cheat course 1
 cheat lives 2
-cheat score 115
+cheat score 100
 cheat nofoes
 cheat go
 cheat wipe
 cheat fill 1 119
 cheat time 1
 wait 2
-expect score == 125
+expect score == 122
 expect lives == 3

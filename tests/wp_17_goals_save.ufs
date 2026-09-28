@@ -1,8 +1,14 @@
-# WET PAINT: passing course 12 earns the Beacon. The save keeps the score
-# board, the best course reached and whether the cup was won, and gives the
-# goals back from them; a run itself is never saved half-way.
+# WET PAINT: reaching course 13 earns the Beacon. The save keeps the score
+# board (which starts out filled in by the Beamdown staff), the best course
+# reached and whether the cup was won, and gives the goals back from them. A
+# run is never saved half-way: only a finished run goes on the board.
+wipe_saves
+reload
 game wetpaint
 wait 5
+expect hi0 == 400
+expect hi4 == 100
+expect best_course == 0
 cheat course 12
 cheat nofoes
 cheat go
@@ -18,19 +24,20 @@ expect course == 13
 expect best_course == 13
 # a game over puts the score on the board
 cheat lives 1
-cheat score 77
+cheat score 777
 cheat go
 cheat wipe
 cheat time 1
 wait 2
 wait 220
 expect state == 5
-expect hi0 == 77
+expect hi0 == 777
+expect hi1 == 400
 expect new_rank == 0
 reload
 game wetpaint
 wait 5
-expect hi0 == 77
+expect hi0 == 777
 expect best_course == 13
 expect goals.wetpaint == 1
 expect state == 0

@@ -124,6 +124,8 @@ typedef struct WpShot {
     uint8_t on, kind, team;
     int8_t dir;
     int8_t owner;       /* the foe that fired a spine */
+    int8_t lx, ly;      /* the tile it is over */
+    uint8_t hops;       /* tiles entered since it was fired */
     int32_t x, y;
 } WpShot;
 

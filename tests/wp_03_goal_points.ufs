@@ -5,19 +5,19 @@ wait 5
 cheat course 1
 cheat nofoes
 cheat go
-expect goal == 50
+expect goal == 38
 expect total == 198
 expect time > 2600
 cheat wipe
 cheat fill 1 119
 wait 1
-# 120 of 198 tiles with the car's own: 60%
+# 120 of 198 tiles with the car's own: 60%, 22 over the goal
 expect blue == 60
 cheat time 1
 wait 2
 expect state == 4
 expect res_pass == 1
-expect score == 10
+expect score == 22
 expect lives == 3
 wait 220
 expect state == 2

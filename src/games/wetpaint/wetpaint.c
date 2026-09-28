@@ -20,11 +20,17 @@ enum { S_TITLE, S_CUT, S_READY, S_PLAY, S_RESULT, S_OVER, S_END, S_VS_PICK };
 typedef struct Save {
     uint32_t magic;
     uint32_t hi[HISCORES];
+    uint8_t who[HISCORES]; /* 0: you; 1-5: the board's own entries */
     uint8_t best_course;   /* highest course reached (1..26), 27 = won */
     uint8_t best_lives;    /* most lives left after winning */
     uint8_t won, alien;
 } Save;
-#define SAVE_MAGIC 0x57500001u
+#define SAVE_MAGIC 0x57500002u
+#define SAVE_MAGIC_V1 0x57500001u /* first version: scores without names */
+
+/* The board starts out filled in by the people at Beamdown Softworks. */
+static const char *const BOARD_NAME[HISCORES + 1] = {"BO", "THE NIGHT PAINTER", "BEAMDOWN QA", "THE BOSS'S NEPHEW", "SOUND DEPT", "THE JANITOR"};
+static const uint32_t BOARD_DEFAULT[HISCORES] = {400, 300, 200, 150, 100};
 
 static Save sv;
 static int state, state_t, frame_t, new_rank = -1;
@@ -58,26 +64,50 @@ static void save_now(void) {
     game_save_write(game_current_index(), &sv, (int)sizeof sv);
 }
 
+static void board_defaults(void) {
+    for (int i = 0; i < HISCORES; i++) { sv.hi[i] = BOARD_DEFAULT[i]; sv.who[i] = (uint8_t)(i + 1); }
+}
+
+static void board_insert(uint32_t sc, int who) {
+    new_rank = -1;
+    for (int i = 0; i < HISCORES; i++)
+        if (sc > sv.hi[i]) {
+            for (int j = HISCORES - 1; j > i; j--) { sv.hi[j] = sv.hi[j - 1]; sv.who[j] = sv.who[j - 1]; }
+            sv.hi[i] = sc;
+            sv.who[i] = (uint8_t)who;
+            new_rank = i;
+            break;
+        }
+}
+
 static void load_save(void) {
-    Save tmp;
+    static union { Save now; uint8_t raw[256]; } tmp;
     memset(&sv, 0, sizeof sv);
     sv.magic = SAVE_MAGIC;
-    if (game_save_read(game_current_index(), &tmp, (int)sizeof tmp) == (int)sizeof tmp && tmp.magic == SAVE_MAGIC) sv = tmp;
+    board_defaults();
+    int n = game_save_read(game_current_index(), &tmp, (int)sizeof tmp);
+    if (n == (int)sizeof(Save) && tmp.now.magic == SAVE_MAGIC) sv = tmp.now;
+    else if (n == 28 && tmp.now.magic == SAVE_MAGIC_V1) {
+        /* the first version: scores, then the stats; its scores join the board as yours */
+        uint32_t old[HISCORES];
+        memcpy(old, tmp.raw + 4, sizeof old);
+        sv.best_course = tmp.raw[24];
+        sv.best_lives = tmp.raw[25];
+        sv.won = tmp.raw[26];
+        sv.alien = tmp.raw[27];
+        for (int i = 0; i < HISCORES; i++)
+            if (old[i]) board_insert(old[i], 0);
+        new_rank = -1;
+    }
     /* the goals come back from what the save remembers */
     if (sv.best_course > BEACON_COURSES) game_award(GOAL_BEACON);
     if (sv.won) game_award(GOAL_SAUCER);
     if (sv.alien) game_award(GOAL_ALIEN);
 }
 
+/* a finished run (game over or the cup) goes on the board */
 static void record_score(void) {
-    new_rank = -1;
-    for (int i = 0; i < HISCORES; i++)
-        if ((uint32_t)score > sv.hi[i]) {
-            for (int j = HISCORES - 1; j > i; j--) sv.hi[j] = sv.hi[j - 1];
-            sv.hi[i] = (uint32_t)score;
-            new_rank = i;
-            break;
-        }
+    board_insert((uint32_t)score, 0);
     save_now();
 }
 
@@ -100,6 +130,8 @@ static int cut_before(int c) {
     if (c == WP_FINAL) return 5;
     return c % 5 == 0 ? c / 5 : -1;
 }
+
+static int cut_length(int k);
 
 static void to_ready(void) {
     wp_sim_start(course, run_mode, (uint64_t)rng_next(&seeds) | ((uint64_t)rng_next(&seeds) << 32));
@@ -279,7 +311,7 @@ static void wp_update(void) {
         break;
     }
     case S_CUT:
-        if (state_t > 40 && (btnp(BTN_A) || btnp(BTN_START) || state_t > 60 * 14)) { input_consume(); to_ready(); }
+        if ((state_t > 40 && (btnp(BTN_A) || btnp(BTN_START))) || state_t > cut_length(cut_i) + 30) { input_consume(); to_ready(); }
         break;
     case S_READY:
         if (state_t >= READY_TIME) { state = S_PLAY; state_t = 0; }
@@ -630,9 +662,9 @@ static void draw_course(void) {
 /* drawing: screens                                                      */
 
 static void draw_board(int x, int y, int hilite) {
-    char buf[32];
+    char buf[48];
     for (int i = 0; i < HISCORES; i++) {
-        snprintf(buf, sizeof buf, "%d. %4u", i + 1, (unsigned)sv.hi[i]);
+        snprintf(buf, sizeof buf, "%d. %4u  %s", i + 1, (unsigned)sv.hi[i], BOARD_NAME[imin(sv.who[i], HISCORES)]);
         bool me = i == hilite && (frame_t / 8) % 2;
         tiny_draw(buf, x, y + i * 7, me ? C_WHITE : i == 0 ? C_YELLOW : C_LIGHT);
     }
@@ -679,68 +711,375 @@ static void draw_title(void) {
         text_center(ITEMS[i], 160, y, !two && i == 1 ? C_DUSK : s ? C_WHITE : C_GREY);
         if (s) ui_cursor(118, y, frame_t);
     }
-    ui_panel(4, 54, 80, 50, C_INK, C_DUSK);
-    tiny_draw("TOP SCORES", 10, 58, C_SLATE);
-    draw_board(12, 66, -1);
-    ui_panel(236, 54, 80, 50, C_INK, C_DUSK);
-    tiny_draw("BEST RUN", 242, 58, C_SLATE);
-    char buf[32];
-    if (sv.won) snprintf(buf, sizeof buf, "WON THE CUP");
-    else if (sv.best_course) snprintf(buf, sizeof buf, "COURSE %d", imin(sv.best_course, WP_COURSES));
-    else snprintf(buf, sizeof buf, "-");
-    tiny_draw(buf, 242, 68, C_LIGHT);
-    if (sv.won) {
-        snprintf(buf, sizeof buf, "LIVES LEFT %d", sv.best_lives);
-        tiny_draw(buf, 242, 76, C_LIGHT);
+    ui_panel(76, 90, 168, 58, C_INK, C_DUSK);
+    tiny_draw("TOP SCORES", 84, 94, C_SLATE);
+    draw_board(84, 102, -1);
+    char buf[48];
+    if (sv.won) snprintf(buf, sizeof buf, "BEST RUN: WON THE CUP, %d LIVES LEFT", sv.best_lives);
+    else if (sv.best_course) snprintf(buf, sizeof buf, "BEST RUN: COURSE %d", imin(sv.best_course, WP_COURSES));
+    else snprintf(buf, sizeof buf, "BEST RUN: -");
+    tiny_draw(buf, 84, 140, C_GREY);
+}
+
+/* ---- cutscenes: little skits on a strip of road ---------------------------
+ * Each group of courses opens with a line from the Marshal (or Foxy) and a
+ * skit for every new foe that shows its rule in action. A skit is played
+ * out frame by frame from its start each time it is drawn, so it needs no
+ * state of its own. */
+
+enum { GAG_START, GAG_SMUDGER, GAG_DUSTER, GAG_TANKER, GAG_GLOOP, GAG_POPPER, GAG_HEDGEHOG, GAG_CONKER, GAG_JELLY, GAG_FOXY };
+#define GAG_LEN 300
+#define LANE_Y 143      /* the top of a kart on the road strip */
+#define LANE2_Y 160
+
+typedef struct { const char *title, *who, *line; int gags[3]; } Cut;
+static const Cut CUTS[N_CUTS] = {
+    {"THE TOWN SQUARE", "MARSHAL", "PAINT THE TOWN BLUE, ROOKIE!", {GAG_START, GAG_SMUDGER, GAG_DUSTER}},
+    {"THE PARK", "MARSHAL", "THE PARK KEEPERS SENT HELP. PINK HELP.", {GAG_TANKER, GAG_GLOOP, GAG_POPPER}},
+    {"THE DOCKS", "MARSHAL", "MIND THE PLOUGHS ON THE QUAY.", {GAG_HEDGEHOG, -1, -1}},
+    {"THE WORKS", "MARSHAL", "CONKERS FROM THE FACTORY TREE!", {GAG_CONKER, -1, -1}},
+    {"THE TOWN BY NIGHT", "MARSHAL", "THE JELLIES COME OUT AFTER DARK.", {GAG_JELLY, -1, -1}},
+    {"THE CUP FINAL", "FOXY", "NOBODY OUT-PAINTS FOXY FUCHSIA.", {GAG_FOXY, -1, -1}},
+};
+static const char *const GAG_CAPTION[] = {
+    "THE RALLY BEGINS", "SMUDGER: RAM IT", "DUSTER: CATCH IT BEFORE IT SPRAYS",
+    "TANKER: QUICK! BOOST AFTER IT", "MOTHER GLOOP: LAYS LITTLE GLOOPS", "POPPER: DON'T LEAVE IT ALONE",
+    "HEDGEHOG: NOT HEAD-ON. FROM THE SIDE!", "CONKER: DON'T LINE UP WITH IT", "JELLY: NEVER AT FULL TILT",
+    "FOXY FUCHSIA: ALL YOUR TRICKS, IN PINK",
+};
+
+static int cut_gags(int k) {
+    int n = 0;
+    for (int i = 0; i < 3; i++) n += CUTS[k].gags[i] >= 0;
+    return n;
+}
+static int cut_length(int k) { return 60 + cut_gags(k) * GAG_LEN; }
+
+typedef struct { float x, y, spd; int dir, spr, on, stun, flash, spin, boosted, armed; } GActor;
+typedef struct { float x, y, dx, dy; int on; } GDot;
+typedef struct {
+    GActor bo, f[4];
+    GDot dot[16];
+    uint8_t road[SCREEN_W], road2[SCREEN_W];
+    int pop_t[8], pop_x[8], pop_y[8], pop_r[8], npop;
+    const char *bubble;
+    int bub_x, bub_y, bub_t0, bub_t1;
+    int arrow_x, wall_x, lights;
+} Gag;
+
+static void gag_paint(Gag *g, float fx, int lane2, int col) {
+    uint8_t *r = lane2 ? g->road2 : g->road;
+    for (int x = (int)fx; x < (int)fx + 10; x++)
+        if (x >= 0 && x < SCREEN_W) r[x] = (uint8_t)col;
+}
+
+static void gag_pop(Gag *g, int t, float x, float y, int r) {
+    if (g->npop >= 8) return;
+    g->pop_t[g->npop] = t;
+    g->pop_x[g->npop] = (int)x + 5;
+    g->pop_y[g->npop] = (int)y + 5;
+    g->pop_r[g->npop] = r;
+    g->npop++;
+}
+
+static void gag_say(Gag *g, const char *s, float x, float y, int t0, int t1) {
+    g->bubble = s;
+    g->bub_x = (int)x;
+    g->bub_y = (int)y;
+    g->bub_t0 = t0;
+    g->bub_t1 = t1;
+}
+
+static bool gag_touch(const GActor *a, const GActor *b) { return a->on && b->on && fabsf(a->x - b->x) < 9 && fabsf(a->y - b->y) < 9; }
+
+static void gag_actor(GActor *a, float x, float y, int dir, int spr, float spd) {
+    memset(a, 0, sizeof *a);
+    a->x = x; a->y = y; a->dir = dir; a->spr = spr; a->spd = spd; a->on = 1; a->armed = 1;
+}
+
+static void gag_move(GActor *a) {
+    if (!a->on || a->stun > 0) return;
+    a->x += WP_DX[a->dir] * a->spd;
+    a->y += WP_DY[a->dir] * a->spd;
+}
+
+/* one frame of a skit */
+static void gag_step(Gag *g, int kind, int i) {
+    GActor *bo = &g->bo, *f = g->f;
+    if (i == 0) {
+        memset(g, 0, sizeof *g);
+        gag_actor(bo, -12, LANE_Y, WP_RIGHT, WS_BO, 0);
+        g->arrow_x = -100;
+        g->wall_x = 1000;
+        switch (kind) {
+        case GAG_START:
+            bo->x = 30;
+            gag_actor(&f[0], 58, LANE_Y, WP_RIGHT, WS_ROLLER, 0);
+            gag_actor(&f[1], 74, LANE_Y, WP_RIGHT, WS_ROLLER, 0);
+            gag_say(g, "#@!%&", 26, LANE_Y - 14, 70, 150);
+            break;
+        case GAG_SMUDGER: gag_actor(&f[0], 70, LANE_Y, WP_RIGHT, WS_ROLLER, 0.6f); break;
+        case GAG_DUSTER:
+            gag_actor(&f[0], -12, 118, WP_RIGHT, WS_DUSTER1, 1.0f);
+            bo->spd = 1.2f;
+            gag_say(g, "#@!", 176, LANE_Y - 14, 200, 270);
+            break;
+        case GAG_TANKER:
+            gag_actor(&f[0], 50, LANE_Y, WP_RIGHT, WS_TANKER, 0.9f);
+            bo->spd = 1.0f;
+            g->arrow_x = 150;
+            break;
+        case GAG_GLOOP: gag_actor(&f[0], 40, LANE_Y, WP_RIGHT, WS_BIGGLOOP, 0.8f); break;
+        case GAG_POPPER:
+            gag_actor(&f[0], 110, LANE_Y, WP_RIGHT, WS_POPPER, 0.3f);
+            gag_say(g, "#@!%", 60, LANE_Y - 14, 215, 295);
+            break;
+        case GAG_HEDGEHOG:
+            gag_actor(&f[0], 260, LANE_Y, WP_LEFT, WS_HEDGEHOG, 0.8f);
+            bo->spd = 1.5f;
+            break;
+        case GAG_CONKER:
+            gag_actor(&f[0], 200, LANE_Y, WP_RIGHT, WS_CONKER, 0);
+            bo->spd = 1.0f;
+            break;
+        case GAG_JELLY:
+            gag_actor(&f[0], 170, LANE_Y, WP_RIGHT, WS_JELLY, 0);
+            bo->spd = 1.0f;
+            g->arrow_x = 60;
+            g->wall_x = 298;
+            break;
+        case GAG_FOXY:
+            bo->x = 20;
+            gag_actor(&f[0], 20, LANE2_Y, WP_RIGHT, WS_FOXY, 0);
+            gag_say(g, "SEE YOU AT THE LINE, BLUE!", 20, LANE2_Y - 30, 30, 110);
+            break;
+        }
+    }
+    /* scripted beats */
+    switch (kind) {
+    case GAG_START:
+        g->lights = i < 40 ? 1 : 2;
+        if (i == 40) { f[0].spd = 1.6f; f[1].spd = 1.6f; }
+        if (i == 150) bo->spd = 2.0f;
+        break;
+    case GAG_SMUDGER:
+        if (i == 40) bo->spd = 1.6f;
+        break;
+    case GAG_DUSTER:
+        if (bo->x >= 170) bo->spd = 0;
+        if (i == 140) { f[0].spd = 0; f[0].flash = 1; }
+        if (i >= 140 && i <= 200 && (i - 140) % 20 == 0) {
+            for (int k = 0; k < 4; k++)
+                for (int d = 0; d < 16; d++)
+                    if (!g->dot[d].on) {
+                        g->dot[d] = (GDot){f[0].x + 5, f[0].y + 5, (float)WP_DX[k] * 3, (float)WP_DY[k] * 3, 1};
+                        break;
+                    }
+        }
+        if (i == 220) { f[0].flash = 0; f[0].dir = WP_UP; f[0].spd = 1.5f; }
+        break;
+    case GAG_TANKER:
+        if (!bo->boosted && bo->x >= g->arrow_x) { bo->boosted = 60; bo->spd = 2.2f; }
+        if (bo->boosted && --bo->boosted == 0) bo->spd = 1.0f;
+        break;
+    case GAG_GLOOP:
+        if (i == 90) bo->spd = 1.5f;
+        if (i % 70 == 50) f[0].spd = 0.2f;
+        if (i % 70 == 0 && i > 0) {
+            f[0].spd = 0.8f;
+            for (int k = 1; k < 4; k++)
+                if (!f[k].on && !f[k].stun) { gag_actor(&f[k], f[0].x - 8, LANE_Y, WP_LEFT, WS_GLOOP, 0.5f); break; }
+        }
+        break;
+    case GAG_POPPER:
+        if (i == 90) f[0].flash = 1;
+        if (i == 150 && f[0].on) {
+            for (int x = (int)f[0].x - 40; x < (int)f[0].x + 50; x++)
+                if (x >= 0 && x < SCREEN_W) g->road[x] = PAINT_PINK;
+            gag_pop(g, i, f[0].x, f[0].y, 30);
+            f[0].on = 0;
+        }
+        if (i == 150) bo->spd = 1.5f;
+        if (bo->x >= 50 && bo->spd > 0) bo->spd = fmaxf(0, bo->spd - 0.06f);
+        break;
+    case GAG_HEDGEHOG:
+        if (i == 150) gag_actor(&f[1], 230, 60, WP_DOWN, WS_HEDGEHOG, 0.9f);
+        if (bo->stun == 1) bo->spd = 1.0f;
+        if (f[0].on && f[0].spd == 0 && f[0].flash > 0 && --f[0].flash == 0) { f[0].dir = WP_UP; f[0].spd = 0.8f; }
+        if (f[0].on && f[0].y < 70) f[0].on = 0;
+        break;
+    case GAG_CONKER:
+        if (i == 20) {
+            static const int D4[4] = {WP_LEFT, WP_RIGHT, WP_UP, WP_DOWN};
+            for (int k = 0; k < 4; k++) g->dot[k] = (GDot){f[0].x + 5, f[0].y + 5, (float)WP_DX[D4[k]] * 3, (float)WP_DY[D4[k]] * 3, 1};
+            f[0].armed = 0;
+            f[0].spr = WS_CONKER_BARE;
+        }
+        if (bo->stun == 1) bo->spd = 1.0f;
+        break;
+    case GAG_JELLY:
+        if (!bo->boosted && !bo->spin && bo->dir == WP_RIGHT && bo->x >= g->arrow_x) { bo->boosted = 1; bo->spd = 2.4f; }
+        if (bo->spin && bo->x >= g->wall_x - 12) {
+            bo->spin = 0;
+            bo->boosted = 0;
+            bo->stun = 54;
+            gag_say(g, "#@!", bo->x - 14, LANE_Y - 14, i, i + 60);
+        }
+        if (bo->stun == 1) { bo->dir = WP_LEFT; bo->spd = 1.0f; }
+        break;
+    case GAG_FOXY:
+        g->lights = i < 30 ? 1 : i < 60 ? 2 : 3;
+        if (i == 60) { bo->spd = 1.9f; f[0].spd = 2.3f; }
+        /* she cuts in front of Bo and paints his lane pink */
+        if (i >= 120 && f[0].y > LANE_Y) f[0].y = fmaxf(LANE_Y, f[0].y - 1.0f);
+        if (i == 140) gag_say(g, "#@!%", bo->x, LANE_Y - 14, 140, 230);
+        break;
+    }
+    /* move and paint */
+    if (bo->stun > 0) bo->stun--;
+    gag_move(bo);
+    if (bo->on && bo->stun == 0 && bo->spd > 0) gag_paint(g, bo->x, 0, bo->spin ? PAINT_PINK : PAINT_BLUE);
+    for (int k = 0; k < 4; k++) {
+        GActor *a = &f[k];
+        if (!a->on) continue;
+        gag_move(a);
+        bool on_road = a->y >= LANE_Y - 4 && a->spr != WS_DUSTER1;
+        if (on_road && a->spd > 0) gag_paint(g, a->x, a->y >= LANE2_Y - 4, PAINT_PINK);
+        if (a->x < -20 || a->x > SCREEN_W + 20) a->on = 0;
+    }
+    for (int d = 0; d < 16; d++) {
+        GDot *p = &g->dot[d];
+        if (!p->on) continue;
+        p->x += p->dx;
+        p->y += p->dy;
+        if (kind == GAG_DUSTER && p->dy > 0 && p->y >= LANE_Y + 4) { gag_paint(g, p->x - 5, 0, PAINT_PINK); p->on = 0; }
+        if (kind == GAG_CONKER && p->on && bo->on && bo->stun == 0 && fabsf(p->x - (bo->x + 5)) < 6 && fabsf(p->y - (bo->y + 5)) < 6) {
+            bo->stun = 54;
+            bo->spd = 0;
+            p->on = 0;
+            gag_say(g, "#@!", bo->x - 4, LANE_Y - 14, i, i + 60);
+        }
+        if (p->x < -10 || p->x > SCREEN_W + 10 || p->y < 40 || p->y > 178 || (kind == GAG_DUSTER && (p->dx != 0) && fabsf(p->x - f[0].x) > 40))
+            p->on = 0;
+    }
+    /* contacts */
+    for (int k = 0; k < 4; k++) {
+        GActor *a = &f[k];
+        if (!gag_touch(bo, a) || bo->stun > 0 || kind == GAG_START || kind == GAG_FOXY || kind == GAG_DUSTER) continue;
+        if (a->spr == WS_HEDGEHOG && a->dir == WP_LEFT && bo->dir == WP_RIGHT) {
+            /* head-on into the plough */
+            bo->stun = 54;
+            bo->spd = 0;
+            a->spd = 0;
+            a->flash = 20;
+            bo->x -= 3;
+            gag_say(g, "#@!", bo->x - 4, LANE_Y - 14, i, i + 60);
+            continue;
+        }
+        if (a->spr == WS_JELLY && bo->boosted) {
+            bo->spin = 1;
+            bo->spd = 2.5f;
+            continue;
+        }
+        gag_pop(g, i, a->x, a->y, 10);
+        a->on = 0;
     }
 }
 
-typedef struct { const char *who; const char *line; } Line;
-typedef struct { const char *title; Line lines[4]; int foes[3]; const char *hint[3]; } Cut;
-static const Cut CUTS[N_CUTS] = {
-    {"THE TOWN SQUARE",
-     {{"MARSHAL", "THE WET PAINT RALLY! PAINT THE TOWN BLUE."},
-      {"BO", "I'M STUCK BEHIND THE PINK KARTS! #@!%&"},
-      {"MARSHAL", "BLUE ON THE CLOCK AT THE END, OR NO PASS."},
-      {"", ""}},
-     {F_ROLLER, F_DUSTER, -1},
-     {"SMUDGER: RAM IT", "DUSTER: GET IT BEFORE IT SPRAYS", ""}},
-    {"THE PARK",
-     {{"MARSHAL", "THE PARK KEEPERS SENT HELP. PINK HELP."},
-      {"BO", "IS THAT A GIANT GLOOP?"},
-      {"MARSHAL", "AND IT'S HAVING BABIES. #@!%"},
-      {"", ""}},
-     {F_TANKER, F_BIGGLOOP, F_POPPER},
-     {"TANKER: TWICE AS QUICK", "MOTHER GLOOP: LAYS GLOOPS", "POPPER: BURSTS IF LEFT ALONE"}},
-    {"THE DOCKS",
-     {{"MARSHAL", "HEDGEHOGS ON THE QUAY. MIND THE PLOUGH."},
-      {"BO", "SO... HIT THEM FROM BEHIND?"},
-      {"MARSHAL", "OR THE SIDE. AND WATCH THEIR LIGHTS."},
-      {"", ""}},
-     {F_HEDGEHOG, -1, -1},
-     {"HEDGEHOG: SIDE OR BACK ONLY", "", ""}},
-    {"THE WORKS",
-     {{"MARSHAL", "CONKERS FROM THE FACTORY TREE!"},
-      {"BO", "THEY SHOOT SPINES? WHO BUILT THIS TOWN?"},
-      {"MARSHAL", "DON'T LINE UP WITH A SPIKY ONE."},
-      {"", ""}},
-     {F_CONKER, -1, -1},
-     {"CONKER: FIRES WHEN IN LINE", "", ""}},
-    {"THE TOWN BY NIGHT",
-     {{"MARSHAL", "LAST FIVE. THE JELLIES ARE OUT."},
-      {"BO", "I'LL RAM THEM FLAT OUT!"},
-      {"MARSHAL", "NOT FLAT OUT. YOU'LL BOUNCE. #@!"},
-      {"", ""}},
-     {F_JELLY, -1, -1},
-     {"JELLY: NEVER AT BOOST SPEED", "", ""}},
-    {"THE FINAL SHOWDOWN",
-     {{"FOXY", "NOBODY OUT-PAINTS FOXY FUCHSIA."},
-      {"BO", "BLUE TOWN. PINK TOWN. LET'S SEE."},
-      {"MARSHAL", "ONE COURSE. EVERYTHING SHE HAS, YOU HAVE."},
-      {"", ""}},
-     {-1, -1, -1},
-     {"", "", ""}},
-};
+static void draw_bubble(const char *s, int x, int y) {
+    int w = text_width(s) + 6;
+    x = iclamp(x, 2, SCREEN_W - w - 2);
+    ui_panel(x, y, w, 11, C_WHITE, C_INK);
+    text_draw(s, x + 3, y + 2, C_INK);
+    gfx_pset(x + 6, y + 11, C_INK);
+    gfx_pset(x + 7, y + 12, C_INK);
+}
+
+static void draw_gag(int kind, int t) {
+    static Gag g;
+    for (int i = 0; i <= t; i++) gag_step(&g, kind, i);
+    /* the road strip, its paint, and any arrow or wall */
+    gfx_rect(0, 132, SCREEN_W, 48, C_SLATE);
+    gfx_hline(0, SCREEN_W - 1, 132, C_GREY);
+    for (int x = 0; x < SCREEN_W; x++) {
+        if (g.road[x]) gfx_vline(x, LANE_Y, LANE_Y + 9, g.road[x] == PAINT_BLUE ? C_BLUE : C_MAGENTA);
+        if (g.road2[x]) gfx_vline(x, LANE2_Y, LANE2_Y + 9, g.road2[x] == PAINT_BLUE ? C_BLUE : C_MAGENTA);
+    }
+    for (int x = 4; x < SCREEN_W; x += 24) gfx_rect(x, 156, 10, 1, C_LIGHT);
+    if (g.arrow_x > 0) {
+        for (int k = 0; k < 2; k++)
+            for (int i = 0; i < 4; i++) {
+                gfx_pset(g.arrow_x + 2 + k * 4 + i, LANE_Y + 1 + i, C_WHITE);
+                gfx_pset(g.arrow_x + 2 + k * 4 + i, LANE_Y + 8 - i, C_WHITE);
+            }
+    }
+    if (g.wall_x < SCREEN_W) {
+        gfx_rect(g.wall_x, 134, 12, 44, C_BROWN);
+        for (int y = 136; y < 178; y += 6) gfx_hline(g.wall_x, g.wall_x + 11, y, C_TAN);
+    }
+    if (g.lights) {
+        /* the start lights */
+        for (int k = 0; k < 3; k++) gfx_circ(150 + k * 10, 120, 3, g.lights > k ? (g.lights == 3 || (g.lights == 2 && kind == GAG_START) ? C_LIME : C_RED) : C_NIGHT);
+    }
+    if (kind == GAG_START && t < 60) {
+        /* the Marshal's chequered flag */
+        int wave = (t / 6) % 2;
+        gfx_vline(120, 110, 131, C_LIGHT);
+        for (int y = 0; y < 3; y++)
+            for (int x = 0; x < 4; x++) gfx_rect(121 + x * 3, 110 + y * 3 + (x % 2) * wave, 3, 3, (x + y) % 2 ? C_WHITE : C_INK);
+    }
+    if (kind == GAG_START && t >= 60 && t < 150 && (t / 6) % 2) {
+        /* Bo's kart coughs */
+        gfx_dither_circle((int)g.bo.x - 3 - (t % 12) / 2, LANE_Y + 4 - (t % 12) / 3, 3, C_GREY, 8);
+    }
+    /* the foes, the dots and Bo */
+    for (int k = 0; k < 4; k++) {
+        const GActor *a = &g.f[k];
+        if (!a->on) continue;
+        int spr = a->spr;
+        if (spr == WS_DUSTER1) {
+            spr = (t / 3) % 2 ? WS_DUSTER1 : WS_DUSTER2;
+            gfx_dither_circle((int)a->x + 5, 150, 3, C_INK, 8);
+        }
+        const Sprite *s = &wp_car[spr][spr == WS_JELLY || spr == WS_CONKER || spr == WS_CONKER_BARE || spr == WS_GLOOP || spr == WS_BIGGLOOP ? WP_RIGHT : a->dir];
+        if (a->flash && (t / 4) % 2) spr_draw_ex(s, (int)a->x, (int)a->y, 0, NULL, C_WHITE);
+        else spr_draw(s, (int)a->x, (int)a->y, 0);
+        if (spr == WS_HEDGEHOG && a->flash && (t / 6) % 2) {
+            /* its lights: turning up */
+            gfx_rect((int)a->x + 6, (int)a->y + 1, 2, 2, C_YELLOW);
+        }
+    }
+    for (int d = 0; d < 16; d++) {
+        if (!g.dot[d].on) continue;
+        int x = (int)g.dot[d].x, y = (int)g.dot[d].y;
+        if (kind == GAG_CONKER) {
+            if (g.dot[d].dx != 0) gfx_hline(x - 2, x + 2, y, C_WHITE);
+            else gfx_vline(x, y - 2, y + 2, C_WHITE);
+        } else gfx_rect(x - 1, y - 1, 3, 3, C_PINK);
+    }
+    if (g.bo.on) {
+        if (g.bo.stun > 0) {
+            spr_draw(&wp_spr[WS_CRUMPLE], (int)g.bo.x, (int)g.bo.y, 0);
+            for (int k = 0; k < 3; k++) {
+                float a = (float)t * 0.2f + (float)k * 2.09f;
+                gfx_pset((int)g.bo.x + 5 + (int)(cosf(a) * 6), (int)g.bo.y - 1 + (int)(sinf(a) * 2), C_YELLOW);
+            }
+        } else {
+            int dir = g.bo.spin ? (t / 3) % 4 : g.bo.dir;
+            spr_draw(&wp_car[WS_BO][dir], (int)g.bo.x, (int)g.bo.y, 0);
+            if (g.bo.boosted && !g.bo.spin)
+                for (int k = 1; k <= 3; k++) gfx_pset((int)g.bo.x - k * 4, (int)g.bo.y + 3 + (k % 2) * 4, C_WHITE);
+        }
+    }
+    for (int p = 0; p < g.npop; p++) {
+        int age = t - g.pop_t[p];
+        if (age < 0 || age > 14) continue;
+        int r = g.pop_r[p] * (age + 4) / 18;
+        if (g.pop_r[p] > 15) gfx_dither_circle(g.pop_x[p], g.pop_y[p], r, C_PINK, 10 - age / 2);
+        gfx_circb(g.pop_x[p], g.pop_y[p], r, age % 4 < 2 ? C_WHITE : C_PINK);
+    }
+    if (g.bubble && t >= g.bub_t0 && t < g.bub_t1) draw_bubble(g.bubble, g.bub_x, g.bub_y);
+}
 
 static void draw_portrait(const char *who, int x, int y) {
     int s = !strcmp(who, "BO") ? WS_BO_BIG : !strcmp(who, "FOXY") ? WS_FOXY_BIG : WS_MARSHAL_BIG;
@@ -759,34 +1098,21 @@ static void draw_cut(void) {
     else snprintf(buf, sizeof buf, "COURSE 26");
     tiny_center(buf, 160, 4, C_LIGHT);
     ui_fancy_center(c->title, 160, 11, 1, grad, 3, C_INK, -1);
-    /* the conversation, a line at a time */
-    int shown = imin(3, t / 70 + 1);
-    const char *speaker = c->lines[imin(shown - 1, 2)].who;
-    draw_portrait(speaker, 12, 30);
-    for (int i = 0; i < shown; i++) {
-        const Line *l = &c->lines[i];
-        if (!l->who[0]) continue;
-        int y = 30 + i * 16;
-        tiny_draw(l->who, 66, y, !strcmp(l->who, "BO") ? C_SKY : !strcmp(l->who, "FOXY") ? C_PINK : C_YELLOW);
-        text_draw(l->line, 66, y + 6, C_WHITE);
-    }
-    /* then the new foes parade by with their names */
-    if (t > 240) {
-        for (int i = 0; i < 3; i++) {
-            if (c->foes[i] < 0) continue;
-            static const int SPR[F_KINDS] = {WS_ROLLER, WS_DUSTER1, WS_TANKER, WS_GLOOP, WS_BIGGLOOP, WS_POPPER, WS_HEDGEHOG, WS_CONKER, WS_JELLY};
-            int y = 84 + i * 14;
-            int x = imin(20 + (t - 240 - i * 40) * 3, 40);
-            if (t - 240 < i * 40) continue;
-            ui_panel(x - 4, y - 3, 250, 13, C_INK, C_WINE);
-            spr_draw(&wp_car[SPR[c->foes[i]]][WP_RIGHT], x, y - 1, 0);
-            text_draw(c->hint[i], x + 16, y, C_PINK);
-        }
-    }
-    if (cut_i == 5 && t > 200) {
-        spr_draw_scaled(&wp_spr[WS_FOXY_BIG], 250, 64, 2, SPR_FLIPX);
-    }
-    if (t > 40 && (t / 20) % 2) text_center("PRESS " GLYPH_A, 160, 170, C_WHITE);
+    draw_portrait(c->who, 12, 30);
+    tiny_draw(c->who, 66, 34, !strcmp(c->who, "FOXY") ? C_PINK : C_YELLOW);
+    /* the line types itself out */
+    int n = imin((int)strlen(c->line), t / 2);
+    snprintf(buf, sizeof buf, "%.*s", n, c->line);
+    text_draw(buf, 66, 42, C_WHITE);
+    /* then the skits, one after another */
+    int gt = t - 60;
+    int gi = gt < 0 ? 0 : imin(gt / GAG_LEN, cut_gags(cut_i) - 1);
+    int kind = c->gags[gi];
+    int lt = gt < 0 ? 0 : imin(gt - gi * GAG_LEN, GAG_LEN - 1);
+    ui_panel(40, 100, 240, 14, C_INK, C_WINE);
+    text_center(GAG_CAPTION[kind], 160, 104, C_PINK);
+    draw_gag(kind, lt);
+    if (t > 40 && (t / 20) % 2) text_draw("PRESS " GLYPH_A, SCREEN_W - 6 - text_width("PRESS " GLYPH_A), 88, C_WHITE);
 }
 
 static void draw_ready(void) {
@@ -798,7 +1124,7 @@ static void draw_ready(void) {
         tiny_center("P1 BLUE  VS  P2 PINK", 160, 88, C_LIGHT);
         tiny_center("MOST PAINT WINS", 160, 96, C_GREY);
     } else {
-        if (wp.course == WP_FINAL) snprintf(buf, sizeof buf, "FINAL SHOWDOWN");
+        if (wp.course == WP_FINAL) snprintf(buf, sizeof buf, "THE CUP FINAL");
         else snprintf(buf, sizeof buf, "COURSE %d", wp.course + 1);
         text_center(buf, 160, 76, C_WHITE);
         tiny_center(WP_COURSE[wp.course].name, 160, 88, C_SKY);
@@ -859,7 +1185,7 @@ static void draw_over(void) {
     char buf[48];
     snprintf(buf, sizeof buf, "COURSE %d  SCORE %d", course + 1, score);
     tiny_center(buf, 160, 78, C_LIGHT);
-    draw_board(136, 90, new_rank);
+    draw_board(96, 90, new_rank);
     if (state_t > 60 && (state_t / 20) % 2) text_center("PRESS " GLYPH_A, 160, 140, C_WHITE);
 }
 
@@ -974,8 +1300,7 @@ static void wp_start(void) {
 
 static void wp_quit(void) {
     input_set_versus(false);
-    /* a run left half-way still goes on the board */
-    if (run_mode == MODE_SOLO && (state == S_PLAY || state == S_READY || state == S_RESULT || state == S_CUT) && score > 0) record_score();
+    /* a run left half-way is simply gone: only finished runs go on the board */
     save_now();
 }
 
@@ -1247,6 +1572,18 @@ static int wp_cheat(const char *cmd) {
     if (sscanf(cmd, "item %d %d %d", &a, &b, &c) == 3) { wp.tile[b][a].item = (uint8_t)c; return 1; }
     if (sscanf(cmd, "tile %d %d %d %d", &a, &b, &c, &d) == 4) { wp.tile[b][a].kind = (uint8_t)c; wp.tile[b][a].dir = (uint8_t)d; if (c == TK_THORN) wp.thorn[b][a] = 1; return 1; }
     if (sscanf(cmd, "foeage %d %d", &a, &b) == 2) { if (a >= 0 && a < WP_MAX_FOES) wp.foe[a].age = (int16_t)b; return 1; }
+    if (!strcmp(cmd, "old_save")) {
+        /* a save in the first format (scores without names) for the upgrade test */
+        uint8_t old[28];
+        uint32_t m = SAVE_MAGIC_V1, h = 250;
+        memset(old, 0, sizeof old);
+        memcpy(old, &m, 4);
+        memcpy(old + 4, &h, 4);
+        old[24] = 9;
+        game_save_write(game_current_index(), old, (int)sizeof old);
+        load_save();
+        return 1;
+    }
     if (!strcmp(cmd, "sheet")) { sheet_mode = !sheet_mode; return 1; }
     return 0;
 }
@@ -1257,7 +1594,7 @@ const GameDef GAME_WETPAINT = {
     "1983",
     "ARCADE",
     "PAINT THE TOWN BLUE BEFORE THE CLOCK RUNS OUT!",
-    {"PASS THE FIRST 12 COURSES", "BEAT ALL 25 AND FOXY", "WIN WITH 500 POINTS"},
+    {"REACH COURSE 13", "BEAT ALL 25 AND FOXY", "WIN WITH 500 POINTS"},
     GLYPH_DPAD "\tSTEER (TURNS AT THE NEXT TILE)\n"
     "BACK\tBRAKE\n"
     "AHEAD\tSPEED BACK UP\n"
