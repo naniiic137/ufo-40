@@ -1,0 +1,137 @@
+# RIMSHIRE: five full rounds with nothing touched (no disk, no pickup) end
+# a battle in a stalemate: both armies go home without their reserves, and
+# the side that didn't start the battle moves next.
+game rimshire
+cheat war 1
+cheat cpu 1 -1
+cheat army 0 S
+cheat army 1 S
+cheat reserve 1 SS
+cheat at 1 10 1
+cheat battle 9 1 0
+cheat field 0
+cheat unshuffle
+cheat place 0 150 128
+cheat place 1 250 128
+waituntil bphase == 1 200
+# turn 1
+press A
+hold UP 70
+hold A 12
+wait 1
+waituntil bphase == 2 400
+hold DOWN 70
+hold A 12
+wait 1
+waituntil bside == 1 400
+waituntil bphase == 1 60
+# turn 2
+press A
+hold UP 70
+hold A 12
+wait 1
+waituntil bphase == 2 400
+hold DOWN 70
+hold A 12
+wait 1
+waituntil bside == 0 400
+waituntil bphase == 1 60
+# turn 3
+press A
+hold UP 70
+hold A 12
+wait 1
+waituntil bphase == 2 400
+hold DOWN 70
+hold A 12
+wait 1
+waituntil bside == 1 400
+waituntil bphase == 1 60
+# turn 4
+press A
+hold UP 70
+hold A 12
+wait 1
+waituntil bphase == 2 400
+hold DOWN 70
+hold A 12
+wait 1
+waituntil bside == 0 400
+waituntil bphase == 1 60
+expect quiet == 4
+# turn 5
+press A
+hold UP 70
+hold A 12
+wait 1
+waituntil bphase == 2 400
+hold DOWN 70
+hold A 12
+wait 1
+waituntil bside == 1 400
+waituntil bphase == 1 60
+# turn 6
+press A
+hold UP 70
+hold A 12
+wait 1
+waituntil bphase == 2 400
+hold DOWN 70
+hold A 12
+wait 1
+waituntil bside == 0 400
+waituntil bphase == 1 60
+# turn 7
+press A
+hold UP 70
+hold A 12
+wait 1
+waituntil bphase == 2 400
+hold DOWN 70
+hold A 12
+wait 1
+waituntil bside == 1 400
+waituntil bphase == 1 60
+# turn 8
+press A
+hold UP 70
+hold A 12
+wait 1
+waituntil bphase == 2 400
+hold DOWN 70
+hold A 12
+wait 1
+waituntil bside == 0 400
+waituntil bphase == 1 60
+# turn 9
+press A
+hold UP 70
+hold A 12
+wait 1
+waituntil bphase == 2 400
+hold DOWN 70
+hold A 12
+wait 1
+waituntil bside == 1 400
+waituntil bphase == 1 60
+# turn 10
+press A
+hold UP 70
+hold A 12
+wait 1
+waituntil bphase == 2 400
+hold DOWN 70
+hold A 12
+wait 1
+waituntil bphase == 6 400
+expect bwinner == 3
+expect fog_deaths == 0
+wait 80
+press A
+wait 2
+expect state == 4
+expect athome0 == 1
+expect athome1 == 1
+expect army1 == 1
+expect reserve1 == 2
+expect turn == 1

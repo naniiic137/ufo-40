@@ -162,9 +162,20 @@ static void draw_panel(void) {
             snprintf(tb, sizeof tb, "TRIBUTE TO %s " GLYPH_DOT " UFO 50 #%d", g->tribute, g->tribute_no);
             if (tiny_width(tb) > PANEL_W - 2) /* long names: a shorter sticker */
                 snprintf(tb, sizeof tb, "TRIBUTE: %s " GLYPH_DOT " UFO 50 #%d", g->tribute, g->tribute_no);
-            gfx_rect(x, y + 57, PANEL_W, 7, C_INK);
-            gfx_hline(x, x + PANEL_W - 1, y + 56, C_NIGHT);
-            tiny_center(tb, x + PANEL_W / 2, y + 58, C_GREY);
+            if (tiny_width(tb) > PANEL_W - 2) {
+                /* longer still: the sticker takes two lines */
+                char t1[64], t2[24];
+                snprintf(t1, sizeof t1, "TRIBUTE TO %s", g->tribute);
+                snprintf(t2, sizeof t2, "UFO 50 #%d", g->tribute_no);
+                gfx_rect(x, y + 50, PANEL_W, 14, C_INK);
+                gfx_hline(x, x + PANEL_W - 1, y + 49, C_NIGHT);
+                tiny_center(t1, x + PANEL_W / 2, y + 51, C_GREY);
+                tiny_center(t2, x + PANEL_W / 2, y + 58, C_GREY);
+            } else {
+                gfx_rect(x, y + 57, PANEL_W, 7, C_INK);
+                gfx_hline(x, x + PANEL_W - 1, y + 56, C_NIGHT);
+                tiny_center(tb, x + PANEL_W / 2, y + 58, C_GREY);
+            }
         }
         gfx_noclip();
     } else {

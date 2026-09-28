@@ -1,0 +1,23 @@
+# RIMSHIRE: the Beacon for five wars won, the Saucer for all ten, the Alien
+# for three streak wars in a row; all of it is saved.
+game rimshire
+wait 10
+expect goals == 0
+cheat clear 1 1
+cheat clear 2 1
+cheat clear 3 1
+cheat clear 4 1
+expect goals == 0
+cheat clear 5 1
+expect goals == 1
+cheat clearall
+expect goals == 3
+expect cleared == 10
+cheat setstreak 3
+expect goals == 7
+reload
+game rimshire
+wait 5
+expect cleared == 10
+expect best_streak == 3
+expect goals == 7

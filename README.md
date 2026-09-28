@@ -101,6 +101,7 @@ when there is more above or below.
 | 28 | **DUNE EXPRESS** | Rail Heist | real time until a guard is alert, then 10-second turns, one-bullet lawmen who hit each other too, punches through walls and floors, carrying and throwing, hiding in barrels, levers, a crank gun, rams, three outlaws, three stars a mission with the original's time goals, 2P versus | Wade, Hush and Pearl, the Governor's tax trains, Biscuit the camel, 20 new trains |
 | 46 | **MANDIBLES** | Combatants | you are one slow ant who holds a button for a cross of nine commands (follow, hold, instinct, their soldier-only versions, the queen's workers or soldiers, surrender), shouted to ants in earshot, and spits in eight directions while followers spit with you, food carried home to queens who lay workers for 1 and soldiers for 2, free respawns while your army lives, red ants with twice the health and exploitable brains (locked aim, food first, stuck on corners, stuck on your queen), brawls in a dust cloud, giant spiders that eat both sides, a branching road of 12 fields to the capital and a pointless bonus one, 2P versus | the Bluebell Colony and the Rust Horde, General Stag, the longlegs, every command's name, all 16 fields |
 | 30 | **FLINTHOLD** | Rock On! Island | waves down fixed roads to a cave with 30 hearts, a build phase as long as you like and a horn to start the wave, a pay-out between waves, a heroine who walks and throws eight ways, ten hunters in three upgrade trees, hens cooked by fire pits for meat (99 at most), fire pits that boost hunters, the original's beasts and bosses, 10 stages and 3 villages (two hidden), the Four Lords together in the last wave | Pim of the Hearth Clan, Flint Isle and its 13 layouts, the Four Lords of the Scale, every beast, hunter and villager |
+| 41 | **RIMSHIRE** | Lords of Diskonia | a board where two banners take turns stepping along roads, trails a banner can't step back onto that pull an army back when struck, inns, tomes, seams and chests; flick battles on fields built from the four tiles round the fight: a queue of three, aim, charge and launch, knocks that hurt by the striking disk's own melee, water, the closing haze and stalemates; the original's 15 disks with their numbers, 8 skills, 10 campaign wars, the streak and 2P | Rimshire, the Brass and Plum banners, the Plum Empress, Lady Brass's letters, all 16 disks, 10 new boards |
 | 47 | **WOBBLE DERBY** | Quibble Race | three punters and three runners a race, odds from a form book of twenty unseen races, rising bet caps and an open last race, one tip a race, five dirty tricks and a minder with the same prices and fines, a lender at 15 % compounded, sponsoring from a shortlist and a coach, meteors, garbage and smog, 26 runners in the same speed and clumsiness bands, 3-player hot-seat | Crater Downs, the 26 wobblers, the sixteen punters (five of them UFO 40 cameos), the Fixer, the Lender and the Wobble Wire |
 | 08, 11–13, 17, 19–24, 26–27, 29, 31–45, 48–50 | *coming soon* | | | still in the saucer's cargo hold |
 
@@ -682,6 +683,46 @@ the top.
   waves, the nippers, redbacks, fangcats, clubtails, gliders, gnats, the
   shagtusk and the Four Lords (Snap, Jaw, Plate and Gale), the villagers
   and the music.
+### 41 · RIMSHIRE
+
+<p align="center">
+  <img src="docs/shots/rimshire.gif" width="640" alt="Rimshire: the Brass and Plum armies flick their disks at each other by a lake">
+</p>
+<p align="center">
+  <img src="docs/shots/rimshire_board.png" width="320" alt="The board of Pipers' March, both banners' trails drawn across it">
+  <img src="docs/shots/rimshire_battle.png" width="320" alt="A battle by a lake: a hexer's embers and the cliffs of a crag corner">
+</p>
+
+*A tribute to **Lords of Diskonia** (UFO 50 #41).*
+
+- **Plays the same:** two layers. On the board the banners take turns
+  stepping along the roads, one space on the first turn and two after,
+  every move used; a banner can't cross its own trail, holding B takes it
+  home, and stepping onto the other banner, its home or its trail starts a
+  battle there, the side that stepped acting first. Inns hire out the same
+  three disks all war and close after three visits, tomes teach one of three
+  skills, seams pay for ten turns, chests pay once. The loser of a battle
+  goes home, calls up its reserves and moves next; a war is won when a
+  battle would start and the other side has no disks.
+- **The battles:** the field's corners come from the four board tiles round
+  the fight (woods with trees, tents and huts, crags with cliffs, dunes,
+  lakes); a fight at a home has its own yard, and a castle's stone floors
+  lie between bastions. Pick one of
+  the first three disks in the queue, turn the aim, hold A to charge the
+  pips, let go. A foe struck by one of your disks takes that disk's melee;
+  two foes knocked together take 1 each. Water drowns, the haze closes in
+  after five turns each, and five quiet rounds are a stalemate. Hold B to
+  look round the field.
+- **Structure:** fifteen disks for hire with the original's numbers (the
+  ferret's three dashes, the brute's stun, the adder's poison, the piper's
+  stars, the leech's thirst, the menhir that can't be moved...), eight
+  skills, ten campaign wars that each bring one new idea, the random streak
+  (both armies start alike; only the computer's aim gets sharper) for the
+  cherry, and two players. The demo player in the tests wins every
+  war with real button presses.
+- **Ours:** Rimshire, the Brass and Plum banners, the Plum Empress and Lady
+  Brass's letters, all sixteen disks and eight skills, the ten boards, the
+  streak's board maker and the music.
 ### 47 · WOBBLE DERBY
 
 <p align="center">

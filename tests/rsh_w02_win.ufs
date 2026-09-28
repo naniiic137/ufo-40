@@ -1,0 +1,6 @@
+# RIMSHIRE: the demo player, pressing real buttons, wins war 2, TWO ROADS.
+game rimshire
+cheat war 2
+botuntil state == 6 400000
+expect winner == 0
+expect cleared2 == 1

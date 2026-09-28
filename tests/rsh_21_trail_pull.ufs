@@ -1,0 +1,20 @@
+# RIMSHIRE: stepping onto the enemy's route starts a battle there; the
+# enemy army is pulled back to that point, and the side that stepped acts
+# first.
+game rimshire
+cheat war 4
+cheat step 1 12 2
+cheat step 1 12 1
+cheat step 1 12 0
+cheat step 1 11 0
+expect trail1 == 5
+cheat at 0 12 3
+cheat turn 0
+press UP
+press A
+waituntil state == 5 60
+expect nx1 == 12
+expect ny1 == 2
+expect trail1 == 2
+waituntil bphase == 1 200
+expect bside == 0

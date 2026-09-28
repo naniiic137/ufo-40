@@ -1,0 +1,37 @@
+# RIMSHIRE: the hexer's spell leaves a ring of six embers where it stops;
+# an ember burns the first disk to touch it, friend or foe.
+game rimshire
+cheat war 1
+cheat cpu 1 -1
+cheat army 0 H
+cheat army 1 S
+cheat battle 6 1 0
+cheat field 0
+cheat unshuffle
+cheat place 0 100 128
+cheat place 1 300 40
+waituntil bphase == 1 200
+press A
+hold UP 70
+hold A 12
+wait 1
+waituntil bphase == 2 400
+hold DOWN 70
+hold A 12
+wait 1
+waituntil bphase == 4 400
+hold RIGHT 70
+hold A 12
+wait 1
+waituntil bside == 1 600
+expect embers == 6
+# the Plum squire runs into them
+cheat place 1 168 128
+waituntil bphase == 1 60
+press A
+hold LEFT 70
+hold A 12
+wait 1
+waituntil moving == 0 400
+expect d1_hp < 5
+expect embers < 6

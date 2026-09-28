@@ -1,0 +1,22 @@
+# RIMSHIRE: a foe knocked into one of your disks takes that disk's own
+# melee (a warden's 2); your disk is not hurt.
+game rimshire
+cheat war 1
+cheat cpu 1 -1
+cheat army 0 SW
+cheat army 1 S
+cheat battle 6 1 0
+cheat field 0
+cheat unshuffle
+cheat place 0 100 128
+cheat place 1 200 128
+cheat place 2 160 128
+waituntil bphase == 1 200
+press A
+hold RIGHT 40
+hold A 40
+wait 1
+waituntil moving == 0 600
+expect d2_hp == 2
+expect d1_hp == 8
+expect d0_hp == 5

@@ -1,0 +1,51 @@
+# RIMSHIRE: a side chooses from the first three disks in its queue (five
+# with COMMAND); the disk that acted goes to the back.
+game rimshire
+cheat war 1
+cheat cpu 1 -1
+cheat army 0 SSSSSS
+cheat army 1 S
+cheat battle 6 1 0
+cheat field 0
+cheat unshuffle
+cheat place 0 40 20
+cheat place 1 40 60
+cheat place 2 40 100
+cheat place 3 40 140
+cheat place 4 40 180
+cheat place 5 40 220
+cheat place 6 340 128
+waituntil bphase == 1 200
+expect eligible == 3
+press RIGHT
+press RIGHT
+expect cursor == 2
+press RIGHT
+expect cursor == 0
+press LEFT
+expect cursor == 2
+press A
+expect sel == 2
+hold RIGHT 40
+hold A 12
+wait 1
+waituntil bphase == 2 400
+hold A 12
+wait 1
+waituntil bside == 1 600
+expect queue0_0 == 0
+expect queue0_1 == 1
+expect queue0_2 == 3
+expect queue0_5 == 2
+cheat skills 0 1
+waituntil bphase == 1 60
+press A
+hold UP 70
+hold A 12
+wait 1
+waituntil bphase == 2 400
+hold A 12
+wait 1
+waituntil bside == 0 600
+waituntil bphase == 1 60
+expect eligible == 5

@@ -1,0 +1,49 @@
+# RIMSHIRE: a tome teaches one of three skills (SCOUTING gives three moves),
+# a chest pays 4 or 5 coins once, a seam pays its holder every turn for ten
+# turns and is then worked out.
+game rimshire
+cheat war 2
+cheat at 0 3 0
+cheat turn 0
+press RIGHT
+press A
+waituntil wstate == 3 60
+expect skills0 == 0
+press A
+expect skills0 > 0
+waituntil wstate == 0 60
+expect node_4_0 == 1
+press RIGHT
+press A
+waituntil turn == 1 60
+cheat skills 0 4
+cheat turn 0
+expect moves == 3
+# a chest (without SCOUTING again)
+cheat skills 0 0
+cheat coins 0 0
+cheat at 0 6 0
+cheat turn 0
+press DOWN
+press A
+waituntil moves_used == 1 60
+expect coins0 >= 4
+expect coins0 <= 5
+expect node_6_1 == 1
+# a seam (COIN FEVER)
+cheat war 4
+cheat coins 0 0
+cheat at 0 4 2
+cheat turn 0
+press RIGHT
+press A
+waituntil moves_used == 1 60
+expect owner_5_2 == 1
+expect seam_left_5_2 == 10
+press RIGHT
+press A
+waituntil turn == 1 60
+expect coins0 == 0
+waituntil turn == 0 400
+expect coins0 == 1
+expect seam_left_5_2 == 9

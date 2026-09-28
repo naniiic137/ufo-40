@@ -1,0 +1,25 @@
+# RIMSHIRE: holding B takes the banner all the way home and ends the turn;
+# a short press doesn't; the route starts again from home.
+game rimshire
+cheat war 1
+cheat at 0 4 1
+cheat step 0 5 1
+cheat turn 0
+wait 2
+expect trail0 == 3
+hold B 10
+wait 1
+expect home_hold == 0
+expect nx0 == 5
+expect turn == 0
+hold B 35
+wait 1
+expect athome0 == 1
+expect trail0 == 1
+expect turn == 1
+# at home, B does nothing
+cheat turn 0
+hold B 40
+wait 1
+expect turn == 0
+expect athome0 == 1

@@ -1,0 +1,45 @@
+# RIMSHIRE: the cartridge boots to its title; its art and ten boards are
+# sound; the menu moves; the streak stays locked until the campaign is won;
+# B goes back to the library.
+game rimshire
+wait 30
+expect state == 0
+expect art_bad == 0
+expect maps_ok == 10
+expect title_sel == 0
+press DOWN
+expect title_sel == 1
+press A
+wait 10
+expect state == 0
+press DOWN
+expect title_sel == 2
+press DOWN
+expect title_sel == 0
+# the campaign: the story the first time, then the list of ten wars
+press A
+wait 20
+expect state == 1
+press A
+wait 25
+press A
+wait 25
+press A
+wait 20
+expect state == 2
+expect story_seen == 1
+expect sel_scen == 1
+# only the first war is open
+press DOWN
+press A
+wait 10
+expect state == 2
+press UP
+press A
+wait 25
+expect state == 3
+press A
+wait 10
+expect state == 4
+expect mode == 0
+expect scen == 1

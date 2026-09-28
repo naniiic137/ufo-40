@@ -1,0 +1,40 @@
+# RIMSHIRE: the streak opens once the campaign is won. Every streak war is
+# on a new random board, and both armies start alike (two squires, and a
+# warden and two squires in reserve): only the computer's aim is sharper.
+# The demo player, pressing real buttons from the title, wins three in a
+# row for the Alien; then a lost war ends the run and the best is kept.
+game rimshire
+wait 10
+press DOWN
+press A
+wait 10
+expect state == 0
+cheat clearall
+cheat title
+wait 10
+botuntil state == 4 3000
+expect mode == 1
+expect army0 == 2
+expect reserve0 == 3
+expect army1 == 2
+expect reserve1 == 3
+expect coins0 == 6
+expect coins1 == 6
+expect cpu1 == 10
+botuntil streak == 1 400000
+botuntil state == 4 3000
+expect army1 == 2
+expect reserve1 == 3
+expect coins1 == 6
+expect goals !& 4
+botuntil streak == 3 800000
+expect goals & 4
+# a lost war ends the streak; the best is kept
+botuntil state == 4 3000
+cheat army 0 -
+cheat reserve 0 -
+cheat coins 0 0
+botuntil state == 6 200000
+expect winner == 1
+expect streak == 0
+expect best_streak == 3

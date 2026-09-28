@@ -1,0 +1,7 @@
+# RIMSHIRE: the demo player, pressing real buttons, goes from the title
+# through the story and the war list and wins war 1, THE LONG LANE.
+game rimshire
+botuntil state == 2 3000
+expect story_seen == 1
+botuntil cleared1 == 1 400000
+expect goals == 0

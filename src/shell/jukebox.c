@@ -51,6 +51,9 @@ static const struct { const char *id, *title; } TITLES[] = {
     {"fh_battle1", "HORNS AT DAWN"}, {"fh_battle2", "ASH AND FERN"}, {"fh_battle3", "VINES AND WINGS"},
     {"fh_lords", "THE FOUR LORDS"}, {"fh_end", "EMBERS HOME"}, {"fh_wave", "WAVE HELD"},
     {"fh_clear", "THE CAVE HOLDS"}, {"fh_fell", "THE CAVE FALLS"},
+    {"rsh_title", "RIMSHIRE"}, {"rsh_map", "THE ROADS OF RIMSHIRE"}, {"rsh_battle", "FLICK AND FLING"},
+    {"rsh_battle2", "BANK SHOT"}, {"rsh_empress", "THE PLUM EMPRESS"}, {"rsh_end", "BRASS AT PEACE"},
+    {"rsh_win", "FIELD WON"}, {"rsh_lose", "FIELD LOST"}, {"rsh_warwon", "THE WAR IS WON"}, {"rsh_warlost", "BANNER DOWN"},
     {"wb_title", "CRATER DOWNS"}, {"wb_paddock", "THE TOTE BOARD"}, {"wb_race", "POST TIME"}, {"wb_final", "THE BIG PAYOUT"},
     {"wb_news", "WOBBLE WIRE"}, {"wb_win", "PHOTO FINISH"}, {"wb_lose", "TORN TICKET"}, {"wb_bell", "OFF THEY GO"},
 };

@@ -1,0 +1,50 @@
+# README media: RIMSHIRE. In the GIF and the battle shot the demo player
+# (Brass) and the computer (Plum) press real buttons; the armies, the board
+# and the screens are set up with cheats.
+shotscale 2
+seed 41
+game rimshire
+wait 90
+shot rimshire_title
+# war 7, a few turns in: the routes drawn across the board
+cheat clear 1 1
+cheat clear 2 1
+cheat clear 3 1
+cheat clear 4 1
+cheat clear 5 1
+cheat clear 6 1
+cheat war 7
+botuntil turns >= 6 20000
+botuntil wstate == 0 3000
+wait 20
+shot rimshire_board
+# two full armies by a lake
+cheat army 0 WSLHRYFP
+cheat army 1 BEAMOTWS
+cheat battle 7 3 0
+waituntil bphase == 1 200
+botplay 240
+gifstart rimshire 4 2
+botplay 600
+gifstop
+botplay 720
+shot rimshire_battle
+# the last war's card: Lady Brass writes
+cheat clear 7 1
+cheat clear 8 1
+cheat clear 9 1
+cheat title
+wait 20
+press A
+wait 30
+press A
+wait 30
+press A
+wait 30
+press A
+wait 30
+press UP
+wait 5
+press A
+wait 60
+shot rimshire_card

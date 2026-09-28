@@ -1,0 +1,82 @@
+# RIMSHIRE: after a battle both trails are wiped; the beaten army goes
+# home, where its reserves join it, and moves next. Beaten at its own home
+# it makes a second stand at once with them; a castle falls with its army
+# and the war with it.
+game rimshire
+cheat war 1
+cheat cpu 1 -1
+cheat army 0 W
+cheat army 1 S
+cheat reserve 1 SS
+cheat at 1 10 1
+cheat battle 9 1 0
+cheat field 0
+cheat unshuffle
+cheat place 0 100 128
+cheat place 1 150 128
+cheat hp 1 1
+waituntil bphase == 1 200
+press A
+hold RIGHT 40
+hold A 24
+wait 1
+waituntil bphase == 6 600
+expect bwinner == 0
+wait 80
+press A
+wait 2
+expect state == 4
+expect athome1 == 1
+expect army1 == 2
+expect reserve1 == 0
+expect wins0 == 1
+expect losses1 == 1
+expect turn == 1
+expect trail0 == 1
+expect trail1 == 1
+# beaten at home (not a castle): a second stand with the reserves
+cheat army 1 S
+cheat reserve 1 S
+cheat battle 12 1 0
+cheat field 0
+cheat unshuffle
+cheat place 0 100 128
+cheat place 1 150 128
+cheat hp 1 1
+waituntil bphase == 1 200
+press A
+hold RIGHT 40
+hold A 24
+wait 1
+waituntil bphase == 6 600
+wait 80
+press A
+wait 2
+expect state == 5
+expect regroup == 1
+expect left1 == 1
+# a castle falls with its army
+cheat war 6
+cheat cpu 1 -1
+cheat army 0 W
+cheat army 1 S
+cheat reserve 1 SS
+expect castle1 == 1
+cheat battle 13 3 0
+cheat field 0
+cheat unshuffle
+cheat place 0 100 128
+cheat place 1 150 128
+cheat hp 1 1
+waituntil bphase == 1 200
+press A
+hold RIGHT 40
+hold A 24
+wait 1
+waituntil bphase == 6 600
+wait 80
+press A
+wait 2
+expect state == 6
+expect winner == 0
+expect cleared6 == 1

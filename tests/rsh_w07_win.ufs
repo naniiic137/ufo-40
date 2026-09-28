@@ -1,0 +1,6 @@
+# RIMSHIRE: the demo player, pressing real buttons, wins war 7, PIPERS' MARCH.
+game rimshire
+cheat war 7
+botuntil state == 6 400000
+expect winner == 0
+expect cleared7 == 1
