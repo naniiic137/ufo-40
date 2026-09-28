@@ -1,0 +1,34 @@
+# HOMESPUN: every save makes its own Wilds: the roads (a random tree with
+# extra loops, some blocked for the save, some that open or close from trip
+# to trip), which caves hold the three dungeons and everything else, the
+# ruins and the hopstones. 200 worlds are checked: every screen reachable on
+# every trip, every way into a screen open, the lair only through the
+# ruins, four noodlers. The dungeons are drawn by hand and checked too.
+seed 44
+game homespun
+wait 5
+expect art_bad == 0
+expect dun_check == 0
+expect world_check200 == 0
+expect variety30 & 1
+expect variety30 & 2
+expect variety30 & 4
+expect variety30 & 8
+expect variety30 & 16
+expect variety30 & 32
+# within a trip beaten foes stay beaten; a new trip brings them all back
+cheat newgame 119
+wait 5
+cheat trip 3
+expect mobs >= 2
+cheat killall
+expect mobs == 0
+cheat goscreen 42
+cheat goscreen 43
+expect mobs == 0
+cheat room 43 160 150
+hold DOWN 20
+wait 50
+press A
+cheat trip 3
+expect mobs >= 2

@@ -1,0 +1,11 @@
+# HOMESPUN: proof that the Alien can be earned, with real buttons from the
+# title. After the ship is ready the demo player does what players do:
+# gathers odds at Kit's chests, buys tonics from a noodler on the way out,
+# then hunts Mawbo across the Wilds six times in one trip and flies home
+# with the Grinning Idol.
+seed 202
+game homespun
+wait 5
+botloop escapes >= 1 1500 3600 300000
+expect goals == 7
+expect idol_escapes == 1

@@ -1,0 +1,15 @@
+# HOMESPUN: proof that a generated world can be finished (world 1 of 3).
+# The demo player starts at the title and presses real buttons for the
+# whole game: it farms the Glowstone, builds camp, fetches the gear, runs
+# Hush's letter, beats the three guardians, the Volthog and Mother Loom,
+# raises the bins, researches Starfuel and flies the Tumbleweed home.
+# Between spells of play real time passes with nobody at the controls: the
+# camp keeps working, as it does while the console sits in another game.
+seed 101
+game homespun
+wait 5
+cheat botcherry 0
+botloop escapes >= 1 1500 3600 300000
+expect goals & 3
+expect escapes == 1
+expect state == 5

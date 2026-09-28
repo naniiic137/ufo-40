@@ -1,0 +1,44 @@
+# HOMESPUN: the yo-yo flies the way Wick faces, diagonals too, about 40
+# pixels, and comes back; it hits each foe once a throw for 1 (2 with the
+# steel yo-yo, 3 with the star). It breaks pots and cracked walls.
+seed 44
+game homespun
+wait 5
+cheat newgame 110
+wait 5
+cheat trip 5
+cheat clearmobs
+cheat at 168 88
+cheat spawn 4 12 7
+cheat holdmobs
+cheat face 1 1
+press B
+wait 25
+expect mobhp0 == 3
+# out of reach: nothing
+cheat at 140 60
+press B
+wait 25
+expect mobhp0 == 3
+# the steel yo-yo
+cheat research 1
+cheat at 168 88
+cheat face 1 1
+press B
+wait 25
+expect mobhp0 == 1
+press B
+wait 25
+expect mobs == 0
+expect items >= 1
+# a pot and a cracked wall in the Burrow's first room
+cheat room 59 56 64
+cheat clearmobs
+cheat face 0 -1
+press B
+wait 25
+cheat at 160 40
+press B
+wait 25
+hold UP 40
+expect room == 62

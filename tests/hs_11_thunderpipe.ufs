@@ -1,0 +1,67 @@
+# HOMESPUN: Hush, shy and blue, gives Wick a letter for Tanger in another
+# cave; Tanger gives her the thunderpipe. The START menu swaps the yo-yo
+# for it. Each shot costs a glint (the trip's first, then camp's); with no
+# glints it only clicks, though the muzzle still knocks a foe close by.
+seed 44
+game homespun
+wait 5
+cheat newgame 111
+wait 5
+cheat trip 5
+cheat room 53 168 72
+cheat face 0 -1
+press A
+expect talk == 1
+wait 10
+press A
+wait 10
+press A
+expect talk == 0
+expect letter == 1
+cheat room 54 168 72
+cheat face 0 -1
+press A
+wait 10
+press A
+wait 10
+press A
+expect letter == 0
+expect pipe == 1
+# the START menu: the second row swaps weapons
+press START
+expect paused == 1
+press DOWN
+press A
+expect paused == 0
+expect weapon == 1
+# a shot costs a glint
+cheat room 43 160 88
+cheat clearmobs
+cheat res glints 3
+cheat face 1 0
+press B
+wait 20
+expect total.glints == 2
+# the slug hits a foe down the line
+cheat spawn 9 16 5
+cheat holdmobs
+wait 2
+press B
+wait 30
+expect mobhp0 == 4
+# no glints: a click, but a foe at the muzzle is still knocked
+cheat res glints 0
+cheat clearmobs
+cheat at 168 88
+cheat spawn 9 11 5
+cheat holdmobs
+wait 2
+press B
+wait 20
+expect mobhp0 == 4
+expect total.glints == 0
+# and back to the yo-yo
+press START
+press DOWN
+press A
+expect weapon == 0

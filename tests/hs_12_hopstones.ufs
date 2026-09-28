@@ -1,0 +1,66 @@
+# HOMESPUN: four sleeping hopstones in the Wilds wake for 1, 5, 10 and 15
+# odds, in the order they are woken. Standing on an awake one, A hops to
+# any other awake stone, or home to camp (which counts as coming home).
+# Camp's own stone hops out to an awake one, eating the jerky as the gate does.
+seed 44
+game homespun
+wait 5
+cheat newgame 112
+wait 5
+cheat trip 5
+cheat odds 40
+cheat gopad 3
+cheat clearmobs
+wait 2
+press A
+expect menu == 1
+press A
+expect pads == 8
+expect odds == 39
+cheat gopad 1
+cheat clearmobs
+wait 2
+press A
+press A
+expect pads == 10
+expect odds == 34
+cheat gopad 4
+cheat clearmobs
+wait 2
+press A
+press A
+expect pads == 26
+expect odds == 24
+cheat gopad 2
+cheat clearmobs
+wait 2
+press A
+press A
+expect pads == 30
+expect odds == 9
+# from stone 2: home, stone 1, stone 3, stone 4
+press A
+expect menu_n == 4
+press DOWN
+press DOWN
+press A
+expect on_trip == 1
+expect pad_here == 3
+cheat clearmobs
+press A
+press A
+expect on_trip == 0
+expect state == 4
+expect odds == 9
+wait 50
+press A
+# camp's stone takes her out again
+cheat res jerky 2
+cheat at 280 72
+wait 2
+press A
+expect menu == 1
+press A
+expect on_trip == 1
+expect jerky == 0
+expect time >= 238

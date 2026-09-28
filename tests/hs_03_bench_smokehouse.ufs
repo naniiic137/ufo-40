@@ -1,0 +1,58 @@
+# HOMESPUN: the workbench crafts a bar from 1,000 glints. Gristle's
+# smokehouse costs 1 bar and hands over the first strip of jerky; then she
+# smokes a strip every 2 minutes of real time, six on the racks at most,
+# and sells each for 500 glints.
+seed 44
+game homespun
+wait 5
+cheat newgame 103
+wait 5
+cheat res glints 2600
+cheat at 216 87
+cheat face 0 -1
+press A
+expect menu == 1
+press A
+expect bars == 1
+expect glints == 1600
+press A
+expect bars == 2
+expect glints == 600
+# not enough glints for a third
+press A
+expect bars == 2
+press B
+# the smokehouse
+cheat at 144 105
+cheat face 0 1
+press A
+expect menu == 1
+press A
+expect smoke == 1
+expect bars == 1
+expect jerky == 1
+expect smoke_stock == 0
+# nothing on the racks yet
+press A
+expect jerky == 1
+press B
+# two minutes: one strip smoked
+idle 2
+expect smoke_stock == 1
+press A
+press A
+expect jerky == 2
+expect glints == 100
+expect smoke_stock == 0
+press B
+# never more than six on the racks
+idle 30
+expect smoke_stock == 6
+# and never more jerky than camp can hold (5 before bins)
+cheat res glints 5000
+cheat res jerky 4
+press A
+press A
+press A
+expect jerky == 5
+expect smoke_stock == 5

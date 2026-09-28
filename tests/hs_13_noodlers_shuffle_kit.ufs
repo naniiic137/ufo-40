@@ -1,0 +1,101 @@
+# HOMESPUN: four noodlers stand in the dungeons (in four of seven places,
+# chosen per save): 10 data for 3 odds, 15 thread for 5, a tonic (+60 s)
+# for 3 and one for 2. Madame Shuffle deals six chests for a bet of 1, 5 or
+# 10 odds; on average a bet of b pays 2b bars, and one chest in six holds
+# jerky (b strips) and odds. Kit's two chests fill up again every trip.
+seed 44
+game homespun
+wait 5
+cheat newgame 113
+wait 5
+cheat trip 5
+cheat odds 40
+cheat govendor 0
+cheat clearmobs
+press A
+expect menu == 1
+press A
+expect odds == 37
+press B
+hold DOWN 10
+hold UP 10
+wait 5
+expect gain.data == 10
+cheat govendor 1
+cheat clearmobs
+press A
+press A
+press B
+expect odds == 32
+hold DOWN 10
+hold UP 10
+wait 5
+expect gain.thread == 15
+cheat govendor 2
+cheat clearmobs
+cheat time 100
+press A
+press A
+press B
+expect odds == 29
+expect time >= 159
+cheat govendor 3
+cheat clearmobs
+cheat time 100
+press A
+press A
+press B
+expect odds == 27
+expect time >= 159
+# Shuffle's chests: a bet of 5
+cheat room 52 168 72
+cheat face 0 -1
+press A
+expect menu == 1
+press DOWN
+press A
+expect odds == 22
+expect gamble == 1
+expect gam_bars == 60
+expect gam_meat == 1
+wait 100
+expect gamble == 2
+press RIGHT
+press A
+wait 60
+expect gamble == 0
+# a bet of 10
+press A
+press DOWN
+press DOWN
+press A
+expect odds == 12
+expect gam_bars == 120
+wait 100
+press A
+wait 60
+expect gamble == 0
+# Kit and her chests: 5 odds and 3 bars each
+cheat room 51 168 72
+cheat face 0 -1
+press A
+expect talk == 1
+wait 10
+press A
+wait 10
+press A
+wait 10
+press A
+expect talk == 0
+cheat odds 0
+cheat at 120 104
+cheat face 0 -1
+press A
+cheat at 200 104
+press A
+wait 20
+hold DOWN 12
+hold LEFT 60
+hold UP 12
+wait 5
+expect odds >= 5

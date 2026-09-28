@@ -1,0 +1,46 @@
+# HOMESPUN: camp holds 2,500 glints, 5 jerky and 250 of the rest; two bins
+# (50 bars each) and, after Big Bins, raising both (200 each) lift that to
+# 12,500 glints and 25 jerky. Nothing is made past the limit.
+seed 44
+game homespun
+wait 5
+cheat newgame 106
+wait 5
+expect cap.glints == 2500
+expect cap.jerky == 5
+expect cap.bars == 250
+cheat res bars 250
+cheat at 176 105
+cheat face 0 1
+press A
+press A
+expect bins == 1
+expect cap.glints == 5000
+expect cap.jerky == 10
+expect cap.bars == 500
+# raising waits for Big Bins
+press A
+expect bins == 1
+press B
+cheat research 4
+press A
+press A
+expect bins == 2
+expect cap.jerky == 15
+expect cap.glints == 7500
+press B
+cheat res bars 500
+cheat at 200 105
+press A
+press A
+press A
+expect bins == 4
+expect cap.glints == 12500
+expect cap.jerky == 25
+expect cap.bars == 1250
+press B
+# production stops at the limit
+cheat plants 11
+cheat res glints 12490
+wait 600
+expect glints == 12500

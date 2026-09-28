@@ -1,0 +1,36 @@
+# HOMESPUN: the title offers NEW GAME (and CONTINUE once there is a camp);
+# a new game tells the three-page story, then Wick stands in camp. Starting
+# over asks first (NO is the default) and makes a new world.
+seed 44
+game homespun
+wait 25
+expect state == 0
+expect started == 0
+press A
+expect state == 1
+expect started == 1
+wait 25
+press A
+wait 25
+press A
+wait 25
+press A
+expect state == 2
+expect area == 0
+press START
+press UP
+press A
+wait 60
+game homespun
+wait 25
+# CONTINUE is first; NEW GAME asks, NO is the default
+press DOWN
+press A
+wait 5
+press A
+expect state == 0
+expect trips == 0
+press A
+press LEFT
+press A
+expect state == 1

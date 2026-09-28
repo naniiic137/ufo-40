@@ -1,0 +1,56 @@
+# HOMESPUN: B throws the yo-yo; each hit on the Glowstone knocks out one
+# glint (the damage of the yo-yo), and a glint must be walked over to be
+# collected: nothing is gathered by itself.
+seed 44
+game homespun
+wait 5
+cheat newgame 101
+wait 5
+expect state == 2
+expect area == 0
+expect glints == 0
+# stand beside the Glowstone, face it, throw
+cheat at 126 84
+cheat face 1 0
+press B
+expect yoyo > 0
+wait 30
+expect yoyo == 0
+expect items == 1
+wait 60
+expect items == 1
+expect glints == 0
+# three more throws: four glints lie below the stone
+press B
+wait 25
+press B
+wait 25
+press B
+wait 25
+expect items == 4
+expect glints == 0
+# walk over them
+hold DOWN 16
+hold RIGHT 30
+wait 5
+expect glints == 4
+expect items == 0
+# the steel yo-yo knocks out two a hit, the star yo-yo three
+cheat research 1
+cheat at 126 84
+cheat face 1 0
+press B
+wait 25
+hold DOWN 16
+hold RIGHT 30
+wait 5
+expect glints == 6
+cheat research 17
+cheat at 126 84
+cheat face 1 0
+press B
+wait 25
+hold DOWN 16
+hold RIGHT 30
+wait 5
+expect glints == 9
