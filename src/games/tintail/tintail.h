@@ -26,7 +26,11 @@
 #define TN_NONE 255
 
 /* colours a tile can have (and the chameleon can take) */
-enum { TC_NONE = 0, TC_GRASS, TC_SAND, TC_SWAMP, TC_ROCK, TC_COUNT }; /* dry grass wears the sand colour */
+/* The original names four colours (grass, sand, swamp, rock) and treats dry
+ * and wet grass as two states the switches flip; nothing says dry grass
+ * matches sand, so it has a colour of its own: a switch always means a real
+ * change of colour, never a free match with the sand beside it. */
+enum { TC_NONE = 0, TC_GRASS, TC_SAND, TC_SWAMP, TC_ROCK, TC_DRY, TC_COUNT };
 
 /* terrain kinds */
 enum {

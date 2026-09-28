@@ -10,7 +10,7 @@ cheat act R
 expect x == 13
 expect dead == 1
 expect eaten_by == 0
-expect state == 5
+expect state == 4
 # the same walk wearing sand
 cheat level 1
 cheat act RRRRRRRRRRC.

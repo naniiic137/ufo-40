@@ -18,7 +18,7 @@ branching island map, every tile ours:
 | Levels | 15 single screens | 15 single screens (20 × 10 tiles) |
 | Map | an island with branching routes | Salt Island; each level opens the next two |
 | Collectibles | two fruit and a baby, all but the last level | two prickly pears and a hatchling on levels 1–14 |
-| Finale | level 15, the temple, no collectibles | level 15, the Sun Gate, no collectibles |
+| Finale | level 15, the temple, no collectibles | level 15, the old lighthouse, no collectibles |
 | Order of ideas | frogs, then gators (5), logs, switches late | toads, storks from 5, logs at 3, switches from 10 |
 
 ## Mechanics checklist
@@ -28,7 +28,7 @@ Every line was compared with the code; the tests named prove it.
 | Mechanic | How TINTAIL does it | Source | Test |
 |---|---|---|---|
 | Moving | one tile per press, in real time | [MM], [L] | tn_01, tn_13 |
-| Terrain | grass, sand, swamp, rock; dry and wet grass | [W] | tn_03, tn_08 |
+| Terrain | grass, sand, swamp, rock; dry and wet grass (dry grass has its own colour) | [W] | tn_03, tn_08 |
 | White by default | never hidden until she changes | [W] | tn_01 |
 | Changing colour | its own button (A); takes a moment; exposed while changing | [W], [MM] | tn_01, tn_14 |
 | One colour at a time | a tile of another colour exposes you | [W] | tn_03 |
@@ -42,8 +42,9 @@ Every line was compared with the code; the tests named prove it.
 | Collectibles | two fruit and a hatchling per level; the best single escape counts; 3/3 puts a white star on the map | [W] | tn_11, tn_12 |
 | Switches | rain wets dry grass, sun dries it | [W] | tn_08 |
 | Eaten | undo (a tile or so back), start over, or the map | [W], [MM] | tn_09 |
-| Branching map | beating a level opens the next two | [MM], [WP] | tn_15 |
-| Goals | 30%; reach the Sun Gate; 100% | [W] | tn_11 |
+| Buttons | d-pad, A, B and START only; RESTART LEVEL and ISLAND MAP in the START menu | [CTRL] | tn_16 |
+| Branching map | beating a level opens the next two; the d-pad moves along the drawn trails | [MM], [WP] | tn_15 |
+| Goals | 30%; reach the lighthouse; 100% | [W] | tn_11 |
 
 ### Readings we had to choose
 
@@ -55,15 +56,28 @@ Every line was compared with the code; the tests named prove it.
 - **Completion:** a point per level beaten and per collectible in its best run.
 - **The branches** are ours: each level opens the next two; 14 and 15 only
   from the one before.
-- **SELECT** opens the level menu (restart, map): the original's way to
-  reach them mid-level isn't described.
+- **Restart and map mid-level** sit in the START pause menu, under RESUME:
+  UFO 50 games have no SELECT button, and the original's way to reach them
+  mid-level isn't described. After being eaten, the menu offers undo,
+  restart and the map.
+- **Dry grass** has a colour of its own (pale straw). The wiki lists four
+  colours and treats dry and wet grass as two states the switches flip; it
+  never says dry grass matches sand, so a switch always forces a real
+  change of colour.
+- **The waiting hatchling** has no marker over it; its idle bob and turning
+  about show where it is.
+- **The map cursor** follows the drawn trails: the d-pad picks the open level
+  at the other end of the trail nearest that direction.
 
 ## What is ours
 
 - **Name:** TINTAIL (1985, Beamdown Softworks).
 - **Characters:** Twig the chameleon, the hatchlings, toads, storks and the
-  falcon; Salt Island and the Sun Gate; all fifteen levels and their names;
-  art and music.
+  falcon; Salt Island and the old lighthouse; all fifteen levels and their
+  names (Salt Island's own landmarks, none restating a Camouflage level
+  name: Nest Beach, Turtle Steps, Old Wreck, Snail Trail, Bee Meadow, Kelp
+  Garden, Shell Midden, Twin Figs, Moth Hill, Gull Roost, Salt Pans, Coral
+  Stair, Feather Field, Windmill Row, The Lighthouse); art and music.
 
 ## Additions: none
 
@@ -77,8 +91,7 @@ saving and the three goals, which are Camouflage's own.
 | D-pad | step one tile |
 | A | change colour to the ground you stand on |
 | hold B | show every predator's danger area (you can't move) |
-| SELECT | level menu: restart, or back to the island |
-| START | pause menu |
+| START | pause menu: resume, restart level, island map, ... |
 
 ## Not confirmed
 
@@ -99,5 +112,7 @@ saving and the three goals, which are Camouflage's own.
   https://lizstar64.github.io/reviews/2024/10/13/UFO50-16.html
 - [WP] Wikipedia, "UFO 50": plan a route to the end, fruit and a baby.
   https://en.wikipedia.org/wiki/UFO_50
+- [CTRL] Steam thread: UFO 50 uses a d-pad, two buttons and START only.
+  https://steamcommunity.com/app/1147860/discussions/0/4849904427681046762/
 - [P] Popcar's Blog: undo to your last move, 15 levels, the baby.
   https://popcar.bearblog.dev/reviewing-every-ufo50-game/

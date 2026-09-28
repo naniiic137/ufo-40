@@ -117,7 +117,7 @@ int tn_colour(const TtLevel *lv, const TtState *st, int x, int y) {
     case TN_ROCK: return TC_ROCK;
     case TN_SWITCHGRASS: {
         bool wet = st->sw == SW_START ? lv->wet0[y][x] : st->sw == SW_WET;
-        return wet ? TC_GRASS : TC_SAND; /* dry grass is the colour of sand */
+        return wet ? TC_GRASS : TC_DRY;
     }
     default: return TC_NONE;
     }

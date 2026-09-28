@@ -11,7 +11,7 @@
 #define HIST_MAX 2048
 #define TOTAL_POINTS (TN_LEVELS + (TN_LEVELS - 1) * 3)
 
-enum { S_TITLE, S_STORY, S_MAP, S_PLAY, S_MENU, S_CAUGHT, S_ESCAPE, S_ENDING };
+enum { S_TITLE, S_STORY, S_MAP, S_PLAY, S_CAUGHT, S_ESCAPE, S_ENDING };
 
 typedef struct Save {
     uint32_t magic;
@@ -112,6 +112,18 @@ static void burst(int tx, int ty, int n, int c1, int c2, float spd) {
     }
 }
 
+static void enter_level(int lv);
+static void go_map(void);
+
+/* UFO 50 games use a d-pad, two buttons and START only: the level's own
+ * choices sit in the START pause menu, as they do in the menu after being
+ * eaten */
+static const char *const PAUSE_LEVEL[2] = {"RESTART LEVEL", "ISLAND MAP"};
+static void pause_pick(int i) {
+    if (i == 0) enter_level(cur);
+    else go_map();
+}
+
 static void enter_level(int lv) {
     if (tn_parse(&TN_LEVEL_DEFS[lv], &L, &S) != 0) return;
     cur = lv;
@@ -129,6 +141,7 @@ static void enter_level(int lv) {
     state = S_PLAY;
     state_t = 0;
     game_set_pausable(true);
+    game_pause_items(2, PAUSE_LEVEL, pause_pick);
     music_play(lv == TN_LEVELS - 1 ? TN_MUS_GATE : TN_MUS_LEVEL);
 }
 
@@ -136,6 +149,7 @@ static void go_map(void) {
     state = S_MAP;
     state_t = 0;
     game_set_pausable(true);
+    game_pause_items(0, NULL, NULL);
     music_play(TN_MUS_MAP);
 }
 
@@ -254,12 +268,6 @@ static void update_play(void) {
         if (intro_t < 50 && (btnp(BTN_A) || btnp(BTN_UP) || btnp(BTN_DOWN) || btnp(BTN_LEFT) || btnp(BTN_RIGHT))) intro_t = 0;
         return;
     }
-    if (btnp(BTN_SELECT)) {
-        state = S_MENU;
-        menu_sel = 0;
-        sfx_play_name("ui_pause");
-        return;
-    }
     if (btn(BTN_B)) queued = -1;
     else if (btnp(BTN_UP)) queued = ACT_UP;
     else if (btnp(BTN_DOWN)) queued = ACT_DOWN;
@@ -269,18 +277,6 @@ static void update_play(void) {
     if (++beat_t >= TN_BEAT) {
         beat_t = 0;
         do_beat();
-    }
-}
-
-static void update_menu(void) {
-    if (btn_repeat(BTN_UP)) { menu_sel = (menu_sel + 2) % 3; sfx_play_name("ui_move"); }
-    if (btn_repeat(BTN_DOWN)) { menu_sel = (menu_sel + 1) % 3; sfx_play_name("ui_move"); }
-    if (btnp(BTN_B) || btnp(BTN_SELECT)) { state = S_PLAY; sfx_play_name("ui_back"); input_consume(); return; }
-    if (btnp(BTN_A)) {
-        sfx_play_name("ui_ok");
-        if (menu_sel == 0) { state = S_PLAY; input_consume(); }
-        else if (menu_sel == 1) enter_level(cur);
-        else go_map();
     }
 }
 
@@ -304,6 +300,7 @@ static void update_escape(void) {
     if (escape_t > 70 && (btnp(BTN_A) || escape_t > 240)) {
         if (cur == TN_LEVELS - 1) {
             state = S_ENDING;
+            game_pause_items(0, NULL, NULL);
             state_t = 0;
             music_play(TN_MUS_END);
         } else {
@@ -318,17 +315,33 @@ static void update_escape(void) {
 static const int16_t NODE_X[TN_LEVELS] = {34, 58, 80, 70, 98, 124, 116, 146, 170, 160, 190, 214, 238, 262, 288};
 static const int16_t NODE_Y[TN_LEVELS] = {104, 122, 106, 82, 72, 88, 116, 130, 112, 86, 70, 92, 114, 94, 66};
 
+/* Along the drawn trails: the d-pad picks the open level at the other end
+ * of a trail that lies most nearly in that direction on screen. */
+static int map_step(int from, int dx, int dy) {
+    int best = -1;
+    long best_score = 0;
+    for (int b = 0; b < TN_LEVELS; b++) {
+        if (b == from || !(trail(from, b) || trail(b, from)) || !is_open(b)) continue;
+        int vx = NODE_X[b] - NODE_X[from], vy = NODE_Y[b] - NODE_Y[from];
+        long dot = (long)vx * dx + (long)vy * dy;
+        long len2 = (long)vx * vx + (long)vy * vy;
+        /* within about 65 degrees of the pressed direction */
+        if (dot <= 0 || dot * dot * 100 < len2 * 18) continue;
+        /* the straightest trail wins, then the shortest */
+        long score = dot * 1000 / (long)(sqrtf((float)len2) + 1) * 1000 - len2;
+        if (best < 0 || score > best_score) { best = b; best_score = score; }
+    }
+    return best;
+}
+
 static void update_map(void) {
     int n = sv.cursor;
     if (!is_open(n)) n = 0;
-    /* along the trails: to the next or the previous open level */
-    if (btn_repeat(BTN_RIGHT) || btn_repeat(BTN_UP)) {
-        for (int k = n + 1; k < TN_LEVELS; k++)
-            if (is_open(k)) { n = k; sfx_play_name("tn_node"); break; }
-    }
-    if (btn_repeat(BTN_LEFT) || btn_repeat(BTN_DOWN)) {
-        for (int k = n - 1; k >= 0; k--)
-            if (is_open(k)) { n = k; sfx_play_name("tn_node"); break; }
+    int dx = btn_repeat(BTN_RIGHT) ? 1 : btn_repeat(BTN_LEFT) ? -1 : 0;
+    int dy = btn_repeat(BTN_DOWN) ? 1 : btn_repeat(BTN_UP) ? -1 : 0;
+    if (dx || dy) {
+        int to = map_step(n, dx, dy);
+        if (to >= 0) { n = to; sfx_play_name("tn_node"); }
     }
     sv.cursor = (uint8_t)n;
     if (btnp(BTN_A) && state_t > 10) { sfx_play_name("ui_ok"); save_now(); enter_level(n); return; }
@@ -366,7 +379,6 @@ static void tn_update(void) {
         break;
     case S_MAP: update_map(); break;
     case S_PLAY: update_play(); break;
-    case S_MENU: update_menu(); break;
     case S_CAUGHT: update_caught(); break;
     case S_ESCAPE: update_escape(); break;
     case S_ENDING:
@@ -385,6 +397,7 @@ static const uint8_t RAMP[TC_COUNT][3] = {
     {C_YELLOW, C_AMBER, C_EARTH},
     {C_NAVY, C_BLUE, C_NIGHT},
     {C_TAN, C_EARTH, C_BROWN},
+    {C_HIDE, C_CREAM, C_EARTH},   /* dry grass: pale straw */
 };
 
 static uint32_t hash2(int x, int y) {
@@ -405,13 +418,13 @@ static void draw_grass(int px, int py, int x, int y, bool tall) {
 }
 
 static void draw_dry(int px, int py, int x, int y) {
-    gfx_rect(px, py, TS, TS, C_YELLOW);
-    gfx_dither(px, py, TS, TS, C_AMBER, 3);
+    gfx_rect(px, py, TS, TS, C_HIDE);
+    gfx_dither(px, py, TS, TS, C_CREAM, 4);
     uint32_t h = hash2(x, y);
     for (int i = 0; i < 6; i++) {
         int bx = px + (int)((h >> (i * 3)) % 14) + 1, by = py + (int)((h >> (i * 2 + 5)) % 12) + 3;
         gfx_line(bx, by, bx + 1, by - 3, C_EARTH);
-        gfx_pset(bx + 2, by - 1, C_AMBER);
+        gfx_pset(bx + 2, by - 1, C_CREAM);
     }
 }
 
@@ -577,9 +590,9 @@ static void twig_remap(uint8_t *map, int camo, bool hidden, bool flicker) {
 
 static void draw_twig(void) {
     if (state == S_CAUGHT && !S.baby_eaten && caught_t > 40) return;
-    float t = state == S_PLAY || state == S_ESCAPE || state == S_MENU ? lerp_t() : 1.0f;
+    float t = state == S_PLAY || state == S_ESCAPE ? lerp_t() : 1.0f;
     int fx = S.x, fy = S.y, bx0 = prev_S.x, by0 = prev_S.y;
-    if (state == S_MENU || state == S_CAUGHT) { bx0 = fx; by0 = fy; }
+    if (state == S_CAUGHT) { bx0 = fx; by0 = fy; }
     float x = bx0 + (fx - bx0) * t, y = by0 + (fy - by0) * t;
     int px = (int)(x * TS), py = OY + (int)(y * TS);
     bool in_log = L.kind[S.y][S.x] == TN_LOG_H || L.kind[S.y][S.x] == TN_LOG_V;
@@ -618,17 +631,16 @@ static void draw_baby_at(int x, int y, int face, int camo, bool hidden, int bob)
 static void draw_baby(void) {
     if (L.baby_x == TN_NONE) return;
     if (!S.baby) {
-        /* waiting, and a little anxious */
+        /* waiting: its idle bob and turning about are the only cue */
         int bob = (frame_t / 10) % 4 == 0;
         draw_baby_at(L.baby_x * TS, OY + L.baby_y * TS, (frame_t / 60) % 2 ? DIR_LEFT : DIR_RIGHT, TC_NONE, false, bob);
-        if ((frame_t / 30) % 2) text_draw("?", L.baby_x * TS + 10, OY + L.baby_y * TS - 6, C_CREAM);
         return;
     }
     if (state == S_CAUGHT && S.baby_eaten && caught_t > 40) return;
     if (state == S_ESCAPE && escape_t > 12) return;
     float t = state == S_PLAY || state == S_ESCAPE ? lerp_t() : 1.0f;
     int x0 = prev_S.baby ? prev_S.bx : prev_S.x, y0 = prev_S.baby ? prev_S.by : prev_S.y;
-    if (state == S_MENU || state == S_CAUGHT) { x0 = S.bx; y0 = S.by; }
+    if (state == S_CAUGHT) { x0 = S.bx; y0 = S.by; }
     float x = x0 + (S.bx - x0) * t, y = y0 + (S.by - y0) * t;
     int k = L.kind[S.by][S.bx];
     if (k == TN_LOG_H || k == TN_LOG_V) return;
@@ -743,7 +755,7 @@ static void draw_hud(void) {
     text_center(buf, 10, HUD_Y + 7, C_WHITE);
     text_draw(TN_LEVEL_DEFS[cur].name, 22, HUD_Y + 6, C_CREAM);
     /* who can be seen */
-    bool alive = state == S_PLAY || state == S_MENU;
+    bool alive = state == S_PLAY;
     draw_eye(186, HUD_Y + 6, alive && !tn_hidden(&L, &S, 0));
     if (S.baby) draw_eye(200, HUD_Y + 6, alive && !tn_hidden(&L, &S, 1));
     int x = 232;
@@ -773,7 +785,7 @@ static void draw_level(void) {
                 int k = (int)(hash2(x, y) % 16);
                 if (((frame_t / 12 + k) % 8) < 3) gfx_hline(x * TS + 2 + k % 6, x * TS + 7 + k % 6, OY + y * TS + 5 + k % 7, C_CYAN);
             }
-    if (btn(BTN_B) && (state == S_PLAY || state == S_MENU)) draw_danger();
+    if (btn(BTN_B) && state == S_PLAY && !game_paused()) draw_danger();
     /* pears */
     for (int i = 0; i < L.nfruit; i++) {
         if ((S.fruit >> i) & 1) continue;
@@ -821,11 +833,7 @@ static void draw_menu_panel(const char *title, const char *const *items, int n, 
 
 static void draw_play(void) {
     draw_level();
-    if (state == S_MENU) {
-        gfx_darken_rect(0, OY, SCREEN_W, SCREEN_H - OY, 2);
-        static const char *const M[3] = {"KEEP GOING", "RESTART LEVEL", "ISLAND MAP"};
-        draw_menu_panel("SELECT", M, 3, menu_sel);
-    } else if (state == S_CAUGHT && caught_t >= 60) {
+    if (state == S_CAUGHT && caught_t >= 60) {
         gfx_darken_rect(0, OY, SCREEN_W, SCREEN_H - OY, 1);
         static const char *const M[3] = {"UNDO", "RESTART LEVEL", "ISLAND MAP"};
         draw_menu_panel(S.baby_eaten ? "THE HATCHLING!" : "GULP!", M, 3, menu_sel);
@@ -841,7 +849,7 @@ static void draw_play(void) {
             snprintf(buf, sizeof buf, "%d / %d  " GLYPH_DOT "  BEST %d / %d", n, need, sv.best[cur], need);
             text_center(buf, 160, 96, n == need ? C_YELLOW : C_CREAM);
         } else {
-            text_center("THE SUN GATE!", 160, 96, C_YELLOW);
+            text_center("THE LIGHTHOUSE!", 160, 96, C_YELLOW);
         }
     }
 }
@@ -874,13 +882,14 @@ static void draw_island(int t) {
     ellipse(200, 84, 22, 10, C_TAN);
     ellipse(200, 82, 16, 6, C_EARTH);
     ellipse(236, 110, 16, 7, C_HIDE);
-    /* the Sun Gate on the eastern cape */
+    /* the old lighthouse on the eastern cape */
     int gx = 288, gy = 50;
-    gfx_rect(gx - 12, gy, 24, 16, C_LIGHT);
-    gfx_rect(gx - 9, gy - 6, 18, 6, C_WHITE);
-    gfx_rect(gx - 4, gy + 5, 8, 11, C_INK);
-    gfx_circ(gx, gy - 12, 5, C_YELLOW);
-    gfx_circb(gx, gy - 12, 7 + (t / 20) % 2, C_AMBER);
+    gfx_rect(gx - 7, gy + 10, 14, 6, C_LIGHT);
+    for (int k = 0; k < 4; k++) gfx_rect(gx - 5 + k / 2, gy - 14 + k * 6, 10 - k / 2 * 2, 6, k % 2 ? C_RED : C_WHITE);
+    gfx_rect(gx - 4, gy - 20, 8, 6, C_INK);
+    gfx_rect(gx - 3, gy - 19, 6, 4, (t / 20) % 2 ? C_YELLOW : C_CREAM);
+    gfx_rect(gx - 5, gy - 22, 10, 2, C_RED);
+    if ((t / 20) % 2) { gfx_hline(gx - 16, gx - 6, gy - 17, C_YELLOW); gfx_hline(gx + 6, gx + 16, gy - 17, C_YELLOW); }
     static const int16_t TREE[][2] = {{22, 92}, {50, 84}, {92, 128}, {136, 76}, {176, 128}, {214, 74}, {254, 124}, {268, 86}};
     for (int i = 0; i < ARRAY_LEN(TREE); i++) {
         int ex = TREE[i][0], ey = TREE[i][1];
@@ -992,7 +1001,7 @@ static void draw_story(void) {
     gfx_darken_rect(0, 0, SCREEN_W, SCREEN_H, 1);
     ui_panel(16, 36, 288, 110, C_NIGHT, C_LEAF);
     text_draw("EVERY SPRING THE CHAMELEONS OF SALT\n"
-              "ISLAND CLIMB TO THE SUN GATE ON THE\n"
+              "ISLAND CLIMB THE OLD LIGHTHOUSE ON THE\n"
               "EASTERN CAPE TO GREET THE FIRST SUNRISE.\n\n"
               "TWIG, THE SMALLEST, IS LATE. THE TOADS\n"
               "AND STORKS ARE HUNGRY. MATCH THE GROUND\n"
@@ -1011,7 +1020,7 @@ static void draw_ending(void) {
         gfx_line(160 + (int)(cosf(a) * 36), 110 - rise + (int)(sinf(a) * 36), 160 + (int)(cosf(a) * 46),
                  110 - rise + (int)(sinf(a) * 46), C_YELLOW);
     }
-    /* the gate's steps */
+    /* the lighthouse steps */
     for (int i = 0; i < 5; i++) gfx_rect(70 + i * 12, 110 + i * 14, 180 - i * 24, 14, i % 2 ? C_LIGHT : C_WHITE);
     gfx_rect(0, 170, SCREEN_W, 10, C_BROWN);
     uint8_t map[PAL_COUNT];
@@ -1061,7 +1070,7 @@ static void tn_draw(void) {
     case S_TITLE: draw_title(); break;
     case S_STORY: draw_story(); break;
     case S_MAP: draw_map(); break;
-    case S_PLAY: case S_MENU: case S_CAUGHT: case S_ESCAPE: draw_play(); break;
+    case S_PLAY: case S_CAUGHT: case S_ESCAPE: draw_play(); break;
     case S_ENDING: draw_ending(); break;
     }
 }
@@ -1126,6 +1135,31 @@ static int tn_query(const char *key, int *out) {
     if (!strcmp(key, "deaths")) { *out = (int)sv.deaths; return 1; }
     if (!strcmp(key, "cursor")) { *out = sv.cursor; return 1; }
     if (!strcmp(key, "unlocked")) { *out = open_count(); return 1; }
+    if (!strcmp(key, "map_reach")) {
+        /* how many open levels the d-pad can reach from level 1 along the trails */
+        uint8_t seen[TN_LEVELS] = {1};
+        int stack[TN_LEVELS], sp = 0, n = 1;
+        stack[sp++] = 0;
+        static const int D[4][2] = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
+        while (sp) {
+            int a = stack[--sp];
+            for (int d = 0; d < 4; d++) {
+                int b = map_step(a, D[d][0], D[d][1]);
+                if (b >= 0 && !seen[b]) { seen[b] = 1; n++; stack[sp++] = b; }
+            }
+        }
+        *out = n;
+        return 1;
+    }
+    if (!strncmp(key, "step", 4) && key[4]) {
+        /* stepN_D: where direction D (0 right, 1 left, 2 down, 3 up) goes from level N */
+        int a = atoi(key + 4) - 1, d = 0;
+        const char *u = strchr(key, '_');
+        if (u) d = atoi(u + 1);
+        static const int D[4][2] = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
+        *out = map_step(iclamp(a, 0, TN_LEVELS - 1), D[d & 3][0], D[d & 3][1]) + 1;
+        return 1;
+    }
     if (!strncmp(key, "open", 4) && key[4]) { *out = is_open(atoi(key + 4) - 1); return 1; }
     if (!strcmp(key, "bcamo")) { *out = S.bcamo; return 1; }
     if (!strcmp(key, "bhidden")) { *out = tn_hidden(&L, &S, 1); return 1; }
@@ -1210,12 +1244,11 @@ const GameDef GAME_TINTAIL = {
     "1985",
     "PUZZLE",
     "TWIG THE CHAMELEON SNEAKS ACROSS SALT ISLAND. MATCH THE GROUND TO HIDE.",
-    {"REACH 30% OF SALT ISLAND", "REACH THE SUN GATE", "REACH 100% OF SALT ISLAND"},
+    {"REACH 30% OF SALT ISLAND", "REACH THE LIGHTHOUSE", "REACH 100% OF SALT ISLAND"},
     "D-PAD\tSTEP\n"
     GLYPH_A "\tCHANGE COLOUR\n"
     "HOLD " GLYPH_B "\tSEE WHO WATCHES\n"
-    "SELECT\tRESTART / MAP\n"
-    "START\tPAUSE",
+    "START\tPAUSE, RESTART, MAP",
     C_LEAF, C_YELLOW,
     tn_load, tn_start, tn_update, tn_draw, tn_quit, tn_label, tn_query, tn_cheat,
     "CAMOUFLAGE", 16,

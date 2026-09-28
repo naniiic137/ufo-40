@@ -389,7 +389,7 @@ the top.
 - **Structure:** fifteen single-screen levels on a branching map, each with
   two prickly pears and a hatchling that follows one step behind in its own
   colour. Only the best single escape counts toward completion.
-- **Ours:** Twig, the toads, storks and falcon, Salt Island and the Sun Gate,
+- **Ours:** Twig, the toads, storks and falcon, Salt Island and the old lighthouse,
   all fifteen levels (a solver in the tests proves each one), and the music.
 
 ### 25 · OPEN HOUSE

@@ -24,6 +24,16 @@ void game_exit_to_library(void) { exit_requested = true; }
 bool game_paused(void) { return paused; }
 void game_set_pausable(bool on) { pausable = on; }
 
+#define PAUSE_EXTRA_MAX 2
+static const char *pause_extra[PAUSE_EXTRA_MAX];
+static int pause_nextra;
+static void (*pause_pick)(int i);
+void game_pause_items(int n, const char *const *items, void (*pick)(int i)) {
+    pause_nextra = pick ? iclamp(n, 0, PAUSE_EXTRA_MAX) : 0;
+    for (int i = 0; i < pause_nextra; i++) pause_extra[i] = items[i];
+    pause_pick = pick;
+}
+
 /* ---- app ------------------------------------------------------------- */
 
 void app_apply_settings(void) {
@@ -194,6 +204,7 @@ static void runner_enter(void) {
     exit_requested = false;
     toast_timer = 0;
     music_duck(false);
+    game_pause_items(0, NULL, NULL);
     if (G()) G()->start();
 }
 
@@ -206,9 +217,21 @@ static void runner_leave(void) {
 
 /* The volumes sit in the pause menu too, so a run never has to be left to
  * turn the music down. */
-enum { PI_RESUME, PI_RESTART, PI_CONTROLS, PI_MUSIC, PI_SFX, PI_QUIT, PI_COUNT };
+enum { PI_RESUME, PI_RESTART, PI_CONTROLS, PI_MUSIC, PI_SFX, PI_QUIT, PI_COUNT, PI_EXTRA = 100 };
 static const char *PAUSE_ITEMS[PI_COUNT] = {"RESUME", "RESTART", "CONTROLS", "MUSIC", "SOUND FX", "QUIT TO LIBRARY"};
 static bool vol_dirty;
+
+/* the menu's rows: RESUME, the game's own items, then the rest */
+static int pause_rows(void) { return PI_COUNT + pause_nextra; }
+static int pause_item(int row) {
+    if (row == 0) return PI_RESUME;
+    if (row <= pause_nextra) return PI_EXTRA + row - 1;
+    return row - pause_nextra;
+}
+static const char *pause_label(int row) {
+    int it = pause_item(row);
+    return it >= PI_EXTRA ? pause_extra[it - PI_EXTRA] : PAUSE_ITEMS[it];
+}
 
 static void unpause(void) {
     paused = false;
@@ -239,21 +262,30 @@ static void pause_update(void) {
         }
         return;
     }
-    if (btn_repeat(BTN_UP)) { pause_sel = (pause_sel + PI_COUNT - 1) % PI_COUNT; sfx_play_name("ui_move"); }
-    if (btn_repeat(BTN_DOWN)) { pause_sel = (pause_sel + 1) % PI_COUNT; sfx_play_name("ui_move"); }
+    int rows = pause_rows();
+    if (pause_sel >= rows) pause_sel = 0;
+    if (btn_repeat(BTN_UP)) { pause_sel = (pause_sel + rows - 1) % rows; sfx_play_name("ui_move"); }
+    if (btn_repeat(BTN_DOWN)) { pause_sel = (pause_sel + 1) % rows; sfx_play_name("ui_move"); }
+    int item = pause_item(pause_sel);
     /* the music plays at its real level while its volume is being set */
-    music_duck(pause_sel != PI_MUSIC);
+    music_duck(item != PI_MUSIC);
     int dir = btn_repeat(BTN_RIGHT) ? 1 : btn_repeat(BTN_LEFT) ? -1 : 0;
-    if (dir && (pause_sel == PI_MUSIC || pause_sel == PI_SFX)) {
-        uint8_t *v = pause_sel == PI_MUSIC ? &g_progress.music_vol : &g_progress.sfx_vol;
+    if (dir && (item == PI_MUSIC || item == PI_SFX)) {
+        uint8_t *v = item == PI_MUSIC ? &g_progress.music_vol : &g_progress.sfx_vol;
         *v = (uint8_t)iclamp(*v + dir, 0, 10);
         app_apply_settings();
         vol_dirty = true;
-        sfx_play_name(pause_sel == PI_MUSIC ? "ui_move" : "ui_toast");
+        sfx_play_name(item == PI_MUSIC ? "ui_move" : "ui_toast");
     }
     if (btnp(BTN_START) || btnp(BTN_B)) { sfx_play_name("ui_back"); unpause(); return; }
+    if (btnp(BTN_A) && item >= PI_EXTRA) {
+        sfx_play_name("ui_ok");
+        unpause();
+        if (pause_pick) pause_pick(item - PI_EXTRA);
+        return;
+    }
     if (btnp(BTN_A)) {
-        switch (pause_sel) {
+        switch (item) {
         case PI_RESUME: sfx_play_name("ui_ok"); unpause(); break;
         case PI_RESTART: pause_page = 2; confirm_sel = 1; sfx_play_name("ui_ok"); break;
         case PI_CONTROLS: pause_page = 1; sfx_play_name("ui_ok"); break;
@@ -309,8 +341,8 @@ static void draw_pause(void) {
         text_center(GLYPH_A " BACK", 160, 144, C_GREY);
         return;
     }
-    int py = 30;
-    ui_panel(84, py, 152, 120, C_NIGHT, C_SLATE);
+    int py = 30 - pause_nextra * 7;
+    ui_panel(84, py, 152, 120 + pause_nextra * 13, C_NIGHT, C_SLATE);
     gfx_rect(85, py + 1, 150, 15, C_DUSK);
     text_center("PAUSED", 160, py + 5, C_WHITE);
     tiny_center(g->title, 160, py + 20, C_GREY);
@@ -322,14 +354,14 @@ static void draw_pause(void) {
         ui_cursor(confirm_sel == 0 ? 118 : 172, py + 68, pause_t);
         return;
     }
-    for (int i = 0; i < PI_COUNT; i++) {
-        int y = py + 32 + i * 13;
+    for (int i = 0; i < pause_rows(); i++) {
+        int y = py + 32 + i * 13, it = pause_item(i);
         bool sel = i == pause_sel;
         if (sel) gfx_rect(92, y - 3, 136, 13, C_DUSK);
-        text_draw(PAUSE_ITEMS[i], 108, y, sel ? C_WHITE : C_GREY);
+        text_draw(pause_label(i), 108, y, sel ? C_WHITE : C_GREY);
         if (sel) ui_cursor(98, y, pause_t);
-        if (i == PI_MUSIC || i == PI_SFX) {
-            int v = i == PI_MUSIC ? g_progress.music_vol : g_progress.sfx_vol;
+        if (it == PI_MUSIC || it == PI_SFX) {
+            int v = it == PI_MUSIC ? g_progress.music_vol : g_progress.sfx_vol;
             for (int k = 0; k < 10; k++) gfx_rect(170 + k * 5, y, 4, 7, k < v ? (sel ? C_YELLOW : C_AMBER) : C_INK);
         }
     }

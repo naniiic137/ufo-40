@@ -1,5 +1,5 @@
-# TINTAIL: the sun pad dries the switch grass (it turns sand-coloured) and
-# the rain pad wets it (green).
+# TINTAIL: the sun pad dries the switch grass (dry grass has its own colour,
+# not sand's) and the rain pad wets it (green).
 game tintail
 wait 5
 cheat level 10
@@ -7,9 +7,9 @@ expect sw == 0
 expect colour1305 == 1
 cheat act DDDRR
 expect sw == 2
-expect colour1305 == 2
+expect colour1305 == 5
 cheat level 12
-expect colour0804 == 2
+expect colour0804 == 5
 cheat act DDDDR
 expect sw == 1
 expect colour0804 == 1

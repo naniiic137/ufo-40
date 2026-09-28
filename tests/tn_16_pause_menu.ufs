@@ -1,0 +1,36 @@
+# TINTAIL: no SELECT button (UFO 50 games use a d-pad, two buttons and
+# START). RESTART LEVEL and ISLAND MAP sit in the START pause menu, under
+# RESUME, as they do in the menu after being eaten.
+game tintail
+wait 5
+cheat level 1
+expect x == 2
+cheat act RR
+expect x == 4
+press SELECT
+wait 5
+expect state == 3
+press START
+wait 2
+press DOWN
+wait 2
+press A
+wait 2
+expect state == 3
+expect x == 2
+cheat act RR
+press START
+wait 2
+press DOWN
+wait 2
+press DOWN
+wait 2
+press A
+wait 2
+expect state == 2
+# on the island map the menu has no level items: the second row is RESTART
+press START
+wait 2
+press B
+wait 2
+expect state == 2
