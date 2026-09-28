@@ -1,8 +1,10 @@
-# MANDIBLES: hold A for the command menu; up/down move the cursor; letting
-# go shouts the order under it to your ants inside the shout radius (five
-# tiles). Soldier Follow reaches soldiers only; ants that took an order show
-# "!". A quick tap shouts the same order again. At your queen the last line
-# switches her between workers and soldiers.
+# MANDIBLES: hold A for the command cross. A direction highlights that
+# arm's first command, the same direction again the next one; letting go of
+# A gives it. Up: lay workers, lay soldiers, withdraw. Right: fall in, squad
+# fall in. Down: free will, squad free will. Left: halt, squad halt. Ant
+# orders reach your ants within the shout radius (the squad ones soldiers
+# only) and show "!"; the queen orders work from anywhere. Letting go
+# without a direction gives the last command again.
 game mandibles
 wait 5
 cheat mission 1 13
@@ -20,56 +22,73 @@ cheat tag_order 2 2
 hold A
 wait 3
 expect cmd_open == 1
-expect cmd_sel == 0
-press DOWN
-expect cmd_sel == 1
-# the queen's line is skipped away from her
-press DOWN
-press DOWN
-press DOWN
-expect cmd_sel == 0
-press DOWN
+expect cmd == 0
+press RIGHT
+expect cmd == 4
+press RIGHT
+expect cmd == 5
+# the right arm has two commands: round again
+press RIGHT
+expect cmd == 4
+press RIGHT
 release A
 wait 2
 expect cmd_open == 0
+expect cmd_last == 5
 expect t0_order == 1
 expect t0_ack == 1
 expect t1_order == 2
 expect t2_order == 2
-# Follow reaches the worker too
+# fall in reaches the worker too
 hold A
-press UP
+press RIGHT
 release A
 wait 2
 expect t1_order == 1
-# Halt: they stop where they are
+# halt
 hold A
-press DOWN
-press DOWN
+press LEFT
+expect cmd == 8
 release A
 wait 2
 expect t0_order == 2
 expect t1_order == 2
-expect cmd_sel == 2
-# Instinct, then a tap gives Instinct again
+# squad free will: soldiers only
 hold A
 press DOWN
+press DOWN
+expect cmd == 7
 release A
 wait 2
 expect t0_order == 0
+expect t1_order == 2
+# a tap gives squad free will again
 cheat tag_order 0 2
 press A
 wait 2
 expect t0_order == 0
 expect t2_order == 2
-# at the queen: the last line turns her to soldiers and back
-cheat at 52 80
+# the queen, from the far side of the field
 expect prod == 0
 hold A
-press DOWN
+press UP
+press UP
+expect cmd == 2
 release A
 wait 2
 expect prod == 1
-press A
+hold A
+press UP
+release A
 wait 2
 expect prod == 0
+# withdraw: straight back to the map, a loss
+hold A
+press UP
+press UP
+press UP
+expect cmd == 3
+release A
+wait 5
+expect state == 1
+expect won == 0

@@ -1,28 +1,57 @@
-# MANDIBLES: when two enemy ants touch, the healthier one lives with the
-# difference: a red worker (6) that reaches your ant (3) lives on with 3,
-# and then a blue worker (3) and it both die.
+# MANDIBLES: enemy ants that touch start a brawl: both stand in a cloud of
+# dust for a moment, then one comes out with the difference in health (at
+# least 1). Health, type (soldiers fight harder than workers) and luck
+# decide it. A full red worker (6) beats your ant (3) and keeps 3.
 game mandibles
 wait 5
 cheat mission 1 12
 cheat clear
 cheat red_store 0
 cheat store 1
+cheat mistakes 0
+# a worker minding the queen keeps the field going after you fall (t0)
+cheat unit 2 0 40 110
+cheat tag_order 0 2
 cheat at 160 60
-cheat unit 2 1 170 60
-wait 30
+cheat unit 2 1 164 60
+wait 3
+expect t1_brawl == 1
+expect alive == 1
+# rooted: holding right doesn't move you
+hold RIGHT 20
+expect px == 160
+wait 40
+expect t1_brawl == 0
 expect alive == 0
-expect t0_alive == 1
-expect t0_hp == 3
-# a blue worker meets a red worker with 3 left: 3 against 3, both go
+expect t1_alive == 1
+expect t1_hp == 3
+# 3 against 3: one of them walks away with 1 (t0 is still minding the queen)
+cheat clear
+cheat unit 2 0 40 110
+cheat tag_order 0 2
 cheat unit 2 1 240 110 3
 cheat unit 2 0 243 110
-wait 2
-expect t1_alive == 0
-expect t2_alive == 0
-# a red worker at full health beats a blue soldier and keeps 3
-cheat unit 2 1 240 130
-cheat unit 3 0 243 130
-wait 2
-expect t3_alive == 1
-expect t3_hp == 3
-expect t4_alive == 0
+wait 60
+expect tags_alive == 2
+expect tags_hp == 4
+# eight blue soldiers against eight red workers, all at 3: soldiers fight
+# harder, so most of them come out
+cheat unit 3 0 240 20 3
+cheat unit 2 1 244 20 3
+cheat unit 3 0 240 34 3
+cheat unit 2 1 244 34 3
+cheat unit 3 0 240 48 3
+cheat unit 2 1 244 48 3
+cheat unit 3 0 240 62 3
+cheat unit 2 1 244 62 3
+cheat unit 3 0 240 76 3
+cheat unit 2 1 244 76 3
+cheat unit 3 0 240 90 3
+cheat unit 2 1 244 90 3
+cheat unit 3 0 240 104 3
+cheat unit 2 1 244 104 3
+cheat unit 3 0 240 118 3
+cheat unit 2 1 244 118 3
+wait 60
+expect red_workers <= 2
+expect blue_soldiers >= 6

@@ -12,7 +12,7 @@ cheat at 135 90
 cheat unit 3 0 135 126
 cheat unit 3 0 165 110
 hold A
-wait 2
+press RIGHT
 release A
 wait 2
 expect t0_order == 1

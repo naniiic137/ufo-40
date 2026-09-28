@@ -91,7 +91,7 @@ and the music and sound volumes are in every game's pause menu too.
 | 16 | **TINTAIL** | Camouflage | sneaking on a grid past watchers by taking the colour of the ground you stand on, hollow logs, sun and rain pads, hatchlings with their own colour, a danger view you can't move in, undo, a branching map | Twig the chameleon, Salt Island, toads and storks, 15 new levels |
 | 25 | **OPEN HOUSE** | Party House | drawing guests from a deck into a house with limited space, the original's 46 guest abilities, costs and trouble, police, fire marshal and bans, set guest lists and a random list, win by ending a party with four stars within 25 nights, 2P hot-seat | a whitewashed house by the sea, all 46 guests' names and faces |
 | 28 | **DUNE EXPRESS** | Rail Heist | real time until a guard is alert, then 10-second turns, one-bullet lawmen who hit each other too, punches through walls and floors, carrying and throwing, hiding in barrels, levers, a crank gun, rams, three outlaws, three stars a mission with the original's time goals, 2P versus | Wade, Hush and Pearl, the Governor's tax trains, Biscuit the camel, 20 new trains |
-| 46 | **MANDIBLES** | Combatants | you are one slow ant who shouts orders (Follow, Soldier Follow, Halt, Instinct) to ants in earshot and spits in eight directions while followers spit with you, food carried home to a queen who lays workers for 1 and soldiers for 2, red ants with twice the health and exploitable brains (locked aim, food first, stuck on corners), melee where the healthier ant keeps the difference, giant spiders that eat both sides, a branching road of 12 fields to the capital and a pointless bonus one, 2P versus | the Bluebell Colony and the Rust Horde, General Stag, the longlegs, all 16 fields |
+| 46 | **MANDIBLES** | Combatants | you are one slow ant who holds a button for a cross of nine commands (follow, hold, instinct, their soldier-only versions, the queen's workers or soldiers, surrender), shouted to ants in earshot, and spits in eight directions while followers spit with you, food carried home to queens who lay workers for 1 and soldiers for 2, free respawns while your army lives, red ants with twice the health and exploitable brains (locked aim, food first, stuck on corners, stuck on your queen), brawls in a dust cloud, giant spiders that eat both sides, a branching road of 12 fields to the capital and a pointless bonus one, 2P versus | the Bluebell Colony and the Rust Horde, General Stag, the longlegs, every command's name, all 16 fields |
 | 08, 10–13, 17–24, 26–27, 29–45, 47–50 | *coming soon* | | | still in the saucer's cargo hold |
 
 Every cartridge has three goals, which follow the original's own three: a
@@ -505,34 +505,40 @@ the top.
   <img src="docs/shots/mandibles.gif" width="640" alt="Mandibles: the blue ant and its squad take on the Rust Horde across the dew ditch">
 </p>
 <p align="center">
-  <img src="docs/shots/mandibles_menu.png" width="320" alt="The command menu, with the shout radius drawn round your ant">
-  <img src="docs/shots/mandibles_map.png" width="320" alt="The branching road to the capital">
+  <img src="docs/shots/mandibles_menu.png" width="320" alt="The command cross around your ant, with the shout radius">
+  <img src="docs/shots/mandibles_brawl.png" width="320" alt="Ants that touch brawl in a cloud of dust">
+  <img src="docs/shots/mandibles_map.png" width="320" alt="Your leader on the branching road to the capital">
 </p>
 
 *A tribute to **Combatants** (UFO 50 #46).*
 
 - **Plays the same:** you are one blue soldier ant, slow on purpose. B
-  spits in eight directions; hold A for the command menu and shout Follow,
-  Soldier Follow, Halt or Instinct to the ants within a few tiles (they show
-  "!"). Soldiers on Follow spit when you do, so a stack of five and you
-  one-shot a red ant, but orders go stale in two seconds, one step in four
-  goes astray and an ant that loses sight of you forgets you. Carry green
-  sap to your queen: a worker costs 1, a soldier 2, and she switches between
-  them from the same menu. Only your ant comes back, for a bead, while she
-  is fed.
-- **The reds:** twice your health and more of them, food by their queens.
-  They beeline for sap and turn for home the moment they pick some up, come
-  straight at you when their jaws are empty, get stuck on corners, and
-  their soldiers lock their aim, so an angle beats them. Touching ants
-  fight at once and the healthier one keeps the difference. The longlegs
-  eat anybody; lead one into the reds.
+  spits the way you face in eight directions. Hold A for the command cross:
+  up lays workers or soldiers (from anywhere) or withdraws, right is Fall In,
+  down Free Will, left Halt, each with a soldiers-only version a second
+  press away. Commands reach the ants within a few tiles (they show "!").
+  Soldiers on Fall In spit when you do, so a stack of five and you one-shot
+  a red ant, but orders go stale in two seconds, one step in four goes
+  astray and an ant that loses sight of you forgets you. Carry green sap to
+  your queen: a worker costs 1, a soldier 2. Only your ant comes back, free,
+  after a moment, as long as your army has an ant left; the field is lost
+  when none is. A dead queen stops hatching and leaves food, as do dead
+  longlegs.
+- **The reds:** twice your health and about twice your numbers, food by
+  their queens, few soldiers. They beeline for sap and turn for home the
+  moment they pick some up, come straight at you when their jaws are empty,
+  send the odd scout, get stuck on corners, and every soldier locks its
+  aim, so an angle beats it. Lure a red worker onto your queen and it gnaws
+  at her from then on while you pick it off. Ants that touch brawl in a
+  cloud of dust; health, type and luck pick who walks out. The longlegs eat
+  anybody; lead one into the reds.
 - **Structure:** twelve fields on a branching road to the capital (a hard
   wall on the west road, an easy one north, side roads to a wide lawn and a
   garden of longlegs), a pointless bonus field, and 2P versus on three
   fields. The demo player in the tests wins every field with button
   presses.
 - **Ours:** the Bluebell Colony and the Rust Horde, General Stag and his
-  letters, the longlegs, all 16 fields and the music.
+  letters, the longlegs, every command's name, all 16 fields and the music.
 
 ## Install on PS Vita
 

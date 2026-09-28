@@ -25,3 +25,15 @@ waituntil red_workers == 0 900
 expect t1_alive == 1
 expect t2_alive == 1
 expect queen_hp >= 17
+# a red worker lured onto your queen sticks to her: it ignores a blue
+# worker standing right by it and keeps gnawing until it dies
+cheat clear
+cheat unit 2 0 76 68
+cheat tag_order 0 2
+cheat unit 2 1 62 68
+wait 30
+expect red_sticky == 1
+wait 300
+expect t0_alive == 1
+expect t0_hp == 3
+expect t1_x < 66

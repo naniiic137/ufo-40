@@ -1,6 +1,7 @@
-# MANDIBLES: soldiers on Follow spit whenever you do, the same way you
-# face, so a stack of five and you put six spits into one red ant at once.
-# Stale orders: after two seconds without a fresh shout they wander more.
+# MANDIBLES: soldiers on Follow spit whenever you do, mostly the way you
+# face (now and then one spits the way it happens to face), so a stack of
+# five and you put six spits into one red ant at once. Blue soldiers on
+# Halt pick a direction and keep it, like the red ones.
 game mandibles
 wait 5
 cheat mission 1 14
@@ -14,7 +15,8 @@ cheat unit 3 0 158 58
 cheat unit 3 0 154 60
 cheat unit 3 0 156 64
 hold A
-press DOWN
+press RIGHT
+press RIGHT
 release A
 wait 2
 expect follow == 5
@@ -22,8 +24,6 @@ expect shots == 0
 press B
 expect shots == 6
 wait 40
-# a red worker with six health, lined up east: one volley and it's gone
-cheat mistakes 0
 # a red worker with six health, lined up east of the stack: one volley
 cheat mistakes 0
 cheat at 160 60
@@ -37,3 +37,11 @@ press B
 wait 30
 expect t5_alive == 0
 expect kills == 1
+# a halted soldier locks on the first ant it spits at
+hold A
+press LEFT
+release A
+wait 2
+cheat unit 2 1 190 20
+wait 20
+expect t0_lock >= 0

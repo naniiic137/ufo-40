@@ -197,19 +197,37 @@ static void push_macro(const int *m, int n) {
     macro_i = 0;
 }
 
-/* Hold A, step the cursor down to a line, let go. */
-static void menu_macro(const MndWorld *w, int side, int line) {
-    int m[16], n = 0, s = w->menu[side].sel;
-    if (!mnd_menu_line_ok(w, side, s)) s = MI_FOLLOW;
-    m[n++] = MND_BTN_ORDER;
-    for (int k = 0; k < MI_COUNT && s != line && n < 13; k++) {
-        m[n++] = MND_BTN_ORDER | MND_MENU_DOWN;
-        m[n++] = MND_BTN_ORDER;
-        do s = (s + 1) % MI_COUNT;
-        while (!mnd_menu_line_ok(w, side, s));
+/* Hold A, press a command's direction once per step along its arm, let go. */
+static void menu_macro(const MndWorld *w, int side, int cmd) {
+    static const int ARM_BTN[ARM_COUNT] = {BTN_UP, BTN_RIGHT, BTN_DOWN, BTN_LEFT};
+    (void)w;
+    (void)side;
+    int m[16], n = 0;
+    for (int a = 0; a < ARM_COUNT; a++)
+        for (int s = 0; s < MND_ARM_SLOTS; s++) {
+            if (MND_ARMS[a][s] != cmd) continue;
+            m[n++] = MND_BTN_ORDER;
+            for (int k = 0; k <= s; k++) {
+                m[n++] = MND_BTN_ORDER | ARM_BTN[a];
+                m[n++] = MND_BTN_ORDER;
+            }
+            m[n++] = 0;
+            push_macro(m, n);
+            return;
+        }
+}
+
+/* Aim along one of the eight lines at a target, if it sits on one. */
+static int aim_line(const MndWorld *w, int mx, int my, const MndUnit *t) {
+    int tx = t->x / FP, ty = t->y / FP, hitr = t->kind == MK_SPIDER || t->kind == MK_QUEEN ? 7 : 4;
+    int rx = tx - mx, ry = ty - my;
+    for (int d = 0; d < 8; d++) {
+        int ex = MND_DX[d], ey = MND_DY[d];
+        int along = rx * ex + ry * ey, perp = iabs(rx * ey - ry * ex);
+        if (d & 1) { along = along * 7 / 10; perp = perp * 7 / 10; }
+        if (along > 0 && along < MND_SPIT_RANGE - 4 && perp <= hitr && mnd_los(w, mx, my, tx, ty)) return d;
     }
-    m[n++] = 0;
-    push_macro(m, n);
+    return -1;
 }
 
 static int decide(const MndWorld *w, int side) {
@@ -225,8 +243,8 @@ static int decide(const MndWorld *w, int side) {
         if (d < qd) { qd = d; q = k; }
     }
     /* switch the queen to soldiers the moment we stand by her */
-    if (q >= 0 && w->u[q].prod == PROD_WORKER && qd < 34 * 34 && bt - last_toggle > 30) {
-        menu_macro(w, side, MI_QUEEN);
+    if (q >= 0 && w->u[q].prod == PROD_WORKER && bt - last_toggle > 30) {
+        menu_macro(w, side, CMD_SOLDIERS);
         last_toggle = bt;
         return macro_next();
     }
@@ -248,7 +266,7 @@ static int decide(const MndWorld *w, int side) {
     }
     int red_close = nearest_hostile_ant(w, side, mx, my, 56, ANTS);
     /* keep the squad moving: a fresh order skips their pause after each step */
-    if (followers && bt - last_shout > (far_f > 24 ? 18 : 34) && w->menu[side].sel == MI_SOLDIER_FOLLOW) {
+    if (followers && bt - last_shout > (far_f > 24 ? 18 : 34) && w->menu[side].last == CMD_SOLDIER_FOLLOW) {
         static const int TAP[] = {MND_BTN_ORDER, 0};
         push_macro(TAP, 2);
         last_shout = bt;
@@ -282,7 +300,7 @@ static int decide(const MndWorld *w, int side) {
             if (dx * dx + dy * dy <= (MND_SHOUT_R - 4) * (MND_SHOUT_R - 4) && (o->order != ORD_FOLLOW || o->order_age > 90)) near++;
         }
         if (near) {
-            menu_macro(w, side, MI_SOLDIER_FOLLOW); /* a tap once the cursor sits there */
+            menu_macro(w, side, CMD_SOLDIER_FOLLOW);
             last_shout = bt;
             return macro_next();
         }
@@ -302,10 +320,10 @@ static int decide(const MndWorld *w, int side) {
             if (dd > bestd) { bestd = dd; best = d; }
         }
         if (best >= 0) {
-            int face_to = mnd_octant(upx(o) - mx, upy(o) - my);
-            bool spit = face_to == me->face;
             dbg_branch = 1;
-            return DIR_BTN[best] | (spit ? MND_BTN_SPIT : 0);
+            int aim = aim_line(w, mx, my, o);
+            if (aim >= 0 && me->cool <= 0 && o->kind != MK_SPIDER) return DIR_BTN[aim] | MND_BTN_SPIT;
+            return DIR_BTN[best];
         }
     }
 
@@ -457,27 +475,19 @@ static int decide(const MndWorld *w, int side) {
         }
         return dir_mask(ox - mx, oy - my);
     }
-    int want_face = (best + 4) % 8;
     int dx = sx - mx, dy = sy - my;
-    /* can we already hit it from here? */
-    int ex = MND_DX[me->face], ey = MND_DY[me->face];
-    int rx = tx - mx, ry = ty - my;
-    int along = rx * ex + ry * ey;
-    int perp = iabs(rx * ey - ry * ex);
-    if (me->face & 1) { along = along * 7 / 10; perp = perp * 7 / 10; }
-    int hitr = tu->kind == MK_SPIDER || tu->kind == MK_QUEEN ? 7 : 4;
-    bool on_line = along > 0 && along < MND_SPIT_RANGE - 4 && perp <= hitr && mnd_los(w, mx, my, tx, ty);
-    int move = 0;
+    /* can we hit it from here? turn to it and spit in the same frame (the
+     * facing follows the d-pad, so kiting is turn, spit, turn back) */
+    if (iabs(dx) <= 2 && iabs(dy) <= 2) tgt_t++;
+    int aim = aim_line(w, mx, my, tu);
+    if (aim >= 0 && me->cool <= 0) return DIR_BTN[aim] | MND_BTN_SPIT;
     if (iabs(dx) > 2 || iabs(dy) > 2) {
         int ox, oy;
         first_step(w, mx, my, sx, sy, &ox, &oy);
-        move = dir_mask(ox - mx, oy - my);
-        if (!move) move = dir_mask(dx, dy);
-    } else if (++tgt_t && me->face != want_face && !on_line) {
-        /* turn to face it: one step toward it */
-        return DIR_BTN[want_face];
+        int move = dir_mask(ox - mx, oy - my);
+        return move ? move : dir_mask(dx, dy);
     }
-    return move | (on_line ? MND_BTN_SPIT : 0);
+    return 0;
 }
 
 int mnd_bot_buttons(const MndWorld *w, int side) {

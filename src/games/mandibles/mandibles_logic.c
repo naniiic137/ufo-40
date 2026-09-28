@@ -29,6 +29,10 @@ const int8_t MND_DY[8] = {0, 1, 1, 1, 0, -1, -1, -1};
 #define SPIDER_BITE 45
 #define SPIDER_DMG 3
 #define FOLLOW_FRESH 120   /* a follow order goes stale after two seconds */
+#define QUEEN_FOOD 5       /* beads a dead queen leaves */
+#define SPIDER_FOOD 7      /* beads a dead longlegs leaves */
+#define SCOUT_ONE_IN 6     /* one new red worker in six scouts your queen first */
+#define FOLLOWER_STRAY 20  /* percent of follower spits that go their own way */
 
 static const int HP_BLUE[6] = {0, 3, 3, 3, 20, 45};
 static const int HP_RED[6] = {0, 3, 6, 6, 40, 45};
@@ -118,6 +122,8 @@ int mnd_add_unit(MndWorld *w, int kind, int side, int px, int py) {
     u->target = -1;
     u->goal_bead = -1;
     u->order = ORD_INSTINCT;
+    u->brawl_with = -1;
+    u->sticky = -1;
     u->pause = (int16_t)rng_range(&w->rng, 0, PAUSE_FRAMES);
     u->id = w->next_id++;
     return slot;
@@ -156,9 +162,34 @@ static void drop_bead(MndWorld *w, int px, int py) {
         }
 }
 
+/* Food left behind: n beads on the free tiles around a point. */
+static void scatter_beads(MndWorld *w, int px, int py, int n) {
+    static const int8_t RING[16][2] = {{0, 0},  {1, 0},  {-1, 0}, {0, 1},  {0, -1}, {1, 1},  {-1, -1}, {1, -1},
+                                       {-1, 1}, {2, 0},  {-2, 0}, {0, 2},  {0, -2}, {2, 1},  {-2, -1}, {1, -2}};
+    int tx0 = px / MND_TILE, ty0 = py / MND_TILE;
+    for (int k = 0; k < 16 && n > 0; k++) {
+        int tx = tx0 + RING[k][0], ty = ty0 + RING[k][1];
+        if (tile_solid(w, tx, ty)) continue;
+        bool taken = false;
+        for (int b = 0; b < w->n_beads; b++)
+            if (w->bead[b].on && w->bead[b].x / MND_TILE == tx && w->bead[b].y / MND_TILE == ty) taken = true;
+        if (taken) continue;
+        drop_bead(w, tx * MND_TILE + 4, ty * MND_TILE + 4);
+        n--;
+    }
+}
+
 static void kill_unit(MndWorld *w, int i, int by_side) {
     MndUnit *u = &w->u[i];
     if (u->carry) drop_bead(w, u->x / FP, u->y / FP);
+    /* dead queens and longlegs leave food behind */
+    if (u->kind == MK_QUEEN) scatter_beads(w, u->x / FP, u->y / FP, QUEEN_FOOD);
+    if (u->kind == MK_SPIDER) scatter_beads(w, u->x / FP, u->y / FP, SPIDER_FOOD);
+    if (u->brawl_t > 0 && u->brawl_with >= 0) {
+        w->u[u->brawl_with].brawl_t = 0;
+        w->u[u->brawl_with].brawl_with = -1;
+    }
+    u->brawl_t = 0;
     if (u->kind == MK_SPIDER) {
         w->spiders_slain++;
         w->ev.spider_slain++;
@@ -280,6 +311,29 @@ void mnd_shout(MndWorld *w, int side, int order, bool soldiers_only) {
     }
 }
 
+/* The command cross (the missing manuals, section 46), in our own words. */
+const uint8_t MND_ARMS[ARM_COUNT][MND_ARM_SLOTS] = {
+    {CMD_WORKERS, CMD_SOLDIERS, CMD_SURRENDER},
+    {CMD_FOLLOW, CMD_SOLDIER_FOLLOW, CMD_NONE},
+    {CMD_INSTINCT, CMD_SOLDIER_INSTINCT, CMD_NONE},
+    {CMD_HOLD, CMD_SOLDIER_HOLD, CMD_NONE},
+};
+const char *const MND_CMD_NAMES[CMD_COUNT] = {
+    "", "LAY WORKERS", "LAY SOLDIERS", "WITHDRAW", "FALL IN", "SQUAD FALL IN",
+    "FREE WILL", "SQUAD FREE WILL", "HALT", "SQUAD HALT",
+};
+
+int mnd_arm_slots(int arm) {
+    int n = 0;
+    while (n < MND_ARM_SLOTS && MND_ARMS[arm][n] != CMD_NONE) n++;
+    return n;
+}
+
+int mnd_menu_cmd(const MndMenu *mn) {
+    if (mn->arm < 0 || mn->arm >= ARM_COUNT || mn->slot < 0 || mn->slot >= MND_ARM_SLOTS) return CMD_NONE;
+    return MND_ARMS[mn->arm][mn->slot];
+}
+
 static int queen_in_earshot(const MndWorld *w, int side) {
     int p = w->player[side];
     if (p < 0) return -1;
@@ -288,16 +342,25 @@ static int queen_in_earshot(const MndWorld *w, int side) {
     return q;
 }
 
-bool mnd_toggle_queen(MndWorld *w, int side) {
-    int q = queen_in_earshot(w, side);
-    if (q < 0) return false;
-    w->u[q].prod ^= 1;
+bool mnd_cmd_ok(const MndWorld *w, int side, int cmd) {
+    if (cmd <= CMD_NONE || cmd >= CMD_COUNT) return false;
+    if (cmd == CMD_WORKERS || cmd == CMD_SOLDIERS) {
+        if (MND_QUEEN_ORDERS_IN_RANGE) return queen_in_earshot(w, side) >= 0;
+        return mnd_queen_of(w, side) >= 0;
+    }
     return true;
 }
 
-bool mnd_menu_line_ok(const MndWorld *w, int side, int line) {
-    if (line < 0 || line >= MI_COUNT) return false;
-    return line != MI_QUEEN || queen_in_earshot(w, side) >= 0;
+/* Make Workers / Make Soldiers: every queen of the side, from anywhere. */
+static void set_prod(MndWorld *w, int side, int prod) {
+    int only = MND_QUEEN_ORDERS_IN_RANGE ? queen_in_earshot(w, side) : -1;
+    for (int k = 0; k < w->n_units; k++) {
+        MndUnit *q = &w->u[k];
+        if (q->kind != MK_QUEEN || q->side != side) continue;
+        if (MND_QUEEN_ORDERS_IN_RANGE && k != only) continue;
+        q->prod = (uint8_t)prod;
+        q->ack = 30;
+    }
 }
 
 /* ------------------------------------------------------------------ */
@@ -324,15 +387,39 @@ static void decide(MndWorld *w, int i) {
     MndUnit *u = &w->u[i];
     int px = u->x / FP, py = u->y / FP;
     u->target = u->kind == MK_SOLDIER && u->lock >= 0 ? u->target : -1;
+    if (u->kind == MK_SOLDIER && u->lock >= 0) { u->pause = 6; return; } /* rooted while it spits */
     if (red_ai(w, u)) {
-        if (u->kind == MK_SOLDIER && u->lock >= 0) { u->pause = 6; return; } /* rooted while it spits */
         if (u->carry) {
             int q = nearest_queen(w, u->side, px, py);
             if (q >= 0) { start_step(w, u, w->u[q].x / FP, w->u[q].y / FP); return; }
             wander(w, u);
             return;
         }
+        /* lured onto your queen: from then on it only gnaws at her */
+        if (u->sticky >= 0) {
+            const MndUnit *q = &w->u[u->sticky];
+            if (q->kind != MK_QUEEN || q->side == u->side) u->sticky = -1;
+            else {
+                if (dist2(u, q) > 10 * 10) start_step(w, u, q->x / FP, q->y / FP);
+                else u->pause = 8;
+                return;
+            }
+        }
+        if (u->kind == MK_WORKER) {
+            int bq = nearest_queen(w, MND_BLUE, px, py);
+            if (bq >= 0 && dist2(u, &w->u[bq]) <= 12 * 12) {
+                u->sticky = (int16_t)bq;
+                u->pause = 8;
+                return;
+            }
+        }
         int f = nearest_foe(w, u, SIGHT - 8);
+        if (f < 0 && u->scout) {
+            /* a scout walks to your base first, then goes back to the food */
+            int bq = nearest_queen(w, MND_BLUE, px, py);
+            if (bq >= 0 && dist2(u, &w->u[bq]) > 48 * 48) { start_step(w, u, w->u[bq].x / FP, w->u[bq].y / FP); return; }
+            u->scout = 0;
+        }
         if (f >= 0) {
             const MndUnit *o = &w->u[f];
             if (u->kind == MK_SOLDIER && dist2(u, o) <= FIRE_RANGE * FIRE_RANGE) { u->pause = 6; return; }
@@ -379,6 +466,19 @@ static void decide(MndWorld *w, int i) {
         return;
     }
     if (!u->carry) {
+        /* just back from the queen: straight at the bead nearest her, seen or
+         * not, walls or no walls */
+        if (u->fetch_home) {
+            int q = nearest_queen(w, u->side, px, py);
+            int best = -1, bestd = 1 << 30;
+            for (int b = 0; q >= 0 && b < w->n_beads; b++) {
+                if (!w->bead[b].on) continue;
+                int dx = w->bead[b].x - w->u[q].x / FP, dy = w->bead[b].y - w->u[q].y / FP, d = dx * dx + dy * dy;
+                if (d < bestd) { bestd = d; best = b; }
+            }
+            if (best >= 0) { start_step(w, u, w->bead[best].x, w->bead[best].y); return; }
+            u->fetch_home = 0;
+        }
         int b = visible_bead(w, px, py);
         if (b >= 0) { start_step(w, u, w->bead[b].x, w->bead[b].y); return; }
     }
@@ -387,42 +487,35 @@ static void decide(MndWorld *w, int i) {
 
 static void soldier_fire(MndWorld *w, int i) {
     MndUnit *u = &w->u[i];
-    if (u->cool > 0) return;
-    if (red_ai(w, u)) {
-        if (u->lock >= 0) {
-            /* locked: keeps spitting the same way until its target dies or leaves */
-            int t = u->target;
-            if (t < 0 || !w->u[t].kind || dist2(u, &w->u[t]) > (MND_SPIT_RANGE + 8) * (MND_SPIT_RANGE + 8)) {
-                u->lock = -1;
-                u->target = -1;
-                return;
-            }
-            spit(w, u->side, u->lock, u->x, u->y);
-            u->face = u->lock;
-            u->cool = RED_COOL;
+    if (u->cool > 0 || u->brawl_t > 0) return;
+    /* every soldier, red or blue, picks a direction when it first spits and
+     * keeps it until its target dies or leaves; blue ones on Follow spit
+     * with their leader instead */
+    int cool = red_ai(w, u) ? RED_COOL : BLUE_COOL;
+    if (!red_ai(w, u) && u->order == ORD_FOLLOW) { u->lock = -1; return; }
+    if (u->lock >= 0) {
+        int t = u->target;
+        if (t < 0 || !w->u[t].kind || dist2(u, &w->u[t]) > (MND_SPIT_RANGE + 8) * (MND_SPIT_RANGE + 8)) {
+            u->lock = -1;
+            u->target = -1;
             return;
         }
-        if (u->carry || (w->frame + i) % 6) return;
-        int f = nearest_foe(w, u, FIRE_RANGE);
-        if (f < 0) return;
-        int dir = mnd_octant(w->u[f].x / FP - u->x / FP, w->u[f].y / FP - u->y / FP);
-        if (dir < 0) dir = u->face;
-        u->lock = (int8_t)dir;
-        u->target = (int16_t)f;
-        u->step = 0;
-        spit(w, u->side, dir, u->x, u->y);
-        u->face = (int8_t)dir;
-        u->cool = RED_COOL;
+        spit(w, u->side, u->lock, u->x, u->y);
+        u->face = u->lock;
+        u->cool = (int16_t)cool;
         return;
     }
-    if (u->order == ORD_FOLLOW || u->carry || (w->frame + i) % 6) return; /* followers spit with their leader */
+    if (u->carry || (w->frame + i) % 6) return;
     int f = nearest_foe(w, u, FIRE_RANGE);
     if (f < 0) return;
     int dir = mnd_octant(w->u[f].x / FP - u->x / FP, w->u[f].y / FP - u->y / FP);
     if (dir < 0) dir = u->face;
-    u->face = (int8_t)dir;
+    u->lock = (int8_t)dir;
+    u->target = (int16_t)f;
+    u->step = 0;
     spit(w, u->side, dir, u->x, u->y);
-    u->cool = BLUE_COOL;
+    u->face = (int8_t)dir;
+    u->cool = (int16_t)cool;
 }
 
 static void pickup_and_deliver(MndWorld *w, int i) {
@@ -434,6 +527,7 @@ static void pickup_and_deliver(MndWorld *w, int i) {
             if (!bd->on || iabs(bd->x - px) > 4 || iabs(bd->y - py) > 4) continue;
             bd->on = 0;
             u->carry = 1;
+            u->fetch_home = 0;
             w->ev.pickups++;
             if (u->kind != MK_PLAYER && (red_ai(w, u) || u->order == ORD_INSTINCT)) {
                 /* it turns for home at once, fight or no fight */
@@ -448,6 +542,7 @@ static void pickup_and_deliver(MndWorld *w, int i) {
         int q = nearest_queen(w, u->side, px, py);
         if (q >= 0 && dist2(u, &w->u[q]) <= 12 * 12) {
             u->carry = 0;
+            if (u->kind != MK_PLAYER && !red_ai(w, u) && u->order == ORD_INSTINCT) u->fetch_home = 1;
             w->u[q].store++;
             w->delivered[u->side]++;
             w->ev.deliveries++;
@@ -458,6 +553,7 @@ static void pickup_and_deliver(MndWorld *w, int i) {
 static void ant_update(MndWorld *w, int i) {
     MndUnit *u = &w->u[i];
     if (u->order_age < 30000) u->order_age++;
+    if (u->brawl_t > 0) return; /* rooted in the brawl */
     if (u->order == ORD_FOLLOW && !red_ai(w, u)) {
         /* no object permanence: out of sight for half a second, and it forgets */
         int p = w->player[u->side];
@@ -499,6 +595,8 @@ static void queen_update(MndWorld *w, int i) {
                 int n = mnd_add_unit(w, u->spawn_kind, u->side, px, py);
                 if (n >= 0) {
                     w->u[n].face = (int8_t)d;
+                    if (red_ai(w, u) && u->spawn_kind == MK_WORKER && rng_range(&w->rng, 1, SCOUT_ONE_IN) == 1)
+                        w->u[n].scout = 1;
                     w->spawned[u->side]++;
                     w->ev.spawns++;
                 }
@@ -507,9 +605,6 @@ static void queen_update(MndWorld *w, int i) {
         }
         return;
     }
-    /* a queen keeps a bead back while her player waits to hatch again */
-    bool has_player = u->side == MND_BLUE || w->versus;
-    if (has_player && w->player[u->side] < 0) return;
     int kind;
     if (red_ai(w, u)) {
         int len = (int)strlen(red_prod);
@@ -518,8 +613,7 @@ static void queen_update(MndWorld *w, int i) {
         kind = u->prod == PROD_SOLDIER ? MK_SOLDIER : MK_WORKER;
     }
     int cost = kind == MK_SOLDIER ? 2 : 1;
-    /* she lays only from beads beyond the one she keeps back for her player */
-    if (u->store < cost + (has_player ? 1 : 0)) return;
+    if (u->store < cost) return;
     u->store = (int16_t)(u->store - cost);
     u->gest = GESTATION;
     u->spawn_kind = (uint8_t)kind;
@@ -598,16 +692,25 @@ static void spider_update(MndWorld *w, int i) {
 /* ------------------------------------------------------------------ */
 /* the player's ant                                                     */
 
-static void give_order(MndWorld *w, int side, int line) {
+static void give_order(MndWorld *w, int side, int cmd) {
     MndMenu *mn = &w->menu[side];
-    mn->flash = (int8_t)line;
+    if (!mnd_cmd_ok(w, side, cmd)) return;
+    mn->flash = (int8_t)cmd;
     mn->flash_t = 40;
-    switch (line) {
-    case MI_FOLLOW: mnd_shout(w, side, ORD_FOLLOW, false); break;
-    case MI_SOLDIER_FOLLOW: mnd_shout(w, side, ORD_FOLLOW, true); break;
-    case MI_HALT: mnd_shout(w, side, ORD_HOLD, false); break;
-    case MI_INSTINCT: mnd_shout(w, side, ORD_INSTINCT, false); break;
-    case MI_QUEEN: if (!mnd_toggle_queen(w, side)) mn->flash_t = 0; break;
+    mn->last = (int8_t)cmd;
+    switch (cmd) {
+    case CMD_WORKERS: set_prod(w, side, PROD_WORKER); break;
+    case CMD_SOLDIERS: set_prod(w, side, PROD_SOLDIER); break;
+    case CMD_SURRENDER:
+        w->surrendered = (uint8_t)(side + 1);
+        w->ev.surrender++;
+        break;
+    case CMD_FOLLOW: mnd_shout(w, side, ORD_FOLLOW, false); break;
+    case CMD_SOLDIER_FOLLOW: mnd_shout(w, side, ORD_FOLLOW, true); break;
+    case CMD_INSTINCT: mnd_shout(w, side, ORD_INSTINCT, false); break;
+    case CMD_SOLDIER_INSTINCT: mnd_shout(w, side, ORD_INSTINCT, true); break;
+    case CMD_HOLD: mnd_shout(w, side, ORD_HOLD, false); break;
+    case CMD_SOLDIER_HOLD: mnd_shout(w, side, ORD_HOLD, true); break;
     default: break;
     }
     w->ev.orders++;
@@ -619,23 +722,24 @@ static void player_update(MndWorld *w, int side, const MndPad *pad) {
     if (mn->flash_t > 0) mn->flash_t--;
     if (p < 0) { mn->open = false; return; }
     MndUnit *u = &w->u[p];
-    if (pad->order_pressed) { mn->open = true; mn->open_t = 0; }
+    if (u->brawl_t > 0) { mn->open = false; return; } /* in a brawl: nothing to do but fight */
+    if (pad->order_pressed) { mn->open = true; mn->open_t = 0; mn->arm = -1; mn->slot = 0; }
     if (mn->open) {
         mn->open_t++;
-        if (!mnd_menu_line_ok(w, side, mn->sel)) mn->sel = MI_FOLLOW;
         if (pad->order_held) {
-            int dir = pad->menu_down ? 1 : pad->menu_up ? -1 : 0;            if (dir) {
-                int s = mn->sel;
-                for (int k = 0; k < MI_COUNT; k++) {
-                    s = (s + dir + MI_COUNT) % MI_COUNT;
-                    if (mnd_menu_line_ok(w, side, s)) break;
-                }
-                mn->sel = (int8_t)s;
+            /* a direction highlights that arm; the same direction again steps along it */
+            for (int a = 0; a < ARM_COUNT; a++) {
+                if (!pad->arm_pressed[a]) continue;
+                if (mn->arm == a) mn->slot = (int8_t)((mn->slot + 1) % mnd_arm_slots(a));
+                else { mn->arm = (int8_t)a; mn->slot = 0; }
                 w->ev.menu_moves++;
+                break;
             }
         } else {
-            /* letting go gives the order under the cursor */
-            give_order(w, side, mn->sel);
+            /* letting go gives the highlighted command (none highlighted: the last one again) */
+            int cmd = mnd_menu_cmd(mn);
+            if (cmd == CMD_NONE) cmd = mn->last;
+            if (cmd != CMD_NONE) give_order(w, side, cmd);
             mn->open = false;
         }
     }
@@ -643,7 +747,7 @@ static void player_update(MndWorld *w, int side, const MndPad *pad) {
         int mx = (pad->right ? 1 : 0) - (pad->left ? 1 : 0), my = (pad->down ? 1 : 0) - (pad->up ? 1 : 0);
         int d = mnd_octant(mx, my);
         if (d >= 0) {
-            if (!pad->spit_held) u->face = (int8_t)d;
+            if (!(MND_STRAFE && pad->spit_held)) u->face = (int8_t)d;
             int sp = d & 1 ? 6 : 8;
             move_unit(w, u, MND_DX[d] * sp, MND_DY[d] * sp);
             u->anim++;
@@ -651,12 +755,15 @@ static void player_update(MndWorld *w, int side, const MndPad *pad) {
         if (pad->spit_held && u->cool <= 0) {
             spit(w, side, u->face, u->x, u->y);
             u->cool = PLAYER_COOL;
-            /* soldiers on Follow spit when you do, the same way */
+            /* soldiers on Follow spit when you do, the same way; now and then
+             * one spits the way it happens to face instead */
             for (int k = 0; k < w->n_units; k++) {
                 MndUnit *s = &w->u[k];
-                if (s->kind != MK_SOLDIER || s->side != side || s->order != ORD_FOLLOW || s->cool > 0 || s->carry) continue;
-                s->face = u->face;
-                spit(w, side, u->face, s->x, s->y);
+                if (s->kind != MK_SOLDIER || s->side != side || s->order != ORD_FOLLOW || s->cool > 0 || s->carry ||
+                    s->brawl_t > 0)
+                    continue;
+                if (!rng_chance(&w->rng, FOLLOWER_STRAY)) s->face = u->face;
+                spit(w, side, s->face, s->x, s->y);
                 s->cool = BLUE_COOL;
             }
         }
@@ -664,18 +771,23 @@ static void player_update(MndWorld *w, int side, const MndPad *pad) {
     pickup_and_deliver(w, p);
 }
 
+/* Your ant hatches again at a queen, free, after a delay, as long as some
+ * other ant of your army (a worker or a soldier) is still alive. */
+bool mnd_can_respawn(const MndWorld *w, int side) {
+    return mnd_queen_of(w, side) >= 0 && mnd_count(w, side, MK_WORKER) + mnd_count(w, side, MK_SOLDIER) > 0;
+}
+
 static void respawn_update(MndWorld *w, int side) {
     if (w->player[side] >= 0) return;
     w->dead_t[side]++;
-    if (w->dead_t[side] < MND_RESPAWN_T) return;
+    if (w->dead_t[side] < MND_RESPAWN_T || !mnd_can_respawn(w, side)) return;
     for (int q = 0; q < w->n_units; q++) {
         MndUnit *qu = &w->u[q];
-        if (qu->kind != MK_QUEEN || qu->side != side || qu->store < 1) continue;
+        if (qu->kind != MK_QUEEN || qu->side != side) continue;
         int px = qu->x / FP, py = qu->y / FP + 12;
         if (!box_free(w, px * FP, py * FP, 3)) py -= 24;
         int n = mnd_add_unit(w, MK_PLAYER, side, px, py);
         if (n < 0) return;
-        qu->store--;
         w->player[side] = n;
         w->dead_t[side] = 0;
         w->respawns[side]++;
@@ -714,21 +826,53 @@ static void shots_update(MndWorld *w) {
     }
 }
 
-/* Two enemy ants that touch fight at once: the healthier one lives, keeping
- * the difference. Workers that reach an enemy queen nibble her. */
+/* How hard an ant fights: its health, soldiers (your ant is one) half
+ * again as hard as workers, and a roll of the dice. */
+static int brawl_weight(MndWorld *w, const MndUnit *u) {
+    int type = u->kind == MK_WORKER ? 4 : 6;
+    return u->hp * type * rng_range(&w->rng, 8, 12);
+}
+
+/* Two enemy ants that touch start a brawl: a cloud of dust for a moment,
+ * both rooted, then one comes out, keeping the difference in health (at
+ * least 1). Who wins depends on health, type and luck. More ants can pile
+ * in; each brawl is settled pair by pair. Workers that reach an enemy
+ * queen nibble her instead. */
 static void melee(MndWorld *w) {
+    /* brawls that end this frame */
     for (int i = 0; i < w->n_units; i++) {
         MndUnit *a = &w->u[i];
-        if (!is_ant(a->kind)) continue;
-        for (int j = i + 1; j < w->n_units && is_ant(a->kind); j++) {
+        if (!is_ant(a->kind) || a->brawl_t <= 0 || --a->brawl_t > 0) continue;
+        int j = a->brawl_with;
+        a->brawl_with = -1;
+        if (j < 0 || !is_ant(w->u[j].kind)) continue;
+        MndUnit *b = &w->u[j];
+        b->brawl_t = 0;
+        b->brawl_with = -1;
+        int wa = brawl_weight(w, a), wb = brawl_weight(w, b);
+        int win = wa >= wb ? i : j, lose = win == i ? j : i;
+        MndUnit *wu = &w->u[win], *lu = &w->u[lose];
+        int left = imax(1, wu->hp - lu->hp);
+        int ws = wu->side;
+        wu->hp = (int16_t)left;
+        wu->hurt = 10;
+        damage(w, lose, lu->hp, ws);
+    }
+    /* new brawls */
+    for (int i = 0; i < w->n_units; i++) {
+        MndUnit *a = &w->u[i];
+        if (!is_ant(a->kind) || a->brawl_t > 0) continue;
+        for (int j = i + 1; j < w->n_units; j++) {
             MndUnit *b = &w->u[j];
-            if (!is_ant(b->kind) || b->side == a->side) continue;
+            if (!is_ant(b->kind) || b->side == a->side || b->brawl_t > 0) continue;
             if (iabs(a->x - b->x) >= 6 * FP || iabs(a->y - b->y) >= 6 * FP) continue;
-            int m = imin(a->hp, b->hp);
-            int sa = a->side, sb = b->side;
+            a->brawl_t = b->brawl_t = MND_BRAWL_T;
+            a->brawl_with = (int16_t)j;
+            b->brawl_with = (int16_t)i;
+            a->step = b->step = 0;
             w->ev.melee++;
-            damage(w, i, m, sb);
-            damage(w, j, m, sa);
+            w->ev.brawls++;
+            break;
         }
     }
     for (int i = 0; i < w->n_units; i++) {
@@ -749,10 +893,12 @@ static void check_status(MndWorld *w) {
     bool out[2];
     for (int s = 0; s < 2; s++) {
         bool has_player = s == MND_BLUE || w->versus;
-        bool queen = mnd_queen_of(w, s) >= 0;
+        /* the red army is beaten when every red ant is down, queens too; a
+         * player's army only when it has no ant left to fight with (a lone
+         * queen can't) or it withdrew */
         if (!has_player) out[s] = mnd_count(w, s, MK_NONE) == 0;
-        else out[s] = !queen || (w->player[s] < 0 && w->dead_t[s] >= MND_RESPAWN_T + MND_STARVE_T) ||
-                      mnd_count(w, s, MK_NONE) == 0;
+        else out[s] = mnd_count(w, s, MK_PLAYER) + mnd_count(w, s, MK_WORKER) + mnd_count(w, s, MK_SOLDIER) == 0 ||
+                      w->surrendered == s + 1;
     }
     if (out[MND_RED] && !out[MND_BLUE]) w->status = MND_WON;
     else if (out[MND_BLUE]) w->status = MND_LOST;

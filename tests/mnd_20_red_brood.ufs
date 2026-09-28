@@ -1,0 +1,13 @@
+# MANDIBLES: the red queens lay mostly workers (a soldier in three at most)
+# and about one new worker in six walks over to look at your queen first.
+game mandibles
+wait 5
+cheat mission 6 26
+cheat clear
+cheat store 0
+cheat red_store 30
+cheat at 40 120
+wait 1500
+expect red_workers >= 18
+expect red_soldiers <= 11
+expect red_scouts >= 1

@@ -15,15 +15,35 @@
 #define MND_BTN_SPIT BTN_B        /* spit (hold to keep spitting) */
 #define MND_GLYPH_ORDER GLYPH_A
 #define MND_GLYPH_SPIT GLYPH_B
-/* UNCONFIRMED (our reading; no source shows the menu itself): the command
- * menu is a list, up/down move the cursor, letting go of A gives the order
- * under it, and a quick tap gives the last order again. The queen's
- * worker/soldier switch is the list's last line, there only while your queen
- * is inside your shout radius. Beads are picked up by walking over them and
- * handed over by touching your queen, with no button. */
-#define MND_MENU_UP BTN_UP
-#define MND_MENU_DOWN BTN_DOWN
-enum { MI_FOLLOW = 0, MI_SOLDIER_FOLLOW, MI_HALT, MI_INSTINCT, MI_QUEEN, MI_COUNT };
+/* CONFIRMED (the "missing manuals" guide, section 46): while A is held the
+ * d-pad highlights a command on a cross of four arms and letting go of A
+ * gives it; ant orders reach the blue ants around you, the queen orders
+ * need no range (MND_QUEEN_ORDERS_IN_RANGE turns a range check back on).
+ *   up:    make workers / make soldiers / surrender
+ *   right: follow / soldier follow
+ *   down:  instinct / soldier instinct
+ *   left:  hold / soldier hold
+ * UNCONFIRMED (our reading): pressing an arm's direction again steps to its
+ * next command; letting go of A without pressing a direction gives the last
+ * command again (ours); holding B does not lock your facing unless
+ * MND_STRAFE is set to 1 (the manual says only "the direction you're
+ * facing"). Beads are picked up by walking over them and handed over by
+ * touching your queen ("they take it into their mouth"), with no button. */
+#define MND_QUEEN_ORDERS_IN_RANGE 0
+#define MND_STRAFE 0
+enum { ARM_UP = 0, ARM_RIGHT, ARM_DOWN, ARM_LEFT, ARM_COUNT };
+#define MND_ARM_SLOTS 3
+enum {
+    CMD_NONE = 0,
+    CMD_WORKERS, CMD_SOLDIERS, CMD_SURRENDER,
+    CMD_FOLLOW, CMD_SOLDIER_FOLLOW,
+    CMD_INSTINCT, CMD_SOLDIER_INSTINCT,
+    CMD_HOLD, CMD_SOLDIER_HOLD,
+    CMD_COUNT
+};
+extern const uint8_t MND_ARMS[ARM_COUNT][MND_ARM_SLOTS]; /* CMD_* (CMD_NONE = no slot) */
+extern const char *const MND_CMD_NAMES[CMD_COUNT];       /* our own wording */
+int mnd_arm_slots(int arm);
 
 /* ---- world ---------------------------------------------------------------- */
 #define MND_TILE 8
@@ -63,14 +83,20 @@ typedef struct MndUnit {
     int32_t memx, memy;   /* spider: last place a victim was seen */
     int16_t mem_t, wander_t;
     int16_t ack;          /* "!" over an ant that just took an order */
+    int16_t brawl_t;      /* frames left in a melee brawl (0 = none) */
+    int16_t brawl_with;   /* the other ant in the brawl */
+    int16_t sticky;       /* a lured red ant: the blue queen it sticks to, -1 none */
+    uint8_t scout;        /* a red worker sent to look at the blue queen first */
+    uint8_t fetch_home;   /* instinct ant that just delivered: next, the bead nearest its queen */
     uint16_t id;
 } MndUnit;
 
 /* The command menu of one player (0 blue, 1 red in versus). */
 typedef struct MndMenu {
     bool open;        /* the order button is held */
-    int8_t sel;       /* the line under the cursor (kept between openings) */
-    int8_t flash;     /* the last order given, for the HUD */
+    int8_t arm, slot; /* the highlighted command (arm -1: none yet) */
+    int8_t last;      /* the last command given (CMD_*) */
+    int8_t flash;     /* the last command given, for the HUD */
     int16_t flash_t;
     int16_t open_t;
 } MndMenu;
@@ -90,7 +116,7 @@ typedef struct MndBead {
 /* What happened this frame (sounds, flashes, tests). */
 typedef struct MndEvents {
     uint16_t spits, hits, deaths, melee, bites, pickups, deliveries, spawns, respawns, spider_slain;
-    uint16_t blue_spider_kill, orders, menu_moves;
+    uint16_t blue_spider_kill, orders, menu_moves, brawls, surrender;
 } MndEvents;
 
 typedef struct MndWorld {
@@ -108,7 +134,7 @@ typedef struct MndWorld {
     uint8_t versus;
     uint8_t status;
     uint8_t red_mistake;  /* percent of red steps that go astray */
-    uint8_t fire_held[2];
+    uint8_t surrendered;  /* a side gave up (1 blue, 2 red) */
     int32_t frame;
     uint16_t next_id;
     /* totals for the result screen and the tests */
@@ -120,7 +146,7 @@ typedef struct MndWorld {
 /* One player's buttons for a frame. */
 typedef struct MndPad {
     bool up, down, left, right;
-    bool menu_up, menu_down;      /* pressed this frame (menu cursor) */
+    bool arm_pressed[ARM_COUNT];  /* pressed this frame: up, right, down, left */
     bool order_held, order_pressed;
     bool spit_held;
 } MndPad;
@@ -141,7 +167,9 @@ extern const MndMap MND_MAPS[MND_ALL_MAPS];
 extern MndWorld mnd_w;
 void mnd_load_map(MndWorld *w, int map, uint64_t seed, bool versus);
 void mnd_step(MndWorld *w, const MndPad pads[2]);
-bool mnd_menu_line_ok(const MndWorld *w, int side, int line); /* the queen line needs her in earshot */
+bool mnd_cmd_ok(const MndWorld *w, int side, int cmd); /* can this command be given now */
+int mnd_menu_cmd(const MndMenu *mn);                     /* the highlighted command, CMD_NONE if none */
+bool mnd_can_respawn(const MndWorld *w, int side);
 bool mnd_solid(const MndWorld *w, int px, int py);   /* pixel point blocks walking */
 bool mnd_opaque(const MndWorld *w, int px, int py);  /* pixel point blocks sight and spit */
 bool mnd_los(const MndWorld *w, int x0, int y0, int x1, int y1);
@@ -150,14 +178,13 @@ int mnd_count(const MndWorld *w, int side, int kind); /* kind MK_NONE: every ant
 int mnd_queen_of(const MndWorld *w, int side);       /* first living queen, -1 */
 int mnd_add_unit(MndWorld *w, int kind, int side, int px, int py);
 void mnd_shout(MndWorld *w, int side, int order, bool soldiers_only);
-bool mnd_toggle_queen(MndWorld *w, int side);
 int mnd_beads_left(const MndWorld *w);
 extern const int8_t MND_DX[8], MND_DY[8];
 /* numbers the presentation and the bot share */
 #define MND_SHOUT_R 40      /* order radius, px (five tiles) */
 #define MND_SPIT_RANGE 56   /* how far a spit flies, px */
-#define MND_RESPAWN_T 90
-#define MND_STARVE_T 600    /* dead this long with an empty queen: the mission is lost */
+#define MND_RESPAWN_T 150   /* your ant hatches again this long after it dies */
+#define MND_BRAWL_T 48      /* a melee brawl lasts this long */
 
 /* ---- demo player (mandibles_bot.c) ---------------------------------------- */
 void mnd_bot_reset(void);

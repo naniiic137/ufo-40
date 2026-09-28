@@ -31,6 +31,8 @@ static int cam_x[2], cam_y[2];
 static int shake;
 static int shout_t[2];
 static int tags[8], n_tags; /* units the tests placed */
+static int pscr_x[2], pscr_y[2]; /* each player's ant on the screen (the command cross) */
+static int walk_from, walk_t;    /* the leader walking between fields on the map */
 
 
 static bool vita_single(void) { return plat_kind() == PLAT_VITA; }
@@ -129,6 +131,8 @@ static void go_title(void) {
 static void go_map(void) {
     go(S_MAP);
     if (!map_open(map_sel)) map_sel = 0;
+    walk_from = map_sel;
+    walk_t = 30;
     music_play(MND_MUS_MAP);
 }
 
@@ -172,8 +176,10 @@ static MndPad read_pad(int p) {
     pd.down = held(BTN_DOWN);
     pd.left = held(BTN_LEFT);
     pd.right = held(BTN_RIGHT);
-    pd.menu_up = pressed(MND_MENU_UP);
-    pd.menu_down = pressed(MND_MENU_DOWN);
+    pd.arm_pressed[ARM_UP] = pressed(BTN_UP);
+    pd.arm_pressed[ARM_RIGHT] = pressed(BTN_RIGHT);
+    pd.arm_pressed[ARM_DOWN] = pressed(BTN_DOWN);
+    pd.arm_pressed[ARM_LEFT] = pressed(BTN_LEFT);
     pd.order_held = held(MND_BTN_ORDER);
     pd.order_pressed = pressed(MND_BTN_ORDER);
     pd.spit_held = held(MND_BTN_SPIT);
@@ -230,6 +236,14 @@ static void update_play(void) {
     if (shake > 0) shake--;
     follow_cam(0, versus ? 159 : SCREEN_W);
     if (versus) follow_cam(1, 159);
+    if (mnd_w.status != MND_PLAYING && mnd_w.surrendered && !versus) {
+        /* withdrawing: straight back to the map, counted as a loss */
+        if (sv.lost < 65535) sv.lost++;
+        save_now();
+        sfx_play_name("ui_back");
+        go_map();
+        return;
+    }
     if (mnd_w.status != MND_PLAYING) finish_field();
 }
 
@@ -246,6 +260,8 @@ static void map_move(int dx, int dy) {
         if (d < bestd) { bestd = d; best = i; }
     }
     if (best >= 0) {
+        walk_from = map_sel;
+        walk_t = 0;
         map_sel = best;
         sv.cursor = (uint8_t)best;
         sfx_play_name("ui_move");
@@ -265,6 +281,7 @@ static void mnd_update(void) {
         if (btnp(BTN_B)) game_exit_to_library();
         break;
     case S_MAP:
+        walk_t++;
         if (btnp(BTN_LEFT)) map_move(-1, 0);
         if (btnp(BTN_RIGHT)) map_move(1, 0);
         if (btnp(BTN_UP)) map_move(0, -1);
@@ -387,6 +404,10 @@ static void draw_unit(const MndUnit *u, int self_side) {
         gfx_rect(x - 7, y - 11, 14, 2, C_INK);
         gfx_rect(x - 7, y - 11, w, 2, u->side == MND_RED ? C_ORANGE : C_CYAN);
         if (u->gest > 0) gfx_rect(x - 7, y - 13, 14 - 14 * u->gest / 90, 1, C_LIME);
+        if (u->ack > 0 && u->side == self_side) {
+            gfx_rect(x, y - 19, 1, 3, C_WHITE);
+            gfx_pset(x, y - 15, C_WHITE);
+        }
         break;
     }
     case MK_SPIDER: {
@@ -454,46 +475,56 @@ static void draw_world(int s, int vx, int vw) {
             }
         }
         if (shout_t[s] > 0) gfx_circb(px, py, MND_SHOUT_R - shout_t[s] * 2, C_YELLOW);
+        pscr_x[s] = px - gfx_cam_x();
+        pscr_y[s] = py - gfx_cam_y();
+    }
+    /* brawls: a cloud of dust with stars flying out of it */
+    for (int i = 0; i < mnd_w.n_units; i++) {
+        const MndUnit *a = &mnd_w.u[i];
+        if (a->brawl_t <= 0 || a->brawl_with < i) continue;
+        const MndUnit *b = &mnd_w.u[a->brawl_with];
+        int cx = (a->x + b->x) / 2 / FP, cy = (a->y + b->y) / 2 / FP;
+        int t = state_t + i * 7;
+        for (int k = 0; k < 6; k++) {
+            int ox = (int)(hash2(k, t / 4) % 11) - 5, oy = (int)(hash2(k + 9, t / 4) % 9) - 4;
+            gfx_circ(cx + ox, cy + oy, 3 + (k & 1), k & 2 ? C_HIDE : C_TAN);
+        }
+        for (int k = 0; k < 3; k++) {
+            int ph = (t + k * 5) % 16;
+            int sx = cx + MND_DX[(k * 3 + t / 16) & 7] * (4 + ph / 2), sy = cy + MND_DY[(k * 3 + t / 16) & 7] * (4 + ph / 2) - 2;
+            gfx_pset(sx, sy, C_YELLOW);
+            gfx_pset(sx - 1, sy, C_WHITE);
+            gfx_pset(sx + 1, sy, C_WHITE);
+            gfx_pset(sx, sy - 1, C_WHITE);
+            gfx_pset(sx, sy + 1, C_WHITE);
+        }
     }
     gfx_camera(0, 0);
     gfx_noclip();
 }
 
-static const char *const MENU_LINES[MI_COUNT] = {"FOLLOW", "SOLDIER FOLLOW", "HALT", "INSTINCT", "QUEEN"};
-
+/* the command cross around your ant: up, right, down, left */
 static void draw_menu(int s, int vx, int vw) {
     const MndMenu *mn = &mnd_w.menu[s];
     if (!mn->open) return;
-    int w = 96, h = MI_COUNT * 9 + 8;
-    int x = vx + (vw - w) / 2, y = VIEW_Y + VIEW_H - h - 4;
-    ui_panel(x, y, w, h, C_NIGHT, C_GREY);
-    for (int i = 0; i < MI_COUNT; i++) {
-        bool ok = mnd_menu_line_ok(&mnd_w, s, i);
-        char line[40];
-        if (i == MI_QUEEN) {
-            int q = mnd_queen_of(&mnd_w, s);
-            int prod = PROD_WORKER;
-            int p = mnd_w.player[s];
-            if (p >= 0) {
-                int best = 1 << 30;
-                for (int k = 0; k < mnd_w.n_units; k++) {
-                    const MndUnit *o = &mnd_w.u[k];
-                    if (o->kind != MK_QUEEN || o->side != s) continue;
-                    int dx = (o->x - mnd_w.u[p].x) / FP, dy = (o->y - mnd_w.u[p].y) / FP;
-                    if (dx * dx + dy * dy < best) { best = dx * dx + dy * dy; q = k; }
-                }
-            }
-            if (q >= 0) prod = mnd_w.u[q].prod;
-            snprintf(line, sizeof line, "QUEEN: MAKE %s", prod == PROD_SOLDIER ? "WORKERS" : "SOLDIERS");
-        } else {
-            snprintf(line, sizeof line, "%s", MENU_LINES[i]);
-        }
-        int ly = y + 5 + i * 9;
-        if (i == mn->sel) {
-            gfx_rect(x + 3, ly - 1, w - 6, 9, C_DUSK);
-            text_draw(GLYPH_RIGHT, x + 4, ly, C_YELLOW);
-        }
-        tiny_draw(line, x + 12, ly + 1, !ok ? C_SLATE : i == mn->sel ? C_WHITE : C_LIGHT);
+    int cx = pscr_x[s], cy = pscr_y[s];
+    static const int8_t AX[ARM_COUNT] = {0, 1, 0, -1}, AY[ARM_COUNT] = {-1, 0, 1, 0};
+    for (int a = 0; a < ARM_COUNT; a++) {
+        bool sel = mn->arm == a;
+        int slot = sel ? mn->slot : 0;
+        int cmd = MND_ARMS[a][slot];
+        bool ok = mnd_cmd_ok(&mnd_w, s, cmd);
+        const char *label = MND_CMD_NAMES[cmd];
+        int w = tiny_width(label) + 6, h = 9;
+        int x = cx + AX[a] * 14 - (AX[a] < 0 ? w : AX[a] > 0 ? 0 : w / 2);
+        int y = cy + AY[a] * 14 - (AY[a] < 0 ? h : AY[a] > 0 ? 0 : h / 2);
+        x = iclamp(x, vx + 1, vx + vw - w - 1);
+        y = iclamp(y, VIEW_Y + 1, VIEW_Y + VIEW_H - h - 9);
+        ui_panel(x, y, w, h, sel ? C_NAVY : C_NIGHT, sel ? C_YELLOW : C_DUSK);
+        tiny_draw(label, x + 3, y + 2, !ok ? C_SLATE : sel ? C_WHITE : C_LIGHT);
+        /* a pip per command on this arm, the highlighted one lit */
+        int n = mnd_arm_slots(a);
+        for (int k = 0; k < n; k++) gfx_rect(x + 3 + k * 3, y + h, 2, 2, sel && k == slot ? C_YELLOW : C_SLATE);
     }
 }
 
@@ -511,9 +542,8 @@ static void draw_hud(int s, int x0, int w) {
             gfx_rect(x + i * 5, 3, 4, 4, i < mnd_w.u[p].hp ? (s ? C_ORANGE : C_CYAN) : C_DUSK);
         x += mnd_w.u[p].maxhp * 5 + 3;
     } else {
-        int left = (MND_RESPAWN_T + MND_STARVE_T - mnd_w.dead_t[s]) / 60;
-        if (mnd_w.dead_t[s] < MND_RESPAWN_T) snprintf(buf, sizeof buf, "HATCHING");
-        else snprintf(buf, sizeof buf, "FEED THE QUEEN %d", imax(0, left));
+        if (mnd_can_respawn(&mnd_w, s)) snprintf(buf, sizeof buf, "HATCHING");
+        else snprintf(buf, sizeof buf, mnd_queen_of(&mnd_w, s) < 0 ? "NO QUEEN" : "NO ANTS LEFT");
         tiny_draw(buf, x, 3, (state_t / 10) & 1 ? C_YELLOW : C_AMBER);
         x += tiny_width(buf) + 4;
     }
@@ -546,7 +576,7 @@ static void draw_foot(void) {
     if (versus) return;
     const MndMenu *mn = &mnd_w.menu[0];
     if (mn->flash_t > 0) {
-        snprintf(buf, sizeof buf, "\"%s!\"", mn->flash == MI_QUEEN ? "QUEEN, NEW ORDERS" : MENU_LINES[mn->flash]);
+        snprintf(buf, sizeof buf, "\"%s!\"", MND_CMD_NAMES[iclamp(mn->flash, 0, CMD_COUNT - 1)]);
         tiny_center(buf, 170, FOOT_Y + 2, C_YELLOW);
     }
     tiny_draw(MND_MAPS[cur_map].name, SCREEN_W - 3 - tiny_width(MND_MAPS[cur_map].name), FOOT_Y + 2, C_SLATE);
@@ -681,7 +711,7 @@ static void draw_map(void) {
     for (int i = 0; i <= MND_BONUS; i++) {
         if (i == MND_BONUS && !map_open(i)) continue;
         const MndMap *m = &MND_MAPS[i];
-        bool open = map_open(i), won = map_won(i), sel = i == map_sel;
+        bool open = map_open(i), won = map_won(i);
         int col = won ? C_BLUE : open ? C_RED : C_SLATE;
         gfx_circ(m->map_x, m->map_y, 7, C_INK);
         gfx_circ(m->map_x, m->map_y, 6, col);
@@ -690,10 +720,23 @@ static void draw_map(void) {
         if (i == MND_BONUS) snprintf(num, sizeof num, "?");
         else snprintf(num, sizeof num, "%d", i + 1);
         tiny_center(num, m->map_x, m->map_y - 2, open || won ? C_WHITE : C_DUSK);
-        if (sel) {
-            int r = 9 + ((state_t / 10) & 1);
-            gfx_circb(m->map_x, m->map_y, r, C_YELLOW);
-        }
+    }
+    /* your leader walks the road from field to field */
+    {
+        const MndMap *a = &MND_MAPS[walk_from], *b = &MND_MAPS[map_sel];
+        int t = imin(walk_t, 30);
+        int lx = a->map_x + (b->map_x - a->map_x) * t / 30, ly = a->map_y + (b->map_y - a->map_y) * t / 30;
+        int face = t < 30 ? mnd_octant(b->map_x - a->map_x, b->map_y - a->map_y) : 2;
+        if (face < 0) face = 2;
+        gfx_circb(b->map_x, b->map_y, 9 + ((state_t / 10) & 1), C_YELLOW);
+        MndUnit lead;
+        memset(&lead, 0, sizeof lead);
+        lead.kind = MK_PLAYER;
+        lead.face = (int8_t)face;
+        lead.anim = (int16_t)(t < 30 ? state_t : 0);
+        int flags, id = ant_sprite(&lead, &flags);
+        spr_draw_ex(&mnd_spr[id], lx - 4, ly - 12, flags, MND_TEAM[2], -1);
+        spr_draw(&mnd_spr[MS_CROWN], lx - 2, ly - 16, 0);
     }
     const MndMap *m = &MND_MAPS[map_sel];
     gfx_rect(0, 158, SCREEN_W, 22, C_NIGHT);
@@ -730,10 +773,22 @@ static void draw_brief(void) {
     char text[400];
     snprintf(text, sizeof text, "%.*s", shown, m->brief);
     text_wrap(text, 74, 42, 228, C_LIGHT, 10);
-    snprintf(buf, sizeof buf, "INTEL: %d RED QUEEN%s, %d RED ANTS, %d LONGLEGS", count_in_map(map_sel, 'q'),
-             count_in_map(map_sel, 'q') == 1 ? "" : "S", count_in_map(map_sel, 'w') + count_in_map(map_sel, 's'),
-             count_in_map(map_sel, 'X'));
-    tiny_draw(buf, 18, 140, C_ORANGE);
+    /* the field's size and what each side starts with */
+    int fw = 0, fh = 0;
+    while (m->rows[fh]) { fw = imax(fw, (int)strlen(m->rows[fh])); fh++; }
+    snprintf(buf, sizeof buf, "FIELD %dx%d", fw, fh);
+    tiny_draw(buf, 18, 118, C_LIGHT);
+    snprintf(buf, sizeof buf, "BLUE: YOU, QUEEN, %d WORKER%s, %d SOLDIER%s", count_in_map(map_sel, 'W'),
+             count_in_map(map_sel, 'W') == 1 ? "" : "S", count_in_map(map_sel, 'S'), count_in_map(map_sel, 'S') == 1 ? "" : "S");
+    tiny_draw(buf, 18, 127, C_CYAN);
+    snprintf(buf, sizeof buf, "RED: %d QUEEN%s, %d WORKER%s, %d SOLDIER%s", count_in_map(map_sel, 'q'),
+             count_in_map(map_sel, 'q') == 1 ? "" : "S", count_in_map(map_sel, 'w'), count_in_map(map_sel, 'w') == 1 ? "" : "S",
+             count_in_map(map_sel, 's'), count_in_map(map_sel, 's') == 1 ? "" : "S");
+    tiny_draw(buf, 18, 136, C_ORANGE);
+    if (count_in_map(map_sel, 'X')) {
+        snprintf(buf, sizeof buf, "LONGLEGS: %d", count_in_map(map_sel, 'X'));
+        tiny_draw(buf, 18, 145, C_GREY);
+    }
     int fx = ui_hint(18, 156, GLYPH_A, "MARCH", C_LIGHT);
     ui_hint(fx, 156, GLYPH_B, "MAP", C_LIGHT);
 }
@@ -876,6 +931,8 @@ static int unit_field(const char *f, const MndUnit *u, int *out) {
     else if (!strcmp(f, "store")) *out = u->store;
     else if (!strcmp(f, "prod")) *out = u->prod;
     else if (!strcmp(f, "ack")) *out = u->ack > 0;
+    else if (!strcmp(f, "brawl")) *out = u->brawl_t > 0;
+    else if (!strcmp(f, "sticky")) *out = u->sticky >= 0;
     else return 0;
     return 1;
 }
@@ -935,14 +992,24 @@ static int mnd_query(const char *key, int *out) {
     if (!strcmp(key, "prod")) { int q = mnd_queen_of(w, MND_BLUE); *out = q >= 0 ? w->u[q].prod : -1; return 1; }
     /* the command menu ("menu_sel" belongs to the console's main menu) */
     if (!strcmp(key, "cmd_open")) { *out = w->menu[0].open; return 1; }
-    if (!strcmp(key, "cmd_sel")) { *out = w->menu[0].sel; return 1; }
+    if (!strcmp(key, "cmd")) { *out = mnd_menu_cmd(&w->menu[0]); return 1; }
+    if (!strcmp(key, "cmd_arm")) { *out = w->menu[0].arm; return 1; }
+    if (!strcmp(key, "cmd_slot")) { *out = w->menu[0].slot; return 1; }
+    if (!strcmp(key, "cmd_last")) { *out = w->menu[0].last; return 1; }
     if (!strcmp(key, "cmd2_open")) { *out = w->menu[1].open; return 1; }
-    if (!strcmp(key, "cmd2_sel")) { *out = w->menu[1].sel; return 1; }
+    if (!strcmp(key, "cmd2")) { *out = mnd_menu_cmd(&w->menu[1]); return 1; }
     if (!strcmp(key, "blue")) { *out = mnd_count(w, MND_BLUE, MK_NONE); return 1; }
     if (!strcmp(key, "red")) { *out = mnd_count(w, MND_RED, MK_NONE); return 1; }
     if (!strcmp(key, "red_queens")) { *out = mnd_count(w, MND_RED, MK_QUEEN); return 1; }
     if (!strcmp(key, "red_workers")) { *out = mnd_count(w, MND_RED, MK_WORKER); return 1; }
     if (!strcmp(key, "red_soldiers")) { *out = mnd_count(w, MND_RED, MK_SOLDIER); return 1; }
+    if (!strcmp(key, "red_scouts") || !strcmp(key, "red_sticky")) {
+        int n = 0;
+        for (int i = 0; i < w->n_units; i++)
+            if (w->u[i].kind && w->u[i].side == MND_RED) n += key[4] == 's' && key[5] == 'c' ? w->u[i].scout : w->u[i].sticky >= 0;
+        *out = n;
+        return 1;
+    }
     if (!strcmp(key, "blue_workers")) { *out = mnd_count(w, MND_BLUE, MK_WORKER); return 1; }
     if (!strcmp(key, "blue_soldiers")) { *out = mnd_count(w, MND_BLUE, MK_SOLDIER); return 1; }
     if (!strcmp(key, "spiders")) { *out = mnd_count(w, MND_WILD, MK_SPIDER); return 1; }
@@ -953,6 +1020,14 @@ static int mnd_query(const char *key, int *out) {
     if (!strcmp(key, "kills")) { *out = w->kills[0]; return 1; }
     if (!strcmp(key, "losses")) { *out = w->losses[0]; return 1; }
     if (!strcmp(key, "units")) { *out = w->n_units; return 1; }
+    if (!strcmp(key, "tags_alive") || !strcmp(key, "tags_hp")) {
+        /* how many of the units a test placed are left, and their health together */
+        int n = 0, hp = 0;
+        for (int k = 0; k < n_tags; k++)
+            if (w->u[tags[k]].kind) { n++; hp += w->u[tags[k]].hp; }
+        *out = key[5] == 'a' ? n : hp;
+        return 1;
+    }
     if (!strcmp(key, "shots")) { int n = 0; for (int i = 0; i < MND_MAX_SHOTS; i++) n += w->shot[i].on; *out = n; return 1; }
     if (!strcmp(key, "follow")) {
         int n = 0;
@@ -1058,6 +1133,12 @@ static int mnd_cheat(const char *cmd) {
         return 1;
     }
     if (sscanf(cmd, "mistakes %d", &a) == 1) { mnd_w.red_mistake = (uint8_t)a; return 1; }
+    if (sscanf(cmd, "queen_hp %d %d", &a, &b) == 2) {
+        /* queen_hp SIDE HP: every queen of that side */
+        for (int i = 0; i < mnd_w.n_units; i++)
+            if (mnd_w.u[i].kind == MK_QUEEN && mnd_w.u[i].side == a) mnd_w.u[i].hp = (int16_t)b;
+        return 1;
+    }
     if (sscanf(cmd, "seed %d", &a) == 1) { rng_seed(&mnd_w.rng, (uint64_t)a); return 1; }
     return 0;
 }
@@ -1067,18 +1148,18 @@ const GameDef GAME_MANDIBLES = {
     "MANDIBLES",
     "1989",
     "STRATEGY",
-    "ONE SLOW BLUE ANT AGAINST A RED HORDE. SHOUT ORDERS, RETAKE THE CAPITAL.",
-    {"SLAY A LONGLEGS", "RETAKE THE CAPITAL", "TAKE EVERY FIELD"},
+    "ONE SLOW BLUE ANT AGAINST A RED HORDE. SHOUT ORDERS, RECLAIM THE OLD COLONY.",
+    {"BRING DOWN A LONGLEGS", "RECLAIM THE OLD COLONY", "TAKE EVERY FIELD"},
     "D-PAD\tWALK\n"
     MND_GLYPH_SPIT "\tSPIT (FOLLOWERS SPIT TOO)\n"
-    "HOLD " MND_GLYPH_ORDER "\tCOMMAND MENU:\n"
-    "\t" GLYPH_UP GLYPH_DOWN " PICK, LET GO TO SHOUT\n"
-    "\tTAP: THE SAME ORDER AGAIN\n"
-    "\tFOLLOW, SOLDIER FOLLOW,\n"
-    "\tHALT, INSTINCT, AND AT\n"
-    "\tYOUR QUEEN: WORKERS/SOLDIERS\n"
-    "WALK OVER SAP TO CARRY IT,\n"
-    "TOUCH YOUR QUEEN TO FEED HER.\n"
+    "HOLD " MND_GLYPH_ORDER "\tCOMMANDS, LET GO TO SHOUT:\n"
+    GLYPH_UP "\tLAY WORKERS/SOLDIERS, WITHDRAW\n"
+    GLYPH_RIGHT "\tFALL IN / SQUAD FALL IN\n"
+    GLYPH_DOWN "\tFREE WILL / SQUAD FREE WILL\n"
+    GLYPH_LEFT "\tHALT / SQUAD HALT\n"
+    "\tPRESS AGAIN FOR THE NEXT ONE\n"
+    "TAP " MND_GLYPH_ORDER "\tTHE LAST COMMAND AGAIN\n"
+    "WALK OVER SAP, TOUCH YOUR QUEEN.\n"
     "START\tPAUSE",
     C_BLUE, C_RED,
     mnd_load, mnd_start, mnd_update, mnd_draw, mnd_quit, mnd_label, mnd_query, mnd_cheat,
