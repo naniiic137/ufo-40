@@ -1,0 +1,56 @@
+# README media: MANDIBLES
+shotscale 2
+seed 46
+game mandibles
+wait 90
+shot mandibles_title
+# the road to the capital, halfway along; the leader walks to the next field
+cheat won 107
+press A
+wait 30
+press UP
+wait 16
+shot mandibles_map
+wait 30
+press A
+wait 240
+shot mandibles_brief
+# a squad on the twin mounds, the command cross open
+cheat mission 6 3
+botplay 2600
+hold A
+wait 12
+press RIGHT
+press RIGHT
+wait 8
+shot mandibles_menu
+release A
+# the demo player on the dew ditch: sap home, a squad, a longlegs
+cheat mission 5 1
+botplay 1500
+gifstart mandibles 3 2
+botplay 900
+gifstop
+shot mandibles_field
+# brawls: ants that touch fight in a cloud of dust
+cheat mission 1 3
+cheat clear
+cheat red_store 0
+cheat at 150 60
+cheat unit 2 0 44 110
+cheat tag_order 0 2
+cheat unit 3 0 170 70
+cheat unit 2 1 174 70
+cheat unit 2 0 196 50
+cheat unit 2 1 200 50
+wait 20
+shot mandibles_brawl
+# the capital
+cheat mission 12 1
+botplay 2200
+shot mandibles_capital
+# 2P versus on the longlegs den
+cheat versus 3 5
+hold RIGHT+P2LEFT 120
+wait 60
+shot mandibles_versus

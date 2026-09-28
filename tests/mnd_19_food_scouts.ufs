@@ -1,0 +1,25 @@
+# MANDIBLES: a dead longlegs and a dead queen leave food behind; the reds
+# build few soldiers and send the odd worker to scout your base.
+game mandibles
+wait 5
+cheat mission 1 25
+cheat clear
+cheat red_store 0
+cheat store 0
+cheat mistakes 0
+cheat unit 2 0 40 110
+cheat tag_order 0 2
+expect beads == 0
+# a longlegs with 1 health in front of you: spit it and it leaves 7 beads
+cheat at 200 120
+cheat unit 5 2 225 120 1
+hold B 30
+expect t1_alive == 0
+expect beads == 7
+# the red queen with 1 health: one spit and she leaves 5 more
+cheat queen_hp 1 1
+cheat at 350 68
+wait 1
+hold B 30
+expect red_queens == 0
+expect beads == 12

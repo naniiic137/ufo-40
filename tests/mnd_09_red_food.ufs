@@ -1,0 +1,24 @@
+# MANDIBLES: red ants beeline for food and turn for home the moment they
+# pick up a bead, even with you right there; they go for you only when
+# their jaws are empty. When the food is gone they march on your queen.
+game mandibles
+wait 5
+cheat mission 1 18
+cheat clear
+cheat red_store 0
+cheat store 1
+cheat mistakes 0
+cheat at 200 60
+cheat unit 2 1 230 60
+cheat bead 226 60
+wait 60
+expect t0_carry == 1
+wait 200
+expect t0_x > 240
+expect hp == 3
+# no food anywhere: straight for the blue queen (at 52,68)
+cheat tag_remove 0
+cheat at 300 140
+cheat unit 2 1 200 60
+wait 700
+expect t1_x < 120

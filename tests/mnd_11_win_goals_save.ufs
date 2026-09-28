@@ -1,0 +1,46 @@
+# MANDIBLES: a field is taken when every red ant is down, queens too. The
+# win is saved; taking the capital (field 12) earns the Saucer and plays the
+# ending; taking all twelve earns the Alien. The save survives a restart.
+game mandibles
+wait 5
+cheat mission 1 21
+cheat clear
+cheat clear_queens
+wait 2
+expect status == 1
+expect state == 4
+expect result == 1
+expect won == 1
+wait 50
+press A
+wait 5
+expect state == 1
+expect map_open == 3
+expect goals == 0
+# the capital, with the eleven others already taken
+cheat won 2047
+expect goals == 0
+cheat mission 12 22
+cheat clear
+cheat clear_queens
+wait 60
+expect won == 4095
+expect goals & 2
+expect goals & 4
+expect goals !& 1
+# the first capital win shows the ending before the map
+press A
+wait 5
+expect state == 6
+wait 130
+press A
+wait 5
+expect state == 1
+# the bonus field has appeared
+expect map_open & 4096
+reload
+game mandibles
+wait 5
+expect won == 4095
+expect won_count == 12
+expect goals.mandibles == 6

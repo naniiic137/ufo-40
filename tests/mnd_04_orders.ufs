@@ -1,0 +1,94 @@
+# MANDIBLES: hold A for the command cross. A direction highlights that
+# arm's first command, the same direction again the next one; letting go of
+# A gives it. Up: lay workers, lay soldiers, withdraw. Right: fall in, squad
+# fall in. Down: free will, squad free will. Left: halt, squad halt. Ant
+# orders reach your ants within the shout radius (the squad ones soldiers
+# only) and show "!"; the queen orders work from anywhere. Letting go
+# without a direction gives the last command again.
+game mandibles
+wait 5
+cheat mission 1 13
+cheat clear
+cheat red_store 0
+cheat store 0
+cheat at 160 60
+# t0 soldier and t1 worker in earshot, t2 soldier out of it
+cheat unit 3 0 180 60
+cheat unit 2 0 160 80
+cheat unit 3 0 230 60
+cheat tag_order 0 2
+cheat tag_order 1 2
+cheat tag_order 2 2
+hold A
+wait 3
+expect cmd_open == 1
+expect cmd == 0
+press RIGHT
+expect cmd == 4
+press RIGHT
+expect cmd == 5
+# the right arm has two commands: round again
+press RIGHT
+expect cmd == 4
+press RIGHT
+release A
+wait 2
+expect cmd_open == 0
+expect cmd_last == 5
+expect t0_order == 1
+expect t0_ack == 1
+expect t1_order == 2
+expect t2_order == 2
+# fall in reaches the worker too
+hold A
+press RIGHT
+release A
+wait 2
+expect t1_order == 1
+# halt
+hold A
+press LEFT
+expect cmd == 8
+release A
+wait 2
+expect t0_order == 2
+expect t1_order == 2
+# squad free will: soldiers only
+hold A
+press DOWN
+press DOWN
+expect cmd == 7
+release A
+wait 2
+expect t0_order == 0
+expect t1_order == 2
+# a tap gives squad free will again
+cheat tag_order 0 2
+press A
+wait 2
+expect t0_order == 0
+expect t2_order == 2
+# the queen, from the far side of the field
+expect prod == 0
+hold A
+press UP
+press UP
+expect cmd == 2
+release A
+wait 2
+expect prod == 1
+hold A
+press UP
+release A
+wait 2
+expect prod == 0
+# withdraw: straight back to the map, a loss
+hold A
+press UP
+press UP
+press UP
+expect cmd == 3
+release A
+wait 5
+expect state == 1
+expect won == 0

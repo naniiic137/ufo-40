@@ -1,0 +1,42 @@
+# MANDIBLES: your ant walks in eight directions and spits the way it faces
+# (B, held to keep spitting). The d-pad always turns it, B held or not. A
+# spit does 1; a red worker has 6 health, so it takes six.
+game mandibles
+wait 5
+cheat mission 1 11
+cheat clear
+cheat red_store 0
+cheat store 0
+cheat at 160 60
+expect hp == 3
+expect face == 0
+press DOWN+RIGHT 4
+expect face == 1
+press UP 4
+expect face == 6
+press LEFT 4
+expect face == 4
+press RIGHT 4
+expect face == 0
+# walk: half a pixel a frame
+cheat at 160 60
+hold RIGHT 40
+expect px >= 178
+expect px <= 181
+# no strafing: walking left with B held turns you left
+cheat at 160 60
+hold B+LEFT 20
+expect face == 4
+wait 60
+# a red worker comes at us from the east; six spits and it is gone
+cheat at 150 60
+press RIGHT 1
+expect face == 0
+cheat mistakes 0
+cheat unit 2 1 206 60
+hold B 40
+expect t0_hp < 6
+hold B 100
+expect t0_alive == 0
+expect kills == 1
+expect hp == 3

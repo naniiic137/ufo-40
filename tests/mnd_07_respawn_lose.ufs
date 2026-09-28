@@ -1,0 +1,46 @@
+# MANDIBLES: your ant is the only one that comes back: the queen hatches it
+# again after a delay, free, as long as another blue ant lives. The field
+# is lost only when no blue ant is left; a dead queen just stops hatching
+# (and leaves food behind).
+game mandibles
+wait 5
+cheat mission 1 16
+cheat clear
+cheat red_store 0
+cheat store 0
+cheat mistakes 0
+# t0: a worker on Halt by the queen
+cheat unit 2 0 40 110
+cheat tag_order 0 2
+cheat at 160 60
+cheat unit 2 1 164 60
+wait 70
+expect alive == 0
+expect status == 0
+wait 150
+expect alive == 1
+expect respawns == 1
+expect store == 0
+# the queen falls to a gnawing red worker: nothing is lost but her
+cheat queen_hp 0 1
+cheat at 200 140
+cheat unit 2 1 60 68
+waituntil queen == -1 300
+expect status == 0
+expect alive == 1
+expect beads >= 5
+# no queen: you don't come back, but the worker holds the field
+cheat at 300 60
+cheat unit 2 1 304 60
+wait 70
+expect alive == 0
+wait 300
+expect alive == 0
+expect status == 0
+# the last blue ant falls: the field is lost
+cheat tag_hp 0 1
+cheat unit 2 1 44 110
+waituntil status == 2 200
+wait 2
+expect state == 4
+expect result == 2

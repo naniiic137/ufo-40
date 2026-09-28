@@ -1,0 +1,22 @@
+# MANDIBLES: ants act only on what they can see. A follower that loses
+# sight of you behind a rock forgets the order half a second later; one
+# that can still see you keeps following.
+game mandibles
+wait 5
+cheat mission 1 24
+cheat clear
+cheat red_store 0
+cheat store 1
+cheat at 135 90
+# t0 behind the rock (the block at 120-151, 96-119), t1 in the open
+cheat unit 3 0 135 126
+cheat unit 3 0 165 110
+hold A
+press RIGHT
+release A
+wait 2
+expect t0_order == 1
+expect t1_order == 1
+wait 45
+expect t0_order == 0
+expect t1_order == 1

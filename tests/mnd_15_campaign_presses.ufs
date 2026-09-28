@@ -1,0 +1,18 @@
+# MANDIBLES: field 1 won from the title with button presses only (the demo
+# player picks them each frame): CAMPAIGN, the briefing, the field, the
+# result, and back on the map with field 2 open.
+seed 4
+game mandibles
+wait 5
+press A
+wait 10
+expect state == 1
+press A
+wait 10
+expect state == 2
+botplay 200
+expect state == 3
+botuntil state == 1 30000
+expect won & 1
+expect map_open == 3
+expect played.mandibles >= 1

@@ -1,0 +1,39 @@
+# MANDIBLES: a red worker that reaches your queen only nibbles her (1 a
+# second); soldiers told to Halt beside her spit at anything that comes
+# close, so the queen makes a shield.
+game mandibles
+wait 5
+cheat mission 1 23
+cheat clear
+cheat red_store 0
+cheat store 1
+cheat mistakes 0
+cheat at 160 140
+cheat unit 2 1 62 68
+wait 125
+expect queen >= 0
+expect queen_hp <= 18
+expect queen_hp >= 17
+cheat tag_remove 0
+# two soldiers on Halt by the queen; a red worker marches in
+cheat unit 3 0 52 84
+cheat unit 3 0 44 76
+cheat tag_order 1 2
+cheat tag_order 2 2
+cheat unit 2 1 160 70
+waituntil red_workers == 0 900
+expect t1_alive == 1
+expect t2_alive == 1
+expect queen_hp >= 17
+# a red worker lured onto your queen sticks to her: it ignores a blue
+# worker standing right by it and keeps gnawing until it dies
+cheat clear
+cheat unit 2 0 76 68
+cheat tag_order 0 2
+cheat unit 2 1 62 68
+wait 30
+expect red_sticky == 1
+wait 300
+expect t0_alive == 1
+expect t0_hp == 3
+expect t1_x < 66

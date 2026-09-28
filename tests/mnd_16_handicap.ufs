@@ -1,0 +1,7 @@
+# MANDIBLES: the red side is built to win. Stand still on the Gauntlet and
+# the reds feed their queen, grow, march in and take the field.
+game mandibles
+wait 5
+cheat mission 3 5
+waituntil status == 2 30000
+expect won == 0

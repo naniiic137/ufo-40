@@ -1,0 +1,43 @@
+# MANDIBLES: walk over a sap bead to carry it, touch your queen to feed her.
+# A worker costs her 1 bead and a soldier 2. An ant on free will that has
+# just fed the queen heads straight for the bead nearest her.
+game mandibles
+wait 5
+cheat mission 1 15
+cheat clear
+cheat red_store 0
+cheat store 0
+cheat at 100 60
+cheat bead 110 60
+expect beads == 1
+expect carry == 0
+hold RIGHT 30
+expect carry == 1
+expect beads == 0
+# home to the queen: one bead is one worker
+cheat at 70 68
+hold LEFT 20
+expect carry == 0
+expect delivered == 1
+wait 95
+expect blue_workers == 1
+expect store == 0
+# soldiers cost 2
+hold A
+press UP
+press UP
+release A
+wait 2
+expect prod == 1
+cheat store 1
+wait 120
+expect blue_soldiers == 0
+cheat store 2
+wait 95
+expect blue_soldiers == 1
+expect store == 0
+# a worker on free will fetches a bead it can see and brings it home
+cheat store 0
+cheat unit 2 0 80 90
+cheat bead 110 90
+waituntil delivered >= 2 900

@@ -1,0 +1,27 @@
+# MANDIBLES: a red soldier that picks a target locks its spit direction and
+# keeps spitting that way until the target dies or leaves its range. Step
+# off its line and it spits at nothing; stand at an angle it isn't facing
+# and you can hit it without being hit.
+game mandibles
+wait 5
+cheat mission 1 17
+cheat clear
+cheat red_store 0
+cheat store 1
+cheat mistakes 0
+cheat at 160 60
+cheat unit 3 1 200 60
+wait 12
+expect t0_lock == 4
+# out of its line, still in range: it keeps spitting west
+hold UP 40
+expect t0_lock == 4
+expect py <= 42
+hold RIGHT 60
+expect t0_lock == 4
+# now diagonal to it (north-west of it): face south-east and spit
+press DOWN+RIGHT 1
+cheat at 182 42
+hold B 200
+expect t0_alive == 0
+expect hp >= 2

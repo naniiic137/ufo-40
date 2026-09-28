@@ -1,0 +1,37 @@
+# MANDIBLES: 2P versus puts blue against red on the same terms (every ant 3
+# health, queens 20), each player with the same buttons. The screen splits
+# in two and the keyboard splits in two halves.
+game mandibles
+wait 5
+press DOWN
+press A
+wait 5
+expect state == 5
+press RIGHT
+expect vs_sel == 1
+press LEFT
+press A
+wait 5
+expect state == 3
+expect versus == 1
+expect input_versus == 1
+expect p2 >= 0
+expect p2hp == 3
+expect red_queen_hp == 20
+expect red_worker_hp == 3
+# player 2 walks and opens its own command menu
+print p2x
+hold P2LEFT 30
+expect p2x < 460
+hold P2A
+wait 3
+expect cmd2_open == 1
+expect cmd_open == 0
+release P2A
+wait 2
+expect cmd2_open == 0
+# player 2's spit hurts blue
+cheat at 360 52
+wait 1
+hold P2B 60
+expect hp < 3
