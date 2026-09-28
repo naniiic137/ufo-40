@@ -32,6 +32,8 @@ static const char *const NAME[N_KINDS] = {
     [N_TABITHA] = "QUEEN TABITHA", [N_MAGE] = "THE TIN MAGE", [N_KNIGHT] = "A TIN KNIGHT", [N_PELL] = "PELL", [N_RATCHET] = "COOK RATCHET",
     [N_NIB] = "NIB", [N_NATIVE] = "A LOCAL", [N_HOPPERSAGE] = "AN OLD GRASSHOPPER", [N_BUBBLE] = "SOMEONE IN A BUBBLE",
     [N_WAXLING] = "A WAXLING",
+    [N_BEE] = "MRS. HUMBLE", [N_FACE] = "HALF A FACE", [N_EXILE] = "WICKLESS", [N_DUMPER] = "A LUMEN LAD",
+    [N_EXILE2] = "OLD SMUT", [N_HISTORIAN] = "ARCHIVIST TUSSOCK", [N_PILOT] = "THE PILOT", [N_GLOW] = "THE GLOW",
 };
 const char *dd_npc_name(int sub) { return sub >= 0 && sub < N_KINDS ? NAME[sub] : ""; }
 
@@ -152,7 +154,7 @@ bool dd_npc_visible(int sub) {
     switch (sub) {
     case N_FILAMENT: return dd_flag(FL_LAMP_OFF);
     case N_PILGRIM: return !dd_flag(FL_LAMP_OFF);
-    case N_NIB: return dd_flag(FL_FILAMENT_PAID);
+    case N_NIB: return dd_flag(FL_SPROCKET_DEAD);
     case N_PUFFIN: return true;
     default: return true;
     }
@@ -240,12 +242,12 @@ static void cb_queen(int yes) {
     if (dd_dash >= 0) { dd_ent[dd_dash].alive = 0; dd_dash = -1; }
     dd_say("QUEEN TABITHA", "MMM, SHINY. THANK YOU, DEAR. OH, AND I'LL BE KEEPING THE DOG. I'VE ALWAYS WANTED A FOOTSTOOL THAT BARKS.");
     dd_say_more("SIR SPROCKET! SEE OUR GUEST OUT. PERMANENTLY.");
-    /* the knight takes the floor of the next hall */
-    for (int c = 0; c < dd_lv.d.n; c++)
-        if (dd_lv.town[c] == dd_town_id("latchtown") && dd_lv.town_part[c] == 3) {
-            int j = dd_add_foe(F_SPROCKET, (float)((c * CHUNK_W + 22) * DD_TS), (float)(12 * DD_TS - 48));
-            (void)j;
-        }
+    /* the knight comes clanking out from behind the throne */
+    if (dd_lv.d.kind == LV_AREA && dd_lv.d.id == AR_THRONE) {
+        int j = dd_add_foe(F_SPROCKET, (float)(40 * DD_TS), (float)(20 * DD_TS - 48));
+        (void)j;
+    }
+    if (talk_ent >= 0) dd_ent[talk_ent].alive = 0; /* she sweeps off to watch from somewhere safe */
     dd_autosave();
 }
 static void cb_mage(int yes) {
@@ -253,14 +255,12 @@ static void cb_mage(int yes) {
     if (dd_sv.glints < 50) { dd_say("THE TIN MAGE", "FIFTY. NOT ONE GLINT LESS."); return; }
     dd_sv.glints -= 50;
     dd_set(FL_THRONE_OPEN);
-    for (int c = 0; c < dd_lv.d.n; c++)
-        if (dd_lv.town[c] == dd_town_id("latchtown") && dd_lv.town_part[c] == 2)
-            for (int y = 6; y <= 11; y++) { lv_set(&dd_lv, c * CHUNK_W + 1, y, T_AIR); lv_set(&dd_lv, c * CHUNK_W + 2, y, T_AIR); }
-    dd_say("THE TIN MAGE", "THE THRONE HALL IS OPEN. HER MAJESTY WILL SEE YOU NOW.");
+    dd_say("THE TIN MAGE", "CRANK, CRANK... THE BRIDGE IS DOWN. THE GATE ON TOP OF THE KNOB WILL LET YOU IN AT YOUR OWN SIZE. HER MAJESTY WILL SEE YOU.");
     dd_autosave();
 }
 static void cb_pell(int yes) {
     if (!yes) { dd_say("PELL", "OH. WELL. I'LL JUST... STAY HERE THEN."); return; }
+    if (dd_carry >= 0) { dd_ent[dd_carry].alive = 0; dd_carry = -1; }
     dd_set(FL_PELL_FREED);
     if (talk_ent >= 0) dd_ent[talk_ent].alive = 0;
     dd_say("PELL", "FREE! I'M OFF HOME TO TUFTVILLE. ELDER TALLOW WILL HEAR WHAT YOU DID!");
@@ -268,9 +268,10 @@ static void cb_pell(int yes) {
 }
 static void cb_knight(int yes) {
     if (!yes) return;
+    if (dd_carry >= 0) { dd_ent[dd_carry].alive = 0; dd_carry = -1; }
     dd_set(FL_PELL_GUARDED);
     pay(10);
-    dd_say("A TIN KNIGHT", "GOOD. YOU WATCH HIS LEFT, I'LL WATCH HIS RIGHT. HE'S NOT GOING ANYWHERE NOW.");
+    dd_say("A TIN KNIGHT", "THE KEY! I'D LOOKED EVERYWHERE. HERE, FOR YOUR HONESTY. NOW HE'S NOT GOING ANYWHERE.");
 }
 static void cb_tock(int yes) {
     if (!yes) { dd_say("TOCK", "TICK. TOCK. I WILL WAIT. I AM GOOD AT WAITING."); return; }
@@ -279,20 +280,25 @@ static void cb_tock(int yes) {
     dd_set(FL_BALANCE);
     dd_autosave();
     dd_say("TOCK", "WHIRR... CLICK. THE HANDS SWING BACK. THE ROOM SIGHS. THE GLINTS YOU TOOK ARE PAID FOR AND THE MINUTES YOU SKIPPED ARE RETURNED.");
-    if (dd_flag(FL_ESCAPED) || dd_flag(FL_SPROCKET_DEAD)) {
-        dd_say_more("THE DOOR WILL OPEN FOR YOU NOW, AND IT WILL STAY OPEN. GO AND JOIN THE PARTY, DOT.");
-        dd_set(FL_TRUE_END);
-        dd_start_ending(true);
-    } else dd_say_more("NOW GET OUT OF THIS ROOM, AND THE ROOM WILL STAY GOOD.");
+    dd_say_more("THE DOOR WILL OPEN FOR YOU NOW, AND IT WILL STAY OPEN. GO AND JOIN THE PARTY, DOT.");
+    dd_set(FL_TRUE_END);
+    dd_start_ending(true);
 }
 static void cb_warden(int yes) {
     if (!yes) return;
     dd_set(FL_LAMP_OFF);
     dd_lamp_dark = 1;
     dd_autosave();
-    dd_say("THE WICK WARDEN", "CLICK. THE GREAT LAMP SLEEPS. LISTEN, UP ON THE SHADE: THE OLD FILAMENT IS AWAKE AND WILL SPEAK TO YOU.");
+    dd_say("THE WICK WARDEN", "CLICK. THE READING LAMP SLEEPS. LISTEN, UP ON ITS SHADE: THE OLD FILAMENT IS AWAKE AND WILL SPEAK TO YOU.");
 }
 static void cb_letter(int yes) { (void)yes; }
+static void cb_donate(int yes) {
+    if (!yes) { dd_say("ARCHIVIST TUSSOCK", "HISTORY FORGIVES YOU. I MAY NOT."); return; }
+    if (dd_sv.glints < 5) { dd_say("ARCHIVIST TUSSOCK", "AH. NOT EVEN FIVE. NEVER MIND."); return; }
+    dd_sv.glints -= 5;
+    dd_set(FL_HISTORIAN);
+    dd_say("ARCHIVIST TUSSOCK", "MOST KIND. YOUR NAME GOES IN THE BOOK OF FRIENDS OF THE POTS.");
+}
 
 /* ------------------------------------------------------------------ */
 /* talking                                                                 */
@@ -301,7 +307,7 @@ static void talk_granny(void) {
     if (!dd_flag(FL_MET_GRANNY)) {
         dd_set(FL_MET_GRANNY);
         say("WELL I NEVER! A LITTLE GIRL NO BIGGER THAN A BUTTON, AND A DOG TO MATCH. I'M GRANNY THIMBLE. I SHRANK ONE AFTERNOON AND NEVER BOTHERED GROWING BACK.");
-        say("LOCKED IN, ARE YOU? THE DOOR ANSWERS TO THE CAT WHO SITS ON TOP OF IT. TABITHA. SHE WAS MY CAT ONCE. NOW SHE CALLS HERSELF A QUEEN AND CHARGES 500 GLINTS TO LET ANYONE OUT.");
+        say("LOCKED IN, ARE YOU? THE DOOR ANSWERS TO THE CAT WHO LIVES IN ITS KNOB. TABITHA. SHE WAS MY CAT ONCE. NOW SHE CALLS HERSELF A QUEEN AND CHARGES 500 GLINTS TO LET ANYONE OUT.");
         say("THOSE SPECTACLES ON MY TABLE BELONG TO PROFESSOR CRUMB IN THE WEST POT. HE CAN'T SEE PAST HIS NOSE WITHOUT THEM. TAKE THEM TO HIM. HE KNOWS HOW TO GET SMALLER STILL.");
         return;
     }
@@ -352,29 +358,28 @@ static void talk_silk(void) {
         say("A GREEN GERM! FRESH! OH, THE TANG OF IT. HERE, FOR YOUR TROUBLE, LITTLE GIRL.");
         return;
     }
-    say("I HAVE EATEN EVERY FLY IN THIS ROOM AND THEY ALL TASTE OF DUST. BRING ME SOMETHING NEW. A GREEN GERM, FROM THE DUST UNDER THE BOOKSHELF. CARRY IT, DON'T SQUASH IT.");
+    say("I HAVE EATEN EVERY FLY IN THIS ROOM AND THEY ALL TASTE OF DUST. BRING ME SOMETHING NEW. A GREEN GERM: GO SMALLER STILL, RIGHT HERE ON MY WEB, AND CATCH ONE. CARRY IT, DON'T SQUASH IT.");
 }
 
 static void talk_filament(void) {
-    if (dd_flag(FL_FILAMENT_PAID)) { say("BEHIND THE QUEEN'S THRONE, SMALLER THAN SMALL. GO."); return; }
     if (carrying(O_BIGBANG)) {
         take_carried();
         dd_set(FL_BIGBANG_DONE);
         dd_set(FL_FILAMENT_PAID);
         pay(80);
-        say("THE BIG BANG. SAFE WITH ME, WHERE THERE IS NOTHING TO BURN. NOW LISTEN: THE CAT IS NOT THE TRUE POWER ON THE DOOR.");
-        say("SOMEONE LIVES BEHIND HER THRONE, SMALLER THAN SMALL. STAND THERE AND SHRINK AS DEEP AS YOU CAN GO. ASK THEM WHY THE CLOCK RUNS WRONG.");
+        say("THE BIG BANG. SAFE WITH ME NOW, WHERE THERE IS NOTHING TO BURN. EIGHTY GLINTS FOR YOUR NERVE.");
         return;
     }
     dd_set(FL_FILAMENT_ASKED);
-    say("THE LAMP IS DARK, SO I CAN SPEAK. I AM THE OLD FILAMENT. I HAVE WATCHED THE DOOR FOR YEARS, AND I KNOW WHO REALLY RULES IT.");
-    say("BUT FIRST: THERE IS A FIRECRACKER CALLED THE BIG BANG AT THE FAR END OF THE SIEGE BOX ON THE MIDDLE SHELF. BRING IT HERE BEFORE IT BLOWS THIS ROOM TO BITS.");
+    say("THE LAMP IS DARK, SO I CAN SPEAK. I AM THE OLD FILAMENT. I HAVE WATCHED THE DOOR FOR YEARS: THE CAT ONLY SITS ON THE KNOB. THE ONE WHO TURNS IT LIVES IN THE KEYHOLE.");
+    if (!dd_flag(FL_BIGBANG_DONE))
+        say("AND IF YOU WANT TO EARN A LITTLE: A FIRECRACKER CALLED THE BIG BANG LIES AT THE FAR END OF THE SIEGE BOX ON THE MIDDLE SHELF. BRING IT HERE, UNBROKEN, BEFORE IT BLOWS THINGS TO BITS.");
 }
 
 static void talk_tock(void) {
     dd_set(FL_TOCK_MET);
     if (dd_flag(FL_BALANCE)) { say("TICK. TOCK. ALL IS IN BALANCE."); return; }
-    if (!dd_flag(FL_MET_NIB)) {
+    if (!dd_flag(FL_MET_NIB) || !dd_flag(FL_ESCAPED)) {
         say("TICK. TOCK. I KEEP THE CLOCK. EVERY TIME YOU GROW TO FULL SIZE, OR FALL DOWN AND GROW BACK, IT JUMPS A MINUTE. THAT IS ALL YOU NEED TO KNOW.");
         return;
     }
@@ -386,7 +391,7 @@ static void talk_oldcap(void) {
         if (!dd_flag(FL_OLDCAP_DONE)) {
             dd_set(FL_OLDCAP_DONE);
             say("YOU CAME! THE TABLET SAYS THE CLOCKWORKS HIDE A PEP EGG, AND HERE IT IS, BEHIND THE ESCAPEMENT. TAKE IT. YOUR THROWS WILL THANK YOU.");
-            dd_give_upgrade(U_EGG0 + 2);
+            dd_award_upgrade(U_EGG0);
         } else say("SUCH A LOVELY TICKING, ISN'T IT?");
         return;
     }
@@ -488,25 +493,25 @@ static void talk_soldier(void) {
 }
 
 static void talk_shrew(void) {
-    if (!dd_flag(FL_MAGE_BEATEN)) { say("(HIS EYES ARE GLASSY.) MUST... SERVE... THE TIN MAGE... ON THE BOARD... BY THE GRATE..."); return; }
+    if (!dd_flag(FL_MAGE_BEATEN)) { say("(HIS EYES ARE GLASSY.) SOMETHING IN... MY HEAD... TINNY LITTLE VOICE... GET IT OUT... (STAND ON HIM AND SHRINK.)"); return; }
     if (!dd_flag(FL_SHREW_PAID)) {
         dd_set(FL_SHREW_FREE);
         dd_set(FL_SHREW_PAID);
         pay(20);
-        say("MY HEAD'S CLEAR! THAT TIN MAGE HAD ME POURING FOR HIS MICE DAY AND NIGHT. HERE, FOR YOUR TROUBLE.");
+        say("MY HEAD'S CLEAR! A TIN MAGE, SITTING IN MY SKULL, PULLING LEVERS. I'VE BEEN POURING FOR HIS MICE FOR WEEKS. HERE, FOR YOUR TROUBLE.");
         return;
     }
-    if (carrying(O_SPORE) || carrying(O_JARHONEY)) {
+    if (carrying(O_SPORE)) {
         swap_carried(O_DRINK);
         say("ONE MUSHROOM DRINK, COMING UP. SHAKE, STIR... THROW IT AT SOMETHING NASTY AND WATCH IT WILT. POISON'S CATCHING, TOO.");
         return;
     }
-    say("BRING ME A SPORE, OR A JAR OF HONEY FROM THE HIVE ON THE WEST POT, AND I'LL MIX YOU A MUSHROOM DRINK. ANOTHER, ANY TIME.");
+    say("BRING ME A MUSHROOM SPORE AND I'LL MIX YOU A MUSHROOM DRINK. ANOTHER, ANY TIME.");
 }
 
 static void talk_spinner(void) {
     if (dd_flag(FL_GEAR_DONE)) {
-        say("WHEN SIR SPROCKET THROWS HIS HEAD, CLIMB ON HIS SHOULDERS AND SHRINK DOWN THE NECK. YOU'LL NEED THE SECOND TONIC. HIS MAINSPRING IS INSIDE.");
+        say("WHEN SIR SPROCKET THROWS HIS HEAD, CLIMB ON HIS SHOULDERS AND SHRINK DOWN THE NECK. THE SECOND TONIC GETS YOU THROUGH HIS WORKS. AT THE END, HIS CONSOLE: GEAR, GEAR, SPRING, KEY.");
         return;
     }
     if (carrying(O_GEAR)) {
@@ -514,7 +519,7 @@ static void talk_spinner(void) {
         dd_set(FL_GEAR_DONE);
         pay(15);
         say("THE GEAR! PERFECT. MY CLOCKWORK FLYER WILL FLY YET. LISTEN, ONE ENGINEER TO ANOTHER: THE QUEEN'S KNIGHT, SIR SPROCKET, IS ARMOUR ALL THE WAY THROUGH. NOTHING HURTS HIM FROM OUTSIDE.");
-        say("BUT WHEN HE THROWS HIS HEAD, CLIMB ON HIS SHOULDERS AND SHRINK DOWN THE NECK. YOU'LL NEED THE SECOND TONIC. BREAK HIS MAINSPRING AND HE FALLS APART.");
+        say("BUT WHEN HE THROWS HIS HEAD, CLIMB ON HIS SHOULDERS AND SHRINK DOWN THE NECK. YOU'LL NEED THE SECOND TONIC TO SQUEEZE THROUGH HIS WORKS, AND FEATHERS OR A MOTH FOR THE DROP. TYPE GEAR, GEAR, SPRING, KEY ON HIS CONSOLE AND HE FALLS APART.");
         return;
     }
     say("I'M BUILDING A CLOCKWORK FLYER IN THIS MONEY BOX, BUT I'M ONE GEAR SHORT. THE BLOWN OUTLET BEHIND THE BOOKSHELF SPAT ONE INTO THE WALLS.");
@@ -526,7 +531,7 @@ static void talk_tallow(void) {
         dd_set(FL_SNARL_DONE);
         pay(10);
         say("THE COVER STONE OF OUR BUZZBOOK! THE SNARL GANG STOLE IT MOONS AGO. WITH IT WHOLE, THE BOOK SPEAKS AGAIN. TAKE IT: STAND ON A BUG AND PRESS " GLYPH_UP ", AND IT WILL DO AS YOU SAY.");
-        dd_give_upgrade(U_BUZZ1);
+        dd_award_upgrade(U_BUZZ1);
         return;
     }
     if (carrying(O_BABY)) {
@@ -693,19 +698,17 @@ static void talk_wriggla(void) {
 }
 
 static void talk_borer(void) {
+    if (dd_flag(FL_TWIG_DONE)) { say("WE'LL BE EATING FOR WEEKS."); return; }
     if (carrying(O_TWIG)) {
         int k = carried_param();
         take_carried();
         if (k >= 0 && k < 3) dd_sv.counts[QC_TWIGS] |= (uint8_t)(1u << k);
-        if (popcount8(dd_sv.counts[QC_TWIGS]) >= 3 && !dd_flag(FL_TWIG_DONE)) {
-            dd_set(FL_TWIG_DONE);
-            pay(15);
-            say("THREE GREEN TWIGS! A FEAST FOR THE WHOLE BURROW. HERE, WITH OUR THANKS.");
-        } else say("GREEN WOOD! ONE MORE FOR THE POT. BRING ME ALL THREE FROM THE EAST PLANT.");
+        dd_set(FL_TWIG_DONE);
+        pay(15);
+        say("GREEN WOOD! FRESH AND SAPPY. A FEAST FOR THE WHOLE BURROW. HERE, WITH OUR THANKS.");
         return;
     }
-    if (dd_flag(FL_TWIG_DONE)) { say("WE'LL BE EATING FOR WEEKS."); return; }
-    say("THIS DRY OLD WALL WOOD IS NO FOOD FOR A GROWING WORM. BRING ME GREEN TWIGS, THREE OF THEM. THEY GROW ON THE LEAVES OF THE EAST PLANT.");
+    say("THIS DRY OLD WALL WOOD IS NO FOOD FOR A GROWING WORM. BRING ME A GREEN TWIG. THEY GROW ON THE LEAVES OF THE EAST PLANT.");
 }
 
 static void talk_knot(void) {
@@ -717,17 +720,17 @@ static void talk_generic_quest(int sub) {
     switch (sub) {
     case N_ONEEYE:
         if (dd_flag(FL_BLUEEYE_DONE)) { say("I CAN SEE IN STEREO! EVERYTHING HAS A FRONT AND A BACK NOW."); return; }
-        if (carrying(O_BLUEEYE)) { take_carried(); dd_set(FL_BLUEEYE_DONE); say("A BLUE EYE BEAD, PERFECT! ...THERE. TWO EYES. HERE, A HALF BUTTON FOR YOUR HEART."); dd_give_upgrade(U_HEART0 + 7); return; }
+        if (carrying(O_BLUEEYE)) { take_carried(); dd_set(FL_BLUEEYE_DONE); say("A BLUE EYE BEAD, PERFECT! ...THERE. TWO EYES. HERE, A HALF BUTTON FOR YOUR HEART."); dd_award_upgrade(U_HEART0 + 6); return; }
         say("I WAS BORN WITH ONE EYE, LIKE ALL SPORELINGS, BUT I'VE ALWAYS WANTED TWO. THERE'S A BLUE BEAD IN A CAVE UNDER THE TOY TRAIN'S ROOF. IT WOULD DO NICELY.");
         return;
     case N_SEEDKEEPER:
         if (dd_flag(FL_SEED_DONE)) { say("THE SEED SLEEPS IN THE VAULT. ONE DAY, A FOREST."); return; }
-        if (carrying(O_SEED)) { take_carried(); dd_set(FL_SEED_DONE); say("A MOLD SEED! FOR THE SEED VAULT. TAKE THIS HEART BUTTON, WE KEEP THEM FOR JUST SUCH A DAY."); dd_give_upgrade(U_HEART0 + 4); return; }
+        if (carrying(O_SEED)) { take_carried(); dd_set(FL_SEED_DONE); say("A MOLD SEED! FOR THE SEED VAULT. TAKE THIS HEART BUTTON, WE KEEP THEM FOR JUST SUCH A DAY."); dd_award_upgrade(U_HEART0); return; }
         say("I KEEP THE SEED VAULT OF TICKBURG. WE HAVE NO MOLD SEED. THROW A MOLD FRUIT AND IT SPLITS INTO ONE. THE MOLD PATCH IS IN THE EAST POT'S SOIL.");
         return;
     case N_GILL:
         if (dd_flag(FL_REDEGG_DONE)) { say("THE RED EGG HATCHED INTO... A VERY CONFUSED LANCER. HE'S OURS NOW."); return; }
-        if (carrying(O_REDEGG)) { take_carried(); dd_set(FL_REDEGG_DONE); say("A RED EGG FROM THE LANCERS' NEST! WE'LL RAISE IT GENTLE. HERE, A HEART BUTTON."); dd_give_upgrade(U_HEART0 + 3); return; }
+        if (carrying(O_REDEGG)) { take_carried(); dd_set(FL_REDEGG_DONE); say("A RED EGG FROM THE LANCERS' NEST! WE'LL RAISE IT GENTLE. HERE, A HEART BUTTON."); dd_award_upgrade(U_HEART0); return; }
         say("THE RED LANCERS NEST IN A CAVE AT THE EAST END OF THE EAST POT. BRING ME ONE OF THEIR EGGS AND WE'LL RAISE A LANCER WITH MANNERS.");
         return;
     case N_MOREL:
@@ -744,21 +747,21 @@ static void talk_generic_quest(int sub) {
         if (dd_flag(FL_LUMEN)) { say("GO IN LIGHT, HONOURED LUMEN. THE WARDEN WILL DO AS YOU ASK."); return; }
         if (dd_flag(FL_SHRINE)) {
             dd_set(FL_LUMEN);
-            say("YOU HAVE BOWED AT THE LAMP SHRINE. I NAME YOU AN HONOURED LUMEN OF GLIMMER! TAKE THIS SCROLL OF OUR LIGHT; THE WAXKIN HAVE LONG ASKED FOR ONE.");
+            say("YOU HAVE STOOD IN THE GLOW AT THE TOP OF THE GREAT LAMP. I NAME YOU AN HONOURED LUMEN OF GLIMMER! TAKE THIS SCROLL OF OUR LIGHT; THE WAXKIN HAVE LONG ASKED FOR ONE.");
             int j = dd_add_obj(O_SCROLL, dd_p.x + 10, dd_p.y);
             (void)j;
             dd_autosave();
             return;
         }
-        say("WE LUMEN LIVE IN THE LIGHT OF THE GREAT LAMP. ONLY A PILGRIM WHO HAS BOWED AT THE SHRINE ON TOP OF THE SHADE MAY BE ONE OF US.");
+        say("WE LUMEN LIVE BY THE LIGHT OF THIS LAMP, BUT OUR FATHER IS THE GREAT LAMP HANGING FROM THE CEILING. ONLY ONE WHO HAS MADE THE PILGRIMAGE TO ITS GLOW MAY BE ONE OF US.");
         return;
     case N_WARDEN:
         if (dd_flag(FL_LAMP_OFF)) { say("THE LAMP SLEEPS. SHALL IT WAKE? NO. NOT YET."); return; }
-        if (!dd_flag(FL_LUMEN)) { say("I KEEP THE SWITCH OF THE GREAT LAMP. ONLY FOR A LUMEN WOULD I EVER TOUCH IT."); return; }
-        dd_ask("THE WICK WARDEN", "HONOURED LUMEN. YOU WISH THE GREAT LAMP OFF, SO THE OLD FILAMENT MAY SPEAK?", cb_warden);
+        if (!dd_flag(FL_LUMEN)) { say("I KEEP THE SWITCH OF THIS LAMP. ONLY FOR A LUMEN WOULD I EVER TOUCH IT."); return; }
+        dd_ask("THE WICK WARDEN", "HONOURED LUMEN. YOU WISH THE LAMP OFF, SO THE OLD FILAMENT MAY SPEAK?", cb_warden);
         return;
     case N_TABITHA:
-        if (dd_flag(FL_SPROCKET_DEAD)) { say("MY KNIGHT... FINE. THE DOOR IS YOURS, AND THE MUTT. SHOO."); return; }
+        if (dd_flag(FL_SPROCKET_DEAD)) { say("BACK AGAIN? THE DOOR'S OPEN, DEAR. I SHAN'T BUILD ANOTHER WALL IN MY OWN KNOB. WHATEVER LIVES BEHIND IT IS WELCOME TO YOU."); return; }
         if (dd_flag(FL_PAID_QUEEN)) { say("SIR SPROCKET WILL SEE YOU OUT."); return; }
         dd_set(FL_MET_QUEEN);
         if (dd_sv.glints >= 500) dd_ask("QUEEN TABITHA", "SO THE LITTLE GIRL WANTS OUT. MY DOOR, MY PRICE: 500 GLINTS. PAY?", cb_queen);
@@ -771,11 +774,13 @@ static void talk_generic_quest(int sub) {
     case N_KNIGHT:
         if (dd_flag(FL_PELL_FREED)) { say("THE PRISONER'S GONE! THE QUEEN WILL HAVE MY BOLTS."); return; }
         if (dd_flag(FL_PELL_GUARDED)) { say("STEADY. HE'S NOT GOING ANYWHERE."); return; }
-        dd_ask("A TIN KNIGHT", "THE PRISONER STAYS. BUT MY FEET ACHE. STAND GUARD WITH ME A WHILE? TEN GLINTS.", cb_knight);
+        if (carrying(O_KEY)) { dd_ask("A TIN KNIGHT", "IS THAT THE CELL KEY? HAND IT OVER AND THERE'S TEN GLINTS IN IT FOR YOU.", cb_knight); return; }
+        say("SOMEBODY'S WALKED OFF WITH MY CELL KEY. THE MAGE KEEPS SPARES IN HIS HOUSE, THE LAST ONE AT THE FAR END OF TOWN.");
         return;
     case N_PELL:
         if (dd_flag(FL_PELL_GUARDED)) { say("TRAITOR."); return; }
-        dd_ask("PELL", "PSST! I'M PELL, FROM TUFTVILLE. THEY CAUGHT ME PEEKING AT THE QUEEN'S TREASURE. OPEN MY CELL?", cb_pell);
+        if (carrying(O_KEY)) { dd_ask("PELL", "THE KEY! OH PLEASE, OPEN MY CELL?", cb_pell); return; }
+        say("PSST! I'M PELL, FROM TUFTVILLE. THEY CAUGHT ME PEEKING AT THE QUEEN'S TREASURE. THE KEY HANGS IN THE MAGE'S HOUSE AT THE FAR END OF TOWN.");
         return;
     case N_SNUFF:
         if (dd_flag(FL_SCROLL_DONE)) { say("I'VE BEEN READING THE LUMEN SCROLL. I THINK I'M A PILGRIM NOW."); return; }
@@ -785,14 +790,52 @@ static void talk_generic_quest(int sub) {
         say(dd_flag(FL_SNARL_DONE) ? "YOU STOLE OUR STONE! WELL. WE STOLE IT FIRST, BUT STILL." : "THIS IS SNARL. WE KEEP WHAT WE TAKE. GET LOST, GIANT.");
         return;
     case N_PILGRIM:
-        say(dd_flag(FL_SHRINE) ? "YOU'VE BOWED AT THE SHRINE. GO DOWN TO GLIMMER, UNDER OUR FEET, AND THE HIGH LUMEN WILL BLESS YOU." :
-                                 "EVERY LUMEN MUST BOW AT THE LAMP SHRINE ONCE. IT'S RIGHT HERE ON THE SHADE. PRESS " GLYPH_UP " AT IT.");
+        dd_set(FL_PILGRIM);
+        say(dd_flag(FL_SHRINE) ? "YOU'VE STOOD IN THE GLOW! GO TO THE HIGH LUMEN, AND BE ONE OF US." :
+                                 "EVERY LUMEN MAKES THE PILGRIMAGE ONCE. THE FLY FROM THE END OF OUR SHADE CARRIES YOU TO THE GREAT LAMP. RUN TO ITS FAR END, GO SMALLER, AND CLIMB TO THE GLOW.");
+        return;
+    case N_GLOW:
+        if (!dd_flag(FL_SHRINE)) {
+            dd_set(FL_SHRINE);
+            dd_set(FL_GLOW_MET);
+            dd_autosave();
+            say("...WARM. YOU CLIMBED ALL THIS WAY. STAND A MOMENT IN THE LIGHT. (SPARKS DRIFT DOWN AROUND YOU.) GO BACK TO GLIMMER, PILGRIM. THEY WILL KNOW.");
+        } else say("...WARM.");
         return;
     case N_NIB:
         dd_set(FL_MET_NIB);
-        say("YOU FOUND ME. I AM NIB. I LIVE IN THE KEYHOLE AND I TURN THE LOCK FROM INSIDE; THE CAT ONLY SITS ON TOP AND COUNTS GLINTS.");
+        say("YOU FOUND ME. I AM NIB. I LIVE IN THE KEYHOLE AND TURN THE LOCK FROM INSIDE; THE CAT ONLY SAT ON THE KNOB AND COUNTED GLINTS.");
         say("THE ROOM IS OUT OF BALANCE. TOO MUCH TAKEN, TOO MANY MINUTES SKIPPED. TOCK, THE SPIDER IN THE CLOCK, CAN WIND IT RIGHT, FOR A THOUSAND GLINTS. TELL HIM NIB SENT YOU.");
         dd_autosave();
+        return;
+    case N_BEE:
+        if (dd_flag(FL_BEE_DONE)) { say("BZZ. FEELING SO MUCH BETTER. THE HIVE HUMS AGAIN."); return; }
+        if (carrying(O_JARHONEY)) { swap_carried(O_JAR); dd_set(FL_BEE_DONE); pay(25); say("HONEY! A SPOONFUL AND I'M BUZZING. KEEP THE JAR, DEAR. AND THESE."); return; }
+        say("OH, I'M POORLY. BZZ... NOTHING BUT HONEY WILL DO, AND I'M TOO WEAK TO FETCH IT. HOLD A JAR UNDER THE DRIP IN THE COMB, WOULD YOU?");
+        return;
+    case N_FACE:
+        if (dd_flag(FL_FACE_DONE)) { say("WHOLE AGAIN! I CAN FINALLY FINISH A SMILE."); return; }
+        if (carrying_foe(F_FACE)) { take_carried(); dd_set(FL_FACE_DONE); pay(10); say("MY OTHER HALF! COME HERE... (CLICK.) THAT'S BETTER. WE'RE A WHOLE FACE AGAIN. TAKE THESE."); return; }
+        say("I'M HALF A FACE. MY OTHER HALF WANDERED OFF INTO THE BLUE BOOKS BELOW. IT CAN'T SEE WHERE IT'S GOING, POOR THING. YOU'LL NEED A MITT TO CARRY IT.");
+        return;
+    case N_EXILE:
+        if (!dd_flag(FL_EXILE_DONE)) { dd_set(FL_EXILE_DONE); pay(15); say("A VISITOR, OUT HERE? THEY SENT ME AWAY FROM GLIMMER FOR BURNING TOO DIM. HERE, TAKE MY SAVINGS. I'VE NOTHING TO SPEND THEM ON."); return; }
+        say("I SIT HERE AND LOOK AT THE PORTRAIT'S BUTTONS. THEY'RE VERY SHINY BUTTONS.");
+        return;
+    case N_DUMPER:
+        dd_set(FL_DUMP_TOLD);
+        say("WHEE! I THROW MY GLINTS OVER THE EDGE OF THE SHELF, JUST TO WATCH THEM FALL. THEY LAND ON THE TOP LEAVES OF THE PLANT DOWN THERE. I NEVER GO AND GET THEM.");
+        return;
+    case N_EXILE2:
+        if (!dd_flag(FL_EXILE2_DONE)) { dd_set(FL_EXILE2_DONE); pay(20); say("YOU KNOW OLD CAP? THEN YOU KNOW WHY I LIVE ON A GAME BOX. I SOLD OUR TABLETS TO THE CLODS. HERE, AND DON'T TELL HIM WHERE I AM."); return; }
+        say("THE TANKS ROLL BY ALL NIGHT. YOU GET USED TO IT.");
+        return;
+    case N_HISTORIAN:
+        if (!dd_flag(FL_HISTORIAN)) { dd_ask("ARCHIVIST TUSSOCK", "I KEEP THE HISTORY OF THE TWO POTS. A SMALL DONATION FOR THE ARCHIVE? FIVE GLINTS?", cb_donate); return; }
+        say("THE ARCHIVE THANKS YOU. DID YOU KNOW LOAMTON AND FERNBY WERE ONCE ONE TOWN, BEFORE THE WATERING CAN?");
+        return;
+    case N_PILOT:
+        say("STEADY ON, PASSENGER. I STEER THIS OLD FLY BY THE LAMPS: THE BIG ONE ABOVE, THE LITTLE ONE ON THE SHELF. WE STOP AT EACH END, SO HOP ON AND OFF THERE.");
         return;
     case N_HOPPERSAGE:
         dd_set(FL_GRASS_SEEN);
@@ -819,15 +862,15 @@ void dd_native_hint(int ent, char *buf, int n) {
         return;
     }
     static const char *H[] = {
-        "THEY SAY THE SECOND GRIP MITT LIES IN THE BOOKS, AND ANOTHER BETWEEN THE WALLS.",
+        "THEY SAY THERE ARE GRIP MITTS IN THE BOOKS, AND BETWEEN THE WALLS.",
         "A PAIR OF KICK CLOGS SITS IN THE PENCIL ON TOP OF THE BOOKSHELF.",
         "THE DANGEROUS CAVES HOLD BIG GLINTS, TWO APIECE. MIND THE THORNS.",
-        "A SPRING BEAN AS STRONG AS TWO GROWS ON THE LAMP AND ON THE CLOCK.",
-        "EVERY TREASURE DOWN HERE EXISTS TWICE. TAKE ONE AND THE OTHER TURNS TO GLINTS.",
+        "SPRING BEANS GROW ON THE GREAT LAMP AND ON THE CLOCK.",
+        "EVERY KIND OF TREASURE LIES IN MANY PLACES. FIND ONE, AND THE NEXT ONE YOU FIND IS BETTER.",
         "THE WAXLINGS OF TUFTVILLE LOST THEIR LITTLE ONES ALL OVER THE ROOM.",
         "A PEP EGG MAKES EVERY THROW HIT HARDER. THERE ARE EIGHT.",
         "THE STONE OWL ON THE BOTTOM SHELF WAKES FOR A GOOD HARD QUAKE.",
-        "IF YOU CAN SHRINK DEEPER, DO. THE MOTES HIDE THINGS TOO.",
+        "WITH THE SECOND TONIC YOU CAN SQUEEZE THROUGH GAPS ONE SPECK HIGH. THINGS HIDE BEHIND THEM.",
         "BETWEEN THE WALLS LIVE THE WOODWORMS. THEIR QUEEN HAS LOST SOMETHING.",
     };
     snprintf(buf, (size_t)n, "%s", H[(h / 3) % ARRAY_LEN(H)]);
@@ -879,6 +922,23 @@ void dd_talk(int ent) {
     }
     dd_autosave();
     (void)cb_letter;
+}
+
+/* Dash has an opinion on what to do next */
+void dd_dash_talk(void) {
+    const char *t;
+    if (!dd_flag(FL_TONIC_GIVEN)) t = !dd_flag(FL_MET_GRANNY) ? "THERE'S A LITTLE HOUSE IN THE THIMBLE BY THE DOOR. SOMEONE LIVES IN THERE, I CAN SMELL TEA." :
+                                                                    "THOSE SPECTACLES OF GRANNY'S. THE PROFESSOR IN THE WEST POT CAN'T SEE WITHOUT THEM. UP THE IVY!";
+    else if (!dd_flag(FL_DASH_CLEAN)) t = "SCRITCH SCRITCH... SOMETHING'S BITING ME. STAND ON MY BACK AND SHRINK, WOULD YOU? I'LL HOLD STILL.";
+    else if (!dd_has(U_MITT1)) t = "GRANNY SAID SOMETHING ABOUT HER OLD GRIP MITT. WITH THAT YOU COULD CARRY CRITTERS. AND ME.";
+    else if (dd_sv.glints < 100) t = "PUT ME DOWN SOMEWHERE AND LET ME WANDER. WHEN I STOP AND POINT, SHRINK RIGHT THERE: MY NOSE KNOWS.";
+    else if (!dd_flag(FL_THRONE_OPEN)) t = "THE CAT LIVES IN THE DOOR KNOB. THERE'S A TOWN ON TOP OF IT. A BLOCK UNDER YOUR FEET, OR A BUG TO RIDE, GETS YOU UP THERE.";
+    else if (!dd_flag(FL_PAID_QUEEN)) t = "FIVE HUNDRED GLINTS FOR THE CAT. THE DANGEROUS CAVES HAVE THE BIG ONES, AND EVERYONE WANTS A FAVOUR.";
+    else if (!dd_flag(FL_ESCAPED)) t = "...";
+    else if (!dd_flag(FL_MET_NIB)) t = "THE CAT'S WALL IN THE THRONE ROOM IS GONE. I SMELL SOMEONE IN THE FAR CORNER, VERY SMALL.";
+    else if (!dd_flag(FL_TRUE_END)) t = "A THOUSAND GLINTS FOR THE SPIDER IN THE CLOCK. GO UP BY THE PORTRAIT, WITH SPRINGY MOLD UNDER YOUR FEET.";
+    else t = "WOOF. (THAT MEANS I LOVE YOU.)";
+    dd_say("DASH", t);
 }
 
 /* bubbles pop when you touch them */
@@ -944,17 +1004,11 @@ void dd_on_boss_dead(int sub) {
         dd_say("", "THE GREAT EARWIG CURLS UP AND IS STILL. ITS SHELL SPLITS INTO A VEST THAT FITS YOU PERFECTLY: THE SHELL VEST. HITS HURT HALF AS MUCH.");
         music_play(DD_MUS[MU_WALLS]);
         break;
-    case F_SIEGE:
-        dd_set(FL_SIEGE_DEAD);
-        dd_add_obj(O_BIGBANG, (float)(151 * DD_TS), (float)(16 * DD_TS - 8));
-        dd_set_message("THE SIEGE ENGINE FALLS! SOMETHING ROLLS OUT");
-        music_play(DD_MUS[MU_SIEGE]);
-        break;
-    case F_SPRING_CORE:
+    case F_SPROCKET:
         dd_set(FL_SPROCKET_DEAD);
-        dd_say("", "SPROINNNG! THE MAINSPRING SNAPS. EVERY GEAR IN SIR SPROCKET STOPS AT ONCE, AND THE KNIGHT FALLS APART AROUND YOU.");
+        dd_say("", "SPROINNNG! EVERY GEAR IN SIR SPROCKET STOPS AT ONCE, AND THE KNIGHT FALLS APART AROUND YOU.");
         dd_say_more("DASH COMES BOUNDING OUT FROM UNDER THE THRONE. THE GREAT DOOR SWINGS OPEN.");
-        dd_start_ending(dd_flag(FL_BALANCE));
+        dd_start_ending(false);
         break;
     }
     dd_autosave();

@@ -58,6 +58,35 @@ static const char DEEP_P[] = "@4 v5 q8 o3 d1 g1 a1 a1 d1 d1 g1 d1";
 static const char DEEP_T[] = "@6 v12 q7 o2 d1 g1 a1 a1 b-1 f1 g1 d1";
 static const char DEEP_N[] = "[@10 v2 o8 c4 r4 @21 v2 o6 c4 r4]8";
 
+/* "Moss and Loam" - the micro world in soil and leaf, E minor */
+static const char MICRO2_L[] =
+    "@1 v11 q5 o5 e8 g8 a8 b8 a4 g4 | o5 e8 d8 e8 g8 a2 | o5 b8 o6 d8 e8 d8 o5 b4 a4 | o5 g8 a8 b8 a8 e2"
+    "| o5 e8 g8 a8 b8 o6 d4 e4 | o6 d8 o5 b8 a8 g8 a4 e4 | o5 d8 e8 g8 a8 b4 a4 | o5 e2 r2";
+static const char MICRO2_P[] = "@16 v5 q7 o4 e1 a1 b1 e1 e1 d1 g1 e1";
+static const char MICRO2_T[] = "@6 v13 q5 " B4("o3 e", "o2 b") B4("o2 a", "o3 e") B4("o2 b", "o3 f+") B4("o3 e", "o2 b")
+                               B4("o3 e", "o2 b") B4("o3 d", "o2 a") B4("o2 g", "o3 d") B4("o3 e", "o2 b");
+static const char MICRO2_N[] = "[@9 v4 o8 c8 @11 v6 o6 c8]32";
+
+/* "Tin and Glass" - the micro world in metal, glass and dust, C minor */
+static const char MICRO3_L[] =
+    "@5 v10 q5 o5 c8 r8 c8 e-8 g4 f4 | o5 e-8 d8 c8 d8 e-2 | o5 f8 r8 f8 a-8 o6 c4 o5 b-4 | o5 a-8 g8 f8 g8 g2"
+    "| o5 c8 r8 c8 e-8 g4 o6 c4 | o5 b-8 a-8 g8 f8 e-4 c4 | o5 d8 e-8 f8 d8 g4 o4 b4 | o5 c2 r2";
+static const char MICRO3_P[] =
+    "@2 v5 q4 [o4 c8 e-8 g8 e-8]4 [o4 f8 a-8 o5 c8 o4 a-8]2 [o4 g8 b8 o5 d8 o4 b8]2"
+    "[o4 c8 e-8 g8 e-8]4 [o4 g8 b8 o5 d8 o4 b8]2 [o4 c8 e-8 g8 o5 c8]2";
+static const char MICRO3_T[] = "@6 v13 q5 " B4("o3 c", "o2 g") B4("o2 e-", "o2 b-") B4("o2 f", "o3 c") B4("o2 g", "o3 d")
+                               B4("o3 c", "o2 g") B4("o2 a-", "o3 e-") B4("o2 g", "o3 d") B4("o3 c", "o2 g");
+static const char MICRO3_N[] = "[@10 v3 o8 c16 c16 @21 v4 o7 c8]32";
+
+/* "The Dangerous Caves" - F sharp minor, never quite still */
+static const char CAVE_L[] =
+    "@5 v11 q4 o5 f+8 f+8 r8 f+8 a4 g+4 | o5 f+8 e8 f+8 c+8 d2 | o5 f+8 f+8 r8 a8 b4 a4 | o5 g+8 f+8 e8 g+8 f+2"
+    "| o5 f+8 f+8 r8 f+8 o6 c+4 o5 b4 | o5 a8 g+8 f+8 e8 d4 c+4 | o5 d8 e8 f+8 d8 e4 o4 b4 | o5 f+2 r2";
+static const char CAVE_P[] = "@16 v5 q7 o4 f+1 d1 f+1 c+1 f+1 d1 b1 f+1";
+static const char CAVE_T[] = "@6 v13 q5 " B4("o2 f+", "o3 c+") B4("o2 d", "o2 a") B4("o2 f+", "o3 c+") B4("o2 c+", "o2 g+")
+                             B4("o2 f+", "o3 c+") B4("o2 d", "o2 a") B4("o2 b", "o3 f+") B4("o2 f+", "o3 c+");
+static const char CAVE_N[] = "[@13 v9 o2 c8 @9 v4 o8 c8 @9 v4 o8 c8 @9 v4 o8 c8]16";
+
 /* "Little Market" - the towns, D major */
 static const char TOWN_L[] =
     "@0 v11 q5 o5 d8 f+8 a8 f+8 d8 f+8 a4 | o5 b8 a8 g8 f+8 e2 | o5 c+8 e8 a8 e8 c+8 e8 a4 | o5 g8 f+8 e8 c+8 d2"
@@ -138,6 +167,9 @@ void dd_audio_load(void) {
     DD_MUS[MU_SIEGE] = song_define("dd_siege", 140, true, SIEGE_L, SIEGE_P, SIEGE_T, SIEGE_N);
     DD_MUS[MU_ENDING] = song_define("dd_ending", 120, true, END_L, END_P, END_T, END_N);
     DD_MUS[MU_TRUE] = song_define("dd_true", 96, true, TRUE_L, TRUE_P, TRUE_T, TRUE_N);
+    DD_MUS[MU_MICRO2] = song_define("dd_micro2", 104, true, MICRO2_L, MICRO2_P, MICRO2_T, MICRO2_N);
+    DD_MUS[MU_MICRO3] = song_define("dd_micro3", 116, true, MICRO3_L, MICRO3_P, MICRO3_T, MICRO3_N);
+    DD_MUS[MU_CAVE] = song_define("dd_cave", 132, true, CAVE_L, CAVE_P, CAVE_T, CAVE_N);
     DD_JINGLE_UP = song_define("dd_upgrade", 150, false, UP_P1, UP_P2, UP_T, "");
     DD_JINGLE_DEAD = song_define("dd_back", 110, false, DEAD_P1, "", DEAD_T, "");
 
@@ -177,4 +209,6 @@ void dd_audio_load(void) {
     sfx_define("dd_stomp", CH_NOISE, 220, "@13 v12 o3 c16 @40 v8 o5 c16");
     sfx_define("dd_give", CH_P2, 220, "@35 v10 o6 g16 o7 c16");
     sfx_define("dd_blip", CH_P2, 240, "@42 v4 o6 g32");
+    sfx_define("dd_gulp", CH_TRI, 200, "@41 v11 o3 g16 o2 c8");
+    sfx_define("dd_sniff", CH_NOISE, 240, "@36 v6 o7 c32 r32 c32 r32 c32");
 }

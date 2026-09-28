@@ -47,9 +47,9 @@ expect state == 2
 cheat area 5 8 14
 wait 10
 expect level_id == 5
-expect foes_23 == 1
-expect foehp_23 == 60
+expect foes_31 == 1
+expect foehp_31 == 60
 expect foes_15 == 1
 wait 900
-expect foehp_23 < 60
+expect foehp_31 < 60
 expect hp == 6

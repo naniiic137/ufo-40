@@ -6,6 +6,7 @@ extern uint8_t dd_tilepx[T_COUNT][4][64];
 void dd_draw_npc(int sub, int x, int y, int flip, int t);
 void dd_draw_obj(int sub, int x, int y, int param);
 void dd_draw_boss(const Ent *e, int x, int y, int t);
+void dd_draw_obj_big(int sub, int x, int y);
 
 static int T; /* animation clock */
 
@@ -117,7 +118,8 @@ static void draw_level_small(int cx, int cy) {
             biome_back(mat, cx, cy, sx0, sx1);
         }
     } else if (dd_lv.d.kind == LV_SPECIAL) {
-        biome_back(dd_lv.d.id == SP_DASHFUR ? M_FUR : dd_lv.d.id == SP_PUFFFUR ? M_DUST : dd_lv.d.id == SP_SPROCKET ? M_METAL : M_CELL, cx, cy, 0, SCREEN_W);
+        static const uint8_t SPB[SP_COUNT] = {M_FUR, M_DUST, M_METAL, M_METAL, M_GLASS, M_FUR, M_FUR};
+        biome_back(SPB[iclamp(dd_lv.d.id, 0, SP_COUNT - 1)], cx, cy, 0, SCREEN_W);
     } else gfx_cls(C_INK);
     for (int ty = y0; ty <= y0 + SCREEN_H / ts + 1; ty++)
         for (int tx = x0; tx <= x0 + SCREEN_W / ts + 1; tx++) {
@@ -143,10 +145,19 @@ static void draw_level_small(int cx, int cy) {
         float mm = (float)(dd_sv.clock_min % 60) / 60.0f * 6.283f - 1.5708f, hh = (float)(dd_sv.clock_min % 720) / 720.0f * 6.283f - 1.5708f;
         gfx_line(ccx, ccy, ccx + (int)(cosf(mm) * 22), ccy + (int)(sinf(mm) * 22), C_INK);
         gfx_line(ccx, ccy, ccx + (int)(cosf(hh) * 14), ccy + (int)(sinf(hh) * 14), C_INK);
-        /* the lamp's light */
-        if (!dd_lamp_dark) {
-            int lx = 116 * ts + 4 - cx, ly = 24 * ts - cy;
-            gfx_dither_circle(lx, ly, 18, C_YELLOW, 4);
+        /* the great lamp's light, and the reading lamp's unless it's off */
+        gfx_dither_circle(116 * ts + 4 - cx, 24 * ts - cy, 18, C_YELLOW, 4);
+        if (!dd_lamp_dark) gfx_dither_circle(92 * ts + 4 - cx, 26 * ts - cy, 12, C_YELLOW, 4);
+    }
+    /* towns and landmarks Dot has found: a little pennant on their tile */
+    if (dd_lv.d.kind == LV_AREA && dd_scale == SC_SMALL) {
+        for (int k = 0; k < dd_town_count(); k++) {
+            int a, row, x;
+            if (!dd_town_mark(k, &a, &row, &x) || a != dd_lv.d.id) continue;
+            int sx = x * ts + 3 - cx, sy = (row - 1) * ts - cy;
+            if (sx < -8 || sx > SCREEN_W || sy < -8 || sy > SCREEN_H) continue;
+            gfx_vline(sx, sy - 2, sy + 7, C_LIGHT);
+            gfx_rect(sx + 1, sy - 2, 4, 3, (T / 20) % 2 ? C_YELLOW : C_AMBER);
         }
     }
 }
@@ -185,8 +196,8 @@ static void draw_room_full(void) {
     float mm = (float)(dd_sv.clock_min % 60) / 60.0f * 6.283f - 1.5708f, hh = (float)(dd_sv.clock_min % 720) / 720.0f * 6.283f - 1.5708f;
     gfx_line(ccx, ccy, ccx + (int)(cosf(mm) * 6), ccy + (int)(sinf(mm) * 6), C_INK);
     gfx_line(ccx, ccy, ccx + (int)(cosf(hh) * 4), ccy + (int)(sinf(hh) * 4), C_INK);
-    if (!dd_lamp_dark) gfx_dither_circle(116 * 2 + 1, 26 * 2, 14, C_YELLOW, 3);
-    else gfx_dither(0, 0, SCREEN_W, SCREEN_H, C_INK, 4);
+    gfx_dither_circle(116 * 2 + 1, 26 * 2, 14, C_YELLOW, 3);
+    if (!dd_lamp_dark) gfx_dither_circle(92 * 2 + 1, 26 * 2, 8, C_YELLOW, 3);
 }
 
 /* ------------------------------------------------------------------ */
@@ -221,15 +232,16 @@ static void draw_ent(const Ent *e, int cx, int cy) {
     switch (e->kind) {
     case EK_DASH: {
         if (dd_scale == SC_FULL) { spr_draw(&dd_spr[S_DASHBIG], sx, sy - 1, e->dir ? 0 : SPR_FLIPX); break; }
-        int sp = e->state == 5 || (e->state == 4) ? S_DASH_WINGS : (fabsf(e->vx) > 0.1f ? (T / 8) % 2 ? S_DASH1 : S_DASH2 : S_DASH_SIT);
+        int sp = (e->state == 4 || (dd_has(U_WINGS) && !e->ground)) ? S_DASH_WINGS : (fabsf(e->vx) > 0.1f ? (T / 8) % 2 ? S_DASH1 : S_DASH2 : S_DASH_SIT);
         if (e->state == 9) sp = S_DASH1;
         const Sprite *s = &dd_spr[sp];
         spr_draw(s, sx + (e->w - s->w) / 2, sy + e->h - s->h, e->dir ? 0 : SPR_FLIPX);
         if (dd_has(U_PLATE)) gfx_hline(sx + 3, sx + 8, sy + e->h - 5, C_LIGHT);
-        if (dd_sniff_x >= 0 && e->state == 0 && (T / 20) % 2) {
-            int ax = dd_sniff_x < e->x ? -1 : 1;
-            text_draw(ax < 0 ? GLYPH_LEFT : GLYPH_RIGHT, sx + 2, sy - 10, C_YELLOW);
+        if (e->state == 7 && dd_sniff_x >= 0 && (T / 12) % 2) {
+            /* his nose points: shrink right here */
+            text_draw(GLYPH_DOWN, dd_sniff_x - 3 - (int)e->x + sx, sy - 12, C_YELLOW);
         }
+        if (e->state == 6) gfx_pset(sx + e->w / 2, sy - 3, C_WHITE);
         break;
     }
     case EK_NPC:
@@ -254,7 +266,12 @@ static void draw_ent(const Ent *e, int cx, int cy) {
         break;
     }
     case EK_SHOT: {
-        if (e->sub >= 5) { spr_draw(&dd_spr[S_DROP], sx, sy, 0); if (e->sub == 6) gfx_rect(sx, sy + 1, 3, 3, C_AMBER); break; }
+        if (e->sub >= 5) {
+            spr_draw(&dd_spr[S_DROP], sx, sy, 0);
+            if (e->sub == 6) gfx_rect(sx, sy + 1, 3, 3, C_AMBER);
+            if (e->sub == 7) gfx_rect(sx, sy + 1, 3, 3, C_PINK);
+            break;
+        }
         int sp = e->sub == 2 ? S_SPELL : e->sub == 3 ? S_BOLT : S_PEA;
         if (e->sub == 3) gfx_circ(sx + 3, sy + 3, 3, C_SLATE), gfx_pset(sx + 2, sy + 2, C_GREY);
         else if (e->sub == 4) gfx_rect(sx, sy + 2, 6, 3, (T / 3) % 2 ? C_ORANGE : C_YELLOW);
@@ -265,9 +282,15 @@ static void draw_ent(const Ent *e, int cx, int cy) {
         /* doorways drawn by what they are */
         if (dd_door_is(e->param, "seam")) { if ((T / 10) % 3 == 0) gfx_pset(sx + 4, sy + 12, C_VIOLET); break; }
         if (dd_door_is(e->param, "owl")) break;
-        if (dd_door_is(e->param, "shrine")) { spr_draw(&dd_spr[S_DOOR], sx, sy, 0); gfx_rect(sx + 2, sy + 2, 4, 3, C_YELLOW); break; }
-        if (dd_door_is(e->param, "grate")) {
-            if (!dd_flag(FL_GRATE_OPEN)) for (int k = 0; k < 4; k++) gfx_vline(sx + 1 + k * 2, sy, sy + 15, C_BROWN);
+        if (dd_door_is(e->param, "console")) {
+            gfx_rect(sx - 2, sy + 4, 12, 12, C_SLATE);
+            gfx_rectb(sx - 2, sy + 4, 12, 12, C_GREY);
+            for (int k = 0; k < 4; k++) gfx_pset(sx + k * 2, sy + 7, (T / 8 + k) % 3 ? C_RED : C_LIME);
+            break;
+        }
+        if (dd_door_is(e->param, "throne") && !dd_flag(FL_THRONE_OPEN)) {
+            spr_draw(&dd_spr[S_DOOR], sx, sy, 0);
+            for (int k = 0; k < 4; k++) gfx_vline(sx + 1 + k * 2, sy + 2, sy + 15, C_SLATE);
             break;
         }
         if (dd_door_is(e->param, "lair") && !dd_flag(FL_WORM_FRIENDS)) { gfx_circ(sx + 4, sy + 9, 5, C_EARTH); gfx_circb(sx + 4, sy + 9, 5, C_NIGHT); break; }
@@ -300,6 +323,12 @@ static void draw_dot(int cx, int cy) {
     if (dd_scale == SC_FULL) {
         int sp = !dd_p.ground ? S_DOTBIG_JUMP : fabsf(dd_p.vx) > 0.1f ? ((T / 7) % 2 ? S_DOTBIG_WALK1 : S_DOTBIG_WALK2) : S_DOTBIG_STAND;
         const Sprite *s = &dd_spr[sp];
+        spr_draw(s, sx + (dd_p.w - s->w) / 2, sy + dd_p.h - s->h, flags);
+        return;
+    }
+    if (dd_scale == SC_DEEP) {
+        int tsp = fabsf(dd_p.vx) > 0.1f ? ((T / 6) % 2 ? S_DOTTINY_WALK1 : S_DOTTINY_WALK2) : S_DOTTINY_STAND;
+        const Sprite *s = &dd_spr[tsp];
         spr_draw(s, sx + (dd_p.w - s->w) / 2, sy + dd_p.h - s->h, flags);
         return;
     }
@@ -346,9 +375,18 @@ void dd_draw_world(void) {
     int sh = dd_shake();
     if (dd_scale == SC_FULL) {
         draw_room_full();
-        for (int i = 0; i < DD_MAX_ENTS; i++)
-            if (dd_ent[i].alive && dd_ent[i].kind == EK_DASH) draw_ent(&dd_ent[i], 0, 0);
+        for (int i = 0; i < DD_MAX_ENTS; i++) {
+            const Ent *e = &dd_ent[i];
+            if (!e->alive) continue;
+            if (e->kind == EK_DASH && !e->held) draw_ent(e, 0, 0);
+            if (e->kind == EK_OBJ && !e->held) dd_draw_obj_big(e->sub, (int)e->x, (int)e->y);
+        }
         draw_dot(0, 0);
+        if (dd_carry >= 0 && dd_ent[dd_carry].alive) {
+            const Ent *e = &dd_ent[dd_carry];
+            if (e->kind == EK_OBJ) dd_draw_obj_big(e->sub, (int)e->x, (int)e->y);
+            else draw_ent(e, 0, 0);
+        }
         draw_charge(0, 0);
         dd_parts_draw(0, 0);
         iris();
@@ -367,8 +405,6 @@ void dd_draw_world(void) {
         if (dd_ent[i].alive && dd_ent[i].kind == EK_SHOT) draw_ent(&dd_ent[i], cx, cy);
     draw_charge(cx, cy);
     dd_parts_draw(cx, cy);
-    /* the lamp off: the whole room goes dim */
-    if (dd_lamp_dark && dd_lv.d.kind == LV_AREA && dd_lv.d.id == AR_ROOM) gfx_dither(0, 0, SCREEN_W, SCREEN_H, C_INK, 5);
     iris();
 }
 
@@ -415,7 +451,7 @@ void dd_draw_hud(void) {
     spr_draw(&dd_spr[S_GLINT5], SCREEN_W - 40, 11, 0);
     text_shadow(b, SCREEN_W - 31, 11, C_YELLOW, C_INK);
     /* top left: the size, the clock */
-    static const char *SZ[4] = {"FULL", "SMALL", "MICRO", "DEEP"};
+    static const char *SZ[4] = {"FULL", "SMALL", "MICRO", "TINY"};
     for (int k = 0; k < 4; k++) {
         int x = 4 + k * 6;
         if (k == dd_scale) gfx_rect(x, 4, 4, 4, C_WHITE);
@@ -425,7 +461,6 @@ void dd_draw_hud(void) {
     tiny_draw(SZ[dd_scale], 30, 4, C_GREY);
     /* carried and stored */
     int ix = 4;
-    if (dd_scale == SC_FULL && dd_sv.carry) { gfx_rectb(ix - 1, 12, 10, 10, C_SLATE); dd_draw_obj(dd_sv.carry - 1, ix, 13, dd_sv.carry_param); }
     if (dd_has(U_SATCHEL1))
         for (int k = 0; k < (dd_has(U_SATCHEL2) ? 2 : 1); k++) {
             int x = ix + 14 + k * 11;

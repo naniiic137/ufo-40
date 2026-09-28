@@ -41,7 +41,8 @@ static const struct { const char *id, *title; } TITLES[] = {
     {"dd_title", "DOT & DASH"}, {"dd_room", "FULL SIZE"}, {"dd_small", "BUTTON HIGH"}, {"dd_micro", "SPECK COUNTRY"},
     {"dd_deep", "THE MOTES"}, {"dd_town", "LITTLE MARKET"}, {"dd_walls", "BETWEEN THE WALLS"}, {"dd_boss", "BIG TROUBLE"},
     {"dd_latch", "LATCHTOWN"}, {"dd_siege", "SIEGE!"}, {"dd_ending", "THE PARTY"}, {"dd_true", "IN BALANCE"},
-    {"dd_upgrade", "SOMETHING NEW"}, {"dd_back", "BACK TO SIZE"},
+    {"dd_upgrade", "SOMETHING NEW"}, {"dd_back", "BACK TO SIZE"}, {"dd_micro2", "MOSS AND LOAM"},
+    {"dd_micro3", "TIN AND GLASS"}, {"dd_cave", "THE DANGEROUS CAVES"},
 };
 
 const char *shell_song_title(int song) {

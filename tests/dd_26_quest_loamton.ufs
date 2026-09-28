@@ -90,7 +90,7 @@ wait 5
 cheat bot_talk
 botuntil bot_state == 2 900
 expect flag.oldcap_done == 1
-expect up_33 == 1
+expect pep == 2
 # water for the soldier: a jar, the drip over the east pot
 cheat area 0 110 66
 cheat nodash

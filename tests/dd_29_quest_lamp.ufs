@@ -1,9 +1,11 @@
-# DOT & DASH: the lamp. Bow at the shrine on top of the shade, and the High
-# Lumen of Glimmer (in the shade, micro size) names Dot a Lumen and hands
-# her a scroll; the Wick Warden then turns the great lamp off, and the Old
-# Filament wakes. He wants the Big Bang from the far end of the SIEGE box,
-# past the siege engine: 80 glints, and the truth about the throne. Madame
-# Silk pays 30 for a green germ; Weepy 15 for her blue thread.
+# DOT & DASH: the lamps. In Glimmer, on the reading lamp's shade, a pilgrim
+# by the flashing beacon tells of the pilgrimage. The ferry fly from the end
+# of the shade carries Dot up to the great lamp hanging from the ceiling; at
+# its far end she shrinks and climbs inside its rim to the Glow. Back in
+# Glimmer the High Lumen names her a Lumen and hands her a scroll, and the
+# Wick Warden turns the reading lamp off: the Old Filament wakes and gives a
+# hint about the keyhole, and 80 glints for the Big Bang, carried unbroken
+# from the far end of the SIEGE box. Weepy pays 15 for her blue thread.
 game dotdash
 wait 5
 cheat newgame
@@ -21,19 +23,84 @@ botuntil bot_state == 2 12000
 press B
 wait 20
 expect carry == 36
-# over to the lamp shade and its shrine
-cheat bot_to door:17
-botuntil bot_state == 2 4000
+cheat up satchel1
+cheat skip_dialog
+hold DOWN A 3
+wait 3
+expect satchel0 == 36
+# over to the reading lamp at the end of the hanging shelf
+cheat area 0 84 19
+cheat nodash
+wait 5
+cheat bot_tile 91 21
+botuntil bot_state == 2 12000
+expect ty == 21
+hold DOWN 100
+waituntil trans == 0 60
+expect town == 17
+cheat bot_to npc:3
+botuntil bot_state == 2 3000
+press UP
+wait 5
+cheat bot_talk
+botuntil bot_state == 2 900
+expect flag.pilgrim == 1
+cheat bot_to npc:37
+botuntil bot_state == 2 3000
+press UP
+wait 5
+cheat bot_talk
+botuntil bot_state == 2 900
+expect flag.lumen == 0
+# back up to small size and onto the ferry at the end of the shade
+cheat bot_free
+botuntil bot_state == 2 600
+hold UP 100
+waituntil trans == 0 60
+expect scale == 1
+cheat bot_tile 94 21
+botuntil bot_state == 2 3000
+waituntil ferry1_state == 0 2000
+cheat tile 96 19
+waituntil riding == 327 60
+waituntil ferry1_state == 4 1500
+expect riding == 327
+expect ty == 17
+# off onto the great lamp, to its far end, and smaller
+hold LEFT 12
+wait 20
+expect ty == 17
+cheat bot_to door:22
+botuntil bot_state == 2 2000
+hold DOWN 100
+waituntil trans == 0 60
+expect level_kind == 2
+expect level_id == 4
+cheat bot_to npc:56
+botuntil bot_state == 2 12000
 press UP
 wait 5
 cheat bot_talk
 botuntil bot_state == 2 900
 expect flag.shrine == 1
-# Glimmer in the shade
-cheat grow
-cheat micro 0 18 115 4
-cheat no_foes
-wait 5
+# the long way down is a long fall: grow instead, and ride back
+cheat bot_free
+botuntil bot_state == 2 600
+hold UP 100
+waituntil trans == 0 60
+expect scale == 1
+expect ty == 17
+waituntil ferry1_state == 4 3000
+cheat tile 116 14
+waituntil riding == 327 60
+waituntil ferry1_state == 0 1500
+hold LEFT 12
+wait 20
+expect ty == 21
+cheat bot_tile 91 21
+botuntil bot_state == 2 600
+hold DOWN 100
+waituntil trans == 0 60
 expect town == 17
 cheat bot_to npc:37
 botuntil bot_state == 2 3000
@@ -56,13 +123,12 @@ wait 5
 expect flag.lamp_off == 1
 expect lamp_dark == 1
 cheat skip_dialog
-# the Old Filament speaks on the shade
-cheat grow
-cheat area 0 115 17
-cheat nodash
-wait 5
+# the Old Filament speaks on the dark shade: only a hint
+cheat bot_free
+botuntil bot_state == 2 600
+hold UP 100
+waituntil trans == 0 60
 expect npcs_5 == 1
-expect npcs_3 == 0
 cheat bot_to npc:5
 botuntil bot_state == 2 2000
 press UP
@@ -70,16 +136,14 @@ wait 5
 cheat bot_talk
 botuntil bot_state == 2 900
 expect flag.filament_asked == 1
-expect carry == 36
+expect flag.met_nib == 0
 # Weepy on the east pot's rim takes the thread
-cheat bot_free
-botuntil bot_state == 2 600
-hold UP 100
-waituntil trans == 0 60
-cheat tile 124 83
+cheat area 0 124 83
+cheat nodash
 wait 5
-hold DOWN 100
-waituntil trans == 0 60
+hold DOWN A 3
+wait 3
+expect carry == 36
 cheat bot_to npc:12
 botuntil bot_state == 2 6000
 press UP
@@ -87,31 +151,22 @@ wait 5
 cheat bot_talk
 botuntil bot_state == 2 900
 expect flag.weepy_done == 1
-# into the SIEGE box and down the board to the siege engine
+# into the SIEGE box, past the tanks and planes to the far end
 cheat bot_to door:8
 botuntil bot_state == 2 9000
 press UP
 waituntil level_id == 4 60
 waituntil trans == 0 60
-cheat obj 16
-cheat bot_tile 130 19
-botuntil bot_state == 2 12000
-expect foes_24 == 1
-cheat bot_hunt 24
-botuntil foes_24 == 0 12000
-expect flag.siege_dead == 1
-cheat bot_clear
-cheat up satchel1
-wait 30
-hold DOWN A 3
-wait 5
-expect carry == -1
+expect objs_39 == 1
 cheat bot_to obj:39
-botuntil bot_state == 2 3000
+botuntil bot_state == 2 12000
 press B
 wait 20
 expect carry == 39
-# back out and up to the lamp with it
+hold DOWN A 3
+wait 3
+expect satchel0 == 39
+# back out and up to the reading lamp with it, safe in the satchel
 cheat bot_to door:9
 botuntil bot_state == 2 12000
 press UP
@@ -119,19 +174,12 @@ waituntil level_id == 0 60
 waituntil trans == 0 60
 cheat bot_to npc:5
 botuntil bot_state == 2 12000
+hold DOWN A 3
+wait 3
+expect carry == 39
 press UP
 wait 5
 cheat bot_talk
 botuntil bot_state == 2 900
-expect flag.filament_paid == 1
+expect flag.bigbang_done == 1
 expect glints >= 80
-# Madame Silk and a green germ
-cheat hold_foe 11
-wait 2
-cheat bot_to npc:4
-botuntil bot_state == 2 2000
-press UP
-wait 5
-cheat bot_talk
-botuntil bot_state == 2 900
-expect flag.silk_done == 1

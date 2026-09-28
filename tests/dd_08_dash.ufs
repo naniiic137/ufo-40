@@ -1,8 +1,10 @@
-# DOT & DASH: Dash follows Dot, can be lifted and thrown (it hurts, and he
-# runs off with a yelp unless he wears his plate), comes back to the Pup
-# Whistle (double-tap UP), flies home and carries Dot up with Kite Wings,
-# and has a world of his own in his fur: clear the fleas and he sniffs out
-# treasure.
+# DOT & DASH: Dash ambles about on his own, very slowly; standing on him,
+# UP stops him and UP again sets him off. Stand still beside him and he sits
+# and looks up: UP then hears what he thinks. He can be lifted and thrown
+# (it hurts, and he runs off with a yelp unless he wears his plate, coming
+# back only when Dot is full size again or whistles), flies home and carries
+# Dot up with Kite Wings, and has a world of his own in his fur: clear the
+# fleas and his nose stops him over any spot of the room worth shrinking into.
 game dotdash
 wait 5
 cheat newgame
@@ -13,15 +15,39 @@ hold DOWN 95
 waituntil trans == 0 60
 expect scale == 1
 expect dash == 1
-# he trots after her
-hold RIGHT 40
-wait 90
-expect dash_dist < 40
+# he wanders off by himself, slowly
+cheat tile 20 82
+cheat dash_at 180 657
+wait 60
+expect dash_x > 190
+expect dash_x < 210
+# stand on him and press UP: he stays; UP again and off he goes
+cheat dash_at 180 657
+cheat tile 23 81
+wait 20
+expect riding == 100
+press UP 2
+wait 5
+expect dash_state == 6
+wait 60
+expect dash_x < 196
+expect riding == 100
+press UP 2
+wait 30
+expect dash_state == 0
+# stand still beside him and he sits; UP and he talks
+cheat tile 10 82
+cheat dash_at 80 657
+wait 60
+expect dash_state == 8
+press UP 2
+wait 5
+expect dialog == 1
+cheat skip_dialog
+wait 5
 # lift him: stand on his back, B
-cheat tile 22 82
-wait 2
 cheat dash_at 172 657
-cheat tile 21 80
+cheat tile 22 81
 wait 20
 expect riding == 100
 press B
@@ -36,7 +62,10 @@ wait 30
 expect foes_0 == 0
 expect dash == 0
 expect dash_away == 1
-# the whistle brings him running
+# he doesn't come back by himself...
+wait 700
+expect dash == 0
+# ...but the whistle brings him running
 cheat give 18
 cheat skip_dialog
 press UP 2
@@ -48,7 +77,7 @@ cheat give 21
 cheat skip_dialog
 cheat tile 22 82
 cheat dash_at 180 657
-cheat tile 23 80
+cheat tile 23 81
 wait 20
 press B
 wait 20
@@ -60,27 +89,41 @@ press B
 wait 30
 expect foes_0 == 0
 expect dash == 1
-# kite wings: thrown, he flies home; stood on, UP flies him up with Dot aboard
+# kite wings: thrown, he flies out like a boomerang, biting everything on
+# the way, and comes home unhurt
 cheat give 22
 cheat skip_dialog
 wait 60
 cheat tile 22 82
 cheat dash_at 172 657
-cheat tile 21 80
+cheat tile 22 81
 wait 20
 expect riding == 100
-press UP 2
-wait 30
-expect dash_state == 5
-expect ty < 79
-waituntil ground == 1 400
+press B
+wait 20
+expect carry_kind == 1
+cheat foe 0 220 658
+cheat foe 0 250 658
+hold RIGHT 1
+wait 2
+press B
+wait 90
+expect foes_0 == 0
+expect dash == 1
+expect dash_state == 0
+# and set on the thimble's roof, he walks straight off the edge and on
+# through the air at the same height
+cheat dash_at 104 617 1
+wait 200
+expect dash_y == 617
+expect dash_x > 140
 # his fur: stand on him and shrink, with the tonic
 cheat give 2
 cheat skip_dialog
 cheat tile 22 82
-wait 60
+wait 10
 cheat dash_at 172 657
-cheat tile 21 80
+cheat tile 22 81
 wait 20
 expect riding == 100
 hold DOWN 95
@@ -99,11 +142,21 @@ cheat bot_hunt 8
 botuntil foes_8 == 0 6000
 expect flag_5 == 1
 cheat skip_dialog
-# back outside, in a micro strip with treasure, Dash sniffs it out
+# back outside, his nose works: set down on the rug he walks until he
+# stands over a spot worth shrinking into, and points
 hold UP 95
 waituntil trans == 0 60
 expect scale == 1
-cheat micro 0 83 30 4
-cheat dash
-wait 10
-expect sniff == 1
+cheat tile 40 82
+cheat dash_at 252 657 1
+waituntil dash_state == 7 300
+wait 2
+expect sniff_x == 33
+expect sniff_y == 83
+# stand on him and UP: he goes on, and won't stop there again straight away
+cheat tile 33 81
+wait 20
+expect riding == 100
+press UP 2
+wait 60
+expect dash_state == 0

@@ -1,6 +1,6 @@
 # DOT & DASH: odds and ends. A quake block (from Fernby's stand) landing by
 # the stone owl on the bottom shelf wakes it: Kite Wings for Dash. Cowpoke
-# on the toy train swaps a secret for a mushroom drink. In the quiet hollow
+# in the toy train swaps a secret for a mushroom drink. In the quiet hollow
 # of the west pot a pink gulp blob eats the ants, and an old grasshopper
 # muses about it. Gift boxes: the Bug Musk on the portrait, the Spin Top on
 # the train's smokestack, the Pup Whistle in the money box's snout.
@@ -52,7 +52,12 @@ wait 30
 cheat bot_to pick:4
 botuntil up.top1 == 1 3000
 cheat skip_dialog
-# Cowpoke and a drink
+# Cowpoke, in the caboose (in through the hatch on the roof), and a drink
+cheat bot_to door:19
+botuntil bot_state == 2 3000
+press UP
+waituntil level_id == 9 60
+waituntil trans == 0 60
 cheat obj 38
 cheat bot_to npc:11
 botuntil bot_state == 2 3000
@@ -61,6 +66,11 @@ wait 5
 cheat bot_talk
 botuntil bot_state == 2 900
 expect flag.cowpoke_done == 1
+cheat bot_to door:20
+botuntil bot_state == 2 3000
+press UP
+waituntil level_id == 0 60
+waituntil trans == 0 60
 # the bug musk on top of the portrait
 cheat area 0 60 29
 cheat nodash

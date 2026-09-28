@@ -1,11 +1,12 @@
 /* DOT & DASH - shared declarations. Cartridge 45 of UFO 40, a tribute to
  * Mini & Max (UFO 50 #45). See docs/games/45-dot-and-dash.md.
  *
- * One room at four nested sizes. The full-size lumber room (S0) and the
- * small world (S1) are the same tile map: every cell of the room drawn at
- * 2 px is an 8-px tile once Dot is small. Every tile Dot stands on at one
- * size holds a strip of the next size down (S2 micro, S3 deep), generated
- * from the material and the position, the same for everyone. */
+ * One room at four sizes. The full-size lumber room (S0) and the small
+ * world (S1) are the same tile map: every cell of the room drawn at 2 px is
+ * an 8-px tile once Dot is small. Every tile Dot stands on holds a strip of
+ * the micro world (S2), generated from the material and the position, the
+ * same for everyone. The fourth size (S3, tiny) is Dot herself made smaller
+ * inside the micro world, small enough to fit through one-tile gaps. */
 #ifndef DOTDASH_H
 #define DOTDASH_H
 
@@ -25,7 +26,7 @@
 #define DD_MAX_PARTS 160
 #define DEPTH_MAX 4
 
-enum { SC_FULL, SC_SMALL, SC_MICRO, SC_DEEP };
+enum { SC_FULL, SC_SMALL, SC_MICRO, SC_DEEP }; /* SC_DEEP: the tiny body inside a micro level */
 
 /* ---- tiles --------------------------------------------------------- */
 enum {
@@ -65,11 +66,12 @@ enum { LV_AREA, LV_STRIP, LV_SPECIAL };
 
 /* S1 areas: the room and the hand-made places inside things */
 enum {
-    AR_ROOM, AR_THIMBLE, AR_CAVITY, AR_HOLLOW, AR_SIEGE, AR_LAIR, AR_CLOCKWORKS, AR_COUNT
+    AR_ROOM, AR_THIMBLE, AR_CAVITY, AR_HOLLOW, AR_SIEGE, AR_LAIR, AR_CLOCKWORKS, AR_THRONE, AR_SHAFT, AR_TRAIN,
+    AR_COUNT
 };
-/* hand-made micro and deep places entered by shrinking on a creature or a seam */
+/* hand-made micro places entered by shrinking on a creature or a seam */
 enum {
-    SP_DASHFUR, SP_PUFFFUR, SP_SPROCKET, SP_HERMIT, SP_DEEPSHELF, SP_COUNT
+    SP_DASHFUR, SP_PUFFFUR, SP_SPROCKET, SP_KEYHOLE, SP_SUMMIT, SP_SHREWHEAD, SP_COCKPIT, SP_COUNT
 };
 
 typedef struct LevelDesc {
@@ -94,6 +96,7 @@ typedef struct Level {
     int8_t town_part[STRIP_MAX]; /* which chunk of a multi-chunk place */
     uint8_t special[STRIP_MAX]; /* strips: generated cave kind (1 = dangerous) */
     int8_t cave_x0[STRIP_MAX], cave_x1[STRIP_MAX], cave_floor[STRIP_MAX]; /* local cave chamber, -1 none */
+    int8_t gap_x[STRIP_MAX], gap_y[STRIP_MAX]; /* a nook behind a one-tile gap: the tile inside, -1 none */
     uint8_t *surf;   /* strips: surface row of each column */
 } Level;
 
@@ -117,7 +120,7 @@ enum {
     /* quest things */
     O_SPECS, O_CATFOOD, O_GEAR, O_JAR, O_JARWATER, O_JARSLIME, O_JARHONEY, O_JARACID, O_LETTER,
     O_ARTIFACT, O_SCROLL, O_BABY, O_EGG, O_TWIG, O_CRATE, O_TABLET, O_BLUEEYE, O_SEED, O_REDEGG,
-    O_THREAD, O_BLUEDUST, O_DRINK, O_BIGBANG, O_KEY,
+    O_THREAD, O_BLUEDUST, O_DRINK, O_BIGBANG, O_KEY, O_CINDER,
     O_KINDS
 };
 
@@ -126,7 +129,8 @@ enum {
     F_ANT, F_LANCER, F_AXEANT, F_MOTH, F_BUZZER, F_FLUTTER, F_BUMBLE, F_SPRING, F_NIP, F_MITE,
     F_PAPERFISH, F_GERM, F_GERM2, F_WIGGLER, F_GULP, F_POD, F_TINMOUSE, F_TINMAGE, F_WAXGUARD,
     F_SPARK, F_BEETLE, F_HOPPER,
-    F_ROTIFER, F_EARWIG, F_SIEGE, F_SPROCKET, F_SPRING_CORE,
+    F_CLIMBER, F_SPITTER, F_OCTO, F_FACE, F_SCAMPER, F_FERRY, F_TANK, F_PLANE,
+    F_ROTIFER, F_EARWIG, F_SPROCKET,
     F_KINDS
 };
 #define F_FIRST_BOSS F_ROTIFER
@@ -159,6 +163,7 @@ enum {
     N_HIGHLUMEN, N_WARDEN,
     N_TABITHA, N_MAGE, N_KNIGHT, N_PELL, N_RATCHET,
     N_NIB, N_NATIVE, N_HOPPERSAGE, N_BUBBLE, N_WAXLING,
+    N_BEE, N_FACE, N_EXILE, N_DUMPER, N_EXILE2, N_HISTORIAN, N_PILOT, N_GLOW,
     N_KINDS
 };
 
@@ -190,11 +195,13 @@ enum {
     FL_THRONE_OPEN, FL_CATFOOD_DONE, FL_MET_QUEEN, FL_PAID_QUEEN, FL_SPROCKET_DEAD, FL_ESCAPED,
     FL_MET_NIB, FL_BALANCE, FL_TRUE_END, FL_SIEGE_DEAD, FL_SHRINE, FL_WORM_FRIENDS, FL_PUFF_MET,
     FL_TUFTY_ASKED, FL_BUBBLES_ASKED, FL_STICKY_ASKED, FL_GLUE_DONE, FL_HOPPER_SEEN, FL_VOLT_MET,
-    FL_KNIGHT_MET, FL_FILAMENT_PAID, FL_TOCK_MET, FL_GRATE_OPEN, FL_GRASS_SEEN, FL_SEEN_END, FL_COUNT
+    FL_KNIGHT_MET, FL_FILAMENT_PAID, FL_TOCK_MET, FL_GRATE_OPEN, FL_GRASS_SEEN, FL_SEEN_END,
+    FL_BEE_DONE, FL_FACE_DONE, FL_EXILE_DONE, FL_EXILE2_DONE, FL_DUMP_TOLD, FL_HISTORIAN, FL_PILGRIM,
+    FL_KEY_TAKEN, FL_SCAMPER, FL_GLOW_MET, FL_COUNT
 };
 
 /* ---- the saved game -------------------------------------------------- */
-#define DD_COLLECT_MAX 1536
+#define DD_COLLECT_MAX 6000
 typedef struct DDSave {
     uint32_t magic;
     uint32_t ups;          /* abilities (U_MITT1..U_WINGS) */
@@ -219,6 +226,8 @@ typedef struct DDSave {
     uint8_t bigs_found;
     uint8_t full;          /* Dot is at full size */
     uint8_t pad[2];
+    uint32_t towns_seen;   /* towns and landmarks Dot has walked into (bits) */
+    uint32_t caves_done;   /* big glints taken, two bits a dangerous cave */
 } DDSave;
 
 enum { QC_BABIES, QC_BUBBLES, QC_GLUE, QC_TWIGS, QC_NIPS, QC_MITES, QC_PAPERFISH, QC_BABY_PAID, QC_BUBBLE_PAID, QC_GLUE_PAID };
@@ -302,6 +311,8 @@ int dd_add_pick(int sub, float x, float y, int param);
 void dd_hurt(int halves, float from_x);
 void dd_give_glints(int n);
 void dd_give_upgrade(int u);
+int dd_resolve_upgrade(int u);   /* the next level or piece a spot of kind u gives, -1 full */
+void dd_award_upgrade(int u);    /* give it, or glints when full */
 int dd_pep(void);
 void dd_part(float x, float y, float vx, float vy, int life, int col);
 void dd_burst(float x, float y, int col, int n);
@@ -348,6 +359,10 @@ int dd_town_count(void);
 const char *dd_town_name(int k);
 int dd_extra_count(void);
 void dd_extra(int k, int *area, int *row, int *x, int *type, int *param);
+bool dd_sniff_spot(int area, int row, int x); /* a room tile whose micro strip holds something worth finding */
+int dd_town_mark(int k, int *area, int *row, int *x); /* a town Dot has seen: 1 and where, else 0 */
+void dd_note_town(void);       /* remember the town Dot stands in */
+bool dd_in_danger_cave(void);
 
 /* ---- people (dotdash_npc.c) ----------------------------------------- */
 void dd_talk(int ent);              /* the player pressed up at an NPC */
@@ -397,13 +412,14 @@ enum {
     S_FOE0 = S_OBJ0 + O_KINDS,               /* two frames per F_ kind */
     S_NPC0 = S_FOE0 + F_KINDS * 2,           /* one per N_ kind */
     S_DOOR = S_NPC0 + N_KINDS, S_STAND, S_PEA, S_SPELL, S_BOLT, S_DROP, S_OWL, S_TRAIN, S_THIMBLE,
-    S_SPROCKET_HEAD, S_ICON_UP,
+    S_SPROCKET_HEAD, S_ICON_UP, S_DOTTINY_STAND, S_DOTTINY_WALK1, S_DOTTINY_WALK2,
     S_COUNT
 };
 extern Sprite dd_spr[S_COUNT];
 void dd_art_load(void);
 void dd_audio_load(void);
-enum { MU_TITLE, MU_ROOM, MU_SMALL, MU_MICRO, MU_DEEP, MU_TOWN, MU_WALLS, MU_BOSS, MU_LATCH, MU_ENDING, MU_TRUE, MU_SIEGE, MU_COUNT };
+enum { MU_TITLE, MU_ROOM, MU_SMALL, MU_MICRO, MU_DEEP, MU_TOWN, MU_WALLS, MU_BOSS, MU_LATCH, MU_ENDING, MU_TRUE, MU_SIEGE,
+       MU_MICRO2, MU_MICRO3, MU_CAVE, MU_COUNT };
 extern int DD_MUS[MU_COUNT];
 extern int DD_JINGLE_UP, DD_JINGLE_DEAD;
 

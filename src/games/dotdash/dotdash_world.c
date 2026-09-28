@@ -124,17 +124,19 @@ static void pick(int sub, int tx, int ty, int param) {
     int i = put(EK_PICK, sub, tx, ty);
     if (i >= 0) { dd_ent[i].pid = pid; dd_ent[i].param = param; }
 }
-/* an upgrade that may exist in several copies: once taken, the rest are glints */
+/* a spot holding an upgrade of some kind: it gives the next level of that
+ * line (or the next heart button or pep egg); once the kind is full, the
+ * spot holds glints instead */
 static void upgrade_copy(int u, int tx, int ty, bool boxed) {
     if (!spawning) return;
     uint32_t pid = pid_next();
     if (dd_collected(pid)) return;
-    bool taken = u < U_ABILITIES ? dd_has(u) : u < U_EGG0 ? (dd_sv.hearts_got >> (u - U_HEART0)) & 1 : (dd_sv.eggs_got >> (u - U_EGG0)) & 1;
+    int r = dd_resolve_upgrade(u);
     int i;
-    if (taken) i = put(EK_PICK, P_GLINT5, tx, ty);
-    else if (boxed) { i = put(EK_OBJ, O_GIFTBOX, tx, ty); }
+    if (r < 0) i = put(EK_PICK, P_GLINT5, tx, ty);
+    else if (boxed) i = put(EK_OBJ, O_GIFTBOX, tx, ty);
     else i = put(EK_PICK, P_UPGRADE, tx, ty);
-    if (i >= 0) { dd_ent[i].pid = pid; dd_ent[i].param = u; }
+    if (i >= 0) { dd_ent[i].pid = pid; dd_ent[i].param = boxed ? u : r; }
 }
 static void obj(int sub, int tx, int ty) {
     if (!spawning) return;
@@ -156,7 +158,9 @@ static void glints_row(int tx, int ty, int n) {
 enum {
     DR_THIMBLE_IN, DR_THIMBLE_OUT, DR_OUTLETW_IN, DR_OUTLETW_OUT, DR_OUTLETE_IN, DR_OUTLETE_OUT,
     DR_HOLLOW_IN, DR_HOLLOW_OUT, DR_SIEGE_IN, DR_SIEGE_OUT, DR_CLOCK_IN, DR_CLOCK_OUT, DR_LAIR_IN,
-    DR_LAIR_OUT, DR_SEAM_HERMIT, DR_SEAM_SHELF, DR_OWL, DR_SHRINE, DR_GRATE, DR_COUNT
+    DR_LAIR_OUT, DR_THRONE_IN, DR_THRONE_OUT, DR_SHAFT_IN, DR_SHAFT_TOP, DR_SHAFT_OUT, DR_TRAIN_IN, DR_TRAIN_OUT,
+    /* not doors but spots: seams to shrink into, and things to press UP at */
+    DR_SEAM_KEYHOLE, DR_SEAM_SUMMIT, DR_OWL, DR_CONSOLE, DR_COUNT
 };
 typedef struct DoorDef { int area, tx, ty; } DoorDef;
 /* where you arrive through each door */
@@ -168,22 +172,25 @@ static const DoorDef DOOR_TO[DR_COUNT] = {
     [DR_SIEGE_IN] = {AR_SIEGE, 4, 19}, [DR_SIEGE_OUT] = {AR_ROOM, 132, 41},
     [DR_CLOCK_IN] = {AR_CLOCKWORKS, 4, 23}, [DR_CLOCK_OUT] = {AR_ROOM, 73, 26},
     [DR_LAIR_IN] = {AR_LAIR, 4, 18}, [DR_LAIR_OUT] = {AR_CAVITY, 101, 30},
+    [DR_THRONE_IN] = {AR_THRONE, 4, 19}, [DR_THRONE_OUT] = {AR_ROOM, 28, 68},
+    [DR_SHAFT_IN] = {AR_SHAFT, 33, 9}, [DR_SHAFT_TOP] = {AR_ROOM, 57, 29}, [DR_SHAFT_OUT] = {AR_ROOM, 57, 82},
+    [DR_TRAIN_IN] = {AR_TRAIN, 34, 16}, [DR_TRAIN_OUT] = {AR_ROOM, 139, 70},
 };
 int dd_door_target(int id, int *area, int *tx, int *ty) {
-    if (id < 0 || id >= DR_COUNT) return 0;
-    if (id == DR_SEAM_HERMIT || id == DR_SEAM_SHELF || id == DR_OWL || id == DR_SHRINE || id == DR_GRATE) return 0;
+    if (id < 0 || id >= DR_SEAM_KEYHOLE) return 0;
     *area = DOOR_TO[id].area; *tx = DOOR_TO[id].tx; *ty = DOOR_TO[id].ty;
     return 1;
 }
 bool dd_door_is(int id, const char *what) {
-    if (!strcmp(what, "seam")) return id == DR_SEAM_HERMIT || id == DR_SEAM_SHELF;
-    if (!strcmp(what, "hermit")) return id == DR_SEAM_HERMIT;
-    if (!strcmp(what, "shelf")) return id == DR_SEAM_SHELF;
+    if (!strcmp(what, "seam")) return id == DR_SEAM_KEYHOLE || id == DR_SEAM_SUMMIT;
+    if (!strcmp(what, "keyhole")) return id == DR_SEAM_KEYHOLE;
+    if (!strcmp(what, "summit")) return id == DR_SEAM_SUMMIT;
     if (!strcmp(what, "owl")) return id == DR_OWL;
-    if (!strcmp(what, "shrine")) return id == DR_SHRINE;
-    if (!strcmp(what, "grate")) return id == DR_GRATE;
+    if (!strcmp(what, "console")) return id == DR_CONSOLE;
     if (!strcmp(what, "fried")) return id == DR_OUTLETE_IN;
     if (!strcmp(what, "lair")) return id == DR_LAIR_IN;
+    if (!strcmp(what, "throne")) return id == DR_THRONE_IN;
+    if (!strcmp(what, "train")) return id == DR_TRAIN_IN;
     return false;
 }
 
@@ -206,7 +213,10 @@ static void room_tiles(void) {
     /* the door, its lintel (the door top) and latch */
     bgf(7, 20, 35, 83, BG_DOOR);
     fill(5, 18, 37, 19, T_WOODDK);
-    fill(30, 50, 32, 51, T_BRASS);
+    /* the door knob, just higher than Dot's head at full size: Latchtown sits on it */
+    fill(27, 69, 29, 70, T_BRASS);
+    /* the spider's web in the top corner over the door */
+    fill(5, 8, 10, 8, T_THREAD);
     /* the rug */
     for (int x = 8; x <= 64; x++) lv_set(B, x, 83, (x / 4) % 2 ? T_FABRIC : T_FABRIC2);
     /* Granny Thimble's thimble */
@@ -221,16 +231,23 @@ static void room_tiles(void) {
     fill(40, 66, 50, 79, T_SOIL);
     static const int IVY[] = {80, 77, 74, 71, 68, 65};
     for (int k = 0; k < 6; k++) {
-        fill(54, IVY[k], 56, IVY[k], T_LEAF);
-        fill(34, IVY[k], 36, IVY[k], T_LEAF);
-        fill(122, IVY[k] + 1, 124, IVY[k] + 1, T_LEAF); /* the east pot's ivy */
+        /* ivy up the pots' sides, its leaves staggered so it can be climbed
+         * down as well as up */
+        int a = (k % 2) * 2;
+        fill(53 + a, IVY[k], 54 + a, IVY[k], T_LEAF);
+        fill(34 + a, IVY[k], 35 + a, IVY[k], T_LEAF);
+        fill(122 + a, IVY[k] + 1, 123 + a, IVY[k] + 1, T_LEAF); /* the east pot's ivy */
     }
     bgf(45, 30, 45, 65, BG_STALK);
     for (int k = 0, y = 63; y >= 33; k++, y -= 3) {
         if (k % 2 == 0) fill(41, y, 44, y, T_LEAF);
         else fill(46, y, 49, y, T_LEAF);
     }
-    fill(41, 30, 53, 30, T_LEAF);
+    fill(45, 30, 53, 30, T_LEAF);
+    /* the plant's topmost shoots reach over towards the door's lintel */
+    fill(39, 27, 41, 27, T_LEAF);
+    fill(38, 24, 40, 24, T_LEAF);
+    fill(38, 21, 40, 21, T_LEAF);
     /* the hanging shelf, the clock, a matchbox and the portrait */
     fill(56, 30, 93, 30, T_PLANK);
     bgf(58, 31, 58, 34, BG_BRACKET);
@@ -247,6 +264,11 @@ static void room_tiles(void) {
     fill(72, 21, 74, 21, T_LEDGE);
     fill(80, 20, 88, 29, T_WOOD);
     bgf(81, 21, 87, 28, BG_FRAME);
+    /* the reading lamp at the end of the shelf: Glimmer lives on its shade */
+    fill(90, 29, 92, 29, T_BRASS);
+    fill(91, 25, 91, 28, T_BRASS);
+    fill(89, 22, 94, 24, T_SHADE);
+    bgf(92, 25, 93, 26, BG_BULB);
     /* the money box (a tin robot bank), its crank and the coin pile */
     fill(60, 73, 70, 83, T_METAL);
     fill(58, 76, 59, 77, T_METAL);
@@ -280,6 +302,8 @@ static void room_tiles(void) {
     /* the bookshelf: four compartments, each board with a gap closed by a
      * one-way ledge you can jump up through (and drop down with a bangle) */
     fill(126, 10, 127, 73, T_WOOD);
+    /* screws in the bookshelf's side, a staggered ladder down its outside */
+    for (int k = 0, y = 14; y <= 62; k++, y += 4) fill(k % 2 ? 124 : 122, y, k % 2 ? 125 : 123, y, T_LEDGE);
     fill(151, 10, 152, 75, T_WOOD);
     fill(124, 10, 154, 11, T_PLANK);
     fill(128, 10, 129, 10, T_LEDGE);
@@ -292,7 +316,7 @@ static void room_tiles(void) {
     fill(148, 58, 150, 58, T_LEDGE);
     fill(126, 74, 127, 75, T_PLANK);
     fill(131, 74, 152, 75, T_PLANK);
-    fill(128, 74, 130, 74, T_LEDGE);
+    fill(128, 75, 130, 75, T_LEDGE);
     fill(126, 82, 127, 83, T_WOOD);
     fill(151, 82, 152, 83, T_WOOD);
     /* compartment A (top): books climbing left to the gap in the top board */
@@ -322,10 +346,12 @@ static void room_tiles(void) {
     fill(146, 6, 149, 9, T_FABRIC2);
     /* the dust pile under the bookshelf, with a hump under the board's gap */
     fill(130, 80, 146, 83, T_DUST);
-    fill(128, 78, 130, 79, T_DUST);
+    fill(128, 79, 130, 79, T_DUST);
     /* the fried outlet behind the bookshelf */
     bgf(153, 79, 154, 83, BG_FRIED);
 }
+
+static int put_ferry(int ax, int ay, int bx, int by);
 
 static void room_ents(void) {
     door(DR_THIMBLE_IN, 17, 82);
@@ -335,15 +361,16 @@ static void room_ents(void) {
     door(DR_SIEGE_IN, 133, 41);
     door(DR_CLOCK_IN, 72, 29);
     door(DR_OWL, 148, 63);
-    door(DR_SHRINE, 114, 17);
+    door(DR_THRONE_IN, 29, 68);
+    door(DR_SHAFT_IN, 57, 29);
+    door(DR_TRAIN_IN, 139, 70);
+    door(DR_SEAM_SUMMIT, 118, 17);
     npc(N_CRUMB, 47, 65);
     npc(N_VOLT, 83, 83);
     npc(N_INKY, 137, 16);
-    npc(N_COWPOKE, 139, 70);
     npc(N_WEEPY, 119, 62);
-    npc(N_SILK, 118, 17);
-    npc(N_FILAMENT, 116, 17);
-    npc(N_PILGRIM, 115, 17);
+    npc(N_SILK, 7, 7);
+    npc(N_FILAMENT, 93, 21);
     upgrade_copy(U_MUSK, 84, 19, true);
     upgrade_copy(U_TOP1, 134, 66, true);
     if (spawning) {
@@ -351,12 +378,18 @@ static void room_ents(void) {
         if (!dd_flag(FL_WEEPY_DONE) && !dd_obj_exists(O_THREAD, -1)) obj(O_THREAD, 147, 5);
         static const int TW[3][2] = {{110, 51}, {115, 42}, {110, 39}};
         for (int k = 0; k < 3; k++)
-            if (!((dd_sv.counts[QC_TWIGS] >> k) & 1) && !dd_obj_exists(O_TWIG, k)) {
+            if (!dd_flag(FL_TWIG_DONE) && !((dd_sv.counts[QC_TWIGS] >> k) & 1) && !dd_obj_exists(O_TWIG, k)) {
                 int i = put(EK_OBJ, O_TWIG, TW[k][0], TW[k][1]);
                 if (i >= 0) dd_ent[i].param = k;
             }
         int d = dd_add_ent(EK_DRIP, 0, 108 * DD_TS + 3, 3 * DD_TS);
         (void)d;
+        /* the flyports: a fly shuttling between the two pots, and one
+         * between the reading lamp and the great lamp */
+        put_ferry(54, 29, 107, 39);
+        put_ferry(95, 21, 116, 17);
+        /* a wall-climbing bug on the lintel, the way up to the web */
+        put(EK_FOE, F_CLIMBER, 22, 17);
     }
     foe(F_BEETLE, 116, 66);
     foe(F_MOTH, 39, 57);
@@ -369,11 +402,12 @@ static void room_ents(void) {
     foe(F_ANT, 64, 72);
     glints_row(20, 82, 3);
     glints_row(66, 72, 3);
-    glints_row(41, 29, 4);
+    glints_row(46, 29, 4);
     glints_row(132, 7, 3);
     glints_row(88, 29, 3);
     glints_row(132, 73, 3);
     glints_row(108, 62, 4);
+    glints_row(20, 17, 4);
     pick(P_GLINT5, 131, 44, 0);
     pick(P_GLINT5, 62, 16, 0);
     pick(P_GLINT5, 153, 9, 0);
@@ -387,6 +421,19 @@ static void room_ents(void) {
         foe(F_TINMOUSE, 90, 83);
         foe(F_TINMOUSE, 140, 73);
     }
+}
+
+/* a ferry fly: waits at A, climbs to the cruising height, flies over to B,
+ * comes down, waits, and back (foot tiles like put) */
+static int put_ferry(int ax, int ay, int bx, int by) {
+    int i = put(EK_FOE, F_FERRY, ax, ay);
+    if (i < 0) return -1;
+    Ent *e = &dd_ent[i];
+    e->param = bx * DD_TS + (DD_TS - e->w) / 2;
+    e->param2 = (by + 1) * DD_TS - e->h;
+    e->st = 0;
+    e->state = 0;
+    return i;
 }
 
 /* ------------------------------------------------------------------ */
@@ -475,8 +522,9 @@ static void area_lair(void) {
     }
 }
 
-/* the SIEGE board game: a battlefield on a printed board, dice, walls and
- * towers climbing in steps, and the siege engine's field at the far end */
+/* the SIEGE board game: a battlefield printed on a board, dice, walls and
+ * towers climbing in steps, tin tanks and paper planes all the way, and the
+ * Big Bang waiting at the far end */
 static void area_siege(void) {
     if (!spawning) {
         bgf(0, 0, 159, 23, BG_BOX);
@@ -500,28 +548,32 @@ static void area_siege(void) {
         fill(108, 16, 110, 19, T_CARD2);
         fill(116, 16, 119, 19, T_BONE);
         fill(122, 12, 127, 12, T_LEDGE);
-        /* the siege engine's field */
         fill(133, 16, 136, 16, T_LEDGE);
+        fill(140, 16, 142, 19, T_CARD2);         /* the last wall */
         fill(149, 16, 152, 16, T_LEDGE);
         fill(155, 16, 157, 19, T_CARD2);
         return;
     }
     door(DR_SIEGE_OUT, 3, 19);
     upgrade_copy(U_FIZZ, 20, 15, true);
-    upgrade_copy(U_HEART0 + 5, 84, 7, true);
+    upgrade_copy(U_HEART0 + 6, 84, 7, true);
     pick(P_GLINT50, 41, 11, 0);
     pick(P_GLINT50, 100, 11, 0);
     glints_row(46, 14, 5);
     glints_row(62, 11, 5);
     glints_row(122, 11, 5);
     foe(F_ANT, 30, 19);
+    foe(F_TANK, 50, 19);
     foe(F_AXEANT, 70, 19);
     foe(F_POD, 79, 11);
-    foe(F_ANT, 98, 19);
+    foe(F_TANK, 100, 19);
     foe(F_AXEANT, 114, 19);
     foe(F_SPRING, 120, 15);
-    if (!dd_flag(FL_SIEGE_DEAD)) foe(F_SIEGE, 145, 19);
-    else if (!dd_flag(FL_BIGBANG_DONE) && !dd_obj_exists(O_BIGBANG, -1)) obj(O_BIGBANG, 151, 15);
+    foe(F_TANK, 130, 19);
+    foe(F_TANK, 146, 19);
+    foe(F_PLANE, 60, 4);
+    foe(F_PLANE, 120, 5);
+    if (!dd_flag(FL_BIGBANG_DONE) && !dd_obj_exists(O_BIGBANG, -1)) obj(O_BIGBANG, 151, 15);
 }
 
 /* between the walls: studs with drilled holes, nogging boards, wires */
@@ -559,13 +611,14 @@ static void area_cavity(void) {
         fill(26, 12, 47, 12, T_THREAD);
         fill(44, 16, 46, 16, T_LEDGE);
         fill(40, 20, 42, 20, T_LEDGE);
-        /* the pink slime seep and the rusted grate's cubby, with a crate each side */
+        /* the pink slime seep and a cubby walled in with weak, cracked wood,
+         * with a crate each side */
         fill(90, 31, 93, 31, T_SLIME);
         fill(98, 26, 107, 26, T_WOOD);
-        if (!dd_flag(FL_GRATE_OPEN)) fill(98, 27, 98, 30, T_WOOD);
+        fill(98, 27, 98, 30, T_CRACK);
         fill(107, 27, 107, 30, T_WOOD);
-        fill(95, 29, 96, 30, T_WOOD);
-        fill(108, 29, 109, 30, T_WOOD);
+        fill(95, 30, 96, 30, T_WOOD);
+        fill(108, 30, 109, 30, T_WOOD);
         /* a nook in the first stud behind weak, cracked wood */
         fill(21, 18, 22, 21, T_AIR);
         fill(20, 18, 20, 21, T_CRACK);
@@ -574,11 +627,10 @@ static void area_cavity(void) {
     door(DR_OUTLETW_OUT, 3, 30);
     door(DR_OUTLETE_OUT, 116, 30);
     door(DR_LAIR_IN, 112, 30);
-    door(DR_GRATE, 97, 30);
     pick(P_GLINT5, 21, 21, 0);
     pick(P_GLINT5, 22, 21, 0);
-    npc(N_SHREW, 32, 30);
-    if (!dd_flag(FL_MAGE_BEATEN) && spawning) put(EK_FOE, F_TINMAGE, 96, 19); /* quest creatures always come */
+    for (int k = 0; k < 3; k++) pick(P_GLINT5, 100 + k * 2, 30, 0);
+    if (spawning) { int d = dd_add_ent(EK_DRIP, 2, 88 * DD_TS + 2, 2 * DD_TS); (void)d; } /* a pink stalactite over the seep */
     if (!dd_flag(FL_GEAR_DONE) && !dd_obj_exists(O_GEAR, -1) && dd_flag(FL_POWER_OFF)) obj(O_GEAR, 114, 30);
     foe(F_ANT, 40, 30);
     foe(F_SPRING, 70, 30);
@@ -636,43 +688,50 @@ static void sp_pufffur(void) {
         }
 }
 
-/* inside the clockwork knight: a gauntlet to his mainspring */
+/* inside the clockwork knight: a gauntlet to his control console. Its
+ * bulkheads leave one-tile gaps only the tiny Dot fits through; a long drop
+ * down his chest; a high step to the console room */
 static void sp_sprocket(void) {
     if (!spawning) {
+        bgf(0, 0, 99, 39, BG_DARK);
         fill(0, 0, 99, 1, T_METAL);
-        fill(0, 0, 1, 23, T_METAL);
-        fill(98, 0, 99, 23, T_METAL);
-        fill(0, 20, 99, 23, T_METAL);
-        fill(10, 20, 13, 20, T_THORN);           /* a pit of spikes to jump */
-        fill(16, 16, 19, 16, T_GEAR);
-        fill(22, 20, 27, 20, T_THORN);           /* a wider one, a cog to hop on */
-        fill(24, 18, 25, 19, T_GEAR);
-        fill(34, 16, 36, 19, T_METAL);           /* a bulkhead */
-        fill(40, 15, 44, 15, T_GEAR);
-        fill(48, 20, 55, 20, T_THORN);           /* spikes with two cogs across */
-        fill(50, 18, 51, 19, T_GEAR);
-        fill(53, 18, 54, 19, T_GEAR);
-        fill(62, 17, 64, 19, T_METAL);
-        fill(66, 13, 70, 13, T_GEAR);
-        fill(78, 16, 81, 16, T_LEDGE);
-        fill(86, 16, 89, 16, T_LEDGE);
+        fill(0, 0, 1, 39, T_METAL);
+        fill(98, 0, 99, 39, T_METAL);
+        fill(0, 36, 99, 39, T_METAL);
+        /* the upper deck */
+        fill(2, 12, 45, 13, T_METAL);
+        fill(12, 12, 15, 12, T_THORN);
+        fill(24, 2, 26, 10, T_METAL);            /* bulkhead: a gap at the floor */
+        fill(34, 9, 36, 9, T_GEAR);
+        /* down the chest: a drop of eighteen tiles beside his breastplate */
+        fill(50, 2, 97, 13, T_METAL);
+        /* the lower deck */
+        fill(2, 30, 97, 35, T_METAL);
+        fill(60, 14, 62, 28, T_METAL);           /* bulkhead: a gap at the floor */
+        fill(66, 30, 70, 30, T_THORN);
+        fill(67, 27, 69, 27, T_GEAR);
+        /* the high step to the console room */
+        fill(80, 23, 97, 29, T_METAL);
+        fill(74, 26, 76, 26, T_LEDGE);
         return;
     }
-    foe(F_SPARK, 20, 10);
-    foe(F_SPARK, 44, 9);
-    foe(F_POD, 72, 19);
-    foe(F_SPARK, 68, 8);
-    foe(F_SPRING_CORE, 92, 19);
-    glints_row(40, 14, 5);
-    glints_row(66, 12, 5);
-    obj(O_PEBBLE, 30, 19);
-    obj(O_AXE, 58, 19);
-    obj(O_PEBBLE, 84, 19);
+    foe(F_SPARK, 18, 8);
+    foe(F_SPARK, 40, 6);
+    foe(F_POD, 58, 29);
+    foe(F_SPARK, 72, 20);
+    /* a moth to glide down on, if the feather charm is missing */
+    put(EK_FOE, F_MOTH, 40, 9);
+    glints_row(30, 11, 4);
+    glints_row(84, 22, 5);
+    obj(O_PEBBLE, 8, 11);
+    obj(O_AXE, 54, 29);
+    door(DR_CONSOLE, 93, 22);
 }
 
-static void sp_hermit(void) {
+/* inside the keyhole, behind the throne: Nib, who turns the lock */
+static void sp_keyhole(void) {
     if (!spawning) {
-        frame_box(30, 18, T_CELL, 15);
+        frame_box(30, 18, T_BRASS, 15);
         fill(8, 11, 12, 11, T_LEDGE);
         return;
     }
@@ -680,20 +739,115 @@ static void sp_hermit(void) {
     glints_row(8, 10, 5);
 }
 
-static void sp_deepshelf(void) {
+/* the climb up inside the great lamp's rim to the glow at the top */
+static void sp_summit(void) {
     if (!spawning) {
-        frame_box(50, 22, T_CELL2, 19);
-        fill(10, 15, 14, 15, T_LEDGE);
-        fill(18, 11, 22, 11, T_LEDGE);
-        fill(28, 14, 34, 18, T_CELL);
-        fill(38, 10, 42, 10, T_LEDGE);
+        bgf(0, 0, 39, 47, BG_DARK);
+        frame_box(40, 48, T_SHADE, 45);
+        static const int L[][3] = {
+            {3, 41, 10}, {9, 37, 16}, {15, 33, 22}, {21, 29, 28}, {27, 25, 34}, {21, 21, 28},
+            {15, 17, 22}, {9, 13, 16}, {15, 9, 22}, {21, 5, 36},
+        };
+        for (int k = 0; k < ARRAY_LEN(L); k++) fill(L[k][0], L[k][1], L[k][2], L[k][1], T_LEDGE);
         return;
     }
-    upgrade_copy(U_BUZZ2, 40, 9, true);
-    foe(F_GERM, 24, 8);
-    foe(F_GERM2, 34, 6);
-    foe(F_WIGGLER, 16, 18);
-    glints_row(18, 10, 5);
+    npc(N_GLOW, 33, 4);
+    glints_row(10, 36, 3);
+    glints_row(16, 16, 3);
+    foe(F_SPARK, 30, 18);
+}
+
+/* inside the mouse's head: the tin mage pulling the strings */
+static void sp_shrewhead(void) {
+    if (!spawning) {
+        bgf(0, 0, 39, 19, BG_DARK);
+        frame_box(40, 20, T_FUR, 17);
+        fill(10, 13, 14, 13, T_STRAND);
+        fill(25, 13, 29, 13, T_STRAND);
+        return;
+    }
+    if (!dd_flag(FL_MAGE_BEATEN)) put(EK_FOE, F_TINMAGE, 28, 16); /* quest creatures always come */
+    glints_row(10, 12, 3);
+}
+
+/* the ferry fly's cockpit */
+static void sp_cockpit(void) {
+    if (!spawning) {
+        bgf(0, 0, 29, 15, BG_HOLLOW);
+        frame_box(30, 16, T_FUR, 13);
+        fill(20, 9, 26, 9, T_LEDGE);
+        return;
+    }
+    npc(N_PILOT, 14, 12);
+    glints_row(21, 8, 3);
+}
+
+/* inside the door knob: the queen's throne room, at small size */
+static void area_throne(void) {
+    if (!spawning) {
+        bgf(0, 0, 59, 23, BG_HOLLOW);
+        frame_box(60, 24, T_BRASS, 20);
+        fill(26, 17, 33, 19, T_FABRIC);           /* the throne */
+        fill(28, 13, 31, 16, T_FABRIC2);
+        fill(8, 16, 12, 16, T_LEDGE);
+        fill(15, 13, 19, 13, T_LEDGE);
+        /* the far corner, walled off until the knight is gone */
+        if (!dd_flag(FL_SPROCKET_DEAD)) fill(50, 2, 51, 19, T_METAL);
+        fill(52, 19, 57, 19, T_BRASS);
+        return;
+    }
+    door(DR_THRONE_OUT, 3, 19);
+    if (!dd_flag(FL_PAID_QUEEN) || dd_flag(FL_SPROCKET_DEAD)) npc(N_TABITHA, 30, 12);
+    if (dd_flag(FL_PAID_QUEEN) && !dd_flag(FL_SPROCKET_DEAD)) put(EK_FOE, F_SPROCKET, 40, 19);
+    door(DR_SEAM_KEYHOLE, 55, 18);
+    glints_row(8, 15, 4);
+    glints_row(15, 12, 4);
+}
+
+/* a shaft between the walls, from the hanging shelf down to the floor: a
+ * long, long drop, and a mouse at the bottom who isn't himself */
+static void area_shaft(void) {
+    if (!spawning) {
+        bgf(0, 0, 39, 63, BG_CAVITY);
+        frame_box(40, 64, T_WOOD, 61);
+        fill(6, 10, 37, 11, T_PLANK);             /* the top landing */
+        fill(6, 30, 11, 30, T_LEDGE);             /* nails sticking out on the way down */
+        fill(6, 45, 11, 45, T_LEDGE);
+        return;
+    }
+    door(DR_SHAFT_TOP, 34, 9);
+    door(DR_SHAFT_OUT, 36, 60);
+    /* moths drift over the landing: hold one and the fall is a glide */
+    put(EK_FOE, F_MOTH, 12, 7);
+    put(EK_FOE, F_MOTH, 26, 6);
+    npc(N_SHREW, 18, 60);
+    glints_row(8, 9, 4);
+    glints_row(7, 29, 4);
+    pick(P_GLINT5, 9, 44, 0);
+    foe(F_ANT, 26, 60);
+}
+
+/* inside the toy train's caboose: the cowpoke's hideout */
+static void area_train(void) {
+    if (!spawning) {
+        bgf(0, 0, 39, 19, BG_HOLLOW);
+        frame_box(40, 20, T_METAL, 17);
+        fill(12, 11, 26, 11, T_LEDGE);            /* a luggage rack */
+        fill(16, 15, 17, 16, T_METAL);            /* a trunk */
+        return;
+    }
+    door(DR_TRAIN_OUT, 34, 16);
+    npc(N_COWPOKE, 4, 16);
+    {
+        /* the cowpoke's guard gun: its peas break a carried drink */
+        int i = put(EK_FOE, F_POD, 9, 16);
+        if (i >= 0) dd_ent[i].dir = 1;
+    }
+    obj(O_CRACKER, 20, 10);
+    obj(O_CINDER, 24, 16);
+    obj(O_CINDER, 24, 15);
+    glints_row(14, 10, 4);
+    glints_row(28, 16, 3);
 }
 
 const AreaMap DD_AREA[AR_COUNT] = {
@@ -704,14 +858,21 @@ const AreaMap DD_AREA[AR_COUNT] = {
     [AR_SIEGE] = {"SIEGE!", 160, 24, NULL, 133, 41, MU_SIEGE},
     [AR_LAIR] = {"THE EARWIG'S LAIR", 40, 22, NULL, 153, 83, MU_BOSS},
     [AR_CLOCKWORKS] = {"THE CLOCKWORKS", 40, 26, NULL, 66, 16, MU_TOWN},
+    [AR_THRONE] = {"THE THRONE ROOM", 60, 24, NULL, 28, 68, MU_LATCH},
+    [AR_SHAFT] = {"THE LONG DROP", 40, 64, NULL, 57, 82, MU_WALLS},
+    [AR_TRAIN] = {"THE CABOOSE", 40, 20, NULL, 139, 70, MU_TOWN},
 };
 const AreaMap DD_SPECIAL[SP_COUNT] = {
     [SP_DASHFUR] = {"IN DASH'S FUR", 60, 24, NULL, 0, 0, MU_MICRO},
     [SP_PUFFFUR] = {"IN PUFFIN'S FLUFF", 50, 24, NULL, 0, 0, MU_MICRO},
-    [SP_SPROCKET] = {"INSIDE SIR SPROCKET", 100, 24, NULL, 0, 0, MU_BOSS},
-    [SP_HERMIT] = {"BEHIND THE THRONE", 30, 18, NULL, 0, 0, MU_DEEP},
-    [SP_DEEPSHELF] = {"THE DEEP STACKS", 50, 22, NULL, 0, 0, MU_DEEP},
+    [SP_SPROCKET] = {"INSIDE SIR SPROCKET", 100, 40, NULL, 0, 0, MU_BOSS},
+    [SP_KEYHOLE] = {"THE KEYHOLE", 30, 18, NULL, 0, 0, MU_DEEP},
+    [SP_SUMMIT] = {"THE GREAT LAMP'S RIM", 40, 48, NULL, 0, 0, MU_DEEP},
+    [SP_SHREWHEAD] = {"INSIDE BARLEY'S HEAD", 40, 20, NULL, 0, 0, MU_BOSS},
+    [SP_COCKPIT] = {"THE FERRY'S COCKPIT", 30, 16, NULL, 0, 0, MU_MICRO},
 };
+/* where Dot arrives in each special (the row she stands in) */
+const int DD_SPECIAL_FLOOR[SP_COUNT] = {19, 19, 11, 14, 44, 16, 12};
 
 static void build_area(int id) {
     switch (id) {
@@ -722,6 +883,9 @@ static void build_area(int id) {
     case AR_SIEGE: area_siege(); break;
     case AR_LAIR: area_lair(); break;
     case AR_CLOCKWORKS: area_clockworks(); break;
+    case AR_THRONE: area_throne(); break;
+    case AR_SHAFT: area_shaft(); break;
+    case AR_TRAIN: area_train(); break;
     }
 }
 static void build_special(int id) {
@@ -729,8 +893,10 @@ static void build_special(int id) {
     case SP_DASHFUR: sp_dashfur(); break;
     case SP_PUFFFUR: sp_pufffur(); break;
     case SP_SPROCKET: sp_sprocket(); break;
-    case SP_HERMIT: sp_hermit(); break;
-    case SP_DEEPSHELF: sp_deepshelf(); break;
+    case SP_KEYHOLE: sp_keyhole(); break;
+    case SP_SUMMIT: sp_summit(); break;
+    case SP_SHREWHEAD: sp_shrewhead(); break;
+    case SP_COCKPIT: sp_cockpit(); break;
     }
 }
 
@@ -761,8 +927,8 @@ static const TownDef TOWN[TW_COUNT] = {
     [TW_CRASH] = {"THE CRASH SITE", AR_ROOM, 81, 72, 1, MU_MICRO},
     [TW_KITCHEN] = {"CHEF MOREL'S KITCHEN", AR_ROOM, 83, 76, 1, MU_TOWN},
     [TW_TICKBURG] = {"TICKBURG", AR_ROOM, 17, 64, 2, MU_TOWN},
-    [TW_GLIMMER] = {"GLIMMER", AR_ROOM, 18, 115, 2, MU_TOWN},
-    [TW_LATCH] = {"LATCHTOWN", AR_ROOM, 18, 34, 4, MU_LATCH},
+    [TW_GLIMMER] = {"GLIMMER", AR_ROOM, 22, 90, 2, MU_TOWN},
+    [TW_LATCH] = {"LATCHTOWN", AR_ROOM, 69, 27, 3, MU_LATCH},
     [TW_WORMWOOD] = {"WORMWOOD", AR_CAVITY, 16, 64, 2, MU_TOWN},
     [TW_BLUEDUST] = {"THE BLUE DRIFT", AR_ROOM, 14, 130, 1, MU_MICRO},
 };
@@ -770,7 +936,7 @@ static const TownDef TOWN[TW_COUNT] = {
 
 /* fixed things in generated micro chunks: upgrade copies, lost waxlings,
  * paperfish, glue blocks, bubbles and the dangerous caves */
-enum { X_UP, X_BABY, X_PFISH, X_GLUE, X_BUBBLE, X_DANGER, X_OBJ, X_GERM };
+enum { X_UP, X_BABY, X_PFISH, X_GLUE, X_BUBBLE, X_DANGER, X_OBJ, X_GERM, X_UPGAP, X_NPC, X_DUMP, X_SCAMPER, X_FACE };
 typedef struct Extra { int area, row, x, type, param; } Extra;
 static const Extra EXTRA[] = {
     /* the ten dangerous caves, two big glints each */
@@ -778,24 +944,35 @@ static const Extra EXTRA[] = {
     {AR_ROOM, 8, 132, X_DANGER, 3}, {AR_CAVITY, 24, 30, X_DANGER, 4}, {AR_ROOM, 18, 30, X_DANGER, 5},
     {AR_ROOM, 73, 68, X_DANGER, 6}, {AR_ROOM, 80, 134, X_DANGER, 7}, {AR_ROOM, 17, 68, X_DANGER, 8},
     {AR_ROOM, 18, 118, X_DANGER, 9},
-    /* heart buttons and pep eggs in those caves */
-    {AR_ROOM, 83, 30, X_UP, U_HEART0 + 6}, {AR_ROOM, 67, 114, X_UP, U_HEART0 + 0},
-    {AR_ROOM, 8, 132, X_UP, U_HEART0 + 1}, {AR_CAVITY, 24, 30, X_UP, U_HEART0 + 2},
-    {AR_ROOM, 18, 118, X_UP, U_EGG0 + 0}, {AR_ROOM, 67, 114, X_UP, U_EGG0 + 1},
-    {AR_ROOM, 66, 47, X_UP, U_EGG0 + 3}, {AR_ROOM, 73, 68, X_UP, U_EGG0 + 5},
-    /* pep eggs with two copies each in the open strips */
-    {AR_ROOM, 83, 20, X_UP, U_EGG0 + 4}, {AR_ROOM, 62, 52, X_UP, U_EGG0 + 4},
-    {AR_ROOM, 49, 139, X_UP, U_EGG0 + 6}, {AR_ROOM, 71, 137, X_UP, U_EGG0 + 6},
-    {AR_ROOM, 30, 50, X_UP, U_EGG0 + 7}, {AR_ROOM, 18, 26, X_UP, U_EGG0 + 7},
-    /* ability copies */
-    {AR_ROOM, 83, 33, X_UP, U_MITT1},
-    {AR_ROOM, 52, 142, X_UP, U_MITT2}, {AR_CAVITY, 16, 58, X_UP, U_MITT2},
-    {AR_ROOM, 66, 48, X_UP, U_SATCHEL2}, {AR_ROOM, 18, 10, X_UP, U_SATCHEL2},
-    {AR_ROOM, 18, 117, X_UP, U_BEAN2}, {AR_ROOM, 17, 61, X_UP, U_BEAN2},
-    {AR_ROOM, 8, 135, X_UP, U_CLOGS1}, {AR_ROOM, 67, 116, X_UP, U_CLOGS1},
-    {AR_CAVITY, 20, 90, X_UP, U_CLOGS2}, {AR_ROOM, 80, 140, X_UP, U_CLOGS2},
-    {AR_ROOM, 8, 140, X_UP, U_FEATHER},
-    {AR_ROOM, 71, 138, X_UP, U_TOP2}, {AR_ROOM, 83, 19, X_UP, U_TOP2},
+    /* whole heart buttons sit in the dangerous caves; half buttons and pep
+     * eggs are everywhere. Every spot gives the next one Dot lacks */
+    {AR_ROOM, 83, 30, X_UP, U_HEART0}, {AR_ROOM, 67, 114, X_UP, U_HEART0}, {AR_ROOM, 8, 132, X_UP, U_HEART0},
+    {AR_CAVITY, 24, 30, X_UP, U_HEART0}, {AR_ROOM, 18, 30, X_UP, U_HEART0}, {AR_ROOM, 73, 68, X_UP, U_HEART0},
+    {AR_ROOM, 80, 134, X_UP, U_HEART0}, {AR_ROOM, 17, 68, X_UP, U_HEART0},
+    {AR_ROOM, 83, 22, X_UP, U_HEART0 + 6}, {AR_ROOM, 66, 44, X_UP, U_HEART0 + 6}, {AR_ROOM, 62, 40, X_UP, U_HEART0 + 6},
+    {AR_ROOM, 71, 140, X_UP, U_HEART0 + 6}, {AR_ROOM, 17, 63, X_UP, U_HEART0 + 6}, {AR_ROOM, 80, 145, X_UP, U_HEART0 + 6},
+    {AR_ROOM, 18, 118, X_UP, U_EGG0}, {AR_ROOM, 67, 114, X_UP, U_EGG0}, {AR_ROOM, 66, 47, X_UP, U_EGG0},
+    {AR_ROOM, 73, 68, X_UP, U_EGG0}, {AR_ROOM, 83, 20, X_UP, U_EGG0}, {AR_ROOM, 62, 52, X_UP, U_EGG0},
+    {AR_ROOM, 49, 139, X_UP, U_EGG0}, {AR_ROOM, 71, 137, X_UP, U_EGG0}, {AR_ROOM, 30, 50, X_UP, U_EGG0},
+    {AR_ROOM, 18, 26, X_UP, U_EGG0}, {AR_ROOM, 46, 137, X_UP, U_EGG0}, {AR_ROOM, 14, 134, X_UP, U_EGG0},
+    /* the common upgrades, many spots each; a spot gives level one, or
+     * level two once Dot has the first */
+    {AR_ROOM, 83, 33, X_UP, U_MITT1}, {AR_ROOM, 52, 142, X_UP, U_MITT1}, {AR_CAVITY, 16, 58, X_UP, U_MITT1},
+    {AR_ROOM, 17, 69, X_UP, U_MITT1}, {AR_ROOM, 80, 131, X_UPGAP, U_MITT1},
+    {AR_ROOM, 66, 48, X_UP, U_SATCHEL1}, {AR_ROOM, 18, 10, X_UP, U_SATCHEL1}, {AR_ROOM, 46, 136, X_UP, U_SATCHEL1},
+    {AR_ROOM, 63, 106, X_UP, U_SATCHEL1}, {AR_ROOM, 83, 57, X_UP, U_SATCHEL1},
+    {AR_ROOM, 18, 117, X_UP, U_BEAN1}, {AR_ROOM, 17, 61, X_UP, U_BEAN1}, {AR_ROOM, 8, 142, X_UP, U_BEAN1},
+    {AR_ROOM, 30, 46, X_UP, U_BEAN1}, {AR_ROOM, 63, 120, X_UP, U_BEAN1},
+    {AR_ROOM, 8, 135, X_UP, U_CLOGS1}, {AR_ROOM, 67, 116, X_UP, U_CLOGS1}, {AR_CAVITY, 20, 90, X_UP, U_CLOGS1},
+    {AR_ROOM, 80, 140, X_UP, U_CLOGS1}, {AR_ROOM, 14, 133, X_UP, U_CLOGS1},
+    {AR_ROOM, 55, 145, X_UPGAP, U_BUZZ1}, {AR_CAVITY, 24, 40, X_UP, U_BUZZ1}, {AR_ROOM, 20, 142, X_UPGAP, U_BUZZ1},
+    {AR_ROOM, 83, 58, X_UP, U_BUZZ1},
+    {AR_ROOM, 71, 138, X_UP, U_TOP1}, {AR_ROOM, 83, 19, X_UP, U_TOP1}, {AR_ROOM, 8, 138, X_UP, U_TOP1},
+    {AR_ROOM, 46, 135, X_UPGAP, U_TOP1},
+    {AR_ROOM, 20, 84, X_UP, U_TONIC2}, {AR_ROOM, 20, 87, X_UP, U_TONIC2},
+    /* the ones with no second level */
+    {AR_ROOM, 8, 140, X_UP, U_FEATHER}, {AR_ROOM, 80, 136, X_UP, U_BANGLE},
+    {AR_ROOM, 18, 116, X_UP, U_FIZZ}, {AR_ROOM, 83, 17, X_UP, U_WHISTLE},
     /* eight lost waxlings */
     {AR_ROOM, 83, 21, X_BABY, 0}, {AR_ROOM, 83, 34, X_BABY, 1}, {AR_ROOM, 18, 12, X_BABY, 2},
     {AR_ROOM, 62, 53, X_BABY, 3}, {AR_ROOM, 63, 106, X_BABY, 4}, {AR_ROOM, 73, 61, X_BABY, 5},
@@ -810,7 +987,11 @@ static const Extra EXTRA[] = {
     {AR_ROOM, 62, 38, X_BUBBLE, 3},
     /* one-off things */
     {AR_ROOM, 71, 136, X_OBJ, O_BLUEEYE},
-    {AR_ROOM, 80, 138, X_GERM, F_GERM}, {AR_ROOM, 80, 142, X_GERM, F_GERM2},
+    {AR_ROOM, 8, 6, X_GERM, F_GERM}, {AR_ROOM, 80, 142, X_GERM, F_GERM2},
+    /* folk with a favour or a word, and the odd things they talk about */
+    {AR_ROOM, 20, 83, X_NPC, N_EXILE}, {AR_ROOM, 30, 56, X_NPC, N_DUMPER}, {AR_ROOM, 36, 140, X_NPC, N_EXILE2},
+    {AR_ROOM, 17, 137, X_NPC, N_FACE}, {AR_ROOM, 14, 131, X_FACE, 0},
+    {AR_ROOM, 30, 52, X_DUMP, 0}, {AR_ROOM, 30, 53, X_DUMP, 1}, {AR_ROOM, 84, 6, X_SCAMPER, 0},
     {AR_ROOM, 83, 26, X_OBJ, O_SPORE}, {AR_ROOM, 66, 42, X_OBJ, O_SPORE},
     {AR_ROOM, 62, 37, X_OBJ, O_PUPA}, {AR_ROOM, 83, 31, X_OBJ, O_HARD},
 };
@@ -893,7 +1074,6 @@ static void town_chunk(int tw, int part) {
         } else {
             if (!spawning) { house(3, 10, 7, T_WAX); house(20, 8, 5, T_WAX); fill(OX + 30, TOWN_H - 3, OX + 34, TOWN_H - 3, T_THREAD); }
             tnpc(N_TALLOW, 8);
-            door(DR_SEAM_SHELF, OX + 24, TOWN_H - 1);
             glints_row(OX + 30, TOWN_H - 4, 5);
         }
         break;
@@ -958,6 +1138,7 @@ static void town_chunk(int tw, int part) {
         if (!spawning) { house(10, 14, 8, T_WAX); fill(OX + 12, TOWN_H - 1, OX + 21, TOWN_H - 1, T_AIR); fill(OX + 30, TOWN_H, OX + 33, TOWN_H, T_WAX); }
         tfoe(F_BUMBLE, 8);
         tfoe(F_BUMBLE, 26);
+        tnpc(N_BEE, 30);
         if (spawning) { int i = put(EK_DRIP, 1, OX + 17, TOWN_H - 1); (void)i; }
         break;
     case TW_LOAMTON:
@@ -970,6 +1151,7 @@ static void town_chunk(int tw, int part) {
         } else {
             if (!spawning) { house(6, 12, 8, T_STONE); fill(OX + 24, TOWN_H - 2, OX + 26, TOWN_H - 1, T_STONE); }
             tnpc(N_SMITH, 12);
+            tnpc(N_HISTORIAN, 22);
             if (dd_flag(FL_WATER_GIVEN)) tnpc(N_SOLDIER, 30);
         }
         break;
@@ -993,9 +1175,13 @@ static void town_chunk(int tw, int part) {
             fill(OX + 6, TOWN_H + 5, OX + 7, TOWN_H + 5, T_LEDGE);     /* steps up under the hole */
             fill(OX + 8, TOWN_H + 2, OX + 9, TOWN_H + 2, T_LEDGE);
         }
+        /* the lancers' nest, kept by cave octopods: one drops a red egg */
         foe(F_LANCER, OX + 20, TOWN_H + 7);
-        foe(F_LANCER, OX + 28, TOWN_H + 7);
-        if (!dd_flag(FL_REDEGG_DONE) && spawning && !dd_obj_exists(O_REDEGG, -1)) obj(O_REDEGG, OX + 32, TOWN_H + 7);
+        tfoe(F_OCTO, 26);
+        if (spawning) {
+            int i = put(EK_FOE, F_OCTO, OX + 31, TOWN_H + 7);
+            if (i >= 0) dd_ent[i].param = 1; /* carries the egg */
+        }
         break;
     case TW_WORKSHOP:
         if (!spawning) { house(8, 16, 8, T_GEAR); fill(OX + 28, TOWN_H - 3, OX + 31, TOWN_H - 3, T_LEDGE); }
@@ -1034,40 +1220,37 @@ static void town_chunk(int tw, int part) {
             tnpc(N_HIGHLUMEN, 11);
             glints_row(OX + 24, TOWN_H - 7, 4);
         } else {
-            if (!spawning) { house(10, 8, 6, T_GLASS); }
+            if (!spawning) { house(10, 8, 6, T_GLASS); fill(OX + 33, TOWN_H - 1, OX + 33, TOWN_H - 1, T_GLASS); }
             tnpc(N_WARDEN, 14);
+            tnpc(N_PILGRIM, 30); /* by the flashing beacon at the town's end */
         }
         break;
     case TW_LATCH:
         if (part == 0) {
-            if (!spawning) { house(20, 10, 8, T_METAL); fill(OX + 34, TOWN_H - 1, OX + 35, TOWN_H - 1, T_METAL); }
-            tnpc(N_KNIGHT, 10);
-            if (!dd_flag(FL_PELL_FREED) && !dd_flag(FL_PELL_GUARDED)) tnpc(N_PELL, 26);
+            /* the far end: the mage's house, with the prison key on a hook */
+            if (!spawning) { house(8, 16, 7, T_METAL); fill(OX + 30, TOWN_H - 3, OX + 33, TOWN_H - 3, T_LEDGE); }
+            tnpc(N_MAGE, 12);
+            if (spawning && !dd_flag(FL_KEY_TAKEN) && !dd_flag(FL_PELL_FREED) && !dd_flag(FL_PELL_GUARDED) && !dd_obj_exists(O_KEY, -1))
+                obj(O_KEY, OX + 20, TOWN_H - 1);
+            glints_row(OX + 30, TOWN_H - 4, 4);
         } else if (part == 1) {
-            if (!spawning) { house(4, 8, 6, T_METAL); house(22, 12, 7, T_METAL); }
+            /* the main hall, and the cells under it through a trapdoor */
+            if (!spawning) {
+                house(4, 14, 8, T_METAL);
+                fill(OX + 8, TOWN_H + 1, OX + 32, TOWN_H + 10, T_AIR);
+                fill(OX + 8, TOWN_H + 11, OX + 32, TOWN_H + 11, T_METAL);
+                fill(OX + 20, TOWN_H, OX + 22, TOWN_H, T_LEDGE);     /* the trapdoor */
+                fill(OX + 12, TOWN_H + 7, OX + 15, TOWN_H + 7, T_LEDGE); /* steps back up */
+                fill(OX + 16, TOWN_H + 4, OX + 23, TOWN_H + 4, T_LEDGE);
+                bgf(OX + 25, TOWN_H + 1, OX + 31, TOWN_H + 10, BG_BOX);
+            }
             tnpc(N_RATCHET, 8);
-            tnpc(N_MAGE, 30);
-            if (dd_sv.glints_total >= 667) tfoe(F_TINMOUSE, 18);
-        } else if (part == 2) {
-            /* the throne hall: shut until the mage is paid */
-            if (!spawning) {
-                bgf(OX, 0, OX + CHUNK_W - 1, TOWN_H - 1, BG_HOLLOW);
-                if (!dd_flag(FL_THRONE_OPEN)) fill(OX + 1, TOWN_H - 6, OX + 2, TOWN_H - 1, T_METAL);
-                fill(OX + 24, TOWN_H - 3, OX + 30, TOWN_H - 1, T_BRASS);
-            }
-            if (!dd_flag(FL_PAID_QUEEN) || dd_flag(FL_SPROCKET_DEAD)) npc(N_TABITHA, OX + 27, TOWN_H - 4);
-            door(DR_SEAM_HERMIT, OX + 33, TOWN_H - 1);
+            npc(N_KNIGHT, OX + 11, TOWN_H + 10);
+            if (!dd_flag(FL_PELL_FREED) && !dd_flag(FL_PELL_GUARDED)) npc(N_PELL, OX + 28, TOWN_H + 10);
         } else {
-            if (!spawning) {
-                bgf(OX, 0, OX + CHUNK_W - 1, TOWN_H - 1, BG_HOLLOW);
-                fill(OX + 6, TOWN_H - 4, OX + 9, TOWN_H - 4, T_LEDGE);
-                fill(OX + 30, TOWN_H - 4, OX + 33, TOWN_H - 4, T_LEDGE);
-                fill(OX + CHUNK_W - 2, 0, OX + CHUNK_W - 1, TOWN_H - 1, T_METAL);
-            }
-            if (dd_flag(FL_PAID_QUEEN) && !dd_flag(FL_SPROCKET_DEAD) && spawning) {
-                int i = put(EK_FOE, F_SPROCKET, OX + 22, TOWN_H - 1);
-                (void)i;
-            }
+            if (!spawning) { house(6, 8, 6, T_METAL); house(22, 12, 7, T_METAL); }
+            if (dd_sv.glints_total >= 667) tfoe(F_TINMOUSE, 18);
+            glints_row(OX + 4, TOWN_H - 1, 3);
         }
         break;
     case TW_WORMWOOD:
@@ -1140,12 +1323,58 @@ static const Extra *extra_for(const LevelDesc *d, int x, int type, int k) {
     return NULL;
 }
 
+/* the key of the micro chunk over a tile of an area, as the strip builder
+ * makes it, so that fixed things there have ids known from outside */
+static uint32_t chunk_key(int area, int row, int x) {
+    return dd_hash(dd_hash(dd_hash(0xA0u, (uint32_t)area), (uint32_t)row), (uint32_t)x);
+}
+static uint32_t extra_pid(const Extra *e) {
+    return dd_hash(chunk_key(e->area, e->row, e->x), 0xE000u + (uint32_t)(e - EXTRA)) | 1u;
+}
+static uint32_t big_pid(int area, int row, int x, int j) {
+    return dd_hash(chunk_key(area, row, x), 0xB000u + (uint32_t)j) | 1u;
+}
+
+/* Dash's nose: a room tile whose micro chunk holds an upgrade still to be
+ * had, a dangerous cave's big glints, or a town Dot hasn't found */
+bool dd_sniff_spot(int area, int row, int x) {
+    for (int i = 0; i < ARRAY_LEN(EXTRA); i++) {
+        const Extra *e = &EXTRA[i];
+        if (e->area != area || e->row != row || e->x != x) continue;
+        if ((e->type == X_UP || e->type == X_UPGAP) && !dd_collected(extra_pid(e)) && dd_resolve_upgrade(e->param) >= 0) return true;
+        if (e->type == X_DANGER && ((dd_sv.caves_done >> (e->param * 2)) & 3) != 3) return true;
+    }
+    int part;
+    int k = town_lookup(area, row, x, &part);
+    if (k >= 0 && part == 0 && !((dd_sv.towns_seen >> k) & 1)) return true;
+    return false;
+}
+
+int dd_town_mark(int k, int *area, int *row, int *x) {
+    if (k < 0 || k >= TW_COUNT || !((dd_sv.towns_seen >> k) & 1)) return 0;
+    *area = TOWN[k].area; *row = TOWN[k].row; *x = TOWN[k].x;
+    return 1;
+}
+
+void dd_note_town(void) {
+    if (dd_lv.d.kind != LV_STRIP) return;
+    int c = dd_chunk_of((int)(dd_p.x + dd_p.w / 2));
+    if (dd_lv.town[c] >= 0 && !((dd_sv.towns_seen >> dd_lv.town[c]) & 1)) {
+        dd_sv.towns_seen |= 1u << dd_lv.town[c];
+        dd_autosave();
+    }
+}
+
+bool dd_in_danger_cave(void) {
+    if (dd_lv.d.kind != LV_STRIP) return false;
+    return dd_lv.special[dd_chunk_of((int)(dd_p.x + dd_p.w / 2))] != 0;
+}
+
 static void gen_chunk(const LevelDesc *d, int i) {
     int ox = i * CHUNK_W, mat = B->biome[i];
     Rng r;
     rng_seed(&r, B->ckey[i]);
     int hL = boundary_h(d, i), hR = boundary_h(d, i + 1);
-    int deep = d->scale == SC_DEEP;
     int solid_t = biome_tile(mat, 0), alt_t = biome_tile(mat, 1);
     /* surface profile */
     int h = hL, x = 0;
@@ -1177,10 +1406,12 @@ static void gen_chunk(const LevelDesc *d, int i) {
     }
     /* the cave: a staircase down to a chamber */
     B->cave_x0[i] = B->cave_x1[i] = B->cave_floor[i] = -1;
+    B->gap_x[i] = B->gap_y[i] = -1;
     bool danger = extra_for(d, d->x0 + i, X_DANGER, 0) != NULL;
     bool need = danger || extra_for(d, d->x0 + i, X_UP, 0) || extra_for(d, d->x0 + i, X_OBJ, 0);
     B->special[i] = danger;
-    if (need || rng_chance(&r, deep ? 45 : 55)) {
+    int cave_e = 99, cave_end = -1;
+    if (need || rng_chance(&r, 55)) {
         /* the chamber stays roofed: its floor goes deep enough to keep two
          * tiles of ground over it wherever the surface lies in this chunk */
         int ch = danger ? 7 : 5, maxs = 0;
@@ -1203,6 +1434,8 @@ static void gen_chunk(const LevelDesc *d, int i) {
         B->cave_x0[i] = (int8_t)cx0;
         B->cave_x1[i] = (int8_t)cx1;
         B->cave_floor[i] = (int8_t)F;
+        cave_e = e;
+        cave_end = e + 2 * steps + 2;
         if (danger) {
             /* thorns across the chamber floor with safe stones between */
             for (int xx = cx0 + 2; xx <= cx1 - 2; xx++)
@@ -1218,6 +1451,43 @@ static void gen_chunk(const LevelDesc *d, int i) {
         int y = 1;
         while (y < CHUNK_H - 1 && !(DD_TILE[tile_at(ox + x, y)].flags & TF_SOLID)) y++;
         B->surf[ox + x] = (uint8_t)y;
+    }
+    /* a nook under a slab, reached through a gap one tile high: only Dot at
+     * her tiniest fits. Some hold an upgrade, the rest a handful of glints */
+    bool gap_need = extra_for(d, d->x0 + i, X_UPGAP, 0) != NULL;
+    if (gap_need || rng_chance(&r, 22)) {
+        for (int tries = 0; tries < 14 && B->gap_x[i] < 0; tries++) {
+            int gx = 12 + (int)(dd_hash(B->ckey[i], (uint32_t)(tries + 91)) % 16u);
+            if (gx + 8 >= CHUNK_W - 1) continue;
+            if (gx <= cave_end && gx + 8 >= cave_e) continue;   /* clear of the cave's stair */
+            int s0 = B->surf[ox + gx];
+            bool ok = s0 >= 7;
+            for (int k = 0; k <= 8 && ok; k++) ok = B->surf[ox + gx + k] == s0 && tile_at(ox + gx + k, s0 - 5) == T_AIR;
+            if (!ok) continue;
+            fill(ox + gx + 1, s0 - 4, ox + gx + 7, s0 - 2, solid_t);
+            fill(ox + gx + 7, s0 - 1, ox + gx + 7, s0 - 1, solid_t);
+            B->gap_x[i] = (int8_t)(gx + 5);
+            B->gap_y[i] = (int8_t)(s0 - 1);
+            for (int k = 1; k <= 7; k++) B->surf[ox + gx + k] = (uint8_t)(s0 - 4);
+        }
+        if (gap_need && B->gap_x[i] < 0) {
+            /* an upgrade must have its nook: level a patch of ground for it,
+             * right of the cave's stair */
+            int gx = imax(cave_end + 2, 12);
+            if (gx + 9 >= CHUNK_W - 1) gx = CHUNK_W - 11;
+            int s0 = iclamp(B->surf[ox + gx], 8, 13);
+            for (int k = 0; k <= 8; k++) {
+                fill(ox + gx + k, 1, ox + gx + k, s0 - 1, T_AIR);
+                for (int y = s0; y < s0 + 3; y++)
+                    if (tile_at(ox + gx + k, y) == T_AIR) lv_set(B, ox + gx + k, y, solid_t);
+                B->surf[ox + gx + k] = (uint8_t)s0;
+            }
+            fill(ox + gx + 1, s0 - 4, ox + gx + 7, s0 - 2, solid_t);
+            fill(ox + gx + 7, s0 - 1, ox + gx + 7, s0 - 1, solid_t);
+            B->gap_x[i] = (int8_t)(gx + 5);
+            B->gap_y[i] = (int8_t)(s0 - 1);
+            for (int k = 1; k <= 7; k++) B->surf[ox + gx + k] = (uint8_t)(s0 - 4);
+        }
     }
     /* ledges above the ground */
     if (rng_chance(&r, 55)) {
@@ -1237,7 +1507,7 @@ static void gen_chunk(const LevelDesc *d, int i) {
     }
     if (mat == M_PLANT && rng_chance(&r, 30)) {
         int lx = rng_range(&r, 4, CHUNK_W - 6);
-        lv_set(B, ox + lx, B->surf[ox + lx] - 1, T_SHROOM);
+        if (tile_at(ox + lx, B->surf[ox + lx] - 1) == T_AIR) lv_set(B, ox + lx, B->surf[ox + lx] - 1, T_SHROOM);
     }
     if (mat == M_SOIL && rng_chance(&r, 25)) {
         int lx = rng_range(&r, 4, CHUNK_W - 8);
@@ -1248,20 +1518,20 @@ static void gen_chunk(const LevelDesc *d, int i) {
 }
 
 /* which creatures live where */
-static int biome_foe(int mat, Rng *r, bool deep) {
-    if (deep) { static const int D[] = {F_GERM, F_GERM2, F_WIGGLER, F_SPARK}; return D[rng_range(r, 0, 3)]; }
+static int biome_foe(int mat, Rng *r) {
     switch (mat) {
-    case M_WOOD: { static const int L[] = {F_SPRING, F_AXEANT, F_ANT}; return L[rng_range(r, 0, 2)]; }
-    case M_WALL: { static const int L[] = {F_ANT, F_SPRING}; return L[rng_range(r, 0, 1)]; }
-    case M_CERAMIC: { static const int L[] = {F_SPRING, F_BUMBLE}; return L[rng_range(r, 0, 1)]; }
+    case M_WOOD: { static const int L[] = {F_SPRING, F_AXEANT, F_ANT, F_CLIMBER}; return L[rng_range(r, 0, 3)]; }
+    case M_WALL: { static const int L[] = {F_ANT, F_SPRING, F_CLIMBER}; return L[rng_range(r, 0, 2)]; }
+    case M_CERAMIC: { static const int L[] = {F_SPRING, F_BUMBLE, F_CLIMBER}; return L[rng_range(r, 0, 2)]; }
     case M_SOIL: { static const int L[] = {F_ANT, F_WIGGLER, F_SPRING, F_GERM2}; return L[rng_range(r, 0, 3)]; }
     case M_FABRIC: { static const int L[] = {F_MITE, F_MOTH, F_SPRING}; return L[rng_range(r, 0, 2)]; }
-    case M_PAPER: { static const int L[] = {F_SPRING, F_MITE}; return L[rng_range(r, 0, 1)]; }
-    case M_METAL: { static const int L[] = {F_SPARK, F_POD, F_ANT}; return L[rng_range(r, 0, 2)]; }
+    case M_PAPER: { static const int L[] = {F_SPRING, F_MITE, F_SPITTER}; return L[rng_range(r, 0, 2)]; }
+    case M_METAL: { static const int L[] = {F_SPARK, F_POD, F_ANT, F_SPITTER}; return L[rng_range(r, 0, 3)]; }
     case M_GLASS: { static const int L[] = {F_MOTH, F_SPARK}; return L[rng_range(r, 0, 1)]; }
     case M_DUST: { static const int L[] = {F_MITE, F_GERM, F_GERM2}; return L[rng_range(r, 0, 2)]; }
-    case M_CARD: return F_ANT;
+    case M_CARD: { static const int L[] = {F_ANT, F_SPITTER}; return L[rng_range(r, 0, 1)]; }
     case M_FUR: return F_NIP;
+    case M_CELL: { static const int L[] = {F_GERM, F_GERM2, F_WIGGLER}; return L[rng_range(r, 0, 2)]; }
     case M_PLANT: { static const int L[] = {F_BUMBLE, F_SPRING, F_MOTH, F_BUZZER}; return L[rng_range(r, 0, 3)]; }
     default: return F_SPRING;
     }
@@ -1276,9 +1546,18 @@ static int biome_block(int mat, Rng *r) {
     return ANY[k];
 }
 
+/* an upgrade spot with an id of its own (fixed things in micro chunks) */
+static void upgrade_spot(const Extra *e, int tx, int ty, bool boxed) {
+    if (!spawning) return;
+    uint32_t pid = extra_pid(e);
+    if (dd_collected(pid)) return;
+    int r = dd_resolve_upgrade(e->param);
+    int i = r < 0 ? put(EK_PICK, P_GLINT5, tx, ty) : boxed ? put(EK_OBJ, O_GIFTBOX, tx, ty) : put(EK_PICK, P_UPGRADE, tx, ty);
+    if (i >= 0) { dd_ent[i].pid = pid; dd_ent[i].param = boxed || r < 0 ? e->param : r; }
+}
+
 static void spawn_chunk(const LevelDesc *d, int i) {
     int ox = i * CHUNK_W, mat = B->biome[i];
-    bool deep = d->scale == SC_DEEP;
     Rng r;
     rng_seed(&r, B->ckey[i] ^ 0x5151u);
     place_key = B->ckey[i];
@@ -1286,6 +1565,7 @@ static void spawn_chunk(const LevelDesc *d, int i) {
     int px = d->x0 + i;
     bool danger = B->special[i];
     int cx0 = B->cave_x0[i], cx1 = B->cave_x1[i], F = B->cave_floor[i];
+    int area = strip_area(d);
     /* surface glints */
     if (rng_chance(&r, 45)) {
         int gx = rng_range(&r, 3, CHUNK_W - 6);
@@ -1301,10 +1581,22 @@ static void spawn_chunk(const LevelDesc *d, int i) {
     /* the cave's treasure */
     if (F > 0) {
         if (danger) {
-            pick(P_GLINT50, ox + cx0 + 4, F - 5, 0);
-            pick(P_GLINT50, ox + cx1 - 4, F - 5, 0);
-        } else if (rng_chance(&r, 50)) {
-            pick(P_GLINT5, ox + (cx0 + cx1) / 2, F - 1, 0);
+            const Extra *de = extra_for(d, px, X_DANGER, 0);
+            for (int j = 0; j < 2; j++) {
+                uint32_t pid = big_pid(area, d->row, px, j);
+                if (dd_collected(pid)) continue;
+                int k = put(EK_PICK, P_GLINT50, ox + (j ? cx1 - 4 : cx0 + 4), F - 5);
+                if (k >= 0) { dd_ent[k].pid = pid; dd_ent[k].param = 1 + (de ? de->param : 0) * 2 + j; }
+            }
+        } else {
+            if (rng_chance(&r, 50)) pick(P_GLINT5, ox + (cx0 + cx1) / 2, F - 1, 0);
+            if (spawning && rng_chance(&r, 25)) {
+                /* a pink stalactite drips slime from the roof */
+                int dx = ox + cx0 + 2, dy = F - 1;
+                while (dy > 1 && tile_at(dx, dy - 1) == T_AIR) dy--;
+                int j = dd_add_ent(EK_DRIP, 2, (float)(dx * DD_TS + 3), (float)(dy * DD_TS));
+                (void)j;
+            }
         }
     }
     /* fixed things */
@@ -1314,9 +1606,14 @@ static void spawn_chunk(const LevelDesc *d, int i) {
         static const int SAFE[4] = {1, 5, 9, 13};
         int tx = F > 0 ? ox + cx0 + SAFE[k] : ox + 20 + k * 3;
         int ty = F > 0 ? F - 1 : B->surf[tx] - 1;
-        upgrade_copy(e->param, tx, ty, true);
+        upgrade_spot(e, tx, ty, true);
     }
     const Extra *e;
+    if (B->gap_x[i] >= 0) {
+        /* the nook behind the gap */
+        if ((e = extra_for(d, px, X_UPGAP, 0))) upgrade_spot(e, ox + B->gap_x[i], B->gap_y[i], false); /* loose: no room to lift a box */
+        else { pick(P_GLINT5, ox + B->gap_x[i], B->gap_y[i], 0); pick(P_GLINT5, ox + B->gap_x[i] - 2, B->gap_y[i], 0); }
+    }
     if ((e = extra_for(d, px, X_BABY, 0)) && !((dd_sv.counts[QC_BABIES] >> e->param) & 1) && !dd_obj_exists(O_BABY, e->param)) {
         {
             int tx = ox + 30, ty = B->surf[tx] - 1;
@@ -1347,22 +1644,35 @@ static void spawn_chunk(const LevelDesc *d, int i) {
             obj(e->param, tx, ty);
         }
     }
-    if ((e = extra_for(d, px, X_GERM, 0))) foe(e->param, ox + 18, B->surf[ox + 18] - 4);
+    if ((e = extra_for(d, px, X_GERM, 0))) {
+        int j = spawning ? put(EK_FOE, e->param, ox + 18, B->surf[ox + 18] - 4) : -1; /* a quest creature */
+        (void)j;
+    }
+    if ((e = extra_for(d, px, X_NPC, 0)) && spawning) {
+        int tx = ox + 16;
+        npc(e->param, tx, B->surf[tx] - 1);
+    }
+    for (int k = 0; k < 2; k++)
+        if ((e = extra_for(d, px, X_DUMP, k)))
+            for (int g = 0; g < 7; g++) pick(P_GLINT5, ox + 8 + g * 3, B->surf[ox + 8 + g * 3] - 1, 0);
+    if ((e = extra_for(d, px, X_SCAMPER, 0)) && spawning && !dd_flag(FL_SCAMPER)) put(EK_FOE, F_SCAMPER, ox + 20, B->surf[ox + 20] - 1);
+    if ((e = extra_for(d, px, X_FACE, 0)) && spawning && !dd_flag(FL_FACE_DONE) && !(dd_carry >= 0 && dd_ent[dd_carry].kind == EK_FOE && dd_ent[dd_carry].sub == F_FACE))
+        put(EK_FOE, F_FACE, ox + 22, B->surf[ox + 22] - 1);
     /* creatures */
     int nf = danger ? 3 : rng_range(&r, 0, 2);
     for (int k = 0; k < nf; k++) {
         int fx = rng_range(&r, 3, CHUNK_W - 4);
-        int sub = biome_foe(mat, &r, deep);
+        int sub = biome_foe(mat, &r);
         int fy = B->surf[ox + fx] - 1;
         if (danger && F > 0 && k < 2) { fx = cx0 + 3 + k * 5; fy = F - 2; }
         if (sub == F_MOTH || sub == F_GERM || sub == F_GERM2 || sub == F_SPARK || sub == F_BUMBLE || sub == F_BUZZER) fy -= 4;
         foe(sub, ox + fx, fy);
     }
-    if (!deep && (dd_sv.glints_total >= 333 || dd_flag(FL_MET_QUEEN)) && rng_chance(&r, 25)) {
+    if ((dd_sv.glints_total >= 333 || dd_flag(FL_MET_QUEEN)) && rng_chance(&r, 25)) {
         int fx = rng_range(&r, 4, CHUNK_W - 4);
         foe(F_LANCER, ox + fx, B->surf[ox + fx] - 1);
     }
-    if (!deep && dd_sv.glints_total >= 667 && rng_chance(&r, 18)) {
+    if (dd_sv.glints_total >= 667 && rng_chance(&r, 18)) {
         int fx = rng_range(&r, 4, CHUNK_W - 4);
         foe(F_TINMOUSE, ox + fx, B->surf[ox + fx] - 1);
     }
@@ -1454,7 +1764,6 @@ void dd_build(Level *out, const LevelDesc *d, const Level *parent) {
         for (int i = 0; i < d->n; i++) {
             int px = d->x0 + i;
             int mat = parent ? dd_level_material(parent, px, d->row) : M_WOOD;
-            if (d->scale == SC_DEEP) mat = M_CELL;
             out->biome[i] = (uint8_t)mat;
             out->ckey[i] = dd_hash(row_key, (uint32_t)(d->pabs + px));
             int part = 0;
@@ -1465,6 +1774,7 @@ void dd_build(Level *out, const LevelDesc *d, const Level *parent) {
             OX = i * CHUNK_W;
             if (out->town[i] >= 0) {
                 out->cave_x0[i] = out->cave_x1[i] = out->cave_floor[i] = -1;
+                out->gap_x[i] = out->gap_y[i] = -1;
                 out->special[i] = 0;
                 town_chunk(out->town[i], out->town_part[i]);
             } else gen_chunk(d, i);
@@ -1555,8 +1865,7 @@ const char *dd_place_name(void) {
     if (d->kind == LV_SPECIAL) return DD_SPECIAL[d->id].name;
     int c = dd_chunk_of((int)dd_p.x);
     if (dd_lv.town[c] >= 0) return TOWN[(int)dd_lv.town[c]].name;
-    if (d->scale == SC_DEEP) snprintf(buf, sizeof buf, "THE MOTES");
-    else snprintf(buf, sizeof buf, "MICRO %s", dd_biome_name(dd_lv.biome[c]));
+    snprintf(buf, sizeof buf, "MICRO %s", dd_biome_name(dd_lv.biome[c]));
     return buf;
 }
 
@@ -1572,7 +1881,12 @@ int dd_music_for_level(void) {
     if (d->kind == LV_SPECIAL) return DD_SPECIAL[d->id].music;
     int c = dd_chunk_of((int)dd_p.x);
     if (dd_lv.town[c] >= 0) return TOWN[(int)dd_lv.town[c]].music;
-    return d->scale == SC_DEEP ? MU_DEEP : MU_MICRO;
+    if (dd_lv.special[c]) return MU_CAVE;
+    switch (dd_lv.biome[c]) {
+    case M_SOIL: case M_PLANT: case M_CERAMIC: case M_FUR: return MU_MICRO2;
+    case M_METAL: case M_GLASS: case M_DUST: case M_FABRIC: return MU_MICRO3;
+    default: return MU_MICRO;
+    }
 }
 
 int dd_town_id(const char *name) {
@@ -1636,6 +1950,14 @@ bool dd_find_place(const char *name, int *tx, int *ty) {
         if (dd_lv.d.kind != LV_STRIP || c < 0 || c >= dd_lv.d.n) return false;
         *tx = c * CHUNK_W + 20;
         *ty = dd_lv.surf[*tx] - 1;
+        return true;
+    }
+    if (!strncmp(name, "gap:", 4)) {
+        /* gap:PARENTX : the tile inside the nook behind a one-tile gap */
+        int px = atoi(name + 4), c = px - dd_lv.d.x0;
+        if (dd_lv.d.kind != LV_STRIP || c < 0 || c >= dd_lv.d.n || dd_lv.gap_x[c] < 0) return false;
+        *tx = c * CHUNK_W + dd_lv.gap_x[c];
+        *ty = dd_lv.gap_y[c];
         return true;
     }
     if (!strncmp(name, "cave:", 5)) {

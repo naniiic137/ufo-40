@@ -2,7 +2,7 @@
 # their den in the west pot's soil; carried to Wormwood (on a board between
 # the walls) it makes the worms friends: the shop opens, and so does the
 # woodworm door to the Great Earwig, whose shell becomes the Shell Vest.
-# Three green twigs from the east plant feed Chef Borer, and the gear from
+# A green twig from the east plant feeds Chef Borer, and the gear from
 # the blown outlet finishes Spinner's flyer in the money box.
 game dotdash
 wait 5
@@ -56,10 +56,10 @@ botuntil bot_state == 2 4000
 press UP
 waituntil level_id == 5 60
 waituntil trans == 0 60
-expect foes_23 == 1
+expect foes_31 == 1
 cheat obj 16
-cheat bot_hunt 23
-botuntil foes_23 == 0 20000
+cheat bot_hunt 31
+botuntil foes_31 == 0 20000
 expect flag.earwig_dead == 1
 expect up.shell == 1
 cheat bot_clear
@@ -67,7 +67,7 @@ cheat skip_dialog
 hold DOWN B 3
 wait 5
 expect carry == -1
-# three green twigs from the east plant, carried at once with the satchel
+# a green twig from the east plant feeds Chef Borer
 cheat area 0 110 66
 cheat nodash
 wait 5
@@ -75,22 +75,7 @@ cheat bot_to obj:30
 botuntil bot_state == 2 4000
 press B
 wait 20
-hold DOWN A 3
-wait 3
-cheat bot_to obj:30
-botuntil bot_state == 2 4000
-press B
-wait 20
-hold DOWN A 3
-wait 3
-cheat bot_to obj:30
-botuntil bot_state == 2 4000
-press B
-wait 20
 expect carry == 30
-expect satchel0 == 30
-expect satchel1 == 30
-# to Chef Borer in Wormwood
 cheat area 2 60 30
 cheat nodash
 wait 5
@@ -104,19 +89,8 @@ press UP
 wait 5
 cheat bot_talk
 botuntil bot_state == 2 900
-hold DOWN A 3
-wait 3
-press UP
-wait 5
-cheat bot_talk
-botuntil bot_state == 2 900
-hold DOWN A 3
-wait 3
-press UP
-wait 5
-cheat bot_talk
-botuntil bot_state == 2 900
 expect flag.twig_done == 1
+expect glints_total >= 15
 # the gear from the blown outlet (there once the power is off) for Spinner
 cheat set power_off
 cheat bot_free

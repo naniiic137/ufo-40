@@ -1,10 +1,10 @@
 # DOT & DASH: walking, the jump (five tiles at small size, higher with the
-# Spring Bean held with UP), stepping up a one-tile ledge, and fall damage.
+# Spring Bean held with UP), stepping up a one-tile ledge, and long falls.
 game dotdash
 wait 5
 cheat newgame
 cheat no_foes
-cheat area 0 125 83
+cheat area 0 102 83
 wait 10
 expect scale == 1
 expect ground == 1
@@ -30,30 +30,32 @@ hold UP A 22
 expect py <= 605
 release
 waituntil ground == 1 90
-# walking left steps up onto the pot saucer, one tile high
-hold LEFT 20
+# walking right steps up onto the pot's base, one tile high
+hold RIGHT 20
 expect ty == 82
-# a fall of 12 to 24 tiles costs a heart, a longer one two
-cheat tile 125 65
+# a fall of up to twelve tiles is fine
+cheat tile 80 71
 wait 2
 expect hp == 6
 waituntil ground == 1 120
-expect hp == 4
-wait 70
-cheat tile 125 50
+expect hp == 6
+expect scale == 1
+wait 30
+# a longer one is too much for someone so small: she grows back to full
+# size, as when her hearts run out, and the clock moves on
+cheat tile 80 60
 wait 2
 waituntil dead > 0 120
 expect hp == 0
-# at no hearts she grows back to full size where she fell, and the clock moves on
 waituntil scale == 0 200
 expect hp == 6
 expect clock == 1206
-# the Feather Charm stops falls hurting
+# the Feather Charm makes any fall safe
 cheat grow
 cheat give 9
 cheat skip_dialog
-cheat area 0 125 83
-cheat tile 125 50
+cheat area 0 80 83
+cheat tile 80 50
 wait 2
 waituntil ground == 1 120
 expect hp == 6

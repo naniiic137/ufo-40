@@ -10,7 +10,7 @@ uint32_t dd_in, dd_in_prev;
 uint32_t dd_ticks;
 bool dd_quiet;
 
-#define DD_MAGIC 0x44443001u
+#define DD_MAGIC 0x44443002u
 #define START_CLOCK (20 * 60 + 5) /* 8:05 in the evening */
 
 static int title_sel, bag_page, credits_y, ending_kind, ending_pending = -1, intro_page;
@@ -54,14 +54,28 @@ static bool load_game(void) {
     return true;
 }
 
+/* taken things, kept sorted so a look-up is a binary search */
+static int collect_pos(uint32_t pid) {
+    int lo = 0, hi = dd_sv.n_collect;
+    while (lo < hi) {
+        int mid = (lo + hi) / 2;
+        if (dd_sv.collect[mid] < pid) lo = mid + 1;
+        else hi = mid;
+    }
+    return lo;
+}
 bool dd_collected(uint32_t pid) {
-    for (int i = 0; i < dd_sv.n_collect; i++)
-        if (dd_sv.collect[i] == pid) return true;
-    return false;
+    int k = collect_pos(pid);
+    return k < dd_sv.n_collect && dd_sv.collect[k] == pid;
 }
 void dd_collect(uint32_t pid) {
-    if (!pid || dd_collected(pid)) return;
-    if (dd_sv.n_collect < DD_COLLECT_MAX) dd_sv.collect[dd_sv.n_collect++] = pid;
+    if (!pid) return;
+    int k = collect_pos(pid);
+    if (k < dd_sv.n_collect && dd_sv.collect[k] == pid) return;
+    if (dd_sv.n_collect >= DD_COLLECT_MAX) { fprintf(stderr, "dotdash: collect list full\n"); return; }
+    memmove(&dd_sv.collect[k + 1], &dd_sv.collect[k], (size_t)(dd_sv.n_collect - k) * sizeof dd_sv.collect[0]);
+    dd_sv.collect[k] = pid;
+    dd_sv.n_collect++;
 }
 
 /* ------------------------------------------------------------------ */
@@ -292,7 +306,7 @@ static int count_ents(int kind, int sub) {
     return n;
 }
 
-static const char *const FLAG_NAME[FL_COUNT] = {
+static const char *const FLAG_NAME[] = {
     "intro", "met_granny", "specs_given", "tonic_given", "mitt_sold", "dash_clean", "puff_clean", "puff_paid",
     "bluedust_done", "inky_done", "snarl_done", "scroll_done", "germ2_done", "pell_freed", "pell_guarded",
     "silk_done", "egg_done", "twig_done", "crate_done", "letter1", "letter2", "letter_done", "smith_done",
@@ -303,11 +317,14 @@ static const char *const FLAG_NAME[FL_COUNT] = {
     "paid_queen", "sprocket_dead", "escaped", "met_nib", "balance", "true_end", "siege_dead", "shrine",
     "worm_friends", "puff_met", "tufty_asked", "bubbles_asked", "sticky_asked", "glue_done", "hopper_seen",
     "volt_met", "knight_met", "filament_paid", "tock_met", "grate_open", "grass_seen", "seen_end",
+    "bee_done", "face_done", "exile_done", "exile2_done", "dump_told", "historian", "pilgrim", "key_taken", "scamper",
+    "glow_met",
 };
 static const char *const UP_ID[U_ABILITIES] = {
     "mitt1", "mitt2", "tonic1", "tonic2", "bangle", "satchel1", "satchel2", "bean1", "bean2", "feather", "clogs1",
     "clogs2", "musk", "buzz1", "buzz2", "fizz", "top1", "top2", "whistle", "stew", "shell", "plate", "wings",
 };
+_Static_assert(sizeof FLAG_NAME / sizeof FLAG_NAME[0] == FL_COUNT, "a name for every flag");
 static int flag_id(const char *n) {
     for (int i = 0; i < FL_COUNT; i++) if (!strcmp(FLAG_NAME[i], n)) return i;
     return -1;
@@ -320,13 +337,13 @@ static int up_id(const char *n) {
 static int mark_hash = -1, mark_ents = -1;
 static int verify_bad = -1, verify_runs;
 
-/* every run of exposed ground in an area: shrink into its micro strip (and
- * once more into a deep strip under it) and check every thing and every
- * speck of ground can be reached on foot from the way in */
+/* every run of exposed ground in an area: shrink into its micro strip and
+ * check every thing and every speck of ground can be reached on foot from
+ * the way in (at micro size, or tiny for the nooks behind one-tile gaps) */
 static void verify_area(int area, bool deep) {
     extern int dd_bot_unreachable(void);
     uint32_t ups = dd_sv.ups;
-    dd_sv.ups |= (1u << U_TONIC1) | (1u << U_TONIC2);
+    dd_sv.ups |= (1u << U_TONIC1) | (1u << U_TONIC2) | (1u << U_BANGLE);
     uint8_t keep_flags[sizeof dd_sv.flags];
     memcpy(keep_flags, dd_sv.flags, sizeof keep_flags);
     dd_set(FL_THRONE_OPEN); /* the throne hall's gate open, the rest as it is */
@@ -350,16 +367,7 @@ static void verify_area(int area, bool deep) {
             verify_runs++;
             int b = dd_bot_unreachable();
             if (b) { fprintf(stderr, "verify: area %d row %d x %d..%d: %d unreachable\n", area, y, x0, x0 + n - 1, b); verify_bad += b; }
-            if (deep && dd_p.ground) {
-                dd_change_scale(1);
-                while (dd_trans > 0) dd_play_update();
-                if (dd_depth == 2) {
-                    int b2 = dd_bot_unreachable();
-                    if (b2) { fprintf(stderr, "verify: deep under area %d row %d x %d: %d unreachable\n", area, y, mid, b2); verify_bad += b2; }
-                    dd_change_scale(-1);
-                    while (dd_trans > 0) dd_play_update();
-                }
-            }
+            (void)deep;
             dd_change_scale(-1);
             while (dd_trans > 0) dd_play_update();
             x = x0 + n - 1;
@@ -443,6 +451,25 @@ static int dd_query(const char *key, int *out) {
     if (!strcmp(key, "moves_here")) { extern int dd_bot_moves_here(void); *out = dd_bot_moves_here(); return 1; }
     if (!strcmp(key, "towns")) { *out = dd_town_count(); return 1; }
     if (!strcmp(key, "collected")) { *out = dd_sv.n_collect; return 1; }
+    if (!strcmp(key, "towns_seen")) { *out = (int)dd_sv.towns_seen; return 1; }
+    if (!strcmp(key, "caves_done")) { *out = (int)dd_sv.caves_done; return 1; }
+    if (!strcmp(key, "sniff_x")) { *out = dd_sniff_x >= 0 ? dd_sniff_x / DD_TS : -1; return 1; }
+    if (!strcmp(key, "sniff_y")) { *out = dd_sniff_y >= 0 ? dd_sniff_y / DD_TS : -1; return 1; }
+    if (!strcmp(key, "body_h")) { *out = dd_p.h; return 1; }
+    {
+        /* ferryK_state / ferryK_x / ferryK_y: the K-th ferry fly of this level */
+        int k;
+        char what[16];
+        if (sscanf(key, "ferry%d_%15s", &k, what) == 2) {
+            *out = -1;
+            for (int i = 0; i < DD_MAX_ENTS; i++)
+                if (dd_ent[i].alive && dd_ent[i].kind == EK_FOE && dd_ent[i].sub == F_FERRY && k-- == 0) {
+                    *out = !strcmp(what, "state") ? dd_ent[i].state : !strcmp(what, "x") ? (int)(dd_ent[i].x / DD_TS) : (int)(dd_ent[i].y / DD_TS);
+                    break;
+                }
+            return 1;
+        }
+    }
     if (!strncmp(key, "flag.", 5)) { int f = flag_id(key + 5); if (f < 0) return 0; *out = dd_flag(f); return 1; }
     if (!strncmp(key, "up.", 3)) { int u = up_id(key + 3); if (u < 0) return 0; *out = dd_has(u); return 1; }
     if (sscanf(key, "flag_%d", &a) == 1) { *out = dd_flag(a); return 1; }
@@ -502,6 +529,14 @@ static int dd_query(const char *key, int *out) {
             *out = dd_bot_can_reach(fx, fy, x, y);
             return 1;
         }
+    }
+    if (!strncmp(key, "reachplace.", 11)) {
+        /* reachplace.NAME : can Dot, at the size she is, walk to that place */
+        int x, y;
+        if (!dd_find_place(key + 11, &x, &y)) { *out = -1; return 1; }
+        int fx = (int)((dd_p.x + dd_p.w / 2) / DD_TS), fy = (int)((dd_p.y + dd_p.h - 1) / DD_TS);
+        *out = dd_bot_can_reach(fx, fy, x, y);
+        return 1;
     }
     if (!strcmp(key, "level_hash")) { *out = level_hash_now(); return 1; }
     if (!strcmp(key, "ents")) { *out = ents_now(); return 1; }
@@ -588,17 +623,20 @@ static int dd_cheat(const char *cmd) {
     }
     if (sscanf(cmd, "special %d", &a) == 1) {
         /* straight into a hand-made micro or deep place (tests) */
+        extern const int DD_SPECIAL_FLOOR[SP_COUNT];
         LevelDesc sd;
         memset(&sd, 0, sizeof sd);
-        sd.scale = (uint8_t)(a == SP_DASHFUR || a == SP_PUFFFUR ? SC_MICRO : SC_DEEP);
+        sd.scale = SC_MICRO;
         sd.kind = LV_SPECIAL;
         sd.id = (uint8_t)a;
         if (dd_scale == SC_FULL) dd_scale = SC_SMALL;
+        while (dd_depth > 0) dd_pop_level();
+        dd_scale = SC_SMALL;
         dd_sv.fx = (int16_t)dd_p.x;
         dd_sv.fy = (int16_t)dd_p.y;
         dd_push_level(&sd);
         dd_p.x = 4 * DD_TS;
-        dd_p.y = (float)((a == SP_HERMIT ? 15 : a == SP_DEEPSHELF ? 19 : 20) * DD_TS) - 13;
+        dd_p.y = (float)((DD_SPECIAL_FLOOR[a] + 1) * DD_TS) - 13;
         dd_play_enter_level(1);
         return 1;
     }
@@ -684,6 +722,7 @@ static int dd_cheat(const char *cmd) {
     if (!strcmp(cmd, "bot_free")) { extern void dd_bot_free(void); dd_bot_free(); return 1; }
     if (!strcmp(cmd, "bot_talk")) { extern void dd_bot_talk(void); dd_bot_talk(); return 1; }
     if (sscanf(cmd, "bot_hunt %d", &a) == 1) { extern void dd_bot_hunt(int sub); dd_bot_hunt(a); return 1; }
+    if (sscanf(cmd, "dash_at %d %d %d", &a, &b, &c) == 3) { if (dd_dash < 0) dd_spawn_dash_now(); if (dd_dash >= 0) { dd_ent[dd_dash].x = (float)a; dd_ent[dd_dash].y = (float)b; dd_ent[dd_dash].state = 0; dd_ent[dd_dash].dir = (uint8_t)(c != 0); } return 1; }
     if (sscanf(cmd, "dash_at %d %d", &a, &b) == 2) { if (dd_dash < 0) dd_spawn_dash_now(); if (dd_dash >= 0) { dd_ent[dd_dash].x = (float)a; dd_ent[dd_dash].y = (float)b; dd_ent[dd_dash].state = 0; } return 1; }
     if (!strcmp(cmd, "title")) { dd_start(); return 1; }
     if (!strcmp(cmd, "newgame")) { fresh_game(); dd_sv.px = (int16_t)dd_p.x; dd_sv.py = (int16_t)dd_p.y; memcpy(dd_sv.stack, dd_stack, sizeof dd_stack); dd_set(FL_INTRO); enter_play(); return 1; }
@@ -699,14 +738,14 @@ const GameDef GAME_DOTDASH = {
     "ADVENTURE",
     "LOCKED IN THE LUMBER ROOM WITH HER DOG, DOT SHRINKS INTO THE THINGS AROUND HER TO BUY HER WAY OUT.",
     {"COLLECT 100 GLINTS", "ESCAPE THE LUMBER ROOM", "RESTORE THE ROOM'S BALANCE"},
-    GLYPH_LEFT GLYPH_RIGHT "\tWALK\n"
-    GLYPH_A "\tJUMP\n"
-    "HOLD " GLYPH_DOWN "\tSHRINK INTO WHAT YOU STAND ON\n"
-    "HOLD " GLYPH_UP "\tGROW BACK A SIZE\n"
-    GLYPH_B "\tPICK UP WHAT'S UNDERFOOT / THROW\n"
-    GLYPH_UP "+" GLYPH_B " / " GLYPH_DOWN "+" GLYPH_B "\tTHROW UP / SET DOWN\n"
-    GLYPH_UP "\tTALK, DOORS, SHOPS\n"
-    "SELECT\tTHE BAG: UPGRADES AND GLINTS\n"
+    GLYPH_LEFT GLYPH_RIGHT " WALK   " GLYPH_A " JUMP\n"
+    "HOLD " GLYPH_DOWN " / " GLYPH_UP "\tSHRINK / GROW A SIZE\n"
+    GLYPH_B "\tLIFT WHAT'S UNDERFOOT / THROW\n"
+    GLYPH_UP "+" GLYPH_B " / " GLYPH_DOWN "+" GLYPH_B "\tTHROW HIGH / SET DOWN\n"
+    GLYPH_DOWN "+" GLYPH_A " SATCHEL   " GLYPH_DOWN GLYPH_DOWN " DROP THROUGH\n"
+    GLYPH_LEFT GLYPH_LEFT " " GLYPH_RIGHT GLYPH_RIGHT " SPRINT   " GLYPH_UP GLYPH_UP " CALL DASH\n"
+    GLYPH_UP "\tTALK, DOORS, SHOPS, ON A BUG: COMMAND\n"
+    GLYPH_UP " AT FULL SIZE\tTHE BAG: UPGRADES\n"
     "START\tPAUSE",
     C_TEAL, C_AMBER,
     dd_load, dd_start, dd_update, dd_draw, dd_quit, dd_draw_label, dd_query, dd_cheat,

@@ -7,8 +7,8 @@
 int dd_bot_state;
 
 /* ---- the moves --------------------------------------------------------- */
-typedef struct Prog { int8_t dir; uint8_t a, s, d, up; } Prog;
-#define MAXPROG 120
+typedef struct Prog { int8_t dir; uint8_t a, s, d, up, rev, drop; } Prog;
+#define MAXPROG 160
 static Prog prog[MAXPROG];
 static int n_prog;
 
@@ -16,20 +16,28 @@ static void build_progs(void) {
     n_prog = 0;
     static const uint8_t WALK[] = {4, 8, 14, 22};
     for (int d = -1; d <= 1; d += 2)
-        for (int k = 0; k < 4; k++) prog[n_prog++] = (Prog){(int8_t)d, 0, 0, WALK[k], 0};
+        for (int k = 0; k < 4; k++) prog[n_prog++] = (Prog){(int8_t)d, 0, 0, WALK[k], 0, 0, 0};
+    /* off an edge and back underneath it: walk out, then steer back */
+    static const uint8_t OUT[] = {8, 14};
+    static const uint8_t BACK[] = {12, 24, 48};
+    for (int d = -1; d <= 1; d += 2)
+        for (int o = 0; o < 2; o++)
+            for (int b = 0; b < 3; b++) prog[n_prog++] = (Prog){(int8_t)d, 0, 0, OUT[o], 0, BACK[b], 0};
+    /* with the drop bangle: tap DOWN twice to drop through a ledge */
+    for (int d = -1; d <= 1; d++) prog[n_prog++] = (Prog){(int8_t)d, 0, 4, d ? 10 : 0, 0, 0, 1};
     static const uint8_t A[] = {5, 12, 40};
     static const uint8_t S[] = {0, 12};
     static const uint8_t D[] = {6, 9, 12, 16, 20, 25, 30, 45, 70};
     for (int up = 0; up <= 1; up++)
         for (int a = 0; a < 3; a++) {
             if (up && a < 2) continue;
-            prog[n_prog++] = (Prog){0, A[a], 0, 0, (uint8_t)up};
+            prog[n_prog++] = (Prog){0, A[a], 0, 0, (uint8_t)up, 0, 0};
             for (int d = -1; d <= 1; d += 2)
                 for (int s = 0; s < 2; s++)
                     for (int k = 0; k < 9; k++) {
                         if (n_prog >= MAXPROG) break;
                         if (s == 1 && k < 3) continue;
-                        prog[n_prog++] = (Prog){(int8_t)d, A[a], S[s], D[k], (uint8_t)up};
+                        prog[n_prog++] = (Prog){(int8_t)d, A[a], S[s], D[k], (uint8_t)up, 0, 0};
                     }
         }
 }
@@ -38,7 +46,9 @@ static uint32_t prog_buttons(const Prog *p, int f) {
     uint32_t b = 0;
     if (p->a && f < p->a) b |= BTN_A;
     if (p->up && f < p->a) b |= BTN_UP;
+    if (p->drop && (f == 0 || f == 2)) b |= BTN_DOWN;
     if (p->dir && f >= p->s && f < p->s + p->d) b |= p->dir < 0 ? BTN_LEFT : BTN_RIGHT;
+    if (p->dir && p->rev && f >= p->s + p->d && f < p->s + p->d + p->rev) b |= p->dir < 0 ? BTN_RIGHT : BTN_LEFT;
     return b;
 }
 
@@ -56,6 +66,10 @@ static uint32_t sig;
 static int TS, LW, LH, BW, BH;
 static const Phys *PH;
 static int BEAN;
+static bool BANGLE;
+
+/* what Dot holds overhead makes her taller */
+static int carry_h(void) { return dd_carry >= 0 && dd_ent[dd_carry].alive ? dd_ent[dd_carry].h : 0; }
 
 static uint32_t level_sig(void) {
     uint32_t h = dd_hash((uint32_t)dd_lv.w, (uint32_t)dd_lv.h) ^ dd_lv.key ^ ((uint32_t)dd_scale << 20) ^ (dd_sv.ups * 31u);
@@ -68,9 +82,10 @@ static void graph_reset(void) {
     LW = dd_lv.w;
     LH = dd_lv.h;
     BW = dd_p.w;
-    BH = dd_p.h;
+    BH = dd_p.h + carry_h();
     PH = dd_phys();
     BEAN = dd_scale == SC_FULL ? 0 : dd_has(U_BEAN2) ? 2 : dd_has(U_BEAN1) ? 1 : 0;
+    BANGLE = dd_scale != SC_FULL && dd_has(U_BANGLE);
     n_edge = 0;
     memset(done_, 0, (size_t)(LW * LH));
     if (!n_prog) build_progs();
@@ -78,7 +93,7 @@ static void graph_reset(void) {
 
 static void ensure_graph(void) {
     uint32_t s = level_sig();
-    if (s != sig || TS != (dd_scale == SC_FULL ? DD_TS0 : DD_TS) || BW != dd_p.w) { sig = s; graph_reset(); }
+    if (s != sig || TS != (dd_scale == SC_FULL ? DD_TS0 : DD_TS) || BW != dd_p.w || BH != dd_p.h + carry_h()) { sig = s; graph_reset(); }
 }
 
 static float node_x(int tx) { return (float)(tx * TS) + (float)TS / 2 - (float)BW / 2; }
@@ -124,18 +139,21 @@ static int simulate_body(Body b, const Prog *p, int *dest, int *frames) {
     uint32_t prev = 0;
     int f;
     bool start_bad = hazard(&b); /* already in goo: moves may climb out */
+    int worst_fall = 0;
     for (f = 0; f < 160; f++) {
         uint32_t in = prog_buttons(p, f);
+        if (p->drop && f == 2 && b.ground) b.drop_t = 10; /* the second tap */
         dd_body_step(&b, in, prev, &dd_lv, PH, false, BEAN);
         prev = in;
+        if (b.landed_fall > worst_fall) worst_fall = b.landed_fall;
         if (hazard(&b)) { if (!start_bad) return 0; }
         else start_bad = false;
         if (b.y > LH * TS) return 0;
-        bool active = (int)f < (int)p->s + p->d || f < p->a;
+        bool active = (int)f < (int)p->s + p->d + p->rev || f < p->a;
         if (!active && b.ground && fabsf(b.vx) < 0.05f && f > 2) break;
     }
     if (f >= 160 || !b.ground || hazard(&b)) return 0;
-    if (TS == DD_TS && b.landed_fall > 12 * DD_TS && !dd_has(U_FEATHER)) return 0; /* would hurt */
+    if (TS == DD_TS && worst_fall > 12 * DD_TS && !dd_has(U_FEATHER)) return 0; /* too far to fall */
     int nx = (int)((b.x + b.w / 2) / TS), ny = (int)((b.y + b.h - 1) / TS);
     if (!standable(nx, ny)) {
         /* settled on the edge of a ledge: the node is the tile holding her */
@@ -158,6 +176,7 @@ static void expand(int node) {
     for (int k = 0; k < n_prog && n_edge < EMAX; k++) {
         const Prog *p = &prog[k];
         if (p->up && !BEAN) continue;
+        if (p->drop && !BANGLE) continue;
         int dest, frames;
         if (!simulate(tx, ty, p, &dest, &frames) || dest == node) continue;
         /* keep the quickest move to each place */
@@ -230,6 +249,7 @@ static int astar(int start, int goal, int max_expand) {
         if (++expanded > max_expand) return -1;
         expand(n);
         for (int j = first[n]; j < first[n] + count[n]; j++) {
+            if (edge[j].dest < 0) continue; /* a move found wanting in practice */
             int d = edge[j].dest, g = gcost[n] + edge[j].cost + 4;
             if (stamp[d] != cur_stamp || g < gcost[d]) {
                 stamp[d] = cur_stamp;
@@ -372,7 +392,7 @@ static uint32_t plan_step(void) {
         const Prog *p = &prog[exec_prog];
         uint32_t b = prog_buttons(p, exec_f);
         exec_f++;
-        if (exec_f >= exec_total + 2 || (exec_f > p->s + p->d && exec_f > p->a && dd_p.ground && exec_f > 3)) exec_f = -1;
+        if (exec_f >= exec_total + 2 || (exec_f > p->s + p->d + p->rev && exec_f > p->a && dd_p.ground && exec_f > 3)) exec_f = -1;
         return b;
     }
     if (!dd_p.ground) return 0;
@@ -392,7 +412,7 @@ static uint32_t plan_step(void) {
     if (fabsf(dd_p.vx) > 0.1f && wait_t < 20) { wait_t++; return 0; }
     wait_t = 0;
     center_t = 0;
-    int len = astar(here, goal, 60000);
+    int len = astar(here, goal, 200000);
     if (len <= 0) {
         if (++fails > 3 && hunt_sub < 0) { dd_bot_state = 3; fprintf(stderr, "bot: no route from %d,%d to %d,%d\n", here % LW, here / LW, goal_x, goal_y); }
         return 0;
@@ -405,11 +425,27 @@ static uint32_t plan_step(void) {
      * planned, find one that does from here */
     Body real = dd_p;
     real.jumping = 0;
-    if (!simulate_body(real, &prog[exec_prog], &dest, &frames) || dest != route_node[0]) {
+    real.y -= (float)carry_h();
+    real.h = (int16_t)(real.h + carry_h());
+    real.peak_y = (int16_t)real.y;
+    bool safe = simulate_body(real, &prog[exec_prog], &dest, &frames) != 0;
+    if (!safe || dest != route_node[0]) {
+        bool found = false;
         for (int k = 0; k < n_prog; k++) {
             if (prog[k].up && !BEAN) continue;
+            if (prog[k].drop && !BANGLE) continue;
             int d2, f2;
-            if (simulate_body(real, &prog[k], &d2, &f2) && d2 == route_node[0]) { exec_prog = k; frames = f2; dest = d2; break; }
+            if (simulate_body(real, &prog[k], &d2, &f2) && d2 == route_node[0]) { exec_prog = k; frames = f2; dest = d2; found = true; break; }
+        }
+        if (!found && !safe) {
+            /* from exactly here the move would end badly (a long fall, a
+             * hazard): strike it off and plan again */
+            exec_f = -1;
+            for (int j = first[here]; j < first[here] + count[here]; j++)
+                if (edge[j].dest == route_node[0] && edge[j].prog == route_prog[0]) edge[j].dest = -1;
+            if (++fails > 60) { dd_bot_state = 3; fprintf(stderr, "bot: stuck at %d,%d\n", here % LW, here / LW); }
+            center_t = 0;
+            return 0;
         }
     }
     exec_total = frames;
@@ -426,7 +462,7 @@ static bool spot_clear(int tx, int ty) {
     float x = node_x(tx), y = node_y(ty);
     for (int i = 0; i < DD_MAX_ENTS; i++) {
         const Ent *e = &dd_ent[i];
-        if (!e->alive || (e->kind != EK_NPC && e->kind != EK_DOOR && e->kind != EK_STAND)) continue;
+        if (!e->alive || (e->kind != EK_NPC && e->kind != EK_DOOR && e->kind != EK_STAND && e->kind != EK_DASH)) continue;
         if (rects_overlap((int)x, (int)y, BW, BH, (int)e->x, (int)e->y, e->w, e->h)) return false;
     }
     return true;
@@ -470,12 +506,15 @@ int dd_bot_moves_here(void) {
 static uint8_t reach_mark[NMAX];
 static int32_t queue_[NMAX];
 
-static int flood_from_here(void) {
+static int flood_from_here(bool keep) {
     ensure_graph();
-    memset(reach_mark, 0, (size_t)(LW * LH));
+    if (!keep) memset(reach_mark, 0, (size_t)(LW * LH));
     int start = here_node(), qh = 0, qt = 0, n = 0;
     queue_[qt++] = start;
     reach_mark[start] = 1;
+    if (keep)
+        for (int k = 0; k < LW * LH; k++)
+            if (reach_mark[k] && k != start && qt < NMAX) queue_[qt++] = k; /* go on from everywhere reached before */
     while (qh < qt) {
         int nd = queue_[qh++];
         n++;
@@ -497,9 +536,22 @@ static bool node_reached(int tx, int ty) {
     return false;
 }
 
-/* how many things in this level can't be reached from Dot (and says which) */
+/* how many things in this level can't be reached from Dot (and says which).
+ * In the micro world with the second tonic, Dot can also go tiny: what the
+ * tiny body reaches from anywhere the usual one does counts too */
 int dd_bot_unreachable(void) {
-    flood_from_here();
+    flood_from_here(false);
+    if (dd_scale == SC_MICRO && dd_has(U_TONIC2)) {
+        Body keep = dd_p;
+        float cx = dd_p.x + dd_p.w / 2, fy = dd_p.y + dd_p.h;
+        dd_p.w = 4;
+        dd_p.h = 6;
+        dd_p.x = cx - 2;
+        dd_p.y = fy - 6;
+        flood_from_here(true);
+        dd_p = keep;
+        ensure_graph();
+    }
     int bad = 0;
     for (int i = 0; i < DD_MAX_ENTS; i++) {
         const Ent *e = &dd_ent[i];

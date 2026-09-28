@@ -271,6 +271,7 @@ static const char *const OBJ[O_KINDS] = {
     [O_DRINK] = "...ss...""...cc...""..iiii..""..izzi..""..iKKi..""..izzi..""..iiii..""........",
     [O_BIGBANG] = "...y....""..y.....""rrrrrrr.""rwwrrrrr""rrrrrrrr""rryyrryy""rrrrrrr."".vvvvv..",
     [O_KEY] = "........"".yy.....""y..yyyyy"".yy..y.y""........""........""........""........",
+    [O_CINDER] = "llllllll""lsslssll""llllllll""sslsslls""llllllll""lssllssl""llllllll""ssssssss",
 };
 
 /* ---- creatures (two frames each) ----------------------------------------- */
@@ -320,6 +321,22 @@ static const FoeArt FOEART[F_KINDS] = {
                          "...NNNN...""..NBBuBN..""kNBBBBBNk.""kNBuBBBNkk""kNNBBBNNk.""k.k.k.k...""........."},
     [F_HOPPER] = {8, 8, "......k.""....zzzz""..zzzzkz""zzzzzzz.""z.zz.z..""z..z.z..(""z...z...""........",
                         "......k.""....zzzz""..zzzzkz""zzzzzzz.""z.zz.z..""z..z.z..(""z...z...""........"},
+    [F_CLIMBER] = {8, 6, "..VVVV.."".VpVVpV.""VVVVVVVk"".VVVVVV.""v.v.v.v.""........",
+                         "..VVVV.."".VpVVpV.""VVVVVVVk"".VVVVVV."".v.v.v.v""........"},
+    [F_SPITTER] = {8, 8, "........""..oooo.."".oookoo.""ooooooor""oooo...."".oooooor""..o..o..""........",
+                         "........""..oooo.."".oookoo.""oooooooo""oooooooo"".oooooo.""..o..o..""........"},
+    [F_OCTO] = {10, 8, "...oooo...""..oooooo.."".oowoowoo."".ookooko..""..oooooo.."".o.o.o.o..""o.o.o.o.o.""..........",
+                       "...oooo...""..oooooo.."".oowoowoo."".ookooko..""..oooooo..""..o.o.o.o."".o.o.o.o.o"".........."},
+    [F_FACE] = {8, 8, "..tttt.."".ttttt..""tkttt...""ttttt...""trrtt...""tttt...."".tt.....""........",
+                      "..tttt.."".ttttt..""tkttt...""ttttt...""ttrrt...""tttt...."".t.t....""........"},
+    [F_SCAMPER] = {7, 7, "...y...""..yyy.."".yywyy.""yyyyyyy"".yyyyy.""..y.y.."".k...k.",
+                         "...y...""..yyy.."".yywyy.""yyyyyyy"".yyyyy.""..y.y..""..k.k.."},
+    [F_FERRY] = {16, 6, "..II......II...."".IIII....IIII...""kkkkkkkkkkkkkkr.""nkkkkkkkkkkkkkk.""..k.k....k.k....""................",
+                        "................"".IIII....IIII...""kkkkkkkkkkkkkkr.""nkkkkkkkkkkkkkk.""..k.k....k.k....""................"},
+    [F_TANK] = {12, 8, "....ggg.....""...gggggssss""..ggggggg..."".ggggggggg..""gggggggggggg""kgkgkgkgkgkg"".kkkkkkkkkk.""............",
+                       "....ggg.....""...gggggssss""..ggggggg..."".ggggggggg..""gggggggggggg""gkgkgkgkgkgk"".kkkkkkkkkk.""............"},
+    [F_PLANE] = {14, 6, "wwwwww........"".wwwwwwwww....""..wlwwwwwwwwww"".wwwwwwwww....""wwwwww........""..............",
+                        ".wwwww........"".wwwwwwwww....""..wlwwwwwwwwww"".wwwwwwwww...."".wwwww........"".............."},
 };
 
 /* ---- people: species templates, then colours per person ---------------- */
@@ -380,6 +397,9 @@ static const NpcLook LOOK[N_KINDS] = {
     [N_PELL] = {TP_WAX, 'a', 'u', 0, 0}, [N_RATCHET] = {TP_TIN, 'r', 'w', 0, 0},
     [N_NIB] = {TP_NIB, 0, 0, 0, 0}, [N_NATIVE] = {TP_MOSS, 0, 0, 0, 0}, [N_HOPPERSAGE] = {TP_HOP, 'z', 'q', 0, 0},
     [N_BUBBLE] = {TP_MOSS, 0, 0, 0, 0}, [N_WAXLING] = {TP_WAX, 0, 0, 0, 0},
+    [N_BEE] = {TP_MOTH, 'g', 'y', 'l', 'k'}, [N_FACE] = {TP_NIB, 's', 't', 0, 0}, [N_EXILE] = {TP_MOTH, 'g', 'd', 0, 0},
+    [N_DUMPER] = {TP_MOTH, 'g', 'a', 0, 0}, [N_EXILE2] = {TP_SPORE, 'r', 'n', 0, 0}, [N_HISTORIAN] = {TP_MOSS, 'f', 't', 0, 0},
+    [N_PILOT] = {TP_BEETLE, 'B', 'e', 'u', 'y'}, [N_GLOW] = {TP_GLOW, 0, 0, 0, 0},
 };
 
 /* ---- odds and ends ------------------------------------------------------- */
@@ -552,6 +572,9 @@ void dd_art_load(void) {
     make_scaled(&dd_spr[S_DOTBIG_WALK1], DOT_WALK1, 8, 14, 10, 24);
     make_scaled(&dd_spr[S_DOTBIG_WALK2], DOT_WALK2, 8, 14, 10, 24);
     make_scaled(&dd_spr[S_DOTBIG_JUMP], DOT_JUMP, 8, 14, 10, 24);
+    make_scaled(&dd_spr[S_DOTTINY_STAND], DOT_STAND, 8, 14, 4, 7);
+    make_scaled(&dd_spr[S_DOTTINY_WALK1], DOT_WALK1, 8, 14, 4, 7);
+    make_scaled(&dd_spr[S_DOTTINY_WALK2], DOT_WALK2, 8, 14, 4, 7);
     spr_make(&dd_spr[S_DASH1], 12, 8, DASH1);
     spr_make(&dd_spr[S_DASH2], 12, 8, DASH2);
     spr_make(&dd_spr[S_DASH_SIT], 10, 9, DASH_SIT);
@@ -599,7 +622,8 @@ void dd_draw_npc(int sub, int x, int y, int flip, int t) {
         spr_draw_scaled(s, x - 4, y - 14, 2, flip ? 0 : SPR_FLIPX);
         return;
     }
-    if (sub == N_FILAMENT && (t / 4) % 2) { spr_draw_ex(s, x, y - bob, 0, NULL, C_WHITE); return; }
+    if ((sub == N_FILAMENT || sub == N_GLOW) && (t / 4) % 2) { spr_draw_ex(s, x, y - bob, 0, NULL, C_WHITE); return; }
+    if (sub == N_GLOW) gfx_dither_circle(x + 4, y + 4, 10, C_YELLOW, 6);
     spr_draw(s, x, y + (bob && sub != N_NATIVE ? 0 : 0), flip ? 0 : SPR_FLIPX);
     if (sub == N_CRUMB && dd_flag(FL_SPECS_GIVEN)) gfx_hline(x + 2, x + 6, y + 3, C_INK);
     if (sub == N_COWPOKE) { gfx_hline(x, x + 7, y + 3, C_BROWN); gfx_rect(x + 2, y, 4, 3, C_BROWN); }
@@ -612,6 +636,12 @@ void dd_draw_npc(int sub, int x, int y, int flip, int t) {
     if (sub == N_PELL) { gfx_vline(x - 1, y, y + 13, C_SLATE); gfx_vline(x + 8, y, y + 13, C_SLATE); }
     if (sub == N_WEEPY && (t / 12) % 2) gfx_pset(x + 2, y + 7, C_SKY);
     if (sub == N_PILGRIM || sub == N_HIGHLUMEN) if ((t / 8) % 2) gfx_pset(x + 4, y - 1, C_YELLOW);
+}
+
+/* a thing at full size: the same picture, twice as big */
+void dd_draw_obj_big(int sub, int x, int y) {
+    if (sub < 0 || sub >= O_KINDS) return;
+    spr_draw_scaled(&dd_spr[S_OBJ0 + sub], x, y, 2, 0);
 }
 
 void dd_draw_obj(int sub, int x, int y, int param) {
@@ -659,17 +689,6 @@ void dd_draw_boss(const Ent *e, int x, int y, int t) {
         if (e->cmd) text_draw("?", hx - 2, y - 10, C_YELLOW);
         break;
     }
-    case F_SIEGE: {
-        int c = flash ? C_WHITE : C_BROWN;
-        gfx_rect(x + 4, y + 6, 24, 28, c);
-        for (int k = 0; k < 4; k++) gfx_rect(x + 4 + k * 7, y + 2, 4, 4, c);
-        gfx_rect(x + 10, y + 12, 12, 6, C_NIGHT);
-        gfx_rect(x + 22, y + 13, 8, 3, C_SLATE);
-        gfx_circ(x + 9, y + 36, 4, C_EARTH);
-        gfx_circ(x + 23, y + 36, 4, C_EARTH);
-        gfx_hline(x + 4, x + 27, y + 24, C_TAN);
-        break;
-    }
     case F_SPROCKET: {
         int c = flash ? C_WHITE : C_GREY;
         gfx_rect(x + 8, y + 32, 6, 16, C_SLATE);
@@ -687,15 +706,6 @@ void dd_draw_boss(const Ent *e, int x, int y, int t) {
             spr_draw(&dd_spr[S_SPROCKET_HEAD], hx, hy, 0);
         }
         gfx_hline(x + 4, x + 27, y + 16, C_LIGHT);
-        break;
-    }
-    case F_SPRING_CORE: {
-        int c = flash ? C_WHITE : C_AMBER;
-        gfx_rect(x, y, 24, 24, C_SLATE);
-        gfx_rectb(x, y, 24, 24, C_GREY);
-        int r = 8 + (t / 8) % 2;
-        for (int k = 0; k < 4; k++) gfx_circb(x + 12, y + 12, r - k * 2, k % 2 ? C_YELLOW : c);
-        gfx_pset(x + 12, y + 12, C_WHITE);
         break;
     }
     }

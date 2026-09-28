@@ -1,6 +1,7 @@
 # DOT & DASH: four sizes. Holding DOWN shrinks Dot into what she stands on
-# (the room first, then with the tonics the micro world and the deep world
-# inside each tile); holding UP grows her back one size. Growing to full
+# (the room first, then with the first tonic the micro world inside each
+# tile, then with the second she gets tiny in that same place, small enough
+# for one-tile gaps); holding UP grows her back one size. Growing to full
 # size moves the clock on a minute. Things she carries change size with her.
 game dotdash
 wait 5
@@ -57,17 +58,20 @@ expect scale == 2
 cheat give 3
 cheat skip_dialog
 wait 5
+print tx
 hold DOWN 95
 waituntil trans == 0 60
 expect scale == 3
-expect depth == 2
-expect biome == 12
+expect depth == 1
+expect body_h == 6
+expect level_row == 83
 expect carry == 0
 # grow back up through every size, still carrying
 wait 5
 hold UP 95
 waituntil trans == 0 60
 expect scale == 2
+expect body_h == 13
 wait 5
 hold UP 95
 waituntil trans == 0 60
@@ -79,8 +83,8 @@ hold UP 95
 waituntil trans == 0 60
 expect scale == 0
 expect clock == 1207
-# at full size the pebble waits in Dot's pocket and comes back out small
-expect pocket == 0
+# at full size the pebble is a big block in her hands, and small again after
+expect carry == 0
 hold DOWN 95
 waituntil trans == 0 60
 expect scale == 1
