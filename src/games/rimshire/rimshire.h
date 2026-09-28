@@ -59,7 +59,7 @@ extern const char *const RSH_SKILL_TEXT[RSH_SKILLS];
 #define RSH_MH 8           /* nodes down, at most */
 #define RSH_NODE_GAP 20    /* pixels between nodes on screen */
 enum { N_NONE, N_PLAIN, N_BASE0, N_BASE1, N_INN, N_TOME, N_SEAM, N_CHEST };
-enum { T_GRASS, T_STONE, T_SAND, T_WATER };
+enum { T_GRASS, T_STONE, T_SAND, T_WATER, T_FLOOR }; /* T_FLOOR: a castle's flagstones (fields only) */
 #define RSH_ARMY 8         /* disks in the field ... */
 #define RSH_RESERVE 6      /* ... and in reserve */
 #define RSH_TRAIL 96
@@ -178,7 +178,7 @@ extern const int RSH_DX[4], RSH_DY[4];
 #define RSH_STALE_TURNS 10 /* five full rounds with nothing touched: a stalemate */
 #define RSH_MAX_STARS 5
 #define RSH_FOG_ROUND 5    /* the haze starts closing once both sides have had this many turns */
-#define RSH_FOG_STEP 14    /* ... this far each round */
+#define RSH_FOG_STEP 20    /* ... this far every second round */
 #define RSH_FOG_MAX 96
 
 typedef struct RshDisk {
@@ -188,7 +188,9 @@ typedef struct RshDisk {
     float x, y, vx, vy, r, m;
 } RshDisk;
 
-enum { O_COIN, O_SHARD, O_TONIC, O_WELL, O_PILE, O_CLUSTER, O_EMBER, O_TREE };
+enum { O_COIN, O_SHARD, O_TONIC, O_WELL, O_PILE, O_CLUSTER, O_EMBER, O_TREE, O_TENT, O_HUT };
+/* things that stand firm on the field */
+#define RSH_SOLID(k) ((k) == O_WELL || (k) == O_PILE || (k) == O_CLUSTER || (k) >= O_TREE)
 typedef struct RshObj {
     uint8_t on, kind, left, pad;
     float x, y, r;
@@ -269,6 +271,7 @@ int rsh_disks_left(int side);
 void rsh_fog_rect(int *x0, int *y0, int *x1, int *y1);
 int rsh_in_fog(float x, float y);
 int rsh_touches_fog(const RshDisk *d); /* any part of the disk in the haze */
+int rsh_fog_at_round(int round);       /* how far in the haze reaches after 'round' rounds */
 /* the computer: a shot for this side's turn (bot = the player's demo) */
 void rsh_ai_begin(int side, int bot);
 int rsh_ai_work(int budget);   /* 1 when decided */
@@ -285,7 +288,7 @@ enum {
     RS_TOKEN0 = K_COUNT, RS_TOKEN1,
     RS_BASE, RS_CASTLE, RS_INN, RS_TOME, RS_SEAM, RS_CHEST,
     RS_COIN, RS_SHARD, RS_TONIC, RS_WELL, RS_PILE, RS_CLUSTER, RS_EMBER0, RS_EMBER1,
-    RS_STAR, RS_SKULL, RS_BOLT, RS_DROP, RS_TREE, RS_SHARD2,
+    RS_STAR, RS_SKULL, RS_BOLT, RS_DROP, RS_TREE, RS_SHARD2, RS_TENT, RS_HUT,
     RS_LORD0, RS_LORD1,        /* the two lords, for the title and cards */
     RS_COUNT
 };

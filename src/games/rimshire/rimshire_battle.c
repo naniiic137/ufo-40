@@ -40,6 +40,11 @@ void rsh_fog_rect(int *x0, int *y0, int *x1, int *y1) {
     *y1 = RSH_AH - fy;
 }
 
+int rsh_fog_at_round(int round) {
+    if (round < RSH_FOG_ROUND) return 0;
+    return imin(RSH_FOG_MAX, ((round - RSH_FOG_ROUND) / 2 + 1) * RSH_FOG_STEP);
+}
+
 int rsh_touches_fog(const RshDisk *d) {
     if (rb.fog <= 0) return 0;
     int x0, y0, x1, y1;
@@ -219,7 +224,7 @@ static void collide(RshPhys *p, int i, int j) {
 /* pickups (coins, shards, tonics, embers) go to the first disk over them,
  * whoever's turn it is, but never to a projectile; springs, coin rocks and
  * shard rocks stand firm and pay a little for every knock (projectiles can
- * mine rocks, not springs); trees and huts are just in the way */
+ * mine rocks, not springs); trees, tents and huts are just in the way */
 static void touch_obj(RshPhys *p, int i, int k) {
     RshDisk *d = &p->d[i];
     RshObj *o = &p->o[k];
@@ -230,7 +235,7 @@ static void touch_obj(RshPhys *p, int i, int k) {
         return;
     }
     int mult = RSH_KIND[d->kind].triple && !d->proj ? 3 : 1;
-    int solid = o->kind == O_WELL || o->kind == O_PILE || o->kind == O_CLUSTER || o->kind == O_TREE;
+    int solid = RSH_SOLID(o->kind);
     if (!solid) {
         if (d->proj) return;
         p->touches++;
@@ -254,7 +259,7 @@ static void touch_obj(RshPhys *p, int i, int k) {
     }
     if (!p->ocontact[i][k]) {
         p->ocontact[i][k] = 1;
-        if (rel > -0.2f || o->kind == O_TREE) return;
+        if (rel > -0.2f || o->kind >= O_TREE) return;
         if (d->proj && o->kind == O_WELL) return;
         p->touches++;
         ev(p, BE_STRIKE, o->x, o->y, o->kind);
@@ -399,7 +404,7 @@ bool rsh_proj_room(const RshPhys *p, int disk, int angle) {
     }
     for (int k = 0; k < RSH_MAXO; k++) {
         const RshObj *o = &p->o[k];
-        if (!o->on || !(o->kind == O_WELL || o->kind == O_PILE || o->kind == O_CLUSTER || o->kind == O_TREE)) continue;
+        if (!o->on || !RSH_SOLID(o->kind)) continue;
         float ex = o->x - x, ey = o->y - y, rr = o->r + 3.0f;
         if (ex * ex + ey * ey < rr * rr) return false;
     }
@@ -572,9 +577,19 @@ static void crag(Rng *r, int q) {
     if (rng_chance(r, 40)) blob(q, (float)rng_range(r, 90, 150), (float)rng_range(r, 60, 100), 14, 10, T_SAND);
 }
 
+static float obj_radius(int kind) {
+    switch (kind) {
+    case O_WELL: case O_PILE: case O_CLUSTER: return 7.0f;
+    case O_TREE: return 8.0f;
+    case O_TENT: return 9.0f;
+    case O_HUT: return 10.0f;
+    default: return 4.0f;
+    }
+}
+
 static void add_obj_at(int kind, int left, float x, float y) {
     RshPhys *p = &rb.p;
-    float rad = (kind == O_WELL || kind == O_PILE || kind == O_CLUSTER) ? 7.0f : kind == O_TREE ? 8.0f : 4.0f;
+    float rad = obj_radius(kind);
     for (int k = 0; k < RSH_MAXO; k++)
         if (!p->o[k].on) { p->o[k] = (RshObj){1, (uint8_t)kind, (uint8_t)left, 0, x, y, rad}; return; }
 }
@@ -607,17 +622,71 @@ static void corner(Rng *r, int q) {
     }
 }
 
-/* woods: a few trees and huts to bounce off */
+/* woods: trees, tents and huts to bounce off */
 static void trees(Rng *r, int q) {
     int n = rng_range(r, 1, 3);
-    for (int i = 0; i < n; i++)
+    for (int i = 0; i < n; i++) {
+        int kind = rng_chance(r, 60) ? O_TREE : rng_chance(r, 50) ? O_TENT : O_HUT;
         for (int tries = 0; tries < 30; tries++) {
             float lx = (float)rng_range(r, 50, 180), ly = (float)rng_range(r, 30, 118);
             float x = (float)loc_x(q, lx), y = (float)loc_y(q, ly);
-            if (!spot_free(&rb.p, x, y, 10)) continue;
-            add_obj_at(O_TREE, 0, x, y);
+            if (!spot_free(&rb.p, x, y, 12)) continue;
+            add_obj_at(kind, 0, x, y);
             break;
         }
+    }
+}
+
+static void add_wall_world(float x0, float y0, float x1, float y1) {
+    if (rb.nwall >= 16) return;
+    float *w = rb.wall[rb.nwall++];
+    w[0] = x0;
+    w[1] = y0;
+    w[2] = x1;
+    w[3] = y1;
+}
+
+static void stone_box(int x0, int y0, int x1, int y1) {
+    for (int cy = y0 / RSH_CELL; cy < (y1 + RSH_CELL - 1) / RSH_CELL && cy < RSH_CH; cy++)
+        for (int cx = x0 / RSH_CELL; cx < (x1 + RSH_CELL - 1) / RSH_CELL && cx < RSH_CW; cx++) rb.cell[cy][cx] = T_STONE;
+}
+
+/* A battle at a home is fought in its own arena, not on the tiles round it:
+ * a yard with a gatehouse on each long wall, and inside a castle stone
+ * floors and a bastion cut into every corner */
+static void home_arena(Rng *r, int castle) {
+    for (int cy = 0; cy < RSH_CH; cy++)
+        for (int cx = 0; cx < RSH_CW; cx++) rb.cell[cy][cx] = (uint8_t)(castle ? T_FLOOR : T_GRASS);
+    const int gx0 = RSH_AW / 2 - 24, gx1 = RSH_AW / 2 + 24, gd = 24;
+    stone_box(gx0, 0, gx1, gd);
+    stone_box(gx0, RSH_AH - gd, gx1, RSH_AH);
+    add_wall_world((float)gx0, 0, (float)gx0, (float)gd);
+    add_wall_world((float)gx0, (float)gd, (float)gx1, (float)gd);
+    add_wall_world((float)gx1, (float)gd, (float)gx1, 0);
+    add_wall_world((float)gx0, (float)RSH_AH, (float)gx0, (float)(RSH_AH - gd));
+    add_wall_world((float)gx0, (float)(RSH_AH - gd), (float)gx1, (float)(RSH_AH - gd));
+    add_wall_world((float)gx1, (float)(RSH_AH - gd), (float)gx1, (float)RSH_AH);
+    if (castle) {
+        const float c = 44;
+        for (int q = 0; q < 4; q++) {
+            for (int cy = 0; cy < RSH_CH / 2; cy++)
+                for (int cx = 0; cx < RSH_CW / 2; cx++) {
+                    float lx = (float)(cx * RSH_CELL + 4), ly = (float)(cy * RSH_CELL + 4);
+                    if (lx + ly < c) set_cell_world(loc_x(q, lx), loc_y(q, ly), T_STONE);
+                }
+            add_wall(q, 0, c, c, 0);
+        }
+    } else {
+        /* the camp round a plain home: tents and huts */
+        int n = rng_range(r, 3, 5);
+        for (int i = 0; i < n; i++)
+            for (int tries = 0; tries < 30; tries++) {
+                float x = (float)rng_range(r, 60, RSH_AW - 60), y = (float)rng_range(r, 40, RSH_AH - 40);
+                if (!spot_free(&rb.p, x, y, 14)) continue;
+                add_obj_at(rng_chance(r, 50) ? O_TENT : O_HUT, 0, x, y);
+                break;
+            }
+    }
 }
 
 /* every disk of a side, in a random order, dropped at random in its corner:
@@ -674,9 +743,15 @@ void rsh_battle_start(int attacker, uint32_t seed) {
     rb.quad[1] = rw.tile[y][x + 1];
     rb.quad[2] = rw.tile[y + 1][x];
     rb.quad[3] = rw.tile[y + 1][x + 1];
-    for (int cy = 0; cy < RSH_CH; cy++)
-        for (int cx = 0; cx < RSH_CW; cx++) rb.cell[cy][cx] = T_GRASS;
-    for (int q = 0; q < 4; q++) corner(&r, q);
+    int home = -1;
+    for (int s = 0; s < 2; s++)
+        if (x == rw.s[s].bx && y == rw.s[s].by) home = s;
+    if (home >= 0) home_arena(&r, rw.s[home].castle);
+    else {
+        for (int cy = 0; cy < RSH_CH; cy++)
+            for (int cx = 0; cx < RSH_CW; cx++) rb.cell[cy][cx] = T_GRASS;
+        for (int q = 0; q < 4; q++) corner(&r, q);
+    }
     for (int s = 0; s < 2; s++) {
         rb.p.skills[s] = rw.s[s].skills;
         rb.p.shards[s] = (rw.s[s].skills & SK_STOCKPILE) ? 5 : 2;
@@ -684,8 +759,9 @@ void rsh_battle_start(int attacker, uint32_t seed) {
     }
     add_side(&r, 0);
     add_side(&r, 1);
-    for (int q = 0; q < 4; q++)
-        if (rb.quad[q] == T_GRASS) trees(&r, q);
+    if (home < 0)
+        for (int q = 0; q < 4; q++)
+            if (rb.quad[q] == T_GRASS) trees(&r, q);
     /* what lies about the field */
     int coins = rng_range(&r, 2, 4) + rw.battle_coins;
     for (int i = 0; i < coins; i++) add_obj(&r, O_COIN, 1);
@@ -782,7 +858,7 @@ static void end_turn(void) {
     rb.qn[s] = q;
     rb.turns[s]++;
     rb.round = imin(rb.turns[0], rb.turns[1]);
-    if (rb.round >= RSH_FOG_ROUND) rb.fog = imin(RSH_FOG_MAX, (rb.round - RSH_FOG_ROUND + 1) * RSH_FOG_STEP);
+    rb.fog = rsh_fog_at_round(rb.round);
     /* five rounds with nothing touched: a stalemate */
     if (rb.p.touches == rb.touch_mark) rb.quiet++;
     else rb.quiet = 0;
@@ -922,6 +998,7 @@ void rsh_battle_step(uint32_t held, uint32_t pressed, uint32_t released) {
         int el[5], n = rsh_eligible(rb.side, el);
         if (n == 0) { check_winner(); break; }
         rb.cursor = iclamp(rb.cursor, 0, n - 1);
+        /* LEFT / RIGHT and A pick one of the choosable disks (confirmed by the owner) */
         if (!rb.cam_free) {
             if (pressed & BTN_LEFT) { rb.cursor = (rb.cursor + n - 1) % n; sfx_play_name("ui_move"); }
             if (pressed & BTN_RIGHT) { rb.cursor = (rb.cursor + 1) % n; sfx_play_name("ui_move"); }
@@ -1004,7 +1081,7 @@ int rsh_count_trace(int angle, int pips, int16_t *xs, int16_t *ys, uint8_t *kind
         }
         for (int k = 0; k < RSH_MAXO && !hit; k++) {
             const RshObj *o = &rb.p.o[k];
-            if (!o->on || !(o->kind == O_WELL || o->kind == O_PILE || o->kind == O_CLUSTER || o->kind == O_TREE)) continue;
+            if (!o->on || !RSH_SOLID(o->kind)) continue;
             float ex = o->x - x, ey = o->y - y, rr = o->r + r;
             if (ex * ex + ey * ey < rr * rr) { hit = true; hx = o->x; hy = o->y; hr = o->r; }
         }
@@ -1109,7 +1186,7 @@ static float score_shot(int disk, int final) {
         /* the next haze step */
         if (final && rb.round + 1 >= RSH_FOG_ROUND) {
             int keep = rb.fog;
-            rb.fog = imin(RSH_FOG_MAX, (rb.round + 2 - RSH_FOG_ROUND) * RSH_FOG_STEP);
+            rb.fog = rsh_fog_at_round(rb.round + 1);
             if (rsh_touches_fog(me)) sc -= 4.0f;
             rb.fog = keep;
         }

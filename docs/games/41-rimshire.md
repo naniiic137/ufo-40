@@ -35,20 +35,20 @@ as the original's are [KB], [MM].
 | Goals | 3 [MH] | the same 3 |
 
 The ten boards (all ours) run from 13 × 3 to 16 × 7 nodes: 512 nodes in all,
-with 22 inns, 15 tomes, 16 seams and 20 chests.
+with 28 inns, 15 tomes, 16 seams and 20 chests.
 
 | War | Ours | Its idea (the original's scenario) | Board |
 |---|---|---|---|
 | 1 | The Long Lane | one straight road; squire, warden, ferret, brute (Narrow Pass) | 13 × 3, 13 nodes |
-| 2 | Two Roads | tomes; the slinger (East Valley) | 13 × 5, 43 nodes |
-| 3 | Marshmoot | water; the toadkin (The Island) | 14 × 6, 40 nodes round a mere |
+| 2 | Two Roads | tomes; Brass is given two slingers (East Valley's "elite archers") | 13 × 5, 43 nodes |
+| 3 | Marshmoot | water; the toadkin (The Island) | 14 × 6, 40 nodes round a mere, 4 inns |
 | 4 | Coin Fever | seams; ooze, hexer, menhir (Gold Rush) | 14 × 5, 46 nodes, 6 seams |
-| 5 | Adder Nest | Brass marches with a warden and two adders (War Spiders) | 14 × 6, 45 nodes |
+| 5 | Adder Nest | Brass marches with a warden and two adders against a Plum castle (War Spiders) | 14 × 6, 45 nodes |
 | 6 | The Keep | homes become castles; the friar (Promotion) | 14 × 6, 64 nodes |
 | 7 | Pipers' March | a warden and two pipers; the piper and the leech (Tuned Up) | 15 × 6, 60 nodes |
-| 8 | Deep Diggings | three delvers, no reserves, no coin on the board; delver and wyrm (Miner Issue) | 15 × 6, 50 nodes |
-| 9 | Three Bridges | two shores and three crossings (Land Bridges) | 15 × 7, 71 nodes |
-| 10 | The Empress | the Plum Empress in the enemy's reserve (The Regicide) | 16 × 7, 80 nodes |
+| 8 | Deep Diggings | three delvers, no reserves, no coin on the board: the delvers' triple take of the fields' coins is the economy; delver and wyrm (Miner Issue) | 15 × 6, 50 nodes |
+| 9 | Three Bridges | two shores and three crossings (Land Bridges) | 15 × 7, 71 nodes, 4 inns |
+| 10 | The Empress | the Plum Empress in the enemy's reserve (The Regicide) | 16 × 7, 80 nodes, 4 inns |
 
 ## The three goals
 
@@ -63,7 +63,7 @@ with 22 inns, 15 tomes, 16 seams and 20 chests.
 | Mechanic | How RIMSHIRE does it | Source | Test |
 |---|---|---|---|
 | Turns on the board | Brass (the player) always moves first; one move on the war's first turn, then two a turn (three with SCOUTING); two players toss for who starts | [KB], [MH] | rsh_02, rsh_05 |
-| Moving | the d-pad points at a road, A ("confirm") takes the banner one space along it; every move must be used | [KB], [OWNER] | rsh_02 |
+| Moving | the d-pad points at a road, A confirms and the banner goes one space along it; every move must be used | [OWNER] (confirmed), [KB] | rsh_02 |
 | The trail | a banner leaves a trail and can't step onto it again | [KB], [MH], [LIZ] | rsh_02 |
 | Going home | holding B takes the banner home at any time in its turn (even between moves), wipes its trail and ends the turn; not from home | [MM], [KB], [OWNER] | rsh_03 |
 | Nowhere to go | the only way out is home | [KB] | rsh_02 |
@@ -73,18 +73,19 @@ with 22 inns, 15 tomes, 16 seams and 20 chests.
 | Castles | beaten at home, a castle's side loses the war | [SEARCH-CASTLE], [MH] | rsh_19 |
 | Winning a war | a battle would start and one side has no disks at all | [KB], [MH], [MM] | rsh_20 |
 | Stalemate | five full rounds with nothing touched: both go home, no reserves, the side that didn't start moves next | [KB] | rsh_25 |
-| Inns | the same three disks all war, bought as often as you can pay; three visits (by either side) and the inn closes, with the three messages | [KB], [MH] | rsh_04 |
+| Inns | the same three disks all war, bought as often as you can pay; three visits (by either side) and the inn closes, with a message for each visit (in our words) | [KB], [MH] | rsh_04 |
 | A full field army | a bought disk still joins; you pick which field disk goes to the reserve; nothing more once both are full | [KB] | rsh_04 |
 | Tomes | pick one of three skills you don't have; you must pick one | [KB], [MH] | rsh_05 |
 | Seams | stepping on one claims it; it pays 1 a turn (2 with PROSPECTING) from its holder's next turn, ten times, then it is gone; taking it over keeps the count | [KB], [MH] | rsh_05, rsh_05b |
 | Chests | 4 or 5 coins, once | [KB], [MH] | rsh_05 |
-| Starting armies | two squires in the field, a warden and two squires in reserve (streak and two players; the campaign varies by war) | [KB], [MH] | rsh_19 |
+| Starting armies | two squires in the field, a warden and two squires in reserve, for both sides in every streak and two-player war (the campaign varies by war) | [KB], [MH] | rsh_19, rsh_23 |
 | The field | built from the four board tiles round the spot: each tile makes one corner | [KB], [ADV], [MM] | rsh_26 |
-| Woods | grass with trees and huts to bounce off; sometimes a little sand or a pond | [KB] | rsh_26 |
+| Home arenas | a battle at a home is fought in the home's own arena: a yard with a gatehouse on each long wall and a camp of tents and huts; a castle has stone floors and a bastion in every corner | [MH] | rsh_27 |
+| Woods | grass with trees, tents and huts to bounce off; sometimes a little sand or a pond | [KB] | rsh_26 |
 | Crags | cliffs close the corner in along both edges, cut at an angle in the corner; sometimes sand | [KB] | rsh_26 |
 | Dunes, lakes | sand, or water, round the corner's edges and a bunker or pool nearer the middle | [KB], [MM] | rsh_26 |
 | Setting up | each army's disks are shuffled into a queue and dropped at random in its corner: Brass top left, Plum bottom right | [KB] | (drawn) |
-| The queue | pick one of the first three disks (five with COMMAND); after its turn it goes to the back | [KB], [MH] | rsh_18 |
+| The queue | LEFT / RIGHT and A pick one of the first three disks (five with COMMAND); after its turn it goes to the back | [OWNER] (confirmed), [KB], [MH] | rsh_18 |
 | Aiming | the aim turns the short way round toward the held direction and stops there; it can still turn while charging | [KB] | rsh_06 |
 | Charging | hold A: a pip every 12 frames up to the disk's charge; let go to launch; under one pip nothing happens; power can't go down, but held three seconds with nothing else pressed the shot resets | [KB], [MH], [OWNER] | rsh_06, rsh_07 |
 | Moves | each disk moves 1, 2 or 3 times (M), then may fire its projectile | [KB], [MH] | rsh_06, rsh_11 |
@@ -93,7 +94,7 @@ with 22 inns, 15 tomes, 16 seams and 20 chests.
 | Knockback | by size: small, mid and large disks weigh 1, 1.6 and 3 | [KB], [MH] | rsh_09 |
 | Water | a disk that can't swim dies as soon as its middle is over water | [KB], [MH], [LIZ] | rsh_09 |
 | Sand | slows disks almost to a stop (HOBNAILS ignores it) | [KB], [MH] | (physics) |
-| The haze | after both sides have had five turns, "DON'T END YOUR TURN IN THE HAZE!" and it closes in from the edges each round; only the chosen disk ending its turn touching it dies | [KB], [MM], [MH] | rsh_10 |
+| The haze | after both sides have had five turns a warning goes up ("THE HAZE IS RISING: FINISH CLEAR OF IT!") and it closes in from the edges every few turns (every second round); only the chosen disk ending its turn touching it dies | [KB], [MM], [MH] | rsh_10 |
 | Projectiles | a small disk fired after the moves, 1 shard each; it needs room to come out; a tap skips it for nothing; with no shards there is none | [KB], [MH] | rsh_11 |
 | Shards | 2 at the start of a battle (5 with STOCKPILE) | [KB], [MH] | rsh_11 |
 | Pickups | coins 2, blue shards 1, pink shards 2, tonics +2 HP; the first disk over them takes them, on anyone's turn; never a projectile | [KB] | (physics) |
@@ -110,7 +111,7 @@ with 22 inns, 15 tomes, 16 seams and 20 chests.
 | Every disk | the knowledge base's moves, melee, ranged, HP, size, charge (and projectile charge) and cost | [KB], [MH] | rsh_01 |
 | The skills | COMMAND, STOCKPILE, SCOUTING, HAGGLING, PROSPECTING, SIGHTLINE, HOBNAILS, REMEDY: the original's eight effects | [KB], [MH] | rsh_05, rsh_18 |
 | SIGHTLINE | a short line to the first thing the shot meets, then where that thing goes and where the shot bounces | [KB] | (drawn) |
-| The computer | sloppy early (one of its better shots, a shaky hand), perfect aim late and in the streak; it loves trick shots that knock many disks and pick up much, doesn't weigh which disks it hurts, and never quite sees its own disks drowning | [LIZ], [KB], [SEARCH-DK2] | rsh_w01-w10 |
+| The computer | sloppy early (one of its better shots, a shaky hand), perfect aim late and in the streak, where its aim is the whole of the difficulty; it loves trick shots that knock many disks and pick up much, doesn't weigh which disks it hurts, and never quite sees its own disks drowning. On the board it goes for the seams first and hires all it can pay for, filling its reserve | [LIZ], [KB], [ADV], [ADV2], [SEARCH-DK2] | rsh_w01-w10 |
 | The Empress | in the Plum reserve in war 10; beating her doesn't end the war | [MH], [KB] | rsh_w10 |
 | Letters | Lady Brass writes before every war (the Red Queen's letters by pigeon) | [KB] | (drawn) |
 | Goals | Beacon: win five wars; Saucer: all ten; Alien: three streak wars in a row | [MH] | rsh_22, rsh_w05, rsh_w10, rsh_23 |
@@ -125,27 +126,30 @@ with 22 inns, 15 tomes, 16 seams and 20 chests.
   frame.
 - **Charge values.** The knowledge base's charge for every disk; the stun's
   "drastically reduced charge" is two pips at most.
-- **The haze** closes 14 pixels a round (two thirds of that top and bottom)
-  to 96, leaving a middle of 192 × 128.
+- **The haze** closes 20 pixels every second round (two thirds of that top
+  and bottom) to 96, leaving a middle of 192 × 128.
 - **Stalemate.** "Five full turns" is read as five rounds (ten turns).
 - **Retreating** needs B held a third of a second: the manual says hold,
   the knowledge base says press.
 - **Healing a poisoned disk** only cures it, as the knowledge base's
   "returning the health that the disk had" suggests.
 - **Inns** sell each of their three disks as often as you can pay.
-- **Castles.** Wars 6 to 10 give both sides castles; the streak and two
-  players have plain homes.
+- **Castles.** War 5 gives the Plum home a castle (the briefing's "Blue
+  castle"); wars 6 to 10 give both sides castles; the streak and two
+  players have plain homes. Home arenas: a gatehouse 48 pixels wide and 24
+  deep on each long wall, bastions cutting 44 pixels off each castle
+  corner, three to five tents and huts round a plain home.
 - **Starting coins, armies and pools** for each war are ours, following each
-  scenario's idea; war 8 puts 4 extra coins on every field (no coin on the
-  board).
+  scenario's idea. Marshmoot, Three Bridges and The Empress have four inns,
+  so the coin the computer and you gather keeps its use.
 - **The computer's sharpness** runs 1 to 9 over the campaign and 10 in the
-  streak; the streak's Plum banner brings one more random disk and 2 more
-  coins for every war already won.
+  streak. On the board it (and the demo player) will fight when it has at
+  least 85 % of the other side's strength.
 - **The streak** opens once the campaign is won; leaving a streak war ends
   the run.
 - **Field things:** 2 to 4 coins, 2 or 3 shards (a third of them pink), up
   to 2 tonics, and a spring, a coin rock and a shard rock more often than
-  not; one to three trees in each woods corner.
+  not; one to three trees, tents or huts in each woods corner.
 - **Crags:** cliffs 22 to 34 pixels in, the corner cut 18 to 30 pixels.
 - **No mid-war save**: a war lasts minutes; progress (wars won, the streak,
   the best streak) is saved between wars.
@@ -166,8 +170,13 @@ with 22 inns, 15 tomes, 16 seams and 20 chests.
 - **Music:** "Rimshire" (title), "The Roads of Rimshire" (board), "Flick and
   Fling" and "Bank Shot" (battles), "The Plum Empress", "Brass at Peace"
   (ending) and four jingles.
-- **Words:** the story, the letters, the war cards, the ending and every
-  label.
+- **Words:** the story, the letters, the war cards, the skills' and inns'
+  messages, the haze warning, the ending and every label.
+
+## Left out for now
+
+- **A single battle without the board.** The wiki says one can be arranged,
+  but no source says how; left out on the owner's word, for now.
 
 ## Additions: none
 
@@ -185,11 +194,11 @@ original's prompts: battle, "launch disk" and "camera mode"; board,
 
 | Input | Action |
 |---|---|
-| D-pad, A (board) | point at a road, go one space |
+| D-pad, A (board) | point at a road, confirm the step (confirmed by the owner) |
 | Hold B (board) | retreat home; the turn ends |
 | A / B in the inn | hire / leave; UP and DOWN choose |
 | A in a tome | learn; UP and DOWN choose |
-| LEFT / RIGHT, A (battle) | choose a disk from the queue |
+| LEFT / RIGHT, A (battle) | choose one of the first three disks (confirmed by the owner) |
 | D-pad (battle) | turn the aim |
 | Hold A, let go | charge and launch (a tap skips a projectile) |
 | Hold B + d-pad | look round the field |
@@ -199,15 +208,13 @@ original's prompts: battle, "launch disk" and "camera mode"; board,
 
 | Control | Our reading | Why |
 |---|---|---|
-| Choosing a disk from the queue | LEFT / RIGHT, then A | no source names the input |
-| A step on the board | the d-pad points at a road, A goes one space | the owner's prompt shows A as "confirm" on the board, and the knowledge base says moves are made one by one with a retreat possible between them; no source spells out the input |
 | Retreat | B held a third of a second | the manual says hold B, the knowledge base says press |
 | Inn, tome and reserve menus | UP / DOWN and A; B leaves the inn or cancels the reserve choice | no source names these |
 | Camera | B held with the d-pad; letting go follows the action | the manual says hold B and move the d-pad; the owner's prompt says "camera mode" |
 
 ## Tests
 
-`tests/rsh_01` … `rsh_26` drive the rules with button presses, or set up a
+`tests/rsh_01` … `rsh_27` drive the rules with button presses, or set up a
 moment with cheats (armies, positions, a bare field) and then play it with
 presses. The demo player (`rsh_battle_buttons` and `map_bot` in
 `rimshire_battle.c` and `rimshire.c`) uses the computer's own planners with
@@ -257,4 +264,8 @@ and three streak wars in a row for the Alien (`rsh_23`).
   a row for the cherry; the streak is random; the AI gets nasty with bounce
   combos.
 - [OWNER] the owner's check of the original's on-screen prompts
-  (`controls-41-44-46.md`).
+  (`controls-41-44-46.md`), and later: LEFT / RIGHT and A pick one of the
+  first three disks; on the board the d-pad points at a road and A confirms.
+- [ADV2] Steam guide "Advanced Lords of Diskonia": the AI grabs gold and
+  hires all it can, ending with large armies and full reserves.
+  https://steamcommunity.com/sharedfiles/filedetails/?id=3401754198

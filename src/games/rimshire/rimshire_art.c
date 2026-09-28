@@ -385,6 +385,34 @@ static const char SHARD2[] =
     "..kKk.."
     "...k...";
 
+static const char TENT[] =
+    "........k........"
+    ".......kbk......."
+    "......krrrk......"
+    ".....krrwrrk....."
+    "....krrwwwrrk...."
+    "...krrwwrwwrrk..."
+    "..krrwwrrrwwrrk.."
+    ".krrwwrrkrrwwrrk."
+    "krrrrrrkkkrrrrrrk"
+    "kkkkkkkkkkkkkkkkk"
+    "..e............e."
+    ".................";
+static const char HUT[] =
+    ".......kkkkk......."
+    ".....kkttttttkk...."
+    "...kkttttttttttkk.."
+    ".kktttttttttttttkk."
+    "kkkkkkkkkkkkkkkkkkk"
+    ".keeeeeeeeeeeeeeek."
+    ".kehhhekkkkehhhek.."
+    ".kehkhekbbkehkhek.."
+    ".kehhhekbbkehhhek.."
+    ".keeeeekbykeeeeek.."
+    ".keeeeekbbkeeeeek.."
+    ".kkkkkkkkkkkkkkkk.."
+    "...................";
+
 /* ---- the two lords --------------------------------------------------------------- */
 static const char LORD0[] =
     "....kkkkkkkk...."
@@ -457,6 +485,8 @@ void rsh_art_load(void) {
     mk(RS_DROP, 5, 7, DROP);
     mk(RS_TREE, 17, 17, TREE);
     mk(RS_SHARD2, 7, 7, SHARD2);
+    mk(RS_TENT, 17, 12, TENT);
+    mk(RS_HUT, 19, 13, HUT);
     mk(RS_LORD0, 16, 16, LORD0);
     mk(RS_LORD1, 16, 16, LORD1);
 }

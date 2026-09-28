@@ -253,11 +253,12 @@ void rsh_tome_pick(int i) {
     after_step();
 }
 
-/* the computer at an inn: the best disks it can pay for; with a full field
- * army it benches its weakest disk for a better one */
+/* the computer at an inn hires all it can pay for: the best disks first;
+ * with a full field army it benches its weakest disk for a better one, or
+ * sends the new one straight to the reserve, until coins or room run out */
 static void cpu_shop(void) {
     RshSide *s = &rw.s[rw.turn];
-    for (int pass = 0; pass < 8; pass++) {
+    for (int pass = 0; pass < 16; pass++) {
         int best = -1, bv = 0;
         for (int i = 0; i < 3; i++) {
             int k = rw.offer[i];
@@ -271,7 +272,11 @@ static void cpu_shop(void) {
         int weak = 0;
         for (int i = 1; i < s->n_army; i++)
             if (rsh_kind_value(s->army[i]) < rsh_kind_value(s->army[weak])) weak = i;
-        if (rsh_kind_value(s->army[weak]) >= bv) break;
+        if (rsh_kind_value(s->army[weak]) >= bv) {
+            s->coins -= RSH_KIND[rw.offer[best]].cost;
+            s->reserve[s->n_reserve++] = rw.offer[best];
+            continue;
+        }
         rsh_inn_buy(best);
         rsh_swap_pick(weak);
     }
@@ -479,7 +484,7 @@ static int node_value(int side, int x, int y, int *battle) {
         if (rsh_army_size(side) == 0) return -1000;
         int base = x == o->bx && y == o->by;
         /* the computer is bolder; the demo player waits to be stronger */
-        int need = s->cpu >= 0 ? 85 : 100;
+        int need = 85;
         if (mine * 100 >= theirs * need) return base ? 90 : 70;
         return -1000;
     }
@@ -494,9 +499,10 @@ static int node_value(int side, int x, int y, int *battle) {
         }
         return best ? 20 + best * 2 : 2;
     }
-    case N_TOME: return 45;
+    case N_TOME: return 35;
     case N_CHEST: return 26;
-    case N_SEAM: return rw.owner[y][x] == side + 1 ? 0 : 12 + rw.seam_left[y][x] * (rw.owner[y][x] ? 3 : 2);
+    /* the computer goes for the gold mines first */
+    case N_SEAM: return rw.owner[y][x] == side + 1 ? 0 : 40 + rw.seam_left[y][x] * 2;
     default: return 0;
     }
 }
@@ -710,26 +716,21 @@ void rsh_war_start(const RshScenario *sc, int scen, int cpu0, int cpu1) {
     war_common(cpu0, cpu1);
 }
 
-/* a random war: its own board; the streak's Plum banner brings more every
- * war won; two players toss for who moves first */
+/* a random war: its own board; both armies start alike (two squires in the
+ * field, a warden and two squires in reserve); the streak's difficulty is
+ * the computer's perfect aim; two players toss for who moves first */
 void rsh_war_streak(uint32_t seed, int streak, int versus) {
     memset(&rw, 0, sizeof rw);
     rng_seed(&rw.rng, seed);
     rw.scen = -1;
     rsh_make_streak_map(&rw, &rw.rng);
     rw.pool = 0x7FFF; /* every disk but the empress */
-    static const char *const EXTRA = "SWFBLTOHMARPEDY";
     for (int s = 0; s < 2; s++) {
         RshSide *sd = &rw.s[s];
         fill_army(sd, "SS", "WSS");
         sd->coins = 6;
     }
-    if (!versus) {
-        RshSide *e = &rw.s[1];
-        for (int i = 0; i < streak && e->n_army < RSH_ARMY; i++)
-            e->army[e->n_army++] = (uint8_t)rsh_kind_of_letter(EXTRA[rng_range(&rw.rng, 0, 14)]);
-        e->coins += 2 * streak;
-    }
+    (void)streak;
     rw.turn = versus ? (int)(rng_next(&rw.rng) & 1) : 0;
     war_common(-1, versus ? -1 : 10);
 }

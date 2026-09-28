@@ -189,7 +189,7 @@ static void war_update(void) {
         if (me->cpu >= 0) break;
         {
             static const int PADS[4] = {BTN_RIGHT, BTN_DOWN, BTN_LEFT, BTN_UP};
-            /* the d-pad points at a road; A takes it */
+            /* the d-pad points at a road; A confirms the step (confirmed by the owner) */
             for (int d = 0; d < 4; d++)
                 if (pr & PADS[d]) {
                     if (rsh_step_kind(d)) { rw.pick_dir = d; sfx_play_name("ui_move"); }
@@ -370,7 +370,9 @@ static uint32_t bot_buttons(void) {
     switch (state) {
     case S_TITLE:
         if (odd || state_t < 12) return 0;
-        return title_sel == 0 ? BTN_A : BTN_UP;
+        /* the campaign until it is won, then the streak */
+        if (title_sel != (streak_open() ? MODE_STREAK : MODE_CAMPAIGN)) return BTN_DOWN;
+        return BTN_A;
     case S_STORY: case S_CARD: case S_END: case S_WAROVER:
         return (!odd && state_t > 80) ? BTN_A : 0;
     case S_SELECT: {
@@ -494,6 +496,16 @@ static void ground(int x, int y, int w, int h, int t, int wx, int wy) {
                 uint32_t hh = hash2(wx + xx, wy + yy) & 15;
                 if (hh == 0) gfx_pset(x + xx, y + yy, C_HIDE);
                 else if (hh == 1) gfx_pset(x + xx, y + yy, C_CREAM);
+            }
+        break;
+    case T_FLOOR:
+        /* a castle's flagstones */
+        gfx_rect(x, y, w, h, C_LIGHT);
+        for (int yy = 0; yy < h; yy++)
+            for (int xx = 0; xx < w; xx++) {
+                int gx = wx + xx, gy = wy + yy;
+                if (gy % 16 == 0 || (gx + (gy / 16) * 8) % 16 == 0) gfx_pset(x + xx, y + yy, C_GREY);
+                else if ((hash2(gx, gy) & 31) == 0) gfx_pset(x + xx, y + yy, C_WHITE);
             }
         break;
     case T_WATER:
@@ -703,7 +715,7 @@ static void draw_inn(void) {
     ui_panel(x, y, w, h, C_NIGHT, C_AMBER);
     int visits = rw.visits[s->ny][s->nx];
     char buf[80];
-    static const char *const VISIT[3] = {"THE INN: HIRE WHO YOU LIKE", "THE INN: TWO VISITS LEFT", "THE INN: ABOUT TO CLOSE"};
+    static const char *const VISIT[3] = {"THE INN: FRESH KEGS", "THE INN: HALF THE KEGS GONE", "THE INN: LAST ORDERS!"};
     snprintf(buf, sizeof buf, "%s", VISIT[iclamp(visits - 1, 0, 2)]);
     text_draw(buf, x + 8, y + 5, C_YELLOW);
     snprintf(buf, sizeof buf, GLYPH_COIN "%d " GLYPH_DOT " ROOM FOR %d", s->coins, RSH_ARMY + RSH_RESERVE - rsh_army_size(rw.turn));
@@ -818,6 +830,8 @@ static void draw_field(void) {
         case O_CLUSTER: id = RS_CLUSTER; break;
         case O_EMBER: id = (frame_t / 6 + k) % 2 ? RS_EMBER0 : RS_EMBER1; break;
         case O_TREE: id = RS_TREE; break;
+        case O_TENT: id = RS_TENT; break;
+        case O_HUT: id = RS_HUT; break;
         }
         const Sprite *s = &rsh_spr[id];
         int sx = (int)o->x - cx, sy = (int)o->y - cy + RSH_VIEW_Y;
@@ -930,7 +944,7 @@ static void draw_battle_hud(void) {
     }
     if (rb.fog > 0 && rb.fog <= RSH_FOG_STEP && rb.phase != B_OVER && (frame_t / 20) % 4 != 3) {
         ui_panel(50, 20, 220, 14, C_NIGHT, C_MAGENTA);
-        tiny_center("DON'T END YOUR TURN IN THE HAZE!", 160, 24, C_PINK);
+        tiny_center("THE HAZE IS RISING: FINISH CLEAR OF IT!", 160, 24, C_PINK);
     }
     if (rb.phase == B_OVER) {
         ui_panel(70, 64, 180, 40, C_NIGHT, rb.winner >= B_BOTH ? C_GREY : RSH_SIDE_COL[rb.winner][0]);
@@ -1027,10 +1041,10 @@ static void draw_select(void) {
 /* Lady Brass writes to the front before every war (all our own words) */
 static const char *const LETTER[RSH_SCENARIOS][2] = {
     {"THE PLUM BANNER IS ON THE LONG LANE.", "MEET IT HALFWAY, AND MIND YOUR SQUIRES."},
-    {"OLD TOMES LIE ON THE OUTER ROADS.", "READ ONE BEFORE THE PLUMS DO."},
+    {"TWO SLINGERS JOIN YOU. EVERY STONE COSTS", "A SHARD, SO MAKE EACH ONE COUNT. MIND THE TOMES."},
     {"THEY SAY THE MERE HAS NO BOTTOM.", "KEEP YOUR DISKS OUT OF IT, AND PUT THEIRS IN."},
     {"THE HILLS ARE FULL OF COIN THIS YEAR.", "HOLD THE SEAMS AND THE INNS WILL LOVE YOU."},
-    {"I SEND YOU TWO ADDERS. BE KIND TO THEM;", "NOBODY ELSE IS."},
+    {"I SEND YOU TWO ADDERS. THE PLUMS HAVE WALLED", "THEIR HOME: BEAT THEM THERE AND IT FALLS."},
     {"OUR HOME IS A CASTLE NOW, AND SO IS THEIRS.", "LOSE THERE AND WE LOSE EVERYTHING."},
     {"TWO PIPERS MARCH WITH YOU. THEIR TUNES", "MAKE BRAVE DISKS BRAVER. ALL BATTLE LONG."},
     {"NO COIN LIES ON THESE ROADS. YOUR DELVERS", "WILL HAVE TO DIG IT OUT OF THE FIELDS."},
@@ -1069,8 +1083,8 @@ static void draw_card(void) {
         text_center("THE STREAK", 160, 20, C_YELLOW);
         snprintf(buf, sizeof buf, "WAR %d OF THE STREAK", sv.streak + 1);
         ui_fancy_center(buf, 160, 40, 2, GRAD_TITLE, 4, C_INK, C_WINE);
-        text_center("A NEW LAND EVERY WAR. THE PLUM BANNER", 160, 70, C_WHITE);
-        text_center("GROWS STRONGER WITH EVERY WIN.", 160, 82, C_WHITE);
+        text_center("A NEW LAND EVERY WAR.", 160, 70, C_WHITE);
+        text_center("THE PLUM BANNER AIMS TRUE.", 160, 82, C_WHITE);
         snprintf(buf, sizeof buf, "BEST STREAK %d", sv.best_streak);
         tiny_center(buf, 160, 104, C_LIGHT);
     } else {
@@ -1310,6 +1324,18 @@ static int rsh_query(const char *key, int *out) {
         for (int k = 0; k < RSH_MAXO; k++) *out += rb.p.o[k].on && rb.p.o[k].kind == O_TREE;
         return 1;
     }
+    if (!strcmp(key, "props")) {
+        *out = 0;
+        for (int k = 0; k < RSH_MAXO; k++) *out += rb.p.o[k].on && rb.p.o[k].kind >= O_TREE;
+        return 1;
+    }
+    if (!strcmp(key, "water_cells") || !strcmp(key, "floor_cells")) {
+        int want = key[0] == 'w' ? T_WATER : T_FLOOR;
+        *out = 0;
+        for (int y = 0; y < RSH_CH; y++)
+            for (int x = 0; x < RSH_CW; x++) *out += rb.cell[y][x] == want;
+        return 1;
+    }
     if (!strcmp(key, "water_deaths")) { *out = rb.p.water_deaths; return 1; }
     if (!strcmp(key, "hits")) { *out = rb.p.hits; return 1; }
     if (!strcmp(key, "combo")) { *out = rb.p.best_combo; return 1; }
@@ -1477,7 +1503,7 @@ static int rsh_cheat(const char *cmd) {
     if (sscanf(cmd, "shards %d %d", &a, &b) == 2) { rb.p.shards[a & 1] = b; return 1; }
     if (sscanf(cmd, "round %d", &a) == 1) {
         rb.turns[0] = rb.turns[1] = rb.round = a;
-        rb.fog = a >= RSH_FOG_ROUND ? imin(RSH_FOG_MAX, (a - RSH_FOG_ROUND + 1) * RSH_FOG_STEP) : 0;
+        rb.fog = rsh_fog_at_round(a);
         return 1;
     }
     if (sscanf(cmd, "obj %d %d %d", &a, &b, &c) == 3) {

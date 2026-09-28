@@ -1,0 +1,23 @@
+# RIMSHIRE: a battle at a home is fought in the home's own arena, not on the
+# tiles round it: a yard with a gatehouse on each long wall and a camp of
+# tents and huts; a castle has stone floors and a bastion in every corner.
+# The castle falls with its army.
+game rimshire
+cheat war 1
+cheat cpu 1 -1
+# the Plum home of THE LONG LANE, a plain home (lakes nowhere near)
+cheat battle 12 1 0
+expect walls == 6
+expect water_cells == 0
+expect floor_cells == 0
+expect props > 0
+# war 5: the Plum home is a castle
+cheat war 5
+cheat cpu 1 -1
+expect castle1 == 1
+expect castle0 == 0
+cheat battle 13 3 0
+expect walls == 10
+expect water_cells == 0
+expect floor_cells > 100
+expect cell_0_0 == 1

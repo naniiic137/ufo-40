@@ -601,7 +601,9 @@ the top.
   goes home, calls up its reserves and moves next; a war is won when a
   battle would start and the other side has no disks.
 - **The battles:** the field's corners come from the four board tiles round
-  the fight (woods with trees, crags with cliffs, dunes, lakes). Pick one of
+  the fight (woods with trees, tents and huts, crags with cliffs, dunes,
+  lakes); a fight at a home has its own yard, and a castle's stone floors
+  lie between bastions. Pick one of
   the first three disks in the queue, turn the aim, hold A to charge the
   pips, let go. A foe struck by one of your disks takes that disk's melee;
   two foes knocked together take 1 each. Water drowns, the haze closes in
@@ -611,7 +613,8 @@ the top.
   ferret's three dashes, the brute's stun, the adder's poison, the piper's
   stars, the leech's thirst, the menhir that can't be moved...), eight
   skills, ten campaign wars that each bring one new idea, the random streak
-  for the cherry, and two players. The demo player in the tests wins every
+  (both armies start alike; only the computer's aim gets sharper) for the
+  cherry, and two players. The demo player in the tests wins every
   war with real button presses.
 - **Ours:** Rimshire, the Brass and Plum banners, the Plum Empress and Lady
   Brass's letters, all sixteen disks and eight skills, the ten boards, the

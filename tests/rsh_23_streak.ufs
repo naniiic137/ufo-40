@@ -1,7 +1,8 @@
-# RIMSHIRE: the streak opens once the campaign is won. Each streak war is
-# on a new random board; wins count up, a loss ends the run; three in a row
-# earns the Alien. (The demo player is given a strong army and the Plum
-# banner none, so the test is about the counting, not the fighting.)
+# RIMSHIRE: the streak opens once the campaign is won. Every streak war is
+# on a new random board, and both armies start alike (two squires, and a
+# warden and two squires in reserve): only the computer's aim is sharper.
+# The demo player, pressing real buttons from the title, wins three in a
+# row for the Alien; then a lost war ends the run and the best is kept.
 game rimshire
 wait 10
 press DOWN
@@ -9,39 +10,27 @@ press A
 wait 10
 expect state == 0
 cheat clearall
-press A
-wait 25
-expect state == 3
-expect mode == 1
-press A
+cheat title
 wait 10
-expect state == 4
-expect scen == 1
-cheat army 0 WWWYY
-cheat army 1 -
-cheat reserve 1 -
-cheat coins 1 0
-botuntil state == 6 60000
-expect winner == 0
-expect streak == 1
-botuntil state == 4 600
-cheat army 0 WWWYY
-cheat army 1 -
-cheat reserve 1 -
-cheat coins 1 0
-botuntil state == 6 60000
-expect streak == 2
+botuntil state == 4 3000
+expect mode == 1
+expect army0 == 2
+expect reserve0 == 3
+expect army1 == 2
+expect reserve1 == 3
+expect coins0 == 6
+expect coins1 == 6
+expect cpu1 == 10
+botuntil streak == 1 400000
+botuntil state == 4 3000
+expect army1 == 2
+expect reserve1 == 3
+expect coins1 == 6
 expect goals !& 4
-botuntil state == 4 600
-cheat army 0 WWWYY
-cheat army 1 -
-cheat reserve 1 -
-cheat coins 1 0
-botuntil state == 6 60000
-expect streak == 3
+botuntil streak == 3 800000
 expect goals & 4
 # a lost war ends the streak; the best is kept
-botuntil state == 4 600
+botuntil state == 4 3000
 cheat army 0 -
 cheat reserve 0 -
 cheat coins 0 0
