@@ -1,0 +1,46 @@
+# DUSKLING A5, NEWT DEN (room 26): the newt den.
+# Played from its way in with plain button presses (LEFT is the D-pad
+# side, A the button side), found once by the route finder (cheat solve).
+game duskling
+wait 5
+cheat room 26
+hold A 2
+wait 2
+hold A 30
+hold LEFT+A 7
+hold A 33
+hold LEFT+A 16
+hold A 12
+hold LEFT+A 2
+hold A 33
+hold LEFT+A 7
+wait 4
+hold A 2
+wait 2
+hold A 32
+hold LEFT+A 7
+wait 14
+hold A 2
+wait 2
+hold A 26
+hold LEFT 2
+wait 2
+hold LEFT+A 2
+hold LEFT 18
+hold A 5
+hold LEFT+A 16
+wait 14
+hold A 2
+wait 2
+hold A 21
+hold LEFT 5
+hold LEFT+A 7
+hold A 41
+hold LEFT+A 16
+wait 14
+hold A 2
+wait 2
+hold A 21
+hold LEFT 6
+wait 2
+expect room == 27

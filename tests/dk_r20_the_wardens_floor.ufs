@@ -1,0 +1,78 @@
+# DUSKLING M20, THE WARDEN'S FLOOR (room 20): the Brass Warden: six slams while it is solid, then the door opens.
+# Played from its way in with plain button presses (LEFT is the D-pad
+# side, A the button side), found once by the route finder (cheat solve).
+game duskling
+wait 5
+cheat room 20
+hold A 2
+wait 2
+hold A 30
+hold LEFT+A 16
+hold A 26
+hold LEFT 5
+hold LEFT+A 7
+hold LEFT 3
+hold LEFT+A 2
+wait 23
+hold LEFT 5
+hold LEFT+A 7
+hold LEFT 39
+hold LEFT+A 16
+hold LEFT 12
+hold LEFT+A 2
+hold LEFT 44
+hold LEFT+A 7
+hold LEFT 12
+hold LEFT+A 2
+wait 3
+hold A 40
+hold LEFT+A 16
+hold A 12
+hold LEFT+A 2
+wait 25
+hold A 5
+hold LEFT+A 7
+hold A 3
+hold LEFT+A 2
+hold A 42
+hold LEFT+A 7
+hold A 3
+hold LEFT+A 2
+wait 23
+hold A 5
+hold LEFT+A 7
+hold A 12
+hold LEFT+A 2
+wait 3
+hold LEFT 17
+wait 2
+hold LEFT 10
+wait 2
+hold LEFT 10
+hold LEFT+A 16
+hold LEFT 37
+hold A 14
+hold LEFT 12
+hold A 6
+hold LEFT 17
+hold LEFT+A 16
+hold LEFT 12
+hold LEFT+A 2
+wait 3
+hold A 55
+hold LEFT+A 16
+wait 4
+hold A 2
+wait 2
+hold A 25
+hold LEFT 5
+hold LEFT+A 7
+hold LEFT 3
+hold LEFT+A 2
+wait 3
+hold A 39
+hold LEFT+A 7
+hold A 24
+expect boss_down == 1
+wait 2
+expect room == 21

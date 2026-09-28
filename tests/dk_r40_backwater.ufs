@@ -1,0 +1,26 @@
+# DUSKLING X4, BACKWATER (room 40): the backwater, the one warp pocket that sends you back (to the weed maze).
+# Played from its way in with plain button presses (LEFT is the D-pad
+# side, A the button side), found once by the route finder (cheat solve).
+game duskling
+wait 5
+cheat room 40
+hold A 2
+wait 2
+hold A 10
+hold LEFT+A 16
+wait 6
+hold A 2
+wait 2
+hold A 30
+hold LEFT+A 16
+wait 14
+hold A 2
+wait 2
+hold A 26
+hold LEFT+A 16
+wait 14
+hold A 2
+wait 2
+hold A 19
+wait 2
+expect room == 8

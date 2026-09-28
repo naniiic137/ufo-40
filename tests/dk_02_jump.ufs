@@ -1,0 +1,53 @@
+# DUSKLING: hold one side and tap the other to jump toward the side held.
+# Keeping the tap down longer jumps higher (and so farther).
+game duskling
+wait 5
+cheat room 1
+cheat pos 210 121
+wait 10
+# hold the button side (right), tap the D-pad side: a jump to the right
+hold A 6
+hold A+LEFT 1
+expect ground == 0
+expect vy10 == -33
+expect vx10 == 12
+wait 50
+expect ground == 1
+expect last_rise >= 19
+expect last_rise <= 23
+expect last_dx >= 25
+# the same with the tap kept down: a full jump
+cheat pos 210 121
+wait 10
+hold A 6
+hold A+UP 18
+wait 50
+expect last_rise >= 40
+expect last_rise <= 44
+expect last_dx >= 45
+# hold the D-pad side, tap B: a jump to the left
+cheat pos 290 121
+wait 10
+hold DOWN 6
+hold DOWN+B 18
+wait 50
+expect last_rise >= 40
+expect last_dx <= -45
+# a tap first and then both at once: a low hop toward the tapped side
+cheat pos 210 121
+wait 10
+hold A 2
+wait 3
+hold A+LEFT 2
+wait 40
+expect last_rise >= 8
+expect last_rise <= 12
+expect last_dx > 0
+cheat pos 290 121
+wait 10
+hold LEFT 2
+wait 3
+hold LEFT+A 2
+wait 40
+expect last_rise <= 12
+expect last_dx < 0

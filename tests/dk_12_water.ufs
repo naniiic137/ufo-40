@@ -1,0 +1,31 @@
+# DUSKLING: in water the duskling sinks slowly, and any jump is a stroke
+# up; a stroke that breaks the surface leaps out. Fish are deadly.
+game duskling
+wait 5
+cheat room 7
+cheat pos 300 130
+wait 30
+expect water == 1
+expect vy10 <= 12
+expect vy10 > 0
+hold A 6
+hold A+LEFT 1
+expect vy10 <= -19
+hold A 30
+expect water == 1
+# up to the surface and out onto the shore
+cheat pos 205 115
+wait 5
+hold UP 4
+hold UP+A 1
+hold UP 12
+hold UP+A 1
+hold UP 40
+expect water == 0
+expect ground == 1
+expect py == 91
+# the fish
+cheat room 7
+wait 2
+cheat above_foe fish -3
+waituntil alive == 0 10

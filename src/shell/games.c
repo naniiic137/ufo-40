@@ -16,6 +16,7 @@ extern const GameDef GAME_CUTLASS;
 extern const GameDef GAME_FENNEC;
 extern const GameDef GAME_TINTAIL;
 extern const GameDef GAME_OPENHOUSE;
+extern const GameDef GAME_DUSKLING;
 extern const GameDef GAME_DUNE;
 
 const GameDef *const GAMES[GAME_SLOTS] = {
@@ -27,6 +28,7 @@ const GameDef *const GAMES[GAME_SLOTS] = {
     [5] = &GAME_TINTROOP,    /* 06 Mortol */
     [6] = &GAME_SKYWELL,     /* 07 Velgress */
     [8] = &GAME_BANNERFALL,  /* 09 Attactics */
+    [12] = &GAME_DUSKLING,   /* 13 Mooncat */
     [13] = &GAME_CUTLASS,    /* 14 Bushido Ball */
     [14] = &GAME_FENNEC,     /* 15 Block Koala */
     [15] = &GAME_TINTAIL,    /* 16 Camouflage */

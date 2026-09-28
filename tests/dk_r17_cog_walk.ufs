@@ -1,0 +1,43 @@
+# DUSKLING M17, COG WALK (room 17): grates over sparking floor, prickles on the grates, drones above.
+# Played from its way in with plain button presses (LEFT is the D-pad
+# side, A the button side), found once by the route finder (cheat solve).
+game duskling
+wait 5
+cheat room 17
+hold A 5
+hold LEFT+A 16
+wait 14
+hold A 2
+wait 2
+hold A 20
+hold LEFT+A 16
+wait 14
+hold A 2
+wait 2
+hold A 19
+hold LEFT+A 16
+wait 14
+hold A 2
+wait 2
+hold A 26
+hold LEFT+A 16
+wait 4
+hold A 2
+wait 2
+hold A 27
+wait 2
+hold A 30
+hold LEFT+A 16
+wait 6
+hold A 2
+wait 2
+hold A 30
+hold LEFT+A 16
+wait 4
+hold A 2
+wait 2
+hold A 30
+hold LEFT+A 7
+hold A 32
+wait 2
+expect room == 18

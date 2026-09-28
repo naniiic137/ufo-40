@@ -1,0 +1,63 @@
+# DUSKLING M19, LAST CORRIDOR (room 19): the last corridor: sprint jumps over sparks, a sprint and a somersault over the big gap.
+# Played from its way in with plain button presses (LEFT is the D-pad
+# side, A the button side), found once by the route finder (cheat solve).
+game duskling
+wait 5
+cheat room 19
+hold A 5
+hold LEFT+A 16
+wait 14
+hold A 2
+wait 2
+hold A 26
+hold LEFT+A 16
+wait 14
+hold A 2
+wait 2
+hold A 26
+hold LEFT+A 16
+wait 14
+hold A 2
+wait 2
+hold A 23
+wait 2
+hold A 10
+hold LEFT+A 16
+hold A 28
+wait 2
+hold A 2
+hold LEFT 5
+hold LEFT+A 7
+hold LEFT 12
+hold LEFT+A 2
+wait 3
+hold A 21
+hold LEFT 12
+hold A 5
+hold LEFT+A 7
+hold LEFT 36
+hold A 5
+hold LEFT+A 16
+wait 14
+hold A 2
+wait 2
+hold A 26
+hold LEFT+A 16
+wait 14
+hold A 2
+wait 2
+hold A 25
+hold LEFT+A 16
+wait 14
+hold A 2
+wait 2
+hold A 20
+wait 2
+hold A 30
+hold LEFT+A 16
+wait 6
+hold A 2
+wait 2
+hold A 36
+wait 2
+expect room == 20

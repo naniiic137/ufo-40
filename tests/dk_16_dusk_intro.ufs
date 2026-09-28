@@ -1,0 +1,38 @@
+# DUSKLING: a run starts in the dusk wood. An orange dayling drifts down
+# out of the clouds with a little light, walks the empty wood and falls
+# into the pit at its end, whatever it does: the far side is not there.
+# Then a pink duskling wakes in the dark, and the run is its.
+game duskling
+wait 5
+expect state == 0
+press A
+wait 3
+expect state == 2
+expect room == 0
+expect py < 0
+expect ground == 0
+waituntil ground == 1 200
+expect py == 141
+hold A
+waituntil state == 3 600
+release
+expect state == 3
+waituntil state == 2 300
+expect room == 1
+expect px == 11
+# again: this time a sprint and a long jump over the pit
+reload
+game duskling
+wait 5
+press A
+waituntil ground == 1 200
+cheat pos 380 141
+wait 2
+hold A 2
+wait 2
+hold A 30
+hold A+UP 16
+hold A 20
+expect px > 500
+expect state == 2
+waituntil state == 3 200

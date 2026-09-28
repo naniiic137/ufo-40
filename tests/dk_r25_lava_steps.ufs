@@ -1,0 +1,42 @@
+# DUSKLING A4, LAVA STEPS (room 25): stepping stones over the embers, a newt on a ledge.
+# Played from its way in with plain button presses (LEFT is the D-pad
+# side, A the button side), found once by the route finder (cheat solve).
+game duskling
+wait 5
+cheat room 25
+hold A 2
+wait 2
+hold A 10
+hold LEFT+A 16
+hold A 22
+hold LEFT+A 16
+wait 14
+hold A 2
+wait 2
+hold A 19
+hold LEFT+A 16
+wait 14
+hold A 2
+wait 2
+hold A 29
+hold LEFT+A 1
+hold LEFT 42
+hold A 5
+hold LEFT+A 7
+hold A 3
+hold LEFT+A 2
+hold A 37
+hold LEFT+A 7
+wait 14
+hold A 2
+wait 2
+hold A 28
+hold LEFT+A 16
+wait 14
+hold A 2
+wait 2
+hold A 26
+hold LEFT+A 16
+hold A 32
+wait 2
+expect room == 26

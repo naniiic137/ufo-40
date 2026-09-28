@@ -1,0 +1,22 @@
+# DUSKLING: a small stone face means hidden ledges are near. Walking past
+# it shows nothing; jumping over it wakes it, and the ledges around it
+# appear (and hold you up).
+game duskling
+wait 5
+cheat room 33
+wait 2
+expect shown == 0
+expect tile_12_12 == 0
+hold A 60
+expect px > 70
+expect shown == 0
+cheat pos 30 141
+wait 5
+hold A 6
+hold A+LEFT 16
+wait 40
+expect shown == 5
+expect tile_12_12 == 1
+expect tile_17_9 == 1
+# the next face's bridge is still hidden
+expect tile_30_7 == 0

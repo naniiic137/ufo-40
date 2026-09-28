@@ -1,0 +1,73 @@
+# DUSKLING M4, CROW'S PERCH (room 4): the crow's perch: a thorn patch, a gulper on a post and a wasp.
+# Played from its way in with plain button presses (LEFT is the D-pad
+# side, A the button side), found once by the route finder (cheat solve).
+game duskling
+wait 5
+cheat room 4
+hold A 2
+wait 2
+hold A 30
+hold LEFT+A 16
+wait 6
+hold A 2
+wait 2
+hold A 27
+wait 2
+hold A 30
+hold LEFT+A 16
+wait 6
+hold A 2
+wait 2
+hold A 27
+wait 2
+hold A 30
+hold LEFT+A 16
+wait 6
+hold A 2
+wait 2
+hold A 30
+hold LEFT+A 16
+wait 14
+hold A 2
+wait 2
+hold A 26
+hold LEFT+A 16
+wait 14
+hold A 2
+wait 2
+hold A 26
+hold LEFT+A 7
+hold A 25
+wait 2
+expect room == 5
+
+# jump over the stone face to show the hidden steps, climb to the crow's ledge, then sprint, jump and somersault far to the right into the warp.
+cheat room 4
+hold A 2
+wait 2
+hold A 30
+hold LEFT+A 16
+wait 6
+hold A 2
+wait 2
+hold A 25
+hold LEFT 2
+wait 2
+hold LEFT 10
+hold LEFT+A 7
+hold LEFT 21
+hold LEFT+A 1
+hold A 35
+wait 2
+hold A 7
+hold LEFT+A 16
+hold A 12
+hold LEFT+A 2
+hold A 24
+hold LEFT+A 16
+wait 4
+hold A 2
+wait 2
+hold A 16
+wait 2
+expect room == 29

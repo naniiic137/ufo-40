@@ -1,0 +1,47 @@
+# DUSKLING: a double tap on the ground rolls; with the second tap held the
+# roll turns into a sprint, which also gives more time to jump after
+# running off an edge.
+game duskling
+wait 5
+cheat room 1
+cheat pos 20 141
+wait 10
+hold A 2
+wait 2
+hold A 2
+expect act == 2
+expect vx10 >= 28
+wait 30
+expect act == 0
+expect vx10 == 0
+# roll, hold: sprint
+cheat pos 20 141
+wait 10
+hold A 2
+wait 2
+hold A 30
+expect act == 3
+expect vx10 == 22
+hold A 4
+expect act == 3
+# walking off a ledge: a few frames' grace to still jump, but not six
+cheat room 1
+cheat pos 500 111
+wait 10
+hold A
+waituntil ground == 0 60
+hold A 6
+hold A+LEFT 1
+expect vy10 > 0
+# sprinting off it: twelve frames' grace
+cheat room 1
+cheat pos 460 111
+wait 10
+hold A 2
+wait 2
+hold A
+waituntil ground == 0 60
+expect act == 3
+hold A 8
+hold A+LEFT 1
+expect vy10 == -33

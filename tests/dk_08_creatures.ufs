@@ -1,0 +1,50 @@
+# DUSKLING: not every creature is deadly. Thistledown and the crow drift
+# past harmlessly, a frog is a spring, a gulper is a ledge while its mouth
+# is shut and bites when it opens, and a pebble beetle carries you (a slam
+# knocks it flying, and it curls up where it lands as a block).
+game duskling
+wait 5
+cheat room 1
+wait 2
+cheat above_foe puff -4
+wait 20
+expect alive == 1
+cheat room 4
+wait 2
+cheat above_foe crow -2
+wait 30
+expect alive == 1
+# the frog
+cheat room 3
+wait 2
+cheat above_foe frog 16
+waituntil vy10 <= -50 20
+expect alive == 1
+# the gulper: a ledge, until it opens
+cheat room 4
+wait 2
+cheat above_foe gulper 2
+wait 6
+expect ground == 1
+expect alive == 1
+waituntil alive == 0 160
+# the beetle carries you along
+cheat room 6
+wait 2
+cheat above_foe beetle 2
+wait 4
+expect ground == 1
+expect foe_beetle_state == 0
+wait 60
+expect ground == 1
+expect alive == 1
+# a slam knocks it flying; it lands curled up, a block to stand on
+cheat room 6
+wait 2
+cheat above_foe beetle 20
+hold UP 1
+hold UP+A 1
+wait 4
+expect foe_beetle_state == 1
+waituntil foe_beetle_state == 2 90
+expect alive == 1

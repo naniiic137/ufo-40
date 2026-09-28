@@ -1,0 +1,23 @@
+# DUSKLING: warps are never drawn; flowers only say one is somewhere on the
+# screen. Taking one earns the Beacon (FIND A WARP), and warps taken are
+# remembered.
+game duskling
+wait 5
+expect goals == 0
+cheat room 2
+cheat pos 300 91
+wait 5
+expect warps == 0
+hold A 6
+hold A+UP 18
+wait 20
+expect room == 37
+expect goals & 1
+expect warps == 1
+wait 40
+expect room_now == 37
+reload
+game duskling
+wait 5
+expect warps == 1
+expect goals & 1

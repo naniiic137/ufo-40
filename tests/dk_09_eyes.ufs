@@ -1,0 +1,38 @@
+# DUSKLING: ceiling eyes drop when a slam lands near them (and crush what
+# is below). Fallen eyes are blocks; a slam onto one makes it leap up and
+# take you with it.
+game duskling
+wait 5
+cheat room 13
+wait 2
+expect foe_eye_state == 0
+# a slam by the first eye brings it down on the duskling
+cheat pos 100 141
+wait 5
+hold A 4
+hold A+UP 4
+hold A 2
+hold A+UP 1
+waituntil foe_eye_state == 1 30
+cheat pos 121 141
+waituntil alive == 0 60
+# the eye in the chamber: slam beside it, then slam onto it
+cheat room 13
+wait 2
+cheat pos 480 141
+wait 5
+hold A 4
+hold A+UP 4
+hold A 2
+hold A+UP 1
+wait 60
+expect count_eye == 3
+cheat above_foe eye 30 2
+hold A 1
+hold A+UP 1
+expect act == 4
+waituntil vy10 <= -50 20
+expect alive == 1
+expect foe_eye_state == 0
+wait 20
+expect py < 80

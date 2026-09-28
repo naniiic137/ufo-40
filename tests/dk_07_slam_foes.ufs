@@ -1,0 +1,28 @@
+# DUSKLING: a slam beats a deadly foe and bounces you off it; falling on
+# one without slamming is as deadly as walking into it.
+game duskling
+wait 5
+cheat room 2
+wait 2
+cheat above_foe prickle 12
+hold A 1
+hold A+UP 1
+expect act == 4
+waituntil count_prickle == 0 20
+expect alive == 1
+expect act == 5
+expect vy10 < 0
+# no slam
+cheat room 2
+wait 2
+cheat above_foe prickle 12
+waituntil alive == 0 30
+expect count_prickle == 1
+# the wasps of the thorn run too
+cheat room 5
+wait 2
+cheat above_foe waspv 10
+hold B 1
+hold B+DOWN 1
+waituntil count_waspv == 0 20
+expect alive == 1

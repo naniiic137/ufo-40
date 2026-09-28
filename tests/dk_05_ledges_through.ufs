@@ -1,0 +1,20 @@
+# DUSKLING: pink ledges let you jump up through them and stand on top; a
+# slam drops straight through them.
+game duskling
+wait 5
+cheat room 1
+cheat pos 365 141
+wait 10
+# the pink caps over the floor, three tiles up
+hold A 4
+hold A+LEFT 16
+hold A 8
+wait 40
+expect py == 101
+expect ground == 1
+hold UP 6
+hold UP+A 8
+hold UP 3
+hold UP+B 1
+wait 60
+expect py == 141
