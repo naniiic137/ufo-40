@@ -1,0 +1,12 @@
+# BOOMTOWN: fireworks come in bags of six: one tier-1 (starburst, roman
+# candle or skyrocket), three tier-2 (banger, pinwheel, jumping jack) and
+# two tier-3 (twin tube, fountain), shuffled. A hundred bags are dealt.
+seed 17
+game boomtown
+wait 20
+press A
+wait 15
+press A
+wait 100
+expect bag_i == 3
+expect bag_bad == 0

@@ -1,0 +1,52 @@
+# BOOMTOWN: holding out for five nights earns the Beacon. Like Devilition, a
+# run is never saved half-way: quitting and coming back starts at the title.
+# The records (nights held, most folk) are kept, and the goals come back
+# from them.
+seed 21
+game boomtown
+wait 20
+press A
+wait 15
+press A
+wait 100
+cheat clear
+cheat hand 3
+cheat night 5
+wait 100
+cheat clear
+cheat put folk 0 0
+cheat put folk 0 1
+cheat put folk 0 2
+cheat put folk 0 3
+cheat put bogle 9 7 0
+cheat put piece 5 4 1
+cheat put bogle 5 5 0
+press RIGHT
+press RIGHT
+press RIGHT
+press A
+cheat cursor 5 4
+press A
+waituntil state == 7 300
+expect result == 0
+expect goals & 1
+expect goals !& 2
+expect best_nights == 5
+expect most_folk >= 4
+# quit in the middle of night 6
+press A
+waituntil state == 3 200
+expect round == 6
+reload
+game boomtown
+wait 20
+expect state == 0
+expect round == 0
+expect best_nights == 5
+expect most_folk >= 4
+# the goals come back from the records
+set_goals boomtown 0
+game boomtown
+wait 20
+expect goals & 1
+expect goals !& 2

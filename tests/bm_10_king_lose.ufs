@@ -1,0 +1,30 @@
+# BOOMTOWN: if the Bog King still stands when the chain is over, the town
+# is lost, however many folk are left.
+seed 20
+game boomtown
+wait 20
+press A
+wait 15
+press A
+wait 100
+cheat clear
+cheat hand 0
+cheat night 10
+wait 100
+cheat put piece 0 3 2 1
+cheat put folk 0 0
+cheat put folk 9 0
+cheat put folk 9 7
+press RIGHT
+press RIGHT
+press RIGHT
+press A
+cheat cursor 0 3
+press A
+waituntil state == 7 300
+expect king_hits == 2
+expect king_hp == 8
+expect result == 4
+waituntil state == 8 300
+expect goals !& 2
+expect wins == 0

@@ -1,0 +1,53 @@
+# BOOMTOWN: fireworks left on the square stay there for the next night, and
+# the ones not used stay in the cart. With nothing left to place, play goes
+# straight to choosing the fuse; with nothing anywhere the night ends itself.
+seed 24
+game boomtown
+wait 20
+press A
+wait 15
+press A
+wait 100
+cheat clear
+cheat put folk 0 0
+cheat put folk 0 1
+cheat put bogle 9 7 0
+cheat put piece 8 7 1
+# one set down by hand, far from anything
+cheat sel 0
+cheat cursor 2 5
+press A
+press A
+expect hand == 14
+expect occ_2_5 == 4
+press RIGHT
+press RIGHT
+press RIGHT
+press A
+cheat cursor 8 7
+press A
+waituntil state == 7 300
+expect result == 1
+press A
+waituntil state == 2 200
+expect occ_2_5 == 4
+expect hand == 29
+waituntil state == 3 200
+# nothing left to place: straight to choosing the fuse, with no way back
+cheat clear
+cheat put folk 0 0
+cheat put piece 5 5 1
+cheat row 0 0 0
+cheat hand 0
+cheat pick
+expect state == 5
+expect sel == 3
+press B
+expect state == 5
+# nothing anywhere: the night ends by itself
+cheat put empty 5 5
+cheat pick
+expect state == 3
+wait 30
+expect state == 7
+expect result == 1

@@ -1,0 +1,18 @@
+# BOOMTOWN: a whole run is playable and can be won. The demo player presses
+# real buttons each frame: it tries every firework on offer on every free
+# tile and facing, keeps the one whose best chain leaves the town safest (and
+# reaches nearest the bogles still standing), and lights the best fuse once
+# the night is safe. Ten nights and the Bog King, with no help.
+seed 5
+game boomtown
+wait 20
+botuntil state == 3 400
+expect round == 1
+botuntil round == 5 60000
+botuntil state == 9 200000
+expect result == 3
+expect king_hp == 0
+expect goals & 1
+expect goals & 2
+expect wins == 1
+expect score >= 10000

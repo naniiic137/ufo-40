@@ -1,0 +1,43 @@
+# BOOMTOWN: big bogles take two hits and stay hurt (and red) from night to
+# night; two fireworks in one chain are two hits; old bogles heal a wound
+# at the end of the night.
+seed 14
+game boomtown
+wait 20
+press A
+wait 15
+press A
+wait 100
+cheat clear
+cheat put folk 0 7
+cheat put folk 1 7
+cheat put folk 2 7
+# a starburst next to a big bogle lights a banger that hits it again
+cheat put piece 4 4 1
+cheat put bogle 5 4 1
+cheat put piece 5 5 5
+# the starburst also reaches a second big bogle once
+cheat put bogle 3 3 1
+# the banger reaches an old bogle once
+cheat put bogle 6 5 2
+expect hp_5_4 == 2
+press RIGHT
+press RIGHT
+press RIGHT
+press A
+cheat cursor 4 4
+press A
+waituntil chain_live == 0 300
+expect occ_5_4 == 0
+expect hp_3_3 == 1
+expect hp_6_5 == 1
+waituntil state == 7 100
+# the old one heals, the big one doesn't
+expect hp_6_5 == 2
+expect hp_3_3 == 1
+expect result == 0
+press A
+waituntil state == 3 200
+expect round == 2
+expect occ_3_3 == 3
+expect hp_3_3 == 1

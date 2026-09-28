@@ -92,12 +92,13 @@ when there is more above or below.
 | 06 | **TIN TROOP** | Mortol | 20 lives that carry through ten levels, the arrow, bomb and stone sacrifices, bodies as ledges and weights, water, fire and plants, a ship that drops the next life | a toy army in a toymaker's house, the Jack of the Chest, 10 new levels |
 | 07 | **SKYWELL** | Velgress | a random shaft of crumbling platforms, a roller that only follows you up, stun instead of damage, four-way shooting, a shop between levels, a key bird, a locked fourth level | Kip the scrap-diver, the Grinder, the Tinker, the Well Eye |
 | 09 | **BANNERFALL** | Attactics | a 6×8 field between two keeps, a countdown turn where you drag troops within your half, the same end-of-turn order and clashes, eight unit types with promotions and heroes, the original's 24 campaign battles, ranked, survival and 2P versus | the Marigold Guard and the Thistle Host, all units and battle names |
+| 10 | **BOOMTOWN** | Devilition | a 10 × 8 board, pieces dealt three at a time from bags of six, nine piece patterns (rockets land on their own pad), one detonation a night whose chain sets off every piece it reaches, demons that take one or two hits or heal, a hole a night, the original's round table, a 10-hit boss in the middle four tiles, the win score and clock bonus | Hazel the fireworks maker, Mossbury's folk, the bogles and the Bog King, eight fireworks |
 | 14 | **CUTLASS CUP** | Bushido Ball | first to 8 points, a ball that gets faster with every return, aimed, lobbed and curved strikes, secondary weapons and charged super shots, the fouls and penalty points, six fighters, a five-match tournament, 2P versus and co-op doubles | six corsairs, the galley *Merry Mackerel*, old Bosun Crabbe |
 | 15 | **FENNEC FOUNTAIN** | Block Koala | pushing numbered blocks (never into a heavier one, a 1 that can't move is taken in), grey at five, blue and black blocks, mimics, arrows, stone patches and doors, unlimited undo and a room menu, fifty rooms behind gates, a room editor | Fen the fennec, a dry spring garden, 50 new rooms |
 | 16 | **TINTAIL** | Camouflage | sneaking on a grid past watchers by taking the colour of the ground you stand on, hollow logs, sun and rain pads, hatchlings with their own colour, a danger view you can't move in, undo, a branching map | Twig the chameleon, Salt Island, toads and storks, 15 new levels |
 | 25 | **OPEN HOUSE** | Party House | drawing guests from a deck into a house with limited space, the original's 46 guest abilities, costs and trouble, police, fire marshal and bans, set guest lists and a random list, win by ending a party with four stars within 25 nights, 2P hot-seat | a whitewashed house by the sea, all 46 guests' names and faces |
 | 28 | **DUNE EXPRESS** | Rail Heist | real time until a guard is alert, then 10-second turns, one-bullet lawmen who hit each other too, punches through walls and floors, carrying and throwing, hiding in barrels, levers, a crank gun, rams, three outlaws, three stars a mission with the original's time goals, 2P versus | Wade, Hush and Pearl, the Governor's tax trains, Biscuit the camel, 20 new trains |
-| 08, 10–13, 17–24, 26–27, 29–50 | *coming soon* | | | still in the saucer's cargo hold |
+| 08, 11–13, 17–24, 26–27, 29–50 | *coming soon* | | | still in the saucer's cargo hold |
 
 Every cartridge has three goals, which follow the original's own three: a
 **Beacon** (a side challenge), the **Saucer** (beating the game) and the
@@ -359,6 +360,39 @@ the top.
 - **Ours:** the Marigold Guard and the Thistle Host, every unit's name and
   look, the keeps, the battle names and every line of text, the march and the
   battle music.
+
+### 10 · BOOMTOWN
+
+<p align="center">
+  <img src="docs/shots/boomtown.gif" width="640" alt="Boomtown: fireworks go down round the market square and one fuse sets off the chain">
+</p>
+<p align="center">
+  <img src="docs/shots/boomtown_place.png" width="320" alt="Placing a jumping jack: the tiles it will hit light up">
+  <img src="docs/shots/boomtown_king.png" width="320" alt="The last night: the Bog King in the middle of the square">
+</p>
+
+*A tribute to **Devilition** (UFO 50 #10).*
+
+- **Plays the same:** ten nights on a 10 × 8 square. Pieces come three at a
+  time from bags of six (one strong, three middling, two weak); you place as
+  many as you like, then light one fuse, and every piece its blast reaches
+  goes off in turn. A small diagram shows what the chosen piece hits, but
+  once a piece is down its tiles no longer show.
+  End a night with as many folk as bogles, or the town is overrun; clear
+  them all and a new neighbour moves in. Pieces not used, in the cart or on
+  the square, carry over.
+- **The pieces and the bogles:** the original's nine patterns, from the
+  8-tile starburst and the roman candle that fires to the edge to the
+  skyrocket that flies up and lands on its perch, which joins the row of
+  three in the rocket's place. Big bogles take two hits
+  and stay hurt, old ones heal overnight, and each night brings a new hole
+  and the original's count of bogles and pieces.
+- **The last night:** the Bog King rises in the middle four tiles with ten
+  hits and must go down in one chain. A win scores 10,000, plus 1,000 for
+  every folk and piece left, plus a clock bonus.
+- **Ours:** Hazel the fireworks maker, Mossbury and its folk, the bogles and
+  the Bog King, the names and looks of all eight fireworks, the words and the
+  music. A demo player in the tests wins a whole run with button presses.
 
 ### 14 · CUTLASS CUP
 

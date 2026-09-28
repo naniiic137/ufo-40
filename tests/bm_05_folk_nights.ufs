@@ -1,0 +1,70 @@
+# BOOMTOWN: fireworks blow folk away too. A night ends well while there are
+# at least as many folk as bogles; with none left a new neighbour moves in;
+# more bogles than folk is the end.
+seed 15
+game boomtown
+wait 20
+press A
+wait 15
+press A
+wait 100
+cheat clear
+cheat put folk 0 0
+cheat put folk 9 7
+cheat put folk 5 3
+cheat put bogle 6 4 0
+cheat put piece 5 4 1
+press RIGHT
+press RIGHT
+press RIGHT
+press A
+cheat cursor 5 4
+press A
+waituntil state == 7 300
+expect folk_lost == 1
+expect result == 1
+expect folk == 3
+press A
+waituntil state == 3 200
+expect round == 2
+# as many folk as bogles: the town holds
+cheat clear
+cheat put folk 0 0
+cheat put folk 0 1
+cheat put bogle 9 7 0
+cheat put bogle 9 6 0
+cheat put bogle 5 5 0
+cheat put piece 5 4 1
+press RIGHT
+press RIGHT
+press RIGHT
+press A
+cheat cursor 5 4
+press A
+waituntil state == 7 300
+expect result == 0
+expect folk == 2
+expect bogles == 2
+press A
+waituntil state == 3 200
+expect round == 3
+# one more bogle than folk: overrun
+cheat clear
+cheat put folk 0 0
+cheat put bogle 9 7 0
+cheat put bogle 9 6 0
+cheat put bogle 5 5 0
+cheat put piece 5 4 1
+press RIGHT
+press RIGHT
+press RIGHT
+press A
+cheat cursor 5 4
+press A
+waituntil state == 7 300
+expect result == 2
+waituntil state == 8 200
+expect goals == 0
+wait 70
+press A
+expect state == 0

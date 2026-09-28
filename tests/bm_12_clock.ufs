@@ -1,0 +1,30 @@
+# BOOMTOWN: the clock bonus starts at 15,000 and loses 250 a minute, the
+# time rounded to the nearest minute (30 s rounds up), never below 0. The
+# clock runs through the nights, not on the title or while paused.
+seed 22
+game boomtown
+wait 20
+expect tb_0 == 15000
+expect tb_29 == 15000
+expect tb_30 == 14750
+expect tb_90 == 14500
+expect tb_600 == 12500
+expect tb_3569 == 250
+expect tb_3570 == 0
+expect tb_5000 == 0
+wait 120
+press A
+wait 15
+press A
+wait 5
+expect secs == 0
+wait 600
+expect secs == 10
+# paused, the clock stops
+press START
+wait 600
+expect paused == 1
+press START
+wait 5
+expect paused == 0
+expect secs == 10
