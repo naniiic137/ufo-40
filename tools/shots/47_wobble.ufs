@@ -1,0 +1,56 @@
+# README media: WOBBLE DERBY. The paddock, the fixer and the news come from
+# a meeting played by the demo punter's real button presses; the GIF is a
+# race with a meteor shower set up by cheat.
+shotscale 2
+seed 47
+game wobble
+wait 90
+shot wobble_title
+botuntil state == 1 200
+wait 10
+shot wobble_setup
+botuntil tips0 == 7 3000
+botuntil sub == 0 200
+wait 30
+shot wobble_paddock
+# the fixer's list
+expect menu == 1
+press DOWN
+press A
+wait 5
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+wait 20
+shot wobble_fixer
+press B
+botuntil state == 7 3000
+wait 30
+shot wobble_tote
+cheat event 1
+press A
+gifstart wobble 4 1
+wait 560
+shot wobble_race
+waituntil over == 1 3000
+wait 90
+gifstop
+waituntil state == 9 400
+shot wobble_news
+# the sponsor list later in the meeting
+botuntil round == 3 20000
+botuntil state == 5 400
+wait 10
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press A
+wait 20
+shot wobble_stables
+press B
+botuntil state == 11 60000
+# (past the goal toasts)
+wait 700
+shot wobble_final
