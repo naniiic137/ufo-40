@@ -1,0 +1,33 @@
+# DUSKLING: the pad has two sides. Every way on the D-pad walks left, both
+# A and B walk right, and holding both keeps going the way held first.
+game duskling
+wait 5
+cheat room 1
+cheat pos 250 121
+wait 10
+hold UP 20
+expect vx10 == -12
+expect face == -1
+hold A 20
+expect vx10 == 12
+hold DOWN 20
+expect vx10 == -12
+hold B 20
+expect vx10 == 12
+hold RIGHT 20
+expect vx10 == -12
+expect face == -1
+hold LEFT 20
+expect vx10 == -12
+wait 20
+expect vx10 == 0
+# both held: the side pressed first leads, and nothing jumps without a new press
+hold A 20
+hold A+UP 1
+expect ground == 0
+cheat pos 250 121
+wait 20
+hold B 1
+hold B+A 20
+expect vx10 == 12
+expect ground == 1

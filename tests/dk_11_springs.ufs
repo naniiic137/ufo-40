@@ -1,0 +1,22 @@
+# DUSKLING: some blocks can't be seen until they are touched. A hidden
+# spring throws you high; a slam onto it throws you higher still.
+game duskling
+wait 5
+cheat room 18
+cheat pos 520 141
+wait 2
+expect shown == 0
+hold A 40
+expect shown == 1
+expect px < 570
+cheat room 18
+cheat pos 568 100
+waituntil vy10 <= -50 60
+expect vy10 == -54
+cheat room 18
+cheat pos 568 100
+wait 3
+hold A 1
+hold A+UP 1
+waituntil vy10 <= -50 60
+expect vy10 == -64

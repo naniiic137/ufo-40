@@ -92,6 +92,7 @@ when there is more above or below.
 | 06 | **TIN TROOP** | Mortol | 20 lives that carry through ten levels, the arrow, bomb and stone sacrifices, bodies as ledges and weights, water, fire and plants, a ship that drops the next life | a toy army in a toymaker's house, the Jack of the Chest, 10 new levels |
 | 07 | **SKYWELL** | Velgress | a random shaft of crumbling platforms, a roller that only follows you up, stun instead of damage, four-way shooting, a shop between levels, a key bird, a locked fourth level | Kip the scrap-diver, the Grinder, the Tinker, the Well Eye |
 | 09 | **BANNERFALL** | Attactics | a 6×8 field between two keeps, a countdown turn where you drag troops within your half, the same end-of-turn order and clashes, eight unit types with promotions and heroes, the original's 24 campaign battles, ranked, survival and 2P versus | the Marigold Guard and the Thistle Host, all units and battle names |
+| 13 | **DUSKLING** | Mooncat | every way on the D-pad is left and both buttons are right (or the other way round); a jump goes toward the side held (higher the longer you press), low hops, rolls and sprints, somersaults, and a slam that pauses with a "!" and drops straight down; spiked foes flipped by a slam beside them and kicked away; one touch and back to the room's start, as often as it takes; flowers that mean a warp, stone faces that show hidden ledges, warps within warps to three eggs and three bosses, 42 rooms, 2P co-op | the duskling and the dayling, the Hush Wood, the Sunken Mere, the Old Steps and the Humming Works, the Ember Caves and the Windy Heights, the Brass Warden, the Ember Hermit and the Old Badger, 42 new rooms |
 | 10 | **BOOMTOWN** | Devilition | a 10 × 8 board, pieces dealt three at a time from bags of six, nine piece patterns (rockets land on their own pad), one detonation a night whose chain sets off every piece it reaches, demons that take one or two hits or heal, a hole a night, the original's round table, a 10-hit boss in the middle four tiles, the win score and clock bonus | Hazel the fireworks maker, Mossbury's folk, the bogles and the Bog King, eight fireworks |
 | 14 | **CUTLASS CUP** | Bushido Ball | first to 8 points, a ball that gets faster with every return, aimed, lobbed and curved strikes, secondary weapons and charged super shots, the fouls and penalty points, six fighters, a five-match tournament, 2P versus and co-op doubles | six corsairs, the galley *Merry Mackerel*, old Bosun Crabbe |
 | 15 | **FENNEC FOUNTAIN** | Block Koala | pushing numbered blocks (never into a heavier one, a 1 that can't move is taken in), grey at five, blue and black blocks, mimics, arrows, stone patches and doors, unlimited undo and a room menu, fifty rooms behind gates, a room editor | Fen the fennec, a dry spring garden, 50 new rooms |
@@ -103,7 +104,7 @@ when there is more above or below.
 | 30 | **FLINTHOLD** | Rock On! Island | waves down fixed roads to a cave with 30 hearts, a build phase as long as you like and a horn to start the wave, a pay-out between waves, a heroine who walks and throws eight ways, ten hunters in three upgrade trees, hens cooked by fire pits for meat (99 at most), fire pits that boost hunters, the original's beasts and bosses, 10 stages and 3 villages (two hidden), the Four Lords together in the last wave | Pim of the Hearth Clan, Flint Isle and its 13 layouts, the Four Lords of the Scale, every beast, hunter and villager |
 | 41 | **RIMSHIRE** | Lords of Diskonia | a board where two banners take turns stepping along roads, trails a banner can't step back onto that pull an army back when struck, inns, tomes, seams and chests; flick battles on fields built from the four tiles round the fight: a queue of three, aim, charge and launch, knocks that hurt by the striking disk's own melee, water, the closing haze and stalemates; the original's 15 disks with their numbers, 8 skills, 10 campaign wars, the streak and 2P | Rimshire, the Brass and Plum banners, the Plum Empress, Lady Brass's letters, all 16 disks, 10 new boards |
 | 47 | **WOBBLE DERBY** | Quibble Race | three punters and three runners a race, odds from a form book of twenty unseen races, rising bet caps and an open last race, one tip a race, five dirty tricks and a minder with the same prices and fines, a lender at 15 % compounded, sponsoring from a shortlist and a coach, meteors, garbage and smog, 26 runners in the same speed and clumsiness bands, 3-player hot-seat | Crater Downs, the 26 wobblers, the sixteen punters (five of them UFO 40 cameos), the Fixer, the Lender and the Wobble Wire |
-| 08, 11–13, 17, 19–24, 26–27, 29, 31–40, 42–45, 48–50 | *coming soon* | | | still in the saucer's cargo hold |
+| 08, 11–12, 17, 19–24, 26–27, 29, 31–40, 42–45, 48–50 | *coming soon* | | | still in the saucer's cargo hold |
 
 Every cartridge has three goals, which follow the original's own three: a
 **Beacon** (a side challenge), the **Saucer** (beating the game) and the
@@ -366,6 +367,52 @@ the top.
   look, the keeps, the battle names and every line of text, the march and the
   battle music.
 
+### 13 · DUSKLING
+
+<p align="center">
+  <img src="docs/shots/duskling.gif" width="640" alt="Duskling: the pink duskling jumps, somersaults and slams through the Hush Wood">
+</p>
+<p align="center">
+  <img src="docs/shots/duskling_mere.png" width="320" alt="The Sunken Mere">
+  <img src="docs/shots/duskling_eyes.png" width="320" alt="Fallen ceiling eyes in the Old Steps">
+  <img src="docs/shots/duskling_heights.png" width="320" alt="The Windy Heights">
+  <img src="docs/shots/duskling_egg.png" width="320" alt="The amber egg opens">
+</p>
+
+*A tribute to **Mooncat** (UFO 50 #13).*
+
+- **Plays the same:** the pad has two sides. Every way on the D-pad walks
+  left and both buttons walk right (pad B on the title turns it round);
+  hold one side and press the other to jump toward the side held, longer
+  for higher. Tap and then press both for a low hop, double tap to roll
+  (hold it to sprint, with more time to jump off an edge), double tap in
+  the air to somersault, and press the other side again in the air to
+  slam: a moment's pause with a "!", then straight down. A slam beats foes
+  and bounces you the way you hold (or straight up), drops through pink
+  ledges, and flips walkers next to it so they can be kicked away; spiked
+  prickles can only be beaten that way. One touch ends you, and you come
+  back where you came into the room, as often as it takes. Nothing is
+  saved on the way.
+- **Secrets:** some creatures only just miss you, some are ledges, some
+  can be knocked about. Flowers mean a warp is somewhere on the screen;
+  warps are never drawn until touched. Stone faces show hidden ledges when
+  you jump over them twice, springs hide in plain sight, ceiling eyes drop,
+  roll and leap when you slam, and mushroom caps spring you only when
+  slammed.
+- **Structure:** it opens as an orange dayling drifts down into a dusk wood
+  and falls into a pit whose far side isn't there. Then the duskling's
+  main way runs through the wood (where the Ember Hermit throws sparks and
+  runs off), the mere, the ruins and the machine works to the Brass Warden
+  and the white egg. Warps skip ahead (one goes back to the start), and
+  warps within warps open the amber way to the Ember Hermit and the rose
+  way to the Old Badger, each with its egg: every egg is an ending. 42
+  rooms, ten of them pockets off every egg's way; two players on PC. A
+  route finder over the real rules recorded a crossing of every room, warp
+  and egg, and the tests play them back with button presses.
+- **Ours:** the duskling, the dayling and its little light, the Hush Wood,
+  the Sunken Mere, the Old Steps, the Humming Works, the Ember Caves and
+  the Windy Heights, every creature and boss, every secret's solution, what
+  the eggs hold, all 42 rooms and the music.
 ### 10 · BOOMTOWN
 
 <p align="center">
@@ -796,7 +843,7 @@ Download `UFO40-windows.zip` from the releases and run `ufo40.exe`.
 
 - **START** opens the pause menu in every game: Resume, Restart, Controls, Quit.
 - **SELECT** opens Options in the library, and **B** goes back to the main menu.
-- **Two players:** the 2-player modes of Wet Paint, Bannerfall and Cutlass Cup take two
+- **Two players:** the 2-player modes of Wet Paint, Bannerfall, Duskling and Cutlass Cup take two
   gamepads, or split the keyboard: player 1 on WASD + F/G, player 2 on the
   arrows + K/L. On the Vita (one controller) those modes are locked.
 - On phones the web page shows an on-screen D-pad with A, B, START and SELECT.
@@ -911,6 +958,9 @@ src/platform/headless/ scripted test runner, PNG / GIF / WAV writers, Vita LiveA
     can be climbed.
   - Fennec Fountain ships every room with its shortest solution, and a test
     plays all fifty with button presses on the real rules.
+  - Duskling has a route finder that searches button patterns on its real
+    rules; every room, warp and egg has a test replaying the presses it
+    found, and switching a secret off shows which rooms cannot be crossed without it.
   - Wet Paint checks that all 26 courses are sound, and its demo driver
     (the same one that drives Foxy) plays a run from the title screen.
 

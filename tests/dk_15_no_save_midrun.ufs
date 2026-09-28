@@ -1,0 +1,20 @@
+# DUSKLING: nothing is saved on the way. Leaving in the middle of a run
+# loses it; only the eggs, the warps and the rooms seen are remembered.
+game duskling
+wait 5
+press A
+wait 5
+expect state == 2
+expect room == 0
+cheat room 12
+wait 30
+expect seen >= 2
+reload
+game duskling
+wait 5
+expect state == 0
+expect seen >= 2
+press A
+wait 5
+expect state == 2
+expect room == 0

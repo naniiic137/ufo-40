@@ -1,0 +1,98 @@
+# DUSKLING M12, BROKEN STAIR (room 12): the broken stair (the mole's tent), a pebble beetle over the thorns, a climb, a low tunnel and a gulper.
+# Played from its way in with plain button presses (LEFT is the D-pad
+# side, A the button side), found once by the route finder.
+game duskling
+wait 5
+cheat room 12
+hold A 2
+wait 2
+hold A 30
+hold LEFT+A 16
+hold A 22
+hold LEFT+A 16
+hold A 12
+hold LEFT+A 2
+hold A 44
+hold LEFT+A 16
+hold LEFT 25
+hold A 5
+hold LEFT+A 16
+wait 14
+hold A 2
+wait 2
+hold A 28
+hold LEFT+A 16
+hold A 12
+hold LEFT+A 2
+hold A 30
+wait 2
+hold A 10
+hold LEFT+A 16
+wait 6
+hold A 2
+wait 2
+hold A 22
+hold LEFT+A 16
+wait 4
+hold A 2
+wait 2
+hold A 17
+hold LEFT 5
+hold LEFT+A 1
+hold A 38
+hold LEFT+A 7
+wait 4
+hold A 2
+wait 2
+hold A 12
+hold LEFT 5
+hold LEFT+A 1
+hold A 44
+hold LEFT 15
+hold A 2
+wait 2
+hold A 30
+hold LEFT+A 16
+hold A 37
+hold LEFT 5
+hold LEFT+A 16
+hold A 27
+hold A 5
+hold LEFT+A 1
+hold A 28
+wait 160
+hold LEFT 6
+hold A 5
+hold LEFT+A 7
+hold LEFT 41
+hold LEFT+A 16
+hold LEFT 12
+hold LEFT+A 2
+wait 3
+hold A 40
+wait 10
+hold LEFT 6
+hold A 5
+hold LEFT+A 7
+hold A 30
+hold LEFT+A 16
+wait 14
+hold A 2
+wait 2
+hold A 23
+hold LEFT 3
+hold A 2
+wait 2
+hold A 10
+hold LEFT+A 16
+wait 6
+hold A 2
+wait 2
+hold A 30
+hold LEFT+A 7
+wait 14
+hold A 2
+wait 2
+hold A 18
+wait 2
+expect room == 13

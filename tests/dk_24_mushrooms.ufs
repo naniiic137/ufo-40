@@ -1,0 +1,15 @@
+# DUSKLING: in the mushroom hollow the caps are solid, but only a slam
+# springs off them; a plain landing is just a landing.
+game duskling
+wait 5
+cheat room 34
+cheat pos 100 101
+wait 10
+expect ground == 1
+expect py == 111
+hold A 4
+hold A+UP 2
+hold A 2
+hold A+UP 1
+waituntil vy10 <= -55 40
+expect alive == 1

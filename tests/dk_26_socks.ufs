@@ -1,0 +1,28 @@
+# DUSKLING: with two players, bouncing on the other's head three times in a
+# row, landing nowhere else in between, is remembered for the end.
+game duskling
+wait 5
+press DOWN
+press A
+wait 3
+cheat room2 1
+cheat pos2 250 121
+cheat pos 250 60
+waituntil head_bounces == 1 60
+waituntil head_bounces == 2 90
+expect socks == 0
+waituntil head_bounces == 3 90
+expect socks == 1
+# broken by a landing in between: no line
+cheat room2 1
+wait 2
+expect socks == 0
+cheat pos2 250 121
+cheat pos 250 60
+waituntil head_bounces == 2 150
+cheat pos2 400 121
+waituntil ground == 1 60
+cheat pos2 250 121
+cheat pos 250 60
+waituntil head_bounces == 4 150
+expect socks == 0

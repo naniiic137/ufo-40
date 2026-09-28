@@ -1,0 +1,18 @@
+# DUSKLING: START pauses; RETRY ROOM, under RESUME, starts the room over
+# as a fall would.
+game duskling
+wait 5
+cheat room 3
+wait 2
+hold A 60
+expect px > 60
+press START
+wait 2
+expect paused == 1
+press DOWN
+wait 2
+press A
+wait 2
+expect paused == 0
+expect px == 11
+expect deaths == 1

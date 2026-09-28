@@ -1,0 +1,48 @@
+# DUSKLING: two players share the screen (on PC). Landing on the other's
+# head bounces you and stuns them; a fallen duskling comes back where the
+# room was entered while the other plays on; either one reaching the way
+# out takes both.
+game duskling
+wait 5
+press DOWN
+press A
+wait 3
+expect state == 2
+expect players == 2
+cheat room2 1
+wait 3
+cheat pos 200 60
+cheat pos2 201 101
+wait 30
+expect head_bounces == 1
+expect p2_stun > 0
+# player 2 walks: its own pad
+cheat room2 1
+wait 3
+hold P2A 20
+expect p2x > 30
+expect px == 11
+# player 2 falls in the dip; player 1 plays on
+cheat pos2 325 150
+wait 5
+cheat pos2 325 170
+expect p2_alive == 1
+cheat room2 2
+wait 3
+cheat pos2 205 101
+hold P2A
+waituntil p2_alive == 0 60
+release
+expect alive == 1
+wait 40
+expect p2_alive == 1
+expect room == 2
+# player 1 reaches the way out: both go on
+cheat room2 1
+wait 3
+cheat pos 1575 141
+hold A 20
+expect room == 2
+wait 20
+expect players == 2
+expect p2_alive == 1

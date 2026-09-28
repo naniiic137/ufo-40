@@ -1,0 +1,84 @@
+# DUSKLING: the opening, with nothing but button presses from the title:
+# the dayling's walk into the pit, the waking, and the first room crossed
+# (the same presses as dk_r01).
+game duskling
+wait 5
+press A
+waituntil ground == 1 200
+hold A
+waituntil state == 3 600
+release
+waituntil state == 2 300
+expect room == 1
+hold A 2
+wait 2
+hold A 30
+hold LEFT+A 16
+wait 6
+hold A 2
+wait 2
+hold A 30
+hold LEFT+A 16
+wait 4
+hold A 2
+wait 2
+hold A 25
+hold LEFT+A 16
+wait 14
+hold A 2
+wait 2
+hold A 31
+hold LEFT+A 16
+wait 14
+hold A 2
+wait 2
+hold A 23
+wait 2
+hold A 10
+hold LEFT+A 16
+wait 6
+hold A 2
+wait 2
+hold A 21
+hold LEFT+A 16
+wait 14
+hold A 2
+wait 2
+hold A 21
+hold LEFT 5
+hold LEFT+A 1
+hold A 38
+hold LEFT+A 7
+wait 4
+hold A 2
+wait 2
+hold A 12
+hold LEFT 33
+hold A 2
+wait 2
+hold A 10
+hold LEFT+A 16
+hold A 45
+wait 2
+hold A 30
+hold LEFT+A 16
+wait 6
+hold A 2
+wait 2
+hold A 25
+hold LEFT 3
+hold A 5
+hold LEFT+A 7
+wait 14
+hold A 2
+wait 2
+hold A 26
+hold LEFT+A 7
+wait 14
+hold A 2
+wait 2
+hold A 21
+wait 2
+wait 2
+expect room == 2
+expect deaths == 0

@@ -1,0 +1,16 @@
+# DUSKLING: a ceiling eye that has dropped rolls slowly along the floor,
+# turning at walls and edges, and is still a block to stand on.
+game duskling
+wait 5
+cheat room 13
+wait 2
+cheat pos 60 141
+wait 5
+hold A 4
+hold A+UP 4
+hold A 2
+hold A+UP 1
+waituntil foe_eye_state == 2 90
+expect foe_eye_x == 120
+wait 60
+expect foe_eye_x < 120

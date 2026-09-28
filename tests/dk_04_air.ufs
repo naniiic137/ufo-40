@@ -1,0 +1,78 @@
+# DUSKLING: in the air a double tap is a somersault that adds speed that
+# way (or takes it off the other way), once a jump. Holding one side and
+# pressing the other again is the slam: the duskling stops in the air for a
+# moment with a "!", then drops straight down, and bounces off the ground
+# the way the side held points, or straight up with nothing held.
+game duskling
+wait 5
+cheat room 1
+cheat pos 100 141
+wait 10
+hold A 6
+hold A+LEFT 16
+wait 4
+hold A 2
+wait 2
+hold A 2
+expect spun == 1
+expect vx10 == 30
+hold A 60
+expect last_dx >= 70
+# the other way: it slows the jump down
+hold A 6
+hold A+LEFT 16
+wait 4
+hold UP 2
+wait 2
+hold UP 2
+expect spun == 1
+expect vx10 <= -5
+hold UP 60
+# a second double tap in the same jump does nothing
+hold A 6
+hold A+LEFT 10
+wait 2
+hold A 2
+wait 2
+hold A 2
+expect spun == 1
+hold A 2
+wait 2
+hold A 2
+expect vx10 == 30
+hold A 60
+# the slam: a pause in the air, then straight down
+cheat pos 100 141
+wait 10
+hold A 6
+hold A+LEFT 16
+hold A 4
+hold A+UP 1
+expect act == 4
+expect vy10 == 0
+expect vx10 == 0
+hold A 5
+expect vy10 == 0
+expect vx10 == 0
+hold A 2
+expect vy10 == 50
+expect vx10 == 0
+# held right as it lands: the bounce goes right
+hold A
+waituntil act == 5 40
+release
+expect vy10 < 0
+expect vx10 == 12
+hold A 40
+expect ground == 1
+# nothing held as it lands: straight up
+cheat pos 100 141
+wait 10
+hold A 6
+hold A+LEFT 16
+hold A 4
+hold A+UP 1
+release
+waituntil act == 5 40
+expect vx10 == 0
+expect vy10 < 0

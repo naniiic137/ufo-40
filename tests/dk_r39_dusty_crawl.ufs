@@ -1,0 +1,23 @@
+# DUSKLING X3, DUSTY CRAWL (room 39): the dusty crawl, a warp pocket in the ruins (the mole's tent again) that skips the rest of the steps.
+# Played from its way in with plain button presses (LEFT is the D-pad
+# side, A the button side), found once by the route finder.
+game duskling
+wait 5
+cheat room 39
+hold A 2
+wait 2
+hold A 30
+hold LEFT+A 16
+wait 6
+hold A 2
+wait 2
+hold A 27
+hold LEFT+A 16
+wait 14
+hold A 2
+wait 2
+hold A 26
+hold LEFT+A 1
+hold A 26
+wait 2
+expect room == 17

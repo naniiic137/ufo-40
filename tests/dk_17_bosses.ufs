@@ -1,0 +1,59 @@
+# DUSKLING: the three bosses. Only a slam hurts them, and only while they
+# are solid; touching one otherwise ends you. The Brass Warden takes six
+# slams and fades out now and then; the Ember Hermit throws fire from his
+# perches; the Old Badger climbs after you onto the ledges and blasts.
+game duskling
+wait 5
+cheat room 20
+wait 2
+expect boss_hp == 6
+expect boss_down == 0
+expect tile_30_14 == 1
+hold A
+waituntil alive == 0 400
+release
+# a slam while it is solid: one hit, and it flashes
+cheat room 20
+wait 2
+waituntil boss_solid == 1 200
+cheat above_boss 10
+hold A 1
+hold A+UP 1
+waituntil boss_hp == 5 20
+expect alive == 1
+expect boss_solid == 0
+# while it fades through, a slam passes through it
+cheat room 20
+wait 2
+waituntil boss_solid == 0 400
+waituntil boss_x < 150 60
+cheat above_boss 10
+hold A 1
+hold A+UP 1
+wait 10
+expect boss_hp == 6
+# the last slam opens the door
+cheat room 20
+cheat boss_hp 1
+wait 2
+waituntil boss_solid == 1 200
+cheat above_boss 10
+hold A 1
+hold A+UP 1
+waituntil boss_down == 1 20
+expect tile_30_14 == 0
+expect alive == 1
+# the Ember Hermit throws fire
+cheat room 27
+wait 2
+expect boss_hp == 5
+expect shots == 0
+waituntil shots == 3 200
+# the Old Badger follows you up onto a ledge
+cheat room 35
+wait 2
+expect boss_hp == 8
+cheat pos 30 121
+wait 30
+expect boss_y > 130
+waituntil boss_y < 110 300
