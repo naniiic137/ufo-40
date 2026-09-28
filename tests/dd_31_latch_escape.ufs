@@ -1,0 +1,127 @@
+# DOT & DASH: the way out. Latchtown sits on the top of the door, reached on
+# a commanded moth. Pell, locked up by a tin knight, can be let out; Cook
+# Ratchet wants Granny's cat food; the tin mage opens the throne hall for 50.
+# Queen Tabitha takes 500 glints, keeps Dash, and sets Sir Sprocket on Dot.
+# His armour turns every blow, but when he throws his head, Dot climbs onto
+# his shoulders and shrinks down the neck (the second tonic) to break his
+# mainspring. The door opens: the ending, the credits, and the Saucer goal.
+game dotdash
+wait 5
+cheat newgame
+cheat god
+cheat up tonic1
+cheat up tonic2
+cheat up buzz1
+cheat glints 600
+# Granny's cat food
+cheat area 1 30 16
+cheat nodash
+wait 5
+cheat bot_to obj:18
+botuntil bot_state == 2 3000
+press B
+wait 20
+expect carry == 18
+# up the west pot to its left rim, and onto the moth
+cheat area 0 47 65
+cheat nodash
+wait 5
+waituntil foey_3 <= 440 400
+cheat bot_tile 39 61
+botuntil bot_state == 2 2000
+waituntil foey_3 >= 484 400
+press A 12
+waituntil ground == 1 90
+expect riding == 303
+press UP 2
+waituntil ty <= 16 700
+press DOWN 2
+wait 10
+hold LEFT 20
+waituntil ground == 1 60
+wait 10
+expect ty == 17
+expect carry == 18
+# along the door top to Latchtown
+cheat bot_tile 35 17
+botuntil bot_state == 2 3000
+hold DOWN 100
+waituntil trans == 0 60
+expect town == 18
+cheat bot_to npc:43
+botuntil bot_state == 2 3000
+press UP
+wait 5
+cheat bot_talk
+botuntil bot_state == 2 900
+expect flag.catfood_done == 1
+cheat bot_to npc:42
+botuntil bot_state == 2 3000
+press UP
+wait 5
+cheat bot_talk
+botuntil bot_state == 2 900
+press LEFT
+press A
+wait 5
+expect flag.pell_freed == 1
+cheat skip_dialog
+cheat bot_to npc:40
+botuntil bot_state == 2 3000
+press UP
+wait 5
+cheat bot_talk
+botuntil bot_state == 2 900
+press LEFT
+press A
+wait 5
+expect flag.throne_open == 1
+cheat skip_dialog
+# the queen
+cheat dash
+wait 2
+expect dash == 1
+cheat bot_to npc:39
+botuntil bot_state == 2 4000
+press UP
+wait 5
+cheat bot_talk
+botuntil bot_state == 2 900
+press LEFT
+press A
+wait 5
+expect flag.paid_queen == 1
+expect dash == 0
+cheat bot_talk
+botuntil bot_state == 2 900
+expect foes_25 == 1
+# Sir Sprocket: onto his shoulders while his head is off, and shrink
+waituntil foestate_25 == 1 600
+cheat above_foe 25
+waituntil riding == 325 30
+hold DOWN 100
+waituntil trans == 0 60
+expect scale == 3
+expect level_kind == 2
+expect level_id == 2
+# his insides: to the mainspring
+cheat obj 16
+cheat bot_hunt 26
+botuntil foes_26 == 0 12000
+expect flag.sprocket_dead == 1
+cheat bot_clear
+cheat bot_talk
+botuntil bot_state == 2 900
+waituntil state == 3 120
+expect flag.escaped == 1
+expect goals.dotdash & 2
+wait 250
+press A
+wait 40
+expect state == 4
+press A
+wait 60
+expect state == 2
+expect scale == 0
+expect dash == 1
+cheat skip_dialog

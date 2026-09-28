@@ -549,20 +549,24 @@ static int dd_cheat(const char *cmd) {
         return 1;
     }
     if (sscanf(cmd, "area %d %d %d", &a, &b, &c) == 3) {
-        if (dd_scale == SC_FULL) dd_scale = SC_SMALL;
+        bool was_full = dd_scale == SC_FULL;
+        if (was_full) dd_scale = SC_SMALL;
         while (dd_depth > 0) dd_pop_level();
         dd_goto_area(a, b, c);
+        if (was_full && dd_carry < 0) { dd_restore_carry_after_load(); dd_sv.carry = 0; }
         return 1;
     }
     if (sscanf(cmd, "micro %d %d %d %d", &a, &b, &c, &d) == 4) {
         /* micro AREA ROW X SUBX : go straight into the micro strip over that tile */
-        if (dd_scale == SC_FULL) dd_scale = SC_SMALL;
+        bool was_full = dd_scale == SC_FULL;
+        if (was_full) dd_scale = SC_SMALL;
         while (dd_depth > 0) dd_pop_level();
         if (dd_lv.d.id != a) dd_goto_area(a, c, b - 1);
         dd_p.x = (float)(c * DD_TS + d) - dd_p.w / 2;
         dd_p.y = (float)(b * DD_TS) - dd_p.h;
         dd_p.ground = 1;
         if (!dd_has(U_TONIC1)) dd_sv.ups |= 1u << U_TONIC1;
+        if (was_full && dd_carry < 0) { dd_restore_carry_after_load(); dd_sv.carry = 0; }
         dd_change_scale(1);
         while (dd_trans > 0) dd_play_update();
         return 1;
@@ -577,6 +581,22 @@ static int dd_cheat(const char *cmd) {
                     dd_p.vx = dd_p.vy = 0;
                     return 1;
                 }
+        return 1;
+    }
+    if (sscanf(cmd, "special %d", &a) == 1) {
+        /* straight into a hand-made micro or deep place (tests) */
+        LevelDesc sd;
+        memset(&sd, 0, sizeof sd);
+        sd.scale = (uint8_t)(a == SP_DASHFUR || a == SP_PUFFFUR ? SC_MICRO : SC_DEEP);
+        sd.kind = LV_SPECIAL;
+        sd.id = (uint8_t)a;
+        if (dd_scale == SC_FULL) dd_scale = SC_SMALL;
+        dd_sv.fx = (int16_t)dd_p.x;
+        dd_sv.fy = (int16_t)dd_p.y;
+        dd_push_level(&sd);
+        dd_p.x = 4 * DD_TS;
+        dd_p.y = (float)((a == SP_HERMIT ? 15 : a == SP_DEEPSHELF ? 19 : 20) * DD_TS) - 13;
+        dd_play_enter_level(1);
         return 1;
     }
     if (!strcmp(cmd, "shrink")) { dd_p.ground = 1; dd_change_scale(1); while (dd_trans > 0) dd_play_update(); return 1; }

@@ -424,7 +424,7 @@ static bool spot_clear(int tx, int ty) {
     for (int i = 0; i < DD_MAX_ENTS; i++) {
         const Ent *e = &dd_ent[i];
         if (!e->alive || (e->kind != EK_NPC && e->kind != EK_DOOR && e->kind != EK_STAND)) continue;
-        if (rects_overlap((int)x - 2, (int)y, BW + 4, BH, (int)e->x, (int)e->y, e->w, e->h)) return false;
+        if (rects_overlap((int)x, (int)y, BW, BH, (int)e->x, (int)e->y, e->w, e->h)) return false;
     }
     return true;
 }
@@ -506,6 +506,15 @@ int dd_bot_unreachable(void) {
         bool ok = node_reached(tx, ty) || node_reached(tx - 1, ty) || node_reached(tx + 1, ty);
         if (!ok) { bad++; fprintf(stderr, "  unreachable: kind %d sub %d at %d,%d\n", e->kind, e->sub, tx, ty); }
     }
+    /* the first ground from the top, across hand-made places */
+    if (dd_lv.d.kind != LV_STRIP)
+        for (int x = 2; x < LW - 2; x += 5)
+            for (int y = 1; y < LH - 1; y++)
+                if (standable(x, y)) {
+                    if (DD_TILE[lv_tile(&dd_lv, x, y)].flags & (TF_HURT | TF_GOO)) break; /* a pit of thorns */
+                    if (!node_reached(x, y) && !node_reached(x + 1, y) && !node_reached(x - 1, y)) { bad++; fprintf(stderr, "  unreachable ground at %d,%d\n", x, y); }
+                    break;
+                }
     /* and the ground of every chunk of a strip */
     if (dd_lv.d.kind == LV_STRIP)
         for (int c = 0; c < dd_lv.d.n; c++)

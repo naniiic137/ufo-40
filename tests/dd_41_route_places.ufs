@@ -51,6 +51,7 @@ wait 5
 expect unreachable == 0
 cheat bot_tile 150 15
 botuntil bot_state == 2 9000
+expect unreachable == 0
 # Dash's fur and Puffin's fluff
 cheat up tonic1
 cheat up tonic2

@@ -184,7 +184,7 @@ static const FoeDef FOE[F_KINDS] = {
     [F_GERM] = {8, 8, 1, 1, 0.4f, FF_GERM | FF_FLY},
     [F_GERM2] = {8, 8, 1, 1, 0.4f, FF_GERM | FF_FLY},
     [F_WIGGLER] = {10, 4, 1, 1, 0.3f, FF_GERM},
-    [F_GULP] = {12, 9, 3, 1, 0.25f, 0},
+    [F_GULP] = {12, 9, 3, 1, 0.6f, 0},
     [F_POD] = {8, 8, 3, 1, 0, FF_SHOOT | FF_NOLIFT},
     [F_TINMOUSE] = {10, 10, 3, 2, 0.6f, 0},
     [F_TINMAGE] = {10, 14, 6, 2, 0.3f, FF_FLY | FF_SHOOT | FF_NOLIFT},
@@ -625,6 +625,16 @@ static void foe_update(int i) {
     case F_HOPPER:
         break;
     default: {
+        /* the gulp blob goes after the nearest ant it can see */
+        if (e->sub == F_GULP && e->t % 20 == 0) {
+            float best = 130;
+            for (int j = 0; j < DD_MAX_ENTS; j++) {
+                const Ent *o = &dd_ent[j];
+                if (!o->alive || o->kind != EK_FOE || (o->sub != F_ANT && o->sub != F_LANCER) || fabsf(o->y - e->y) > 16) continue;
+                float d = fabsf(o->x - e->x);
+                if (d < best) { best = d; e->dir = o->x > e->x; }
+            }
+        }
         /* walkers: turn at walls and edges */
         e->vx = e->dir ? D->speed : -D->speed;
         if (!ledge_ahead(e) && e->ground) e->dir ^= 1, e->vx = -e->vx;
@@ -766,9 +776,17 @@ static void obj_break(int i) {
     float cx = e->x + e->w / 2, cy = e->y + e->h / 2;
     e->alive = 0;
     switch (e->sub) {
-    case O_HEARTBOX: dd_add_pick(P_HEART, cx - 3, cy - 4, 0); break;
+    case O_HEARTBOX: {
+        float gy = cy;
+        while (gy < dd_lv.h * DD_TS && !(tflags(&dd_lv, DD_TS, cx, gy + 4) & (TF_SOLID | TF_ONEWAY))) gy += 1;
+        dd_add_pick(P_HEART, cx - 3, gy - 3, 0);
+        break;
+    }
     case O_GIFTBOX: {
-        int j = dd_add_pick(P_UPGRADE, cx - 3, cy - 4, e->param);
+        /* the prize settles on the ground below where the box broke */
+        float gy = cy;
+        while (gy < dd_lv.h * DD_TS && !(tflags(&dd_lv, DD_TS, cx, gy + 4) & (TF_SOLID | TF_ONEWAY))) gy += 1;
+        int j = dd_add_pick(P_UPGRADE, cx - 3, gy - 3, e->param);
         if (j >= 0) dd_ent[j].pid = e->pid;
         break;
     }
@@ -809,7 +827,7 @@ static void obj_land(int i, bool on_ground) {
             for (int j = 0; j < DD_MAX_ENTS; j++) {
                 Ent *o = &dd_ent[j];
                 if (o->alive && o->kind == EK_FOE && o->ground && !(FOE[o->sub].flags & FF_BOSS)) { o->stun = 180; o->flip = 1; o->vy = -2; }
-                if (o->alive && o->kind == EK_DOOR && dd_door_is(o->param, "owl") && fabsf(o->x - e->x) < 40 && fabsf(o->y - e->y) < 40 && !dd_has(U_WINGS)) {
+                if (o->alive && o->kind == EK_DOOR && dd_door_is(o->param, "owl") && fabsf(o->x - e->x) < 88 && fabsf(o->y - e->y) < 72 && !dd_has(U_WINGS)) {
                     dd_set(FL_WINGS_DONE);
                     dd_give_upgrade(U_WINGS);
                     dd_say("THE STONE OWL", "THE OLD OWL SHAKES OFF A CENTURY OF DUST. SOMETHING LIGHT AND FEATHERY FALLS AT DASH'S PAWS: KITE WINGS!");

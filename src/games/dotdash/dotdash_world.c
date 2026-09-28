@@ -223,6 +223,7 @@ static void room_tiles(void) {
     for (int k = 0; k < 6; k++) {
         fill(54, IVY[k], 56, IVY[k], T_LEAF);
         fill(34, IVY[k], 36, IVY[k], T_LEAF);
+        fill(122, IVY[k] + 1, 124, IVY[k] + 1, T_LEAF); /* the east pot's ivy */
     }
     bgf(45, 30, 45, 65, BG_STALK);
     for (int k = 0, y = 63; y >= 33; k++, y -= 3) {
@@ -459,8 +460,8 @@ static void area_lair(void) {
     if (!spawning) {
         bgf(0, 0, 39, 21, BG_DARK);
         frame_box(40, 22, T_WOOD, 19);
-        fill(6, 14, 10, 14, T_LEDGE);
-        fill(29, 14, 33, 14, T_LEDGE);
+        fill(6, 15, 10, 15, T_LEDGE);
+        fill(29, 15, 33, 15, T_LEDGE);
         return;
     }
     door(DR_LAIR_OUT, 3, 18);
@@ -491,10 +492,11 @@ static void area_siege(void) {
         fill(62, 12, 67, 12, T_LEDGE);
         fill(74, 16, 76, 19, T_CARD2);
         fill(78, 12, 80, 19, T_CARD2);           /* the tall tower */
+        fill(81, 16, 82, 16, T_LEDGE);           /* a step down its far side */
         fill(82, 8, 86, 8, T_LEDGE);
         fill(90, 16, 94, 19, T_BONE);
         fill(98, 12, 103, 12, T_LEDGE);
-        fill(108, 15, 110, 19, T_CARD2);
+        fill(108, 16, 110, 19, T_CARD2);
         fill(116, 16, 119, 19, T_BONE);
         fill(122, 12, 127, 12, T_LEDGE);
         /* the siege engine's field */
@@ -640,28 +642,31 @@ static void sp_sprocket(void) {
         fill(0, 0, 1, 23, T_METAL);
         fill(98, 0, 99, 23, T_METAL);
         fill(0, 20, 99, 23, T_METAL);
-        fill(10, 20, 13, 20, T_THORN);
-        fill(12, 16, 16, 16, T_GEAR);
-        fill(24, 20, 29, 20, T_THORN);
-        fill(22, 15, 26, 15, T_GEAR);
-        fill(29, 12, 33, 12, T_GEAR);
-        fill(36, 16, 40, 16, T_GEAR);
-        fill(44, 18, 46, 19, T_METAL);
-        fill(50, 20, 57, 20, T_THORN);
-        fill(49, 15, 52, 15, T_GEAR);
-        fill(56, 13, 60, 13, T_GEAR);
-        fill(63, 16, 66, 16, T_GEAR);
-        fill(70, 17, 72, 19, T_METAL);
-        fill(78, 14, 81, 14, T_LEDGE);
-        fill(86, 14, 89, 14, T_LEDGE);
+        fill(10, 20, 13, 20, T_THORN);           /* a pit of spikes to jump */
+        fill(16, 16, 19, 16, T_GEAR);
+        fill(22, 20, 27, 20, T_THORN);           /* a wider one, a cog to hop on */
+        fill(24, 18, 25, 19, T_GEAR);
+        fill(34, 16, 36, 19, T_METAL);           /* a bulkhead */
+        fill(40, 15, 44, 15, T_GEAR);
+        fill(48, 20, 55, 20, T_THORN);           /* spikes with two cogs across */
+        fill(50, 18, 51, 19, T_GEAR);
+        fill(53, 18, 54, 19, T_GEAR);
+        fill(62, 17, 64, 19, T_METAL);
+        fill(66, 13, 70, 13, T_GEAR);
+        fill(78, 16, 81, 16, T_LEDGE);
+        fill(86, 16, 89, 16, T_LEDGE);
         return;
     }
     foe(F_SPARK, 20, 10);
     foe(F_SPARK, 44, 9);
-    foe(F_POD, 60, 19);
+    foe(F_POD, 72, 19);
     foe(F_SPARK, 68, 8);
     foe(F_SPRING_CORE, 92, 19);
-    glints_row(29, 11, 5);
+    glints_row(40, 14, 5);
+    glints_row(66, 12, 5);
+    obj(O_PEBBLE, 30, 19);
+    obj(O_AXE, 58, 19);
+    obj(O_PEBBLE, 84, 19);
 }
 
 static void sp_hermit(void) {
@@ -849,7 +854,11 @@ static void house(int x, int w, int h, int roof) {
         if (x - 3 >= 0) fill(OX + imax(0, x - 3), y, OX + x - 2, y, T_LEDGE);
 }
 static void tnpc(int sub, int x) { npc(sub, OX + x, TOWN_H - 1); }
-static void tfoe(int sub, int x) { foe(sub, OX + x, TOWN_H - 1); }
+static void tfoe(int sub, int x) {
+    /* a town's creatures are part of its design: they come even beside the way in */
+    if (!spawning || (dd_no_foes && sub < F_FIRST_BOSS)) return;
+    put(EK_FOE, sub, OX + x, TOWN_H - 1);
+}
 static void tstands(int owner, int x) {
     if (!spawning) return;
     for (int k = 0; k < 3; k++) {
