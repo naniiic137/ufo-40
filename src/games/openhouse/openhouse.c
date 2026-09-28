@@ -3,6 +3,7 @@
  * See docs/games/25-open-house.md. The rules live in openhouse_logic.c;
  * this file is the menus, the party and shop screens, saving and the flow. */
 #include "openhouse.h"
+#include <stddef.h>
 
 enum {
     S_TITLE, S_MODE, S_SCEN, S_INTRO, S_TURN, S_PARTY, S_TARGET, S_FETCH, S_PEEK, S_CONFIRM,
@@ -19,12 +20,35 @@ typedef struct Save {
     uint16_t night_fame[PH_BASES]; /* OPEN ALL NIGHT, per list played: the most fame held at once */
     PhGame run;
 } Save;
-#define SAVE_MAGIC 0x50480002u
+#define SAVE_MAGIC 0x50480003u
+
+/* the second save layout (before the owner's two guests): the same size,
+ * but the stock bought had 46 guests, so the bytes after it sat two earlier */
+#define SAVE_MAGIC_V2 0x50480002u
+typedef struct PhGameV2 {
+    uint8_t scen, npool, pool[PH_POOL_MAX], bought[PH_GUESTS_V2], players, turn, winner, done;
+    Rng rng;
+    PhPlayer pl[2];
+    PhParty party;
+    uint8_t goal, star_party;
+    uint16_t score, nights;
+    uint8_t strikes;
+    uint16_t top_pop;
+    uint8_t base;
+} PhGameV2;
+typedef struct SaveV2 {
+    uint32_t magic;
+    uint8_t won, streak, best_streak, has_run, run_phase;
+    uint8_t code[3];
+    uint16_t random_wins, parties;
+    uint16_t night_best[PH_BASES], night_fame[PH_BASES];
+    PhGameV2 run;
+} SaveV2;
 
 /* the first save layout (before OPEN ALL NIGHT): read once and carried over */
 #define SAVE_MAGIC_V1 0x50480001u
 typedef struct PhGameV1 {
-    uint8_t scen, npool, pool[PH_POOL_MAX_V1], bought[G_COUNT], players, turn, winner, done;
+    uint8_t scen, npool, pool[PH_POOL_MAX_V1], bought[PH_GUESTS_V2], players, turn, winner, done;
     Rng rng;
     PhPlayer pl[2];
     PhParty party;
@@ -91,7 +115,7 @@ static void game_from_v1(PhGame *g, const PhGameV1 *o) {
     g->scen = o->scen;
     g->npool = o->npool > PH_POOL_MAX_V1 ? PH_POOL_MAX_V1 : o->npool;
     memcpy(g->pool, o->pool, PH_POOL_MAX_V1);
-    memcpy(g->bought, o->bought, sizeof g->bought);
+    memcpy(g->bought, o->bought, sizeof o->bought);
     g->players = o->players;
     g->turn = o->turn;
     g->winner = o->winner;
@@ -99,14 +123,62 @@ static void game_from_v1(PhGame *g, const PhGameV1 *o) {
     g->rng = o->rng;
     memcpy(g->pl, o->pl, sizeof g->pl);
     g->party = o->party;
+    g->party.jinx = 0;
     g->goal = 4;
 }
 
+static void game_from_v2(PhGame *g, const PhGameV2 *o) {
+    memset(g, 0, sizeof *g);
+    g->scen = o->scen;
+    g->npool = o->npool > PH_POOL_MAX ? PH_POOL_MAX : o->npool;
+    memcpy(g->pool, o->pool, sizeof g->pool);
+    memcpy(g->bought, o->bought, sizeof o->bought);
+    g->players = o->players;
+    g->turn = o->turn;
+    g->winner = o->winner;
+    g->done = o->done;
+    g->rng = o->rng;
+    memcpy(g->pl, o->pl, sizeof g->pl);
+    g->party = o->party;
+    g->party.jinx = 0;
+    g->goal = o->goal;
+    g->star_party = o->star_party;
+    g->score = o->score;
+    g->nights = o->nights;
+    g->strikes = o->strikes;
+    g->top_pop = o->top_pop;
+    g->base = o->base;
+}
+
+/* the albatross's flag took a padding byte and the stock grew into padding:
+ * a save from before still has the same size and layout past them */
+_Static_assert(offsetof(PhParty, jinx) == offsetof(PhParty, wild) + PH_MAX_CARDS, "jinx sits in the old padding");
+_Static_assert(offsetof(PhParty, peek) == offsetof(PhParty, jinx) + 1, "the party keeps its layout");
+_Static_assert(sizeof(PhGameV2) == sizeof(PhGame) && offsetof(PhGameV2, rng) == offsetof(PhGame, rng), "same run size");
+_Static_assert(sizeof(SaveV2) == sizeof(Save), "same save size");
+
 static void load_save(void) {
-    static union { Save now; SaveV1 v1; } tmp;
+    static union { Save now; SaveV2 v2; SaveV1 v1; } tmp;
     int n = game_save_read(game_current_index(), &tmp, (int)sizeof tmp);
     if (n == (int)sizeof tmp.now && tmp.now.magic == SAVE_MAGIC) sv = tmp.now;
-    else if (n == (int)sizeof tmp.v1 && tmp.v1.magic == SAVE_MAGIC_V1) {
+    else if (n == (int)sizeof tmp.v2 && tmp.v2.magic == SAVE_MAGIC_V2) {
+        /* a save from before the owner's guests keeps everything */
+        static SaveV2 o;
+        o = tmp.v2;
+        memset(&sv, 0, sizeof sv);
+        sv.magic = SAVE_MAGIC;
+        sv.won = o.won;
+        sv.streak = o.streak;
+        sv.best_streak = o.best_streak;
+        sv.has_run = o.has_run;
+        sv.run_phase = o.run_phase;
+        memcpy(sv.code, o.code, sizeof sv.code);
+        sv.random_wins = o.random_wins;
+        sv.parties = o.parties;
+        memcpy(sv.night_best, o.night_best, sizeof sv.night_best);
+        memcpy(sv.night_fame, o.night_fame, sizeof sv.night_fame);
+        game_from_v2(&sv.run, &o.run);
+    } else if (n == (int)sizeof tmp.v1 && tmp.v1.magic == SAVE_MAGIC_V1) {
         /* an older save keeps its lists won, streak, code and run */
         static SaveV1 o;
         o = tmp.v1;
@@ -455,7 +527,7 @@ static void use_action(int slot) {
     sel = slot;
     int t = ph_trouble(&G);
     switch (act) {
-    case A_BOOT: case A_PHOTO: case A_STYLE: case A_MAGIC: case A_CUPID:
+    case A_BOOT: case A_PHOTO: case A_STYLE: case A_MAGIC: case A_CUPID: case A_ENCORE:
         state = S_TARGET;
         state_t = 0;
         for (tcur = 0; tcur < G.party.n && !ph_target_ok(&G, sel, tcur); tcur++) {}
@@ -530,7 +602,7 @@ static void update_target(void) {
         if (!ph_target_ok(&G, sel, tcur)) { sfx_play_name("ph_no"); return; }
         if (ph_act(&G, sel, tcur)) {
             state = S_PARTY;
-            sfx_play_name(act == A_BOOT || act == A_CUPID ? "ph_boot" : act == A_PHOTO ? "ph_cash" : "ph_act");
+            sfx_play_name(act == A_BOOT || act == A_CUPID ? "ph_boot" : act == A_PHOTO || act == A_ENCORE ? "ph_cash" : "ph_act");
             if (act == A_MAGIC) note_arrivals();
             after_change(t);
         }
@@ -1836,6 +1908,8 @@ static int oh_query(const char *key, int *out) {
         *out = n;
         return 1;
     }
+    if (!strncmp(key, "sells", 5)) { *out = ph_list_sells(G.base, atoi(key + 5)); return 1; }
+    if (!strcmp(key, "jinx")) { *out = G.party.jinx; return 1; }
     if (!strcmp(key, "top_pop")) { *out = G.top_pop; return 1; }
     if (!strcmp(key, "star_party")) { *out = G.star_party; return 1; }
     if (!strcmp(key, "night_best")) { *out = sv.night_best[G.base % PH_BASES]; return 1; }
@@ -1933,8 +2007,44 @@ static int oh_cheat(const char *cmd) {
         if (ph_peek_decide(&G, a != 0) && a) { note_arrivals(); after_change(t); }
         return 1;
     }
+    if (sscanf(cmd, "away %d", &a) == 1) {
+        /* every guest of that type still in the guest book stays home tonight */
+        for (int i = 0; i < p->ncards; i++)
+            if (p->card[i].type == a && G.party.where[i] == W_POOL && i != G.party.peek) G.party.where[i] = W_OUT;
+        return 1;
+    }
     if (!strcmp(cmd, "expand")) { ph_expand(&G); return 1; }
     if (!strcmp(cmd, "end")) { start_tally(WHY_HAND); return 1; }
+    if (sscanf(cmd, "oldsave2 %d", &a) == 1) {
+        /* a save in the second layout (before the owner's two guests), with
+         * the run in progress (checked before "oldsave", which would match) */
+        static SaveV2 o;
+        memset(&o, 0, sizeof o);
+        o.magic = SAVE_MAGIC_V2;
+        o.won = (uint8_t)a;
+        o.streak = 1;
+        o.best_streak = 4;
+        o.has_run = 1;
+        o.parties = 9;
+        o.night_best[2] = 3;
+        o.run.scen = G.scen;
+        o.run.npool = G.npool;
+        memcpy(o.run.pool, G.pool, sizeof o.run.pool);
+        memcpy(o.run.bought, G.bought, sizeof o.run.bought);
+        o.run.players = G.players;
+        o.run.turn = G.turn;
+        o.run.winner = G.winner;
+        o.run.done = G.done;
+        o.run.rng = G.rng;
+        memcpy(o.run.pl, G.pl, sizeof o.run.pl);
+        o.run.party = G.party;
+        o.run.goal = G.goal;
+        o.run.nights = G.nights;
+        o.run.base = G.base;
+        game_save_write(game_current_index(), &o, (int)sizeof o);
+        keep_old_save = true;
+        return 1;
+    }
     if (sscanf(cmd, "oldsave %d", &a) == 1) {
         /* a save in the first layout (before OPEN ALL NIGHT), with the run in progress */
         static SaveV1 o;

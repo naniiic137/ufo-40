@@ -27,9 +27,12 @@ wait 2
 expect state == 3
 expect code == 120000
 expect typed == 1
+# (the deal for a code changed once when the owner's two guests joined the
+# Random candidates; this one now deals the ALBATROSS, pool8 == 47)
 expect npool == 15
-expect pool2 == 9
-expect pool3 == 18
+expect pool2 == 4
+expect pool3 == 11
+expect pool8 == 47
 expect pool13 == 42
 expect pool14 == 38
 # again: the box starts on the last code
@@ -43,7 +46,7 @@ expect state == 17
 press A
 wait 2
 expect code == 120000
-expect pool2 == 9
+expect pool2 == 4
 expect pool13 == 42
 # a dealt list shows its own code
 cheat menu

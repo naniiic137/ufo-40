@@ -42,18 +42,25 @@ enum {
     G_UPSTART, G_BANDLEADER, G_USHER, G_FORTUNE, G_MATCHMAKER, G_SAGE, G_MOONCHILD,
     G_GOAT, G_PUNK, G_SMUGGLER, G_CARDSHARK,
     G_PILOT, G_TYCOON, G_WISHFISH, G_SERPENT, G_CYCLOPS, G_PHOENIX, G_SHADOW, G_SPHINX, G_CHAMPION,
+    /* the owner's own guests (not Party House's), after the original roster
+     * so saved guest books keep their numbers */
+    G_CROONER, G_ALBATROSS,
     G_COUNT
 };
 #define G_FIRST_BUYABLE G_CABBIE   /* the non-star guests a random pool picks from: CABBIE..CARDSHARK */
-#define G_LAST_BUYABLE G_CARDSHARK
+#define G_LAST_BUYABLE G_CARDSHARK /* (plus the owner's guests, where his table sells them) */
 #define G_FIRST_STAR G_PILOT
+#define G_LAST_STAR G_CHAMPION
+#define G_FIRST_OWNER G_CROONER
+#define PH_GUESTS_V2 46             /* the roster in saves made before the owner's guests */
 
 /* actions (once a party) */
-enum { A_NONE, A_FETCH, A_BOOT, A_PEEK, A_RESHUFFLE, A_PHOTO, A_STYLE, A_CHEER, A_GREET, A_MAGIC, A_CUPID, A_CALM };
+enum { A_NONE, A_FETCH, A_BOOT, A_PEEK, A_RESHUFFLE, A_PHOTO, A_STYLE, A_CHEER, A_GREET, A_MAGIC, A_CUPID, A_CALM, A_ENCORE };
 /* passive traits */
 enum {
     T_STAR = 1, T_TROUBLE = 2, T_PEACE = 4, T_BRING1 = 8, T_BRING2 = 16, T_DRUM = 32, T_STORY = 64,
-    T_GRANNY = 128, T_BOOK = 256, T_BARISTA = 512, T_POET = 1024, T_UPSTART = 2048, T_MOON = 4096
+    T_GRANNY = 128, T_BOOK = 256, T_BARISTA = 512, T_POET = 1024, T_UPSTART = 2048, T_MOON = 4096,
+    T_JINX = 8192   /* the owner's: everyone who comes in after him tonight is RUCKUS! */
 };
 
 typedef struct PhGuest {
@@ -100,6 +107,8 @@ typedef struct PhParty {
     uint8_t used[PH_MAX_CARDS];      /* action spent this party */
     uint8_t calm[PH_MAX_CARDS];      /* the sage took its TROUBLE! away */
     uint8_t wild[PH_MAX_CARDS];      /* TROUBLE! this visit */
+    uint8_t jinx;                    /* an albatross came in tonight (this byte was padding,
+                                        so the saved layout keeps its size) */
     int16_t peek;                    /* the guest waiting at the door, if someone looked; -1 */
     uint8_t over;                    /* PO_* */
     int16_t got_pop, got_cash;       /* collected during the party (paparazzo, usher) */
@@ -163,6 +172,7 @@ bool ph_is_wild(const PhGame *g, int card);
 int ph_value_pop(const PhGame *g, int card);
 int ph_value_cash(const PhGame *g, int card);
 int ph_count_type(const PhGame *g, int type, int where);
+bool ph_list_sells(int list, int type);  /* can the list's shop hold this guest (0..4, PH_RANDOM, PH_ENDLESS) */
 static inline PhPlayer *ph_me(PhGame *g) { return &g->pl[g->turn]; }
 static inline const PhPlayer *ph_me_c(const PhGame *g) { return &g->pl[g->turn]; }
 
