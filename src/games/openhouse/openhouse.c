@@ -455,6 +455,9 @@ static void start_tally(int why) {
     T.why = why;
     state = S_RESULT;
     state_t = 0;
+    /* the A that ended the party (the door, YES) must not also hurry the
+     * count: only a press made on the tally does */
+    input_consume();
     sfx_play_name("ph_cash");
     note_endless_best();
 }
