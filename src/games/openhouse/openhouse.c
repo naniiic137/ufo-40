@@ -433,6 +433,8 @@ static void tally_update(void) {
     int steps = btn(BTN_A) ? TL_FAST : 1;
     T.tick = 0;
     for (int k = 0; k < steps && T.phase != TL_DONE; k++) tally_step();
+    /* an A held to hurry the count must not also leave the tally screen */
+    if (T.phase == TL_DONE) input_consume();
     T.age += steps;
     /* one tick a frame at most (every other frame when hurried) */
     if (T.tick && (steps == 1 || (frame_t & 1)))
@@ -1151,7 +1153,7 @@ static void oh_update(void) {
     case S_RESULT:
         /* holding A hurries the count; a fresh press once it's done goes on */
         tally_update();
-        if (T.phase == TL_DONE && T.done_t > 6 && btnp(BTN_A)) { sfx_play_name("ui_ok"); after_party(); }
+        if (T.phase == TL_DONE && T.done_t > 6 && btnp(BTN_A)) { sfx_play_name("ui_ok"); input_consume(); after_party(); }
         break;
     case S_SHOP: update_shop(); break;
     case S_WIN: case S_LOSE:
