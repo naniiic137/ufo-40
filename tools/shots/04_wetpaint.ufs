@@ -1,0 +1,42 @@
+# README media: WET PAINT. The GIF is the demo driver's own run (real button
+# presses) on course 2; the other shots are set up with cheats.
+shotscale 2
+seed 7
+game wetpaint
+wait 90
+shot wetpaint_title
+botuntil state == 1 200
+wait 330
+shot wetpaint_cut
+cheat course 2
+cheat go
+botplay 700
+gifstart wetpaint 3 2
+botplay 540
+gifstop
+# the docks, a hedgehog signalling its turn
+cheat course 11
+cheat go
+botplay 1100
+shot wetpaint_docks
+# rush hour at night: jellies and conkers on course 22
+cheat course 22
+cheat go
+botplay 1300
+shot wetpaint_night
+# the final against Foxy
+cheat course 26
+cheat go
+botplay 1500
+shot wetpaint_final
+# the cup
+cheat course 26
+cheat score 512
+cheat go
+cheat fill 1 150
+cheat time 1
+wait 2
+wait 220
+# (past the goal toasts)
+wait 700
+shot wetpaint_cup
