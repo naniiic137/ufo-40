@@ -136,7 +136,9 @@ cheat give 9 1
 cheat door 9
 press LEFT
 press A 10
-expect state == 8
+# (the peek no longer takes over the screen: the party goes on)
+expect state == 5
+expect cur == 100
 expect n == 1
 expect peek >= 0
 press A 10
