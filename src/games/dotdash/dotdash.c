@@ -7,6 +7,7 @@
 DDSave dd_sv;
 int dd_state, dd_state_t;
 uint32_t dd_in, dd_in_prev;
+uint32_t dd_ticks;
 bool dd_quiet;
 
 #define DD_MAGIC 0x44443001u
@@ -190,6 +191,7 @@ static const char *const INTRO[] = {
 static void dd_update(void) {
     dd_in_prev = dd_in;
     dd_in = input_held();
+    dd_ticks++;
     dd_state_t++;
     switch (dd_state) {
     case ST_TITLE:
@@ -221,6 +223,7 @@ static void dd_update(void) {
             break;
         }
         dd_play_update();
+        dd_hud_track();
         if (ending_pending >= 0 && !dd_dialog_active() && !dd_trans) {
             int k = ending_pending;
             ending_pending = -1;

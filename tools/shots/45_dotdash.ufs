@@ -1,0 +1,53 @@
+# README media: DOT & DASH. The GIF is played with plain button presses from
+# a new game: Dot shrinks into the rug at full size, then (with the Shrink
+# Tonic handed over by cheat) into a speck of the rug, and walks into
+# Tuftville. The stills jump to places with the test cheats.
+shotscale 2
+wipe_saves
+seed 45
+game dotdash
+wait 185
+shot dotdash_title
+press A
+wait 20
+press A
+wait 20
+press A
+wait 20
+press A
+wait 10
+cheat up tonic1
+cheat skip_dialog
+wait 5
+gifstart dotdash 3 1
+wait 10
+hold DOWN 95
+waituntil trans == 0 60
+wait 20
+hold LEFT 20
+wait 10
+hold DOWN 95
+waituntil trans == 0 60
+wait 30
+print town
+hold RIGHT 40
+wait 20
+gifstop
+shot dotdash_town
+cheat up mitt1
+cheat up bean1
+cheat glints 137
+cheat skip_dialog
+cheat area 0 50 64
+wait 150
+shot dotdash_small
+cheat area 2 30 30
+wait 150
+shot dotdash_walls
+cheat area 5 30 18
+wait 150
+shot dotdash_boss
+cheat area 0 70 82
+cheat full
+wait 200
+shot dotdash_room

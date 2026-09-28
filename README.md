@@ -91,7 +91,8 @@ and the music and sound volumes are in every game's pause menu too.
 | 16 | **TINTAIL** | Camouflage | sneaking on a grid past watchers by taking the colour of the ground you stand on, hollow logs, sun and rain pads, hatchlings with their own colour, a danger view you can't move in, undo, a branching map | Twig the chameleon, Salt Island, toads and storks, 15 new levels |
 | 25 | **OPEN HOUSE** | Party House | drawing guests from a deck into a house with limited space, the original's 46 guest abilities, costs and trouble, police, fire marshal and bans, set guest lists and a random list, win by ending a party with four stars within 25 nights, 2P hot-seat | a whitewashed house by the sea, all 46 guests' names and faces |
 | 28 | **DUNE EXPRESS** | Rail Heist | real time until a guard is alert, then 10-second turns, one-bullet lawmen who hit each other too, punches through walls and floors, carrying and throwing, hiding in barrels, levers, a crank gun, rams, three outlaws, three stars a mission with the original's time goals, 2P versus | Wade, Hush and Pearl, the Governor's tax trains, Biscuit the camel, 20 new trains |
-| 08, 10–13, 17–24, 26–27, 29–50 | *coming soon* | | | still in the saucer's cargo hold |
+| 45 | **DOT & DASH** | Mini & Max | one room at four nested sizes where holding down shrinks you into whatever you stand on and holding up grows you back, a generated micro world that is the same for everyone inside every speck, lifting things from under your feet to throw, stack and ride, 39 upgrades, five shops, quests for tiny towns, a 500 door and a 1,000 true ending | Dot and her talking dog Dash, the lumber room, Queen Tabitha the cat, Sir Sprocket, 21 towns and landmarks |
+| 08, 10–13, 17–24, 26–27, 29–44, 46–50 | *coming soon* | | | still in the saucer's cargo hold |
 
 Every cartridge has three goals, which follow the original's own three: a
 **Beacon** (a side challenge), the **Saucer** (beating the game) and the
@@ -497,6 +498,39 @@ the top.
   Line and all twenty trains (every one is won by a scripted run in the
   tests, without a kill and under its time goal), the powder sticks, geese,
   rams and the lucky horseshoe, and the music.
+
+### 45 · DOT & DASH
+
+<p align="center">
+  <img src="docs/shots/dotdash.gif" width="640" alt="Dot and Dash: Dot shrinks into the rug at full size, then into a speck of it, and walks into Tuftville">
+</p>
+<p align="center">
+  <img src="docs/shots/dotdash_room.png" width="320" alt="The lumber room at full size: the pots, the hanging shelf and clock, the lamp and the bookshelf">
+  <img src="docs/shots/dotdash_small.png" width="320" alt="Small in the west pot, where Professor Crumb squints at the soil">
+</p>
+
+*A tribute to **Mini & Max** (UFO 50 #45).*
+
+- **Plays the same:** locked in a room during a party, a girl and her dog
+  get small. Hold down to shrink into whatever is under you, hold up to grow
+  back; the room at full size is the map, and where you shrink is where you
+  arrive. Every speck of the room holds a micro world, the same for everyone,
+  and every speck of that a deeper one.
+- **The rules:** lift what you stand on and throw it, up in an arc or down
+  under your feet to build steps; crackers, darts, boomers, rollers, quake
+  blocks, hourglasses, venom that spreads, and the dog himself as a weapon.
+  Hearts, energy that makes throws hurt, fall damage, a clock that ticks on
+  every time you grow back, and at no hearts you are simply full size again.
+- **Structure:** 39 upgrades (tonics to go smaller, the mitt, the satchel,
+  bug commands, kicks, spins, sprint, armour, wings, hearts and energy eggs),
+  five shops, a dozen quests and more for the tiny towns, big glints two to a
+  dangerous cave; 500 glints to the cat on the door, a clockwork knight beaten
+  from the inside, and 1,000 more to put the room in balance.
+- **Ours:** Dot and Dash, Granny Thimble and Professor Crumb, Queen Tabitha
+  and Sir Sprocket, Tock in the clock, the lumber room and every town in it
+  (Tuftville in the rug, Fernby and Loamton in the pots, Tickburg on the
+  clock, Glimmer in the lampshade, Wormwood between the walls, Latchtown on
+  the door), the generator, and the music.
 
 ## Install on PS Vita
 

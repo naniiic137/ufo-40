@@ -372,6 +372,8 @@ void dd_ask(const char *who, const char *text, void (*done)(int yes));
 enum { ST_TITLE, ST_INTRO, ST_PLAY, ST_ENDING, ST_CREDITS, ST_BAG };
 extern int dd_state, dd_state_t;
 extern uint32_t dd_in, dd_in_prev; /* buttons this frame (real presses) */
+extern uint32_t dd_ticks;         /* update frames since boot */
+void dd_hud_track(void);
 void dd_start_ending(bool true_end);
 void dd_check_goals(void);
 extern bool dd_quiet;              /* tests: no autosave writes */

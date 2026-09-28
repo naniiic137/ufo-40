@@ -375,8 +375,20 @@ void dd_draw_world(void) {
 /* ------------------------------------------------------------------ */
 /* the HUD                                                                */
 
-static int place_t;
+static uint32_t place_until;
 static const char *last_place;
+
+/* the place banner runs on update frames, so it is called from the update
+ * as well as the draw: a new place name shows for 150 frames */
+void dd_hud_track(void) {
+    static char keep[48];
+    const char *pl = dd_place_name();
+    if (last_place == NULL || strcmp(pl, last_place)) {
+        place_until = dd_ticks + 150;
+        snprintf(keep, sizeof keep, "%s", pl);
+        last_place = keep;
+    }
+}
 
 void dd_draw_hud(void) {
     /* top right: hearts, energy, glints */
@@ -397,6 +409,7 @@ void dd_draw_hud(void) {
     gfx_hline(ex, ex + 3, ey + 3, C_YELLOW);
     gfx_line(ex + 3, ey + 3, ex, ey + 6, C_YELLOW);
     snprintf(b, sizeof b, "%d", dd_pep());
+    tiny_draw(b, ex + 7, ey + 2, C_INK);
     tiny_draw(b, ex + 6, ey + 1, C_LIME);
     snprintf(b, sizeof b, "%d", dd_sv.glints);
     spr_draw(&dd_spr[S_GLINT5], SCREEN_W - 40, 11, 0);
@@ -408,6 +421,7 @@ void dd_draw_hud(void) {
         if (k == dd_scale) gfx_rect(x, 4, 4, 4, C_WHITE);
         else gfx_rectb(x, 4, 4, 4, k <= (dd_has(U_TONIC2) ? 3 : dd_has(U_TONIC1) ? 2 : 1) ? C_GREY : C_DUSK);
     }
+    tiny_draw(SZ[dd_scale], 31, 5, C_INK);
     tiny_draw(SZ[dd_scale], 30, 4, C_GREY);
     /* carried and stored */
     int ix = 4;
@@ -421,16 +435,14 @@ void dd_draw_hud(void) {
     /* the clock */
     int m = dd_sv.clock_min % 720;
     snprintf(b, sizeof b, "%d:%02d", m / 60 == 0 ? 12 : m / 60, m % 60);
+    tiny_draw(b, 59, 5, C_INK);
     tiny_draw(b, 58, 4, C_LIGHT);
     /* where we are */
-    const char *pl = dd_place_name();
-    if (pl != last_place && (last_place == NULL || strcmp(pl, last_place))) { place_t = 150; last_place = pl; }
-    static char keep[48];
-    if (place_t > 0) {
-        place_t--;
-        snprintf(keep, sizeof keep, "%s", pl);
-        last_place = keep;
-        if (place_t > 20 || (place_t / 3) % 2) {
+    dd_hud_track();
+    const char *keep = last_place;
+    if (keep && dd_ticks < place_until) {
+        uint32_t left = place_until - dd_ticks;
+        if (left > 20 || (left / 3) % 2) {
             int w = text_width(keep);
             gfx_rect(SCREEN_W / 2 - w / 2 - 4, 20, w + 8, 11, C_INK);
             text_center(keep, SCREEN_W / 2, 22, C_CREAM);

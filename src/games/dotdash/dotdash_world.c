@@ -467,9 +467,10 @@ static void area_lair(void) {
     door(DR_LAIR_OUT, 3, 18);
     if (!dd_flag(FL_EARWIG_DEAD)) foe(F_EARWIG, 26, 18);
     else pick(P_GLINT50, 20, 18, 0);
-    foe(F_POD, 2, 13);
     {
-        int i = spawning ? put(EK_FOE, F_POD, 37, 13) : -1;
+        /* a pod in the far wall shoots low along the lair: it hits the
+         * earwig as well as Dot, who can watch from a ledge */
+        int i = put(EK_FOE, F_POD, 37, 17);
         if (i >= 0) dd_ent[i].dir = 0;
     }
 }
