@@ -1,25 +1,46 @@
-/* UFO 40 - the game library: 50 cartridge slots, ten to a row, so each row
- * is one decade of UFO 50 numbers (01-10, 11-20 ...). */
+/* UFO 40 - the game library: 50 cartridge slots in full-size cartridges,
+ * eight to a row. Five rows show at a time; the grid scrolls to follow the
+ * cursor, and a bar in the left margin shows what lies above and below. */
 #include "shell.h"
 
-#define GRID_X 9
+#define GRID_X 8
 #define GRID_Y 24
-#define CELL_W 16
+#define CELL_W 20
 #define CELL_H 27
-#define COLS 10
-#define ROWS 5
-_Static_assert(COLS * ROWS == GAME_SLOTS, "the grid holds every slot");
+#define COLS 8
+#define ROWS ((GAME_SLOTS + COLS - 1) / COLS) /* 7: the last row holds 49-50 */
+#define VIS_ROWS 5                            /* rows on screen at once */
+#define MAX_TOP (ROWS - VIS_ROWS)
+#define VIEW_Y0 18                            /* the grid's window, under the header */
+#define VIEW_Y1 159                           /* ... and over the footer */
 #define PANEL_X 172
 #define PANEL_W 142
 
 static int t, launch_t, shake_t;
 static bool launching;
+static int top_row;   /* first row in view */
+static int scroll_px; /* drawn offset in pixels, easing toward top_row * CELL_H */
+
+/* Slots in row r (the last row is short). */
+static int row_len(int r) { return imin(COLS, GAME_SLOTS - r * COLS); }
+
+/* Bring the cursor's row into view, moving the window as little as possible. */
+static void follow_cursor(void) {
+    int r = g_library_cursor / COLS;
+    if (r < top_row) top_row = r;
+    if (r >= top_row + VIS_ROWS) top_row = r - VIS_ROWS + 1;
+    top_row = iclamp(top_row, 0, MAX_TOP);
+}
 
 static void lib_enter(void) {
     t = 0;
     launching = false;
     launch_t = 0;
     shake_t = 0;
+    if (g_library_cursor < 0 || g_library_cursor >= GAME_SLOTS) g_library_cursor = 0;
+    top_row = 0;
+    follow_cursor();
+    scroll_px = top_row * CELL_H; /* no slide when the screen opens */
     game_set_pausable(true);
     shell_menu_music();
 }
@@ -33,6 +54,9 @@ static int available_count(void) {
 static void lib_update(void) {
     t++;
     if (shake_t > 0) shake_t--;
+    /* ease the view toward its row: a quarter of the way each frame */
+    int want = top_row * CELL_H, d = want - scroll_px;
+    if (d) scroll_px += d / 4 ? d / 4 : (d > 0 ? 1 : -1);
     if (launching) {
         launch_t++;
         if (launch_t == 26) gfx_set_flash(3);
@@ -40,13 +64,17 @@ static void lib_update(void) {
         return;
     }
     int c = g_library_cursor % COLS, r = g_library_cursor / COLS;
-    int oc = c, or_ = r;
-    if (btn_repeat(BTN_LEFT)) c = (c + COLS - 1) % COLS;
-    if (btn_repeat(BTN_RIGHT)) c = (c + 1) % COLS;
+    int old = g_library_cursor;
+    /* left/right wrap within the row; up/down wrap top to bottom, and a
+     * column the short last row lacks lands on its last slot */
+    if (btn_repeat(BTN_LEFT)) c = (c + row_len(r) - 1) % row_len(r);
+    if (btn_repeat(BTN_RIGHT)) c = (c + 1) % row_len(r);
     if (btn_repeat(BTN_UP)) r = (r + ROWS - 1) % ROWS;
     if (btn_repeat(BTN_DOWN)) r = (r + 1) % ROWS;
-    if (c != oc || r != or_) {
+    c = imin(c, row_len(r) - 1);
+    if (r * COLS + c != old) {
         g_library_cursor = r * COLS + c;
+        follow_cursor();
         sfx_play_name("ui_move");
     }
     if (btnp(BTN_A) || btnp(BTN_START)) {
@@ -69,36 +97,53 @@ static void lib_update(void) {
     }
 }
 
-/* A cartridge 14 pixels wide (the cell is 16). */
 static void draw_cart(int x, int y, int idx, bool sel) {
     const GameDef *g = GAMES[idx];
     int body = g ? C_LIGHT : C_DUSK, edge = g ? C_GREY : C_NIGHT, dark = g ? C_SLATE : C_INK;
-    gfx_rect(x + 2, y, 10, 2, body);
-    gfx_rect(x, y + 2, 14, 20, body);
-    gfx_vline(x + 13, y + 2, y + 21, edge);
-    gfx_hline(x, x + 13, y + 21, edge);
+    gfx_rect(x + 2, y, 14, 2, body);
+    gfx_rect(x, y + 2, 18, 20, body);
+    gfx_vline(x + 17, y + 2, y + 21, edge);
+    gfx_hline(x, x + 17, y + 21, edge);
     gfx_vline(x, y + 2, y + 21, g ? C_WHITE : C_SLATE);
     /* grip ridges */
-    for (int i = 0; i < 3; i++) gfx_hline(x + 4, x + 9, y + 2 + i, i % 2 ? edge : body);
+    for (int i = 0; i < 3; i++) gfx_hline(x + 5, x + 12, y + 1 + i * 1 + 1, i % 2 ? edge : body);
     char num[12];
     snprintf(num, sizeof num, "%02d", idx + 1);
     if (g) {
-        gfx_rect(x + 2, y + 5, 10, 12, g->cart_main);
-        gfx_rect(x + 2, y + 13, 10, 4, g->cart_accent);
-        gfx_hline(x + 2, x + 11, y + 12, C_INK);
-        tiny_draw(num, x + 3, y + 6, C_WHITE);
+        gfx_rect(x + 2, y + 5, 14, 12, g->cart_main);
+        gfx_rect(x + 2, y + 13, 14, 4, g->cart_accent);
+        gfx_hline(x + 2, x + 15, y + 12, C_INK);
+        tiny_draw(num, x + 4, y + 6, C_WHITE);
         /* goal pips */
         for (int b = 0; b < 3; b++) {
             bool on = (g_progress.goals[idx] >> b) & 1;
-            gfx_rect(x + 3 + b * 3, y + 14, 2, 2, on ? C_YELLOW : C_INK);
+            gfx_rect(x + 4 + b * 4, y + 14, 2, 2, on ? C_YELLOW : C_INK);
         }
     } else {
-        gfx_rect(x + 2, y + 5, 10, 12, C_NIGHT);
-        text_draw("?", x + 5, y + 7, sel ? C_GREY : C_SLATE);
+        gfx_rect(x + 2, y + 5, 14, 12, C_NIGHT);
+        text_draw("?", x + 7, y + 7, sel ? C_GREY : C_SLATE);
     }
     /* contacts */
-    gfx_rect(x + 2, y + 18, 10, 3, dark);
-    for (int i = 0; i < 5; i++) gfx_pset(x + 3 + i * 2, y + 19, g ? C_AMBER : C_DUSK);
+    gfx_rect(x + 3, y + 18, 12, 3, dark);
+    for (int i = 0; i < 6; i++) gfx_pset(x + 4 + i * 2, y + 19, g ? C_AMBER : C_DUSK);
+}
+
+/* The scroll bar in the left margin: its arrows light up when there is more
+ * above or below, and the thumb shows which five of the rows are in view. */
+static void draw_scrollbar(void) {
+    int x = 2, y0 = GRID_Y, y1 = GRID_Y + VIS_ROWS * CELL_H - 6;
+    int track = y1 - y0 + 1;
+    int thumb = track * VIS_ROWS / ROWS;
+    int pos = y0 + (track - thumb) * scroll_px / (MAX_TOP * CELL_H);
+    gfx_rect(x, y0, 2, track, C_NIGHT);
+    gfx_rect(x, pos, 2, thumb, C_GREY);
+    int lit = (t / 20) % 2 ? C_YELLOW : C_AMBER;
+    int up = top_row > 0 ? lit : C_DUSK;
+    int dn = top_row < MAX_TOP ? lit : C_DUSK;
+    for (int i = 0; i < 3; i++) {
+        gfx_hline(x - i, x + 1 + i, y0 - 5 + i, up); /* ^ over the track */
+        gfx_hline(x - i, x + 1 + i, y1 + 5 - i, dn); /* v under it */
+    }
 }
 
 static void draw_panel(void) {
@@ -208,9 +253,11 @@ static void lib_draw(void) {
 
     /* grid */
     int shake = shake_t > 0 ? ((shake_t / 2) % 2 ? 2 : -2) : 0;
+    gfx_clip(0, VIEW_Y0, PANEL_X - 3, VIEW_Y1 - VIEW_Y0);
     for (int i = 0; i < GAME_SLOTS; i++) {
         int c = i % COLS, r = i / COLS;
-        int x = GRID_X + c * CELL_W, y = GRID_Y + r * CELL_H;
+        int x = GRID_X + c * CELL_W, y = GRID_Y + r * CELL_H - scroll_px;
+        if (y + 21 < VIEW_Y0 + 2 || y >= VIEW_Y1) continue; /* out of view */
         bool sel = i == g_library_cursor;
         int lift = 0;
         if (sel) {
@@ -219,18 +266,20 @@ static void lib_draw(void) {
             x += shake;
         }
         if (sel && launching && launch_t > 20 && (launch_t / 2) % 2) continue;
-        if (sel) gfx_rect(x + 1, y + 21, 13, 3, C_NIGHT); /* shadow */
+        if (sel) gfx_rect(x + 1, y + 21, 17, 3, C_NIGHT); /* shadow */
         draw_cart(x, y - lift, i, sel);
         if (sel && !launching) {
             int bl = (t / 16) % 2;
             int col = GAMES[i] ? C_YELLOW : C_GREY;
-            int x0 = x - 2 - bl, y0 = y - lift - 2 - bl, x1 = x + 15 + bl, y1 = y - lift + 23 + bl;
+            int x0 = x - 2 - bl, y0 = y - lift - 2 - bl, x1 = x + 19 + bl, y1 = y - lift + 23 + bl;
             gfx_hline(x0, x0 + 3, y0, col); gfx_vline(x0, y0, y0 + 3, col);
             gfx_hline(x1 - 3, x1, y0, col); gfx_vline(x1, y0, y0 + 3, col);
             gfx_hline(x0, x0 + 3, y1, col); gfx_vline(x0, y1 - 3, y1, col);
             gfx_hline(x1 - 3, x1, y1, col); gfx_vline(x1, y1 - 3, y1, col);
         }
     }
+    gfx_noclip();
+    draw_scrollbar();
     draw_panel();
 
     /* footer */
@@ -242,6 +291,13 @@ static void lib_draw(void) {
     text_draw("OPTIONS", fx + 4, 170, C_LIGHT);
     snprintf(buf, sizeof buf, "SLOT %02d/%d", g_library_cursor + 1, GAME_SLOTS);
     text_draw(buf, SCREEN_W - 6 - text_width(buf), 170, C_GREY);
+}
+
+bool library_query(const char *key, int *out) {
+    if (!strcmp(key, "library_top")) { *out = top_row; return true; }
+    if (!strcmp(key, "library_scroll")) { *out = scroll_px; return true; }
+    if (!strcmp(key, "library_rows")) { *out = ROWS; return true; }
+    return false;
 }
 
 const Scene SCENE_LIBRARY = {"library", lib_enter, lib_update, lib_draw, NULL};

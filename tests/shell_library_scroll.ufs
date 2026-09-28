@@ -1,0 +1,104 @@
+# SHELL: the library holds all 50 slots in full-size cartridges, eight to a
+# row (seven rows, the last one just 49 and 50). Five rows show at once; the
+# grid scrolls to follow the cursor and eases into place.
+wait 30
+press A
+wait 30
+press A
+wait 30
+expect_scene library
+expect library_cursor == 0
+expect library_rows == 7
+expect library_top == 0
+expect library_scroll == 0
+# down through the five rows on screen: no scrolling yet
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+expect library_cursor == 32
+expect library_top == 0
+# the sixth row (slot 41) scrolls the grid one row, a few pixels a frame
+press DOWN
+expect library_cursor == 40
+expect library_top == 1
+expect library_scroll > 0
+expect library_scroll < 27
+wait 30
+expect library_scroll == 27
+# slots 41-48 along the row, then 49
+press RIGHT
+press RIGHT
+press RIGHT
+press RIGHT
+press RIGHT
+press RIGHT
+press RIGHT
+expect library_cursor == 47
+press RIGHT
+expect library_cursor == 40
+press LEFT
+expect library_cursor == 47
+# down from column 8 lands on the short last row's last slot, 50
+press DOWN
+expect library_cursor == 49
+expect library_top == 2
+wait 30
+expect library_scroll == 54
+# the last row wraps between its two slots
+press RIGHT
+expect library_cursor == 48
+press RIGHT
+expect library_cursor == 49
+press LEFT
+expect library_cursor == 48
+# an empty slot won't launch
+press A
+wait 40
+expect_scene library
+# up keeps the column; from 49 up to 41, then on up the rows
+press UP
+expect library_cursor == 40
+expect library_top == 2
+press UP
+press UP
+expect library_cursor == 24
+expect library_top == 2
+press UP
+expect library_cursor == 16
+expect library_top == 2
+press UP
+expect library_cursor == 8
+expect library_top == 1
+press UP
+expect library_cursor == 0
+expect library_top == 0
+wait 30
+expect library_scroll == 0
+# up from the top row wraps to the bottom (column 1 to slot 49) and scrolls
+press UP
+expect library_cursor == 48
+expect library_top == 2
+# down from the bottom wraps to the top
+press DOWN
+expect library_cursor == 0
+expect library_top == 0
+# leaving and coming back keeps the slot, and the view opens on it at rest
+press UP
+press B
+wait 30
+expect_scene menu
+press A
+wait 30
+expect_scene library
+expect library_cursor == 48
+expect library_top == 2
+expect library_scroll == 54
+# Party House's tribute sits in slot 25, on the fourth row
+press UP
+press UP
+press UP
+expect library_cursor == 24
+press A
+wait 90
+expect_scene runner

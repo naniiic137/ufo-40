@@ -15,6 +15,22 @@ press RIGHT
 press RIGHT
 wait 30
 shot library_roofcat
+# down past the fifth row the grid scrolls to slots 41-50
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+wait 30
+shot library_scrolled
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+wait 30
 press SELECT
 wait 40
 shot options
