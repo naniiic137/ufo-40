@@ -1272,7 +1272,7 @@ uint32_t rsh_battle_buttons(int side, int bot, uint32_t prev) {
         rsh_ai_begin(side, bot);
     }
     if (!rb.ai_ready) {
-        if (!rsh_ai_work(bot ? 1000 : 12)) return 0;
+        if (!rsh_ai_work(bot ? 1000 : 8)) return 0; /* 8 tries a frame: light enough for the Vita */
         rb.ai_ready = 1;
     }
     if (ph == B_SELECT) {

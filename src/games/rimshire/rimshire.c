@@ -1048,7 +1048,8 @@ static void draw_card(void) {
                 if (!((sc->fresh >> k) & 1)) continue;
                 int y = 72 + i * 22;
                 rsh_draw_disk_icon(k, k == K_EMPRESS ? 1 : 0, 60, y + 6, frame_t);
-                snprintf(buf, sizeof buf, "%s " GLYPH_DOT " HP %d " GLYPH_DOT " " GLYPH_COIN "%d", RSH_KIND[k].name, RSH_KIND[k].hp, RSH_KIND[k].cost);
+                if (RSH_KIND[k].cost) snprintf(buf, sizeof buf, "%s " GLYPH_DOT " HP %d " GLYPH_DOT " " GLYPH_COIN "%d", RSH_KIND[k].name, RSH_KIND[k].hp, RSH_KIND[k].cost);
+                else snprintf(buf, sizeof buf, "%s " GLYPH_DOT " HP %d " GLYPH_DOT " NOT FOR HIRE", RSH_KIND[k].name, RSH_KIND[k].hp);
                 text_draw(buf, 76, y, C_WHITE);
                 tiny_draw(RSH_KIND[k].blurb, 76, y + 9, C_LIGHT);
                 i++;
