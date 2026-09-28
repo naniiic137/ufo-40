@@ -1553,6 +1553,17 @@ static int lnk_cheat(const char *cmd) {
     if (sscanf(cmd, "checkpoint %d", &a) == 1) { sv.checkpoint = (uint8_t)a; return 1; }
     if (!strcmp(cmd, "save")) { save_now(); return 1; }
     if (sscanf(cmd, "mapview %d", &a) == 1) { map_view = a; return 1; }
+    if (sscanf(cmd, "simtrace %d %d", &a, &b) == 2) {
+        LnkBall e = ball;
+        LnkCtx pc = ctx;
+        pc.probe = true;
+        lnk_hit(&e, &pc, a, b);
+        for (int f = 0; f < 300 && e.moving; f++) {
+            int ev = lnk_ball_step(&e, &pc);
+            printf("  %d: %.1f,%.1f ev %d\n", f, e.x, e.y, ev);
+        }
+        return 1;
+    }
     if (sscanf(cmd, "simshot %d %d", &a, &b) == 2) {
         /* print where a stroke from here would end (planning rules) */
         LnkBall e = ball;

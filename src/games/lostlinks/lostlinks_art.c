@@ -631,6 +631,22 @@ void lnk_draw_tile(int layer, char ch, int tx, int ty, int x, int y, int t, bool
         gfx_pset(x + 10, y + 8, C_FOREST);
         return;
     case 'H':
+        if (over && up != 'H' && up != 'g' && down == 'H') {
+            /* the top of a house: a tiled roof */
+            gfx_rect(x, y, 16, 16, C_WINE);
+            for (int r = 0; r < 4; r++) gfx_hline(x, x + 15, y + r * 4 + 3, C_MAROON);
+            for (int r = 0; r < 4; r++) gfx_pset(x + (r * 5 + tx * 3) % 16, y + r * 4 + 1, C_RED);
+            gfx_hline(x, x + 15, y, C_RED);
+            return;
+        }
+        if (over && up == 'H' && down != 'H' && at(tiles, layer, tx, ty - 2) != 'H') {
+            /* the front of a house: a door or a window */
+            gfx_rect(x, y, 16, 16, C_CREAM);
+            gfx_hline(x, x + 15, y + 15, C_TAN);
+            if ((tx + ty) % 3 == 0) { gfx_rect(x + 5, y + 5, 6, 11, C_BROWN); gfx_pset(x + 9, y + 10, C_AMBER); }
+            else { gfx_rect(x + 4, y + 4, 8, 6, C_NAVY); gfx_rectb(x + 4, y + 4, 8, 6, C_TAN); gfx_vline(x + 8, y + 4, y + 9, C_TAN); }
+            return;
+        }
         gfx_rect(x, y, 16, 16, over ? C_LIGHT : C_GREY);
         for (int r = 0; r < 4; r++) {
             gfx_hline(x, x + 15, y + r * 4 + 3, over ? C_GREY : C_SLATE);
@@ -696,10 +712,18 @@ void lnk_draw_tile(int layer, char ch, int tx, int ty, int x, int y, int t, bool
         return;
     }
     case 'O':
-        ground(layer, '.', tx, ty, x, y);
-        if (!over) { gfx_circ(x + 8, y + 8, 4, C_YELLOW); gfx_circ(x + 8, y + 8, 2, C_WHITE); }
-        else { gfx_pset(x + 6, y + 7, C_FOREST); gfx_pset(x + 10, y + 9, C_FOREST); } /* barely there */
-        return;
+        if (!over) {
+            ground(layer, '.', tx, ty, x, y);
+            gfx_dither_circle(x + 8, y + 8, 7, C_CREAM, 4 + (t / 20) % 2);
+            gfx_circ(x + 8, y + 8, 4, C_YELLOW);
+            gfx_circ(x + 8, y + 8, 2, C_WHITE);
+            return;
+        }
+        ch = 'b'; /* up top it is just a bush, with a hole under it */
+        break;
+    default: break;
+    }
+    switch (ch) {
     case 'b':
         ground(layer, '.', tx, ty, x, y);
         gfx_circ(x + 5, y + 9, 5, C_FOREST);

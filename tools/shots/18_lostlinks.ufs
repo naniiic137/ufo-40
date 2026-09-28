@@ -1,0 +1,46 @@
+# README media: LOST LINKS. The GIF is the demo player's own game (real
+# button presses) from where Dimple wakes; the stills are set up with the
+# route cheat (the save as the demo player has it after N waypoints) and
+# then played by the demo player.
+shotscale 2
+seed 18
+game lostlinks
+wait 60
+press A
+botuntil state == 2 400
+gifstart lostlinks 3 2
+botplay 900
+gifstop
+# up on the links: South Links, a swing being charged
+cheat route 4
+cheat ball 0 90 50
+cheat aim 44
+wait 40
+hold A 30
+shot lostlinks_links
+hold B 1
+# under them: Underputt, on the way to an iron
+cheat route 6
+botplay 300
+shot lostlinks_caves
+# the dunes and Gimme Manor, before the Dune Tread: chip, chip, chip
+cheat route 36
+cheat ball 0 127 58
+cheat aim 50
+wait 40
+hold A 18
+shot lostlinks_dunes
+hold B 1
+# the Brass Badger
+cheat route 66
+cheat plates 15
+cheat ball 1 16 9
+botuntil badger == 3 2000
+wait 30
+shot lostlinks_badger
+# the whole world (spoilers)
+cheat mapview 0
+shot lostlinks_map_links
+cheat mapview 1
+shot lostlinks_map_under
+cheat mapview -1

@@ -89,9 +89,10 @@ and the music and sound volumes are in every game's pause menu too.
 | 14 | **CUTLASS CUP** | Bushido Ball | first to 8 points, a ball that gets faster with every return, aimed, lobbed and curved strikes, secondary weapons and charged super shots, the fouls and penalty points, six fighters, a five-match tournament, 2P versus and co-op doubles | six corsairs, the galley *Merry Mackerel*, old Bosun Crabbe |
 | 15 | **FENNEC FOUNTAIN** | Block Koala | pushing numbered blocks (never into a heavier one, a 1 that can't move is taken in), grey at five, blue and black blocks, mimics, arrows, stone patches and doors, unlimited undo and a room menu, fifty rooms behind gates, a room editor | Fen the fennec, a dry spring garden, 50 new rooms |
 | 16 | **TINTAIL** | Camouflage | sneaking on a grid past watchers by taking the colour of the ground you stand on, hollow logs, sun and rain pads, hatchlings with their own colour, a danger view you can't move in, undo, a branching map | Twig the chameleon, Salt Island, toads and storks, 15 new levels |
+| 18 | **LOST LINKS** | Golfaria | a top-down open world where every roll is a stroke and strokes are your health, twenty to start and three more for each of twenty irons, pins as checkpoints, sand you can only chip out of, water, slopes, holes down to a whole layer underneath, parbot-style scorecrows, four abilities in the four corners, the four-piece star relic, a plate puzzle and a burrowing boss | Dimple the golf ball, the Brass Badger, slicers, larks and strays, both layers of the world |
 | 25 | **OPEN HOUSE** | Party House | drawing guests from a deck into a house with limited space, the original's 46 guest abilities, costs and trouble, police, fire marshal and bans, set guest lists and a random list, win by ending a party with four stars within 25 nights, 2P hot-seat | a whitewashed house by the sea, all 46 guests' names and faces |
 | 28 | **DUNE EXPRESS** | Rail Heist | real time until a guard is alert, then 10-second turns, one-bullet lawmen who hit each other too, punches through walls and floors, carrying and throwing, hiding in barrels, levers, a crank gun, rams, three outlaws, three stars a mission with the original's time goals, 2P versus | Wade, Hush and Pearl, the Governor's tax trains, Biscuit the camel, 20 new trains |
-| 08, 10–13, 17–24, 26–27, 29–50 | *coming soon* | | | still in the saucer's cargo hold |
+| 08, 10–13, 17, 19–24, 26–27, 29–50 | *coming soon* | | | still in the saucer's cargo hold |
 
 Every cartridge has three goals, which follow the original's own three: a
 **Beacon** (a side challenge), the **Saucer** (beating the game) and the
@@ -434,6 +435,49 @@ the top.
   colour. Only the best single escape counts toward completion.
 - **Ours:** Twig, the toads, storks and falcon, Salt Island and the old lighthouse,
   all fifteen levels (a solver in the tests proves each one), and the music.
+
+### 18 · LOST LINKS
+
+<p align="center">
+  <img src="docs/shots/lostlinks.gif" width="640" alt="Lost Links: Dimple the golf ball wakes underground and putts its way up to the South Links">
+</p>
+<p align="center">
+  <img src="docs/shots/lostlinks_links.png" width="320" alt="Charging a swing on the South Links">
+  <img src="docs/shots/lostlinks_badger.png" width="320" alt="The Brass Badger fires at the ball">
+</p>
+<p align="center">
+  <img src="docs/shots/lostlinks_caves.png" width="320" alt="Underputt, under the Middle Greens">
+  <img src="docs/shots/lostlinks_dunes.png" width="320" alt="Chipping through the dunes to Gimme Manor">
+</p>
+
+*A tribute to **Golfaria** (UFO 50 #18).*
+
+- **Plays the same:** you are a golf ball, and every move is a stroke. Swing
+  the aim with the d-pad, hold A while the power runs up and down, let go.
+  Only from sand, a divot or a hole does the ball leave the ground. Strokes
+  are your health: twenty to start, three more for each of twenty irons.
+  Run out and you wake at the last pin you touched, keeping all you found.
+  Hold B to look round.
+- **The world:** one open world on two layers. Every hole drops you to the
+  caves right underneath (or climbs back up), and a hole with a pin by it
+  tops you up. Slopes, rough, greens, sand, water, bushes and cracked
+  blocks; larks and albatrosses to roll into for strokes, slicers that sting
+  a still ball, and ten scorecrows that watch for five strokes, then fly off.
+- **Structure:** four abilities in the four corners (the Hammerhead,
+  Backspin, the Dune Tread and the Skipper), eight strays, eleven folk, ten
+  pins and the four pieces of the Star Pin. Set it in the old clubhouse,
+  light the sanctum's plates, and face the Brass Badger. A demo player in the
+  tests plays the whole game with real button presses.
+- **Ours:** Dimple, the Keepers and their story, the Brass Badger, all 53
+  places on both layers, every creature, and the music.
+
+<details>
+<summary>The whole world, both layers (spoilers)</summary>
+<p align="center">
+  <img src="docs/shots/lostlinks_map_links.png" width="640" alt="The links from above">
+  <img src="docs/shots/lostlinks_map_under.png" width="640" alt="The caves underneath">
+</p>
+</details>
 
 ### 25 · OPEN HOUSE
 

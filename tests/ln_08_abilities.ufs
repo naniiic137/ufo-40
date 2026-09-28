@@ -1,7 +1,7 @@
 # LOST LINKS: the four abilities. The Hammerhead smashes cracked blocks,
-# but only on a hard knock (and bushes give way to a hard roll without
-# it). Backspin: B while rolling stops the ball dead, though a slope wears
-# it down. The Dune Tread: A while rolling hops over a low rail.
+# but only on a hard knock (a bush gives way to any roll, no ability
+# needed). Backspin: B while rolling stops the ball dead, though a slope
+# wears it down. The Dune Tread: A while rolling hops over a low rail.
 game lostlinks
 wait 5
 cheat newgame
@@ -27,19 +27,13 @@ hold A 22
 wait 1
 waituntil moving == 0 600
 expect bty <= 7
-# a bush stops a gentle roll...
+# a bush needs no ability: the ball crashes through it
 cheat abilities 0
 cheat ball 0 45 27
-hold A 6
+hold A 22
 wait 1
 waituntil moving == 0 600
-expect bty >= 25
-# ...and a hard one crashes through
-cheat ball 0 45 27
-hold A 46
-wait 1
-waituntil moving == 0 600
-expect bty < 24
+expect bty <= 23
 # Backspin: a full roll, B after ten frames, and it stops short
 cheat abilities 2
 cheat ball 0 60 47

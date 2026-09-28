@@ -33,9 +33,9 @@ enum { LNK_OVER, LNK_UNDER, LNK_LAYERS };
  *   v  ledge: a ball may drop over it going south, never climb back north
  *   u  divot: a slow ball settles in it and must chip out
  *   o  hole: drops a slow ball to the other layer, at the same place
- *   O  a hole hidden in the grass (the same, drawn as grass)
+ *   O  a hole hidden in a patch of bushes (the same, drawn as a bush)
  *   1-9 (not 5)  slope, falling the way the digit points on a keypad
- *   b  bush: a hard roll crashes through it (it grows back next run)
+ *   b  bush: the ball crashes through it, slowed (it grows back next run)
  *   f  flowers (fairway)      '  cave crystals (floor)
  *   g  the altar gate: shut until the Star Pin is whole
  *   k  the den door: shut until the four sanctum plates are lit
