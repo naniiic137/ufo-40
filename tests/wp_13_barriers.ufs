@@ -1,0 +1,42 @@
+# WET PAINT: the lever swings every barrier (shut ones open, open ones shut).
+# Bollards rise and sink in turn, and one rising under your car stuns it.
+# Conveyor belts speed you up along them and slow you down against them.
+game wetpaint
+wait 5
+cheat course 5
+cheat nofoes
+cheat noclock
+cheat go
+expect solid_2_2 == 1
+expect swing == 0
+cheat car 4 0 0
+wait 24
+expect swing == 1
+expect solid_2_2 == 0
+# bollards (course 14): parked on a sunk one when it rises
+cheat course 14
+cheat nofoes
+cheat noclock
+cheat go
+expect solid_1_4 == 1
+expect solid_11_4 == 0
+cheat car 11 4 3
+wait 5
+expect stopped == 1
+expect stun == 0
+wait 150
+expect bollard == 1
+expect solid_11_4 == 1
+expect solid_1_4 == 0
+expect stuns == 1
+# belts (course 10): along, then against
+cheat course 10
+cheat nofoes
+cheat noclock
+cheat go
+cheat car 2 2 0
+wait 16
+expect tx == 4
+cheat car 8 2 2
+wait 24
+expect tx == 7

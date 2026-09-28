@@ -1,0 +1,36 @@
+# WET PAINT: passing course 12 earns the Beacon. The save keeps the score
+# board, the best course reached and whether the cup was won, and gives the
+# goals back from them; a run itself is never saved half-way.
+game wetpaint
+wait 5
+cheat course 12
+cheat nofoes
+cheat go
+cheat wipe
+cheat fill 1 200
+cheat time 1
+wait 2
+expect res_pass == 1
+expect goals & 1
+expect goals !& 2
+wait 220
+expect course == 13
+expect best_course == 13
+# a game over puts the score on the board
+cheat lives 1
+cheat score 77
+cheat go
+cheat wipe
+cheat time 1
+wait 2
+wait 220
+expect state == 5
+expect hi0 == 77
+expect new_rank == 0
+reload
+game wetpaint
+wait 5
+expect hi0 == 77
+expect best_course == 13
+expect goals.wetpaint == 1
+expect state == 0

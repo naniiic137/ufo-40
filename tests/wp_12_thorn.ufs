@@ -1,0 +1,22 @@
+# WET PAINT: a thorn hedge breaks when you hit it; at normal speed it stops
+# you for a moment, boosted you go straight through.
+game wetpaint
+wait 5
+cheat course 1
+cheat nofoes
+cheat noclock
+cheat go
+cheat tile 8 12 4 0
+expect solid_8_12 == 1
+cheat car 5 12 0
+wait 30
+expect solid_8_12 == 0
+expect stuns == 1
+expect tx == 7
+cheat tile 8 12 4 0
+cheat tile 5 12 8 0
+cheat car 4 12 0
+wait 40
+expect solid_8_12 == 0
+expect stuns == 1
+expect tx > 8

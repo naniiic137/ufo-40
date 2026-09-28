@@ -1,0 +1,45 @@
+# WET PAINT: an arrow driven over its way gives a boost for a second;
+# another on top of it goes faster still (up to three). The wrong way it
+# does nothing. A bumper turns you round and throws you off boosted.
+game wetpaint
+wait 5
+cheat course 1
+cheat nofoes
+cheat noclock
+cheat go
+cheat tile 4 12 8 0
+cheat tile 6 12 8 0
+cheat tile 9 12 8 0
+cheat car 3 12 0
+wait 8
+expect boost_lv == 1
+expect speed == 32
+expect boosted == 1
+wait 12
+expect boost_lv == 2
+expect speed == 40
+wait 16
+expect boost_lv == 3
+expect speed == 48
+# a single boost runs out and the car settles back to cruising
+cheat tile 6 12 0 0
+cheat tile 9 12 0 0
+cheat car 3 12 0
+wait 90
+expect boosted == 0
+expect speed == 16
+# the wrong way: no boost
+cheat tile 4 12 8 2
+cheat car 3 12 0
+wait 10
+expect boost_lv == 0
+# a bumper
+cheat tile 4 12 0 0
+cheat tile 6 12 0 0
+cheat tile 9 12 0 0
+cheat tile 8 12 3 0
+cheat car 5 12 0
+wait 34
+expect dir == 2
+expect boosted == 1
+expect tx < 7

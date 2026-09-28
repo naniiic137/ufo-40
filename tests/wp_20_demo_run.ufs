@@ -1,0 +1,13 @@
+# WET PAINT: a demo driver plays a real run from the title screen with
+# button presses alone (the "bot" query): it skips the cutscene, drives the
+# first courses, heads for unpainted tiles, power-ups and foes it can safely
+# ram, and keeps clear of hedgehog ploughs and conker lines.
+seed 4
+game wetpaint
+wait 20
+expect state == 0
+botuntil course == 4 12000
+expect state == 2
+expect lives >= 2
+expect score >= 20
+expect best_course >= 4

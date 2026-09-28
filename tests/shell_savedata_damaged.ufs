@@ -14,6 +14,8 @@ press DOWN
 press A
 wait 30
 expect_scene savedata
+# (one row per loaded cartridge, in slot order)
+press DOWN
 press DOWN
 press DOWN
 press DOWN

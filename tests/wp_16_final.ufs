@@ -1,0 +1,47 @@
+# WET PAINT: the final showdown is course 26, against Foxy Fuchsia's pink
+# car. She drives by herself with your own rules: ram her from behind and
+# she is stunned for a moment. Meet the goal and the cup is won (the Saucer);
+# win with 500 points or more for the Alien.
+game wetpaint
+wait 5
+cheat course 26
+cheat go
+expect rival == 1
+expect rival_human == 0
+expect garages == 0
+wait 300
+expect pink_tiles > 12
+# from behind
+cheat freeze_rival
+cheat rival 10 12 0
+cheat car 7 12 0
+wait 30
+expect rival_stun > 0
+expect stun == 0
+# the win
+cheat course 26
+cheat go
+cheat nofoes
+cheat wipe
+cheat fill 1 130
+cheat time 1
+wait 2
+expect state == 4
+expect res_pass == 1
+wait 220
+expect state == 6
+expect goals & 2
+expect goals !& 4
+expect best_course == 27
+# again, with 500 points
+cheat course 26
+cheat score 495
+cheat go
+cheat wipe
+cheat fill 1 130
+cheat time 1
+wait 2
+expect score >= 500
+wait 220
+expect state == 6
+expect goals & 4

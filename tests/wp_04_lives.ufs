@@ -1,0 +1,47 @@
+# WET PAINT: short of the goal, a life is lost and the same course starts
+# again; with no lives left it's game over, with no continue. An extra life
+# comes with every 120 points.
+game wetpaint
+wait 5
+cheat course 1
+cheat nofoes
+cheat go
+cheat wipe
+cheat fill 1 50
+cheat time 1
+wait 2
+expect state == 4
+expect res_pass == 0
+expect lives == 2
+expect score == 0
+wait 220
+expect state == 2
+expect course == 1
+# twice more and the run is over
+cheat go
+cheat time 1
+wait 2
+expect lives == 1
+wait 220
+cheat go
+cheat time 1
+wait 2
+expect lives == 0
+wait 220
+expect state == 5
+wait 60
+press A
+wait 5
+expect state == 0
+# an extra life: 115 + 10 points crosses 120
+cheat course 1
+cheat lives 2
+cheat score 115
+cheat nofoes
+cheat go
+cheat wipe
+cheat fill 1 119
+cheat time 1
+wait 2
+expect score == 125
+expect lives == 3

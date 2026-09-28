@@ -1,0 +1,36 @@
+# WET PAINT: a duster flies over walls; left long enough it flashes, sprays
+# paint four ways (each shot colours the first tile that isn't pink yet) and
+# flies off. A popper left alone flashes, then bursts, painting everything
+# within about four tiles pink.
+game wetpaint
+wait 5
+cheat course 1
+cheat nogarages
+cheat noclock
+cheat go
+cheat wipe
+cheat car 0 0 3
+cheat put duster 2 2 0
+wait 60
+expect foe_0_on == 1
+expect foe_0_fx > 50
+cheat foeage 0 599
+wait 1
+expect shots >= 2
+wait 100
+expect pink_tiles >= 7
+expect foe_0_on == 1
+wait 30
+expect foes == 0
+expect kills == 0
+# the popper
+cheat wipe
+cheat still
+cheat put popper 12 7 0
+cheat foeage 0 779
+wait 2
+expect foes == 0
+expect paint_12_7 == 2
+expect paint_15_7 == 2
+expect paint_12_5 == 2
+expect pink_tiles > 30

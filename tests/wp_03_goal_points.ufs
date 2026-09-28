@@ -1,0 +1,24 @@
+# WET PAINT: when the clock runs out, the blue share of the floor must reach
+# the course's goal. Every per cent over it is a point; then the next course.
+game wetpaint
+wait 5
+cheat course 1
+cheat nofoes
+cheat go
+expect goal == 50
+expect total == 198
+expect time > 2600
+cheat wipe
+cheat fill 1 119
+wait 1
+# 120 of 198 tiles with the car's own: 60%
+expect blue == 60
+cheat time 1
+wait 2
+expect state == 4
+expect res_pass == 1
+expect score == 10
+expect lives == 3
+wait 220
+expect state == 2
+expect course == 2

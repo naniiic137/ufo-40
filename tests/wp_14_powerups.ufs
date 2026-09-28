@@ -1,0 +1,66 @@
+# WET PAINT: a power-up works when you drive onto its tile while it isn't
+# blue. The sprinkler shoots paint ahead, left and right; the tack shooter
+# shoots tacks that wreck foes; the helper drives round painting blue until
+# a foe knocks it out; the freeze pop stops the clock and every foe for 7.5 s.
+game wetpaint
+wait 5
+cheat course 1
+cheat nogarages
+cheat noclock
+cheat still
+cheat go
+cheat wipe
+cheat item 8 12 1
+cheat paint 8 12 1
+cheat car 5 12 0
+wait 40
+expect gun == 0
+cheat wipe
+cheat car 5 12 0
+wait 60
+expect gun == 1
+expect paint_10_11 == 1
+# (the sprinkler runs 5 s; its forward shots would paint the next power-up's
+# tile blue before the car got there)
+wait 300
+expect gun == 0
+# tacks
+cheat wipe
+cheat item 8 12 2
+cheat put roller 10 10 0
+cheat car 5 12 0
+wait 60
+expect gun == 2
+expect kills == 1
+wait 300
+# the helper
+cheat wipe
+cheat item 8 12 3
+cheat car 5 12 0
+wait 40
+expect drone0_on == 1
+# the car only ever paints row 12 (21 tiles); the rest is the helper's
+wait 200
+expect blue_tiles > 23
+cheat foe_at_drone roller
+wait 2
+expect drone0_on == 0
+# the freeze pop
+cheat killall
+cheat clock_on
+cheat wipe
+cheat item 8 12 4
+cheat put roller 1 5 0
+cheat car 5 12 0
+wait 40
+expect freeze > 300
+cheat still
+cheat time 1000
+wait 60
+expect time == 1000
+expect foe_0_tx == 1
+wait 400
+expect freeze == 0
+wait 60
+expect time < 1000
+expect foe_0_tx >= 3

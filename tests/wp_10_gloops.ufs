@@ -1,0 +1,19 @@
+# WET PAINT: the mother gloop is fast; every few seconds she slows down and
+# lays a little gloop, then speeds up again. A garage sends her out with a
+# little one at her side.
+game wetpaint
+wait 5
+cheat course 7
+cheat noclock
+cheat go
+expect garages == 1
+waituntil foes_biggloop >= 1 200
+waituntil foes_gloop >= 1 60
+cheat nogarages
+cheat killall
+cheat put biggloop 0 7 0
+wait 230
+expect foes_gloop == 0
+wait 70
+expect foes_gloop == 1
+expect foes_biggloop == 1
