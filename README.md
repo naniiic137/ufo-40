@@ -5,7 +5,7 @@
 <h1 align="center">UFO 40</h1>
 
 <p align="center">
-  <b>A pretend 1980s console with fifty cartridges (well, thirteen so far), built from scratch<br>
+  <b>A pretend 1980s console with fifty cartridges (well, twenty-two so far), built from scratch<br>
   for the PlayStation Vita, Windows and the web.</b><br><br>
   <a href="https://naniiic137.github.io/ufo-40/"><b>▶ Play it in your browser</b></a> ·
   <a href="https://github.com/naniiic137/ufo-40/releases">Download for Vita / Windows</a>
@@ -72,7 +72,7 @@ and the music and sound volumes are in every game's pause menu too.
   <img src="docs/shots/savedata.png" width="320" alt="The save data screen">
 </p>
 
-## The library (13 of 50 loaded)
+## The library (22 of 50 loaded)
 
 <p align="center"><img src="docs/shots/library.png" width="640" alt="The UFO 40 game library with 50 cartridge slots"></p>
 
@@ -1019,8 +1019,8 @@ src/platform/headless/ scripted test runner, PNG / GIF / WAV writers, Vita LiveA
     plays notes with lengths, ties and repeat blocks.
   - Sound effects use the same notation and take over one channel for a
     moment, just like old hardware.
-  - Every track and jingle is original: 90 compositions across the console and
-    the thirteen cartridges.
+  - Every track and jingle is original: 182 compositions across the console and
+    the twenty-two cartridges.
 - **Art.** Sprites are written as strings of palette letters in the C source
   (`k` ink, `y` yellow, `C` cyan and so on), so there are no binary assets at
   all. The Vita LiveArea images are drawn by the engine itself
