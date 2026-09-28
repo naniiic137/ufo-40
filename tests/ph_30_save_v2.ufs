@@ -1,0 +1,35 @@
+# OPEN HOUSE: a save from before the owner's two guests (the second layout,
+# where the stock bought had 46 guests) is carried over: the lists won, the
+# streak, OPEN ALL NIGHT's bests and the run in progress.
+game openhouse
+wait 5
+cheat new 3 1
+cheat pop 10
+cheat shop 5
+expect bought5 == 1
+expect cards == 11
+cheat door 0 1
+expect n == 2
+cheat oldsave2 5
+reload
+game openhouse
+wait 30
+expect won == 5
+expect streak == 1
+expect best_streak == 4
+expect has_run == 1
+expect nbest2 == 3
+press A
+wait 5
+press A
+wait 5
+expect state == 5
+expect scen == 3
+expect players == 1
+expect n == 2
+expect night == 1
+expect npool == 15
+expect bought5 == 1
+expect cards == 11
+expect pop == 6
+expect jinx == 0

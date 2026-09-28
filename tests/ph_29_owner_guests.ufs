@@ -1,0 +1,202 @@
+# OPEN HOUSE: the owner's own two guests (not Party House's).
+# CROONER (46): cost 10, 0 fame, -$1. Its encore collects a chosen guest's
+#   pay now and gives every other guest in the house their action back; it
+#   is once a party for good (nothing refreshes a crooner).
+# ALBATROSS (47): cost 6, +6 fame, +$1. Everyone who comes in after him
+#   tonight is RUCKUS!, even after he has gone.
+# They are dealt by Random and OPEN ALL NIGHT (Random, big mix), never by
+# the five set lists.
+game openhouse
+wait 5
+# --- the crooner, by the buttons ---
+cheat new 1 1
+cheat give 18 1
+cheat give 27 1
+cheat give 46 1
+cheat cap 8
+cheat door 0 18 27 46
+expect gcost46 == 10
+expect gpop46 == 0
+expect gcash46 == -1
+expect slot3 == 46
+expect vpop3 == 0
+expect vcash3 == -1
+# the paparazzo (slot 1) scores the neighbour now
+press LEFT
+expect cur == 3
+press LEFT
+press LEFT
+expect cur == 1
+press A
+expect state == 6
+press A
+expect state == 5
+expect got_pop == 1
+expect canact1 == 0
+# nothing is used but the paparazzo, so the band leader could act; the
+# crooner (slot 3) scores the neighbour again and resets the paparazzo
+press RIGHT
+press RIGHT
+expect cur == 3
+expect canact3 == 1
+press A
+expect state == 6
+press A
+expect state == 5
+expect got_pop == 2
+expect canact1 == 1
+expect canact3 == 0
+# the band leader has nothing to reset: the crooner can't be refreshed
+expect canact2 == 0
+# the paparazzo again, then the band leader resets it but not the crooner
+press LEFT
+press LEFT
+press A
+press A
+expect got_pop == 3
+expect canact1 == 0
+expect canact2 == 1
+press RIGHT
+press A
+expect canact1 == 1
+expect canact3 == 0
+# the crooner can't score itself, and needs another guest
+cheat new 1 1
+cheat give 46 1
+cheat door 46
+expect canact0 == 0
+cheat door 0
+expect canact0 == 1
+press LEFT
+press LEFT
+expect cur == 0
+press A
+expect state == 6
+press A
+expect got_pop == 1
+expect canact0 == 0
+# --- the albatross ---
+cheat new 1 1
+cheat give 47 1
+cheat away 2
+cheat cap 8
+cheat door 0 47
+expect gcost47 == 6
+expect vpop1 == 6
+expect vcash1 == 1
+expect trouble == 0
+expect jinx == 1
+# every knock after him is RUCKUS!: two warn the neighbour, three bust
+expect cur == 100
+press A
+expect n == 3
+expect trouble == 1
+press A
+expect n == 4
+expect trouble == 2
+press A
+expect over == 2
+expect state == 10
+# the guests already in before him stay calm, and he isn't RUCKUS! himself
+cheat new 1 1
+cheat give 47 1
+cheat away 2
+cheat cap 8
+cheat door 0 1 47
+expect trouble == 0
+# the curse outlasts him: the bouncer sends him home, the next guest is
+# still RUCKUS!
+cheat new 1 1
+cheat give 7 1
+cheat give 47 1
+cheat away 2
+cheat door 7 47
+press LEFT
+press LEFT
+expect cur == 0
+press A
+expect state == 6
+press RIGHT
+press A
+expect n == 1
+expect slot0 == 7
+press RIGHT
+expect cur == 100
+press A
+expect n == 2
+expect trouble == 1
+# a reshuffle empties the house; he comes back calm, the others don't
+cheat new 1 1
+cheat give 47 1
+cheat give 11 1
+cheat away 2
+cheat cap 8
+cheat door 11 47
+cheat act 0 0
+expect n == 0
+cheat door 47 0
+expect trouble == 1
+# a surfer after him is RUCKUS! but calms itself
+cheat new 1 1
+cheat give 47 1
+cheat give 5 1
+cheat away 2
+cheat door 47 5
+expect trouble == 0
+# a new party: the curse is gone
+cheat new 1 1
+cheat give 47 1
+cheat away 2
+cheat door 47 0
+expect trouble == 1
+cheat end
+cheat next
+cheat leave
+cheat away 2
+cheat door 0 0
+expect trouble == 0
+# --- where they are sold ---
+cheat new 1 1
+expect sells46 == 0
+expect sells47 == 0
+expect inpool46 == 0
+expect inpool47 == 0
+cheat new 3 1
+expect sells46 == 0
+expect sells47 == 0
+cheat new 5 1
+expect sells46 == 0
+expect sells47 == 0
+cheat new 6 1
+expect sells46 == 1
+expect sells47 == 1
+cheat new 7 1
+expect base == 6
+expect sells46 == 1
+expect sells47 == 1
+# Random code 000001, typed in on the list grid, deals both
+cheat won 63
+cheat menu
+wait 2
+press DOWN
+press LEFT
+expect scen_sel == 5
+press A
+wait 2
+expect state == 18
+press DOWN
+press A
+wait 2
+expect state == 17
+press RIGHT
+press RIGHT
+press RIGHT
+press RIGHT
+press RIGHT
+press UP
+press A
+wait 2
+expect state == 3
+expect code == 1
+expect inpool46 == 1
+expect inpool47 == 1

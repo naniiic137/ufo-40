@@ -96,6 +96,9 @@ successful party. ⊚ marks an action (once a party).
 | SPHINX ☆ | Unicorn | 45 | | | cancels one RUCKUS! |
 | CHAMPION ☆ | Superhero | 50 | +3 | | |
 
+Two more guests, the CROONER and the ALBATROSS, are the owner's own and
+have no Party House name or wiki numbers; see Owner's additions, 8.
+
 ### The scenarios ([SO], [G])
 
 Every shop also sells Old Neighbours and Rich Cousins. Our guest lists are
@@ -116,8 +119,10 @@ The sources say only that it "throws together guests from the others" and
 that some deals are much harder than others. Ours deals, at random, two
 different stars from the nine and eleven different non-star guests from the
 thirty-four that can be bought (not counting the Old Neighbour and Rich
-Cousin), plus the Old Neighbours and Rich Cousins. Nothing is filtered, so
-some deals really are hard, as players describe.
+Cousin) plus the owner's two (Owner's additions, 8), plus the Old
+Neighbours and Rich Cousins. Nothing is filtered, so some deals really are
+hard, as players describe. Adding the owner's two changed which list each
+code deals (once); a code still deals the same list every time.
 
 Every Random list is dealt from a six-digit code, as the original's are
 ([S], [W]). The intro shows it; on the list grid, A on the Random tile
@@ -254,7 +259,8 @@ here still follows Party House.
 5. **Guests the owner described.** He named three kinds, then nineteen
    abilities. All but two are already Party House guests here with the
    original's exact numbers (checked again against [W] and [S] for this
-   pass; nothing needed changing). See the table below.
+   pass; nothing needed changing). See the table below. The other two are
+   now guests of their own (8).
 6. **Shop moves.** Every move wraps: LEFT and RIGHT go round a row of cards,
    UP from the top row jumps to NEXT PARTY, DOWN from the last row reaches
    the button under that column (SPACE under the first two, GUEST BOOK
@@ -267,6 +273,42 @@ here still follows Party House.
    Each tile shows its name, its star guests (dice for Random), a star when
    won and the stars it has. LEFT and RIGHT go round a row, UP and DOWN
    round the rows (keeping the column through the wide tile), A picks.
+8. **Two guests of the owner's own.** Hamza remembers both from Party
+   House. We searched again for this pass (the wiki's full guest list, the
+   Setsideb guide, the Steam guides we could reach, reviews): none names a
+   guest that does either, and [W]'s list has the same 46 guests as ours.
+   So the names, faces, lines and numbers below are ours, balanced
+   against the roster:
+
+   | # | Ours | Cost | Pop | Cash | What it does |
+   |---|---|---|---|---|---|
+   | 46 | CROONER | 10 | 0 | −1 | ⊚ collect a chosen other guest's pay now (they pay again at the end, as with the paparazzo), then every other guest in the house gets their used action back (as with the band leader) |
+   | 47 | ALBATROSS | 6 | +6 | +1 | every guest who comes in after him this party is RUCKUS! |
+
+   - **The crooner** does the paparazzo's and the band leader's jobs in
+     one, so it costs what the two cost together, pays no fame and charges
+     $1. Its drawback: the encore is **once a party for good**. Nothing
+     refreshes a crooner (not a band leader, not another crooner), so a
+     crooner and a band leader can't refresh each other without end. Its
+     line: "TAKES A BOW. THEN TAKES ANOTHER."
+   - **The albatross** pays well (+6 fame and $1, not RUCKUS! himself) for
+     a curse: from the moment he comes in, every guest who enters after him
+     tonight is RUCKUS! (the door, a fetch, a guest brought along, the
+     usher's, a swap), even once he is booted or the house is emptied and
+     reshuffled. The guests already in stay as they were, and an albatross
+     is never cursed (not even coming back after a reshuffle). A surfer, kitten
+     or sphinx coming after him is RUCKUS! but still calms one, so it
+     comes out even; the old sage calms those in the house, as usual; the
+     poet and barista love him. The curse ends with the party. His line:
+     "SAILORS WON'T SHARE A ROOM WITH HIM."
+   - **Where they are sold:** the Random list and OPEN ALL NIGHT's Random
+     and big mix may deal them (and the big mix's new faces). The five set
+     lists keep exactly the original's pools for now. Which lists sell them
+     is one table (`PH_OWNER_LISTS` in `openhouse_logic.c`, a bit per
+     list), so if Hamza names the scenarios they belong in, only that table
+     changes.
+   - They sit after the stars in the roster (numbers 46 and 47), so older
+     saves keep their guests; a save from before them is carried over.
 
 ### The guest abilities the owner asked for
 
@@ -280,7 +322,7 @@ here still follows Party House.
 | 3 | +1 for each Old Friend | GRANNY (each OLD NEIGHBOUR) | Mascot | no |
 | 4 | +2 for each trouble guest | POET | Writer | no |
 | 5 | +1 each time it enters, up to 9 | UPSTART | Climber | no |
-| 6 | score a guest and reset other actions | PAPARAZZO scores a guest; BAND LEADER resets the others' actions | Photographer; Cheerleader | no: no single original guest does both ([W], [S]) |
+| 6 | score a guest and reset other actions | CROONER (the owner's, 8); also PAPARAZZO scores a guest and BAND LEADER resets the others' actions | none; Photographer, Cheerleader | added as the owner's: no original guest does both in [W] or [S] |
 | 7 | +1 popularity to any guest, for good | TAILOR (under 9) | Stylist | no |
 | 8 | clear all trouble | OLD SAGE | Counselor | no |
 | 9 | brings 2 guests, +2 pop, +3 cash | POP IDOL (cost 11) | Celebrity | no |
@@ -290,7 +332,7 @@ here still follows Party House.
 | 13 | star who gives 3 cash | TYCOON ☆ | Leprechaun | no |
 | 14 | star who cancels 1 trouble | SPHINX ☆ | Unicorn | no |
 | 15 | star who boots a guest | SHADOW ☆ | Ghost | no |
-| 16 | anyone who enters after him is trouble | none | none ([W] and [S] list no such guest) | not added |
+| 16 | anyone who enters after him is trouble | ALBATROSS (the owner's, 8) | none ([W] and [S] list no such guest) | added as the owner's |
 | 17 | open the door and score the guest(s) | USHER | Greeter | no |
 | 18 | swap a star and a non-star | FORTUNE TELLER | Magician | no |
 | 19 | boot two adjacent guests | MATCHMAKER | Cupid | no |

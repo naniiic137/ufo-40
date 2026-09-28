@@ -188,6 +188,7 @@ static const struct { uint8_t type; Person p; } PEOPLE[] = {
     {G_CARDSHARK,   {SK_A, 'k', 'n', H_SLICK, K_VISOR, 'j', F_MOUSTACHE, C_VEST, 'w', 'f', P_CARDS}},
     {G_TYCOON,      {SK_C, 'k', 'n', H_SHORT, K_TOPHAT, 'k', F_BEARD | F_GRIN, C_SASH, 'a', 'r', P_NONE}},
     {G_CHAMPION,    {SK_B, 'k', 'n', H_SHORT, K_BAND, 'r', F_GRIN, C_BELT, 'r', 'y', P_NONE}},
+    {G_CROONER,     {SK_A, 'k', 'n', H_SLICK, K_NONE, 0, F_GRIN | F_MOUSTACHE, C_BOWTIE, 'V', 'y', P_MIC}},
 };
 
 /* ------------------------------------------------------------------ */
@@ -209,6 +210,24 @@ static const char GOAT[] =
     "......kggk......"
     "......kggk......"
     ".......kk......."
+    "................";
+/* the owner's albatross: a big white seabird with long grey wings */
+static const char ALBATROSS[] =
+    "................"
+    "......kkkk......"
+    ".....kwwwwk....."
+    "....kwwwwwwk...."
+    "....kwkwwwwk...."
+    "....kwwwwwwkkkk."
+    "....kwwwwwwyyyak"
+    ".....kwwwwwkkkk."
+    "kk....kwwwwk...."
+    "kgkk.kwwwwwwk..."
+    ".kggkwwwwwwwwk.."
+    "..kgggggwwwwwk.."
+    "...kggggggwwwk.."
+    "....kkggggggk..."
+    "......kkakkak..."
     "................";
 static const char KITTEN[] =
     "................"
@@ -427,6 +446,7 @@ void ph_art_load(void) {
     }
     spr_make(&ph_spr[G_GOAT], 16, 16, GOAT);
     spr_make(&ph_spr[G_KITTEN], 16, 16, KITTEN);
+    spr_make(&ph_spr[G_ALBATROSS], 16, 16, ALBATROSS);
     spr_make(&ph_spr[G_PARROT], 16, 16, PARROT);
     spr_make(&ph_spr[G_PILOT], 16, 16, PILOT);
     spr_make(&ph_spr[G_WISHFISH], 16, 16, WISHFISH);

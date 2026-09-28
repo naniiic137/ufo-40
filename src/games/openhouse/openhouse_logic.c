@@ -58,7 +58,27 @@ const PhGuest PH_GUESTS[G_COUNT] = {
     {"SHADOW",         45,  0,  0, A_BOOT,      T_STAR, "STAR GUEST. " BOOT, "LURKS IN THE CORNERS."},
     {"SPHINX",         45,  0,  0, A_NONE,      T_STAR | T_PEACE, "STAR GUEST. " PEACE, "ASKS RIDDLES. KEEPS\nTHE PEACE."},
     {"CHAMPION",       50,  3,  0, A_NONE,      T_STAR, "STAR GUEST.", "SIGNS AUTOGRAPHS."},
+    /* the owner's own two (not Party House's; see the design doc) */
+    {"CROONER",        10,  0, -1, A_ENCORE,    0, "COLLECT A GUEST'S PAY\nNOW, THEN EVERYONE ELSE\nCAN ACT AGAIN. ONCE ONLY.", "TAKES A BOW. THEN\nTAKES ANOTHER."},
+    {"ALBATROSS",       6,  6,  1, A_NONE,      T_JINX, "EVERYONE WHO COMES IN\nAFTER HIM TONIGHT IS\nRUCKUS!", "SAILORS WON'T SHARE\nA ROOM WITH HIM."},
 };
+
+/* Which lists sell the owner's guests: one bit per list (bit 0..4 the set
+ * lists, bit PH_RANDOM the Random list, bit PH_ENDLESS OPEN ALL NIGHT's big
+ * mix). A set list adds them to its fixed pool; Random and the big mix may
+ * deal them. For now they are only dealt at random; putting one in a set
+ * list is a change to this table alone. */
+#define L_LIST(i) (1u << (i))
+static const struct { uint8_t type, lists; } PH_OWNER_LISTS[] = {
+    {G_CROONER,   L_LIST(PH_RANDOM) | L_LIST(PH_ENDLESS)},
+    {G_ALBATROSS, L_LIST(PH_RANDOM) | L_LIST(PH_ENDLESS)},
+};
+
+static bool owner_sells(int list, int type) {
+    for (int i = 0; i < (int)(sizeof PH_OWNER_LISTS / sizeof PH_OWNER_LISTS[0]); i++)
+        if (PH_OWNER_LISTS[i].type == type) return (PH_OWNER_LISTS[i].lists >> list) & 1;
+    return false;
+}
 
 const PhScenario PH_SCEN[PH_SCENARIOS] = {
     {"EARLY JUNE", "ONE STAR GUEST, FOUR TIMES\nOVER. THE ROOF IS READY.", 13,
@@ -99,12 +119,31 @@ static int pool_cmp(const void *a, const void *b) {
     return x - y;
 }
 
-/* deal n different guests of types first..last (not already on sale) into
- * the shop; the same draws as the Random Scenario always made */
-static void deal(PhGame *g, int first, int last, int n) {
+/* a guest a random deal may put in the list's shop: a star, or one of the
+ * original's buyable guests, or an owner's guest his table sells there */
+static bool dealable(int list, int type, bool stars) {
+    if (stars) return type >= G_FIRST_STAR && type <= G_LAST_STAR;
+    return (type >= G_FIRST_BUYABLE && type <= G_LAST_BUYABLE) || owner_sells(list, type);
+}
+
+bool ph_list_sells(int list, int type) {
+    if (type < 0 || type >= G_COUNT || list < 0 || list > PH_ENDLESS) return false;
+    if (type == G_NEIGHBOUR || type == G_COUSIN) return true;
+    if (list < PH_SCENARIOS) {
+        for (int i = 0; i < PH_SCEN[list].n; i++)
+            if (PH_SCEN[list].pool[i] == type) return true;
+        return owner_sells(list, type);
+    }
+    return dealable(list, type, false) || dealable(list, type, true);
+}
+
+/* deal n different guests (stars, or the others) that the list may sell and
+ * that aren't already on sale into the shop */
+static void deal(PhGame *g, int list, bool stars, int n) {
     uint8_t pick[G_COUNT];
     int np = 0;
-    for (int t = first; t <= last; t++) {
+    for (int t = 0; t < G_COUNT; t++) {
+        if (!dealable(list, t, stars)) continue;
         bool on_sale = false;
         for (int i = 0; i < g->npool; i++) on_sale |= g->pool[i] == t;
         if (!on_sale) pick[np++] = (uint8_t)t;
@@ -123,16 +162,19 @@ static void fill_pool(PhGame *g, int scen) {
     g->pool[g->npool++] = G_COUSIN;
     if (scen < PH_SCENARIOS) {
         for (int i = 0; i < PH_SCEN[scen].n; i++) g->pool[g->npool++] = PH_SCEN[scen].pool[i];
+        /* plus any owner's guest his table puts in this list */
+        for (int t = G_FIRST_OWNER; t < G_COUNT && g->npool < PH_POOL_MAX; t++)
+            if (owner_sells(scen, t)) g->pool[g->npool++] = (uint8_t)t;
     } else if (scen == PH_RANDOM) {
         /* the Random Scenario: two different stars, eleven different guests */
-        deal(g, G_FIRST_STAR, G_COUNT - 1, 2);
-        deal(g, G_FIRST_BUYABLE, G_LAST_BUYABLE, 11);
+        deal(g, PH_RANDOM, true, 2);
+        deal(g, PH_RANDOM, false, 11);
     } else {
         /* OPEN ALL NIGHT (the owner's): a bigger random shop from the whole
          * roster, a goal that grows by a star each time it is met, and a
          * clock that every star party pushes back */
-        deal(g, G_FIRST_STAR, G_COUNT - 1, PH_ENDLESS_STARS);
-        deal(g, G_FIRST_BUYABLE, G_LAST_BUYABLE, PH_ENDLESS_GUESTS);
+        deal(g, PH_ENDLESS, true, PH_ENDLESS_STARS);
+        deal(g, PH_ENDLESS, false, PH_ENDLESS_GUESTS);
     }
     qsort(g->pool, g->npool, 1, pool_cmp);
 }
@@ -260,7 +302,12 @@ static void admit(PhGame *g, int card) {
     if (pa->nlast < PH_MAX_HOUSE) pa->last[pa->nlast++] = (uint8_t)card;
     pa->calm[card] = 0;
     if (c->visits < 250) c->visits++;
-    pa->wild[card] = (t->traits & T_TROUBLE) || ((t->traits & T_MOON) && (c->visits & 1));
+    /* the albatross (the owner's): whoever comes in after him tonight is
+     * RUCKUS!, even once he has gone; those already here are not, and an
+     * albatross (coming back after a reshuffle, say) never is */
+    pa->wild[card] = (t->traits & T_TROUBLE) || ((t->traits & T_MOON) && (c->visits & 1)) ||
+                     (pa->jinx && !(t->traits & T_JINX));
+    if (t->traits & T_JINX) pa->jinx = 1;
     if (ph_trouble(g) >= 2) pa->warned = 1;
     if (ph_trouble(g) >= 3) { pa->over = PO_POLICE; return; }
     int bring = (t->traits & T_BRING2) ? 2 : (t->traits & T_BRING1) ? 1 : 0;
@@ -343,12 +390,21 @@ bool ph_target_ok(const PhGame *g, int slot, int target) {
     int tc = pa->house[target];
     switch (act) {
     case A_BOOT: return true;
-    case A_PHOTO: return target != slot;
+    case A_PHOTO: case A_ENCORE: return target != slot;
     case A_STYLE: return ph_value_pop(g, tc) < 9;
     case A_MAGIC: return any_in_pool(g, !is_star(p->card[tc].type));
     case A_CUPID: return target + 1 < pa->n && (target % PH_ROW) != PH_ROW - 1;
     default: return false;
     }
+}
+
+/* who a refresh gives their action back to: a band leader doesn't refresh
+ * other band leaders (the original's rule), and nothing refreshes a crooner,
+ * whose encore is once a party for good (the owner's; otherwise a crooner
+ * and a band leader would refresh each other without end) */
+static bool refreshable(int type, int by) {
+    if (type == G_CROONER) return false;
+    return !(by == G_BANDLEADER && type == G_BANDLEADER);
 }
 
 bool ph_can_act(const PhGame *g, int slot) {
@@ -368,7 +424,7 @@ bool ph_can_act(const PhGame *g, int slot) {
     case A_CHEER:
         for (int i = 0; i < pa->n; i++) {
             int c = pa->house[i];
-            if (pa->used[c] && p->card[c].type != G_BANDLEADER) return true;
+            if (pa->used[c] && refreshable(p->card[c].type, G_BANDLEADER)) return true;
         }
         return false;
     case A_GREET: return pa->n < p->cap && (pa->peek >= 0 || any_in_pool(g, -1));
@@ -426,7 +482,17 @@ bool ph_act(PhGame *g, int slot, int target) {
     case A_CHEER:
         pa->used[card] = 1;
         for (int i = 0; i < pa->n; i++)
-            if (p->card[pa->house[i]].type != G_BANDLEADER) pa->used[pa->house[i]] = 0;
+            if (refreshable(p->card[pa->house[i]].type, G_BANDLEADER)) pa->used[pa->house[i]] = 0;
+        return true;
+    case A_ENCORE:
+        /* the crooner (the owner's): a guest pays now, like the paparazzo's,
+         * then everyone else in the house gets their action back, like the
+         * band leader's */
+        if (!ph_target_ok(g, slot, target)) return false;
+        pa->used[card] = 1;
+        collect(g, pa->house[target]);
+        for (int i = 0; i < pa->n; i++)
+            if (pa->house[i] != card && refreshable(p->card[pa->house[i]].type, G_CROONER)) pa->used[pa->house[i]] = 0;
         return true;
     case A_GREET: {
         int c = pa->peek >= 0 ? pa->peek : ph_draw(g);
@@ -594,7 +660,7 @@ bool ph_endless_refresh(PhGame *g) {
     for (int k = 0; k < 3; k++) {
         int idx[PH_POOL_MAX], n = 0;
         for (int i = 0; i < g->npool; i++)
-            if (g->pool[i] >= G_FIRST_BUYABLE && g->pool[i] <= G_LAST_BUYABLE) idx[n++] = i;
+            if (dealable(PH_ENDLESS, g->pool[i], false)) idx[n++] = i;
         if (n == 0) break;
         int out = idx[rnd(g, n)];
         gone[ngone++] = g->pool[out];
@@ -603,7 +669,7 @@ bool ph_endless_refresh(PhGame *g) {
     /* the ones who just left can't walk straight back in */
     int keep = g->npool;
     for (int k = 0; k < ngone; k++) g->pool[g->npool++] = gone[k];
-    deal(g, G_FIRST_BUYABLE, G_LAST_BUYABLE, ngone);
+    deal(g, PH_ENDLESS, false, ngone);
     for (int i = keep + ngone; i < g->npool; i++) g->pool[i - ngone] = g->pool[i];
     g->npool = (uint8_t)(g->npool - ngone);
     qsort(g->pool, g->npool, 1, pool_cmp);
