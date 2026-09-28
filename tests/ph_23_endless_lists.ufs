@@ -98,6 +98,9 @@ cheat menu
 wait 2
 press DOWN
 press DOWN
+# column 3 of the bottom row is the custom list's tile; OPEN ALL NIGHT is left of it
+expect scen_sel == 7
+press LEFT
 expect scen_sel == 6
 press A
 expect scen_endless == 1

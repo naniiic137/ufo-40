@@ -1,0 +1,64 @@
+# OPEN HOUSE: Party House caps fame at 65 ([V]) and cash at $30 ([S]). Pay
+# past a cap is lost: at the end of a party (income first, then the guests
+# who charge), for the paparazzo and usher, and in the tally's count. The
+# top bar says MAX. The upstart is worth 9 at most, a tailor's +1s too.
+game openhouse
+wait 5
+cheat new 1 1
+cheat pop 60
+cheat cash 28
+cheat give 19 2
+cheat give 20 2
+cheat door 19 19 20 20
+expect n == 4
+expect trouble == 0
+cheat end
+expect pop == 65
+expect cash == 28
+expect end_pop == 8
+expect end_cash == 0
+hold A
+waituntil tally == 3 400
+release A
+expect tallypop == 65
+expect tallycash == 28
+# at the cap already: fame and cash stay put, with nothing lost
+cheat next
+cheat leave
+wait 2
+cheat pop 65
+cheat cash 30
+cheat give 34 1
+cheat door 34
+cheat end
+expect pop == 65
+expect cash == 30
+# the paparazzo's pay now stops at the cap as well
+cheat next
+cheat leave
+wait 2
+cheat pop 3
+cheat cash 29
+cheat give 18 1
+cheat give 35 1
+cheat door 18 35
+cheat act 0 1
+expect cash == 30
+expect got_cash == 1
+# OPEN ALL NIGHT keeps the caps
+cheat new 7 1
+cheat pop 64
+cheat cash 29
+cheat give 19 1
+cheat give 20 1
+cheat door 19 20
+cheat end
+expect pop == 65
+expect cash == 29
+expect top_pop == 65
+# the upstart: 7 visits and two tailor's +1s would be 10; it's 9
+cheat new 2 1
+cheat give 26 1
+cheat card 26 7 2
+cheat door 26
+expect vpop0 == 9

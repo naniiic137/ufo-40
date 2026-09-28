@@ -1,7 +1,7 @@
 # OPEN HOUSE (owner's addition): the lists sit in a grid of tiles, three to
-# a row (1 2 3 / 4 5 RANDOM) over one wide OPEN ALL NIGHT tile. The D-pad
-# moves in 2D and wraps; UP and DOWN keep the column through the wide
-# tile; A picks.
+# a row (1 2 3 / 4 5 RANDOM) over a bottom row of OPEN ALL NIGHT (two
+# columns wide) and CUSTOM (the third column). The D-pad moves in 2D and
+# wraps; UP and DOWN keep the column through the wide tile; A picks.
 game openhouse
 wait 30
 cheat won 63
@@ -23,18 +23,30 @@ press LEFT
 expect scen_sel == 2
 press DOWN
 expect scen_sel == 5
+# the third column reaches CUSTOM
 press DOWN
-expect scen_sel == 6
-# LEFT and RIGHT stay on the wide tile
-press LEFT
-expect scen_sel == 6
+expect scen_sel == 7
 press DOWN
 expect scen_sel == 2
 press UP
+expect scen_sel == 7
+# LEFT and RIGHT go round the bottom row's two tiles
+press LEFT
+expect scen_sel == 6
+press RIGHT
+expect scen_sel == 7
+press RIGHT
+expect scen_sel == 6
+press LEFT
+expect scen_sel == 7
+press LEFT
+expect scen_sel == 6
+# the wide tile keeps the column it was left by (the second, here)
+press DOWN
+expect scen_sel == 1
+press UP
 expect scen_sel == 6
 press UP
-expect scen_sel == 5
-press LEFT
 expect scen_sel == 4
 press LEFT
 expect scen_sel == 3
@@ -42,8 +54,14 @@ press LEFT
 expect scen_sel == 5
 press UP
 expect scen_sel == 2
+# the first two columns reach OPEN ALL NIGHT
 press LEFT
-press DOWN
+press LEFT
+press UP
+expect scen_sel == 6
+press UP
+expect scen_sel == 3
+press RIGHT
 expect scen_sel == 4
 press A
 wait 5

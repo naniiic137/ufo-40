@@ -98,6 +98,8 @@ const PhScenario PH_SCEN[PH_SCENARIOS] = {
       G_MERCHANT, G_IDOL, G_UPSTART, G_SHADOW, G_SPHINX}},
 };
 
+static int lmin(int a, int b) { return a < b ? a : b; }
+static int lmax(int a, int b) { return a > b ? a : b; }
 static int rnd(PhGame *g, int n) { return n <= 1 ? 0 : (int)(rng_next(&g->rng) % (uint32_t)n); }
 static bool is_star(int type) { return (PH_GUESTS[type].traits & T_STAR) != 0; }
 
@@ -165,6 +167,8 @@ static void fill_pool(PhGame *g, int scen) {
         /* plus any owner's guest his table puts in this list */
         for (int t = G_FIRST_OWNER; t < G_COUNT && g->npool < PH_POOL_MAX; t++)
             if (owner_sells(scen, t)) g->pool[g->npool++] = (uint8_t)t;
+    } else if (scen == PH_CUSTOM) {
+        /* the custom list: ph_new_custom puts the chosen guests in */
     } else if (scen == PH_RANDOM) {
         /* the Random Scenario: two different stars, eleven different guests */
         deal(g, PH_RANDOM, true, 2);
@@ -206,6 +210,25 @@ void ph_new_endless(PhGame *g, int base, uint64_t seed) {
     if (base < 0 || base > PH_ENDLESS) base = PH_ENDLESS;
     g->base = (uint8_t)base;
     if (base != PH_ENDLESS) fill_pool(g, base);
+}
+
+bool ph_custom_locked(int type) { return type == G_NEIGHBOUR || type == G_COUSIN || type == G_ROWDY; }
+
+/* the custom list (the owner's): the shop sells neighbours, cousins and the
+ * chosen guests (the rowdy mates are in the guest book, as always). It plays
+ * by the usual rules, or as OPEN ALL NIGHT with no last night. */
+void ph_new_custom(PhGame *g, const uint8_t *types, int n, bool endless, int players, uint64_t seed) {
+    ph_new(g, endless ? PH_ENDLESS : PH_CUSTOM, endless ? 1 : players, seed);
+    g->base = PH_CUSTOM;
+    fill_pool(g, PH_CUSTOM);
+    for (int i = 0; i < n && g->npool < PH_POOL_MAX; i++) {
+        int t = types[i];
+        if (t < 0 || t >= G_COUNT || ph_custom_locked(t)) continue;
+        bool on_sale = false;
+        for (int k = 0; k < g->npool; k++) on_sale |= g->pool[k] == t;
+        if (!on_sale) g->pool[g->npool++] = (uint8_t)t;
+    }
+    qsort(g->pool, g->npool, 1, pool_cmp);
 }
 
 void ph_start_party(PhGame *g) {
@@ -259,7 +282,7 @@ int ph_value_pop(const PhGame *g, int card) {
     const PhCard *c = &p->card[card];
     const PhGuest *t = &PH_GUESTS[c->type];
     int v = t->pop + c->bonus;
-    if (t->traits & T_UPSTART) v = (c->visits > 9 ? 9 : c->visits) + c->bonus;
+    if (t->traits & T_UPSTART) v = lmin(c->visits + c->bonus, 9); /* up to 9 in all, a tailor's +1s too */
     if (t->traits & T_DRUM) v += ph_count_type(g, G_DRUMMER, W_HOUSE);
     if (t->traits & T_GRANNY) v += ph_count_type(g, G_NEIGHBOUR, W_HOUSE);
     if (t->traits & T_BOOK) v += p->cap - g->party.n;
@@ -328,17 +351,23 @@ static void remove_slot(PhGame *g, int slot, int where) {
     pa->n--;
 }
 
+/* Party House caps fame at 65 and cash at $30 ([V], [S]): pay that would
+ * go past a cap is lost */
+int ph_add_pop(int have, int v) { return v > 0 ? lmax(have, lmin(have + v, PH_POP_CAP)) : lmax(0, have + v); }
+int ph_add_cash(int have, int v) { return v > 0 ? lmax(have, lmin(have + v, PH_CASH_CAP)) : have + v; }
+
 /* pay out one guest now (paparazzo, usher): a drummer brings the whole band's pay */
 static void collect(PhGame *g, int card) {
     PhPlayer *p = ph_me(g);
     int v = ph_value_pop(g, card);
     if (PH_GUESTS[p->card[card].type].traits & T_DRUM) v *= ph_count_type(g, G_DRUMMER, W_HOUSE);
     int c = ph_value_cash(g, card);
-    p->pop = (int16_t)(p->pop + v < 0 ? 0 : p->pop + v);
+    p->pop = (int16_t)ph_add_pop(p->pop, v);
     g->party.got_pop = (int16_t)(g->party.got_pop + v);
     if (c >= 0) {
-        p->cash = (int16_t)(p->cash + c);
-        g->party.got_cash = (int16_t)(g->party.got_cash + c);
+        int was = p->cash;
+        p->cash = (int16_t)ph_add_cash(was, c);
+        g->party.got_cash = (int16_t)(g->party.got_cash + p->cash - was);
     } else if (p->cash >= -c) {
         p->cash = (int16_t)(p->cash + c);
         g->party.got_cash = (int16_t)(g->party.got_cash + c);
@@ -556,10 +585,12 @@ bool ph_should_end(const PhGame *g) {
  * (they cost 7 popularity instead). Returns the penalty. */
 int ph_pay_order(const PhGame *g, int cash, uint8_t unpaid[PH_MAX_HOUSE]) {
     const PhParty *pa = &g->party;
+    int income = 0;
     for (int i = 0; i < pa->n; i++) {
         int c = ph_value_cash(g, pa->house[i]);
-        if (c > 0) cash += c;
+        if (c > 0) income += c;
     }
+    cash = ph_add_cash(cash, income);  /* the income stops at the cap */
     int penalty = 0;
     for (int i = 0; i < pa->n; i++) {
         int c = ph_value_cash(g, pa->house[i]);
@@ -598,18 +629,18 @@ void ph_end_party(PhGame *g) {
         int c = ph_value_cash(g, pa->house[i]);
         if (c > 0) income += c;
     }
-    int np = p->pop + pop;
-    p->pop = (int16_t)(np < 0 ? 0 : np);
-    p->cash = (int16_t)(p->cash + income);
-    int spent = 0, penalty = 0;
+    int cash0 = p->cash;
+    p->pop = (int16_t)ph_add_pop(p->pop, pop);
+    p->cash = (int16_t)ph_add_cash(p->cash, income);
+    int penalty = 0;
     for (int i = 0; i < pa->n; i++) {
         int c = ph_value_cash(g, pa->house[i]);
         if (c >= 0) continue;
-        if (!unpaid[i]) { p->cash = (int16_t)(p->cash + c); spent -= c; }
+        if (!unpaid[i]) p->cash = (int16_t)(p->cash + c);
         else { penalty += 7; p->pop = (int16_t)(p->pop - 7 < 0 ? 0 : p->pop - 7); }
     }
     pa->end_pop = (int16_t)pop;
-    pa->end_cash = (int16_t)(income - spent);
+    pa->end_cash = (int16_t)(p->cash - cash0);   /* what it came to, after the cap */
     pa->penalty = (int16_t)penalty;
     pa->over = PO_ENDED;
     if (g->scen == PH_ENDLESS) {

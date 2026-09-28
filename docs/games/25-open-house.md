@@ -28,6 +28,7 @@ list; the Random Scenario deals its own pool (see the generator rules below).
 | Scoring | a party that ends without a shutdown pays every guest's popularity and cash | [W] |
 | Unpaid guests | the party's cash income comes in first, then each guest who charges cash is paid; one you can't pay costs 7 popularity instead | [W] "after accounting for any added cash by other guests first", "-7 popularity per guest that cannot be paid" |
 | No negative popularity | popularity never drops below 0; a popularity charge you can't pay does nothing | [S] "you can't go into negative Pop", "If you have a Pop penalty that you can't pay, nothing happens" |
+| Caps | popularity stops at 65 and cash at $30: pay past a cap is lost (at the end of a party, where the income comes in before the guests who charge are paid; for the paparazzo, usher and crooner; in the tally's count; in every mode). The top bars say MAX at a cap | [V] "a cap on popularity and money gains", "if you capped popularity and bought an alien you have 25 left over" (65 − 40); [S] "the Cash cap, of $30" |
 | Police | three rowdy guests at once (the original's red X; ours say RUCKUS!) bring the police; at two the neighbour's lamp comes on (the original's cat) | [W], [G] |
 | Fire marshal | guests brought in by others that overflow the house bring the fire department | [W], [S] |
 | Shutdown | no rewards, and you pick one guest who can't come to the next party | [W], [S] |
@@ -75,7 +76,7 @@ successful party. ⊚ marks an action (once a party).
 | TAILOR | Stylist | 7 | | −1 | ⊚ a guest's popularity goes up by 1 for the rest of the scenario (if under 9) |
 | BARISTA | Bartender | 11 | +1 | | +2 cash for each RUCKUS! in the house |
 | POET | Writer | 8 | +1 | | +2 popularity for each RUCKUS! in the house |
-| UPSTART | Climber | 12 | ★ | | 1 more popularity every time it enters, up to 9 |
+| UPSTART | Climber | 12 | ★ | | 1 more popularity every time it enters, up to 9 (a tailor's +1s included) |
 | BAND LEADER | Cheerleader | 5 | +1 | | ⊚ refreshes the other guests' used actions (not other band leaders) |
 | USHER | Greeter | 5 | +1 | | ⊚ lets in the next guest and collects their pay now, with anyone they bring |
 | FORTUNE TELLER | Magician | 5 | +1 | | ⊚ swaps a non-star guest for a random star from the rolodex, or a star for a random non-star (the player doesn't pick [S]) |
@@ -159,6 +160,8 @@ streak, either way, so a known list can't be replayed into a streak.
   in all); a paparazzo or usher collecting one drummer collects the whole
   group's pay.
 - **Upstart** starts at 0 and gains 1 on each entrance before it is scored.
+  It is worth 9 at most in all, a tailor's +1s included: [W] says only "up
+  to a max of 9", and no source says whether the Stylist's +1 goes past it.
 - **Usher:** the guests let in are paid at once only if that knock didn't
   bring the police or the fire marshal.
 - **Paying at once** (paparazzo, usher) follows the same rule as the end of a
@@ -204,7 +207,8 @@ The platform needs every UFO 40 cartridge has:
 
 - the START pause menu;
 - saving: scenarios won, the unlocks, the streak and the run in progress
-  (an older save is carried over; OPEN ALL NIGHT's bests are the owner's);
+  (an older save is carried over; OPEN ALL NIGHT's bests and the custom
+  list are the owner's);
 - the three UFO 40 goals, which replicate Party House's own three:
 
 | UFO 40 goal | Condition | Party House's goal |
@@ -269,10 +273,12 @@ here still follows Party House.
    first row. B anywhere goes to NEXT PARTY, and a second B (or A) starts
    the party.
 7. **The list grid.** The scenario menu is a grid of tiles, three to a row
-   (1 2 3 / 4 5 RANDOM) with OPEN ALL NIGHT as one wide tile underneath.
-   Each tile shows its name, its star guests (dice for Random), a star when
-   won and the stars it has. LEFT and RIGHT go round a row, UP and DOWN
-   round the rows (keeping the column through the wide tile), A picks.
+   (1 2 3 / 4 5 RANDOM) with a bottom row of OPEN ALL NIGHT (two columns
+   wide) and CUSTOM (9) under the third column. Each tile shows its name,
+   its star guests (dice for Random), a star when won and the stars it has.
+   LEFT and RIGHT go round a row, UP and DOWN round the rows (keeping the
+   column; the wide tile keeps the column it was entered by), A picks. In
+   OPEN ALL NIGHT's own grid the bottom row is THE BIG MIX and CUSTOM.
 8. **Two guests of the owner's own.** Hamza remembers both from Party
    House. We searched again for this pass (the wiki's full guest list, the
    Setsideb guide, the Steam guides we could reach, reviews): none names a
@@ -309,6 +315,41 @@ here still follows Party House.
      changes.
    - They sit after the stars in the roster (numbers 46 and 47), so older
      saves keep their guests; a save from before them is carried over.
+
+9. **The custom list.** The CUSTOM tile opens an editor where the player
+   picks which guests and stars the shop sells.
+   - **The editor** is a grid of every guest in roster order, eight by six:
+     all 46 of Party House's and the owner's two, each with its face and its
+     cost. The D-pad moves and wraps; A puts a guest in or takes it out.
+     A guest that is out has its face in the shade. The panel on the right
+     tells the guest under the cursor in full: cost, fame, cash, what it
+     does and its line. The top bar counts the guests and the stars chosen
+     (orange while too few) and shows the list's record.
+   - **Locked guests** (a lock icon): the OLD NEIGHBOUR and RICH COUSIN,
+     which every shop sells, and the ROWDY MATE, which is in every starting
+     guest book and can't be bought. They can't be taken out; A on one says
+     ALWAYS INVITED. They don't count in the guests counter.
+   - **To play** a list needs **at least one star** (a party with four stars
+     wins; a star can be bought again and again, so one is enough, as in
+     list 1) and **at least six guests** besides the locked ones and the
+     stars: half a set list (those sell 11 or 12), so the shop has real
+     choices for calming the rowdy mates and earning the fame stars cost.
+     PLAY below either says which and why, and stays in the editor.
+   - **The buttons** beside the grid: PLAY; ALL NIGHT ON/OFF; CLEAR ALL
+     (everyone out but the locked guests); RANDOMISE (one to three stars
+     and six to sixteen guests from the whole roster, so always playable).
+   - **The rules** are the usual ones: 25 nights, four stars at a party that
+     ends well. With **ALL NIGHT on**, the list plays as OPEN ALL NIGHT (4)
+     with its own best; from OPEN ALL NIGHT's grid the tile opens the editor
+     with ALL NIGHT on. Two players can play a custom list, but not all
+     night.
+   - **Saving:** the list and the toggle are saved as they are changed. The
+     list starts as list 1's guests. It keeps **its own record** (wins and
+     the fewest nights to a win, on the tile and in the editor); its wins
+     never open lists, count for the streak or win goals.
+   - The shop holds up to 47 guests (neighbours, cousins and all 45 others),
+     so it scrolls; the intro packs a big list's faces closer. A save from
+     before the custom list (a shop of 24 at most) is carried over.
 
 ### The guest abilities the owner asked for
 
@@ -394,7 +435,7 @@ seeded random number generator, so the tests can replay parties exactly.
 - [S] Setsideb, "Oh God, It's A Comprehensive Strategy Guide for Party House":
   25 nights, 34 spaces at most, the fire marshal, picking the guest who takes
   the blame, the drummer-and-photographer rule, the werewolf's first form,
-  the five set scenarios and the Random streak.
+  the five set scenarios, the Random streak and "the Cash cap, of $30".
   https://setsideb.com/oh-god-its-a-comprehensive-strategy-guide-for-party-house-ufo-50-25/
 - [SC] Static Canvas, "The UFO 50 Diaries: Party House" (and a reader's
   comment): 25 rounds, the shared pool of purchasable guests in 2P.
@@ -406,5 +447,11 @@ seeded random number generator, so the tests can replay parties exactly.
   the d-pad switch between categories, while up and down select different
   items"), the party panel with parties left and four star symbols that
   start blue. https://steamcommunity.com/sharedfiles/filedetails/?id=3350227767
+- [V] Michael O'Blivion, "Party All Night with the Definitive Party House
+  Guest Tier List | UFO 50" (video; its description, chapters and English
+  captions read as text): every guest's numbers again, "a cap on popularity
+  and money gains", the popularity cap at 65 from its arithmetic ("if you
+  capped popularity and bought an alien you have 25 left over").
+  https://www.youtube.com/watch?v=RM_wP_LhCKs
 - [L] Lostnostalgia and Indie Hell Zone reviews: popularity buys guests, cash
   buys space, no card removal, the Random streak for the cherry.

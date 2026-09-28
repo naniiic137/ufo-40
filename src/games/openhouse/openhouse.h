@@ -21,17 +21,24 @@
 #define PH_ROW 8            /* guests stand in rows of eight; side by side means the same row */
 #define PH_NIGHTS 25
 #define PH_STOCK 4          /* each non-star guest can be bought four times a scenario */
-#define PH_POOL_MAX 24
+#define PH_POOL_MAX 48      /* room for the whole roster (a custom list may sell everyone) */
+#define PH_POOL_MAX_V3 24   /* the pool size in saves before the custom list */
 #define PH_POOL_MAX_V1 16   /* the pool size in saves before OPEN ALL NIGHT */
 #define PH_SCENARIOS 5
 #define PH_RANDOM 5         /* scenario index of the Random Scenario */
 #define PH_ENDLESS 6        /* OPEN ALL NIGHT, the owner's endless mode (and its big mix) */
-#define PH_BASES 7          /* OPEN ALL NIGHT plays any of: five lists, Random, the big mix */
+#define PH_CUSTOM 7         /* the custom list (the owner's): the player picks the shop */
+#define PH_BASES 8          /* OPEN ALL NIGHT plays any of: five lists, Random, the big mix, the custom list */
+#define PH_BASES_V3 7       /* the bests kept in saves before the custom list */
+#define PH_CUSTOM_MIN 6     /* the custom list needs six guests besides the locked ones... */
+#define PH_CUSTOM_MIN_STARS 1 /* ...and a star, or it can't be won */
 #define PH_ENDLESS_STARS 4  /* its shop: four stars, fourteen other guests (plus neighbours, cousins) */
 #define PH_ENDLESS_GUESTS 14
 #define PH_ENDLESS_STRIKES 3 /* the third shutdown closes the house for good */
 #define PH_ENDLESS_FRESH 5  /* every fifth night, three new faces in the shop */
 #define PH_NONE 255
+#define PH_POP_CAP 65       /* Party House caps fame at 65 ([V]) */
+#define PH_CASH_CAP 30      /* and cash at $30 ([S]) */
 
 /* the guests, in the order of the table in the design doc */
 enum {
@@ -76,7 +83,7 @@ extern const PhGuest PH_GUESTS[G_COUNT];
 typedef struct PhScenario {
     const char *name, *blurb;
     uint8_t n;
-    uint8_t pool[PH_POOL_MAX]; /* the guests the shop sells, besides neighbours and cousins */
+    uint8_t pool[PH_POOL_MAX_V3]; /* the guests the shop sells, besides neighbours and cousins */
 } PhScenario;
 extern const PhScenario PH_SCEN[PH_SCENARIOS];
 
@@ -118,7 +125,7 @@ typedef struct PhParty {
 } PhParty;
 
 typedef struct PhGame {
-    uint8_t scen;                    /* 0..4 set, PH_RANDOM, PH_ENDLESS */
+    uint8_t scen;                    /* 0..4 set, PH_RANDOM, PH_ENDLESS, PH_CUSTOM */
     uint8_t npool;
     uint8_t pool[PH_POOL_MAX];       /* the shop: every guest on sale */
     uint8_t bought[G_COUNT];         /* shared stock in 2P */
@@ -135,12 +142,16 @@ typedef struct PhGame {
     uint16_t nights;                 /* parties thrown (no last night, so past 255) */
     uint8_t strikes;                 /* shutdowns so far */
     uint16_t top_pop;                /* the most fame held at once this run */
-    uint8_t base;                    /* the list it plays: 0..4, PH_RANDOM, or PH_ENDLESS (the big mix) */
+    uint8_t base;                    /* the list it plays: 0..4, PH_RANDOM, PH_ENDLESS (the big mix) or PH_CUSTOM */
 } PhGame;
 
 /* setting up */
 void ph_new(PhGame *g, int scen, int players, uint64_t seed);
 void ph_new_endless(PhGame *g, int base, uint64_t seed); /* OPEN ALL NIGHT on list base */
+/* the custom list (the owner's): the shop sells neighbours, cousins and the
+ * n chosen guests; endless plays it as OPEN ALL NIGHT */
+void ph_new_custom(PhGame *g, const uint8_t *types, int n, bool endless, int players, uint64_t seed);
+bool ph_custom_locked(int type);         /* in every run, so always in a custom list: neighbour, cousin, rowdy mate */
 void ph_start_party(PhGame *g);
 /* the party: each returns true if something happened */
 int ph_draw(PhGame *g);                  /* a random card still in the rolodex, or -1 */
@@ -153,6 +164,8 @@ bool ph_fetch_ok(const PhGame *g, int type);
 void ph_end_party(PhGame *g);
 bool ph_should_end(const PhGame *g);     /* full (or nobody left to come) and nothing left to do */
 int ph_pay_order(const PhGame *g, int cash, uint8_t unpaid[PH_MAX_HOUSE]); /* who can't be paid; the penalty */
+int ph_add_pop(int have, int v);         /* fame after pay: up to the cap (never taking away what's over it), never below 0 */
+int ph_add_cash(int have, int v);        /* cash after pay, up to the cap */
 int ph_night_limit(const PhGame *g);     /* the last night: 25 (OPEN ALL NIGHT has none) */
 bool ph_endless_strike(PhGame *g);       /* OPEN ALL NIGHT: a shutdown counts; true when it closes the house */
 int ph_goal(const PhGame *g);            /* stars the winning (or star) party needs */
