@@ -1,0 +1,41 @@
+# WOBBLE DERBY: from the title with button presses: a new meeting of six
+# races against two CPU punters. The form book already holds twenty races
+# (sixty runs, twenty wins) and three wobblers are in the paddock.
+game wobble
+wait 30
+expect state == 0
+press A
+wait 5
+expect state == 1
+expect setup_row == 0
+press RIGHT
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+expect setup_row == 4
+press A
+wait 5
+expect state == 2
+expect nraces == 6
+expect humans == 1
+expect round == 1
+expect book_races == 60
+expect book_wins == 20
+expect active == 26
+expect cash0 == 1000
+expect cash1 == 1000
+expect cash2 == 1000
+expect field_ok == 1
+expect odds0 >= 1
+expect odds1 >= 1
+expect odds2 >= 1
+expect has_run == 1
+wait 25
+press A
+expect state == 3
+wait 25
+press A
+expect state == 5
+expect turn == 1
+expect sub == 0

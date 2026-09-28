@@ -1,0 +1,57 @@
+# WOBBLE DERBY: bets are capped and the cap rises race by race ($200, $300,
+# $500, $750, $1,000 in six races); the last race has no limit.
+game wobble
+wait 5
+cheat new 6 1
+expect cap == 200
+cheat round 2
+expect cap == 300
+cheat round 3
+expect cap == 500
+cheat round 4
+expect cap == 750
+cheat round 5
+expect cap == 1000
+cheat round 6
+expect cap == 0
+cheat round 1
+wait 25
+press A
+press A
+press A
+press UP
+press UP
+press UP
+expect amt == 200
+press A
+expect bet0 == 200
+expect cash0 == 800
+# the last race: all of it
+cheat round 6
+press DOWN
+expect menu == 0
+press A
+press A
+expect amt == 200
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+expect amt == 1000
+press A
+expect bet0 == 1000
+expect cash0 == 0
+# longer meetings go on rising
+cheat new 12 1
+cheat round 7
+expect cap == 2000
+cheat round 11
+expect cap == 4000
+cheat round 12
+expect cap == 0
+expect loan == 4000

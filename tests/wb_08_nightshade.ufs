@@ -1,0 +1,39 @@
+# WOBBLE DERBY: nightshade that works: the wobbler collapses in the race,
+# leaves the book for good and its sponsor loses it; the news calls it a
+# mystery.
+game wobble
+wait 5
+cheat new 6 1
+cheat cash 1 0
+cheat cash 2 0
+cheat field 6 15 17
+cheat sponsor 0 6
+cheat sure_poison
+wait 25
+press A
+press DOWN
+press DOWN
+press A
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press A
+press A
+expect job0 == 5
+expect cash0 == 880
+press UP
+press UP
+press UP
+press A
+waituntil state == 7 400
+wait 25
+press A
+expect poison0 == 1
+waituntil state == 9 3000
+expect dead0 == 2
+expect out6 == 2
+expect sponsor6 == 0
+expect winner != 0
+expect news4 == 1
+expect active == 25

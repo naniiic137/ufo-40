@@ -1,0 +1,44 @@
+# WOBBLE DERBY: the book keeps the original's spread (five wobblers in each
+# clumsiness band and each speed band, and a wild card), every drawing is
+# the right size, the odds come from the record, the sponsor fee from the
+# wins, and the meeting can be 3, 6, 9 or 12 races.
+game wobble
+wait 5
+expect bands_ok == 1
+expect art_ok == 1
+cheat new 6 1
+cheat field 0 1 2
+cheat record 0 0 20
+cheat record 1 0 20
+cheat record 2 20 20
+cheat reodds
+expect odds0 == 20
+expect odds1 == 20
+expect odds2 == 1
+cheat record 0 1 3
+cheat record 1 1 3
+cheat record 2 1 3
+cheat reodds
+expect odds0 == 2
+expect odds1 == 2
+expect odds2 == 2
+cheat record 5 4 9
+expect fee5 == 300
+expect spdlo6 == 55
+expect spdhi6 == 65
+expect spdlo25 == 35
+expect spdhi25 == 65
+# the setup screen's lengths
+reload
+game wobble
+wait 30
+press DOWN
+press A
+wait 5
+press DOWN
+press DOWN
+press DOWN
+press RIGHT
+press DOWN
+press A
+expect nraces == 9

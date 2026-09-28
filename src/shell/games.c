@@ -17,6 +17,7 @@ extern const GameDef GAME_FENNEC;
 extern const GameDef GAME_TINTAIL;
 extern const GameDef GAME_OPENHOUSE;
 extern const GameDef GAME_DUNE;
+extern const GameDef GAME_WOBBLE;
 
 const GameDef *const GAMES[GAME_SLOTS] = {
     [0] = &GAME_UNDERDELVE,  /* 01 Barbuta */
@@ -32,4 +33,5 @@ const GameDef *const GAMES[GAME_SLOTS] = {
     [15] = &GAME_TINTAIL,    /* 16 Camouflage */
     [24] = &GAME_OPENHOUSE,  /* 25 Party House */
     [27] = &GAME_DUNE,       /* 28 Rail Heist */
+    [46] = &GAME_WOBBLE,     /* 47 Quibble Race */
 };

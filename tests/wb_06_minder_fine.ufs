@@ -1,0 +1,85 @@
+# WOBBLE DERBY: three players at one pad. A minder on the first wobbler
+# stops the others' jobs on it; each meddler is fined the job's price, and
+# twice that for nightshade.
+game wobble
+wait 5
+cheat new 6 3
+expect humans == 3
+cheat field 6 15 17
+wait 25
+press A
+expect state == 4
+wait 25
+press A
+expect state == 5
+expect turn == 1
+# punter 1: the fixer, a minder on wobbler 1
+press DOWN
+press DOWN
+press A
+expect sub == 5
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press A
+press A
+expect job0 == 6
+expect cash0 == 950
+# one job a race
+press A
+expect sub == 0
+press UP
+press UP
+press UP
+press A
+expect state == 4
+wait 25
+press A
+expect turn == 2
+# punter 2: nightshade on wobbler 1
+press DOWN
+press DOWN
+press A
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press A
+press A
+expect job1 == 5
+expect cash1 == 880
+press UP
+press UP
+press UP
+press A
+wait 25
+press A
+expect turn == 3
+# punter 3: a pep snack on wobbler 1
+press DOWN
+press DOWN
+press A
+press A
+press A
+expect job2 == 1
+expect cash2 == 950
+press UP
+press UP
+press UP
+press A
+expect state == 7
+wait 25
+press A
+expect state == 8
+expect minded0 == 1
+expect poison0 == 0
+expect pep0 == 0
+expect fine1 == 240
+expect fine2 == 50
+expect cash1 == 640
+expect cash2 == 900
+expect cash0 == 950
+waituntil state == 9 3000
+expect news5 == 2

@@ -1,0 +1,43 @@
+# WOBBLE DERBY: the tip booth charges a tenth of the round's cap to show a
+# wobbler's speed and clumsiness, once each, and warns of the weather.
+game wobble
+wait 5
+cheat new 6 1
+cheat event 1
+wait 25
+press A
+press DOWN
+expect menu == 1
+expect tipfee == 20
+press A
+expect sub == 3
+press A
+expect sub == 4
+expect tips0 == 1
+expect cash0 == 980
+wait 15
+press A
+expect sub == 3
+# the same one again is free: it's already on your card
+press A
+expect cash0 == 980
+wait 15
+press A
+press DOWN
+press A
+expect tips0 == 3
+expect cash0 == 960
+wait 15
+press B
+press B
+expect sub == 0
+# no cash, no tip
+cheat cash 0 5
+press A
+press DOWN
+press DOWN
+press A
+expect tips0 == 3
+expect sub == 3
+cheat round 5
+expect tipfee == 100

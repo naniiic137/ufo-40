@@ -1,0 +1,58 @@
+# WOBBLE DERBY: the rare events. A meteor that lands on a wobbler kills it;
+# a garbage spill puts litter on every lane (the clumsy trip on it); smog
+# slows everyone down.
+game wobble
+wait 5
+cheat new 12 1
+cheat cash 1 0
+cheat cash 2 0
+cheat field 6 15 17
+cheat event 0
+cheat meteor 0 0 2
+wait 25
+press A
+press UP
+press A
+waituntil state == 7 400
+wait 25
+press A
+waituntil state == 9 3000
+expect dead0 == 1
+expect out6 == 1
+expect news3 == 1
+botuntil state == 10 1000
+wait 25
+press A
+# the spill
+cheat field 4 5 10
+cheat event 2
+wait 25
+press A
+press UP
+press A
+waituntil state == 7 400
+wait 25
+press A
+expect litter0 == 3
+expect litter1 == 3
+expect litter2 == 3
+waituntil state == 9 3000
+expect trips0 >= 2
+expect trips1 >= 2
+expect news8 == 1
+botuntil state == 10 1000
+wait 25
+press A
+# smog
+cheat field 22 15 17
+cheat event 3
+wait 25
+press A
+press UP
+press A
+waituntil state == 7 400
+wait 25
+press A
+expect event == 3
+expect form0 <= 55
+expect form1 <= 38

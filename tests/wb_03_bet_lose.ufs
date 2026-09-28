@@ -1,0 +1,37 @@
+# WOBBLE DERBY: a bet on a wobbler that doesn't win pays nothing; the other
+# punters' bets are shown on the tote board before the off.
+game wobble
+wait 5
+cheat new 6 1
+cheat field 6 15 17
+cheat cash 1 0
+cheat cash 2 0
+wait 25
+press A
+press A
+press DOWN
+expect lane == 1
+press A
+press UP
+press UP
+press LEFT
+press LEFT
+expect amt == 180
+press A
+expect beton0 == 1
+expect cash0 == 820
+press A
+waituntil state == 7 400
+expect beton1 == -1
+wait 25
+press A
+waituntil state == 9 3000
+expect winner == 0
+expect won0 == -180
+expect cash0 == 820
+botuntil state == 10 1000
+wait 25
+press A
+expect state == 3
+expect round == 2
+expect cash0 == 820
