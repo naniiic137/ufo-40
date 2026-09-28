@@ -17,6 +17,7 @@ extern const GameDef GAME_FENNEC;
 extern const GameDef GAME_TINTAIL;
 extern const GameDef GAME_OPENHOUSE;
 extern const GameDef GAME_DUNE;
+extern const GameDef GAME_LOSTLINKS;
 
 const GameDef *const GAMES[GAME_SLOTS] = {
     [0] = &GAME_UNDERDELVE,  /* 01 Barbuta */
@@ -30,6 +31,7 @@ const GameDef *const GAMES[GAME_SLOTS] = {
     [13] = &GAME_CUTLASS,    /* 14 Bushido Ball */
     [14] = &GAME_FENNEC,     /* 15 Block Koala */
     [15] = &GAME_TINTAIL,    /* 16 Camouflage */
+    [17] = &GAME_LOSTLINKS,  /* 18 Golfaria */
     [24] = &GAME_OPENHOUSE,  /* 25 Party House */
     [27] = &GAME_DUNE,       /* 28 Rail Heist */
 };
