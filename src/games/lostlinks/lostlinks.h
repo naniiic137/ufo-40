@@ -28,8 +28,12 @@ enum { LNK_OVER, LNK_UNDER, LNK_LAYERS };
  *   s  sand: stops a ball dead, only a chip gets out (until the Dune Tread)
  *   ~  water: a ball that stops in it or lands in it sinks (until the Skipper)
  *   #  rock        T  tree        H  wall (buildings, the clubhouse)
- *   X  cracked block: the Hammerhead breaks it
- *   r  low rail: only an airborne ball (a chip or a hop) gets over it
+ *   %  a secret way: drawn as rock, the ball rolls right through
+ *   X  cracked block: with the Hammerhead the ball crashes through it
+ *   p  pit: a rolling ball falls in and is back where it was hit from
+ *   y  a pit hidden under a bush (the same, drawn as a bush)
+ *   J  jumping flower: throws a rolling ball into the air
+ *   =  bridge (fairway over water or a pit)
  *   v  ledge: a ball may drop over it going south, never climb back north
  *   u  divot: a slow ball settles in it and must chip out
  *   o  hole: drops a slow ball to the other layer, at the same place
@@ -41,8 +45,10 @@ enum { LNK_OVER, LNK_UNDER, LNK_LAYERS };
  *   k  the den door: shut until the four sanctum plates are lit
  * Things (the tile under them is floor):
  *   W  where Dimple wakes     F  pin (checkpoint)     I  iron
- *   C  scorecrow              S  stray ball           N  somebody to talk to
- *   L  lark (hidden)          E  albatross            B  slicer
+ *   C  scorecrow              S  stray ball           N  a golf ball to talk to
+ *   K  a Keeper (the hidden village)                  A  the signpost
+ *   L  lark (hidden)          E  albatross
+ *   B  slicer (a bug that pops up and shoves)         D  sipper (sucks strokes)
  *   h j d q  the Hammerhead, Backspin, Dune Tread, Skipper
  *   Q  a piece of the Star Pin   Z  the altar         P  a sanctum plate
  *   M  the odd tree           U  the crashed saucer   G  the Brass Badger's den
@@ -54,17 +60,19 @@ extern const char *const LNK_ZONE_NAME[LNK_LAYERS][LNK_ZY][LNK_ZX];
 
 enum {
     EK_START, EK_PIN, EK_IRON, EK_CROW, EK_STRAY, EK_NPC, EK_LARK, EK_ALBA, EK_SLICER,
-    EK_ABILITY, EK_PIECE, EK_ALTAR, EK_PLATE, EK_TREE, EK_SAUCER, EK_DEN, EK_KINDS
+    EK_ABILITY, EK_PIECE, EK_ALTAR, EK_PLATE, EK_TREE, EK_SAUCER, EK_DEN,
+    EK_SIPPER, EK_KEEPER, EK_SIGN, EK_KINDS
 };
 enum { AB_HAMMER, AB_BACKSPIN, AB_TREAD, AB_SKIPPER, AB_COUNT };
 #define LNK_PINS 10
 #define LNK_IRONS 20
 #define LNK_CROWS 10
 #define LNK_STRAYS 8
-#define LNK_NPCS 11
+#define LNK_NPCS 20
+#define LNK_KEEPERS 8
 #define LNK_PIECES 4
 #define LNK_PLATES 4
-#define LNK_MAX_THINGS 200
+#define LNK_MAX_THINGS 220
 
 typedef struct LnkThing {
     uint8_t kind, layer, id; /* id counts things of a kind in map order (abilities: AB_*) */
@@ -83,14 +91,16 @@ void lnk_tiles_reset(uint8_t (*t)[LNK_MH][LNK_MW]);
 extern const char *const LNK_PIN_NAME[LNK_PINS];
 extern const char *const LNK_NPC_NAME[LNK_NPCS];
 extern const char *const LNK_NPC_LINE[LNK_NPCS][2];
+extern const char *const LNK_KEEPER_NAME[LNK_KEEPERS];
+extern const char *const LNK_KEEPER_LINE[LNK_KEEPERS];
 extern const char *const LNK_STRAY_NAME[LNK_STRAYS];
 extern const char *const LNK_STRAY_LINE[LNK_STRAYS];
 extern const char *const LNK_CROW_TAPE[LNK_CROWS];
 extern const char *const LNK_ABILITY_NAME[AB_COUNT];
 extern const char *const LNK_ABILITY_LINE[AB_COUNT];
 extern const char *const LNK_INTRO[];
-extern const char *const LNK_ENDING[];
-extern const char *const LNK_ENDING_ALL[];
+extern const char *const LNK_ENDING;
+extern const char *const LNK_ENDING_ALL;
 extern const char *const LNK_TREE_LINE;
 extern const char *const LNK_SAUCER_LINE;
 extern const char *const LNK_ALTAR_LINE[3];
@@ -101,7 +111,7 @@ extern const char *const LNK_ALTAR_LINE[3];
 #define LNK_LEVELS 12            /* power levels on the meter */
 #define LNK_DIRS 64              /* aim directions */
 enum { LIE_GROUND, LIE_SAND, LIE_DIVOT, LIE_CUP };
-enum { EV_NONE, EV_REST, EV_SINK, EV_HOLE, EV_BLOCK, EV_BOUNCE, EV_LAND };
+enum { EV_NONE, EV_REST, EV_SINK, EV_HOLE, EV_BLOCK, EV_BOUNCE, EV_LAND, EV_FLOWER };
 
 typedef struct LnkBall {
     float x, y, vx, vy, z, vz;
@@ -111,6 +121,7 @@ typedef struct LnkBall {
     int slow_t, roll_t;
     int16_t hx, hy;              /* the hole it dropped into (EV_HOLE) */
     int16_t bx, by;              /* the block it broke (EV_BLOCK) */
+    int16_t brake_left;          /* Backspin frames left this stroke */
     uint8_t nbroken;             /* planning runs: blocks broken so far (the map stays as it is) */
     uint8_t broken[6][3];        /* layer, x, y */
 } LnkBall;
@@ -129,7 +140,7 @@ bool lnk_solid_char(char ch);
 void lnk_hit(LnkBall *b, const LnkCtx *c, int dir, int level);
 /* one 1/60 s step; returns an EV_* */
 int lnk_ball_step(LnkBall *b, const LnkCtx *c);
-/* the pad's hop or brake while rolling (Dune Tread / Backspin) */
+/* while rolling: the Dune Tread's hop off sand (B), a frame of Backspin (A held) */
 bool lnk_hop(LnkBall *b, const LnkCtx *c);
 bool lnk_brake(LnkBall *b, const LnkCtx *c);
 bool lnk_on_sand(const LnkBall *b, const LnkCtx *c);
@@ -176,6 +187,7 @@ enum {
     LS_LARK1, LS_LARK2, LS_ALBA1, LS_ALBA2, LS_PIN, LS_PIN_LIT, LS_STRAY, LS_FOLK, LS_SAGE,
     LS_AB_HAMMER, LS_AB_BACKSPIN, LS_AB_TREAD, LS_AB_SKIPPER, LS_PIECE, LS_ALTAR, LS_PLATE, LS_PLATE_LIT,
     LS_SAUCER, LS_TREE_ODD, LS_BADGER_HEAD, LS_BADGER_STAND, LS_BADGER_DOWN, LS_CROSSHAIR, LS_DIMPLE_BIG,
+    LS_BUG1, LS_BUG2, LS_MOUND, LS_SIGN,
     LS_COUNT
 };
 extern Sprite lnk_spr[LS_COUNT];

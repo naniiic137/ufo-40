@@ -18,11 +18,13 @@
 #define SLOPE 0.075f
 #define GRAV 0.20f
 #define CHIP_VZ 2.4f         /* a chip is in the air 24 frames */
-#define HOP_VZ 2.2f          /* a hop 22 frames */
+#define HOP_VZ 2.6f          /* a hop 26 frames */
 #define REST 0.55f           /* how much of a bounce off a wall is kept */
 #define CUP_SPEED 3.2f       /* faster than this a ball lips out of a hole */
 #define DIVOT_SPEED 2.0f
-#define BREAK_SPEED 1.2f     /* the Hammerhead needs a real knock */
+#define BRAKE_DECEL 0.25f    /* Backspin, held */
+#define BRAKE_BUDGET 50      /* frames of it a stroke (a third of that on slopes) */
+#define FLOWER_VZ 2.4f       /* a jumping flower throws the ball up */
 #define REST_SPEED 0.05f
 #define SETTLE_SPEED 0.30f
 #define SETTLE_FRAMES 50
@@ -96,29 +98,34 @@ void lnk_hit(LnkBall *b, const LnkCtx *c, int dir, int level) {
     b->moving = true;
     b->hopped = b->lipped = b->braked = false;
     b->slow_t = b->roll_t = 0;
+    b->brake_left = BRAKE_BUDGET;
 }
 
+/* the Dune Tread: "tap secondary button to jump while rolling over sand" */
 bool lnk_hop(LnkBall *b, const LnkCtx *c) {
-    if (!b->moving || b->z > 0 || b->hopped || !has(c, AB_TREAD)) return false;
+    if (!b->moving || b->z > 0 || b->hopped || !has(c, AB_TREAD) || here(b, c) != 's') return false;
     b->vz = HOP_VZ;
     b->z = 0.01f;
     b->hopped = true;
     return true;
 }
 
+/* Backspin: "hold primary button to slow your roll for a little while".
+ * One frame of braking; the budget is spent three times as fast on a slope
+ * (it "wears out on sloped surfaces"), and there is none on the water. */
 bool lnk_brake(LnkBall *b, const LnkCtx *c) {
-    if (!b->moving || b->z > 0 || !has(c, AB_BACKSPIN)) return false;
+    if (!b->moving || b->z > 0 || !has(c, AB_BACKSPIN) || b->brake_left <= 0) return false;
     char ch = here(b, c);
-    if (ch == '~') return false; /* no braking while skimming */
+    if (ch == '~') return false;
     float ax, ay;
     lnk_slope(ch, &ax, &ay);
+    b->brake_left -= (ax != 0 || ay != 0) ? 3 : 1;
     b->braked = true;
-    if (ax == 0 && ay == 0) {
-        b->vx = b->vy = 0;
-    } else {
-        /* a slope wears the brake: it slows, then the hill takes over */
-        b->vx *= 0.25f;
-        b->vy *= 0.25f;
+    float sp = sqrtf(b->vx * b->vx + b->vy * b->vy);
+    if (sp > 0) {
+        float ns = fmaxf(0, sp - BRAKE_DECEL);
+        b->vx *= ns / sp;
+        b->vy *= ns / sp;
     }
     return true;
 }
@@ -132,11 +139,10 @@ static int blocked(LnkBall *b, const LnkCtx *c, int tx, int ty, int axis, float 
     if ((ch == 'X' || ch == 'b') && c->probe)
         for (int i = 0; i < b->nbroken; i++)
             if (b->broken[i][0] == b->layer && b->broken[i][1] == tx && b->broken[i][2] == ty) return 0;
-    float sp = sqrtf(b->vx * b->vx + b->vy * b->vy);
-    if (ch == 'X') return has(c, AB_HAMMER) && sp >= BREAK_SPEED ? 2 : 1;
-    /* a bush: the ball crashes through it (slowed), and flies over it */
+    /* cracked blocks: with the Hammerhead the ball crashes through them "like
+     * bushes"; a bush it crashes through any time, and flies over */
+    if (ch == 'X') return has(c, AB_HAMMER) ? 2 : 1;
     if (ch == 'b') return b->z >= 3.0f ? 0 : 2;
-    if (ch == 'r') return b->z < 3.0f;
     if (ch == 'v' && axis == 1 && v < 0) {
         /* a ledge can't be climbed: entering one from the south is a wall */
         int cy = (int)floorf(b->y / LNK_T);
@@ -210,6 +216,14 @@ static int ground(LnkBall *b, const LnkCtx *c, bool landed) {
     float cx = tx * LNK_T + LNK_T / 2.0f, cy = ty * LNK_T + LNK_T / 2.0f;
     float ddx = b->x - cx, ddy = b->y - cy, dist = sqrtf(ddx * ddx + ddy * ddy);
     if (ch != 'o' && ch != 'O') b->lipped = false;
+    /* a pit: the ball falls, and is back where the stroke was hit from */
+    if (ch == 'p' || ch == 'y') return sink(b);
+    /* a jumping flower throws a rolling ball up */
+    if (ch == 'J' && sp > 0.5f && (!landed || sp > 1.0f)) {
+        b->vz = FLOWER_VZ;
+        b->z = 0.01f;
+        return EV_FLOWER;
+    }
     /* the Skipper only works rolling onto the water, never landing in it */
     if (ch == '~' && (!has(c, AB_SKIPPER) || landed)) return sink(b);
     if ((ch == 'o' || ch == 'O') && dist < 5.0f) {

@@ -13,8 +13,8 @@
 #define SAFE_TOP 15        /* a hole by a pin tops you up to fifteen */
 #define CROW_WATCH 5       /* a scorecrow flies off after five strokes */
 #define CROW_RANGE 112     /* seven tiles */
-#define LARK_STROKES 4
-#define ALBA_STROKES 8
+#define LARK_STROKES 5     /* birdies +5, eagles +10 [LLAMA], [IGGY] */
+#define ALBA_STROKES 10
 #define SLICER_STROKES 5
 #define STRAY_HELP 8       /* a stray's help in the finale */
 #define BADGER_HP 6        /* "five or six hits to the face" */
@@ -61,6 +61,7 @@ static int unsteady_t, pop_cool;
 static int shake_t;
 static int stroke_run;        /* strokes this game (for the best) */
 static int intro_i, end_i;
+static int last_tape = -1;
 
 /* dialog */
 static char talk_buf[256];
@@ -159,7 +160,8 @@ static void spawn_movers(void) {
     n_movers = 0;
     for (int i = 0; i < lnk_nthings && n_movers < ARRAY_LEN(movers); i++) {
         const LnkThing *t = thing_at(i);
-        if (t->kind != EK_SLICER && t->kind != EK_LARK && t->kind != EK_ALBA && t->kind != EK_CROW) continue;
+        if (t->kind != EK_SLICER && t->kind != EK_SIPPER && t->kind != EK_LARK && t->kind != EK_ALBA && t->kind != EK_CROW)
+            continue;
         Mover *m = &movers[n_movers++];
         memset(m, 0, sizeof *m);
         m->kind = t->kind;
@@ -167,7 +169,7 @@ static void spawn_movers(void) {
         m->id = t->id;
         m->x = m->hx = tcx(t);
         m->y = m->hy = tcy(t);
-        m->t = i * 17;
+        m->t = t->kind == EK_SLICER ? 0 : i * 17;
         if (t->kind == EK_CROW) {
             m->state = (sv.crows >> t->id) & 1 ? CR_DEAD : CR_PERCH;
             crow_countdown[t->id] = CROW_WATCH;
@@ -259,7 +261,7 @@ static void check_out(void) {
 
 static bool in_finale(void) {
     /* the sanctum and the den (the underground's top-left two zones) */
-    return ball.layer == LNK_UNDER && ball.y < LNK_ZH * LNK_T && ball.x < 2 * LNK_ZW * LNK_T;
+    return ball.layer == LNK_UNDER && ball.y < LNK_ZH * LNK_T && ball.x < 33 * LNK_T;
 }
 
 /* in the finale each rescued stray gives a hand once, when strokes run low */
@@ -278,9 +280,13 @@ static void stray_help(void) {
     talk(NULL, buf, TA_NONE);
 }
 
+static bool in_safe_zone(void);
+
 static void take_stroke(bool free_chip) {
     if (!free_chip) {
         strokes--;
+        /* a safe zone (by a pin, down a hole) keeps you at 15 or more */
+        if (in_safe_zone()) strokes = imax(strokes, imin(SAFE_TOP, max_strokes()));
         sv.strokes_total++;
         stroke_run++;
         /* every scorecrow that is watching counts it */
@@ -365,6 +371,19 @@ static void touch_thing(int i) {
         snprintf(buf, sizeof buf, "%s", LNK_NPC_LINE[t->id][(sv.runs + frame_t / 600) % 2 && LNK_NPC_LINE[t->id][1] ? 1 : 0]);
         talk(LNK_NPC_NAME[t->id], buf, TA_NONE);
         break;
+    case EK_KEEPER:
+        demo_seen_npc[i] = true;
+        sfx_play_name("lnk_talk");
+        talk(LNK_KEEPER_NAME[t->id], LNK_KEEPER_LINE[t->id], TA_NONE);
+        break;
+    case EK_SIGN:
+        /* the signpost keeps count of the strays and the scorecrows */
+        demo_seen_npc[i] = true;
+        sfx_play_name("lnk_talk");
+        snprintf(buf, sizeof buf, "STRAYS FOUND: %d OF %d.   SCORECROWS SMASHED: %d OF %d.", popcount32(sv.strays), LNK_STRAYS,
+                 popcount32(sv.crows), LNK_CROWS);
+        talk("SIGNPOST", buf, TA_NONE);
+        break;
     case EK_ALTAR:
         if (sv.placed) { talk("ALTAR", LNK_ALTAR_LINE[2], TA_NONE); break; }
         if (sv.pieces == 0xF) {
@@ -411,7 +430,7 @@ static void check_touches(void) {
     for (int i = 0; i < lnk_nthings; i++) {
         const LnkThing *t = thing_at(i);
         if (t->layer != ball.layer) continue;
-        if (t->kind == EK_START || t->kind == EK_SLICER || t->kind == EK_LARK || t->kind == EK_ALBA || t->kind == EK_CROW ||
+        if (t->kind == EK_START || t->kind == EK_SLICER || t->kind == EK_SIPPER || t->kind == EK_LARK || t->kind == EK_ALBA || t->kind == EK_CROW ||
             t->kind == EK_DEN)
             continue;
         float dx = tcx(t) - ball.x, dy = tcy(t) - ball.y, d2 = dx * dx + dy * dy;
@@ -458,16 +477,17 @@ static void update_movers(void) {
         float dx = ball.x - m->x, dy = ball.y - m->y, d = sqrtf(dx * dx + dy * dy);
         switch (m->kind) {
         case EK_SLICER:
+        case EK_SIPPER:
             if (m->state == SL_GONE) break;
             if (m->state == SL_KNOCKED) {
-                /* tumbling: it can go in the water or down a hole */
+                /* tumbling: it can go in the water, a pit or down a hole */
                 float nx = m->x + m->vx, ny = m->y + m->vy;
                 if (solid_px(m->layer, nx, m->y)) m->vx = -m->vx * 0.5f; else m->x = nx;
                 if (solid_px(m->layer, m->x, ny)) m->vy = -m->vy * 0.5f; else m->y = ny;
                 m->vx *= 0.94f;
                 m->vy *= 0.94f;
                 char ch = lnk_tile(&ctx, m->layer, (int)floorf(m->x / LNK_T), (int)floorf(m->y / LNK_T));
-                if (ch == '~' || ch == 'o' || ch == 'O') {
+                if (ch == '~' || ch == 'o' || ch == 'O' || ch == 'p' || ch == 'y') {
                     m->state = SL_GONE;
                     burst(m->x, m->y, ch == '~' ? C_SKY : C_GREY, 10, 1.3f);
                     sfx_play_name(ch == '~' ? "lnk_splash" : "lnk_cup");
@@ -477,7 +497,8 @@ static void update_movers(void) {
                 if (fabsf(m->vx) + fabsf(m->vy) < 0.1f) { m->state = SL_BACK; m->t = 0; }
                 break;
             }
-            if (same && ball.moving && bsp > 0.8f && d < 9 && ball.z < 4) {
+            bool up = m->kind == EK_SIPPER || m->state != SL_IDLE; /* a slicer hides in the ground */
+            if (up && same && ball.moving && bsp > 0.8f && d < 9 && ball.z < 4) {
                 /* the ball knocks it flying */
                 m->vx = ball.vx * 0.9f;
                 m->vy = ball.vy * 0.9f;
@@ -487,29 +508,58 @@ static void update_movers(void) {
                 sfx_play_name("lnk_bonk");
                 break;
             }
-            if (m->state == SL_IDLE) {
-                m->x = m->hx + sinf(m->t * 0.03f) * 10;
-                m->y = m->hy + sinf(m->t * 0.05f) * 5;
-                if (same && !ball.moving && d < 96 && state == ST_PLAY && !charging) { m->state = SL_CHASE; m->t = 0; }
-            } else if (m->state == SL_CHASE) {
-                if (!same || ball.moving || d > 140) { m->state = SL_BACK; m->t = 0; break; }
-                float sp = 0.55f;
-                float nx = m->x + dx / d * sp, ny = m->y + dy / d * sp;
-                if (!solid_px(m->layer, nx, m->y)) m->x = nx;
-                if (!solid_px(m->layer, m->x, ny)) m->y = ny;
-                if (d < 7) {
-                    /* the sting: a stroke gone, and a shove */
-                    strokes = imax(0, strokes - 1);
-                    sfx_play_name("lnk_sting");
-                    burst(ball.x, ball.y, C_PINK, 6, 1.0f);
-                    knock_ball(dx / d * 1.6f, dy / d * 1.6f);
-                    m->state = SL_BACK;
+            if (m->kind == EK_SLICER) {
+                /* pops out of the ground by a ball at rest, runs at it and
+                 * shoves it (no sting), then digs back in at home */
+                if (m->state == SL_IDLE) {
+                    m->x = m->hx;
+                    m->y = m->hy;
+                    /* (a ball down in a cup is left alone) */
+                    if (same && !ball.moving && ball.lie != LIE_CUP && d < 80 && state == ST_PLAY && !charging && m->t > 60) {
+                        m->state = SL_CHASE;
+                        m->t = 0;
+                        sfx_play_name("lnk_dig");
+                    }
+                } else if (m->state == SL_CHASE) {
+                    if (!same || d > 140 || m->t > 300) { m->state = SL_BACK; m->t = 0; break; }
+                    if (m->t < 20) break; /* climbing out */
+                    float nx = m->x + dx / d * 0.9f, ny = m->y + dy / d * 0.9f;
+                    if (!solid_px(m->layer, nx, m->y)) m->x = nx;
+                    if (!solid_px(m->layer, m->x, ny)) m->y = ny;
+                    if (d < 7 && !ball.moving) {
+                        sfx_play_name("lnk_sting");
+                        burst(ball.x, ball.y, C_TAN, 6, 1.0f);
+                        knock_ball(dx / d * 1.8f, dy / d * 1.8f);
+                        m->state = SL_BACK;
+                        m->t = 0;
+                    }
+                } else if (m->state == SL_BACK && m->t > 60) {
+                    m->state = SL_IDLE; /* dug back in at home */
                     m->t = 0;
                 }
-            } else if (m->state == SL_BACK) {
-                float hx = m->hx - m->x, hy = m->hy - m->y, hd = sqrtf(hx * hx + hy * hy);
-                if (hd < 2 || m->t > 400) { m->state = SL_IDLE; m->t = 0; m->x = m->hx; m->y = m->hy; }
-                else if (m->t > 90) { m->x += hx / hd * 0.7f; m->y += hy / hd * 0.7f; }
+            } else {
+                /* a sipper hovers, drifts at the ball and sucks a stroke out of it */
+                if (m->state == SL_IDLE) {
+                    m->x = m->hx + sinf(m->t * 0.04f) * 12;
+                    m->y = m->hy + sinf(m->t * 0.07f) * 6;
+                    if (same && d < 64 && state == ST_PLAY && m->t > 90) { m->state = SL_CHASE; m->t = 0; }
+                } else if (m->state == SL_CHASE) {
+                    if (!same || d > 110) { m->state = SL_BACK; m->t = 0; break; }
+                    float nx = m->x + dx / d * 0.45f, ny = m->y + dy / d * 0.45f;
+                    if (!solid_px(m->layer, nx, m->y)) m->x = nx;
+                    if (!solid_px(m->layer, m->x, ny)) m->y = ny;
+                    if (d < 7) {
+                        strokes = imax(0, strokes - 1);
+                        sfx_play_name("lnk_sting");
+                        burst(ball.x, ball.y, C_PINK, 6, 1.0f);
+                        m->state = SL_BACK;
+                        m->t = 0;
+                    }
+                } else if (m->state == SL_BACK) {
+                    float hx = m->hx - m->x, hy = m->hy - m->y, hd = sqrtf(hx * hx + hy * hy);
+                    if (hd < 2 || m->t > 400) { m->state = SL_IDLE; m->t = 0; }
+                    else { m->x += hx / hd * 0.6f; m->y += hy / hd * 0.6f; }
+                }
             }
             break;
         case EK_LARK:
@@ -536,7 +586,9 @@ static void update_movers(void) {
                 sfx_play_name("lnk_crash");
                 music_play(LNK_MUS_TAPE);
                 char buf[160];
-                snprintf(buf, sizeof buf, "+%d STROKES. %s", gain, LNK_CROW_TAPE[m->id]);
+                /* the tapes play in the order the crows fall, not by crow */
+                last_tape = popcount32(sv.crows) - 1;
+                snprintf(buf, sizeof buf, "+%d STROKES. %s", gain, LNK_CROW_TAPE[popcount32(sv.crows) - 1]);
                 talk("SCORECROW", buf, TA_NONE);
                 return;
             }
@@ -646,6 +698,8 @@ static void update_badger(void) {
 
 static int zone_of_ball(void) {
     int zx = iclamp((int)(ball.x / (LNK_ZW * LNK_T)), 0, LNK_ZX - 1), zy = iclamp((int)(ball.y / (LNK_ZH * LNK_T)), 0, LNK_ZY - 1);
+    /* the crypt reaches back into the sanctum's zone: it counts as its own */
+    if (ball.layer == LNK_UNDER && zy == 0 && zx == 1 && ball.x >= 33 * LNK_T) zx = 2;
     return ball.layer * 100 + zy * 10 + zx;
 }
 
@@ -664,15 +718,16 @@ static int zone_music(void) {
 }
 
 /* safe zone: a hole with a pin close by tops the strokes up */
-static void safe_zone(int tx, int ty) {
+/* Every pin sits in a cave by a hole: the cave round it is a safe zone.
+ * Dropping in, and every stroke taken there, keeps the strokes at 15 or
+ * more ("safe zones do not reduce strokes while you roll around in them"). */
+static bool in_safe_zone(void) {
+    int bx = (int)(ball.x / LNK_T), by = (int)(ball.y / LNK_T);
     for (int i = 0; i < lnk_nthings; i++) {
         const LnkThing *t = thing_at(i);
-        if (t->kind != EK_PIN) continue;
-        if (iabs(t->tx - tx) <= 5 && iabs(t->ty - ty) <= 5) {
-            if (strokes < SAFE_TOP) strokes = imin(SAFE_TOP, max_strokes());
-            return;
-        }
+        if (t->kind == EK_PIN && t->layer == ball.layer && iabs(t->tx - bx) <= 6 && iabs(t->ty - by) <= 6) return true;
     }
+    return false;
 }
 
 /* the d-pad points the aim: it swings towards the pad's way, one notch a tap */
@@ -719,7 +774,7 @@ static void play_update(void) {
             else {
                 /* the power swings up and down, slower the longer you hold */
                 meter_hold++;
-                float rate = 1.0f / fminf(40.0f + meter_hold / 4.0f, 100.0f);
+                float rate = 1.0f / fminf(70.0f + meter_hold / 4.0f, 120.0f);
                 meter_p += rate * meter_dir;
                 if (meter_p >= 1.0f) { meter_p = 1.0f - (meter_p - 1.0f); meter_dir = -1; }
                 if (meter_p <= 0.0f) { meter_p = -meter_p; meter_dir = 1; }
@@ -730,8 +785,10 @@ static void play_update(void) {
                 b_held++;
                 if (b_held > 8) {
                     panning = true;
-                    pan_x = iclamp(pan_x + (btn(BTN_RIGHT) - btn(BTN_LEFT)) * 3, -200, 200);
-                    pan_y = iclamp(pan_y + (btn(BTN_DOWN) - btn(BTN_UP)) * 3, -130, 130);
+                    /* free look reaches further up top than below [LLAMA] */
+                    int rx = ball.layer == LNK_OVER ? 200 : 120, ry = ball.layer == LNK_OVER ? 130 : 80;
+                    pan_x = iclamp(pan_x + (btn(BTN_RIGHT) - btn(BTN_LEFT)) * 3, -rx, rx);
+                    pan_y = iclamp(pan_y + (btn(BTN_DOWN) - btn(BTN_UP)) * 3, -ry, ry);
                 }
             } else {
                 b_held = 0;
@@ -753,8 +810,12 @@ static void play_update(void) {
         panning = false;
         pan_x = pan_y = 0;
         /* A again: the Dune Tread's hop. B: Backspin's brake */
-        if (btnp(BTN_A) && lnk_hop(&ball, &ctx)) sfx_play_name("lnk_hop");
-        if (btnp(BTN_B) && lnk_brake(&ball, &ctx)) sfx_play_name("lnk_brake");
+        /* A held: Backspin's brake, while it lasts. B: the Dune Tread's hop off sand */
+        if (btn(BTN_A)) {
+            bool was = ball.braked;
+            if (lnk_brake(&ball, &ctx) && !was) sfx_play_name("lnk_brake");
+        }
+        if (btnp(BTN_B) && lnk_hop(&ball, &ctx)) sfx_play_name("lnk_hop");
         /* a ball that can't settle can be popped along with the pad */
         float sp = sqrtf(ball.vx * ball.vx + ball.vy * ball.vy);
         if (sp < 0.5f) unsteady_t++; else unsteady_t = 0;
@@ -808,7 +869,9 @@ static void warp_update(void) {
         ball.moving = false;
         cam_x = ball.x - SCREEN_W / 2;
         cam_y = ball.y - SCREEN_H / 2;
-        safe_zone(ball.hx, ball.hy);
+        if (in_safe_zone()) strokes = imax(strokes, imin(SAFE_TOP, max_strokes()));
+        /* birds, bugs and scorecrows that flew off are all back (not the smashed ones) */
+        spawn_movers();
         for (int i = 0; i < lnk_nthings; i++) {
             const LnkThing *t = thing_at(i);
             float dx = tcx(t) - ball.x, dy = tcy(t) - ball.y;
@@ -895,21 +958,13 @@ static void lnk_update(void) {
         if (state_t > 60 && (btnp(BTN_A) || state_t > 400)) start_run();
         break;
     case ST_END:
+        /* one screen, then back to the title: the links stay yours to roll round */
         state_t++;
-        if (state_t > 40 && btnp(BTN_A)) {
-            state_t = 0;
-            end_i++;
-            int n1 = 0, n2 = 0;
-            while (LNK_ENDING[n1]) n1++;
-            while (LNK_ENDING_ALL[n2]) n2++;
-            int total = n1 + (sv.won_all ? n2 : 0) + 1; /* then the tally */
-            if (end_i >= total) {
-                /* back to the title: the links stay yours to roll round */
-                state = ST_TITLE;
-                title_sel = 0;
-                game_set_pausable(false);
-                music_play(LNK_MUS_TITLE);
-            }
+        if (state_t > 60 && btnp(BTN_A)) {
+            state = ST_TITLE;
+            title_sel = 0;
+            game_set_pausable(false);
+            music_play(LNK_MUS_TITLE);
         }
         break;
     }
@@ -947,9 +1002,18 @@ static void draw_world(void) {
         case EK_PIN: spr_draw(&lnk_spr[(sv.pins >> t->id) & 1 ? LS_PIN_LIT : LS_PIN], x + 4, y - 10, 0); break;
         case EK_IRON: if (!((sv.irons >> t->id) & 1)) spr_draw(&lnk_spr[LS_IRON], x + 2, y - bob, 0); break;
         case EK_STRAY: if (!((sv.strays >> t->id) & 1)) spr_draw(&lnk_spr[LS_STRAY], x + 4, y + 4 - bob, 0); break;
-        case EK_NPC:
-            spr_draw(&lnk_spr[t->id == 9 ? LS_SAGE : (t->layer == LNK_UNDER || t->id == 1 || t->id == 4) ? LS_FOLK : LS_STRAY], x + 3, y + 1, 0);
+        case EK_NPC: {
+            /* golf balls, each its own colour; the old one has a beard */
+            static const uint8_t TINT[5] = {C_CREAM, C_ICE, C_PINK, C_LIME, C_AMBER};
+            uint8_t map[PAL_COUNT];
+            pal_identity(map);
+            pal_swap(map, C_CREAM, TINT[t->id % 5]);
+            if (!strcmp(LNK_NPC_NAME[t->id], "OLD KNOBBLE")) spr_draw(&lnk_spr[LS_SAGE], x + 3, y + 3, 0);
+            else spr_draw_ex(&lnk_spr[LS_STRAY], x + 4, y + 4, 0, map, -1);
             break;
+        }
+        case EK_KEEPER: spr_draw(&lnk_spr[LS_FOLK], x + 3, y + 1, 0); break;
+        case EK_SIGN: spr_draw(&lnk_spr[LS_SIGN], x + 2, y, 0); break;
         case EK_ABILITY:
             if (!has_ab(t->id)) spr_draw(&lnk_spr[LS_AB_HAMMER + t->id], x + 2, y + 2 - bob, 0);
             break;
@@ -970,6 +1034,12 @@ static void draw_world(void) {
         if (x < -20 || y < -20 || x > SCREEN_W + 20 || y > SCREEN_H + 20) continue;
         switch (m->kind) {
         case EK_SLICER:
+            if (m->state == SL_GONE) break;
+            if (m->state == SL_IDLE) { spr_draw(&lnk_spr[LS_MOUND], x - 5, y - 2, 0); break; }
+            if (m->state == SL_CHASE && m->t < 20) { spr_draw(&lnk_spr[LS_MOUND], x - 5, y - 2 - m->t / 5, 0); break; }
+            spr_draw(&lnk_spr[(frame_t / 4) % 2 ? LS_BUG1 : LS_BUG2], x - 5, y - 6, m->state == SL_KNOCKED ? SPR_FLIPY : 0);
+            break;
+        case EK_SIPPER:
             if (m->state == SL_GONE) break;
             spr_draw(&lnk_spr[(frame_t / 3) % 2 ? LS_SLICER1 : LS_SLICER2], x - 4, y - 8, m->state == SL_KNOCKED ? SPR_FLIPY : 0);
             gfx_rect(x - 2, y + 3, 4, 1, C_INK);
@@ -1168,26 +1238,26 @@ static void draw_title(void) {
     }
 }
 
+/* how much of the game is done: everything counted for the Alien, and the
+ * Badger, out of 47 */
+static int completion(void) {
+    int got = popcount32(sv.irons) + popcount32(sv.strays) + popcount32(sv.crows) + popcount32(sv.abilities) +
+              popcount32(sv.pieces) + (sv.won ? 1 : 0);
+    return got * 100 / (LNK_IRONS + LNK_STRAYS + LNK_CROWS + AB_COUNT + LNK_PIECES + 1);
+}
+
 static void draw_end(void) {
     gfx_cls(C_NIGHT);
     for (int i = 0; i < 40; i++) gfx_pset((i * 97 + state_t / 3) % SCREEN_W, (i * 53) % 90, C_GREY);
     gfx_rect(0, 120, SCREEN_W, 60, C_LEAF);
     spr_draw(&lnk_spr[LS_PIN_LIT], 150, 96, 0);
     spr_draw_scaled(&lnk_spr[LS_DIMPLE_BIG], 120, 100, 1, 0);
-    int n1 = 0, n2 = 0;
-    while (LNK_ENDING[n1]) n1++;
-    while (LNK_ENDING_ALL[n2]) n2++;
-    const char *line = NULL;
-    char b[160];
-    if (end_i < n1) line = LNK_ENDING[end_i];
-    else if (sv.won_all && end_i < n1 + n2) line = LNK_ENDING_ALL[end_i - n1];
-    else {
-        snprintf(b, sizeof b, "THE END. STROKES THIS GAME: %d. IRONS %d/%d, STRAYS %d/%d, TAPES %d/%d.", stroke_run,
-                 popcount32(sv.irons), LNK_IRONS, popcount32(sv.strays), LNK_STRAYS, popcount32(sv.crows), LNK_CROWS);
-        line = b;
-    }
-    text_wrap(line, 20, 30, SCREEN_W - 40, C_WHITE, 10);
-    if (state_t > 40 && (state_t / 16) % 2) text_draw(GLYPH_A, SCREEN_W - 20, 150, C_YELLOW);
+    int y = 16 + text_wrap(LNK_ENDING, 20, 16, SCREEN_W - 40, C_WHITE, 10) * 10;
+    if (sv.won_all) y += 4 + text_wrap(LNK_ENDING_ALL, 20, y + 4, SCREEN_W - 40, C_YELLOW, 10) * 10;
+    char b[64];
+    snprintf(b, sizeof b, "COMPLETION %d%%   STROKES %d", completion(), stroke_run);
+    text_center(b, SCREEN_W / 2, y + 8, C_CREAM);
+    if (state_t > 60 && (state_t / 16) % 2) text_draw(GLYPH_A, SCREEN_W - 20, 150, C_YELLOW);
 }
 
 /* the whole of one layer, two pixels a tile (test hook "mapview", for
@@ -1211,6 +1281,10 @@ static void draw_map_view(void) {
             case 'X': c = C_ORANGE; break;
             case 'b': c = C_FOREST; break;
             case 'u': case 'v': c = C_BROWN; break;
+            case 'p': case 'y': c = C_INK; break;
+            case 'J': c = C_PINK; break;
+            case '=': c = C_TAN; break;
+            case '%': c = l ? C_NIGHT : C_SLATE; break;
             case 'r': c = C_GREY; break;
             case 'o': case 'O': c = l ? C_YELLOW : C_INK; break;
             case 'g': case 'k': c = C_RED; break;
@@ -1246,7 +1320,7 @@ static void lnk_draw(void) {
         gfx_darken_rect(0, 0, SCREEN_W, SCREEN_H, 2);
         ui_panel(60, 60, 200, 50, C_INK, C_RED);
         text_center("OUT OF STROKES", SCREEN_W / 2, 68, C_RED);
-        const char *where = sv.checkpoint == 0xFF ? "WAKING HOLLOW" : LNK_PIN_NAME[sv.checkpoint];
+        const char *where = sv.checkpoint == 0xFF ? "THE CRADLE" : LNK_PIN_NAME[sv.checkpoint];
         char b[64];
         snprintf(b, sizeof b, "BACK TO %s", where);
         text_center(b, SCREEN_W / 2, 84, C_WHITE);
@@ -1336,7 +1410,7 @@ static int dir_buttons(int a) {
     return B[((a + LNK_DIRS) % LNK_DIRS) / 8];
 }
 
-static int bot_buttons(void) {
+static int bot_buttons_raw(void) {
     switch (state) {
     case ST_TITLE: return (engine_frame() % 2) ? BTN_A : 0;
     case ST_INTRO: case ST_TALK: case ST_OUT: case ST_END: return (engine_frame() % 2) ? BTN_A : 0;
@@ -1344,6 +1418,13 @@ static int bot_buttons(void) {
     default: break;
     }
     int n = ARRAY_LEN(BOT_ROUTE);
+    /* the plates go dark again when a run ends: light them again first */
+    if (sv.placed && plates_lit != 0xF && !sv.won)
+        for (int i = 0; i < n; i++)
+            if (BOT_ROUTE[i].kind == EK_PLATE && !wp_done(&BOT_ROUTE[i])) {
+                if (i < bot_wp) { bot_wp = i; bot_have = false; }
+                break;
+            }
     while (bot_wp < n && wp_done(&BOT_ROUTE[bot_wp])) { bot_wp++; bot_have = false; }
     if (bot_wp >= n) return 0;
     const Wp *w = &BOT_ROUTE[bot_wp];
@@ -1366,9 +1447,11 @@ static int bot_buttons(void) {
         } else if (bd.state != BD_SLEEP) return 0; /* wait for it to pop up */
     }
     if (ball.moving) {
-        if (bot_hop_at >= 0 && ball.roll_t == bot_hop_at) return BTN_A;
-        if (bot_brake_at >= 0 && ball.roll_t == bot_brake_at) return BTN_B;
-        return 0;
+        /* B taps the hop off sand; A held from the planned moment brakes */
+        int m = 0;
+        if (bot_hop_at >= 0 && ball.roll_t >= bot_hop_at && !ball.hopped && ball.z <= 0 && lnk_on_sand(&ball, &ctx)) m |= BTN_B;
+        if (bot_brake_at >= 0 && ball.roll_t >= bot_brake_at) m |= BTN_A;
+        return m;
     }
     if (charging) {
         if (level_shown == bot_shot.level && meter_hold > 2) return 0; /* let go */
@@ -1404,6 +1487,15 @@ static int bot_buttons(void) {
     bot_brake_at = bot_shot.brake_at;
     bot_have = false; /* plan afresh after this stroke */
     return BTN_A;
+}
+
+/* a press of A must start from A let go (after braking, say) */
+static int bot_buttons(void) {
+    static int prev;
+    int m = bot_buttons_raw();
+    if ((m & BTN_A) && (prev & BTN_A) && !charging && !ball.moving && state == ST_PLAY) m &= ~BTN_A;
+    prev = m;
+    return m;
 }
 
 /* ---- test hooks --------------------------------------------------------- */
@@ -1466,6 +1558,30 @@ static int lnk_query(const char *key, int *out) {
     if (!strcmp(key, "strays_used")) { *out = strays_used; return 1; }
     if (!strcmp(key, "tile")) { *out = (unsigned char)lnk_tile(&ctx, ball.layer, (int)(ball.x / LNK_T), (int)(ball.y / LNK_T)); return 1; }
     if (!strncmp(key, "count_", 6)) { *out = lnk_count(atoi(key + 6)); return 1; }
+    if (!strncmp(key, "up_", 3)) {
+        /* how many things of a kind are up on the links */
+        int k = atoi(key + 3);
+        *out = 0;
+        for (int i = 0; i < lnk_nthings; i++) *out += lnk_things[i].kind == k && lnk_things[i].layer == LNK_OVER;
+        return 1;
+    }
+    if (!strcmp(key, "completion")) { *out = completion(); return 1; }
+    if (!strcmp(key, "tape")) { *out = last_tape; return 1; }
+    if (!strncmp(key, "sipper_", 7)) {
+        int id = atoi(key + 7);
+        *out = -1;
+        for (int i = 0; i < n_movers; i++)
+            if (movers[i].kind == EK_SIPPER && movers[i].id == id) *out = movers[i].state;
+        return 1;
+    }
+    if (!strncmp(key, "bird_", 5)) {
+        /* bird_K_ID: has lark (K 6) or albatross (K 7) number ID flown off? */
+        int k = atoi(key + 5), id = atoi(strchr(key + 5, '_') ? strchr(key + 5, '_') + 1 : "0");
+        *out = -1;
+        for (int i = 0; i < n_movers; i++)
+            if (movers[i].kind == k && movers[i].id == id) *out = movers[i].state;
+        return 1;
+    }
     if (!strncmp(key, "crow_", 5)) {
         int id = atoi(key + 5);
         *out = -1;
@@ -1589,6 +1705,15 @@ static int lnk_cheat(const char *cmd) {
     if (sscanf(cmd, "checkpoint %d", &a) == 1) { sv.checkpoint = (uint8_t)a; return 1; }
     if (!strcmp(cmd, "save")) { save_now(); return 1; }
     if (sscanf(cmd, "mapview %d", &a) == 1) { map_view = a; return 1; }
+    if (sscanf(cmd, "simhop %d %d %d", &a, &b, &c) == 3) {
+        LnkBall e = ball;
+        LnkCtx pc = ctx;
+        pc.probe = true;
+        bool touched;
+        int ev = lnk_sim(&e, &pc, a, b, c, -1, 0, -999, -999, 1, &touched);
+        printf("  dir %d level %d hop %d: ev %d, layer %d at tile %d,%d\n", a, b, c, ev, e.layer, (int)(e.x / 16), (int)(e.y / 16));
+        return 1;
+    }
     if (sscanf(cmd, "simtrace %d %d", &a, &b) == 2) {
         LnkBall e = ball;
         LnkCtx pc = ctx;
@@ -1624,7 +1749,23 @@ static int lnk_cheat(const char *cmd) {
             }
         return 1;
     }
-    if (!strcmp(cmd, "no_slicers")) { for (int i = 0; i < n_movers; i++) if (movers[i].kind == EK_SLICER) movers[i].state = SL_GONE; return 1; }
+    if (sscanf(cmd, "sipper %d %d %d", &a, &b, &d) == 3) {
+        /* move sipper a to hover over tile (b, d) of its layer */
+        for (int i = 0; i < n_movers; i++)
+            if (movers[i].kind == EK_SIPPER && movers[i].id == a) {
+                movers[i].x = movers[i].hx = b * LNK_T + LNK_T / 2.0f;
+                movers[i].y = movers[i].hy = d * LNK_T + LNK_T / 2.0f;
+                movers[i].state = SL_IDLE;
+                movers[i].t = 0;
+            }
+        return 1;
+    }
+    if (!strcmp(cmd, "no_slicers")) {
+        /* (both kinds of bug) */
+        for (int i = 0; i < n_movers; i++)
+            if (movers[i].kind == EK_SLICER || movers[i].kind == EK_SIPPER) movers[i].state = SL_GONE;
+        return 1;
+    }
     if (sscanf(cmd, "badger %d %d %d", &a, &b, &c) >= 2) {
         bd.state = a;
         bd.hp = b;
@@ -1637,7 +1778,7 @@ static int lnk_cheat(const char *cmd) {
     if (sscanf(cmd, "botwp %d", &a) == 1) { bot_wp = a; bot_have = false; return 1; }
     if (!strcmp(cmd, "things")) {
         static const char *K[EK_KINDS] = {"start", "pin", "iron", "crow", "stray", "npc", "lark", "alba", "slicer",
-                                          "ability", "piece", "altar", "plate", "tree", "saucer", "den"};
+                                          "ability", "piece", "altar", "plate", "tree", "saucer", "den", "sipper", "keeper", "sign"};
         for (int i = 0; i < lnk_nthings; i++)
             printf("  %s %d: layer %d at %d,%d\n", K[lnk_things[i].kind], lnk_things[i].id, lnk_things[i].layer, lnk_things[i].tx,
                    lnk_things[i].ty);
@@ -1679,7 +1820,8 @@ const GameDef GAME_LOSTLINKS = {
     GLYPH_DPAD "\tAIM\n"
     "HOLD " GLYPH_A "\tSWING (LET GO TO HIT)\n"
     GLYPH_B "\tCANCEL / HOLD: CHECK\n"
-    GLYPH_A " / " GLYPH_B " ROLLING\tHOP / BRAKE (ONCE FOUND)\n"
+    "HOLD " GLYPH_A " ROLLING\tBRAKE (ONCE FOUND)\n"
+    GLYPH_B " ON SAND\tJUMP (ONCE FOUND)\n"
     "START\tPAUSE",
     C_LEAF, C_WHITE,
     lnk_load, lnk_start, lnk_update, lnk_draw, lnk_quit, lnk_label, lnk_query, lnk_cheat,

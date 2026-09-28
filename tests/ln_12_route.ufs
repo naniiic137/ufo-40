@@ -1,8 +1,8 @@
 # LOST LINKS: the route proof. From a new game the demo player (the "bot"
 # query) plays the whole world by real button presses: it swings the aim
-# with the d-pad, holds A and lets go at the power it wants, presses A to
-# hop and B to brake. Its way round is lostlinks_route.h; each stroke is
-# chosen by trying every swing with the game's own rolling rules. It finds
+# with the d-pad, holds A and lets go at the power it wants, holds A
+# again to brake and taps B to jump off sand. Its way round is
+# lostlinks_route.h; each stroke is chosen by trying every swing with the game's own rolling rules. It finds
 # every iron, stray, scorecrow, ability and piece, sets the Star Pin, lights
 # the plates and beats the Brass Badger: every goal, in one game.
 seed 18
@@ -11,11 +11,11 @@ wait 5
 press A
 botuntil abilities & 1 20000
 expect irons >= 10
-botuntil bot_wp >= 35 30000
+botuntil bot_wp >= 34 30000
 expect abilities & 2
-botuntil bot_wp >= 47 30000
+botuntil bot_wp >= 45 30000
 expect abilities & 4
-botuntil bot_wp >= 58 30000
+botuntil bot_wp >= 55 30000
 expect abilities == 15
 botuntil pieces == 15 20000
 botuntil placed == 1 20000

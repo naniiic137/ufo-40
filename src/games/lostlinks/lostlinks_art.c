@@ -484,6 +484,47 @@ static const char DIMPLE_BIG[] =
     "...kkllllllkk..."
     ".....kkkkkk.....";
 
+/* a slicer: a mower-beetle that bursts out of the ground and shoves */
+static const char BUG1[] =
+    "..k....k..."
+    "...k..k...."
+    "..kkkkkkk.."
+    ".kvrrrrrvk."
+    "kvrwrrrwrvk"
+    "krrrrrrrrrk"
+    "kvrrgggrrvk"
+    ".kvrrrrrvk."
+    "k.kkkkkkk.k";
+static const char BUG2[] =
+    "...k...k..."
+    "...k..k...."
+    "..kkkkkkk.."
+    ".kvrrrrrvk."
+    "kvrwrrrwrvk"
+    "krrrrrrrrrk"
+    "kvrrgggrrvk"
+    ".kvrrrrrvk."
+    ".k.kkkkk.k.";
+/* where one lies buried: a little heap of earth */
+static const char MOUND[] =
+    "...bbbb...."
+    ".bbebbebb.."
+    "bbebbbbebbb";
+/* the signpost */
+static const char SIGN[] =
+    "kkkkkkkkkkkk"
+    "keeeeeeeeeek"
+    "ketttettttek"
+    "keeeeeeeeeek"
+    "kettetttetek"
+    "keeeeeeeeeek"
+    "kkkkkbbkkkkk"
+    ".....bb....."
+    ".....bb....."
+    ".....bb....."
+    ".....bb....."
+    "....kbbk....";
+
 void lnk_art_load(void) {
     static bool done;
     if (done) return;
@@ -520,6 +561,10 @@ void lnk_art_load(void) {
     spr_make(&lnk_spr[LS_BADGER_DOWN], 32, 20, BADGER_DOWN);
     spr_make(&lnk_spr[LS_CROSSHAIR], 15, 15, CROSSHAIR);
     spr_make(&lnk_spr[LS_DIMPLE_BIG], 16, 16, DIMPLE_BIG);
+    spr_make(&lnk_spr[LS_BUG1], 11, 9, BUG1);
+    spr_make(&lnk_spr[LS_BUG2], 11, 9, BUG2);
+    spr_make(&lnk_spr[LS_MOUND], 11, 3, MOUND);
+    spr_make(&lnk_spr[LS_SIGN], 12, 12, SIGN);
 }
 
 /* ---- the tiles ------------------------------------------------------------ */
@@ -537,7 +582,7 @@ static char at(uint8_t (*tiles)[LNK_MH][LNK_MW], int l, int x, int y) {
     return (char)tiles[l][y][x];
 }
 
-static bool wallish(char c) { return c == '#' || c == 'T' || c == 'H'; }
+static bool wallish(char c) { return c == '#' || c == 'T' || c == 'H' || c == '%'; }
 
 static void ground(int l, char ch, int tx, int ty, int x, int y) {
     uint32_t h = hash2(tx, ty);
@@ -603,6 +648,7 @@ static void slope_mark(int x, int y, int k, int col, bool big) {
 }
 
 void lnk_draw_tile(int layer, char ch, int tx, int ty, int x, int y, int t, bool pan, uint8_t (*tiles)[LNK_MH][LNK_MW]) {
+    if (ch == '%') ch = '#'; /* a secret way looks like the rock round it */
     bool over = layer == LNK_OVER;
     uint32_t h = hash2(tx, ty);
     char up = at(tiles, layer, tx, ty - 1), down = at(tiles, layer, tx, ty + 1);
@@ -676,15 +722,33 @@ void lnk_draw_tile(int layer, char ch, int tx, int ty, int x, int y, int t, bool
         if (up != '~' && !wallish(up)) gfx_hline(x, x + 15, y, over ? C_CYAN : C_SKY);
         return;
     }
-    case 'r':
-        ground(layer, (char)(over ? '.' : '.'), tx, ty, x, y);
-        gfx_rect(x, y + 6, 16, 4, C_GREY);
-        gfx_hline(x, x + 15, y + 6, C_LIGHT);
-        gfx_hline(x, x + 15, y + 10, C_DUSK);
-        gfx_rect(x + 2, y + 4, 3, 8, C_LIGHT);
-        gfx_rect(x + 11, y + 4, 3, 8, C_LIGHT);
-        gfx_vline(x + 4, y + 4, y + 11, C_SLATE);
-        gfx_vline(x + 13, y + 4, y + 11, C_SLATE);
+    case 'p': {
+        /* a pit: the ground drops away into the dark */
+        gfx_rect(x, y, 16, 16, C_INK);
+        char l = at(tiles, layer, tx - 1, ty), r = at(tiles, layer, tx + 1, ty);
+        if (up != 'p' && up != 'y') { gfx_rect(x, y, 16, 3, over ? C_BROWN : C_NIGHT); gfx_hline(x, x + 15, y + 3, C_NIGHT); }
+        if (l != 'p' && l != 'y') gfx_vline(x, y, y + 15, C_NIGHT);
+        if (r != 'p' && r != 'y') gfx_vline(x + 15, y, y + 15, C_NIGHT);
+        if (h & 1) gfx_pset(x + 5 + (int)(h % 7), y + 9, C_NIGHT);
+        return;
+    }
+    case 'J':
+        /* a jumping flower: a big springy bloom */
+        ground(layer, '.', tx, ty, x, y);
+        gfx_circ(x + 8, y + 9, 5, C_FOREST);
+        for (int i = 0; i < 5; i++) {
+            float a = i * 1.2566f + t * 0.02f;
+            gfx_circ(x + 8 + (int)(cosf(a) * 4), y + 8 + (int)(sinf(a) * 4), 2, (t / 20) % 2 ? C_MAGENTA : C_PINK);
+        }
+        gfx_circ(x + 8, y + 8, 2, C_YELLOW);
+        return;
+    case '=':
+        /* a bridge of planks, over water or a pit */
+        gfx_rect(x, y, 16, 16, over ? C_BLUE : C_INK);
+        gfx_rect(x, y + 1, 16, 14, C_TAN);
+        for (int i = 0; i < 16; i += 4) gfx_vline(x + i, y + 1, y + 14, C_BROWN);
+        gfx_hline(x, x + 15, y + 1, C_EARTH);
+        gfx_hline(x, x + 15, y + 14, C_BROWN);
         return;
     case 'v':
         ground(layer, '.', tx, ty, x, y);
@@ -720,6 +784,9 @@ void lnk_draw_tile(int layer, char ch, int tx, int ty, int x, int y, int t, bool
             return;
         }
         ch = 'b'; /* up top it is just a bush, with a hole under it */
+        break;
+    case 'y':
+        ch = 'b'; /* a secret pitfall: a bush over a pit */
         break;
     default: break;
     }

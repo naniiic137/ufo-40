@@ -6,8 +6,7 @@
 #include "lostlinks.h"
 
 #define NODES (LNK_LAYERS * LNK_MH * LNK_MW)
-#define CHIP_TILES 5
-#define CHIP_TILES_DIAG 4
+#define LEAP_MAX 7
 
 static int node(int l, int x, int y) { return (l * LNK_MH + y) * LNK_MW + x; }
 
@@ -16,25 +15,26 @@ static bool has(const LnkCtx *c, int ab) { return (c->abilities >> ab) & 1; }
 static char T(const LnkCtx *c, int l, int x, int y) { return lnk_tile(c, l, x, y); }
 
 static bool is_hole(char ch) { return ch == 'o' || ch == 'O'; }
+static bool is_pit(char ch) { return ch == 'p' || ch == 'y'; }
 
-/* the ball can be on this tile (rolling or airborne) */
+/* the ball can roll here (or be here in the air) */
 static bool passable(const LnkCtx *c, char ch) {
     if (ch == '#' || ch == 'T' || ch == 'H') return false;
     if (ch == 'g') return (c->opened & 1) != 0;
     if (ch == 'k') return (c->opened & 2) != 0;
     if (ch == 'X') return has(c, AB_HAMMER);
     if (ch == '~') return has(c, AB_SKIPPER);
-    if (ch == 'r') return has(c, AB_TREAD);
+    if (is_pit(ch)) return false;
     return true;
 }
 
-/* a chip can land here and stay */
+/* a chip or a hop can come down here and stay */
 static bool standable(const LnkCtx *c, char ch) {
-    if (ch == 'r' || ch == '~') return false; /* landing in water sinks, Skipper or not */
+    if (ch == '~') return false; /* landing in water sinks, Skipper or not */
     return passable(c, ch);
 }
 
-/* does the flight of a chip clear this tile? */
+/* does a ball in the air clear this tile? */
 static bool flies_over(const LnkCtx *c, char ch) {
     if (ch == '#' || ch == 'T' || ch == 'H') return false;
     if (ch == 'g') return (c->opened & 1) != 0;
@@ -43,11 +43,14 @@ static bool flies_over(const LnkCtx *c, char ch) {
     return true;
 }
 
-/* where a ball can leave the ground: a chip from the cup, a divot or sand,
- * and with the Dune Tread a hop from anywhere it rolls (not the water) */
-static bool chip_from(const LnkCtx *c, char ch) {
-    if (has(c, AB_TREAD) && ch != '~' && ch != 'r') return true;
-    return is_hole(ch) || ch == 'u' || ch == 's';
+/* how far (in tiles) a ball can leave the ground from here: a chip from the
+ * cup, a divot or sand; a hop off sand with the Dune Tread (rolling, so
+ * further); a jumping flower. 0 = it can't. */
+static int leap_from(const LnkCtx *c, char ch) {
+    if (ch == 's' && has(c, AB_TREAD)) return 7;
+    if (ch == 'J') return 6;
+    if (is_hole(ch) || ch == 'u' || ch == 's') return 5;
+    return 0;
 }
 
 /* how many slope tiles in a row a ball going (dx, dy) would have to climb */
@@ -73,14 +76,14 @@ static int edge_cost(const LnkCtx *c, int l, int x, int y, int m, int u, int v) 
         if (b == 'v' && dy < 0 && a != 'v') return -1; /* a ledge */
         if (uphill_run(c, m, u, v, dx, dy) >= 7) return -1; /* too long a climb */
         if (a == 's' && !has(c, AB_TREAD)) return 4;
-        if (a == 'r' || b == 'r') return 3; /* a hop */
         return b == ',' || b == 'b' ? 2 : 1;
     }
-    /* a chip: in a straight line (eight ways), clearing water and rails */
-    if (!chip_from(c, a) || !standable(c, b)) return -1;
+    /* a chip or a hop: in a straight line (eight ways), over water and pits */
+    int reach = leap_from(c, a);
+    if (!reach || !standable(c, b)) return -1;
     int sx = isign(dx), sy = isign(dy), k = imax(iabs(dx), iabs(dy));
     if ((dx && dy && iabs(dx) != iabs(dy)) || k < 2) return -1;
-    if (k > ((sx && sy) ? CHIP_TILES_DIAG : CHIP_TILES)) return -1;
+    if (k > ((sx && sy) ? reach - 1 : reach)) return -1;
     for (int i = 1; i < k; i++)
         if (!flies_over(c, T(c, l, x + sx * i, y + sy * i))) return -1;
     return 5;
@@ -153,7 +156,7 @@ static void flow(LnkFlow *f, const LnkCtx *c, int layer, int tx, int ty, bool re
         for (int i = 0; i < 4; i++) { cand[nc][0] = l; cand[nc][1] = x + D4[i][0]; cand[nc][2] = y + D4[i][1]; nc++; }
         cand[nc][0] = 1 - l; cand[nc][1] = x; cand[nc][2] = y; nc++;
         for (int i = 0; i < 8; i++)
-            for (int k = 2; k <= CHIP_TILES; k++) {
+            for (int k = 2; k <= LEAP_MAX; k++) {
                 cand[nc][0] = l; cand[nc][1] = x + D8[i][0] * k; cand[nc][2] = y + D8[i][1] * k; nc++;
             }
         for (int i = 0; i < nc; i++) {
@@ -182,8 +185,8 @@ int lnk_sim(LnkBall *b, const LnkCtx *c, int dir, int level, int hop_at, int bra
     *touched = false;
     lnk_hit(b, c, dir, level);
     for (int f = 0; f < 2400; f++) {
-        if (f == hop_at) lnk_hop(b, c);
-        if (f == brake_at) lnk_brake(b, c);
+        if (hop_at >= 0 && f >= hop_at && !b->hopped) lnk_hop(b, c);
+        if (brake_at >= 0 && f >= brake_at) lnk_brake(b, c);
         int ev = lnk_ball_step(b, c);
         if (b->layer == layer) {
             float dx = b->x - px, dy = b->y - py;
@@ -215,7 +218,7 @@ typedef struct Cand { int dir, level, hop, brake, score; LnkBall end; } Cand;
  * (Backspin) at a few moments of the roll. */
 static int try_all(const LnkBall *b, const LnkCtx *c, const LnkFlow *f, int layer, float px, float py, float rad,
                    Cand *out, int max, bool coarse) {
-    static const int HOPS[4] = {6, 14, 24, 40};
+    static const int HOPS[4] = {2, 8, 16, 26}; /* hop on the first sand after this frame */
     static const int BRAKES[5] = {8, 16, 26, 40, 60};
     int n = 0;
     bool chip = lnk_is_chip(b, c);

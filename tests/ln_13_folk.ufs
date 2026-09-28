@@ -1,14 +1,14 @@
 # LOST LINKS: talking is rolling into somebody: the folk say one of their
 # one or two lines. A stray rolled into joins Dimple (and the strokes are
 # refilled, as for anything found). The odd tree and the crashed saucer
-# have something to say too.
+# have something to say too; so do the signpost and the hidden Keepers.
 game lostlinks
 wait 5
 cheat newgame
 cheat no_slicers
 cheat ball 0 70 41
 cheat aim 48
-hold A 10
+hold A 16
 wait 1
 waituntil state == 3 200
 wait 15
@@ -18,7 +18,7 @@ waituntil moving == 0 300
 cheat strokes 3
 cheat ball 0 114 29
 cheat aim 48
-hold A 14
+hold A 22
 wait 1
 waituntil strays == 1 200
 expect strokes == 20
@@ -28,7 +28,7 @@ waituntil moving == 0 300
 # the odd tree
 cheat ball 0 17 28
 cheat aim 48
-hold A 10
+hold A 16
 wait 1
 waituntil secrets == 1 200
 wait 15
@@ -37,7 +37,7 @@ waituntil moving == 0 300
 # the saucer in the dunes
 cheat ball 0 130 67
 cheat aim 48
-hold A 14
+hold A 22
 wait 1
 waituntil secrets == 3 200
 reload
@@ -45,3 +45,20 @@ game lostlinks
 wait 5
 expect strays == 1
 expect secrets == 3
+# the signpost in Lanternby counts the strays found and the crows smashed
+cheat ball 0 88 52
+cheat aim 48
+hold A 10
+wait 1
+waituntil state == 3 200
+wait 15
+press A
+waituntil moving == 0 300
+# a Keeper in the hidden refuge under the Undercroft
+cheat ball 1 85 41
+cheat aim 48
+hold A 10
+wait 1
+waituntil state == 3 200
+wait 15
+press A

@@ -1,6 +1,8 @@
 # LOST LINKS: a scorecrow that sees Dimple watches for five strokes, then
-# flies off (it is back next run). Hit before then, it is smashed for good:
-# 3 strokes plus one for each stroke it had left, and its tape.
+# flies off (it is back when the ball changes layer). Hit before then, it is
+# smashed for good:
+# 3 strokes plus one for each stroke it had left, and the next tape of the
+# story (in the order the crows fall, not by crow).
 game lostlinks
 wait 5
 cheat newgame
@@ -10,21 +12,21 @@ cheat ball 0 70 58
 wait 2
 expect crow_6 == 15
 cheat aim 0
-hold A 2
+hold A 4
 wait 1
 waituntil moving == 0 300
 expect crow_6 == 14
-hold A 2
+hold A 4
 wait 1
 waituntil moving == 0 300
-hold A 2
+hold A 4
 wait 1
 waituntil moving == 0 300
-hold A 2
+hold A 4
 wait 1
 waituntil moving == 0 300
 expect crow_6 == 11
-hold A 2
+hold A 4
 wait 1
 expect crow_6 == 20
 waituntil moving == 0 300
@@ -34,12 +36,14 @@ expect crow_6 == 5
 cheat ball 0 70 58
 cheat strokes 5
 cheat aim 48
-hold A 22
+hold A 34
 wait 1
 waituntil crows == 1 300
 expect strokes == 11
 expect state == 3
 expect crow_6 >= 30
+# its tape is the first of the story, whichever crow it was
+expect tape == 0
 wait 15
 press A
 reload

@@ -1,5 +1,6 @@
 # LOST LINKS: the finale. The altar takes the four pieces of the Star Pin
 # and the gate to the sanctum opens; four plates there open the den door.
+# The altar and the gate are underground, in the crypt under the hall.
 # The Brass Badger: hit it in the face and it stands (it can't be hurt
 # then) and fires three volleys at where the ball is, 3 strokes each; then
 # it digs to another burrow, and if six strokes pass without a hit it
@@ -7,12 +8,12 @@
 # found rolls in once with 8 more.
 game lostlinks
 wait 5
-cheat route 61
+cheat route 62
 cheat no_slicers
 cheat pieces 7
-cheat ball 0 37 4
+cheat ball 1 45 4
 cheat aim 32
-hold A 18
+hold A 10
 wait 1
 waituntil state == 3 300
 expect placed == 0
@@ -20,15 +21,15 @@ wait 15
 press A
 waituntil moving == 0 300
 cheat pieces 15
-cheat ball 0 37 4
-hold A 18
+cheat ball 1 45 4
+hold A 10
 wait 1
 waituntil placed == 1 300
 expect opened == 1
 wait 15
 press A
 # the sanctum plates: each lights when the ball rolls over it
-cheat ball 1 30 1
+cheat ball 1 25 5
 cheat plates 7
 expect opened == 1
 cheat plates 15
@@ -43,7 +44,7 @@ press A
 expect badger_hp == 6
 cheat strokes 40
 cheat aim 42
-hold A 22
+hold A 34
 wait 1
 waituntil badger == 2 300
 expect badger_hp == 5
@@ -61,25 +62,25 @@ waituntil badger == 1 100
 expect badger_spot != 0
 expect badger_shots == 6
 # six strokes without a hit and it stands to fire again
-cheat ball 1 3 8
+cheat ball 1 8 9
 cheat aim 16
-hold A 2
+hold A 4
 wait 1
 waituntil moving == 0 300
 expect badger_shots == 5
-hold A 2
+hold A 4
 wait 1
 waituntil moving == 0 300
-hold A 2
+hold A 4
 wait 1
 waituntil moving == 0 300
-hold A 2
+hold A 4
 wait 1
 waituntil moving == 0 300
-hold A 2
+hold A 4
 wait 1
 waituntil moving == 0 300
-hold A 2
+hold A 4
 wait 1
 expect badger == 2
 # strokes low: a stray rolls in to help
@@ -94,10 +95,11 @@ press A
 cheat badger 1 1 0
 cheat ball 1 12 9
 cheat aim 42
-hold A 22
+hold A 34
 wait 1
 waituntil won == 1 300
 expect goals & 2
 expect goals & 4
 expect won_all == 1
 expect state == 6
+expect completion == 100

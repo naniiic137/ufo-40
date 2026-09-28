@@ -19,6 +19,9 @@ static int kind_of(char ch, int *id) {
     case 'L': return EK_LARK;
     case 'E': return EK_ALBA;
     case 'B': return EK_SLICER;
+    case 'D': return EK_SIPPER;
+    case 'K': return EK_KEEPER;
+    case 'A': return EK_SIGN;
     case 'h': *id = AB_HAMMER; return EK_ABILITY;
     case 'j': *id = AB_BACKSPIN; return EK_ABILITY;
     case 'd': *id = AB_TREAD; return EK_ABILITY;
@@ -78,7 +81,9 @@ static char ground_under(int l, int x, int y) {
         int nx = x + DX[i], ny = y + DY[i];
         if (nx < 0 || ny < 0 || nx >= LNK_MW || ny >= LNK_MH) continue;
         char c = LNK_MAP[l][ny][nx];
-        if (lnk_is_marker(c) || lnk_solid_char(c) || c == 'r' || c == 'o' || c == 'O' || c == 'g' || c == 'k') continue;
+        if (lnk_is_marker(c) || lnk_solid_char(c) || c == 'p' || c == 'y' || c == 'J' || c == '%' || c == 'o' || c == 'O' ||
+            c == 'g' || c == 'k')
+            continue;
         if (c >= '1' && c <= '9') continue;
         int n = 0;
         for (int j = 0; j < 4; j++) {

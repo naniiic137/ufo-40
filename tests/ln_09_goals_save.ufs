@@ -9,7 +9,7 @@ cheat no_slicers
 expect goals !& 1
 cheat ball 1 34 18
 cheat aim 0
-hold A 6
+hold A 10
 wait 1
 waituntil abilities == 1 300
 expect goals & 1
@@ -26,7 +26,7 @@ wait 5
 expect state == 0
 expect has_save == 1
 expect goals.lostlinks == 1
-# CONTINUE: from the Hush Cavern pin, with the Hammerhead and three irons
+# CONTINUE: from the Rootcrawl pin, with the Hammerhead and three irons
 press A
 wait 2
 expect state == 2
@@ -35,8 +35,8 @@ expect irons == 3
 expect strokes == 29
 expect checkpoint == 3
 expect layer == 1
-expect btx == 73
-expect bty == 18
+expect btx == 32
+expect bty == 27
 # NEW GAME asks; NO keeps the save
 reload
 game lostlinks

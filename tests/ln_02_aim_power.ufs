@@ -1,7 +1,9 @@
 # LOST LINKS: the swing, by real presses. The d-pad swings the aim towards
 # the way pressed (a tap is one notch of 64, held it speeds up). Holding A
-# charges: the power runs up and down twelve pips, slower the longer it is
-# held; letting go hits. B cancels a swing; B held looks around.
+# charges: dots light up along the aim, twelve of them, filling in about
+# 1.2 s, then emptying, slower the longer A is held; letting go hits. B
+# cancels a swing; B held is check mode, which looks further up top than
+# underground.
 game lostlinks
 wait 5
 cheat newgame
@@ -22,35 +24,44 @@ expect aim == 56
 hold RIGHT 80
 expect aim == 0
 # charging: up...
-hold A 22
+hold A 34
 expect charging == 1
 expect level == 6
 # ...B cancels, no stroke spent
 press B 1
 expect charging == 0
 expect strokes == 20
-# the power turns at the top and comes back down, more slowly
-hold A 44
+# full after about 1.2 s (75 frames)
+hold A 70
+expect level == 11
+press B 1
+hold A 77
 expect level == 12
 press B 1
-hold A 60
+# then it comes back down, more slowly
+hold A 110
 expect level == 9
 press B 1
-hold A 80
+hold A 140
 expect level == 5
 press B 1
 expect strokes == 20
 # a real stroke: one from the budget, and the ball rolls
-hold A 22
+hold A 34
 wait 1
 expect strokes == 19
 expect moving == 1
 waituntil moving == 0 600
 expect strokes == 19
 # B held looks around; the pad moves the view, not the aim
-hold B RIGHT 40
+hold B RIGHT 90
 expect panning == 1
-expect pan_x > 60
+expect pan_x == 200
 expect aim == 0
 wait 2
 expect panning == 0
+# underground it doesn't reach as far
+cheat ball 1 91 55
+wait 2
+hold B RIGHT 90
+expect pan_x == 120

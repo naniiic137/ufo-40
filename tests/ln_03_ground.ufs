@@ -9,7 +9,7 @@ cheat no_slicers
 # the fairway: level 6 runs about nine tiles
 cheat ball 0 60 47
 cheat aim 0
-hold A 22
+hold A 34
 wait 1
 waituntil moving == 0 600
 expect bx >= 1100
@@ -17,7 +17,7 @@ expect bx <= 1115
 # the rough: the same swing, less than half as far
 cheat ball 0 43 49
 cheat aim 0
-hold A 22
+hold A 34
 wait 1
 waituntil moving == 0 600
 expect bx >= 752
@@ -25,7 +25,7 @@ expect bx <= 766
 # the green: a level 2 tap slides further than on the fairway
 cheat ball 0 63 54
 cheat aim 0
-hold A 6
+hold A 10
 wait 1
 waituntil moving == 0 600
 expect bx >= 1080
@@ -33,7 +33,7 @@ expect bx <= 1097
 # a slope: a tap and the ball runs all the way down the mountain side
 cheat ball 0 70 9
 cheat aim 0
-hold A 2
+hold A 4
 wait 1
 waituntil moving == 0 900
 expect bty >= 16
@@ -41,7 +41,7 @@ expect bty >= 16
 cheat ball 0 110 58
 expect lie == 1
 cheat aim 0
-hold A 22
+hold A 34
 wait 1
 wait 3
 expect airborne == 1
@@ -55,7 +55,7 @@ cheat abilities 4
 cheat ball 0 110 58
 expect lie == 0
 cheat aim 0
-hold A 22
+hold A 34
 wait 1
 wait 3
 expect airborne == 0
@@ -66,7 +66,7 @@ cheat abilities 0
 cheat ball 0 92 57
 expect lie == 2
 cheat aim 32
-hold A 6
+hold A 10
 wait 1
 wait 3
 expect airborne == 1

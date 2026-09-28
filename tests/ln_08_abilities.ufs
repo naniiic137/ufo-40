@@ -1,7 +1,10 @@
-# LOST LINKS: the four abilities. The Hammerhead smashes cracked blocks,
-# but only on a hard knock (a bush gives way to any roll, no ability
-# needed). Backspin: B while rolling stops the ball dead, though a slope
-# wears it down. The Dune Tread: A while rolling hops over a low rail.
+# LOST LINKS: the four abilities, and the ground they are for. Cracked
+# blocks hold the ball until the Hammerhead, then it crashes through them
+# like bushes (a bush gives way to any roll). Backspin: hold A while
+# rolling to slow the ball for a little while; a slope wears it out fast.
+# The Dune Tread: sand rolls like grass, and a tap of B on sand jumps, over
+# pits a chip can't clear. A pit sends the ball back where it was hit from;
+# a jumping flower throws it over one.
 game lostlinks
 wait 5
 cheat newgame
@@ -10,59 +13,85 @@ cheat strokes 60
 # no Hammerhead: the cracked blocks hold
 cheat ball 0 29 10
 cheat aim 48
-hold A 22
+hold A 34
 wait 1
 waituntil moving == 0 600
 expect bty >= 9
-# the Hammerhead, but a feeble tap: still they hold
+# the Hammerhead: even a gentle roll crashes through, into the hall
 cheat abilities 1
 cheat ball 0 29 10
-hold A 2
+hold A 16
 wait 1
 waituntil moving == 0 600
-expect bty >= 9
-# a real knock: through, into the hall
-cheat ball 0 29 10
-hold A 22
-wait 1
-waituntil moving == 0 600
-expect bty <= 7
+expect bty <= 8
 # a bush needs no ability: the ball crashes through it
 cheat abilities 0
 cheat ball 0 45 27
-hold A 22
+hold A 34
 wait 1
 waituntil moving == 0 600
 expect bty <= 23
-# Backspin: a full roll, B after ten frames, and it stops short
+# Backspin: a full roll, A held after five frames, and it stops short
 cheat abilities 2
 cheat ball 0 60 47
 cheat aim 0
-hold A 46
-wait 10
-press B 1
-waituntil moving == 0 60
-expect bx < 1040
-# on the mountain side it only slows the ball, the hill takes it on down
-cheat ball 0 70 8
-hold A 22
+hold A 77
 wait 5
-press B 1
+hold A 30
+wait 1
+expect moving == 0
+expect bx < 1060
+# on the mountain side it runs out fast, and the hill takes the ball on down
+cheat ball 0 70 8
+hold A 34
+wait 1
+hold A 60
 waituntil moving == 0 900
 expect bty >= 16
-# the Dune Tread: without a hop a rail turns the ball back...
-cheat ball 1 31 6
+# a pit: the ball falls, and is back where it was hit from
+cheat ball 0 51 17
 cheat aim 0
-hold A 22
+hold A 16
 wait 1
+waituntil moving == 0 300
+expect btx == 51
+expect bty == 17
+# the jumping flower by the stone ring throws the ball over the pits
+cheat ball 0 48 19
+hold A 28
+wait 1
+waituntil airborne == 1 100
 waituntil moving == 0 600
-expect btx <= 34
-# ...with one it sails over
+expect btx == 57
+expect bty == 19
+# the Dune Tread: B on grass does nothing...
 cheat abilities 4
-cheat ball 1 31 6
-hold A 22
-wait 8
-press A 1
+cheat ball 0 60 47
+hold A 34
+wait 5
+press B 1
+expect airborne == 0
+waituntil moving == 0 600
+# ...but on sand it jumps
+cheat ball 0 110 58
+hold A 34
+wait 5
+press B 1
 expect airborne == 1
 waituntil moving == 0 600
-expect btx >= 36
+# without it the ball stops dead in the sand before the pit channel...
+cheat abilities 0
+cheat ball 1 127 28
+cheat aim 48
+hold A 77
+wait 1
+waituntil moving == 0 600
+expect bty >= 26
+# ...with it, a jump off the sand clears six rows of pits
+cheat abilities 4
+cheat ball 1 127 28
+hold A 77
+wait 3
+press B 1
+waituntil moving == 0 600
+expect bty <= 19

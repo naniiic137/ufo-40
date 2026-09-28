@@ -1,8 +1,9 @@
-# LOST LINKS: strokes are health. A pin refills them and becomes the place
-# a run starts from; running out of strokes ends the run and Dimple wakes
-# at the last pin with full strokes, keeping all it found. A hole with a
-# pin near it tops the strokes up to 15. An iron adds 3 to the most strokes
-# and refills them.
+# LOST LINKS: strokes are health. A pin (always underground, by a hole)
+# refills them and becomes the place a run starts from; running out of
+# strokes ends the run and Dimple wakes at the last pin with full strokes,
+# keeping all it found. The cave round a pin is a safe zone: dropping in,
+# and every stroke taken there, keeps the strokes at 15 or more. An iron
+# adds 3 to the most strokes and refills them.
 game lostlinks
 wait 5
 cheat newgame
@@ -11,18 +12,25 @@ expect checkpoint == 255
 cheat strokes 5
 cheat ball 1 93 54
 cheat aim 32
-hold A 10
+hold A 16
 wait 1
 waituntil checkpoint == 7 200
 expect strokes == 20
 expect pins == 1
 waituntil moving == 0 600
-# the last stroke: out of strokes, back to the pin
-cheat irons 1
+# a stroke taken in the safe zone round the pin: never below 15
+cheat strokes 3
 cheat ball 1 88 57
-cheat strokes 1
 cheat aim 0
-hold A 6
+hold A 4
+wait 1
+expect strokes == 15
+waituntil moving == 0 300
+# the last stroke, out on the links: out of strokes, back to the pin
+cheat irons 1
+cheat ball 0 60 47
+cheat strokes 1
+hold A 10
 wait 1
 expect strokes == 0
 waituntil state == 5 600
@@ -36,11 +44,11 @@ expect btx == 91
 expect bty == 54
 expect irons == 1
 expect runs == 2
-# the safe zone: in through the hole by the Waking Hollow's pin
+# down the hole by the Cradle's pin from Lanternby: topped up to 15
 cheat ball 0 84 54
 cheat strokes 3
 cheat aim 0
-hold A 6
+hold A 10
 wait 1
 waituntil layer == 1 300
 wait 40
@@ -49,7 +57,7 @@ expect strokes == 15
 cheat ball 1 68 65
 cheat strokes 4
 cheat aim 32
-hold A 10
+hold A 16
 wait 1
 waituntil irons == 2 300
 expect max_strokes == 26
