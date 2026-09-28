@@ -108,10 +108,13 @@ static int parse_col(const char *s) {
     return p && s[0] ? (int)(p - LETTERS) : C_WHITE;
 }
 
-/* Text with a one-pixel ink outline; scale 0 is the tiny 3x5 font. */
+/* Text with a one-pixel ink outline; scale 0 is the tiny 3x5 font. An
+ * upper-case alignment (L C R) puts it on an ink plate as well. */
 static void ovl_draw_text(const Overlay *o) {
     int w = o->scale ? text_width_scaled(o->text, o->scale) : tiny_width(o->text);
-    int x = o->align == 'c' ? o->x - w / 2 : o->align == 'r' ? o->x - w : o->x;
+    char a = (char)tolower((unsigned char)o->align);
+    int x = a == 'c' ? o->x - w / 2 : a == 'r' ? o->x - w : o->x;
+    if (isupper((unsigned char)o->align)) gfx_rect(x - 3, o->y - 2, w + 6, (o->scale ? 7 * o->scale : 5) + 4, C_INK);
     /* the eight outline offsets, then the text itself (k = 4 is the centre) */
     for (int k = 0; k < 10; k++) {
         if (k == 4) continue;
@@ -161,9 +164,15 @@ static void step(int n) {
                 gif_frame(&gif, px, d);
             }
             if (rec_on) {
+                /* the colours as presented: screen fades and flashes included */
+                uint32_t lut[PAL_COUNT];
+                uint8_t pal[PAL_COUNT][3];
+                gfx_build_lut(lut, 1);
+                for (int c = 0; c < PAL_COUNT; c++)
+                    for (int k = 0; k < 3; k++) pal[c][k] = (uint8_t)(lut[c] >> (16 - 8 * k));
                 char path[700];
                 snprintf(path, sizeof path, "%s/%06d.png", rec_dir, rec_frames++);
-                png_write_indexed(path, SCREEN_W, SCREEN_H, px, PALETTE_RGB, PAL_COUNT, shot_scale);
+                png_write_indexed(path, SCREEN_W, SCREEN_H, px, (const uint8_t(*)[3])pal, PAL_COUNT, shot_scale);
             }
         }
         if (gif_left > 0 && --gif_left == 0) gif_end(&gif);
@@ -573,7 +582,7 @@ static int run_script(const char *path) {
             sscanf(arg, "%d %d", &m, &s);
             audio_set_volume(m, s);
         } else if (!strcmp(cmd, "overlay_text") || !strcmp(cmd, "overlay_box")) {
-            /* overlay_text ALIGN(l/c/r) X Y SCALE(0 = tiny) COLOUR TEXT...
+            /* overlay_text ALIGN(l/c/r, L/C/R on a plate) X Y SCALE(0 = tiny) COLOUR TEXT...
              * overlay_box X Y W H COLOUR (a negative colour darkens N steps)
              * Colours: 0-31 or the sprite letter (w white, y yellow, k ink...). */
             if (ovl_n >= OVL_MAX) { fail("too many overlays%s%ld", "", 0); continue; }
