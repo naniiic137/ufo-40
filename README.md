@@ -597,6 +597,14 @@ the top.
   <img src="docs/shots/openhouse_allnight.png" width="320" alt="Open All Night: pick a list to play with no last night">
   <img src="docs/shots/openhouse_custom.png" width="320" alt="The custom list's editor: every guest, in or out">
 </p>
+<p align="center">
+  <img src="docs/shots/openhouse_picker.png" width="320" alt="The fetch list: each guest's cost, pay and badges">
+  <img src="docs/shots/openhouse_notice.png" width="320" alt="The fire marshal, in red: who couldn't get in and who brought them">
+</p>
+<p align="center">
+  <img src="docs/shots/openhouse_peek.png" width="320" alt="A peek: the guest waits by the door while the party goes on">
+  <img src="docs/shots/openhouse_legend.png" width="320" alt="The icon guide">
+</p>
 
 *A tribute to **Party House** (UFO 50 #25).*
 
@@ -631,6 +639,14 @@ the top.
   cousin and rowdy mate are locked in), with CLEAR ALL, RANDOMISE and an
   ALL NIGHT toggle. It needs a star and six guests, is saved, and keeps its
   own record.
+- **Easy to read:** every guest wears small badges (fame, cash, RUCKUS!, a
+  star and an icon for its ability, dimmed once used) in the house, the
+  shop, the guest book, the editor and the fetch list, with an ICON GUIDE
+  to explain them. Shutdowns say why in red (OVER CAPACITY!, TOO MUCH
+  TROUBLE!, with the culprits marked), the banned guest wears a red BANNED
+  tag until the party they miss, a peek leaves the guest waiting by the
+  door while the party goes on, stars show a no-limit sign in the shop, and
+  every list is open from the start, turning gold once beaten.
 
 ### 28 · DUNE EXPRESS
 

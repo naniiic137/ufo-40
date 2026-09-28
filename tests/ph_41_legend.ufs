@@ -1,0 +1,27 @@
+# OPEN HOUSE (owner's addition): the icon guide explains every badge and
+# ability icon. It opens from the guest book (LEFT or RIGHT) and from the
+# ICON GUIDE item of the START menu, and goes back where it came from.
+game openhouse
+wait 5
+cheat new 1 1
+press DOWN
+press DOWN
+expect cur == 102
+press A
+expect state == 16
+press RIGHT
+expect state == 20
+expect seen_legend == 15
+press B
+expect state == 16
+press B
+expect state == 5
+press START
+wait 2
+press DOWN
+press A
+wait 2
+expect state == 20
+expect legend_back == 5
+press B
+expect state == 5

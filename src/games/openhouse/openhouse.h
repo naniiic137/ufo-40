@@ -118,6 +118,8 @@ typedef struct PhParty {
                                         so the saved layout keeps its size) */
     int16_t peek;                    /* the guest waiting at the door, if someone looked; -1 */
     uint8_t over;                    /* PO_* */
+    uint8_t overflow;                /* card + 1 who couldn't get in when the fire marshal came, 0 none
+                                        (this byte was padding, so the saved layout keeps its size) */
     int16_t got_pop, got_cash;       /* collected during the party (paparazzo, usher) */
     int16_t end_pop, end_cash, penalty; /* the final tally */
     uint8_t warned;                  /* the neighbour's lamp went on */
@@ -194,6 +196,19 @@ static inline const PhPlayer *ph_me_c(const PhGame *g) { return &g->pl[g->turn];
 enum { PS_DOOR = G_COUNT, PS_LAMP, PS_POLICE, PS_FIRE, PS_COUNT };
 extern Sprite ph_spr[PS_COUNT];
 void ph_art_load(void);
+/* the icon set (the owner's): tiny badges drawn with a dark outline. The
+ * first ones are the ability families, one per guest (ph_ability_icon). */
+enum {
+    PI_NONE, PI_FETCH, PI_BRING, PI_BOOT, PI_PEEK, PI_SHUFFLE, PI_SCORE, PI_STYLE, PI_REFRESH,
+    PI_SWAP, PI_CALM, PI_FAMEUP, PI_CASHUP, PI_MOON, PI_CURSE, PI_ENCORE,
+    PI_ABILITIES,                    /* the number of ability families (PI_NONE included) */
+    PI_STAR = PI_ABILITIES, PI_FAME, PI_INF, PI_CROWN, PI_COUNT
+};
+extern const uint8_t PH_ICON_COL[PI_COUNT];  /* each icon's own colour */
+extern const char *const PH_ICON_NAME[PI_ABILITIES]; /* the legend's words */
+int ph_ability_icon(int type);       /* the guest's ability family, PI_NONE for none */
+void ph_icon(int id, int x, int y, int col);  /* col < 0: the icon's own colour */
+int ph_icon_w(int id);
 void ph_audio_load(void);
 extern int PH_MUS_TITLE, PH_MUS_PARTY, PH_MUS_SHOP, PH_MUS_WIN, PH_MUS_LOSE, PH_MUS_BUST, PH_MUS_NIGHT;
 #endif

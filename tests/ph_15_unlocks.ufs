@@ -1,7 +1,7 @@
-# OPEN HOUSE: list 1 is open from the start; each win opens the next list,
-# and the Random list opens after list 5. The lists sit in a grid of tiles
-# (1 2 3 / 4 5 RANDOM / OPEN ALL NIGHT); A on Random offers a new deal or a
-# code.
+# OPEN HOUSE (owner's addition): every list is open from the start: the five
+# lists, Random, OPEN ALL NIGHT and CUSTOM. Each tile says UNBEATEN; a win
+# turns it gold (BEATEN, a crown) and that stays after a restart. The goals
+# still count wins as before. A on Random offers a new deal or a code.
 game openhouse
 wait 30
 press A
@@ -10,21 +10,25 @@ press A
 wait 5
 expect state == 2
 expect scen_sel == 0
-press RIGHT
-expect scen_sel == 1
-press A
-wait 5
-expect state == 2
-cheat won 1
+expect beaten0 == 0
+expect seen_crowns == 0
 press A
 wait 5
 expect state == 3
-cheat menu
-cheat won 31
-wait 3
-press DOWN
-expect scen_sel == 4
+expect scen == 1
+press B
+expect state == 2
 press RIGHT
+press A
+wait 5
+expect scen == 2
+press B
+press RIGHT
+press A
+wait 5
+expect scen == 3
+press B
+press DOWN
 expect scen_sel == 5
 press A
 wait 2
@@ -33,3 +37,62 @@ press A
 wait 5
 expect state == 3
 expect scen == 6
+press B
+press LEFT
+expect scen_sel == 4
+press A
+wait 5
+expect scen == 5
+press B
+press LEFT
+expect scen_sel == 3
+press A
+wait 5
+expect scen == 4
+press B
+# OPEN ALL NIGHT: its own grid, where every list can be played too
+press DOWN
+expect scen_sel == 6
+press A
+expect scen_endless == 1
+press A
+wait 5
+expect state == 3
+expect scen == 7
+press B
+press B
+expect scen_endless == 0
+press RIGHT
+expect scen_sel == 7
+press A
+expect state == 19
+# a win turns list 1 gold, and it stays gold after a restart
+cheat new 1 1
+cheat cap 8
+cheat give 37 4
+cheat door 37 37 37 37
+expect stars == 4
+press B
+press LEFT
+press A
+waituntil tally == 3 900
+wait 10
+press A
+expect state == 14
+expect beaten0 == 1
+expect won == 1
+wait 100
+press A
+expect state == 2
+expect seen_crowns == 1
+reload
+game openhouse
+wait 30
+press A
+wait 5
+press A
+wait 5
+expect state == 2
+expect beaten0 == 1
+expect beaten1 == 0
+expect seen_crowns == 1

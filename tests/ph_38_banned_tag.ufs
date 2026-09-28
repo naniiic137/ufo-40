@@ -1,0 +1,58 @@
+# OPEN HOUSE (owner's addition): the guest who takes the blame wears a red
+# BANNED tag: on the ban screen, in the shop and the guest book after it,
+# and on the bottom line of the party they miss. It stays through a restart
+# and goes once that party is over.
+game openhouse
+wait 5
+cheat new 1 1
+cheat cap 8
+cheat door 0 2 2
+cheat away 0
+cheat away 1
+press A
+expect state == 10
+wait 101
+press A
+expect state == 11
+press RIGHT
+expect seen_ban_slot == 2
+press A
+expect state == 13
+expect banned != 0
+expect bantype == 2
+expect seen_ban_shop != 0
+# the guest book, from the shop's button
+press B
+press LEFT
+press A
+expect state == 16
+expect seen_ban_book == 3
+press B
+expect state == 13
+# it survives a restart
+reload
+game openhouse
+wait 30
+press A
+wait 5
+press A
+wait 5
+expect state == 13
+expect bantype == 2
+expect seen_ban_shop != 0
+# the party they miss: told on the bottom line
+press B
+press B
+expect state == 5
+expect wout2 == 1
+expect seen_ban_house == 1
+# once it's over the tag goes
+press B
+press LEFT
+press A
+waituntil tally == 3 900
+wait 10
+press A
+expect state == 13
+expect bantag == 0
+expect seen_ban_shop == 0

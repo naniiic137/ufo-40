@@ -1,0 +1,43 @@
+# OPEN HOUSE (owner's addition): the fetch list (cabbie, sleuth, wish fish)
+# shows each guest's cost, fame, cash, RUCKUS!, star and ability icon.
+game openhouse
+wait 5
+cheat new 3 1
+cheat give 3 1
+cheat give 37 1
+cheat give 33 2
+cheat give 39 1
+cheat door 3
+press LEFT
+expect cur == 0
+press A
+expect state == 7
+# neighbour, cousin, rowdy mate, goat, saucer pilot, wish fish
+expect seen_pick_rows == 6
+expect fetchsel == 0
+expect pick_cost == 2
+expect pick_pop == 1
+expect pick_cash == 0
+press DOWN
+expect pick_cash == 1
+press DOWN
+expect pick_trouble == 1
+press DOWN
+expect fetchsel == 33
+expect pick_cost == 3
+expect pick_pop == 4
+expect pick_trouble == 1
+expect pick_star == 0
+expect pick_abil == 0
+press DOWN
+expect fetchsel == 37
+expect pick_cost == 40
+expect pick_star == 1
+expect pick_trouble == 0
+press DOWN
+expect fetchsel == 39
+expect pick_star == 1
+expect pick_abil == 1
+press A
+expect state == 5
+expect stars == 1
