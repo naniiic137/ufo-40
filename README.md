@@ -91,7 +91,7 @@ and the music and sound volumes are in every game's pause menu too.
 | 16 | **TINTAIL** | Camouflage | sneaking on a grid past watchers by taking the colour of the ground you stand on, hollow logs, sun and rain pads, hatchlings with their own colour, a danger view you can't move in, undo, a branching map | Twig the chameleon, Salt Island, toads and storks, 15 new levels |
 | 25 | **OPEN HOUSE** | Party House | drawing guests from a deck into a house with limited space, the original's 46 guest abilities, costs and trouble, police, fire marshal and bans, set guest lists and a random list, win by ending a party with four stars within 25 nights, 2P hot-seat | a whitewashed house by the sea, all 46 guests' names and faces |
 | 28 | **DUNE EXPRESS** | Rail Heist | real time until a guard is alert, then 10-second turns, one-bullet lawmen who hit each other too, punches through walls and floors, carrying and throwing, hiding in barrels, levers, a crank gun, rams, three outlaws, three stars a mission with the original's time goals, 2P versus | Wade, Hush and Pearl, the Governor's tax trains, Biscuit the camel, 20 new trains |
-| 45 | **DOT & DASH** | Mini & Max | one room at four nested sizes where holding down shrinks you into whatever you stand on and holding up grows you back, a generated micro world that is the same for everyone inside every speck, lifting things from under your feet to throw, stack and ride, 39 upgrades, five shops, quests for tiny towns, a 500 door and a 1,000 true ending | Dot and her talking dog Dash, the lumber room, Queen Tabitha the cat, Sir Sprocket, 21 towns and landmarks |
+| 45 | **DOT & DASH** | Mini & Max | one room at four sizes, where holding down shrinks you into whatever you stand on and holding up grows you back, a generated micro world that is the same for everyone inside every speck, a tiny size for one-tile gaps, lifting things from under your feet to throw, stack and ride (and carrying one up to full size as a step), a dog who roams and sniffs out secrets, long falls that send you back to full size, 39 upgrades that level up wherever they're found, five shops, favours for tiny towns, a 500 door and a 1,000 true ending | Dot and her talking dog Dash, the lumber room, Queen Tabitha the cat, Sir Sprocket, 21 towns and landmarks |
 | 08, 10–13, 17–24, 26–27, 29–44, 46–50 | *coming soon* | | | still in the saucer's cargo hold |
 
 Every cartridge has three goals, which follow the original's own three: a
@@ -515,22 +515,27 @@ the top.
   get small. Hold down to shrink into whatever is under you, hold up to grow
   back; the room at full size is the map, and where you shrink is where you
   arrive. Every speck of the room holds a micro world, the same for everyone,
-  and every speck of that a deeper one.
+  and the second tonic makes Dot tiny inside it, small enough for gaps one
+  speck high.
 - **The rules:** lift what you stand on and throw it, up in an arc or down
-  under your feet to build steps; crackers, darts, boomers, rollers, quake
-  blocks, hourglasses, venom that spreads, and the dog himself as a weapon.
-  Hearts, energy that makes throws hurt, fall damage, a clock that ticks on
-  every time you grow back, and at no hearts you are simply full size again.
-- **Structure:** 39 upgrades (tonics to go smaller, the mitt, the satchel,
-  bug commands, kicks, spins, sprint, armour, wings, hearts and energy eggs),
-  five shops, a dozen quests and more for the tiny towns, big glints two to a
-  dangerous cave; 500 glints to the cat on the door, a clockwork knight beaten
-  from the inside, and 1,000 more to put the room in balance.
+  under your feet to build steps, even at full size; what you hold makes you
+  taller. Crackers, darts, boomers, rollers, quake blocks, hourglasses, venom
+  that spreads, the Big Bang, and the dog himself as a weapon. Dash roams on
+  his own, stops and goes when told, gives tips, and his nose points out
+  spots worth shrinking into. Hearts, energy that makes throws hurt, falls too
+  long for someone so small, a clock that ticks on every time you grow back,
+  and at no hearts you are simply full size again.
+- **Structure:** 39 upgrades (tonics, the mitt, the satchel, bug commands,
+  kicks, spins, sprint, armour, wings, hearts and energy eggs), each kind in
+  many places that give the next level; five shops; flyports; favours for the
+  tiny towns; big glints two to a dangerous cave; 500 glints to the cat in the
+  door knob, a clockwork knight stopped from the inside, and after the
+  escape, 1,000 more to put the room in balance.
 - **Ours:** Dot and Dash, Granny Thimble and Professor Crumb, Queen Tabitha
-  and Sir Sprocket, Tock in the clock, the lumber room and every town in it
-  (Tuftville in the rug, Fernby and Loamton in the pots, Tickburg on the
-  clock, Glimmer in the lampshade, Wormwood between the walls, Latchtown on
-  the door), the generator, and the music.
+  and Sir Sprocket, Tock in the clock and Nib in the keyhole, the lumber room
+  and every town in it (Tuftville in the rug, Fernby and Loamton in the pots,
+  Tickburg on the clock, Glimmer on the reading lamp, Wormwood between the
+  walls, Latchtown on the door knob), the generator, and the music.
 
 ## Install on PS Vita
 
