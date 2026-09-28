@@ -89,8 +89,24 @@ expect bot_state == 2
 cheat bot_tile 147 5
 botuntil bot_state == 2 9000
 expect bot_state == 2
-# lamp shade
+# the great lamp, from the screws in the bookshelf's side
 cheat bot_tile 116 17
+botuntil bot_state == 2 9000
+expect bot_state == 2
+# and back down the screws to the floor
+cheat bot_tile 125 83
+botuntil bot_state == 2 9000
+expect bot_state == 2
+# the reading lamp at the end of the hanging shelf, where Glimmer is
+cheat bot_tile 91 21
+botuntil bot_state == 2 12000
+expect bot_state == 2
+# up the plant's top shoots to the door's lintel
+cheat bot_tile 20 17
+botuntil bot_state == 2 12000
+expect bot_state == 2
+# the doorway at the left end of the hanging shelf
+cheat bot_to door:16
 botuntil bot_state == 2 9000
 expect bot_state == 2
 # every spot of the room is reachable from the rug
@@ -101,3 +117,6 @@ expect reach.64_16 == 1
 expect reach.147_5 == 1
 expect reach.116_17 == 1
 expect reach.153_83 == 1
+expect reach.91_21 == 1
+expect reach.20_17 == 1
+expect reach.139_70 == 1

@@ -1,0 +1,196 @@
+# DOT & DASH: things and creatures. An upgrade spot gives the first level
+# of its kind, and the next spot of that kind the second. The hourglass
+# stops time and can't be lifted till it runs again, and cracks after three
+# turns; the throwing axe comes home; with two things stored, the satchel
+# swaps the held one for a stored one. The Big Bang clears the screen of
+# creatures and knocks Dot about, and another waits at the end of SIEGE!.
+# A wall climber carries Dot up the wall to Madame Silk's web. A carried
+# spitter fires at B, and its fire breaks weak wood. The pink blob swallows
+# a thing and spits it out. Slime drips burn. The ferry fly carries Dot
+# between the pots.
+game dotdash
+wait 5
+cheat newgame
+cheat no_foes
+cheat nodash
+cheat god
+cheat up tonic1
+# the first satchel spot: the satchel; the next one: the second satchel
+cheat micro 0 66 48 4
+wait 5
+cheat bot_to objat:4:48
+botuntil bot_state == 2 3000
+press B
+wait 20
+expect carry == 4
+hold LEFT 1
+press B
+wait 30
+cheat bot_to pick:4
+botuntil up.satchel1 == 1 3000
+expect up.satchel2 == 0
+cheat skip_dialog
+cheat grow
+cheat micro 0 18 10 4
+wait 5
+cheat bot_to objat:4:10
+botuntil bot_state == 2 3000
+press B
+wait 20
+hold RIGHT 1
+press B
+wait 30
+cheat bot_to pick:4
+botuntil up.satchel2 == 1 3000
+cheat skip_dialog
+# the hourglass: time stops, and it can't be picked up till it runs again
+cheat grow
+cheat area 0 20 82
+cheat nodash
+wait 5
+cheat obj 8
+wait 2
+hold RIGHT 1
+press B
+waituntil freeze > 0 60
+cheat tile 21 82
+wait 2
+press B
+wait 20
+expect carry == -1
+waituntil freeze == 0 300
+cheat bot_to obj:8
+botuntil bot_state == 2 600
+press B
+wait 20
+expect carry == 8
+hold RIGHT 1
+press B
+waituntil freeze > 0 60
+waituntil freeze == 0 300
+cheat bot_to obj:8
+botuntil bot_state == 2 600
+press B
+wait 20
+hold RIGHT 1
+press B
+waituntil freeze > 0 60
+wait 30
+expect objs_8 == 0
+waituntil freeze == 0 300
+# the throwing axe goes out and comes home
+cheat tile 20 82
+cheat obj 15
+cheat foe 0 205 658
+wait 1
+hold RIGHT 1
+press B
+wait 60
+expect foes_0 == 0
+expect carry == 15
+# the satchel with two things in it swaps them round
+hold DOWN A 3
+wait 3
+cheat obj 0
+wait 2
+hold DOWN A 3
+wait 3
+expect satchel0 == 15
+expect satchel1 == 0
+cheat obj 1
+wait 2
+hold DOWN A 3
+wait 3
+expect carry == 15
+expect satchel0 == 0
+expect satchel1 == 1
+# the Big Bang: every creature on the screen, and a knock for Dot
+cheat god
+cheat area 4 40 19
+cheat nodash
+wait 5
+cheat foe 28 400 152
+cheat foe 28 440 152
+cheat foe 0 260 154
+wait 2
+expect foes_28 == 2
+cheat obj 39
+wait 2
+hold UP 1
+press B
+wait 80
+expect foes_28 == 0
+expect foes_0 == 0
+expect hp == 2
+expect objs_39 == 1
+cheat area 4 40 19
+wait 5
+expect objs_39 == 1
+cheat hp 6
+cheat god
+# the wall climber on the lintel: ride it up the wall to the web
+cheat up mitt1
+cheat skip_dialog
+cheat area 0 20 17
+cheat nodash
+wait 5
+expect foes_22 == 1
+waituntil foestate_22 == 0 600
+cheat above_foe 22
+waituntil riding == 322 60
+waituntil ty <= 5 900
+hold RIGHT 16
+waituntil ground == 1 90
+expect ty == 7
+cheat hold_foe 11
+wait 2
+cheat bot_to npc:4
+botuntil bot_state == 2 600
+press UP
+wait 5
+cheat bot_talk
+botuntil bot_state == 2 900
+expect flag.silk_done == 1
+# a spitter carried: B fires, and fire breaks weak wood
+cheat area 2 14 21
+cheat nodash
+wait 5
+expect tile_20_19 == 29
+cheat hold_foe 23
+wait 2
+hold RIGHT 1
+press B
+wait 40
+expect tile_20_19 == 0
+hold DOWN B 3
+# the pink blob swallows a pebble and spits it out again
+cheat foes_on
+cheat micro 0 66 46 4
+wait 5
+expect foes_14 == 1
+cheat no_foes
+cheat foe 14 2016 87
+cheat drop_obj 0 2030 90
+waituntil gulp_full == 1 200
+waituntil gulp_full == 0 200
+# the pink stalactite over the seep between the walls burns
+cheat god
+cheat area 2 88 30
+cheat nodash
+wait 5
+waituntil hp < 6 400
+cheat hp 6
+cheat god
+# the ferry fly between the two pots
+cheat area 0 50 29
+cheat nodash
+wait 5
+waituntil ferry0_state == 0 2000
+cheat tile 55 27
+waituntil riding == 327 60
+waituntil ferry0_state == 4 1500
+expect riding == 327
+hold RIGHT 12
+wait 30
+expect ty == 39
+expect tx >= 109

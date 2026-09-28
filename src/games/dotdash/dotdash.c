@@ -456,6 +456,8 @@ static int dd_query(const char *key, int *out) {
     if (!strcmp(key, "sniff_x")) { *out = dd_sniff_x >= 0 ? dd_sniff_x / DD_TS : -1; return 1; }
     if (!strcmp(key, "sniff_y")) { *out = dd_sniff_y >= 0 ? dd_sniff_y / DD_TS : -1; return 1; }
     if (!strcmp(key, "body_h")) { *out = dd_p.h; return 1; }
+    if (!strcmp(key, "lift_t")) { *out = dd_lift_t(); return 1; }
+    if (!strcmp(key, "gulp_full")) { *out = 0; for (int i = 0; i < DD_MAX_ENTS; i++) if (dd_ent[i].alive && dd_ent[i].kind == EK_FOE && dd_ent[i].sub == F_GULP && dd_ent[i].param) (*out)++; return 1; }
     {
         /* ferryK_state / ferryK_x / ferryK_y: the K-th ferry fly of this level */
         int k;

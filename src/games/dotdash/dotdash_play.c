@@ -791,9 +791,11 @@ static void climber_update(Ent *e) {
     } else if (e->state == 1) {
         bool wall = (tflags(&dd_lv, TSN, wx, e->y + e->h - 1) & TF_SOLID) != 0;
         float ny = e->y - sp;
+        /* a rider's head counts as its ceiling too */
+        bool rider_stuck = riding >= 0 && &dd_ent[riding] == e && dd_body_blocked(&dd_lv, TSN, dd_p.x, dd_p.y - sp, dd_p.w, dd_p.h);
         if (!wall) { e->x += e->dir ? 3.0f : -3.0f; e->state = 0; e->vy = 0; }
-        else if (dd_body_blocked(&dd_lv, TSN, e->x, ny, e->w, e->h)) e->state = 2;
-        else e->y = ny;
+        else if (rider_stuck || dd_body_blocked(&dd_lv, TSN, e->x, ny, e->w, e->h)) { if (++e->st > 90) { e->state = 2; e->st = 0; } }
+        else { e->y = ny; e->st = 0; }
     } else {
         float ny = e->y + sp;
         if (dd_body_blocked(&dd_lv, TSN, e->x, ny, e->w, e->h)) { e->state = 0; e->dir ^= 1; }

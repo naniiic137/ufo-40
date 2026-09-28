@@ -389,7 +389,8 @@ static void room_ents(void) {
         put_ferry(54, 29, 107, 39);
         put_ferry(95, 21, 116, 17);
         /* a wall-climbing bug on the lintel, the way up to the web */
-        put(EK_FOE, F_CLIMBER, 22, 17);
+        int cl = put(EK_FOE, F_CLIMBER, 22, 17);
+        if (cl >= 0) dd_ent[cl].dir = 0;
     }
     foe(F_BEETLE, 116, 66);
     foe(F_MOTH, 39, 57);
@@ -1139,7 +1140,7 @@ static void town_chunk(int tw, int part) {
         tfoe(F_BUMBLE, 8);
         tfoe(F_BUMBLE, 26);
         tnpc(N_BEE, 30);
-        if (spawning) { int i = put(EK_DRIP, 1, OX + 17, TOWN_H - 1); (void)i; }
+        if (spawning) { int i = dd_add_ent(EK_DRIP, 1, (float)((OX + 17) * DD_TS + 3), (float)((TOWN_H - 8) * DD_TS)); (void)i; } /* honey from the comb */
         break;
     case TW_LOAMTON:
         if (part == 0) {
@@ -1922,6 +1923,7 @@ bool dd_find_place(const char *name, int *tx, int *ty) {
     else if (!strncmp(name, "foe:", 4)) { want_kind = EK_FOE; want_sub = atoi(name + 4); }
     else if (!strncmp(name, "pick:", 5)) { want_kind = EK_PICK; want_sub = atoi(name + 5); }
     else if (!strncmp(name, "stand:", 6)) { want_kind = EK_STAND; want_sub = atoi(name + 6); }
+    else if (!strncmp(name, "drip:", 5)) { want_kind = EK_DRIP; want_sub = atoi(name + 5); }
     if (want_kind >= 0) {
         for (int i = 0; i < DD_MAX_ENTS; i++) {
             const Ent *e = &dd_ent[i];
@@ -1951,6 +1953,21 @@ bool dd_find_place(const char *name, int *tx, int *ty) {
         *tx = c * CHUNK_W + 20;
         *ty = dd_lv.surf[*tx] - 1;
         return true;
+    }
+    if (!strncmp(name, "objat:", 6)) {
+        /* objat:SUB:PARENTX : a thing of that kind in the chunk over that parent tile */
+        int sub = atoi(name + 6);
+        const char *c2 = strchr(name + 6, ':');
+        if (!c2 || dd_lv.d.kind != LV_STRIP) return false;
+        int c = atoi(c2 + 1) - dd_lv.d.x0;
+        for (int i = 0; i < DD_MAX_ENTS; i++) {
+            const Ent *e = &dd_ent[i];
+            if (!e->alive || e->kind != EK_OBJ || e->sub != sub || (int)(e->x / (CHUNK_W * DD_TS)) != c) continue;
+            *tx = (int)((e->x + e->w / 2) / DD_TS);
+            *ty = (int)((e->y + e->h - 1) / DD_TS);
+            return true;
+        }
+        return false;
     }
     if (!strncmp(name, "gap:", 4)) {
         /* gap:PARENTX : the tile inside the nook behind a one-tile gap */
