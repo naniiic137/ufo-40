@@ -574,7 +574,7 @@ Download `UFO40-windows.zip` from the releases and run `ufo40.exe`.
 
 - **START** opens the pause menu in every game: Resume, Restart, Controls, Quit.
 - **SELECT** opens Options in the library, and **B** goes back to the main menu.
-- **Two players:** the 2-player modes of Wet Paint, Bannerfall and Cutlass Cup take two
+- **Two players:** the 2-player modes of Wet Paint, Bannerfall, Duskling and Cutlass Cup take two
   gamepads, or split the keyboard: player 1 on WASD + F/G, player 2 on the
   arrows + K/L. On the Vita (one controller) those modes are locked.
 - On phones the web page shows an on-screen D-pad with A, B, START and SELECT.
