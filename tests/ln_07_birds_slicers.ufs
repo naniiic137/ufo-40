@@ -1,0 +1,54 @@
+# LOST LINKS: roll into a lark (+5) or an albatross (+10) for strokes; they
+# are back whenever the ball changes layer. Two kinds of bug: a slicer bursts
+# out of the ground by a ball at rest and shoves it; a sipper drifts at the
+# ball and sucks a stroke out of it. Knocked into water (or a hole) a bug is
+# gone, worth 5 strokes, until the ball changes layer.
+game lostlinks
+wait 5
+cheat newgame
+cheat no_slicers
+cheat strokes 5
+cheat ball 0 62 62
+cheat aim 16
+hold A 22
+wait 1
+waituntil moving == 0 300
+expect strokes == 9
+expect bird_6_4 == 1
+cheat ball 0 94 61
+cheat aim 16
+hold A 28
+wait 1
+waituntil moving == 0 300
+expect strokes == 18
+# down a hole and the lark is back on its bush
+cheat ball 0 70 64
+cheat aim 0
+hold A 4
+wait 1
+waituntil layer == 1 300
+wait 20
+expect bird_6_4 == 0
+# a slicer: out of the ground, and a shove (no stroke taken)
+cheat respawn
+cheat ball 0 88 57
+cheat strokes 10
+waituntil slicer_5 == 2 300
+expect strokes == 10
+expect moving == 1
+waituntil moving == 0 300
+# a sipper: one stroke sucked out
+cheat ball 1 106 25
+cheat strokes 10
+waituntil strokes == 9 400
+expect sipper_3 == 2
+# a sipper knocked into the fen
+cheat sipper 0 123 27
+cheat ball 0 121 27
+cheat strokes 10
+cheat aim 0
+hold A 34
+wait 1
+waituntil moving == 0 600
+expect sipper_0 == 4
+expect strokes == 14

@@ -1,0 +1,70 @@
+# LOST LINKS: what each ability opens, checked on the whole world from where
+# Dimple wakes (the ball's ways: rolling, chips from sand, divots and cups,
+# jumps off sand with the Dune Tread, jumping flowers, holes between the
+# layers). Keys: reachthing_KIND_ID_ABILITIES_GATES and
+# reach_KIND_ABILITIES_GATES; abilities 1 Hammerhead, 2 Backspin, 4 Dune
+# Tread, 8 Skipper; gates 1 the altar's, 2 the den door.
+game lostlinks
+wait 5
+# the Hammerhead (the gift) and Backspin (optional) need nothing
+expect reachthing_9_0_0_0 == 1
+expect reachthing_9_1_0_0 == 1
+# the Dune Tread is behind the Sand Cellar's cracked stone
+expect reachthing_9_2_0_0 == 0
+expect reachthing_9_2_1_0 == 1
+# the Skipper needs the Hammerhead and the Tread (the pits by Spring Hollow)
+expect reachthing_9_3_1_0 == 0
+expect reachthing_9_3_4_0 == 0
+expect reachthing_9_3_5_0 == 1
+# the Star Pin: one piece needs nothing, one the Hammerhead, two the Skipper
+expect reachthing_10_3_0_0 == 1
+expect reachthing_10_2_0_0 == 0
+expect reachthing_10_2_1_0 == 1
+expect reachthing_10_0_7_0 == 0
+expect reachthing_10_1_7_0 == 0
+expect reachthing_10_0_15_0 == 1
+expect reachthing_10_1_15_0 == 1
+# the iron on the stone ring's hill: only a jumping flower gets there
+expect reachthing_2_5_0_0 == 1
+# pins: the Crypt and the Sand Cellar need the Hammerhead, Spring Hollow
+# the Tread, the Sluice both
+expect reach_1_0_0 == 6
+expect reachthing_1_0_0_0 == 0
+expect reachthing_1_0_1_0 == 1
+expect reachthing_1_8_0_0 == 0
+expect reachthing_1_8_1_0 == 1
+expect reachthing_1_1_1_0 == 0
+expect reachthing_1_1_5_0 == 1
+expect reachthing_1_4_4_0 == 0
+expect reachthing_1_4_5_0 == 1
+# strays: three need the Skipper (the Sluice, the Crab Hole, the Brine Well),
+# the Crab Hole's the Hammerhead as well
+expect reach_4_0_0 == 5
+expect reach_4_7_0 == 5
+expect reachthing_4_3_7_0 == 0
+expect reachthing_4_4_7_0 == 0
+expect reachthing_4_6_7_0 == 0
+expect reachthing_4_4_14_0 == 0
+expect reachthing_4_4_15_0 == 1
+expect reach_4_15_0 == 8
+# the altar is in the crypt; the sanctum waits on the gate, the den on the door
+expect reachthing_11_0_0_0 == 0
+expect reachthing_11_0_1_0 == 1
+expect reach_12_15_0 == 0
+expect reach_12_15_1 == 4
+expect reach_15_15_1 == 0
+expect reach_15_15_3 == 1
+# with everything, everything
+expect reach_1_15_3 == 10
+expect reach_2_15_3 == 20
+expect reach_3_15_3 == 10
+expect reach_4_15_3 == 8
+expect reach_9_15_3 == 4
+expect reach_10_15_3 == 4
+# and with nothing, most of the world is open already (Golfaria is open),
+# the Keepers' hidden refuge and all the folk included
+expect reach_2_0_0 == 15
+expect reach_3_0_0 == 10
+expect reach_5_0_0 == 20
+expect reach_17_0_0 == 8
+expect reach_18_0_0 == 1

@@ -1,0 +1,71 @@
+# LOST LINKS: water sinks the ball, which comes back to where the stroke
+# was hit from (the stroke is spent). With the Skipper a ball that rolls
+# onto water skims it, but one that lands in it still sinks. A slow ball
+# drops into a hole and comes out on the other layer in the cup, where the
+# chip out is free; a fast one lips out and rolls on.
+game lostlinks
+wait 5
+cheat newgame
+cheat no_slicers
+# into the fen: back where it was hit from, one stroke gone
+cheat ball 0 122 27
+cheat aim 0
+hold A 34
+wait 1
+waituntil moving == 0 600
+expect btx == 122
+expect bty == 27
+expect strokes == 19
+# without the Skipper the Sluice's moat sinks the ball...
+cheat ball 1 150 26
+cheat aim 0
+hold A 22
+wait 1
+waituntil moving == 0 900
+expect btx == 150
+# ...with it the ball skims across to the stray's ledge
+cheat abilities 8
+cheat ball 1 150 26
+hold A 22
+wait 1
+waituntil strays == 1 900
+wait 15
+press A
+waituntil moving == 0 900
+expect btx >= 155
+# a chip out of a cup into the water still sinks, and back into the cup
+cheat ball 0 129 16
+expect lie == 3
+cheat aim 32
+hold A 77
+wait 1
+expect strokes == 20
+waituntil moving == 0 300
+expect btx == 129
+expect lie == 3
+# a slow ball drops into the hole: down to the Undercroft, in the cup
+cheat abilities 0
+cheat ball 0 64 28
+cheat aim 0
+hold A 16
+wait 1
+waituntil layer == 1 300
+wait 40
+expect layer == 1
+expect lie == 3
+expect strokes == 19
+# the chip out of the cup costs nothing
+cheat aim 0
+hold A 16
+wait 1
+expect strokes == 19
+expect airborne == 1
+waituntil moving == 0 300
+# a hard roll lips out and stays up top
+cheat ball 0 64 28
+cheat aim 0
+hold A 77
+wait 1
+waituntil moving == 0 600
+expect layer == 0
+expect btx > 69
