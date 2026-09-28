@@ -1,0 +1,32 @@
+# FLINTHOLD: each village is a short defence with its folk standing about;
+# face one and press A to hear them, A again to go on.
+game flinthold
+wait 5
+cheat stage 11
+expect waves == 3
+cheat pim 7 3 3
+wait 1
+press A
+expect talk == 0
+wait 12
+press A
+expect talk == -1
+cheat pim 5 4 3
+wait 1
+press A
+expect talk == 1
+wait 12
+press B
+expect talk == -1
+cheat stage 12
+expect waves == 4
+cheat pim 10 1 2
+wait 1
+press A
+expect talk == 0
+cheat stage 13
+expect waves == 4
+cheat pim 8 1 2
+wait 1
+press A
+expect talk == 0

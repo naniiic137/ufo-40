@@ -1,0 +1,52 @@
+# FLINTHOLD: every hunter starts as a thrower and climbs one of three trees:
+# spear (then barb or bow), sling (then hurler or boulder) or torch (then
+# blaze or pitch). Selling gives back half of what went into it.
+game flinthold
+wait 5
+cheat stage 1
+cheat meat 99
+cheat pim 8 3 1
+wait 1
+press A
+press A
+expect kind_8_4 == 0
+expect meat == 89
+press A
+expect menu_n == 4
+expect menu0 == 4
+expect menu1 == 4
+expect menu2 == 4
+expect menu3 == 5
+# the first line: SPEAR (20)
+press A
+expect kind_8_4 == 1
+expect meat == 69
+press A
+expect menu_n == 3
+# BOW is the second line (40)
+press DOWN
+press A
+expect kind_8_4 == 3
+expect meat == 29
+expect spent_up == 60
+# a bow is the top of its tree: only SELL is left
+press A
+expect menu_n == 1
+press A
+expect obj_8_4 == 0
+expect meat == 64
+# the torch tree, straight to pitch
+cheat meat 99
+cheat pim 9 3 1
+wait 1
+press A
+press A
+press A
+press DOWN
+press DOWN
+press A
+expect kind_9_4 == 7
+press A
+press DOWN
+press A
+expect kind_9_4 == 9

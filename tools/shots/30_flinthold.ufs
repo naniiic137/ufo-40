@@ -1,0 +1,49 @@
+# README media: FLINTHOLD. The GIF and the battle shots are the demo player
+# pressing real buttons (its plan for each stage); the rest are set up with
+# cheats.
+shotscale 2
+seed 30
+game flinthold
+wait 90
+shot flinthold_title
+# the island map, some stages done and the Scale Camp found
+cheat clear 1 3
+cheat clear 2 3
+cheat clear 3 1
+cheat clear 4 1
+cheat clear 5 3
+cheat clear 6 1
+cheat found 1
+cheat map
+cheat node 6
+wait 40
+shot flinthold_map
+# Four Ways in full swing: hunters, a hen run between fire pits, three roads
+cheat stage 5
+botuntil wave >= 5 60000
+botuntil phase == 1 5000
+botplay 300
+gifstart flinthold 4 2
+botplay 480
+gifstop
+shot flinthold_ways
+# Palm Spring: gnats over the pond
+cheat stage 6
+botuntil wave >= 6 60000
+botuntil phase == 1 5000
+botplay 520
+shot flinthold_oasis
+# the last wave of the last stage: the Four Lords together
+cheat stage 10
+botuntil wave >= 19 150000
+botuntil phase == 1 5000
+botplay 1500
+shot flinthold_lords
+# Far Isle: a tuskling talks
+cheat stage 13
+wait 5
+cheat pim 8 1 2
+wait 1
+press A
+wait 3
+shot flinthold_isle

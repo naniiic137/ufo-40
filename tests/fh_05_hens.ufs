@@ -1,0 +1,45 @@
+# FLINTHOLD: a hen costs 10 and gives 5 meat after every wave while it is not
+# cooked. A fire pit beside it cooks it over two waves; two pits cook it in
+# one. A cooked hen gives nothing more but sells for 30; a raw one for 10.
+game flinthold
+wait 5
+cheat stage 1
+cheat nospawn
+# a raw hen, a hen by one pit, a hen between two pits
+cheat hen 4 8 0
+cheat hen 7 8 0
+cheat fire 6 8
+cheat hen 11 8 0
+cheat fire 10 8
+cheat fire 12 8
+expect hens == 3
+expect fires == 3
+cheat horn
+waituntil phase == 0 2000
+expect meat == 65
+expect cook_4_8 == 0
+expect cook_7_8 == 1
+expect cook_11_8 == 2
+cheat horn
+wait 5
+waituntil phase == 0 3000
+expect wave == 2
+expect meat == 95
+expect cook_7_8 == 2
+# sell the cooked one with presses: A, then SELL (its only line)
+cheat meat 20
+cheat pim 11 7 1
+wait 1
+press A
+expect menu_n == 1
+expect menu0 == 5
+press A
+expect obj_11_8 == 0
+expect meat == 50
+# and a raw one sells for what it cost
+cheat pim 4 7 1
+wait 1
+press A
+press A
+expect meat == 60
+expect hens == 1

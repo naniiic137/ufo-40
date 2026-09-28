@@ -1,0 +1,16 @@
+# FLINTHOLD: left alone on the title for 12 s, the demo plays a stage;
+# any button goes back to the title, and nothing of the demo is kept.
+game flinthold
+wait 5
+expect state == 0
+wait 730
+expect state == 3
+expect attract == 1
+wait 600
+expect state == 3
+press A
+wait 2
+expect state == 0
+expect attract == 0
+expect done1 == 0
+expect stat_units == 0

@@ -1,0 +1,49 @@
+# FLINTHOLD: Pim's arm and weapon are bought at the cave between waves:
+# a quicker arm (30, then 50) throws faster and farther; the stone axe (30)
+# hits for 20 and the fire axe (50) for 30, straight through armour.
+game flinthold
+wait 5
+cheat stage 1
+cheat meat 99
+press UP 1
+press A
+press DOWN
+press A
+expect throw_lv == 1
+expect meat == 69
+press A
+press DOWN
+press DOWN
+press A
+expect weapon_lv == 1
+expect meat == 39
+# 50 for the quicker arm: not yet
+press A
+press DOWN
+press A
+expect throw_lv == 1
+press B
+cheat meat 50
+press A
+press DOWN
+press A
+expect throw_lv == 2
+expect meat == 0
+# the stone axe against a clubtail: 20, less its armour
+cheat stage 1
+cheat hold
+cheat arm 0 1
+cheat foe clubtail 0 72
+cheat pim 7 2 2
+hold B 3
+wait 15
+expect foe0_hp == 1160
+# the fire axe goes straight through
+cheat stage 1
+cheat hold
+cheat arm 0 2
+cheat foe clubtail 0 72
+cheat pim 7 2 2
+hold B 3
+wait 15
+expect foe0_hp == 900

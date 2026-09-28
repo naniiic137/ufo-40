@@ -1,0 +1,23 @@
+# FLINTHOLD: bushes and boulders sit on some good spots; digging one out
+# (5 meat for a bush, 10 for a boulder) leaves ground you can build on.
+game flinthold
+wait 5
+cheat stage 1
+expect tile_2_4 == 4
+expect build_2_4 == 0
+cheat pim 2 5 3
+wait 1
+press A
+expect menu_n == 1
+expect menu0 == 3
+press A
+expect tile_2_4 == 0
+expect build_2_4 == 1
+expect meat == 25
+expect tile_10_1 == 5
+cheat pim 10 2 3
+wait 1
+press A
+press A
+expect tile_10_1 == 0
+expect meat == 15

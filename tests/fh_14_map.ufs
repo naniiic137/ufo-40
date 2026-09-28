@@ -1,0 +1,79 @@
+# FLINTHOLD: the island map. The first time, the story; then Pim stands at
+# Hearthome. Roads lead on from home and from cleared stages only; after the
+# first stage the road forks to The Coil and Fernbrake. Two
+# villages are hidden: walk off Palm Spring (once cleared) the way the sea
+# looks empty for the Scale Camp (the second village: the Beacon), and off
+# The Tangle for Far Isle.
+game flinthold
+wait 20
+expect state == 0
+press A
+wait 5
+expect state == 1
+wait 25
+press A
+wait 25
+press A
+wait 25
+press A
+wait 5
+expect state == 2
+expect story_seen == 1
+expect node == 10
+press RIGHT
+wait 20
+expect node == 0
+# stage 2 is shut until stage 1 is cleared
+press UP
+wait 20
+expect node == 0
+expect open2 == 0
+cheat clear 1 1
+expect open2 == 1
+# First Tracks opens both The Coil and Fernbrake
+expect open3 == 1
+press RIGHT
+wait 20
+expect node == 2
+press DOWN
+wait 20
+expect node == 0
+press UP
+wait 20
+expect node == 1
+# Palm Spring opens from Ashflats only, not from Sky Scare
+cheat clear 8 1
+expect open6 == 0
+cheat clear 4 1
+expect open6 == 1
+# the hidden road off Palm Spring needs Palm Spring cleared
+cheat node 6
+press DOWN
+wait 20
+expect node == 5
+expect found == 0
+cheat clear 6 1
+press DOWN
+wait 20
+expect node == 11
+expect found == 1
+expect goals & 1
+# Far Isle, off The Tangle
+cheat node 9
+cheat clear 9 1
+press RIGHT
+wait 20
+expect node == 12
+expect found == 3
+# A plays the stage Pim stands on; B goes back to the title
+cheat node 1
+wait 12
+press A
+wait 2
+expect state == 3
+expect level == 1
+cheat map
+wait 12
+press B
+wait 2
+expect state == 0

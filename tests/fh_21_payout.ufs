@@ -1,0 +1,29 @@
+# FLINTHOLD: when a wave is over its meat comes in over about 2.5 s before
+# the next build phase. Spending meanwhile is fine; a hen put down in that
+# window still lays its 5, and the cooking comes at the very end, so a hen
+# set between two fire pits then is cooked at once.
+game flinthold
+wait 5
+cheat stage 1
+cheat nospawn
+cheat fire 6 8
+cheat fire 8 8
+cheat horn
+waituntil phase == 4 2000
+expect wave == 1
+expect meat == 30
+wait 10
+expect meat > 30
+expect meat < 50
+cheat pim 7 7 1
+wait 1
+press A
+press DOWN
+press A
+expect obj_7_8 == 2
+expect cook_7_8 == 0
+wait 60
+expect phase == 4
+waituntil phase == 0 200
+expect meat == 45
+expect cook_7_8 == 2

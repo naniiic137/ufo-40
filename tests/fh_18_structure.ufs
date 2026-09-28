@@ -1,0 +1,25 @@
+# FLINTHOLD: ten stages and three villages, all sound (the drawn path is
+# the routes, every route runs from an edge to the cave, every stage's last
+# wave brings a boss); the art is the right size; the last stage has 20
+# waves from three spawn points and its last wave brings all Four Lords.
+game flinthold
+wait 5
+expect stages_ok == 13
+expect art_bad == 0
+cheat stage 1
+expect waves == 8
+expect spawns == 1
+cheat stage 9
+expect waves == 14
+cheat stage 10
+expect waves == 20
+expect spawns == 3
+cheat god
+cheat hold
+cheat wave 20
+cheat horn
+wait 900
+expect foe0_kind == 10
+expect foe1_kind == 7
+expect foe2_kind == 8
+expect foe3_kind == 9

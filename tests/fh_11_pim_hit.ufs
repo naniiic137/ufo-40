@@ -1,0 +1,30 @@
+# FLINTHOLD: any beast that runs into Pim knocks her down; she comes back at
+# the cave a few seconds later and the cave loses a heart. Gnats go for her
+# when she is close.
+game flinthold
+wait 5
+cheat stage 1
+cheat pim 3 2 2
+cheat spawn nipper 0
+waituntil zstate == 1 400
+expect cave == 29
+expect cave_hits == 1
+waituntil zstate == 0 200
+expect tx == 16
+expect ty == 8
+# a gnat
+cheat stage 1
+cheat pim 2 4 1
+cheat spawn gnat 0
+waituntil zstate == 1 300
+expect cave == 29
+# a glider flying into her knocks her down too
+cheat stage 1
+cheat pim 2 3 1
+cheat spawn glider 0
+waituntil zstate == 1 600
+expect cave == 29
+# she is down, then gone, and back at the cave three seconds later
+wait 170
+expect zstate == 2
+waituntil zstate == 0 30

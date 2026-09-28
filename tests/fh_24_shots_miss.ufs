@@ -1,0 +1,25 @@
+# FLINTHOLD: hunters throw straight at where a beast is when they throw, so
+# a slow one standing still is always hit, but fangcats running past are
+# often missed.
+game flinthold
+wait 5
+cheat stage 1
+cheat hold
+cheat unit thrower 3 4
+cheat foe redback 0 48
+wait 140
+expect throws >= 3
+expect missed == 0
+cheat stage 1
+cheat god
+cheat unit thrower 3 4
+cheat spawn fangcat 0
+wait 40
+cheat spawn fangcat 0
+wait 40
+cheat spawn fangcat 0
+wait 40
+cheat spawn fangcat 0
+wait 300
+expect throws >= 4
+expect missed >= 1

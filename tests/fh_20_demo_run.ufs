@@ -1,0 +1,20 @@
+# FLINTHOLD: the demo player starts at the title and, with real button
+# presses alone, reads the story, walks the map and clears the first three
+# stages: it builds, farms hens by its fire pits, upgrades, sounds the horn
+# and throws from its post. The save then holds the four numbers.
+seed 3
+game flinthold
+wait 10
+expect state == 0
+botuntil done1 >= 1 200000
+botuntil state == 2 2000
+expect story_seen == 1
+botuntil done2 >= 1 200000
+botuntil done3 >= 1 200000
+expect stat_units >= 3
+expect stat_hens >= 1
+expect stat_spend >= 30
+reload
+game flinthold
+wait 5
+expect done3 >= 1

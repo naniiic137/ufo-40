@@ -1,0 +1,43 @@
+# FLINTHOLD: between waves, A facing the road (or anything else that offers
+# nothing, even the edge of the field) sounds the horn right there; LEAVE
+# STAGE is always on offer. During a wave only LEAVE STAGE is.
+game flinthold
+wait 5
+cheat stage 1
+cheat pim 6 1 1
+wait 1
+press A
+expect menu_open == 1
+expect menu_n == 2
+expect menu0 == 7
+expect menu1 == 10
+press A
+expect phase == 1
+wait 5
+press A
+expect menu_n == 1
+expect menu0 == 10
+press B
+expect menu_open == 0
+# facing off the field
+cheat stage 1
+cheat pim 0 3 2
+wait 1
+press A
+expect menu_open == 1
+expect menu0 == 7
+# the cave: the horn, Pim's arm and weapon, LEAVE STAGE
+cheat stage 1
+press UP 1
+press A
+expect menu_n == 4
+expect menu3 == 10
+press B
+# LEAVE STAGE goes back to the map
+cheat pim 6 1 1
+wait 1
+press A
+press DOWN
+press A
+wait 2
+expect state == 2

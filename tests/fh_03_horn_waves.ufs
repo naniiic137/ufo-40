@@ -1,0 +1,46 @@
+# FLINTHOLD: the build phase lasts as long as you like; A at the cave sounds
+# the horn and the wave comes. When it is over every spawn point pays 20
+# meat. Pim's own upgrades are only sold between waves.
+game flinthold
+wait 5
+cheat stage 1
+wait 600
+expect phase == 0
+expect foes == 0
+# Pim starts below the cave: tap UP to face it
+press UP 1
+expect face == 3
+press A
+expect menu_open == 1
+expect menu0 == 7
+expect menu1 == 8
+expect menu2 == 9
+press A
+expect phase == 1
+expect wave == 0
+wait 60
+expect foes >= 1
+# during a wave the cave offers only Pim's upgrades, and they can't be bought
+press A
+expect menu_open == 1
+expect menu0 == 8
+press A
+expect throw_lv == 0
+press B
+# a wave that brings nobody still pays: 20 for the one spawn point
+cheat killall
+cheat stage 1
+cheat nospawn
+expect spawns == 1
+cheat horn
+expect phase == 1
+waituntil phase == 0 2000
+expect wave == 1
+expect meat == 50
+# stage 10 has three spawn points: 60 a wave
+cheat stage 10
+cheat nospawn
+expect spawns == 3
+cheat horn
+waituntil phase == 0 2000
+expect meat == 90

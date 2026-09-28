@@ -1,0 +1,7 @@
+# FLINTHOLD: village 2, THE SCALE CAMP: its defence can be won by the demo player
+# with real button presses.
+game flinthold
+wait 5
+cheat stage 12
+botuntil done12 >= 1 100000
+expect best12 > 0

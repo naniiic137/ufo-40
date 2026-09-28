@@ -1,0 +1,20 @@
+# FLINTHOLD: each fire pit beside a hunter adds half its damage again (a
+# thrower's bone: 10, then 15 by one pit, 20 by two).
+game flinthold
+wait 5
+cheat stage 1
+cheat hold
+cheat unit thrower 3 4
+cheat foe nipper 0 48
+wait 30
+expect foe0_hp == 400
+cheat killall
+cheat fire 4 4
+cheat foe nipper 0 48
+wait 45
+expect foe0_hp == 350
+cheat killall
+cheat fire 3 5
+cheat foe nipper 0 48
+wait 45
+expect foe0_hp == 300

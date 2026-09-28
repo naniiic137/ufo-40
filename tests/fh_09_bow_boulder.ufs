@@ -1,0 +1,44 @@
+# FLINTHOLD: a bow reaches six tiles, hits for 100 and its arrow flies on
+# through the next foe. A boulder hunter (reach 2) rolls a stone that crushes
+# every walker it passes for three tiles of road, but never touches a flier.
+game flinthold
+wait 5
+cheat stage 1
+cheat hold
+cheat unit bow 8 2
+cheat foe nipper 0 48
+cheat foe nipper 0 24
+wait 40
+expect kills == 2
+# six tiles away, still in reach
+cheat stage 1
+cheat hold
+cheat unit bow 3 8
+cheat foe redback 0 48
+wait 60
+expect kills == 1
+# a glider at the spawn: the boulder hunter won't roll at it
+cheat stage 1
+cheat hold
+cheat unit boulder 1 4
+cheat spawn glider 0
+wait 60
+expect rolls == 0
+expect foe0_hp == 800
+# its reach is two tiles, like most hunters
+cheat stage 1
+cheat hold
+cheat unit boulder 3 5
+cheat foe clubtail 0 48
+wait 30
+expect rolls == 0
+# a walker in reach: it rolls, and the stone runs it down
+cheat stage 1
+cheat hold
+cheat unit boulder 1 4
+cheat spawn glider 0
+cheat foe clubtail 0 16
+wait 10
+expect rolls >= 1
+wait 60
+expect foe1_hp < 1150
