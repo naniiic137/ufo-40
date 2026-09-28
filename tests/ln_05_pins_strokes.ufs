@@ -1,0 +1,60 @@
+# LOST LINKS: strokes are health. A pin refills them and becomes the place
+# a run starts from; running out of strokes ends the run and Dimple wakes
+# at the last pin with full strokes, keeping all it found. A hole with a
+# pin near it tops the strokes up to 15. An iron adds 3 to the most strokes
+# and refills them.
+game lostlinks
+wait 5
+cheat newgame
+cheat no_slicers
+expect checkpoint == 255
+cheat strokes 5
+cheat ball 1 93 54
+cheat aim 32
+hold A 10
+wait 1
+waituntil checkpoint == 7 200
+expect strokes == 20
+expect pins == 1
+waituntil moving == 0 600
+# the last stroke: out of strokes, back to the pin
+cheat irons 1
+cheat ball 1 88 57
+cheat strokes 1
+cheat aim 0
+hold A 6
+wait 1
+expect strokes == 0
+waituntil state == 5 600
+wait 70
+press A
+wait 2
+expect state == 2
+expect strokes == 23
+expect layer == 1
+expect btx == 91
+expect bty == 54
+expect irons == 1
+expect runs == 2
+# the safe zone: in through the hole by the Waking Hollow's pin
+cheat ball 0 84 54
+cheat strokes 3
+cheat aim 0
+hold A 6
+wait 1
+waituntil layer == 1 300
+wait 40
+expect strokes == 15
+# an iron: three more strokes at most, and a refill
+cheat ball 1 68 65
+cheat strokes 4
+cheat aim 32
+hold A 10
+wait 1
+waituntil irons == 2 300
+expect max_strokes == 26
+expect strokes == 26
+expect state == 3
+wait 15
+press A
+expect state == 2

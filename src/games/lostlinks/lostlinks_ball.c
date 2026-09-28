@@ -23,6 +23,7 @@
 #define CUP_SPEED 3.2f       /* faster than this a ball lips out of a hole */
 #define DIVOT_SPEED 2.0f
 #define BREAK_SPEED 1.2f     /* the Hammerhead needs a real knock */
+#define BUSH_SPEED 1.6f      /* and a bush a harder one, but no ability */
 #define REST_SPEED 0.05f
 #define SETTLE_SPEED 0.30f
 #define SETTLE_FRAMES 50
@@ -129,10 +130,13 @@ static int blocked(LnkBall *b, const LnkCtx *c, int tx, int ty, int axis, float 
     if (ch == '#' || ch == 'T' || ch == 'H') return 1;
     if (ch == 'g') return !(c->opened & 1);
     if (ch == 'k') return !(c->opened & 2);
-    if (ch == 'X' && c->probe)
+    if ((ch == 'X' || ch == 'b') && c->probe)
         for (int i = 0; i < b->nbroken; i++)
             if (b->broken[i][0] == b->layer && b->broken[i][1] == tx && b->broken[i][2] == ty) return 0;
-    if (ch == 'X') return has(c, AB_HAMMER) && sqrtf(b->vx * b->vx + b->vy * b->vy) >= BREAK_SPEED ? 2 : 1;
+    float sp = sqrtf(b->vx * b->vx + b->vy * b->vy);
+    if (ch == 'X') return has(c, AB_HAMMER) && sp >= BREAK_SPEED ? 2 : 1;
+    /* a bush: a hard enough roll crashes through it, anything flies over */
+    if (ch == 'b') return b->z >= 3.0f ? 0 : sp >= BUSH_SPEED ? 2 : 1;
     if (ch == 'r') return b->z < 3.0f;
     if (ch == 'v' && axis == 1 && v < 0) {
         /* a ledge can't be climbed: entering one from the south is a wall */

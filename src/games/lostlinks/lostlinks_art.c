@@ -700,9 +700,16 @@ void lnk_draw_tile(int layer, char ch, int tx, int ty, int x, int y, int t, bool
         if (!over) { gfx_circ(x + 8, y + 8, 4, C_YELLOW); gfx_circ(x + 8, y + 8, 2, C_WHITE); }
         else { gfx_pset(x + 6, y + 7, C_FOREST); gfx_pset(x + 10, y + 9, C_FOREST); } /* barely there */
         return;
-    case '=':
-        gfx_rect(x, y, 16, 16, C_TAN);
-        for (int i = 0; i < 4; i++) gfx_hline(x, x + 15, y + i * 4 + 3, C_BROWN);
+    case 'b':
+        ground(layer, '.', tx, ty, x, y);
+        gfx_circ(x + 5, y + 9, 5, C_FOREST);
+        gfx_circ(x + 11, y + 9, 5, C_FOREST);
+        gfx_circ(x + 8, y + 6, 5, C_FOREST);
+        gfx_circ(x + 7, y + 6, 3, C_JADE);
+        gfx_circ(x + 11, y + 9, 3, C_JADE);
+        gfx_pset(x + 5, y + 8, C_RED);
+        gfx_pset(x + 10, y + 5, C_RED);
+        gfx_pset(x + 12, y + 11, C_RED);
         return;
     case 'f':
         ground(layer, '.', tx, ty, x, y);

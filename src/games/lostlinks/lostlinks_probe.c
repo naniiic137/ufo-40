@@ -43,8 +43,11 @@ static bool flies_over(const LnkCtx *c, char ch) {
     return true;
 }
 
+/* where a ball can leave the ground: a chip from the cup, a divot or sand,
+ * and with the Dune Tread a hop from anywhere it rolls (not the water) */
 static bool chip_from(const LnkCtx *c, char ch) {
-    return is_hole(ch) || ch == 'u' || (ch == 's' && !has(c, AB_TREAD));
+    if (has(c, AB_TREAD) && ch != '~' && ch != 'r') return true;
+    return is_hole(ch) || ch == 'u' || ch == 's';
 }
 
 /* how many slope tiles in a row a ball going (dx, dy) would have to climb */
@@ -71,7 +74,7 @@ static int edge_cost(const LnkCtx *c, int l, int x, int y, int m, int u, int v) 
         if (uphill_run(c, m, u, v, dx, dy) >= 7) return -1; /* too long a climb */
         if (a == 's' && !has(c, AB_TREAD)) return 4;
         if (a == 'r' || b == 'r') return 3; /* a hop */
-        return b == ',' ? 2 : 1;
+        return b == ',' || b == 'b' ? 2 : 1;
     }
     /* a chip: in a straight line (eight ways), clearing water and rails */
     if (!chip_from(c, a) || !standable(c, b)) return -1;

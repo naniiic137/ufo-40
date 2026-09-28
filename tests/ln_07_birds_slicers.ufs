@@ -1,0 +1,38 @@
+# LOST LINKS: roll into a lark (+4) or an albatross (+8) for strokes. A
+# slicer flies at a ball that stands still, stings it (a stroke gone) and
+# shoves it; hit hard, a slicer tumbles, and one knocked into water (or a
+# hole) is gone for the run, worth 5 strokes.
+game lostlinks
+wait 5
+cheat newgame
+cheat no_slicers
+cheat strokes 5
+cheat ball 0 62 62
+cheat aim 16
+hold A 14
+wait 1
+waituntil moving == 0 300
+expect strokes == 8
+cheat ball 0 94 61
+cheat aim 16
+hold A 18
+wait 1
+waituntil moving == 0 300
+expect strokes == 15
+# a slicer comes for a ball at rest
+cheat respawn
+cheat ball 0 84 60
+cheat strokes 10
+wait 150
+expect strokes == 9
+expect slicer_5 == 2
+# knocked into the fen
+cheat slicer 5 123 27
+cheat ball 0 121 27
+cheat strokes 10
+cheat aim 0
+hold A 22
+wait 1
+waituntil moving == 0 600
+expect slicer_5 == 4
+expect strokes == 14

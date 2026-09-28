@@ -1,0 +1,74 @@
+# LOST LINKS: the four abilities. The Hammerhead smashes cracked blocks,
+# but only on a hard knock (and bushes give way to a hard roll without
+# it). Backspin: B while rolling stops the ball dead, though a slope wears
+# it down. The Dune Tread: A while rolling hops over a low rail.
+game lostlinks
+wait 5
+cheat newgame
+cheat no_slicers
+cheat strokes 60
+# no Hammerhead: the cracked blocks hold
+cheat ball 0 29 10
+cheat aim 48
+hold A 22
+wait 1
+waituntil moving == 0 600
+expect bty >= 9
+# the Hammerhead, but a feeble tap: still they hold
+cheat abilities 1
+cheat ball 0 29 10
+hold A 2
+wait 1
+waituntil moving == 0 600
+expect bty >= 9
+# a real knock: through, into the hall
+cheat ball 0 29 10
+hold A 22
+wait 1
+waituntil moving == 0 600
+expect bty <= 7
+# a bush stops a gentle roll...
+cheat abilities 0
+cheat ball 0 45 27
+hold A 6
+wait 1
+waituntil moving == 0 600
+expect bty >= 25
+# ...and a hard one crashes through
+cheat ball 0 45 27
+hold A 46
+wait 1
+waituntil moving == 0 600
+expect bty < 24
+# Backspin: a full roll, B after ten frames, and it stops short
+cheat abilities 2
+cheat ball 0 60 47
+cheat aim 0
+hold A 46
+wait 10
+press B 1
+waituntil moving == 0 60
+expect bx < 1040
+# on the mountain side it only slows the ball, the hill takes it on down
+cheat ball 0 70 8
+hold A 22
+wait 5
+press B 1
+waituntil moving == 0 900
+expect bty >= 16
+# the Dune Tread: without a hop a rail turns the ball back...
+cheat ball 1 31 6
+cheat aim 0
+hold A 22
+wait 1
+waituntil moving == 0 600
+expect btx <= 34
+# ...with one it sails over
+cheat abilities 4
+cheat ball 1 31 6
+hold A 22
+wait 8
+press A 1
+expect airborne == 1
+waituntil moving == 0 600
+expect btx >= 36

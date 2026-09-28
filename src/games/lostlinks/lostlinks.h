@@ -35,8 +35,8 @@ enum { LNK_OVER, LNK_UNDER, LNK_LAYERS };
  *   o  hole: drops a slow ball to the other layer, at the same place
  *   O  a hole hidden in the grass (the same, drawn as grass)
  *   1-9 (not 5)  slope, falling the way the digit points on a keypad
- *   =  planks (fairway over water)     f  flowers (fairway)
- *   '  cave crystals (floor)
+ *   b  bush: a hard roll crashes through it (it grows back next run)
+ *   f  flowers (fairway)      '  cave crystals (floor)
  *   g  the altar gate: shut until the Star Pin is whole
  *   k  the den door: shut until the four sanctum plates are lit
  * Things (the tile under them is floor):

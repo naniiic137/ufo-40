@@ -768,9 +768,14 @@ static void play_update(void) {
         case EV_BOUNCE: sfx_play_name("lnk_bounce"); break;
         case EV_LAND: sfx_play_name("lnk_land"); break;
         case EV_BLOCK:
-            sfx_play_name("lnk_smash");
-            shake_t = 8;
-            burst(ball.bx * LNK_T + 8, ball.by * LNK_T + 8, C_ORANGE, 12, 1.5f);
+            if (LNK_MAP[ball.layer][ball.by][ball.bx] == 'b') {
+                sfx_play_name("lnk_bush");
+                burst(ball.bx * LNK_T + 8, ball.by * LNK_T + 8, C_JADE, 10, 1.2f);
+            } else {
+                sfx_play_name("lnk_smash");
+                shake_t = 8;
+                burst(ball.bx * LNK_T + 8, ball.by * LNK_T + 8, C_ORANGE, 12, 1.5f);
+            }
             break;
         case EV_SINK:
             sfx_play_name("lnk_splash");
@@ -1168,6 +1173,8 @@ static void draw_map_view(void) {
             case ',': c = l ? C_PURPLE : C_FOREST; break;
             case ':': c = l ? C_SLATE : C_LIME; break;
             case 'X': c = C_ORANGE; break;
+            case 'b': c = C_FOREST; break;
+            case 'u': case 'v': c = C_BROWN; break;
             case 'r': c = C_GREY; break;
             case 'o': case 'O': c = l ? C_YELLOW : C_INK; break;
             case 'g': case 'k': c = C_RED; break;
@@ -1439,7 +1446,21 @@ static int lnk_query(const char *key, int *out) {
     }
     /* reach_KIND_AB_OPEN: how many things of a kind can be reached from where
      * Dimple wakes with these abilities (and gates) */
-    int kind, ab, op;
+    int kind, ab, op, id;
+    if (sscanf(key, "reachthing_%d_%d_%d_%d", &kind, &id, &ab, &op) == 4) {
+        /* can one thing (kind, id) be reached from the start with these? */
+        LnkCtx c = ctx;
+        c.abilities = (uint8_t)ab;
+        c.opened = (uint8_t)op;
+        uint8_t keep[LNK_LAYERS][LNK_MH][LNK_MW];
+        memcpy(keep, tiles, sizeof keep);
+        lnk_tiles_reset(tiles);
+        const LnkThing *s = lnk_find(EK_START, 0), *t = lnk_find(kind, id);
+        lnk_flow_from(&reach, &c, s->layer, s->tx, s->ty);
+        *out = t && reach.d[t->layer][t->ty][t->tx] != LNK_FAR;
+        memcpy(tiles, keep, sizeof keep);
+        return 1;
+    }
     if (sscanf(key, "reach_%d_%d_%d", &kind, &ab, &op) == 3) {
         LnkCtx c = ctx;
         c.abilities = (uint8_t)ab;
@@ -1503,6 +1524,9 @@ static int lnk_cheat(const char *cmd) {
     if (sscanf(cmd, "ball %d %d %d", &a, &b, &c) == 3) {
         /* put the ball at rest on tile (b, c) of layer a */
         place_ball(a, b * LNK_T + LNK_T / 2.0f, c * LNK_T + LNK_T / 2.0f);
+        char ch = lnk_tile(&ctx, a, b, c);
+        ball.lie = ch == 's' && !has_ab(AB_TREAD) ? LIE_SAND : ch == 'u' ? LIE_DIVOT : (ch == 'o' || ch == 'O') ? LIE_CUP : LIE_GROUND;
+        ball.slie = ball.lie;
         cam_x = ball.x - SCREEN_W / 2;
         cam_y = ball.y - SCREEN_H / 2;
         if (state != ST_PLAY) state = ST_PLAY;
@@ -1541,8 +1565,28 @@ static int lnk_cheat(const char *cmd) {
         return 1;
     }
     if (!strcmp(cmd, "respawn")) { start_run(); return 1; }
+    int d = 0;
+    if (sscanf(cmd, "slicer %d %d %d", &a, &b, &d) == 3) {
+        /* move slicer a to hover over tile (b, d) of its layer */
+        for (int i = 0; i < n_movers; i++)
+            if (movers[i].kind == EK_SLICER && movers[i].id == a) {
+                movers[i].x = movers[i].hx = b * LNK_T + LNK_T / 2.0f;
+                movers[i].y = movers[i].hy = d * LNK_T + LNK_T / 2.0f;
+                movers[i].state = SL_IDLE;
+                movers[i].t = 0;
+            }
+        return 1;
+    }
     if (!strcmp(cmd, "no_slicers")) { for (int i = 0; i < n_movers; i++) if (movers[i].kind == EK_SLICER) movers[i].state = SL_GONE; return 1; }
-    if (sscanf(cmd, "badger %d %d", &a, &b) == 2) { bd.state = a; bd.hp = b; bd.t = 0; bd.shots_left = BADGER_SHOTS; return 1; }
+    if (sscanf(cmd, "badger %d %d %d", &a, &b, &c) >= 2) {
+        bd.state = a;
+        bd.hp = b;
+        bd.t = 0;
+        bd.shots_left = BADGER_SHOTS;
+        if (c >= 0 && c < 5) bd.spot = c;
+        bd.cross_on = false;
+        return 1;
+    }
     if (sscanf(cmd, "botwp %d", &a) == 1) { bot_wp = a; bot_have = false; return 1; }
     if (!strcmp(cmd, "things")) {
         static const char *K[EK_KINDS] = {"start", "pin", "iron", "crow", "stray", "npc", "lark", "alba", "slicer",

@@ -128,6 +128,7 @@ void lnk_audio_load(void) {
     sfx_define("lnk_cup", CH_P2, 200, "@33 v11 o5 c16 <c16");
     sfx_define("lnk_splash", CH_NOISE, 160, "@10 v11 o6 c8");
     sfx_define("lnk_smash", CH_NOISE, 180, "@40 v13 o4 c8");
+    sfx_define("lnk_bush", CH_NOISE, 220, "@36 v10 o5 c16 o6 c16");
     sfx_define("lnk_pin", CH_P2, 240, "@39 v11 o5 l32 e g o6 c e");
     sfx_define("lnk_talk", CH_P2, 240, "@42 v9 o5 c32 e32");
     sfx_define("lnk_plate", CH_P2, 240, "@15 v11 o6 c16 g16");

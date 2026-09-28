@@ -1,0 +1,72 @@
+# LOST LINKS: the same swing on different ground. The fairway lets a
+# ball run, rough grips it, the green lets it slide; a slope never lets it
+# rest; sand stops it dead and only a chip (the ball leaves the ground)
+# gets out, unless Dimple has the Dune Tread.
+game lostlinks
+wait 5
+cheat newgame
+cheat no_slicers
+# the fairway: level 6 runs about nine tiles
+cheat ball 0 60 47
+cheat aim 0
+hold A 22
+wait 1
+waituntil moving == 0 600
+expect bx >= 1100
+expect bx <= 1115
+# the rough: the same swing, less than half as far
+cheat ball 0 43 49
+cheat aim 0
+hold A 22
+wait 1
+waituntil moving == 0 600
+expect bx >= 752
+expect bx <= 766
+# the green: a level 2 tap slides further than on the fairway
+cheat ball 0 63 54
+cheat aim 0
+hold A 6
+wait 1
+waituntil moving == 0 600
+expect bx >= 1080
+expect bx <= 1097
+# a slope: a tap and the ball runs all the way down the mountain side
+cheat ball 0 70 9
+cheat aim 0
+hold A 2
+wait 1
+waituntil moving == 0 900
+expect bty >= 16
+# sand: the lie is sand, the stroke is a chip, and it stops dead where it lands
+cheat ball 0 110 58
+expect lie == 1
+cheat aim 0
+hold A 22
+wait 1
+wait 3
+expect airborne == 1
+waituntil moving == 0 300
+expect strokes == 15
+expect bx >= 1816
+expect bx <= 1836
+expect lie == 1
+# with the Dune Tread the same stroke rolls over the sand
+cheat abilities 4
+cheat ball 0 110 58
+expect lie == 0
+cheat aim 0
+hold A 22
+wait 1
+wait 3
+expect airborne == 0
+waituntil moving == 0 600
+expect bx > 1860
+# a divot holds a slow ball, and the way out is a chip too
+cheat abilities 0
+cheat ball 0 92 57
+expect lie == 2
+cheat aim 32
+hold A 6
+wait 1
+wait 3
+expect airborne == 1

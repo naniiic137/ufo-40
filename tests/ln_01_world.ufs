@@ -1,0 +1,30 @@
+# LOST LINKS: the world at the original's full scale (Golfaria's counts,
+# our own layout): 10 pins, 20 irons, 10 scorecrows, 8 strays, 11 folk to
+# talk to, 4 abilities, the Star Pin in 4 pieces, the altar, 4 sanctum
+# plates and the Badger's den. Every hole has a hole under (or over) it.
+game lostlinks
+wait 5
+expect count_1 == 10
+expect count_2 == 20
+expect count_3 == 10
+expect count_4 == 8
+expect count_5 == 11
+expect count_9 == 4
+expect count_10 == 4
+expect count_11 == 1
+expect count_12 == 4
+expect count_15 == 1
+expect count_0 == 1
+expect count_6 >= 5
+expect count_7 >= 4
+expect count_8 >= 10
+expect holes_unpaired == 0
+# a new cartridge opens on its title; the game starts where Dimple wakes,
+# underground, with 20 strokes
+expect state == 0
+press A
+expect state == 1
+expect layer == 1
+expect strokes == 20
+expect max_strokes == 20
+expect checkpoint == 255

@@ -1,0 +1,56 @@
+# LOST LINKS: what each ability opens, checked on the whole world from where
+# Dimple wakes (the ball's ways: rolling, chips from sand and cups, holes
+# between the layers, hops with the Dune Tread). Keys: reachthing_KIND_ID_
+# ABILITIES_GATES and reach_KIND_ABILITIES_GATES; abilities 1 Hammerhead,
+# 2 Backspin, 4 Dune Tread, 8 Skipper; gates 1 the altar's, 2 the den door.
+game lostlinks
+wait 5
+# the Hammerhead (the gift) and Backspin (optional) need nothing
+expect reachthing_9_0_0_0 == 1
+expect reachthing_9_1_0_0 == 1
+# the Dune Tread is behind the Under-Bunker's cracked stone
+expect reachthing_9_2_0_0 == 0
+expect reachthing_9_2_1_0 == 1
+# the Skipper needs the Hammerhead and the Tread
+expect reachthing_9_3_1_0 == 0
+expect reachthing_9_3_4_0 == 0
+expect reachthing_9_3_5_0 == 1
+# the Star Pin: one piece needs nothing, one the Hammerhead, two the Skipper
+expect reachthing_10_3_0_0 == 1
+expect reachthing_10_1_0_0 == 0
+expect reachthing_10_1_1_0 == 1
+expect reachthing_10_0_7_0 == 0
+expect reachthing_10_2_7_0 == 0
+expect reachthing_10_0_15_0 == 1
+expect reachthing_10_2_15_0 == 1
+# pins: the Clubhouse Hall and the Under-Bunker need the Hammerhead, the
+# Gurgle Grotto the Tread, the Drainway both
+expect reach_1_0_0 == 6
+expect reachthing_1_0_0_0 == 0
+expect reachthing_1_0_1_0 == 1
+expect reachthing_1_8_0_0 == 0
+expect reachthing_1_8_1_0 == 1
+expect reachthing_1_2_1_0 == 0
+expect reachthing_1_2_5_0 == 1
+expect reachthing_1_4_4_0 == 0
+expect reachthing_1_4_5_0 == 1
+# the altar is in the Clubhouse Hall; the sanctum waits on the gate, the
+# den on the door
+expect reachthing_11_0_0_0 == 0
+expect reachthing_11_0_1_0 == 1
+expect reach_12_15_0 == 0
+expect reach_12_15_1 == 4
+expect reach_15_15_1 == 0
+expect reach_15_15_3 == 1
+# with everything, everything
+expect reach_1_15_3 == 10
+expect reach_2_15_3 == 20
+expect reach_3_15_3 == 10
+expect reach_4_15_3 == 8
+expect reach_5_15_3 == 11
+expect reach_9_15_3 == 4
+expect reach_10_15_3 == 4
+# and with nothing, most of the world is open already (Golfaria is open)
+expect reach_2_0_0 == 15
+expect reach_3_0_0 == 10
+expect reach_5_0_0 == 11
