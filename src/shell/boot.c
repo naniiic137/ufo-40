@@ -81,7 +81,7 @@ static void boot_draw(void) {
         int a = t - 176;
         int col = a < 4 ? C_DUSK : a < 8 ? C_SLATE : a < 12 ? C_GREY : C_LIGHT;
         text_center("BEAMDOWN SOFTWORKS", 160, 118, col);
-        tiny_center("FORTY GAMES FROM ANOTHER WORLD", 160, 130, a < 12 ? C_DUSK : C_SKY);
+        tiny_center("FIFTY GAMES FROM ANOTHER WORLD", 160, 130, a < 12 ? C_DUSK : C_SKY);
     }
     if (t > 210 && (t / 20) % 2 == 0) text_center("PRESS ANY BUTTON", 160, 146, C_YELLOW);
     tiny_center("A FAN-MADE PARODY TRIBUTE", 160, 170, C_DUSK);

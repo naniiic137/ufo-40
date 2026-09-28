@@ -5,7 +5,7 @@
 <h1 align="center">UFO 40</h1>
 
 <p align="center">
-  <b>A pretend 1980s console with forty cartridges (well, twelve so far), built from scratch<br>
+  <b>A pretend 1980s console with fifty cartridges (well, twelve so far), built from scratch<br>
   for the PlayStation Vita, Windows and the web.</b><br><br>
   <a href="https://naniiic137.github.io/ufo-40/"><b>▶ Play it in your browser</b></a> ·
   <a href="https://github.com/naniiic137/ufo-40/releases">Download for Vita / Windows</a>
@@ -23,9 +23,11 @@
 ## What is this?
 
 UFO 40 is inspired by **UFO 50** by Mossmouth, a collection of fifty "lost" games
-from a console that never existed. This is a joke port with a shorter name
-and fewer games: forty cartridge slots on the equally fictional
-**Beamdown Softworks** console.
+from a console that never existed. It started as a joke port with a shorter
+name and fewer games, forty cartridge slots on the equally fictional
+**Beamdown Softworks** console. Then it kept going: UFO 40 is now a tribute
+that is growing to all 50 of UFO 50's games, one per slot. The name stayed 40;
+the library didn't.
 
 Each cartridge is a tribute to one UFO 50 game and sits in the slot with that
 game's number. It plays by the same rules: the controls, systems, foes, items,
@@ -36,6 +38,9 @@ the names, characters, setting, pixel art, levels and chiptune music. Where the
 original builds its levels at random, so does the tribute, with its own
 generator. Where the original's levels are hand-made, the tribute's are too,
 drawn from scratch.
+
+Once the tributes are in, the plan is to add some twists of my own on top,
+such as harder modes, kept apart from the faithful versions.
 
 Everything is written in plain C with no dependencies in the core:
 
@@ -67,9 +72,9 @@ and the music and sound volumes are in every game's pause menu too.
   <img src="docs/shots/savedata.png" width="320" alt="The save data screen">
 </p>
 
-## The library (12 of 40 loaded)
+## The library (12 of 50 loaded)
 
-<p align="center"><img src="docs/shots/library.png" width="640" alt="The UFO 40 game library with 40 cartridge slots"></p>
+<p align="center"><img src="docs/shots/library.png" width="640" alt="The UFO 40 game library with 50 cartridge slots"></p>
 
 | # | Cartridge | Tribute to | What plays the same | What's ours |
 |---|---|---|---|---|
@@ -85,7 +90,7 @@ and the music and sound volumes are in every game's pause menu too.
 | 16 | **TINTAIL** | Camouflage | sneaking on a grid past watchers by taking the colour of the ground you stand on, hollow logs, sun and rain pads, hatchlings with their own colour, a danger view you can't move in, undo, a branching map | Twig the chameleon, Salt Island, toads and storks, 15 new levels |
 | 25 | **OPEN HOUSE** | Party House | drawing guests from a deck into a house with limited space, the original's 46 guest abilities, costs and trouble, police, fire marshal and bans, set guest lists and a random list, win by ending a party with four stars within 25 nights, 2P hot-seat | a whitewashed house by the sea, all 46 guests' names and faces |
 | 28 | **DUNE EXPRESS** | Rail Heist | real time until a guard is alert, then 10-second turns, one-bullet lawmen who hit each other too, punches through walls and floors, carrying and throwing, hiding in barrels, levers, a crank gun, rams, three outlaws, three stars a mission with the original's time goals, 2P versus | Wade, Hush and Pearl, the Governor's tax trains, Biscuit the camel, 20 new trains |
-| 04, 08, 10–13, 17–24, 26–27, 29–40 | *coming soon* | | | still in the saucer's cargo hold |
+| 04, 08, 10–13, 17–24, 26–27, 29–50 | *coming soon* | | | still in the saucer's cargo hold |
 
 Every cartridge has three goals, which follow the original's own three: a
 **Beacon** (a side challenge), the **Saucer** (beating the game) and the
@@ -551,7 +556,7 @@ src/engine/            platform-independent core (no dependencies)
                        ADSR envelopes, vibrato, sweeps, arpeggios; UFO-MML sequencer
   input.c rng.c        pressed / held / released / auto-repeat; PCG32
   save.c scene.c       CRC32-checked saves; scenes with palette-fade transitions
-src/shell/             the console: boot, main menu, 40-slot library, options and jukebox,
+src/shell/             the console: boot, main menu, 50-slot library, options and jukebox,
                        save data, pause menu, goal toasts
 src/games/*/           one folder per cartridge: rules, art, audio, levels
 src/platform/sdl2/     PC + PS Vita + Emscripten in one file

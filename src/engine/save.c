@@ -6,6 +6,9 @@
 
 Progress g_progress;
 
+_Static_assert(sizeof(Progress) == 2 * MAX_GAMES + 20, "Progress is bytes only, no padding");
+_Static_assert(sizeof(Progress) != PROGRESS_LEGACY40_SIZE, "the two layouts must differ in size");
+
 #define SAVE_MAGIC 0x30344655u /* "UF40" little-endian */
 #define SAVE_VERSION 1
 #define HEADER_SIZE 16
@@ -67,11 +70,35 @@ void progress_defaults(void) {
     g_progress.fullscreen = 0;
 }
 
+/* A progress file from the 40-slot library: goals[40], played[40], then the
+ * settings bytes in the order they still have. Slots 01-40 keep their goals
+ * and play counts; 41-50 start empty. */
+static void progress_from_legacy40(const uint8_t *b) {
+    progress_defaults();
+    memcpy(g_progress.goals, b, LEGACY_GAMES);
+    memcpy(g_progress.played, b + LEGACY_GAMES, LEGACY_GAMES);
+    const uint8_t *st = b + 2 * LEGACY_GAMES;
+    g_progress.music_vol = st[0];
+    g_progress.sfx_vol = st[1];
+    g_progress.scale = st[2];
+    g_progress.fullscreen = st[3];
+    g_progress.last_game = st[4];
+    g_progress.menu_pos = st[5];
+    memcpy(g_progress.reserved, st + 6, sizeof g_progress.reserved);
+}
+
 bool progress_load(void) {
-    Progress p;
-    int n = read_wrapped("progress.dat", &p, (int)sizeof p);
-    if (n != (int)sizeof p) { progress_defaults(); return false; }
-    g_progress = p;
+    union { Progress p; uint8_t raw[sizeof(Progress)]; } u;
+    int n = read_wrapped("progress.dat", &u, (int)sizeof u);
+    if (n == PROGRESS_LEGACY40_SIZE) {
+        progress_from_legacy40(u.raw);
+        progress_save(); /* written back in the 50-slot layout */
+    } else if (n == (int)sizeof u.p) {
+        g_progress = u.p;
+    } else {
+        progress_defaults();
+        return false;
+    }
     if (g_progress.music_vol > 10) g_progress.music_vol = 7;
     if (g_progress.sfx_vol > 10) g_progress.sfx_vol = 8;
     if (g_progress.scale < 1 || g_progress.scale > 8) g_progress.scale = 3;

@@ -1,6 +1,7 @@
 /* UFO 40 - the cartridge slots. A cartridge sits in the slot with the number
  * of the UFO 50 game it pays tribute to; the empty slots are still in the
- * saucer's cargo hold. Slots 41-50 don't exist: UFO 40 stops at 40. */
+ * saucer's cargo hold. There are fifty slots, one for every UFO 50 number:
+ * the name stayed 40, the library didn't. */
 #include "gamedef.h"
 
 extern const GameDef GAME_UNDERDELVE;

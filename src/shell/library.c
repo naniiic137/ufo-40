@@ -1,12 +1,14 @@
-/* UFO 40 - the game library: 40 cartridge slots. */
+/* UFO 40 - the game library: 50 cartridge slots, ten to a row, so each row
+ * is one decade of UFO 50 numbers (01-10, 11-20 ...). */
 #include "shell.h"
 
-#define GRID_X 8
+#define GRID_X 9
 #define GRID_Y 24
-#define CELL_W 20
+#define CELL_W 16
 #define CELL_H 27
-#define COLS 8
+#define COLS 10
 #define ROWS 5
+_Static_assert(COLS * ROWS == GAME_SLOTS, "the grid holds every slot");
 #define PANEL_X 172
 #define PANEL_W 142
 
@@ -67,35 +69,36 @@ static void lib_update(void) {
     }
 }
 
+/* A cartridge 14 pixels wide (the cell is 16). */
 static void draw_cart(int x, int y, int idx, bool sel) {
     const GameDef *g = GAMES[idx];
     int body = g ? C_LIGHT : C_DUSK, edge = g ? C_GREY : C_NIGHT, dark = g ? C_SLATE : C_INK;
-    gfx_rect(x + 2, y, 14, 2, body);
-    gfx_rect(x, y + 2, 18, 20, body);
-    gfx_vline(x + 17, y + 2, y + 21, edge);
-    gfx_hline(x, x + 17, y + 21, edge);
+    gfx_rect(x + 2, y, 10, 2, body);
+    gfx_rect(x, y + 2, 14, 20, body);
+    gfx_vline(x + 13, y + 2, y + 21, edge);
+    gfx_hline(x, x + 13, y + 21, edge);
     gfx_vline(x, y + 2, y + 21, g ? C_WHITE : C_SLATE);
     /* grip ridges */
-    for (int i = 0; i < 3; i++) gfx_hline(x + 5, x + 12, y + 1 + i * 1 + 1, i % 2 ? edge : body);
+    for (int i = 0; i < 3; i++) gfx_hline(x + 4, x + 9, y + 2 + i, i % 2 ? edge : body);
     char num[12];
     snprintf(num, sizeof num, "%02d", idx + 1);
     if (g) {
-        gfx_rect(x + 2, y + 5, 14, 12, g->cart_main);
-        gfx_rect(x + 2, y + 13, 14, 4, g->cart_accent);
-        gfx_hline(x + 2, x + 15, y + 12, C_INK);
-        tiny_draw(num, x + 4, y + 6, C_WHITE);
+        gfx_rect(x + 2, y + 5, 10, 12, g->cart_main);
+        gfx_rect(x + 2, y + 13, 10, 4, g->cart_accent);
+        gfx_hline(x + 2, x + 11, y + 12, C_INK);
+        tiny_draw(num, x + 3, y + 6, C_WHITE);
         /* goal pips */
         for (int b = 0; b < 3; b++) {
             bool on = (g_progress.goals[idx] >> b) & 1;
-            gfx_rect(x + 4 + b * 4, y + 14, 2, 2, on ? C_YELLOW : C_INK);
+            gfx_rect(x + 3 + b * 3, y + 14, 2, 2, on ? C_YELLOW : C_INK);
         }
     } else {
-        gfx_rect(x + 2, y + 5, 14, 12, C_NIGHT);
-        text_draw("?", x + 7, y + 7, sel ? C_GREY : C_SLATE);
+        gfx_rect(x + 2, y + 5, 10, 12, C_NIGHT);
+        text_draw("?", x + 5, y + 7, sel ? C_GREY : C_SLATE);
     }
     /* contacts */
-    gfx_rect(x + 3, y + 18, 12, 3, dark);
-    for (int i = 0; i < 6; i++) gfx_pset(x + 4 + i * 2, y + 19, g ? C_AMBER : C_DUSK);
+    gfx_rect(x + 2, y + 18, 10, 3, dark);
+    for (int i = 0; i < 5; i++) gfx_pset(x + 3 + i * 2, y + 19, g ? C_AMBER : C_DUSK);
 }
 
 static void draw_panel(void) {
@@ -197,7 +200,7 @@ static void lib_draw(void) {
     ui_fancy_text("40", 27, 5, 1, g_40, 3, C_INK, -1);
     text_draw("GAME LIBRARY", 46, 5, C_LIGHT);
     char buf[48];
-    snprintf(buf, sizeof buf, "%d/40 LOADED", available_count());
+    snprintf(buf, sizeof buf, "%d/%d LOADED", available_count(), GAME_SLOTS);
     tiny_draw(buf, 148, 7, C_SLATE);
     snprintf(buf, sizeof buf, "%d/%d", progress_goal_count(), available_count() * 3);
     ui_goal_icon(252, 4, GOAL_SAUCER, true, t);
@@ -216,12 +219,12 @@ static void lib_draw(void) {
             x += shake;
         }
         if (sel && launching && launch_t > 20 && (launch_t / 2) % 2) continue;
-        if (sel) gfx_rect(x + 1, y + 21, 17, 3, C_NIGHT); /* shadow */
+        if (sel) gfx_rect(x + 1, y + 21, 13, 3, C_NIGHT); /* shadow */
         draw_cart(x, y - lift, i, sel);
         if (sel && !launching) {
             int bl = (t / 16) % 2;
             int col = GAMES[i] ? C_YELLOW : C_GREY;
-            int x0 = x - 2 - bl, y0 = y - lift - 2 - bl, x1 = x + 19 + bl, y1 = y - lift + 23 + bl;
+            int x0 = x - 2 - bl, y0 = y - lift - 2 - bl, x1 = x + 15 + bl, y1 = y - lift + 23 + bl;
             gfx_hline(x0, x0 + 3, y0, col); gfx_vline(x0, y0, y0 + 3, col);
             gfx_hline(x1 - 3, x1, y0, col); gfx_vline(x1, y0, y0 + 3, col);
             gfx_hline(x0, x0 + 3, y1, col); gfx_vline(x0, y1 - 3, y1, col);
@@ -237,7 +240,7 @@ static void lib_draw(void) {
     fx = ui_hint(fx, 170, GLYPH_B, "MENU", C_LIGHT);
     fx = text_draw("SELECT", fx, 170, C_WHITE);
     text_draw("OPTIONS", fx + 4, 170, C_LIGHT);
-    snprintf(buf, sizeof buf, "SLOT %02d/40", g_library_cursor + 1);
+    snprintf(buf, sizeof buf, "SLOT %02d/%d", g_library_cursor + 1, GAME_SLOTS);
     text_draw(buf, SCREEN_W - 6 - text_width(buf), 170, C_GREY);
 }
 

@@ -51,7 +51,7 @@ const char *shell_song_title(int song) {
     return buf;
 }
 
-#define MAX_ROWS 320
+#define MAX_ROWS 448 /* every song plus a heading per cartridge */
 #define LIST_Y 66
 #define ROW_H 10
 #define VISIBLE 9
