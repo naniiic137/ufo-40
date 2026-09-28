@@ -1,0 +1,39 @@
+# README media: MANDIBLES
+shotscale 2
+seed 46
+game mandibles
+wait 90
+shot mandibles_title
+# the road to the capital, halfway along
+cheat won 107
+press A
+wait 30
+shot mandibles_map
+press A
+wait 240
+shot mandibles_brief
+# a squad on Soldier Follow, the command menu open
+cheat mission 6 3
+botplay 2600
+hold A
+wait 12
+press DOWN
+wait 8
+shot mandibles_menu
+release A
+# the demo player on the dew ditch: sap home, a squad, a longlegs
+cheat mission 5 1
+botplay 1500
+gifstart mandibles 3 2
+botplay 900
+gifstop
+shot mandibles_field
+# the capital
+cheat mission 12 1
+botplay 2200
+shot mandibles_capital
+# 2P versus on the longlegs den
+cheat versus 3 5
+hold RIGHT+P2LEFT 120
+wait 60
+shot mandibles_versus
