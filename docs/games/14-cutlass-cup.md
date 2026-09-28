@@ -48,6 +48,8 @@ presses.
 | 2P Versus | on PC and the web; the Vita has one controller | [W] | cc_16 |
 | 2P Co-op | doubles against CPU pairs; two wins clear the other four | [W], [SH] | cc_17 |
 | The CPU | returns almost everything, but guesses worse the faster the ball; a lob over it near the middle fools it; it never fouls on purpose; the last rivals roll to where the ball is going | [SB], [SF], [W] | cc_20, cc_21 |
+| CPUs and urchins | early rivals never strike an urchin on purpose; from the fourth match on (CPU level 3 and up) a CPU goes after the rival's urchin on its side while the ball is away and strikes it back across; any CPU still walks into one it doesn't see ahead | [W] ("The Bots won't intentionally attack caltrops until late in the tournament, and they have difficulty navigating around them") | cc_23 |
+| Records | the two stats the original keeps, fighters used and fighters won with, on a RECORDS screen from the title menu; saved | [W] ("Fighters Used, Fighters Won With") | cc_24 |
 
 ### The six fighters
 
@@ -78,6 +80,13 @@ Stats are Speed / Control / Power, 1 to 3, as in [W]. Kits follow [W] and
 - **The blade foul** stuns the rival too (a thread's tactic depends on it).
 - **TIME** ending: the leader wins; a tie goes to the next point.
 - **Traps:** two urchins or pots out at most.
+- **"Late in the tournament"** for urchins: CPU level 3 and up, which is
+  matches 4 and 5 of the 1P tournament and the second co-op match.
+- **The records:** a fighter counts as used when a player takes it into a
+  match in any mode, and as won with when it wins the Cup (both players'
+  fighters in co-op). A Versus win doesn't count. The original shows these
+  in the collection's details tab; ours is a RECORDS screen on the
+  cartridge's own title menu.
 
 ## What is ours
 
@@ -95,7 +104,7 @@ Stats are Speed / Control / Power, 1 to 3, as in [W]. Kits follow [W] and
 ## Additions: none
 
 Only the platform needs every UFO 40 cartridge has: the START pause menu,
-saving the options and the tournament record, and the three UFO 40 goals,
+saving the options and the records, and the three UFO 40 goals,
 which are Bushido Ball's own (gift: 3 opponents; gold: the tournament;
 cherry: no continues). 2P Versus and Co-op need a second player: two gamepads
 or a split keyboard on PC and the web; on the Vita only the 1P tournament is
@@ -128,16 +137,14 @@ player 2 arrows + K (roll) / L (strike).
 - Mae's urchin: the Bushido guide sends the ball toward the urchin's owner;
   ours follows the wiki's tip (toward the owner's rival).
 - Co-op's exact rules (ours: two players against CPU pairs).
-- Open, not done: late CPUs (level 3 and up) deliberately striking urchins
-  on their side; the originals' stats (fighters used, fighters won with),
-  which would need a platform stats line.
+- What exactly counts as "won with" (ours: winning the Cup).
 
 The final rival is random, as ours is: the same thread that first seemed to
 tie it to your fighter ends "so I guess it's random" [SF].
 
 ## Tests
 
-`tests/cc_01` … `cc_22`, all driven by button presses. `cc_21_demo_tournament`
+`tests/cc_01` … `cc_24`, all driven by button presses. `cc_21_demo_tournament`
 is a demo player (`cutlass.c`, the `bot` query) that presses real buttons the
 way the best CPU plays and, continuing when it loses, beats three rivals for
 the Beacon. `cc_22_no_stall` plays three best-CPU matches to the end.

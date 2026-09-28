@@ -1,0 +1,68 @@
+# CUTLASS CUP: the records Bushido Ball keeps, fighters used and fighters
+# won with, on a RECORDS screen reached from the title menu, and saved.
+game cutlass
+wait 15
+expect used == 0
+expect won_with == 0
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press A
+expect state == 9
+wait 10
+shot cutlass_records_empty
+press B
+expect state == 0
+# Silas takes the tournament: used and won with
+cheat tourney 3
+wait 35
+press A
+wait 130
+expect used == 8
+expect won_with == 0
+cheat win 0
+wait 170
+press A
+wait 35
+press A
+wait 130
+cheat win 0
+wait 170
+press A
+wait 35
+press A
+wait 130
+cheat win 0
+wait 170
+press A
+wait 35
+press A
+wait 130
+cheat win 0
+wait 170
+press A
+wait 35
+press A
+wait 130
+cheat win 0
+wait 170
+expect goals == 7
+expect won_with == 8
+# a co-op match marks both players' fighters as used
+cheat coop 0 5
+wait 35
+press A
+wait 130
+expect used == 41
+expect won_with == 8
+# both records survive a restart
+reload
+game cutlass
+wait 15
+expect used == 41
+expect won_with == 8
+press UP
+press A
+expect state == 9
+shot cutlass_records

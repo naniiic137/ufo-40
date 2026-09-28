@@ -1251,6 +1251,34 @@ void cc_ai_pad(Match *m, int i, Pad *out) {
         p->ai_delay = imax(3, 16 - lvl * 3);
         p->ai_err = (frnd(m) * 2 - 1) * ((14 - lvl * 2.6f) + bs * (2.2f - lvl * 0.3f));
     }
+    /* late in the tournament (level 3 up) the CPU goes after the rival's
+     * urchins on its side while the ball is away, and strikes them back
+     * across; it only sees one ahead of it, never walking round one */
+    if (lvl >= 3 && m->state == MS_PLAY && !m->serve_live && !coming && !(slow && mine_side) && p->ai_plan == 0 &&
+        !p->ai_hold && p->state != PS_CHARGE && p->state != PS_ROLL) {
+        const Proj *prey = NULL;
+        float best = 1e9f;
+        for (int k = 0; k < CC_MAX_PROJ; k++) {
+            const Proj *r = &m->pr[k];
+            if (!r->live || r->kind != PR_URCHIN || r->team == p->team || r->z > 0 || r->vx != 0) continue;
+            float ux = (r->x - p->x) * dir;
+            if ((r->x - CC_CENTER) * dir > -4 || ux <= 0 || ux > 140) continue;
+            float d = ux + fabsf(r->y - p->y);
+            if (d < best) { best = d; prey = r; }
+        }
+        if (prey) {
+            float ux = (prey->x - p->x) * dir, uy = prey->y - p->y;
+            /* stand just out of its touch, within the blade's reach */
+            out->dx = (int8_t)(ux > f->reach_x ? dir : ux < 8 ? -dir : 0);
+            if (ux >= 7) out->dy = (int8_t)(uy > 2 ? 1 : uy < -2 ? -1 : 0);
+            if (p->state != PS_SWING && ux >= 7 && ux <= f->reach_x && fabsf(uy) <= f->reach_y) {
+                out->strike = true;
+                out->dx = 0;
+                out->dy = 0;
+            }
+            return;
+        }
+    }
     float tx = home_x(p), ty = p->home_y;
     if (live && !others_serve) {
         if (b->z > 16 && b->vz != 0) {
