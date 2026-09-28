@@ -1,8 +1,10 @@
 # SKYWELL: a bat sleeps until Kip passes close or underneath, then flutters
 # after her, slower than she runs. Its touch doesn't hurt, but the knock is
-# dangerous: she is flung hard across the shaft, out of control for almost
-# a second, and unless a platform catches her she drops floors towards the
-# Grinder. When she comes round she still has her jump in the air.
+# dangerous: she is flung across the shaft, out of control for about half a
+# second, about three tiles sideways and a floor and a bit down, still
+# falling when she comes round, so over nothing she ends in the Grinder.
+# When she comes round she still has her jump in the air. A second of
+# blinking safety follows the knock, so a second creature can't chain it.
 # Recovery shortens the knock.
 game skywell
 wait 5
@@ -21,37 +23,90 @@ expect bats_awake == 1
 hold RIGHT 60
 expect kx > 120
 expect foe0_x < 60
-# standing still, it catches up and bumps her: a long knock, flung far
-wait 112
-expect stun > 50
+# standing still, it catches up and bumps her: she is flung away from it
+waituntil stun > 0 150
+expect stun == 32
+expect inv == 92
 expect state == 1
 wait 12
-expect kx > 160
-wait 50
+expect kx > 140
+wait 20
 expect stun == 0
 expect state == 1
-# knocked off a high ledge with nothing below: she falls into the Grinder
+# how far a knock throws her: off a ledge with nothing below, 40-50 px
+# across and 32-48 px (one to one and a half floors) down by the time she
+# comes round, and still falling
+cheat run
 cheat clear
 cheat plat 0 80 -300 3
 cheat pos 100 -312
 wait 20
 expect ground == 1
 cheat foe 0 116 -312
-wait 90
-expect state == 2
-# again, with a platform two floors down: it catches her
-wait 80
+waituntil stun > 0 60
+expect kx == 100
+expect ky == -312
+wait 32
+expect stun == 0
+expect kx >= 50
+expect kx <= 60
+expect ky >= -280
+expect ky <= -264
+expect vy10 > 30
+# left alone, she falls into the Grinder
+waituntil state == 2 120
+waituntil state == 4 120
+wait 30
 press A
+expect state == 1
+# again, with a platform a floor and a half down: it catches her
 cheat clear
 cheat plat 0 80 -300 3
-cheat plat 0 0 -236 13
+cheat plat 0 0 -250 13
 cheat pos 100 -312
 wait 20
 cheat foe 0 116 -312
 wait 60
 expect state == 1
 expect ground == 1
-expect ky == -248
+expect ky == -262
+# knocked over nothing, she jumps as she comes round and is caught by the
+# ledge she was knocked from: the air jump saves a knock
+cheat run
+cheat clear
+cheat plat 0 60 -300 6
+cheat pos 100 -312
+wait 20
+cheat foe 0 116 -312
+waituntil stun > 0 60
+wait 32
+expect stun == 0
+press A
+hold A 20
+wait 50
+expect state == 1
+expect ground == 1
+expect ky == -312
+# the blinking safety: a second bat on top of her as she comes round
+# can't knock her again until it runs out
+cheat run
+cheat clear
+cheat plat 0 0 -200 13
+cheat pos 100 -212
+wait 20
+cheat foe 0 116 -212
+waituntil stun > 0 60
+wait 33
+expect stun == 0
+expect inv > 50
+cheat pos 40 -212
+cheat foe 0 38 -214
+wait 30
+expect stun == 0
+expect kx == 40
+# once it runs out, the bat still clinging to her knocks her again
+waituntil stun > 0 40
+expect inv == 92
 # four Recoveries: the knock is at its shortest, and when she comes round
 # in the air she still has her jump in the air
 cheat run
@@ -64,10 +119,10 @@ cheat give 0
 cheat pos 100 -312
 cheat foe 0 104 -310
 wait 2
-expect stun > 15
-expect stun <= 20
+expect stun > 8
+expect stun <= 12
 expect air_used == 0
-wait 20
+wait 12
 expect stun == 0
 expect ground == 0
 press A

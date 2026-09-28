@@ -38,7 +38,13 @@ does too. Structure copied from the text; generator rules ours:
   floor below and never a trap.
 - Coins float above about one platform in three.
 - A star block turns up once in each of levels 1-3.
-- In the Roots about one floor in four has a bat hanging under a platform.
+- In the Roots about one floor in four has a bat hanging under a platform,
+  but never two bats close together: two bats hang at least two floors
+  apart, and two within four floors of each other are at least 80 px
+  apart across. One spot never wakes both, and one knock can't carry Kip
+  into the next. The spacing is checked without extra dice rolls, so a
+  seed's platforms are unchanged; about 4.6 bats a pit instead of 7.3.
+  (Player feedback, see below.)
 
 ## Mechanics checklist
 
@@ -52,15 +58,15 @@ does too. Structure copied from the text; generator rules ours:
 | The gun | rapid-fire, short range; fires the way she faces, or straight up or down; same rate held or tapped | [MM], [W] |
 | The Grinder | always at the foot of the screen; it only rises when Kip climbs above the middle of the screen, and never goes down; touching it is the only way to die | [W], [CH], [SC], [BW], [LZ] |
 | One life | a death ends the run; A goes straight back into a new pit | [W], [LZ] |
-| Knocks | creatures and hazards never hurt, but the knockback is huge: she is flung hard across the shaft, out of control, bouncing off the walls; unless a platform catches her she drops floors, often into the Grinder. Recovery shortens it | [W], [MM], [BW], [RC], [TVT], [LZ], [PB] |
-| After a knock | the knock costs her standing jump but not her jump in the air: she can jump as soon as she comes round | [IG], [CH], [SR] |
+| Knocks | creatures and hazards never hurt, but they fling her to the side, out of control and "stunned for a moment", bouncing off the walls; she comes round a floor or so lower and still falling, so over nothing she needs her air jump at once or the Grinder has her. Recovery shortens it | [W], [MM], [BW], [RC], [TVT], [LZ], [PB] |
+| After a knock | the knock costs her standing jump but not her jump in the air: she can jump as soon as she comes round; a second of blinking safety follows, so one creature can't chain into another | [IG], [CH], [SR]; safety ours |
 | Bouncing | every creature is safe to land on: she bounces off it with her jumps back, higher if A is held | [W], [IG], [CH] |
 | Crumbling | every platform crumbles after she lands: clouds at once, then boxes, then bricks | [MM], [BW], [IG] |
 | Clouds | break at once; shots break them and fly on through | [W], [IG] |
 | Crates | break 0.2 s after a shot, 0.3 s after landing | [W] |
 | Bricks (rocks) | break about a second after landing or a shot | [W] |
 | Coin blocks | durable; every hit knocks out a coin, and the first hit starts its crumbling | [W], [IG] |
-| Star blocks | solid to stand on; jumping off one rockets her up about six and a half floors, untouchable, whatever A does; with A still held at the end she floats down slowly, otherwise she just drops | [W], [CH], [IG] |
+| Star blocks | solid to stand on; jumping off one rockets her up about six and a half floors, untouchable, whatever A does; with A still held at the end she floats down slowly, otherwise she just drops; the first landing after the ride leaves her two seconds of blinking safety | [W], [CH], [IG]; landing safety ours |
 | Cloud mines | shot, or bumped, they burst into a row of clouds; bumping one also knocks her | [W], [CH] |
 | TNT blocks | her weight pushes the plunger down; a moment later it fires three shots, up and to both diagonals; the Grinder sets them off too | [W], [IG], [CH] |
 | Zappers (level 2) | a middle block with two electrified bars, a five-tile wall across or upright; a shot on the middle block turns it round | [W], [IG] |
@@ -90,9 +96,13 @@ The sources give no numbers for these, so they are ours:
   in the air 32.
 - A shot every 10 frames (so a coin block gives up to five coins before it
   goes), 5 px/frame, reaching 110 px.
-- A knock lasts 56 frames, 10 fewer per Recovery (never under 20), then 40
-  frames of blinking safety. It throws her at 2.8 px/frame across and
-  1.8 up; unchecked, it drops her about four floors.
+- A knock lasts 32 frames, 6 fewer per Recovery (never under 12), then 60
+  frames of blinking safety. It throws her at 2.2 px/frame across (dying
+  away by 3% a frame in the air) and 2.0 up under full gravity: by the
+  time she comes round she is about 44 px (under three tiles) to the side
+  and about 41 px (1.3 floors) lower, falling at 4 px/frame.
+- The first landing after a star ride gives 120 frames (2 s) of blinking
+  safety.
 - A star ride lasts 52 frames at 4 px/frame; the float after it falls at
   most 0.5 px/frame.
 - Bats fly 0.75 px/frame, slower than Kip runs or climbs. TNT goes off
@@ -101,6 +111,32 @@ The sources give no numbers for these, so they are ours:
   Eye watches for 8 s (shots every second, a hand spread every 2.5 s,
   lightning every 1.8 s), then sweeps a fist (4 s), watches again, then
   swoops (4.3 s), and so on.
+
+### Player feedback (2026-09)
+
+A player who has played Velgress wrote: "bats bump you a little too far,
+and the star should leave you with a couple seconds of invulnerability when
+you land after using them. I liked that the levels were random, but they
+would feel cheap when the bats would double up and spike you super far."
+
+We re-read the sources for numbers. None gives a distance or a length for
+the knock or its safety; they say only that a hit sends her "flying
+uncontrollably to the side, stunned for a moment" [BW], that it "can
+fling her uncontrollably away, which can result in her falling down into
+the spiked roller" [MM], that it will "PROBABLY" end in the pit, "but
+maybe not!" and "you might be able to jump out of it" [LZ], and that
+Recovery "reduces the amount of time Alpha is stunned" [W]. An earlier
+review had made the knock a 56-frame, 2.8 px/frame fling that dropped her
+about four floors unchecked, which leaves no "maybe not". So:
+
+- the knock was cut to the half-second, 1.3-floor fling above: dangerous
+  (she comes round falling, and over nothing she has a few frames to jump)
+  but not a sure multi-floor drop;
+- the blinking safety after a knock went from 40 to 60 frames;
+- the star block now leaves 2 s of blinking safety on landing. The wiki
+  gives the star "temporary invincibility when jumped off of" [W]; no source
+  mentions or rules out safety on landing, so this follows the player;
+- the generator spaces bats out (see Generator rules).
 
 ## What is ours
 
@@ -198,16 +234,18 @@ Only the platform needs every UFO 40 cartridge has:
 ## Progress
 
 - Built: `src/games/skywell/` (game, art, audio), slot 07.
-- Tests: `tests/sw_01` … `sw_18`: the start, the level-1 mix and a quick
+- Tests: `tests/sw_01` … `sw_19`: the start, the level-1 mix and a quick
   restart, jumps, crumbling and Lightfoot, shooting every platform type,
-  bats waking and chasing, knocks (flung far, deadly over the Grinder,
-  caught by a platform, shortened by Recovery, the jump in the air left),
+  bats waking and chasing, knocks (how far one throws her, deadly over the
+  Grinder, caught by a platform, saved by the air jump, the blinking
+  safety after, shortened by Recovery, the jump in the air left),
   the one-way camera and the Grinder, star blocks (launch, fixed ride,
-  float), cloud mines and TNT, the Keeper Owl and its key, the shop and
+  float, safety on landing), cloud mines and TNT, the Keeper Owl and its key, the shop and
   items bought, all three goals, saving, the reef's creatures, metal and
   zappers, stomping and shooting bats and leaving them to the Grinder,
   and the Eye's level (`sw_18`: its contents, the cloud top, every attack,
-  the ledge out). `sw_16` and `sw_17` climb all of level 1 on two
+  the ledge out), and bat spacing (`sw_19`: over 60 seeds no two bats
+  hang closer than the rule allows). `sw_16` and `sw_17` climb all of level 1 on two
   different pits with plain button presses only.
 - A demo climber (`cheat autoplay`, used only by scripts) looks ahead and
   picks its landings; `cheat botlog` prints its presses as script lines,

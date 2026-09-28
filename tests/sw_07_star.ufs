@@ -48,3 +48,27 @@ expect vy10 == 5
 wait 10
 expect floaty == 0
 expect vy10 > 10
+# the first landing after a ride leaves her two seconds of blinking safety:
+# a bat on top of her can't knock her until it runs out
+cheat run
+cheat clear
+cheat plat 0 0 -300 13
+cheat plat 4 100 -324 1
+cheat plat 0 0 -500 13
+cheat pos 100 -342
+wait 20
+expect ground == 1
+press A
+expect star > 0
+waituntil star == 0 60
+expect star_fall == 1
+waituntil ground == 1 90
+expect ky == -512
+expect star_fall == 0
+expect inv >= 115
+cheat foe 0 98 -514
+wait 60
+expect stun == 0
+expect state == 1
+waituntil stun > 0 70
+expect state == 1
