@@ -1,0 +1,56 @@
+# WOBBLE DERBY: back the favourite with the buttons: $100 at 2:1 returns
+# the stake and twice it when it wins. The rivals have no cash to meddle.
+game wobble
+wait 5
+cheat new 6 1
+cheat field 6 15 17
+cheat odds 0 2
+cheat cash 1 0
+cheat cash 2 0
+wait 25
+press A
+expect state == 5
+# the bet window, the first wobbler, $10 + $100 - $10
+press A
+expect sub == 1
+press A
+expect sub == 2
+expect amt == 10
+press UP
+press LEFT
+expect amt == 100
+press A
+expect sub == 0
+expect bet0 == 100
+expect beton0 == 0
+expect cash0 == 900
+expect menu == 6
+# change your mind: the old bet comes back first
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+expect menu == 0
+press A
+press A
+expect amt == 100
+press RIGHT
+press A
+expect bet0 == 110
+expect cash0 == 890
+expect menu == 6
+press A
+waituntil state == 7 400
+wait 25
+press A
+expect state == 8
+waituntil state == 9 3000
+expect winner == 0
+expect won0 == 330
+expect cash0 == 1220
+expect news0 == 1
+expect news10 == 1
+botuntil state == 10 1000
+expect cash0 == 1220

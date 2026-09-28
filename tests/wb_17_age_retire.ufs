@@ -1,0 +1,24 @@
+# WOBBLE DERBY: over a long meeting the wobblers slow down with the races
+# they run, and old-timers retire, while enough stay to fill a race.
+game wobble
+wait 5
+cheat new 12 1
+expect mod_sum == 0
+cheat autorace
+cheat autorace
+cheat autorace
+cheat autorace
+cheat autorace
+cheat autorace
+cheat autorace
+cheat autorace
+cheat autorace
+cheat autorace
+cheat autorace
+expect round == 12
+expect aged >= 5
+expect retired >= 1
+expect active >= 9
+expect field_ok == 1
+cheat autorace
+expect done == 1

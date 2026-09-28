@@ -77,6 +77,10 @@ CORE_SRC += src/games/dune/dune_logic.c
 CORE_SRC += src/games/dune/dune_levels.c
 CORE_SRC += src/games/dune/dune_art.c
 CORE_SRC += src/games/dune/dune_audio.c
+CORE_SRC += src/games/wobble/wobble.c
+CORE_SRC += src/games/wobble/wobble_logic.c
+CORE_SRC += src/games/wobble/wobble_art.c
+CORE_SRC += src/games/wobble/wobble_audio.c
 
 HEADLESS_SRC += src/platform/headless/main_headless.c
 HEADLESS_SRC += src/platform/headless/imgwrite.c

@@ -1,0 +1,68 @@
+# WOBBLE DERBY: the lender lends the round's cap, one loan at a time, at 15
+# per cent a race compounded ($200, $230, $265); repaying clears it; what's
+# still owed comes off the final purse.
+game wobble
+wait 5
+cheat new 6 1
+cheat cash 1 0
+cheat cash 2 0
+wait 25
+press A
+expect loan == 200
+press DOWN
+press DOWN
+press DOWN
+press A
+expect sub == 7
+press A
+expect cash0 == 1200
+expect debt0 == 200
+expect sub == 0
+# a second loan: pay the first back first
+press A
+press UP
+press A
+expect debt0 == 200
+expect cash0 == 1200
+press B
+press DOWN
+press DOWN
+press DOWN
+expect menu == 6
+press A
+waituntil state == 7 400
+wait 25
+press A
+waituntil state == 9 3000
+botuntil state == 10 1000
+expect interest0 == 30
+expect debt0 == 230
+wait 25
+press A
+wait 25
+press A
+expect loan == 300
+press UP
+press A
+waituntil state == 7 400
+wait 25
+press A
+waituntil state == 9 3000
+botuntil state == 10 1000
+expect debt0 == 265
+expect final0 == 935
+wait 25
+press A
+wait 25
+press A
+press DOWN
+press DOWN
+press DOWN
+press A
+press A
+expect debt0 == 0
+expect cash0 == 935
+press A
+press A
+expect debt0 == 500
+expect cash0 == 1435

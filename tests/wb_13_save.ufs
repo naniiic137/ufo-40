@@ -1,0 +1,77 @@
+# WOBBLE DERBY: a meeting is kept between races: quit and CONTINUE picks it
+# up at the same race with the same purses. Walking out during a race runs
+# it to the end first, so a result can't be undone.
+game wobble
+wait 5
+cheat new 6 1
+cheat cash 1 0
+cheat cash 2 0
+wait 25
+press A
+press UP
+press A
+waituntil state == 7 400
+wait 25
+press A
+waituntil state == 9 3000
+botuntil state == 10 1000
+wait 25
+press A
+expect state == 3
+expect round == 2
+cheat cash 0 1234
+reload
+game wobble
+wait 30
+expect state == 0
+expect has_run == 1
+press A
+expect state == 3
+expect round == 2
+expect nraces == 6
+expect cash0 == 1234
+wait 25
+press A
+press UP
+press A
+waituntil state == 7 400
+wait 25
+press A
+wait 200
+expect state == 8
+reload
+game wobble
+wait 30
+press A
+expect state == 3
+expect round == 3
+# a new meeting from the title instead of continuing
+reload
+game wobble
+wait 30
+press DOWN
+press A
+expect state == 1
+# walking out during the last race still ends the meeting properly
+game wobble
+wait 5
+cheat new 6 1
+cheat round 6
+cheat cash 0 20000
+cheat cash 1 0
+cheat cash 2 0
+wait 25
+press A
+press UP
+press A
+waituntil state == 7 400
+wait 25
+press A
+wait 100
+expect state == 8
+reload
+expect goals == 6
+game wobble
+wait 30
+expect has_run == 0
+expect stat_wins == 1

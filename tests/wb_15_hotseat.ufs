@@ -1,0 +1,37 @@
+# WOBBLE DERBY: two players at one pad (the third seat a CPU): each gets a
+# "your turn" screen before the paddock, then the CPU takes its turn.
+game wobble
+wait 30
+press A
+wait 5
+press DOWN
+press A
+press DOWN
+press DOWN
+press DOWN
+expect setup_row == 4
+press A
+expect state == 2
+expect humans == 2
+wait 25
+press A
+wait 25
+press A
+expect state == 4
+expect turn == 1
+wait 25
+press A
+expect state == 5
+press UP
+press A
+expect state == 4
+expect turn == 2
+wait 25
+press A
+expect state == 5
+expect turn == 2
+press UP
+press A
+expect state == 6
+expect turn == 3
+waituntil state == 7 200

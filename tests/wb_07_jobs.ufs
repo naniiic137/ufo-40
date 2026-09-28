@@ -1,0 +1,95 @@
+# WOBBLE DERBY: the fixer's jobs, booked by three players at one pad: a pep
+# snack speeds a wobbler up for the race, a nobble slows one down for good,
+# a peel toss drops litter on a lane, fizz pills send one wild: it runs all
+# over the place and goes for the runners beside it, knocking them over.
+game wobble
+wait 5
+cheat new 6 3
+cheat field 6 15 17
+wait 25
+press A
+wait 25
+press A
+# punter 1: a pep snack on wobbler 1
+press DOWN
+press DOWN
+press A
+press A
+press A
+expect job0 == 1
+press UP
+press UP
+press UP
+press A
+wait 25
+press A
+# punter 2: a nobble on wobbler 2
+press DOWN
+press DOWN
+press A
+press DOWN
+press DOWN
+press A
+press DOWN
+press A
+expect job1 == 3
+press UP
+press UP
+press UP
+press A
+wait 25
+press A
+# punter 3: a peel toss on wobbler 3
+press DOWN
+press DOWN
+press A
+press DOWN
+press A
+press DOWN
+press DOWN
+press A
+expect job2 == 2
+expect cash2 == 980
+press UP
+press UP
+press UP
+press A
+wait 25
+press A
+expect state == 8
+expect pep0 == 1
+expect form0 >= 65
+expect mod15 == -6
+expect form1 <= 39
+expect litter2 == 3
+expect litter0 == 0
+waituntil state == 9 3000
+expect mod15 <= -6
+# fizz pills, one player this time
+cheat new 6 1
+cheat cash 1 0
+cheat cash 2 0
+wait 25
+press A
+press DOWN
+press DOWN
+press A
+cheat field 6 15 17
+press DOWN
+press DOWN
+press DOWN
+press A
+press DOWN
+press A
+expect job0 == 4
+expect cash0 == 920
+press UP
+press UP
+press UP
+press A
+waituntil state == 7 400
+wait 25
+press A
+expect fizz1 == 1
+expect fizz0 == 0
+waituntil hits1 >= 1 2000
