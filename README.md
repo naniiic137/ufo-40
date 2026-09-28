@@ -91,7 +91,7 @@ and the music and sound volumes are in every game's pause menu too.
 | 16 | **TINTAIL** | Camouflage | sneaking on a grid past watchers by taking the colour of the ground you stand on, hollow logs, sun and rain pads, hatchlings with their own colour, a danger view you can't move in, undo, a branching map | Twig the chameleon, Salt Island, toads and storks, 15 new levels |
 | 25 | **OPEN HOUSE** | Party House | drawing guests from a deck into a house with limited space, the original's 46 guest abilities, costs and trouble, police, fire marshal and bans, set guest lists and a random list, win by ending a party with four stars within 25 nights, 2P hot-seat | a whitewashed house by the sea, all 46 guests' names and faces |
 | 28 | **DUNE EXPRESS** | Rail Heist | real time until a guard is alert, then 10-second turns, one-bullet lawmen who hit each other too, punches through walls and floors, carrying and throwing, hiding in barrels, levers, a crank gun, rams, three outlaws, three stars a mission with the original's time goals, 2P versus | Wade, Hush and Pearl, the Governor's tax trains, Biscuit the camel, 20 new trains |
-| 47 | **WOBBLE DERBY** | Quibble Race | three punters and three runners a race, odds from a form book of twenty unseen races, rising bet caps and an open last race, a tip booth, five dirty tricks and a minder with the same prices and fines, a lender at 15 % compounded, sponsoring and a coach, meteors, garbage and smog, 26 runners in the same speed and clumsiness bands, 3-player hot-seat | Crater Downs, the 26 wobblers, the sixteen punters (eight of them UFO 40 cameos), the Fixer, the Lender and the Wobble Wire |
+| 47 | **WOBBLE DERBY** | Quibble Race | three punters and three runners a race, odds from a form book of twenty unseen races, rising bet caps and an open last race, one tip a race, five dirty tricks and a minder with the same prices and fines, a lender at 15 % compounded, sponsoring from a shortlist and a coach, meteors, garbage and smog, 26 runners in the same speed and clumsiness bands, 3-player hot-seat | Crater Downs, the 26 wobblers, the sixteen punters (five of them UFO 40 cameos), the Fixer, the Lender and the Wobble Wire |
 | 08, 10–13, 17–24, 26–27, 29–46, 48–50 | *coming soon* | | | still in the saucer's cargo hold |
 
 Every cartridge has three goals, which follow the original's own three: a
@@ -509,7 +509,7 @@ the top.
   <img src="docs/shots/wobble_fixer.png" width="320" alt="The Fixer's price list">
 </p>
 <p align="center">
-  <img src="docs/shots/wobble_news.png" width="320" alt="The Wobble Wire reads the results">
+  <img src="docs/shots/wobble_fizz.png" width="320" alt="A runner on fizz pills attacks its neighbour">
   <img src="docs/shots/wobble_final.png" width="320" alt="The final count">
 </p>
 
@@ -521,18 +521,20 @@ the top.
   with a cap that rises race by race and no limit on the last. Then the
   machine runs the race: speed, clumsiness and luck decide it, and a runner
   that tumbles over the line still wins.
-- **Between races:** the tip booth sells a runner's speed and footing and
-  warns of meteors, garbage spills or smog. The Fixer does one job a race
-  at the original's prices: a pep snack, litter, a nobble for good, pills,
-  or nightshade, which may kill. A minder stops them all but litter and
-  fines the meddler. The Lender charges 15 % a race, compounded. Sponsor up
-  to three runners for $500 each time they win, and train them at the coach.
+- **Between races:** one look a race at the tip booth shows a runner's
+  speed and footing and warns of meteors, garbage spills or smog. The Fixer
+  does one job a race at the original's prices: a pep snack, litter, a
+  nobble for good, pills that send a runner wild at its neighbours, or
+  nightshade, which kills at the first fall. A minder stops them all but
+  litter and fines the meddler. The Lender charges 15 % a race, compounded.
+  The stables offer three runners for future races: sponsor up to three for
+  $500 each time they win, and train them at the coach.
 - **Structure:** meetings of 3, 6, 9 or 12 races, CPU rivals who fix races
   too, and up to three players at one pad. A demo punter in the tests plays
   a whole meeting with real button presses.
 - **Ours:** Crater Downs under two moons, the 26 wobblers (each keeps the
   speed and clumsiness band of one of the original's runners), the sixteen
-  punters, eight of them cameos from other UFO 40 cartridges, the Tip Booth,
+  punters, five of them cameos from other UFO 40 cartridges, the Tip Booth,
   the Fixer, the Lender, the Coach, Dot Dial and the Wobble Wire, and the
   music.
 

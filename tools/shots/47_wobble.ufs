@@ -9,7 +9,7 @@ shot wobble_title
 botuntil state == 1 200
 wait 10
 shot wobble_setup
-botuntil tips0 == 7 3000
+botuntil tips0 >= 1 3000
 botuntil sub == 0 200
 wait 30
 shot wobble_paddock
@@ -54,3 +54,28 @@ botuntil state == 11 60000
 # (past the goal toasts)
 wait 700
 shot wobble_final
+# fizz pills: the middle runner goes for its neighbours
+cheat new 6 1
+cheat cpus_idle
+cheat field 6 15 17
+wait 25
+press A
+press DOWN
+press DOWN
+press A
+press DOWN
+press DOWN
+press DOWN
+press A
+press DOWN
+press A
+press UP
+press UP
+press UP
+press A
+waituntil state == 7 400
+wait 25
+press A
+waituntil hits1 >= 1 2000
+wait 6
+shot wobble_fizz
