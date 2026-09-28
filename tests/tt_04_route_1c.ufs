@@ -2,7 +2,9 @@
 # from a route plan). A stone on the first switch holds its gate open; a
 # soldier leaps into the middle of the spikes so the next can use his body
 # as a stepping stone; a stone dropped into the shaft weighs down the
-# second switch for good.
+# second switch for good. Past the second gate, under a low roof, a pair of
+# scales: two soldiers turn to stone on the near pan, so the far pan rises
+# and the next soldier rides it up to the hatch in the wall.
 game tintroop
 wait 5
 cheat unlock
@@ -56,6 +58,26 @@ hold RIGHT+A 26
 wait 10
 hold RIGHT 118
 hold RIGHT+A 32
-hold RIGHT 336
+hold RIGHT 258
+wait 1
+hold DOWN+B 2
+wait 58
+hold RIGHT 122
+wait 38
+hold DOWN+B 2
+wait 58
+expect pan_off == 20
+hold RIGHT 86
+wait 50
+hold RIGHT 25
+hold RIGHT+A 40
+wait 1
+hold RIGHT 12
+hold RIGHT+A 26
+wait 1
+expect py < 105
+expect pan_off == 20
+hold RIGHT+A 30
+hold RIGHT 104
 expect state == 4
-expect best_2 == 16
+expect best_2 == 17
