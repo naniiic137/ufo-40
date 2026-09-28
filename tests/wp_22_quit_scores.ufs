@@ -1,0 +1,27 @@
+# WET PAINT: quitting to the library in the middle of a run posts nothing,
+# however well it was going. A save from the first version (scores without
+# names) keeps its stats, and its scores join the default board as yours.
+wipe_saves
+reload
+game wetpaint
+wait 5
+cheat course 5
+cheat score 999
+cheat go
+wait 30
+press START
+press UP
+press A
+wait 60
+expect_scene library
+game wetpaint
+wait 5
+expect hi0 == 400
+expect state == 0
+# the old save
+cheat old_save
+expect hi0 == 400
+expect hi1 == 300
+expect hi2 == 250
+expect hi3 == 200
+expect best_course == 9

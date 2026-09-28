@@ -207,7 +207,7 @@ the top.
 </p>
 <p align="center">
   <img src="docs/shots/wetpaint_night.png" width="320" alt="Course 22 by night: jellies, conkers and thorn hedges">
-  <img src="docs/shots/wetpaint_final.png" width="320" alt="The final showdown against Foxy Fuchsia">
+  <img src="docs/shots/wetpaint_final.png" width="320" alt="The cup final against Foxy Fuchsia">
 </p>
 
 - **Plays like Paint Chase:** only the d-pad. Bo's kart never stops: it
@@ -225,9 +225,12 @@ the top.
   (they stack), bumpers, thorn hedges, swing barriers, bollards and belts,
   and four power-ups that work while their tile isn't blue: the sprinkler,
   the tack shooter, the helper and the freeze pop.
-- **Structure:** 25 courses in one go, a cutscene before each five, then the
-  final against Foxy Fuchsia, who drives by your rules. 2P versus on any
-  course. A demo driver in the tests plays the first courses with real
+- **Structure:** 25 courses in one go, then the cup final against Foxy
+  Fuchsia, who drives by your rules. Before each five, a cutscene acts out
+  what every new foe does in a little skit on the road. The early courses
+  pay well; 500 points is a real stretch. The score board starts out filled
+  in by the Beamdown staff, and only a finished run goes on it. 2P versus on
+  any course. A demo driver in the tests plays the first courses with real
   button presses.
 - **Ours:** Bo, Foxy and the Marshal, the town square, park, docks, works
   and night streets, all 26 courses, every foe and power-up, and the music.

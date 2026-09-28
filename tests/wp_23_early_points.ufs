@@ -1,0 +1,20 @@
+# WET PAINT: the early courses pay well. With the foes gone, the demo
+# driver's route round course 1 clears its goal by 40 points or more, and a
+# normal run on it clears the goal comfortably.
+seed 4
+game wetpaint
+wait 5
+cheat course 1
+cheat go
+cheat nofoes
+cheat autodrive
+waituntil state == 4 2800
+expect res_pass == 1
+expect score >= 40
+cheat autodrive
+cheat course 1
+cheat score 0
+cheat go
+botuntil state == 4 2800
+expect res_pass == 1
+expect score >= 15

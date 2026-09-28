@@ -6,7 +6,8 @@ game wetpaint
 wait 90
 shot wetpaint_title
 botuntil state == 1 200
-wait 330
+# the smudger skit, just before Bo rams it
+wait 470
 shot wetpaint_cut
 cheat course 2
 cheat go

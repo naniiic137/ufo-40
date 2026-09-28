@@ -27,3 +27,9 @@ press A
 wait 2
 expect state == 2
 expect course == 6
+# a cutscene plays its skits (one per new foe) and moves on by itself
+cheat cutscene 16
+wait 300
+expect state == 1
+waituntil state == 2 200
+expect course == 16
