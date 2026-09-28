@@ -1,0 +1,35 @@
+# Promo clip: WOBBLE DERBY (slot 47), from tools/shots/47_wobble.ufs
+audio on
+volume 0 10
+overlay_text L 3 160 1 y 47 WOBBLE DERBY
+overlay_text L 3 172 0 l TRIBUTE TO QUIBBLE RACE
+seed 47
+game wobble
+wait 90
+botuntil state == 1 200
+wait 10
+botuntil tips0 >= 1 3000
+botuntil sub == 0 200
+wait 30
+# the fixer's list
+expect menu == 1
+press DOWN
+press A
+wait 5
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+wait 20
+press B
+botuntil state == 7 3000
+wait 30
+cheat event 1
+press A
+record_start 47
+wav_start 47
+wait 560
+waituntil over == 1 3000
+wait 90
+record_stop
+wav_stop

@@ -1,0 +1,25 @@
+# Promo clip: TIN TROOP (slot 06): the Jack of the Chest (as tests/tt_12)
+audio on
+volume 0 10
+overlay_text L 3 160 1 y 06 TIN TROOP
+overlay_text L 3 172 0 l TRIBUTE TO MORTOL
+game tintroop
+wait 5
+cheat level 9
+wait 200
+record_start 06
+wav_start 06
+wait 60
+cheat pos 100 81
+wait 10
+hold A 4
+hold A+B 2
+wait 70
+cheat pos 70 81
+wait 10
+hold RIGHT 20
+hold A 5
+hold A+B 2
+wait 200
+record_stop
+wav_stop

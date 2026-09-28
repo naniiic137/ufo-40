@@ -1,0 +1,20 @@
+# Promo: the end card, over the console's main menu (its logo and saucers).
+audio on
+volume 0 10
+wait 30
+press A
+wait 60
+overlay_box 0 62 320 118 k
+record_start endcard
+wav_start endcard
+wait 8
+overlay_text C 160 72 2 y PLAY FREE IN YOUR BROWSER
+wait 12
+overlay_text C 160 98 2 C NANIIIC137.GITHUB.IO/UFO-40
+wait 12
+overlay_text c 160 126 1 w ALSO ON PS VITA (HOMEBREW) & PC
+wait 12
+overlay_text c 160 168 0 g FAN-MADE TRIBUTE \x8a NOT AFFILIATED WITH MOSSMOUTH
+wait 300
+record_stop
+wav_stop

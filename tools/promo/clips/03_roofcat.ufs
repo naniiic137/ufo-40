@@ -1,0 +1,14 @@
+# Promo clip: ROOFCAT (slot 03), from tools/shots/04_roofcat.ufs
+audio on
+volume 0 10
+overlay_text L 3 160 1 y 03 ROOFCAT
+overlay_text L 3 172 0 l TRIBUTE TO NINPEK
+game roofcat
+wait 40
+botuntil state == 2 200
+botplay 700
+record_start 03
+wav_start 03
+botplay 720
+record_stop
+wav_stop

@@ -1,0 +1,30 @@
+# Promo clip: RIMSHIRE (slot 41), from tools/shots/41_rimshire.ufs
+audio on
+volume 0 10
+overlay_text L 3 160 1 y 41 RIMSHIRE
+overlay_text L 3 172 0 l TRIBUTE TO LORDS OF DISKONIA
+seed 41
+game rimshire
+wait 90
+# war 7, a few turns in: the routes drawn across the board
+cheat clear 1 1
+cheat clear 2 1
+cheat clear 3 1
+cheat clear 4 1
+cheat clear 5 1
+cheat clear 6 1
+cheat war 7
+botuntil turns >= 6 20000
+botuntil wstate == 0 3000
+wait 20
+# two full armies by a lake
+cheat army 0 WSLHRYFP
+cheat army 1 BEAMOTWS
+cheat battle 7 3 0
+waituntil bphase == 1 200
+botplay 240
+record_start 41
+wav_start 41
+botplay 600
+record_stop
+wav_stop

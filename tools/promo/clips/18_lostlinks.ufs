@@ -1,0 +1,15 @@
+# Promo clip: LOST LINKS (slot 18), from tools/shots/18_lostlinks.ufs
+audio on
+volume 0 10
+overlay_text L 3 160 1 y 18 LOST LINKS
+overlay_text L 3 172 0 l TRIBUTE TO GOLFARIA
+seed 18
+game lostlinks
+wait 60
+press A
+botuntil state == 2 400
+record_start 18
+wav_start 18
+botplay 900
+record_stop
+wav_stop

@@ -1,0 +1,24 @@
+# Promo clip: UNDERDELVE (slot 01): the Old Lode's nest (as tests/ud_08)
+audio on
+volume 0 10
+overlay_text L 3 160 1 y 01 UNDERDELVE
+overlay_text L 3 172 0 l TRIBUTE TO BARBUTA
+game underdelve
+wait 15
+cheat no_gloom
+cheat room 1 0 250 40
+wait 30
+record_start 01
+wav_start 01
+hold RIGHT 120
+wait 100
+cheat boss_ground
+cheat pos 60 130
+hold RIGHT 48
+press B
+wait 20
+cheat boss_hp 1
+press B
+wait 180
+record_stop
+wav_stop

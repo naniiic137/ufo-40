@@ -1,0 +1,23 @@
+# Promo clip: SKYWELL (slot 07): the climber against the Well Eye (as tests/sw_18)
+audio on
+volume 0 10
+overlay_text L 3 160 1 y 07 SKYWELL
+overlay_text L 3 172 0 l TRIBUTE TO VELGRESS
+game skywell
+wait 5
+press A
+cheat keys 3
+cheat level 4
+cheat god
+cheat top 14
+cheat autoplay
+wait 2
+record_start 07
+wav_start 07
+wait 200
+cheat boss_phase 1
+wait 200
+cheat boss_phase 2
+wait 200
+record_stop
+wav_stop

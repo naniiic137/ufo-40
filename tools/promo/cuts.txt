@@ -1,0 +1,31 @@
+# The promo's edit: one shot per line, in order.
+#   CLIP  FIRST  FRAMES
+# CLIP is a recording made by tools/promo/*.ufs or tools/promo/clips/*.ufs
+# (build/promo/clips/CLIP/ and CLIP.wav), FIRST its first frame and FRAMES
+# how many to use. 60 frames a second; the montage track runs at 150 bpm,
+# so a bar is 96 frames and every cut after the boot lands on a bar line.
+boot      0   240
+library   4   192
+03      560    96
+07       20   192
+14      170    96
+10       40   192
+01      290    96
+47       50   192
+45      210    96
+46      600    96
+28      955    96
+05      300    96
+13      369    96
+09       90    96
+18       45    96
+44      150    96
+04      135    96
+41        0    96
+15       88    96
+02       50    96
+16      200    96
+30      336    96
+25      290    96
+06      190   192
+endcard   0   288

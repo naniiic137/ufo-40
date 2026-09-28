@@ -1,0 +1,36 @@
+# Promo clip: DOT & DASH (slot 45), from tools/shots/45_dotdash.ufs
+audio on
+volume 0 10
+overlay_text L 3 160 1 y 45 DOT & DASH
+overlay_text L 3 172 0 l TRIBUTE TO MINI & MAX
+wipe_saves
+seed 45
+game dotdash
+wait 185
+press A
+wait 20
+press A
+wait 20
+press A
+wait 20
+press A
+wait 10
+cheat up tonic1
+cheat skip_dialog
+wait 5
+record_start 45
+wav_start 45
+wait 10
+hold DOWN 95
+waituntil trans == 0 60
+wait 20
+hold LEFT 20
+wait 10
+hold DOWN 95
+waituntil trans == 0 60
+wait 30
+print town
+hold RIGHT 40
+wait 20
+record_stop
+wav_stop

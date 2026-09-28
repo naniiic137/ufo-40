@@ -1,0 +1,134 @@
+# Promo: the library. The cursor runs through all 50 slots, from 50 back to
+# 01, then over to 03 and puts ROOFCAT in, cut on the flash. The console's music is muted (render.sh lays
+# the montage track over it); the cursor ticks stay.
+audio on
+volume 0 10
+set_goals underdelve 7
+set_goals roofcat 3
+set_goals boomtown 1
+set_goals skywell 3
+set_goals cutlass 1
+set_goals tintroop 7
+set_goals wobble 1
+set_goals fennec 3
+wait 30
+press A
+wait 40
+press A
+wait 30
+# up from slot 01 wraps round to 49; the grid scrolls down to it
+press UP
+wait 2
+press RIGHT
+wait 30
+record_start library
+wav_start library
+wait 8
+# 50 to 49, up a row, and a snake back up to 01 (row by row)
+press LEFT 1
+wait 1
+press UP 1
+wait 1
+press RIGHT 1
+wait 1
+press RIGHT 1
+wait 1
+press RIGHT 1
+wait 1
+press RIGHT 1
+wait 1
+press RIGHT 1
+wait 1
+press RIGHT 1
+wait 1
+press RIGHT 1
+wait 1
+press UP 1
+wait 1
+press LEFT 1
+wait 1
+press LEFT 1
+wait 1
+press LEFT 1
+wait 1
+press LEFT 1
+wait 1
+press LEFT 1
+wait 1
+press LEFT 1
+wait 1
+press LEFT 1
+wait 1
+press UP 1
+wait 1
+press RIGHT 1
+wait 1
+press RIGHT 1
+wait 1
+press RIGHT 1
+wait 1
+press RIGHT 1
+wait 1
+press RIGHT 1
+wait 1
+press RIGHT 1
+wait 1
+press RIGHT 1
+wait 1
+press UP 1
+wait 1
+press LEFT 1
+wait 1
+press LEFT 1
+wait 1
+press LEFT 1
+wait 1
+press LEFT 1
+wait 1
+press LEFT 1
+wait 1
+press LEFT 1
+wait 1
+press LEFT 1
+wait 1
+press UP 1
+wait 1
+press RIGHT 1
+wait 1
+press RIGHT 1
+wait 1
+press RIGHT 1
+wait 1
+press RIGHT 1
+wait 1
+press RIGHT 1
+wait 1
+press RIGHT 1
+wait 1
+press RIGHT 1
+wait 1
+press UP 1
+wait 1
+press LEFT 1
+wait 1
+press LEFT 1
+wait 1
+press LEFT 1
+wait 1
+press LEFT 1
+wait 1
+press LEFT 1
+wait 1
+press LEFT 1
+wait 1
+press LEFT 1
+wait 1
+wait 4
+press RIGHT 1
+wait 1
+press RIGHT 1
+wait 4
+press A 1
+wait 40
+record_stop
+wav_stop

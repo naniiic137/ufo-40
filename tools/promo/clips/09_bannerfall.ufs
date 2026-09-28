@@ -1,0 +1,68 @@
+# Promo clip: BANNERFALL (slot 09), from tools/shots/09_bannerfall.ufs
+audio on
+volume 0 10
+overlay_text L 3 160 1 y 09 BANNERFALL
+overlay_text L 3 172 0 l TRIBUTE TO ATTACTICS
+seed 9
+game bannerfall
+wait 40
+cheat beaten 1023
+wait 2
+press A
+wait 30
+# a battle in full swing
+cheat battle 18
+cheat freeze
+cheat clear
+cheat flags 4 3
+cheat unit 0 0 2 0
+cheat unit 1 1 1 0
+cheat unit 1 2 1 0
+cheat unit 1 3 1 0
+cheat unit 2 2 5 0
+cheat unit 0 4 3 0
+cheat unit 3 5 4 0
+cheat unit 2 0 7 0
+cheat unit 5 2 1 1
+cheat unit 4 4 1 1 2
+cheat unit 6 0 2 1
+cheat unit 7 1 3 1
+cheat unit 6 3 6 1
+cheat unit 5 5 7 1 1
+cheat unit 7 4 4 1
+wait 10
+record_start 09
+wav_start 09
+wait 20
+press DOWN
+press DOWN
+wait 6
+hold A
+wait 8
+press RIGHT
+wait 4
+press RIGHT
+wait 8
+release A
+wait 10
+press UP
+press UP
+press UP
+wait 8
+cheat endturn
+wait 14
+wait 90
+press LEFT
+wait 4
+press DOWN
+wait 6
+hold A
+wait 6
+press DOWN
+wait 10
+release A
+wait 16
+cheat endturn
+wait 110
+record_stop
+wav_stop

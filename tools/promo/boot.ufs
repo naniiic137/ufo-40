@@ -1,0 +1,18 @@
+# Promo: the console boots (the saucer beams the logo down) under the hook.
+# @GAMES@ is filled in by render.sh with the number of clips.
+audio on
+record_start boot
+wav_start boot
+wait 14
+overlay_text C 160 122 2 y A UFO 50 TRIBUTE
+wait 10
+overlay_text c 160 146 1 w FOR PS VITA, PC AND YOUR BROWSER
+wait 100
+overlay_clear
+overlay_box 0 112 320 54 k
+overlay_text C 160 122 2 y ONE PRETEND 1980S CONSOLE
+wait 10
+overlay_text c 160 146 1 w 50 SLOTS \x88 @GAMES@ GAMES SO FAR
+wait 106
+record_stop
+wav_stop

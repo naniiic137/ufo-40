@@ -1,0 +1,5 @@
+# Promo: the montage track, "Rooftop Run" (ROOFCAT stage 1), 150 bpm, so a
+# bar is 1.6 s = 96 frames. Music only.
+volume 10 0
+music rc_rooftops
+wav music 60

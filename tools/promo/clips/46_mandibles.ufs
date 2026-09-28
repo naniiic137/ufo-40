@@ -1,0 +1,34 @@
+# Promo clip: MANDIBLES (slot 46), from tools/shots/46_mandibles.ufs
+audio on
+volume 0 10
+overlay_text L 3 160 1 y 46 MANDIBLES
+overlay_text L 3 172 0 l TRIBUTE TO COMBATANTS
+seed 46
+game mandibles
+wait 90
+# the road to the capital, halfway along; the leader walks to the next field
+cheat won 107
+press A
+wait 30
+press UP
+wait 16
+wait 30
+press A
+wait 240
+# a squad on the twin mounds, the command cross open
+cheat mission 6 3
+botplay 2600
+hold A
+wait 12
+press RIGHT
+press RIGHT
+wait 8
+release A
+# the demo player on the dew ditch: sap home, a squad, a longlegs
+cheat mission 5 1
+botplay 1500
+record_start 46
+wav_start 46
+botplay 900
+record_stop
+wav_stop
