@@ -1,0 +1,247 @@
+# SKYWELL: the random pit never doubles bats up. Over many seeds, no two
+# bats hang closer than two floors apart, and two within four floors of
+# each other are at least 80 px apart across, so one position never wakes
+# both and one knock can't carry Kip into another. Every pit still has bats.
+game skywell
+wait 5
+press A
+cheat seed 37
+cheat run
+expect bats_crowded == 0
+expect foe_0 >= 1
+cheat seed 74
+cheat run
+expect bats_crowded == 0
+expect foe_0 >= 1
+cheat seed 111
+cheat run
+expect bats_crowded == 0
+expect foe_0 >= 1
+cheat seed 148
+cheat run
+expect bats_crowded == 0
+expect foe_0 >= 1
+cheat seed 185
+cheat run
+expect bats_crowded == 0
+expect foe_0 >= 1
+cheat seed 222
+cheat run
+expect bats_crowded == 0
+expect foe_0 >= 1
+cheat seed 259
+cheat run
+expect bats_crowded == 0
+expect foe_0 >= 1
+cheat seed 296
+cheat run
+expect bats_crowded == 0
+expect foe_0 >= 1
+cheat seed 333
+cheat run
+expect bats_crowded == 0
+expect foe_0 >= 1
+cheat seed 370
+cheat run
+expect bats_crowded == 0
+expect foe_0 >= 1
+cheat seed 407
+cheat run
+expect bats_crowded == 0
+expect foe_0 >= 1
+cheat seed 444
+cheat run
+expect bats_crowded == 0
+expect foe_0 >= 1
+cheat seed 481
+cheat run
+expect bats_crowded == 0
+expect foe_0 >= 1
+cheat seed 518
+cheat run
+expect bats_crowded == 0
+expect foe_0 >= 1
+cheat seed 555
+cheat run
+expect bats_crowded == 0
+expect foe_0 >= 1
+cheat seed 592
+cheat run
+expect bats_crowded == 0
+expect foe_0 >= 1
+cheat seed 629
+cheat run
+expect bats_crowded == 0
+expect foe_0 >= 1
+cheat seed 666
+cheat run
+expect bats_crowded == 0
+expect foe_0 >= 1
+cheat seed 703
+cheat run
+expect bats_crowded == 0
+expect foe_0 >= 1
+cheat seed 740
+cheat run
+expect bats_crowded == 0
+expect foe_0 >= 1
+cheat seed 777
+cheat run
+expect bats_crowded == 0
+expect foe_0 >= 1
+cheat seed 814
+cheat run
+expect bats_crowded == 0
+expect foe_0 >= 1
+cheat seed 851
+cheat run
+expect bats_crowded == 0
+expect foe_0 >= 1
+cheat seed 888
+cheat run
+expect bats_crowded == 0
+expect foe_0 >= 1
+cheat seed 925
+cheat run
+expect bats_crowded == 0
+expect foe_0 >= 1
+cheat seed 962
+cheat run
+expect bats_crowded == 0
+expect foe_0 >= 1
+cheat seed 999
+cheat run
+expect bats_crowded == 0
+expect foe_0 >= 1
+cheat seed 1036
+cheat run
+expect bats_crowded == 0
+expect foe_0 >= 1
+cheat seed 1073
+cheat run
+expect bats_crowded == 0
+expect foe_0 >= 1
+cheat seed 1110
+cheat run
+expect bats_crowded == 0
+expect foe_0 >= 1
+cheat seed 1147
+cheat run
+expect bats_crowded == 0
+expect foe_0 >= 1
+cheat seed 1184
+cheat run
+expect bats_crowded == 0
+expect foe_0 >= 1
+cheat seed 1221
+cheat run
+expect bats_crowded == 0
+expect foe_0 >= 1
+cheat seed 1258
+cheat run
+expect bats_crowded == 0
+expect foe_0 >= 1
+cheat seed 1295
+cheat run
+expect bats_crowded == 0
+expect foe_0 >= 1
+cheat seed 1332
+cheat run
+expect bats_crowded == 0
+expect foe_0 >= 1
+cheat seed 1369
+cheat run
+expect bats_crowded == 0
+expect foe_0 >= 1
+cheat seed 1406
+cheat run
+expect bats_crowded == 0
+expect foe_0 >= 1
+cheat seed 1443
+cheat run
+expect bats_crowded == 0
+expect foe_0 >= 1
+cheat seed 1480
+cheat run
+expect bats_crowded == 0
+expect foe_0 >= 1
+cheat seed 1517
+cheat run
+expect bats_crowded == 0
+expect foe_0 >= 1
+cheat seed 1554
+cheat run
+expect bats_crowded == 0
+expect foe_0 >= 1
+cheat seed 1591
+cheat run
+expect bats_crowded == 0
+expect foe_0 >= 1
+cheat seed 1628
+cheat run
+expect bats_crowded == 0
+expect foe_0 >= 1
+cheat seed 1665
+cheat run
+expect bats_crowded == 0
+expect foe_0 >= 1
+cheat seed 1702
+cheat run
+expect bats_crowded == 0
+expect foe_0 >= 1
+cheat seed 1739
+cheat run
+expect bats_crowded == 0
+expect foe_0 >= 1
+cheat seed 1776
+cheat run
+expect bats_crowded == 0
+expect foe_0 >= 1
+cheat seed 1813
+cheat run
+expect bats_crowded == 0
+expect foe_0 >= 1
+cheat seed 1850
+cheat run
+expect bats_crowded == 0
+expect foe_0 >= 1
+cheat seed 1887
+cheat run
+expect bats_crowded == 0
+expect foe_0 >= 1
+cheat seed 1924
+cheat run
+expect bats_crowded == 0
+expect foe_0 >= 1
+cheat seed 1961
+cheat run
+expect bats_crowded == 0
+expect foe_0 >= 1
+cheat seed 1998
+cheat run
+expect bats_crowded == 0
+expect foe_0 >= 1
+cheat seed 2035
+cheat run
+expect bats_crowded == 0
+expect foe_0 >= 1
+cheat seed 2072
+cheat run
+expect bats_crowded == 0
+expect foe_0 >= 1
+cheat seed 2109
+cheat run
+expect bats_crowded == 0
+expect foe_0 >= 1
+cheat seed 2146
+cheat run
+expect bats_crowded == 0
+expect foe_0 >= 1
+cheat seed 2183
+cheat run
+expect bats_crowded == 0
+expect foe_0 >= 1
+cheat seed 2220
+cheat run
+expect bats_crowded == 0
+expect foe_0 >= 1

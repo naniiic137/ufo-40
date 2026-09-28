@@ -22,12 +22,17 @@
 #define BOSS_FLOOR 14 /* floor 104 */
 #define EYE_HP 60
 #define HAND_HP 14
-#define STUN_BASE 56  /* frames without control after a knock */
-#define STUN_STEP 10  /* each Recovery takes this much off */
-#define STUN_MIN 20
-#define KNOCK_VX 2.8f /* a knock flings her hard across the shaft */
-#define KNOCK_VY 1.8f
-#define SAFE_T 40     /* blinking frames after a knock */
+#define STUN_BASE 32  /* frames without control after a knock */
+#define STUN_STEP 6   /* each Recovery takes this much off */
+#define STUN_MIN 12
+#define KNOCK_VX 2.2f /* a knock flings her about three tiles across... */
+#define KNOCK_VY 2.0f /* ...and, unchecked, a floor and a bit down */
+#define KNOCK_DRAG 0.97f /* in the air the fling dies away */
+#define SAFE_T 60     /* blinking frames after a knock: no chained knocks */
+#define STAR_LAND_T 120 /* blinking frames on landing after a star ride */
+#define BAT_GAP_Y 64  /* two bats never hang closer than two floors apart... */
+#define BAT_NEAR_Y 128 /* ...and within four floors of each other... */
+#define BAT_GAP_X 80  /* ...they are at least this far apart across */
 #define BAT_V 0.75f   /* slower than Kip runs or climbs */
 #define STAR_T 52     /* frames of star boost: about six and a half floors */
 #define FLOAT_V 0.5f  /* after a star ride, A held floats her down this slowly */
@@ -69,6 +74,7 @@ static struct {
     float x, y, vx, vy;
     int dir, air_used, stun, inv, star, shoot_cd, anim, on;
     bool ground, hop_held, floaty;
+    bool star_fall; /* coming down from a star ride: landing leaves her safe a while */
 } K;
 
 static struct {
@@ -229,6 +235,11 @@ static void gen_level(void) {
     float prev_cx[3] = {SHAFT_W / 2.0f, SHAFT_W / 2.0f, SHAFT_W / 2.0f};
     int n_prev = 1;
     int star_floor = rng_range(&rng, 6, 24);
+    /* bats placed so far: never two where one knock could chain into the
+     * other (the spacing is checked without extra rolls, so the platforms
+     * a seed builds stay the same) */
+    float bat_x[SW_FLOORS], bat_y[SW_FLOORS];
+    int n_bats = 0;
     for (int f = 1; f <= SW_FLOORS; f++) {
         float y = (float)(-f * SW_FLOOR_H);
         if (f == SW_FLOORS) {
@@ -271,8 +282,21 @@ static void gen_level(void) {
         n_prev = imax(1, made);
         /* creatures: in the Roots, bats sleep hanging under a platform */
         if (run.level == 1 && f > 2 && made > 0 && rng_range(&rng, 0, 3) == 0) {
-            float bx = cx_now[rng_range(&rng, 0, made - 1)] - 5 + (float)rng_range(&rng, -8, 8);
-            add_foe(FE_BAT, fclamp(bx, 0, SHAFT_W - 10), y + 5);
+            int first = rng_range(&rng, 0, made - 1);
+            float jit = (float)rng_range(&rng, -8, 8);
+            for (int k = 0; k < made; k++) {
+                float bx = fclamp(cx_now[(first + k) % made] - 5 + jit, 0, SHAFT_W - 10), by = y + 5;
+                bool crowded = false;
+                for (int j = 0; j < n_bats && !crowded; j++) {
+                    float dy = fabsf(by - bat_y[j]), dx = fabsf(bx - bat_x[j]);
+                    crowded = dy < BAT_GAP_Y || (dy < BAT_NEAR_Y && dx < BAT_GAP_X);
+                }
+                if (crowded) continue;
+                add_foe(FE_BAT, bx, by);
+                bat_x[n_bats] = bx;
+                bat_y[n_bats++] = by;
+                break;
+            }
         }
         if (run.level == 3 && f > 2) {
             int r = rng_range(&rng, 0, 4);
@@ -294,7 +318,7 @@ static void start_level(void) {
     K.vx = K.vy = 0;
     K.ground = true;
     K.stun = K.inv = K.star = 0;
-    K.floaty = false;
+    K.floaty = K.star_fall = false;
     K.on = -1;
     K.air_used = 0;
     K.dir = 1;
@@ -561,11 +585,12 @@ static void bot_think(void) {
     if (bot_log) bot_log_frame();
 }
 
-/* A knock flings Kip hard across the shaft, out of control for almost a
- * second: unless something below catches her, it can drop her floors
- * towards the Grinder. It costs her the jump she was standing on, but not
- * her jumps in the air: she can jump again as soon as she comes round.
- * Each Recovery shortens it. */
+/* A knock flings Kip across the shaft, out of control for about half a
+ * second: about three tiles sideways and, unless something catches her,
+ * a floor and a bit down, still falling, towards the Grinder. It costs her
+ * the jump she was standing on, but not her jumps in the air: she can jump
+ * again as soon as she comes round. Each Recovery shortens it. A second of
+ * blinking safety follows, so one creature can't chain into the next. */
 static void stun_kip(float from_x) {
     if (K.inv > 0 || K.star > 0 || god) return;
     int st = imax(STUN_MIN, STUN_BASE - STUN_STEP * run.items[IT_RECOVERY]);
@@ -574,7 +599,7 @@ static void stun_kip(float from_x) {
     K.vx = (K.x + KW / 2 < from_x ? -KNOCK_VX : KNOCK_VX);
     K.vy = -KNOCK_VY;
     K.ground = false;
-    K.floaty = false;
+    K.floaty = K.star_fall = false;
     K.air_used = 0;
     shake = imax(shake, 6);
     sfx_play_name("sw_stun");
@@ -630,7 +655,7 @@ static void star_launch(int i) {
     K.inv = STAR_T + 20;
     K.stun = 0;
     K.air_used = 0;
-    K.floaty = false;
+    K.floaty = K.star_fall = false;
     burst(plats[i].x + 8, plats[i].y - 6, C_YELLOW, 14, 1.6f);
     sfx_play_name("sw_star");
 }
@@ -644,6 +669,14 @@ static void mine_puff(int i) {
     add_plat(PT_CLOUD, (float)(c0 * SW_TILE), y, c1 - c0 + 1);
     burst(cx, y, C_WHITE, 16, 1.4f);
     sfx_play_name("sw_puff");
+}
+
+/* the first landing after a star ride leaves her a couple of seconds of
+ * blinking safety to get her bearings */
+static void star_landed(void) {
+    if (!K.star_fall) return;
+    K.star_fall = false;
+    K.inv = imax(K.inv, STAR_LAND_T);
 }
 
 static void land_effects(int i) {
@@ -685,11 +718,11 @@ static void kip_update(void) {
         K.vy = -4.0f;
         K.vx = (float)hx * RUN;
         if (hx) K.dir = hx;
-        if (K.star == 0) { K.vy = 0; K.air_used = 0; K.floaty = kb(BTN_A); }
+        if (K.star == 0) { K.vy = 0; K.air_used = 0; K.floaty = kb(BTN_A); K.star_fall = true; }
     } else if (K.stun > 0) {
         /* flung: no control; she skids to a stop if something catches her */
         K.stun--;
-        K.vx *= K.ground ? 0.8f : 0.995f;
+        K.vx *= K.ground ? 0.8f : KNOCK_DRAG;
         K.vy = fminf(K.vy + GRAV, 4.0f);
     } else {
         if (hx) K.dir = hx;
@@ -745,6 +778,7 @@ static void kip_update(void) {
                 K.on = i;
                 if (p->type == PT_METAL) K.x = fclamp(K.x + p->vx, 0, SHAFT_W - KW);
                 land_effects(i);
+                star_landed();
                 break;
             }
         }
@@ -761,6 +795,7 @@ static void kip_update(void) {
                 if (f->kind == FE_MINNOW) {
                     K.y = f->y - KH; K.vy = 0; K.ground = true; K.air_used = 0;
                     K.x = fclamp(K.x + f->vx, 0, SHAFT_W - KW);
+                    star_landed();
                     break;
                 }
                 K.y = f->y - KH;
@@ -1797,14 +1832,15 @@ static void draw_help(void) {
         "ONCE, BOXES A BIT LATER, BRICKS AFTER A SECOND.\n"
         "SHOTS BREAK CLOUDS TOO. SHOOT COIN BLOCKS FOR COGS.\n\n"
         "BUMPING A CREATURE OR A HAZARD KNOCKS YOU FLYING,\n"
-        "OUT OF CONTROL, OFTEN FLOORS DOWN. WHEN YOU COME\n"
+        "OUT OF CONTROL, A FLOOR OR SO DOWN. WHEN YOU COME\n"
         "ROUND YOU STILL HAVE YOUR JUMP IN THE AIR: USE IT!\n\n"
         "LANDING ON A CREATURE IS SAFE: YOU BOUNCE OFF IT\n"
         "WITH YOUR JUMPS BACK. BATS AND JELLIES POP.",
         "BATS SLEEP UNTIL YOU PASS CLOSE OR UNDERNEATH.\n"
         "SHOOT THEM, BOUNCE ON THEM, OR OUTCLIMB THEM.\n\n"
         "STAR BLOCKS: JUMP OFF ONE TO ROCKET UP. KEEP " GLYPH_A "\n"
-        "HELD TO FLOAT DOWN SLOWLY AT THE END.\n"
+        "HELD TO FLOAT DOWN SLOWLY AT THE END. YOU BLINK,\n"
+        "SAFE, FOR A MOMENT AFTER YOU LAND.\n"
         "SHOOT A ZAPPER'S MIDDLE TO TURN ITS FIELD ROUND.\n"
         "TNT GOES OFF A SECOND AFTER YOU STEP ON IT.\n"
         "CLOUD MINES BURST INTO CLOUDS. SHOOT THEM FIRST.\n\n"
@@ -1956,6 +1992,20 @@ static int sw_query(const char *key, int *out) {
     if (!strcmp(key, "eshots")) { int n = 0; for (int i = 0; i < MAX_ESHOTS; i++) n += eshots[i].alive; *out = n; return 1; }
     if (!strcmp(key, "eshot_up")) { int n = 0; for (int i = 0; i < MAX_ESHOTS; i++) n += eshots[i].alive && eshots[i].vy < 0; *out = n; return 1; }
     if (!strcmp(key, "inv")) { *out = K.inv; return 1; }
+    if (!strcmp(key, "star_fall")) { *out = K.star_fall; return 1; }
+    if (!strcmp(key, "bats_crowded")) {
+        /* pairs of bats hanging closer than the generator allows */
+        int n = 0;
+        for (int i = 0; i < MAX_FOES; i++)
+            for (int j = i + 1; j < MAX_FOES; j++) {
+                Foe *a = &foes[i], *b = &foes[j];
+                if (!a->alive || !b->alive || a->kind != FE_BAT || b->kind != FE_BAT) continue;
+                float dy = fabsf(a->y - b->y), dx = fabsf(a->x - b->x);
+                n += dy < BAT_GAP_Y || (dy < BAT_NEAR_Y && dx < BAT_GAP_X);
+            }
+        *out = n;
+        return 1;
+    }
     if (!strcmp(key, "vy10")) { *out = (int)lroundf(K.vy * 10); return 1; }
     if (!strcmp(key, "zap_dir")) { *out = -1; for (int i = 0; i < MAX_PLATS; i++) if (plats[i].alive && plats[i].type == PT_ZAP) { *out = plats[i].hp; break; } return 1; }
     if (!strcmp(key, "squid_state")) { *out = -1; for (int i = 0; i < MAX_FOES; i++) if (foes[i].alive && foes[i].kind == FE_SQUID) { *out = foes[i].state; break; } return 1; }
