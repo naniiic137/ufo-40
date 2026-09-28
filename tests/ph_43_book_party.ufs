@@ -1,0 +1,143 @@
+# OPEN HOUSE: the guest book is Party House's rolodex. During a party each
+# guest copy has its own tile, in the original's three groups: STILL TO
+# COME (counting the RUCKUS! and stars among them), AT THE PARTY (after the
+# folder) and OUT TONIGHT (greyed, tagged BOOTED or BANNED). The d-pad
+# moves over the tiles across the groups, A does nothing, B closes.
+game openhouse
+wait 5
+cheat new 1 1
+# the start of party 1: all ten still to come, four of them RUCKUS!
+press DOWN
+press DOWN
+expect cur == 102
+press A
+expect state == 16
+expect book_mode == 0
+expect book_come == 10
+expect book_party == 0
+expect book_out == 0
+expect book_trouble == 4
+expect book_stars == 0
+expect seen_book_tiles == 10
+expect seen_book_dim == 0
+expect book_group == 0
+expect book_card == 0
+expect book_kind == 4
+# A does nothing while browsing; B closes, back on the GUEST BOOK button
+press A
+expect state == 16
+expect n == 0
+press B
+expect state == 5
+expect cur == 102
+# two knocks: eight to come, two at the party
+press UP
+press UP
+expect cur == 100
+press A
+press A
+expect n == 2
+press DOWN
+press DOWN
+press A
+expect state == 16
+expect book_come == 8
+expect book_party == 2
+expect book_out == 0
+expect seen_book_tiles == 10
+press B
+# a bouncer boots a rowdy mate, by the buttons
+cheat new 1 1
+cheat give 7 1
+cheat cap 8
+cheat door 7 0 2
+expect n == 3
+press LEFT
+press LEFT
+press LEFT
+expect cur == 0
+press A
+expect state == 6
+press RIGHT
+press RIGHT
+press A
+expect state == 5
+expect n == 2
+expect wout2 == 1
+press RIGHT
+press RIGHT
+expect cur == 100
+press DOWN
+press DOWN
+press A
+expect state == 16
+expect book_come == 8
+expect book_party == 2
+expect book_out == 1
+expect book_trouble == 3
+expect seen_book_booted == 1
+expect seen_book_dim == 1
+# the rows: the eight to come, then the two at the party, then the one out
+expect book_rows == 3
+press DOWN
+expect book_group == 1
+expect book_card == 0
+press DOWN
+expect book_group == 2
+expect book_card == 6
+expect book_tag == 1
+expect book_kind == 3
+# every move wraps
+press DOWN
+expect book_group == 0
+expect book_card == 1
+press UP
+expect book_card == 6
+press LEFT
+expect book_group == 1
+expect book_card == 10
+press RIGHT
+press RIGHT
+expect book_card == 1
+press B
+expect state == 5
+# the police, and the rowdy mate in slot 2 (card 7) takes the blame
+cheat door 2 2 2
+expect state == 10
+wait 101
+press A
+expect state == 11
+press RIGHT
+press RIGHT
+press A
+expect state == 13
+expect bantype == 2
+press B
+press B
+expect state == 5
+expect night == 2
+# the next party: card 7 is out tonight, BANNED; the rest are to come
+press DOWN
+press DOWN
+press A
+expect state == 16
+expect cards == 11
+expect book_come == 10
+expect book_party == 0
+expect book_out == 1
+expect seen_book_bans == 1
+expect seen_ban_book == 8
+expect book_scroll == 0
+press UP
+expect book_group == 2
+expect book_card == 7
+expect book_tag == 2
+expect book_kind == 3
+# the list runs past the panel: it scrolls to the cursor and back
+expect book_scroll > 0
+press DOWN
+expect book_card == 0
+expect book_scroll == 0
+press B
+expect state == 5
+expect cur == 102

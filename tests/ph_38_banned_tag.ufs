@@ -1,6 +1,6 @@
 # OPEN HOUSE (owner's addition): the guest who takes the blame wears a red
-# BANNED tag: on the ban screen, in the shop and the guest book after it,
-# and on the bottom line of the party they miss. It stays through a restart
+# BANNED tag: on the ban screen, in the shop and the guest book after it
+# (on that one copy), and on the bottom line of the party they miss. It stays through a restart
 # and goes once that party is over.
 game openhouse
 wait 5
@@ -26,7 +26,9 @@ press B
 press LEFT
 press A
 expect state == 16
-expect seen_ban_book == 3
+# card 6, the first rowdy mate: the only tile tagged
+expect seen_ban_book == 7
+expect seen_book_bans == 1
 press B
 expect state == 13
 # it survives a restart

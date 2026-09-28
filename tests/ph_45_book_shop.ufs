@@ -1,0 +1,118 @@
+# OPEN HOUSE: in the shop the guest book is one group, every guest with
+# its own values (a tailored neighbour shows its +1), and the red BANNED
+# tag only on the copy banned from the next party. Old saves still open it.
+game openhouse
+wait 5
+cheat new 1 1
+cheat give 23 1
+cheat cap 8
+cheat door 23 0
+# the tailor gives neighbour card 0 a lasting +1, by the buttons
+press LEFT
+press LEFT
+expect cur == 0
+press A
+expect state == 6
+press RIGHT
+press A
+expect state == 5
+expect vpop1 == 2
+# the police, and rowdy mate card 6 (slot 2) takes the blame
+cheat door 2 2 2
+expect state == 10
+wait 101
+press A
+press RIGHT
+press RIGHT
+press A
+expect state == 13
+expect bantype == 2
+# NEXT PARTY, then left to the GUEST BOOK
+press B
+press LEFT
+expect shoptype == -1
+press A
+expect state == 16
+expect book_mode == 1
+expect book_all == 11
+expect book_come == 0
+expect book_out == 0
+expect book_trouble == 4
+expect book_stars == 0
+expect seen_book_tiles == 11
+expect seen_book_dim == 0
+expect seen_book_bans == 1
+expect seen_ban_book == 7
+# the tailored neighbour: +2; the next one +1
+expect book_card == 0
+expect book_pop == 2
+expect book_boost == 1
+expect book_kind == 4
+press RIGHT
+expect book_card == 1
+expect book_pop == 1
+# the banned copy, and only it
+press RIGHT
+press RIGHT
+press RIGHT
+press RIGHT
+press RIGHT
+expect book_card == 6
+expect book_tag == 2
+press RIGHT
+expect book_card == 7
+expect book_tag == 0
+# B goes back to the shop, still on the GUEST BOOK
+press B
+expect state == 13
+expect shoptype == -1
+press A
+expect state == 16
+press B
+# a save from before the custom list (the third layout), mid-party: a
+# guest out tonight and the tailored neighbour
+cheat new 1 1
+cheat copy 2 1 0 0
+cheat door 0 1
+cheat away 2
+cheat oldsave3 0
+reload
+game openhouse
+wait 30
+press A
+wait 5
+press A
+wait 5
+expect state == 5
+expect n == 2
+press DOWN
+press DOWN
+press A
+expect state == 16
+expect book_come == 4
+expect book_party == 2
+expect book_out == 4
+press RIGHT
+expect book_card == 2
+expect book_pop == 2
+press B
+expect state == 5
+# and one from the first layout
+cheat new 2 1
+cheat door 0 1
+cheat oldsave 0
+reload
+game openhouse
+wait 30
+press A
+wait 5
+press A
+wait 5
+expect state == 5
+press DOWN
+press DOWN
+press A
+expect state == 16
+expect book_come == 8
+expect book_party == 2
+expect book_out == 0

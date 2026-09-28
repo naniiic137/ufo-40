@@ -13,10 +13,11 @@ press LEFT
 expect cur == 0
 press A
 expect state == 7
-# the fetch list: neighbour, cousin, rowdy, saucer pilot
+# the guest book opens to pick: neighbours, cousins and two rowdy mates on
+# the first row, two more rowdy mates and the saucer pilot on the second
 press DOWN
-press DOWN
-press DOWN
+press RIGHT
+press RIGHT
 expect fetchsel == 37
 press A
 expect state == 5

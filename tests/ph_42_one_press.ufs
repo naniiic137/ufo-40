@@ -40,13 +40,16 @@ press RIGHT 10
 expect cur == 1
 press RIGHT 10
 expect cur == 100
-# the guest book: A opens it, A closes it, nobody comes in
+# the guest book: A opens it, A does nothing in it, B closes it, nobody comes in
 press UP 10
 expect cur == 102
 press A 10
 expect state == 16
 press A 10
+expect state == 16
+press B 10
 expect state == 5
+expect cur == 102
 expect n == 2
 # pause: A on RESUME doesn't reach the party
 press DOWN 10
@@ -145,7 +148,7 @@ press A 10
 expect state == 5
 expect n == 2
 expect peek == -1
-# the cabbie: A opens the list, A fetches one guest
+# the cabbie: A opens the guest book to pick, A fetches one guest
 cheat new 1 1
 cheat give 3 1
 cheat door 3

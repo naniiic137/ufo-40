@@ -460,6 +460,7 @@ static const char *const ICON[PI_COUNT] = {
     [PI_FAME]    = ".##.|####|####|.##.",            /* a fame coin, for the small numbers */
     [PI_INF]     = ".##.##.|#..#..#|#..#..#|.##.##.", /* no limit */
     [PI_CROWN]   = "#..#..#|##.#.##|#######|#######", /* a list beaten */
+    [PI_NAME]    = ".####|##..#|#.#.#|##..#|.####",   /* a name tag: one of the secret real names */
 };
 
 const uint8_t PH_ICON_COL[PI_COUNT] = {
@@ -468,6 +469,7 @@ const uint8_t PH_ICON_COL[PI_COUNT] = {
     [PI_REFRESH] = C_LIME, [PI_SWAP] = C_MAGENTA, [PI_CALM] = C_PINK, [PI_FAMEUP] = C_YELLOW,
     [PI_CASHUP] = C_LIME, [PI_MOON] = C_CREAM, [PI_CURSE] = C_ORANGE, [PI_ENCORE] = C_VIOLET,
     [PI_STAR] = C_YELLOW, [PI_FAME] = C_YELLOW, [PI_INF] = C_SKY, [PI_CROWN] = C_YELLOW,
+    [PI_NAME] = C_CREAM,
 };
 
 const char *const PH_ICON_NAME[PI_ABILITIES] = {
