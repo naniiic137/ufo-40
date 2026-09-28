@@ -506,7 +506,8 @@ static void draw_foe(const FhFoe *f) {
     if (d->flies) gfx_dither_circle(cx, cy + 4, d->boss ? 9 : 4, C_INK, 8);
     int sx = cx - w / 2, sy = cy - h + 7 - lift;
     int flip = f->face < 0 ? SPR_FLIPX : 0;
-    int solid = f->flash_t > 0 && (f->flash_t & 2) ? C_WHITE : -1;
+    /* small beasts flash white when hit; the big ones show it on their bar */
+    int solid = !d->boss && f->flash_t > 0 && (f->flash_t & 2) ? C_WHITE : -1;
     if (scale == 1) spr_draw_ex(s, sx, sy, flip, m, solid);
     else {
         for (int yy = 0; yy < s->h; yy++)
