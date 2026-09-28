@@ -237,6 +237,16 @@ static bool blocked(float x, float y, float w, float h, int ignore) {
 static float pan_y(int s, int side) { return side == 0 ? scales[s].base_l + scales[s].off : scales[s].base_r - scales[s].off; }
 static float pan_x(int s, int side) { return side == 0 ? scales[s].lx : scales[s].rx; }
 
+/* the pan (scale * 2 + side) whose top a box of width w rests on, or -1 */
+static int pan_under(float x, float w, float bottom) {
+    for (int s = 0; s < n_scales; s++)
+        for (int side = 0; side < 2; side++) {
+            float py = pan_y(s, side), px = pan_x(s, side);
+            if (x < px + 30 && px < x + w && fabsf(bottom - py) < 0.6f) return s * 2 + side;
+        }
+    return -1;
+}
+
 /* top-only platforms: lodged soldiers, floating ones, bodies lying on
  * spikes, and scale pans. Returns the top of the first one crossed by a
  * box whose bottom goes from ob to nb. */
@@ -958,7 +968,7 @@ static void soldier_move(void) {
         float step = fclamp(dy, -1, 1);
         dy -= step;
         if (blocked(P.x, P.y + step, SW, SH, -1)) {
-            if (step > 0) P.ground = true;
+            if (step > 0) { P.ground = true; P.on_pan = pan_under(P.x, SW, P.y + SH); } /* the pan only if he still rests on it */
             P.vy = 0;
             break;
         }
@@ -977,7 +987,7 @@ static void soldier_move(void) {
         /* resting exactly on something counts as ground */
         float top;
         int pan = -1;
-        if (blocked(P.x, P.y + 1, SW, SH, -1)) P.ground = true;
+        if (blocked(P.x, P.y + 1, SW, SH, -1)) { P.ground = true; P.on_pan = pan_under(P.x, SW, P.y + SH); }
         else if (land_on_top(P.x, SW, P.y + SH, P.y + SH + 1, &top, &pan, -1)) { P.ground = true; P.on_pan = pan; }
     }
     if (!P.ground) P.on_pan = -1;
@@ -1223,7 +1233,11 @@ static void scales_update(void) {
                 float px = pan_x(s, side);
                 if (fabsf(b->y + body_h(b->kind) - py_old) < 0.6f && b->x < px + 30 && px < b->x + 10) b->y += move;
             }
-            if ((P.mode == M_WALK || P.mode == M_PETRIFY) && P.on_pan == s * 2 + side) P.y += move;
+            if ((P.mode == M_WALK || P.mode == M_PETRIFY) && P.on_pan == s * 2 + side) {
+                /* a soldier still half on the ground beside the pan stays there */
+                if (blocked(P.x, P.y + move, SW, SH, -1)) P.on_pan = -1;
+                else P.y += move;
+            }
         }
     }
 }

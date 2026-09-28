@@ -5,15 +5,21 @@
 #include "cutlass.h"
 #include <ctype.h>
 
-enum { S_TITLE, S_OPTIONS, S_SELECT, S_BRACKET, S_VS, S_MATCH, S_RESULT, S_CONTINUE, S_ENDING };
+enum { S_TITLE, S_OPTIONS, S_SELECT, S_BRACKET, S_VS, S_MATCH, S_RESULT, S_CONTINUE, S_ENDING, S_RECORDS };
+#define TITLE_ITEMS 5
 enum { MODE_TOURNEY, MODE_VERSUS, MODE_COOP };
 
 typedef struct Save {
     uint32_t magic;
     uint8_t goal, time, laws, speed;
     uint8_t best_defeated, cups, clean_cups, pad;
+    /* the records Bushido Ball keeps: fighters used, fighters won with
+     * (one bit per fighter); added later, so an older 12-byte save reads
+     * with both empty */
+    uint8_t used, won_with, pad2[2];
 } Save;
 #define SAVE_MAGIC 0x43430001u
+#define SAVE_V1_SIZE 12
 
 typedef struct Part {
     float x, y, vx, vy;
@@ -55,8 +61,12 @@ static void save_now(void) {
 
 static void load_save(void) {
     Save tmp;
-    if (game_save_read(game_current_index(), &tmp, (int)sizeof tmp) == (int)sizeof tmp && tmp.magic == SAVE_MAGIC) {
+    memset(&tmp, 0, sizeof tmp);
+    int n = game_save_read(game_current_index(), &tmp, (int)sizeof tmp);
+    if ((n == (int)sizeof tmp || n == SAVE_V1_SIZE) && tmp.magic == SAVE_MAGIC) {
         sv = tmp;
+        sv.used &= 0x3F;
+        sv.won_with &= 0x3F;
     } else {
         memset(&sv, 0, sizeof sv);
         sv.magic = SAVE_MAGIC;
@@ -116,6 +126,9 @@ static void start_match(void) {
         cpu[0] = cpu[1] = false;
         cpu[2] = cpu[3] = true;
     }
+    /* a record of every fighter a player has taken into a match */
+    sv.used |= (uint8_t)(1u << pick[0]);
+    if (mode != MODE_TOURNEY) sv.used |= (uint8_t)(1u << pick[1]);
     int level = mode == MODE_TOURNEY ? opp_i : mode == MODE_COOP ? 2 + opp_i : 2;
     cc_match_init(&M, f, np, cpu, sv.goal, sv.time, sv.laws != 0, sv.speed, level, new_seed());
     memset(parts, 0, sizeof parts);
@@ -166,6 +179,8 @@ static void finish_match(void) {
             opp_i++;
             if (opp_i >= matches_in_run()) {
                 if (sv.cups < 255) sv.cups++;
+                sv.won_with |= (uint8_t)(1u << pick[0]);
+                if (mode == MODE_COOP) sv.won_with |= (uint8_t)(1u << pick[1]);
                 game_award(GOAL_SAUCER);
                 if (continues == 0) {
                     if (sv.clean_cups < 255) sv.clean_cups++;
@@ -267,8 +282,8 @@ static void update_match(void) {
 
 static void update_title(void) {
     game_set_pausable(false);
-    if (btn_repeat(BTN_UP)) { title_sel = (title_sel + 3) % 4; sfx_play_name("ui_move"); }
-    if (btn_repeat(BTN_DOWN)) { title_sel = (title_sel + 1) % 4; sfx_play_name("ui_move"); }
+    if (btn_repeat(BTN_UP)) { title_sel = (title_sel + TITLE_ITEMS - 1) % TITLE_ITEMS; sfx_play_name("ui_move"); }
+    if (btn_repeat(BTN_DOWN)) { title_sel = (title_sel + 1) % TITLE_ITEMS; sfx_play_name("ui_move"); }
     if (btnp(BTN_B)) { game_exit_to_library(); return; }
     if (state_t > 10 && (btnp(BTN_A) || btnp(BTN_START))) {
         if ((title_sel == 1 || title_sel == 2) && vita_single()) { sfx_play_name("ui_error"); return; }
@@ -277,7 +292,8 @@ static void update_title(void) {
         case 0: go_select(MODE_TOURNEY); break;
         case 1: go_select(MODE_VERSUS); break;
         case 2: go_select(MODE_COOP); break;
-        default: state = S_OPTIONS; state_t = 0; opt_sel = 0; break;
+        case 3: state = S_OPTIONS; state_t = 0; opt_sel = 0; break;
+        default: state = S_RECORDS; state_t = 0; break;
         }
     }
 }
@@ -392,6 +408,9 @@ static void cc_update(void) {
         break;
     case S_ENDING:
         if (state_t > 180 && (btnp(BTN_A) || btnp(BTN_START))) { sfx_play_name("ui_ok"); go_title(); }
+        break;
+    case S_RECORDS:
+        if (state_t > 8 && (btnp(BTN_A) || btnp(BTN_B) || btnp(BTN_START))) { sfx_play_name("ui_back"); go_title(); }
         break;
     }
 }
@@ -797,9 +816,9 @@ static void draw_title(void) {
     static const uint8_t grad[] = {C_WHITE, C_CREAM, C_YELLOW, C_AMBER};
     ui_fancy_center("CUTLASS CUP", 160, 8, 3, grad, 4, C_INK, C_NAVY);
     text_center("BLADES, A BALL AND THE OPEN SEA", 160, 36, C_NAVY);
-    static const char *items[4] = {"1P TOURNAMENT", "2P VERSUS", "2P CO-OP", "OPTIONS"};
-    ui_panel(100, 50, 120, 58, C_NIGHT, C_AMBER);
-    for (int i = 0; i < 4; i++) {
+    static const char *items[TITLE_ITEMS] = {"1P TOURNAMENT", "2P VERSUS", "2P CO-OP", "OPTIONS", "RECORDS"};
+    ui_panel(100, 50, 120, 70, C_NIGHT, C_AMBER);
+    for (int i = 0; i < TITLE_ITEMS; i++) {
         int y = 55 + i * 12;
         bool s = i == title_sel;
         int col = s ? C_WHITE : C_GREY;
@@ -838,6 +857,38 @@ static void draw_options(void) {
         }
         if (s) ui_cursor(82, y, frame_t);
     }
+}
+
+static int bit_count(unsigned v) {
+    int n = 0;
+    for (; v; v &= v - 1) n++;
+    return n;
+}
+
+/* the records: every fighter, with a mark for used and one for won with */
+static void draw_records(void) {
+    draw_night_sea();
+    static const uint8_t grad[] = {C_WHITE, C_CREAM, C_YELLOW};
+    ui_fancy_center("RECORDS", 160, 4, 2, grad, 3, C_INK, C_NAVY);
+    for (int i = 0; i < CC_FIGHTERS; i++) {
+        int x = 8 + i * 51, y = 28;
+        bool used = (sv.used >> i) & 1, won = (sv.won_with >> i) & 1;
+        ui_panel(x, y, 49, 90, C_NIGHT, won ? C_YELLOW : used ? C_LIGHT : C_DUSK);
+        gfx_clip(x + 1, y + 1, 47, 62);
+        if (used) draw_fighter_big(i, x + 8, y + 6, 0, won ? POSE_WIN : POSE_IDLE0);
+        else spr_draw_ex(&cc_fighter_spr[i][POSE_IDLE0], x + 16, y + 20, 0, NULL, C_DUSK); /* not tried yet */
+        gfx_noclip();
+        tiny_center(CC_FIGHTER[i].name, x + 25, y + 56, used ? C_LIGHT : C_SLATE);
+        tiny_draw("USED", x + 4, y + 68, C_GREY);
+        text_draw(used ? GLYPH_CHECK : "-", x + 38, y + 66, used ? C_LIME : C_SLATE);
+        tiny_draw("WON", x + 4, y + 79, C_GREY);
+        text_draw(won ? GLYPH_CHECK : "-", x + 38, y + 77, won ? C_YELLOW : C_SLATE);
+    }
+    char buf[40];
+    snprintf(buf, sizeof buf, "FIGHTERS USED  %d/%d", bit_count(sv.used), CC_FIGHTERS);
+    text_center(buf, 160, 130, C_WHITE);
+    snprintf(buf, sizeof buf, "FIGHTERS WON WITH  %d/%d", bit_count(sv.won_with), CC_FIGHTERS);
+    text_center(buf, 160, 144, C_YELLOW);
 }
 
 static void draw_stat(int x, int y, const char *name, int v) {
@@ -1018,6 +1069,7 @@ static void cc_draw(void) {
     case S_RESULT: draw_result(); break;
     case S_CONTINUE: draw_continue(); break;
     case S_ENDING: draw_ending(); break;
+    case S_RECORDS: draw_records(); break;
     }
 }
 
@@ -1140,6 +1192,15 @@ static int cc_query(const char *key, int *out) {
     if (!strcmp(key, "opp_i")) { *out = opp_i; return 1; }
     if (!strcmp(key, "cups")) { *out = sv.cups; return 1; }
     if (!strcmp(key, "best")) { *out = sv.best_defeated; return 1; }
+    if (!strcmp(key, "used")) { *out = sv.used; return 1; }
+    if (!strcmp(key, "won_with")) { *out = sv.won_with; return 1; }
+    if (!strcmp(key, "urchin_team") || !strcmp(key, "urchin_x")) {
+        /* the first urchin on the deck, -1 when there is none */
+        *out = -1;
+        for (int i = 0; i < CC_MAX_PROJ; i++)
+            if (M.pr[i].live && M.pr[i].kind == PR_URCHIN) { *out = key[7] == 't' ? M.pr[i].team : (int)M.pr[i].x; break; }
+        return 1;
+    }
     if (!strcmp(key, "versus")) { *out = input_versus(); return 1; }
     if (!strcmp(key, "ball_live")) { *out = M.ball.live; return 1; }
     if (!strcmp(key, "ball_kind")) { *out = M.ball.kind; return 1; }

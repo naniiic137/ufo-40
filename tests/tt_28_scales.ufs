@@ -1,0 +1,28 @@
+# TIN TROOP: scales. A soldier, a stone or a body on one pan sinks it two
+# tiles and lifts the other; equal weights level them again. 1-C's pair
+# sits under a low roof by the wall with the hatch.
+game tintroop
+wait 5
+cheat level 2
+wait 120
+expect state == 3
+expect pan_off == 0
+# a soldier on the near pan sinks it
+cheat pos 1045 110
+wait 60
+expect pan_off == 20
+expect py > 135
+# he turns to stone there: it stays down
+press DOWN+B
+wait 80
+expect pan_off == 20
+# the next soldier on the raised far pan: one each side, level again
+waituntil mode == 1 200
+cheat pos 1108 90
+wait 60
+expect pan_off == 0
+expect py == 121
+# he steps off and the far pan rises empty
+hold LEFT 30
+wait 60
+expect pan_off == 20

@@ -29,7 +29,7 @@ never the layouts:
 |---|---|---|
 | 1-A | the three rituals | THE PLAYROOM FLOOR: a lance ladder up a bookshelf, a Pop through toy blocks, a spike rug, a paper dart |
 | 1-B | the rammer [TAS] | BUILDING BLOCKS: tin rams, a tower of toy blocks for a falling stone |
-| 1-C | switches and gates, bodies on spikes [W] | THE TOY TRAIN: two switches (one down a shaft), a spike bed to bridge |
+| 1-C | switches and gates, bodies on spikes [W] | THE TOY TRAIN: two switches (one down a shaft), a spike bed to bridge, and a pair of scales under a low roof that lifts a soldier to a hatch in the wall |
 | 2-A | water, fish, pipes, launchers [W], [TAS] | BATH TIME: a tap to block, a plughole, a launcher in the tub wall |
 | 2-B | burning creatures, shallow water over spikes [TAS] | CANDLELIGHT: a nest of mice to burn, a toy dragon |
 | 2-C | a stone puts fire out, a lance catches fire, the bomb roller, stones stacked half off edges [TAS], [SG2] | THE SOAP DISH: candles under a hole, a pill bug rolling in a soap dish beside a tin block that its blast breaks, a high ledge |
@@ -56,6 +56,7 @@ never the layouts:
 | Falling stone | smashes down through every toy block below, stopping and speeding up again after each; crushes spikes and foes; puts flames out; sinks slowly in water; blocks pipes | [W], [TR], [TAS] |
 | Chains | while he flies or falls, B again changes ritual: lance, stone and Pop in any order, still one soldier | [W], [TR] |
 | Bodies | corpses hold switches down like stones but don't block the way; foes walk through them; a soldier killed on spikes stays on the points as a bridge | [W], [TT], [TAS] |
+| Scales | two pans in pits; a soldier, a stone or a body on a pan weighs the same; the heavier pan sinks two tiles and lifts the other; equal weights level them. In 1-C two stones on the near pan lift the far one to a hatch (tt_04, tt_28) | [W] ("a corpse will weigh the same as a stone block" on scales and switches) |
 | Water | hold A to swim; a breath meter runs down; a drowned soldier floats up as a platform; a ritual under water only drowns him | [W] |
 | Pipes | a tap fills its pool while its mouth is clear; a plughole drains it; a stone on the tap stops it; drained water kills the fish, and launchers then send darts instead | [W], [TAS] |
 | Launchers | send out creatures on a timer; a launcher shuts down for good once three of its creatures have been killed (the boss's nests never do) | [TT], [TR] |
@@ -89,8 +90,10 @@ Numbers not in any source are ours, and so are these readings:
   lance into it is swallowed, doing nothing. A dart turns every 90 frames
   while it can't see a soldier; fire spreads 7 times in 8. A burning vine
   lasts 3 s and passes the fire along every 8 frames.
-- Mortol also has scales [W]; the engine supports them, but none of our ten
-  layouts uses them.
+- Scales: how far a pan travels (two tiles here) and how fast (half a pixel
+  a frame) are ours; the wiki only says bodies weigh the same as stones on
+  them. Where Mortol puts its scales isn't in the text sources; ours are in
+  1-C, the level about weights and switches.
 
 ### Open items
 
@@ -100,9 +103,14 @@ Numbers not in any source are ours, and so are these readings:
 - **The view.** Mortol shows about 24 × 13.5 of its 16-px blocks; our 10-px
   tiles show 32 × 16, so more of a level is seen ahead. Changing that means
   re-laying all ten levels (or zooming the camera), so it waits.
-- **Lasers and rituals.** One source wonders, with a question mark, whether
-  a soldier mid-ritual is spared by a laser [TAS]; until something firmer
-  turns up, a lance in a beam still dies.
+- **Lasers and rituals.** Whether a flying lance passes through a beam is
+  not settled by any text source. The only one that touches it is the TAS
+  submission, and it hedges: a soldier freezes when a laser shoots "(except
+  if you're performing a Ritual?)" [TAS]. The wiki, the TASVideos resource
+  page and the missing-manuals guide say nothing about it (checked again for
+  this pass). So we keep the rule the sources do state, that a laser fires
+  at anything in its line and only walls, stones and bodies stop it: a lance
+  crossing a firing beam still dies. The first firm source decides it.
 
 ## What is ours
 
@@ -208,7 +216,7 @@ Only the platform needs every UFO 40 cartridge has:
   `tt_19` records; `tt_20` saving; `tt_21` failing; `tt_22` movement, the
   forward-only view and giving up; `tt_23` bodies on spikes, switches and
   lasers; `tt_24` world 4's doors; `tt_25` a launcher shutting down;
-  `tt_26` darts and fish coming after a soldier; `tt_27` sturdy blocks.
+  `tt_26` darts and fish coming after a soldier; `tt_27` sturdy blocks; `tt_28` scales.
 - Media: `docs/shots/tintroop.gif` (1-A: a lance ladder, then a Pop),
   `tintroop_title.png`, `tintroop_shelf.png`, `tintroop_bath.png`,
   `tintroop_candles.png`, `tintroop_jack.png`

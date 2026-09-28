@@ -1,0 +1,43 @@
+# CUTLASS CUP: from the fourth match on (CPU level 3 and up) the CPU goes
+# after the rival's urchins on its own side while the ball is away and
+# strikes them back across; earlier CPUs leave them where they lie.
+game cutlass
+wait 5
+# a level-1 CPU (the second match) ignores an urchin in front of it
+cheat match 1 0
+cheat cpu 1 0
+wait 2
+cheat play
+cheat level 1
+cheat pos 0 190 140
+cheat pos 1 262 101
+cheat meter 0 2
+press B 1
+press B 1
+wait 50
+expect urchin_team == 0
+expect urchin_x > 200
+cheat pos 0 60 140
+cheat cpu 1 1
+wait 240
+expect urchin_team == 0
+expect stun1 == 0
+# a level-3 CPU (the fourth match) walks up to it and strikes it back
+cheat match 1 0
+cheat cpu 1 0
+wait 2
+cheat play
+cheat level 3
+cheat pos 0 190 140
+cheat pos 1 262 101
+cheat meter 0 2
+press B 1
+press B 1
+wait 50
+expect urchin_team == 0
+cheat pos 0 60 140
+cheat cpu 1 1
+waituntil urchin_team == 1 240
+expect stun1 == 0
+wait 40
+expect urchin_x < 235
