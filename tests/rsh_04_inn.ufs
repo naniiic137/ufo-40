@@ -6,8 +6,10 @@ cheat war 1
 cheat coins 0 30
 cheat turn 0
 press RIGHT
+press A
 waituntil wstate == 0 60
 press RIGHT
+press A
 waituntil wstate == 2 60
 expect visits_2_1 == 1
 expect offer0 < 16
@@ -30,6 +32,7 @@ cheat coins 0 30
 cheat at 0 1 1
 cheat turn 0
 press RIGHT
+press A
 waituntil wstate == 2 60
 expect visits_2_1 == 2
 press A
@@ -57,15 +60,18 @@ press UP
 press A
 waituntil wstate == 0 60
 press RIGHT
+press A
 waituntil turn == 1 60
 # the third visit is the last
 cheat at 0 1 1
 cheat turn 0
 press RIGHT
+press A
 waituntil wstate == 2 60
 expect visits_2_1 == 3
 press B
 waituntil wstate == 0 60
 press RIGHT
+press A
 waituntil turn == 1 60
 expect node_2_1 == 1

@@ -1,6 +1,7 @@
-# RIMSHIRE: the board. Each d-pad press moves the banner a space at once;
-# the first turn of a war is a single space, later turns two; every move is
-# used before the turn passes; a banner can't step back onto its own trail.
+# RIMSHIRE: the board. The d-pad points at a road and A takes the banner a
+# space along it; the first turn of a war is a single space, later turns
+# two; every move is used before the turn passes; a banner can't step back
+# onto its own trail.
 game rimshire
 cheat war 1
 wait 5
@@ -8,10 +9,16 @@ expect turn == 0
 expect moves == 1
 expect first_move == 1
 press LEFT
+expect pick_dir == -1
+press A
 wait 12
 expect nx0 == 0
 expect turn == 0
 press RIGHT
+expect pick_dir == 0
+wait 12
+expect nx0 == 0
+press A
 waituntil turn == 1 60
 expect nx0 == 1
 expect trail0 == 2
@@ -23,6 +30,7 @@ expect nx1 == 10
 expect trail1 == 3
 # a step, and the inn's menu on the way
 press RIGHT
+press A
 waituntil wstate == 2 60
 expect nx0 == 2
 expect moves_used == 1
@@ -31,10 +39,13 @@ waituntil wstate == 0 60
 expect turn == 0
 # no stepping back onto the trail
 press LEFT
+expect pick_dir == -1
+press A
 wait 12
 expect nx0 == 2
 expect moves_used == 1
 press RIGHT
+press A
 waituntil turn == 1 60
 expect nx0 == 3
 expect trail0 == 4

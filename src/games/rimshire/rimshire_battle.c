@@ -967,7 +967,7 @@ void rsh_battle_step(uint32_t held, uint32_t pressed, uint32_t released) {
 }
 
 /* ------------------------------------------------------------------ */
-/* the aim line. Without SIGHTLINE, a few dots off the disk; with it, the
+/* the aim line: none without SIGHTLINE (just the reticle); with it, the
  * path up to the first thing it meets (a short way only), then where the
  * thing it strikes will go (kind 1) and where the shot bounces (kind 2) */
 
@@ -979,14 +979,7 @@ int rsh_count_trace(int angle, int pips, int16_t *xs, int16_t *ys, uint8_t *kind
     dir_of(angle, &dx, &dy);
     float x = d->x, y = d->y, r = ranged ? 3.0f : d->r;
     int n = 0;
-    if (!(rb.p.skills[d->side] & SK_SIGHTLINE)) {
-        for (int i = 0; i < 4 && n < max; i++) {
-            xs[n] = (int16_t)(x + dx * (d->r + 5.0f + (float)i * 6.0f));
-            ys[n] = (int16_t)(y + dy * (d->r + 5.0f + (float)i * 6.0f));
-            kinds[n++] = 0;
-        }
-        return n;
-    }
+    if (!(rb.p.skills[d->side] & SK_SIGHTLINE)) return 0; /* only the reticle */
     int p = pips > 0 ? pips : max_pips(ranged);
     float v = ranged ? proj_speed(p) : rsh_pip_speed(p), fr = ranged ? 0.045f : 0.06f;
     float left = fminf(v * v / (2.0f * fr), 110.0f);

@@ -119,6 +119,7 @@ typedef struct RshWar {
     int turns;                 /* turns taken, both sides */
     int moves;                 /* moves this turn */
     int moves_used;
+    int pick_dir;              /* the road the d-pad points at (-1 none); A takes it */
     int plan_n;                /* planned steps (d-pad) */
     int8_t plan_x[4], plan_y[4];
     int walk_i, walk_t;        /* walking the confirmed plan */

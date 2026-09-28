@@ -1,7 +1,7 @@
 /* RIMSHIRE - the board. The two banners take turns moving along the roads:
  * one space on the very first turn of a war, two after that (three with
- * SCOUTING); every d-pad press moves the banner a space at once, and every
- * move must be used. A banner leaves a trail and can't step back onto it;
+ * SCOUTING); the d-pad points at a road and A takes the banner one space
+ * along it, and every move must be used. A banner leaves a trail and can't step back onto it;
  * holding B takes it home at any point and ends the turn, which wipes the
  * trail. Stepping onto the other banner, its home or its trail starts a
  * battle there (a banner caught on its trail is pulled to that point) and
@@ -129,6 +129,7 @@ static void begin_turn(void) {
             }
     rw.plan_n = 0;
     rw.walk_i = 0;
+    rw.pick_dir = -1;
     rw.state = s->cpu >= 0 ? W_CPU : W_PLAN;
     rw.state_t = 0;
     /* a banner at home with nowhere at all to go can only pass */
@@ -335,6 +336,7 @@ static void after_step(void) {
     if (rw.walk_i < rw.plan_n) return;
     if (rw.moves_used >= rw.moves) { rsh_end_turn(); return; }
     rw.plan_n = rw.walk_i = 0;
+    rw.pick_dir = -1;
     rw.state = s->cpu >= 0 ? W_CPU : W_PLAN;
     rw.state_t = s->cpu >= 0 ? 16 : 0;
 }

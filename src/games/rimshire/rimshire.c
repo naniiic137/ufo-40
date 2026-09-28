@@ -189,8 +189,16 @@ static void war_update(void) {
         if (me->cpu >= 0) break;
         {
             static const int PADS[4] = {BTN_RIGHT, BTN_DOWN, BTN_LEFT, BTN_UP};
+            /* the d-pad points at a road; A takes it */
             for (int d = 0; d < 4; d++)
-                if ((pr & PADS[d]) && !rsh_try_step(d)) sfx_play_name("rsh_nope");
+                if (pr & PADS[d]) {
+                    if (rsh_step_kind(d)) { rw.pick_dir = d; sfx_play_name("ui_move"); }
+                    else sfx_play_name("rsh_nope");
+                }
+            if (pr & BTN_A) {
+                if (rw.pick_dir >= 0 && rsh_try_step(rw.pick_dir)) sfx_play_name("ui_ok");
+                else sfx_play_name("rsh_nope");
+            }
         }
         /* hold B to retreat all the way home (the turn ends) */
         if ((held & BTN_B) && !(me->nx == me->bx && me->ny == me->by)) {
@@ -317,7 +325,7 @@ static uint32_t map_bot(void) {
         if (odd) return 0;
         static const int PADS[4] = {BTN_RIGHT, BTN_DOWN, BTN_LEFT, BTN_UP};
         for (int d = 0; d < 4; d++)
-            if (rw.s[0].nx + RSH_DX[d] == bot_px[0] && rw.s[0].ny + RSH_DY[d] == bot_py[0]) return PADS[d];
+            if (rw.s[0].nx + RSH_DX[d] == bot_px[0] && rw.s[0].ny + RSH_DY[d] == bot_py[0]) return rw.pick_dir == d ? BTN_A : PADS[d];
         return BTN_B;
     }
     case W_SWAP: {
@@ -583,11 +591,12 @@ static void draw_board(void) {
         for (int d = 0; d < 4; d++) {
             int k = rsh_step_kind(d);
             if (!k) continue;
-            int off = 8 + (frame_t / 8) % 2;
-            int ax = fx + RSH_DX[d] * off, ay = fy + RSH_DY[d] * off, col = k == 2 ? C_RED : k == 3 ? C_SKY : C_WHITE;
-            gfx_rect(ax - 1, ay - 1, 3, 3, C_INK);
-            gfx_pset(ax, ay, col);
-            gfx_pset(ax + RSH_DX[d], ay + RSH_DY[d], col);
+            int on = rw.pick_dir == d;
+            int off = on ? 10 + (frame_t / 6) % 2 : 8;
+            int ax = fx + RSH_DX[d] * off, ay = fy + RSH_DY[d] * off, col = k == 2 ? C_RED : k == 3 ? C_SKY : on ? C_YELLOW : C_WHITE;
+            gfx_rect(ax - 1 - on, ay - 1 - on, 3 + 2 * on, 3 + 2 * on, C_INK);
+            gfx_rect(ax - on, ay - on, 1 + 2 * on, 1 + 2 * on, col);
+            gfx_pset(ax + RSH_DX[d] * (1 + on), ay + RSH_DY[d] * (1 + on), col);
         }
     }
     /* nodes and what is on them */
@@ -670,8 +679,9 @@ static void draw_war_hud(void) {
     if (rw.state == W_PLAN && rw.s[rw.turn].cpu < 0) {
         int fx;
         if (rsh_can_step()) {
-            snprintf(buf, sizeof buf, "MOVE (%d LEFT)", rw.moves - rw.moves_used);
+            snprintf(buf, sizeof buf, "ROAD (%d LEFT)", rw.moves - rw.moves_used);
             fx = ui_hint(4, 170, GLYPH_DPAD, buf, C_LIGHT);
+            fx = ui_hint(fx, 170, GLYPH_A, "GO", rw.pick_dir >= 0 ? C_YELLOW : C_SLATE);
         } else fx = text_draw("NOWHERE TO GO:", 4, 170, C_ORANGE) + 4;
         ui_hint(fx, 170, GLYPH_B, "HOLD: HOME", C_LIGHT);
     } else if (rw.state == W_SWAP) {
@@ -985,7 +995,7 @@ static void draw_title(void) {
 static const char *const STORY[3][3] = {
     {"RIMSHIRE IS A ROUND LITTLE LAND,", "AND EVERYONE IN IT IS ROUND TOO:", "SQUIRES, FERRETS, WYRMS AND ALL."},
     {"NOW THE BRASS BANNER AND THE PLUM", "BANNER BOTH CLAIM IT, AND THEIR", "ARMIES ARE ROLLING TOWARDS EACH OTHER."},
-    {"DRAW YOUR ROUTES. HIRE AT THE INNS.", "THEN AIM, CHARGE AND LET FLY.", "LORD BRASS AWAITS YOUR ORDERS."},
+    {"MARCH THE ROADS. HIRE AT THE INNS.", "THEN AIM, CHARGE AND LET FLY.", "LORD BRASS AWAITS YOUR ORDERS."},
 };
 
 static void draw_story(void) {
@@ -1230,6 +1240,7 @@ static int rsh_query(const char *key, int *out) {
     if (!strcmp(key, "turns")) { *out = rw.turns; return 1; }
     if (!strcmp(key, "moves")) { *out = rw.moves; return 1; }
     if (!strcmp(key, "moves_used")) { *out = rw.moves_used; return 1; }
+    if (!strcmp(key, "pick_dir")) { *out = rw.pick_dir; return 1; }
     if (!strcmp(key, "can_step")) { *out = rsh_can_step(); return 1; }
     if (!strcmp(key, "swap_kind")) { *out = rw.swap_kind; return 1; }
     if (!strcmp(key, "winner")) { *out = rw.winner; return 1; }
@@ -1487,10 +1498,10 @@ const GameDef GAME_RIMSHIRE = {
     "RIMSHIRE",
     "1988",
     "STRATEGY",
-    "DRAW YOUR ROUTE, HIRE YOUR DISKS, THEN AIM, CHARGE AND FLICK THEM AT THE PLUM BANNER!",
+    "MARCH THE ROADS, HIRE YOUR DISKS, THEN AIM, CHARGE AND FLICK THEM AT THE PLUM BANNER!",
     {"WIN FIVE WARS", "WIN ALL TEN WARS", "WIN THREE STREAK WARS IN A ROW"},
     "BOARD\t\n"
-    GLYPH_DPAD "\tDRAW YOUR ROUTE\n"
+    GLYPH_DPAD ", " GLYPH_A "\tPICK A ROAD, GO\n"
     GLYPH_A "\tGO / BUY / LEARN\n"
     "HOLD " GLYPH_B "\tRETREAT HOME (ENDS THE TURN)\n"
     "BATTLE\t\n"
