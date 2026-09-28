@@ -1,0 +1,51 @@
+# BOOMTOWN: the title, the story, then night 1 on a 10 x 8 square: two
+# folk, eight small bogles, one hole and fifteen fireworks, three on offer.
+seed 11
+game boomtown
+wait 20
+expect state == 0
+expect art_ok == 1
+press A
+wait 15
+expect state == 1
+press A
+wait 5
+expect state == 2
+expect round == 1
+expect hand == 15
+expect folk == 2
+expect bogles == 8
+expect small == 8
+expect big == 0
+expect old == 0
+expect holes == 1
+expect pieces == 0
+expect secs == 0
+wait 95
+expect state == 3
+expect row0 > 0
+expect row1 > 0
+expect row2 > 0
+expect sel == 0
+expect secs >= 1
+# along the row to LIGHT; with nothing on the square it won't light
+press RIGHT
+press RIGHT
+press RIGHT
+press RIGHT
+expect sel == 3
+press A
+expect state == 3
+press LEFT
+expect sel == 2
+# the cursor stays on the 10 x 8 square
+press A
+expect state == 4
+hold RIGHT 120
+expect cx == 9
+hold DOWN 120
+expect cy == 7
+hold LEFT 160
+expect cx == 0
+hold UP 120
+expect cy == 0

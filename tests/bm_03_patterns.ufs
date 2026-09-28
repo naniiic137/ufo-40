@@ -1,0 +1,68 @@
+# BOOMTOWN: what each firework hits (Devilition's patterns). Counts of tiles
+# hit from the middle, an edge and a corner of the 10 x 8 square.
+seed 13
+game boomtown
+wait 20
+press A
+wait 15
+press A
+wait 100
+# starburst: the 8 around it
+expect hits_1_0_5_4 == 8
+expect hits_1_0_0_0 == 3
+# roman candle: a line to the edge, four ways
+expect hits_2_1_0_3 == 9
+expect hits_2_0_4_7 == 7
+expect hits_2_2_4_0 == 7
+expect hits_2_3_9_0 == 9
+# skyrocket: nothing itself
+expect hits_3_0_5_4 == 0
+# perch: the 8 around it
+expect hits_4_0_5_4 == 8
+# banger: the 4 beside it
+expect hits_5_0_5_4 == 4
+expect hits_5_0_0_0 == 2
+# pinwheel: the 4 corners
+expect hits_6_0_5_4 == 4
+expect hits_6_0_0_0 == 1
+# jumping jack: 2 away, 4 ways
+expect hits_7_0_5_4 == 4
+expect hits_7_0_1_1 == 2
+# twin tube: in front and behind
+expect hits_8_0_5_4 == 2
+expect hits_8_0_0_0 == 1
+# fountain: the 3 in front
+expect hits_9_0_5_4 == 3
+expect hits_9_0_0_4 == 2
+expect hits_9_0_5_0 == 0
+# In play: a fountain facing right lights a twin tube facing right. The
+# three tiles in front of the fountain and the one past the twin go; the
+# bogle behind the fountain and the one off to the side stay.
+cheat clear
+cheat put piece 2 2 9 1
+cheat put piece 3 2 8 1
+cheat put bogle 3 1 0
+cheat put bogle 3 3 0
+cheat put bogle 4 2 0
+cheat put bogle 1 2 0
+cheat put bogle 4 1 0
+cheat put folk 0 0
+cheat put folk 9 7
+cheat put folk 9 0
+press RIGHT
+press RIGHT
+press RIGHT
+press A
+expect state == 6
+cheat cursor 2 2
+press A
+expect state == 7
+waituntil state == 8 300
+expect fired == 2
+expect killed == 3
+expect occ_3_1 == 0
+expect occ_3_3 == 0
+expect occ_4_2 == 0
+expect occ_1_2 == 3
+expect occ_4_1 == 3
+expect result == 0

@@ -25,6 +25,8 @@ static const struct { const char *id, *title; } TITLES[] = {
     {"sw_over", "THE FALL"},
     {"bf_march", "MARIGOLD MARCH"}, {"bf_battle", "LANES OF IRON"}, {"bf_table", "THE WAR TABLE"},
     {"bf_win", "VICTORY"}, {"bf_lose", "DEFEAT"},
+    {"bm_title", "LANTERN LANE"}, {"bm_night", "MIDNIGHT MARKET"}, {"bm_king", "THE BOG KING"},
+    {"bm_end", "SKY FULL OF SPARKS"}, {"bm_hold", "MOSSBURY HOLDS"}, {"bm_over", "OVERRUN"},
     {"cc_title", "HEAVE AND HOIST"}, {"cc_select", "CHOOSE YOUR CREW"}, {"cc_bracket", "THE ROAD TO THE CUP"},
     {"cc_cup", "RAISE THE CUP"}, {"cc_point", "POINT!"}, {"cc_win", "MATCH WON"}, {"cc_lose", "MATCH LOST"},
     {"fn_oasis", "DRY OASIS"}, {"fn_stones", "THINKING STONES"}, {"fn_palace", "THE PALACE BATH"},

@@ -1,0 +1,53 @@
+# BOOMTOWN: the Bog King has 10 hits and must go down in one chain. A blast
+# that covers two of his four tiles is two hits. Beating him wins: 10,000,
+# plus 1,000 for every folk, every firework left on the square and in the
+# cart, plus the clock bonus (15,000 less 250 a minute).
+seed 19
+game boomtown
+wait 20
+press A
+wait 15
+press A
+wait 100
+cheat clear
+cheat hand 0
+cheat night 10
+wait 100
+expect state == 3
+expect king_hp == 10
+# a roman candle along row 3 (2 hits) lights two starbursts (2 hits each);
+# one lights a banger (1), the other a pinwheel (1), which lights a banger
+# (1) that lights a jumping jack (1): ten in all
+cheat put piece 0 3 2 1
+cheat put piece 3 3 1
+cheat put piece 6 3 1
+cheat put piece 4 2 5
+cheat put piece 6 4 6
+cheat put piece 5 5 5
+cheat put piece 4 5 7
+cheat put folk 0 0
+cheat put folk 9 0
+cheat put piece 9 7 5
+cheat hand 5
+cheat clock 90
+press RIGHT
+press RIGHT
+press RIGHT
+press A
+cheat cursor 0 3
+press A
+waituntil state == 8 400
+expect king_hits == 10
+expect king_hp == 0
+expect result == 3
+expect score == 32500
+expect time_bonus == 14500
+expect goals & 2
+expect goals & 4
+expect wins == 1
+expect best_score == 32500
+expect most_left == 6
+waituntil state == 10 300
+wait 330
+press A
+expect state == 0

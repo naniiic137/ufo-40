@@ -1,0 +1,100 @@
+# BOOMTOWN: a skyrocket's perch goes down straight after it and costs a
+# firework of its own. Lit, the rocket flies up and comes down on its perch,
+# which goes off; if the perch went first, the rocket hits nothing. A rocket
+# that was the last firework owes its perch to the next night.
+seed 16
+game boomtown
+wait 20
+press A
+wait 15
+press A
+wait 100
+cheat clear
+cheat row 3 5 5
+cheat hand 10
+expect rowcol0 == 1
+cheat cursor 1 1
+press A
+press A
+expect state == 5
+expect hand == 9
+expect perch_owed == 1
+# the perch can't be put back
+hold B 30
+expect state == 5
+cheat cursor 8 6
+press A
+expect state == 3
+expect hand == 8
+expect kind_8_6 == 4
+expect col_8_6 == 1
+expect perch_owed == 0
+cheat put bogle 7 5 0
+cheat put bogle 9 7 0
+cheat put folk 0 7
+cheat put folk 1 7
+cheat put piece 2 2 1
+cheat put bogle 3 3 0
+press RIGHT
+press RIGHT
+press RIGHT
+press A
+cheat cursor 2 2
+press A
+# the rocket is up in the air; the perch hasn't gone yet
+wait 30
+expect occ_1_1 == 0
+expect occ_8_6 == 4
+waituntil occ_8_6 == 0 100
+expect occ_7_5 == 0
+expect occ_9_7 == 0
+waituntil state == 8 200
+expect fired == 3
+expect result == 1
+press A
+waituntil state == 3 200
+# the perch goes first: the rocket flies off and hits nothing
+cheat clear
+cheat put folk 0 7
+cheat put piece 1 1 3 0 2
+cheat put piece 3 1 4 0 2
+cheat put piece 2 1 1
+cheat put bogle 0 1 0
+press RIGHT
+press RIGHT
+press RIGHT
+press A
+cheat cursor 2 1
+press A
+waituntil state == 8 300
+expect fired == 3
+expect occ_0_1 == 3
+press A
+waituntil state == 3 200
+# the last firework is a rocket: its perch waits for the next night
+cheat clear
+cheat put folk 0 7
+cheat put folk 1 7
+cheat row 3 0 0
+cheat hand 1
+cheat sel 0
+cheat cursor 4 4
+press A
+press A
+expect state == 3
+expect hand == 0
+expect perch_owed == 1
+expect sel == 3
+press A
+cheat cursor 4 4
+press A
+waituntil state == 8 300
+press A
+waituntil state == 5 200
+expect perch_owed == 1
+cheat put empty 0 0
+cheat cursor 0 0
+press A
+expect state == 3
+expect perch_owed == 0
+expect kind_0_0 == 4

@@ -1,0 +1,107 @@
+# BOOMTOWN: Devilition's round table. Each night adds a hole and its bogles
+# (small, big, old) and its fireworks: 15 to start, then 15, 10, 20, 15, 10,
+# 20, 15, 15 and 13 for the last night.
+seed 18
+game boomtown
+wait 20
+press A
+wait 15
+press A
+wait 100
+expect round == 1
+expect small == 8
+expect big == 0
+expect old == 0
+expect holes == 1
+expect hand == 15
+cheat clear
+cheat hand 0
+cheat night 2
+expect round == 2
+expect hand == 15
+expect small == 9
+expect big == 0
+expect old == 0
+expect holes == 1
+cheat clear
+cheat hand 0
+cheat night 3
+expect hand == 10
+expect small == 9
+expect big == 1
+expect old == 0
+expect holes == 1
+cheat clear
+cheat hand 0
+cheat night 4
+expect hand == 20
+expect small == 9
+expect big == 2
+expect old == 0
+cheat clear
+cheat hand 0
+cheat night 5
+expect hand == 15
+expect small == 9
+expect big == 3
+expect old == 0
+cheat clear
+cheat hand 0
+cheat night 6
+expect hand == 10
+expect small == 9
+expect big == 3
+expect old == 1
+cheat clear
+cheat hand 0
+cheat night 7
+expect hand == 20
+expect big == 3
+expect old == 2
+cheat clear
+cheat hand 0
+cheat night 8
+expect hand == 15
+expect big == 3
+expect old == 3
+cheat clear
+cheat hand 0
+cheat night 9
+expect hand == 15
+expect small == 9
+expect big == 3
+expect old == 4
+expect holes == 1
+# holes and bogles stay from night to night
+cheat hand 0
+cheat night 9
+expect holes == 2
+expect bogles == 32
+# The last night: every bogle left sinks into a hole, the Bog King takes the
+# middle four tiles, the fireworks in the twelve round him go, and a few
+# more holes open.
+cheat clear
+cheat put bogle 0 0 0
+cheat put bogle 9 7 1
+cheat put piece 3 2 5
+cheat put piece 6 5 5
+cheat put piece 0 7 5
+cheat put piece 5 4 1
+cheat put folk 9 0
+cheat hand 0
+cheat night 10
+expect round == 10
+expect hand == 13
+expect bogles == 0
+expect occ_0_0 == 1
+expect occ_9_7 == 1
+expect occ_3_2 != 4
+expect occ_6_5 != 4
+expect occ_0_7 == 4
+expect occ_9_0 == 2
+expect occ_4_3 == 5
+expect occ_5_4 == 5
+expect king == 4
+expect king_hp == 10
+expect holes >= 4
+expect holes <= 6

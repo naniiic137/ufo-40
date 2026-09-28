@@ -1,0 +1,59 @@
+# BOOMTOWN: A takes a firework and sets it down; B turns the ones that turn;
+# a held B puts it back; nothing goes on a taken tile; the row fills again.
+seed 12
+game boomtown
+wait 20
+press A
+wait 15
+press A
+wait 100
+expect state == 3
+cheat clear
+# a roman candle, a fountain and a twin tube
+cheat row 2 9 8
+cheat put bogle 5 2 0
+cheat cursor 5 4
+press A
+expect state == 4
+expect pdir == 0
+press B
+expect pdir == 1
+press B
+press B
+press B
+expect pdir == 0
+press B
+expect pdir == 1
+# a taken tile
+press UP
+press UP
+expect cy == 2
+press A
+expect state == 4
+expect pieces == 0
+press DOWN
+press DOWN
+press A
+expect state == 3
+expect occ_5_4 == 4
+expect kind_5_4 == 2
+expect dir_5_4 == 1
+expect hand == 14
+expect row0 > 0
+expect row1 == 9
+# a held B puts the fountain back on offer
+press RIGHT
+expect sel == 1
+press A
+expect state == 4
+hold B 30
+expect state == 3
+expect hand == 14
+expect row1 == 9
+expect pieces == 1
+# a starburst doesn't turn
+cheat row 1 9 8
+cheat sel 0
+press A
+press B
+expect pdir == 0
