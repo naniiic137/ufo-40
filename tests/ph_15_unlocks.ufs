@@ -1,5 +1,7 @@
 # OPEN HOUSE: list 1 is open from the start; each win opens the next list,
-# and the Random list opens after list 5.
+# and the Random list opens after list 5. The lists sit in a grid of tiles
+# (1 2 3 / 4 5 RANDOM / OPEN ALL NIGHT); A on Random offers a new deal or a
+# code.
 game openhouse
 wait 30
 press A
@@ -7,7 +9,9 @@ wait 5
 press A
 wait 5
 expect state == 2
-press DOWN
+expect scen_sel == 0
+press RIGHT
+expect scen_sel == 1
 press A
 wait 5
 expect state == 2
@@ -18,8 +22,13 @@ expect state == 3
 cheat menu
 cheat won 31
 wait 3
-press UP
-press UP
+press DOWN
+expect scen_sel == 4
+press RIGHT
+expect scen_sel == 5
+press A
+wait 2
+expect state == 18
 press A
 wait 5
 expect state == 3

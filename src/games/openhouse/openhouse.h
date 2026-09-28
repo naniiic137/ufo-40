@@ -21,9 +21,16 @@
 #define PH_ROW 8            /* guests stand in rows of eight; side by side means the same row */
 #define PH_NIGHTS 25
 #define PH_STOCK 4          /* each non-star guest can be bought four times a scenario */
-#define PH_POOL_MAX 16
+#define PH_POOL_MAX 24
+#define PH_POOL_MAX_V1 16   /* the pool size in saves before OPEN ALL NIGHT */
 #define PH_SCENARIOS 5
 #define PH_RANDOM 5         /* scenario index of the Random Scenario */
+#define PH_ENDLESS 6        /* OPEN ALL NIGHT, the owner's endless mode (and its big mix) */
+#define PH_BASES 7          /* OPEN ALL NIGHT plays any of: five lists, Random, the big mix */
+#define PH_ENDLESS_STARS 4  /* its shop: four stars, fourteen other guests (plus neighbours, cousins) */
+#define PH_ENDLESS_GUESTS 14
+#define PH_ENDLESS_STRIKES 3 /* the third shutdown closes the house for good */
+#define PH_ENDLESS_FRESH 5  /* every fifth night, three new faces in the shop */
 #define PH_NONE 255
 
 /* the guests, in the order of the table in the design doc */
@@ -102,7 +109,7 @@ typedef struct PhParty {
 } PhParty;
 
 typedef struct PhGame {
-    uint8_t scen;                    /* 0..4 set, PH_RANDOM */
+    uint8_t scen;                    /* 0..4 set, PH_RANDOM, PH_ENDLESS */
     uint8_t npool;
     uint8_t pool[PH_POOL_MAX];       /* the shop: every guest on sale */
     uint8_t bought[G_COUNT];         /* shared stock in 2P */
@@ -112,10 +119,19 @@ typedef struct PhGame {
     Rng rng;
     PhPlayer pl[2];
     PhParty party;
+    /* OPEN ALL NIGHT (unused by the other lists) */
+    uint8_t goal;                    /* stars the next star party needs */
+    uint8_t star_party;              /* the party that just ended was one */
+    uint16_t score;                  /* star parties thrown */
+    uint16_t nights;                 /* parties thrown (no last night, so past 255) */
+    uint8_t strikes;                 /* shutdowns so far */
+    uint16_t top_pop;                /* the most fame held at once this run */
+    uint8_t base;                    /* the list it plays: 0..4, PH_RANDOM, or PH_ENDLESS (the big mix) */
 } PhGame;
 
 /* setting up */
 void ph_new(PhGame *g, int scen, int players, uint64_t seed);
+void ph_new_endless(PhGame *g, int base, uint64_t seed); /* OPEN ALL NIGHT on list base */
 void ph_start_party(PhGame *g);
 /* the party: each returns true if something happened */
 int ph_draw(PhGame *g);                  /* a random card still in the rolodex, or -1 */
@@ -126,7 +142,12 @@ bool ph_act(PhGame *g, int slot, int target);               /* target: a slot, o
 bool ph_peek_decide(PhGame *g, bool admit);
 bool ph_fetch_ok(const PhGame *g, int type);
 void ph_end_party(PhGame *g);
-bool ph_should_end(const PhGame *g);     /* full and nothing left to do */
+bool ph_should_end(const PhGame *g);     /* full (or nobody left to come) and nothing left to do */
+int ph_pay_order(const PhGame *g, int cash, uint8_t unpaid[PH_MAX_HOUSE]); /* who can't be paid; the penalty */
+int ph_night_limit(const PhGame *g);     /* the last night: 25 (OPEN ALL NIGHT has none) */
+bool ph_endless_strike(PhGame *g);       /* OPEN ALL NIGHT: a shutdown counts; true when it closes the house */
+int ph_goal(const PhGame *g);            /* stars the winning (or star) party needs */
+bool ph_endless_refresh(PhGame *g);      /* OPEN ALL NIGHT's shop turns over */
 void ph_ban(PhGame *g, int card);        /* after a shutdown */
 void ph_next_turn(PhGame *g);            /* the next party (the other player in 2P) */
 /* the shop */

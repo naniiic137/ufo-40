@@ -36,8 +36,12 @@ press A
 wait 40
 gifstop
 shot openhouse_party
-cheat end
-wait 50
+# the tally counts each guest up in turn
+press B
+press LEFT
+press A
+wait 46
+shot openhouse_tally
 cheat next
 wait 10
 cheat pop 60
@@ -51,3 +55,13 @@ wait 6
 press RIGHT
 wait 20
 shot openhouse_shop
+# the list grid, and OPEN ALL NIGHT's own grid
+cheat won 7
+cheat menu
+wait 30
+shot openhouse_lists
+press DOWN
+press DOWN
+press A
+wait 20
+shot openhouse_allnight

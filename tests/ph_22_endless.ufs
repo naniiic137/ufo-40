@@ -1,0 +1,191 @@
+# OPEN HOUSE (owner's addition): OPEN ALL NIGHT on the big mix. Picked from
+# the list grid's wide tile, then the big mix tile. Twenty guests from the
+# whole roster (four stars), no last night, a goal that grows by a star
+# with each star party, three new faces every fifth night, and the third
+# shutdown closes the house. Its best is saved as it goes.
+game openhouse
+wait 30
+press A
+wait 5
+press A
+wait 5
+expect state == 2
+expect scen_sel == 0
+press UP
+expect scen_sel == 6
+press A
+expect scen_endless == 1
+expect scen_sel == 6
+press A
+wait 25
+expect state == 3
+expect scen == 7
+expect base == 6
+expect npool == 20
+expect poolstars == 4
+press A
+wait 2
+expect state == 5
+expect goal == 4
+expect nights == 1
+# four nights with the buttons: a knock, B to end, the tally, the shop
+press A
+press B
+press LEFT
+press A
+expect state == 12
+hold A
+waituntil tally == 3 100
+release A
+wait 8
+press A
+wait 2
+expect state == 13
+expect fresh == 0
+press B
+press B
+wait 2
+expect state == 5
+expect nights == 2
+press A
+press B
+press LEFT
+press A
+hold A
+waituntil tally == 3 100
+release A
+wait 8
+press A
+press B
+press B
+press A
+press B
+press LEFT
+press A
+hold A
+waituntil tally == 3 100
+release A
+wait 8
+press A
+press B
+press B
+press A
+press B
+press LEFT
+press A
+hold A
+waituntil tally == 3 100
+release A
+wait 8
+press A
+press B
+press B
+expect nights == 5
+expect fresh == 0
+# the fifth night's shop has new faces; the shop stays twenty strong
+press A
+press B
+press LEFT
+press A
+hold A
+waituntil tally == 3 100
+release A
+wait 8
+press A
+wait 2
+expect state == 13
+expect fresh == 1
+expect npool == 20
+expect poolstars == 4
+press B
+press B
+# long past night 25: no last night
+cheat nights 40
+press A
+press B
+press LEFT
+press A
+hold A
+waituntil tally == 3 100
+release A
+wait 8
+press A
+wait 2
+expect state == 13
+expect done == 0
+press B
+press B
+expect nights == 41
+# a star party: four stars in a house that ends well
+cheat give 37 4
+cheat cap 10
+cheat door 37 37 37 37
+press B
+press LEFT
+press A
+expect star_party == 1
+expect score == 1
+expect goal == 5
+expect night_best == 1
+expect nbest6 == 1
+hold A
+waituntil tally == 3 200
+release A
+wait 8
+press A
+wait 2
+expect state == 13
+expect done == 0
+# saved: the best, and the run
+reload
+game openhouse
+wait 30
+expect nbest6 == 1
+expect has_run == 1
+press A
+wait 5
+press A
+wait 5
+expect state == 13
+expect score == 1
+expect goal == 5
+press B
+press B
+wait 2
+expect state == 5
+# three shutdowns close the house: two bans, then the lights go out
+cheat door 2 2 2
+expect over == 2
+expect state == 10
+wait 105
+press A
+wait 2
+expect state == 11
+press A
+wait 2
+expect strikes == 1
+expect state == 13
+press B
+press B
+cheat give 2 3
+cheat door 2 2 2
+wait 105
+press A
+press A
+expect strikes == 2
+press B
+press B
+cheat door 2 2 2
+expect state == 10
+wait 105
+press A
+wait 2
+expect state == 15
+expect done == 1
+expect has_run == 0
+expect nbest6 == 1
+reload
+game openhouse
+wait 30
+expect nbest6 == 1
+expect has_run == 0

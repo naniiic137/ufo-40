@@ -96,7 +96,7 @@ when there is more above or below.
 | 14 | **CUTLASS CUP** | Bushido Ball | first to 8 points, a ball that gets faster with every return, aimed, lobbed and curved strikes, secondary weapons and charged super shots, the fouls and penalty points, six fighters, a five-match tournament, 2P versus and co-op doubles | six corsairs, the galley *Merry Mackerel*, old Bosun Crabbe |
 | 15 | **FENNEC FOUNTAIN** | Block Koala | pushing numbered blocks (never into a heavier one, a 1 that can't move is taken in), grey at five, blue and black blocks, mimics, arrows, stone patches and doors, unlimited undo and a room menu, fifty rooms behind gates, a room editor | Fen the fennec, a dry spring garden, 50 new rooms |
 | 16 | **TINTAIL** | Camouflage | sneaking on a grid past watchers by taking the colour of the ground you stand on, hollow logs, sun and rain pads, hatchlings with their own colour, a danger view you can't move in, undo, a branching map | Twig the chameleon, Salt Island, toads and storks, 15 new levels |
-| 25 | **OPEN HOUSE** | Party House | drawing guests from a deck into a house with limited space, the original's 46 guest abilities, costs and trouble, police, fire marshal and bans, set guest lists and a random list, win by ending a party with four stars within 25 nights, 2P hot-seat | a whitewashed house by the sea, all 46 guests' names and faces |
+| 25 | **OPEN HOUSE** | Party House | drawing guests from a deck into a house with limited space, the original's 46 guest abilities, costs and trouble, police, fire marshal and bans, set guest lists and a random list, win by ending a party with four stars within 25 nights, 2P hot-seat; the owner's endless OPEN ALL NIGHT | a whitewashed house by the sea, all 46 guests' names and faces |
 | 28 | **DUNE EXPRESS** | Rail Heist | real time until a guard is alert, then 10-second turns, one-bullet lawmen who hit each other too, punches through walls and floors, carrying and throwing, hiding in barrels, levers, a crank gun, rams, three outlaws, three stars a mission with the original's time goals, 2P versus | Wade, Hush and Pearl, the Governor's tax trains, Biscuit the camel, 20 new trains |
 | 46 | **MANDIBLES** | Combatants | you are one slow ant who holds a button for a cross of nine commands (follow, hold, instinct, their soldier-only versions, the queen's workers or soldiers, surrender), shouted to ants in earshot, and spits in eight directions while followers spit with you, food carried home to queens who lay workers for 1 and soldiers for 2, free respawns while your army lives, red ants with twice the health and exploitable brains (locked aim, food first, stuck on corners, stuck on your queen), brawls in a dust cloud, giant spiders that eat both sides, a branching road of 12 fields to the capital and a pointless bonus one, 2P versus | the Bluebell Colony and the Rust Horde, General Stag, the longlegs, every command's name, all 16 fields |
 | 30 | **FLINTHOLD** | Rock On! Island | waves down fixed roads to a cave with 30 hearts, a build phase as long as you like and a horn to start the wave, a pay-out between waves, a heroine who walks and throws eight ways, ten hunters in three upgrade trees, hens cooked by fire pits for meat (99 at most), fire pits that boost hunters, the original's beasts and bosses, 10 stages and 3 villages (two hidden), the Four Lords together in the last wave | Pim of the Hearth Clan, Flint Isle and its 13 layouts, the Four Lords of the Scale, every beast, hunter and villager |
@@ -488,7 +488,14 @@ the top.
 </p>
 <p align="center">
   <img src="docs/shots/openhouse_party.png" width="320" alt="A busy night in the house">
+  <img src="docs/shots/openhouse_tally.png" width="320" alt="The tally counts each guest's fame and cash up in turn">
+</p>
+<p align="center">
   <img src="docs/shots/openhouse_shop.png" width="320" alt="The shop">
+  <img src="docs/shots/openhouse_lists.png" width="320" alt="The guest lists as a grid of tiles">
+</p>
+<p align="center">
+  <img src="docs/shots/openhouse_allnight.png" width="320" alt="Open All Night: pick a list to play with no last night">
 </p>
 
 *A tribute to **Party House** (UFO 50 #25).*
@@ -508,6 +515,13 @@ the top.
 - **Ours:** the house by the sea, the nosy neighbour's lamp, every guest's
   name, portrait and line (the Saucer Pilot, the Wish Fish, the Punk Singer,
   the Goat...), the list names and the music.
+- **Owner's additions:** B ends a party (after a YES/NO); a party with
+  nothing more to happen ends by itself; a guest-by-guest tally with a tick
+  for every point (hold A to hurry it); a shop and a list grid where every
+  move wraps (B jumps to NEXT PARTY); and **OPEN ALL NIGHT**, an endless
+  mode on any list or a big random mix of the whole roster: no last night,
+  one more star needed for each star party, three shutdowns and the lights
+  go out, with a best kept for each list.
 
 ### 28 · DUNE EXPRESS
 

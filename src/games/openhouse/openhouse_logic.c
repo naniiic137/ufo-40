@@ -99,33 +99,52 @@ static int pool_cmp(const void *a, const void *b) {
     return x - y;
 }
 
-void ph_new(PhGame *g, int scen, int players, uint64_t seed) {
-    memset(g, 0, sizeof *g);
-    g->scen = (uint8_t)scen;
-    g->players = (uint8_t)(players == 2 ? 2 : 1);
-    rng_seed(&g->rng, seed);
+/* deal n different guests of types first..last (not already on sale) into
+ * the shop; the same draws as the Random Scenario always made */
+static void deal(PhGame *g, int first, int last, int n) {
+    uint8_t pick[G_COUNT];
+    int np = 0;
+    for (int t = first; t <= last; t++) {
+        bool on_sale = false;
+        for (int i = 0; i < g->npool; i++) on_sale |= g->pool[i] == t;
+        if (!on_sale) pick[np++] = (uint8_t)t;
+    }
+    for (int k = 0; k < n && k < np && g->npool < PH_POOL_MAX; k++) {
+        int i = k + rnd(g, np - k);
+        uint8_t tmp = pick[k]; pick[k] = pick[i]; pick[i] = tmp;
+        g->pool[g->npool++] = pick[k];
+    }
+}
+
+/* the shop's guests: a set list's, a Random deal, or OPEN ALL NIGHT's big mix */
+static void fill_pool(PhGame *g, int scen) {
+    g->npool = 0;
     g->pool[g->npool++] = G_NEIGHBOUR;
     g->pool[g->npool++] = G_COUSIN;
     if (scen < PH_SCENARIOS) {
         for (int i = 0; i < PH_SCEN[scen].n; i++) g->pool[g->npool++] = PH_SCEN[scen].pool[i];
-    } else {
+    } else if (scen == PH_RANDOM) {
         /* the Random Scenario: two different stars, eleven different guests */
-        uint8_t stars[9], guests[G_LAST_BUYABLE - G_FIRST_BUYABLE + 1];
-        int ns = 0, ng = 0;
-        for (int t = G_FIRST_STAR; t < G_COUNT; t++) stars[ns++] = (uint8_t)t;
-        for (int t = G_FIRST_BUYABLE; t <= G_LAST_BUYABLE; t++) guests[ng++] = (uint8_t)t;
-        for (int k = 0; k < 2; k++) {
-            int i = k + rnd(g, ns - k);
-            uint8_t tmp = stars[k]; stars[k] = stars[i]; stars[i] = tmp;
-            g->pool[g->npool++] = stars[k];
-        }
-        for (int k = 0; k < 11; k++) {
-            int i = k + rnd(g, ng - k);
-            uint8_t tmp = guests[k]; guests[k] = guests[i]; guests[i] = tmp;
-            g->pool[g->npool++] = guests[k];
-        }
+        deal(g, G_FIRST_STAR, G_COUNT - 1, 2);
+        deal(g, G_FIRST_BUYABLE, G_LAST_BUYABLE, 11);
+    } else {
+        /* OPEN ALL NIGHT (the owner's): a bigger random shop from the whole
+         * roster, a goal that grows by a star each time it is met, and a
+         * clock that every star party pushes back */
+        deal(g, G_FIRST_STAR, G_COUNT - 1, PH_ENDLESS_STARS);
+        deal(g, G_FIRST_BUYABLE, G_LAST_BUYABLE, PH_ENDLESS_GUESTS);
     }
     qsort(g->pool, g->npool, 1, pool_cmp);
+}
+
+void ph_new(PhGame *g, int scen, int players, uint64_t seed) {
+    memset(g, 0, sizeof *g);
+    g->scen = (uint8_t)scen;
+    g->base = (uint8_t)scen;
+    g->players = (uint8_t)(players == 2 && scen != PH_ENDLESS ? 2 : 1);
+    rng_seed(&g->rng, seed);
+    fill_pool(g, scen);
+    g->goal = 4;
     for (int p = 0; p < g->players; p++) {
         PhPlayer *pl = &g->pl[p];
         pl->cap = PH_START_HOUSE;
@@ -137,14 +156,26 @@ void ph_new(PhGame *g, int scen, int players, uint64_t seed) {
     ph_start_party(g);
 }
 
+/* OPEN ALL NIGHT on a chosen list: the owner's endless rules with that
+ * list's guests (a set list's never change; Random deals its own; the big
+ * mix is PH_ENDLESS) */
+void ph_new_endless(PhGame *g, int base, uint64_t seed) {
+    ph_new(g, PH_ENDLESS, 1, seed);
+    if (base < 0 || base > PH_ENDLESS) base = PH_ENDLESS;
+    g->base = (uint8_t)base;
+    if (base != PH_ENDLESS) fill_pool(g, base);
+}
+
 void ph_start_party(PhGame *g) {
     PhPlayer *p = ph_me(g);
     PhParty *pa = &g->party;
     memset(pa, 0, sizeof *pa);
+    g->star_party = 0;
     pa->peek = -1;
     if (p->banned) pa->where[p->banned - 1] = W_OUT;
     p->banned = 0;
-    p->night++;
+    if (p->night < 255) p->night++;
+    if (g->nights < 60000) g->nights++;
 }
 
 /* ------------------------------------------------------------------ */
@@ -440,12 +471,52 @@ bool ph_act(PhGame *g, int slot, int target) {
     }
 }
 
+/* The party ends by itself when nothing more can happen: the house is full
+ * (Party House's rule) or nobody is left to come in (the owner's), and no
+ * guest has an action left to use. */
 bool ph_should_end(const PhGame *g) {
-    if (g->party.over || g->party.n < ph_me_c(g)->cap) return false;
-    for (int i = 0; i < g->party.n; i++)
+    const PhParty *pa = &g->party;
+    if (pa->over) return false;
+    bool full = pa->n >= ph_me_c(g)->cap;
+    bool nobody = pa->peek < 0 && !any_in_pool(g, -1);
+    if (!full && !nobody) return false;
+    for (int i = 0; i < pa->n; i++)
         if (ph_can_act(g, i)) return false;
     return true;
 }
+
+/* paying up: the party's cash income comes in first, then each guest who
+ * charges is paid in the order they arrived; one you can't pay is marked
+ * (they cost 7 popularity instead). Returns the penalty. */
+int ph_pay_order(const PhGame *g, int cash, uint8_t unpaid[PH_MAX_HOUSE]) {
+    const PhParty *pa = &g->party;
+    for (int i = 0; i < pa->n; i++) {
+        int c = ph_value_cash(g, pa->house[i]);
+        if (c > 0) cash += c;
+    }
+    int penalty = 0;
+    for (int i = 0; i < pa->n; i++) {
+        int c = ph_value_cash(g, pa->house[i]);
+        unpaid[i] = 0;
+        if (c >= 0) continue;
+        if (cash >= -c) cash += c;
+        else { unpaid[i] = 1; penalty += 7; }
+    }
+    return penalty;
+}
+
+int ph_night_limit(const PhGame *g) { return g->scen == PH_ENDLESS ? 1 << 30 : PH_NIGHTS; }
+
+/* OPEN ALL NIGHT has no last night: the third shutdown ends it instead */
+bool ph_endless_strike(PhGame *g) {
+    if (g->scen != PH_ENDLESS || g->done) return false;
+    if (g->strikes < 255) g->strikes++;
+    if (g->strikes < PH_ENDLESS_STRIKES) return false;
+    ph_me(g)->lost = 1;
+    g->done = 1;
+    return true;
+}
+int ph_goal(const PhGame *g) { return g->scen == PH_ENDLESS ? g->goal : 4; }
 
 /* the tally: every guest's popularity, then the cash they bring, then the
  * guests who charge; one you can't pay costs 7 popularity instead */
@@ -454,6 +525,8 @@ void ph_end_party(PhGame *g) {
     PhPlayer *p = ph_me(g);
     if (pa->over) return;
     int pop = 0, income = 0;
+    uint8_t unpaid[PH_MAX_HOUSE];
+    ph_pay_order(g, p->cash, unpaid);
     for (int i = 0; i < pa->n; i++) {
         pop += ph_value_pop(g, pa->house[i]);
         int c = ph_value_cash(g, pa->house[i]);
@@ -466,13 +539,23 @@ void ph_end_party(PhGame *g) {
     for (int i = 0; i < pa->n; i++) {
         int c = ph_value_cash(g, pa->house[i]);
         if (c >= 0) continue;
-        if (p->cash >= -c) { p->cash = (int16_t)(p->cash + c); spent -= c; }
+        if (!unpaid[i]) { p->cash = (int16_t)(p->cash + c); spent -= c; }
         else { penalty += 7; p->pop = (int16_t)(p->pop - 7 < 0 ? 0 : p->pop - 7); }
     }
     pa->end_pop = (int16_t)pop;
     pa->end_cash = (int16_t)(income - spent);
     pa->penalty = (int16_t)penalty;
     pa->over = PO_ENDED;
+    if (g->scen == PH_ENDLESS) {
+        /* OPEN ALL NIGHT: a star party scores and asks one more star next time */
+        if (p->pop > g->top_pop) g->top_pop = (uint16_t)p->pop;
+        if (ph_stars(g) >= g->goal) {
+            g->star_party = 1;
+            if (g->score < 60000) g->score++;
+            if (g->goal < PH_MAX_HOUSE) g->goal++;
+        }
+        return;
+    }
     /* four stars at a party that ended well: the scenario is won */
     if (ph_stars(g) >= 4) {
         p->won = 1;
@@ -489,7 +572,7 @@ void ph_ban(PhGame *g, int card) {
 void ph_next_turn(PhGame *g) {
     if (g->done) return;
     PhPlayer *p = ph_me(g);
-    if (!p->won && p->night >= PH_NIGHTS) p->lost = 1;
+    if (!p->won && p->night >= ph_night_limit(g)) p->lost = 1;
     if (g->players == 2) {
         int other = g->turn ^ 1;
         if (!g->pl[other].lost) g->turn = (uint8_t)other;
@@ -499,6 +582,32 @@ void ph_next_turn(PhGame *g) {
         return;
     }
     ph_start_party(g);
+}
+
+/* OPEN ALL NIGHT's big mix: after every fifth night three guests leave the
+ * shop and three others from the roster take their places (the stars stay).
+ * A chosen list's shop never changes. */
+bool ph_endless_refresh(PhGame *g) {
+    if (g->scen != PH_ENDLESS || g->base != PH_ENDLESS || g->nights == 0 || g->nights % PH_ENDLESS_FRESH) return false;
+    uint8_t gone[3];
+    int ngone = 0;
+    for (int k = 0; k < 3; k++) {
+        int idx[PH_POOL_MAX], n = 0;
+        for (int i = 0; i < g->npool; i++)
+            if (g->pool[i] >= G_FIRST_BUYABLE && g->pool[i] <= G_LAST_BUYABLE) idx[n++] = i;
+        if (n == 0) break;
+        int out = idx[rnd(g, n)];
+        gone[ngone++] = g->pool[out];
+        g->pool[out] = g->pool[--g->npool];
+    }
+    /* the ones who just left can't walk straight back in */
+    int keep = g->npool;
+    for (int k = 0; k < ngone; k++) g->pool[g->npool++] = gone[k];
+    deal(g, G_FIRST_BUYABLE, G_LAST_BUYABLE, ngone);
+    for (int i = keep + ngone; i < g->npool; i++) g->pool[i - ngone] = g->pool[i];
+    g->npool = (uint8_t)(g->npool - ngone);
+    qsort(g->pool, g->npool, 1, pool_cmp);
+    return true;
 }
 
 /* ------------------------------------------------------------------ */

@@ -65,6 +65,7 @@ void ph_audio_load(void) {
     sfx_define("ph_boot", CH_NOISE, 200, "@36 v10 o5 c8");
     sfx_define("ph_cash", CH_P1, 220, "@35 v11 o6 e16 o7 c8");
     sfx_define("ph_pop", CH_P2, 220, "@20 v9 o6 c32 g32");
+    sfx_define("ph_coin", CH_P1, 240, "@35 v8 o7 e32");
     sfx_define("ph_buy", CH_P1, 200, "@35 v11 o5 g16 o6 c16 e8");
     sfx_define("ph_build", CH_NOISE, 160, "@13 v12 o3 c16 r16 @13 o3 c16 r16 @21 v9 o6 c8");
     sfx_define("ph_no", CH_P2, 180, "@37 v10 o3 c16 r32 c16");

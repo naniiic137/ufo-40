@@ -1,0 +1,197 @@
+# OPEN HOUSE: the guest abilities Hamza listed, each checked against its
+# Party House original (wiki numbers). Ours -> theirs in the comments.
+game openhouse
+wait 5
+# --- the three from the owner's first list ---
+# CABBIE (Driver): fetch a chosen guest from the guest book, by the buttons
+cheat new 1 1
+cheat give 3 1
+cheat give 37 1
+cheat door 3
+expect gcost3 == 3
+press LEFT
+expect cur == 0
+press A
+expect state == 7
+# the fetch list: neighbour, cousin, rowdy, saucer pilot
+press DOWN
+press DOWN
+press DOWN
+expect fetchsel == 37
+press A
+expect state == 5
+expect n == 2
+expect stars == 1
+expect slot1 == 37
+expect canact0 == 0
+# a fetch needs a free space
+cheat new 1 1
+cheat give 3 1
+cheat door 0 0 0 3
+expect canact3 == 1
+press A
+expect n == 5
+expect canact3 == 0
+# SLEUTH (Private I.) fetches too: cost 4, +2 fame, -1 cash
+cheat new 2 1
+cheat give 4 1
+cheat door 4
+cheat act 0 1
+expect n == 2
+expect gcost4 == 4
+expect gpop4 == 2
+expect gcash4 == -1
+# STORYTELLER (Comedian): +5 fame only if the house is full at the end
+cheat new 1 1
+cheat give 17 1
+cheat door 0 0 17
+expect vpop2 == 0
+expect vcash2 == -1
+expect gcost17 == 5
+cheat cash 5
+cheat door 0 0
+expect n == 5
+expect over == 1
+expect vpop2 == 5
+expect end_pop == 9
+# DRUMMER (Dancer): each pays the number of drummers, 1 4 9 16 in all
+cheat new 1 1
+cheat give 13 2
+cheat door 13 13 0
+expect gcost13 == 7
+press B
+press LEFT
+press A
+expect end_pop == 5
+# --- the owner's second list, 1 to 19 ---
+# 1 BOOKWORM (Introvert): +1 for each empty space
+cheat new 1 1
+cheat give 22 1
+cheat cap 6
+cheat door 22
+expect vpop0 == 6
+# 2 FIREWORKER / TOUR GUIDE (Grillmaster / Athlete): everyone out, reshuffled
+cheat new 1 1
+cheat give 11 1
+cheat door 0 0 11
+cheat act 2 0
+expect n == 0
+expect wpool0 == 4
+# 3 GRANNY (Mascot): +1 for each Old Neighbour (Old Friend)
+cheat new 1 1
+cheat give 21 1
+cheat door 0 0 21
+expect vpop2 == 3
+# 4 POET (Writer): +2 fame for each RUCKUS! guest
+cheat new 1 1
+cheat give 25 1
+cheat door 2 2 25
+expect vpop2 == 5
+# 5 UPSTART (Climber): +1 each time it comes, up to 9
+cheat new 1 1
+cheat give 26 1
+cheat give 11 1
+cheat door 26 11
+expect vpop0 == 1
+cheat act 1 0
+cheat door 26
+expect vpop0 == 2
+# 6 PAPARAZZO (Photographer) scores a guest now; BAND LEADER (Cheerleader)
+#   resets the others' used actions. No single original guest does both.
+cheat new 1 1
+cheat give 18 1
+cheat give 27 1
+cheat door 0 18 27
+cheat act 1 0
+expect got_pop == 1
+expect canact1 == 0
+cheat act 2 0
+expect canact1 == 1
+# 7 TAILOR (Stylist): a guest's +1 fame for good (under 9)
+cheat new 1 1
+cheat give 23 1
+cheat door 0 23
+cheat act 1 0
+expect vpop0 == 2
+# 8 OLD SAGE (Counselor): clears every RUCKUS! in the house
+cheat new 1 1
+cheat give 31 1
+cheat door 2 2 31
+cheat act 2 0
+expect trouble == 0
+# 9 POP IDOL (Celebrity): brings two guests; +2 fame, +3 cash, costs 11
+cheat new 1 1
+cheat give 15 1
+cheat cap 8
+cheat door 15
+expect n == 3
+expect vpop0 == 2
+expect vcash0 == 3
+expect gcost15 == 11
+# 10 BARISTA (Bartender): +2 cash for each RUCKUS! guest
+cheat new 1 1
+cheat give 24 1
+cheat door 2 2 24
+expect vcash2 == 4
+# 11 CYCLOPS (Dinosaur): a star who is RUCKUS!; four of them, calmed, win
+cheat new 1 1
+cheat give 41 4
+cheat give 5 1
+cheat give 6 1
+cheat cap 8
+cheat door 5 6 41 41 41 41
+expect stars == 4
+expect trouble == 2
+expect over == 0
+cheat end
+expect winner == 1
+# 12 SEA SERPENT (Dragon): a star who costs $3 (paid at the end)
+cheat new 1 1
+cheat give 40 1
+cheat door 40
+expect vcash0 == -3
+expect gcost40 == 30
+# 13 TYCOON (Leprechaun): a star who pays $3
+cheat new 1 1
+cheat give 38 1
+cheat door 38
+expect vcash0 == 3
+expect gcost38 == 50
+# 14 SPHINX (Unicorn): a star who calms one RUCKUS!
+cheat new 1 1
+cheat give 44 1
+cheat door 2 2 44 2
+expect trouble == 2
+expect over == 0
+# 15 SHADOW (Ghost): a star who boots a guest
+cheat new 1 1
+cheat give 43 1
+cheat door 0 43
+cheat act 1 0
+expect n == 1
+expect wout0 == 1
+# 16 "anyone who enters after him is trouble": no Party House guest does
+#    this (wiki, Setsideb), so OPEN HOUSE has none either.
+# 17 USHER (Greeter): opens the door and scores who comes in (and anyone
+#    they bring)
+cheat new 1 1
+cheat give 28 1
+cheat door 28
+cheat act 0 0
+expect n == 2
+expect collected >= 1
+# 18 FORTUNE TELLER (Magician): swaps a non-star for a star, or back
+cheat new 1 1
+cheat give 29 1
+cheat give 37 1
+cheat door 29 0
+cheat act 0 1
+expect stars == 1
+expect wout0 == 1
+# 19 MATCHMAKER (Cupid): boots two guests side by side
+cheat new 1 1
+cheat give 30 1
+cheat cap 9
+cheat door 0 0 30
+cheat act 2 0
+expect n == 1

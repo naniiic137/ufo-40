@@ -1,0 +1,51 @@
+# OPEN HOUSE (owner's addition): the lists sit in a grid of tiles, three to
+# a row (1 2 3 / 4 5 RANDOM) over one wide OPEN ALL NIGHT tile. The D-pad
+# moves in 2D and wraps; UP and DOWN keep the column through the wide
+# tile; A picks.
+game openhouse
+wait 30
+cheat won 63
+press A
+wait 5
+press A
+wait 5
+expect state == 2
+cheat menu
+wait 2
+expect scen_sel == 0
+press RIGHT
+expect scen_sel == 1
+press RIGHT
+expect scen_sel == 2
+press RIGHT
+expect scen_sel == 0
+press LEFT
+expect scen_sel == 2
+press DOWN
+expect scen_sel == 5
+press DOWN
+expect scen_sel == 6
+# LEFT and RIGHT stay on the wide tile
+press LEFT
+expect scen_sel == 6
+press DOWN
+expect scen_sel == 2
+press UP
+expect scen_sel == 6
+press UP
+expect scen_sel == 5
+press LEFT
+expect scen_sel == 4
+press LEFT
+expect scen_sel == 3
+press LEFT
+expect scen_sel == 5
+press UP
+expect scen_sel == 2
+press LEFT
+press DOWN
+expect scen_sel == 4
+press A
+wait 5
+expect state == 3
+expect scen == 5

@@ -1,15 +1,21 @@
 # OPEN HOUSE: every Random list has a six-digit code; typing the same code
-# in deals the same list again (and doesn't count for the streak). The
-# shop is a grid of guest cards, five to a row, over SPACE / GUEST BOOK /
-# NEXT PARTY.
+# in deals the same list again (and doesn't count for the streak). A on the
+# Random tile offers DEAL A NEW LIST or TYPE A CODE. The shop is a grid of
+# guest cards, five to a row, over SPACE / GUEST BOOK / NEXT PARTY, and
+# every move wraps.
 game openhouse
 wait 5
 cheat won 63
 cheat menu
 wait 2
-press UP
+press DOWN
+press LEFT
+expect scen_sel == 5
+press A
 wait 2
-press RIGHT
+expect state == 18
+press DOWN
+press A
 wait 2
 expect state == 17
 press UP
@@ -29,8 +35,11 @@ expect pool14 == 38
 # again: the box starts on the last code
 cheat menu
 wait 2
-press RIGHT
+press A
+press DOWN
+press A
 wait 2
+expect state == 17
 press A
 wait 2
 expect code == 120000
@@ -39,6 +48,9 @@ expect pool13 == 42
 # a dealt list shows its own code
 cheat menu
 wait 2
+press A
+wait 2
+expect state == 18
 press A
 wait 2
 expect state == 3
@@ -57,27 +69,29 @@ expect shoptype == 0
 press RIGHT
 expect shopcur == 1
 expect shoptype == 1
-# no wrap at the left edge
+# LEFT and RIGHT go round the row
 press LEFT
 press LEFT
+expect shopcur == 4
+press RIGHT
 expect shopcur == 0
 press DOWN
 expect shopcur == 5
 expect shoptype == 7
 press DOWN
 expect shopcur == 10
-# down from the last row: the buttons, starting on SPACE
+# down from the last row: the button below, SPACE under the first column
 press DOWN
 expect shopcur == 15
 expect shoptype == -1
-# the buttons run SPACE, GUEST BOOK, NEXT PARTY
+# the buttons run SPACE, GUEST BOOK, NEXT PARTY and round again
 press RIGHT
 expect shopcur == 17
 press RIGHT
 expect shopcur == 16
 press RIGHT
-expect shopcur == 16
-# up goes back to the start of the last row of cards
+expect shopcur == 15
+# up goes back to the last row of cards, above the button
 press UP
 expect shopcur == 10
 press RIGHT
@@ -87,7 +101,7 @@ press RIGHT
 expect shopcur == 14
 expect shoptype == 37
 press RIGHT
-expect shopcur == 14
+expect shopcur == 10
 # the guest book opens and closes back into the shop
 press DOWN
 press RIGHT
@@ -100,6 +114,7 @@ wait 2
 expect state == 13
 # NEXT PARTY
 press RIGHT
+expect shopcur == 16
 press A
 wait 2
 expect state == 5
