@@ -20,7 +20,7 @@ too (`gs_new_contract`, `deal_terrain`). Generator rules:
 | Grown colours at the start | none until contract 9; one on 10-12; two from 13 | [W] job table |
 | Past contract 15 | contracts 13-15 repeat | [W] |
 | Grubs | 5 larvae at the start, 4 more each morning, on free tiles | counts ours |
-| Pods | 3 at the start, 4 each morning, on distinct random tiles | counts ours |
+| Pods | 3 at the start, 4 each morning, on random tiles; like RESTOCK's they can fall into a sinkhole (lost) or onto two pods (the third blows) | counts ours; holes and overloads [W] (Replenish: "Just like normal spawns, these cubes can spawn into holes or cause explosions if three cubes occupy one tile") |
 | Tilly's start | a random tile away from the walls | ours |
 
 ## Mechanics checklist
@@ -38,6 +38,8 @@ too (`gs_new_contract`, `deal_terrain`). Generator rules:
 | Restocking | a bought offer is replaced at once by another tool of its price; a new shop each shift | [S], [CH] |
 | Energy | pods are picked up by rolling onto or across them; hopping over doesn't | [W], [M] |
 | Pod stacks | two to a tile; a third (from the night's fall or SEED) blows the tile into a sinkhole and blasts its 8 neighbours | [W], [S] |
+| BOOST's reach | straight tools reach the whole row and column and gain the diagonals | [W] (Maximize: "full-column and full-row range with diagonals") |
+| CRACK | the egg explodes | [W] (Burst: "Causes an egg to explode") |
 | Shot pods | a hit pod explodes: its 8 neighbours at the same height; chains | [W] |
 | Pods block hatching | no grub hatches on a pod | [S] |
 | Rolls | continuous: can't climb; shove a grub one tile per step, not into higher ground or another grub; a grub shoved into a pit, a pod or a sprayed tile dies | [W], [S] |
@@ -120,9 +122,17 @@ Costs and effects follow the wiki's module list [W]; the names are ours.
   the day, including one hole and a number of platforms" [W] is read as a
   fresh deal every day (a pile-up would fill 30 tiles in days).
 - Which type evolves when several could: one at random.
-- Nightly pods fall on distinct tiles, never on Tilly or a grub.
-- BOOST adds diagonals; VOLATILE counts kills; CRACK is a normal blast.
+- Nightly pods fall on distinct tiles, never on Tilly or a grub. (That
+  they can land in a sinkhole or overload a tile is now sourced, see the
+  generator table; which tiles are excluded isn't.)
+- VOLATILE's blasts count as kills; CRACK's egg blast is a normal pod blast
+  (the wiki only says the egg explodes).
 - Numbers of grubs and pods per morning (sources give none).
+
+Checked again for this pass, with nothing new found: the wiki, the missing
+manuals guide and two Steam threads say nothing on the daily ground being
+re-dealt, on which type evolves when several could, on the daily counts, or
+on whether VOLATILE's blasts count as kills.
 
 ## What is ours
 

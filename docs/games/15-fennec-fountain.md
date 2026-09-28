@@ -46,7 +46,7 @@ presses.
 | Stone patches | the fennec walks on them, no block can | [ST] | fn_14 |
 | Doors | see Readings | [G] | fn_15 |
 | Undo | B takes back a step, without limit | [W], [MM] | fn_07, fn_13 |
-| Room menu | A: start over, leave, or set / drop one undo mark | [MM] | fn_13 |
+| Room menu | A: start over, leave, or set / drop one undo mark, good for one return | [MM] "set (or remove) a specific one-off undo point" | fn_13 |
 | No death, no timer | none | [MM] | |
 | Pace | slow, a tile at a time | [ST] "how slow the Koala goes" | fn_12 |
 | Hub and gates | 50 huts, gates at 5/10/20/30/40 | [W] | fn_08 |
@@ -59,7 +59,11 @@ presses.
 - **Basalt size:** a black 2 or 3 is N × N ([SE]'s editor limits; unconfirmed).
   It shrinks keeping its top-left corner. [SE] says a black 4 can be placed
   where a 4 × 4 wouldn't fit, so its size is unknown: the editor has no
-  BASALT 4 and no room uses one.
+  BASALT 4 and no room uses one. Read again for this pass: the thread's
+  poster calls the visual editor's black 2/3 limits a bug, since the code
+  editor places them in the last column or row "without issue". That leans
+  toward single-tile black blocks, but nobody says so outright, so the
+  N × N reading stays until a source settles it.
 - **Letting go:** the shrink comes when the push ends. Held, a push goes on
   step after step; tapped, each tap is a push of its own. B takes a push and
   its shrink back together. In a stored solution, '.' marks letting go.
@@ -73,10 +77,16 @@ presses.
   something in it stays open until it is clear (the "priority" cheese in
   [G]).
 - **Arrows** bind blocks only, not the fennec or geckos.
-- **The mark:** B jumps straight back to it, once.
+- **The mark:** B jumps straight back to it. That it works once is sourced
+  ([MM] "one-off undo point"); how you return to it isn't.
 - **Merges:** a big basalt can't grow, marble and the water stone never
   merge, two basalt never meet.
 - **Pace:** 12 frames a tile.
+
+Checked again for this pass, with nothing new found: the wiki, the missing
+manuals guide and the room 06 thread say nothing about doors, arrows and
+the fennec, scenery sizes beyond [SE], merges of big or marble blocks, what
+the sibling switch changes, or the walking pace.
 
 ## What is ours
 

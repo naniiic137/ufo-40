@@ -26,10 +26,12 @@ list; the Random Scenario deals its own pool (see the generator rules below).
 | A party | open the door to let in a random guest from the rolodex, use guests' abilities, or end the party | [W] |
 | Party end | the house is full and no ability can be used, the player ends it, or a shutdown | [W] |
 | Scoring | a party that ends without a shutdown pays every guest's popularity and cash | [W] |
-| Unpaid guests | a guest who charges cash you don't have costs 7 popularity instead | [W] |
+| Unpaid guests | the party's cash income comes in first, then each guest who charges cash is paid; one you can't pay costs 7 popularity instead | [W] "after accounting for any added cash by other guests first", "-7 popularity per guest that cannot be paid" |
+| No negative popularity | popularity never drops below 0; a popularity charge you can't pay does nothing | [S] "you can't go into negative Pop", "If you have a Pop penalty that you can't pay, nothing happens" |
 | Police | three rowdy guests at once (the original's red X; ours say RUCKUS!) bring the police; at two the neighbour's lamp comes on (the original's cat) | [W], [G] |
 | Fire marshal | guests brought in by others that overflow the house bring the fire department | [W], [S] |
 | Shutdown | no rewards, and you pick one guest who can't come to the next party | [W], [S] |
+| Booted guests | out of the house until the next party | [W] "They cannot return until the next party" |
 | Shop | after every party, buy guests with popularity and expansions with cash; bought guests stay for the scenario | [W] |
 | Stock | every non-star guest (Old Friend and Rich Pal too) can be bought 4 times a scenario; stars without limit | [W] |
 | Actions | a guest's action works once a party | [G] |
@@ -50,7 +52,7 @@ successful party. ⊚ marks an action (once a party).
 | OLD NEIGHBOUR | Old Friend | 2 | +1 | | |
 | RICH COUSIN | Rich Pal | 3 | | +1 | |
 | ROWDY MATE | Wild Buddy | — | +2 | | RUCKUS!, can't be bought |
-| CABBIE | Driver | 3 | | | ⊚ fetch a chosen guest from the rolodex (needs a free space) |
+| CABBIE | Driver | 3 | | | ⊚ fetch a chosen guest from the rolodex (needs a free space; the player chooses [S]) |
 | SLEUTH | Private I. | 4 | +2 | −1 | ⊚ fetch a chosen guest |
 | SURFER | Hippy | 4 | +1 | | cancels one RUCKUS! |
 | KITTEN | Cute Dog | 7 | +2 | | cancels one RUCKUS! |
@@ -76,9 +78,9 @@ successful party. ⊚ marks an action (once a party).
 | UPSTART | Climber | 12 | ★ | | 1 more popularity every time it enters, up to 9 |
 | BAND LEADER | Cheerleader | 5 | +1 | | ⊚ refreshes the other guests' used actions (not other band leaders) |
 | USHER | Greeter | 5 | +1 | | ⊚ lets in the next guest and collects their pay now, with anyone they bring |
-| FORTUNE TELLER | Magician | 5 | +1 | | ⊚ swaps a non-star guest for a random star from the rolodex, or a star for a non-star |
+| FORTUNE TELLER | Magician | 5 | +1 | | ⊚ swaps a non-star guest for a random star from the rolodex, or a star for a random non-star (the player doesn't pick [S]) |
 | MATCHMAKER | Cupid | 8 | +1 | | ⊚ boots two guests side by side |
-| OLD SAGE | Counselor | 7 | | | ⊚ removes RUCKUS! from everyone in the house |
+| OLD SAGE | Counselor | 7 | | | ⊚ removes RUCKUS! from everyone in the house at that moment, not from guests who come later |
 | MOON CHILD | Werewolf | 5 | +4 | | RUCKUS! every other time it comes (the first time too) |
 | GOAT | Monkey | 3 | +4 | | RUCKUS! |
 | PUNK SINGER | Rock Star | 5 | +3 | +2 | RUCKUS! |
@@ -129,16 +131,22 @@ streak, either way, so a known list can't be replayed into a streak.
   the next; the Random Scenario opens once scenario 5 is won. 2P Versus uses
   the scenarios you have opened.
 - **Winning** is checked when a party ends without a shutdown (by the player,
-  or because the house is full and no action is left).
+  or because the house is full and no action is left). [W] names the goal as
+  "a successful party", which fits; the exact moment isn't described.
 - **Popularity** (ours is FAME) **and cash** start at 0.
 - **Turning a guest away** (parrot, doorman) keeps them out of this party only.
-- **Booted, swapped and turned-away guests** are out until the next party.
-- **Fetching** picks a guest type from the guests still in the rolodex.
-- **Paying up:** a party's cash income comes first, then each guest that
-  charges cash is paid in turn; one you can't pay in full costs 7 popularity
-  and no cash. Popularity never drops below 0.
+- **Swapped and turned-away guests** are out until the next party, like
+  booted ones (booted is sourced, see the checklist).
+- **Fetching** offers the guests still in the rolodex; that the player
+  chooses is sourced ([W] "a specific guest", [S] "choose which guest").
+- **Paying up:** the order and the 7-point charge are sourced (checklist).
+  The penalty is per unpaid guest, as [W] says; [S] instead says "7 Pop per
+  missing Cash". The two only differ for the Sea Serpent (−3), so we follow
+  the wiki. A guest you can't pay in full takes no cash.
 - **RUCKUS! count:** each RUCKUS! guest counts once, minus one for each guest
-  that cancels trouble. The Old Sage's cure lasts until they leave the house.
+  that cancels trouble. The Old Sage's cure reaches only the guests in the
+  house when it is used ([W] "currently in the house"); that it lasts until
+  they leave is ours.
   The poet and barista count every RUCKUS! guest in the house, cancelled
   by a surfer or not.
 - **Drummers:** each one pays the number of drummers present (so 1, 4, 9, 16
@@ -153,7 +161,10 @@ streak, either way, so a known list can't be replayed into a streak.
   the rolodex; nothing happens if the rolodex has no guest of the other kind.
 - **The ban** after a shutdown is chosen from the guests who were at that party.
   Quitting on the police or fire screen doesn't skip it: CONTINUE resumes at
-  the ban (ph_17). Quitting on the tally resumes at the tally.
+  the ban (ph_17). Quitting on the tally resumes at the tally. The sources
+  only say "one of your guests" ([MM], [S]); [S] also calls it "the only way
+  to get any guests out of your deck", which doesn't settle whether guests
+  left in the rolodex can be picked.
 - **Streak:** only Random Scenario wins count; a Random loss resets it, and so
   does abandoning a Random run in progress. A set scenario never changes it.
 - **2P Versus** is hot seat: the players take alternate nights on one
@@ -162,6 +173,11 @@ streak, either way, so a known list can't be replayed into a streak.
   of nights, nobody wins. Streaks and goals are 1P only.
 - **The real names** go to the Old Neighbours and Rich Cousins bought in a
   scenario once all four of that kind have been bought.
+
+Checked again for this pass, with nothing new found: the wiki, the
+Setsideb guide and the missing manuals guide say nothing about unlocking,
+the starting popularity and cash, turning guests away, the Upstart's first
+value, the usher and a shutdown, streak resets or how 2P Versus is played.
 
 ## What is ours
 
