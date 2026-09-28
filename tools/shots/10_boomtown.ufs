@@ -1,0 +1,27 @@
+# README media: BOOMTOWN. The GIF and the shots are the demo player's own
+# run (real button presses), seed 5, which wins.
+shotscale 2
+seed 5
+game boomtown
+wait 90
+shot boomtown_title
+botuntil round == 3 40000
+botuntil state == 3 400
+gifstart boomtown 3 2
+botuntil state == 8 20000
+wait 40
+gifstop
+botuntil round == 6 60000
+botuntil state == 4 4000
+botplay 7
+shot boomtown_place
+botuntil state == 7 20000
+wait 20
+shot boomtown_chain
+botuntil round == 10 100000
+botuntil state == 3 400
+wait 20
+shot boomtown_king
+botuntil state == 10 40000
+wait 240
+shot boomtown_end
