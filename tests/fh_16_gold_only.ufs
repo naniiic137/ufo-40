@@ -1,5 +1,7 @@
 # FLINTHOLD: the last stage cleared with the cave hurt is the Saucer but not
-# the Alien; perfecting the stages afterwards (in any order) earns it then.
+# the Alien. The Alien is only checked at the ending: perfecting the other
+# stages afterwards earns nothing until the last stage is cleared again, and
+# then each stage's best record counts, even if that clear was hurt.
 game flinthold
 wait 5
 cheat stage 10
@@ -27,4 +29,12 @@ cheat stage 9
 cheat win
 wait 60
 expect done9 == 3
+expect perfects == 10
+expect goals !& 4
+cheat stage 10
+cheat cave 25
+cheat win
+wait 60
+expect state == 4
 expect goals & 4
+expect good_end == 1

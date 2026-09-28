@@ -23,8 +23,8 @@ cheat stage 5
 botuntil wave >= 5 60000
 botuntil phase == 1 5000
 botplay 300
-gifstart flinthold 3 2
-botplay 600
+gifstart flinthold 4 2
+botplay 480
 gifstop
 shot flinthold_ways
 # Palm Spring: gnats over the pond

@@ -91,7 +91,7 @@ and the music and sound volumes are in every game's pause menu too.
 | 16 | **TINTAIL** | Camouflage | sneaking on a grid past watchers by taking the colour of the ground you stand on, hollow logs, sun and rain pads, hatchlings with their own colour, a danger view you can't move in, undo, a branching map | Twig the chameleon, Salt Island, toads and storks, 15 new levels |
 | 25 | **OPEN HOUSE** | Party House | drawing guests from a deck into a house with limited space, the original's 46 guest abilities, costs and trouble, police, fire marshal and bans, set guest lists and a random list, win by ending a party with four stars within 25 nights, 2P hot-seat | a whitewashed house by the sea, all 46 guests' names and faces |
 | 28 | **DUNE EXPRESS** | Rail Heist | real time until a guard is alert, then 10-second turns, one-bullet lawmen who hit each other too, punches through walls and floors, carrying and throwing, hiding in barrels, levers, a crank gun, rams, three outlaws, three stars a mission with the original's time goals, 2P versus | Wade, Hush and Pearl, the Governor's tax trains, Biscuit the camel, 20 new trains |
-| 30 | **FLINTHOLD** | Rock On! Island | waves down fixed roads to a cave with 30 hearts, a build phase as long as you like and a horn to start the wave, a heroine who walks and throws, ten hunters in three upgrade trees, hens cooked by fire pits for meat (99 at most), fire pits that boost hunters, the original's beasts and bosses, 10 stages and 3 villages (two hidden), the Four Lords together in the last wave | Pim of the Hearth Clan, Flint Isle and its 13 layouts, the Four Lords of the Scale, every beast, hunter and villager |
+| 30 | **FLINTHOLD** | Rock On! Island | waves down fixed roads to a cave with 30 hearts, a build phase as long as you like and a horn to start the wave, a pay-out between waves, a heroine who walks and throws eight ways, ten hunters in three upgrade trees, hens cooked by fire pits for meat (99 at most), fire pits that boost hunters, the original's beasts and bosses, 10 stages and 3 villages (two hidden), the Four Lords together in the last wave | Pim of the Hearth Clan, Flint Isle and its 13 layouts, the Four Lords of the Scale, every beast, hunter and villager |
 | 08, 10–13, 17–24, 26–27, 29–50 | *coming soon* | | | still in the saucer's cargo hold |
 
 Every cartridge has three goals, which follow the original's own three: a
@@ -513,19 +513,22 @@ the top.
 
 - **Plays the same:** beasts come down fixed roads to the cave, wave after
   wave; the cave has 30 hearts. Build for as long as you like, then sound
-  the horn at the cave. Pim walks anywhere and holds B to throw; her arm and
-  her weapon (bones, a stone axe, a fire axe through armour) are bought at
-  the cave between waves, and a beast that runs into her costs the cave a
-  heart. Each spawn point pays 20 meat a wave, kills pay at once, and 99 is
-  the most you can hold.
+  the horn facing the road. Pim walks eight ways, fairly slowly, and holds B
+  to throw the way she points, diagonals too; her arm and weapon (bones, a
+  stone axe, a fire axe through armour) are bought at the cave between waves.
+  Any beast that touches her costs the cave a heart. Each spawn point pays
+  20 meat a wave, ticking in over a short pay-out when a wave ends; kills pay
+  at once, and 99 is the most you can hold.
 - **Hunters, hens and fire:** a thrower climbs to spear, barb or bow, sling,
   hurler or boulder, or torch, blaze or pitch, with the original's damage,
-  rates and reach. A fire pit beside a hunter adds half again; hens pay 5 a
-  wave raw and cook by one pit in two waves or by two in one, then sell for
-  30. Bushes and boulders dig out.
+  rates and reach. They throw straight at where a beast is, so quick ones
+  get away. A fire pit beside a hunter adds half again; hens pay 5 a wave
+  raw and cook by one pit in two waves or by two in one (or at once, if you
+  set them down during the pay-out), then sell for 30.
 - **Structure:** ten stages and three villages on the island map (two found
   only by walking off the map), each stage's last wave a boss, twenty waves
-  and all Four Lords at once to finish, and no music while you build. A demo
+  and all Four Lords at once to finish (a quarter of an hour), and no music
+  while you build. The title plays a demo when left alone, and the demo
   player in the tests wins every stage and village with real button presses.
 - **Ours:** Pim, the Hearth Clan and Flint Isle, all 13 layouts and their
   waves, the nippers, redbacks, fangcats, clubtails, gliders, gnats, the

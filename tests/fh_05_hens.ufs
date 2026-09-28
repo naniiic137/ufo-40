@@ -21,7 +21,9 @@ expect cook_4_8 == 0
 expect cook_7_8 == 1
 expect cook_11_8 == 2
 cheat horn
-waituntil wave == 2 2000
+wait 5
+waituntil phase == 0 3000
+expect wave == 2
 expect meat == 95
 expect cook_7_8 == 2
 # sell the cooked one with presses: A, then SELL (its only line)

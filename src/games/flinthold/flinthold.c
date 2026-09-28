@@ -7,6 +7,8 @@
 #include "flinthold.h"
 
 enum { S_TITLE, S_STORY, S_MAP, S_STAGE, S_RESULT, S_FELL, S_END };
+#define ATTRACT_AFTER 720  /* 12 s idle on the title */
+#define ATTRACT_TIME 5400  /* then 90 s of the demo */
 
 typedef struct Save {
     uint32_t magic;
@@ -25,6 +27,7 @@ static int state, state_t, frame_t, story_i;
 static int map_node, map_from = -1, map_t;     /* walking between nodes */
 static int res_hp, res_perfect, res_first, res_level;
 static bool sheet_mode, demo_auto, bot_play;
+static int attract_t;   /* frames of the attract demo left (0: none) */
 static int last_phase;
 
 typedef struct { float x, y, vx, vy; int life, col, kind; } Part;
@@ -48,17 +51,23 @@ static void burst(float x, float y, int col, int n, float sp) {
 
 typedef struct { int x, y; const char *name; } Node;
 static const Node NODES[FH_LEVELS] = {
-    {78, 140, "FIRST TRACKS"}, {78, 104, "THE COIL"}, {128, 104, "FERNBRAKE"}, {180, 126, "ASHFLATS"},
+    {78, 140, "FIRST TRACKS"}, {78, 104, "THE COIL"}, {128, 118, "FERNBRAKE"}, {180, 126, "ASHFLATS"},
     {128, 66, "FOUR WAYS"}, {232, 126, "PALM SPRING"}, {180, 66, "VINE RUN"}, {232, 76, "SKY SCARE"},
     {258, 48, "THE TANGLE"}, {258, 18, "THE FOUR LORDS"},
     {36, 140, "HEARTHOME"}, {232, 160, "THE SCALE CAMP"}, {298, 48, "FAR ISLE"},
 };
 /* each road: from, the way you press there, to; hidden roads lead to villages */
-typedef struct { int a, dir, b, hidden; } Road;
+/* each road: from a, the way you press there, to b, and the way back from b.
+ * hidden roads lead to villages and show once walked; a one-way road opens
+ * b only from a (Palm Spring needs Ashflats, not Sky Scare) */
+enum { R_HIDDEN = 1, R_ONEWAY = 2 };
+typedef struct { int a, dir, b, back, flags; } Road;
 static const Road ROADS[] = {
-    {FH_V_HOME, FH_RIGHT, 0, 0}, {0, FH_UP, 1, 0}, {1, FH_RIGHT, 2, 0}, {2, FH_RIGHT, 3, 0}, {2, FH_UP, 4, 0},
-    {3, FH_RIGHT, 5, 0}, {4, FH_RIGHT, 6, 0}, {5, FH_UP, 7, 0}, {6, FH_RIGHT, 7, 0}, {7, FH_UP, 8, 0},
-    {8, FH_UP, 9, 0}, {5, FH_DOWN, FH_V_CAMP, 1}, {8, FH_RIGHT, FH_V_ISLE, 2},
+    {FH_V_HOME, FH_RIGHT, 0, FH_LEFT, 0}, {0, FH_UP, 1, FH_DOWN, 0}, {0, FH_RIGHT, 2, FH_DOWN, 0},
+    {1, FH_RIGHT, 2, FH_LEFT, 0}, {2, FH_RIGHT, 3, FH_LEFT, 0}, {2, FH_UP, 4, FH_DOWN, 0},
+    {3, FH_RIGHT, 5, FH_LEFT, 0}, {4, FH_RIGHT, 6, FH_LEFT, 0}, {5, FH_UP, 7, FH_DOWN, R_ONEWAY},
+    {6, FH_RIGHT, 7, FH_LEFT, 0}, {7, FH_UP, 8, FH_DOWN, 0}, {8, FH_UP, 9, FH_DOWN, 0},
+    {5, FH_DOWN, FH_V_CAMP, FH_UP, R_HIDDEN}, {8, FH_RIGHT, FH_V_ISLE, FH_LEFT, R_HIDDEN},
 };
 
 static bool is_village(int n) { return n >= FH_STAGES; }
@@ -68,14 +77,15 @@ static bool found(int n) {
     if (n == FH_V_ISLE) return (sv.found & 2) != 0;
     return true;
 }
-/* a node you may stand on: home, anything cleared, anything next to a cleared stage */
+/* a node you may stand on: home, anything cleared, anything a road leads to
+ * from a cleared stage */
 static bool open_node(int n) {
     if (n == FH_V_HOME || cleared(n)) return true;
     if (is_village(n)) return found(n);
     for (int i = 0; i < ARRAY_LEN(ROADS); i++) {
         const Road *r = &ROADS[i];
-        if (r->hidden) continue;
-        int o = r->a == n ? r->b : r->b == n ? r->a : -1;
+        if (r->flags & R_HIDDEN) continue;
+        int o = r->b == n ? r->a : r->a == n && !(r->flags & R_ONEWAY) ? r->b : -1;
         if (o >= 0 && (o == FH_V_HOME || cleared(o))) return true;
     }
     return false;
@@ -87,10 +97,10 @@ static int road_to(int n, int dir) {
         const Road *r = &ROADS[i];
         int to = -1;
         if (r->a == n && r->dir == dir) to = r->b;
-        else if (r->b == n && (r->dir + 2) % 4 == dir) to = r->a;
+        else if (r->b == n && r->back == dir) to = r->a;
         if (to < 0) continue;
-        if (r->hidden && r->a == n && !cleared(n)) return -1;
-        if (!r->hidden && !open_node(to)) return -1;
+        if ((r->flags & R_HIDDEN) && r->a == n && !cleared(n)) return -1;
+        if (!(r->flags & R_HIDDEN) && !open_node(to)) return -1;
         return to;
     }
     return -1;
@@ -111,10 +121,12 @@ static void save_now(void) {
     game_save_write(game_current_index(), &sv, (int)sizeof sv);
 }
 
+/* the Alien is only earned at the ending (stage_won); the save's good ending
+ * gives it back */
 static void check_goals(void) {
-    if (sv.found & 1) game_award(GOAL_BEACON);   /* reach the second village */
-    if (sv.done[FH_FINAL] & 1) game_award(GOAL_SAUCER); /* clear the last stage */
-    if (all_perfect() == FH_STAGES) game_award(GOAL_ALIEN); /* every stage without damage */
+    if (sv.found & 1) game_award(GOAL_BEACON);   /* the Scale Camp found */
+    if (sv.done[FH_FINAL] & 1) game_award(GOAL_SAUCER); /* the last stage cleared */
+    if (sv.good_end) game_award(GOAL_ALIEN);     /* every stage perfect, at the end */
 }
 
 static void load_save(void) {
@@ -261,15 +273,27 @@ static void stage_update(void) {
         pr = held & ~prev;
         prev = held;
     }
+    if (attract_t > 0) {
+        /* the attract demo: any button, or its time running out, goes back
+         * to the title; nothing of it is kept */
+        if ((input_held() & 0xFF) || --attract_t <= 0 || fh.phase == PH_WON || fh.phase == PH_LOST) {
+            attract_t = 0;
+            demo_auto = false;
+            input_consume();
+            to_title();
+            return;
+        }
+    }
     int talk_before = fh.talk_npc;
     fh_sim_step(held, pr);
     consume_events();
     if (fh.talk_npc >= 0 && talk_before < 0) sfx_play_name("fh_talk");
     if (fh.phase != last_phase) {
         if (fh.phase == PH_BATTLE) { sfx_play_name("fh_horn"); music_play(battle_song(fh.level)); }
-        else if (fh.phase == PH_BUILD) { music_stop(); music_play(FH_MUS_WAVE); }
+        else if (fh.phase == PH_PAYOUT) { music_stop(); music_play(FH_MUS_WAVE); }
         last_phase = fh.phase;
     }
+    if (fh.leave) { note_stats(); save_now(); to_map(); return; }
     if (fh.phase == PH_WON && fh.phase_t > 40) stage_won();
     else if (fh.phase == PH_LOST && fh.phase_t > 50) stage_lost();
 }
@@ -319,6 +343,17 @@ static void fh_update(void) {
     case S_TITLE:
         game_set_pausable(false);
         if (btnp(BTN_B)) { game_exit_to_library(); break; }
+        if (input_held() & 0xFF) state_t = imin(state_t, 20);
+        if (state_t >= ATTRACT_AFTER) {
+            /* left alone on the title: the demo plays one of the first stages */
+            static int next;
+            to_stage(next++ % 3);
+            demo_auto = true;
+            attract_t = ATTRACT_TIME;
+            game_set_pausable(false);
+            game_pause_items(0, NULL, NULL);
+            break;
+        }
         if (state_t > 10 && (btnp(BTN_A) || btnp(BTN_START))) {
             sfx_play_name("ui_ok");
             input_consume();
@@ -638,7 +673,8 @@ static void draw_hud(void) {
     /* the wave coming (in the build phase) or running */
     snprintf(buf, sizeof buf, "WAVE %d/%d", imin(fh.wave + 1, fh.n_waves), fh.n_waves);
     text_draw(buf, 70, 3, C_LIGHT);
-    if (fh.phase == PH_BUILD) tiny_draw(fh.wave == 0 ? "BUILD, THEN SOUND THE HORN AT THE CAVE" : "BUILD PHASE", 70, 13, (frame_t / 30) % 2 ? C_YELLOW : C_AMBER);
+    if (fh.phase == PH_BUILD) tiny_draw(fh.wave == 0 ? "BUILD, THEN A ON THE ROAD SOUNDS THE HORN" : "BUILD PHASE", 70, 13, (frame_t / 30) % 2 ? C_YELLOW : C_AMBER);
+    else if (fh.phase == PH_PAYOUT) tiny_draw("MEAT COMING IN", 70, 13, C_LIME);
     else if (fh.phase == PH_BATTLE) tiny_draw("THEY'RE COMING!", 70, 13, C_RED);
     /* Pim's arm and weapon */
     static const char *const WEAP[3] = {"BONES", "STONE AXE", "FIRE AXE"};
@@ -672,26 +708,30 @@ static void draw_hud(void) {
 static void draw_menu(void) {
     char buf[40];
     int tx = fh.menu_tx, ty = fh.menu_ty;
+    bool off = tx < 0 || ty < 0 || tx >= FH_W || ty >= FH_H;
+    if (off) { tx = iclamp(fh.px / FH_TU, 0, FH_W - 1); ty = iclamp(fh.py / FH_TU, 0, FH_H - 1); }
     int w = 100, h = 14 + fh.menu_n * 10;
     int x = tx * FH_T + 20, y = FH_OY + ty * FH_T - 4;
     if (x + w > SCREEN_W - 2) x = tx * FH_T - w - 4;
     if (y + h > SCREEN_H - 2) y = SCREEN_H - 2 - h;
     if (y < FH_OY + 2) y = FH_OY + 2;
     /* the faced tile, and a unit's reach */
-    if (fh.obj[ty][tx] == O_UNIT) {
+    if (!off && fh.obj[ty][tx] == O_UNIT) {
         const FhUnit *u = &fh.unit[fh.oarg[ty][tx]];
         gfx_circb(tx * FH_T + 8, FH_OY + ty * FH_T + 8, FH_UNIT[u->kind].range * FH_T + 8, C_WHITE);
     }
-    gfx_rectb(tx * FH_T, FH_OY + ty * FH_T, FH_T, FH_T, (frame_t / 6) % 2 ? C_WHITE : C_YELLOW);
+    if (!off) gfx_rectb(tx * FH_T, FH_OY + ty * FH_T, FH_T, FH_T, (frame_t / 6) % 2 ? C_WHITE : C_YELLOW);
     ui_panel(x, y, w, h, C_INK, C_TAN);
     const char *head = "";
-    if (fh.tile[ty][tx] == TL_CAVE) head = "THE CAVE";
+    if (off) head = "THE WAY AHEAD";
+    else if (fh.tile[ty][tx] == TL_CAVE) head = "THE CAVE";
     else if (fh.tile[ty][tx] == TL_BUSH) head = "A BUSH";
     else if (fh.tile[ty][tx] == TL_ROCK) head = "A BOULDER";
     else if (fh.obj[ty][tx] == O_UNIT) head = FH_UNIT[fh.unit[fh.oarg[ty][tx]].kind].name;
     else if (fh.obj[ty][tx] == O_HEN) head = fh.oarg[ty][tx] >= 2 ? "HEN (COOKED)" : fh.oarg[ty][tx] ? "HEN (HALF DONE)" : "HEN";
     else if (fh.obj[ty][tx] == O_FIRE) head = "FIRE PIT";
-    else head = "OPEN GROUND";
+    else if (fh_buildable(tx, ty)) head = "OPEN GROUND";
+    else head = "THE WAY AHEAD";
     tiny_draw(head, x + 5, y + 4, C_AMBER);
     for (int i = 0; i < fh.menu_n; i++) {
         const FhMenuItem *m = &fh.menu[i];
@@ -702,6 +742,7 @@ static void draw_menu(void) {
         text_draw(fh_menu_label(m, buf, sizeof buf), x + 9, ly, col);
         if (sel) gfx_pset(x + 5, ly + 3, C_YELLOW), gfx_pset(x + 6, ly + 3, C_YELLOW);
         if (m->act == M_SELL) snprintf(buf, sizeof buf, "+%d", fh_sell_value(tx, ty));
+        else if (m->act == M_FIGHT || m->act == M_LEAVE) buf[0] = 0;
         else if (m->cost) snprintf(buf, sizeof buf, "%d", m->cost);
         else buf[0] = 0;
         if (buf[0]) {
@@ -809,9 +850,16 @@ static void draw_stage(void) {
     draw_hud();
     if (fh.menu_open) draw_menu();
     draw_talk();
-    if (fh.phase == PH_BUILD && fh.phase_t < 90 && fh.wave > 0) {
-        ui_panel(100, 70, 120, 22, C_INK, C_LIME);
-        text_center("WAVE HELD!", 160, 77, C_LIME);
+    if (fh.phase == PH_PAYOUT) {
+        ui_panel(100, 64, 120, 30, C_INK, C_LIME);
+        text_center("WAVE HELD!", 160, 69, C_LIME);
+        char pb[24];
+        snprintf(pb, sizeof pb, "+%d", fh.payout_left);
+        tiny_center(fh.payout_left ? pb : "HENS COOKING...", 160, 82, C_YELLOW);
+    }
+    if (attract_t > 0) {
+        ui_panel(116, 150, 88, 16, C_INK, C_AMBER);
+        text_center((frame_t / 30) % 2 ? "DEMO" : "PRESS " GLYPH_A, 160, 154, C_WHITE);
     }
     if (fh.phase == PH_BATTLE && fh.phase_t < 60) {
         char buf[32];
@@ -846,7 +894,7 @@ static void draw_map(void) {
         }
     for (int i = 0; i < ARRAY_LEN(ROADS); i++) {
         const Road *r = &ROADS[i];
-        if (r->hidden && !found(r->b)) continue;
+        if ((r->flags & R_HIDDEN) && !found(r->b)) continue;
         int ax = NODES[r->a].x, ay = NODES[r->a].y, bx = NODES[r->b].x, by = NODES[r->b].y;
         for (int k = 0; k <= 8; k++) {
             int x = ax + (bx - ax) * k / 8, y = ay + (by - ay) * k / 8;
@@ -865,7 +913,7 @@ static void draw_map(void) {
     /* roads */
     for (int i = 0; i < ARRAY_LEN(ROADS); i++) {
         const Road *r = &ROADS[i];
-        if (r->hidden && !found(r->b)) continue;
+        if ((r->flags & R_HIDDEN) && !found(r->b)) continue;
         int ax = NODES[r->a].x, ay = NODES[r->a].y, bx = NODES[r->b].x, by = NODES[r->b].y;
         bool lit = open_node(r->a) && open_node(r->b);
         for (int k = 0; k <= 12; k++) {
@@ -1100,10 +1148,10 @@ const FhTalk FH_TALK[FH_VILLAGES][4] = {
         {"NEWT", "LORD JAW WALKS SLOWLY. BUT IF HE EVER REACHES A CAVE, THAT CAVE IS GONE."},
     },
     {   /* Far Isle */
-        {"TUSKLING", "IT IS HARD, LIVING OUT HERE. THE GRASS IS THIN AND THE WIND NEVER SLEEPS."},
-        {"TUSKLING", "THERE WERE FIVE OF US ONCE. ONE SWAM FOR THE BIG ISLE TO START A HERD OF HIS OWN."},
-        {"TUSKLING", "WE STILL TALK ABOUT HIM. WE STILL SAVE HIM THE SWEETEST ROOTS."},
-        {"TUSKLING", "IF YOU SEE HIM, TELL HIM IT IS QUIETER HERE WITHOUT HIS SINGING."},
+        {"TUSKLING", "A HUMMING SAUCER CROSSES OUR SKY SOMETIMES. IT SMELLS OF WARM TIN AND NEW PAINT."},
+        {"TUSKLING", "IT WAS BUILT TO CARRY FORTY LITTLE BOXES. NOW IT CARRIES FIFTY, AND STILL CALLS ITSELF FORTY."},
+        {"TUSKLING", "WE STAMPED 'BEAMDOWN' IN THE SAND, NICE AND BIG, SO IT KNOWS WHERE TO LAND."},
+        {"TUSKLING", "IF IT EVER DOES, WE ARE ASKING FOR THE BOX WITH OUR ISLE IN IT. NUMBER THIRTY."},
     },
 };
 
@@ -1121,10 +1169,12 @@ static void fh_start(void) {
     sheet_mode = false;
     demo_auto = false;
     bot_play = false;
+    attract_t = 0;
     to_title();
 }
 
 static void fh_quit(void) {
+    if (attract_t > 0) return; /* the attract demo keeps nothing */
     if (state == S_STAGE) note_stats();
     save_now();
 }
@@ -1245,6 +1295,14 @@ static int fh_query(const char *key, int *out) {
     if (!strcmp(key, "art_bad")) { *out = fh_art_bad; return 1; }
     if (!strcmp(key, "stages_ok")) { *out = stages_ok(); return 1; }
     if (!strcmp(key, "bot_step")) { *out = fh_bot_step; return 1; }
+    if (!strcmp(key, "throws")) { *out = fh.tower_throws; return 1; }
+    if (!strcmp(key, "hits")) { *out = fh.tower_hits; return 1; }
+    if (!strcmp(key, "missed")) { *out = fh.tower_throws - fh.tower_hits; return 1; }
+    if (!strcmp(key, "aim_dx")) { *out = fh.aim_dx; return 1; }
+    if (!strcmp(key, "aim_dy")) { *out = fh.aim_dy; return 1; }
+    if (!strcmp(key, "busy")) { *out = fh.busy_frames / 60; return 1; }
+    if (!strcmp(key, "secs")) { *out = fh.frame / 60; return 1; }
+    if (!strcmp(key, "attract")) { *out = attract_t > 0; return 1; }
     if (!strcmp(key, "bot")) {
         if (state == S_STAGE) *out = fh_bot_buttons();
         else if (state == S_MAP) *out = map_bot();
@@ -1410,6 +1468,8 @@ static int fh_cheat(const char *cmd) {
         fh.px = a * FH_TU + FH_TU / 2;
         fh.py = b * FH_TU + FH_TU / 2;
         fh.face = c & 3;
+        fh.aim_dx = FH_DX[fh.face];
+        fh.aim_dy = FH_DY[fh.face];
         fh.zstate = Z_OK;
         return 1;
     }
@@ -1431,12 +1491,13 @@ const GameDef GAME_FLINTHOLD = {
     "FLINTHOLD",
     "1987",
     "STRATEGY",
-    "RALLY THE HEARTH CLAN AND HOLD THE CAVES OF FLINT ISLE AGAINST THE FOUR LORDS' BEASTS!",
-    {"REACH THE SECOND VILLAGE", "CLEAR THE LAST STAGE", "CLEAR EVERY STAGE WITH NO CAVE DAMAGE"},
-    GLYPH_DPAD "\tWALK\n"
-    "HOLD " GLYPH_B "\tTHROW THE WAY YOU FACE\n"
+    "LEAD THE HEARTH CLAN AGAINST THE BEASTS OF FLINT ISLE!",
+    {"FIND THE SCALE CAMP", "DRIVE OFF THE FOUR LORDS", "HOLD EVERY STAGE WITHOUT A SCRATCH ON THE CAVE"},
+    GLYPH_DPAD "\tWALK (EIGHT WAYS)\n"
+    "HOLD " GLYPH_B "\tTHROW THE WAY YOU POINT\n"
     GLYPH_A "\tBUILD, UPGRADE, SELL, DIG, TALK\n"
-    GLYPH_A " AT CAVE\tSOUND THE HORN, ARM UP\n"
+    GLYPH_A " AT ROAD\tSOUND THE HORN\n"
+    GLYPH_A " AT CAVE\tARM UP, OR THE HORN\n"
     "START\tPAUSE",
     C_TAN, C_ORANGE,
     fh_load, fh_start, fh_update, fh_draw, fh_quit, fh_label, fh_query, fh_cheat,

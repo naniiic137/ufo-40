@@ -1,8 +1,10 @@
 # FLINTHOLD: stage 10, THE FOUR LORDS, can be won: the demo player clears it with
 # real button presses (building, farming, upgrading, the horn and Pim's
-# bones), wave by wave.
+# bones), wave by wave. Like the original's, the last stage is long: the
+# demo player takes over 900 s.
 game flinthold
 wait 5
 cheat stage 10
 botuntil done10 >= 1 250000
 expect best10 > 0
+expect secs >= 900

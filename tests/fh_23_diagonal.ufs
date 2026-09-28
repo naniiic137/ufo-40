@@ -1,0 +1,26 @@
+# FLINTHOLD: Pim throws eight ways: the pad held diagonally aims her
+# throws diagonally.
+game flinthold
+wait 5
+cheat stage 1
+cheat hold
+cheat arm 1 0
+cheat foe nipper 0 48
+cheat pim 5 4 3
+hold UP LEFT 1
+expect aim_dx == -1
+expect aim_dy == -1
+expect tx == 5
+expect ty == 4
+hold B 3
+wait 20
+expect foe0_hp == 400
+# straight up she would miss it
+cheat stage 1
+cheat hold
+cheat arm 1 0
+cheat foe nipper 0 48
+cheat pim 5 4 3
+hold B 3
+wait 20
+expect foe0_hp == 500

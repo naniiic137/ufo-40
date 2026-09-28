@@ -112,7 +112,8 @@ enum { D_NORMAL, D_FIRE, D_ARROW, D_PIERCE };
 
 enum { O_NONE, O_UNIT, O_HEN, O_FIRE, O_NPC };
 enum { TL_GRASS, TL_FLOWER, TL_PATH, TL_THICKET, TL_BUSH, TL_ROCK, TL_WATER, TL_CAVE, TL_HUT };
-enum { PH_BUILD, PH_BATTLE, PH_WON, PH_LOST };
+/* PH_PAYOUT: the few seconds after a wave while its meat comes in */
+enum { PH_BUILD, PH_BATTLE, PH_WON, PH_LOST, PH_PAYOUT };
 enum { Z_OK, Z_STUN, Z_GONE };
 
 #define FH_MAX_UNITS 64
@@ -144,6 +145,7 @@ typedef struct FhFoe {
     uint8_t tarred, sub;  /* sub: 1/64 px carried over */
     int8_t face;          /* for drawing: -1 left, 1 right */
     int32_t fx0, fy0;     /* fliers: where they set off */
+    int32_t remx, remy;   /* fliers: the fraction of a step carried over */
 } FhFoe;
 
 enum { SH_BONE, SH_SPEAR, SH_BARB, SH_ARROW, SH_ROCK, SH_FIRE, SH_EMBER, SH_TAR, SH_PIM };
@@ -173,7 +175,7 @@ enum { EV_KILL, EV_HIT, EV_CAVE, EV_PIM_HIT, EV_BUILD, EV_SELL, EV_DIG, EV_NOPE,
 typedef struct FhEvent { uint8_t kind; int16_t x, y; int16_t a; } FhEvent;
 
 /* menu entries (what A offers on the faced tile) */
-enum { M_THROWER, M_HEN, M_FIRE, M_DIG, M_UPGRADE, M_SELL, M_TALK, M_FIGHT, M_THROW_UP, M_WEAPON_UP, M_CLOSE };
+enum { M_THROWER, M_HEN, M_FIRE, M_DIG, M_UPGRADE, M_SELL, M_TALK, M_FIGHT, M_THROW_UP, M_WEAPON_UP, M_LEAVE };
 typedef struct FhMenuItem { uint8_t act, arg; int16_t cost; uint8_t ok; } FhMenuItem;
 
 typedef struct FhSim {
@@ -202,6 +204,11 @@ typedef struct FhSim {
     /* Pim */
     int32_t px, py;
     int face, zstate, zt, throw_cool, throw_lv, weapon_lv, throwing, walk_t;
+    int aim_dx, aim_dy;           /* the way she throws: eight ways */
+    int payout_left, payout_t;    /* meat still to come in after a wave */
+    int leave;                    /* LEAVE STAGE was picked */
+    int tower_throws, tower_hits; /* tests: shots from hunters, and how many hit */
+    int busy_frames;              /* frames in battle or pay-out (a clean run's time) */
 
     /* the A menu */
     int menu_open, menu_sel, menu_n, menu_tx, menu_ty;

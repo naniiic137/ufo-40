@@ -37,7 +37,7 @@ const FhUnitDef FH_UNIT[U_KINDS] = {
     {"BOW",      40, U_SPEAR,    100, 120, 6, D_ARROW, 64},
     {"SLING",    20, U_THROWER,    8, 25, 3, D_NORMAL, 48},
     {"HURLER",   40, U_SLING,     10, 15, 4, D_NORMAL, 56},
-    {"BOULDER",  40, U_SLING,      5, 70, 3, D_NORMAL, 32},
+    {"BOULDER",  40, U_SLING,      5, 70, 2, D_NORMAL, 32},
     {"TORCH",    20, U_THROWER,   20, 50, 2, D_FIRE,   48},
     {"BLAZE",    40, U_TORCH,      5,  5, 2, D_FIRE,   24},
     {"PITCH",    40, U_TORCH,     10, 30, 2, D_NORMAL, 48},
@@ -56,15 +56,18 @@ static const int THROW_EVERY[3] = {30, 20, 10};  /* 2, 3 and 6 a second */
 static const int THROW_RANGE[3] = {2, 3, 4};
 static const int WEAPON_DMG[3] = {10, 20, 30};   /* bones, stone axe, fire axe */
 
-#define PIM_SPEED 16       /* a pixel a frame */
+#define PIM_SPEED 11       /* 11/16 of a pixel a frame: about twice a walker */
 #define PIM_SHOT 64
-#define PIM_STUN 40        /* knocked down, then gone, then back at the cave */
-#define PIM_GONE 50
+#define PIM_DIAG 45        /* PIM_SHOT on each axis of a diagonal throw */
+#define PIM_STUN 60        /* knocked down, then gone, then back at the cave: 3 s */
+#define PIM_GONE 120
+#define PAYOUT_TIME 150    /* after a wave, 2.5 s while its meat comes in */
+#define PAYOUT_HENS 75     /* the hens pay half way through; cooking at the end */
 #define PIM_R 5            /* half her body, in pixels */
 #define TOUCH 10           /* a foe this close to Pim hits her (pixels) */
 #define GNAT_SEES 48       /* a gnat goes for Pim within three tiles */
-#define GAP_FOE 60         /* frames between foes of a group */
-#define GAP_CAT 36
+#define GAP_FOE 48         /* frames between foes of a group */
+#define GAP_CAT 30
 #define GAP_BOSS 150
 #define GAP_GROUP 90
 #define SLOW_BARB 60
@@ -234,6 +237,8 @@ static void pim_home(void) {
     fh.px = bx * FH_TU + FH_TU / 2;
     fh.py = by * FH_TU + FH_TU / 2;
     fh.face = bd;
+    fh.aim_dx = FH_DX[bd];
+    fh.aim_dy = FH_DY[bd];
 }
 
 void fh_sim_start(int level) {
@@ -327,15 +332,23 @@ void fh_menu_build(int tx, int ty) {
     fh.menu_n = 0;
     fh.menu_tx = tx;
     fh.menu_ty = ty;
-    if (!in_field(tx, ty)) return;
+    bool build = fh.phase == PH_BUILD;
+    /* facing the edge of the field, or anything that offers nothing else:
+     * start the next wave from right here, or leave the stage */
+    if (!in_field(tx, ty)) {
+        if (build) menu_add(M_FIGHT, 0, 0);
+        menu_add(M_LEAVE, 0, 0);
+        return;
+    }
     int t = fh.tile[ty][tx], o = fh.obj[ty][tx];
     if (t == TL_CAVE) {
-        if (fh.phase == PH_BUILD) menu_add(M_FIGHT, 0, 0);
+        if (build) menu_add(M_FIGHT, 0, 0);
         if (fh.throw_lv < 2) menu_add(M_THROW_UP, 0, THROW_COST[fh.throw_lv + 1]);
         if (fh.weapon_lv < 2) menu_add(M_WEAPON_UP, 0, WEAPON_COST[fh.weapon_lv + 1]);
         /* Pim's own upgrades only while no wave is running */
         for (int i = 0; i < fh.menu_n; i++)
-            if (fh.phase != PH_BUILD && fh.menu[i].act != M_FIGHT) fh.menu[i].ok = 0;
+            if (!build && fh.menu[i].act != M_FIGHT) fh.menu[i].ok = 0;
+        menu_add(M_LEAVE, 0, 0);
         return;
     }
     if (t == TL_BUSH) { menu_add(M_DIG, 0, DIG_BUSH); return; }
@@ -348,11 +361,14 @@ void fh_menu_build(int tx, int ty) {
         return;
     }
     if (o == O_HEN || o == O_FIRE) { menu_add(M_SELL, 0, 0); return; }
+    if (o == O_NPC) return;
     if (fh_buildable(tx, ty)) {
         menu_add(M_THROWER, 0, FH_UNIT[U_THROWER].cost);
         menu_add(M_HEN, 0, HEN_COST);
         menu_add(M_FIRE, 0, FIRE_COST);
     }
+    if (build) menu_add(M_FIGHT, 0, 0);
+    menu_add(M_LEAVE, 0, 0);
 }
 
 const char *fh_menu_label(const FhMenuItem *m, char *buf, int n) {
@@ -366,6 +382,7 @@ const char *fh_menu_label(const FhMenuItem *m, char *buf, int n) {
     case M_FIGHT: snprintf(buf, (size_t)n, "SOUND THE HORN"); break;
     case M_THROW_UP: snprintf(buf, (size_t)n, fh.throw_lv == 0 ? "QUICK ARM" : "QUICKER ARM"); break;
     case M_WEAPON_UP: snprintf(buf, (size_t)n, fh.weapon_lv == 0 ? "STONE AXE" : "FIRE AXE"); break;
+    case M_LEAVE: snprintf(buf, (size_t)n, "LEAVE STAGE"); break;
     default: snprintf(buf, (size_t)n, "-"); break;
     }
     return buf;
@@ -454,6 +471,9 @@ int fh_menu_do(int i) {
         fh.meat -= m.cost;
         fh.spent_upgrades += m.cost;
         ev(EV_UPGRADE, px, py, -2);
+        break;
+    case M_LEAVE:
+        fh.leave = 1;
         break;
     default: return 0;
     }
@@ -545,8 +565,12 @@ static void move_foes(void) {
                 f->x = tx;
                 f->y = ty;
             } else {
-                f->x += (int32_t)(dx * spd / dist);
-                f->y += (int32_t)(dy * spd / dist);
+                /* carry the remainders, or slow fliers would lose their slant */
+                int64_t nx = dx * spd + f->remx, ny = dy * spd + f->remy;
+                f->x += (int32_t)(nx / dist);
+                f->y += (int32_t)(ny / dist);
+                f->remx = (int32_t)(nx % dist);
+                f->remy = (int32_t)(ny % dist);
             }
             f->dist += spd;
             int64_t cx = cave_cx() - f->x, cy = cave_cy() - f->y;
@@ -566,8 +590,8 @@ static void move_foes(void) {
             ev(EV_CAVE, cave_cx() / FH_U, cave_cy() / FH_U, d->cave);
             continue;
         }
-        /* walkers and gnats knock Pim down; gliders fly over her */
-        if (fh.zstate == Z_OK && (!d->flies || f->kind == E_GNAT)) {
+        /* any beast that touches Pim knocks her down */
+        if (fh.zstate == Z_OK) {
             int32_t dx = iabs(fh.px - f->x), dy = iabs(fh.py - f->y);
             int reach = (TOUCH + (d->boss ? 6 : 0)) * FH_U;
             if (dx < reach && dy < reach) pim_hit();
@@ -583,29 +607,46 @@ static int gap_for(int kind) {
 }
 
 static void wave_end(void) {
-    add_meat(FH_WAVE_MEAT * fh.n_spawns);
-    /* hens: +5 each while not cooked; a fire pit beside one cooks it over two
-     * waves, two or more fire pits in one */
+    fh.wave++;
+    fh.phase_t = 0;
+    if (fh.wave >= fh.n_waves) {
+        fh.phase = PH_WON;
+        ev(EV_WON, 0, 0, 0);
+        return;
+    }
+    /* the pay-out: the spawn points' meat ticks in first; spending while it
+     * does is fine, and what won't fit is lost */
+    fh.phase = PH_PAYOUT;
+    fh.payout_t = 0;
+    fh.payout_left = FH_WAVE_MEAT * fh.n_spawns;
+    ev(EV_WAVE_END, 0, 0, fh.wave);
+}
+
+static void payout(void) {
+    fh.payout_t++;
+    if (fh.payout_left > 0) { add_meat(1); fh.payout_left--; }
+    /* half way: every hen not yet cooked lays 5, even one put down just now */
+    if (fh.payout_t == PAYOUT_HENS)
+        for (int y = 0; y < FH_H; y++)
+            for (int x = 0; x < FH_W; x++)
+                if (fh.obj[y][x] == O_HEN && fh.oarg[y][x] < 2) fh.payout_left += HEN_WAVE;
+    if (fh.payout_t < PAYOUT_TIME) return;
+    add_meat(fh.payout_left);
+    fh.payout_left = 0;
+    /* then the cooking: a fire pit beside a hen cooks it over two waves, two
+     * or more pits in one */
     int cooked = 0;
     for (int y = 0; y < FH_H; y++)
         for (int x = 0; x < FH_W; x++) {
             if (fh.obj[y][x] != O_HEN || fh.oarg[y][x] >= 2) continue;
-            add_meat(HEN_WAVE);
             int f = fh_fires_near(x, y);
             if (f >= 2) fh.oarg[y][x] = 2;
             else if (f == 1) fh.oarg[y][x]++;
             if (f) cooked++;
         }
     if (cooked) ev(EV_COOK, 0, 0, cooked);
-    fh.wave++;
+    fh.phase = PH_BUILD;
     fh.phase_t = 0;
-    if (fh.wave >= fh.n_waves) {
-        fh.phase = PH_WON;
-        ev(EV_WON, 0, 0, 0);
-    } else {
-        fh.phase = PH_BUILD;
-        ev(EV_WAVE_END, 0, 0, fh.wave);
-    }
 }
 
 static void run_wave(void) {
@@ -714,39 +755,34 @@ static void towers(void) {
             ev(EV_THROW, u->x, u->y, u->kind);
             continue;
         }
+        /* thrown straight at where the beast is now: a quick one can be missed */
         FhShot *s = new_shot();
         if (!s) continue;
         s->kind = SHOT_OF[u->kind];
         s->dtype = (uint8_t)d->dtype;
-        s->target = (int16_t)t;
+        s->target = -1;
         s->x = ux;
         s->y = uy;
         s->dmg = d->dmg * 10 * pct / 100;
-        s->life = 120;
+        /* it flies its reach and a tile more, then drops */
+        s->life = (int16_t)(((d->range + 1) * FH_T + 8) * FH_U / d->shot_speed);
         if (u->kind == U_BARB) s->slow = (int16_t)(SLOW_BARB * pct / 100);
         if (u->kind == U_PITCH) s->slow = (int16_t)(SLOW_TAR * pct / 100);
         aim(s, f->x, f->y, d->shot_speed);
+        fh.tower_throws++;
         ev(EV_THROW, u->x, u->y, u->kind);
     }
 }
 
-static int shot_speed(const FhShot *s) {
-    switch (s->kind) {
-    case SH_ARROW: return 64;
-    case SH_EMBER: return 24;
-    case SH_PIM: return PIM_SHOT;
-    default: return 48;
-    }
-}
-
 static void shot_hits(FhShot *s, FhFoe *f, int fi) {
+    if (s->kind != SH_PIM && !s->follow) fh.tower_hits++;
     hurt(f, s->dmg, s->dtype);
     if (s->kind == SH_BARB && f->on) f->slow_t = (int16_t)imax(f->slow_t, s->slow);
     if (s->kind == SH_TAR && f->on && !f->tarred) { f->tarred = 1; f->tar_t = s->slow; }
     if (s->kind == SH_ARROW) {
+        /* an arrow carries on a moment into whatever is behind */
         if (s->hit_n < 8) s->hits[s->hit_n++] = (uint8_t)fi;
         if (!s->follow) s->follow = ARROW_FOLLOW;
-        s->target = -1;
         return;
     }
     ev(EV_HIT, s->x / FH_U, s->y / FH_U, s->kind);
@@ -758,35 +794,23 @@ static void move_shots(void) {
         FhShot *s = &fh.shot[i];
         if (!s->on) continue;
         if (--s->life <= 0) { s->on = 0; continue; }
-        if (s->follow) {
-            if (--s->follow == 0) { s->on = 0; continue; }
-        } else if (s->target >= 0) {
-            FhFoe *f = &fh.foe[s->target];
-            if (!f->on) s->target = -1;
-            else aim(s, f->x, f->y, shot_speed(s));
-        }
+        if (s->follow && --s->follow == 0) { s->on = 0; continue; }
         s->x += s->vx;
         s->y += s->vy;
         int tx = s->x / FH_TU, ty = s->y / FH_TU;
         if (s->x < 0 || s->y < 0 || !in_field(tx, ty)) { s->on = 0; continue; }
         if (s->kind != SH_ARROW && fh_blocks_shot(tx, ty)) { s->on = 0; ev(EV_HIT, s->x / FH_U, s->y / FH_U, s->kind); continue; }
-        int reach = (s->kind == SH_PIM ? 8 : 6) * FH_U;
-        if (s->target >= 0 && !s->follow) {
-            FhFoe *f = &fh.foe[s->target];
-            if (iabs(f->x - s->x) < reach && iabs(f->y - s->y) < reach) shot_hits(s, f, s->target);
-            continue;
-        }
-        /* straight shots (Pim's, lost targets, arrows following through) hit what they meet */
+        /* every shot flies straight and hits the first beast it meets */
         for (int k = 0; k < FH_MAX_FOES && s->on; k++) {
             FhFoe *f = &fh.foe[k];
-            if (!f->on || iabs(f->x - s->x) >= reach || iabs(f->y - s->y) >= reach) continue;
+            if (!f->on) continue;
+            int reach = ((s->kind == SH_PIM ? 8 : 6) + (FH_FOE[f->kind].boss ? 6 : 0)) * FH_U;
+            if (iabs(f->x - s->x) >= reach || iabs(f->y - s->y) >= reach) continue;
             bool seen = false;
             for (int h = 0; h < s->hit_n; h++) seen |= s->hits[h] == k;
             if (seen) continue;
-            if (s->kind == SH_ARROW && !s->follow) continue; /* an arrow flies to its mark first */
             shot_hits(s, f, k);
         }
-        if (s->kind != SH_PIM && s->kind != SH_ARROW && s->target < 0 && s->life > 30) s->life = 30;
     }
     for (int i = 0; i < FH_MAX_ROLLS; i++) {
         FhRoll *r = &fh.roll[i];
@@ -821,13 +845,16 @@ static bool box_free(int32_t x, int32_t y) {
 static void pim_throw(void) {
     FhShot *s = new_shot();
     if (!s) return;
+    int dx = fh.aim_dx, dy = fh.aim_dy;
+    if (!dx && !dy) { dx = FH_DX[fh.face]; dy = FH_DY[fh.face]; }
+    int spd = dx && dy ? PIM_DIAG : PIM_SHOT;
     s->kind = SH_PIM;
     s->dtype = fh.weapon_lv == 2 ? D_PIERCE : D_NORMAL;
     s->target = -1;
-    s->x = fh.px + FH_DX[fh.face] * 6 * FH_U;
-    s->y = fh.py + FH_DY[fh.face] * 6 * FH_U - (fh.face == FH_UP || fh.face == FH_DOWN ? 0 : 2 * FH_U);
-    s->vx = FH_DX[fh.face] * PIM_SHOT;
-    s->vy = FH_DY[fh.face] * PIM_SHOT;
+    s->x = fh.px + dx * 6 * FH_U;
+    s->y = fh.py + dy * 6 * FH_U - (dy == 0 ? 2 * FH_U : 0);
+    s->vx = dx * spd;
+    s->vy = dy * spd;
     s->dmg = WEAPON_DMG[fh.weapon_lv] * 10;
     s->life = (int16_t)((THROW_RANGE[fh.throw_lv] * FH_T + 4) * FH_U / PIM_SHOT);
     s->slow = (int16_t)fh.weapon_lv; /* for drawing: bone, axe, fire axe */
@@ -875,17 +902,18 @@ static void pim_update(uint32_t held, uint32_t pressed) {
     /* A: whatever the faced tile offers */
     if (pressed & BTN_A) {
         int tx, ty;
-        if (fh_faced(&tx, &ty)) {
-            if (fh.obj[ty][tx] == O_NPC) { fh.talk_npc = fh.oarg[ty][tx]; fh.talk_t = 0; return; }
-            fh_menu_build(tx, ty);
-            if (fh.menu_n) { fh.menu_open = 1; fh.menu_sel = 0; return; }
-        }
+        if (!fh_faced(&tx, &ty)) tx = ty = -1;
+        if (tx >= 0 && fh.obj[ty][tx] == O_NPC) { fh.talk_npc = fh.oarg[ty][tx]; fh.talk_t = 0; return; }
+        fh_menu_build(tx, ty);
+        if (fh.menu_n) { fh.menu_open = 1; fh.menu_sel = 0; return; }
         ev(EV_NOPE, fh.px / FH_U, fh.py / FH_U, 0);
         return;
     }
-    /* walk: eight ways, facing the last way pushed */
+    /* walk: eight ways, facing the last way pushed; she throws the way the
+     * pad last pointed, diagonals too */
     int dx = ((held & BTN_RIGHT) ? 1 : 0) - ((held & BTN_LEFT) ? 1 : 0);
     int dy = ((held & BTN_DOWN) ? 1 : 0) - ((held & BTN_UP) ? 1 : 0);
+    if (dx || dy) { fh.aim_dx = dx; fh.aim_dy = dy; }
     /* a fresh press the other way only turns her, so she can face a tile
      * right next to her without stepping onto it */
     int turned = 0;
@@ -925,6 +953,8 @@ void fh_sim_step(uint32_t held, uint32_t pressed) {
     if (fh.phase == PH_WON || fh.phase == PH_LOST) return;
     pim_update(held, pressed);
     if (fh.phase == PH_BATTLE) run_wave();
+    else if (fh.phase == PH_PAYOUT) payout();
+    if (fh.phase == PH_BATTLE || fh.phase == PH_PAYOUT) fh.busy_frames++;
     towers();
     move_shots();
     move_foes();
@@ -946,13 +976,15 @@ void fh_sim_step(uint32_t held, uint32_t pressed) {
 extern const char *const FH_PLAN[FH_LEVELS];
 
 int fh_bot_step;
-static int bot_post_x = -1, bot_post_y = -1, bot_post_d = FH_UP;
+static int bot_post_x = -1, bot_post_y = -1, bot_post_d = FH_UP, bot_post_ax, bot_post_ay = -1;
 static int hen_x = -1, hen_y = -1;
 
 void fh_bot_reset(void) {
     fh_bot_step = 0;
     bot_post_x = bot_post_y = -1;
     bot_post_d = FH_UP;
+    bot_post_ax = 0;
+    bot_post_ay = -1;
     hen_x = hen_y = -1;
 }
 
@@ -997,8 +1029,9 @@ static Step plan_step(int n) {
         case 'x': st.act = M_SELL; break;
         case 'u': st.act = M_UPGRADE; st.arg = p - s > 4 ? unit_letter(s[4]) : 0; break;
         case 'P': {
+            /* r d l u, or a diagonal: a down-left, b down-right, c up-left, e up-right */
             st.act = -1;
-            static const char D[] = "rdlu";
+            static const char D[] = "rdluabce";
             const char *q = p - s > 4 ? strchr(D, s[4]) : NULL;
             st.arg = q && s[4] ? (int)(q - D) : FH_UP;
             break;
@@ -1135,12 +1168,49 @@ static int bot_menu(int tx, int ty, int act, int arg, int *btns) {
     return 0;
 }
 
+/* road tiles within a thrower's reach of (x, y) */
+static int cover(int x, int y) {
+    int n = 0;
+    for (int yy = y - 2; yy <= y + 2; yy++)
+        for (int xx = x - 2; xx <= x + 2; xx++) {
+            if (!in_field(xx, yy) || fh.tile[yy][xx] != TL_PATH) continue;
+            int dx = (xx - x) * FH_T, dy = (yy - y) * FH_T;
+            if (dx * dx + dy * dy <= 40 * 40) n++;
+        }
+    return n;
+}
+
+static int bot_extra(int *b) {
+    static const int NEXT[U_KINDS] = {U_SPEAR, U_BOW, -1, -1, U_HURLER, -1, -1, U_BLAZE, -1, -1};
+    for (int i = 0; i < FH_MAX_UNITS; i++) {
+        const FhUnit *u = &fh.unit[i];
+        if (!u->on || NEXT[u->kind] < 0 || FH_UNIT[NEXT[u->kind]].cost > fh.meat) continue;
+        if (bot_menu(u->x, u->y, M_UPGRADE, NEXT[u->kind], b) >= 0) return 1;
+    }
+    int bx = -1, by = -1, best = 2;
+    for (int y = 0; y < FH_H; y++)
+        for (int x = 0; x < FH_W; x++) {
+            if (!fh_buildable(x, y) || (x == hen_x && y == hen_y)) continue;
+            /* keep a tile beside every hen free to reach it */
+            bool hen_side = false;
+            for (int d = 0; d < 4; d++) {
+                int nx = x + FH_DX[d], ny = y + FH_DY[d];
+                if (in_field(nx, ny) && fh.obj[ny][nx] == O_HEN) hen_side = true;
+            }
+            if (hen_side) continue;
+            int c = cover(x, y);
+            if (c > best) { best = c; bx = x; by = y; }
+        }
+    if (bx >= 0 && fh.meat >= FH_UNIT[U_THROWER].cost && bot_menu(bx, by, M_THROWER, 0, b) >= 0) return 1;
+    return 0;
+}
+
 int fh_bot_buttons(void) {
     int b = 0;
     if (fh.phase == PH_WON || fh.phase == PH_LOST) return 0;
     if (fh.zstate != Z_OK) return 0;
     if (fh.talk_npc >= 0) return (fh.frame & 1) ? BTN_A : 0;
-    if (fh.phase == PH_BUILD) {
+    if (fh.phase == PH_BUILD || fh.phase == PH_PAYOUT) {
         /* a hen just sold goes straight back before anything else is bought */
         if (hen_x >= 0) {
             if (fh.obj[hen_y][hen_x] == O_HEN || !fh_buildable(hen_x, hen_y) || fh.meat < HEN_COST) hen_x = -1;
@@ -1152,7 +1222,17 @@ int fh_bot_buttons(void) {
             Step s = plan_step(fh_bot_step);
             if (!s.ok || s.wave > fh.wave) break;
             if (s.ok == 2) { fh_bot_step++; continue; }
-            if (s.act == -1) { bot_post_x = s.x; bot_post_y = s.y; bot_post_d = s.arg; fh_bot_step++; continue; }
+            if (s.act == -1) {
+                static const int AX[8] = {1, 0, -1, 0, -1, 1, -1, 1}, AY[8] = {0, 1, 0, -1, 1, 1, -1, -1};
+                static const int FACE[8] = {FH_RIGHT, FH_DOWN, FH_LEFT, FH_UP, FH_DOWN, FH_DOWN, FH_UP, FH_UP};
+                bot_post_x = s.x;
+                bot_post_y = s.y;
+                bot_post_d = FACE[s.arg];
+                bot_post_ax = AX[s.arg];
+                bot_post_ay = AY[s.arg];
+                fh_bot_step++;
+                continue;
+            }
             if (step_done(&s)) { fh_bot_step++; continue; }
             if (step_cost(&s) > fh.meat) break; /* not yet: sell a hen, or fight the wave first */
             int r = bot_menu(s.x, s.y, s.act, step_arg(&s), &b);
@@ -1170,9 +1250,25 @@ int fh_bot_buttons(void) {
                     hen_y = y;
                     return b;
                 }
-        /* nothing more to do: sound the horn */
-        if (fh.menu_open && (fh.menu_tx != fh.cave_x || fh.menu_ty != fh.cave_y)) return (fh.frame & 1) ? BTN_B : 0;
-        bot_menu(fh.cave_x, fh.cave_y, M_FIGHT, 0, &b);
+        /* the plan is done: keep strengthening (upgrades, then throwers where
+         * they cover the most road) while there is meat to spare */
+        if (!plan_step(fh_bot_step).ok && fh.meat >= 20) {
+            int r = bot_extra(&b);
+            if (r > 0) return b;
+        }
+        /* nothing more to do: sound the horn, from the post if it faces the
+         * road (the horn is offered facing the road), else at the cave */
+        if (fh.phase == PH_PAYOUT) {
+            if (fh.menu_open) return (fh.frame & 1) ? BTN_B : 0;
+            return 0;
+        }
+        int hx = fh.cave_x, hy = fh.cave_y;
+        if (bot_post_x >= 0) {
+            int tx = bot_post_x + FH_DX[bot_post_d], ty = bot_post_y + FH_DY[bot_post_d];
+            if (in_field(tx, ty) && fh.tile[ty][tx] == TL_PATH) { hx = tx; hy = ty; }
+        }
+        if (fh.menu_open && (fh.menu_tx != hx || fh.menu_ty != hy)) return (fh.frame & 1) ? BTN_B : 0;
+        bot_menu(hx, hy, M_FIGHT, 0, &b);
         return b;
     }
     /* battle: go to the post and throw */
@@ -1181,7 +1277,7 @@ int fh_bot_buttons(void) {
     int px = fh.px / FH_TU, py = fh.py / FH_TU;
     if (px == bot_post_x && py == bot_post_y) {
         int32_t cx = px * FH_TU + FH_TU / 2, cy = py * FH_TU + FH_TU / 2;
-        if (fh.face == bot_post_d && iabs(fh.px - cx) <= FH_U * 3 && iabs(fh.py - cy) <= FH_U * 3) return BTN_B;
+        if (fh.aim_dx == bot_post_ax && fh.aim_dy == bot_post_ay && iabs(fh.px - cx) <= FH_U * 3 && iabs(fh.py - cy) <= FH_U * 3) return BTN_B;
     }
     /* walk to the post */
     if (!(px == bot_post_x && py == bot_post_y)) {
@@ -1217,5 +1313,7 @@ int fh_bot_buttons(void) {
     int32_t cx = px * FH_TU + FH_TU / 2, cy = py * FH_TU + FH_TU / 2;
     if (iabs(fh.px - cx) > FH_U * 2) return fh.px < cx ? BTN_RIGHT : BTN_LEFT;
     if (iabs(fh.py - cy) > FH_U * 2) return fh.py < cy ? BTN_DOWN : BTN_UP;
-    return (fh.frame & 1) ? PAD[bot_post_d] : 0;
+    /* tap the way to throw (both pads for a diagonal) */
+    if (!(fh.frame & 1)) return 0;
+    return (bot_post_ax > 0 ? BTN_RIGHT : bot_post_ax < 0 ? BTN_LEFT : 0) | (bot_post_ay > 0 ? BTN_DOWN : bot_post_ay < 0 ? BTN_UP : 0);
 }

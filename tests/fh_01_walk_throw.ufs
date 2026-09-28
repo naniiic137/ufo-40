@@ -15,21 +15,21 @@ expect px == 264
 hold DOWN 30
 expect py <= 139
 expect py >= 136
-# the first frame of LEFT turns her, the rest walk her a pixel a frame
+# the first frame of LEFT turns her, the rest walk her 11/16 of a pixel a frame
 hold LEFT 32
 expect face == 2
-expect px == 233
+expect px == 242
 # a one-frame tap the other way turns her without a step
 press RIGHT 1
 expect face == 0
-expect px == 233
+expect px == 242
 press LEFT 1
 expect face == 2
 # hold B: she throws (twice a second with bare bones) and can't walk or turn
 hold B 4
 expect shots >= 1
 hold B RIGHT 40
-expect px == 233
+expect px == 242
 expect face == 2
 hold B 1
 expect throwing == 1
