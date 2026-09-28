@@ -1,0 +1,32 @@
+# FENNEC FOUNTAIN: basalt shrinks when the push ends, which is when the
+# direction is let go and the step has finished ("the numbers decrease only
+# when you stop pushing"), not on the next input. Held, the push goes on;
+# B takes the push and its shrink back together.
+game fennec
+wait 5
+cheat setroom ##########/#.Kxx....#/#..xx....#/#........#/##########
+hold RIGHT 2
+wait 14
+expect px == 3
+expect tile41 == 31
+expect tile51 == 0
+expect push_blk == -1
+press B
+wait 4
+expect tile31 == 32
+expect tile42 == 32
+expect px == 2
+# held across two steps: one push, one shrink at the end
+cheat setroom ##########/#.Kxx....#/#..xx....#/#........#/##########
+hold RIGHT 14
+expect px == 4
+expect tile61 == 32
+wait 14
+expect tile51 == 31
+expect tile61 == 0
+# a planter (2 x 2) and a statue (3 x 3) stand like wall
+cheat setroom ##########/#K.PP.2..#/#..PP....#/#HHH.....#/#HHH.....#/#HHH.....#/##########
+cheat moves RR
+expect px == 2
+cheat moves DDD
+expect py == 2

@@ -19,11 +19,26 @@ typedef struct Save {
     uint8_t hub_x, hub_y, seen_intro, alien;
     char custom[FN_CUSTOM][FN_H][FN_W];      /* the ten custom rooms */
     uint8_t custom_used[FN_CUSTOM], custom_done[FN_CUSTOM];
+    uint8_t sister;                          /* 1: Tuft is the one walking */
+    uint8_t pad[3];
 } Save;
-#define SAVE_MAGIC 0x464E0001u
+#define SAVE_MAGIC 0x464E0002u
+
+/* the save before rooms grew to 20 x 10: still read, and converted */
+#define OLD_W 16
+#define OLD_H 9
+typedef struct OldSave {
+    uint32_t magic;
+    uint32_t done_lo, done_hi;
+    uint8_t hub_x, hub_y, seen_intro, alien;
+    char custom[FN_CUSTOM][OLD_H][OLD_W];
+    uint8_t custom_used[FN_CUSTOM], custom_done[FN_CUSTOM];
+} OldSave;
+#define OLD_MAGIC 0x464E0001u
 
 static Save sv;
 static int state, state_t, frame_t;
+static uint8_t sister_now(void) { return sv.sister; }
 
 /* ------------------------------------------------------------------ */
 /* the hub garden                                                       */
@@ -108,9 +123,14 @@ static bool hub_solid(int x, int y) {
     return c == '#' || c == 'T' || c == '~' || c == 'P' || c == 'N';
 }
 
+/* the sibling who isn't walking waits by the first pool; talking to them
+ * swaps who walks the gardens and the rooms */
+static uint8_t sister_now(void);
 static const char *npc_text(int area) {
     switch (area) {
-    case AREA_1: return "TUFT: EVERY SPRING HAS A STONE IN IT!\nIF A ROOM GOES WRONG, DON'T WORRY.\n" GLYPH_B " TAKES YOU BACK A STEP.";
+    case AREA_1:
+        return sister_now() ? "FEN: YOU LOOK FAR TOO PLEASED WITH\nYOURSELF, TUFT. SHALL I TAKE OVER?"
+                            : "TUFT: " GLYPH_B " TAKES BACK A STEP, YOU KNOW.\nTIRED, FEN? I'VE WATCHED HOW YOU\nDO IT. LET ME PUSH FOR A WHILE!";
     case AREA_2: return "OLD MOSS: I REMEMBER THESE GARDENS\nGREEN. HUMPH LIKES A PUZZLE. HE WON'T\nGIVE THE WATER BACK EASILY.";
     case AREA_3: return "THE TILE-SETTER: I LAID EVERY BLUE\nTILE IN THIS GARDEN. STUBBORN THINGS.\nTHEY NEVER DID LIKE PAWS.";
     case AREA_4: return "THE MASON: HUMPH BUYS THE CHEAP BLACK\nSTONE. SOFT AS BISCUIT, THAT STUFF.";
@@ -128,9 +148,27 @@ static void save_now(void) {
 }
 
 static void load_save(void) {
-    Save tmp;
-    if (game_save_read(game_current_index(), &tmp, (int)sizeof tmp) == (int)sizeof tmp && tmp.magic == SAVE_MAGIC) {
-        sv = tmp;
+    static union { Save now; OldSave old; } tmp;
+    int n = game_save_read(game_current_index(), &tmp, (int)sizeof tmp);
+    if (n == (int)sizeof(Save) && tmp.now.magic == SAVE_MAGIC) {
+        sv = tmp.now;
+    } else if (n == (int)sizeof(OldSave) && tmp.old.magic == OLD_MAGIC) {
+        /* an older save: the same progress, custom rooms walled out to the new size */
+        OldSave o = tmp.old;
+        memset(&sv, 0, sizeof sv);
+        sv.magic = SAVE_MAGIC;
+        sv.done_lo = o.done_lo;
+        sv.done_hi = o.done_hi;
+        sv.hub_x = o.hub_x;
+        sv.hub_y = o.hub_y;
+        sv.seen_intro = o.seen_intro;
+        sv.alien = o.alien;
+        for (int i = 0; i < FN_CUSTOM; i++) {
+            for (int y = 0; y < FN_H; y++)
+                for (int x = 0; x < FN_W; x++) sv.custom[i][y][x] = y < OLD_H && x < OLD_W ? o.custom[i][y][x] : '#';
+            sv.custom_used[i] = o.custom_used[i];
+            sv.custom_done[i] = o.custom_done[i];
+        }
     } else {
         memset(&sv, 0, sizeof sv);
         sv.magic = SAVE_MAGIC;
@@ -327,6 +365,27 @@ static void do_step(int dir) {
     else if (gecko) sfx_play_name("fn_gecko");
 }
 
+/* The direction was let go after a step: a basalt being pushed shrinks now
+ * ("the numbers decrease only when you stop pushing"). The shrink belongs to
+ * the push, so B takes both back together (a lone shrink undone would only
+ * happen again, since nothing is held). */
+static void do_release(void) {
+    if (S.push_blk < 0 || S.won) return;
+    prev_S = S;
+    last_ev.n = 0;
+    fn_release(&R, &S, &last_ev);
+    anim_t = 99;
+    moves_made++; /* the demo player's '.' */
+    bool crumbled = false;
+    for (int i = 0; i < last_ev.n; i++) {
+        FnEvent *e = &last_ev.ev[i];
+        float x = room_ox() + e->x * TS + 8, y = room_oy() + e->y * TS + 8;
+        if (e->type == FE_SHRINK) for (int k = 0; k < 10; k++) part_add(x + 8, y + 8, (k - 5) * 0.4f, -0.8f, 20, C_SLATE, 0);
+        if (e->type == FE_CRUMBLE) { crumbled = true; for (int k = 0; k < 14; k++) part_add(x, y, (k - 7) * 0.4f, -1.2f, 22, k % 2 ? C_DUSK : C_SLATE, 0); }
+    }
+    sfx_play_name(crumbled ? "fn_crumble" : "fn_shrink");
+}
+
 /* B: a step back, or straight back to the mark when one is set */
 static void undo(void) {
     if (mark_n >= 0 && mark_n <= undo_n) {
@@ -381,14 +440,18 @@ static void update_room(void) {
     }
     if (autoplay && *autoplay && anim_t >= STEP_T && queued < 0) {
         char c = *autoplay++;
+        if (c == '.') { do_release(); return; }
         queued = c == 'U' ? DIR_UP : c == 'R' ? DIR_RIGHT : c == 'D' ? DIR_DOWN : DIR_LEFT;
     }
     if (anim_t >= STEP_T) {
-        int d = queued >= 0 ? queued : held_dir();
+        int d = queued >= 0 ? queued : autoplay && *autoplay ? -2 : held_dir();
         queued = -1;
         if (d >= 0) {
             do_step(d);
             if (S.won) { room_won(); return; }
+        } else if (d == -1 && S.push_blk >= 0) {
+            /* the push is over: nothing is held when the step finishes */
+            do_release();
         }
     }
 }
@@ -424,7 +487,7 @@ static void update_rmenu(void) {
 /* the hub                                                              */
 
 static int hub_px, hub_py, hub_face = 2, hub_move_t, hub_from_x, hub_from_y, hub_bump;
-static int talk_area, gate_msg_t, gate_msg_need;
+static int talk_area, talk_sel, gate_msg_t, gate_msg_need;
 
 static void hub_enter(void) {
     hub_px = sv.hub_x;
@@ -485,6 +548,7 @@ static void update_hub(void) {
         int tx = hub_px + FX[hub_face], ty = hub_py + FY[hub_face];
         if (tx >= 0 && ty >= 0 && tx < HUB_W && ty < HUB_H && HUB[ty][tx] == 'N') {
             talk_area = area_of(tx, ty);
+            talk_sel = 1;
             state = S_TALK;
             state_t = 0;
             sfx_play_name("fn_talk");
@@ -497,16 +561,22 @@ static void update_hub(void) {
 
 enum {
     P_WALL, P_FLOOR, P_FENNEC, P_SPRING, P_STONE, P_GECKO, P_S1, P_S2, P_S3, P_S4, P_MARBLE,
-    P_L1, P_L2, P_L3, P_L4, P_B1, P_B2, P_B3, P_B4, P_AU, P_AR, P_AD, P_AL, P_PATCH, P_PLATE, P_DOOR, P_COUNT
+    P_L1, P_L2, P_L3, P_L4, P_B1, P_B2, P_B3, P_AU, P_AR, P_AD, P_AL, P_PATCH, P_PLATE, P_DOOR,
+    P_PLANTER, P_STATUE, P_COUNT
 };
+/* No BASALT 4: the sources say a black 4 fits where a 4 x 4 couldn't, so
+ * its size is unknown; 2 and 3 are n x n. Scenery stands like wall. */
 static const char PIECE_CH[P_COUNT] = {'#', '.', 'K', 'G', 'S', 'g', '1', '2', '3', '4', '5',
-                                       'a', 'b', 'c', 'd', 'w', 'x', 'y', 'z', '^', '>', 'v', '<', ':', 'o', '|'};
+                                       'a', 'b', 'c', 'd', 'w', 'x', 'y', '^', '>', 'v', '<', ':', 'o', '|', 'P', 'H'};
 static const char *PIECE_NAME[P_COUNT] = {"WALL", "FLOOR", "FENNEC", "SPRING", "WATER STONE", "GECKO",
                                           "SANDSTONE 1", "SANDSTONE 2", "SANDSTONE 3", "SANDSTONE 4", "MARBLE",
                                           "LAPIS 1", "LAPIS 2", "LAPIS 3", "LAPIS 4",
-                                          "BASALT 1", "BASALT 2", "BASALT 3", "BASALT 4",
+                                          "BASALT 1", "BASALT 2", "BASALT 3",
                                           "ARROW UP", "ARROW RIGHT", "ARROW DOWN", "ARROW LEFT",
-                                          "STONE PATCH", "PLATE", "DOOR"};
+                                          "STONE PATCH", "PLATE", "DOOR", "PALM PLANTER", "HUMPH STATUE"};
+
+/* how many tiles across a piece is */
+static int piece_size(char c) { return c >= 'w' && c <= 'z' ? c - 'w' + 1 : c == 'P' ? 2 : c == 'H' ? 3 : 1; }
 static int slot_sel, slot_menu, ed_x = 1, ed_y = 1, ed_piece = P_WALL, menu_sel, ed_slot, ed_msg_t;
 static const char *ed_msg;
 
@@ -523,12 +593,12 @@ static char ed_get(int x, int y) { return sv.custom[ed_slot][y][x]; }
 
 static void ed_clear_piece_at(int x, int y) {
     char c = ed_get(x, y);
-    if (c >= 'w' && c <= 'z') {
-        /* remove the whole basalt square this tile belongs to */
+    if (piece_size(c) > 1) {
+        /* remove the whole square (basalt or scenery) this tile belongs to */
         for (int yy = 0; yy < FN_H; yy++)
             for (int xx = 0; xx < FN_W; xx++)
                 if (sv.custom[ed_slot][yy][xx] == c) {
-                    int n = c - 'w' + 1;
+                    int n = piece_size(c);
                     if (x >= xx && x < xx + n && y >= yy && y < yy + n) {
                         for (int a = yy; a < yy + n && a < FN_H; a++)
                             for (int b = xx; b < xx + n && b < FN_W; b++)
@@ -549,9 +619,9 @@ static void ed_place(int piece) {
             for (int x = 0; x < FN_W; x++)
                 if (sv.custom[ed_slot][y][x] == ch) sv.custom[ed_slot][y][x] = '.';
     }
-    if (ch >= 'w' && ch <= 'z') {
-        int n = ch - 'w' + 1;
-        if (ed_x + n > FN_W || ed_y + n > FN_H) { ed_msg = "NO ROOM FOR THAT BASALT"; ed_msg_t = 60; sfx_play_name("fn_bump"); return; }
+    if (piece_size(ch) > 1) {
+        int n = piece_size(ch);
+        if (ed_x + n > FN_W || ed_y + n > FN_H) { ed_msg = ch == 'P' || ch == 'H' ? "NO ROOM FOR THAT" : "NO ROOM FOR THAT BASALT"; ed_msg_t = 60; sfx_play_name("fn_bump"); return; }
         for (int y = ed_y; y < ed_y + n; y++)
             for (int x = ed_x; x < ed_x + n; x++) ed_clear_piece_at(x, y);
         for (int y = ed_y; y < ed_y + n; y++)
@@ -681,7 +751,23 @@ static void fn_update(void) {
         break;
     case S_HUB: update_hub(); break;
     case S_TALK:
-        if (state_t > 15 && (btnp(BTN_A) || btnp(BTN_B))) { sfx_play_name("fn_talk"); state = S_HUB; state_t = 0; game_set_pausable(true); }
+        if (talk_area == AREA_1 && (btn_repeat(BTN_UP) || btn_repeat(BTN_DOWN) || btn_repeat(BTN_LEFT) || btn_repeat(BTN_RIGHT))) {
+            talk_sel ^= 1;
+            sfx_play_name("ui_move");
+        }
+        if (state_t > 15 && (btnp(BTN_A) || btnp(BTN_B))) {
+            if (talk_area == AREA_1 && btnp(BTN_A) && talk_sel == 0) {
+                /* the siblings swap: the other one walks now */
+                sv.sister ^= 1;
+                save_now();
+                sfx_play_name("fn_door");
+            } else {
+                sfx_play_name("fn_talk");
+            }
+            state = S_HUB;
+            state_t = 0;
+            game_set_pausable(true);
+        }
         break;
     case S_ROOM: update_room(); break;
     case S_RMENU: update_rmenu(); break;
@@ -779,6 +865,20 @@ static void draw_wall_tile(int px, int py, int x, int y, bool below_open) {
     if (below_open) gfx_rect(px, py + TS - 3, TS, 3, C_BROWN);
 }
 
+/* Tuft walks in Fen's shape with her pink scarf on */
+static void draw_walker(int spr, int x, int y, int flip, bool tuft) {
+    spr_draw(&fn_spr[spr], x, y, flip);
+    if (!tuft) return;
+    int x0 = 4, x1 = 11;
+    if (spr == FS_FEN_S || spr == FS_FEN_S2) { x0 = 6; x1 = 12; }
+    else if (spr == FS_FEN_PUSH) { x0 = 7; x1 = 13; }
+    for (int i = x0; i <= x1; i++) {
+        int xx = flip ? 15 - i : i;
+        gfx_pset(x + xx, y + 8, C_PINK);
+        if (i > x0 && i < x1) gfx_pset(x + xx, y + 9, C_MAGENTA);
+    }
+}
+
 static bool anything_at(const FnState *s, int x, int y) {
     if (s->px == x && s->py == y) return true;
     for (int g = 0; g < s->ng; g++)
@@ -844,11 +944,48 @@ static void draw_feature(int t, int px, int py, bool open, bool pressed) {
     }
 }
 
+/* scenery: a palm in a clay planter (2 x 2), a sandstone statue of Lord
+ * Humph (3 x 3). Both stand like walls. */
+static void draw_scenery(int kind, int px, int py) {
+    if (kind == DC_PLANTER) {
+        gfx_rect(px + 4, py + 18, 24, 13, C_BROWN);
+        gfx_rect(px + 3, py + 16, 26, 4, C_TAN);
+        gfx_hline(px + 3, px + 28, py + 16, C_EARTH);
+        gfx_rect(px + 6, py + 22, 20, 2, C_ORANGE);
+        spr_draw_scaled(&fn_spr[FS_PALM], px, py - 10, 2, 0);
+        return;
+    }
+    if (kind == DC_STATUE) {
+        /* the plinth, then Humph in stone */
+        gfx_rect(px + 2, py + 36, 44, 11, C_GREY);
+        gfx_rect(px + 2, py + 36, 44, 2, C_LIGHT);
+        gfx_rectb(px + 2, py + 36, 44, 11, C_SLATE);
+        static uint8_t stone[PAL_COUNT];
+        static bool made;
+        if (!made) {
+            pal_identity(stone);
+            pal_swap(stone, C_TAN, C_GREY); pal_swap(stone, C_EARTH, C_LIGHT); pal_swap(stone, C_WHITE, C_LIGHT);
+            pal_swap(stone, C_LIGHT, C_WHITE); pal_swap(stone, C_VIOLET, C_SLATE); pal_swap(stone, C_YELLOW, C_LIGHT);
+            made = true;
+        }
+        const Sprite *k = &fn_spr[FS_HUMPH];
+        for (int sy = 0; sy < k->h; sy++)
+            for (int sx = 0; sx < k->w; sx++) {
+                uint8_t c = k->px[sy * k->w + sx];
+                if (c != TRANSPARENT) gfx_rect(px + 8 + sx * 2, py + 3 + sy * 2, 2, 2, c == C_INK ? C_SLATE : stone[c]);
+            }
+    }
+}
+
 /* walls, floor, the floor features and the spring */
 static void draw_tiles(const FnRoom *r, const FnState *s, int ox, int oy) {
     for (int y = 0; y < r->h; y++)
         for (int x = 0; x < r->w; x++) {
             int px = ox + x * TS, py = oy + y * TS;
+            if (r->deco[y][x]) {
+                draw_floor_tile(px, py, x, y);
+                continue;
+            }
             if (r->wall[y][x]) {
                 bool below = y + 1 < r->h && !r->wall[y + 1][x];
                 /* only draw walls that touch the room, leave the outside dark */
@@ -856,7 +993,7 @@ static void draw_tiles(const FnRoom *r, const FnState *s, int ox, int oy) {
                 for (int dy = -1; dy <= 1; dy++)
                     for (int dx = -1; dx <= 1; dx++) {
                         int nx = x + dx, ny = y + dy;
-                        if (nx >= 0 && ny >= 0 && nx < r->w && ny < r->h && !r->wall[ny][nx]) near = true;
+                        if (nx >= 0 && ny >= 0 && nx < r->w && ny < r->h && (!r->wall[ny][nx] || r->deco[ny][nx])) near = true;
                     }
                 if (near) draw_wall_tile(px, py, x, y, below);
             } else {
@@ -864,6 +1001,9 @@ static void draw_tiles(const FnRoom *r, const FnState *s, int ox, int oy) {
                 if (r->tile[y][x]) draw_feature(r->tile[y][x], px, py, s->door_open, anything_at(s, x, y));
             }
         }
+    for (int y = 0; y < r->h; y++)
+        for (int x = 0; x < r->w; x++)
+            if (r->deco[y][x] == DC_PLANTER || r->deco[y][x] == DC_STATUE) draw_scenery(r->deco[y][x], ox + x * TS, oy + y * TS);
     if (r->goal_x != FN_NONE) spr_draw(&fn_spr[s->won ? FS_SPRING_WET : FS_SPRING_DRY], ox + r->goal_x * TS, oy + r->goal_y * TS, 0);
 }
 
@@ -912,7 +1052,7 @@ static void draw_room(void) {
     else if (face == DIR_DOWN) spr = step ? FS_FEN_D2 : FS_FEN_D;
     else { spr = pushing && t < 1 ? FS_FEN_PUSH : step ? FS_FEN_S2 : FS_FEN_S; flip = face == DIR_LEFT ? SPR_FLIPX : 0; }
     int bx = bump_t > 0 ? ((bump_t / 2) % 2 ? 1 : -1) : 0;
-    spr_draw(&fn_spr[spr], ox + (int)(fx * TS) + bx, oy + (int)(fy * TS) - 2, flip);
+    draw_walker(spr, ox + (int)(fx * TS) + bx, oy + (int)(fy * TS) - 2, flip, sv.sister);
     /* particles */
     for (int i = 0; i < ARRAY_LEN(parts); i++) {
         Part *q = &parts[i];
@@ -1085,6 +1225,7 @@ static void draw_hub(void) {
             if (HUB[y][x] == 'N') {
                 int a = area_of(x, y);
                 if (a == AREA_P) spr_draw(&fn_spr[FS_HUMPH], px, py - 2, 0);
+                else if (a == AREA_1 && sv.sister) draw_walker(FS_FEN_D, px, py - 2, (frame_t / 90 + x) % 2 ? SPR_FLIPX : 0, false);
                 else spr_draw_ex(&fn_spr[FS_TUFT], px, py - 2, (frame_t / 90 + x) % 2 ? SPR_FLIPX : 0, npc_map(a), -1);
             }
         }
@@ -1095,7 +1236,7 @@ static void draw_hub(void) {
                 if (hub_face == DIR_UP) spr = step ? FS_FEN_U2 : FS_FEN_U;
                 else if (hub_face == DIR_DOWN) spr = step ? FS_FEN_D2 : FS_FEN_D;
                 else { spr = step ? FS_FEN_S2 : FS_FEN_S; flip = hub_face == DIR_LEFT ? SPR_FLIPX : 0; }
-                spr_draw(&fn_spr[spr], fx, fy - 3, flip);
+                draw_walker(spr, fx, fy - 3, flip, sv.sister);
             }
         }
     }
@@ -1133,7 +1274,14 @@ static void draw_talk(void) {
         ? "THE GARDENS HAVE RUN DRY! LORD HUMPH THE\nCAMEL HAS PLUGGED EVERY SPRING AND PIPED\nTHE WATER INTO HIS OWN BATH.\nFEN AND TUFT SET OUT TO UNPLUG THEM."
         : npc_text(talk_area);
     text_draw(txt, 18, 112, C_LIGHT);
-    if (state_t > 15 && (state_t / 20) % 2) text_draw(GLYPH_A, 298, 162, C_WHITE);
+    if (talk_area == AREA_1) {
+        static const char *const OPT[2] = {"SWAP", "NOT NOW"};
+        for (int i = 0; i < 2; i++) {
+            int x = 70 + i * 90;
+            text_draw(OPT[i], x, 152, talk_sel == i ? C_WHITE : C_GREY);
+            if (talk_sel == i) ui_cursor(x - 10, 152, frame_t);
+        }
+    } else if (state_t > 15 && (state_t / 20) % 2) text_draw(GLYPH_A, 298, 162, C_WHITE);
 }
 
 /* ------------------------------------------------------------------ */
@@ -1161,6 +1309,19 @@ static void draw_piece_icon(int piece, int px, int py) {
     case 'K': draw_floor_tile(px, py, 0, 0); spr_draw(&fn_spr[FS_FEN_D], px, py, 0); return;
     case 'G': draw_floor_tile(px, py, 0, 0); spr_draw(&fn_spr[FS_SPRING_DRY], px, py, 0); return;
     case 'g': draw_floor_tile(px, py, 0, 0); spr_draw(&fn_spr[FS_GECKO1], px, py, 0); return;
+    case 'P':
+        draw_floor_tile(px, py, 0, 0);
+        gfx_rect(px + 3, py + 10, 10, 6, C_BROWN);
+        gfx_hline(px + 2, px + 13, py + 9, C_TAN);
+        spr_draw(&fn_spr[FS_PALM], px, py - 4, 0);
+        tiny_draw("2", px + 12, py + 11, C_CREAM);
+        return;
+    case 'H':
+        draw_floor_tile(px, py, 0, 0);
+        gfx_rect(px + 1, py + 11, 14, 5, C_GREY);
+        spr_draw_ex(&fn_spr[FS_HUMPH], px, py - 3, 0, NULL, C_LIGHT);
+        tiny_draw("3", px + 12, py + 11, C_INK);
+        return;
     case 'S': b.kind = BK_STONE; break;
     case '5': b.kind = BK_MARBLE; b.n = 5; break;
     default:
@@ -1203,6 +1364,9 @@ static void draw_custom_grid(int slot, int ox, int oy) {
     /* a room that can't parse (a half-built basalt) still shows its pieces */
     int e = fn_parse(rows, &r, &st);
     if (e != 0 && e != 4) return;
+    for (int y = 0; y < FN_H; y++)
+        for (int x = 0; x < FN_W; x++)
+            if (r.deco[y][x] == DC_PLANTER || r.deco[y][x] == DC_STATUE) draw_scenery(r.deco[y][x], ox + x * TS, oy + y * TS);
     if (r.goal_x != FN_NONE) spr_draw(&fn_spr[FS_SPRING_DRY], ox + r.goal_x * TS, oy + r.goal_y * TS, 0);
     for (int i = 0; i < st.nb; i++) draw_block(&st.b[i], ox + st.b[i].x * TS, oy + st.b[i].y * TS);
     for (int g = 0; g < st.ng; g++) spr_draw(&fn_spr[FS_GECKO1], ox + st.gx[g] * TS, oy + st.gy[g] * TS, 0);
@@ -1452,8 +1616,9 @@ static int fn_query(const char *key, int *out) {
         if (state == S_ROOM && cur_room < FN_ROOMS) {
             const char *sol = FN_ROOMS_DEF[cur_room].solution;
             if (moves_made < (int)strlen(sol)) {
+                /* '.' : let go, so the basalt being pushed shrinks */
                 char c = sol[moves_made];
-                *out = c == 'U' ? BTN_UP : c == 'R' ? BTN_RIGHT : c == 'D' ? BTN_DOWN : BTN_LEFT;
+                *out = c == '.' ? 0 : c == 'U' ? BTN_UP : c == 'R' ? BTN_RIGHT : c == 'D' ? BTN_DOWN : BTN_LEFT;
             }
         }
         return 1;
@@ -1471,6 +1636,8 @@ static int fn_query(const char *key, int *out) {
     if (!strcmp(key, "hub_x")) { *out = hub_px; return 1; }
     if (!strcmp(key, "hub_y")) { *out = hub_py; return 1; }
     if (!strcmp(key, "testing")) { *out = testing; return 1; }
+    if (!strcmp(key, "sister")) { *out = sv.sister; return 1; }
+    if (!strcmp(key, "push_blk")) { *out = S.push_blk; return 1; }
     if (!strcmp(key, "ed_x")) { *out = ed_x; return 1; }
     if (!strcmp(key, "ed_piece")) { *out = ed_piece; return 1; }
     if (!strcmp(key, "ed_char")) { *out = sv.custom[ed_slot][ed_y][ed_x]; return 1; }
@@ -1498,6 +1665,21 @@ static int fn_query(const char *key, int *out) {
         *out = ok;
         return 1;
     }
+    if (!strcmp(key, "median_len") || !strcmp(key, "long_rooms") || !strcmp(key, "total_len")) {
+        /* the stored (shortest) solutions' lengths in steps: Block Koala's
+         * rooms take hundreds of steps, so most of ours must too */
+        int len[FN_ROOMS], total = 0, lng = 0;
+        for (int r = 0; r < FN_ROOMS; r++) {
+            len[r] = 0;
+            for (const char *p = FN_ROOMS_DEF[r].solution; *p; p++) len[r] += *p != '.';
+            total += len[r];
+            lng += len[r] >= 80;
+        }
+        for (int a = 1; a < FN_ROOMS; a++)
+            for (int b = a; b > 0 && len[b] < len[b - 1]; b--) { int t = len[b]; len[b] = len[b - 1]; len[b - 1] = t; }
+        *out = key[0] == 'm' ? len[FN_ROOMS / 2] : key[0] == 'l' ? lng : total;
+        return 1;
+    }
     if (!strcmp(key, "gates_open")) {
         int n = 0;
         for (int g = 0; g < 5; g++) n += drops() >= GATE_NEED[g];
@@ -1514,6 +1696,7 @@ static int fn_cheat(const char *cmd) {
     if (!strcmp(cmd, "solve")) {
         const char *sol = cur_room < 100 ? FN_ROOMS_DEF[cur_room].solution : "";
         for (const char *p = sol; *p; p++) {
+            if (*p == '.') { do_release(); continue; }
             int d = *p == 'U' ? DIR_UP : *p == 'R' ? DIR_RIGHT : *p == 'D' ? DIR_DOWN : DIR_LEFT;
             do_step(d);
             if (S.won) { room_won(); break; }
@@ -1522,6 +1705,7 @@ static int fn_cheat(const char *cmd) {
     }
     if (!strncmp(cmd, "moves ", 6)) {
         for (const char *p = cmd + 6; *p; p++) {
+            if (*p == '.') { do_release(); continue; }
             int d = *p == 'U' ? DIR_UP : *p == 'R' ? DIR_RIGHT : *p == 'D' ? DIR_DOWN : *p == 'L' ? DIR_LEFT : -1;
             if (d < 0) continue;
             do_step(d);

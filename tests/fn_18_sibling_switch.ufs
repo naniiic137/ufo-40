@@ -1,0 +1,37 @@
+# FENNEC FOUNTAIN: as in Block Koala, the hub lets you swap siblings: talk
+# to Tuft by the first pool and she walks the gardens and the rooms; talk
+# to Fen there to swap back. NOT NOW keeps things as they are.
+game fennec
+wait 30
+press A
+wait 20
+press A
+wait 5
+cheat hub 6 20
+expect sister == 0
+press UP
+wait 8
+press A
+wait 2
+expect state == 4
+wait 16
+press A
+wait 2
+expect state == 1
+expect sister == 0
+press A
+wait 18
+press LEFT
+wait 2
+press A
+wait 2
+expect state == 1
+expect sister == 1
+cheat room 1
+wait 5
+cheat solve
+expect won == 1
+reload
+game fennec
+wait 30
+expect sister == 1

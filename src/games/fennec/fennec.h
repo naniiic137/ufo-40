@@ -12,8 +12,8 @@
 #include <string.h>
 #endif
 
-#define FN_W 16
-#define FN_H 9
+#define FN_W 20             /* a room fills the screen: 20 x 10 tiles of 16 px */
+#define FN_H 10
 #define FN_MAX_BLOCKS 40
 #define FN_MAX_GECKOS 4
 #define FN_ROOMS 50
@@ -28,6 +28,10 @@ enum { DIR_UP, DIR_RIGHT, DIR_DOWN, DIR_LEFT };
  * patches (no block may enter), plates and the doors they hold open */
 enum { FT_FLOOR = 0, FT_ARROW_U, FT_ARROW_R, FT_ARROW_D, FT_ARROW_L, FT_PATCH, FT_PLATE, FT_DOOR };
 
+/* scenery: big pieces that stand like walls (no block may overlap them).
+ * The anchor is the top-left tile; the others are DC_PART. */
+enum { DC_NONE = 0, DC_PLANTER, DC_STATUE, DC_PART };
+
 typedef struct FnBlock {
     uint8_t kind, n, x, y; /* a basalt block covers n x n tiles from (x, y) */
 } FnBlock;
@@ -37,6 +41,7 @@ typedef struct FnRoom {
     uint8_t w, h;
     uint8_t wall[FN_H][FN_W];
     uint8_t tile[FN_H][FN_W];  /* FT_* */
+    uint8_t deco[FN_H][FN_W];  /* DC_*: a 2 x 2 planter or a 3 x 3 statue */
     uint8_t goal_x, goal_y;
     uint8_t nplates;
 } FnRoom;
@@ -68,18 +73,22 @@ typedef struct FnEvents {
 /* rules (fennec_logic.c) */
 int fn_parse(const char *const *rows, FnRoom *room, FnState *st); /* returns 0 on success */
 bool fn_step(const FnRoom *r, FnState *s, int dir, FnEvents *ev);
+/* the push ends (the direction is let go): a pushed basalt shrinks now.
+ * Returns true if anything changed. A '.' in a move list stands for it. */
+bool fn_release(const FnRoom *r, FnState *s, FnEvents *ev);
 int fn_weight(const FnBlock *b);
 int fn_block_at(const FnState *s, int x, int y); /* index or -1 */
 bool fn_solution_check(const FnRoom *r, const FnState *start, const char *moves);
 
-#ifndef FN_NO_SHELL
 /* the rooms (fennec_rooms.c) */
 typedef struct RoomDef {
     const char *name;
     const char *rows[FN_H];
-    const char *solution; /* U R D L, checked by the tests */
+    const char *solution; /* U R D L, and . for letting go of a basalt push; the tests replay it */
 } RoomDef;
 extern const RoomDef FN_ROOMS_DEF[FN_ROOMS];
+
+#ifndef FN_NO_SHELL
 
 /* art & audio */
 enum {

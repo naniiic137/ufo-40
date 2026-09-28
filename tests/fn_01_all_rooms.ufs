@@ -3,3 +3,9 @@
 game fennec
 wait 5
 expect check_all == 50
+# Block Koala's rooms take hundreds of steps: apart from the three teaching
+# rooms every room needs at least 75 steps, the median is over 80, and the
+# fifty together need thousands
+expect long_rooms >= 40
+expect median_len >= 80
+expect total_len >= 5000
