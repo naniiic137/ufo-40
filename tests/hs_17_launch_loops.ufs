@@ -1,0 +1,72 @@
+# HOMESPUN: with three parts in and Starfuel researched, the Tumbleweed
+# can launch (the Saucer). Launching with the Grinning Idol aboard is the
+# Alien, and a different ending. After the credits a new camp starts, its
+# barriers, caves and noodlers drawn again; each escape carves a mark to
+# spend on a standing stone.
+seed 44
+game homespun
+wait 5
+cheat newgame 117
+wait 5
+expect seed == 117
+cheat at 256 55
+cheat face 0 -1
+press A
+expect menu == 1
+expect menu_n == 2
+press B
+cheat parts 7
+cheat research 36
+press A
+expect menu_n == 3
+press A
+expect menu == 1
+# NOT YET is the default answer
+press A
+expect menu == 0
+expect state == 2
+press A
+press A
+press UP
+press A
+expect state == 5
+expect escapes == 1
+expect goals & 2
+expect goals !& 4
+wait 430
+press A
+expect state == 6
+wait 610
+expect state == 0
+expect loop == 1
+expect seed != 117
+expect parts == 0
+expect research == 0
+expect marks == 1
+expect escapes == 1
+# a new camp: carve the mark on the HASTE stone
+wait 25
+press A
+wait 5
+expect state == 2
+cheat at 220 105
+cheat face 0 1
+press A
+expect menu == 1
+press A
+expect stone0 == 1
+expect marks == 0
+press B
+# the HASTE stone: buds 10 % faster (1 glint every 1.8 s)
+cheat plants 1
+cheat res glints 0
+wait 1080
+expect glints == 10
+# the second escape, with the idol
+cheat parts 7
+cheat research 36
+cheat idol 1
+cheat launch
+expect state == 5
+expect idol_escapes == 1
+expect goals & 7

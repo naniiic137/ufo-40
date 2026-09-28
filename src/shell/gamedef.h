@@ -30,6 +30,17 @@ typedef struct GameDef {
      * A cartridge lives in the library slot with that same number. */
     const char *tribute;
     int tribute_no;
+
+    /* Optional: a cartridge whose world keeps going in real time while the
+     * console is switched on (the base in slot 44 keeps producing during
+     * other games and in the menus, as its original does while the whole
+     * collection is open). The shell calls it once per update, in every
+     * scene and whichever cartridge is running, with the real milliseconds
+     * since the last call, measured on the platform's wall clock: a stalled
+     * frame loop hands over all the time it missed at once. Time while the
+     * console is off never counts (the first call after start-up gets 0).
+     * The cartridge keeps and saves its own accounting. NULL for most. */
+    void (*realtime)(uint32_t ms);
 } GameDef;
 
 /* One slot per UFO 50 number: 01-50. */

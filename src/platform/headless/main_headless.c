@@ -36,6 +36,11 @@ const char *plat_name(void) { return "HEADLESS"; }
 void plat_apply_video(int scale, int fullscreen) { (void)scale; (void)fullscreen; }
 static bool quit_requested;
 void plat_request_quit(void) { quit_requested = true; }
+
+/* A pretend wall clock: each frame moves it on 1/60 s, and the script's
+ * clock_skip moves it on without running any frames (a stalled loop). */
+static uint64_t clock_sixtieths; /* in 1/60 ms */
+uint32_t plat_clock_ms(void) { return (uint32_t)(clock_sixtieths / 60u); }
 const char *plat_save_where(void) { return save_dir; }
 
 static void mkdirs(const char *path) {
@@ -83,6 +88,7 @@ static void fail(const char *fmt, const char *a, long got) {
 
 static void step(int n) {
     for (int i = 0; i < n; i++) {
+        clock_sixtieths += 1000;
         input_set_raw(held);
         app_update();
         if (audio_on) audio_render(audio_buf, 800);
@@ -218,6 +224,18 @@ static int run_script(const char *path) {
             step(1);
         } else if (!strcmp(cmd, "wait")) {
             step(atoi(arg));
+        } else if (!strcmp(cmd, "clock_skip")) {
+            /* clock_skip MS : real time passes with no frames run (a hidden
+             * browser tab, a stall); the next frame sees all of it at once */
+            clock_sixtieths += (uint64_t)atoll(arg) * 60u;
+        } else if (!strcmp(cmd, "idle")) {
+            /* idle MINUTES : the collection sits open for that long, one
+             * frame a second (quick to run, same real time as frames) */
+            long frames = atol(arg) * 60;
+            for (long k = 0; k < frames; k++) {
+                clock_sixtieths += 59000u; /* 59/60 of a second with no frame ... */
+                step(1);                   /* ... then one frame */
+            }
         } else if (!strcmp(cmd, "hold")) {
             char tmp[256];
             snprintf(tmp, sizeof tmp, "%s", arg);
@@ -345,6 +363,38 @@ static int run_script(const char *path) {
             if (i >= maxf) {
                 failures++;
                 fprintf(stderr, "FAIL %s:%d: %s %s %d not reached in %d frames (got %d)\n", script_name, line_no, key, op, val, maxf, got);
+            }
+        } else if (!strcmp(cmd, "botloop")) {
+            /* botloop KEY OP VALUE ROUNDS FRAMES SKIP_MS : the demo player plays
+             * FRAMES, then SKIP_MS of real time pass with no frames (the console
+             * left on while nobody plays), round after round until the condition
+             * holds; it fails if ROUNDS run out first */
+            char key[96], op[8];
+            int val = 0, rounds = 0, frames = 0, gi = game_current_index();
+            long skip = 0;
+            checks++;
+            if (sscanf(arg, "%95s %7s %d %d %d %ld", key, op, &val, &rounds, &frames, &skip) != 6) { fail("bad botloop: %s%ld", arg, 0); continue; }
+            int got = 0, r = 0;
+            bool done = false;
+            for (; r < rounds && !done; r++) {
+                int idle = 0, v = 0;
+                for (int i = 0; i < frames; i++) {
+                    if (query(key, &got) && compare(got, op, val)) { done = true; break; }
+                    int mask = 0;
+                    if (gi >= 0 && GAMES[gi]->query && GAMES[gi]->query("bot", &mask)) held = (uint32_t)mask;
+                    step(1);
+                    /* a demo player with nothing to do but wait ends the round early */
+                    idle = gi >= 0 && GAMES[gi]->query && GAMES[gi]->query("bot_idle", &v) && v ? idle + 1 : 0;
+                    if (idle > 60) break;
+                }
+                held = 0;
+                if (!done) clock_sixtieths += (uint64_t)skip * 60u;
+            }
+            if (!done && query(key, &got) && compare(got, op, val)) done = true;
+            printf("  botloop %s: %d rounds\n", key, r);
+            if (!done) {
+                failures++;
+                fprintf(stderr, "FAIL %s:%d: %s %s %d not reached in %d rounds (got %d)\n", script_name, line_no, key, op, val, rounds, got);
             }
         } else if (!strcmp(cmd, "fake_save")) {
             /* fake_save GAME BYTES : give a cartridge a valid save file of that size */

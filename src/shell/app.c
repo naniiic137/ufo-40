@@ -6,6 +6,11 @@ static bool paused, pausable = true, exit_requested;
 static int pause_sel, pause_page, confirm_sel, pause_t;
 static int toast_timer, toast_game_i, toast_bit_i;
 
+/* real time for the cartridges that keep going (realtime_tick) */
+static uint32_t rt_last;    /* the platform clock at the last hand-over */
+static bool rt_running;     /* false until the first update after app_init */
+static uint32_t rt_handed;  /* ms handed over since start-up (for tests) */
+
 int g_library_cursor;
 int g_jukebox_song = -1;
 
@@ -55,6 +60,8 @@ void app_init(void) {
             for (int s = s0; s < song_count() && s < OWNER_MAX; s++) song_owner[s] = (int8_t)i;
         }
     owners_ready = true;
+    rt_running = false; /* switched on: the real-time clock starts afresh */
+    rt_handed = 0;
     g_jukebox_song = -1;
     g_library_cursor = g_progress.last_game < GAME_SLOTS ? g_progress.last_game : 0;
     scene_set(&SCENE_BOOT);
@@ -120,6 +127,7 @@ bool shell_query(const char *key, int *out) {
     if (!strcmp(key, "music_playing")) { *out = music_playing(); return true; }
     if (!strcmp(key, "jukebox_song")) { *out = g_jukebox_song; return true; }
     if (!strcmp(key, "library_cursor")) { *out = g_library_cursor; return true; }
+    if (!strcmp(key, "realtime_s")) { *out = (int)(rt_handed / 1000u); return true; }
     if (!strncmp(key, "music_is.", 9)) {
         int id = song_find(key + 9);
         *out = id >= 0 && music_playing() == id && !music_finished();
@@ -144,7 +152,26 @@ bool shell_query(const char *key, int *out) {
            library_query(key, out);
 }
 
-void app_update(void) { engine_update(); }
+/* ---- real time for the cartridges that keep going ----------------------- */
+
+/* Hand every realtime cartridge the wall-clock time since the last update.
+ * The first update after start-up only starts the clock: time while the
+ * console was off is never counted. */
+static void realtime_tick(void) {
+    uint32_t now = plat_clock_ms();
+    uint32_t ms = rt_running ? now - rt_last : 0;
+    rt_last = now;
+    rt_running = true;
+    if (ms == 0) return;
+    rt_handed += ms;
+    for (int i = 0; i < GAME_SLOTS; i++)
+        if (GAMES[i] && GAMES[i]->realtime) GAMES[i]->realtime(ms);
+}
+
+void app_update(void) {
+    engine_update();
+    realtime_tick();
+}
 void app_draw(void) { engine_draw(); }
 
 const char *app_scene_name(void) {

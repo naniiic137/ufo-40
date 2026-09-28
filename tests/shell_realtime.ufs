@@ -1,0 +1,24 @@
+# SHELL: the real-time service. Every update, in every scene, the shell
+# hands the cartridges that keep going (slot 44's camp) the wall-clock time
+# since the last update. A stalled frame loop gets all of it on the next
+# update; the time while the console is off is never handed over.
+wait 601
+expect realtime_s == 10
+# the menus and the library count too
+wait 30
+press A
+wait 60
+expect_scene library
+# a 5 s stall with no frames at all: it all arrives on the next frame
+clock_skip 5000
+expect realtime_s == 11
+wait 1
+expect realtime_s == 16
+# switched off: an hour passes, the service starts from nothing
+clock_skip 3600000
+reload
+expect realtime_s == 0
+wait 59
+expect realtime_s == 0
+wait 1
+expect realtime_s == 1

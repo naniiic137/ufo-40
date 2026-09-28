@@ -1,0 +1,62 @@
+# HOMESPUN: each dungeon's guardian holds a ship part. The hall's shutters
+# close behind Wick; when the guardian falls they open, it leaves a big
+# tonic (+100 s), 20 glints and one more roll, and the part is free. Lose the trip and the part goes back
+# to its guardian; bring it home and it goes into the Tumbleweed for good.
+seed 44
+game homespun
+wait 5
+cheat newgame 114
+wait 5
+cheat trip 5
+cheat room 64 168 104
+wait 2
+expect boss == 19
+expect shut == 1
+cheat bosshp 1
+cheat holdmobs
+cheat at 168 104
+cheat face 0 -1
+cheat time 200
+press B
+wait 25
+expect boss == -1
+expect shut == 0
+expect mobs == 0
+expect items >= 3
+hold UP 30
+hold DOWN 8
+wait 5
+expect time >= 290
+expect carry == 1
+# time runs out: the part is lost and the Grumm King is back
+cheat time 1
+wait 70
+expect carry == 0
+expect parts == 0
+wait 50
+press A
+cheat trip 5
+cheat room 64 168 104
+wait 2
+expect boss == 19
+# again, and home with it
+cheat bosshp 1
+cheat holdmobs
+cheat at 168 104
+cheat face 0 -1
+press B
+wait 25
+hold UP 30
+hold DOWN 8
+expect carry == 1
+cheat room 43 160 150
+hold DOWN 20
+expect parts == 1
+wait 50
+press A
+# the Grumm King is gone for good
+cheat trip 5
+cheat room 64 168 104
+wait 2
+expect boss == -1
+expect shut == 0

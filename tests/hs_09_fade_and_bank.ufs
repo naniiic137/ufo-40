@@ -1,0 +1,72 @@
+# HOMESPUN: what a trip finds only counts once Wick walks back into camp
+# (or hops home): then it joins camp's stores, a gear fixes the Thinker and
+# a ship part goes to the Tumbleweed. If the clock runs out first, Tolly
+# drags her home and all of it is lost, odds too.
+seed 44
+game homespun
+wait 5
+cheat newgame 109
+wait 5
+cheat res glints 100
+cheat trip 5
+cheat clearmobs
+cheat at 120 88
+cheat face 1 0
+cheat drop 0 50
+cheat drop 3 7
+cheat drop 1 2
+hold RIGHT 20
+wait 5
+expect gain.glints == 50
+expect gain.bars == 2
+expect odds == 7
+expect total.glints == 150
+cheat carry 9
+# the clock runs out
+cheat time 1
+wait 70
+expect state == 3
+expect on_trip == 0
+expect glints == 100
+expect bars == 0
+expect odds == 0
+expect carry == 0
+expect lab == 0
+expect parts == 0
+expect fadeouts == 1
+wait 50
+press A
+expect state == 2
+expect area == 0
+# again, and this time walk home
+cheat trip 5
+cheat clearmobs
+cheat at 120 88
+cheat face 1 0
+cheat drop 0 50
+cheat drop 3 7
+cheat drop 1 2
+hold RIGHT 20
+wait 5
+cheat carry 9
+cheat at 160 150
+hold DOWN 20
+expect state == 4
+expect on_trip == 0
+expect glints == 150
+expect bars == 2
+expect odds == 7
+expect lab == 1
+expect parts == 1
+wait 50
+press A
+expect state == 2
+# the gear lies out in the open, where one of the chests would be
+cheat lab 0 0
+cheat trip 5
+cheat gogear
+cheat clearmobs
+expect carry == 0
+hold UP 12
+wait 3
+expect carry == 8
