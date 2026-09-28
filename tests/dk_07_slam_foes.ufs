@@ -1,28 +1,51 @@
-# DUSKLING: a slam beats a deadly foe and bounces you off it; falling on
-# one without slamming is as deadly as walking into it.
+# DUSKLING: a slam beats a wasp (or a newt or a fish) on any contact on the
+# way down and bounces you off it. A prickle's spikes kill even a slam: it
+# can only be beaten by slamming the ground next to it, which flips it onto
+# its back, and then walking into it, which kicks it away.
 game duskling
 wait 5
-cheat room 2
-wait 2
-cheat above_foe prickle 12
-hold A 1
-hold A+UP 1
-expect act == 4
-waituntil count_prickle == 0 20
-expect alive == 1
-expect act == 5
-expect vy10 < 0
-# no slam
-cheat room 2
-wait 2
-cheat above_foe prickle 12
-waituntil alive == 0 30
-expect count_prickle == 1
-# the wasps of the thorn run too
 cheat room 5
 wait 2
 cheat above_foe waspv 10
 hold B 1
 hold B+DOWN 1
-waituntil count_waspv == 0 20
+waituntil count_waspv == 0 30
 expect alive == 1
+expect act == 5
+# a slam onto a prickle: the spikes win
+cheat room 2
+wait 2
+expect count_prickle == 6
+cheat above_foe prickle 12
+hold A 1
+hold A+UP 1
+waituntil alive == 0 30
+expect count_prickle == 6
+# a slam beside it flips it; walking into it kicks it off the screen
+cheat room 2
+wait 2
+cheat beside_foe prickle 50
+wait 2
+hold A 4
+hold A+UP 2
+hold A 2
+hold A+UP 1
+waituntil foe_prickle_state == 3 40
+expect alive == 1
+waituntil ground == 1 40
+hold A
+waituntil count_prickle == 5 90
+release
+expect alive == 1
+# left alone, a flipped prickle rolls back over after three seconds
+cheat room 2
+wait 2
+cheat beside_foe prickle 50
+wait 2
+hold A 4
+hold A+UP 2
+hold A 2
+hold A+UP 1
+waituntil foe_prickle_state == 3 40
+hold UP 30
+waituntil foe_prickle_state == 0 200

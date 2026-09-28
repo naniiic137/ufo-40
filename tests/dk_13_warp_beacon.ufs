@@ -5,7 +5,7 @@ game duskling
 wait 5
 expect goals == 0
 cheat room 2
-cheat pos 300 91
+cheat pos 330 91
 wait 5
 expect warps == 0
 hold A 6

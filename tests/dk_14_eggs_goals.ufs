@@ -12,14 +12,10 @@ expect goals !& 4
 wait 220
 press A
 wait 10
-expect state == 4
-wait 200
-press A
-wait 10
 expect state == 0
 # the amber egg on another run
 cheat room 28
-cheat pos 250 61
+cheat pos 1570 61
 hold A 60
 expect state == 4
 expect egg_got == 1

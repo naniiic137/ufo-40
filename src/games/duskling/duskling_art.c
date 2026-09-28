@@ -273,7 +273,7 @@ static const char CROW1[] =
     ".........."
     "...kkk...."
     "..kkwkk..."
-    ".gkkkkkaa."
+    ".kkkkkkaa."
     "..kkkkk..."
     ".kkkkkkk.."
     "kkkkkkkk.."
@@ -284,7 +284,7 @@ static const char CROW2[] =
     "k........k"
     "kk.kkk..kk"
     ".kkkwkkkk."
-    ".gkkkkkaa."
+    ".kkkkkkaa."
     "..kkkkk..."
     "..kkkkk..."
     "...kkkk..."
@@ -582,6 +582,47 @@ static const char HELM[] =
     "....l.l..."
     "...l...l..";
 
+static const char BANG[] =
+    ".kkk."
+    ".kyk."
+    ".kyk."
+    ".kyk."
+    ".kkk."
+    ".kyk."
+    ".kkk.";
+static const char BONES[] =
+    "..l.......l."
+    ".lwl.....lwl"
+    "..lwl...lwl."
+    "...lwl.lwl.."
+    "....lwwwl..."
+    "...lwl.lwl.."
+    "..lwl...lwl."
+    ".lwl.....lwl"
+    "..l.......l.";
+static const char MUSH[] =
+    "..rrrrrr.."
+    ".rrwrrwrr."
+    "rrwwrrrwwr"
+    "rrrrrwrrrr"
+    "mmmmmmmmmm"
+    "...cccc..."
+    "...cttc..."
+    "...cccc..."
+    "...cttc..."
+    "...cccc...";
+static const char PRICKLE_FLIP[] =
+    ".........."
+    ".h.h..h.h."
+    ".tttttttt."
+    "sgsgsgtttt"
+    "gsgsgsstkt"
+    "sgsgsgssts"
+    "gsgsgsgsgs"
+    ".gsgsgsgs."
+    "..gsgsgsg."
+    "....g.g...";
+
 typedef struct { int id, w, h; const char *data; } Def;
 static const Def DEFS[] = {
     {S_PIM1, 9, 10, PIM1}, {S_PIM2, 9, 10, PIM2}, {S_PIM3, 9, 10, PIM3},
@@ -603,6 +644,7 @@ static const Def DEFS[] = {
     {S_BADGER1, 24, 18, BADGER1}, {S_BADGER2, 24, 18, BADGER2}, {S_BADGER_JUMP, 24, 18, BADGER_JUMP},
     {S_FIRE1, 6, 6, FIRE1}, {S_FIRE2, 6, 6, FIRE2}, {S_SPARK, 6, 6, SPARK}, {S_TREE, 6, 6, TREE},
     {S_MOTH, 12, 8, MOTH}, {S_HELM, 10, 10, HELM},
+    {S_BANG, 5, 7, BANG}, {S_BONES, 12, 9, BONES}, {S_MUSH, 10, 10, MUSH}, {S_PRICKLE_FLIP, 10, 10, PRICKLE_FLIP},
 };
 
 void dk_art_load(void) {

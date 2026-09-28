@@ -1,6 +1,6 @@
-# DUSKLING M13, EYE HALL (room 13): a slam drops a ceiling eye to climb the high step, and a slam on a fallen eye makes it leap you up to the exit ledge.
+# DUSKLING M13, EYE HALL (room 13): slams drop ceiling eyes; a fallen eye is a step, and a slam on one makes it leap you up; then a low tunnel.
 # Played from its way in with plain button presses (LEFT is the D-pad
-# side, A the button side), found once by the route finder (cheat solve).
+# side, A the button side), found once by the route finder.
 game duskling
 wait 5
 cheat room 13
@@ -17,19 +17,43 @@ hold LEFT+A 7
 hold LEFT 3
 hold LEFT+A 2
 wait 3
-hold A 25
+hold A 28
+wait 2
+hold LEFT+A 2
+hold A 18
+hold LEFT 5
 hold LEFT+A 7
-hold A 3
+hold LEFT 3
 hold LEFT+A 2
 wait 3
-hold LEFT 12
-hold A 5
-hold LEFT+A 16
-hold A 12
-hold LEFT+A 2
-hold A 30
+hold A 44
 wait 2
-hold A 10
+hold A 30
+hold LEFT+A 16
+wait 6
+hold A 2
+wait 2
+hold A 30
+hold LEFT+A 16
+wait 14
+hold A 2
+wait 2
+hold A 32
+hold LEFT 5
+hold LEFT+A 7
+hold LEFT 3
+hold LEFT+A 2
+wait 3
+hold A 26
+wait 10
+hold LEFT 5
+hold LEFT+A 7
+hold LEFT 12
+hold LEFT+A 2
+wait 3
+hold A 42
+wait 2
+hold A 30
 hold LEFT+A 16
 wait 6
 hold A 2
@@ -41,35 +65,49 @@ hold LEFT+A 16
 wait 6
 hold A 2
 wait 2
-hold A 25
-hold LEFT 5
-hold LEFT+A 7
-hold LEFT 3
-hold LEFT+A 2
-wait 3
-hold A 25
-hold LEFT+A 7
-hold A 3
-hold LEFT+A 2
-wait 3
-hold LEFT 12
-wait 10
-hold LEFT 6
-hold A 14
-hold LEFT 5
-hold LEFT+A 7
-hold LEFT 3
-hold LEFT+A 2
-wait 3
-hold A 36
-wait 2
-hold A 30
+hold A 32
 hold LEFT+A 16
-wait 6
+hold LEFT 41
+hold A 5
+hold LEFT+A 16
+wait 14
 hold A 2
 wait 2
-hold A 30
-hold LEFT+A 1
+hold A 21
+hold LEFT 5
+hold LEFT+A 7
+hold LEFT 3
+hold LEFT+A 2
+wait 3
 hold A 26
+hold LEFT 5
+hold LEFT+A 7
+hold LEFT 12
+hold LEFT+A 2
+wait 3
+hold A 72
+hold A 5
+hold LEFT+A 16
+wait 4
+hold A 2
+wait 2
+hold A 28
+hold LEFT+A 16
+wait 14
+hold A 2
+wait 2
+hold A 35
+hold LEFT 5
+hold LEFT+A 7
+hold LEFT 3
+hold LEFT+A 2
+wait 3
+hold A 26
+hold LEFT 5
+hold LEFT+A 7
+hold LEFT 12
+hold LEFT+A 2
+wait 3
+hold A 64
 wait 2
 expect room == 14

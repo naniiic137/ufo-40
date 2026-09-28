@@ -26,7 +26,7 @@ hold A+UP 4
 hold A 2
 hold A+UP 1
 wait 60
-expect count_eye == 3
+expect count_eye == 6
 cheat above_foe eye 30 2
 hold A 1
 hold A+UP 1

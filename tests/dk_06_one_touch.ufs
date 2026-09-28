@@ -4,7 +4,7 @@
 game duskling
 wait 5
 cheat room 2
-cheat pos 500 141
+cheat pos 600 141
 wait 1
 expect alive == 1
 waituntil alive == 0 200
@@ -13,10 +13,10 @@ waituntil alive == 1 60
 expect room == 2
 expect px == 11
 expect py == 141
-expect count_prickle == 1
+expect count_prickle == 6
 # thorns
 cheat room 4
-cheat pos 620 141
+cheat pos 90 141
 hold A 30
 expect alive == 0
 expect deaths == 2
@@ -24,19 +24,19 @@ wait 40
 expect px == 11
 # a pit
 cheat room 2
-cheat pos 265 101
+cheat pos 205 101
 hold A 60
 expect alive == 0
 expect deaths == 3
 wait 40
 # again and again: there is no game over
-cheat pos 620 141
+cheat pos 600 141
 hold A
 waituntil alive == 0 200
 release
 wait 40
 cheat room 4
-cheat pos 620 141
+cheat pos 90 141
 hold A 30
 wait 40
 expect deaths == 5

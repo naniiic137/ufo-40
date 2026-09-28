@@ -1,6 +1,6 @@
-# DUSKLING X5, CINDER POCKET (room 41): the cinder pocket, a warp pocket that skips the lava steps.
+# DUSKLING X5, CINDER POCKET (room 41): the cinder pocket, a warp pocket that skips the bubble shaft.
 # Played from its way in with plain button presses (LEFT is the D-pad
-# side, A the button side), found once by the route finder (cheat solve).
+# side, A the button side), found once by the route finder.
 game duskling
 wait 5
 cheat room 41
@@ -22,4 +22,4 @@ hold A 30
 hold LEFT+A 16
 hold A 21
 wait 2
-expect room == 26
+expect room == 10

@@ -1,16 +1,36 @@
 # DUSKLING: 42 rooms, every one well formed (one way in, a way on or an
-# egg, warps only where flowers grow). And the secrets are needed: with the
-# stone faces asleep the route finder finds no way through the stone
-# faces' room, and with the eyes still no way up to the amber egg.
+# egg, warps only where flowers grow). And the secrets are needed: from
+# beside the hidden spring under the amber egg, and beside the one under
+# the glowworm grotto's warp within the warp, the route finder finds the
+# way with the springs, and none when springs are turned into plain blocks.
 game duskling
 wait 5
 expect room_errors == 0
-cheat nerf 1
-cheat solve 33 0 8000
+cheat room 28
+cheat no_foes
+cheat pos 1500 141
+wait 10
+cheat nerf 4
+cheat solvehere 4 4000
 expect solve_ok == 0
-cheat nerf 8
-cheat solve 28 4 8000
-expect solve_ok == 0
+cheat room 28
+cheat no_foes
+cheat pos 1500 141
+wait 10
 cheat nerf 0
-cheat solve 33 0 8000
+cheat solvehere 4 4000
+expect solve_ok == 1
+cheat room 22
+cheat no_foes
+cheat pos 1760 141
+wait 10
+cheat nerf 4
+cheat solvehere 1 4000
+expect solve_ok == 0
+cheat room 22
+cheat no_foes
+cheat pos 1760 141
+wait 10
+cheat nerf 0
+cheat solvehere 1 4000
 expect solve_ok == 1

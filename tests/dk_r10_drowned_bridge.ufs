@@ -1,6 +1,6 @@
-# DUSKLING M10, DROWNED BRIDGE (room 10): a broken bridge over the water, gulpers and a frog.
+# DUSKLING M10, DROWNED BRIDGE (room 10): a broken bridge over the water, gulpers, a frog, and a bridge of gulpers up on the shore.
 # Played from its way in with plain button presses (LEFT is the D-pad
-# side, A the button side), found once by the route finder (cheat solve).
+# side, A the button side), found once by the route finder.
 game duskling
 wait 5
 cheat room 10
@@ -25,13 +25,100 @@ hold LEFT+A 16
 wait 6
 hold A 2
 wait 2
+hold A 27
+wait 2
 hold A 30
+hold LEFT+A 16
+wait 6
+hold A 2
+wait 2
+hold A 34
 hold LEFT+A 16
 wait 14
 hold A 2
 wait 2
-hold A 23
+hold A 31
 hold LEFT+A 16
-hold A 20
+hold A 12
+hold LEFT+A 2
+hold A 33
+wait 2
+hold A 30
+hold LEFT+A 16
+wait 6
+hold A 2
+wait 2
+hold A 30
+hold LEFT+A 16
+hold A 17
+hold LEFT+A 16
+wait 4
+hold A 2
+wait 2
+hold A 34
+hold LEFT+A 16
+hold A 26
+hold LEFT 1
+hold A 5
+hold LEFT+A 7
+hold A 22
 wait 2
 expect room == 11
+
+# under the bridge, at the bottom by the blue bells.
+cheat room 10
+hold A 2
+wait 2
+hold A 30
+hold LEFT+A 16
+wait 6
+hold A 2
+wait 2
+hold A 27
+wait 2
+hold A 30
+hold LEFT+A 16
+wait 6
+hold A 2
+wait 2
+hold A 27
+wait 2
+hold A 30
+hold LEFT+A 16
+wait 6
+hold A 2
+wait 2
+hold A 27
+wait 2
+hold A 30
+hold LEFT+A 16
+wait 6
+hold A 2
+wait 2
+hold A 34
+hold LEFT+A 16
+wait 14
+hold A 2
+wait 2
+hold A 31
+hold LEFT+A 16
+hold A 12
+hold LEFT+A 2
+hold A 33
+wait 2
+hold A 10
+hold LEFT+A 16
+wait 6
+hold A 2
+wait 2
+hold A 25
+hold LEFT 5
+hold LEFT+A 7
+hold LEFT 12
+hold LEFT+A 2
+wait 3
+hold A 24
+hold LEFT 6
+wait 13
+wait 2
+expect room == 26

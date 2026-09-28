@@ -1,0 +1,35 @@
+# DUSKLING: on the title each player picks which way round the pad is. A
+# (as it comes): the D-pad is left and the buttons are right. B: the other
+# way round. The choice is saved.
+game duskling
+wait 5
+expect sides1 == 0
+press DOWN
+press DOWN
+expect title_sel == 2
+press A
+expect sides1 == 1
+press DOWN
+press RIGHT
+expect sides2 == 1
+press LEFT
+expect sides2 == 0
+press UP
+press UP
+press UP
+expect title_sel == 0
+press A
+wait 5
+expect state == 2
+cheat room 1
+cheat pos 250 121
+wait 10
+# with B, the D-pad walks right and a button walks left
+hold UP 20
+expect vx10 == 12
+hold A 20
+expect vx10 == -12
+reload
+game duskling
+wait 5
+expect sides1 == 1

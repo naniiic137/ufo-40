@@ -1,6 +1,6 @@
 # DUSKLING R8, THE ROSE NEST (room 36): the rose nest: up the mound to the egg.
 # Played from its way in with plain button presses (LEFT is the D-pad
-# side, A the button side), found once by the route finder (cheat solve).
+# side, A the button side), found once by the route finder.
 game duskling
 wait 5
 cheat room 36

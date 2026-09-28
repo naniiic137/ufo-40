@@ -1,6 +1,6 @@
 # DUSKLING R2, WINDY FOOT (room 30): clouds over the drop, a prickle and a wasp.
 # Played from its way in with plain button presses (LEFT is the D-pad
-# side, A the button side), found once by the route finder (cheat solve).
+# side, A the button side), found once by the route finder.
 game duskling
 wait 5
 cheat room 30
@@ -38,7 +38,156 @@ hold LEFT+A 16
 wait 14
 hold A 2
 wait 2
-hold A 24
+hold A 26
+wait 2
+hold A 10
+hold LEFT+A 7
+hold A 21
+hold LEFT+A 16
+hold LEFT 18
+hold A 5
+hold LEFT+A 16
+hold A 18
+hold LEFT 15
+hold A 5
+hold LEFT+A 16
+wait 14
+hold A 2
+wait 2
+hold A 39
+hold LEFT 5
+hold LEFT+A 7
 hold LEFT 3
+hold LEFT+A 2
+wait 3
+hold A 78
+hold LEFT+A 16
+hold A 26
+hold A 5
+hold LEFT+A 16
+wait 4
+hold A 2
+wait 2
+hold A 47
+hold A 5
+hold LEFT+A 7
+wait 14
+hold A 2
+wait 2
+hold A 53
+hold LEFT+A 7
+hold A 28
+hold A 2
+wait 2
+hold A 10
+hold LEFT+A 16
+wait 6
+hold A 2
+wait 2
+hold A 40
+wait 2
+hold A 30
+hold LEFT+A 16
+wait 6
+hold A 2
+wait 2
+hold A 30
+hold LEFT+A 16
+wait 14
+hold A 2
+wait 2
+hold A 21
+wait 2
+expect room == 33
+
+# the frog between the poppies throws you into the warp.
+cheat room 30
+hold A 2
+wait 2
+hold A 30
+hold LEFT+A 16
+wait 6
+hold A 2
+wait 2
+hold A 17
+hold LEFT+A 16
+wait 14
+hold A 2
+wait 2
+hold A 21
+wait 2
+hold A 10
+hold LEFT+A 16
+wait 6
+hold A 2
+wait 2
+hold A 34
+hold LEFT+A 16
+wait 4
+hold A 2
+wait 2
+hold A 17
+hold LEFT+A 16
+wait 14
+hold A 2
+wait 2
+hold A 38
+hold LEFT+A 16
+wait 14
+hold A 2
+wait 2
+hold A 26
+wait 2
+hold A 10
+hold LEFT+A 7
+hold A 21
+hold LEFT+A 16
+hold LEFT 18
+hold A 5
+hold LEFT+A 16
+hold A 12
+hold LEFT+A 2
+hold A 32
+hold LEFT+A 16
+wait 14
+hold A 2
+wait 2
+hold A 72
+hold LEFT+A 7
+hold A 3
+hold LEFT+A 2
+hold A 50
+wait 2
+hold A 10
+hold LEFT+A 16
+wait 6
+hold A 2
+wait 2
+hold A 47
+hold LEFT 5
+hold LEFT+A 7
+hold LEFT 12
+hold LEFT+A 2
+wait 3
+hold A 44
+hold LEFT+A 16
+wait 4
+hold A 2
+wait 2
+hold A 55
+wait 2
+hold A 30
+hold LEFT+A 16
+wait 6
+hold A 2
+wait 2
+hold A 39
+hold LEFT+A 16
+wait 4
+hold A 2
+wait 2
+hold A 30
+hold LEFT+A 16
+hold LEFT 38
 wait 2
 expect room == 31

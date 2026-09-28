@@ -25,7 +25,7 @@ expect vx10 == 0
 hold A 20
 hold A+UP 1
 expect ground == 0
-cheat pos 150 141
+cheat pos 250 121
 wait 20
 hold B 1
 hold B+A 20

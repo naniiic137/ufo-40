@@ -86,7 +86,7 @@ and the music and sound volumes are in every game's pause menu too.
 | 06 | **TIN TROOP** | Mortol | 20 lives that carry through ten levels, the arrow, bomb and stone sacrifices, bodies as ledges and weights, water, fire and plants, a ship that drops the next life | a toy army in a toymaker's house, the Jack of the Chest, 10 new levels |
 | 07 | **SKYWELL** | Velgress | a random shaft of crumbling platforms, a roller that only follows you up, stun instead of damage, four-way shooting, a shop between levels, a key bird, a locked fourth level | Kip the scrap-diver, the Grinder, the Tinker, the Well Eye |
 | 09 | **BANNERFALL** | Attactics | a 6×8 field between two keeps, a countdown turn where you drag troops within your half, the same end-of-turn order and clashes, eight unit types with promotions and heroes, the original's 24 campaign battles, ranked, survival and 2P versus | the Marigold Guard and the Thistle Host, all units and battle names |
-| 13 | **DUSKLING** | Mooncat | every way on the D-pad is left and both buttons are right; a jump goes toward the side held (higher the longer you press), low hops, rolls and sprints, somersaults and slams; one touch and back to the room's start, as often as it takes; flowers that mean a warp, stone faces that show hidden ledges, warps within warps to three eggs and three bosses, 42 rooms, 2P co-op | the duskling and the dayling, the Hush Wood, the Sunken Mere, the Old Steps and the Humming Works, the Ember Caves and the Windy Heights, the Brass Warden, the Ember Hermit and the Old Badger, 42 new rooms |
+| 13 | **DUSKLING** | Mooncat | every way on the D-pad is left and both buttons are right (or the other way round); a jump goes toward the side held (higher the longer you press), low hops, rolls and sprints, somersaults, and a slam that pauses with a "!" and drops straight down; spiked foes flipped by a slam beside them and kicked away; one touch and back to the room's start, as often as it takes; flowers that mean a warp, stone faces that show hidden ledges, warps within warps to three eggs and three bosses, 42 rooms, 2P co-op | the duskling and the dayling, the Hush Wood, the Sunken Mere, the Old Steps and the Humming Works, the Ember Caves and the Windy Heights, the Brass Warden, the Ember Hermit and the Old Badger, 42 new rooms |
 | 14 | **CUTLASS CUP** | Bushido Ball | first to 8 points, a ball that gets faster with every return, aimed, lobbed and curved strikes, secondary weapons and charged super shots, the fouls and penalty points, six fighters, a five-match tournament, 2P versus and co-op doubles | six corsairs, the galley *Merry Mackerel*, old Bosun Crabbe |
 | 15 | **FENNEC FOUNTAIN** | Block Koala | pushing numbered blocks (never into a heavier one, a 1 that can't move is taken in), grey at five, blue and black blocks, mimics, arrows, stone patches and doors, unlimited undo and a room menu, fifty rooms behind gates, a room editor | Fen the fennec, a dry spring garden, 50 new rooms |
 | 16 | **TINTAIL** | Camouflage | sneaking on a grid past watchers by taking the colour of the ground you stand on, hollow logs, sun and rain pads, hatchlings with their own colour, a danger view you can't move in, undo, a branching map | Twig the chameleon, Salt Island, toads and storks, 15 new levels |
@@ -355,43 +355,49 @@ the top.
 ### 13 · DUSKLING
 
 <p align="center">
-  <img src="docs/shots/duskling.gif" width="640" alt="Duskling: the pink duskling sprints, jumps and somersaults through the Hush Wood">
+  <img src="docs/shots/duskling.gif" width="640" alt="Duskling: the pink duskling jumps, somersaults and slams through the Hush Wood">
 </p>
 <p align="center">
   <img src="docs/shots/duskling_mere.png" width="320" alt="The Sunken Mere">
   <img src="docs/shots/duskling_eyes.png" width="320" alt="Fallen ceiling eyes in the Old Steps">
-  <img src="docs/shots/duskling_heights.png" width="320" alt="A stone face's hidden bridge in the Windy Heights">
+  <img src="docs/shots/duskling_heights.png" width="320" alt="The Windy Heights">
   <img src="docs/shots/duskling_egg.png" width="320" alt="The amber egg opens">
 </p>
 
 *A tribute to **Mooncat** (UFO 50 #13).*
 
 - **Plays the same:** the pad has two sides. Every way on the D-pad walks
-  left and both buttons walk right; hold one side and press the other to
-  jump toward the side held, longer for higher. Tap and then press both for
-  a low hop, double tap to roll (hold it to sprint, with more time to jump
-  off an edge), double tap in the air to somersault, and press the other
-  side again in the air to slam: it beats foes, bounces you up and drops
-  through pink ledges. One touch ends you, and you come back where you
-  came into the room, as often as it takes. Nothing is saved on the way.
-- **Secrets:** some creatures are harmless, some are ledges, some can be
-  knocked about. Flowers mean a warp is somewhere on the screen; they are
-  never drawn until touched. Stone faces show hidden ledges when you jump
-  over them, springs hide in plain sight, and ceiling eyes drop and leap
-  when you slam.
+  left and both buttons walk right (pad B on the title turns it round);
+  hold one side and press the other to jump toward the side held, longer
+  for higher. Tap and then press both for a low hop, double tap to roll
+  (hold it to sprint, with more time to jump off an edge), double tap in
+  the air to somersault, and press the other side again in the air to
+  slam: a moment's pause with a "!", then straight down. A slam beats foes
+  and bounces you the way you hold (or straight up), drops through pink
+  ledges, and flips walkers next to it so they can be kicked away; spiked
+  prickles can only be beaten that way. One touch ends you, and you come
+  back where you came into the room, as often as it takes. Nothing is
+  saved on the way.
+- **Secrets:** some creatures only just miss you, some are ledges, some
+  can be knocked about. Flowers mean a warp is somewhere on the screen;
+  warps are never drawn until touched. Stone faces show hidden ledges when
+  you jump over them twice, springs hide in plain sight, ceiling eyes drop,
+  roll and leap when you slam, and mushroom caps spring you only when
+  slammed.
 - **Structure:** it opens as an orange dayling drifts down into a dusk wood
   and falls into a pit whose far side isn't there. Then the duskling's
-  main way runs through the wood, the mere, the ruins and the machine
-  works to the Brass Warden and the white egg. Warps skip ahead (one goes
-  back), and warps within warps open the amber way to the Ember Hermit and
-  the rose way to the Old Badger, each with its egg: every egg is an
-  ending. 42 rooms; two players on PC. A route finder over the real rules
-  recorded a crossing of every room, warp and egg, and the tests play
-  them back with button presses.
+  main way runs through the wood (where the Ember Hermit throws sparks and
+  runs off), the mere, the ruins and the machine works to the Brass Warden
+  and the white egg. Warps skip ahead (one goes back to the start), and
+  warps within warps open the amber way to the Ember Hermit and the rose
+  way to the Old Badger, each with its egg: every egg is an ending. 42
+  rooms, ten of them pockets off every egg's way; two players on PC. A
+  route finder over the real rules recorded a crossing of every room, warp
+  and egg, and the tests play them back with button presses.
 - **Ours:** the duskling, the dayling and its little light, the Hush Wood,
   the Sunken Mere, the Old Steps, the Humming Works, the Ember Caves and
-  the Windy Heights, every creature and boss, what the eggs hold, all 42
-  rooms and the music.
+  the Windy Heights, every creature and boss, every secret's solution, what
+  the eggs hold, all 42 rooms and the music.
 
 ### 14 · CUTLASS CUP
 

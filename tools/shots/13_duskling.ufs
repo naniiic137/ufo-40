@@ -9,10 +9,9 @@ shot duskling_title
 press A
 wait 50
 shot duskling_dusk
-# dk_r04: the crow's perch
-cheat room 4
+# dk_r03: the hollow log
+cheat room 3
 gifstart duskling 4 2
-wait 5
 hold A 2
 wait 2
 hold A 30
@@ -20,55 +19,59 @@ hold LEFT+A 16
 wait 6
 hold A 2
 wait 2
-hold A 27
-wait 2
-hold A 30
-hold LEFT+A 16
-wait 6
-hold A 2
-wait 2
-hold A 27
-wait 2
-hold A 30
-hold LEFT+A 16
-wait 6
-hold A 2
-wait 2
-hold A 30
+hold A 17
 hold LEFT+A 16
 wait 14
 hold A 2
 wait 2
-hold A 26
+hold A 23
+hold LEFT+A 16
+hold A 12
+hold LEFT+A 2
+hold A 43
+wait 2
+hold A 10
+hold LEFT+A 16
+wait 6
+hold A 2
+wait 2
+hold A 30
+hold LEFT+A 16
+wait 4
+hold A 2
+wait 2
+hold A 57
+wait 2
+hold A 10
+hold LEFT+A 16
+wait 6
+hold A 2
+wait 2
+hold A 36
 hold LEFT+A 16
 wait 14
 hold A 2
-wait 2
-hold A 26
-hold LEFT+A 7
-hold A 25
 wait 2
 gifstop
 # dk_r07: the first dive
 cheat room 7
-wait 5
 hold A 2
 wait 2
 hold A 30
 hold LEFT+A 16
-hold A 66
-wait 2
-hold A 10
-hold LEFT+A 16
 wait 6
 hold A 2
 wait 2
-hold A 28
+hold A 31
+hold LEFT+A 16
+hold A 12
+hold LEFT+A 2
+hold A 44
 wait 2
+hold A 10
 shot duskling_mere
 # dk_r13: the eye hall
 cheat room 13
-wait 5
 hold A 2
 wait 2
 hold A 30
@@ -82,55 +85,55 @@ hold LEFT+A 7
 hold LEFT 3
 hold LEFT+A 2
 wait 3
-hold A 25
+hold A 28
+wait 2
+hold LEFT+A 2
+hold A 18
+hold LEFT 5
 hold LEFT+A 7
-hold A 3
+hold LEFT 3
 hold LEFT+A 2
 wait 3
-hold LEFT 12
-hold A 5
-hold LEFT+A 16
-hold A 12
-hold LEFT+A 2
-hold A 30
+hold A 44
 wait 2
-hold A 10
+hold A 30
 hold LEFT+A 16
 wait 6
 hold A 2
+wait 2
+hold A 30
 shot duskling_eyes
 # dk_r20: the Brass Warden
 cheat room 20
-wait 5
 hold A 2
 wait 2
 hold A 30
 hold LEFT+A 16
 hold A 26
 hold LEFT 5
-hold LEFT+A 7
+hold LEFT+A 16
+hold LEFT 12
+hold LEFT+A 2
+hold LEFT 33
+wait 2
+hold LEFT 4
+wait 2
+hold LEFT 2
+wait 16
+hold LEFT 5
+hold LEFT+A 16
 hold LEFT 3
 hold LEFT+A 2
-wait 23
-hold LEFT 5
-hold LEFT+A 7
-hold LEFT 39
-hold LEFT+A 16
-hold LEFT 12
-hold LEFT+A 2
-hold LEFT 44
-hold LEFT+A 7
-hold LEFT 12
-hold LEFT+A 2
 wait 3
-hold A 40
-hold LEFT+A 16
-hold A 12
+hold A 43
+wait 10
+hold A 5
+hold LEFT+A 7
+hold A 3
 hold LEFT+A 2
 shot duskling_warden
 # dk_r31: the cloud ledges on the rose way
 cheat room 31
-wait 5
 hold A 2
 wait 2
 hold A 10
@@ -145,19 +148,107 @@ hold LEFT+A 16
 wait 14
 hold A 2
 wait 2
-hold A 28
-wait 2
-hold A 30
+hold A 26
+hold LEFT 5
 hold LEFT+A 16
-wait 6
-hold A 2
+hold LEFT 12
+hold LEFT+A 2
+wait 3
+hold A 30
 wait 2
 hold A 30
 hold LEFT+A 16
 shot duskling_heights
 # dk_r28: the amber egg
 cheat room 28
-wait 5
+hold A 2
+wait 2
+hold A 10
+hold LEFT+A 7
+hold A 28
+hold LEFT 5
+hold LEFT+A 7
+hold LEFT 3
+hold LEFT+A 2
+wait 3
+hold A 31
+hold LEFT+A 7
+hold A 3
+hold LEFT+A 2
+hold A 24
+wait 2
+hold A 30
+hold LEFT+A 16
+wait 6
+hold A 2
+wait 2
+hold A 9
+hold A 5
+hold LEFT+A 16
+hold A 26
+hold LEFT+A 16
+wait 14
+hold A 2
+wait 2
+hold A 25
+hold LEFT 5
+hold LEFT+A 7
+hold LEFT 3
+hold LEFT+A 2
+wait 3
+hold A 26
+hold LEFT 5
+hold LEFT+A 7
+hold LEFT 12
+hold LEFT+A 2
+wait 3
+hold A 48
+hold LEFT+A 1
+hold A 28
+hold A 5
+hold LEFT+A 16
+wait 14
+hold A 2
+wait 2
+hold A 35
+wait 2
+hold LEFT+A 2
+hold A 18
+hold LEFT 5
+hold LEFT+A 7
+hold LEFT 16
+hold A 5
+hold LEFT+A 16
+hold A 23
+hold LEFT+A 16
+hold A 21
+hold LEFT 14
+hold A 2
+wait 2
+hold A 10
+hold LEFT+A 16
+wait 6
+hold A 2
+wait 2
+hold A 28
+hold LEFT 14
+wait 26
+hold A 6
+hold LEFT 6
+hold A 5
+hold LEFT+A 16
+wait 14
+hold A 2
+wait 2
+hold A 21
+hold A 5
+hold LEFT+A 7
+hold A 60
+hold LEFT+A 7
+hold A 28
+hold A 5
+hold LEFT+A 16
+hold LEFT 40
 hold A 2
 wait 2
 hold A 30
@@ -171,24 +262,9 @@ hold LEFT+A 7
 hold LEFT 3
 hold LEFT+A 2
 wait 3
-hold A 25
-hold LEFT+A 16
-hold A 12
-hold LEFT+A 2
-wait 3
-hold LEFT 17
-wait 2
-hold LEFT 7
+hold A 50
 hold LEFT+A 1
-hold A 42
-hold LEFT 5
-hold LEFT+A 7
-hold LEFT 3
-hold LEFT+A 2
-wait 3
-hold A 33
-hold LEFT+A 16
-hold A 24
+hold A 26
 wait 2
 wait 260
 shot duskling_egg

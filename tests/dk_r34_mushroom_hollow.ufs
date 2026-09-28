@@ -1,25 +1,30 @@
-# DUSKLING X2, BUBBLE POCKET (room 38): the bubble pocket, a warp pocket that skips the rest of the mere.
+# DUSKLING R6, MUSHROOM HOLLOW (room 34): mushroom caps over a drop: only a slam springs off them (a warp pocket).
 # Played from its way in with plain button presses (LEFT is the D-pad
 # side, A the button side), found once by the route finder.
 game duskling
 wait 5
-cheat room 38
+cheat room 34
+hold A 2
+wait 2
+hold A 10
+hold LEFT+A 7
+hold A 21
+hold LEFT+A 16
+wait 4
 hold A 2
 wait 2
 hold A 30
 hold LEFT+A 16
-wait 6
+wait 4
 hold A 2
-wait 2
-hold A 27
 wait 2
 hold A 30
 hold LEFT+A 16
-wait 6
+wait 14
 hold A 2
 wait 2
-hold A 30
+hold A 26
 hold LEFT+A 16
 hold A 21
 wait 2
-expect room == 12
+expect room == 8

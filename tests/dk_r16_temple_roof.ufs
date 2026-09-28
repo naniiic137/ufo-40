@@ -1,6 +1,6 @@
-# DUSKLING M16, TEMPLE ROOF (room 16): the temple roof: a beetle over the thorns, a hidden spring in the gap, gulpers on the ridge.
+# DUSKLING M16, TEMPLE ROOF (room 16): the temple roof: a beetle over the thorns, a hidden spring in the gap, gulpers on the ridge and a climb.
 # Played from its way in with plain button presses (LEFT is the D-pad
-# side, A the button side), found once by the route finder (cheat solve).
+# side, A the button side), found once by the route finder.
 game duskling
 wait 5
 cheat room 16
@@ -9,28 +9,33 @@ wait 2
 hold A 10
 hold LEFT+A 7
 hold A 26
-hold LEFT 22
-wait 2
-hold LEFT 2
-hold A 6
 hold LEFT 5
-hold LEFT+A 7
+hold LEFT+A 16
 hold LEFT 3
 hold LEFT+A 2
 wait 3
-hold A 20
-hold LEFT 14
-hold A 6
-hold LEFT 6
-hold A 5
+hold A 47
+hold LEFT+A 7
+hold A 30
 hold LEFT+A 16
 wait 14
 hold A 2
 wait 2
-hold A 23
+hold A 53
+wait 41
+hold A 5
+hold LEFT+A 16
+wait 4
+hold A 2
 wait 2
-hold LEFT+A 2
-hold A 61
+hold A 25
+wait 2
+hold A 30
+hold LEFT+A 16
+wait 6
+hold A 2
+wait 2
+hold A 29
 wait 2
 hold A 30
 hold LEFT+A 16
@@ -38,58 +43,79 @@ wait 6
 hold A 2
 wait 2
 hold A 27
-hold LEFT+A 16
-wait 14
-hold A 2
-wait 2
-hold A 28
 wait 2
 hold A 30
 hold LEFT+A 16
 wait 6
 hold A 2
 wait 2
-hold A 30
+hold A 17
+hold LEFT 5
 hold LEFT+A 1
-hold A 20
+hold A 38
+hold LEFT+A 7
+wait 4
+hold A 2
+wait 2
+hold A 12
+hold LEFT 5
+hold LEFT+A 7
+hold A 41
+hold LEFT+A 7
+hold LEFT 38
+hold A 2
+wait 2
+hold A 10
+hold LEFT+A 16
+wait 6
+hold A 2
+wait 2
+hold A 42
+hold LEFT 5
+hold LEFT+A 1
+hold LEFT 28
+hold A 2
+wait 2
+hold A 10
+hold LEFT+A 16
+wait 6
+hold A 2
+wait 2
+hold A 25
+hold LEFT 2
 wait 2
 expect room == 17
 
 # drop into the hole between the blue bells: the one warp that goes back.
 cheat room 16
-hold A 5
-hold LEFT+A 16
-wait 4
 hold A 2
 wait 2
-hold A 25
-hold LEFT 6
-hold A 6
+hold A 10
+hold LEFT+A 7
+hold A 26
 hold LEFT 5
 hold LEFT+A 7
-hold LEFT 3
+hold LEFT 12
 hold LEFT+A 2
 wait 3
-hold A 20
-hold LEFT 14
-hold A 6
-hold LEFT 6
+hold A 41
+hold LEFT 12
 hold A 5
+hold LEFT+A 16
+hold A 29
 hold LEFT+A 16
 wait 14
 hold A 2
 wait 2
-hold A 23
-wait 2
-hold LEFT+A 2
-hold A 64
+hold A 53
+wait 40
+hold A 5
 hold LEFT+A 16
 wait 4
 hold A 2
 wait 2
-hold A 25
-wait 2
-hold LEFT+A 2
-hold A 35
+hold A 28
+hold LEFT+A 7
+hold A 42
 wait 2
 expect room == 40

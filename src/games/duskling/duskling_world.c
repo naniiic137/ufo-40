@@ -20,7 +20,9 @@
 #define LOW_V 2.3f
 #define FALL_MAX 4.5f
 #define POUND_V 5.0f
-#define POUND_VX 1.3f
+#define MUSH_V 6.2f     /* a slam on a mushroom cap */
+#define FLIP_R 40.0f    /* a slam flips walkers this far to either side */
+#define FLIP_T 180      /* ... for three seconds */
 #define BOUNCE_V 2.4f   /* a slam on the ground bounces you back up */
 #define STOMP_V 3.8f    /* a slam on a foe */
 #define FROG_V 5.2f
@@ -54,6 +56,8 @@ static uint8_t mut_idx[DK_MAXH][DK_MAXW]; /* 1 + index into dk_w.mut */
 static uint8_t wet[DK_MAXH][DK_MAXW];     /* water, and the marks that sit in it */
 static int RW, RH, n_mut;
 static bool has_clock; /* the room has something that keeps time */
+static int n_perch;    /* the fleeing Hermit's perches ('*'), left to right */
+static int16_t perch_x[8], perch_y[8];
 
 #define W dk_w
 
@@ -84,7 +88,7 @@ static bool rect_wet(float x, float y, float w, float h) {
             if (dk_wet(tx, ty)) return true;
     return false;
 }
-bool dk_face_awake(int tx, int ty) { return mut_on(tx, ty); }
+bool dk_face_awake(int tx, int ty) { return tx >= 0 && tx < RW && ty >= 0 && ty < RH && mut_idx[ty][tx] && W.mut[mut_idx[ty][tx] - 1] >= 2; }
 
 char dk_tile(int tx, int ty) {
     if (tx < 0 || tx >= RW) return '#';
@@ -96,7 +100,7 @@ char dk_tile(int tx, int ty) {
 static bool solid_tile(int tx, int ty) {
     char c = dk_tile(tx, ty);
     switch (c) {
-    case '#': case '%': return true;
+    case '#': case '%': case 'm': return true;
     case '?': return mut_on(tx, ty);
     case 'D': return !W.boss_down;
     default: return false;
@@ -274,8 +278,12 @@ static void build_room(void) {
         for (int tx = 0; tx < RW; tx++) {
             char c = map[ty][tx];
             if ((c == '?' || c == '%' || c == 'I') && n_mut < DK_MUT) mut_idx[ty][tx] = (uint8_t)(++n_mut);
-            if (strchr("vyMenWHG", c)) has_clock = true;
+            if (strchr("vypMenWHGh", c)) has_clock = true;
         }
+    n_perch = 0;
+    for (int tx = 0; tx < RW; tx++)
+        for (int ty = 0; ty < RH; ty++)
+            if (map[ty][tx] == '*' && n_perch < 8) { perch_x[n_perch] = (int16_t)(tx * TS - 3); perch_y[n_perch] = (int16_t)(ty * TS - 6); n_perch++; }
 }
 
 static void populate(void) {
@@ -290,12 +298,13 @@ static void populate(void) {
             if (strchr(FOE_CH, c)) {
                 spawn_foe(c, tx, ty);
                 map[ty][tx] = ' ';
-            } else if (c == 'W' || c == 'H' || c == 'G') {
+            } else if (c == 'W' || c == 'H' || c == 'G' || c == 'h') {
                 DKBoss *b = &W.boss;
-                b->kind = c == 'W' ? BOSS_WARDEN : c == 'H' ? BOSS_HERMIT : BOSS_BADGER;
+                b->kind = c == 'W' ? BOSS_WARDEN : (c == 'H' || c == 'h') ? BOSS_HERMIT : BOSS_BADGER;
                 b->alive = 1;
-                b->solid = 1;
-                b->hp = b->kind == BOSS_WARDEN ? 6 : 5;
+                b->solid = c != 'h';
+                b->spoke = c == 'h'; /* the Hermit on the main way only runs off */
+                b->hp = b->kind == BOSS_WARDEN ? 6 : b->kind == BOSS_BADGER ? 8 : 5;
                 b->x = (float)(tx * TS);
                 b->y = (float)(ty * TS);
                 b->dir = -1;
@@ -326,8 +335,10 @@ void dk_room_load(int room, int arrive, int nplayers) {
 
 void dk_room_reset(void) {
     int16_t hb = W.head_bounces;
+    uint8_t socks = W.socks;
     dk_room_load(W.room, W.arrive, W.nplayers);
     W.head_bounces = hb;
+    W.socks = socks;
 }
 
 int dk_foe_count(int kind) {
@@ -349,24 +360,39 @@ static void reveal_near(int cx, int cy) {
             if (map[ty][tx] == '?' && mut_idx[ty][tx]) W.mut[mut_idx[ty][tx] - 1] = 1;
 }
 
+int dk_face_passes(int tx, int ty) { return tx >= 0 && tx < RW && ty >= 0 && ty < RH && mut_idx[ty][tx] ? W.mut[mut_idx[ty][tx] - 1] : 0; }
+
+/* a stone face wakes on the second jump over it: the first only makes an
+ * eye glow. Each pass counts once, while the duskling is in the air over it. */
 static void faces_check(DKPlayer *p) {
-    if (p->ground) return;
-    int x0 = tof(p->x), x1 = tof(p->x + PW - 0.01f);
-    int yb = tof(p->y + PH);
-    /* a stone face with the duskling in the air right over it (up to four tiles) */
-    for (int tx = x0; tx <= x1; tx++)
-        for (int ty = yb; ty < imin(RH, yb + 5); ty++) {
-            char c = dk_tile(tx, ty);
-            if (c == 'I') {
-                if (p->y + PH <= ty * TS - 1 && !mut_on(tx, ty) && !(dk_nerf & NERF_FACES)) {
-                    W.mut[mut_idx[ty][tx] - 1] = 1;
-                    reveal_near(tx, ty);
-                    dk_fx("dk_reveal", (float)(tx * TS + 5), (float)(ty * TS), C_CYAN, 10);
+    int found = 0;
+    if (!p->ground) {
+        int x0 = tof(p->x), x1 = tof(p->x + PW - 0.01f);
+        int yb = tof(p->y + PH);
+        for (int tx = x0; tx <= x1 && !found; tx++)
+            for (int ty = yb; ty < imin(RH, yb + 5); ty++) {
+                char c = dk_tile(tx, ty);
+                if (c == 'I') {
+                    if (p->y + PH <= ty * TS - 1) found = 1 + ty * DK_MAXW + tx;
+                    break;
                 }
-                break;
+                if (solid_tile(tx, ty)) break;
             }
-            if (solid_tile(tx, ty)) break;
+    }
+    if (found && found != p->over_face && !(dk_nerf & NERF_FACES)) {
+        int tx = (found - 1) % DK_MAXW, ty = (found - 1) / DK_MAXW;
+        uint8_t *m = &W.mut[mut_idx[ty][tx] - 1];
+        if (*m < 2) {
+            (*m)++;
+            if (*m == 2) {
+                reveal_near(tx, ty);
+                dk_fx("dk_reveal", (float)(tx * TS + 5), (float)(ty * TS), C_CYAN, 10);
+            } else {
+                dk_fx("dk_eye", (float)(tx * TS + 5), (float)(ty * TS), C_CYAN, 3);
+            }
         }
+    }
+    p->over_face = (int16_t)found;
 }
 
 static void springs_touch(DKPlayer *p) {
@@ -410,8 +436,16 @@ static bool thump(float x, float y, const DKPlayer *slammer) {
     dk_fx("dk_thump", x, y, C_LIGHT, 6);
     for (int i = 0; i < DK_FOES; i++) {
         DKFoe *f = &W.foe[i];
+        /* walkers on the same floor nearby flip onto their backs */
+        if (f->alive && (f->kind == F_PRICKLE || f->kind == F_NEWT) && f->state != 2 &&
+            fabsf(f->x + 5 - x) <= FLIP_R && fabsf(f->y + 10 - y) <= 12) {
+            f->state = 3;
+            f->timer = FLIP_T;
+            dk_fx("dk_flip", f->x + 5, f->y + 5, C_WHITE, 3);
+            continue;
+        }
         if (!f->alive || f->kind != F_EYE || (dk_nerf & NERF_EYES)) continue;
-        if (fabsf(f->x + 5 - x) > THUMP_R || fabsf(f->y - y) > 140) continue;
+        if (fabsf(f->x + 5 - x) > THUMP_R || fabsf(f->y - y) > 160) continue;
         if (f->state == 0) { f->state = 1; f->vy = 0; dk_fx("dk_eye", f->x + 5, f->y + 5, C_RED, 0); }
         else if (f->state == 2) {
             f->state = 3;
@@ -438,6 +472,8 @@ static void foe_step(int fi) {
     float fx, fy, fw, fh;
     switch (f->kind) {
     case F_PRICKLE: {
+        if (f->state == 3) { if (--f->timer <= 0) f->state = 0; break; }
+        if (f->state == 2) goto kicked;
         float nx = f->x + f->dir * 0.6f;
         float ahead = f->dir > 0 ? nx + 10 : nx - 1;
         if (rect_solid(f->dir > 0 ? nx + 9 : nx, f->y, 1, 9) || !ground_below(ahead, f->y + 10.5f)) f->dir = (int8_t)-f->dir;
@@ -457,11 +493,13 @@ static void foe_step(int fi) {
         else f->y = ny;
         break;
     }
-    case F_PUFF:
-        f->x -= 0.35f;
-        f->y = f->y0 + sinf((f->t + f->phase) * 0.05f) * 6.0f;
-        if (f->x < -12) f->x = (float)(RW * TS + 4);
+    case F_PUFF: {
+        /* thistledown drifts to and fro, skimming just over your head */
+        float nx = f->x + f->dir * 0.45f;
+        if (rect_solid(f->dir > 0 ? nx + 9 : nx, f->y0, 1, 8) || fabsf(nx - f->x0) > 6 * TS) f->dir = (int8_t)-f->dir;
+        else f->x = nx;
         break;
+    }
     case F_FROG: {
         int per = 100, k = (f->t + f->phase) % per;
         if (k == 0 && f->state == 0) { f->state = 1; f->vy = -2.6f; }
@@ -495,6 +533,19 @@ static void foe_step(int fi) {
             }
             if (f->y > RH * TS + 20) f->alive = 0;
             (void)oy;
+        } else if (f->state == 2) {
+            /* a fallen eye rolls slowly along the floor, turning at walls and edges */
+            float nx = f->x + f->dir * 0.3f;
+            float ahead = f->dir > 0 ? nx + 10 : nx - 1;
+            if (rect_solid(f->dir > 0 ? nx + 9.99f : nx, f->y, 0.01f, 9) || !ground_below(ahead, f->y + 10.5f)) f->dir = (int8_t)-f->dir;
+            else {
+                bool blocked = false;
+                for (int k = 0; k < W.nplayers && !blocked; k++) {
+                    const DKPlayer *q = &W.P[k];
+                    if (q->alive && q->y + PH > f->y + 1 && q->y < f->y + 10 && q->x < nx + 10 && nx < q->x + PW) blocked = true;
+                }
+                if (!blocked) { carry_riders(fi, nx - f->x, 0); f->x = nx; }
+            }
         }
         break;
     case F_BEETLE:
@@ -520,6 +571,8 @@ static void foe_step(int fi) {
         }
         break;
     case F_NEWT: {
+        if (f->state == 3) { if (--f->timer <= 0) f->state = 0; break; }
+        if (f->state == 2) goto kicked;
         int k = (f->t + f->phase) % 110;
         f->state = (uint8_t)(k >= 90);
         if (k == 100) {
@@ -539,6 +592,13 @@ static void foe_step(int fi) {
     default: break;
     }
     foe_box(f, &fx, &fy, &fw, &fh);
+    return;
+kicked:
+    /* kicked off its back: it tumbles off the screen */
+    f->vy = fminf(f->vy + GRAV, FALL_MAX);
+    f->x += f->vx;
+    f->y += f->vy;
+    if (++f->timer > 120 || f->y > RH * TS + 20 || f->x < -20 || f->x > RW * TS + 20) f->alive = 0;
 }
 
 static void shots_step(void) {
@@ -644,7 +704,32 @@ static void boss_step(void) {
         boss_fall(b, 18, 20, false);
         break;
     }
-    case BOSS_HERMIT: {
+    case BOSS_HERMIT:
+        if (b->spoke) {
+            /* on the main way he only runs: on a perch he throws sparks now and
+             * then, and when you come close he vanishes to the next one; after
+             * the last he is gone for good */
+            b->solid = 0;
+            if (b->perch >= n_perch) { b->alive = 0; break; }
+            b->x = perch_x[b->perch];
+            b->y = perch_y[b->perch];
+            if (b->state == 0) {
+                b->dir = (int8_t)(px < b->x ? -1 : 1);
+                if (b->t % 110 == 60) {
+                    float a = atan2f(py + 4 - (b->y + 8), px + 3 - (b->x + 8));
+                    for (int k = -1; k <= 1; k++)
+                        add_shot(SH_FIRE, b->x + 8, b->y + 8, cosf(a + k * 0.3f) * 1.4f, sinf(a + k * 0.3f) * 1.4f);
+                    dk_fx("dk_fire", b->x + 8, b->y + 8, 0, 0);
+                }
+                if (fabsf(px - b->x) < 64) { b->state = 2; b->t = 0; dk_fx("dk_fade", b->x + 8, b->y + 8, C_ORANGE, 6); }
+            } else if (b->t >= 24) {
+                b->perch++;
+                b->state = 0;
+                b->t = 0;
+            }
+            break;
+        }
+        {
         /* four perches: he comes, throws three sparks, and goes */
         static const float PX[4] = {40, 262, 96, 206}, PY[4] = {126, 126, 56, 56};
         int n = b->perch % 4;
@@ -676,7 +761,7 @@ static void boss_step(void) {
             }
         }
         break;
-    }
+        }
     case BOSS_BADGER: {
         /* slow; climbs to the ledge you stand on and blasts at you */
         b->solid = b->flash == 0;
@@ -750,35 +835,51 @@ static void start_jump(DKPlayer *p, int d, float v, int trigger) {
     dk_fx(v < JUMP_V ? "dk_hop" : "dk_jump", p->x + 3, p->y + PH, 0, 0);
 }
 
+/* every bounce out of a slam: straight up with nothing held, or the way
+ * the side held at contact points */
+static void slam_bounce(DKPlayer *p, float v) {
+    p->vy = -v;
+    p->ground = 0;
+    p->on_foe = -1;
+    p->act = ACT_BOUNCE;
+    p->spun = 0;
+    p->act_t = 0;
+    p->hb_streak = 0;
+    if (p->held == SIDE_L || p->held == SIDE_R) p->vx = dirof(p->held) * WALK;
+    else p->vx = 0;
+}
+
 static void land(DKPlayer *p, int i, int foe_i) {
     (void)i;
     bool was_pound = p->act == ACT_POUND;
     p->ground = 1;
     p->spun = 0;
     p->on_foe = (int8_t)foe_i;
+    p->hb_streak = 0;
     if (foe_i < 0) {
         /* a spring block underfoot: a slam onto it springs higher */
         int ty = tof(p->y + PH + 0.5f);
         for (int tx = tof(p->x); tx <= tof(p->x + PW - 0.01f); tx++)
             if (dk_tile(tx, ty) == '%' && !(dk_nerf & NERF_SPRINGS)) {
                 if (!mut_on(tx, ty)) W.mut[mut_idx[ty][tx] - 1] = 1;
-                p->vy = -(SPRING_V + (was_pound ? 1.0f : 0));
-                p->ground = 0;
-                p->on_foe = -1;
-                p->act = ACT_BOUNCE;
+                if (was_pound) slam_bounce(p, SPRING_V + 1.0f);
+                else { p->vy = -SPRING_V; p->ground = 0; p->on_foe = -1; p->act = ACT_BOUNCE; }
                 dk_fx("dk_spring", p->x + 3, p->y + PH, C_PINK, 4);
                 return;
             }
+        /* a mushroom cap: only a slam springs off it */
+        if (was_pound)
+            for (int tx = tof(p->x); tx <= tof(p->x + PW - 0.01f); tx++)
+                if (dk_tile(tx, ty) == 'm') {
+                    thump(p->x + 3, p->y + PH, p);
+                    slam_bounce(p, MUSH_V);
+                    dk_fx("dk_spring", p->x + 3, p->y + PH, C_RED, 4);
+                    return;
+                }
     }
     if (was_pound) {
         if (thump(p->x + 3, p->y + PH, p)) return;
-        p->vy = -BOUNCE_V;
-        p->ground = 0;
-        p->on_foe = -1;
-        p->act = ACT_BOUNCE;
-        /* steer the bounce with whichever side is held */
-        if (p->held == SIDE_L || p->held == SIDE_R) p->vx = dirof(p->held) * fmaxf(WALK, fabsf(p->vx));
-        else p->vx *= 0.5f;
+        slam_bounce(p, BOUNCE_V);
         dk_fx("dk_pound", p->x + 3, p->y + PH, C_LIGHT, 5);
         return;
     }
@@ -941,6 +1042,7 @@ static void player_step(int i, uint32_t pad) {
             dk_fx("dk_swim", p->x + 3, p->y, 0, 0);
         } else if (p->act == ACT_POUND) {
             p->vy = 2.2f;
+            p->act_t = 0;
         }
         int hs = p->held == 3 ? p->face : p->held ? dirof(p->held) : 0;
         if (p->held == SIDE_L || p->held == SIDE_R) p->face = (int8_t)hs;
@@ -990,10 +1092,12 @@ static void player_step(int i, uint32_t pad) {
             if (!(pr & s)) continue;
             if ((p->held & other(s)) && p->act != ACT_POUND) {
                 /* one side held, the other pressed again: the slam */
+                /* a moment's pause in the air, a "!", then straight down */
                 int d = dirof(other(s));
                 p->act = ACT_POUND;
-                p->vy = POUND_V;
-                p->vx = d * fmaxf(POUND_VX, fminf(fabsf(p->vx), 2.0f));
+                p->act_t = DK_SLAM_HANG;
+                p->vy = 0;
+                p->vx = 0;
                 p->face = (int8_t)d;
                 p->jump_hold = 0;
                 p->pounded = 1;
@@ -1013,7 +1117,10 @@ static void player_step(int i, uint32_t pad) {
                 dk_fx("dk_spin", p->x + 3, p->y + 4, 0, 0);
             }
         }
-        if (p->act != ACT_POUND) {
+        if (p->act == ACT_POUND) {
+            p->vx = 0;
+            if (p->act_t > 0) { p->vy = 0; if (--p->act_t == 0) p->vy = POUND_V; }
+        } else {
             int hs = p->held == SIDE_L ? -1 : p->held == SIDE_R ? 1 : p->held == 3 ? p->face : 0;
             if (hs && p->vx * hs < WALK) p->vx = fminf(fmaxf(p->vx + hs * ACC_A, -fmaxf(WALK, -p->vx)), fmaxf(WALK, p->vx));
             float g = GRAV;
@@ -1033,6 +1140,7 @@ static void player_step(int i, uint32_t pad) {
     move_player(p, i);
     (void)oldb;
     if (p->act == ACT_JUMP && p->ground) p->act = ACT_NONE;
+    if (p->ground) p->hb_streak = 0; /* any landing ends a run of head bounces */
     faces_check(p);
     springs_touch(p);
 }
@@ -1042,14 +1150,6 @@ static void player_step(int i, uint32_t pad) {
 
 static bool overlap(float ax, float ay, float aw, float ah, float bx, float by, float bw, float bh) {
     return ax < bx + bw && bx < ax + aw && ay < by + bh && by < ay + ah;
-}
-
-static void stomp_bounce(DKPlayer *p, float v) {
-    p->vy = -v;
-    p->act = ACT_BOUNCE;
-    p->ground = 0;
-    p->spun = 0;
-    p->on_foe = -1;
 }
 
 static void contacts(int i) {
@@ -1062,7 +1162,8 @@ static void contacts(int i) {
         for (int tx = x0; tx <= x1; tx++)
             if (dk_tile(tx, ty) == '^' && y + PH > ty * TS + 4) { die(i); return; }
     bool falling = p->vy > 0;
-    bool slam = p->act == ACT_POUND;
+    /* a slam counts on any contact while it is coming down */
+    bool slam = p->act == ACT_POUND && falling;
     for (int k = 0; k < DK_FOES; k++) {
         DKFoe *f = &W.foe[k];
         if (!f->alive) continue;
@@ -1072,10 +1173,27 @@ static void contacts(int i) {
         if (f->kind == F_GULPER && f->state == 1 && x + PW > fx + 3 && x < fx + fw - 3 && y + PH >= fy - 1 && y + PH <= fy + 2) { die(i); return; }
         if (!overlap(x, y, PW, PH, fx, fy, fw, fh)) continue;
         bool from_above = falling && y + PH <= fy + 6;
+        if ((f->kind == F_PRICKLE || f->kind == F_NEWT) && (f->state == 3 || f->state == 2)) {
+            /* on its back it is harmless, and walking (or landing) into it kicks it away */
+            if (f->state == 3) {
+                f->state = 2;
+                f->timer = 0;
+                f->vx = (x + PW / 2.0f < fx + fw / 2 ? 1 : -1) * 3.0f;
+                f->vy = -3.0f;
+                dk_fx("dk_knock", fx + 5, fy + 5, C_WHITE, 6);
+            }
+            continue;
+        }
         switch (f->kind) {
-        case F_PUFF: case F_CROW: break;
+        case F_CROW: break;
         case F_FROG:
-            if (from_above && !(dk_nerf & NERF_FROGS)) { stomp_bounce(p, FROG_V + (slam ? 0.8f : 0)); f->state = 0; f->y = f->y0; dk_fx("dk_boing", fx + 5, fy, 0, 0); }
+            if (from_above && !(dk_nerf & NERF_FROGS)) {
+                if (slam) slam_bounce(p, FROG_V + 0.8f);
+                else { p->vy = -FROG_V; p->act = ACT_BOUNCE; p->ground = 0; p->spun = 0; p->on_foe = -1; }
+                f->state = 0;
+                f->y = f->y0;
+                dk_fx("dk_boing", fx + 5, fy, 0, 0);
+            }
             break;
         case F_GULPER:
             if (f->state == 1 && y + PH <= fy + 2 && x + PW > fx + 3 && x < fx + fw - 3) { die(i); return; }
@@ -1084,18 +1202,22 @@ static void contacts(int i) {
             if ((f->state == 1 || f->state == 3) && f->vy > 0 && y > fy + 2) { die(i); return; }
             break;
         case F_BEETLE:
-            if (slam && from_above && f->state != 1) {
+            if (slam && f->state != 1) {
                 f->state = 1;
-                f->vx = (p->vx >= 0 ? 1 : -1) * 2.6f;
+                f->vx = (p->held == SIDE_L ? -1 : p->held == SIDE_R ? 1 : (x + PW / 2.0f < fx + 5 ? 1 : -1)) * 2.6f;
                 f->vy = -3.4f;
-                stomp_bounce(p, STOMP_V);
+                slam_bounce(p, STOMP_V);
                 dk_fx("dk_knock", fx + 5, fy, C_TAN, 4);
             }
             break;
+        case F_PRICKLE:
+            /* its spikes: a slam onto it is as deadly as a touch */
+            die(i);
+            return;
         default:
-            if (slam && from_above) {
+            if (slam) {
                 f->alive = 0;
-                stomp_bounce(p, STOMP_V);
+                slam_bounce(p, STOMP_V);
                 dk_fx("dk_stomp", fx + 5, fy + 5, C_WHITE, 8);
             } else {
                 die(i);
@@ -1112,15 +1234,15 @@ static void contacts(int i) {
         if (overlap(x + 1, y + 1, PW - 2, PH - 2, s->x - sw, s->y - r, 2 * sw, 2 * r)) { die(i); return; }
     }
     DKBoss *b = &W.boss;
-    if (b->alive) {
+    if (b->alive && !b->spoke) {
         float bx, by, bw, bh;
         boss_box(&bx, &by, &bw, &bh);
         if (overlap(x, y, PW, PH, bx, by, bw, bh) && b->solid) {
-            if (slam && falling && y + PH <= by + 10) {
+            if (slam) {
                 b->hp--;
                 b->flash = 45;
                 b->solid = 0;
-                stomp_bounce(p, 4.0f);
+                slam_bounce(p, 4.0f);
                 dk_fx("dk_bosshit", bx + bw / 2, by, C_WHITE, 12);
                 if (b->hp <= 0) {
                     b->alive = 0;
@@ -1134,14 +1256,20 @@ static void contacts(int i) {
             }
         }
     }
-    /* two dusklings: landing on the other's head */
+    /* two dusklings: landing on the other's head; three in a row, with no
+     * other landing between, is remembered for the end */
     if (W.nplayers == 2) {
         DKPlayer *q = &W.P[1 - i];
         float feet = y + PH;
         if (q->alive && falling && x < q->x + PW && q->x < x + PW && feet >= q->y && feet - p->vy <= q->y + 1.5f) {
-            stomp_bounce(p, 3.2f);
+            p->vy = -3.2f;
+            p->act = ACT_BOUNCE;
+            p->ground = 0;
+            p->spun = 0;
+            p->on_foe = -1;
             q->stun = STUN_T;
             W.head_bounces++;
+            if (++p->hb_streak >= 3) W.socks = 1;
             dk_fx("dk_boing", q->x + 3, q->y, 0, 0);
         }
     }
@@ -1255,6 +1383,7 @@ typedef struct {
     DKWorld w;
     int32_t parent;
     uint16_t macro, frames;
+    int32_t depth;
     float pri;
 } Node;
 
@@ -1308,16 +1437,18 @@ static uint64_t state_key(const DKWorld *w) {
         for (int i = 0; i < DK_FOES && !near; i++) {
             const DKFoe *f = &w->foe[i];
             if (!f->alive) continue;
-            if (f->kind != F_WASP && f->kind != F_WASPV && f->kind != F_GULPER && f->kind != F_NEWT && f->kind != F_FISH && f->kind != F_PRICKLE) continue;
-            if (fabsf(f->x - p->x) < 150 && fabsf(f->y - p->y) < 120) near = true;
+            if (f->kind != F_WASP && f->kind != F_WASPV && f->kind != F_GULPER && f->kind != F_NEWT && f->kind != F_FISH && f->kind != F_PRICKLE && f->kind != F_PUFF && f->kind != F_EYE) continue;
+            if (fabsf(f->x - p->x) < 90 && fabsf(f->y - p->y) < 90) near = true;
         }
         for (int i = 0; i < DK_SHOTS && !near; i++) near = w->shot[i].alive;
-        if (near) h = mix(h, (uint64_t)((w->t / 15) % 40) + 77);
+        if (near) h = mix(h, (uint64_t)((w->t / 25) % 12) + 77);
     }
-    for (int i = 0; i < n_mut; i++) if (w->mut[i]) h = mix(h, (uint64_t)i + 1000);
+    for (int i = 0; i < n_mut; i++) if (w->mut[i]) h = mix(h, (uint64_t)i * 4 + w->mut[i] + 1000);
+    h = mix(h, (uint64_t)(p->over_face != 0));
     for (int i = 0; i < DK_FOES; i++) {
         const DKFoe *f = &w->foe[i];
         if (f->kind == F_EYE || f->kind == F_BEETLE) h = mix(h, (uint64_t)(f->alive | f->state << 1) + (uint64_t)((int)f->x / 5) * 16 + (uint64_t)((int)f->y / 5) * 4096);
+        else if (f->kind == F_PRICKLE || f->kind == F_NEWT) h = mix(h, (uint64_t)(f->alive | f->state << 1) + (uint64_t)(f->timer / 30) * 16);
         else h = mix(h, f->alive);
     }
     h = mix(h, (uint64_t)(w->boss.hp + 7 * w->boss.alive + 100 * w->boss_down));
@@ -1345,10 +1476,10 @@ static float heur(const DKWorld *w) {
     float cx = p->x + PW / 2.0f, cy = p->y + PH / 2.0f;
     float best = 1e9f;
     for (int i = 0; i < tgt_n; i++) {
-        float d = fabsf(cx - (tgt_x[i] * TS + 5)) + 1.3f * fabsf(cy - (tgt_y[i] * TS + 5));
+        float d = fabsf(cx - (tgt_x[i] * TS + 5)) + 0.3f * fabsf(cy - (tgt_y[i] * TS + 5));
         if (d < best) best = d;
     }
-    if (w->boss.alive) {
+    if (w->boss.alive && !w->boss.spoke) {
         float d = fabsf(cx - (w->boss.x + 10)) + fabsf(cy - w->boss.y);
         best = 2000.0f * w->boss.hp + d;
     }
@@ -1376,7 +1507,7 @@ static int run_macro(int mi, int *frames_out) {
     for (; f < cap; f++) {
         int s = f < m->len ? m->script[f] : m->coast;
         ev = dk_world_step(sides_to_pad(s), 0);
-        if (tile_tx >= 0 && dk_w.P[0].alive && tof(dk_w.P[0].x + PW / 2.0f) == tile_tx && tof(dk_w.P[0].y + PH / 2.0f) == tile_ty) { ev = 99; f++; break; }
+        if (tile_tx >= 0 && dk_w.P[0].alive && (dk_w.P[0].ground || dk_w.P[0].in_water) && tof(dk_w.P[0].x + PW / 2.0f) == tile_tx && tof(dk_w.P[0].y + PH / 2.0f) == tile_ty) { ev = 99; f++; break; }
         if (ev != EV_NONE || dk_w.room != room) { f++; break; }
         if (!dk_w.P[0].alive) { *frames_out = f + 1; return -1; }
         if (f + 1 >= m->len) {
@@ -1389,11 +1520,34 @@ static int run_macro(int mi, int *frames_out) {
     return ev;
 }
 
-static void print_path(int32_t id, FILE *out) {
-    /* collect the chain, then replay it to print every frame's buttons */
-    int32_t chain[4096];
+/* the presses of a route, as script lines, appended to a text buffer */
+typedef struct { char *s; int n, cap; } Text;
+static void text_add(Text *t, const char *line) {
+    int len = (int)strlen(line);
+    if (t->n + len + 1 > t->cap) {
+        int cap = (t->cap + len + 1) * 2;
+        char *ns = (char *)realloc(t->s, (size_t)cap);
+        if (!ns) return;
+        t->s = ns;
+        t->cap = cap;
+    }
+    memcpy(t->s + t->n, line, (size_t)len + 1);
+    t->n += len;
+}
+
+static void path_line(Text *out, int sides, int run) {
+    char line[64];
+    if (sides == 0) snprintf(line, sizeof line, "wait %d\n", run);
+    else snprintf(line, sizeof line, "hold %s %d\n", sides == 3 ? "LEFT+A" : sides == SIDE_L ? "LEFT" : "A", run);
+    text_add(out, line);
+}
+
+static void path_text(int32_t id, Text *out) {
+    /* collect the chain, then write every frame's buttons */
+    static int32_t chain[8192];
     int n = 0;
-    for (int32_t k = id; k > 0 && n < 4096; k = nodes[k].parent) chain[n++] = k;
+    char line[64];
+    for (int32_t k = id; k > 0 && n < 8192; k = nodes[k].parent) chain[n++] = k;
     int last = -1, run = 0, total = 0;
     for (int c = n - 1; c >= 0; c--) {
         const Node *nd = &nodes[chain[c]];
@@ -1401,8 +1555,7 @@ static void print_path(int32_t id, FILE *out) {
         for (int f = 0; f < nd->frames; f++) {
             int s = f < m->len ? m->script[f] : m->coast;
             if (s != last && run > 0) {
-                if (last == 0) fprintf(out, "wait %d\n", run);
-                else fprintf(out, "hold %s %d\n", last == 3 ? "LEFT+A" : last == SIDE_L ? "LEFT" : "A", run);
+                path_line(out, last, run);
                 run = 0;
             }
             last = s;
@@ -1410,16 +1563,18 @@ static void print_path(int32_t id, FILE *out) {
             total++;
         }
     }
-    if (run > 0) {
-        if (last == 0) fprintf(out, "wait %d\n", run);
-        else fprintf(out, "hold %s %d\n", last == 3 ? "LEFT+A" : last == SIDE_L ? "LEFT" : "A", run);
-    }
-    fprintf(out, "# %d frames\n", total);
+    if (run > 0) path_line(out, last, run);
+    snprintf(line, sizeof line, "# %d frames\n", total);
+    text_add(out, line);
 }
 
-int dk_solve(int room, int arrive, int target, int max_nodes, FILE *out) {
+typedef struct { DKWorld w; Text txt; } Cand;
+#define MAX_CANDS 4
+
+/* search from the world as it stands, for up to maxc routes that end in
+ * different places; returns how many were found */
+static int solve_core(int target, int max_nodes, int maxc, Cand *cands) {
     build_macros();
-    dk_room_load(room, arrive, 1);
     solve_target = target;
     tgt_n = 0;
     char want = target == TG_EXIT ? '>' : target == TG_EGG ? 'Q' : (char)('1' + target - TG_WARP1);
@@ -1428,29 +1583,28 @@ int dk_solve(int room, int arrive, int target, int max_nodes, FILE *out) {
         for (int ty = 0; ty < RH; ty++)
             for (int tx = 0; tx < RW; tx++)
                 if (map[ty][tx] == want && tgt_n < 256) { tgt_x[tgt_n] = (int16_t)tx; tgt_y[tgt_n] = (int16_t)ty; tgt_n++; }
-    if (target == TG_EXIT && tgt_n == 0) {
-        /* an open edge: the right-hand side, or the top */
-        for (int ty = 0; ty < RH && tgt_n < 256; ty++) { tgt_x[tgt_n] = (int16_t)RW; tgt_y[tgt_n] = (int16_t)ty; tgt_n++; }
-    }
+    for (int k = 0; k < maxc; k++) memset(&cands[k].txt, 0, sizeof cands[k].txt);
     cap_nodes = max_nodes;
     nodes = (Node *)malloc(sizeof(Node) * (size_t)cap_nodes);
     heap = (int32_t *)malloc(sizeof(int32_t) * (size_t)cap_nodes * 2);
     seen = (uint64_t *)calloc((size_t)1 << SEEN_BITS, sizeof(uint64_t));
-    if (!nodes || !heap || !seen) { free(nodes); free(heap); free(seen); return 0; }
+    if (!nodes || !heap || !seen) { free(nodes); free(heap); free(seen); nodes = NULL; return 0; }
     dk_sim_quiet = true;
     n_nodes = 1;
     heap_n = 0;
     nodes[0].w = dk_w;
     nodes[0].parent = -1;
     nodes[0].pri = 0;
+    nodes[0].depth = 0;
     seen_add(state_key(&dk_w));
     heap_push(0);
-    int found = -1, expanded = 0;
+    int nfound = 0, expanded = 0;
+    int32_t found[MAX_CANDS];
     int ev_want = tile_tx >= 0 ? 99 : want_event();
-    while (heap_n > 0 && found < 0) {
+    while (heap_n > 0 && nfound < maxc) {
         int32_t cur = heap_pop();
         expanded++;
-        for (int mi = 0; mi < n_macros && found < 0; mi++) {
+        for (int mi = 0; mi < n_macros && nfound < maxc; mi++) {
             dk_w = nodes[cur].w;
             int frames = 0;
             int ev = run_macro(mi, &frames);
@@ -1458,30 +1612,104 @@ int dk_solve(int room, int arrive, int target, int max_nodes, FILE *out) {
             if (ev != EV_NONE && ev != ev_want) continue;
             if (n_nodes >= cap_nodes) break;
             if (ev == EV_NONE && !seen_add(state_key(&dk_w))) continue;
+            if (ev == ev_want) {
+                /* a new landing place only if it differs from those found */
+                bool dup = false;
+                for (int k = 0; k < nfound; k++)
+                    if (fabsf(nodes[found[k]].w.P[0].x - dk_w.P[0].x) < 4 && abs(nodes[found[k]].w.t - dk_w.t) < 30) dup = true;
+                if (dup) continue;
+            }
             Node *nd = &nodes[n_nodes];
             nd->w = dk_w;
             nd->parent = cur;
             nd->macro = (uint16_t)mi;
             nd->frames = (uint16_t)frames;
-            float depth = 0;
-            for (int32_t k = cur; k > 0; k = nodes[k].parent) depth += nodes[k].frames;
-            nd->pri = heur(&dk_w) + (depth + frames) * 0.08f;
-            if (ev == ev_want) found = n_nodes;
+            nd->depth = nodes[cur].depth + frames;
+            nd->pri = heur(&dk_w) + nd->depth * 0.08f;
+            if (ev == ev_want) found[nfound++] = n_nodes;
             n_nodes++;
-            if (found < 0) heap_push(n_nodes - 1);
+            if (ev != ev_want) heap_push(n_nodes - 1);
         }
         if (n_nodes >= cap_nodes) break;
     }
     dk_sim_quiet = false;
     tile_tx = tile_ty = -1;
-    int ok = found >= 0;
-    dk_solve_ok = ok;
-    if (ok) print_path(found, out);
-    else fprintf(out, "# no route found (%d nodes, %d expanded)\n", n_nodes, expanded);
+    for (int k = 0; k < nfound; k++) {
+        cands[k].w = nodes[found[k]].w;
+        path_text(found[k], &cands[k].txt);
+    }
+    if (!nfound) {
+        char line[96];
+        snprintf(line, sizeof line, "# no route found (%d nodes, %d expanded)\n", n_nodes, expanded);
+        text_add(&cands[0].txt, line);
+    }
     free(nodes);
     free(heap);
     free(seen);
     nodes = NULL;
+    return nfound;
+}
+
+static int solve_here(int target, int max_nodes, FILE *out) {
+    static Cand c;
+    int ok = solve_core(target, max_nodes, 1, &c) > 0;
+    dk_solve_ok = ok;
+    if (c.txt.s) fputs(c.txt.s, out);
+    free(c.txt.s);
+    c.txt.s = NULL;
+    if (ok) dk_w = c.w;
+    return ok;
+}
+
+int dk_solve_here(int target, int max_nodes, FILE *out) { return solve_here(target, max_nodes, out); }
+
+int dk_solve(int room, int arrive, int target, int max_nodes, FILE *out) {
     dk_room_load(room, arrive, 1);
+    int ok = solve_here(target, max_nodes, out);
+    dk_room_load(room, arrive, 1);
+    return ok;
+}
+
+/* through the waypoints in order; each leg keeps a few landing places, and
+ * when no way on is found from one of them the next is tried */
+static const char *via_stack[16];
+static int via_budget;
+static char via_fail[128];
+
+static int via_rec(int k, int n, const int *wp, int target, int max_nodes, FILE *out) {
+    if (--via_budget < 0) return 0;
+    Cand *cands = (Cand *)calloc(MAX_CANDS, sizeof(Cand));
+    if (!cands) return 0;
+    int ok = 0, nc;
+    if (k == n) {
+        nc = solve_core(target, max_nodes, 1, cands);
+        if (nc) {
+            for (int j = 0; j < n; j++) fputs(via_stack[j], out);
+            fputs(cands[0].txt.s, out);
+            ok = 1;
+        }
+    } else {
+        dk_solve_tile(wp[2 * k], wp[2 * k + 1]);
+        nc = solve_core(TG_EXIT, max_nodes, MAX_CANDS, cands);
+        for (int c = 0; c < nc && !ok; c++) {
+            dk_w = cands[c].w;
+            via_stack[k] = cands[c].txt.s;
+            ok = via_rec(k + 1, n, wp, target, max_nodes, out);
+        }
+    }
+    if (!nc && cands[0].txt.s) snprintf(via_fail, sizeof via_fail, "%s", cands[0].txt.s);
+    for (int c = 0; c < MAX_CANDS; c++) free(cands[c].txt.s);
+    free(cands);
+    return ok;
+}
+
+int dk_solve_via(int room, int target, int max_nodes, const int *wp, int n, FILE *out) {
+    dk_room_load(room, 0, 1);
+    via_budget = 24;
+    snprintf(via_fail, sizeof via_fail, "# no route found\n");
+    int ok = via_rec(0, imin(n, 15), wp, target, max_nodes, out);
+    if (!ok) fputs(via_fail, out);
+    dk_solve_ok = ok;
+    dk_room_load(room, 0, 1);
     return ok;
 }

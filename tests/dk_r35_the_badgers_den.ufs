@@ -1,6 +1,6 @@
-# DUSKLING R7, THE BADGER'S DEN (room 35): the Old Badger: slams on its back while it climbs after you.
+# DUSKLING R7, THE BADGER'S DEN (room 35): the Old Badger: eight slams while it climbs after you.
 # Played from its way in with plain button presses (LEFT is the D-pad
-# side, A the button side), found once by the route finder (cheat solve).
+# side, A the button side), found once by the route finder.
 game duskling
 wait 5
 cheat room 35
@@ -16,13 +16,7 @@ hold LEFT+A 7
 hold A 12
 hold LEFT+A 2
 wait 3
-hold LEFT 35
-hold A 5
-hold LEFT+A 7
-hold A 12
-hold LEFT+A 2
-wait 3
-hold LEFT 27
+hold LEFT 33
 hold A 5
 hold LEFT+A 7
 hold A 3
@@ -30,15 +24,37 @@ hold LEFT+A 2
 wait 3
 hold LEFT 40
 hold A 5
+hold LEFT+A 16
+hold A 12
+hold LEFT+A 2
+wait 3
+hold LEFT 42
+hold A 5
+hold LEFT+A 16
+hold A 12
+hold LEFT+A 2
+wait 3
+hold LEFT 42
+hold A 5
 hold LEFT+A 7
 hold A 3
 hold LEFT+A 2
-wait 3
-hold LEFT 34
+hold A 43
+hold LEFT 5
+hold LEFT+A 7
+hold LEFT 3
+hold LEFT+A 2
+hold LEFT 43
 hold A 5
-hold LEFT+A 16
+hold LEFT+A 7
 hold A 3
 hold LEFT+A 2
+hold A 43
+hold LEFT 5
+hold LEFT+A 7
+hold LEFT 3
+hold LEFT+A 2
+wait 3
 hold A 48
 wait 2
 hold A 10
@@ -48,9 +64,9 @@ hold A 2
 wait 2
 hold A 30
 hold LEFT+A 7
-hold A 3
+hold A 12
 hold LEFT+A 2
-hold A 22
+hold A 30
 expect boss_down == 1
 wait 2
 expect room == 36

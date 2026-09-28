@@ -3,8 +3,9 @@
 game duskling
 wait 5
 cheat room 7
-cheat pos 300 130
-wait 30
+cheat no_foes
+cheat pos 250 120
+wait 20
 expect water == 1
 expect vy10 <= 12
 expect vy10 > 0
@@ -14,7 +15,7 @@ expect vy10 <= -19
 hold A 30
 expect water == 1
 # up to the surface and out onto the shore
-cheat pos 205 115
+cheat pos 105 115
 wait 5
 hold UP 4
 hold UP+A 1

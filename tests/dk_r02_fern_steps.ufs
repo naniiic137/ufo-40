@@ -1,39 +1,57 @@
-# DUSKLING M2, FERN STEPS (room 2): a stair of fern steps over a pit, and a prickle at the foot.
+# DUSKLING M2, FERN STEPS (room 2): fern steps, a prickle on the plateau, thistledown and two more prickles, a low tunnel of prickles and a climb.
 # Played from its way in with plain button presses (LEFT is the D-pad
-# side, A the button side), found once by the route finder (cheat solve).
+# side, A the button side), found once by the route finder.
 game duskling
 wait 5
 cheat room 2
 hold A 2
-wait 2
-hold A 10
-hold LEFT+A 16
-wait 6
-hold A 2
-wait 2
-hold A 25
-hold LEFT+A 16
-wait 4
-hold A 2
-wait 2
-hold A 25
-hold LEFT+A 16
-wait 14
-hold A 2
-wait 2
-hold A 26
 wait 2
 hold A 30
 hold LEFT+A 16
 wait 6
 hold A 2
 wait 2
-hold A 60
+hold A 17
+hold LEFT+A 16
+wait 14
+hold A 2
 wait 2
-expect room == 3
-
-# jumping straight up from the top step finds the warp over the blue bells.
-cheat room 2
+hold A 20
+wait 2
+hold A 30
+hold LEFT+A 16
+wait 6
+hold A 2
+wait 2
+hold A 34
+hold LEFT+A 16
+wait 14
+hold A 2
+wait 2
+hold A 33
+hold LEFT+A 16
+wait 14
+hold A 2
+wait 2
+hold A 23
+wait 2
+hold A 30
+hold LEFT+A 16
+wait 6
+hold A 2
+wait 2
+hold A 35
+hold A 5
+hold LEFT+A 7
+hold LEFT 28
+hold A 5
+hold LEFT+A 16
+hold LEFT 18
+hold A 5
+hold LEFT+A 16
+hold A 23
+hold LEFT+A 7
+hold LEFT 38
 hold A 2
 wait 2
 hold A 10
@@ -41,16 +59,38 @@ hold LEFT+A 16
 wait 6
 hold A 2
 wait 2
-hold A 25
+hold A 29
+hold A 5
+hold LEFT+A 7
+wait 14
+hold A 2
+wait 2
+hold A 34
+hold A 5
 hold LEFT+A 16
 wait 4
 hold A 2
 wait 2
-hold A 25
+hold A 20
+wait 2
+expect room == 3
+
+# jumping straight up from the plateau finds the warp over the blue bells.
+cheat room 2
+hold A 2
+wait 2
+hold A 30
 hold LEFT+A 16
-hold A 24
-hold LEFT 5
+wait 6
+hold A 2
+wait 2
+hold A 17
+hold LEFT+A 16
+wait 14
+hold A 2
+wait 2
+hold A 23
 hold LEFT+A 1
-hold A 13
+hold LEFT 13
 wait 2
 expect room == 37

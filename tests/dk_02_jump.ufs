@@ -3,7 +3,7 @@
 game duskling
 wait 5
 cheat room 1
-cheat pos 210 121
+cheat pos 250 121
 wait 10
 # hold the button side (right), tap the D-pad side: a jump to the right
 hold A 6
@@ -17,7 +17,7 @@ expect last_rise >= 19
 expect last_rise <= 23
 expect last_dx >= 25
 # the same with the tap kept down: a full jump
-cheat pos 210 121
+cheat pos 250 121
 wait 10
 hold A 6
 hold A+UP 18
@@ -26,7 +26,7 @@ expect last_rise >= 40
 expect last_rise <= 44
 expect last_dx >= 45
 # hold the D-pad side, tap B: a jump to the left
-cheat pos 290 121
+cheat pos 330 121
 wait 10
 hold DOWN 6
 hold DOWN+B 18
@@ -34,7 +34,7 @@ wait 50
 expect last_rise >= 40
 expect last_dx <= -45
 # a tap first and then both at once: a low hop toward the tapped side
-cheat pos 210 121
+cheat pos 250 121
 wait 10
 hold A 2
 wait 3
@@ -43,7 +43,7 @@ wait 40
 expect last_rise >= 8
 expect last_rise <= 12
 expect last_dx > 0
-cheat pos 290 121
+cheat pos 330 121
 wait 10
 hold LEFT 2
 wait 3

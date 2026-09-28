@@ -1,0 +1,22 @@
+# DUSKLING: on the main way, before the water, the Ember Hermit waits on a
+# perch, throws sparks now and then, and vanishes to the next perch when
+# the duskling comes near; after the last one he is gone. He can't be hurt
+# here: he is fought on the amber way.
+game duskling
+wait 5
+cheat room 6
+wait 2
+expect boss_flees == 1
+expect shots == 0
+waituntil shots == 3 150
+cheat room 6
+cheat no_foes
+wait 2
+expect boss_x < 250
+cheat pos 200 111
+waituntil boss_x > 400 60
+cheat pos 470 141
+waituntil boss_x > 650 60
+cheat pos 720 141
+waituntil boss_alive == 0 60
+expect alive == 1

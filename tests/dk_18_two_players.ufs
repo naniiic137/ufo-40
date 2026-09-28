@@ -29,7 +29,7 @@ cheat pos2 325 170
 expect p2_alive == 1
 cheat room2 2
 wait 3
-cheat pos2 265 101
+cheat pos2 205 101
 hold P2A
 waituntil p2_alive == 0 60
 release
@@ -40,7 +40,7 @@ expect room == 2
 # player 1 reaches the way out: both go on
 cheat room2 1
 wait 3
-cheat pos 610 141
+cheat pos 1575 141
 hold A 20
 expect room == 2
 wait 20

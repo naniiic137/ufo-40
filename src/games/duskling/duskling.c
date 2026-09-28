@@ -16,8 +16,9 @@ typedef struct {
     uint8_t warps[16];     /* warps taken: room * 3 + n */
     uint8_t seen[8];       /* rooms seen */
     uint32_t best[3];      /* fastest run to each egg, in frames */
+    uint8_t sides[2];      /* per player: 0 = the D-pad is left, 1 = the D-pad is right */
 } Save;
-#define SAVE_MAGIC 0x444B0001u
+#define SAVE_MAGIC 0x444B0002u
 static Save sv;
 
 static int state, state_t, frame_t, title_sel, help_page;
@@ -28,7 +29,7 @@ static int pending_room = -1, pending_arrive, pending_ev;
 static float carry_vx;
 static int32_t run_t;
 static int deaths, run_warps;
-static int egg_got, ending_page;
+static int egg_got;
 static bool egg_new;
 static int away_t[2];
 static int last_alive[2];
@@ -147,6 +148,7 @@ static void start_run(int players) {
     deaths = 0;
     run_warps = 0;
     dk_w.head_bounces = 0;
+    dk_w.socks = 0;
     state = ST_PLAY;
     state_t = 0;
     fade_t = 0;
@@ -156,6 +158,7 @@ static void start_run(int players) {
     game_pause_items(1, PAUSE_ITEMS, pause_pick);
     enter_room(RM_M0, 0);
     dk_w.head_bounces = 0;
+    dk_w.socks = 0;
 }
 
 static void to_title(void) {
@@ -236,7 +239,6 @@ static void reach_egg(void) {
     give_goals();
     state = ST_ENDING;
     state_t = 0;
-    ending_page = 0;
     game_set_pausable(false);
     game_pause_items(0, NULL, NULL);
     input_set_versus(false);
@@ -275,6 +277,15 @@ static void on_event(int ev) {
     }
 }
 
+/* pad B: the D-pad is the right side and the buttons are the left */
+static uint32_t swap_sides(uint32_t pad, int b) {
+    if (!b) return pad;
+    uint32_t out = pad & ~(uint32_t)(BTN_UP | BTN_DOWN | BTN_LEFT | BTN_RIGHT | BTN_A | BTN_B);
+    if (pad & (BTN_UP | BTN_DOWN | BTN_LEFT | BTN_RIGHT)) out |= BTN_A;
+    if (pad & (BTN_A | BTN_B)) out |= BTN_LEFT;
+    return out;
+}
+
 static void play_update(void) {
     frame_t++;
     if (fade_t > 0) {
@@ -289,7 +300,7 @@ static void play_update(void) {
     }
     run_t++;
     uint32_t p1 = input_held();
-    uint32_t pad1 = p1 & 0xFF, pad2 = (p1 >> BTN_P2_SHIFT) & 0xFF;
+    uint32_t pad1 = swap_sides(p1 & 0xFF, sv.sides[0]), pad2 = swap_sides((p1 >> BTN_P2_SHIFT) & 0xFF, sv.sides[1]);
     for (int i = 0; i < 2; i++) last_alive[i] = dk_w.P[i].alive;
     int room = dk_w.room;
     int ev = dk_world_step(pad1, pad2);
@@ -322,7 +333,17 @@ static void dk_update(void) {
         bool two_ok = plat_kind() != PLAT_VITA;
         if (btnp(BTN_B)) { game_exit_to_library(); break; }
         if (btnp(BTN_SELECT)) { sfx_play_name("ui_ok"); state = ST_HELP; state_t = 0; help_page = 0; break; }
-        if (btn_repeat(BTN_UP) || btn_repeat(BTN_DOWN)) { title_sel ^= 1; sfx_play_name("ui_move"); }
+        if (btn_repeat(BTN_UP)) { title_sel = (title_sel + 3) % 4; sfx_play_name("ui_move"); }
+        if (btn_repeat(BTN_DOWN)) { title_sel = (title_sel + 1) % 4; sfx_play_name("ui_move"); }
+        if (title_sel >= 2) {
+            /* which way round the pad is, per player */
+            if (btnp(BTN_A) || btnp(BTN_START) || btn_repeat(BTN_LEFT) || btn_repeat(BTN_RIGHT)) {
+                sv.sides[title_sel - 2] ^= 1;
+                save_now();
+                sfx_play_name("ui_move");
+            }
+            break;
+        }
         if (btnp(BTN_A) || btnp(BTN_START)) {
             if (title_sel == 1 && !two_ok) { sfx_play_name("ui_error"); break; }
             sfx_play_name("ui_ok");
@@ -353,8 +374,7 @@ static void dk_update(void) {
         frame_t++;
         if (state_t > 200 && (btnp(BTN_A) || btnp(BTN_START))) {
             input_consume();
-            if (++ending_page >= 2) to_title();
-            else state_t = 120;
+            to_title();
         }
         break;
     }
@@ -535,7 +555,12 @@ static void draw_tile(int tx, int ty, int sx, int sy) {
             gfx_hline(sx + 2, sx + 7, sy + 6, C_PINK);
         }
         break;
-    case 'I': spr_draw(&dk_spr[dk_face_awake(tx, ty) ? S_FACE_AWAKE : S_FACE], sx, sy, 0); break;
+    case 'I':
+        spr_draw(&dk_spr[dk_face_awake(tx, ty) ? S_FACE_AWAKE : S_FACE], sx, sy, 0);
+        if (dk_face_passes(tx, ty) == 1) gfx_pset(sx + 2, sy + 2, C_CYAN); /* one eye open */
+        break;
+    case 'm': spr_draw(&dk_spr[S_MUSH], sx, sy, 0); break;
+    case 'k': spr_draw(&dk_spr[S_BONES], sx - 1, sy + 1, 0); break;
     case 'b': spr_draw(&dk_spr[S_BELL], sx + 1, sy + 1 + ((frame_t / 40 + tx) & 1), 0); break;
     case 'o': spr_draw(&dk_spr[S_POPPY], sx + 1, sy + 1 + ((frame_t / 40 + tx) & 1), 0); break;
     case 't': spr_draw(&dk_spr[S_TENT], sx - 5, sy - 6, 0); break;
@@ -578,7 +603,7 @@ static void draw_level(int cx, int cy) {
         for (int tx = x0 - 1; tx <= x0 + SCREEN_W / TS + 1; tx++) {
             char c = dk_tile_raw(tx, ty);
             if (c != '~' && dk_wet(tx, ty)) gfx_dither(tx * TS - cx, ty * TS - cy, TS, TS, theme()->water, 9);
-            if (c == ' ' || c == '>' || c == 'S' || c == '@' || c == '&' || (c >= '1' && c <= '3')) continue;
+            if (c == ' ' || c == '>' || c == 'S' || c == '@' || c == '&' || c == '*' || (c >= '1' && c <= '3')) continue;
             draw_tile(tx, ty, tx * TS - cx, ty * TS - cy);
         }
 }
@@ -614,6 +639,7 @@ static void draw_player(int i, int cx, int cy) {
     else sp = S_PIM1;
     int x = (int)lroundf(p->x) - 1 - cx, y = (int)lroundf(p->y) - 1 - cy;
     spr_draw_ex(&dk_spr[sp], x, y, p->face < 0 ? SPR_FLIPX : 0, player_remap(i), -1);
+    if (p->act == ACT_POUND && p->act_t > 0) spr_draw(&dk_spr[S_BANG], x + 2, y - 9, 0);
     if (p->act == ACT_SPRINT && (frame_t & 2)) gfx_pset(x - p->face * 3 + 4, y + 8, C_LIGHT);
 }
 
@@ -625,7 +651,10 @@ static void draw_foes(int cx, int cy) {
         int fl = f->dir > 0 ? SPR_FLIPX : 0;
         int an = (f->t / 8) % 2;
         switch (f->kind) {
-        case F_PRICKLE: spr_draw(&dk_spr[an ? S_PRICKLE1 : S_PRICKLE2], x, y, fl); break;
+        case F_PRICKLE:
+            if (f->state >= 2) spr_draw(&dk_spr[S_PRICKLE_FLIP], x, y, fl | (f->state == 2 && (f->t / 4) % 2 ? SPR_FLIPY : 0));
+            else spr_draw(&dk_spr[an ? S_PRICKLE1 : S_PRICKLE2], x, y, fl);
+            break;
         case F_WASP: case F_WASPV: spr_draw(&dk_spr[(f->t / 3) % 2 ? S_WASP1 : S_WASP2], x, y, fl); break;
         case F_PUFF: spr_draw(&dk_spr[S_PUFF], x, y, 0); break;
         case F_FROG: spr_draw(&dk_spr[f->state ? S_FROG2 : S_FROG1], x, y, 0); break;
@@ -656,7 +685,10 @@ static void draw_foes(int cx, int cy) {
             break;
         }
         case F_BEETLE: spr_draw(&dk_spr[f->state ? S_BEETLE_BALL : an ? S_BEETLE1 : S_BEETLE2], x, y, fl); break;
-        case F_NEWT: spr_draw(&dk_spr[f->state ? S_NEWT2 : S_NEWT1], x, y, fl); break;
+        case F_NEWT:
+            if (f->state >= 2) spr_draw(&dk_spr[S_NEWT1], x, y, fl | SPR_FLIPY);
+            else spr_draw(&dk_spr[f->state ? S_NEWT2 : S_NEWT1], x, y, fl);
+            break;
         case F_CROW: spr_draw(&dk_spr[(f->t / 50) % 4 == 0 ? S_CROW2 : S_CROW1], x, y, 0); break;
         case F_FISH: spr_draw(&dk_spr[an ? S_FISH1 : S_FISH2], x, y, fl); break;
         default: break;
@@ -697,6 +729,12 @@ static void draw_boss(int cx, int cy) {
         break;
     }
     case BOSS_HERMIT:
+        if (b->spoke) {
+            /* on the main way: there on his perch, or fading away */
+            if (b->state == 0 || (frame_t / 2) % 2)
+                spr_draw(&dk_spr[b->t % 110 > 40 && b->t % 110 < 64 ? S_HERMIT2 : S_HERMIT1], x, y, fl);
+            return;
+        }
         if (b->state == 1 || (b->state == 0 && (frame_t / 2) % 2) || (b->state == 2 && b->t < 15 && (frame_t / 2) % 2))
             spr_draw(&dk_spr[b->state == 1 && b->t > 30 && b->t < 50 ? S_HERMIT2 : S_HERMIT1], x, y, fl);
         else if (b->state == 0) gfx_circb(x + 8, y + 8, 8 - b->t / 4, C_ORANGE);
@@ -784,18 +822,23 @@ static void draw_title(void) {
     ui_fancy_center("DUSKLING", 160, 18, 3, grad, 4, C_PURPLE, C_INK);
     text_center("FIND THE EGGS", 160, 48, C_PINK);
     bool two_ok = plat_kind() != PLAT_VITA;
-    const char *opt[2] = {"1 PLAYER", two_ok ? "2 PLAYERS" : "2 PLAYERS " GLYPH_LOCK};
-    for (int i = 0; i < 2; i++) {
-        int y = 78 + i * 12;
+    char p1s[24], p2s[24];
+    snprintf(p1s, sizeof p1s, "P1 PAD %c", sv.sides[0] ? 'B' : 'A');
+    snprintf(p2s, sizeof p2s, "P2 PAD %c", sv.sides[1] ? 'B' : 'A');
+    const char *opt[4] = {"1 PLAYER", two_ok ? "2 PLAYERS" : "2 PLAYERS " GLYPH_LOCK, p1s, p2s};
+    for (int i = 0; i < 4; i++) {
+        int y = 66 + i * 11;
         int col = i == title_sel ? C_WHITE : (i == 1 && !two_ok) ? C_DUSK : C_LIGHT;
         text_center(opt[i], 160, y, col);
         if (i == title_sel) ui_cursor(160 - text_width(opt[i]) / 2 - 12, y, frame_t);
     }
-    draw_egg_icons(160, 104);
+    if (title_sel >= 2)
+        tiny_center(sv.sides[title_sel - 2] ? "B: THE D-PAD GOES RIGHT, THE BUTTONS LEFT" : "A: THE D-PAD GOES LEFT, THE BUTTONS RIGHT", 160, 111, C_PINK);
+    draw_egg_icons(160, 118);
     char buf[48];
     int seen = bitcount(sv.seen, 6);
     snprintf(buf, sizeof buf, "ROOMS SEEN %d/%d", seen, DK_ROOMS);
-    tiny_center(buf, 160, 120, C_LIGHT);
+    tiny_center(buf, 160, 134, C_LIGHT);
     text_center(GLYPH_A " START  " GLYPH_B " LIBRARY  SELECT HOW TO PLAY", 160, 168, C_LIGHT);
 }
 
@@ -817,8 +860,9 @@ static void draw_help(void) {
         "IN THE AIR, TAP A SIDE TWICE TO SOMERSAULT:\n"
         "IT ADDS SPEED THAT WAY, OR TAKES IT AWAY.\n\n"
         "IN THE AIR, HOLD ONE SIDE AND PRESS THE OTHER\n"
-        "AGAIN TO SLAM DOWN. A SLAM BEATS FOES, BOUNCES\n"
-        "YOU UP, AND DROPS THROUGH PINK LEDGES.",
+        "AGAIN TO SLAM: A PAUSE, THEN STRAIGHT DOWN. IT\n"
+        "BEATS FOES, DROPS THROUGH PINK LEDGES, AND FLIPS\n"
+        "WALKERS NEXT TO IT: THEN WALK INTO THEM.",
         "ANY TOUCH IS THE END OF YOU, BUT EVERY ROOM\n"
         "IS A FRESH START: YOU COME BACK WHERE YOU\n"
         "CAME IN, AS OFTEN AS IT TAKES.\n\n"
@@ -861,48 +905,37 @@ static void spr_scaled_remap(const Sprite *sp, int x, int y, int scale, const ui
 static void draw_ending(void) {
     static const char *const WHAT[3] = {
         "INSIDE THE WHITE EGG:\nA LITTLE COLD FOG AND SOME GREY MUD.\nNOTHING ELSE AT ALL.",
-        "INSIDE THE AMBER EGG:\nAN OLD MOTH SHAKES OUT DUSTY WINGS.\nLONG AGO THEY CALLED IT TALLOW,\nKEEPER OF THE LAMPS.",
-        "INSIDE THE ROSE EGG:\nA DENTED HELMET AND A SMALL BENT SWORD,\nTHE KIND A BRAVE WANDERER ONCE CARRIED.",
+        "INSIDE THE AMBER EGG:\nA DENTED HELMET AND A SMALL BENT SWORD,\nTHE KIND A BRAVE WANDERER ONCE CARRIED.",
+        "INSIDE THE ROSE EGG:\nAN OLD MOTH SHAKES OUT DUSTY WINGS.\nLONG AGO THEY CALLED IT TALLOW,\nKEEPER OF THE LAMPS.",
     };
     static const uint8_t EGGC[3][2] = {{C_WHITE, C_LIGHT}, {C_AMBER, C_ORANGE}, {C_PINK, C_MAGENTA}};
     gfx_cls(C_INK);
     for (int y = 0; y < 180; y += 6) gfx_dither(0, y, 320, 6, C_NIGHT, y * 12 / 180);
     int t = state_t;
-    if (ending_page == 0) {
-        uint8_t map[PAL_COUNT];
-        pal_identity(map);
-        pal_swap(map, C_WHITE, EGGC[egg_got][0]);
-        pal_swap(map, C_LIGHT, EGGC[egg_got][1]);
-        int shake = t > 40 && t < 100 ? ((t / 2) % 3) - 1 : 0;
-        spr_scaled_remap(&dk_spr[t < 100 ? S_EGG : S_EGG_CRACK], 142 + shake, 40, 3, map);
-        if (t >= 100) {
-            for (int i = 0; i < 3; i++) gfx_pset(160 + (i - 1) * 12, 40 - (t - 100) % 30, EGGC[egg_got][0]);
-            if (egg_got == EGG_AMBER) spr_draw_scaled(&dk_spr[S_MOTH], 148, 20 - imin(10, (t - 100) / 6), 2, 0);
-            if (egg_got == EGG_ROSE) spr_draw_scaled(&dk_spr[S_HELM], 150, 26, 2, 0);
-            if (egg_got == EGG_WHITE) gfx_dither_circle(160, 40, imin(30, (t - 100) / 2), C_GREY, 4);
-        }
-        spr_draw(&dk_spr[S_PIM1], 120, 78, 0);
-        if (nplayers == 2) spr_draw_ex(&dk_spr[S_PIM1], 196, 78, SPR_FLIPX, player_remap(1), -1);
-        gfx_hline(100, 220, 88, C_DUSK);
-        if (t > 120) text_wrap(WHAT[egg_got], 30, 100, 260, C_LIGHT, 10);
-        if (t > 200) text_center(GLYPH_A, 160, 168, (t / 20) % 2 ? C_WHITE : C_GREY);
-        /* the two of you bounced on each other's heads three times */
-        if (nplayers == 2 && dk_w.head_bounces >= 3 && t > 160) tiny_center("COMFY SOCKS, ALWAYS", 160, 150, C_DUSK);
-    } else {
-        static const uint8_t grad[] = {C_WHITE, C_PINK, C_MAGENTA, C_VIOLET};
-        ui_fancy_center("THE END", 160, 22, 2, grad, 4, C_PURPLE, C_INK);
-        char buf[64];
-        snprintf(buf, sizeof buf, "EGGS FOUND %d OF 3", eggs_found());
-        text_center(buf, 160, 60, egg_new ? C_YELLOW : C_LIGHT);
-        draw_egg_icons(160, 74);
-        int s = run_t / 60;
-        snprintf(buf, sizeof buf, "TIME %d:%02d   FALLS %d   WARPS %d", s / 60, s % 60, deaths, run_warps);
-        text_center(buf, 160, 100, C_LIGHT);
-        if (eggs_found() < 3) text_center("OTHER EGGS ARE STILL OUT THERE.", 160, 122, C_DUSK);
-        else text_center("EVERY EGG IS FOUND.", 160, 122, C_PINK);
-        tiny_center("DUSKLING  " GLYPH_DOT "  BEAMDOWN SOFTWORKS 1985", 160, 150, C_GREY);
-        if (t > 200) text_center(GLYPH_A, 160, 168, (t / 20) % 2 ? C_WHITE : C_GREY);
+    uint8_t map[PAL_COUNT];
+    pal_identity(map);
+    pal_swap(map, C_WHITE, EGGC[egg_got][0]);
+    pal_swap(map, C_LIGHT, EGGC[egg_got][1]);
+    int shake = t > 40 && t < 100 ? ((t / 2) % 3) - 1 : 0;
+    spr_scaled_remap(&dk_spr[t < 100 ? S_EGG : S_EGG_CRACK], 142 + shake, 40, 3, map);
+    if (t >= 100) {
+        for (int i = 0; i < 3; i++) gfx_pset(160 + (i - 1) * 12, 40 - (t - 100) % 30, EGGC[egg_got][0]);
+        if (egg_got == EGG_ROSE) spr_draw_scaled(&dk_spr[S_MOTH], 148, 20 - imin(10, (t - 100) / 6), 2, 0);
+        if (egg_got == EGG_AMBER) spr_draw_scaled(&dk_spr[S_HELM], 150, 26, 2, 0);
+        if (egg_got == EGG_WHITE) gfx_dither_circle(160, 40, imin(30, (t - 100) / 2), C_GREY, 4);
     }
+    spr_draw(&dk_spr[S_PIM1], 120, 78, 0);
+    if (nplayers == 2) spr_draw_ex(&dk_spr[S_PIM1], 196, 78, SPR_FLIPX, player_remap(1), -1);
+    gfx_hline(100, 220, 88, C_DUSK);
+    if (t > 120) text_wrap(WHAT[egg_got], 30, 100, 260, C_LIGHT, 10);
+    if (t > 160) {
+        char buf[24];
+        snprintf(buf, sizeof buf, "%d OF 3", eggs_found());
+        tiny_center(buf, 160, 142, egg_new ? C_YELLOW : C_GREY);
+    }
+    if (t > 200) text_center(GLYPH_A, 160, 168, (t / 20) % 2 ? C_WHITE : C_GREY);
+    /* the two of you bounced on each other's heads three times in a row */
+    if (nplayers == 2 && dk_w.socks && t > 160) tiny_center("COMFY SOCKS, ALWAYS", 160, 154, C_DUSK);
 }
 
 static void dk_draw(void) {
@@ -999,10 +1032,23 @@ static int dk_query(const char *key, int *out) {
     if (!strcmp(key, "boss_hp")) { *out = dk_w.boss.alive ? dk_w.boss.hp : 0; return 1; }
     if (!strcmp(key, "boss_down")) { *out = dk_w.boss_down; return 1; }
     if (!strcmp(key, "boss_solid")) { *out = dk_w.boss.solid; return 1; }
+    if (!strcmp(key, "boss_alive")) { *out = dk_w.boss.alive; return 1; }
+    if (!strcmp(key, "boss_flees")) { *out = dk_w.boss.alive && dk_w.boss.spoke; return 1; }
     if (!strcmp(key, "boss_x")) { *out = (int)lroundf(dk_w.boss.x); return 1; }
     if (!strcmp(key, "boss_y")) { *out = (int)lroundf(dk_w.boss.y); return 1; }
     if (!strcmp(key, "shots")) { int n = 0; for (int i = 0; i < DK_SHOTS; i++) n += dk_w.shot[i].alive; *out = n; return 1; }
-    if (!strcmp(key, "socks")) { *out = state == ST_ENDING && nplayers == 2 && dk_w.head_bounces >= 3; return 1; }
+    if (!strcmp(key, "socks")) { *out = dk_w.socks; return 1; }
+    if (!strcmp(key, "sides1")) { *out = sv.sides[0]; return 1; }
+    if (!strcmp(key, "sides2")) { *out = sv.sides[1]; return 1; }
+    if (!strcmp(key, "title_sel")) { *out = title_sel; return 1; }
+    if (!strcmp(key, "face_passes")) {
+        int n = 0;
+        for (int ty = 0; ty < dk_room_h(); ty++)
+            for (int tx = 0; tx < dk_room_w(); tx++)
+                if (dk_tile_raw(tx, ty) == 'I') n += dk_face_passes(tx, ty);
+        *out = n;
+        return 1;
+    }
     if (!strcmp(key, "p2y")) { *out = (int)lroundf(dk_w.P[1].y); return 1; }
     if (!strcmp(key, "run_t")) { *out = run_t; return 1; }
     if (!strcmp(key, "solve_ok")) { *out = dk_solve_ok; return 1; }
@@ -1130,6 +1176,27 @@ static int dk_cheat(const char *cmd) {
             return 0;
         }
     }
+    {
+        /* beside_foe KIND DX: stand the duskling DX pixels to the left of it, on its floor */
+        char kn[16];
+        if (sscanf(cmd, "beside_foe %15s %d", kn, &a) == 2) {
+            static const char *N[F_KINDS] = {"prickle", "wasp", "waspv", "puff", "frog", "gulper", "eye", "beetle", "newt", "crow", "fish"};
+            for (int k = 0; k < F_KINDS; k++) {
+                if (strcmp(kn, N[k])) continue;
+                for (int i = 0; i < DK_FOES; i++) {
+                    const DKFoe *f = &dk_w.foe[i];
+                    if (!f->alive || f->kind != k) continue;
+                    DKPlayer *p = &dk_w.P[0];
+                    p->x = f->x - (float)a;
+                    p->y = f->y + 10 - 9;
+                    p->vx = p->vy = 0; p->ground = 0; p->act = ACT_NONE; p->coyote = 0; p->on_foe = -1;
+                    camera_snap();
+                    return 1;
+                }
+            }
+            return 0;
+        }
+    }
     if (sscanf(cmd, "above_boss %d", &a) == 1) {
         DKPlayer *p = &dk_w.P[0];
         p->x = dk_w.boss.x + 6;
@@ -1149,7 +1216,21 @@ static int dk_cheat(const char *cmd) {
         return ok ? 1 : 1;
     }
     if (sscanf(cmd, "solve_tile %d %d", &a, &b) == 2) { dk_solve_tile(a, b); return 1; }
+    if (!strncmp(cmd, "solvevia ", 9)) {
+        /* solvevia ROOM TARGET NODES X Y X Y ...: through waypoint tiles in order */
+        int v[40], n = 0;
+        char tmp[256];
+        snprintf(tmp, sizeof tmp, "%s", cmd + 9);
+        for (char *tok = strtok(tmp, " "); tok && n < 40; tok = strtok(NULL, " ")) v[n++] = atoi(tok);
+        if (n < 3) return 0;
+        dk_solve_via(v[0], v[1], v[2], v + 3, (n - 3) / 2, stdout);
+        fflush(stdout);
+        if (state != ST_PLAY) start_run(1);
+        enter_room(v[0], 0);
+        return 1;
+    }
     if (sscanf(cmd, "nerf %d", &a) == 1) { dk_nerf = a; return 1; }
+    if (sscanf(cmd, "solvehere %d %d", &a, &b) == 2) { dk_solve_here(a, b, stdout); fflush(stdout); return 1; }
     if (sscanf(cmd, "solve_at %d %d %d", &a, &b, &c) == 3) {
         /* the same from a warp's landing place ('@' = 1, '&' = 2) */
         int ok = dk_solve(a, b, c, 12000, stdout);
@@ -1165,7 +1246,7 @@ const GameDef GAME_DUSKLING = {
     "1985",
     "PLATFORMER",
     "EVERY WAY ON THE PAD IS LEFT, EVERY BUTTON IS RIGHT. FIND THE EGGS.",
-    {"FIND A WARP", "FIND AN EGG", "FIND ALL THREE EGGS"},
+    {"TAKE A HIDDEN WAY", "OPEN AN EGG", "OPEN EVERY EGG"},
     "D-PAD\tWALK LEFT (ANY WAY)\n"
     GLYPH_A " / " GLYPH_B "\tWALK RIGHT\n"
     "HOLD + TAP\tJUMP TO THE HELD SIDE\n"

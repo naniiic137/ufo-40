@@ -1,6 +1,6 @@
-# DUSKLING A3, CINDER HALL (room 24): frogs over an ember bed, a wasp, a newt and prickles.
+# DUSKLING A3, CINDER HALL (room 24): the bone cave: ceiling eyes that roll once they fall, frogs over embers, newts, a prickle.
 # Played from its way in with plain button presses (LEFT is the D-pad
-# side, A the button side), found once by the route finder (cheat solve).
+# side, A the button side), found once by the route finder.
 game duskling
 wait 5
 cheat room 24
@@ -25,50 +25,102 @@ hold A 2
 wait 2
 hold A 25
 hold LEFT 5
-hold LEFT+A 1
-hold A 44
+hold LEFT+A 7
+hold LEFT 3
+hold LEFT+A 2
+wait 3
+hold A 28
 wait 2
-hold A 10
+hold A 30
+hold LEFT+A 16
+wait 6
+hold A 2
+wait 2
+hold A 27
+wait 2
+hold A 30
 hold LEFT+A 16
 wait 6
 hold A 2
 wait 2
 hold A 30
 hold LEFT+A 7
-wait 14
-hold A 2
-wait 2
-hold A 16
-wait 2
-expect room == 25
-
-# a frog up to the ledges, then up into the warp over the blue bells.
-cheat room 24
-hold A 2
-wait 2
-hold A 30
-hold LEFT+A 7
-hold A 74
-hold LEFT+A 16
-wait 14
-hold A 2
-wait 2
-hold A 26
-hold LEFT+A 16
-hold A 26
-wait 20
-hold LEFT 6
-hold A 6
+hold A 3
+hold LEFT+A 2
+hold A 29
 hold LEFT 5
 hold LEFT+A 7
-hold A 61
+hold LEFT 12
+hold LEFT+A 2
+wait 3
+hold A 72
+hold A 2
+wait 2
+hold A 10
+hold LEFT+A 16
+wait 6
+hold A 2
+wait 2
+hold A 36
+hold LEFT+A 16
+wait 14
+hold A 2
+wait 2
+hold A 23
+hold LEFT+A 1
+hold LEFT 53
+hold A 5
+hold LEFT+A 16
+hold A 12
+hold LEFT+A 2
+hold A 84
+hold LEFT+A 7
+wait 14
+hold A 2
+wait 2
+hold A 5
+hold A 5
+hold LEFT+A 7
+wait 14
+hold A 2
+wait 2
+hold A 39
+hold LEFT+A 7
+hold A 3
+hold LEFT+A 2
+hold A 70
+hold A 5
+hold LEFT+A 7
+wait 14
+hold A 2
+wait 2
+hold A 26
+hold LEFT+A 1
+hold A 20
+hold A 30
+wait 16
+hold LEFT 5
+hold LEFT+A 7
+hold A 36
+hold LEFT 12
+hold A 6
+hold LEFT 6
+hold A 5
+hold LEFT+A 16
+wait 14
+hold A 2
+wait 2
+hold A 21
+hold A 5
+hold LEFT+A 16
+wait 14
+hold A 2
+wait 2
+hold A 26
 hold LEFT+A 16
 wait 4
 hold A 2
 wait 2
-hold A 17
-hold LEFT 5
-hold LEFT+A 1
-hold LEFT 5
+hold A 24
 wait 2
-expect room == 41
+expect room == 27

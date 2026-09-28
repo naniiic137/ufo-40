@@ -7,7 +7,7 @@
 #include "../../shell/ui.h"
 
 #define DK_TS 10          /* tile size in pixels */
-#define DK_MAXW 128       /* widest room, in tiles */
+#define DK_MAXW 256       /* widest room, in tiles */
 #define DK_MAXH 40        /* tallest room, in tiles */
 #define DK_ROOMS 42
 
@@ -40,7 +40,10 @@ extern const DKRoom DK_ROOM[DK_ROOMS];
  *  '^' thorns       '~' water          'X' ground that is not there (the dusk wood)
  *  '?' hidden block (a stone face nearby shows it)
  *  '%' hidden spring block (shows when touched)
- *  'I' stone face   'b' blue bells     'o' orange poppies   (background)
+ *  'I' stone face (two jumps over it wake it)
+ *  'b' blue bells   'o' orange poppies   'k' bones   (background)
+ *  'm' mushroom cap (solid; a slam on it springs you high)
+ *  '*' a perch for the fleeing Hermit (never drawn)
  *  '1' '2' '3' warps (never drawn)     'S' '@' '&' ways in  '>' way out
  *  'D' boss door (opens when the boss falls)                'Q' the egg
  *  't' the mole's old tent (background)
@@ -49,7 +52,8 @@ extern const DKRoom DK_ROOM[DK_ROOMS];
  *        'M' gulper (a two-tile mouth: a ledge while shut)
  *        'e' ceiling eye   'r' pebble beetle (knocked flying by a slam)
  *        'n' spear newt   'c' crow with a pebble (harmless)   'x' fish
- *  bosses: 'W' the Brass Warden   'H' the Ember Hermit   'G' the Old Badger */
+ *  bosses: 'W' the Brass Warden   'H' the Ember Hermit   'G' the Old Badger
+ *          'h' the Ember Hermit on the main way, who only runs off */
 
 /* ------------------------------------------------------------------ */
 /* the world: everything a room needs from one frame to the next.
@@ -62,13 +66,14 @@ extern const DKRoom DK_ROOM[DK_ROOMS];
 
 enum { SIDE_L = 1, SIDE_R = 2 };
 enum { ACT_NONE, ACT_JUMP, ACT_SLIDE, ACT_SPRINT, ACT_POUND, ACT_BOUNCE };
+#define DK_SLAM_HANG 7    /* frames the slam hangs in the air, with a "!" */
 
 typedef struct DKPlayer {
     float x, y, vx, vy;
     int32_t press_t[3], last_press_t[3], release_t[3]; /* by side (1, 2) */
-    int16_t jump_hold, coyote, act_t, dead_t, stun, anim;
+    int16_t jump_hold, coyote, act_t, dead_t, stun, anim, over_face;
     int8_t face, jump_dir;
-    uint8_t alive, ground, act, held, prev, jump_side, spun, first, in_water, ride, pounded;
+    uint8_t alive, ground, act, held, prev, jump_side, spun, first, in_water, ride, pounded, hb_streak;
     int8_t on_foe;
 } DKPlayer;
 
@@ -77,7 +82,7 @@ enum {
 };
 typedef struct DKFoe {
     float x, y, vx, vy, x0, y0;
-    int16_t t, phase;
+    int16_t t, phase, timer;
     uint8_t kind, alive, state;
     int8_t dir;
 } DKFoe;
@@ -107,6 +112,7 @@ typedef struct DKWorld {
     DKBoss boss;
     uint8_t mut[DK_MUT];      /* hidden blocks shown, faces woken, doors open */
     int16_t head_bounces;     /* two players: bounces on each other's heads */
+    uint8_t socks;            /* ... three in a row: the line at the end */
 } DKWorld;
 
 extern DKWorld dk_w;
@@ -125,6 +131,7 @@ int dk_room_h(void);
 bool dk_hidden_shown(int tx, int ty);
 bool dk_wet(int tx, int ty);
 bool dk_face_awake(int tx, int ty);
+int dk_face_passes(int tx, int ty);  /* 0, 1 (an eye glows) or 2 (awake) */
 bool dk_solid_at(int tx, int ty);
 int dk_foe_count(int kind);
 void dk_player_hitbox(int i, float *x, float *y, float *w, float *h);
@@ -135,6 +142,9 @@ void dk_fx(const char *sfx, float x, float y, int col, int n);
 
 /* the route finder (scripts only): prints the button presses as script lines */
 int dk_solve(int room, int arrive, int target, int max_nodes, FILE *out);
+/* the same through waypoint tiles in order (n pairs of tile x, y) */
+int dk_solve_here(int target, int max_nodes, FILE *out); /* from the world as it stands */
+int dk_solve_via(int room, int target, int max_nodes, const int *wp, int n, FILE *out);
 void dk_solve_tile(int tx, int ty); /* the next solve aims at this tile instead */
 extern int dk_solve_ok;   /* the last solve: 1 found, 0 not */
 extern int dk_nerf;
@@ -148,7 +158,7 @@ enum {
     S_BEETLE1, S_BEETLE2, S_BEETLE_BALL, S_NEWT1, S_NEWT2, S_SPEAR, S_CROW1, S_CROW2, S_FISH1, S_FISH2,
     S_FACE, S_FACE_AWAKE, S_BELL, S_POPPY, S_EGG, S_EGG_CRACK, S_TENT,
     S_WARDEN1, S_WARDEN2, S_HERMIT1, S_HERMIT2, S_BADGER1, S_BADGER2, S_BADGER_JUMP,
-    S_FIRE1, S_FIRE2, S_SPARK, S_TREE, S_MOTH, S_HELM,
+    S_FIRE1, S_FIRE2, S_SPARK, S_TREE, S_MOTH, S_HELM, S_BANG, S_BONES, S_MUSH, S_PRICKLE_FLIP,
     S_COUNT
 };
 extern Sprite dk_spr[S_COUNT];

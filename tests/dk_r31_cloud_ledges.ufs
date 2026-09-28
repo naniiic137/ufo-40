@@ -1,6 +1,6 @@
-# DUSKLING R3, CLOUD LEDGES (room 31): one-tile clouds, and a stone face that shows a bridge.
+# DUSKLING R3, CLOUD LEDGES (room 31): one-tile clouds, and a stone face that shows a bridge (a warp pocket).
 # Played from its way in with plain button presses (LEFT is the D-pad
-# side, A the button side), found once by the route finder (cheat solve).
+# side, A the button side), found once by the route finder.
 game duskling
 wait 5
 cheat room 31
@@ -18,23 +18,33 @@ hold LEFT+A 16
 wait 14
 hold A 2
 wait 2
-hold A 28
+hold A 26
+hold LEFT 5
+hold LEFT+A 16
+hold LEFT 12
+hold LEFT+A 2
+wait 3
+hold A 30
 wait 2
 hold A 30
 hold LEFT+A 16
 wait 6
 hold A 2
 wait 2
+hold A 27
+wait 2
+hold A 10
+hold LEFT+A 16
+wait 6
+hold A 2
+wait 2
+hold A 14
+wait 2
 hold A 30
 hold LEFT+A 16
-wait 14
+wait 6
 hold A 2
 wait 2
-hold A 20
-hold LEFT+A 16
-wait 14
-hold A 2
+hold A 53
 wait 2
-hold A 54
-wait 2
-expect room == 32
+expect room == 35

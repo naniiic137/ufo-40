@@ -183,5 +183,6 @@ void dk_audio_load(void) {
     sfx_define("dk_bosshit", CH_NOISE, 160, "@34 v15 o4 c8 @40 v12 o5 c8");
     sfx_define("dk_bossdown", CH_P1, 160, "@39 v12 o5 l16 c e g o6 c e g o7 c4");
     sfx_define("dk_door", CH_P2, 220, "@35 v6 o5 g32");
+    sfx_define("dk_flip", CH_P2, 240, "@37 v9 o5 g16 o4 g16");
     sfx_define("dk_warp", CH_P1, 180, "@39 v11 o5 l32 c d e f+ g+ b- o6 c d e f+ g+ b- o7 c8");
 }
