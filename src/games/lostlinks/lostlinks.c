@@ -934,7 +934,7 @@ static void draw_world(void) {
         for (int tx = tx0; tx <= tx0 + SCREEN_W / LNK_T + 1; tx++) {
             char ch = (tx < 0 || ty < 0 || tx >= LNK_MW || ty >= LNK_MH) ? '#' : (char)tiles[l][ty][tx];
             if ((ch == 'g' && (ctx.opened & 1)) || (ch == 'k' && (ctx.opened & 2))) ch = '.';
-            lnk_draw_tile(l, ch, tx, ty, tx * LNK_T - cx, ty * LNK_T - cy, frame_t, panning, tiles);
+            lnk_draw_tile(l, ch, tx, ty, tx * LNK_T - cx, ty * LNK_T - cy, frame_t, false, tiles);
         }
     /* things */
     for (int i = 0; i < lnk_nthings; i++) {
@@ -1016,20 +1016,44 @@ static void draw_world(void) {
             spr_draw(&lnk_spr[LS_CROSSHAIR], ccx - 7, ccy - 7, 0);
         }
     }
-    /* the aiming line: the first stretch of the roll, bending with the ground */
+    /* The aim [MANUALS]: a putt shows a line of dots the way the ball will
+     * go (bending with the ground), and the dots light up along it to show
+     * the power; a chip shows an arc of dots in the air and a circle where
+     * it will land. */
     if (!ball.moving && (state == ST_PLAY) && !panning) {
         LnkBall g = ball;
         LnkCtx pc = ctx;
         pc.probe = true;
-        lnk_hit(&g, &pc, aim, charging ? level_shown : 5);
-        int steps = lnk_is_chip(&ball, &ctx) ? 30 : 36;
-        for (int f = 0; f < steps; f++) {
-            int ev = lnk_ball_step(&g, &pc);
-            if (f % 3 == 2) {
-                int px = (int)g.x - cx, py = (int)(g.y - g.z) - cy;
-                gfx_rect(px, py, 2, 2, f / 3 % 2 ? C_WHITE : C_LIGHT);
+        if (lnk_is_chip(&ball, &ctx)) {
+            lnk_hit(&g, &pc, aim, charging ? level_shown : 1);
+            for (int f = 0; f < 60; f++) {
+                float lx = g.x, ly = g.y;
+                bool up = g.z > 0;
+                int ev = lnk_ball_step(&g, &pc);
+                if (up && g.z <= 0) {
+                    gfx_circb((int)lx - cx, (int)ly - cy, 4, C_WHITE);
+                    break;
+                }
+                if (f % 3 == 1) gfx_rect((int)g.x - cx, (int)(g.y - g.z) - cy, 2, 2, C_WHITE);
+                if (ev == EV_HOLE || ev == EV_SINK || ev == EV_REST) break;
             }
-            if (ev == EV_HOLE || ev == EV_SINK || ev == EV_REST) break;
+        } else {
+            lnk_hit(&g, &pc, aim, LNK_LEVELS);
+            float run = 0, px = g.x, py = g.y;
+            int dot = 0;
+            for (int f = 0; f < 90 && dot < LNK_LEVELS; f++) {
+                int ev = lnk_ball_step(&g, &pc);
+                run += sqrtf((g.x - px) * (g.x - px) + (g.y - py) * (g.y - py));
+                px = g.x;
+                py = g.y;
+                while (dot < LNK_LEVELS && run >= (dot + 1) * 7.0f) {
+                    bool lit = charging && dot < level_shown;
+                    int c = lit ? (dot < 4 ? C_WHITE : dot < 8 ? C_YELLOW : C_ORANGE) : C_SLATE;
+                    gfx_rect((int)g.x - cx, (int)g.y - cy, 2, 2, c);
+                    dot++;
+                }
+                if (ev == EV_HOLE || ev == EV_SINK || ev == EV_REST) break;
+            }
         }
     }
     /* the ball */
@@ -1041,8 +1065,27 @@ static void draw_world(void) {
     for (int i = 0; i < ARRAY_LEN(parts); i++)
         if (parts[i].life > 0) gfx_rect((int)parts[i].x - cx, (int)parts[i].y - cy, 2, 2, parts[i].col);
     if (panning) {
-        gfx_rectb(2, 14, SCREEN_W - 4, SCREEN_H - 16, C_YELLOW);
-        tiny_draw("LOOKING", 6, SCREEN_H - 9, C_YELLOW);
+        /* "check" mode [MANUALS]: the middle of the view says what the
+         * ground there is: an arrow down a slope, a red square for a wall,
+         * a yellow circle for sand, a white circle for flat ground (or a pit) */
+        int mx = SCREEN_W / 2, my = SCREEN_H / 2;
+        char ch = lnk_tile(&ctx, l, (int)floorf((cx + mx) / (float)LNK_T), (int)floorf((cy + my) / (float)LNK_T));
+        float ax, ay;
+        lnk_slope(ch, &ax, &ay);
+        gfx_rect(mx - 9, my - 9, 19, 19, C_INK);
+        gfx_rectb(mx - 9, my - 9, 19, 19, C_GREY);
+        if (ax != 0 || ay != 0) {
+            float s = sqrtf(ax * ax + ay * ay), dx = ax / s, dy = ay / s;
+            gfx_line(mx - (int)(dx * 6), my - (int)(dy * 6), mx + (int)(dx * 6), my + (int)(dy * 6), C_WHITE);
+            gfx_line(mx + (int)(dx * 6), my + (int)(dy * 6), mx + (int)(dx * 2 - dy * 4), my + (int)(dy * 2 + dx * 4), C_WHITE);
+            gfx_line(mx + (int)(dx * 6), my + (int)(dy * 6), mx + (int)(dx * 2 + dy * 4), my + (int)(dy * 2 - dx * 4), C_WHITE);
+        } else if (lnk_solid_char(ch) || ch == 'g' || ch == 'k') {
+            gfx_rect(mx - 5, my - 5, 11, 11, C_RED);
+        } else if (ch == 's') {
+            gfx_circ(mx, my, 5, C_YELLOW);
+        } else {
+            gfx_circ(mx, my, 5, C_WHITE);
+        }
     }
 }
 
@@ -1053,32 +1096,25 @@ static void draw_hud(void) {
     spr_draw(&lnk_spr[LS_BALL], 4, 3, 0);
     snprintf(b, sizeof b, "%d/%d", strokes, mx);
     text_draw(b, 13, 2, strokes <= 3 ? ((frame_t / 10) % 2 ? C_RED : C_ORANGE) : C_WHITE);
-    /* collected, in small */
-    int x = 64;
-    for (int a = 0; a < AB_COUNT; a++) {
-        gfx_rect(x + a * 7, 3, 5, 5, has_ab(a) ? (a == 0 ? C_ORANGE : a == 1 ? C_PINK : a == 2 ? C_TAN : C_SKY) : C_NIGHT);
+    /* below the strokes, the upgrades found so far [MANUALS] */
+    int x = 4;
+    for (int a = 0; a < AB_COUNT; a++)
+        if (has_ab(a)) {
+            gfx_rect(x, 14, 7, 7, C_INK);
+            gfx_rect(x + 1, 15, 5, 5, a == AB_HAMMER ? C_ORANGE : a == AB_BACKSPIN ? C_PINK : a == AB_TREAD ? C_EARTH : C_SKY);
+            x += 9;
+        }
+    /* on the right, a mystery to uncover: the Star Pin's pieces */
+    for (int p = 0; p < LNK_PIECES; p++) {
+        int px = SCREEN_W - 8 - (LNK_PIECES - 1 - p) * 9;
+        if ((sv.pieces >> p) & 1) gfx_rect(px - 3, 3, 7, 7, C_YELLOW);
+        else gfx_rectb(px - 3, 3, 7, 7, C_DUSK);
     }
-    x += 32;
-    for (int p = 0; p < LNK_PIECES; p++) gfx_rect(x + p * 4, 3, 3, 5, (sv.pieces >> p) & 1 ? C_YELLOW : C_NIGHT);
-    int zx = iclamp((int)(ball.x / (LNK_ZW * LNK_T)), 0, LNK_ZX - 1), zy = iclamp((int)(ball.y / (LNK_ZH * LNK_T)), 0, LNK_ZY - 1);
-    const char *zn = LNK_ZONE_NAME[ball.layer][zy][zx];
     if (banner_t > 0) {
         int w = text_width(banner);
         gfx_rect(SCREEN_W / 2 - w / 2 - 4, 20, w + 8, 11, C_INK);
         text_draw(banner, SCREEN_W / 2 - w / 2, 22, banner_col);
     }
-    tiny_draw(zn, SCREEN_W - 4 - tiny_width(zn), 4, C_SLATE);
-    if (charging) {
-        /* the power meter: twelve pips */
-        int y = SCREEN_H - 12;
-        gfx_rect(SCREEN_W / 2 - 50, y - 2, 100, 9, C_INK);
-        for (int i = 0; i < LNK_LEVELS; i++) {
-            int col = i < level_shown ? (i < 4 ? C_LIME : i < 8 ? C_YELLOW : C_RED) : C_NIGHT;
-            gfx_rect(SCREEN_W / 2 - 48 + i * 8, y, 6, 5, col);
-        }
-    }
-    if (ball.lie == LIE_CUP && !ball.moving && state == ST_PLAY) tiny_draw("FREE CHIP OUT OF THE CUP", 6, SCREEN_H - 9, C_LIME);
-    else if (lnk_is_chip(&ball, &ctx) && !ball.moving && state == ST_PLAY) tiny_draw("CHIP", 6, SCREEN_H - 9, C_TAN);
 }
 
 static void draw_box(const char *title, const char *text) {
@@ -1638,11 +1674,11 @@ const GameDef GAME_LOSTLINKS = {
     "LOST LINKS",
     "1985",
     "ADVENTURE",
-    "DIMPLE THE GOLF BALL WAKES UNDER THE OLD LINKS. EVERY ROLL IS A STROKE, AND STROKES ARE LIFE.",
+    "DIMPLE THE GOLF BALL EXPLORES THE LINKS. EVERY ROLL IS A STROKE.",
     {"FIND THE HAMMERHEAD", "BEAT THE BRASS BADGER", "WIN WITH EVERYTHING FOUND"},
     GLYPH_DPAD "\tAIM\n"
     "HOLD " GLYPH_A "\tSWING (LET GO TO HIT)\n"
-    GLYPH_B "\tCANCEL / HOLD TO LOOK\n"
+    GLYPH_B "\tCANCEL / HOLD: CHECK\n"
     GLYPH_A " / " GLYPH_B " ROLLING\tHOP / BRAKE (ONCE FOUND)\n"
     "START\tPAUSE",
     C_LEAF, C_WHITE,

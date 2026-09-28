@@ -88,16 +88,27 @@ below (or above) where it was.
 - **The finale** sits under the Clubhouse: the altar in the hall, the
   sanctum under the gate, the Brass Badger's den beyond it.
 
+## The three goals
+
+| UFO 40 goal | LOST LINKS | Golfaria's goal [MH], [QB] |
+|---|---|---|
+| Beacon | find the Hammerhead | gift: obtain the Block Buster |
+| Saucer | beat the Brass Badger | gold: beat the game |
+| Alien | beat it with everything found: 20 irons, 8 strays, 4 abilities, 4 pieces, 10 scorecrows | cherry: win with 100 % completion (all clubs, balls, abilities, tee pieces and parbots) |
+
+Like most cherries, the Alien is checked at the ending.
+
 ## Mechanics checklist
 
 | Mechanic | How LOST LINKS does it | Source | Test |
 |---|---|---|---|
 | A golf ball's adventure | top-down; every move is a stroke | [MH], [LIZ] | ln_02 |
-| Aiming | the d-pad swings a line round in 64 steps; the line shows the first stretch of the roll, bending with the slopes | [MH], [ST-GF1] | ln_02 |
-| Charging | hold A: the power runs up and down twelve pips, more slowly the longer it is held; let go to hit | [MH] | ln_02 |
-| Cancel and look | B cancels a swing; B held pans the view round (the slopes are marked while looking) | [MH], [MANUALS], [LIZ] | ln_02 |
-| Only along the ground | a stroke rolls; only from sand, a divot or a hole does the ball leave the ground (a chip) | [LIZ], [MANUALS], [QB] | ln_03, ln_04 |
-| Strokes | the counter top left, now / most; every stroke costs one, chips out of sand and divots too; leaving a hole is free | [MH], [QB] | ln_02, ln_03, ln_04 |
+| Aiming | the d-pad aims (64 steps); a line of dots shows the way the ball will go, bending with the slopes | [MANUALS], [MH], [ST-GF1] | ln_02 |
+| Charging | hold A: the dots light up along the line to show the power (twelve of them), up and down, more slowly the longer A is held; let go to hit | [MANUALS], [MH] | ln_02 |
+| Cancel | B cancels a swing | [MH] | ln_02 |
+| Check mode | B held: the d-pad looks round the map; the middle of the view shows the ground there: an arrow down a slope, a red square for a wall, a yellow circle for sand, a white circle for flat ground or a pit | [MANUALS], [MH], [LIZ] | ln_02 |
+| Only along the ground | a stroke rolls (a putt); only from sand, a divot or a hole does the ball leave the ground (a chip), shown as an arc of dots with a circle where it lands | [LIZ], [MANUALS], [QB] | ln_03, ln_04 |
+| Strokes | the counter top left, now / most; every stroke costs one, chips out of sand and divots too; leaving a hole is free; the upgrades found show below it, and a mystery on the right (the Star Pin's pieces) | [MANUALS], [MH], [QB] | ln_02, ln_03, ln_04 |
 | 20 to start | +3 for each of 20 irons, 80 at most; an iron refills too | [QB], [MH] | ln_05 |
 | Out of strokes | the run ends and Dimple wakes at the last pin touched with full strokes; everything found is kept (saved at once) | [QB], [IGGY], [STATIC] | ln_05 |
 | Pins | touching one makes it the checkpoint and refills the strokes | [MH], [QB] | ln_05 |
@@ -106,7 +117,7 @@ below (or above) where it was.
 | Slopes | a ball runs down them; one never rests on a fairway slope; long ones can't be climbed | [MH], [STATIC], [LIZ] | ln_03 |
 | Sand | stops a ball dead; only a chip gets out | [MH], [ST-GF1], [QB] | ln_03 |
 | Water | a ball in it goes back to where the stroke was hit from | [ST-GF1], [SEARCH] | ln_04 |
-| Holes | a slow ball drops in and comes out on the other layer, in the cup; a fast one rattles round the rim and rolls on | [TOS], [LIZ], [MH] | ln_04 |
+| Holes | a slow ball drops in and comes out on the other layer, in the cup; underground each hole is a shining circle that takes the ball back up; a fast ball rattles round the rim and rolls on | [MANUALS], [TOS], [LIZ], [MH] | ln_04 |
 | Divots | a slow ball settles in one; out is a chip | [QB] | ln_03 |
 | Bushes | the ball crashes through them; some hide holes | [MH] | ln_08 |
 | Birds | larks (hidden in bushes) +4, albatrosses +8 when rolled into; back next run | [MH], [LIZ] | ln_07 |
@@ -116,7 +127,7 @@ below (or above) where it was.
 | Brakes (our Backspin) | stops the ball dead; a slope wears it down | [MH] | ln_08 |
 | Sand Roll (our Dune Tread) | sand rolls like fairway; A again during a roll hops | [MH] | ln_03, ln_08 |
 | Water Roll (our Skipper) | rolling onto water skims it; no brakes on it; landing in it still sinks | [MH] | ln_04 |
-| Talking | roll into somebody; one or two lines that repeat | [MANUALS], [MH] | ln_13 |
+| Talking | everything is done by rolling into it; other golf balls give advice; one or two lines that repeat | [MANUALS], [MH] | ln_13 |
 | Strays | roll into one and it joins; in the finale each helps once when strokes run low | [MH], [SEARCH], [IGGY] | ln_13, ln_10 |
 | The Holy Tee (our Star Pin) | four pieces, set in the altar in the ruined clubhouse, open the way to the finale | [MH], [QB] | ln_10 |
 | The finale | a puzzle first (four plates, one for each ability's kind of ground), then the boss; no pin, no refill | [IGGY] | ln_10 |
@@ -141,8 +152,10 @@ below (or above) where it was.
 - **Starting strokes:** 20, as the FAQ, two reviews and a Steam thread say;
   the wiki says 15, but its own 80 at most only adds up from 20.
 - **Safe zones** top up to 15 as the wiki says (the FAQ says to the most).
-- **The aim:** the wiki says the d-pad "moves the directional aim". Ours
-  swings the aim towards the way pressed, a notch a tap, faster when held.
+- **The aim:** the wiki says the d-pad "moves the directional aim" and the
+  manual guide that it lets you "aim where you will move". Ours swings the
+  aim towards the way pressed, a notch a tap, faster when held.
+- **The power dots:** twelve, 7 pixels apart along a full stroke's path.
 - **The hop and the brake:** Sand Roll's jump is "press again during a
   stroke" (A). No source says which button brakes; ours is B while
   rolling, which is free then.
@@ -199,10 +212,10 @@ collection feature and UFO 40 has no terminal, so it is left out.
 
 | Input | Action | Source |
 |---|---|---|
-| D-pad | swing the aim towards the way pressed | [MH] (how it swings: ours) |
-| Hold A | charge the swing; let go to hit | [MH], [MANUALS] |
+| D-pad | aim (it swings towards the way pressed) | [MANUALS], [MH] (how it swings: **ours**) |
+| Hold A | charge a putt or a chip; let go to hit | [MANUALS], [MH] |
 | B (while charging) | cancel the swing | [MH] |
-| Hold B (ball at rest) | look round; the d-pad moves the view | [MH], [MANUALS], [ST-GF1] |
+| Hold B (ball at rest) | check mode: the d-pad looks round | [MANUALS], [MH], [ST-GF1] |
 | A (while rolling) | hop, with the Dune Tread | [MH] |
 | B (while rolling) | brake, with Backspin | **not sourced:** our choice |
 | D-pad (ball that can't settle) | nudge it | [IGGY] |
@@ -266,9 +279,15 @@ ball somewhere or set up a save):
   refill, friends giving strokes back, the gopher's stand, crosshair, six
   shots and 5-6 hits, two free eagles.
   https://steamcommunity.com/sharedfiles/filedetails/?id=3345726476
-- [MANUALS] Steam guide "The missing manuals - How to play UFO 50 games"
-  (as quoted in the research notes): the buttons, chipping from sand or a
-  hole, talking by rolling into somebody.
+- [MANUALS] Steam guide "The missing manuals - How to play UFO 50 games",
+  "18. Golfaria": "a golf-based metroidvania"; the d-pad aims; holding A
+  charges a putt, a line of dots whose lighting shows the strength, lighting
+  up slower and slower the longer A is held; a chip shows an arc of dots and
+  a circle where it lands; holding B is "check" mode, with the indicator for
+  the ground under the middle of the view; the putts counter top left, the
+  upgrades below it, a mystery on the right; everything is done by rolling
+  into it; holes to the underground and the shining circles back up;
+  flagpoles; other golf balls with advice.
   https://steamcommunity.com/sharedfiles/filedetails/?id=3350227767
 - [ST-GF1] Steam thread "Golfaria": hold X to look, 20 strokes, clubs in
   holes, the aiming line and slopes, water sends the ball back, bogeys

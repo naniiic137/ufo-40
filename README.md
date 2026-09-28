@@ -452,12 +452,13 @@ the top.
 
 *A tribute to **Golfaria** (UFO 50 #18).*
 
-- **Plays the same:** you are a golf ball, and every move is a stroke. Swing
-  the aim with the d-pad, hold A while the power runs up and down, let go.
+- **Plays the same:** you are a golf ball, and every move is a stroke. Aim
+  with the d-pad and hold A: dots light up along the line to show the power,
+  up and down, slower the longer you hold; let go.
   Only from sand, a divot or a hole does the ball leave the ground. Strokes
   are your health: twenty to start, three more for each of twenty irons.
   Run out and you wake at the last pin you touched, keeping all you found.
-  Hold B to look round.
+  Hold B to check the ground ahead.
 - **The world:** one open world on two layers. Every hole drops you to the
   caves right underneath (or climbs back up), and a hole with a pin by it
   tops you up. Slopes, rough, greens, sand, water, bushes and cracked
