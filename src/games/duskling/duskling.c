@@ -405,6 +405,16 @@ static void draw_background(int cx, int cy) {
         if (bi == BI_WORKS) col = (i + frame_t / 8) % 7 ? C_NIGHT : C_TEAL;
         gfx_pset(sx, sy, col);
     }
+    if (bi == BI_DUSK || bi == BI_HEIGHTS) {
+        /* a bank of cloud along the top */
+        int col = bi == BI_DUSK ? C_PINK : C_WHITE;
+        for (int k = -1; k < 10; k++) {
+            int x = k * 40 - (cx / 8 + frame_t / 6) % 40, y = 8 + (k & 1) * 5 - cy / 10;
+            gfx_circ(x + 12, y, 9, col);
+            gfx_circ(x + 26, y + 2, 7, col);
+            gfx_rect(x + 4, y + 2, 30, 6, col);
+        }
+    }
     /* far silhouettes: trees, weed, pillars, pipes, stalactites, peaks */
     int off = cx / 3;
     for (int k = -1; k < 12; k++) {
@@ -455,12 +465,35 @@ static void draw_tile(int tx, int ty, int sx, int sy) {
     case '#': case 'X': {
         gfx_rect(sx, sy, TS, TS, T->ground);
         int h = (tx * 31 + ty * 17) & 7;
-        gfx_pset(sx + 2 + h % 5, sy + 3 + h / 2, T->ground_dk);
-        gfx_pset(sx + 6, sy + 7 - h / 3, T->ground_dk);
+        int bi = DK_ROOM[dk_w.room].biome;
+        if (bi == BI_STEPS) {
+            /* old dressed stone */
+            gfx_hline(sx, sx + TS - 1, sy + 4, T->ground_dk);
+            gfx_hline(sx, sx + TS - 1, sy + 9, T->ground_dk);
+            gfx_vline(sx + ((ty & 1) ? 2 : 7), sy, sy + 3, T->ground_dk);
+            gfx_vline(sx + ((ty & 1) ? 7 : 2), sy + 5, sy + 8, T->ground_dk);
+        } else if (bi == BI_WORKS) {
+            /* riveted plates */
+            gfx_rectb(sx, sy, TS, TS, T->ground_dk);
+            gfx_pset(sx + 2, sy + 2, T->top);
+            gfx_pset(sx + 7, sy + 7, T->top);
+        } else if (bi == BI_CAVES) {
+            gfx_pset(sx + 2 + h % 5, sy + 3 + h / 2, T->ground_dk);
+            if (h == 3 && ((frame_t / 20 + tx) & 3) == 0) gfx_pset(sx + 5, sy + 6, C_ORANGE);
+        } else {
+            gfx_pset(sx + 2 + h % 5, sy + 3 + h / 2, T->ground_dk);
+            gfx_pset(sx + 6, sy + 7 - h / 3, T->ground_dk);
+        }
         if (!solidish(tx, ty - 1)) {
             gfx_rect(sx, sy, TS, 3, T->top);
             gfx_hline(sx, sx + TS - 1, sy + 3, T->top_dk);
-            if (h & 1) gfx_pset(sx + h, sy - 1, T->top);
+            if (bi == BI_WOOD || bi == BI_DUSK || bi == BI_MERE) {
+                /* grass tufts */
+                if (h & 1) gfx_pset(sx + h, sy - 1, T->top);
+                if (h == 2) { gfx_pset(sx + 3, sy - 1, T->top); gfx_pset(sx + 4, sy - 2, T->top); }
+            } else if (bi == BI_HEIGHTS && (h & 3) == 1) {
+                gfx_hline(sx + 2, sx + 6, sy - 1, T->top);
+            }
         }
         if (!solidish(tx - 1, ty)) gfx_vline(sx, sy, sy + TS - 1, T->ground_dk);
         if (!solidish(tx + 1, ty)) gfx_vline(sx + TS - 1, sy, sy + TS - 1, T->ground_dk);
@@ -526,6 +559,15 @@ static void draw_tile(int tx, int ty, int sx, int sy) {
         break;
     }
     default: break;
+    }
+}
+
+static void draw_bubbles(int cx, int cy) {
+    /* bubbles rising through the water */
+    for (int i = 0; i < 24; i++) {
+        int bx = (i * 67 + 20) % 340, by = 180 - ((frame_t / 2 + i * 37) % 200);
+        if (!dk_wet((bx + cx) / TS, (by + cy) / TS)) continue;
+        gfx_circb(bx, by, 1 + (i & 1), theme()->water_hi);
     }
 }
 
@@ -687,6 +729,7 @@ static void draw_play(void) {
     int cx = (int)lroundf(cam_x), cy = (int)lroundf(cam_y);
     draw_background(cx, cy);
     draw_level(cx, cy);
+    draw_bubbles(cx, cy);
     draw_boss(cx, cy);
     draw_foes(cx, cy);
     draw_orb(cx, cy);
@@ -807,6 +850,14 @@ static void draw_rebirth(void) {
     if (t > 165 && t < 180) gfx_circb(160, 100, (t - 165) * 3, C_PINK);
 }
 
+static void spr_scaled_remap(const Sprite *sp, int x, int y, int scale, const uint8_t *map) {
+    for (int yy = 0; yy < sp->h; yy++)
+        for (int xx = 0; xx < sp->w; xx++) {
+            uint8_t c = sp->px[yy * sp->w + xx];
+            if (c != TRANSPARENT) gfx_rect(x + xx * scale, y + yy * scale, scale, scale, map[c]);
+        }
+}
+
 static void draw_ending(void) {
     static const char *const WHAT[3] = {
         "INSIDE THE WHITE EGG:\nA LITTLE COLD FOG AND SOME GREY MUD.\nNOTHING ELSE AT ALL.",
@@ -823,7 +874,7 @@ static void draw_ending(void) {
         pal_swap(map, C_WHITE, EGGC[egg_got][0]);
         pal_swap(map, C_LIGHT, EGGC[egg_got][1]);
         int shake = t > 40 && t < 100 ? ((t / 2) % 3) - 1 : 0;
-        spr_draw_scaled(&dk_spr[t < 100 ? S_EGG : S_EGG_CRACK], 144 + shake, 40, 3, 0);
+        spr_scaled_remap(&dk_spr[t < 100 ? S_EGG : S_EGG_CRACK], 142 + shake, 40, 3, map);
         if (t >= 100) {
             for (int i = 0; i < 3; i++) gfx_pset(160 + (i - 1) * 12, 40 - (t - 100) % 30, EGGC[egg_got][0]);
             if (egg_got == EGG_AMBER) spr_draw_scaled(&dk_spr[S_MOTH], 148, 20 - imin(10, (t - 100) / 6), 2, 0);

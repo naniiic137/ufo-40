@@ -86,12 +86,13 @@ and the music and sound volumes are in every game's pause menu too.
 | 06 | **TIN TROOP** | Mortol | 20 lives that carry through ten levels, the arrow, bomb and stone sacrifices, bodies as ledges and weights, water, fire and plants, a ship that drops the next life | a toy army in a toymaker's house, the Jack of the Chest, 10 new levels |
 | 07 | **SKYWELL** | Velgress | a random shaft of crumbling platforms, a roller that only follows you up, stun instead of damage, four-way shooting, a shop between levels, a key bird, a locked fourth level | Kip the scrap-diver, the Grinder, the Tinker, the Well Eye |
 | 09 | **BANNERFALL** | Attactics | a 6×8 field between two keeps, a countdown turn where you drag troops within your half, the same end-of-turn order and clashes, eight unit types with promotions and heroes, the original's 24 campaign battles, ranked, survival and 2P versus | the Marigold Guard and the Thistle Host, all units and battle names |
+| 13 | **DUSKLING** | Mooncat | every way on the D-pad is left and both buttons are right; a jump goes toward the side held (higher the longer you press), low hops, rolls and sprints, somersaults and slams; one touch and back to the room's start, as often as it takes; flowers that mean a warp, stone faces that show hidden ledges, warps within warps to three eggs and three bosses, 42 rooms, 2P co-op | the duskling and the dayling, the Hush Wood, the Sunken Mere, the Old Steps and the Humming Works, the Ember Caves and the Windy Heights, the Brass Warden, the Ember Hermit and the Old Badger, 42 new rooms |
 | 14 | **CUTLASS CUP** | Bushido Ball | first to 8 points, a ball that gets faster with every return, aimed, lobbed and curved strikes, secondary weapons and charged super shots, the fouls and penalty points, six fighters, a five-match tournament, 2P versus and co-op doubles | six corsairs, the galley *Merry Mackerel*, old Bosun Crabbe |
 | 15 | **FENNEC FOUNTAIN** | Block Koala | pushing numbered blocks (never into a heavier one, a 1 that can't move is taken in), grey at five, blue and black blocks, mimics, arrows, stone patches and doors, unlimited undo and a room menu, fifty rooms behind gates, a room editor | Fen the fennec, a dry spring garden, 50 new rooms |
 | 16 | **TINTAIL** | Camouflage | sneaking on a grid past watchers by taking the colour of the ground you stand on, hollow logs, sun and rain pads, hatchlings with their own colour, a danger view you can't move in, undo, a branching map | Twig the chameleon, Salt Island, toads and storks, 15 new levels |
 | 25 | **OPEN HOUSE** | Party House | drawing guests from a deck into a house with limited space, the original's 46 guest abilities, costs and trouble, police, fire marshal and bans, set guest lists and a random list, win by ending a party with four stars within 25 nights, 2P hot-seat | a whitewashed house by the sea, all 46 guests' names and faces |
 | 28 | **DUNE EXPRESS** | Rail Heist | real time until a guard is alert, then 10-second turns, one-bullet lawmen who hit each other too, punches through walls and floors, carrying and throwing, hiding in barrels, levers, a crank gun, rams, three outlaws, three stars a mission with the original's time goals, 2P versus | Wade, Hush and Pearl, the Governor's tax trains, Biscuit the camel, 20 new trains |
-| 08, 10–13, 17–24, 26–27, 29–50 | *coming soon* | | | still in the saucer's cargo hold |
+| 08, 10–12, 17–24, 26–27, 29–50 | *coming soon* | | | still in the saucer's cargo hold |
 
 Every cartridge has three goals, which follow the original's own three: a
 **Beacon** (a side challenge), the **Saucer** (beating the game) and the
@@ -350,6 +351,47 @@ the top.
 - **Ours:** the Marigold Guard and the Thistle Host, every unit's name and
   look, the keeps, the battle names and every line of text, the march and the
   battle music.
+
+### 13 · DUSKLING
+
+<p align="center">
+  <img src="docs/shots/duskling.gif" width="640" alt="Duskling: the pink duskling sprints, jumps and somersaults through the Hush Wood">
+</p>
+<p align="center">
+  <img src="docs/shots/duskling_mere.png" width="320" alt="The Sunken Mere">
+  <img src="docs/shots/duskling_eyes.png" width="320" alt="Fallen ceiling eyes in the Old Steps">
+  <img src="docs/shots/duskling_heights.png" width="320" alt="A stone face's hidden bridge in the Windy Heights">
+  <img src="docs/shots/duskling_egg.png" width="320" alt="The amber egg opens">
+</p>
+
+*A tribute to **Mooncat** (UFO 50 #13).*
+
+- **Plays the same:** the pad has two sides. Every way on the D-pad walks
+  left and both buttons walk right; hold one side and press the other to
+  jump toward the side held, longer for higher. Tap and then press both for
+  a low hop, double tap to roll (hold it to sprint, with more time to jump
+  off an edge), double tap in the air to somersault, and press the other
+  side again in the air to slam: it beats foes, bounces you up and drops
+  through pink ledges. One touch ends you, and you come back where you
+  came into the room, as often as it takes. Nothing is saved on the way.
+- **Secrets:** some creatures are harmless, some are ledges, some can be
+  knocked about. Flowers mean a warp is somewhere on the screen; they are
+  never drawn until touched. Stone faces show hidden ledges when you jump
+  over them, springs hide in plain sight, and ceiling eyes drop and leap
+  when you slam.
+- **Structure:** it opens as an orange dayling drifts down into a dusk wood
+  and falls into a pit whose far side isn't there. Then the duskling's
+  main way runs through the wood, the mere, the ruins and the machine
+  works to the Brass Warden and the white egg. Warps skip ahead (one goes
+  back), and warps within warps open the amber way to the Ember Hermit and
+  the rose way to the Old Badger, each with its egg: every egg is an
+  ending. 42 rooms; two players on PC. A route finder over the real rules
+  recorded a crossing of every room, warp and egg, and the tests play
+  them back with button presses.
+- **Ours:** the duskling, the dayling and its little light, the Hush Wood,
+  the Sunken Mere, the Old Steps, the Humming Works, the Ember Caves and
+  the Windy Heights, every creature and boss, what the eggs hold, all 42
+  rooms and the music.
 
 ### 14 · CUTLASS CUP
 
@@ -647,6 +689,9 @@ src/platform/headless/ scripted test runner, PNG / GIF / WAV writers, Vita LiveA
     can be climbed.
   - Fennec Fountain ships every room with its shortest solution, and a test
     plays all fifty with button presses on the real rules.
+  - Duskling has a route finder that searches button patterns on its real
+    rules; every room, warp and egg has a test replaying the presses it
+    found, and switching a secret off shows which rooms cannot be crossed without it.
   - Wet Paint checks that all 26 courses are sound, and its demo driver
     (the same one that drives Foxy) plays a run from the title screen.
 
