@@ -1,0 +1,28 @@
+# DOT & DASH: the room gets busier as Dot gets richer. Once she has picked
+# up 333 glints in all (or met the queen), red lancers with pea shooters
+# appear in the room and the micro world; past 667, the queen's tin mice
+# come out too, and fight the lancers where they meet.
+game dotdash
+wait 5
+cheat newgame
+cheat nodash
+cheat up tonic1
+cheat area 0 30 82
+wait 5
+expect foes_1 == 0
+expect foes_16 == 0
+cheat glints 340
+cheat area 0 30 82
+wait 5
+expect foes_1 >= 2
+expect foes_16 == 0
+cheat glints 700
+cheat area 0 30 82
+wait 5
+expect foes_16 >= 2
+# tin mice and lancers clash
+cheat no_foes
+cheat foe 16 200 654
+cheat foe 1 212 656
+wait 200
+expect foes_1 == 0

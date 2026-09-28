@@ -1,0 +1,62 @@
+# DOT & DASH: thorns hurt and throw Dot up; acid goo hurts every half second
+# unless she has eaten Spore Stew; Bug Musk makes bugs harmless to touch;
+# the Shell Vest halves every hit; lancers shoot along the ground.
+game dotdash
+wait 5
+cheat newgame
+cheat no_foes
+cheat give 2
+cheat skip_dialog
+# the thorns at the bottom of a dangerous cave in the rug
+cheat micro 0 83 30 4
+cheat no_foes
+wait 5
+cheat hp 6
+cheat stand_hazard
+wait 3
+expect hp == 5
+expect vy10 < 0
+wait 80
+# the goo in a dangerous cave of the west pot's soil
+cheat micro 0 66 47 4
+cheat no_foes
+wait 5
+cheat hp 6
+cheat stand_hazard
+wait 70
+expect hp == 5
+# spore stew: no harm from goo
+cheat give 19
+cheat skip_dialog
+cheat stand_hazard
+wait 90
+expect hp == 6
+# bug musk: an ant walks right into Dot and nothing happens
+cheat area 0 20 82
+cheat nodash
+wait 5
+cheat hp 6
+cheat foe 0 140 658
+wait 40
+expect hp == 5
+cheat give 12
+cheat skip_dialog
+wait 70
+cheat no_foes
+cheat foe 0 140 658
+wait 40
+expect hp == 6
+# the shell vest: a tin mouse's two-half hit takes one
+cheat give 20
+cheat skip_dialog
+cheat no_foes
+cheat foe 16 140 654
+wait 40
+expect hp == 5
+# a lancer shoots along the ground (its shot isn't a bug, so musk won't help)
+wait 80
+cheat no_foes
+cheat hp 6
+cheat foe 1 260 656
+waituntil hp < 6 200
+expect foes_1 == 1

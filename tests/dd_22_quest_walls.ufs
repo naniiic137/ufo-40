@@ -1,0 +1,136 @@
+# DOT & DASH: between the walls. Dr. Volt throws the breaker so the fried
+# outlet is a way in. A cracker opens the cubby walled in with weak wood; a
+# jar held up under the pink stalactite catches its slime (the drops burn
+# anyone without one). Behind the hanging shelf, a shaft between the walls
+# drops all the way to the floor: holding a moth, Dot glides down safely. At
+# the bottom Barley the shrew isn't himself: shrink on his head, beat the tin
+# mage inside (5), and Barley pays 20, then mixes a drink from a spore.
+game dotdash
+wait 5
+cheat newgame
+cheat no_foes
+cheat nodash
+cheat god
+cheat area 0 81 83
+cheat nodash
+wait 5
+cheat bot_to npc:2
+botuntil bot_state == 2 2000
+press UP
+wait 5
+cheat bot_talk
+botuntil bot_state == 2 900
+expect asking == 1
+press LEFT
+press A
+wait 5
+expect flag.power_off == 1
+cheat skip_dialog
+# in through the west outlet
+cheat bot_to door:2
+botuntil bot_state == 2 2000
+press UP
+waituntil level_id == 2 60
+waituntil trans == 0 60
+# a cracker thrown at the weak wood of the cubby opens it
+cheat bot_tile 96 29
+botuntil bot_state == 2 3000
+cheat obj 1
+wait 2
+hold RIGHT 1
+wait 2
+press B
+wait 40
+expect tile_98_29 == 0
+cheat bot_tile 101 30
+botuntil bot_state == 2 2000
+wait 5
+expect glints >= 5
+# the pink stalactite over the seep: its drops fill a jar held under them
+cheat bot_tile 88 30
+botuntil bot_state == 2 2000
+cheat obj 20
+waituntil carry == 22 400
+expect carry == 22
+# the fried outlet leads back out, now the power is off
+cheat bot_to door:5
+botuntil bot_state == 2 3000
+press UP
+waituntil level_id == 0 60
+waituntil trans == 0 60
+expect tx >= 150
+# the shaft behind the hanging shelf
+cheat god
+cheat area 0 57 29
+cheat nodash
+wait 5
+press UP
+waituntil level_id == 8 60
+waituntil trans == 0 60
+expect ty == 9
+# a moth in hand: the long drop becomes a glide
+cheat up mitt1
+cheat skip_dialog
+cheat hold_foe 3
+wait 2
+hold LEFT 260
+waituntil ground == 1 600
+wait 5
+expect scale == 1
+expect level_id == 8
+expect ty == 60
+hold DOWN B 3
+wait 10
+cheat bot_to npc:14
+botuntil bot_state == 2 3000
+press UP
+wait 5
+cheat bot_talk
+botuntil bot_state == 2 900
+expect flag.shrew_free == 0
+# stand on him and shrink into his head
+cheat up tonic1
+cheat skip_dialog
+cheat bot_to npc:14
+botuntil bot_state == 2 3000
+hold DOWN 95
+waituntil trans == 0 60
+expect scale == 2
+expect level_kind == 2
+expect level_id == 5
+expect foes_17 == 1
+cheat obj 16
+cheat bot_hunt 17
+botuntil foes_17 == 0 8000
+expect flag.mage_beaten == 1
+cheat bot_clear
+cheat skip_dialog
+hold DOWN B 3
+wait 5
+hold UP 95
+waituntil trans == 0 60
+expect level_id == 8
+cheat bot_free
+botuntil bot_state == 2 600
+cheat bot_to npc:14
+botuntil bot_state == 2 3000
+press UP
+wait 5
+cheat bot_talk
+botuntil bot_state == 2 900
+expect flag.shrew_paid == 1
+# a spore becomes a mushroom drink
+cheat obj 12
+wait 2
+press UP
+wait 5
+cheat bot_talk
+botuntil bot_state == 2 900
+expect carry == 38
+# and out at the foot of the shaft
+cheat bot_to door:18
+botuntil bot_state == 2 3000
+press UP
+waituntil level_id == 0 60
+waituntil trans == 0 60
+expect ty == 82

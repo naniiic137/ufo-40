@@ -1,0 +1,42 @@
+# DOT & DASH: the fourth size. With the second tonic Dot shrinks once more
+# inside the micro world, in the same place, small enough for a gap one tile
+# high: some treasures wait in nooks behind such gaps. Here the grip mitt in
+# the dust under the bookshelf: out of reach at micro size, and in reach
+# when tiny. Tiny, she can't grow back up under a low ceiling.
+game dotdash
+wait 5
+cheat newgame
+cheat no_foes
+cheat nodash
+cheat god
+cheat up tonic1
+cheat micro 0 80 131 4
+wait 5
+expect scale == 2
+expect place_x.gap:131 >= 0
+expect reachplace.gap:131 == 0
+# the second tonic: smaller still
+cheat up tonic2
+cheat skip_dialog
+wait 5
+hold DOWN 100
+waituntil trans == 0 60
+expect scale == 3
+expect body_h == 6
+expect depth == 1
+expect reachplace.gap:131 == 1
+cheat bot_to gap:131
+botuntil bot_state == 2 6000
+# in the nook: no room to grow
+hold UP 100
+wait 20
+expect scale == 3
+# the mitt lies loose in there (no room to lift a box): it's hers
+waituntil up.mitt1 == 1 60
+expect up.mitt1 == 1
+# and out again, and back up to micro size
+hold LEFT 60
+wait 10
+hold UP 100
+waituntil trans == 0 60
+expect scale == 2

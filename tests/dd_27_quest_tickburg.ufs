@@ -1,0 +1,115 @@
+# DOT & DASH: the sporelings of Tickburg (on top of the clock) and their
+# cook. One-Eye wants a blue bead from a cave under the toy train's roof (a
+# half heart); the Seedkeeper wants a mold seed, split from a thrown mold
+# fruit (a heart); Gill wants a red egg from the lancers' nest (a heart);
+# Chef Morel, on the lowest coin, makes Spore Stew from a jar of pink slime.
+game dotdash
+wait 5
+cheat newgame
+cheat no_foes
+cheat nodash
+cheat god
+cheat up tonic1
+# the blue bead
+cheat micro 0 71 136 4
+cheat no_foes
+wait 5
+expect objs_33 == 1
+cheat bot_to obj:33
+botuntil bot_state == 2 3000
+press B
+wait 20
+expect carry == 33
+cheat grow
+cheat micro 0 17 64 4
+cheat no_foes
+wait 5
+expect town == 16
+cheat bot_to npc:33
+botuntil bot_state == 2 3000
+press UP
+wait 5
+cheat bot_talk
+botuntil bot_state == 2 900
+expect up_29 == 1
+expect hpmax == 7
+# a mold fruit off the plant in the east pot, thrown to split into a seed
+cheat grow
+cheat micro 0 67 115 4
+cheat no_foes
+wait 5
+expect town == 10
+cheat bot_to obj:11
+botuntil bot_state == 2 3000
+press B
+wait 20
+expect carry == 11
+hold RIGHT 1
+press B
+wait 40
+expect objs_34 == 1
+cheat bot_to obj:34
+botuntil bot_state == 2 3000
+press B
+wait 20
+expect carry == 34
+cheat grow
+cheat micro 0 17 64 4
+cheat no_foes
+wait 5
+cheat bot_to npc:34
+botuntil bot_state == 2 3000
+press UP
+wait 5
+cheat bot_talk
+botuntil bot_state == 2 900
+expect up_23 == 1
+expect hpmax == 9
+# the red egg: into the nest and out again on foot
+cheat grow
+cheat no_foes
+cheat micro 0 67 117 4
+wait 5
+expect town == 11
+expect foes_24 == 1
+cheat obj 16
+cheat bot_hunt 24
+botuntil foes_24 == 0 8000
+cheat bot_clear
+hold DOWN B 3
+wait 30
+expect objs_35 == 1
+cheat bot_to obj:35
+botuntil bot_state == 2 3000
+press B
+wait 20
+expect carry == 35
+cheat bot_tile 372 11
+botuntil bot_state == 2 3000
+cheat grow
+cheat micro 0 17 64 4
+cheat no_foes
+wait 5
+cheat bot_to npc:35
+botuntil bot_state == 2 3000
+press UP
+wait 5
+cheat bot_talk
+botuntil bot_state == 2 900
+expect up_24 == 1
+expect hpmax == 11
+# Chef Morel and a jar of slime
+cheat grow
+cheat area 0 76 82
+cheat obj 22
+wait 5
+hold DOWN 100
+waituntil trans == 0 60
+expect town == 15
+cheat bot_to npc:36
+botuntil bot_state == 2 3000
+press UP
+wait 5
+cheat bot_talk
+botuntil bot_state == 2 900
+expect up.stew == 1

@@ -1,0 +1,53 @@
+# DOT & DASH: the game saves itself after nearly anything (glints, upgrades,
+# a size change, a fall) and keeps what Dot has found: upgrades, glints, the
+# satchel, quest steps, taken treasure. Like the original it never keeps where
+# she was: every session begins in the room at full size, and whatever was in
+# her hands is gone.
+game dotdash
+wait 5
+cheat newgame
+cheat no_foes
+cheat nodash
+cheat area 0 19 82
+cheat nodash
+wait 5
+hold RIGHT 40
+expect glints == 3
+cheat give 2
+cheat give 5
+cheat set outpost
+cheat skip_dialog
+cheat obj 0
+wait 2
+hold DOWN A 3
+expect satchel0 == 0
+cheat obj 5
+wait 5
+hold DOWN 100
+waituntil trans == 0 60
+expect scale == 2
+expect carry == 5
+wait 60
+reload
+game dotdash
+wait 30
+press A
+wait 20
+expect state == 2
+expect scale == 0
+expect depth == 0
+expect px == 52
+expect glints == 3
+expect up_2 == 1
+expect up_5 == 1
+expect flag.outpost == 1
+expect satchel0 == 0
+expect pocket == -1
+expect dash == 1
+# the glints on the rug stay taken
+hold DOWN 100
+waituntil trans == 0 60
+expect scale == 1
+cheat bot_tile 22 82
+botuntil bot_state == 2 600
+expect glints == 3

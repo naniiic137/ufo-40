@@ -1,0 +1,121 @@
+# DOT & DASH: odds and ends. A quake block (from Fernby's stand) landing by
+# the stone owl on the bottom shelf wakes it: Kite Wings for Dash. Cowpoke
+# in the toy train swaps a secret for a mushroom drink. In the quiet hollow
+# of the west pot a pink gulp blob eats the ants, and an old grasshopper
+# muses about it. Gift boxes: the Bug Musk on the portrait, the Spin Top on
+# the train's smokestack, the Pup Whistle in the money box's snout.
+game dotdash
+wait 5
+cheat newgame
+cheat no_foes
+cheat nodash
+cheat god
+cheat up tonic1
+cheat glints 20
+# a quake block from Sprig
+cheat micro 0 66 44 4
+cheat no_foes
+wait 5
+cheat bot_to stand:1
+botuntil bot_state == 2 2000
+press UP
+wait 5
+cheat bot_talk
+botuntil bot_state == 2 900
+press LEFT
+press A
+wait 20
+cheat bot_to obj:9
+botuntil bot_state == 2 2000
+press B
+wait 20
+expect carry == 9
+cheat grow
+cheat area 0 124 83
+cheat nodash
+wait 5
+cheat bot_tile 144 67
+botuntil bot_state == 2 9000
+hold RIGHT 1
+press B
+waituntil up.wings == 1 200
+cheat skip_dialog
+# the spin top on the smokestack, next door
+cheat bot_tile 134 66
+botuntil bot_state == 2 3000
+press B
+wait 20
+expect carry == 4
+hold LEFT 1
+press B
+wait 30
+cheat bot_to pick:4
+botuntil up.top1 == 1 3000
+cheat skip_dialog
+# Cowpoke, in the caboose (in through the hatch on the roof), and a drink
+cheat bot_to door:19
+botuntil bot_state == 2 3000
+press UP
+waituntil level_id == 9 60
+waituntil trans == 0 60
+cheat obj 38
+cheat bot_to npc:11
+botuntil bot_state == 2 3000
+press UP
+wait 5
+cheat bot_talk
+botuntil bot_state == 2 900
+expect flag.cowpoke_done == 1
+cheat bot_to door:20
+botuntil bot_state == 2 3000
+press UP
+waituntil level_id == 0 60
+waituntil trans == 0 60
+# the bug musk on top of the portrait
+cheat area 0 60 29
+cheat nodash
+wait 5
+cheat bot_tile 84 19
+botuntil bot_state == 2 6000
+press B
+wait 20
+hold LEFT 1
+press B
+waituntil picks_4 == 1 300
+cheat bot_to pick:4
+botuntil up.musk == 1 3000
+cheat skip_dialog
+# the pup whistle in the snout of the money box
+cheat micro 0 76 58 4
+cheat no_foes
+wait 5
+cheat bot_to obj:4
+botuntil bot_state == 2 3000
+press B
+wait 20
+hold RIGHT 1
+press B
+wait 30
+cheat bot_to pick:4
+botuntil up.whistle == 1 3000
+cheat skip_dialog
+# the gulp blob and the grasshopper
+cheat grow
+cheat foes_on
+cheat micro 0 66 46 4
+wait 5
+expect foes_14 == 1
+cheat no_foes
+cheat foe 14 2016 87
+cheat foe 0 2060 90
+cheat foe 0 2080 90
+wait 2
+expect foes_0 == 2
+waituntil foes_0 == 0 1500
+cheat bot_to npc:46
+botuntil bot_state == 2 3000
+press UP
+wait 5
+cheat bot_talk
+botuntil bot_state == 2 900
+expect flag.grass_seen == 1

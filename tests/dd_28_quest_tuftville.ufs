@@ -1,0 +1,204 @@
+# DOT & DASH: Tuftville in the rug. The Snarl gang, east past the pot's
+# saucer, stole the cover stone of the waxkin's Buzzbook: bring it back and
+# Elder Tallow gives Dot the book (and 10). Eight waxlings wandered off all
+# over the room (15 each, carried home); a Lumen scroll (15) and a purple
+# germ (15) please him too.
+game dotdash
+wait 5
+cheat newgame
+cheat no_foes
+cheat nodash
+cheat god
+cheat up tonic1
+cheat up mitt1
+cheat up satchel1
+cheat up satchel2
+# Snarl: the stone sits on a roof
+cheat micro 0 83 57 4
+cheat no_foes
+wait 5
+expect town == 1
+cheat bot_to obj:26
+botuntil bot_state == 2 3000
+press B
+wait 20
+expect carry == 26
+cheat grow
+cheat micro 0 83 25 4
+cheat no_foes
+wait 5
+cheat bot_to npc:17
+botuntil bot_state == 2 3000
+press UP
+wait 5
+cheat bot_talk
+botuntil bot_state == 2 900
+expect flag.snarl_done == 1
+expect up.buzz1 == 1
+# waxling 1
+cheat grow
+cheat micro 0 83 21 4
+cheat no_foes
+wait 5
+cheat bot_to obj:28
+botuntil bot_state == 2 4000
+press B
+wait 20
+expect carry == 28
+hold DOWN A 3
+wait 3
+# waxling 2
+cheat grow
+cheat micro 0 83 34 4
+cheat no_foes
+wait 5
+cheat bot_to obj:28
+botuntil bot_state == 2 4000
+press B
+wait 20
+expect carry == 28
+hold DOWN A 3
+wait 3
+# waxling 3
+cheat grow
+cheat micro 0 18 12 4
+cheat no_foes
+wait 5
+cheat bot_to obj:28
+botuntil bot_state == 2 4000
+press B
+wait 20
+expect carry == 28
+cheat grow
+cheat micro 0 83 25 4
+cheat no_foes
+wait 5
+cheat bot_to npc:17
+botuntil bot_state == 2 3000
+press UP
+wait 5
+cheat bot_talk
+botuntil bot_state == 2 900
+hold DOWN A 3
+wait 3
+press UP
+wait 5
+cheat bot_talk
+botuntil bot_state == 2 900
+hold DOWN A 3
+wait 3
+press UP
+wait 5
+cheat bot_talk
+botuntil bot_state == 2 900
+# waxling 4
+cheat grow
+cheat micro 0 62 53 4
+cheat no_foes
+wait 5
+cheat bot_to obj:28
+botuntil bot_state == 2 4000
+press B
+wait 20
+expect carry == 28
+hold DOWN A 3
+wait 3
+# waxling 5
+cheat grow
+cheat micro 0 63 106 4
+cheat no_foes
+wait 5
+cheat bot_to obj:28
+botuntil bot_state == 2 4000
+press B
+wait 20
+expect carry == 28
+hold DOWN A 3
+wait 3
+# waxling 6
+cheat grow
+cheat micro 0 73 61 4
+cheat no_foes
+wait 5
+cheat bot_to obj:28
+botuntil bot_state == 2 4000
+press B
+wait 20
+expect carry == 28
+cheat grow
+cheat micro 0 83 25 4
+cheat no_foes
+wait 5
+cheat bot_to npc:17
+botuntil bot_state == 2 3000
+press UP
+wait 5
+cheat bot_talk
+botuntil bot_state == 2 900
+hold DOWN A 3
+wait 3
+press UP
+wait 5
+cheat bot_talk
+botuntil bot_state == 2 900
+hold DOWN A 3
+wait 3
+press UP
+wait 5
+cheat bot_talk
+botuntil bot_state == 2 900
+# waxling 7
+cheat grow
+cheat micro 0 80 144 4
+cheat no_foes
+wait 5
+cheat bot_to obj:28
+botuntil bot_state == 2 4000
+press B
+wait 20
+expect carry == 28
+hold DOWN A 3
+wait 3
+# waxling 8
+cheat grow
+cheat micro 0 17 61 4
+cheat no_foes
+wait 5
+cheat bot_to obj:28
+botuntil bot_state == 2 4000
+press B
+wait 20
+expect carry == 28
+cheat grow
+cheat micro 0 83 25 4
+cheat no_foes
+wait 5
+cheat bot_to npc:17
+botuntil bot_state == 2 3000
+press UP
+wait 5
+cheat bot_talk
+botuntil bot_state == 2 900
+hold DOWN A 3
+wait 3
+press UP
+wait 5
+cheat bot_talk
+botuntil bot_state == 2 900
+expect qc_0 == 255
+# a scroll of the Lumen, and a purple germ carried in the grip mitt
+cheat obj 27
+wait 2
+press UP
+wait 5
+cheat bot_talk
+botuntil bot_state == 2 900
+expect flag.scroll_done == 1
+cheat hold_foe 12
+wait 2
+press UP
+wait 5
+cheat bot_talk
+botuntil bot_state == 2 900
+expect flag.germ2_done == 1
+expect glints >= 160

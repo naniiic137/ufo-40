@@ -1,0 +1,125 @@
+# DOT & DASH: the woodworms. The red lancers stole Queen Wriggla's egg to
+# their den in the west pot's soil; carried to Wormwood (on a board between
+# the walls) it makes the worms friends: the shop opens, and so does the
+# woodworm door to the Great Earwig, whose shell becomes the Shell Vest.
+# A green twig from the east plant feeds Chef Borer, and the gear from
+# the blown outlet finishes Spinner's flyer in the money box.
+game dotdash
+wait 5
+cheat newgame
+cheat no_foes
+cheat nodash
+cheat god
+cheat up tonic1
+cheat up satchel1
+cheat up satchel2
+cheat area 0 49 65
+cheat nodash
+wait 5
+hold DOWN 100
+waituntil trans == 0 60
+expect scale == 2
+expect town == 5
+cheat bot_to obj:29
+botuntil bot_state == 2 3000
+press B
+wait 20
+expect carry == 29
+hold UP 100
+waituntil trans == 0 60
+expect scale == 1
+cheat bot_to door:2
+botuntil bot_state == 2 5000
+press UP
+waituntil level_id == 2 60
+waituntil trans == 0 60
+cheat bot_tile 64 15
+botuntil bot_state == 2 4000
+hold DOWN 100
+waituntil trans == 0 60
+expect town == 19
+cheat bot_to npc:29
+botuntil bot_state == 2 3000
+press UP
+wait 5
+cheat bot_talk
+botuntil bot_state == 2 900
+expect flag.worm_friends == 1
+expect carry == -1
+# the lair behind the woodworm door
+cheat bot_free
+botuntil bot_state == 2 600
+hold UP 100
+waituntil trans == 0 60
+cheat bot_to door:12
+botuntil bot_state == 2 4000
+press UP
+waituntil level_id == 5 60
+waituntil trans == 0 60
+expect foes_31 == 1
+cheat obj 16
+cheat bot_hunt 31
+botuntil foes_31 == 0 20000
+expect flag.earwig_dead == 1
+expect up.shell == 1
+cheat bot_clear
+cheat skip_dialog
+hold DOWN B 3
+wait 5
+expect carry == -1
+# a green twig from the east plant feeds Chef Borer
+cheat area 0 110 66
+cheat nodash
+wait 5
+cheat bot_to obj:30
+botuntil bot_state == 2 4000
+press B
+wait 20
+expect carry == 30
+cheat area 2 60 30
+cheat nodash
+wait 5
+cheat bot_tile 64 15
+botuntil bot_state == 2 4000
+hold DOWN 100
+waituntil trans == 0 60
+cheat bot_to npc:31
+botuntil bot_state == 2 3000
+press UP
+wait 5
+cheat bot_talk
+botuntil bot_state == 2 900
+expect flag.twig_done == 1
+expect glints_total >= 15
+# the gear from the blown outlet (there once the power is off) for Spinner
+cheat set power_off
+cheat bot_free
+botuntil bot_state == 2 600
+hold UP 100
+waituntil trans == 0 60
+cheat area 2 111 30
+cheat nodash
+wait 5
+expect objs_19 == 1
+cheat bot_to obj:19
+botuntil bot_state == 2 3000
+press B
+wait 20
+expect carry == 19
+cheat bot_to door:3
+botuntil bot_state == 2 5000
+press UP
+waituntil level_id == 0 60
+waituntil trans == 0 60
+cheat bot_tile 64 72
+botuntil bot_state == 2 4000
+hold DOWN 100
+waituntil trans == 0 60
+expect town == 12
+cheat bot_to npc:15
+botuntil bot_state == 2 3000
+press UP
+wait 5
+cheat bot_talk
+botuntil bot_state == 2 900
+expect flag.gear_done == 1

@@ -1,0 +1,135 @@
+# DOT & DASH: Fernby in the west pot. Mayor Fern has lost touch with the
+# outpost on top of the plant: climb there, and Scout Bracken reports a
+# rotifer in the whirlpool west of town. Stomp it and it gapes; hit its
+# tongue while it does. Fern pays 50. Mossfolk drifting in bubbles pop free
+# at a touch, 5 glints each.
+game dotdash
+wait 5
+cheat newgame
+cheat no_foes
+cheat nodash
+cheat god
+cheat up tonic1
+cheat area 0 43 65
+cheat nodash
+wait 5
+hold DOWN 100
+waituntil trans == 0 60
+expect town == 3
+cheat bot_to npc:20
+botuntil bot_state == 2 2000
+press UP
+wait 5
+cheat bot_talk
+botuntil bot_state == 2 900
+expect flag.outpost == 0
+# no rotifer yet
+expect foes_30 == 0
+# up the plant to the outpost
+cheat bot_free
+botuntil bot_state == 2 600
+hold UP 100
+waituntil trans == 0 60
+cheat bot_tile 46 29
+botuntil bot_state == 2 5000
+hold DOWN 100
+waituntil trans == 0 60
+expect town == 6
+cheat bot_to npc:24
+botuntil bot_state == 2 2000
+press UP
+wait 5
+cheat bot_talk
+botuntil bot_state == 2 900
+expect flag.outpost == 1
+cheat bot_free
+botuntil bot_state == 2 600
+hold UP 100
+waituntil trans == 0 60
+# back down the leaves to Fernby
+cheat bot_tile 43 65
+botuntil bot_state == 2 5000
+hold DOWN 100
+waituntil trans == 0 60
+cheat bot_to npc:20
+botuntil bot_state == 2 2000
+press UP
+wait 5
+cheat bot_talk
+botuntil bot_state == 2 900
+expect flag.rotifer_asked == 1
+# the whirlpool, one speck west
+cheat obj 16
+cheat bot_to foe:30
+botuntil bot_state >= 2 3000
+cheat bot_clear
+expect foes_30 == 1
+expect foehp_30 == 10
+# peas bounce off it while it's shut
+waituntil foestate_30 == 0 300
+cheat bot_to foe:30
+botuntil bot_state >= 2 3000
+cheat bot_clear
+waituntil foestate_30 == 0 300
+hold A 1
+wait 2
+press B
+wait 10
+expect foehp_30 == 10
+# drop onto it from above: it gapes, tongue out, and takes the peas
+cheat above_foe 30
+waituntil foestate_30 == 1 200
+cheat bot_hunt 30
+botuntil foestate_30 != 1 400
+cheat bot_clear
+expect foehp_30 < 10
+cheat above_foe 30
+waituntil foestate_30 != 0 300
+cheat bot_hunt 30
+botuntil foestate_30 != 1 400
+cheat bot_clear
+cheat above_foe 30
+waituntil foestate_30 != 0 300
+cheat bot_hunt 30
+botuntil foestate_30 != 1 400
+cheat bot_clear
+cheat above_foe 30
+waituntil foestate_30 != 0 300
+cheat bot_hunt 30
+botuntil foestate_30 != 1 400
+cheat bot_clear
+cheat above_foe 30
+waituntil foestate_30 != 0 300
+cheat bot_hunt 30
+botuntil foestate_30 != 1 400
+cheat bot_clear
+cheat above_foe 30
+waituntil foestate_30 != 0 300
+cheat bot_hunt 30
+botuntil foestate_30 != 1 400
+cheat bot_clear
+expect foes_30 == 0
+expect flag.rotifer_dead == 1
+cheat bot_clear
+cheat skip_dialog
+hold DOWN B 3
+cheat bot_to npc:20
+botuntil bot_state == 2 3000
+press UP
+wait 5
+cheat bot_talk
+botuntil bot_state == 2 900
+expect flag.rotifer_paid == 1
+expect glints >= 50
+# the bubbles in the soil: walk into them, one after another
+expect npcs_47 == 3
+cheat bot_to npc:47
+botuntil npcs_47 == 2 6000
+cheat skip_dialog
+cheat bot_to npc:47
+botuntil npcs_47 == 1 6000
+cheat skip_dialog
+cheat bot_to npc:47
+botuntil npcs_47 == 0 6000
+cheat skip_dialog
+expect qc_1 == 7

@@ -1,0 +1,207 @@
+# DOT & DASH: the way out. Latchtown sits on the door knob, just out of a
+# full-size jump: Dot brings a block up to full size (things grow with her),
+# sets it under her feet, hops onto the knob and shrinks there. In Latchtown
+# the tin mage lowers the bridge into the knob for 50; the prison key hangs
+# in his house, and down through the trapdoor Pell can be let out with it;
+# Cook Ratchet wants Granny's cat food. Inside the knob, Queen Tabitha takes
+# 500 glints, keeps Dash, and sets Sir Sprocket on Dot. His armour turns
+# every blow, but when he throws his head, Dot climbs onto his shoulders and
+# shrinks down the neck: through his works (one-tile gaps, for the tiny Dot
+# of the second tonic), down a long drop and up a high step to his console,
+# where Spinner's code stops him. The ending, the credits, and the Saucer.
+game dotdash
+wait 5
+cheat newgame
+cheat god
+cheat no_foes
+cheat up tonic1
+cheat up tonic2
+cheat up satchel1
+cheat up bangle
+cheat up feather
+cheat glints 700
+# Granny's cat food, into the satchel
+cheat area 1 30 16
+cheat nodash
+wait 5
+cheat bot_to obj:18
+botuntil bot_state == 2 3000
+press B
+wait 20
+expect carry == 18
+hold DOWN A 3
+wait 3
+expect satchel0 == 18
+# a pebble to stand on, and out to full size with it
+cheat obj 0
+wait 2
+cheat bot_to door:1
+botuntil bot_state == 2 3000
+press UP
+waituntil level_id == 0 60
+waituntil trans == 0 60
+cheat nodash
+cheat bot_free
+botuntil bot_state == 2 600
+hold UP 100
+waituntil trans == 0 60
+expect scale == 0
+expect carry == 0
+expect body_h == 24
+# the knob is too high to jump to from the floor...
+cheat tile 23 83
+wait 5
+hold RIGHT A 30
+wait 30
+expect ty == 82
+cheat tile 23 83
+wait 5
+# ...but not from the block, set down under her feet
+hold DOWN B 3
+wait 5
+expect carry == -1
+expect ty == 74
+hold RIGHT A 10
+wait 40
+expect ty == 68
+expect tx >= 27
+expect tx <= 29
+# small on the knob, and smaller into Latchtown
+hold DOWN 100
+waituntil trans == 0 60
+expect scale == 1
+expect ty == 68
+hold DOWN 100
+waituntil trans == 0 60
+expect town == 18
+# the mage's house at the far end: the bridge for 50, and the cell key
+cheat bot_to npc:40
+botuntil bot_state == 2 3000
+press UP
+wait 5
+cheat bot_talk
+botuntil bot_state == 2 900
+press LEFT
+press A
+wait 5
+expect flag.throne_open == 1
+cheat skip_dialog
+cheat bot_to obj:40
+botuntil bot_state == 2 3000
+press B
+wait 20
+expect carry == 40
+# the cook, and Granny's cat food out of the satchel
+cheat bot_to npc:43
+botuntil bot_state == 2 3000
+hold DOWN A 3
+wait 3
+expect carry == 18
+expect satchel0 == 40
+press UP
+wait 5
+cheat bot_talk
+botuntil bot_state == 2 900
+expect flag.catfood_done == 1
+# down the trapdoor (the drop bangle) to the cells: the key frees Pell
+hold DOWN A 3
+wait 3
+expect carry == 40
+cheat bot_tile 61 11
+botuntil bot_state == 2 3000
+press DOWN 2
+wait 2
+press DOWN 2
+waituntil ground == 1 120
+wait 10
+expect ty == 15
+cheat bot_to npc:42
+botuntil bot_state == 2 3000
+press UP
+wait 5
+cheat bot_talk
+botuntil bot_state == 2 900
+expect asking == 1
+press LEFT
+press A
+wait 5
+expect flag.pell_freed == 1
+expect carry == -1
+cheat skip_dialog
+# back up through the trapdoor and out to small size, on the knob
+cheat bot_tile 61 11
+botuntil bot_state == 2 3000
+cheat bot_free
+botuntil bot_state == 2 600
+hold UP 100
+waituntil trans == 0 60
+expect scale == 1
+# the gate on the knob is open now: into the throne room
+cheat bot_to door:14
+botuntil bot_state == 2 3000
+press UP
+waituntil level_id == 7 60
+waituntil trans == 0 60
+cheat bot_to npc:39
+botuntil bot_state == 2 3000
+press UP
+wait 5
+cheat bot_talk
+botuntil bot_state == 2 900
+expect asking == 1
+press LEFT
+press A
+wait 5
+expect flag.paid_queen == 1
+expect glints >= 150
+expect dash == 0
+cheat skip_dialog
+wait 5
+expect foes_32 == 1
+# he can't be hurt from outside
+cheat obj 0
+wait 2
+cheat above_foe 32
+wait 1
+hold RIGHT 1
+press B
+wait 30
+expect flag.sprocket_dead == 0
+# when he throws his head, onto his shoulders and down the neck
+waituntil foestate_32 == 1 400
+cheat above_foe 32
+waituntil riding == 332 60
+hold DOWN 100
+waituntil trans == 0 60
+expect level_kind == 2
+expect level_id == 2
+# without the second tonic the works are closed; with it, tiny
+expect scale == 2
+hold DOWN 100
+waituntil trans == 0 60
+expect scale == 3
+# the console wants a code
+cheat bot_to door:24
+botuntil bot_state == 2 20000
+press UP
+wait 5
+expect dialog == 1
+cheat skip_dialog
+expect flag.sprocket_dead == 0
+cheat set gear_done
+press UP
+wait 5
+cheat bot_talk
+botuntil bot_state == 2 900
+expect flag.sprocket_dead == 1
+waituntil state == 3 600
+expect flag.escaped == 1
+# the story, then the credits, then the room again
+wait 300
+press A
+wait 40
+expect state == 4
+press A
+wait 20
+expect state == 2
+expect scale == 0

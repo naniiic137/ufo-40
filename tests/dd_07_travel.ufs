@@ -1,0 +1,75 @@
+# DOT & DASH: the Fizz Drop (double-tap to sprint), the Drop Bangle
+# (double-tap DOWN on a ledge drops through it), and the Satchel (DOWN+A
+# stores the thing Dot carries, or takes it back out; the second satchel
+# holds two). Stored things survive a fall to no hearts; carried ones don't.
+game dotdash
+wait 5
+cheat newgame
+cheat no_foes
+cheat area 0 18 82
+wait 10
+# without the fizz drop a double tap is a walk
+press RIGHT 2
+hold RIGHT 20
+expect vx10 <= 13
+cheat tile 18 82
+wait 5
+cheat give 15
+cheat skip_dialog
+press RIGHT 2
+hold RIGHT 20
+expect sprint == 1
+expect vx10 >= 20
+wait 10
+# the bangle: stand on a leaf in the west pot and double-tap down
+cheat tile 42 62
+wait 10
+expect ty == 62
+press DOWN 2
+press DOWN 2
+wait 20
+expect ty == 62
+cheat give 4
+cheat skip_dialog
+press DOWN 2
+press DOWN 2
+wait 30
+expect ty == 65
+# the satchel
+cheat tile 44 65
+cheat obj 0
+wait 2
+hold DOWN A 3
+expect carry == 0
+cheat give 5
+cheat skip_dialog
+wait 2
+hold DOWN A 3
+expect carry == -1
+expect satchel0 == 0
+wait 5
+hold DOWN A 3
+expect carry == 0
+expect satchel0 == -1
+# the second satchel holds two
+cheat give 6
+cheat skip_dialog
+wait 2
+hold DOWN A 3
+wait 2
+cheat obj 5
+wait 2
+hold DOWN A 3
+expect satchel0 == 0
+expect satchel1 == 5
+expect carry == -1
+# a fall to no hearts: the stored things stay, the carried one is lost
+cheat obj 1
+wait 2
+cheat hp 1
+cheat tile 58 32
+waituntil dead > 0 200
+waituntil scale == 0 200
+expect satchel0 == 0
+expect satchel1 == 5
+expect pocket == -1

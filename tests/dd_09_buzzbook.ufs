@@ -1,0 +1,58 @@
+# DOT & DASH: with the Buzzbook, standing on a bug and pressing UP commands
+# it: a moth flies straight up with Dot aboard (DOWN tells it to hover),
+# which is one way onto the top of the door. The second book commands germs.
+game dotdash
+wait 5
+cheat newgame
+cheat area 0 47 65
+wait 10
+cheat nodash
+cheat god
+expect foes_3 >= 1
+# climb to the pot's left rim, wait for the moth above it to dip, hop on
+waituntil foey_3 <= 440 400
+cheat tile 39 61
+wait 5
+expect ty == 61
+waituntil foey_3 >= 484 400
+press A 12
+waituntil ground == 1 90
+expect riding == 303
+# without the book nothing happens
+press UP 2
+wait 30
+expect ty >= 50
+cheat give 13
+cheat skip_dialog
+press UP 2
+wait 2
+expect riding == 303
+waituntil ty <= 16 600
+press DOWN 2
+wait 10
+expect riding == 303
+# step off onto the lintel: the top of the door
+hold LEFT 20
+waituntil ground == 1 60
+wait 10
+expect ty == 17
+expect tx <= 37
+# the second book: germs obey too
+cheat micro 0 80 138 4
+cheat no_foes
+wait 10
+cheat foe_under 11
+wait 3
+expect riding == 311
+press UP 2
+wait 20
+expect riding == 311
+expect foey_11 >= 50
+cheat give 14
+cheat skip_dialog
+print foey_11
+press UP 2
+wait 40
+expect riding == 311
+print foey_11
+expect foey_11 < 30

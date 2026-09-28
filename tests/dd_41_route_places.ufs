@@ -1,0 +1,142 @@
+# DOT & DASH: a route test for the places inside things. In each, from
+# the way in, every person, door, treasure and thing can be reached on foot
+# (the demo player's moves, checked with the game's own physics; in the
+# micro places the tiny Dot of the second tonic counts too), and the demo
+# player walks from the way in to the far door or boss.
+game dotdash
+wait 5
+cheat newgame
+cheat no_foes
+cheat nodash
+cheat god
+# Granny Thimble's
+cheat area 1 4 16
+wait 5
+expect unreachable == 0
+cheat bot_to obj:18
+botuntil bot_state == 2 3000
+# Fluff Hollow
+cheat area 3 4 16
+wait 5
+expect unreachable == 0
+cheat bot_to npc:9
+botuntil bot_state == 2 3000
+# the clockworks, up to Tock
+cheat area 6 4 23
+wait 5
+expect unreachable == 0
+cheat bot_to npc:6
+botuntil bot_state == 2 3000
+# between the walls, end to end: the nook in the first stud and the cubby
+# by the seep are walled in with weak wood, and crackers open them
+cheat set power_off
+cheat set worm_friends
+cheat area 2 14 21
+wait 5
+cheat obj 1
+hold RIGHT 1
+press B
+wait 30
+expect tile_20_19 == 0
+cheat bot_tile 96 29
+botuntil bot_state == 2 6000
+cheat obj 1
+wait 2
+hold RIGHT 1
+press B
+wait 30
+expect tile_98_29 == 0
+expect unreachable == 0
+cheat bot_to door:5
+botuntil bot_state == 2 15000
+# the Earwig's lair
+cheat area 5 4 18
+wait 5
+expect unreachable == 0
+# the SIEGE box, from its lid to the Big Bang at the far end
+cheat area 4 4 19
+wait 5
+expect unreachable == 0
+cheat bot_tile 150 15
+botuntil bot_state == 2 9000
+expect unreachable == 0
+# the toy train's caboose
+cheat area 9 34 16
+wait 5
+expect unreachable == 0
+cheat bot_to npc:11
+botuntil bot_state == 2 3000
+# the throne room: before the knight falls, the far corner is walled off
+cheat set throne_open
+cheat area 7 4 19
+wait 5
+expect unreachable == 3
+cheat set sprocket_dead
+cheat area 7 4 19
+wait 5
+expect unreachable == 0
+cheat bot_to door:21
+botuntil bot_state == 2 3000
+# the long drop: from the landing, only with the feather charm (or a moth
+# in hand) does Dot reach the nails and the bottom alive
+cheat area 8 33 9
+wait 5
+expect unreachable > 0
+cheat up feather
+cheat skip_dialog
+wait 2
+expect unreachable == 0
+cheat bot_to door:18
+botuntil bot_state == 2 6000
+# Dash's fur and Puffin's fluff
+cheat up tonic1
+cheat up tonic2
+cheat skip_dialog
+cheat area 0 22 82
+cheat dash_at 172 657
+cheat tile 22 81
+wait 20
+hold DOWN 100
+waituntil trans == 0 60
+expect level_kind == 2
+expect level_id == 0
+expect unreachable == 0
+cheat area 3 30 16
+wait 5
+cheat bot_to npc:9
+botuntil bot_state == 2 2000
+hold DOWN 100
+waituntil trans == 0 60
+expect level_id == 1
+expect unreachable == 0
+# inside the knight: gaps only the tiny Dot fits, a long drop, a high step
+cheat special 2
+wait 5
+expect unreachable == 0
+hold DOWN 100
+waituntil trans == 0 60
+expect scale == 3
+cheat bot_to door:24
+botuntil bot_state == 2 20000
+# the keyhole behind the throne
+cheat special 3
+wait 5
+expect unreachable == 0
+cheat bot_to npc:44
+botuntil bot_state == 2 2000
+# the climb inside the great lamp's rim
+cheat special 4
+wait 5
+expect unreachable == 0
+cheat bot_to npc:56
+botuntil bot_state == 2 12000
+# inside Barley's head
+cheat special 5
+wait 5
+expect unreachable == 0
+# the ferry's cockpit
+cheat special 6
+wait 5
+expect unreachable == 0
+cheat bot_to npc:55
+botuntil bot_state == 2 2000

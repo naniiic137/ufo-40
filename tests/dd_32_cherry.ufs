@@ -1,0 +1,72 @@
+# DOT & DASH: the true ending. Only once Dot has escaped (and been locked in
+# again) is the queen's wall in the throne room gone: in the far corner she
+# shrinks to micro size, into the keyhole, and meets Nib, who turns the lock
+# from inside. Nib sends her to Tock in the clockworks, who will hear of it
+# only after the escape: a thousand glints restore the room's balance and
+# the true ending plays (the Alien goal).
+game dotdash
+wait 5
+cheat newgame
+cheat no_foes
+cheat nodash
+cheat god
+cheat up tonic1
+cheat set throne_open
+cheat glints 1000
+# before the escape: the corner is walled off, and Tock says nothing
+cheat area 7 4 19
+cheat nodash
+wait 5
+expect tile_50_19 != 0
+expect npcs_44 == 0
+cheat area 6 4 23
+wait 5
+cheat bot_to npc:6
+botuntil bot_state == 2 3000
+press UP
+wait 5
+cheat bot_talk
+botuntil bot_state == 2 900
+expect asking == 0
+# after the escape: the wall is gone, and in the corner, the keyhole
+cheat set paid_queen
+cheat set sprocket_dead
+cheat set escaped
+cheat area 7 4 19
+cheat nodash
+wait 5
+expect tile_50_19 == 0
+cheat bot_to door:21
+botuntil bot_state == 2 3000
+hold DOWN 100
+waituntil trans == 0 60
+expect scale == 2
+expect level_kind == 2
+expect level_id == 3
+cheat bot_to npc:44
+botuntil bot_state == 2 2000
+press UP
+wait 5
+cheat bot_talk
+botuntil bot_state == 2 900
+expect flag.met_nib == 1
+# Tock and a thousand glints
+cheat area 6 4 23
+wait 5
+cheat bot_to npc:6
+botuntil bot_state == 2 3000
+press UP
+wait 5
+cheat bot_talk
+botuntil bot_state == 2 900
+expect asking == 1
+press LEFT
+press A
+wait 5
+expect flag.balance == 1
+expect glints < 10
+cheat bot_talk
+botuntil bot_state == 2 900
+waituntil state == 3 120
+expect flag.true_end == 1
+expect goals.dotdash & 4

@@ -1,0 +1,55 @@
+# DOT & DASH: at full size UP opens the item strip along the top of the
+# screen (only once Dot owns something); LEFT and RIGHT pick an item, B, A
+# or DOWN closes it. And the pods in the walls shoot whatever passes: in the
+# earwig's lair the low pod pelts the Great Earwig while Dot waits on a ledge.
+game dotdash
+wait 5
+cheat newgame
+cheat no_foes
+wait 10
+expect state == 2
+expect scale == 0
+# nothing owned yet: UP does nothing
+press UP
+wait 5
+expect state == 2
+cheat up mitt1
+cheat up tonic1
+cheat up bean1
+cheat skip_dialog
+wait 5
+press UP
+wait 5
+expect state == 5
+expect bag == 0
+press RIGHT
+wait 3
+expect bag == 1
+press RIGHT
+wait 3
+expect bag == 2
+press RIGHT
+wait 3
+expect bag == 0
+press LEFT
+wait 3
+expect bag == 2
+press B
+wait 5
+expect state == 2
+press UP
+wait 5
+expect state == 5
+press DOWN
+wait 5
+expect state == 2
+# the lair: Dot on the left ledge, out of the pod's line
+cheat area 5 8 14
+wait 10
+expect level_id == 5
+expect foes_31 == 1
+expect foehp_31 == 60
+expect foes_15 == 1
+wait 900
+expect foehp_31 < 60
+expect hp == 6

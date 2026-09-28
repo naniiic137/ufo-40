@@ -19,6 +19,7 @@ extern const GameDef GAME_TINTAIL;
 extern const GameDef GAME_OPENHOUSE;
 extern const GameDef GAME_DUSKLING;
 extern const GameDef GAME_DUNE;
+extern const GameDef GAME_DOTDASH;
 extern const GameDef GAME_LOSTLINKS;
 extern const GameDef GAME_MANDIBLES;
 extern const GameDef GAME_FLINTHOLD;
@@ -42,6 +43,7 @@ const GameDef *const GAMES[GAME_SLOTS] = {
     [17] = &GAME_LOSTLINKS,  /* 18 Golfaria */
     [24] = &GAME_OPENHOUSE,  /* 25 Party House */
     [27] = &GAME_DUNE,       /* 28 Rail Heist */
+    [44] = &GAME_DOTDASH,    /* 45 Mini & Max */
     [45] = &GAME_MANDIBLES,  /* 46 Combatants */
     [29] = &GAME_FLINTHOLD,  /* 30 Rock On! Island */
     [40] = &GAME_RIMSHIRE,   /* 41 Lords of Diskonia */

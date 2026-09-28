@@ -100,11 +100,12 @@ when there is more above or below.
 | 18 | **LOST LINKS** | Golfaria | a top-down open world where every roll is a stroke and strokes are your health, twenty to start and three more for each of twenty irons found underground, pins and safe zones, sand you can only chip out of, water and pits that send you back, jumping flowers, holes down to a whole layer underneath, parbot-style scorecrows, two kinds of bug, four abilities in the four corners, the four-piece star relic, a plate puzzle and a burrowing boss | Dimple the golf ball, the Brass Badger, slicers, sippers, larks, strays, twenty ball folk and a hidden village of Keepers, both layers of the world |
 | 25 | **OPEN HOUSE** | Party House | drawing guests from a deck into a house with limited space, the original's 46 guest abilities, costs and trouble, police, fire marshal and bans, set guest lists and a random list, win by ending a party with four stars within 25 nights, 2P hot-seat; the owner's endless OPEN ALL NIGHT and two guests of his own | a whitewashed house by the sea, all 48 guests' names and faces |
 | 28 | **DUNE EXPRESS** | Rail Heist | real time until a guard is alert, then 10-second turns, one-bullet lawmen who hit each other too, punches through walls and floors, carrying and throwing, hiding in barrels, levers, a crank gun, rams, three outlaws, three stars a mission with the original's time goals, 2P versus | Wade, Hush and Pearl, the Governor's tax trains, Biscuit the camel, 20 new trains |
+| 45 | **DOT & DASH** | Mini & Max | one room at four sizes, where holding down shrinks you into whatever you stand on and holding up grows you back, a generated micro world that is the same for everyone inside every speck, a tiny size for one-tile gaps, lifting things from under your feet to throw, stack and ride (and carrying one up to full size as a step), a dog who roams and sniffs out secrets, long falls that send you back to full size, 39 upgrades that level up wherever they're found, five shops, favours for tiny towns, a 500 door and a 1,000 true ending | Dot and her talking dog Dash, the lumber room, Queen Tabitha the cat, Sir Sprocket, 21 towns and landmarks |
 | 46 | **MANDIBLES** | Combatants | you are one slow ant who holds a button for a cross of nine commands (follow, hold, instinct, their soldier-only versions, the queen's workers or soldiers, surrender), shouted to ants in earshot, and spits in eight directions while followers spit with you, food carried home to queens who lay workers for 1 and soldiers for 2, free respawns while your army lives, red ants with twice the health and exploitable brains (locked aim, food first, stuck on corners, stuck on your queen), brawls in a dust cloud, giant spiders that eat both sides, a branching road of 12 fields to the capital and a pointless bonus one, 2P versus | the Bluebell Colony and the Rust Horde, General Stag, the longlegs, every command's name, all 16 fields |
 | 30 | **FLINTHOLD** | Rock On! Island | waves down fixed roads to a cave with 30 hearts, a build phase as long as you like and a horn to start the wave, a pay-out between waves, a heroine who walks and throws eight ways, ten hunters in three upgrade trees, hens cooked by fire pits for meat (99 at most), fire pits that boost hunters, the original's beasts and bosses, 10 stages and 3 villages (two hidden), the Four Lords together in the last wave | Pim of the Hearth Clan, Flint Isle and its 13 layouts, the Four Lords of the Scale, every beast, hunter and villager |
 | 41 | **RIMSHIRE** | Lords of Diskonia | a board where two banners take turns stepping along roads, trails a banner can't step back onto that pull an army back when struck, inns, tomes, seams and chests; flick battles on fields built from the four tiles round the fight: a queue of three, aim, charge and launch, knocks that hurt by the striking disk's own melee, water, the closing haze and stalemates; the original's 15 disks with their numbers, 8 skills, 10 campaign wars, the streak and 2P | Rimshire, the Brass and Plum banners, the Plum Empress, Lady Brass's letters, all 16 disks, 10 new boards |
 | 47 | **WOBBLE DERBY** | Quibble Race | three punters and three runners a race, odds from a form book of twenty unseen races, rising bet caps and an open last race, one tip a race, five dirty tricks and a minder with the same prices and fines, a lender at 15 % compounded, sponsoring from a shortlist and a coach, meteors, garbage and smog, 26 runners in the same speed and clumsiness bands, 3-player hot-seat | Crater Downs, the 26 wobblers, the sixteen punters (five of them UFO 40 cameos), the Fixer, the Lender and the Wobble Wire |
-| 08, 11–12, 17, 19–24, 26–27, 29, 31–40, 42–45, 48–50 | *coming soon* | | | still in the saucer's cargo hold |
+| 08, 11–12, 17, 19–24, 26–27, 29, 31–40, 42–44, 48–50 | *coming soon* | | | still in the saucer's cargo hold |
 
 Every cartridge has three goals, which follow the original's own three: a
 **Beacon** (a side challenge), the **Saucer** (beating the game) and the
@@ -659,6 +660,43 @@ the top.
   tests, without a kill and under its time goal), the powder sticks, geese,
   rams and the lucky horseshoe, and the music.
 
+### 45 · DOT & DASH
+
+<p align="center">
+  <img src="docs/shots/dotdash.gif" width="640" alt="Dot and Dash: Dot shrinks into the rug at full size, then into a speck of it, and walks into Tuftville">
+</p>
+<p align="center">
+  <img src="docs/shots/dotdash_room.png" width="320" alt="The lumber room at full size: the pots, the hanging shelf and clock, the lamp and the bookshelf">
+  <img src="docs/shots/dotdash_small.png" width="320" alt="Small in the west pot, where Professor Crumb squints at the soil">
+</p>
+
+*A tribute to **Mini & Max** (UFO 50 #45).*
+
+- **Plays the same:** locked in a room during a party, a girl and her dog
+  get small. Hold down to shrink into whatever is under you, hold up to grow
+  back; the room at full size is the map, and where you shrink is where you
+  arrive. Every speck of the room holds a micro world, the same for everyone,
+  and the second tonic makes Dot tiny inside it, small enough for gaps one
+  speck high.
+- **The rules:** lift what you stand on and throw it, up in an arc or down
+  under your feet to build steps, even at full size; what you hold makes you
+  taller. Crackers, darts, boomers, rollers, quake blocks, hourglasses, venom
+  that spreads, the Big Bang, and the dog himself as a weapon. Dash roams on
+  his own, stops and goes when told, gives tips, and his nose points out
+  spots worth shrinking into. Hearts, energy that makes throws hurt, falls too
+  long for someone so small, a clock that ticks on every time you grow back,
+  and at no hearts you are simply full size again.
+- **Structure:** 39 upgrades (tonics, the mitt, the satchel, bug commands,
+  kicks, spins, sprint, armour, wings, hearts and energy eggs), each kind in
+  many places that give the next level; five shops; flyports; favours for the
+  tiny towns; big glints two to a dangerous cave; 500 glints to the cat in the
+  door knob, a clockwork knight stopped from the inside, and after the
+  escape, 1,000 more to put the room in balance.
+- **Ours:** Dot and Dash, Granny Thimble and Professor Crumb, Queen Tabitha
+  and Sir Sprocket, Tock in the clock and Nib in the keyhole, the lumber room
+  and every town in it (Tuftville in the rug, Fernby and Loamton in the pots,
+  Tickburg on the clock, Glimmer on the reading lamp, Wormwood between the
+  walls, Latchtown on the door knob), the generator, and the music.
 ### 46 · MANDIBLES
 
 <p align="center">

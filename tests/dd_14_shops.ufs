@@ -1,0 +1,133 @@
+# DOT & DASH: five shops, three stands each: a cheap thing, a useful thing
+# and a 25-glint upgrade. UP at a stand asks; YES pays. Things bought appear
+# on the stand to pick up; an upgrade is yours at once and its stand is sold.
+game dotdash
+wait 5
+cheat newgame
+cheat no_foes
+cheat god
+cheat give 2
+cheat skip_dialog
+cheat glints 400
+# Tuftville: heart box 1, hard block 3, shrink tonic II 25
+cheat micro 0 83 24 4
+cheat no_foes
+wait 5
+expect town == 0
+cheat bot_to stand:2
+botuntil bot_state == 2 2000
+press UP
+wait 10
+expect dialog == 1
+press A
+press LEFT
+press A
+wait 5
+expect up_3 == 1
+expect glints == 375
+cheat skip_dialog
+expect objs_14 == 1
+cheat bot_to stand:1
+botuntil bot_state == 2 2000
+press UP
+wait 5
+press A
+press LEFT
+press A
+wait 20
+expect glints == 372
+expect objs_14 == 2
+# saying no costs nothing
+cheat bot_to stand:0
+botuntil bot_state == 2 2000
+press UP
+wait 5
+press A
+press A
+wait 5
+expect glints == 372
+# Fernby: spring bean
+cheat grow
+cheat micro 0 66 44 4
+cheat no_foes
+wait 5
+cheat bot_to stand:2
+botuntil bot_state == 2 2000
+press UP
+wait 5
+press A
+press LEFT
+press A
+wait 5
+expect up_7 == 1
+cheat skip_dialog
+# Fluff Hollow: the satchel, and a cracker to take away
+cheat grow
+cheat area 3 5 16
+cheat no_foes
+wait 5
+cheat bot_to stand:2
+botuntil bot_state == 2 2000
+press UP
+wait 5
+press A
+press LEFT
+press A
+wait 5
+expect up_5 == 1
+cheat skip_dialog
+cheat bot_to stand:0
+botuntil bot_state == 2 2000
+press UP
+wait 5
+press A
+press LEFT
+press A
+wait 20
+expect objs_1 == 1
+# Loamton: the drop bangle
+cheat micro 0 67 111 4
+cheat no_foes
+wait 5
+cheat bot_to stand:2
+botuntil bot_state == 2 2000
+press UP
+wait 5
+press A
+press LEFT
+press A
+wait 5
+expect up_4 == 1
+cheat skip_dialog
+# Wormwood's shop is shut until the woodworm queen is a friend
+cheat grow
+cheat area 2 58 15
+cheat micro 2 16 65 4
+cheat no_foes
+wait 5
+expect town == 19
+expect place_x.stand:2 == -1
+cheat set worm_friends
+cheat grow
+cheat micro 2 16 65 4
+cheat no_foes
+wait 5
+cheat bot_to stand:2
+botuntil bot_state == 2 2000
+press UP
+wait 5
+press A
+press LEFT
+press A
+wait 5
+expect up_9 == 1
+cheat skip_dialog
+# the upgrade's stand now says sold, and asking again costs nothing
+print glints
+cheat bot_clear
+press UP
+wait 5
+press A
+wait 5
+press A
+expect up_9 == 1
