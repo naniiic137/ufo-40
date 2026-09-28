@@ -11,7 +11,7 @@
 
 const TtLevelDef TN_LEVEL_DEFS[TN_LEVELS] = {
     /* 1: learn to change colour */
-    {"DRIFTWOOD SHORE",
+    {"NEST BEACH",
      {"~~~~~~~~~~~~~~~~~~~~",
       "~~sssss~~BBBBBBBB~~~",
       "~sssssssBBBBBBBBBBB~",
@@ -34,7 +34,7 @@ const TtLevelDef TN_LEVEL_DEFS[TN_LEVELS] = {
       "...................."},
      {0}},
     /* 2: swamp pools, two colours in one crossing */
-    {"REED POOLS",
+    {"TURTLE STEPS",
      {"~~~~~~~~~~~~~~~~~~~~",
       "~gggggowwwwwwoossss~",
       "~ggggggwwwwwwwsssss~",
@@ -57,7 +57,7 @@ const TtLevelDef TN_LEVEL_DEFS[TN_LEVELS] = {
       "...................."},
      {0}},
     /* 3: a patchwork creek no colour can cross; the logs can */
-    {"HOLLOW LOG CREEK",
+    {"OLD WRECK",
      {"~~~~~~~~~~~~~~~~~~~~",
       "~ggggggswBgBswgrrrr~",
       "~gggggg--------rrrr~",
@@ -79,8 +79,8 @@ const TtLevelDef TN_LEVEL_DEFS[TN_LEVELS] = {
       "..Y.......F.........",
       "...................."},
      {0}},
-    /* 4: three watchers and one winding colour path */
-    {"THE THREE TOADS",
+    /* 4: three toads and one winding colour path */
+    {"SNAIL TRAIL",
      {"~~~~~~~~~~~~~~~~~~~~",
       "~sssoooooBgBooooorr~",
       "~sssssggrssrwwrrrrr~",
@@ -103,7 +103,7 @@ const TtLevelDef TN_LEVEL_DEFS[TN_LEVELS] = {
       "...................."},
      {0}},
     /* 5: the first stork; follow it past the toad */
-    {"STORK FLATS",
+    {"BEE MEADOW",
      {"~~~~~~~~~~~~~~~~~~~~",
       "~ggggooooooooooogrr~",
       "~ggggogoosoogooogrr~",
@@ -126,7 +126,7 @@ const TtLevelDef TN_LEVEL_DEFS[TN_LEVELS] = {
       "...................."},
      {"4 4 2 R10L10"}},
     /* 6: a swamp full of wading storks */
-    {"MANGROVE DASH",
+    {"KELP GARDEN",
      {"~~~~~~~~~~~~~~~~~~~~",
       "~sswwwwwowwwwwowwss~",
       "~sswwowwwwwoowwwwss~",
@@ -149,7 +149,7 @@ const TtLevelDef TN_LEVEL_DEFS[TN_LEVELS] = {
       "...................."},
      {"9 1 2 D7U7", "16 8 2 U7D7"}},
     /* 7: boulders cut the sightlines; a stork circles the rocks */
-    {"RED ROCK HOLLOW",
+    {"SHELL MIDDEN",
      {"~~~~~~~~~~~~~~~~~~~~",
       "~rrrrrrrrrssssrrrrr~",
       "~rrBBrrrrrssssrrrrr~",
@@ -171,8 +171,8 @@ const TtLevelDef TN_LEVEL_DEFS[TN_LEVELS] = {
       "..........Y...>.....",
       "...................."},
      {"7 2 2 R5D5L5U5"}},
-    /* 8: storks wade across the ford; cross between them */
-    {"THE FORD",
+    /* 8: storks wade across the water; slip between them */
+    {"TWIN FIGS",
      {"~~~~~~~~~~~~~~~~~~~~",
       "~ggggsswwwwwwsssggg~",
       "~ggggsswwwwwwsssggg~",
@@ -195,7 +195,7 @@ const TtLevelDef TN_LEVEL_DEFS[TN_LEVELS] = {
       "...................."},
      {"6 2 2 R7L7", "13 4 3 L7R7", "6 6 2 R7L7"}},
     /* 9: palms throw shade around the spring */
-    {"PALM SPRING",
+    {"MOTH HILL",
      {"~~~~~~~~~~~~~~~~~~~~",
       "~sssssTsssssssTssss~",
       "~ssggggggggggggggss~",
@@ -219,7 +219,7 @@ const TtLevelDef TN_LEVEL_DEFS[TN_LEVELS] = {
      {"4 2 2 R13D5L13U5"}},
 
     /* 10: the sun pad dries the bank: pick the pear before you press it */
-    {"SUNBAKED BANK",
+    {"GULL ROOST",
      {"~~~~~~~~~~~~~~~~~~~~",
       "~ssssoogggoosududss~",
       "~sssssugggussduduss~",
@@ -241,8 +241,8 @@ const TtLevelDef TN_LEVEL_DEFS[TN_LEVELS] = {
       "....................",
       "...................."},
      {0}},
-    /* 11: a thorny serpentine; storks pace its lanes */
-    {"THORN PASS",
+    /* 11: a serpentine of thorns; storks pace its lanes */
+    {"SALT PANS",
      {"~~~~~~~~~~~~~~~~~~~~",
       "~ggggggggggggggggoo~",
       "~ggggggsgggggggggro~",
@@ -264,8 +264,8 @@ const TtLevelDef TN_LEVEL_DEFS[TN_LEVELS] = {
       ".>............Y..F..",
       "...................."},
      {"3 1 2 R12L12", "15 4 2 L12R12", "5 8 2 R12L12"}},
-    /* 12: a dry gully of straw; the rain pad greens it */
-    {"CRACKED GULLY",
+    /* 12: a strip of straw; the rain pad greens it */
+    {"CORAL STAIR",
      {"~~~~~~~~~~~~~~~~~~~~",
       "~sssssooooooooossss~",
       "~sssssTTTTdTTTTssss~",
@@ -287,31 +287,31 @@ const TtLevelDef TN_LEVEL_DEFS[TN_LEVELS] = {
       "..R.................",
       "...................."},
      {0}},
-    /* 13: rain and shine: dry, wet, then dry again */
-    {"CLOUDBURST",
+    /* 13: dry, wet, then dry again */
+    {"FEATHER FIELD",
      {"~~~~~~~~~~~~~~~~~~~~",
-      "~sssosoossogoosssoo~",
-      "~sssouoossodoosssoo~",
-      "~sssusuossdgdossuso~",
-      "~ssssusussgdgdsssuH~",
-      "~sssususssdgdgssuso~",
-      "~sssousussodgdsssuo~",
-      "~sssoouossoodossoso~",
-      "~sssoosossoogossoso~",
+      "~sssosoossogoosoooo~",
+      "~sssouoossodoosodoo~",
+      "~sssuduossdgdosoudo~",
+      "~ssssudussgdgdsoduH~",
+      "~sssudusssdgdgsoudo~",
+      "~sssoudussodgdsuduo~",
+      "~sssoouossoodosoodo~",
+      "~sssoosossoogosooso~",
       "~~~~~~~~~~~~~~~~~~~~"},
      {"....................",
       ".....v.....v....v...",
       "....................",
       ".K..................",
-      ".....F........Y.....",
+      ".....F..............",
       "................F...",
-      "...............S....",
+      "..............YS....",
       "..S......R..........",
       "......^.....^....^..",
       "...................."},
      {0}},
-    /* 14: cliffs, a log chute and storks on the salt flats */
-    {"SALT CLIFFS",
+    /* 14: high ground, a log chute and storks on the flats */
+    {"WINDMILL ROW",
      {"~~~~~~~~~~~~~~~~~~~~",
       "~rrrrBrrrsssssBgggH~",
       "~rrrrBr|rssssssgggg~",
@@ -333,8 +333,8 @@ const TtLevelDef TN_LEVEL_DEFS[TN_LEVELS] = {
       "................^...",
       "...................."},
      {"9 1 2 D7U7", "13 8 2 U7D7", "9 3 2 R4L4"}},
-    /* 15: the Sun Gate: no fruit, just the way through */
-    {"THE SUN GATE",
+    /* 15: the lighthouse: no fruit, just the way through */
+    {"THE LIGHTHOUSE",
      {"~~~~~~~~~~~~~~~~~~~~",
       "~ssssswwwwwwBBrrrrr~",
       "~ssssswwwwwwBBrgrgr~",

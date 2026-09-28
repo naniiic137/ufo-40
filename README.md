@@ -362,7 +362,10 @@ the top.
   shrink when you stop pushing them, geckos copy your steps, arrows send
   blocks one way, stone patches take no blocks, and plates hold doors open.
 - **Structure:** fifty rooms around a garden, with gates at 5, 10, 20, 30
-  and 40 drops, and a workshop for ten rooms of your own.
+  and 40 drops, and a workshop for ten rooms of your own. After three
+  teaching rooms, each room takes 77 to 300 steps at its shortest, with big
+  loops that move the blocks round again and again. Talk to Tuft to swap
+  which sibling walks.
 - **Ours:** Fen and Tuft the fennecs, Lord Humph the camel and his bath, the
   garden, all fifty rooms and the music.
 
@@ -389,7 +392,7 @@ the top.
 - **Structure:** fifteen single-screen levels on a branching map, each with
   two prickly pears and a hatchling that follows one step behind in its own
   colour. Only the best single escape counts toward completion.
-- **Ours:** Twig, the toads, storks and falcon, Salt Island and the Sun Gate,
+- **Ours:** Twig, the toads, storks and falcon, Salt Island and the old lighthouse,
   all fifteen levels (a solver in the tests proves each one), and the music.
 
 ### 25 · OPEN HOUSE

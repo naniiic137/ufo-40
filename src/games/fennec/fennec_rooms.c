@@ -1,211 +1,684 @@
 /* FENNEC FOUNTAIN - the fifty rooms. Every wall and block placement here is
- * an original design for UFO 40, laid out on our own wall plans and checked
- * with a breadth-first solver on the game's own rule code. Legend: # wall,
- * . floor, K the fennec, G the dry spring, S the water stone, 1-4 sandstone,
- * 5 marble, a-d lapis 1-4, w-z basalt 1-4 (n x n), g gecko, ^ > v < arrows,
- * : a stone patch, o a plate, | a door. Each solution is the shortest one;
- * the tests replay them all. */
+ * an original design for UFO 40. Rooms 1-3 teach the push; rooms 4-50 were
+ * grown by our own generator (tools/fennec/fnsolve.c) and every one is solved
+ * breadth-first on the game's own rule code. Legend: # wall, . floor,
+ * K the fennec, G the dry spring, S the water stone, 1-4 sandstone, 5 marble,
+ * a-d lapis 1-4, w-y basalt 1-3 (n x n), g gecko, ^ > v < arrows, : a stone
+ * patch, o a plate, | a door, P a palm planter (2 x 2), H a statue (3 x 3).
+ * Each solution is a shortest one, in steps (U R D L; "." lets go of a basalt
+ * push); the tests replay them all. */
 #include "fennec.h"
 
 const RoomDef FN_ROOMS_DEF[FN_ROOMS] = {
     /*  1: 6 moves */
     {"FIRST SPRING",
-     {"##########", "#........#", "#K...S..G#", "#........#", "##########"},
+     {"##########",
+      "#........#",
+      "#K...S..G#",
+      "#........#",
+      "##########"},
      "RRRRRR"},
     /*  2: 8 moves */
     {"AROUND THE PALM",
-     {"#########", "#.......#", "#K..#...#", "#...#.S.#", "#.....G.#", "#########"},
+     {"#########",
+      "#.......#",
+      "#K..#...#",
+      "#...#.S.#",
+      "#.....G.#",
+      "#########"},
      "URRRRRDD"},
     /*  3: 11 moves */
     {"THE LOW WALL",
-     {"##########", "#...#....#", "#K..#..G.#", "#...#.S..#", "#........#", "##########"},
+     {"##########",
+      "#...#....#",
+      "#K..#..G.#",
+      "#...#.S..#",
+      "#........#",
+      "##########"},
      "RRDDRRURDRU"},
-    /*  4: 15 moves */
+    /*  4: 77 moves */
     {"SAND STEPS",
-     {"###########", "#....#....#", "#.K..#.S..#", "#....#1G..#", "##.###....#", "#.........#", "###########"},
-     "DDDRRRRUURRUULD"},
-    /*  5: 17 moves */
+     {"############",
+      "#######...G#",
+      "######.....#",
+      "#...31...#K#",
+      "#####S..##.#",
+      "#...5..2#2##",
+      "#...##..#..#",
+      "############"},
+     "ULLDLDLDDRUULUURRDLDDLLLLDLLURRRRRDRUUULURRDLLLDRDLLLDLLURRRRRDR"
+     "UUULURDRULURR"},
+    /*  5: 86 moves */
     {"ONE AND ONE",
-     {"############", "#....#1....#", "#.K..#..#S.#", "#....#..#G.#", "#.#.##..####", "#..1..1....#", "############"},
-     "DLDDRRRRRUUURURRD"},
-    /*  6: 26 moves */
+     {"############",
+      "#..######.G#",
+      "#..##PP....#",
+      "#.K.#PP.3#.#",
+      "#..#.#5.1#.#",
+      "#.1.S......#",
+      "#.#.#1...###",
+      "############"},
+     "DLDRRRRRRDRULUUURRRDDDLLDLURRRUUULLDURRDDDLLLLRRUULURRURDLLDLDRD"
+     "DLLURDRUUULURRLDDDRRUU"},
+    /*  6: 78 moves */
     {"OLD BASALT",
-     {"############", "#..xx#.1...#", "#.Kxx#.S.xx#", "#......##xx#", "#....#..#G.#", "#....#.....#", "############"},
-     "DRRRRUURRRDUDDUULLLDRRURDD"},
-    /*  7: 17 moves */
+     {"##############",
+      "###.##.###5..#",
+      "##K.##.S.3w1.#",
+      "#....#..w....#",
+      "##....xx######",
+      "##....xx#.3###",
+      "#..G...#..####",
+      "##############"},
+     "RDRDRDDRU.UURRRRR.RUULDRDLLLLURRDRRU.ULDRDLLLLLDLUURRRRDRRUULDRD"
+     "LLLLLULDRDLLLULDD"},
+    /*  7: 80 moves */
     {"GARDEN PATH",
-     {"###########", "#...#.....#", "#.K1#.###1#", "#.....#G..#", "###.#.#..3#", "#.....#.S.#", "#...#.....#", "###########"},
-     "DRRRDDDRRRUUDRUUL"},
-    /*  8: 22 moves */
+     {"##############",
+      "####.#...#.K.#",
+      "##......w.#3##",
+      "#....##S#.#..#",
+      "###5wGw.2.2..#",
+      "####.##.######",
+      "####.#########",
+      "##############"},
+     "DDRDLLLUULLLLLDDUURRRRRDDLLUDRRUULULLDLLDDDUUURRRDDLRUULLLDDRRRR"
+     "RUULULDDURRDDLLL"},
+    /*  8: 113 moves */
     {"CRUMBLING WALL",
-     {"###########", "#..xx.....#", "#.Kxx.....#", "#...#S....#", "#...#...G.#", "###########"},
-     "RRDRRDDLURUULLDRRRURDD"},
-    /*  9: 14 moves */
+     {"##############",
+      "#G...#########",
+      "##w#K#.##.3.##",
+      "##...2..1..###",
+      "##...###5#S..#",
+      "####..#....w.#",
+      "#####.w..#..##",
+      "##############"},
+     "DDDRDRRURRRRLLLDLLLULUURRRRRURDLLLLLLDDRDRRURUDRRURRDLLLRUULLLLL"
+     "LUULLDDRRRRRRLLLLDDRDRRRUUDRRUULLLLLLDLLUUDRRUULL"},
+    /*  9: 81 moves */
     {"DATE GROVE",
-     {"##########", "#....#...#", "#.K.1#.#.#", "#...1..#.#", "#.##.#.#S#", "#....#..G#", "##########"},
-     "URRDDRRUURRDDD"},
-    /* 10: 16 moves */
+     {"################",
+      "########..1..1.#",
+      "########..#.1.##",
+      "########.S##.K##",
+      "###..####.##..G#",
+      "#...1..#w.4#..##",
+      "#...##.#.xx...##",
+      "#..####..xxw.###",
+      "################"},
+     "DDDLLL.LUUULUURRRRRLDDDDRDLLLLUUULUURDDDDUUUURRRDDDDDDLLLLURRRDR"
+     "UUUURUULLDRURDDLDR"},
+    /* 10: 82 moves */
     {"FIRST MARBLE",
-     {"############", "#.....#....#", "#.K...#....#", "#.....#.GS.#", "#...###..4.#", "#......41..#", "############"},
-     "RDDDRRRRUUURRRDL"},
-    /* 11: 25 moves */
+     {"################",
+      "########...1..##",
+      "######PPSwxx.###",
+      "##..##PP..xx####",
+      "#..w..51...2G###",
+      "#...#.#.###1####",
+      "#.2###..#...####",
+      "##K###.#########",
+      "################"},
+     "UUURR.RRRRURU.URRRDLDDDUULLLDRURRDLLLLLLLLDLLURDRURRRRRURU.ULDDR"
+     "DLLLLLLDLLURRRRRRRRRR"},
+    /* 11: 84 moves */
     {"THE DRY CANAL",
-     {"###########", "#.....#.1.#", "#.K...#.G.#", "#.#.###S..#", "#......1..#", "#...#...3.#", "###########"},
-     "RDDRRRRRUULDRDLDLLURRDRUU"},
-    /* 12: 16 moves */
+     {"################",
+      "########.#3Kw..#",
+      "######.G...#.w.#",
+      "########.#2S..3#",
+      "########.#.##..#",
+      "########1...##.#",
+      "#######..5w..4.#",
+      "#######..#.#.#.#",
+      "################"},
+     "RRDRDDDDLLLULDLLUUUURRDDURRURRDLLLRRRDDDLLLULLDLUUUURRDDUULLDDDR"
+     "DRRULLDLUUUDDRRUUULL"},
+    /* 12: 100 moves */
     {"NARROW GATE",
-     {"############", "#...1#.....#", "#.K1.#.###.#", "#....#.#GS.#", "#......#...#", "#..#...#...#", "#..#.......#", "############"},
-     "RDRDRRUUURRRRDDL"},
-    /* 13: 28 moves */
+     {"################",
+      "#K3w..#...2#..##",
+      "#.##.........w.#",
+      "#.#..#####.PP..#",
+      "##...#...G#PP.5#",
+      "#..####.#34..S.#",
+      "##...#..#w....##",
+      "##..4...#.....##",
+      "################"},
+     "RRRDRRRRRRRRRDDDLDDRUUUURULLLLLULLDLLLDDLLDDRDRRRURUURRDDURRRDRU"
+     "RUULDDUUULLLLULLDRRRRRURDDDRDLLLLDLU"},
+    /* 13: 131 moves */
     {"BIG STONE",
-     {"############", "#......xx..#", "#.K....xx..#", "#...####...#", "#.S.#..#.G.#", "#........w.#", "############"},
-     "RDDDLUULURRRRURRRLLLDRRRURDD"},
-    /* 14: 33 moves */
+     {"################",
+      "#...#....#.###.#",
+      "###.G3.w...5.w.#",
+      "#K#.######.#4..#",
+      "#.#3.##..4.#.###",
+      "#...###.w###.###",
+      "#.#####..S.1.###",
+      "#.#####..##...##",
+      "################"},
+     "DDRRUUURRURRRDRRDDLLDURRUURRDRRUDLLDDDLLRRUUUURLLLLLULLLDRRRRRRR"
+     "LLDDLLDLDDRURRRDRUUUURRULLLLLLLLLLRRRRRRDDLLDLDRRRRDRUUUURULLLLL"
+     "LLL"},
+    /* 14: 133 moves */
     {"SHADY CORNER",
-     {"##########", "#...#....#", "#.K.#.1..#", "#1....1#.#", "#.S.#..#G#", "#...######", "##########"},
-     "RDRRDRUUDLLLDDLULURRRRDRULURRURDD"},
-    /* 15: 27 moves */
+     {"################",
+      "####K.....1....#",
+      "####.....####w##",
+      "####.#.#####G.##",
+      "###.w###...w..##",
+      "###...#.3.2#..##",
+      "##.1...S3.5#####",
+      "#..#..#..#######",
+      "################"},
+     "DDDDDLUURUUURRRRRRRRRDDDLLLLDDLLLRURURRRRURUULLLLLDLLLLDDDRDULLD"
+     "RRRRDRURUDLLURURRRRDRUUUDDLLLLLDDRULURRRLLDDLLLLULUUUURRRRRRRRRD"
+     "DDDLU"},
+    /* 15: 196 moves */
     {"THE LONG ROW",
-     {"###########", "#....#....#", "#.K..#....#", "#.........#", "#1S#####..#", "#.......1.#", "#....#.4G.#", "###########"},
-     "DLDDRULURRRRRRURDRDDLRUULDD"},
-    /* 16: 27 moves */
+     {"################",
+      "##...##.#...####",
+      "##K..w.......###",
+      "####4#.##..#####",
+      "###.w##....5.###",
+      "##.S..###...####",
+      "#1.4...####...##",
+      "##2##.w....2..G#",
+      "################"},
+     "RRRRRRRRDDRDDRDLLLLLLULLLRRRDRRRRRUUULUULLLLLLDDUURRRRRRDDRDDDLL"
+     "LLLULLUUUDDRDRDRRRRRUUULUULLLLLLULLDRRRRRRRLLLLLDDDDLLURDRUUUDDR"
+     "DRDRRRRRUUULUULLLLLLULLDRRRRRRRURDDDLDRURDDUULUULLLLLLDDDRDRDRRR"
+     "RRRR"},
+    /* 16: 206 moves */
     {"THE QUARRY",
-     {"#############", "#.....#.....#", "#.K...#yyy..#", "#..S...yyy..#", "#.....#yyy..#", "#.....#..G..#", "#############"},
-     "RRRDRRURDLLLULLLDRRRRRRURDD"},
-    /* 17: 27 moves */
+     {"################",
+      "#######.w.##.#.#",
+      "#....#5.S##.w..#",
+      "#...##..44K.#..#",
+      "#.#.#.G.###...##",
+      "#.#3w...###....#",
+      "#.#1.....##.##.#",
+      "###..##...2.####",
+      "################"},
+     "RDDDDLLLULUUURLUURDLDDDDRDRRRUUUULRDDDDLLLULUUURRLUULDDDLDDRRDRR"
+     "RUUUULLLRRRDDDDLLLULLUURUDLDDRUULURRUULDDDLDDRRDRRRUUUULLLRRRDDD"
+     "DLLLULLUURDUURUULDDRRRRDDDDLLLULLLLDLUURRURURDDUURRRRDDDDLLLULLL"
+     "ULLDDRULURRDRU"},
+    /* 17: 83 moves */
     {"BLUE TILE",
-     {"##########", "#.K......#", "#....2..a#", "#.S.##..G#", "#...#....#", "##########"},
-     "RRRRDLLLLRDDLULURRRRRURDLDR"},
-    /* 18: 23 moves */
+     {"################",
+      "#......#.K...###",
+      "#..##w######.###",
+      "##..#...##.#.###",
+      "#...#..S##.2.###",
+      "##.###..1..w####",
+      "##4#####..4.##.#",
+      "#..G.a....#....#",
+      "################"},
+     "RRRDDDLDDLLULDRDLLLLLLLUUUUULURRRRDDRDDRRRRURDDULLLLLUURDLDRRRDR"
+     "RUULDRDLLULDRDLLLLL"},
+    /* 18: 86 moves */
     {"THE TILED PORCH",
-     {"############", "#...#...1..#", "#.K.#.S....#", "#...b......#", "#.3.#.###..#", "#...#...#G.#", "############"},
-     "RDDDLULURRRRURRRLURRDDD"},
-    /* 19: 26 moves */
+     {"################",
+      "#.#...a.b...G###",
+      "#.#..3..##...1K#",
+      "#..a...2##.5####",
+      "#..##w..###..###",
+      "##S.##.###..1.##",
+      "##....#####....#",
+      "#...#######.#.##",
+      "################"},
+     "LLLDDDDRRULDLUUUUDLURRULLLLLLLDRDDRUULURRRRDRRULLLLLLDDLLLLDDRDD"
+     "LUUULURRRRRDRUULURRRRR"},
+    /* 19: 111 moves */
     {"LAPIS LANE",
-     {"###########", "#...#.....#", "#.K.#.S.3.#", "#.....##..#", "#...#.#Ga.#", "#...#.....#", "###########"},
-     "RDRRURURRDDDUUULLDRURDDRDL"},
-    /* 20: 36 moves */
+     {"################",
+      "####.##...####K#",
+      "#G..5#...#.###.#",
+      "#..w.3..##.#..2#",
+      "#.#.ac..2.w....#",
+      "#.###4#.#.#....#",
+      "##....#S####..##",
+      "##.#.....##..###",
+      "################"},
+     "DDLDDRULLLL.LLLULLLUDLULLDRRURDLDRRRRRRRRDRRRUULLDLLLLLLLDDLDRRR"
+     "UUULUURDLDRRRRRDRDRURULLLLLLLDDDLLUUURULLDLURULL"},
+    /* 20: 128 moves */
     {"SUNDIAL",
-     {"###########", "#....1....#", "#.K.#.#.#.#", "#.........#", "#.#S#.#.#.#", "#2......G.#", "###########"},
-     "RDRRDDLLUULUURDLDRRLUURRDDDULLDDRRRR"},
-    /* 21: 27 moves */
+     {"################",
+      "##..#.###.1#...#",
+      "#...#...#..#.dG#",
+      "#...#......S...#",
+      "##..##..##c#w.##",
+      "##...###2#d..###",
+      "#...5...w4...###",
+      "#.4.####K...####",
+      "################"},
+     "RRURURUULLLLLULLDRRRRRRRDDDLLLLLLLLLDLUUUULURURDDDDLDRRRRRRRDRUU"
+     "UDRRUUUURRDDLRUULLDDLLLLLULLDRRRRRRRLLDDRRURURULDDLDLLUURRDRULUR"},
+    /* 21: 132 moves */
     {"MOSAIC",
-     {"#############", "#...#.......#", "#.K.#.#####.#", "#...a.#...#.#", "#23.#.#.G.S.#", "#...b.......#", "#############"},
-     "DLDRURDLDRRRUUUURRRRRRDDDLL"},
-    /* 22: 25 moves */
+     {"################",
+      "#......###..####",
+      "#w#..##c.#..####",
+      "#.##.##..#.w##.#",
+      "#......1.1..#5.#",
+      "#.##.###S.#..G.#",
+      "#.####.ac..K...#",
+      "######.##.###..#",
+      "################"},
+     "UULLLLLLLUUULLLDDDRRRRRRRRDDRRUULUUURDDDDULLDDRRUULLLLLLLUUULLLD"
+     "DDRRRRRRRRRURDDRRDLLLLLURULLLLLUUULLLDDDRRRRRRRRRURDDULLDDRRRURR"
+     "DDLU"},
+    /* 22: 150 moves */
     {"THE FOUNTAIN STEPS",
-     {"###########", "#....#....#", "#.KS.#....#", "#....3b...#", "#....#..G.#", "###########"},
-     "URDRDRRRLLLULLDRRRRURDLDR"},
-    /* 23: 28 moves */
+     {"################",
+      "##.3..####.#...#",
+      "#.....####...4##",
+      "###2w..##G..#..#",
+      "###...4.#K..#..#",
+      "####dw.S.d.###.#",
+      "#####.a#..##...#",
+      "######.#...5...#",
+      "################"},
+     "URURRURDDRDDDDLLLLLULULULULULLLURRDD.DLURRRDLDURRDLUULULULLDRURD"
+     "LDRURDLLDRURRDLRDDLUURULULLDDRRURDULULDLDRRDRRRDRDRRRURRUUULULLD"
+     "DLLDDULLLLUURDLDRRRDRUU"},
+    /* 23: 155 moves */
     {"THE BOULDER",
-     {"############", "#....#.....#", "#.K..#.xx..#", "#......xx..#", "#2S..#...G.#", "#....#.....#", "############"},
-     "RRDRRRLLLDDLLUDLUURRRRRRRURD"},
-    /* 24: 44 moves */
+     {"################",
+      "####.#.w.K#....#",
+      "####.22.###35a##",
+      "#####..S.....c.#",
+      "#######.##3c..##",
+      "##########...###",
+      "##########.#.###",
+      "#########G.w...#",
+      "################"},
+     "LL.LDLDRURDRRRDDRRDDLLUURRUUUDLLLLLULLDRRRRRRURDDDLLUDRRUULLLLLU"
+     "LLDRRRRRDDRRUUULDLDDDDRRUUULRDDDLLUUURUURDLLLLLULLDRRRRRRRDLLDDD"
+     "RRUUURUULDRDLLULDDDUURRDDDLL"},
+    /* 24: 173 moves */
     {"COURTYARD",
-     {"############", "#....#...1G#", "#....#.....#", "#..2.a...#.#", "#....#S..#.#", "#..K.#.....#", "############"},
-     "ULURRRRRDDLURULLLULLDRRRRDRULURRRLDLDDRRRUUU"},
-    /* 25: 36 moves */
+     {"################",
+      "#G.......w..#.##",
+      "#.##.######....#",
+      "###.1wa.3...##a#",
+      "###..##..##..###",
+      "###..###.###.###",
+      "####.b.#S##...##",
+      "#####K53.1....##",
+      "################"},
+     "RRRRRRURUULUUULLLLLLLDDRLLDDRULURRRLLUURRRRRRRDDLLLLLRRRRRUULLLL"
+     "LLLDDRRRRLLLLDDUUUURRRRRRRDDDRDDLDLLLUUUDDDRRRURUULULLLLLRRRRRUU"
+     "LLLLLLLDDLDDRUUUDRRRRDDDDRRRURUULUUULLLLLLLLL"},
+    /* 25: 176 moves */
     {"ARCHES",
-     {"#############", "#.....#.....#", "#.K...#S.a..#", "#...........#", "#.....#.cG..#", "#.....#.....#", "#############"},
-     "RRRDRRRUULDRDLLLULLDRRRRRRDRRUULDRDL"},
-    /* 26: 28 moves */
+     {"################",
+      "#.####4..K###.##",
+      "#..####w.##.#c.#",
+      "#.....cwa...#..#",
+      "#...#G..#4###.1#",
+      "##..#.#.#..S...#",
+      "#..3..#....#..##",
+      "#.###..5.###.###",
+      "################"},
+     "LLDDDLLDDDRRUUULLULLDDLDRRLUUURRDRRDDDLLUUUDDLLUUURRRRRRDDRDLLRU"
+     "UULLDLLDDDRRURRURRRDRURUULDRDLLLLDLLLUUURRDDRDLLRUUULLDLLDDDRRUU"
+     "UDDRRUUULLLLLLDLLUURDLDRURDDLDRRLUUURRRRDDDDLLUU"},
+    /* 26: 188 moves */
     {"CISTERN",
-     {"##############", "#.....#......#", "#.K...#......#", "#.....#..##..#", "#.S...4....G.#", "#.....#.1##4.#", "#.....#.....1#", "##############"},
-     "RRRDDRRURDLLLULLLLDRRRRRRRRR"},
-    /* 27: 38 moves */
+     {"################",
+      "###..###....####",
+      "####.....##.####",
+      "###.Kw#...1w.###",
+      "##.1#.5#.#....##",
+      "#..3...#.#S#...#",
+      "#####..#b.b..3##",
+      "####.......#.G##",
+      "################"},
+     "URRRRURRRDDUULLLDDRRLLUURRRDDRDDDDRUULUULLLLULLLDDDLLLRRRUULLDLD"
+     "RRLUURRDDRDDLUUUULURRRDRRRRUULLLDLDRRRLLUURRRDDLDRURDDRDLLRUUULL"
+     "LLULLLDDDRDDRRRRUUDRRUUULUULLLDDRRLLUURRRDDLDRURDDULLDDRRURD"},
+    /* 27: 188 moves */
     {"BLUE DOOR",
-     {"###########", "#.........#", "#.K.#S#...#", "#a..#.#.3.#", "#....b....#", "###.#.#.G.#", "#.........#", "###########"},
-     "URRRRRRDDRDLLLLLLUUURRDDUULLDDDRRRRURD"},
-    /* 28: 33 moves */
+     {"################",
+      "#...#...w.....##",
+      "#..##w###..###.#",
+      "#.2.G.##.#.....#",
+      "##.##.##.##.K###",
+      "#..##........###",
+      "#.a....##..S####",
+      "#...#.11..1b.a.#",
+      "################"},
+     "ULLUULLLL.LDDDDDLLDLLUURUULUURDLDRRRLLDDLDDRRURRURRRRRRUULUULLLL"
+     "LDDDDRDLLLDLUUUULUURDLDRRRLLDDDRRRURRRRRRUULUULLLLLDDDDUULLLDDDR"
+     "RRURDLDRRRRRRUURUULDRDLLLLLLDLLLLUUURRRDDRDLLLDLUUUULUURDLDRR"},
+    /* 28: 213 moves */
     {"THE CROOKED WELL",
-     {"###########", "#....#....#", "#.K..#....#", "#...S2....#", "###.###.###", "#.....11..#", "#...G.....#", "###########"},
-     "RDDDRRRRUULLRRDDLLLLUURUULDDDDLDR"},
-    /* 29: 14 moves */
+     {"################",
+      "#..4.#......####",
+      "##w#...##..#####",
+      "#..##..####....#",
+      "#..###w..K3..#.#",
+      "#..b....#.a..#.#",
+      "#3..S.#G#.#...##",
+      "#..2#######...##",
+      "################"},
+     "LLDLUUULLULLDDDDD.DLUURUUUURRDRRDDDLDLLRURRUUULLULLDDDDLDDRUUDRR"
+     "URRUUULLULLDDLDDRDRRURRURRRRRURDDLDDRRULDLUURULLLLLDLLDLLLULUURU"
+     "URRDRRDDRDLLLDLLDLUUDRRRULRRRUUULLULLDDLDDRUUDDDRRULDLULUURDDRRR"
+     "RUUULLULLDDDLDRRRRRURD"},
+    /* 29: 84 moves */
     {"THE COPYCAT",
-     {"##########", "#........#", "#.K......#", "#.1......#", "#.Sg...G.#", "##########"},
-     "RDUULLDDDRRRRR"},
-    /* 30: 22 moves */
+     {"################",
+      "#####.####.Kga##",
+      "#####.####4.####",
+      "##.#...###.g.###",
+      "##.##w...121####",
+      "#.....5S.##w####",
+      "#.#.###..#######",
+      "#.######G#######",
+      "################"},
+     "DDRLUDLDRUUURLDDRLLUDRULRURLDDLDURRLLURUDDLDUURURLDDDLLLDULDLLUR"
+     "RRRLLLLULRUDDRRRRLDD"},
+    /* 30: 98 moves */
     {"GECKO GARDEN",
-     {"############", "#....#.....#", "#.K..#.....#", "#..........#", "#.g..#S..G.#", "#....#.....#", "############"},
-     "RRDRRUURRRDDLULULDRRRD"},
-    /* 31: 35 moves */
+     {"################",
+      "#..#####.#######",
+      "#...##.3....a4.#",
+      "##..##..Sw#..wg#",
+      "###b##3.#.#.##.#",
+      "#5###G...###...#",
+      "######..PP#..###",
+      "#g.3..#.PP##..K#",
+      "################"},
+     "LLUURRUUDDLLDDRRLLUDRLUURRUUULLLLLRRD.DUULLDLULDLDDRDURLULURLDDR"
+     "RLUUUDDLURURRDLULDRRULDLDDULURDURLL"},
+    /* 31: 108 moves */
     {"THE TERRACE",
-     {"##############", "#......#...xx#", "#.Kyyy.#S..xx#", "#..yyy.......#", "#..yyy.#.....#", "#......#...G.#", "#......#.....#", "##############"},
-     "URRRDRDRRRUULDRDLLLULLDRRRRURDDLDRR"},
-    /* 32: 24 moves */
+     {"################",
+      "##..d#..####K#.#",
+      "##5...a..###3..#",
+      "#.2..##...##..##",
+      "#w1S###.####w.##",
+      "#....##..####.##",
+      "#G#4.###########",
+      "#.##.gg#########",
+      "################"},
+     "DRRLDULDURDDULURDLURRUDLDDDUULURDDUULDURDULRDDDUULURRLDDDUULRURL"
+     "RUDLLUDDRLUUDRRUDLDDDUULURRUDLDULUDRDLURRLLD"},
+    /* 32: 110 moves */
     {"SIDE BY SIDE",
-     {"#############", "#...........#", "#.K.#.#.#.#.#", "#...#.S2..#.#", "#.g.#.#G#.#.#", "#...........#", "#############"},
-     "URRRRRDDDUUULLDDRLUURRDD"},
-    /* 33: 39 moves */
+     {"################",
+      "#.#...#.#...g.##",
+      "#.5..##K.##4#..#",
+      "##w.S#..##4.PP##",
+      "##G#.#.#1...PP##",
+      "##.#.#.#.##.####",
+      "##...3....w.####",
+      "#..#a#a.#.######",
+      "################"},
+     "DLDDDLLUUULULDDDDRLUUUURURRLLDDRDDDLLRRUUULLDDDRRRRRRRR.RUUUUDDD"
+     "DLLDULLLLLUUULUURDDDDUULLDDDRRRRRRRLLLLLLLDLRUU"},
+    /* 33: 111 moves */
     {"PALM HALL",
-     {"############", "#1K.#......#", "#...#.####.#", "#..3......G#", "#.1S#.####.#", "#...#......#", "############"},
-     "DDRRRUURRRRRDDLLLLLLLULLDDDRRULURRRRRRR"},
-    /* 34: 22 moves */
+     {"################",
+      "#3.a###..#######",
+      "#......S..#K####",
+      "#...##1..##w####",
+      "#G.##.#..#..####",
+      "#..w25###..#####",
+      "#.###.##..######",
+      "##g....a4.######",
+      "################"},
+     "D.DLDLDDLLLLLRUULLLRRRDULLLUUURRRRLLLDULDDDUUURRRRRURDLLLLLDLDUU"
+     "RRRRRDDRULRUULDURDLLLLLDLLURRRRRRRDDLURULLLLLDLD"},
+    /* 34: 123 moves */
     {"MIRROR COURT",
-     {"###########", "#.........#", "#.K...#...#", "#.S...#...#", "#.g..2..G.#", "###########"},
-     "RURRRRDULLLDDLDRRRRRUR"},
-    /* 35: 43 moves */
+     {"################",
+      "##.5.G..w......#",
+      "##.#3#..#..##S##",
+      "#..##K.##.##...#",
+      "##...#d#####..2#",
+      "##.........#.g1#",
+      "##..##..######.#",
+      "####.b..g#4##..#",
+      "################"},
+     "RUURRRRRRRDDRLUULLLDURRRDDRDDLLUUDDRLUURUUDDRDULUULLLLLLDLDLRUUR"
+     "RRRRRRDDRDULLRUULLLLLLLLRRDURRRRRRDDRDDLUDLURUUDLRUULLLLLLL"},
+    /* 35: 126 moves */
     {"ROCKFALL",
-     {"#############", "#.....#.....#", "#.K...#S....#", "#w....#..#xx#", "#.........xx#", "#.....#..#G.#", "#############"},
-     "RRRDDRRURUULDDURRRDLDLLLLLULLDRRRRRRLUURRDD"},
-    /* 36: 23 moves */
+     {"################",
+      "####.g4..G.4..##",
+      "#..#.##.S......#",
+      "#.###K.5###..#d#",
+      "#.####4#######.#",
+      "#c.###.....#####",
+      "#...##w##.wg####",
+      "##......2.######",
+      "################"},
+     "RDDRRRLRDULLLUUDDRRRRLLLLDURRRRDRLULLLLDURLDDLLLULRDULLRRDRRRUUU"
+     "DRRRRDULLLLUDRRRDRRLULDRULLLLUDRRRRDLRULLLLDDLLRRUUUDRRRRDULLL"},
+    /* 36: 148 moves */
     {"GECKO PAIR",
-     {"############", "#.....#...2#", "#.K...#S...#", "#..........#", "#.g...#1.G.#", "#.....#.g..#", "############"},
-     "RRRDRRLLDDUUUULDDRRRRLD"},
-    /* 37: 46 moves */
+     {"################",
+      "#.####PP########",
+      "#.....PP######.#",
+      "#..###.###Gw...#",
+      "##3##...#.S.w.1#",
+      "##g##.3Ka..##.##",
+      "#..#.5.c###.#..#",
+      "#1.####.g.....##",
+      "################"},
+     "ULLDRRRRURURRR.RUDLLLLDLDLLRRURURRRDDUULLLDLDLLULLDRRULLRDDLURRR"
+     "RURURRRLLLDLDLLUDRLULLDRRLDURRRURURRRRLDDULRULRDDDDLLLRRRUUUDDDL"
+     "RUUULULLDRRLURRRUDLLL"},
+    /* 37: 176 moves */
     {"TILE MAZE",
-     {"############", "#....#.....#", "#.K..b.....#", "#.S..#.##..#", "#.3a.#..#G.#", "#....#.....#", "############"},
-     "LDDRUDRDRUULURRRRRURDDDUULLLLLULLLDRRRRRRRURDD"},
-    /* 38: 34 moves */
+     {"################",
+      "########.##.####",
+      "#####K#.4...####",
+      "####..##wS..####",
+      "####.#.#.#######",
+      "###..Gbw..#.####",
+      "#...a....1.1####",
+      "####.##5#.1.g###",
+      "################"},
+     "DLDURLDDLDLRURRDRRLLULLDURRDRRRRLLRUDLLLULLDURLDURRDRRRRDRRULLDU"
+     "RLLUDLLLULRDLRRRRURDDURLLUUDRDLLLLRRRURDLLLLLLURRDRRRRRDUDLULLLL"
+     "URRDRUUURURRDLLULDDDLDRRDRRULDULLLULUDRDLLUDLLUR"},
+    /* 38: 202 moves */
     {"THE OLD DAM",
-     {"#############", "#...........#", "#.Kxx#S#....#", "#..xx#.#....#", "#........2..#", "#....#.#..G.#", "#############"},
-     "URRRRDDUURRRDDDLLLLLULLDRRRRRRRURD"},
-    /* 39: 31 moves */
+     {"################",
+      "###.#######....#",
+      "#G3..#######.4.#",
+      "#...#.######wPP#",
+      "##.4#..#####.PP#",
+      "#....g....#5.w##",
+      "#..#S...3.##.K##",
+      "#..#..#..###..##",
+      "################"},
+     "DLUUUUU.URRDLULDDDDDRLUUUUULRRRDLLRURDULDLURDRULLDRRULLDDUURRLDL"
+     "DDDDRDULUUUUURDRUDLLDDUURURDLLURRLDLDDDDRDULUUUURURDULLDRRUDLLUL"
+     "RRDLDDDDRLUUUUULRRRDLLRRULLDDDUURURDLLURRLDLDDDDRDULUUUUUDRULLRD"
+     "DDDDUUUURUL"},
+    /* 39: 79 moves */
     {"ONE WAY",
-     {"###########", "#....#....#", "#....>....#", "#..2.#....#", "#...S<....#", "#K..1#...G#", "###########"},
-     "UUURRRRRDDLLLDLUULURRRRRRRURDDD"},
-    /* 40: 50 moves */
+     {"##################",
+      "#.:##########.####",
+      "#.########.#:.:.##",
+      "#.#####..#.##.####",
+      "#v.#.G##...|.#####",
+      "#..#.w####v<.S.###",
+      "#.....##...##.5K.#",
+      "####.a..<..ow:#2##",
+      "##1.#.###..3.g#1.#",
+      "##################"},
+     "DULUDRRLLULLULLDDDDRRULLLLLLLUUDDDURRRRRRRRURULLRRDLDLLLRRRLLDLU"
+     "LLRULDLLRRRRUUU"},
+    /* 40: 79 moves */
     {"THE LONG HALL",
-     {"##############", "#......#.....#", "#.K.2..#.....#", "#......cS..4.#", "#......#.###.#", "#......b...#G#", "#......#.....#", "##############"},
-     "URRDDDLDRRRRRUURURRRDLLLLLRRUULDRDLDDLLUURRRRRURDD"},
-    /* 41: 32 moves */
+     {"##################",
+      "#..#.#.##..oG2w:##",
+      "#......##.#w....##",
+      "#d###.###4#5.#^###",
+      "#.#:####^#####.#g#",
+      "##.....#.......<|#",
+      "##.##.#..:.#.a1:4#",
+      "##.#..#..####S.###",
+      "###.v...###..K...#",
+      "##################"},
+     "RUURULUUULLURDRRULLLRRRDLUDRULLLDRRULLDRRLLULLRRRRRDLDDDRDLDULRD"
+     "DLUURRLUUUURULL"},
+    /* 41: 83 moves */
     {"STEPPING STONES",
-     {"###########", "#........1#", "#.S:::....#", "#..:::..K.#", "#..2....G.#", "###########"},
-     "LLLLLLDRRRRRRUUULLLLLLDDLDRRRRRR"},
-    /* 42: 26 moves */
+     {"##################",
+      "#.#.###....##...:#",
+      "#:..#.#.#.w###..3#",
+      "###.d.#####.##.#1#",
+      "#....##..#5..#:d.#",
+      "##.<w.......S....#",
+      "#:K.o###.#######.#",
+      "####...#..#..#####",
+      "###...G#.<13g###|#",
+      "##################"},
+     "RRDRRLLULURRRRRRRRRR.RUUURLDURURDDDDLLLLLUUDDLLLLLLLLULDRULLRRUU"
+     "DDDLDRUURDRRRLLLDDRR"},
+    /* 42: 88 moves */
     {"TWO STEPS",
-     {"############", "#..........#", "#.KS##.##..#", "#........3.#", "#.g.##.##G.#", "#..........#", "############"},
-     "URRRRRRRRLLLLLLLDURRRRRRDD"},
-    /* 43: 35 moves */
+     {"##################",
+      "#.##4#.##:.####.##",
+      "#....#.:###..##.v#",
+      "####w:#..<w...####",
+      "####G.<..#PP.2o1##",
+      "####..##b.PP|S5###",
+      "##....1a###...#..#",
+      "####......######.#",
+      "##.K.###g###:..>.#",
+      "##################"},
+     "RURRRRLLLLDUURRLUUUDRRRURRRRDRLDDRULUDRDLURDLLRRULRUULLRDUULDLLL"
+     "DLUUDDRURRRLLLLULRDRDLLL"},
+    /* 43: 95 moves */
     {"THE HEAVY DOOR",
-     {"###########", "#....#.1..#", "#.2..|....#", "#....#S..G#", "#.o.K#....#", "###########"},
-     "UUULLDDURRRRRDDLURULLLULLDRRRRRRURD"},
-    /* 44: 37 moves */
+     {"##################",
+      "#..#Gw.3w####...##",
+      "#:..#1.o...###..##",
+      "#..###v.#....#...#",
+      "#<##...#..35.S.|.#",
+      "#.....##K#2.a#####",
+      "##..#######.v.##.#",
+      "#....#####....##.#",
+      "#.#...####.##..:.#",
+      "##################"},
+     "URUULLLURDRRRDRDULLDRRURDDDLUURULLDLURULLRRDRRDRRURRDLLLLDLURULL"
+     "ULLLULLRDDURRRRDDLURULLLDLURULL"},
+    /* 44: 105 moves */
     {"BASALT AND BLUE",
-     {"############", "#..a.......#", "#.K.#S.#...#", "#.xx#..#...#", "#.xx....2..#", "#...#..#.G.#", "############"},
-     "DRDRRRRRDRUUURULLLLLDDUULLDDDRRRRRURD"},
-    /* 45: 25 moves */
+     {"##################",
+      "####o..g..4w..##:#",
+      "####....3.d.^.#.##",
+      "######.##...c1..##",
+      "######K#.v##S#####",
+      "######5#w.#..#####",
+      "######|..##....#.#",
+      "##PP:#...##.3>.G.#",
+      "##PP.######..v####",
+      "##################"},
+     "UURRUDLLDURRRDDLDDLRUURUULLRRURRLLLLLLDLUDRRRULLRRRRDDDLDDLLUUUD"
+     "DDRLUUUULLRRRRRRDRRDDLDRDRRULDLUUDLDDURRR"},
+    /* 45: 120 moves */
     {"CROSSWINDS",
-     {"############", "#..K.#.....#", "#.>>>#.2...#", "#....#....1#", "#...GvS....#", "#....v.3<<.#", "#....#.....#", "############"},
-     "RDDDRRUURURDDRDLLRDDLURUL"},
-    /* 46: 37 moves */
+     {"##################",
+      "######...>.#######",
+      "######.o##########",
+      "####:#..w.######.#",
+      "####.####.#:###..#",
+      "#.##.:###.K.#....#",
+      "#<..a.1G.#3...#.##",
+      "#..#S5...######c##",
+      "#w.|.<..1.3g######",
+      "##################"},
+     "RDRRURRRLLLDURRRLDULLDURRUDLLDLRURRRUDLLRURUDDLLLDLLULLUULLUUDLU"
+     "RDDRRDDUULLULDRRRDDRRDRRURRRLLLDURRRLLLDLLULLUULLUULRRRR"},
+    /* 46: 149 moves */
     {"THE BLUE PALACE",
-     {"############", "#....#.....#", "#.KS.#.....#", "#...3c...1.#", "#....#.##..#", "#....#...G.#", "############"},
-     "RDRRRRRURDDRDLUULLLLLLUURDLDRRRRRURDD"},
-    /* 47: 33 moves */
+     {"##################",
+      "#|.1..a.#1###.####",
+      "#.####S:..###...##",
+      "#.....5.#.#####4##",
+      "##:#c.#v##K####.##",
+      "#####.#..G.##<#.##",
+      "####ww<..####..###",
+      "#v.#..##..##...###",
+      "#g:.o######3:#####",
+      "##################"},
+     "DLLDLLRUUUUUDRRDULRDULLDDDDLLUDDURRUUUURLUDDDDRDLUDLRUUULRDULLRR"
+     "DDUUURLDDDRRRLLLDLLUUDDRRUUULLDULLLRRRDDDDLDURLRURRURDLLLUUURURD"
+     "DDRRLLUUUDDDRDDRLULUR"},
+    /* 47: 170 moves */
     {"TWO LOCKS",
-     {"############", "#...K#.....#", "#.oG.|.....#", "#.S..#.....#", "##.#####.###", "#.3..#.....#", "#..1.|..o..#", "#....#..2..#", "############"},
-     "DLLLDRDDDUUUURRDLULDDDLDDRUUUULUR"},
-    /* 48: 59 moves */
+     {"##################",
+      "#######.....######",
+      "####G#..d5S...2..#",
+      "####.g.|<w.##.#.K#",
+      "###...2####...##.#",
+      "#.#...######:#...#",
+      "#.:.########.##w##",
+      "#.#.#######4.#.v##",
+      "#.#############vo#",
+      "##################"},
+     "DDLDDUULRRUULRULLLDDLLRDURUURRRDLRULLLDDLLRRUDLDDUURUULLULLLLDLD"
+     "LDLLRURRURUDLRUDLDLDDLUURDLRURRRRURRRRDDLDDDUUURUULLULLDRRULLLRD"
+     "RURDLLURRDLRUDLDLUUDRDLUURDRULLLRDDLLLLDLU"},
+    /* 48: 176 moves */
     {"THE LAST GARDEN",
-     {"############", "#.....#....#", "#.K...#...a#", "#.....#S##.#", "#.g.3......#", "#.....#..#G#", "############"},
-     "RDRRDRRDURRRUDLLLLLDLLLURRRUUDDRRRRLLLLUUULDDLLDURRRDRRRRLD"},
-    /* 49: 40 moves */
+     {"##################",
+      "#..#..#.#:##..##K#",
+      "#..o..4.#..#G>##.#",
+      "###.....g..>.##..#",
+      "#....>#^w2.5.|4..#",
+      "#.##..:S1w.##.#..#",
+      "#..#......###.#.##",
+      "####....#.###..###",
+      "####.#.b##########",
+      "##################"},
+     "DDLRDLRDLDUUURDDUULDDUURUUDDLDRLDRUULDDUURLRDDLURUUUDDDLUDDRLURU"
+     "LDDRULDRUULDDDUUURDULDDRUULDLLRRURUDLDDRULLLRRRULDLLDDDUUURRRUDL"
+     "LLRRRDUULDURUDDLLLRRRDUULDDRLULLLLLUULDDDLURRRRU"},
+    /* 49: 220 moves */
     {"ALL THE WAYS",
-     {"#############", "#.....#....G#", "#.:::1|.>>..#", "#...KS#....2#", "#.o.3.#..^..#", "#.....#.....#", "#############"},
-     "LDDRRULLUURRRRRRRLLLLLLDDRULURRRRRDRULUR"},
-    /* 50: 31 moves */
+     {"##################",
+      "####.##.K###.##:a#",
+      "##.3.#o.###<...2.#",
+      "##.#.<.......w#..#",
+      "##.#2w2#####.S##.#",
+      "#..#.#######...###",
+      "#g#:G########:####",
+      "#.#.|######^######",
+      "###..####.d..#####",
+      "##################"},
+     "LDDRRRRRDUULRDDDUUURLDLLLLLLLLULRDRRUDLRRRRRRRDULLLLRRRURDLLLLLL"
+     "LLDURLULLDDDLRUUURRDRRRRRRRURRLUDRDLDDUULURRRRDRULLLDLLLLLLULDRR"
+     "RRRUDLLRRRRURRRDDULRULLLDULLDLLLLLLRRUDRRRLLLLLLDURLDDDUUUULRDRR"
+     "RRRRRLLLLLLLULLDDDLRUUURRDDD"},
+    /* 50: 300 moves */
     {"HUMPH'S BATH",
-     {"################", "#...yyy.#......#", "#.K.yyy.#......#", "#...yyy.#..##xx#", "#............xx#", "#.g..S..#..#G.a#", "#.......#12....#", "################"},
-     "RRDRDULDRRRRRUURRRRDLDUURDLDRDL"},
+     {"####################",
+      "##.#..##.....###...#",
+      "#..w...#b.:.####K#.#",
+      "#.4##.S.4.....###dw#",
+      "##..####.^..###:.#.#",
+      "#....v.#.....#.###.#",
+      "####^.#..g..#......#",
+      "####4.#....|.w.#####",
+      "####.G..o1..########",
+      "####################"},
+     "URRDDDD.DLLLLUDDLURRRRRLLLLDLURRRRRUUUDDDLLLLRRRRUUUUUDDDDDLLLLD"
+     "UUDRRRRUUUUULLDURLDURLDURRDDDDDLLLLRRRRUUDDLLLLRRRRUUUUULRDDDDDL"
+     "LLLUDDLURRRRRUUDDLLLLDLURRRRRUUUUULLDURLDURLDURRDDDDDLLLLRRRRUUD"
+     "DLLLRRRUDLLLRRRUUUUDDDDLRUUUUUDDDDDLLLLUDDLURRRRRLLLLDLURRRRRUUU"
+     "DDDLLLRRRUUUUULRDDDDUUUULRDDDUUULLRRDDDDDLLLL"},
 };

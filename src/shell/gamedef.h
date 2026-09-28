@@ -43,5 +43,9 @@ void game_exit_to_library(void); /* e.g. after the credits */
 bool game_paused(void);
 /* Games disable the START pause menu on their own title screens. */
 void game_set_pausable(bool on);
+/* A game can add up to two items of its own to the START pause menu, under
+ * RESUME (e.g. "RESTART LEVEL"); picking one unpauses and calls pick(i).
+ * n = 0 removes them. They are cleared whenever a game starts. */
+void game_pause_items(int n, const char *const *items, void (*pick)(int i));
 
 #endif

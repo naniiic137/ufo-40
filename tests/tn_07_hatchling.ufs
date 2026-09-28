@@ -15,7 +15,7 @@ cheat act C.
 expect camo == 2
 # both must be hidden: here Kama matches but the hatchling doesn't
 cheat level 10
-cheat camo 2
+cheat camo 5
 cheat pos 13 4
 cheat baby 13 5
 expect hidden == 1

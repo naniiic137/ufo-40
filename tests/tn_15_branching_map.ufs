@@ -1,5 +1,6 @@
 # TINTAIL: the island's trails branch: each level opens the next two, so a
-# stuck level can be passed by; the Sun Gate opens only from level 14.
+# stuck level can be passed by; the lighthouse opens only from level 14.
+# The d-pad moves Twig along the drawn trails, not by level number.
 game tintail
 wait 5
 cheat beaten 1
@@ -24,3 +25,10 @@ expect open14 == 1
 expect open15 == 0
 cheat beaten 14
 expect open15 == 1
+cheat beaten 15
+expect unlocked == 15
+expect map_reach == 15
+# from level 1, right runs along the trail to 3, down to 2
+expect step1_0 == 3
+expect step1_2 == 2
+expect step1_1 == 0

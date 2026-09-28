@@ -1,0 +1,42 @@
+# OPEN HOUSE: quitting on the police screen doesn't skip the ban. CONTINUE
+# resumes at the ban; quitting on the tally resumes at the tally.
+game openhouse
+wait 5
+cheat new 1 1
+cheat door 2 2 2
+expect over == 2
+expect state == 10
+reload
+game openhouse
+wait 30
+expect has_run == 1
+press A
+wait 5
+press A
+wait 5
+expect state == 11
+expect over == 2
+expect banned == 0
+press A
+wait 5
+expect state == 13
+expect banned != 0
+cheat leave
+expect night == 2
+# the tally screen
+cheat door 0
+cheat end
+expect state == 12
+reload
+game openhouse
+wait 30
+press A
+wait 5
+press A
+wait 5
+expect state == 12
+wait 10
+press A
+wait 5
+expect state == 13
+expect night == 2

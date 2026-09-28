@@ -29,7 +29,7 @@ static const struct { const char *id, *title; } TITLES[] = {
     {"cc_cup", "RAISE THE CUP"}, {"cc_point", "POINT!"}, {"cc_win", "MATCH WON"}, {"cc_lose", "MATCH LOST"},
     {"fn_oasis", "DRY OASIS"}, {"fn_stones", "THINKING STONES"}, {"fn_palace", "THE PALACE BATH"},
     {"fn_workshop", "THE WORKSHOP"}, {"fn_flows", "THE OASIS FLOWS"}, {"fn_spring", "ROOM CLEAR"},
-    {"tn_island", "SALT ISLAND"}, {"tn_tiptoe", "TIPTOE"}, {"tn_sungate", "THE SUN GATE"},
+    {"tn_island", "SALT ISLAND"}, {"tn_tiptoe", "TIPTOE"}, {"tn_sungate", "THE LIGHTHOUSE"},
     {"tn_firstlight", "FIRST LIGHT"}, {"tn_escape", "ESCAPED"}, {"tn_eaten", "EATEN"},
     {"ph_lanterns", "LANTERNS ON THE TERRACE"}, {"ph_groove", "HOUSE GROOVE"}, {"ph_market", "MARKET STREET"},
     {"ph_fourstars", "FOUR STARS"}, {"ph_lastnight", "LAST NIGHT"}, {"ph_siren", "SIRENS"}, {"ph_dusk", "DUSK"},

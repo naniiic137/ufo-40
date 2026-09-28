@@ -35,7 +35,7 @@ static const char LV_BASS[] =
 #define TIP "o8@9v3c8 r8 o8@9v5c8 r8 o8@9v3c8 r8 o6@11v4c8 r8 "
 static const char LV_DRUMS[] = "[" TIP "]16";
 
-/* "The Sun Gate" - the last level. D minor, the drums of the temple.
+/* "The Lighthouse" - the last level. D minor, the drums on the cape.
  * Dm | C | Bb | A | Dm | F | Gm | A */
 static const char GATE_LEAD[] =
     "@1 v11 q7 ["

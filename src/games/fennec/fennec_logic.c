@@ -264,6 +264,15 @@ static bool creature_move(const FnRoom *r, FnState *s, int x, int y, int dir, Fn
     return true;
 }
 
+bool fn_release(const FnRoom *r, FnState *s, FnEvents *ev) {
+    if (s->won || s->push_blk < 0) return false;
+    shrink(s, s->push_blk, ev);
+    s->push_blk = -1;
+    compact(s, ev);
+    update_doors(r, s, ev);
+    return true;
+}
+
 bool fn_step(const FnRoom *r, FnState *s, int dir, FnEvents *ev) {
     if (s->won) return false;
     int dx = DX[dir], dy = DY[dir];
@@ -351,7 +360,7 @@ int fn_parse(const char *const *rows, FnRoom *room, FnState *st) {
         for (int x = 0; x < len; x++) {
             char c = rows[y][x];
             /* 'D' was the old way out, now wall (old custom rooms still load) */
-            if (c != '#' && c != ' ' && c != 'D') room->wall[y][x] = 0;
+            if (c != '#' && c != ' ' && c != 'D' && c != 'P' && c != 'H') room->wall[y][x] = 0;
             if (claimed[y][x]) continue;
             switch (c) {
             case 'K': st->px = (uint8_t)x; st->py = (uint8_t)y; break;
@@ -366,6 +375,19 @@ int fn_parse(const char *const *rows, FnRoom *room, FnState *st) {
             case ':': room->tile[y][x] = FT_PATCH; break;
             case 'o': room->tile[y][x] = FT_PLATE; room->nplates++; break;
             case '|': room->tile[y][x] = FT_DOOR; break;
+            case 'P': case 'H': {
+                /* scenery: a 2 x 2 planter or a 3 x 3 statue, standing like wall */
+                int n = c == 'P' ? 2 : 3;
+                for (int yy = y; yy < y + n; yy++)
+                    for (int xx = x; xx < x + n; xx++) {
+                        if (yy >= h || xx >= (int)strlen(rows[yy]) || rows[yy][xx] != c) return 5;
+                        claimed[yy][xx] = 1;
+                        room->wall[yy][xx] = 1;
+                        room->deco[yy][xx] = DC_PART;
+                    }
+                room->deco[y][x] = c == 'P' ? DC_PLANTER : DC_STATUE;
+                break;
+            }
             default: {
                 FnBlock b = {0, 0, (uint8_t)x, (uint8_t)y};
                 if (c == 'S') { b.kind = BK_STONE; b.n = 0; }
@@ -398,6 +420,7 @@ int fn_parse(const char *const *rows, FnRoom *room, FnState *st) {
 bool fn_solution_check(const FnRoom *r, const FnState *start, const char *moves) {
     FnState s = *start;
     for (const char *p = moves; *p; p++) {
+        if (*p == '.') { fn_release(r, &s, NULL); continue; }
         int d = *p == 'U' ? DIR_UP : *p == 'R' ? DIR_RIGHT : *p == 'D' ? DIR_DOWN : *p == 'L' ? DIR_LEFT : -1;
         if (d < 0) continue;
         fn_step(r, &s, d, NULL);

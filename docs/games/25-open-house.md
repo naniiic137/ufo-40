@@ -96,15 +96,17 @@ successful party. ⊚ marks an action (once a party).
 
 ### The scenarios ([SO], [G])
 
-Every shop also sells Old Neighbours and Rich Cousins.
+Every shop also sells Old Neighbours and Rich Cousins. Our guest lists are
+named after dates and events of one summer by the sea, not after the
+originals' ideas.
 
 | # | Ours | Party House | Stars | The other guests |
 |---|---|---|---|---|
-| 1 | SAUCER NIGHT | Alien Invitation | Saucer Pilot | Cabbie, Goat, Bouncer, Coat Check, Parrot, Surfer, Punk Singer, Storyteller, Pastry Chef, Socialite, Drummer, Merchant |
-| 2 | HIGH TIDE, LOW TIDE | High or Low | Phoenix, Champion | Sleuth, Bookworm, Fireworker, Granny, Smuggler, Kitten, Card Shark, Doorman, Poet, Strongman, Upstart |
-| 3 | THREE WISHES | Best Wishes | Wish Fish, Cyclops | Goat, Surfer, Paparazzo, Band Leader, Punk Singer, Tour Guide, Tailor, Old Sage, Strongman, Pop Idol, Barista |
-| 4 | THE ACCOUNTS | Money Management | Sea Serpent, Tycoon | Sleuth, Coat Check, Bouncer, Paparazzo, Storyteller, Pastry Chef, Smuggler, Tour Guide, Tailor, Kitten, Doorman |
-| 5 | MIDSUMMER MAGIC | A Magical Night | Shadow, Sphinx | Bookworm, Parrot, Moon Child, Usher, Fortune Teller, Card Shark, Drummer, Matchmaker, Merchant, Pop Idol, Upstart |
+| 1 | EARLY JUNE | Alien Invitation | Saucer Pilot | Cabbie, Goat, Bouncer, Coat Check, Parrot, Surfer, Punk Singer, Storyteller, Pastry Chef, Socialite, Drummer, Merchant |
+| 2 | THE REGATTA | High or Low | Phoenix, Champion | Sleuth, Bookworm, Fireworker, Granny, Smuggler, Kitten, Card Shark, Doorman, Poet, Strongman, Upstart |
+| 3 | LEMON GROVE | Best Wishes | Wish Fish, Cyclops | Goat, Surfer, Paparazzo, Band Leader, Punk Singer, Tour Guide, Tailor, Old Sage, Strongman, Pop Idol, Barista |
+| 4 | FIG HARVEST | Money Management | Sea Serpent, Tycoon | Sleuth, Coat Check, Bouncer, Paparazzo, Storyteller, Pastry Chef, Smuggler, Tour Guide, Tailor, Kitten, Doorman |
+| 5 | LATE AUGUST | A Magical Night | Shadow, Sphinx | Bookworm, Parrot, Moon Child, Usher, Fortune Teller, Card Shark, Drummer, Matchmaker, Merchant, Pop Idol, Upstart |
 
 ### The Random Scenario generator
 
@@ -114,6 +116,12 @@ different stars from the nine and eleven different non-star guests from the
 thirty-four that can be bought (not counting the Old Neighbour and Rich
 Cousin), plus the Old Neighbours and Rich Cousins. Nothing is filtered, so
 some deals really are hard, as players describe.
+
+Every Random list is dealt from a six-digit code, as the original's are
+([S], [W]). The intro shows it; on the scenario menu, RIGHT on the Random
+row types a code in (the box starts on the last one), and the same code
+deals the same list. Our reading: a typed-in code doesn't count for the
+streak, either way, so a known list can't be replayed into a streak.
 
 ### Readings we had to choose
 
@@ -144,6 +152,8 @@ some deals really are hard, as players describe.
 - **Fortune teller:** a star swapped out is replaced by a random non-star from
   the rolodex; nothing happens if the rolodex has no guest of the other kind.
 - **The ban** after a shutdown is chosen from the guests who were at that party.
+  Quitting on the police or fire screen doesn't skip it: CONTINUE resumes at
+  the ban (ph_17). Quitting on the tally resumes at the tally.
 - **Streak:** only Random Scenario wins count; a Random loss resets it, and so
   does abandoning a Random run in progress. A set scenario never changes it.
 - **2P Versus** is hot seat: the players take alternate nights on one
@@ -189,9 +199,19 @@ Only the platform needs every UFO 40 cartridge has:
 | B | cancel, back |
 | START | pause menu |
 
-The guest book (the whole deck) is a button under the door and in the shop.
-Helper lines, the star and trouble counters and the house count were
-removed from the screens; the neighbour's lamp is the only warning.
+The guest book (the whole deck, each guest with a count) is a button under
+the door and in the planner. It doesn't split the deck into guests still to
+come and guests out: no source says the original shows the draws left.
+
+The party's top bar, like the original's panel [MM], shows the nights left
+(a lantern and a count that runs 25 to 1), fame, cash and four star pips
+that turn from blue to yellow for each star guest in the house. The trouble
+count stays hidden; the neighbour's lamp is the only warning.
+
+The planner follows the original's layout [MM]: LEFT and RIGHT switch
+between the categories GUESTS, STARS and HOUSE (a new space, the guest book,
+the next party); UP and DOWN pick an item. Guests are listed by price, white
+when you can afford them, with their stock left as white squares.
 
 ## Testing hooks
 
@@ -222,5 +242,9 @@ seeded random number generator, so the tests can replay parties exactly.
 - [ST] Steam threads "Party House - 5 winning streak", "Party House Scenario
   5" and "Any tips on party house?": streak runs on Random, the fifth
   scenario's lack of trouble cancelling, the bouncer can boot itself.
+- [MM] Steam guide "The missing manuals": the planner ("left and right on
+  the d-pad switch between categories, while up and down select different
+  items"), the party panel with parties left and four star symbols that
+  start blue. https://steamcommunity.com/sharedfiles/filedetails/?id=3350227767
 - [L] Lostnostalgia and Indie Hell Zone reviews: popularity buys guests, cash
   buys space, no card removal, the Random streak for the cherry.

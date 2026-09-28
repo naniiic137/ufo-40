@@ -22,6 +22,9 @@ describe:
 | Finale | level 50 behind the last gate | room 50, Humph's bath, behind the last gate |
 | Editor | custom levels 51–60 | custom rooms 51–60 |
 | Order of ideas | black blocks by room 6 ([SR]); blue blocks, toads, arrows and doors later | basalt at room 6; lapis from 17, geckos from 29, arrows, stone patches and doors from 39 |
+| Room size and length | "big loops", "mind-bending"; perfect clears of all 50 take 1 h 20 ([L]) | up to 20 x 10 tiles (the whole screen); rooms 1-3 teach in a few steps, the other 47 take 77 to 300 steps at their shortest (6,205 for all fifty, about 21 minutes of perfect play at our pace) |
+| Scenery | hedges and statues; 2 x 2 and 3 x 3 pieces blocks can't overlap ([MM], [SE]) | palm planters (2 x 2) and statues of Humph (3 x 3), standing like wall |
+| Siblings | the hub lets you swap Koala Kid and his sister ([W]) | talk to Tuft by the first pool to swap: she walks the gardens and the rooms in her pink scarf |
 
 ## Mechanics checklist
 
@@ -35,7 +38,7 @@ presses.
 | Merging | a block pushed into a 1 that can't move takes it in and weighs one more (2 + 1 = 3; two 1s make a 2); a 1 that can move is pushed | [MM], [P] "a 3 can merge with a 1 and turn into a 4" | fn_03 |
 | The fennec | pushes sandstone (red) of any number | [TT] | fn_02 |
 | Lapis (blue) | only another block, of equal or more weight, can push it | [TT], [L] | fn_04 |
-| Basalt (black) | shrinks by one when a push by the fennec ends, not when pushed by a block or merged; a 1 crumbles | [SR], [TT], [P] | fn_05 |
+| Basalt (black) | shrinks by one when a push by the fennec ends (the direction is let go and the step has finished, or another direction is pressed), not while the push is held, not when pushed by a block or merged; a 1 crumbles | [SR], [TT], [P] | fn_05, fn_17 |
 | Black 1s | added to red or blue blocks | [TT] | fn_05 |
 | Five | a block reaching 5 turns to grey marble and never changes | [TT] | fn_03 |
 | Geckos (toads) | copy every step the fennec takes | [P], [L] | fn_06 |
@@ -47,13 +50,24 @@ presses.
 | No death, no timer | none | [MM] | |
 | Pace | slow, a tile at a time | [ST] "how slow the Koala goes" | fn_12 |
 | Hub and gates | 50 huts, gates at 5/10/20/30/40 | [W] | fn_08 |
-| Editor | ten custom rooms, 51–60 | [MM], [SE] | fn_11 |
+| Editor | ten custom rooms, 51–60, with scenery; no black 4 | [MM], [SE] | fn_11 |
+| Sibling switch | talk to the sister in the hub to swap who walks | [W] | fn_18 |
 | Goals | complete a custom room; beat room 50; beat room 50 holding all 50 drops | [W], [SK] | fn_10, fn_11 |
 
 ### Readings we had to choose
 
-- **Basalt size:** a black N is N × N ([SE]'s editor limits; unconfirmed).
-  It shrinks keeping its top-left corner.
+- **Basalt size:** a black 2 or 3 is N × N ([SE]'s editor limits; unconfirmed).
+  It shrinks keeping its top-left corner. [SE] says a black 4 can be placed
+  where a 4 × 4 wouldn't fit, so its size is unknown: the editor has no
+  BASALT 4 and no room uses one.
+- **Letting go:** the shrink comes when the push ends. Held, a push goes on
+  step after step; tapped, each tap is a push of its own. B takes a push and
+  its shrink back together. In a stored solution, '.' marks letting go.
+- **Scenery** is wall to everything; the planter's palm and the statue only
+  look different.
+- **The sibling switch** changes who is shown walking (Fen, or Tuft in her
+  scarf); the rules are the same for both. Block Koala's sister offers a
+  break; what else the switch does isn't described.
 - **Doors:** no source says how they work. We read them as gates held open
   while every plate carries a block or a creature, and a door with
   something in it stays open until it is clear (the "priority" cheese in
@@ -71,7 +85,12 @@ presses.
   camel has piped every spring into his bath.
 - **Characters:** Fen, Tuft, Old Moss, the tile-setter, the mason, Cousin
   Bramble, Lord Humph, the geckos.
-- **All 50 rooms**, the hub garden, pixel art and music.
+- **All 50 rooms**, the hub garden, pixel art and music. Rooms 4 to 50 were
+  grown by our own generator (`tools/fennec/fnsolve.c`): random walls and
+  blocks for each chapter's pieces, mutated by hill climbing towards long
+  shortest solutions that push blocks round and round. Every candidate was
+  solved by breadth-first search on the game's own rule code, so each stored
+  solution is a shortest one. No layout comes from any other source.
 
 ## Additions: none
 
@@ -85,7 +104,7 @@ own.
 |---|---|
 | D-pad | walk / push (hold to keep walking) |
 | B | undo a step (or back to the mark) |
-| A | room menu; in the garden, enter a hut or talk |
+| A | room menu; in the garden, enter a hut or talk (to Tuft or Fen: swap) |
 | START | pause menu |
 
 Editor: A places the chosen piece (hold to paint), B opens the pieces and
@@ -94,7 +113,7 @@ PLAY TEST, SAVE AND EXIT, CLEAR ROOM.
 ## Not reproduced / unconfirmed
 
 - Level codes for sharing custom rooms (no text entry on the console).
-- The sister's "need a break?" offer ([W] dialogue): what it does is unknown.
+- The sister's exact effect beyond swapping who walks (see Readings).
 - Whether toads push blocks, and door rules (see Readings).
 
 ## Sources
