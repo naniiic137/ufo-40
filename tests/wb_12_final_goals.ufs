@@ -1,6 +1,6 @@
 # WOBBLE DERBY: the biggest purse after the last race wins. The Saucer is a
 # one-player win over 6 races or more (not 3); the Alien is a win over
-# exactly 6 races with $10,000 or more.
+# exactly 6 races with $10,000 or more. A tie at the top earns neither.
 game wobble
 wait 5
 cheat new 3 1
@@ -50,6 +50,29 @@ wait 25
 press A
 expect rank0 == 1
 expect goals == 2
+# six races, level with a rival on $10,000: no goal, no win
+cheat new 6 1
+cheat cpus_idle
+cheat round 6
+cheat cash 0 10000
+cheat cash 1 10000
+cheat cash 2 0
+wait 25
+press A
+press UP
+press A
+waituntil state == 7 400
+wait 25
+press A
+waituntil state == 9 3000
+botuntil state == 10 1000
+wait 25
+press A
+expect state == 11
+expect final0 == 10000
+expect final1 == 10000
+expect goals == 2
+expect stat_wins == 2
 # six races with $9,000: a win, but no Alien
 cheat new 6 1
 cheat round 6
@@ -114,4 +137,4 @@ expect state == 11
 expect rank0 == 3
 expect final0 == -2000
 expect stat_wins == 4
-expect stat_games == 5
+expect stat_games == 6

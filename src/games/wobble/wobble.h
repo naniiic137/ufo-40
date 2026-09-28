@@ -73,7 +73,7 @@ typedef struct WbPlayer {
     uint8_t bet_on;      /* lane 0..2, WB_NONE for no bet */
     int32_t bet;
     uint8_t job, job_lane;
-    uint8_t tips;        /* lanes looked up at the tip booth this round, a bit each */
+    uint8_t tips;        /* the lane looked up at the tip booth this round (one bit; one look a race) */
     uint8_t trains;      /* coach sessions booked this round */
     int32_t won, bonus, fine, interest; /* this round, for the payout sheet */
     uint8_t sponsor_wins;/* times a wobbler it sponsors has won */
@@ -84,7 +84,7 @@ typedef struct WbLane {
     int16_t form;        /* speed this race */
     uint8_t stab;        /* clumsiness this race */
     uint8_t pep, fizz, nobbled, minded;
-    uint16_t poison_at;  /* tick it collapses, 0 none */
+    uint8_t poisoned;    /* nightshade: the first fall is its last */
     int16_t trip;        /* ticks left on the ground */
     int16_t fizz_f;      /* the pills' current pace, per cent */
     uint8_t dead, done;
@@ -93,6 +93,12 @@ typedef struct WbLane {
     uint16_t litter[WB_MAX_LITTER]; /* pixel positions of litter on this lane */
     uint16_t litter_hit;            /* a bit per piece already passed */
     uint8_t trips;
+    /* fizz pills: it goes after a neighbour */
+    int8_t dy;           /* pixels off its own lane */
+    uint8_t fz_phase;    /* 0 running wild, 1 going for someone, 2 drifting back */
+    uint8_t fz_target;   /* the lane it's going for */
+    uint16_t fz_t;
+    uint8_t hits;        /* runners it has knocked over */
 } WbLane;
 
 typedef struct WbMeteor {
@@ -103,6 +109,7 @@ typedef struct WbMeteor {
 
 typedef struct WbRace {
     uint8_t field[WB_FIELD]; /* racer index in each lane */
+    uint8_t offer[WB_FIELD]; /* the stables' three for future races (WB_NONE: none) */
     uint8_t odds[WB_FIELD];  /* X : 1 */
     uint8_t event;
     WbLane lane[WB_FIELD];
@@ -169,7 +176,10 @@ int wb_rank(const WbGame *g, int p);     /* 1 = first (ties share) */
 /* odds from a record */
 int wb_odds_for(const WbGame *g, const uint8_t *field, int lane);
 /* the demo player's pick (and the CPUs' judgement): win chance in 1/1000 */
-void wb_estimate(const WbGame *g, int *pmil, bool know_stats, uint32_t seed);
+void wb_estimate(const WbGame *g, int *pmil, int known_lanes, uint32_t seed);
+void wb_deal_offer(WbGame *g);           /* the stables' shortlist, never this race's runners */
+bool wb_on_offer(const WbGame *g, int racer);
+bool wb_strict_first(const WbGame *g, int p); /* richer than both rivals (the goals) */
 
 /* ---- art & audio ------------------------------------------------------- */
 enum {

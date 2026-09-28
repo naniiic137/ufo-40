@@ -373,40 +373,6 @@ static const char F_FOXY[] =
     "....kkkkkkkkk..."
     "...kPPPPPPPPPk.."
     "..kPPPPPPPPPPPk.";
-static const char F_POSY[] =
-    "................"
-    "......kkkk......"
-    "....kkttttkk...."
-    "...kttttttttk..."
-    ".kkttttttttttkk."
-    "kttttKKKKKKttttk"
-    ".kkkkkkkkkkkkkk."
-    "...kccccccccck.."
-    "...kcwkcccwkck.."
-    "...kcccccccccck."
-    "...kcKcccccKcck."
-    "...kccccrrcccck."
-    "....kcccccccck.."
-    ".....kkkkkkkk..."
-    "....kzzzKzzzzk.."
-    "...kzzzzzzzzzzk.";
-static const char F_KIP[] =
-    "....kkkkkkkk...."
-    "...kaaaaaaaak..."
-    "..kaaaaaaaaaak.."
-    "..kaakkkkkkaak.."
-    "..kakCCkkCCkak.."
-    "..kakCIkkCIkak.."
-    "..kakkkkkkkkak.."
-    "..kttttttttttk.."
-    "..kttttttttttk.."
-    "..kttttkkttttk.."
-    "..kttttttttttk.."
-    "...kttttttttk..."
-    "....kkkkkkkk...."
-    "...kggoggoggk..."
-    "..kgggggggggk..."
-    "..kgggggggggk...";
 static const char F_TWIG[] =
     "................"
     "....kkkkk......."
@@ -424,23 +390,57 @@ static const char F_TWIG[] =
     "..kjzzzzzzzzjk.."
     ".kzzjzzzzzzjzzk."
     ".kzzzzzzzzzzzzk.";
-static const char F_WADE[] =
+static const char F_OOBA[] =
     "....kkkkkkkk...."
-    "...kbbbbbbbbk..."
-    "...kbbbbbbbbk..."
-    ".kkkkkkkkkkkkkk."
-    "kbbbbbbbbbbbbbbk"
-    ".kkttttttttttkk."
-    "..kttttttttttk.."
-    "..ktwkttttwktk.."
-    "..kttttttttttk.."
-    "..kttttbbttttk.."
-    "..kttbbbbbbttk.."
-    "..krrrrrrrrrrk.."
-    "..krrwrrrrwrrkk."
-    "...krrrrrrrrkrrk"
-    "..kttttttttttkk."
-    ".kttttttttttttk.";
+    "....kkkkkkkk...."
+    "..kkkkkkkkkkkk.."
+    "...kppppppppk..."
+    "..kppppppppppk.."
+    ".kppwwppppwwppk."
+    ".kppwkppppwkppk."
+    ".kppppppppppppk."
+    ".kpppppkkpppppk."
+    "..kppppppppppk.."
+    "..kpkpkppkpkpk.."
+    ".kpkpkpkpkpkpkk."
+    ".kpk.kpkpk.kpk.."
+    "kpk..kpkpk..kpk."
+    "kk...kpk.kk..kk."
+    ".....kk.........";
+static const char F_ZENK[] =
+    "....kkkkkkkk...."
+    "..kkllllllllkk.."
+    ".kllKllKKllKllk."
+    "kllllKKllKKllllk"
+    "kllllllllllllllk"
+    ".kgggggggggggk.."
+    "..kgkkkgkkkggk.."
+    "..kkwwkkkwwkkk.."
+    "..kgkkkgkkkggk.."
+    "..kggggggggggk.."
+    "...kgggkkgggk..."
+    "....kggggggk...."
+    ".....kkkkkk....."
+    "....kVVwwVVk...."
+    "...kVVVwwVVVk..."
+    "..kVVVVwwVVVVk..";
+static const char F_LUMA[] =
+    "................"
+    ".....kkkkkk....."
+    "...kkCCCCCCkk..."
+    "..kCCIIIICCCCk.."
+    ".kCCIwwCCwwCCCk."
+    ".kCCIwkCCwkCCCk."
+    ".kCCCCCCCCCCCCk."
+    ".kCCCCCKKCCCCCk."
+    "..kCCCCCCCCCCk.."
+    "...kkkkkkkkkk..."
+    "...kCk.kCk.kCk.."
+    "..kCk.kCk.kCk..."
+    "...kCk.kCk.kCk.."
+    "..kIk.kIk.kIk..."
+    "...k...k...k...."
+    "................";
 /* the track's regulars */
 static const char F_BOOTH[] =
     "........k......."
@@ -547,7 +547,7 @@ static const char F_ANCHOR[] =
 
 static const char *const FACES[WB_CHARS] = {
     F_GLOOB, F_VEXA, F_ZORP, F_OOZ, F_K7, F_NIBBS, F_FUZZ, F_QUILLA,
-    F_MO, F_TILLY, F_PEPPER, F_FOXY, F_POSY, F_KIP, F_TWIG, F_WADE,
+    F_MO, F_TILLY, F_PEPPER, F_FOXY, F_OOBA, F_ZENK, F_TWIG, F_LUMA,
 };
 
 /* every drawing is checked for its size; a short one is padded, never read past */

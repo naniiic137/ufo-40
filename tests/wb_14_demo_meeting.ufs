@@ -1,6 +1,7 @@
 # WOBBLE DERBY: the demo punter plays a whole six-race meeting from the
-# title screen with button presses alone: it pays the tip booth, backs the
-# best value it can see, sponsors a wobbler in the first race, borrows and
+# title screen with button presses alone: it pays the tip booth for one look
+# at the favourite, buys its pick a pep snack from the fixer, backs the best
+# value it can see, sponsors a wobbler from the stables, borrows and
 # goes all in at the end if it's behind, and reads the news and the pay
 # window until the final count.
 seed 11
@@ -10,7 +11,8 @@ expect state == 0
 botuntil state == 5 600
 expect round == 1
 botuntil sponsored0 == 1 2000
-botuntil tips0 == 7 2000
+botuntil tips0 >= 1 2000
+botuntil job0 == 1 2000
 botuntil round == 2 8000
 botuntil state == 11 60000
 expect done == 1

@@ -25,7 +25,7 @@ typedef struct Save {
     int32_t best;         /* the best final purse in a game you won */
     WbGame run;
 } Save;
-#define SAVE_MAGIC 0x57424401u
+#define SAVE_MAGIC 0x57424402u
 
 static Save sv;
 static WbGame G;
@@ -33,17 +33,17 @@ static int state, state_t, frame_t, sub, sub_t;
 static int title_sel, setup_row, setup_len = 1;
 static uint8_t setup_chr[WB_PLAYERS] = {0, 2, 6};
 static uint8_t setup_human[WB_PLAYERS] = {1, 0, 0};
-static int menu_sel, lane_sel, amt, job_sel, list_sel, list_top, lend_sel, coach_sel, tip_lane;
+static int menu_sel, lane_sel, amt, job_sel, list_sel, lend_sel, coach_sel, tip_lane;
 static int news_shown;
 static const char *msg;
 static int msg_t;
-static bool sure_poison;
 /* race presentation */
 static char call_line[64];
 static int call_t;
-static int prev_trip[WB_FIELD], prev_dead[WB_FIELD], prev_done[WB_FIELD];
+static int prev_trip[WB_FIELD], prev_dead[WB_FIELD], prev_done[WB_FIELD], prev_hits[WB_FIELD];
 static int shake_t, leader;
 static bool public_cards;   /* the CPUs' turns: no punter's own notes on the cards */
+static bool cpus_idle;      /* tests: the rival punters pass */
 
 #define CARD_X 4
 #define CARD_W 196
@@ -139,7 +139,7 @@ static void next_turn(void) {
 static void begin_turn(void) {
     int p = cur_p();
     if (!G.pl[p].human) {
-        wb_cpu_turn(&G, p);
+        if (!cpus_idle) wb_cpu_turn(&G, p);
         goto_state(S_CPU);
         return;
     }
@@ -170,7 +170,7 @@ static void finish_meeting(void) {
     sv.has_run = 0;
     if (sv.games < 65535) sv.games++;
     bool solo = G.humans == 1;
-    if (wb_rank(&G, 0) == 1 && G.pl[0].human) {
+    if (wb_strict_first(&G, 0) && G.pl[0].human) {
         if (sv.wins < 65535) sv.wins++;
         if (wb_final(&G, 0) > sv.best) sv.best = wb_final(&G, 0);
         if (solo && G.nraces >= 6) game_award(GOAL_SAUCER);
@@ -221,14 +221,12 @@ static void lane_nav(void) {
     if (btn_repeat(BTN_DOWN)) { lane_sel = (lane_sel + 1) % WB_FIELD; sfx_play_name("wb_move"); }
 }
 
-/* the sponsor list: every wobbler still racing, and the gone ones last */
-static int book_order[WB_RACERS];
-static int book_n;
-static void build_book(void) {
-    book_n = 0;
-    for (int pass = 0; pass < 2; pass++)
-        for (int i = 0; i < WB_RACERS; i++)
-            if (wb_active(&G, i) == (pass == 0)) book_order[book_n++] = i;
+/* the stables' shortlist: the offered wobblers, in order */
+static int offer_list(int *out) {
+    int n = 0;
+    for (int k = 0; k < WB_FIELD; k++)
+        if (G.race.offer[k] != WB_NONE) out[n++] = G.race.offer[k];
+    return n;
 }
 
 static int my_sponsored(int p, int *out) {
@@ -269,7 +267,13 @@ static void update_paddock(void) {
             sfx_play_name("wb_shady");
             break;
         case MI_LENDER: lend_sel = P->debt > 0 ? 1 : 0; open_sub(M_LENDER); break;
-        case MI_SPONSOR: build_book(); list_sel = 0; list_top = 0; open_sub(M_SPONSOR); break;
+        case MI_SPONSOR: {
+            int offer[WB_FIELD];
+            if (!offer_list(offer)) { sfx_play_name("ui_error"); say("THE STABLES HAVE NOBODY ON OFFER."); break; }
+            list_sel = 0;
+            open_sub(M_SPONSOR);
+            break;
+        }
         case MI_COACH: {
             int mine[WB_RACERS];
             if (!my_sponsored(p, mine)) { sfx_play_name("ui_error"); say("THE COACH ONLY TRAINS WOBBLERS YOU SPONSOR."); break; }
@@ -317,6 +321,7 @@ static void update_paddock(void) {
         if (btnp(BTN_B)) { sub = M_MAIN; sfx_play_name("ui_back"); break; }
         if (btnp(BTN_A)) {
             if (P->tips & (1 << lane_sel)) { tip_lane = lane_sel; open_sub(M_TIP_SHOW); break; }
+            if (P->tips) { sfx_play_name("ui_error"); say("THE TIP BOOTH: ONE LOOK A RACE."); break; }
             if (!wb_tip(&G, p, lane_sel)) { sfx_play_name("ui_error"); say("THE TIP BOOTH WANTS CASH UP FRONT."); break; }
             sfx_play_name("wb_coin");
             tip_lane = lane_sel;
@@ -360,14 +365,16 @@ static void update_paddock(void) {
             }
         }
         break;
-    case M_SPONSOR:
-        if (btn_repeat(BTN_UP) && list_sel > 0) { list_sel--; sfx_play_name("wb_move"); }
-        if (btn_repeat(BTN_DOWN) && list_sel < book_n - 1) { list_sel++; sfx_play_name("wb_move"); }
-        if (list_sel < list_top) list_top = list_sel;
-        if (list_sel >= list_top + 9) list_top = list_sel - 8;
+    case M_SPONSOR: {
+        int offer[WB_FIELD];
+        int n = offer_list(offer);
+        if (n == 0) { sub = M_MAIN; break; }
+        if (list_sel >= n) list_sel = n - 1;
+        if (btn_repeat(BTN_UP)) { list_sel = (list_sel + n - 1) % n; sfx_play_name("wb_move"); }
+        if (btn_repeat(BTN_DOWN)) { list_sel = (list_sel + 1) % n; sfx_play_name("wb_move"); }
         if (btnp(BTN_B)) { sub = M_MAIN; sfx_play_name("ui_back"); break; }
         if (btnp(BTN_A)) {
-            int r = book_order[list_sel];
+            int r = offer[list_sel];
             if (wb_sponsor(&G, p, r)) { sfx_play_name("wb_coin"); say("A NEW NAME ON THE STABLE DOOR."); }
             else {
                 sfx_play_name("ui_error");
@@ -378,6 +385,7 @@ static void update_paddock(void) {
             }
         }
         break;
+    }
     case M_COACH: {
         int mine[WB_RACERS];
         int n = my_sponsored(p, mine);
@@ -412,10 +420,7 @@ static void call(const char *s) {
 static void start_race(void) {
     goto_state(S_RACE);
     wb_race_begin(&G);
-    if (sure_poison)
-        for (int p = 0; p < WB_PLAYERS; p++)
-            if (G.pl[p].job == J_NIGHTSHADE && !G.race.lane[G.pl[p].job_lane].minded) G.race.lane[G.pl[p].job_lane].poison_at = 200;
-    for (int l = 0; l < WB_FIELD; l++) prev_trip[l] = prev_dead[l] = prev_done[l] = 0;
+    for (int l = 0; l < WB_FIELD; l++) prev_trip[l] = prev_dead[l] = prev_done[l] = prev_hits[l] = 0;
     call_line[0] = 0;
     call_t = 0;
     leader = -1;
@@ -461,6 +466,15 @@ static void update_race(void) {
         }
         for (int i = 0; i < rc->nmet; i++)
             if (rc->met[i].land == rc->t) { shake_t = 12; sfx_play_name("wb_boom"); }
+        /* a fizzed runner's attack beats the fall it causes to the call */
+        for (int l = 0; l < WB_FIELD; l++) {
+            WbLane *L = &rc->lane[l];
+            if ((int)L->hits <= prev_hits[l]) continue;
+            prev_hits[l] = L->hits;
+            snprintf(b, sizeof b, "%s ATTACKS %s!", rname(rc->field[l]), rname(rc->field[L->fz_target % WB_FIELD]));
+            call(b);
+            sfx_play_name("wb_splat");
+        }
         /* the caller follows the lead */
         int lead = -1;
         for (int l = 0; l < WB_FIELD; l++)
@@ -790,31 +804,35 @@ static void draw_sponsor_list(void) {
     ui_panel(x, y, CARD_W, 124, C_NIGHT, C_AMBER);
     spr_draw(&wb_spr[WA_STABLE], x + 4, y + 3, 0);
     text_draw("THE STABLES", x + 24, y + 3, C_AMBER);
+    tiny_draw("THREE ON OFFER. THEY RUN ANOTHER DAY.", x + 24, y + 13, C_GREY);
     char b[64];
-    snprintf(b, sizeof b, "YOURS: %d/%d", wb_sponsored_count(&G, p), WB_MAX_SPONSOR);
-    tiny_draw(b, x + CARD_W - 6 - tiny_width(b), y + 5, C_GREY);
-    tiny_draw("WON/RAN", x + 78, y + 13, C_GREY);
-    tiny_draw("FEE", x + 116, y + 13, C_GREY);
-    for (int i = 0; i < 9 && list_top + i < book_n; i++) {
-        int k = list_top + i, r = book_order[k], yy = y + 22 + i * 11;
-        bool on = k == list_sel;
-        if (on) gfx_rect(x + 2, yy - 1, CARD_W - 4, 11, C_DUSK);
+    int offer[WB_FIELD];
+    int n = offer_list(offer);
+    for (int i = 0; i < n; i++) {
+        int r = offer[i], yy = y + 24 + i * 24;
+        bool on = i == list_sel;
+        if (on) gfx_rect(x + 2, yy - 2, CARD_W - 4, 23, C_DUSK);
         const WbRacer *R = &G.r[r];
-        int col = !wb_active(&G, r) ? C_SLATE : on ? C_YELLOW : C_LIGHT;
-        gfx_rect(x + 5, yy + 1, 5, 5, wb_body_col(r));
-        text_draw(rname(r), x + 13, yy, col);
-        snprintf(b, sizeof b, "%d/%d", R->wins, R->races);
-        tiny_draw(b, x + 84, yy + 2, col);
-        if (R->out == OUT_RETIRED) tiny_draw("RETIRED", x + 116, yy + 2, C_SLATE);
-        else if (R->out) tiny_draw("GONE", x + 116, yy + 2, C_SLATE);
-        else if (R->sponsor) {
-            tiny_draw(R->sponsor == p + 1 ? "YOURS" : pname(R->sponsor - 1), x + 116, yy + 2, R->sponsor == p + 1 ? C_LIME : C_PINK);
-        } else {
-            tiny_draw(money(wb_sponsor_fee(&G, r)), x + 116, yy + 2, C_AMBER);
-        }
+        wb_draw_racer(r, on && (frame_t / 10) % 2 ? WA_RUN1 : WA_IDLE, x + 6, yy + 3, 0);
+        text_draw(rname(r), x + 26, yy, on ? C_YELLOW : C_WHITE);
+        snprintf(b, sizeof b, "WON %d OF %d", R->wins, R->races);
+        tiny_draw(b, x + 26, yy + 10, C_LIGHT);
+        if (R->sponsor) tiny_draw(R->sponsor == p + 1 ? "YOURS" : pname(R->sponsor - 1), x + 140, yy + 3, R->sponsor == p + 1 ? C_LIME : C_PINK);
+        else text_draw(money(wb_sponsor_fee(&G, r)), x + 140, yy + 1, C_AMBER);
     }
-    if (list_top > 0) tiny_draw(GLYPH_UP, x + CARD_W - 10, y + 22, C_GREY);
-    if (list_top + 9 < book_n) tiny_draw(GLYPH_DOWN, x + CARD_W - 10, y + 112, C_GREY);
+    /* the ones you already have */
+    int mine[WB_RACERS];
+    int k = my_sponsored(p, mine);
+    snprintf(b, sizeof b, "YOURS %d/%d:", k, WB_MAX_SPONSOR);
+    tiny_draw(b, x + 6, y + 100, C_GREY);
+    int xx = x + 50;
+    for (int i = 0; i < k; i++) {
+        tiny_draw(rname(mine[i]), xx, y + 100, C_LIME);
+        xx += tiny_width(rname(mine[i])) + 6;
+    }
+    if (!k) tiny_draw("NONE YET", xx, y + 100, C_SLATE);
+    snprintf(b, sizeof b, "%s EVERY TIME ONE OF YOURS WINS", money(WB_SPONSOR_BONUS));
+    tiny_draw(b, x + 6, y + 110, C_GREY);
 }
 
 static void draw_bet_amount(void) {
@@ -914,7 +932,7 @@ static void draw_race(void) {
     for (int l = 0; l < WB_FIELD; l++) {
         WbLane *L = &rc->lane[l];
         int racer = rc->field[l];
-        int px = START_X + L->x / 256 - 14, py = LANE_Y(l) - 9;
+        int px = START_X + L->x / 256 - 14, py = LANE_Y(l) - 9 + L->dy;
         int frame;
         if (L->dead) frame = WA_DEAD;
         else if (counting || L->done) frame = WA_IDLE;
@@ -922,7 +940,11 @@ static void draw_race(void) {
         else frame = (rc->t / 5) % 2 ? WA_RUN1 : WA_RUN2;
         if (L->done && !L->dead) frame = (frame_t / 10) % 2 ? WA_RUN1 : WA_IDLE;
         int bob = frame == WA_RUN2 ? -1 : 0;
-        if (L->fizz && !L->dead && !counting) bob += (rc->t / 3) % 3 - 1;
+        if (L->fizz && !L->dead && !counting) {
+            bob += (rc->t / 3) % 3 - 1;
+            /* wild eyes and a froth of bubbles */
+            if (!L->done) for (int k = 0; k < 3; k++) gfx_pset(px + 14 + k * 2, py + 2 + ((rc->t / 4 + k) % 3), (k + rc->t / 6) % 2 ? C_PINK : C_WHITE);
+        }
         if (L->trip > 0 && !L->dead) py -= (L->trip > WB_TRIP_TICKS / 2) ? (WB_TRIP_TICKS - L->trip) / 6 : L->trip / 6;
         wb_draw_racer(racer, frame, px, py + bob, 0);
         if (L->pep && !counting && !L->dead && !L->done)
@@ -1292,7 +1314,7 @@ static int bot_plan_bet(void) {
     int p = cur_p();
     WbPlayer *P = &G.pl[p];
     int est[WB_FIELD];
-    wb_estimate(&G, est, P->tips == 7, 99u + G.round);
+    wb_estimate(&G, est, P->tips, 99u + G.round);
     int pick = 0, best = -1;
     for (int l = 0; l < WB_FIELD; l++) {
         int ev = est[l] * (G.race.odds[l] + 1);
@@ -1338,13 +1360,16 @@ static int wb_bot(void) {
     }
     if (msg_t > 0 && sub == M_MAIN && sub_t < 3) return 0;
     int fee = wb_tip_fee(&G);
-    bool tips_left = P->tips != 7 && P->cash >= fee * 3 + 60 && !wb_last_round(&G);
+    bool tips_left = !P->tips && P->cash >= fee + 60 && !wb_last_round(&G);
     switch (sub) {
     case M_MAIN:
         if (bot_want_loan) return nav_menu(MI_LENDER);
         if (P->debt > 0 && !wb_last_round(&G) && P->cash >= P->debt + 200) return nav_menu(MI_LENDER);
         if (tips_left && P->bet_on == WB_NONE) return nav_menu(MI_TIPS);
         if (bot_want_sponsor) return nav_menu(MI_SPONSOR);
+        if (P->bet_on == WB_NONE && bot_goal_amt < 0) { bot_goal_amt = bot_plan_bet(); return 0; }
+        /* a pep snack for its pick */
+        if (P->bet_on == WB_NONE && P->job == J_NONE && P->cash >= WB_JOB_COST[J_PEP] + 20) return nav_menu(MI_FIXER);
         if (P->bet_on == WB_NONE && bet_room() >= 10) return nav_menu(MI_BET);
         return nav_menu(MI_DONE);
     case M_LENDER:
@@ -1357,20 +1382,23 @@ static int wb_bot(void) {
         if (P->debt > 0) { if (lend_sel != 1) return press(BTN_UP); return press(BTN_A); }
         return press(BTN_B);
     case M_TIP_LANE: {
-        int want = -1;
-        for (int l = 0; l < WB_FIELD; l++) if (!(P->tips & (1 << l))) { want = l; break; }
-        if (want < 0 || P->cash < fee) return press(BTN_B);
+        /* one look: the favourite, to see if it's as good as its record */
+        int want = 0;
+        for (int l = 1; l < WB_FIELD; l++) if (G.race.odds[l] < G.race.odds[want]) want = l;
+        if (P->tips || P->cash < fee) return press(BTN_B);
         return nav_lane(want);
     }
     case M_TIP_SHOW: return sub_t > 20 ? press(BTN_A) : 0;
     case M_SPONSOR: {
+        int offer[WB_FIELD];
+        int n = offer_list(offer);
         if (bot_goal_racer < 0) {
-            /* the fastest-looking wobbler it can afford: a good record, cheap */
+            /* the best record on offer that it can afford */
             int best = -1, bs = -1;
-            for (int k = 0; k < book_n; k++) {
-                int r = book_order[k];
-                if (!wb_active(&G, r) || G.r[r].sponsor || wb_sponsor_fee(&G, r) > P->cash - 150) continue;
-                int s = (WB_DEF[r].spd_lo + WB_DEF[r].spd_hi) * 10 - WB_DEF[r].stab_hi * 12 - G.r[r].wins * 10;
+            for (int k = 0; k < n; k++) {
+                int r = offer[k];
+                if (G.r[r].sponsor || wb_sponsor_fee(&G, r) > P->cash - 150) continue;
+                int s = (G.r[r].wins + 1) * 1000 / (G.r[r].races + 2);
                 if (s > bs) { bs = s; best = k; }
             }
             if (best < 0) { bot_want_sponsor = false; return press(BTN_B); }
@@ -1378,13 +1406,18 @@ static int wb_bot(void) {
         }
         if (list_sel < bot_goal_racer) return press(BTN_DOWN);
         if (list_sel > bot_goal_racer) return press(BTN_UP);
-        if (G.r[book_order[list_sel]].sponsor == p + 1) { bot_want_sponsor = false; return press(BTN_B); }
+        if (G.r[offer[list_sel]].sponsor == p + 1) { bot_want_sponsor = false; return press(BTN_B); }
         return press(BTN_A);
     }
     case M_BET_LANE:
         if (bot_goal_amt < 0) bot_goal_amt = bot_plan_bet();
         return nav_lane(bot_goal_lane);
+    case M_FIX_JOB:
+        if (job_sel != J_PEP) return press(BTN_UP);
+        return press(BTN_A);
+    case M_FIX_LANE: return nav_lane(bot_goal_lane);
     case M_BET_AMT:
+        if (bot_goal_amt > bet_room()) bot_goal_amt = bet_room() / 10 * 10;
         if (amt + 100 <= bot_goal_amt) return press(BTN_UP);
         if (amt + 10 <= bot_goal_amt) return press(BTN_RIGHT);
         if (amt > bot_goal_amt) return press(BTN_LEFT);
@@ -1407,7 +1440,7 @@ static void wb_start(void) {
     state = S_TITLE;
     state_t = 0;
     title_sel = 0;
-    sure_poison = false;
+    cpus_idle = false;
     game_set_pausable(false);
     music_play(WB_MUS_TITLE);
 }
@@ -1471,6 +1504,20 @@ static int wb_query(const char *key, int *out) {
     if (!strcmp(key, "lane")) { *out = lane_sel; return 1; }
     if (!strcmp(key, "amt")) { *out = amt; return 1; }
     if (!strcmp(key, "art_ok")) { *out = wb_art_ok(); return 1; }
+    if (!strcmp(key, "offer_ok")) {
+        /* the stables' three: different, still racing, unsponsored, none of them running now */
+        const uint8_t *o = G.race.offer;
+        int ok = 1;
+        for (int k = 0; k < WB_FIELD; k++) {
+            if (o[k] == WB_NONE) { ok = 0; continue; }
+            ok &= wb_active(&G, o[k]) && !G.r[o[k]].sponsor;
+            for (int l = 0; l < WB_FIELD; l++) ok &= o[k] != G.race.field[l];
+            for (int j = 0; j < k; j++) ok &= o[j] != o[k];
+        }
+        *out = ok;
+        return 1;
+    }
+    if (!strncmp(key, "offer", 5) && key[5] >= '0' && key[5] <= '2') { int o = G.race.offer[key[5] - '0']; *out = o == WB_NONE ? -1 : o; return 1; }
     if (!strcmp(key, "field_ok")) {
         /* three different wobblers, all still racing */
         const uint8_t *f = G.race.field;
@@ -1524,7 +1571,7 @@ static int wb_query(const char *key, int *out) {
         }
     }
     /* per lane: fieldL, oddsL, formL, deadL, tripsL, litterL, doneL, xL */
-    static const char *const LK[] = {"field", "odds", "form", "dead", "trips", "litter", "ldone", "px", "minded", "fizz", "pep", "poison"};
+    static const char *const LK[] = {"field", "odds", "form", "dead", "trips", "litter", "ldone", "px", "minded", "fizz", "pep", "poison", "hits", "dy"};
     for (int k = 0; k < ARRAY_LEN(LK); k++) {
         size_t n = strlen(LK[k]);
         if (!strncmp(key, LK[k], n) && key[n] >= '0' && key[n] <= '9') {
@@ -1542,7 +1589,9 @@ static int wb_query(const char *key, int *out) {
             case 8: *out = L->minded; break;
             case 9: *out = L->fizz; break;
             case 10: *out = L->pep; break;
-            case 11: *out = L->poison_at != 0; break;
+            case 11: *out = L->poisoned; break;
+            case 12: *out = L->hits; break;
+            case 13: *out = L->dy; break;
             }
             return 1;
         }
@@ -1596,6 +1645,7 @@ static int wb_cheat(const char *cmd) {
     if (sscanf(cmd, "field %d %d %d", &a, &b, &c) == 3) {
         G.race.field[0] = (uint8_t)a; G.race.field[1] = (uint8_t)b; G.race.field[2] = (uint8_t)c;
         for (int l = 0; l < WB_FIELD; l++) G.race.odds[l] = (uint8_t)wb_odds_for(&G, G.race.field, l);
+        wb_deal_offer(&G);
         return 1;
     }
     if (sscanf(cmd, "odds %d %d", &a, &b) == 2) { G.race.odds[a % WB_FIELD] = (uint8_t)b; return 1; }
@@ -1613,7 +1663,12 @@ static int wb_cheat(const char *cmd) {
         if (rc->nmet < WB_MAX_METEORS) rc->met[rc->nmet++] = (WbMeteor){(uint8_t)a, (int16_t)b, (uint16_t)c};
         return 1;
     }
-    if (!strcmp(cmd, "sure_poison")) { sure_poison = true; return 1; }
+    if (!strcmp(cmd, "cpus_idle")) { cpus_idle = true; return 1; }
+    if (sscanf(cmd, "try_sponsor %d %d", &a, &b) == 2) { wb_sponsor(&G, a % WB_PLAYERS, b % WB_RACERS); return 1; }
+    if (sscanf(cmd, "offer %d %d %d", &a, &b, &c) == 3) {
+        G.race.offer[0] = (uint8_t)a; G.race.offer[1] = (uint8_t)b; G.race.offer[2] = (uint8_t)c;
+        return 1;
+    }
     if (!strcmp(cmd, "reodds")) {
         for (int l = 0; l < WB_FIELD; l++) G.race.odds[l] = (uint8_t)wb_odds_for(&G, G.race.field, l);
         return 1;
@@ -1637,7 +1692,7 @@ const GameDef GAME_WOBBLE = {
     "1989",
     "SIMULATION",
     "BET ON THE WOBBLERS AT CRATER DOWNS. TIPS, LOANS, SPONSORS AND DIRTY TRICKS: THE BIGGEST PURSE WINS.",
-    {"SPONSOR A WOBBLER THAT WINS", "WIN A 1P MEETING OF 6+ RACES", "WIN 6 RACES WITH $10,000"},
+    {"SPONSOR A WOBBLER THAT WINS", "WIN A 1P MEETING OF 6+ RACES", "WIN A 6-RACE 1P MEETING WITH $10,000"},
     "D-PAD\tMOVE / SET THE BET\n"
     GLYPH_A "\tCHOOSE / CONFIRM\n"
     GLYPH_B "\tBACK\n"

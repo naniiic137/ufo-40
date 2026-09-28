@@ -1,4 +1,5 @@
-# WOBBLE DERBY: sponsoring (fee $100 + $50 a win, three at most), the coach
+# WOBBLE DERBY: sponsoring from the stables' three (never this race's
+# runners; fee $100 + $50 a win, three at most), the coach
 # (sponsored wobblers only, once a race each, two a race, +2 speed for
 # good) and the $500 bonus when a sponsored wobbler wins, bet or no bet.
 # That's the Beacon.
@@ -7,6 +8,9 @@ wait 5
 cheat new 6 1
 cheat cash 1 0
 cheat cash 2 0
+cheat field 6 15 17
+expect offer_ok == 1
+cheat offer 0 1 2
 cheat record 0 2 5
 cheat record 1 0 3
 cheat record 2 1 4
@@ -36,8 +40,8 @@ press DOWN
 press A
 expect cash0 == 550
 expect sponsored0 == 3
-press DOWN
-press A
+cheat offer 0 1 3
+cheat try_sponsor 0 3
 expect sponsor3 == 0
 expect cash0 == 550
 press B
@@ -62,7 +66,6 @@ expect trained2 == 0
 expect cash0 == 450
 press B
 expect goals == 0
-cheat field 6 15 17
 cheat sponsor 0 6
 press DOWN
 expect menu == 6

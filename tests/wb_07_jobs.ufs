@@ -1,7 +1,7 @@
 # WOBBLE DERBY: the fixer's jobs, booked by three players at one pad: a pep
 # snack speeds a wobbler up for the race, a nobble slows one down for good,
-# a peel toss drops litter on a lane, fizz pills make one run all over the
-# place.
+# a peel toss drops litter on a lane, fizz pills send one wild: it runs all
+# over the place and goes for the runners beside it, knocking them over.
 game wobble
 wait 5
 cheat new 6 3
@@ -74,10 +74,12 @@ press A
 press DOWN
 press DOWN
 press A
+cheat field 6 15 17
 press DOWN
 press DOWN
 press DOWN
 press A
+press DOWN
 press A
 expect job0 == 4
 expect cash0 == 920
@@ -88,5 +90,6 @@ press A
 waituntil state == 7 400
 wait 25
 press A
-expect fizz0 == 1
-expect fizz1 == 0
+expect fizz1 == 1
+expect fizz0 == 0
+waituntil hits1 >= 1 2000

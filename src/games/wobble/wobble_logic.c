@@ -52,10 +52,10 @@ const WbChar WB_CHAR[WB_CHARS] = {
     {"TILLY",      "A FARM ROBOT ON HER NIGHT OFF"},
     {"PEPPER",     "A COURIER CAT WITH HER WAGES"},
     {"FOXY",       "SHE LIKES THINGS FAST"},
-    {"POSY",       "THE PALACE GARDENER, IN DISGUISE"},
-    {"KIP",        "A SCRAP-DIVER WITH SCRAP MONEY"},
+    {"OOBA",       "EIGHT ARMS, EIGHT BETTING SLIPS"},
+    {"PROF. ZENK", "HAS A SYSTEM. IT NEVER WORKS"},
     {"TWIG",       "YOU WON'T SEE HER COMING"},
-    {"WADE",       "SPENDING SOMEBODY ELSE'S MONEY"},
+    {"LUMA",       "GLOWS WHEN SHE WINS"},
 };
 
 const int WB_JOB_COST[J_COUNT] = {0, 50, 20, 50, 80, 120, 50};
@@ -134,9 +134,49 @@ static void event_setup(WbRace *rc, Rng *rng) {
 }
 
 static void trip(WbLane *L) {
-    if (L->trip > 0) return;
+    if (L->trip > 0 || L->dead) return;
     L->trip = WB_TRIP_TICKS;
     if (L->trips < 255) L->trips++;
+    if (L->poisoned) L->dead = OUT_COLLAPSED;   /* nightshade: it doesn't get up */
+}
+
+/* fizz pills: running wild, and now and then going for a neighbour */
+static int fizz_pace(WbRace *rc, int l, Rng *rng) {
+    WbLane *L = &rc->lane[l];
+    if (L->fz_phase == 0) {
+        if (rc->t % 30 == 1) L->fizz_f = FIZZ_PACE[rng_range(rng, 0, 5)];
+        if (rc->t % 60 == 30 && rng_range(rng, 0, 99) < 60) {
+            int best = -1, bd = 0;
+            for (int t = l - 1; t <= l + 1; t += 2) {
+                if (t < 0 || t >= WB_FIELD) continue;
+                const WbLane *T = &rc->lane[t];
+                if (T->dead || T->done) continue;
+                int d = iabs(T->x - L->x);
+                if (best < 0 || d < bd) { best = t; bd = d; }
+            }
+            if (best >= 0) { L->fz_phase = 1; L->fz_target = (uint8_t)best; L->fz_t = 0; }
+        }
+        return L->fizz_f;
+    }
+    L->fz_t++;
+    if (L->fz_phase == 1) {
+        WbLane *T = &rc->lane[L->fz_target];
+        int want = (L->fz_target - l) * 26;
+        if (L->fz_t % 2 == 0 && L->dy != want) L->dy = (int8_t)(L->dy + isign(want - L->dy));
+        int dx = T->x - L->x;
+        if (T->dead || T->done || L->fz_t > 240) { L->fz_phase = 2; return 100; }
+        if (iabs(L->dy - want) <= 4 && iabs(dx) <= 10 * 256) {
+            trip(T);
+            if (L->hits < 255) L->hits++;
+            if (rng_range(rng, 0, 99) < 40) trip(L);
+            L->fz_phase = 2;
+            return 100;
+        }
+        return dx > 8 * 256 ? 220 : dx < -8 * 256 ? 30 : 100;
+    }
+    if (L->fz_t % 2 == 0 && L->dy != 0) L->dy = (int8_t)(L->dy - isign(L->dy));
+    if (L->dy == 0) L->fz_phase = 0;
+    return 100;
 }
 
 /* one tick of the race; true while it is still running */
@@ -158,18 +198,15 @@ static bool race_tick(WbRace *rc, Rng *rng) {
     for (int l = 0; l < WB_FIELD; l++) {
         WbLane *L = &rc->lane[l];
         if (L->dead || L->done) continue;
-        if (L->poison_at && rc->t >= L->poison_at) { L->dead = OUT_COLLAPSED; continue; }
         int v = L->form * 2;
-        if (L->fizz) {
-            if (rc->t % 30 == 1) L->fizz_f = FIZZ_PACE[rng_range(rng, 0, 5)];
-            v = v * L->fizz_f / 100;
-        }
+        if (L->fizz) v = v * fizz_pace(rc, l, rng) / 100;
         if (L->trip > 0) {
             L->trip--;
             v = v / 5;                     /* tumbling on, still moving */
         } else if ((int)(rng_next(rng) % 10000) < L->stab * 5 * smog) {
             trip(L);
         }
+        if (L->dead) continue;
         int old_px = L->x / 256;
         L->x += v;
         if (L->x < 0) L->x = 0;
@@ -181,7 +218,7 @@ static bool race_tick(WbRace *rc, Rng *rng) {
                 if (rng_range(rng, 0, 99) < 10 + 9 * L->stab) trip(L);
             }
         }
-        if (L->x >= WB_TRACK) {
+        if (L->x >= WB_TRACK && !L->dead) {
             L->done = 1;
             L->finish_t = rc->t;
             if (rc->winner == WB_NONE && (crossed < 0 || L->x > crossed_x)) { crossed = l; crossed_x = L->x; }
@@ -207,11 +244,11 @@ static int win_chance_mil(const WbGame *g, const uint8_t *field, int lane) {
     return sum ? w[lane] * 1000 / sum : 333;
 }
 
-/* X : 1 from the record, with the track keeping a tenth */
+/* X : 1 from the record: fair odds, rounded */
 int wb_odds_for(const WbGame *g, const uint8_t *field, int lane) {
     int p = win_chance_mil(g, field, lane);
     if (p < 20) p = 20;
-    int x = ((1000 - p) * 900 / p + 500) / 1000;
+    int x = ((1000 - p) * 1000 / p + 500) / 1000;
     return iclamp(x, 1, 20);
 }
 
@@ -229,12 +266,36 @@ static void deal_field(WbGame *g, uint8_t *field) {
     }
 }
 
+bool wb_on_offer(const WbGame *g, int racer) {
+    for (int i = 0; i < WB_FIELD; i++)
+        if (g->race.offer[i] == racer) return true;
+    return false;
+}
+
+/* three wobblers that may run in a future race: still racing, not in this
+ * race and not already sponsored */
+void wb_deal_offer(WbGame *g) {
+    int pool[WB_RACERS], n = 0;
+    for (int i = 0; i < WB_RACERS; i++) {
+        bool running = false;
+        for (int l = 0; l < WB_FIELD; l++) running |= g->race.field[l] == i;
+        if (wb_active(g, i) && !running && !g->r[i].sponsor) pool[n++] = i;
+    }
+    for (int k = 0; k < WB_FIELD; k++) {
+        if (k >= n) { g->race.offer[k] = WB_NONE; continue; }
+        int j = rng_range(&g->rng, k, n - 1);
+        int t = pool[k]; pool[k] = pool[j]; pool[j] = t;
+        g->race.offer[k] = (uint8_t)pool[k];
+    }
+}
+
 void wb_start_round(WbGame *g) {
     WbRace *rc = &g->race;
     memset(rc, 0, sizeof *rc);
     rc->winner = WB_NONE;
     deal_field(g, rc->field);
     for (int l = 0; l < WB_FIELD; l++) rc->odds[l] = (uint8_t)wb_odds_for(g, rc->field, l);
+    wb_deal_offer(g);
     /* the weather: rare, and the tip booth knows it in advance */
     rc->event = rng_range(&g->rng, 0, 99) < 9 ? (uint8_t)rng_range(&g->rng, EV_METEORS, EV_SMOG) : EV_NONE;
     for (int p = 0; p < WB_PLAYERS; p++) {
@@ -298,7 +359,8 @@ bool wb_bet(WbGame *g, int p, int lane, int amount) {
 bool wb_tip(WbGame *g, int p, int lane) {
     WbPlayer *P = &g->pl[p];
     int fee = wb_tip_fee(g);
-    if (lane < 0 || lane >= WB_FIELD || (P->tips & (1 << lane)) || P->cash < fee) return false;
+    /* one look a race */
+    if (lane < 0 || lane >= WB_FIELD || P->tips || P->cash < fee) return false;
     P->cash -= fee;
     P->tips |= (uint8_t)(1 << lane);
     return true;
@@ -334,6 +396,10 @@ bool wb_repay(WbGame *g, int p) {
 bool wb_sponsor(WbGame *g, int p, int racer) {
     WbPlayer *P = &g->pl[p];
     if (racer < 0 || racer >= WB_RACERS || !wb_active(g, racer) || g->r[racer].sponsor) return false;
+    /* only the stables' three, and never a runner in this race */
+    if (!wb_on_offer(g, racer)) return false;
+    for (int l = 0; l < WB_FIELD; l++)
+        if (g->race.field[l] == racer) return false;
     if (wb_sponsored_count(g, p) >= WB_MAX_SPONSOR) return false;
     int fee = wb_sponsor_fee(g, racer);
     if (P->cash < fee) return false;
@@ -398,8 +464,8 @@ void wb_race_begin(WbGame *g) {
             break;
         case J_FIZZ: L->fizz = 1; break;
         case J_NIGHTSHADE:
-            /* it doesn't always work */
-            if (rng_range(&g->rng, 0, 99) < 60) L->poison_at = (uint16_t)rng_range(&g->rng, 150, 520);
+            /* it dies at its first fall, if it falls */
+            L->poisoned = 1;
             break;
         }
     }
@@ -502,6 +568,12 @@ bool wb_next_round(WbGame *g) {
 
 int wb_final(const WbGame *g, int p) { return g->pl[p].cash - g->pl[p].debt; }
 
+bool wb_strict_first(const WbGame *g, int p) {
+    for (int q = 0; q < WB_PLAYERS; q++)
+        if (q != p && wb_final(g, q) >= wb_final(g, p)) return false;
+    return true;
+}
+
 int wb_rank(const WbGame *g, int p) {
     int r = 1;
     for (int q = 0; q < WB_PLAYERS; q++)
@@ -512,8 +584,10 @@ int wb_rank(const WbGame *g, int p) {
 /* ------------------------------------------------------------------ */
 /* judging a race: win chances in 1/1000                                */
 
-void wb_estimate(const WbGame *g, int *pmil, bool know_stats, uint32_t seed) {
-    if (!know_stats) {
+/* A punter who looked a wobbler up at the tip booth knows its real speed
+ * and footing; for the others it can only guess from the record. */
+void wb_estimate(const WbGame *g, int *pmil, int known_lanes, uint32_t seed) {
+    if (!known_lanes) {
         for (int l = 0; l < WB_FIELD; l++) pmil[l] = win_chance_mil(g, g->race.field, l);
         return;
     }
@@ -527,7 +601,15 @@ void wb_estimate(const WbGame *g, int *pmil, bool know_stats, uint32_t seed) {
         rc.winner = WB_NONE;
         memcpy(rc.field, g->race.field, sizeof rc.field);
         rc.event = g->race.event;
-        for (int l = 0; l < WB_FIELD; l++) lane_setup(g, &rc, l, &r);
+        for (int l = 0; l < WB_FIELD; l++) {
+            lane_setup(g, &rc, l, &r);
+            if (known_lanes & (1 << l)) continue;
+            /* a guess: a winning record reads as speed, and middling feet */
+            const WbRacer *R = &g->r[rc.field[l]];
+            int centre = 42 + 16 * (R->wins + 1) / (R->races + 2);
+            rc.lane[l].form = (int16_t)rng_range(&r, centre - 5, centre + 5);
+            rc.lane[l].stab = (uint8_t)rng_range(&r, 3, 8);
+        }
         event_setup(&rc, &r);
         while (race_tick(&rc, &r)) {}
         if (rc.winner != WB_NONE) wins[rc.winner]++;
@@ -553,25 +635,30 @@ void wb_cpu_turn(WbGame *g, int p) {
     for (int q = 0; q < WB_PLAYERS; q++)
         if (q != p && wb_final(g, q) >= wb_final(g, p)) leader = 0;
     if (P->debt > 0 && P->cash >= P->debt + 150) wb_repay(g, p);
-    /* a look at the tip booth when it's affordable */
-    int fee = wb_tip_fee(g);
-    bool know = P->cash >= fee * 3 + 60 && rng_range(rng, 0, 99) < 40;
-    if (know)
-        for (int l = 0; l < WB_FIELD; l++) wb_tip(g, p, l);
+    /* one look at the tip booth when it's affordable: the favourite */
     int est[WB_FIELD];
-    wb_estimate(g, est, know, rng_next(rng));
+    wb_estimate(g, est, 0, 0);
+    int fee = wb_tip_fee(g);
+    if (P->cash >= fee + 60 && rng_range(rng, 0, 99) < 30) wb_tip(g, p, best_rival_lane(est, -1));
+    wb_estimate(g, est, P->tips, rng_next(rng));
     int pick = 0, best_ev = -1;
     for (int l = 0; l < WB_FIELD; l++) {
-        int ev = est[l] * (g->race.odds[l] + 1) * (80 + rng_range(rng, 0, 40)) / 100;
+        int ev = est[l] * (g->race.odds[l] + 1) * (70 + rng_range(rng, 0, 60)) / 100;
         if (ev > best_ev) { best_ev = ev; pick = l; }
     }
+    /* punters play hunches too */
+    if (rng_range(rng, 0, 99) < 20) {
+        pick = rng_range(rng, 0, WB_FIELD - 1);
+        best_ev = est[pick] * (g->race.odds[pick] + 1);
+    }
     /* behind at the end: borrow and go all in on a price worth it */
-    if (last && !leader && P->debt == 0 && g->race.odds[pick] >= 2) wb_borrow(g, p);
+    if (last && !leader && P->debt == 0 && g->race.odds[pick] >= 2 && rng_range(rng, 0, 99) < 35) wb_borrow(g, p);
     /* sponsoring early on, and the coach */
     if (g->round * 2 < g->nraces && wb_sponsored_count(g, p) < 2 && rng_range(rng, 0, 99) < 30) {
         int b = -1, bs = -1;
-        for (int i = 0; i < WB_RACERS; i++) {
-            if (!wb_active(g, i) || g->r[i].sponsor || g->r[i].races < 2) continue;
+        for (int k = 0; k < WB_FIELD; k++) {
+            int i = g->race.offer[k];
+            if (i == WB_NONE || !wb_active(g, i) || g->r[i].sponsor) continue;
             int s = (g->r[i].wins + 1) * 1000 / (g->r[i].races + 2);
             if (s > bs) { bs = s; b = i; }
         }
@@ -580,13 +667,13 @@ void wb_cpu_turn(WbGame *g, int p) {
     for (int i = 0; i < WB_RACERS; i++)
         if (g->r[i].sponsor == p + 1 && P->cash >= WB_TRAIN_COST + 250 && rng_range(rng, 0, 99) < 60) wb_train(g, p, i);
     /* the fixer */
-    if (rng_range(rng, 0, 99) < (last ? 75 : 45)) {
+    if (rng_range(rng, 0, 99) < (last ? 60 : 35)) {
         int rival = best_rival_lane(est, pick);
         int roll = rng_range(rng, 0, 99);
         int job, lane;
         if (est[pick] >= 450 && roll < 35) { job = J_MINDER; lane = pick; }
-        else if (roll < 50) { job = J_NIGHTSHADE; lane = rival; }
-        else if (roll < 68) { job = J_NOBBLE; lane = rival; }
+        else if (roll < 45) { job = J_NIGHTSHADE; lane = rival; }
+        else if (roll < 65) { job = J_NOBBLE; lane = rival; }
         else if (roll < 80) { job = J_FIZZ; lane = rival; }
         else if (roll < 92) { job = J_PEP; lane = pick; }
         else { job = J_PEEL; lane = rival; }
@@ -596,10 +683,10 @@ void wb_cpu_turn(WbGame *g, int p) {
     int cap = wb_cap(g);
     int room = cap ? imin(cap, P->cash) : P->cash;
     int amt;
-    if (last && !leader) amt = room;
-    else if (best_ev >= 1300) amt = room * rng_range(rng, 75, 100) / 100;
-    else if (best_ev >= 1050) amt = room * rng_range(rng, 35, 60) / 100;
-    else amt = room * rng_range(rng, 8, 20) / 100;
+    if (last && !leader) amt = room * rng_range(rng, 60, 100) / 100;
+    else if (best_ev >= 1300) amt = room * rng_range(rng, 40, 70) / 100;
+    else if (best_ev >= 1050) amt = room * rng_range(rng, 20, 40) / 100;
+    else amt = room * rng_range(rng, 5, 15) / 100;
     if (!cap && leader) amt = imin(amt, P->cash / 2);
     amt = amt / 10 * 10;
     if (amt < 10 && P->cash >= 10) amt = 10;
