@@ -306,12 +306,15 @@ static uint32_t hunt_buttons(void) {
     if (best < 0) { hunt_sub = -1; dd_bot_state = 2; return 0; }
     if (dd_carry < 0 || dd_ent[dd_carry].kind != EK_OBJ || dd_ent[dd_carry].sub != O_POPGUN) { dd_bot_state = 3; return 0; }
     const Ent *e = &dd_ent[best];
-    float dx = e->x + e->w / 2 - pcx, dy = e->y + e->h - pb;
+    float dx = e->x + e->w / 2 - pcx;
     hunt_t++;
     bool clear = true;
     for (float t = 0; t < fabsf(dx); t += 3)
         if (dd_body_blocked(&dd_lv, TS, pcx + (dx > 0 ? t : -t), dd_p.y + 5, 1, 4)) { clear = false; break; }
-    if (exec_f < 0 && dd_p.ground && clear && fabsf(dy) < 10 && fabsf(dx) < 100 && fabsf(dx) > 2) {
+    /* the pea flies at chest height: it must meet the creature's body */
+    float pea_top = dd_p.y + 5, pea_bot = pea_top + 4;
+    bool level = pea_bot > e->y && pea_top < e->y + e->h;
+    if (exec_f < 0 && dd_p.ground && clear && level && fabsf(dx) < 100 && fabsf(dx) > 2) {
         bool facing_ok = (dx > 0) == (dd_p.facing != 0);
         uint32_t b = 0;
         if (!facing_ok) b = dx > 0 ? BTN_RIGHT : BTN_LEFT;

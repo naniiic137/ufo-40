@@ -66,6 +66,11 @@ cheat bot_clear
 expect foes_22 == 1
 expect foehp_22 == 10
 # peas bounce off it while it's shut
+waituntil foestate_22 == 0 300
+cheat bot_to foe:22
+botuntil bot_state >= 2 3000
+cheat bot_clear
+waituntil foestate_22 == 0 300
 hold A 1
 wait 2
 press B

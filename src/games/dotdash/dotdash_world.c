@@ -1325,7 +1325,7 @@ static void spawn_chunk(const LevelDesc *d, int i) {
     }
     if ((e = extra_for(d, px, X_PFISH, 0)) && !((dd_sv.counts[QC_PAPERFISH] >> e->param) & 1)) {
         int tx = ox + 24, ty = B->surf[tx] - 1;
-        int j = spawning && !dd_no_foes ? put(EK_FOE, F_PAPERFISH, tx, ty) : -1;
+        int j = spawning ? put(EK_FOE, F_PAPERFISH, tx, ty) : -1; /* quest creatures always come */
         if (j >= 0) dd_ent[j].param = e->param + 1;
     }
     if ((e = extra_for(d, px, X_GLUE, 0)) && !((dd_sv.counts[QC_GLUE] >> e->param) & 1) && !dd_obj_exists(O_GLUE, e->param)) {

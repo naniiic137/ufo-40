@@ -4,7 +4,7 @@ game dotdash
 wait 5
 cheat newgame
 cheat no_foes
-cheat area 0 124 83
+cheat area 0 125 83
 wait 10
 expect scale == 1
 expect ground == 1
@@ -34,13 +34,13 @@ waituntil ground == 1 90
 hold LEFT 20
 expect ty == 82
 # a fall of 12 to 24 tiles costs a heart, a longer one two
-cheat tile 124 65
+cheat tile 125 65
 wait 2
 expect hp == 6
 waituntil ground == 1 120
 expect hp == 4
 wait 70
-cheat tile 124 50
+cheat tile 125 50
 wait 2
 waituntil dead > 0 120
 expect hp == 0
@@ -52,8 +52,8 @@ expect clock == 1206
 cheat grow
 cheat give 9
 cheat skip_dialog
-cheat area 0 124 83
-cheat tile 124 50
+cheat area 0 125 83
+cheat tile 125 50
 wait 2
 waituntil ground == 1 120
 expect hp == 6

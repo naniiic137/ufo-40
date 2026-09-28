@@ -1,0 +1,103 @@
+# DOT & DASH: the true ending. Once the Old Filament has told her (after the
+# Big Bang), Dot can shrink as deep as she goes right behind the queen's
+# throne and meet Nib, who turns the lock from inside. Nib sends her to Tock
+# in the clockworks: a thousand glints restore the room's balance. If she
+# has already escaped, the true ending plays at once (the Alien goal); if
+# not, beating Sir Sprocket afterwards gives the true ending instead.
+game dotdash
+wait 5
+cheat newgame
+cheat no_foes
+cheat nodash
+cheat god
+cheat up tonic1
+cheat up tonic2
+cheat set filament_paid
+cheat set throne_open
+cheat set escaped
+cheat set sprocket_dead
+cheat glints 1000
+# Tock says nothing of balance before Nib
+cheat area 6 4 23
+wait 5
+cheat bot_to npc:6
+botuntil bot_state == 2 3000
+press UP
+wait 5
+cheat bot_talk
+botuntil bot_state == 2 900
+expect asking == 0
+expect flag.balance == 0
+# behind the throne, as deep as she can go
+cheat micro 0 18 36 4
+cheat no_foes
+wait 5
+expect town == 18
+cheat bot_to door:14
+botuntil bot_state == 2 3000
+hold DOWN 100
+waituntil trans == 0 60
+expect scale == 3
+expect level_id == 3
+cheat bot_to npc:44
+botuntil bot_state == 2 2000
+press UP
+wait 5
+cheat bot_talk
+botuntil bot_state == 2 900
+expect flag.met_nib == 1
+# Tock and a thousand glints
+cheat area 6 4 23
+wait 5
+cheat bot_to npc:6
+botuntil bot_state == 2 3000
+press UP
+wait 5
+cheat bot_talk
+botuntil bot_state == 2 900
+expect asking == 1
+press LEFT
+press A
+wait 5
+expect flag.balance == 1
+expect glints < 10
+cheat bot_talk
+botuntil bot_state == 2 900
+waituntil state == 3 120
+expect flag.true_end == 1
+expect goals.dotdash & 4
+# the other order: balance first, then the knight
+cheat newgame
+cheat no_foes
+cheat nodash
+cheat god
+cheat set met_nib
+cheat set paid_queen
+cheat glints 1000
+cheat area 6 4 23
+wait 5
+cheat bot_to npc:6
+botuntil bot_state == 2 3000
+press UP
+wait 5
+cheat bot_talk
+botuntil bot_state == 2 900
+press LEFT
+press A
+wait 5
+expect flag.balance == 1
+expect flag.true_end == 0
+cheat bot_talk
+botuntil bot_state == 2 900
+expect state == 2
+cheat special 2
+wait 5
+cheat obj 16
+cheat bot_hunt 26
+botuntil foes_26 == 0 12000
+cheat bot_clear
+cheat bot_talk
+botuntil bot_state == 2 900
+waituntil state == 3 120
+expect flag.true_end == 1
+expect flag.escaped == 1

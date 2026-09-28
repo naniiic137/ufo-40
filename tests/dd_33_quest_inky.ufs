@@ -1,0 +1,77 @@
+# DOT & DASH: Inky the bookworm, in the top of the bookshelf, lost six
+# books to paperfish. Each lives in the micro world of one book: shrink in,
+# shoot it, and when all six are gone Inky pays 20 and shows what he was
+# hiding behind him.
+game dotdash
+wait 5
+cheat newgame
+cheat no_foes
+cheat nodash
+cheat god
+cheat up tonic1
+# paperfish 1
+cheat micro 0 49 139 4
+wait 5
+expect foes_10 == 1
+cheat obj 16
+cheat bot_hunt 10
+botuntil foes_10 == 0 6000
+cheat bot_clear
+cheat grow
+# paperfish 2
+cheat micro 0 46 136 4
+wait 5
+expect foes_10 == 1
+cheat obj 16
+cheat bot_hunt 10
+botuntil foes_10 == 0 6000
+cheat bot_clear
+cheat grow
+# paperfish 3
+cheat micro 0 52 142 4
+wait 5
+expect foes_10 == 1
+cheat obj 16
+cheat bot_hunt 10
+botuntil foes_10 == 0 6000
+cheat bot_clear
+cheat grow
+# paperfish 4
+cheat micro 0 55 145 4
+wait 5
+expect foes_10 == 1
+cheat obj 16
+cheat bot_hunt 10
+botuntil foes_10 == 0 6000
+cheat bot_clear
+cheat grow
+# paperfish 5
+cheat micro 0 45 131 4
+wait 5
+expect foes_10 == 1
+cheat obj 16
+cheat bot_hunt 10
+botuntil foes_10 == 0 6000
+cheat bot_clear
+cheat grow
+# paperfish 6
+cheat micro 0 20 141 4
+wait 5
+expect foes_10 == 1
+cheat obj 16
+cheat bot_hunt 10
+botuntil foes_10 == 0 6000
+cheat bot_clear
+cheat grow
+expect qc_6 == 63
+cheat area 0 132 16
+cheat nodash
+wait 5
+cheat bot_to npc:10
+botuntil bot_state == 2 3000
+press UP
+wait 5
+cheat bot_talk
+botuntil bot_state == 2 900
+expect flag.inky_done == 1
+expect picks_1 >= 4
