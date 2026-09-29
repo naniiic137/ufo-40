@@ -18,6 +18,21 @@
 > coding assistant (Claude Code), which wrote the code, pixel art, music, levels
 > and tests from my descriptions, research notes and play-testing feedback.
 
+## What's new (v0.6.2)
+
+- **22 cartridges** in a 50-slot library, each checked against its UFO 50 original by an independent review.
+- **OPEN HOUSE** got the owner's overhaul:
+  - a guest book that works like Party House's rolodex (still to come / at the party / out tonight)
+  - badges on every guest (fame, cash, trouble, star, ability) and an icon guide
+  - red OVER CAPACITY / TOO MUCH TROUBLE / BANNED notices
+  - a door peek that never blocks the screen, ∞ stock on stars
+  - every scenario open, with gold BEATEN tiles
+  - the endless OPEN ALL NIGHT mode, a CUSTOM scenario builder, and two new guests (CROONER, ALBATROSS)
+  - Party House's 65 fame / $30 cash caps, and a slower end-of-party tally (hold A to hurry)
+- **SKYWELL** is fairer after player feedback: shorter knockback, safety after a star landing, and no bats doubling up.
+- **Controls:** one press is always one action, and sticks can't flicker into double moves.
+- **Screens:** no text runs off the edge or over other text in the library, save data, jukebox, pause menu or goal pop-ups. A test checks every cartridge.
+
 ---
 
 ## What is this?
