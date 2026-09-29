@@ -1,5 +1,5 @@
 # Promo: the header and footer cards of the vertical video, as stills.
-# @GAMES@ is filled in by render.sh with the number of clips.
+# @GAMES@ is filled in by render.sh with the number of games in the edit.
 wait 30
 press A
 wait 60
@@ -10,8 +10,8 @@ overlay_text c 160 118 1 C 50 SLOTS \x88 @GAMES@ GAMES SO FAR
 shot card_top
 overlay_clear
 overlay_box 0 0 320 180 k
-overlay_text C 160 34 2 y PLAY FREE IN YOUR BROWSER
-overlay_text C 160 62 2 C NANIIIC137.GITHUB.IO/UFO-40
-overlay_text c 160 92 1 w ALSO ON PS VITA (HOMEBREW) & PC
+overlay_text C 160 34 2 y CHECK THE REPO
+overlay_text c 160 62 1 C GITHUB.COM/NANIIIC137/UFO-40
+overlay_text c 160 88 1 w FOR PS VITA (HOMEBREW) & PC
 overlay_text c 160 150 0 g FAN-MADE TRIBUTE \x8a NOT AFFILIATED WITH MOSSMOUTH
 shot card_bottom

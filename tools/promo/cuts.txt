@@ -1,31 +1,47 @@
 # The promo's edit: one shot per line, in order.
-#   CLIP  FIRST  FRAMES
+#   CLIP  FIRST  FRAMES  [EFFECT=VALUE ...]
 # CLIP is a recording made by tools/promo/*.ufs or tools/promo/clips/*.ufs
 # (build/promo/clips/CLIP/ and CLIP.wav), FIRST its first frame and FRAMES
-# how many to use. 60 frames a second; the montage track runs at 150 bpm,
-# so a bar is 96 frames and every cut after the boot lands on a bar line.
-boot      0   240
-library   4   192
-03      560    96
-07       20   192
-14      170    96
-10       40   192
-01      290    96
-47       50   192
-45      210    96
-46      600    96
-28      955    96
-05      300    96
-13      369    96
-09       90    96
-18       45    96
-44      150    96
-04      135    96
-41        0    96
-15       88    96
-02       50    96
-16      200    96
-30      336    96
-25      290    96
-06      190   192
-endcard   0   288
+# how many to use. 60 frames a second; the montage track runs at 150 bpm
+# from the first frame, so a beat is 24 frames, a bar 96, and every cut
+# lands on a beat (most on a bar line). tools/promo/fx.c draws the effects:
+#   in=flash|glitch|mosaic|dither|zoom|cut   how the shot comes in
+#   zoom=F,F      zoom punches (x1.08) at these frames of the shot
+#   shake=F,F     screen shakes at these frames
+#   cap=slide|drop|slam   how the caption (the clip script's overlay_text
+#                 lines) comes in; the TRIBUTE TO line types on after it
+#   title=TEXT sub=TEXT badge=TEXT   words of its own ('_' is a space)
+#   hold=F        the recording stops moving at frame F
+#   as=hook|end   the boot, under the hook's or the end card's words
+# The big moments sit on beats: FIRST is picked so the hit is at 24 or 72.
+# "grid" is the 22-games counter; "tile CLIP FIRST" adds a game that is
+# only in the grid.
+boot     118  192  as=hook
+library    4  192  in=glitch
+03       565   96  in=flash cap=slide shake=24
+07        20  192  in=glitch cap=drop
+14       166   96  in=mosaic cap=slam shake=30,44 zoom=72
+10        76   96  in=flash cap=slide zoom=24 shake=24,38,52,66,86
+01       274   96  in=dither cap=drop zoom=24 shake=24
+47        93   96  in=glitch cap=slam zoom=24
+45       210   96  in=flash cap=slide
+46       600   96  in=mosaic cap=drop
+28       899   96  in=glitch cap=slide zoom=72
+05       317   96  in=dither cap=slam shake=24
+13       529   48  in=flash cap=slide shake=24
+09        82   48  in=glitch cap=slide shake=24
+18        40   48  in=flash cap=slide
+44       235   48  in=glitch cap=slide zoom=24 shake=24
+04       176   96  in=mosaic cap=drop shake=24
+41         0   96  in=flash cap=slam
+15        94   96  in=dither cap=slide
+02        51   96  in=glitch cap=drop shake=24,72
+16       199   96  in=flash cap=slam
+30       357   96  in=mosaic cap=slide shake=24
+06       291   96  in=glitch cap=slam shake=24 zoom=72
+ohnew      8   72  in=zoom cap=slam badge=NEW! title=NEW:_OPEN_ALL_NIGHT sub=25_OPEN_HOUSE'S_ENDLESS_MODE
+ohnew    204   48  in=glitch cap=slide badge=NEW! title=NEW:_CUSTOM_LISTS sub=PICK_EVERY_GUEST_YOURSELF
+ohnew    418   72  in=flash cap=drop badge=NEW! title=NEW:_ROLODEX_GUEST_BOOK sub=EVERY_GUEST_AT_A_GLANCE
+tile      25  290
+grid       0  192  in=flash
+boot      64  288  as=end in=flash hold=300

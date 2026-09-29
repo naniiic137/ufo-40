@@ -1,0 +1,92 @@
+# Promo: OPEN HOUSE's new modes for the "NEW" beat: the guest lists with
+# OPEN ALL NIGHT (the endless mode) and its picker, then the CUSTOM list
+# editor, then the guest book (the rolodex). One recording; cuts.txt takes
+# three shots from it.
+audio on
+volume 0 10
+seed 25
+game openhouse
+wait 30
+press A
+wait 5
+press A
+wait 20
+record_start ohnew
+wav_start ohnew
+wait 16
+press UP
+wait 22
+press A
+wait 20
+press LEFT
+wait 14
+press RIGHT
+wait 14
+press UP
+wait 14
+press DOWN
+wait 30
+press B
+wait 20
+press RIGHT
+wait 20
+press A
+wait 24
+press A
+wait 10
+press RIGHT
+wait 8
+press A
+wait 10
+press RIGHT
+wait 8
+press A
+wait 10
+press DOWN
+wait 8
+press A
+wait 10
+press RIGHT
+wait 8
+press A
+wait 10
+press RIGHT
+wait 8
+press A
+wait 30
+# the guest book mid-party (Party House's rolodex): every copy in three
+# groups, as tools/shots/25_openhouse.ufs stages it
+cheat new 3 1
+cheat give 34 1
+cheat give 41 1
+cheat give 27 1
+cheat give 18 1
+cheat give 23 1
+cheat give 39 1
+cheat give 5 1
+cheat give 7 1
+cheat give 32 1
+cheat copy 1 1 0 0
+cheat copy 2 0 0 2
+cheat cap 10
+cheat door 0 1 2 34 7 27 23 5
+cheat away 18
+cheat away 1
+cheat away 32
+wait 30
+press DOWN
+press DOWN
+press A
+wait 20
+press RIGHT
+wait 24
+press RIGHT
+wait 24
+press LEFT
+wait 24
+press DOWN
+wait 24
+press DOWN
+wait 40
+record_stop
+wav_stop

@@ -38,11 +38,19 @@ else
   SDL_LIBS   := $(shell sdl2-config --libs 2>/dev/null)
 endif
 
-.PHONY: all headless test sdl clean shots
+.PHONY: all headless test sdl clean shots promo_fx
 
 all: headless
 
 headless: $(HEADLESS_BIN)
+
+# the promo video's compositor (tools/promo/render.sh)
+PROMO_FX := $(BUILD)/promo_fx$(EXE)
+promo_fx: $(PROMO_FX)
+
+$(PROMO_FX): tools/promo/fx.c src/engine/gfx.c src/engine/font.c src/engine/gfx.h src/engine/font.h
+	@mkdir -p $(BUILD)
+	$(CC) $(OPT) -std=c11 -Wall -Wextra -o $@ tools/promo/fx.c src/engine/gfx.c src/engine/font.c -lm
 
 $(HEADLESS_BIN): $(CORE_OBJ) $(HEADLESS_OBJ)
 	$(CC) -o $@ $^ $(LDLIBS)
