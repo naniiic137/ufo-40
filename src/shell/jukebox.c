@@ -85,7 +85,7 @@ const char *shell_song_title(int song) {
 }
 
 #define MAX_ROWS 448 /* every song plus a heading per cartridge */
-#define LIST_Y 66
+#define LIST_Y 69 /* the scroll marks fit between the panels */
 #define ROW_H 10
 #define VISIBLE 9
 
@@ -187,65 +187,128 @@ static int song_seconds(int song) {
     return bpm > 0 ? ticks * 60 / (48 * bpm) : 0;
 }
 
-static void jb_draw(void) {
-    ui_starfield(t, C_INK);
-    static const uint8_t grad[] = {C_YELLOW, C_AMBER, C_ORANGE};
-    ui_fancy_center("JUKEBOX", 160, 5, 2, grad, 3, C_INK, C_WINE);
+/* Every text element reports its box to the layout audit (ui_audit_*); the
+ * jukebox_layout query draws every row and every song's now-playing panel
+ * with the audit on. */
+#define METER_X 262
 
-    /* now playing */
-    ui_panel(10, 24, 300, 36, C_NIGHT, playing_pick() ? C_YELLOW : C_SLATE);
+/* The now-playing panel for song (-1 = nothing), el seconds in. */
+static void draw_now(int song, int el) {
+    ui_panel(10, 24, 300, 36, C_NIGHT, song >= 0 ? C_YELLOW : C_SLATE);
+    ui_audit_area("now playing", 12, 26, METER_X - 2 - 12, 32); /* left of the meter */
     char buf[80];
-    if (playing_pick()) {
+    if (song >= 0) {
         text_draw(GLYPH_NOTE, 16, 30, (t / 15) % 2 ? C_YELLOW : C_AMBER);
-        text_draw(shell_song_title(g_jukebox_song), 26, 30, C_WHITE);
-        int len = song_seconds(g_jukebox_song), el = play_t / 60;
-        if (song_loops(g_jukebox_song)) snprintf(buf, sizeof buf, "%s " GLYPH_DOT " LOOPS EVERY %d:%02d " GLYPH_DOT " %d:%02d",
-                                                 group_name(shell_song_owner(g_jukebox_song)), len / 60, len % 60, el / 60, el % 60);
-        else snprintf(buf, sizeof buf, "%s " GLYPH_DOT " JINGLE %d:%02d", group_name(shell_song_owner(g_jukebox_song)), len / 60, len % 60);
+        ui_audit_text("note", GLYPH_NOTE, 16, 30);
+        text_draw(shell_song_title(song), 26, 30, C_WHITE);
+        ui_audit_text("song title", shell_song_title(song), 26, 30);
+        int len = song_seconds(song);
+        if (song_loops(song)) snprintf(buf, sizeof buf, "%s " GLYPH_DOT " LOOPS EVERY %d:%02d " GLYPH_DOT " %d:%02d",
+                                       group_name(shell_song_owner(song)), len / 60, len % 60, el / 60, el % 60);
+        else snprintf(buf, sizeof buf, "%s " GLYPH_DOT " JINGLE %d:%02d", group_name(shell_song_owner(song)), len / 60, len % 60);
         tiny_draw(buf, 26, 42, C_GREY);
+        ui_audit_tiny("song info", buf, 26, 42);
         /* a little level meter */
         float peak = 0, rms = 0;
         audio_stats(&peak, &rms);
         for (int i = 0; i < 8; i++) {
             float wob = 0.55f + 0.45f * sinf((float)t * 0.21f + (float)i * 1.7f);
             int h = iclamp((int)((rms * 3.0f + 0.12f) * wob * 22.0f), 1, 20);
-            gfx_rect(262 + i * 5, 50 - h, 4, h, h > 14 ? C_ORANGE : h > 8 ? C_YELLOW : C_LIME);
+            gfx_rect(METER_X + i * 5, 50 - h, 4, h, h > 14 ? C_ORANGE : h > 8 ? C_YELLOW : C_LIME);
         }
     } else {
         text_draw("NOTHING PLAYING", 26, 30, C_GREY);
+        ui_audit_text("song title", "NOTHING PLAYING", 26, 30);
         tiny_draw("PICK A TUNE AND PRESS A", 26, 42, C_SLATE);
+        ui_audit_tiny("song info", "PICK A TUNE AND PRESS A", 26, 42);
     }
+}
+
+/* Row r of the list at y. */
+static void draw_row(int r, int y) {
+    const Row *row = &rows[r];
+    ui_audit_area("list row", 14, y - 1, 292, ROW_H);
+    if (row->song < 0) {
+        const char *name = group_name(row->owner);
+        tiny_draw(name, 18, y + 2, C_YELLOW);
+        ui_audit_tiny("heading", name, 18, y + 2);
+        int rx = 18 + tiny_width(name) + 4;
+        if (rx < 300) gfx_hline(rx, 300, y + 4, C_DUSK);
+        return;
+    }
+    char buf[40];
+    bool s = r == sel, on = playing_pick() && g_jukebox_song == row->song;
+    if (s) gfx_rect(14, y - 1, 292, ROW_H, C_DUSK);
+    if (s) ui_cursor(16, y, t);
+    if (on) text_draw(GLYPH_NOTE, 26, y, C_YELLOW);
+    ui_audit_box("cursor and note", 16, y, 16, 7);
+    text_draw(shell_song_title(row->song), 36, y, s ? C_WHITE : on ? C_YELLOW : C_GREY);
+    ui_audit_text("song title", shell_song_title(row->song), 36, y);
+    int len = song_seconds(row->song);
+    snprintf(buf, sizeof buf, "%s %d:%02d", song_loops(row->song) ? "LOOP" : "JINGLE", len / 60, len % 60);
+    tiny_draw(buf, 302 - tiny_width(buf), y + 1, s ? C_LIGHT : C_SLATE);
+    ui_audit_tiny("length", buf, 302 - tiny_width(buf), y + 1);
+}
+
+/* The scroll marks, in the gaps above and below the list's panel (the
+ * glyphs' top and bottom rows are blank). */
+static void draw_marks(bool up, bool down) {
+    int ly = LIST_Y - 4, lh = VISIBLE * ROW_H + 6;
+    ui_audit_area("screen", 0, 0, SCREEN_W, 166);
+    ui_audit_box("now playing panel", 10, 24, 300, 36);
+    ui_audit_box("list panel", 10, ly, 300, lh);
+    if (up) text_draw(GLYPH_UP, 300, ly - 6, C_GREY);
+    if (down) text_draw(GLYPH_DOWN, 300, ly + lh - 1, C_GREY);
+    ui_audit_box("scroll up mark", 300, ly - 5, 7, 4);
+    ui_audit_box("scroll down mark", 300, ly + lh, 7, 4);
+}
+
+static void jb_draw(void) {
+    ui_starfield(t, C_INK);
+    static const uint8_t grad[] = {C_YELLOW, C_AMBER, C_ORANGE};
+    ui_fancy_center("JUKEBOX", 160, 5, 2, grad, 3, C_INK, C_WINE);
+
+    draw_now(playing_pick() ? g_jukebox_song : -1, play_t / 60);
 
     /* the list */
     ui_panel(10, LIST_Y - 4, 300, VISIBLE * ROW_H + 6, C_NIGHT, C_DUSK);
-    for (int v = 0; v < VISIBLE && top + v < n_rows; v++) {
-        int r = top + v, y = LIST_Y + v * ROW_H;
-        const Row *row = &rows[r];
-        if (row->song < 0) {
-            tiny_draw(group_name(row->owner), 18, y + 2, C_YELLOW);
-            gfx_hline(18 + tiny_width(group_name(row->owner)) + 4, 300, y + 4, C_DUSK);
-            continue;
-        }
-        bool s = r == sel, on = playing_pick() && g_jukebox_song == row->song;
-        if (s) gfx_rect(14, y - 1, 292, ROW_H, C_DUSK);
-        if (s) ui_cursor(16, y, t);
-        if (on) text_draw(GLYPH_NOTE, 26, y, C_YELLOW);
-        text_draw(shell_song_title(row->song), 36, y, s ? C_WHITE : on ? C_YELLOW : C_GREY);
-        int len = song_seconds(row->song);
-        snprintf(buf, sizeof buf, "%s %d:%02d", song_loops(row->song) ? "LOOP" : "JINGLE", len / 60, len % 60);
-        tiny_draw(buf, 302 - tiny_width(buf), y + 1, s ? C_LIGHT : C_SLATE);
-    }
-    /* scroll marks */
-    if (top > 0) text_draw(GLYPH_UP, 300, LIST_Y - 12, C_GREY);
-    if (top + VISIBLE < n_rows) text_draw(GLYPH_DOWN, 300, LIST_Y + VISIBLE * ROW_H, C_GREY);
+    for (int v = 0; v < VISIBLE && top + v < n_rows; v++) draw_row(top + v, LIST_Y + v * ROW_H);
+    draw_marks(top > 0, top + VISIBLE < n_rows);
 
     gfx_rect(0, 167, SCREEN_W, 13, C_NIGHT);
     gfx_hline(0, SCREEN_W - 1, 166, C_DUSK);
     int fx = ui_hint(6, 170, GLYPH_A, playing_pick() && g_jukebox_song == rows[sel].song ? "STOP" : "PLAY", C_LIGHT);
     fx = ui_hint(fx, 170, GLYPH_LEFT GLYPH_RIGHT, "SKIP", C_LIGHT);
     ui_hint(fx, 170, GLYPH_B, "BACK", C_LIGHT);
+    char buf[24];
     snprintf(buf, sizeof buf, "%d TUNES", n_songs);
     text_draw(buf, SCREEN_W - 6 - text_width(buf), 170, C_GREY);
+}
+
+/* Draws every row and every song's now-playing panel (at its longest
+ * elapsed time) with the layout audit on; returns the problems found. */
+static int audit_all(void) {
+    build();
+    int bad = 0;
+    char subject[80];
+    for (int r = 0; r < n_rows; r++) {
+        snprintf(subject, sizeof subject, "jukebox row %d (%s)", r,
+                 rows[r].song < 0 ? group_name(rows[r].owner) : shell_song_title(rows[r].song));
+        ui_audit_begin(subject, true);
+        draw_row(r, LIST_Y);
+        bad += ui_audit_end();
+        if (rows[r].song < 0) continue;
+        snprintf(subject, sizeof subject, "jukebox now playing %s", shell_song_title(rows[r].song));
+        ui_audit_begin(subject, true);
+        draw_now(rows[r].song, 59 * 60 + 59);
+        bad += ui_audit_end();
+    }
+    ui_audit_begin("jukebox scroll marks", true);
+    draw_marks(true, true);
+    bad += ui_audit_end();
+    ui_audit_begin("jukebox, nothing playing", true);
+    draw_now(-1, 0);
+    return bad + ui_audit_end();
 }
 
 const Scene SCENE_JUKEBOX = {"jukebox", jb_enter, jb_update, jb_draw, NULL};
@@ -256,5 +319,7 @@ bool jukebox_query(const char *key, int *out) {
     if (!strcmp(key, "jukebox_playing")) { *out = playing_pick(); return true; }
     if (!strcmp(key, "jukebox_owner")) { *out = n_rows > 0 ? rows[sel].owner : -2; return true; }
     if (!strcmp(key, "jukebox_missing")) { build(); *out = song_count() - n_songs; return true; }
+    /* layout problems in every row and every song's now-playing panel */
+    if (!strcmp(key, "jukebox_layout")) { *out = audit_all(); return true; }
     return false;
 }

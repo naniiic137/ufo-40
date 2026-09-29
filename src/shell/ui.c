@@ -242,3 +242,175 @@ int ui_hint(int x, int y, const char *glyph, const char *label, int col) {
     int nx = text_draw(glyph, x, y, C_WHITE);
     return text_draw(label, nx + 2, y, col) + 6;
 }
+
+/* ---- word wrap ------------------------------------------------------------ */
+
+static int wrap_width(const char *s, bool tiny) { return tiny ? tiny_width(s) : text_width(s); }
+
+int ui_wrap(const char *s, int w, bool tiny, char lines[][UI_WRAP_LEN], int max) {
+    int n = 0;
+    char cur[UI_WRAP_LEN] = "";
+    const char *p = s;
+    while (*p) {
+        while (*p == ' ') p++;
+        if (!*p) break;
+        const char *ws = p;
+        while (*p && *p != ' ' && *p != '\n') p++;
+        char trial[UI_WRAP_LEN];
+        int len = (int)(p - ws);
+        if (cur[0]) snprintf(trial, sizeof trial, "%s %.*s", cur, len, ws);
+        else snprintf(trial, sizeof trial, "%.*s", len, ws);
+        if (cur[0] && wrap_width(trial, tiny) > w) {
+            if (n < max) snprintf(lines[n], UI_WRAP_LEN, "%s", cur);
+            n++;
+            snprintf(cur, sizeof cur, "%.*s", len, ws);
+        } else {
+            snprintf(cur, sizeof cur, "%s", trial);
+        }
+        if (*p == '\n') {
+            if (n < max) snprintf(lines[n], UI_WRAP_LEN, "%s", cur);
+            n++;
+            cur[0] = 0;
+            p++;
+        }
+    }
+    if (cur[0]) {
+        if (n < max) snprintf(lines[n], UI_WRAP_LEN, "%s", cur);
+        n++;
+    }
+    if (n > max && max > 0) {
+        /* too long: the last line shown ends in "...", dropping words to fit */
+        char *last = lines[max - 1];
+        char trial[UI_WRAP_LEN + 4];
+        for (;;) {
+            snprintf(trial, sizeof trial, "%s...", last);
+            if (wrap_width(trial, tiny) <= w) break;
+            char *sp = strrchr(last, ' ');
+            if (!sp) { /* one word: cut letters */
+                int l = (int)strlen(last);
+                if (l <= 1) break;
+                last[l - 1] = 0;
+            } else {
+                *sp = 0;
+            }
+        }
+        trial[UI_WRAP_LEN - 1] = 0; /* it fits in w, so it fits here */
+        memcpy(last, trial, UI_WRAP_LEN);
+    }
+    return n;
+}
+
+/* ---- layout audit --------------------------------------------------------- */
+
+#define AUDIT_BOXES 64
+static struct {
+    bool on, log;
+    char subject[96];
+    const char *area;
+    int ax, ay, aw, ah;
+    struct { const char *what; int x, y, w, h; } box[AUDIT_BOXES];
+    int n, problems;
+} au;
+
+void ui_audit_begin(const char *subject, bool log) {
+    memset(&au, 0, sizeof au);
+    au.on = true;
+    au.log = log;
+    snprintf(au.subject, sizeof au.subject, "%s", subject);
+    au.area = "screen";
+    au.aw = SCREEN_W;
+    au.ah = SCREEN_H;
+}
+
+bool ui_audit_on(void) { return au.on; }
+
+void ui_audit_area(const char *name, int x, int y, int w, int h) {
+    if (!au.on) return;
+    au.area = name;
+    au.ax = x; au.ay = y; au.aw = w; au.ah = h;
+    au.n = 0;
+}
+
+void ui_audit_fail(const char *what, const char *why) {
+    if (!au.on) return;
+    au.problems++;
+    if (au.log) fprintf(stderr, "  layout: %s: %s %s\n", au.subject, what, why);
+}
+
+void ui_audit_box(const char *what, int x, int y, int w, int h) {
+    if (!au.on) return;
+    char why[160];
+    if (x < au.ax || y < au.ay || x + w > au.ax + au.aw || y + h > au.ay + au.ah) {
+        snprintf(why, sizeof why, "(%d,%d %dx%d) sticks out of the %s (%d,%d %dx%d)", x, y, w, h, au.area, au.ax,
+                 au.ay, au.aw, au.ah);
+        ui_audit_fail(what, why);
+    }
+    for (int i = 0; i < au.n; i++) {
+        int bx = au.box[i].x, by = au.box[i].y, bw = au.box[i].w, bh = au.box[i].h;
+        if (x < bx + bw && bx < x + w && y < by + bh && by < y + h) {
+            snprintf(why, sizeof why, "(%d,%d %dx%d) overlaps %s (%d,%d %dx%d)", x, y, w, h, au.box[i].what, bx, by,
+                     bw, bh);
+            ui_audit_fail(what, why);
+        }
+    }
+    if (au.n < AUDIT_BOXES) {
+        au.box[au.n].what = what;
+        au.box[au.n].x = x; au.box[au.n].y = y; au.box[au.n].w = w; au.box[au.n].h = h;
+        au.n++;
+    }
+}
+
+static void audit_glyphs(const char *what, const char *s, int missing) {
+    if (missing <= 0) return;
+    char why[160];
+    snprintf(why, sizeof why, "\"%.100s\" has %d character%s the font can't draw", s, missing, missing == 1 ? "" : "s");
+    ui_audit_fail(what, why);
+}
+
+void ui_audit_text(const char *what, const char *s, int x, int y) {
+    if (!au.on || !*s) return;
+    int lines = 1;
+    for (const char *p = s; *p; p++) lines += *p == '\n';
+    audit_glyphs(what, s, text_missing(s));
+    /* a table row: what comes before the tab must end short of the tab stop,
+     * or the second column slips out of line */
+    for (const char *p = s; *p;) {
+        const char *end = p, *tab = NULL;
+        while (*end && *end != '\n') {
+            if (*end == '\t' && !tab) tab = end;
+            end++;
+        }
+        if (tab) {
+            char key[UI_WRAP_LEN];
+            snprintf(key, sizeof key, "%.*s", (int)(tab - p), p);
+            if (text_width(key) > TAB_W - 3) {
+                char why[160];
+                snprintf(why, sizeof why, "\"%s\" runs past the tab stop (%d > %d)", key, text_width(key), TAB_W - 3);
+                ui_audit_fail(what, why);
+            }
+        }
+        p = *end ? end + 1 : end;
+    }
+    ui_audit_box(what, x, y, text_width(s), (lines - 1) * LINE_H + FONT_H);
+}
+
+void ui_audit_tiny(const char *what, const char *s, int x, int y) {
+    if (!au.on || !*s) return;
+    audit_glyphs(what, s, tiny_missing(s));
+    ui_audit_box(what, x, y, tiny_width(s), 5);
+}
+
+void ui_audit_fancy(const char *what, const char *s, int x, int y, int scale, bool shadow) {
+    if (!au.on || !*s) return;
+    audit_glyphs(what, s, text_missing(s));
+    /* the outline adds a pixel all round, the shadow one more (two rows at scale 2) */
+    int w = text_width_scaled(s, scale) + (shadow ? 3 : 2);
+    int h = 7 * scale + 2 + (shadow ? (scale >= 2 ? 2 : 1) : 0);
+    ui_audit_box(what, x - 1, y - 1, w, h);
+}
+
+int ui_audit_end(void) {
+    int n = au.problems;
+    au.on = false;
+    return n;
+}

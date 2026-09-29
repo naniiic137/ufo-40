@@ -121,7 +121,11 @@ bool jukebox_query(const char *key, int *out);
 bool savedata_query(const char *key, int *out);
 bool library_query(const char *key, int *out);
 
+static int audit_runner(void);
+
 bool shell_query(const char *key, int *out) {
+    /* layout problems in every cartridge's pause menu and goal toasts */
+    if (!strcmp(key, "pause_layout")) { *out = audit_runner(); return true; }
     if (!strcmp(key, "music_vol")) { *out = g_progress.music_vol; return true; }
     if (!strcmp(key, "sfx_vol")) { *out = g_progress.sfx_vol; return true; }
     if (!strcmp(key, "music_playing")) { *out = music_playing(); return true; }
@@ -331,6 +335,21 @@ static void pause_update(void) {
     }
 }
 
+void app_test_pause(int page) {
+    if (!G()) return;
+    paused = true;
+    pause_sel = 0;
+    pause_page = iclamp(page, 0, 2);
+    pause_t = 0;
+}
+
+void app_test_toast(int goal_bit) {
+    if (!G()) return;
+    toast_game_i = cur_game;
+    toast_bit_i = goal_bit;
+    toast_timer = 100; /* fully in view */
+}
+
 static void runner_update(void) {
     if (exit_requested) {
         exit_requested = false;
@@ -358,23 +377,32 @@ static void runner_update(void) {
     }
 }
 
-static void draw_pause(void) {
+/* Every text element reports its box to the layout audit (ui_audit_*); the
+ * pause_layout query draws each cartridge's pause menu, controls page and
+ * goal toasts with the audit on. */
+static void draw_pause_for(const GameDef *g) {
     gfx_camera(0, 0);
     gfx_noclip();
     gfx_darken_rect(0, 0, SCREEN_W, SCREEN_H, 3);
-    const GameDef *g = G();
     if (pause_page == 1) {
         ui_panel(30, 22, 260, 136, C_NIGHT, C_SLATE);
+        ui_audit_area("controls panel", 32, 24, 256, 132);
         text_center("CONTROLS", 160, 30, C_YELLOW);
+        ui_audit_text("heading", "CONTROLS", 160 - text_width("CONTROLS") / 2, 30);
         text_draw(g->controls, 42, 46, C_LIGHT);
-        text_center(GLYPH_A " BACK", 160, 144, C_GREY);
+        ui_audit_text("controls", g->controls, 42, 46);
+        text_center(GLYPH_A " BACK", 160, 147, C_GREY);
+        ui_audit_box("back, with room above", 160 - text_width(GLYPH_A " BACK") / 2, 145, text_width(GLYPH_A " BACK"), 9);
         return;
     }
     int py = 30 - pause_nextra * 7;
     ui_panel(84, py, 152, 120 + pause_nextra * 13, C_NIGHT, C_SLATE);
+    ui_audit_area("pause panel", 86, py + 2, 148, 116 + pause_nextra * 13);
     gfx_rect(85, py + 1, 150, 15, C_DUSK);
     text_center("PAUSED", 160, py + 5, C_WHITE);
+    ui_audit_text("heading", "PAUSED", 160 - text_width("PAUSED") / 2, py + 5);
     tiny_center(g->title, 160, py + 20, C_GREY);
+    ui_audit_tiny("title", g->title, 160 - tiny_width(g->title) / 2, py + 20);
     if (pause_page == 2) {
         text_center("RESTART GAME?", 160, py + 40, C_YELLOW);
         tiny_center("UNSAVED PROGRESS IS LOST", 160, py + 52, C_GREY);
@@ -388,30 +416,87 @@ static void draw_pause(void) {
         bool sel = i == pause_sel;
         if (sel) gfx_rect(92, y - 3, 136, 13, C_DUSK);
         text_draw(pause_label(i), 108, y, sel ? C_WHITE : C_GREY);
+        ui_audit_text("item", pause_label(i), 108, y);
         if (sel) ui_cursor(98, y, pause_t);
         if (it == PI_MUSIC || it == PI_SFX) {
             int v = it == PI_MUSIC ? g_progress.music_vol : g_progress.sfx_vol;
             for (int k = 0; k < 10; k++) gfx_rect(170 + k * 5, y, 4, 7, k < v ? (sel ? C_YELLOW : C_AMBER) : C_INK);
+            ui_audit_box("volume", 170, y, 49, 7);
         }
     }
 }
 
-static void draw_toast(void) {
-    int t = 200 - toast_timer;
-    int y = -24;
-    if (t < 12) y = -24 + t * 2;
-    else if (toast_timer < 12) y = -24 + toast_timer * 2;
-    else y = 0;
+static void draw_pause(void) { draw_pause_for(G()); }
+
+/* The goal toast is 200 wide, wider for a long goal (up to the screen's
+ * edges), and a line taller if the goal still needs two lines. */
+static int toast_bi(int bit) { return bit == GOAL_BEACON ? 0 : bit == GOAL_SAUCER ? 1 : 2; }
+static int toast_w(const GameDef *g, int bi) {
+    return g ? iclamp(20 + tiny_width(g->goal_desc[bi]) + 7, 200, SCREEN_W - 8) : 200;
+}
+static int toast_lines(const GameDef *g, int bi, char l[2][UI_WRAP_LEN]) {
+    return g ? ui_wrap(g->goal_desc[bi], toast_w(g, bi) - 27, true, l, 2) : 0;
+}
+
+/* The goal toast for game g's goal bit, sliding in to y. */
+static void draw_toast_for(const GameDef *g, int bit, int y, int t) {
     gfx_camera(0, 0);
     gfx_noclip();
-    int x = 60, w = 200;
-    ui_panel(x, y + 2, w, 22, C_NIGHT, C_YELLOW);
-    ui_goal_icon(x + 6, y + 8, toast_bit_i, true, t);
+    int bi = toast_bi(bit);
+    char l[2][UI_WRAP_LEN];
+    int n = toast_lines(g, bi, l);
+    int w = toast_w(g, bi), x = SCREEN_W / 2 - w / 2, h = n > 1 ? 28 : 22;
+    ui_panel(x, y + 2, w, h, C_NIGHT, C_YELLOW);
+    ui_audit_area("toast", x + 2, y + 4, w - 4, h - 4);
+    ui_goal_icon(x + 6, y + 8, bit, true, t);
+    ui_audit_box("icon", x + 6, y + 8, 9, 9);
     const char *names[3] = {"BEACON EARNED!", "SAUCER EARNED!", "ALIEN EARNED!"};
-    int bi = toast_bit_i == GOAL_BEACON ? 0 : toast_bit_i == GOAL_SAUCER ? 1 : 2;
     text_draw(names[bi], x + 20, y + 5, C_YELLOW);
-    const GameDef *g = GAMES[toast_game_i];
-    if (g) tiny_draw(g->goal_desc[bi], x + 20, y + 15, C_LIGHT);
+    ui_audit_text("heading", names[bi], x + 20, y + 5);
+    static const char *const what[2] = {"goal line 1", "goal line 2"};
+    for (int i = 0; i < imin(n, 2); i++) {
+        tiny_draw(l[i], x + 20, y + 15 + i * 6, C_LIGHT);
+        ui_audit_tiny(what[i], l[i], x + 20, y + 15 + i * 6);
+    }
+    if (n > 2) ui_audit_fail("goal", "needs more than two lines");
+}
+
+static void draw_toast(void) {
+    int t = 200 - toast_timer;
+    char l[2][UI_WRAP_LEN];
+    int hide = toast_lines(GAMES[toast_game_i], toast_bi(toast_bit_i), l) > 1 ? -30 : -24; /* just off the top */
+    int y = 0;
+    if (t < 12) y = hide - hide * t / 12;
+    else if (toast_timer < 12) y = hide - hide * toast_timer / 12;
+    draw_toast_for(GAMES[toast_game_i], toast_bit_i, y, t);
+}
+
+/* Draws every cartridge's pause menu, controls page and goal toasts with
+ * the layout audit on; returns the problems found. */
+static int audit_runner(void) {
+    int bad = 0, page = pause_page, nextra = pause_nextra;
+    pause_nextra = 0; /* a game's own items only exist while it runs */
+    char subject[64];
+    for (int i = 0; i < GAME_SLOTS; i++) {
+        const GameDef *g = GAMES[i];
+        if (!g) continue;
+        for (int p = 0; p <= 2; p++) {
+            pause_page = p;
+            snprintf(subject, sizeof subject, "pause %s, page %d", g->title, p);
+            ui_audit_begin(subject, true);
+            draw_pause_for(g);
+            bad += ui_audit_end();
+        }
+        for (int b = 0; b < 3; b++) {
+            snprintf(subject, sizeof subject, "toast %s, goal %d", g->title, b + 1);
+            ui_audit_begin(subject, true);
+            draw_toast_for(g, 1 << b, 0, 0);
+            bad += ui_audit_end();
+        }
+    }
+    pause_page = page;
+    pause_nextra = nextra;
+    return bad;
 }
 
 static void runner_draw(void) {

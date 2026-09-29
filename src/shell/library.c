@@ -146,41 +146,116 @@ static void draw_scrollbar(void) {
     }
 }
 
-static void draw_panel(void) {
-    int idx = g_library_cursor;
-    const GameDef *g = GAMES[idx];
-    int x = PANEL_X, y = 22;
-    /* label window */
-    gfx_rect(x - 1, y - 1, PANEL_W + 2, 66, C_INK);
-    ui_panel(x - 2, y - 2, PANEL_W + 4, 68, C_INK, g ? C_GREY : C_DUSK);
-    if (g && g->draw_label) {
-        gfx_clip(x, y, PANEL_W, 64);
-        g->draw_label(x, y, PANEL_W, 64, t);
-        if (g->tribute) {
-            /* a small sticker along the bottom of the label art */
-            char tb[64];
-            snprintf(tb, sizeof tb, "TRIBUTE TO %s " GLYPH_DOT " UFO 50 #%d", g->tribute, g->tribute_no);
-            if (tiny_width(tb) > PANEL_W - 2) /* long names: a shorter sticker */
-                snprintf(tb, sizeof tb, "TRIBUTE: %s " GLYPH_DOT " UFO 50 #%d", g->tribute, g->tribute_no);
-            if (tiny_width(tb) > PANEL_W - 2) {
-                /* longer still: the sticker takes two lines */
-                char t1[64], t2[24];
-                snprintf(t1, sizeof t1, "TRIBUTE TO %s", g->tribute);
-                snprintf(t2, sizeof t2, "UFO 50 #%d", g->tribute_no);
-                gfx_rect(x, y + 50, PANEL_W, 14, C_INK);
-                gfx_hline(x, x + PANEL_W - 1, y + 49, C_NIGHT);
-                tiny_center(t1, x + PANEL_W / 2, y + 51, C_GREY);
-                tiny_center(t2, x + PANEL_W / 2, y + 58, C_GREY);
-            } else {
-                gfx_rect(x, y + 57, PANEL_W, 7, C_INK);
-                gfx_hline(x, x + PANEL_W - 1, y + 56, C_NIGHT);
-                tiny_center(tb, x + PANEL_W / 2, y + 58, C_GREY);
-            }
+/* The info panel under the label, in fixed slots so nothing can collide:
+ *
+ *    90..109  title: big, else small, else small on two lines
+ *   111..115  year and genre (tiny)
+ *   118..142  blurb: up to BLURB_LINES lines, word-wrapped to the panel
+ *   147..163  goal icons, and the shown goal's name over two lines of words
+ *
+ * Every text element reports its box to the layout audit (ui_audit_*), and
+ * the tests walk every cartridge with the audit on (library_layout). */
+#define LABEL_Y 22
+#define LABEL_H 64
+#define INFO_Y 90
+#define INFO_H 76 /* down to the footer's rule at 166 */
+#define TITLE_Y 91
+#define META_Y 111
+#define BLURB_Y 118
+#define BLURB_LINES 3
+#define GOAL_Y 147
+#define GOAL_TX 42 /* the goal's words start this far in, after the icons */
+#define GOAL_LINES 2
+
+static const uint8_t TITLE_GRAD[] = {C_WHITE, C_CREAM, C_YELLOW, C_AMBER};
+
+static void draw_title(const char *title, int x) {
+    if (ui_fancy_width(title, 2) <= PANEL_W) {
+        ui_fancy_text(title, x + 1, TITLE_Y, 2, TITLE_GRAD, 4, C_INK, C_WINE);
+        ui_audit_fancy("title", title, x + 1, TITLE_Y, 2, true);
+    } else if (ui_fancy_width(title, 1) <= PANEL_W) {
+        ui_fancy_text(title, x + 1, TITLE_Y + 4, 1, TITLE_GRAD, 4, C_INK, C_WINE);
+        ui_audit_fancy("title", title, x + 1, TITLE_Y + 4, 1, true);
+    } else {
+        char l[2][UI_WRAP_LEN];
+        int n = ui_wrap(title, PANEL_W - 3, false, l, 2);
+        for (int i = 0; i < imin(n, 2); i++) {
+            ui_fancy_text(l[i], x + 1, TITLE_Y + i * 10, 1, TITLE_GRAD, 4, C_INK, C_WINE);
+            ui_audit_fancy(i ? "title line 2" : "title line 1", l[i], x + 1, TITLE_Y + i * 10, 1, true);
         }
+        if (n > 2) ui_audit_fail("title", "needs more than two lines");
+    }
+}
+
+/* A small sticker along the bottom of the label art: one line if it fits,
+ * else two. */
+static void draw_sticker(const GameDef *g, int x, int y) {
+    char tb[96];
+    int room = PANEL_W - 2;
+    snprintf(tb, sizeof tb, "TRIBUTE TO %s " GLYPH_DOT " UFO 50 #%d", g->tribute, g->tribute_no);
+    if (tiny_width(tb) > room) snprintf(tb, sizeof tb, "TRIBUTE: %s " GLYPH_DOT " UFO 50 #%d", g->tribute, g->tribute_no);
+    if (tiny_width(tb) <= room) {
+        gfx_rect(x, y + LABEL_H - 7, PANEL_W, 7, C_INK);
+        gfx_hline(x, x + PANEL_W - 1, y + LABEL_H - 8, C_NIGHT);
+        tiny_center(tb, x + PANEL_W / 2, y + LABEL_H - 6, C_GREY);
+        ui_audit_tiny("sticker", tb, x + PANEL_W / 2 - tiny_width(tb) / 2, y + LABEL_H - 6);
+        return;
+    }
+    /* longer still: the sticker takes two lines */
+    char t1[96], t2[24];
+    snprintf(t1, sizeof t1, "TRIBUTE TO %s", g->tribute);
+    if (tiny_width(t1) > room) snprintf(t1, sizeof t1, "TRIBUTE: %s", g->tribute);
+    if (tiny_width(t1) > room) snprintf(t1, sizeof t1, "%s", g->tribute);
+    snprintf(t2, sizeof t2, "UFO 50 #%d", g->tribute_no);
+    gfx_rect(x, y + LABEL_H - 14, PANEL_W, 14, C_INK);
+    gfx_hline(x, x + PANEL_W - 1, y + LABEL_H - 15, C_NIGHT);
+    tiny_center(t1, x + PANEL_W / 2, y + LABEL_H - 13, C_GREY);
+    tiny_center(t2, x + PANEL_W / 2, y + LABEL_H - 6, C_GREY);
+    ui_audit_tiny("sticker line 1", t1, x + PANEL_W / 2 - tiny_width(t1) / 2, y + LABEL_H - 13);
+    ui_audit_tiny("sticker line 2", t2, x + PANEL_W / 2 - tiny_width(t2) / 2, y + LABEL_H - 6);
+}
+
+static void draw_goals(const GameDef *g, int idx, int x, int shown) {
+    static const char *const names[3] = {"BEACON", "SAUCER", "ALIEN"};
+    for (int b = 0; b < 3; b++) {
+        int bit = 1 << b;
+        ui_goal_icon(x + b * 13, GOAL_Y, bit, (g_progress.goals[idx] & bit) != 0, t);
+        ui_audit_box(names[b], x + b * 13, GOAL_Y, 9, 11); /* with the marker under it */
+    }
+    gfx_rect(x + shown * 13, GOAL_Y + 10, 9, 1, C_YELLOW);
+    int tx = x + GOAL_TX;
+    tiny_draw(names[shown], tx, GOAL_Y, C_YELLOW);
+    ui_audit_tiny("goal name", names[shown], tx, GOAL_Y);
+    char l[GOAL_LINES][UI_WRAP_LEN];
+    int n = ui_wrap(g->goal_desc[shown], PANEL_W - GOAL_TX, true, l, GOAL_LINES);
+    static const char *const what[GOAL_LINES] = {"goal line 1", "goal line 2"};
+    for (int i = 0; i < imin(n, GOAL_LINES); i++) {
+        tiny_draw(l[i], tx, GOAL_Y + 6 + i * 6, C_GREY);
+        ui_audit_tiny(what[i], l[i], tx, GOAL_Y + 6 + i * 6);
+    }
+    if (n > GOAL_LINES) {
+        char why[160];
+        snprintf(why, sizeof why, "\"%s\" needs %d lines, room for %d", g->goal_desc[shown], n, GOAL_LINES);
+        ui_audit_fail(names[shown], why);
+    }
+}
+
+/* The right-hand panel for slot idx, showing goal `shown` (0-2). */
+static void draw_panel_for(int idx, int shown) {
+    const GameDef *g = GAMES[idx];
+    int x = PANEL_X, y = LABEL_Y;
+    /* label window */
+    gfx_rect(x - 1, y - 1, PANEL_W + 2, LABEL_H + 2, C_INK);
+    ui_panel(x - 2, y - 2, PANEL_W + 4, LABEL_H + 4, C_INK, g ? C_GREY : C_DUSK);
+    ui_audit_area("label", x, y, PANEL_W, LABEL_H);
+    if (g && g->draw_label) {
+        gfx_clip(x, y, PANEL_W, LABEL_H);
+        g->draw_label(x, y, PANEL_W, LABEL_H, t);
+        if (g->tribute) draw_sticker(g, x, y);
         gfx_noclip();
     } else {
         /* no-signal static */
-        for (int yy = 0; yy < 64; yy++)
+        for (int yy = 0; yy < LABEL_H; yy++)
             for (int xx = 0; xx < PANEL_W; xx += 2) {
                 uint32_t h = (uint32_t)(xx * 73856093u) ^ (uint32_t)((yy + t * 3) * 19349663u);
                 h ^= h >> 13; h *= 0x5bd1e995u; h ^= h >> 15;
@@ -190,59 +265,55 @@ static void draw_panel(void) {
         ui_panel(x + 26, y + 22, 90, 20, C_INK, C_DUSK);
         text_center("NO SIGNAL", x + PANEL_W / 2, y + 28, (t / 30) % 2 ? C_GREY : C_SLATE);
     }
-    int ty = y + 70;
+    ui_audit_area("info panel", x, INFO_Y, PANEL_W, INFO_H);
     if (g) {
-        static const uint8_t grad[] = {C_WHITE, C_CREAM, C_YELLOW, C_AMBER};
-        int scale = ui_fancy_width(g->title, 2) <= PANEL_W ? 2 : 1;
-        ui_fancy_text(g->title, x, ty, scale, grad, 4, C_INK, C_WINE);
-        ty += scale == 2 ? 18 : 11;
+        draw_title(g->title, x);
         char meta[64];
         snprintf(meta, sizeof meta, "%s - %s", g->year, g->genre);
-        tiny_draw(meta, x, ty, C_SKY);
-        text_wrap(g->blurb, x, ty + 8, PANEL_W, C_LIGHT, 9);
-        int gy = 150;
-        for (int b = 0; b < 3; b++) {
-            int bit = 1 << b;
-            ui_goal_icon(x + b * 13, gy, bit, (g_progress.goals[idx] & bit) != 0, t);
+        tiny_draw(meta, x, META_Y, C_SKY);
+        ui_audit_tiny("year and genre", meta, x, META_Y);
+        char l[BLURB_LINES][UI_WRAP_LEN];
+        int n = ui_wrap(g->blurb, PANEL_W, false, l, BLURB_LINES);
+        static const char *const what[BLURB_LINES] = {"blurb line 1", "blurb line 2", "blurb line 3"};
+        for (int i = 0; i < imin(n, BLURB_LINES); i++) {
+            text_draw(l[i], x, BLURB_Y + i * LINE_H, C_LIGHT);
+            ui_audit_text(what[i], l[i], x, BLURB_Y + i * LINE_H);
         }
-        const char *names[3] = {"BEACON", "SAUCER", "ALIEN"};
-        int sel_goal = (t / 150) % 3;
-        char line[80];
-        bool got = (g_progress.goals[idx] >> sel_goal) & 1;
-        snprintf(line, sizeof line, "%s: %s", names[sel_goal], g->goal_desc[sel_goal]);
-        (void)got;
-        gfx_rect(x + sel_goal * 13, gy + 10, 9, 1, C_YELLOW);
-        /* the goal's wording, wrapped onto a second line if it's long */
-        const char *desc = g->goal_desc[sel_goal];
-        int room = PANEL_W - 42;
-        if (tiny_width(desc) <= room) {
-            tiny_draw(names[sel_goal], x + 42, gy, C_YELLOW);
-            tiny_draw(desc, x + 42, gy + 6, C_GREY);
-        } else {
-            char first[64];
-            int cut = 0;
-            for (int i = 0; desc[i] && i < (int)sizeof first - 1; i++) {
-                if (desc[i] != ' ') continue;
-                memcpy(first, desc, (size_t)i);
-                first[i] = 0;
-                if (tiny_width(first) > room) break;
-                cut = i;
-            }
-            if (cut == 0) cut = (int)strlen(desc);
-            memcpy(first, desc, (size_t)imin(cut, (int)sizeof first - 1));
-            first[imin(cut, (int)sizeof first - 1)] = 0;
-            tiny_draw(names[sel_goal], x + 42, gy - 3, C_YELLOW);
-            tiny_draw(first, x + 42, gy + 3, C_GREY);
-            if (desc[cut]) tiny_draw(desc + cut + 1, x + 42, gy + 9, C_GREY);
+        if (n > BLURB_LINES) {
+            char why[64];
+            snprintf(why, sizeof why, "needs %d lines, room for %d", n, BLURB_LINES);
+            ui_audit_fail("blurb", why);
         }
+        draw_goals(g, idx, x, shown);
     } else {
         static const uint8_t grad[] = {C_GREY, C_SLATE};
-        ui_fancy_text("COMING SOON", x, ty, 1, grad, 2, C_INK, -1);
+        ui_fancy_text("COMING SOON", x + 1, TITLE_Y + 4, 1, grad, 2, C_INK, -1);
+        ui_audit_fancy("title", "COMING SOON", x + 1, TITLE_Y + 4, 1, false);
         char buf[64];
         snprintf(buf, sizeof buf, "SLOT %02d IS STILL IN THE\nSAUCER'S CARGO HOLD.", idx + 1);
-        text_draw(buf, x, ty + 14, C_SLATE);
-        tiny_draw("CHECK BACK AFTER THE NEXT LANDING", x, ty + 38, C_DUSK);
+        text_draw(buf, x, BLURB_Y, C_SLATE);
+        ui_audit_text("message", buf, x, BLURB_Y);
+        tiny_draw("CHECK BACK AFTER THE NEXT LANDING", x, GOAL_Y, C_DUSK);
+        ui_audit_tiny("hint", "CHECK BACK AFTER THE NEXT LANDING", x, GOAL_Y);
     }
+}
+
+static void draw_panel(void) { draw_panel_for(g_library_cursor, (t / 150) % 3); }
+
+/* Audits the panel for one slot with each of its goals shown; returns the
+ * problems found (each printed if log). */
+static int audit_slot(int idx, bool log) {
+    int bad = 0;
+    for (int goal = 0; goal < 3; goal++) {
+        char subject[64];
+        snprintf(subject, sizeof subject, "library slot %02d %s, goal %d", idx + 1,
+                 GAMES[idx] ? GAMES[idx]->title : "(empty)", goal + 1);
+        ui_audit_begin(subject, log);
+        draw_panel_for(idx, goal);
+        bad += ui_audit_end();
+        if (!GAMES[idx]) break; /* an empty slot has no goals to show */
+    }
+    return bad;
 }
 
 static void lib_draw(void) {
@@ -308,6 +379,13 @@ bool library_query(const char *key, int *out) {
     if (!strcmp(key, "library_top")) { *out = top_row; return true; }
     if (!strcmp(key, "library_scroll")) { *out = scroll_px; return true; }
     if (!strcmp(key, "library_rows")) { *out = ROWS; return true; }
+    /* layout problems in the panel for the slot under the cursor / every slot */
+    if (!strcmp(key, "library_layout")) { *out = audit_slot(g_library_cursor, true); return true; }
+    if (!strcmp(key, "library_layout_all")) {
+        *out = 0;
+        for (int i = 0; i < GAME_SLOTS; i++) *out += audit_slot(i, true);
+        return true;
+    }
     return false;
 }
 
