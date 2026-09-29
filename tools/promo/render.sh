@@ -4,80 +4,98 @@
 #   FFMPEG=/path/to/ffmpeg sh tools/promo/render.sh
 #
 # 1. the headless runner plays tools/promo/clips/*.ufs (one per cartridge)
-#    and boot/library/endcard.ufs, writing every frame as a PNG and the
-#    sound effects as a WAV (record_start / wav_start), captions included;
-#    music.ufs renders the montage track, cards.ufs the vertical video's cards
-# 2. cuts.txt picks the shots; they are joined into a lossless 320x180 master
-# 3. the master is scaled up by whole numbers (nearest neighbour) into
+#    and boot/library/ohnew.ufs, writing every frame as a PNG and the sound
+#    effects as a WAV (record_start / wav_start); the clips' overlay_text
+#    lines are left out of the recordings and become promo_fx's moving
+#    captions; music.ufs renders the montage track, cards.ufs the vertical
+#    video's cards
+# 2. promo_fx (tools/promo/fx.c) plays the edit in cuts.txt, drawing the
+#    transitions, punches, shakes, captions, the grid and the end card at the
+#    output size (nearest neighbour, so every game pixel stays sharp), and
+#    pipes the frames into one ffmpeg per output:
 #      OUT/ufo40-promo.mp4           1920x1080, 60 fps, H.264 + AAC
+#      OUT/ufo40-promo-nolink.mp4    the same, the end card without the link
 #      OUT/ufo40-promo-vertical.mp4  1080x1920, the game at x3 between cards
-#      OUT/ufo40-promo.gif           640x360, a silent preview
+#      OUT/ufo40-promo.gif           640x360, 30 fps, silent, loops
+# The sound: the effects under the montage track (from the first frame),
+# faded out over the last 1.5 s and brought to about -14 LUFS.
 #
-# OUT defaults to build/promo. One ffmpeg at a time, two threads.
+# OUT defaults to build/promo; CRT=0 leaves out the scanlines and vignette.
+# One ffmpeg at a time, two threads.
 set -e
 cd "$(dirname "$0")/../.."
 FF=${FFMPEG:-ffmpeg}
 OUT=${OUT:-build/promo}
+CRT=${CRT:-1}
 TH="-threads 2"
 HL=./build/ufo40_headless
 [ -f "$HL.exe" ] && HL=$HL.exe
+FX=./build/promo_fx
+[ -f "$FX.exe" ] && FX=$FX.exe
 
-make headless
+make headless promo_fx
 rm -rf "$OUT/clips" "$OUT/save" "$OUT/run"
 mkdir -p "$OUT/run"
-games=$(ls tools/promo/clips/*.ufs | wc -l | tr -d ' ')
 
 # ---- 1. play everything ----------------------------------------------------
-for s in tools/promo/clips/*.ufs tools/promo/boot.ufs tools/promo/library.ufs \
-         tools/promo/endcard.ufs tools/promo/music.ufs tools/promo/cards.ufs; do
-    n=$(basename "$s" .ufs)
-    sed "s/@GAMES@/$games/g" "$s" > "$OUT/run/$n.ufs"
+play() {
+    n=$(basename "$1" .ufs)
+    sed -e "s/@GAMES@/$games/g" -e '/^overlay_text/d' "$1" > "$OUT/run/$n.ufs"
     "$HL" --script "$OUT/run/$n.ufs" --save-dir "$OUT/save/$n" --out "$OUT/clips" > "$OUT/run/$n.log" ||
-        { cat "$OUT/run/$n.log"; echo "render: $s failed"; exit 1; }
+        { cat "$OUT/run/$n.log"; echo "render: $1 failed"; exit 1; }
+}
+games=0
+for s in tools/promo/clips/*.ufs tools/promo/boot.ufs tools/promo/library.ufs \
+         tools/promo/ohnew.ufs tools/promo/music.ufs; do
+    play "$s"
 done
-echo "played $games cartridges"
+FXA="-clips $OUT/clips -cuts tools/promo/cuts.txt -scripts tools/promo/clips"
+info=$("$FX" $FXA -info)
+echo "$info" | head -1
+games=$(echo "$info" | head -1 | sed 's/.*, \([0-9]*\) games$/\1/')
+total=$(echo "$info" | head -1 | sed 's/^[0-9]* shots, \([0-9]*\) frames.*/\1/')
+# the cards keep their words (overlay_text is what they are made of)
+sed "s/@GAMES@/$games/g" tools/promo/cards.ufs > "$OUT/run/cards.ufs"
+"$HL" --script "$OUT/run/cards.ufs" --save-dir "$OUT/save/cards" --out "$OUT/clips" > "$OUT/run/cards.log"
 
-# ---- 2. the edit: a lossless 320x180 master with the sound effects ----------
-args=""; filt=""; cat=""; i=0; total=0; first_len=0; montage=0
-while read -r clip first frames rest; do
-    case "$clip" in '' | \#*) continue ;; esac
-    args="$args -framerate 60 -start_number $first -i $OUT/clips/$clip/%06d.png -i $OUT/clips/$clip.wav"
-    filt="$filt[$((2 * i)):v]trim=end_frame=$frames,setpts=PTS-STARTPTS[v$i];"
-    filt="$filt[$((2 * i + 1)):a]atrim=start_sample=$((first * 800)):end_sample=$(((first + frames) * 800)),asetpts=PTS-STARTPTS[a$i];"
-    cat="$cat[v$i][a$i]"
-    [ $i -eq 0 ] && first_len=$frames
-    [ $i -eq 1 ] && montage=$((first_len + frames))
-    i=$((i + 1)); total=$((total + frames))
-done < tools/promo/cuts.txt
-# shellcheck disable=SC2086
-"$FF" -y -v error $args -filter_complex "$filt${cat}concat=n=$i:v=1:a=1[v][a]" \
-    -map "[v]" -map "[a]" -c:v ffv1 -c:a pcm_s16le $TH "$OUT/master.mkv"
-secs=$(awk "BEGIN { printf \"%.3f\", $total / 60 }")
-echo "master: $i shots, $total frames ($secs s)"
-
-# ---- 3. the sound: effects under the montage track, which starts after the
-# first shot (the boot jingle) and fades out over the end card's last 1.5 s
-delay=$((first_len * 1000 / 60))
+# ---- 2. the sound -------------------------------------------------------------
+"$FX" $FXA -wav "$OUT/sfx.wav"
 fade=$(awk "BEGIN { print $total / 60 - 1.5 }")
-mix="[0:a]volume=1.25[fx];[1:a]volume=0.8,adelay=$delay|$delay,apad[mu];[fx][mu]amix=inputs=2:duration=first:normalize=0,afade=t=out:st=$fade:d=1.5,alimiter=limit=0.89[a]"
-enc="-c:v libx264 -preset slow -tune animation -crf 16 -profile:v high -pix_fmt yuv420p -r 60 -c:a aac -b:a 192k -ar 48000 -movflags +faststart"
+"$FF" -y -v error -i "$OUT/sfx.wav" -i "$OUT/clips/music.wav" -filter_complex \
+    "[0:a]volume=1.25[fx];[1:a]volume=0.8[mu];[fx][mu]amix=inputs=2:duration=first:normalize=0,afade=t=out:st=$fade:d=1.5[a]" \
+    -map "[a]" -c:a pcm_s16le $TH "$OUT/mix.wav"
+lufs=$("$FF" -hide_banner -i "$OUT/mix.wav" -af ebur128 -f null - 2>&1 | sed -n 's/^ *I: *\(-*[0-9.]*\) LUFS/\1/p' | tail -1)
+gain=$(awk "BEGIN { print -14 - ($lufs) }")
+"$FF" -y -v error -i "$OUT/mix.wav" -af "volume=${gain}dB,alimiter=limit=0.84:level=false" \
+    -c:a pcm_s16le $TH "$OUT/audio.wav"
+echo "sound: $lufs LUFS, $gain dB"
 
-"$FF" -y -v error -i "$OUT/master.mkv" -i "$OUT/clips/music.wav" \
-    -filter_complex "[0:v]scale=1920:1080:flags=neighbor[v];$mix" \
-    -map "[v]" -map "[a]" $enc $TH "$OUT/ufo40-promo.mp4"
-echo "wrote $OUT/ufo40-promo.mp4"
-
+# ---- 3. the videos ------------------------------------------------------------
+enc="-c:v libx264 -preset medium -tune animation -crf 20 -profile:v high -pix_fmt yuv420p -r 60 -c:a aac -b:a 192k -ar 48000 -movflags +faststart"
+video() { # video OUTFILE W H FX-OPTIONS...
+    o=$1 w=$2 h=$3
+    shift 3
+    "$FX" $FXA -crt "$CRT" "$@" |
+        "$FF" -y -v error -f rawvideo -pix_fmt rgb24 -s "${w}x$h" -r 60 -i - -i "$OUT/audio.wav" \
+            -map 0:v -map 1:a $enc -shortest $TH "$o"
+    echo "wrote $o"
+}
+video "$OUT/ufo40-promo.mp4" 1920 1080 -size 1920 1080 6 0 0
+video "$OUT/ufo40-promo-nolink.mp4" 1920 1080 -size 1920 1080 6 0 0 -end nolink
 # vertical: the header card, the game and the footer card, each x3, on ink
-"$FF" -y -v error -i "$OUT/master.mkv" -i "$OUT/clips/music.wav" \
-    -i "$OUT/clips/card_top.png" -i "$OUT/clips/card_bottom.png" \
-    -filter_complex "color=c=0x0e0b16:s=1080x1920:r=60[bg];[0:v]scale=960:540:flags=neighbor[g];[2:v]scale=960:540:flags=neighbor[t];[3:v]scale=960:540:flags=neighbor[b];[bg][t]overlay=60:90[x];[x][g]overlay=60:690:shortest=1[y];[y][b]overlay=60:1290[v];$mix" \
-    -map "[v]" -map "[a]" $enc $TH "$OUT/ufo40-promo-vertical.mp4"
-echo "wrote $OUT/ufo40-promo-vertical.mp4"
+video "$OUT/ufo40-promo-vertical.mp4" 1080 1920 -size 1080 1920 3 60 690 \
+    -cards "$OUT/clips/card_top.png" "$OUT/clips/card_bottom.png"
 
-# GIF: the start of the montage (after the first two shots), then the end
-# card; 30 fps, x2, no dithering
-m0=$montage; m1=$((m0 + ${GIF_FRAMES:-768})); e1=$total; e0=$((total - 150))
-"$FF" -y -v error -i "$OUT/master.mkv" -filter_complex \
-    "[0:v]split[p][q];[p]trim=start_frame=$m0:end_frame=$m1,setpts=PTS-STARTPTS[m];[q]trim=start_frame=$e0:end_frame=$e1,setpts=PTS-STARTPTS[e];[m][e]concat=n=2:v=1:a=0,fps=30,scale=640:360:flags=neighbor,split[s0][s1];[s0]palettegen=max_colors=64:stats_mode=full[pal];[s1][pal]paletteuse=dither=none" \
-    $TH "$OUT/ufo40-promo.gif"
+# ---- 4. the GIF: the loudest stretch - BOOMTOWN's blasts, the rapid-fire run,
+# TIN TROOP's victory, the grid and the end card - at 30 fps, x2, no dither.
+# It starts just past BOOMTOWN's white flash (a better first frame) and
+# loops back into it.
+start() { echo "$info" | awk -v n="$1" -v k="$2" '$2 == n { c++; if (c == k) print $1 }'; }
+g0=$(start 10 1); g1=$(start 13 1); g2=$(start 04 1); g3=$(start 06 1); g4=$(start grid 1)
+e0=$(start boot 2)
+"$FX" $FXA -crt 0 -size 640 360 2 0 0 -step 2 \
+    -range $((g0 + 2)) $((g0 + 96)) -range "$g1" "$g2" -range "$g3" $((g3 + 96)) -range "$g4" $((e0 + ${GIF_END:-180})) |
+    "$FF" -y -v error -f rawvideo -pix_fmt rgb24 -s 640x360 -r 30 -i - -filter_complex \
+        "split[s0][s1];[s0]palettegen=max_colors=128:stats_mode=full[pal];[s1][pal]paletteuse=dither=none" \
+        -loop 0 $TH "$OUT/ufo40-promo.gif"
 echo "wrote $OUT/ufo40-promo.gif"
