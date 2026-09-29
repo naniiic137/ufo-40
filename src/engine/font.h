@@ -43,4 +43,9 @@ int tiny_width(const char *s);
 int tiny_draw(const char *s, int x, int y, int col);
 void tiny_center(const char *s, int cx, int y, int col);
 
+/* How many characters of s the font has no glyph for (drawn as '?' by the
+ * main font, left blank by the tiny one). The layout checks use these. */
+int text_missing(const char *s);
+int tiny_missing(const char *s);
+
 #endif

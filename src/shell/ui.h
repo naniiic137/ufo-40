@@ -30,4 +30,30 @@ int ui_hint(int x, int y, const char *glyph, const char *label, int col);
 
 void ui_init(void);
 
+/* Word-wrap s to lines no wider than w, in the main font (tiny = false) or
+ * the tiny one. Fills up to max lines (each at most UI_WRAP_LEN - 1 chars)
+ * and returns how many lines the whole text needs, which can be more than
+ * max. If it is, the last line kept ends in "..." within w. A single word
+ * wider than w still gets a line of its own (the layout audit flags it). */
+#define UI_WRAP_LEN 96
+int ui_wrap(const char *s, int w, bool tiny, char lines[][UI_WRAP_LEN], int max);
+
+/* Layout audit, for the headless tests. A screen's draw code reports each
+ * text element's box as it draws it; while an audit is open, every box must
+ * lie inside the current area and must not overlap another box of that
+ * area, and every character must have a glyph in its font. Outside an audit
+ * these calls do nothing. log = print each problem to stderr. */
+void ui_audit_begin(const char *subject, bool log);
+bool ui_audit_on(void);
+void ui_audit_area(const char *name, int x, int y, int w, int h);
+void ui_audit_box(const char *what, int x, int y, int w, int h);
+/* Text drawn with text_draw (or wrapped lines of it) / tiny_draw at x,y. */
+void ui_audit_text(const char *what, const char *s, int x, int y);
+void ui_audit_tiny(const char *what, const char *s, int x, int y);
+/* ui_fancy_text(s, x, y, scale, ...) with or without a shadow. */
+void ui_audit_fancy(const char *what, const char *s, int x, int y, int scale, bool shadow);
+/* A problem found by the screen itself (say, a blurb with too many lines). */
+void ui_audit_fail(const char *what, const char *why);
+int ui_audit_end(void); /* closes the audit, returns the problems found */
+
 #endif

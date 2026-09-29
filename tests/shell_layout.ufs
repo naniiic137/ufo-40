@@ -1,0 +1,200 @@
+# SHELL: no text in the console's screens runs out of its panel or over
+# other text. Every text element reports its box to the layout audit as it
+# is drawn; each *_layout query draws a screen with the audit on and counts
+# the boxes that stick out of their panel, overlap each other, or hold a
+# character the font can't draw (each one is printed). The library's info
+# panel is checked with the cursor on every slot, with each of its goals.
+wait 30
+press A
+wait 30
+press A
+wait 30
+expect_scene library
+expect library_cursor == 0
+# row 1
+expect library_cursor == 0
+expect library_layout == 0
+press RIGHT
+expect library_cursor == 1
+expect library_layout == 0
+press RIGHT
+expect library_cursor == 2
+expect library_layout == 0
+press RIGHT
+expect library_cursor == 3
+expect library_layout == 0
+press RIGHT
+expect library_cursor == 4
+expect library_layout == 0
+press RIGHT
+expect library_cursor == 5
+expect library_layout == 0
+press RIGHT
+expect library_cursor == 6
+expect library_layout == 0
+press RIGHT
+expect library_cursor == 7
+expect library_layout == 0
+press RIGHT
+press DOWN
+# row 2
+expect library_cursor == 8
+expect library_layout == 0
+press RIGHT
+expect library_cursor == 9
+expect library_layout == 0
+press RIGHT
+expect library_cursor == 10
+expect library_layout == 0
+press RIGHT
+expect library_cursor == 11
+expect library_layout == 0
+press RIGHT
+expect library_cursor == 12
+expect library_layout == 0
+press RIGHT
+expect library_cursor == 13
+expect library_layout == 0
+press RIGHT
+expect library_cursor == 14
+expect library_layout == 0
+press RIGHT
+expect library_cursor == 15
+expect library_layout == 0
+press RIGHT
+press DOWN
+# row 3
+expect library_cursor == 16
+expect library_layout == 0
+press RIGHT
+expect library_cursor == 17
+expect library_layout == 0
+press RIGHT
+expect library_cursor == 18
+expect library_layout == 0
+press RIGHT
+expect library_cursor == 19
+expect library_layout == 0
+press RIGHT
+expect library_cursor == 20
+expect library_layout == 0
+press RIGHT
+expect library_cursor == 21
+expect library_layout == 0
+press RIGHT
+expect library_cursor == 22
+expect library_layout == 0
+press RIGHT
+expect library_cursor == 23
+expect library_layout == 0
+press RIGHT
+press DOWN
+# row 4
+expect library_cursor == 24
+expect library_layout == 0
+press RIGHT
+expect library_cursor == 25
+expect library_layout == 0
+press RIGHT
+expect library_cursor == 26
+expect library_layout == 0
+press RIGHT
+expect library_cursor == 27
+expect library_layout == 0
+press RIGHT
+expect library_cursor == 28
+expect library_layout == 0
+press RIGHT
+expect library_cursor == 29
+expect library_layout == 0
+press RIGHT
+expect library_cursor == 30
+expect library_layout == 0
+press RIGHT
+expect library_cursor == 31
+expect library_layout == 0
+press RIGHT
+press DOWN
+# row 5
+expect library_cursor == 32
+expect library_layout == 0
+press RIGHT
+expect library_cursor == 33
+expect library_layout == 0
+press RIGHT
+expect library_cursor == 34
+expect library_layout == 0
+press RIGHT
+expect library_cursor == 35
+expect library_layout == 0
+press RIGHT
+expect library_cursor == 36
+expect library_layout == 0
+press RIGHT
+expect library_cursor == 37
+expect library_layout == 0
+press RIGHT
+expect library_cursor == 38
+expect library_layout == 0
+press RIGHT
+expect library_cursor == 39
+expect library_layout == 0
+press RIGHT
+press DOWN
+# row 6
+expect library_cursor == 40
+expect library_layout == 0
+press RIGHT
+expect library_cursor == 41
+expect library_layout == 0
+press RIGHT
+expect library_cursor == 42
+expect library_layout == 0
+press RIGHT
+expect library_cursor == 43
+expect library_layout == 0
+press RIGHT
+expect library_cursor == 44
+expect library_layout == 0
+press RIGHT
+expect library_cursor == 45
+expect library_layout == 0
+press RIGHT
+expect library_cursor == 46
+expect library_layout == 0
+press RIGHT
+expect library_cursor == 47
+expect library_layout == 0
+press RIGHT
+press DOWN
+# row 7
+expect library_cursor == 48
+expect library_layout == 0
+press RIGHT
+expect library_cursor == 49
+expect library_layout == 0
+# and every slot at once, loaded or not
+expect library_layout_all == 0
+# the save data list, details and questions for every cartridge
+press B
+wait 30
+press DOWN
+press DOWN
+press A
+wait 30
+expect_scene savedata
+expect savedata_layout == 0
+# every jukebox row and every song's now-playing panel
+press B
+wait 30
+press UP
+press A
+wait 30
+press DOWN
+press DOWN
+press A
+wait 30
+expect_scene jukebox
+expect jukebox_layout == 0
+# every cartridge's pause menu, controls page and goal toasts
+expect pause_layout == 0

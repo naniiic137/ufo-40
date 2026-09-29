@@ -131,73 +131,127 @@ static void sd_update(void) {
 
 /* ---- drawing ------------------------------------------------------------ */
 
+/* Every text element reports its box to the layout audit (ui_audit_*); the
+ * savedata_layout query draws each row, detail and question for every
+ * cartridge with the audit on. */
+
 static void goal_pips(int x, int y, int g) {
     for (int b = 0; b < 3; b++) {
         bool on = (g_progress.goals[g] >> b) & 1;
         gfx_rect(x + b * 5, y, 3, 3, on ? C_YELLOW : C_INK);
         if (!on) gfx_rectb(x + b * 5, y, 3, 3, C_DUSK);
     }
+    ui_audit_box("goal pips", x, y, 13, 3);
 }
+
+/* One row of the list at y; state is the cartridge's save state. */
+static void draw_row(int r, int y, int state) {
+    bool s = r == sel && step == STEP_LIST, cur = r == sel;
+    if (cur) gfx_rect(10, y - 1, 172, ROW_H, s ? C_DUSK : C_NIGHT);
+    if (s) ui_cursor(12, y, t);
+    ui_audit_box("cursor", 12, y, 5, 7); /* it bobs a pixel to the right */
+    int g = rows[r];
+    if (g < 0) {
+        text_draw("DELETE ALL DATA", 22, y, cur ? C_RED : C_WINE);
+        ui_audit_text("name", "DELETE ALL DATA", 22, y);
+        return;
+    }
+    char buf[48];
+    snprintf(buf, sizeof buf, "%02d %s", g + 1, GAMES[g]->title);
+    text_draw(buf, 22, y, cur ? C_WHITE : C_GREY);
+    ui_audit_text("name", buf, 22, y);
+    const char *st = state == SAVE_OK ? "SAVE" : state == SAVE_DAMAGED ? "DAMAGED" : "-";
+    int sc = state == SAVE_OK ? (cur ? C_LIME : C_JADE) : state == SAVE_DAMAGED ? (cur ? C_RED : C_WINE) : C_DUSK;
+    int sx = state == SAVE_OK ? 146 : state == SAVE_DAMAGED ? 134 : 152;
+    tiny_draw(st, sx, y + 1, sc);
+    ui_audit_tiny("save state", st, sx, y + 1);
+    goal_pips(164, y + 2, g);
+}
+
+/* The scroll marks sit at the panel's right edge, clear of the goal pips. */
+#define MARK_X 178
 
 static void draw_list(void) {
     ui_panel(6, LIST_Y - 5, 180, VISIBLE * ROW_H + 9, C_NIGHT, C_SLATE);
-    char buf[48];
+    ui_audit_area("list", 7, LIST_Y - 4, 178, VISIBLE * ROW_H + 7); /* inside the border */
     for (int v = 0; v < VISIBLE && top + v < n_rows; v++) {
-        int r = top + v, y = LIST_Y + v * ROW_H;
-        bool s = r == sel && step == STEP_LIST, cur = r == sel;
-        if (cur) gfx_rect(10, y - 1, 172, ROW_H, s ? C_DUSK : C_NIGHT);
-        if (s) ui_cursor(12, y, t);
-        int g = rows[r];
-        if (g < 0) {
-            text_draw("DELETE ALL DATA", 22, y, cur ? C_RED : C_WINE);
-            continue;
-        }
-        snprintf(buf, sizeof buf, "%02d %s", g + 1, GAMES[g]->title);
-        text_draw(buf, 22, y, cur ? C_WHITE : C_GREY);
-        if (states[g] == SAVE_OK) tiny_draw("SAVE", 146, y + 1, cur ? C_LIME : C_JADE);
-        else if (states[g] == SAVE_DAMAGED) tiny_draw("DAMAGED", 134, y + 1, cur ? C_RED : C_WINE);
-        else tiny_draw("-", 152, y + 1, C_DUSK);
-        goal_pips(164, y + 2, g);
+        int r = top + v;
+        draw_row(r, LIST_Y + v * ROW_H, rows[r] >= 0 ? states[rows[r]] : SAVE_NONE);
     }
-    if (top > 0) text_draw(GLYPH_UP, 176, LIST_Y - 3, C_GREY);
-    if (top + VISIBLE < n_rows) text_draw(GLYPH_DOWN, 176, LIST_Y + VISIBLE * ROW_H - 2, C_GREY);
+    if (top > 0) text_draw(GLYPH_UP, MARK_X, LIST_Y - 3, C_GREY);
+    if (top + VISIBLE < n_rows) text_draw(GLYPH_DOWN, MARK_X, LIST_Y + VISIBLE * ROW_H - 2, C_GREY);
+    /* the marks' drawn rows only (the glyphs are blank at the top and bottom) */
+    ui_audit_box("scroll up mark", MARK_X, LIST_Y - 2, 7, 4);
+    ui_audit_box("scroll down mark", MARK_X, LIST_Y + VISIBLE * ROW_H - 1, 7, 4);
 }
 
-static void draw_detail(void) {
-    int x = 192, y = LIST_Y - 5, w = 122;
-    ui_panel(x, y, w, VISIBLE * ROW_H + 9, C_NIGHT, C_SLATE);
-    int g = cart();
+/* Wrapped main-font text at y, with its lines reported to the audit;
+ * returns the y under the last line. */
+static int wrap_lines(const char *what, const char *s, int x, int y, int w, int col, int max) {
+    char l[6][UI_WRAP_LEN];
+    int n = ui_wrap(s, w, false, l, imin(max, 6));
+    for (int i = 0; i < imin(n, max); i++) {
+        text_draw(l[i], x, y + i * LINE_H, col);
+        ui_audit_text(what, l[i], x, y + i * LINE_H);
+    }
+    if (n > max) ui_audit_fail(what, "needs more lines than it has room for");
+    return y + imin(n, max) * LINE_H;
+}
+
+static void draw_detail_for(int g, int state) {
+    int x = 192, y = LIST_Y - 5, w = 122, h = VISIBLE * ROW_H + 9;
+    ui_panel(x, y, w, h, C_NIGHT, C_SLATE);
+    ui_audit_area("detail panel", x + 2, y + 2, w - 4, h - 4);
+    int room = w - 16;
     char buf[64];
     if (g < 0) {
         text_draw("DELETE ALL", x + 8, y + 7, C_RED);
-        text_wrap("ERASES EVERY SAVE, EVERY GOAL AND THE PLAY COUNTS.", x + 8, y + 22, w - 14, C_LIGHT, 9);
-        text_wrap("VOLUMES AND VIDEO OPTIONS STAY.", x + 8, y + 62, w - 14, C_GREY, 9);
-        tiny_draw("ASKS TWICE, NO IS THE DEFAULT", x + 8, y + 90, C_SLATE);
+        ui_audit_text("heading", "DELETE ALL", x + 8, y + 7);
+        wrap_lines("what goes", "ERASES EVERY SAVE, EVERY GOAL AND THE PLAY COUNTS.", x + 8, y + 22, room, C_LIGHT, 4);
+        wrap_lines("what stays", "VOLUMES AND VIDEO OPTIONS STAY.", x + 8, y + 62, room, C_GREY, 2);
+        tiny_draw("ASKS TWICE, NO IS DEFAULT", x + 8, y + 90, C_SLATE);
+        ui_audit_tiny("hint", "ASKS TWICE, NO IS DEFAULT", x + 8, y + 90);
     } else {
         const GameDef *gd = GAMES[g];
         static const uint8_t grad[] = {C_WHITE, C_CREAM, C_YELLOW, C_AMBER};
         ui_fancy_text(gd->title, x + 8, y + 6, 1, grad, 4, C_INK, -1);
+        ui_audit_fancy("title", gd->title, x + 8, y + 6, 1, false);
         if (gd->tribute) {
             snprintf(buf, sizeof buf, "TRIBUTE TO %s", gd->tribute);
-            tiny_draw(buf, x + 8, y + 17, C_SKY);
+            if (tiny_width(buf) > room) snprintf(buf, sizeof buf, "TRIBUTE: %s", gd->tribute);
+            tiny_draw(buf, x + 8, y + 18, C_SKY);
+            ui_audit_tiny("tribute", buf, x + 8, y + 18);
         }
         tiny_draw("SAVE FILE", x + 8, y + 28, C_GREY);
+        ui_audit_tiny("save label", "SAVE FILE", x + 8, y + 28);
         static const char *const st[3] = {"NONE", "YES", "DAMAGED"};
         static const uint8_t stc[3] = {C_SLATE, C_LIME, C_RED};
-        text_draw(st[states[g]], x + 60, y + 27, stc[states[g]]);
+        text_draw(st[state], x + 60, y + 27, stc[state]);
+        ui_audit_text("save state", st[state], x + 60, y + 27);
         static const char *const names[3] = {"BEACON", "SAUCER", "ALIEN"};
         for (int b = 0; b < 3; b++) {
             int gy = y + 40 + b * 12;
             bool on = (g_progress.goals[g] >> b) & 1;
             ui_goal_icon(x + 8, gy, 1 << b, on, t);
+            ui_audit_box("goal icon", x + 8, gy, 9, 9);
             text_draw(names[b], x + 21, gy + 1, on ? C_YELLOW : C_SLATE);
+            ui_audit_text("goal name", names[b], x + 21, gy + 1);
             text_draw(on ? GLYPH_CHECK : "-", x + w - 16, gy + 1, on ? C_LIME : C_DUSK);
+            ui_audit_text("goal mark", GLYPH_CHECK, x + w - 16, gy + 1);
         }
         snprintf(buf, sizeof buf, "PLAYED %d TIME%s", g_progress.played[g], g_progress.played[g] == 1 ? "" : "S");
         tiny_draw(buf, x + 8, y + 80, C_GREY);
+        ui_audit_tiny("played", buf, x + 8, y + 80);
         tiny_draw("A: DELETE OR RESET", x + 8, y + 90, C_SLATE);
+        ui_audit_tiny("hint", "A: DELETE OR RESET", x + 8, y + 90);
     }
+}
+
+static void draw_detail(void) {
+    int g = cart();
+    draw_detail_for(g, g >= 0 ? states[g] : SAVE_NONE);
     if (msg_t > 0) {
+        int x = 192, y = LIST_Y - 5, w = 122;
         ui_panel(x + 6, y + 100, w - 12, 20, C_INK, C_YELLOW);
         text_center(msg, x + w / 2, y + 106, C_YELLOW);
     }
@@ -218,9 +272,11 @@ static void draw_where(void) {
 static void draw_actions(void) {
     int g = cart();
     ui_panel(92, 56, 136, 66, C_INK, C_YELLOW);
+    ui_audit_area("actions box", 94, 58, 132, 62);
     char buf[48];
     snprintf(buf, sizeof buf, "%02d %s", g + 1, GAMES[g]->title);
     text_center(buf, 160, 62, C_WHITE);
+    ui_audit_text("title", buf, 160 - text_width(buf) / 2, 62);
     static const char *const names[ACT_COUNT] = {"DELETE SAVE", "RESET GOALS", "CANCEL"};
     for (int i = 0; i < ACT_COUNT; i++) {
         int y = 78 + i * 13;
@@ -228,6 +284,7 @@ static void draw_actions(void) {
         if (s) gfx_rect(98, y - 3, 124, 13, C_DUSK);
         if (s) ui_cursor(102, y, t);
         text_draw(names[i], 114, y, !en ? C_DUSK : s ? C_WHITE : C_GREY);
+        ui_audit_text("action", names[i], 114, y);
     }
 }
 
@@ -259,15 +316,78 @@ static void draw_confirm(void) {
     }
     int w = imax(text_width(q), tiny_width(d)) + 24;
     w = imax(w, 150);
+    ui_audit_area("screen", 4, 0, SCREEN_W - 8, 166);
+    ui_audit_box("question box", 160 - w / 2, 58, w, 62);
     ui_panel(160 - w / 2, 58, w, 62, C_INK, border);
+    ui_audit_area("question box", 160 - w / 2 + 2, 60, w - 4, 58);
     text_center(q, 160, 66, border == C_RED ? C_RED : C_YELLOW);
+    ui_audit_text("question", q, 160 - text_width(q) / 2, 66);
     tiny_center(d, 160, 80, C_LIGHT);
+    ui_audit_tiny("detail", d, 160 - tiny_width(d) / 2, 80);
     int nx = 160 - 50, yx = 160 + 14;
     text_draw("NO", nx + 8, 100, !yes ? C_WHITE : C_SLATE);
+    ui_audit_text("no", "NO", nx + 8, 100);
     text_draw(yes_label, yx + 8, 100, yes ? C_WHITE : C_SLATE);
+    ui_audit_text("yes", yes_label, yx + 8, 100);
     ui_cursor(yes ? yx : nx, 100, t);
     if (ask == ASK_ALL_2) tiny_center("STEP 2 OF 2", 160, 112, C_GREY);
     else if (ask == ASK_ALL_1) tiny_center("STEP 1 OF 2", 160, 112, C_GREY);
+}
+
+/* Draws every row, detail, action box and question for every cartridge
+ * with the layout audit on; returns the problems found. */
+static int audit_all(void) {
+    refresh();
+    int save_sel = sel, save_step = step, save_ask = ask, bad = 0;
+    char subject[64];
+    for (int r = 0; r < n_rows; r++) {
+        int g = rows[r];
+        const char *name = g >= 0 ? GAMES[g]->title : "DELETE ALL DATA";
+        sel = r;
+        for (int st = SAVE_NONE; st <= SAVE_DAMAGED; st++) {
+            snprintf(subject, sizeof subject, "save data row %s, state %d", name, st);
+            ui_audit_begin(subject, true);
+            ui_audit_area("list row", 10, LIST_Y - 1, 172, ROW_H);
+            draw_row(r, LIST_Y, st);
+            bad += ui_audit_end();
+            snprintf(subject, sizeof subject, "save data detail %s, state %d", name, st);
+            ui_audit_begin(subject, true);
+            draw_detail_for(g, st);
+            bad += ui_audit_end();
+            if (g < 0) break;
+        }
+        if (g >= 0) {
+            snprintf(subject, sizeof subject, "save data actions %s", name);
+            ui_audit_begin(subject, true);
+            step = STEP_ACTIONS;
+            draw_actions();
+            bad += ui_audit_end();
+        }
+        static const int asks_cart[] = {ASK_DELETE_SAVE, ASK_RESET_GOALS}, asks_all[] = {ASK_ALL_1, ASK_ALL_2};
+        for (int k = 0; k < 2; k++) {
+            ask = g >= 0 ? asks_cart[k] : asks_all[k];
+            snprintf(subject, sizeof subject, "save data question %d for %s", ask, name);
+            ui_audit_begin(subject, true);
+            step = STEP_CONFIRM;
+            draw_confirm();
+            bad += ui_audit_end();
+        }
+    }
+    /* the whole list, scrolled to the top and to the bottom, with its marks */
+    int save_top = top;
+    for (int k = 0; k < 2; k++) {
+        top = k ? imax(0, n_rows - VISIBLE) : 0;
+        sel = top;
+        step = STEP_LIST;
+        ui_audit_begin(k ? "save data list, at the bottom" : "save data list, at the top", true);
+        draw_list();
+        bad += ui_audit_end();
+    }
+    top = save_top;
+    sel = save_sel;
+    step = save_step;
+    ask = save_ask;
+    return bad;
 }
 
 static void sd_draw(void) {
@@ -293,5 +413,7 @@ bool savedata_query(const char *key, int *out) {
     if (!strcmp(key, "savedata_step")) { *out = step; return true; }
     if (!strcmp(key, "savedata_ask")) { *out = ask; return true; }
     if (!strcmp(key, "savedata_cart")) { *out = n_rows > 0 ? rows[sel] : -2; return true; }
+    /* layout problems in every row, detail and question, for every cartridge */
+    if (!strcmp(key, "savedata_layout")) { *out = audit_all(); return true; }
     return false;
 }

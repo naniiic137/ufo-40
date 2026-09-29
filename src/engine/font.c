@@ -330,6 +330,8 @@ static const struct { char c; const char *g; } TINY_PUNCT[] = {
     {'>', "#..|.#.|..#|.#.|#.."}, {'<', "..#|.#.|#..|.#.|..#"}, {'=', "...|###|...|###|..."},
     {',', "...|...|...|.#.|#.."}, {'#', ".#.#|####|.#.#|####|.#.#"}, {'$', ".##|##.|.#.|.##|##."},
     {'\x8a', "...|...|.#.|...|..."}, /* GLYPH_DOT: a middle dot */
+    {'&', ".#..|#.#.|.#.#|#.#.|.#.#"}, {'"', "#.#|#.#|...|...|..."},
+    {';', "...|.#.|...|.#.|#.."},
 };
 
 static const char *tiny_glyph(char c) {
@@ -371,3 +373,19 @@ int tiny_draw(const char *s, int x, int y, int col) {
 }
 
 void tiny_center(const char *s, int cx, int y, int col) { tiny_draw(s, cx - tiny_width(s) / 2, y, col); }
+
+int tiny_missing(const char *s) {
+    int n = 0;
+    for (; *s; s++) n += *s != ' ' && !tiny_glyph(*s);
+    return n;
+}
+
+int text_missing(const char *s) {
+    int n = 0;
+    for (; *s; s++) {
+        unsigned char c = (unsigned char)*s;
+        if (c == '\n' || c == '\t' || (c >= 32 && c <= 126) || (c >= 0x80 && c < 0x90)) continue;
+        n++;
+    }
+    return n;
+}

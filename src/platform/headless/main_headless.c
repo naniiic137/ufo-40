@@ -412,6 +412,13 @@ static int run_script(const char *path) {
                 failures++;
                 fprintf(stderr, "FAIL %s:%d: expected scene %s, got %s\n", script_name, line_no, arg, app_scene_name());
             }
+        } else if (!strcmp(cmd, "test_pause")) {
+            /* test_pause PAGE : the pause menu (0), its controls page (1) or
+             * the restart question (2), whether or not the game allows it now */
+            app_test_pause(atoi(arg));
+        } else if (!strcmp(cmd, "test_toast")) {
+            /* test_toast BIT : the running game's goal toast (1, 2 or 4) */
+            app_test_toast(atoi(arg));
         } else if (!strcmp(cmd, "reload")) {
             /* simulate quitting the program and starting it again */
             int gi = game_current_index();

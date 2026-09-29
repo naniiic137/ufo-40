@@ -52,5 +52,10 @@ void shell_delete_all(void);   /* every save and goal; settings stay */
 
 /* State for the headless tests ("menu_sel", "music_vol", ...). */
 bool shell_query(const char *key, int *out);
+/* Tests and screenshots: open the running game's pause menu at a page
+ * (0 the menu, 1 controls, 2 restart?) even where the game doesn't allow
+ * pausing yet, or show its goal toast for a goal bit. */
+void app_test_pause(int page);
+void app_test_toast(int goal_bit);
 
 #endif
