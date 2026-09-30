@@ -1,10 +1,17 @@
-# DUSKLING M5, THORN RUN (room 5): thorn beds, a wasp, a frog up the ledge, gulpers as hurdles, a wasp over a gap, a low tunnel of prickles and a beetle over thorns.
+# DUSKLING M5, THORN RUN (room 5): thorn beds, a wasp crossing high, a pit with a wasp going up and down over it, a beetle walking over thorns and a thorn bed under a wasp.
 # Played from its way in with plain button presses (LEFT is the D-pad
 # side, A the button side), found once by the route finder.
 game duskling
 wait 5
 cheat room 5
 hold A 2
+wait 2
+hold A 10
+hold LEFT+A 16
+wait 6
+hold A 2
+wait 2
+hold A 27
 wait 2
 hold A 30
 hold LEFT+A 16
@@ -18,14 +25,31 @@ hold LEFT+A 16
 wait 6
 hold A 2
 wait 2
-hold A 55
-wait 2
-hold A 10
+hold A 30
 hold LEFT+A 16
-wait 6
+wait 14
 hold A 2
 wait 2
-hold A 41
+hold A 26
+hold LEFT+A 16
+wait 14
+hold A 2
+wait 2
+hold A 21
+hold LEFT 5
+hold LEFT+A 7
+hold LEFT 12
+hold LEFT+A 2
+wait 3
+hold A 27
+wait 10
+hold LEFT 6
+hold A 5
+hold LEFT+A 16
+wait 14
+hold A 2
+wait 2
+hold A 26
 hold LEFT+A 16
 wait 14
 hold A 2
@@ -35,44 +59,26 @@ hold LEFT+A 16
 wait 4
 hold A 2
 wait 2
+hold A 25
+hold LEFT+A 16
+wait 14
+hold A 2
+wait 2
+hold A 28
+wait 2
 hold A 30
 hold LEFT+A 16
-wait 4
+wait 6
 hold A 2
+wait 2
+hold A 27
 wait 2
 hold A 30
-hold LEFT+A 7
-wait 4
-hold A 2
-wait 2
-hold A 14
-hold LEFT 14
-hold A 5
-hold LEFT+A 7
-hold A 3
-hold LEFT+A 2
-hold A 35
-hold A 14
-hold LEFT 12
-hold A 2
-wait 2
-hold A 10
 hold LEFT+A 16
 wait 6
 hold A 2
 wait 2
 hold A 25
-hold LEFT 7
-hold A 5
-hold LEFT+A 16
-wait 14
-hold A 2
-wait 2
-hold A 20
-hold LEFT+A 16
-wait 4
-hold A 2
-wait 2
-hold A 56
+hold LEFT 5
 wait 2
 expect room == 6

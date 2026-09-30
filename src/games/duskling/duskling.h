@@ -151,6 +151,28 @@ extern int dk_nerf;
 enum { NERF_FACES = 1, NERF_FROGS = 2, NERF_SPRINGS = 4, NERF_EYES = 8 };
 enum { TG_EXIT, TG_WARP1, TG_WARP2, TG_WARP3, TG_EGG };
 
+/* how forgiving one obstacle is (tests only): a steady player tries every
+ * mix of wait, take-off distance and jump hold from a spot (see dk_window) */
+typedef struct DKWinSpec {
+    int room;
+    int sx, sy;          /* where the duskling stands to start (as "cheat pos") */
+    int edge;            /* the first jump's edge in px, or -1: the stop ahead */
+    int gx0, gx1, gfeet; /* the goal: centre x in gx0..gx1, feet at or above
+                            gfeet (left of the start: it goes left);
+                            gx0 < 0: the way out (or a warp) */
+    int period, wstep;   /* the waits tried: 0, wstep, ... below period */
+    int slam;            /* its jumps from pink ledges end in a slam */
+} DKWinSpec;
+typedef struct DKWinResult {
+    int n, ok;           /* inputs tried, and those that got there */
+    int pct;             /* ok * 100 / n */
+    int clock;           /* % of the waits at which some input gets there */
+    int worst;           /* % of the inputs that get there at the worst wait */
+    int tw, xw, hw;      /* the best input's windows: frames of wait, px of
+                            take-off distance (of a jump), frames of hold */
+} DKWinResult;
+int dk_window(const DKWinSpec *s, DKWinResult *r, FILE *out);
+
 /* art */
 enum {
     S_PIM1, S_PIM2, S_PIM3, S_PIM_JUMP, S_PIM_FALL, S_PIM_ROLL1, S_PIM_ROLL2, S_PIM_POUND, S_PIM_SWIM,

@@ -13,16 +13,16 @@ waituntil count_waspv == 0 30
 expect alive == 1
 expect act == 5
 # a slam onto a prickle: the spikes win
-cheat room 2
+cheat room 4
 wait 2
-expect count_prickle == 6
+expect count_prickle == 2
 cheat above_foe prickle 12
 hold A 1
 hold A+UP 1
 waituntil alive == 0 30
-expect count_prickle == 6
+expect count_prickle == 2
 # a slam beside it flips it; walking into it kicks it off the screen
-cheat room 2
+cheat room 4
 wait 2
 cheat beside_foe prickle 50
 wait 2
@@ -34,11 +34,11 @@ waituntil foe_prickle_state == 3 40
 expect alive == 1
 waituntil ground == 1 40
 hold A
-waituntil count_prickle == 5 90
+waituntil count_prickle == 1 90
 release
 expect alive == 1
 # left alone, a flipped prickle rolls back over after three seconds
-cheat room 2
+cheat room 4
 wait 2
 cheat beside_foe prickle 50
 wait 2
