@@ -1713,3 +1713,246 @@ int dk_solve_via(int room, int target, int max_nodes, const int *wp, int n, FILE
     dk_room_load(room, 0, 1);
     return ok;
 }
+
+/* ------------------------------------------------------------------ */
+/* How forgiving is an obstacle? A steady player stands at a spot, waits a
+ * while, then walks on and jumps when the front of the duskling comes
+ * within some distance of the stop ahead (where its floor ends, a wall,
+ * thorns, a deadly foe or shot at body height, or a mark given for the
+ * first jump), keeping the tap held some frames and steering on; after
+ * every landing short of the goal it goes on the same way. On a beetle's
+ * back over thorns it rides; told to, it slams from pink ledges. Every mix
+ * of wait, distance (-10 to 30 px: pressed past the edge it is a slam, as
+ * it would be for a person) and hold (0, a plain walk, to 16 frames) is
+ * played on the real rules; the share that reaches the goal and stands
+ * there is the obstacle's window. The tests use it to keep the first rooms
+ * gentle (docs/games/13-duskling.md, "The difficulty curve"). */
+
+#define WIN_D0 (-10)
+#define WIN_D1 30
+#define WIN_DS 2
+#define WIN_ND ((WIN_D1 - WIN_D0) / WIN_DS + 1)
+#define WIN_NH 17
+#define WIN_T 1200    /* frames one input gets */
+#define WIN_REST 20   /* frames it must then stand at the goal, alive */
+#define WIN_STALL 240 /* frames without getting any farther: it gives up */
+#define WIN_LOOK 40   /* how far ahead it looks for the stop, px */
+
+/* the stop ahead of a duskling standing at x, y and going the way dir
+ * points: the x its front reaches at a wall or thorns, or where its floor
+ * ends (its front is its right side going right, its left side going left) */
+static float edge_ahead(float x, float y, int dir) {
+    for (int i = 1; i <= WIN_LOOK; i++) {
+        float nx = x + (float)(dir * i);
+        float touch = dir > 0 ? nx - 1 + PW : nx + 1;
+        if (rect_solid(nx, y, PW, PH) && rect_solid(nx, y - 1, PW, PH)) return touch;
+        if (rect_has(nx, y, PW, PH, '^')) return touch;
+        bool floor = rect_solid(nx, y + 1, PW, PH);
+        for (int k = 0; k < PW && !floor; k++) floor = ground_below(nx + (float)k, y + PH + 0.5f);
+        if (!floor) return dir > 0 ? nx : nx + PW;
+    }
+    return dir > 0 ? 1e9f : -1e9f;
+}
+
+/* the nearest deadly foe or shot ahead at body height: the x of its near side */
+static float foe_ahead(const DKPlayer *p, int dir) {
+    float best = dir > 0 ? 1e9f : -1e9f;
+    for (int i = 0; i < DK_FOES; i++) {
+        const DKFoe *f = &W.foe[i];
+        if (!f->alive) continue;
+        bool deadly;
+        switch (f->kind) {
+        case F_PRICKLE: case F_NEWT: deadly = f->state == 0 || f->state == 1; break;
+        case F_WASP: case F_WASPV: case F_FISH: deadly = true; break;
+        case F_EYE: deadly = f->state == 1 || f->state == 3; break;
+        default: deadly = false; break;
+        }
+        if (!deadly) continue;
+        float fx, fy, fw, fh;
+        foe_box(f, &fx, &fy, &fw, &fh);
+        if (fy >= p->y + PH || fy + fh <= p->y) continue;
+        if (dir > 0 && fx + fw > p->x && fx < best) best = fx;
+        if (dir < 0 && fx < p->x + PW && fx + fw > best) best = fx + fw;
+    }
+    for (int i = 0; i < DK_SHOTS; i++) {
+        const DKShot *sh = &W.shot[i];
+        if (!sh->alive || sh->y + 3 < p->y || sh->y - 3 > p->y + PH) continue;
+        if (dir > 0 && sh->x + 3 > p->x && sh->x - 3 < best) best = sh->x - 3;
+        if (dir < 0 && sh->x - 3 < p->x + PW && sh->x + 3 > best) best = sh->x + 3;
+    }
+    return best;
+}
+
+static bool win_goal(const DKWinSpec *s, const DKPlayer *p) {
+    float cx = p->x + PW / 2.0f;
+    return p->alive && p->ground && s->gx0 >= 0 && cx >= (float)s->gx0 && cx <= (float)s->gx1 && p->y + PH <= (float)s->gfeet + 0.5f;
+}
+
+/* one steady player: its take-off distance and hold, and where it is at */
+typedef struct {
+    const DKWinSpec *s;
+    int dir, d, h, jf, rest, best_f;
+    uint32_t go, tap;
+    bool fixed, slam, jumping, left_ground;
+    float edge, best;
+} WinRun;
+
+static void win_begin(WinRun *w, const DKWinSpec *s, int d, int h) {
+    memset(w, 0, sizeof *w);
+    w->s = s;
+    w->d = d;
+    w->h = h;
+    w->dir = s->gx0 >= 0 && s->gx1 < s->sx ? -1 : 1; /* the goal to the left: it goes left */
+    w->go = w->dir > 0 ? BTN_A : BTN_LEFT;
+    w->tap = w->dir > 0 ? BTN_LEFT : BTN_A;
+    w->fixed = s->edge >= 0; /* the first jump aims at the mark given */
+    w->edge = w->fixed ? (float)s->edge : w->dir > 0 ? 1e9f : -1e9f;
+    w->rest = -1;
+    w->best = W.P[0].x * (float)w->dir;
+}
+
+static void win_jump(WinRun *w) {
+    const DKPlayer *p = &W.P[0];
+    w->jumping = true;
+    w->left_ground = false;
+    w->jf = 0;
+    w->slam = w->s->slam && rect_has(p->x, p->y + PH, PW, 1, '=');
+}
+
+/* how far the walking duskling's front is from the stop ahead (-1e9 when
+ * it stands against a wall) */
+static float win_dist(WinRun *w, const DKPlayer *p) {
+    if (p->ground && !w->fixed) w->edge = edge_ahead(p->x, p->y, w->dir);
+    float stop = w->edge, foe = foe_ahead(p, w->dir);
+    if (w->dir > 0 ? foe < stop : foe > stop) stop = foe;
+    bool blocked = p->ground && rect_solid(p->x + (float)w->dir, p->y, PW, PH) && rect_solid(p->x + (float)w->dir, p->y - 1, PW, PH);
+    float front = w->dir > 0 ? p->x + PW : p->x;
+    return blocked ? -1e9f : (stop - front) * (float)w->dir;
+}
+
+/* play on from the world as it stands; true if it gets there. A plain walk
+ * given snaps keeps the world as it was when each take-off distance would
+ * have jumped (have[] marks those reached), so every hold can start there. */
+static bool win_run(WinRun *w, DKWorld *snaps, uint8_t *have) {
+    for (int f = 0; f < WIN_T; f++) {
+        DKPlayer *p = &W.P[0];
+        if (!p->alive) return false;
+        if (p->x * (float)w->dir > w->best + 0.5f) { w->best = p->x * (float)w->dir; w->best_f = f; }
+        else if (w->rest < 0 && f - w->best_f > WIN_STALL) return false;
+        uint32_t pad = 0;
+        if (w->rest < 0 && win_goal(w->s, p)) w->rest = 0;
+        if (w->rest >= 0) {
+            /* there: stand still a moment */
+            if (++w->rest > WIN_REST) return true;
+        } else if (!w->jumping && p->ground && p->on_foe >= 0 && W.foe[p->on_foe].kind == F_BEETLE &&
+                   rect_has(w->dir > 0 ? p->x : p->x - 10, p->y, PW + 10, PH + 1, '^')) {
+            /* on a beetle's back over thorns: ride */
+        } else if (!w->jumping) {
+            float dist = win_dist(w, p);
+            pad = w->go;
+            if (snaps) {
+                for (int di = 0; di < WIN_ND; di++)
+                    if (!have[di] && dist <= (float)(WIN_D0 + di * WIN_DS)) { snaps[di] = W; have[di] = 1; }
+            } else if (w->h > 0 && dist <= (float)w->d) {
+                win_jump(w);
+            }
+        }
+        if (w->jumping) {
+            /* the tap held h frames; a slam is the tap again two frames later */
+            pad = w->go | (w->jf < w->h || (w->slam && w->jf == w->h + 2) ? w->tap : 0);
+            w->jf++;
+        }
+        if (dk_world_step(pad, 0) != EV_NONE) return true; /* the way out, or a warp: on it goes */
+        p = &W.P[0];
+        if (!p->alive) return false;
+        if (w->jumping) {
+            if (!p->ground) w->left_ground = true;
+            else if (w->left_ground && w->jf >= w->h) { w->jumping = false; w->fixed = false; }
+        }
+    }
+    return false;
+}
+
+int dk_window(const DKWinSpec *s, DKWinResult *r, FILE *out) {
+    static DKWorld snaps[WIN_ND];
+    uint8_t have[WIN_ND];
+    memset(r, 0, sizeof *r);
+    int ws = s->wstep > 0 ? s->wstep : imax(1, s->period / 30);
+    int nw = imax(1, (s->period + ws - 1) / ws);
+    size_t cells = (size_t)nw * WIN_ND * WIN_NH;
+    uint8_t *okg = (uint8_t *)calloc(cells, 1);
+    if (!okg) return 0;
+    dk_sim_quiet = true;
+    for (int wi = 0; wi < nw; wi++) {
+        /* stand at the spot from the moment the room starts, and wait */
+        dk_room_load(s->room, 0, 1);
+        DKPlayer *p = &W.P[0];
+        p->x = (float)s->sx;
+        p->y = (float)s->sy;
+        p->vx = p->vy = 0;
+        p->ground = 0;
+        p->act = ACT_NONE;
+        p->coyote = 0;
+        p->on_foe = -1;
+        bool alive = true;
+        for (int f = 0; f < wi * ws + 2 && alive; f++) {
+            dk_world_step(0, 0);
+            alive = W.P[0].alive;
+        }
+        if (!alive) continue;
+        /* the plain walk, which also finds where each distance jumps */
+        WinRun w;
+        memset(have, 0, sizeof have);
+        win_begin(&w, s, 0, 0);
+        uint8_t walk = win_run(&w, snaps, have);
+        uint8_t *row = okg + (size_t)wi * WIN_ND * WIN_NH;
+        for (int di = 0; di < WIN_ND; di++)
+            for (int h = 0; h < WIN_NH; h++) {
+                uint8_t ok = walk;
+                if (h > 0 && have[di]) {
+                    W = snaps[di];
+                    win_begin(&w, s, WIN_D0 + di * WIN_DS, h);
+                    win_jump(&w);
+                    ok = win_run(&w, NULL, NULL);
+                }
+                row[di * WIN_NH + h] = ok;
+            }
+    }
+    dk_sim_quiet = false;
+    r->n = (int)cells;
+    int any_w = 0, worst = WIN_ND * WIN_NH;
+    for (int wi = 0; wi < nw; wi++) {
+        const uint8_t *row = okg + (size_t)wi * WIN_ND * WIN_NH;
+        int any = 0, at_w = 0;
+        for (int di = 0; di < WIN_ND; di++) {
+            int hc = 0;
+            for (int h = 0; h < WIN_NH; h++) hc += row[di * WIN_NH + h];
+            r->hw = imax(r->hw, hc);
+            at_w += hc;
+            any |= hc > 0;
+        }
+        r->ok += at_w;
+        any_w += any;
+        worst = imin(worst, at_w);
+        for (int h = 1; h < WIN_NH; h++) {
+            int dc = 0;
+            for (int di = 0; di < WIN_ND; di++) dc += row[di * WIN_NH + h];
+            r->xw = imax(r->xw, dc * WIN_DS);
+        }
+    }
+    for (int di = 0; di < WIN_ND; di++)
+        for (int h = 0; h < WIN_NH; h++) {
+            int wc = 0;
+            for (int wi = 0; wi < nw; wi++) wc += okg[((size_t)wi * WIN_ND + di) * WIN_NH + h];
+            r->tw = imax(r->tw, imin(s->period, wc * ws));
+        }
+    r->pct = r->ok * 100 / r->n;
+    r->clock = any_w * 100 / nw;
+    r->worst = worst * 100 / (WIN_ND * WIN_NH);
+    free(okg);
+    if (out)
+        fprintf(out, "# window room %d from %d,%d: %d%% of %d inputs (%d%% at the worst wait); some input works at %d%% of the waits; best: %d frames of wait, %d px of take-off, %d frames of hold\n",
+                s->room, s->sx, s->sy, r->pct, r->n, r->worst, r->clock, r->tw, r->xw, r->hw);
+    dk_room_load(s->room, 0, 1);
+    return r->ok > 0;
+}

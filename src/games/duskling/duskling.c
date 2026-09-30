@@ -999,6 +999,8 @@ static int count_mut(void) {
     return n;
 }
 
+static DKWinResult win_res; /* the last "cheat window" */
+
 static int dk_query(const char *key, int *out) {
     const DKPlayer *p = &dk_w.P[0];
     if (!strcmp(key, "state")) { *out = state; return 1; }
@@ -1052,6 +1054,12 @@ static int dk_query(const char *key, int *out) {
     if (!strcmp(key, "p2y")) { *out = (int)lroundf(dk_w.P[1].y); return 1; }
     if (!strcmp(key, "run_t")) { *out = run_t; return 1; }
     if (!strcmp(key, "solve_ok")) { *out = dk_solve_ok; return 1; }
+    if (!strcmp(key, "win_pct")) { *out = win_res.pct; return 1; }
+    if (!strcmp(key, "win_clock")) { *out = win_res.clock; return 1; }
+    if (!strcmp(key, "win_worst")) { *out = win_res.worst; return 1; }
+    if (!strcmp(key, "win_tw")) { *out = win_res.tw; return 1; }
+    if (!strcmp(key, "win_xw")) { *out = win_res.xw; return 1; }
+    if (!strcmp(key, "win_hw")) { *out = win_res.hw; return 1; }
     if (!strcmp(key, "last_rise")) { *out = last_rise; return 1; }
     if (!strcmp(key, "last_dx")) { *out = last_dx; return 1; }
     if (!strcmp(key, "last_air")) { *out = last_air; return 1; }
@@ -1230,6 +1238,23 @@ static int dk_cheat(const char *cmd) {
         return 1;
     }
     if (sscanf(cmd, "nerf %d", &a) == 1) { dk_nerf = a; return 1; }
+    {
+        /* window ROOM SX SY EDGE GX0 GX1 GFEET PERIOD [WSTEP [SLAM]]: how
+         * forgiving the obstacle from that spot to that goal is (dk_window) */
+        DKWinSpec ws = {0};
+        int n = sscanf(cmd, "window %d %d %d %d %d %d %d %d %d %d", &ws.room, &ws.sx, &ws.sy, &ws.edge, &ws.gx0, &ws.gx1,
+                       &ws.gfeet, &ws.period, &ws.wstep, &ws.slam);
+        if (n >= 8) {
+            if (n < 9) ws.wstep = 0;
+            if (n < 10) ws.slam = 0;
+            ws.room = iclamp(ws.room, 0, DK_ROOMS - 1);
+            dk_window(&ws, &win_res, stdout);
+            fflush(stdout);
+            if (state != ST_PLAY) start_run(1);
+            enter_room(ws.room, 0);
+            return 1;
+        }
+    }
     if (sscanf(cmd, "solvehere %d %d", &a, &b) == 2) { dk_solve_here(a, b, stdout); fflush(stdout); return 1; }
     if (sscanf(cmd, "solve_at %d %d %d", &a, &b, &c) == 3) {
         /* the same from a warp's landing place ('@' = 1, '&' = 2) */
