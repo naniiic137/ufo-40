@@ -418,12 +418,13 @@ the top.
   slammed.
 - **Structure:** it opens as an orange dayling drifts down into a dusk wood
   and falls into a pit whose far side isn't there. Then the duskling's
-  main way runs through the wood (where the Ember Hermit throws sparks and
-  runs off), the mere, the ruins and the machine works to the Brass Warden
-  and the white egg. Warps skip ahead (one goes back to the start), and
-  warps within warps open the amber way to the Ember Hermit and the rose
-  way to the Old Badger, each with its egg: every egg is an ending. 42
-  rooms, ten of them pockets off every egg's way; two players on PC. A
+  main way runs through the wood (which brings in one thing at a time, and
+  where the Ember Hermit throws sparks and runs off), the mere, the ruins
+  and the machine works to the Brass Warden and the white egg. Warps skip
+  ahead (one goes back to the start), and warps within warps open the
+  amber way to the Ember Hermit and the rose way to the Old Badger, each
+  with its egg: every egg is an ending. 42 rooms, ten of them pockets off
+  every egg's way; two players on PC. A
   route finder over the real rules recorded a crossing of every room, warp
   and egg, and the tests play them back with button presses.
 - **Ours:** the duskling, the dayling and its little light, the Hush Wood,
@@ -1093,6 +1094,8 @@ src/platform/headless/ scripted test runner, PNG / GIF / WAV writers, Vita LiveA
   - Duskling has a route finder that searches button patterns on its real
     rules; every room, warp and egg has a test replaying the presses it
     found, and switching a secret off shows which rooms cannot be crossed without it.
+    A steady player tries every mix of wait, take-off and jump hold on each
+    obstacle of the first seven rooms, and a test keeps them forgiving.
   - Wet Paint checks that all 26 courses are sound, and its demo driver
     (the same one that drives Foxy) plays a run from the title screen.
 

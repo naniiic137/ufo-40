@@ -14,9 +14,9 @@ cheat no_foes
 wait 2
 expect boss_x < 250
 cheat pos 200 111
-waituntil boss_x > 400 60
-cheat pos 470 141
-waituntil boss_x > 650 60
-cheat pos 720 141
+waituntil boss_x > 250 60
+cheat pos 280 121
+waituntil boss_x > 330 60
+cheat pos 360 141
 waituntil boss_alive == 0 60
 expect alive == 1

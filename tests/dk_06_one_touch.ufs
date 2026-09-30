@@ -3,17 +3,17 @@
 # the room starts over.
 game duskling
 wait 5
-cheat room 2
-cheat pos 600 141
+cheat room 4
+cheat pos 250 151
 wait 1
 expect alive == 1
 waituntil alive == 0 200
 expect deaths == 1
 waituntil alive == 1 60
-expect room == 2
+expect room == 4
 expect px == 11
 expect py == 141
-expect count_prickle == 6
+expect count_prickle == 2
 # thorns
 cheat room 4
 cheat pos 90 141
@@ -30,7 +30,8 @@ expect alive == 0
 expect deaths == 3
 wait 40
 # again and again: there is no game over
-cheat pos 600 141
+cheat room 4
+cheat pos 250 151
 hold A
 waituntil alive == 0 200
 release

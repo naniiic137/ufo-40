@@ -1,0 +1,218 @@
+# DUSKLING: the first rooms stay gentle (the player feedback of 30/09). A
+# steady player stands at a spot, waits, walks on and jumps when its front
+# is some distance from the stop ahead, holding the tap some frames; every
+# mix of wait, distance (-10 to 30 px) and hold (0 to 16 frames) is played
+# (cheat window, see dk_window). Every obstacle of rooms 0-6, spot to spot
+# along the way on, must let enough of those inputs through:
+#   rooms 0-2: 50% of all inputs, 50% at the worst moment (no timing),
+#              and 10 of the 17 holds at the best take-off (no precise hop)
+#   rooms 3-6: 25% of all inputs, and a way through at half the moments
+# cheat window ROOM X Y EDGE GOAL_X0 GOAL_X1 GOAL_FEET PERIOD WAIT_STEP [SLAM]
+# (px; a goal x0 of -1 is the way out; SLAM: it slams from pink ledges)
+game duskling
+wait 5
+# room 0
+# the walk to the pit
+cheat window 0 11 141 -1 -1 9 0 150 50 0
+expect win_pct >= 50
+expect win_worst >= 50
+expect win_hw >= 10
+# room 1
+# bump
+cheat window 1 11 141 -1 180 239 150 150 50 0
+expect win_pct >= 50
+expect win_worst >= 50
+expect win_hw >= 10
+# step up 2
+cheat window 1 191 141 -1 240 339 130 150 50 0
+expect win_pct >= 50
+expect win_worst >= 50
+expect win_hw >= 10
+# dip
+cheat window 1 281 121 -1 400 519 150 150 50 0
+expect win_pct >= 50
+expect win_worst >= 50
+expect win_hw >= 10
+# pit 2
+cheat window 1 441 141 -1 540 659 150 150 50 0
+expect win_pct >= 50
+expect win_worst >= 50
+expect win_hw >= 10
+# step up 3
+cheat window 1 581 141 -1 660 739 120 150 50 0
+expect win_pct >= 50
+expect win_worst >= 50
+expect win_hw >= 10
+# step down, up to cloud1
+cheat window 1 701 111 900 900 959 120 150 50 0
+expect win_pct >= 50
+expect win_worst >= 50
+expect win_hw >= 10
+# cloud1>cloud2 (left)
+cheat window 1 941 111 -1 830 889 90 150 50 0
+expect win_pct >= 50
+expect win_worst >= 50
+expect win_hw >= 10
+# cloud2>cloud3/cliff
+cheat window 1 841 81 -1 900 1089 70 150 50 0
+expect win_pct >= 50
+expect win_worst >= 50
+expect win_hw >= 10
+# cliff steps down
+cheat window 1 1001 61 -1 1170 1289 150 150 50 0
+expect win_pct >= 50
+expect win_worst >= 50
+expect win_hw >= 10
+# pit 2 > exit
+cheat window 1 1181 141 -1 -1 9 0 150 50 0
+expect win_pct >= 50
+expect win_worst >= 50
+expect win_hw >= 10
+# room 2
+# step 2
+cheat window 2 11 141 -1 120 159 130 150 50 0
+expect win_pct >= 50
+expect win_worst >= 50
+expect win_hw >= 10
+# step 4
+cheat window 2 121 121 -1 160 229 110 150 50 0
+expect win_pct >= 50
+expect win_worst >= 50
+expect win_hw >= 10
+# pit 2>plateau
+cheat window 2 161 101 -1 250 439 100 150 50 0
+expect win_pct >= 50
+expect win_worst >= 50
+expect win_hw >= 10
+# plateau>down
+cheat window 2 301 91 -1 500 719 150 150 50 0
+expect win_pct >= 50
+expect win_worst >= 50
+expect win_hw >= 10
+# slam pocket
+cheat window 2 621 141 -1 920 999 150 600 100 1
+expect win_pct >= 50
+expect win_worst >= 50
+expect win_hw >= 10
+# hill
+cheat window 2 931 141 -1 1180 1279 150 150 50 0
+expect win_pct >= 50
+expect win_worst >= 50
+expect win_hw >= 10
+# pit 2 > exit
+cheat window 2 1191 141 -1 -1 9 0 150 50 0
+expect win_pct >= 50
+expect win_worst >= 50
+expect win_hw >= 10
+# room 3
+# cloud a
+cheat window 3 11 141 -1 110 239 120 1 1 0
+expect win_pct >= 25
+expect win_clock >= 50
+# cloud a>b
+cheat window 3 111 111 -1 150 239 120 1 1 0
+expect win_pct >= 25
+expect win_clock >= 50
+# cloud b>c
+cheat window 3 151 101 -1 210 239 120 1 1 0
+expect win_pct >= 25
+expect win_clock >= 50
+# cloud c>ground/log
+cheat window 3 211 111 -1 240 559 150 1 1 0
+expect win_pct >= 25
+expect win_clock >= 50
+# thorns 2
+cheat window 3 481 141 -1 580 689 150 1 1 0
+expect win_pct >= 25
+expect win_clock >= 50
+# thorn pit 3
+cheat window 3 601 141 -1 720 849 150 1 1 0
+expect win_pct >= 25
+expect win_clock >= 50
+# frog step
+cheat window 3 741 141 -1 850 949 100 100 10 0
+expect win_pct >= 25
+expect win_clock >= 50
+# thorns 2b
+cheat window 3 901 91 -1 1010 1099 150 1 1 0
+expect win_pct >= 25
+expect win_clock >= 50
+# thorns 2c > exit
+cheat window 3 1021 141 -1 -1 9 0 1 1 0
+expect win_pct >= 25
+expect win_clock >= 50
+# room 4
+# thorns 2
+cheat window 4 11 141 -1 130 219 150 1 1 0
+expect win_pct >= 25
+expect win_clock >= 50
+# prickle hollow
+cheat window 4 141 141 -1 380 429 150 500 50 0
+expect win_pct >= 25
+expect win_clock >= 50
+# thistledown > plateau
+cheat window 4 391 141 -1 620 739 120 540 54 0
+expect win_pct >= 25
+expect win_clock >= 50
+# plateau>pit 2
+cheat window 4 631 111 -1 790 999 150 1 1 0
+expect win_pct >= 25
+expect win_clock >= 50
+# step 2
+cheat window 4 851 141 -1 1060 1259 150 1 1 0
+expect win_pct >= 25
+expect win_clock >= 50
+# spring wall
+cheat window 4 1101 141 -1 1270 1329 90 1 1 0
+expect win_pct >= 25
+expect win_clock >= 50
+# prickle hollow 2 > exit
+cheat window 4 1301 81 -1 -1 9 0 400 40 0
+expect win_pct >= 25
+expect win_clock >= 50
+# room 5
+# thorns 2 (wasp near)
+cheat window 5 11 141 -1 130 279 150 240 24 0
+expect win_pct >= 25
+expect win_clock >= 50
+# wasp over floor, thorns 2
+cheat window 5 141 141 -1 300 429 150 240 24 0
+expect win_pct >= 25
+expect win_clock >= 50
+# pit 3, wasp up/down
+cheat window 5 321 141 -1 460 529 150 150 15 0
+expect win_pct >= 25
+expect win_clock >= 50
+# beetle over thorns 2
+cheat window 5 461 141 -1 590 649 150 630 63 0
+expect win_pct >= 25
+expect win_clock >= 50
+# thorns 2 under a wasp
+cheat window 5 601 141 -1 760 999 150 240 24 0
+expect win_pct >= 25
+expect win_clock >= 50
+# hill > exit
+cheat window 5 921 141 -1 -1 9 0 1 1 0
+expect win_pct >= 25
+expect win_clock >= 50
+# room 6
+# terraces, sparks
+cheat window 6 11 81 -1 360 529 150 110 11 0
+expect win_pct >= 25
+expect win_clock >= 50
+# pit 3 (wasp high)
+cheat window 6 401 141 -1 560 799 150 240 24 0
+expect win_pct >= 25
+expect win_clock >= 50
+# gulper plank
+cheat window 6 721 141 -1 820 919 150 150 15 0
+expect win_pct >= 25
+expect win_clock >= 50
+# gulper in a gap of 3
+cheat window 6 861 141 -1 950 1119 150 150 15 0
+expect win_pct >= 25
+expect win_clock >= 50
+# > exit
+cheat window 6 1001 141 -1 -1 9 0 1 1 0
+expect win_pct >= 25
+expect win_clock >= 50

@@ -32,7 +32,7 @@ Every secret's solution is ours (see "Secrets are ours").
 | Eggs / endings | 3 [W] | 3: white, amber, rose |
 | Bosses | 3 [IHZ], [SEC] | the Brass Warden, the Ember Hermit, the Old Badger |
 | Warps | most skip areas, one returns to the start area, two lead to an alternative boss [SEC], [SG2] | 14: ten into warp pockets (nine skip ahead, one goes back to the start of the wood), two that open the other ways, and the two warps within them |
-| Pace (speedrun.com world records) | warpless 325 s, green egg 256 s, yellow egg 219 s, red egg 197 s [SRC] | recorded routes from the waking: main way 288 s, amber way 185 s, rose way 218 s |
+| Pace (speedrun.com world records) | warpless 325 s, green egg 256 s, yellow egg 219 s, red egg 197 s [SRC] | recorded routes from the waking: main way 287 s, amber way 184 s, rose way 217 s |
 | Length | ~50 min first, ~20 min later, "a checkpoint every minute or so" [SN], [SC] | rooms of 32 to 256 tiles; the busiest take a minute or more |
 
 The route tests are recorded by a route finder that plays close to
@@ -99,7 +99,8 @@ Rooms by index (the route tests are named after them):
   ("less than Mario 1" [LZ]) because the controls are the challenge; the
   warps are hard to find rather than hard to cross [IHZ]; the pace and
   density rise through the ruins and the works, and the other ways ask for
-  everything.
+  everything. The wood brings in one thing at a time, and a test holds it
+  to that (see "The difficulty curve" below).
 
 ## Mechanics checklist
 
@@ -236,6 +237,95 @@ finds, from beside the hidden springs under the amber egg and under the
 glowworm grotto's warp within the warp, no way on without them (checked in
 `dk_20`; the one under the egg is an exhaustive search).
 
+### The difficulty curve
+
+The Hush Wood brings in one thing at a time. Nothing in the first three
+rooms needs timing or a precise hop, and each hazard comes in on its own,
+with room to spare, before the mere:
+
+| # | Room | What it asks for |
+|---|---|---|
+| 0 | THE LAST LIGHT | nothing: the dayling's walk |
+| 1 | WAKING GLADE | walking; jumps up a bump and steps (a three-tile step needs the jump held); a dip; two small pits; pink ledges up a cliff, right, then left, then right (the two sides) |
+| 2 | FERN STEPS | the fern steps and the plateau with the warp; the slam: a pink floor in front of a high rock, with a pebble beetle on it to slam, drops you into the way on under the rock |
+| 3 | HOLLOW LOG | pink caps over a drop, the log and its beetle; the first spikes: thorn beds two tiles wide and a pit with thorns in it; a frog at the foot of a high step |
+| 4 | BRAMBLE HOLLOW | the first prickles, each alone in a hollow (hop it, or flip it with a slam and kick it); thistledown over head height with nothing under it; the crow's plateau; a hidden spring at the foot of a wall |
+| 5 | THORN RUN | the first wasps: one crossing high, one going up and down high over a small pit, one over a thorn bed; a beetle walking over thorns (jump the bed, or ride it) |
+| 6 | MERE EDGE | the Ember Hermit's sparks, from perches close together, so a walking duskling moves him on before he throws again; the first gulpers: one over a small gap, one as a stepping stone |
+
+From the mere on, the rooms are as dense as before.
+
+**How it is checked** (`cheat window`, test `dk_27`). A steady player
+stands at a spot, waits, walks on, and jumps when its front comes within
+some distance of the stop ahead (the end of its floor, a wall, thorns, or a
+deadly foe or shot at body height), holding the tap some frames; after
+every landing it goes on the same way. On a beetle over thorns it rides;
+in the slam pocket it slams from the pink floor. Every mix of wait (across
+the hazard's clock), take-off distance (-10 to 30 px: pressed past the edge
+it is a slam, as it would be for a person) and hold (0, a plain walk, to 16
+frames) is played on the real rules, 357 inputs for each wait. An
+obstacle's window is the share that reaches the next safe stretch and
+stands there. Every room from 0 to 6 is cut into obstacles, spot to spot
+along the way on, and `dk_27` asks of each:
+
+- rooms 0-2: 50% of all inputs, 50% at the worst moment (nothing depends on
+  timing), and 10 of the 17 holds at the best take-off (no precise hop);
+- rooms 3-6: 25% of all inputs, and a way through at half the moments or
+  more. A two-tile thorn bed, the simplest spike there is, lets 29-34%
+  through.
+
+Measured with a wait every 2 to 20 frames: rooms 1 and 2 go from 58% (the
+pink ledges up the cliff) to 100%, at every moment; rooms 3 to 6 from 29%
+(the thorn beds) to 100%; the gulpers let 58% and 66% through, the
+prickle hollows 51-54%, the wasps 31-50%, the Hermit's terraces 63%.
+
+### Player feedback, 30/09
+
+A player who liked the controls, the sprites and the music gave up after
+15 minutes on the first real obstacle: "it went from lvl 1 baby mode to a
+sudden end-game obstacle". It was in WAKING GLADE, about ten seconds after
+the waking: after pink ledges up a wall, a drop past a wasp patrolling the
+wall's foot onto a two-tile ledge, then a bridge of three gulpers (two
+tiles each, with two-tile gaps, over a pit) whose mouths open one after
+another. A full jump from one gulper overshoots the next into the gap; a
+short one rises into the wasp's path or lands as a mouth opens. Right after
+it came a prickle under thistledown and a wasp going up and down in a pit.
+The review round ("denser rooms at near-record pace") had put the same
+challenge pieces (gulper bridges, wasp gaps, prickle tunnels, towers with a
+wasp, hidden spring walls) into every room of the wood.
+
+The same check on the rooms as they were (the share of inputs that get
+through):
+
+| Room | Obstacle | Window |
+|---|---|---|
+| WAKING GLADE | the gulper bridge, from the ledge | 4%, 0% at the worst moment; the best input works for 82 of 150 frames, from 26 px of take-off, with 8 of 17 holds |
+| WAKING GLADE | the same, from the wall top past the wasp | 9% |
+| WAKING GLADE | the prickle under thistledown, the wasp in a pit | 0% |
+| WAKING GLADE | a six-tile pit with a two-tile cloud | 40% |
+| FERN STEPS | thistledown, two prickles, thorns, the prickle tunnel | 0% |
+| FERN STEPS | the pit to the plateau, a prickle on it | 43%, 0% at the worst moment |
+| HOLLOW LOG | the gulper bridge; the wasp gap | 19%; 16% |
+| BRAMBLE HOLLOW | two four-tile thorn beds; the gulper on a post | 0%; 0% |
+| THORN RUN | eight tiles of thorns, a prickle, a wasp; the prickle tunnel | 0%; 1% |
+| MERE EDGE | the terraces under the sparks; the gulper bridge | 16%; 17% |
+
+Now every obstacle of rooms 1 and 2 lets 58% or more through at every
+moment, and every one of rooms 3 to 6 29% or more (the numbers above).
+
+What changed, only in rooms 1 to 6, painted again from the room sheet: the
+challenge pieces left the wood, the pits and thorn beds there are two
+tiles wide (the thorn pit three), the clouds are wider, and each hazard
+comes in alone, as the table above lists. Kept: every room, its name,
+width and way on, the plateau warp in FERN STEPS and the beetle step to the
+warp by the log in HOLLOW LOG (both secrets as they were), the crow, the
+Hermit's three perches (now closer together), and every rule of the game.
+The route tests `dk_r01` to `dk_r06` were recorded again; the pace moved by
+about a second (main way 288 s to 287 s, amber 185 s to 184 s, rose 218 s
+to 217 s). The mechanic tests that used the old rooms now use the same
+creatures where they are (prickles in BRAMBLE HOLLOW, thistledown there
+too, gulpers in MERE EDGE).
+
 ## What is ours
 
 - **Name:** DUSKLING (1985, Beamdown Softworks).
@@ -366,7 +456,11 @@ Only what every UFO 40 cartridge has:
   players; `dk_19` RETRY ROOM; `dk_20` the room checks and secrets needed;
   `dk_21` the opening from the title; `dk_22` pad A and B; `dk_23` the
   Hermit running off; `dk_24` mushrooms; `dk_25` rolling eyes; `dk_26`
-  head bounces in a row. `dk_r01`-`dk_r41` cross every room from its way in
-  with plain button presses, and take every warp.
+  head bounces in a row; `dk_27` the first rooms stay gentle (the window of
+  every obstacle in rooms 0-6). `dk_r01`-`dk_r41` cross every room from its
+  way in with plain button presses, and take every warp.
+- Rooms 1-6 were painted again after the player feedback of 30/09; the room
+  sheet in `tools13/` still holds their older blocks until the new ones
+  are copied in.
 - Media: `docs/shots/duskling.gif` and stills, from
   `tools/shots/13_duskling.ufs` (it replays the route tests).

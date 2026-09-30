@@ -3,7 +3,7 @@
 game duskling
 wait 5
 cheat room 1
-cheat pos 826 141
+cheat pos 876 141
 wait 10
 hold A 4
 hold A+LEFT 16
