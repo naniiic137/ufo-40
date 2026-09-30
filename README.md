@@ -118,6 +118,7 @@ when there is more above or below.
 | 45 | **DOT & DASH** | Mini & Max | one room at four sizes, where holding down shrinks you into whatever you stand on and holding up grows you back, a generated micro world that is the same for everyone inside every speck, a tiny size for one-tile gaps, lifting things from under your feet to throw, stack and ride (and carrying one up to full size as a step), a dog who roams and sniffs out secrets, long falls that send you back to full size, 39 upgrades that level up wherever they're found, five shops, favours for tiny towns, a 500 door and a 1,000 true ending | Dot and her talking dog Dash, the lumber room, Queen Tabitha the cat, Sir Sprocket, 21 towns and landmarks |
 | 46 | **MANDIBLES** | Combatants | you are one slow ant who holds a button for a cross of nine commands (follow, hold, instinct, their soldier-only versions, the queen's workers or soldiers, surrender), shouted to ants in earshot, and spits in eight directions while followers spit with you, food carried home to queens who lay workers for 1 and soldiers for 2, free respawns while your army lives, red ants with twice the health and exploitable brains (locked aim, food first, stuck on corners, stuck on your queen), brawls in a dust cloud, giant spiders that eat both sides, a branching road of 12 fields to the capital and a pointless bonus one, 2P versus | the Bluebell Colony and the Rust Horde, General Stag, the longlegs, every command's name, all 16 fields |
 | 30 | **FLINTHOLD** | Rock On! Island | waves down fixed roads to a cave with 30 hearts, a build phase as long as you like and a horn to start the wave, a pay-out between waves, a heroine who walks and throws eight ways, ten hunters in three upgrade trees, hens cooked by fire pits for meat (99 at most), fire pits that boost hunters, the original's beasts and bosses, 10 stages and 3 villages (two hidden), the Four Lords together in the last wave | Pim of the Hearth Clan, Flint Isle and its 13 layouts, the Four Lords of the Scale, every beast, hunter and villager |
+| 31 | **TILTSHOT** | Pingolf | side-on golf on pinball courses: aim, hold A to fill a meter that stays full until the golfer blows up, a slam in mid-air once a stroke (slammed onto a falling slope the ball catches fire), bumpers, spring pads, orange movers and purple junk, water and pits that send you back, eighteen fixed holes at the original's pars (61), eight golfers on the board against weak, random CPU rivals, 2P versus, a code for two cameo golfers | the Comet Classic, Nova, Digby, Peaches, Tuck and Moss, twelve CPU regulars, Wick and Kip by the code, all 18 holes |
 | 44 | **HOMESPUN** | Pilot Quest | a camp that keeps working in real time while the console is on, even in other cartridges; a yo-yo that knocks glints out of a crystal; plants, bars, huts, anvils, bins and research at the original's prices; jerky as two minutes of trip time a strip, and a clock that is also your health; one Wilds map whose roadblocks and caves are shuffled per save; three dungeons with a ship part each; a gun that costs a glint a shot; coins for hopstones, vendors and a gambling den; a spider that spins thread at camp; a super boss beaten six times in one trip; new-game-plus stones | Wick and the *Tumbleweed*, the moor-moon Oddmoor and its folk, the Wilds, three dungeons, all 19 foes and 6 bosses |
 | 41 | **RIMSHIRE** | Lords of Diskonia | a board where two banners take turns stepping along roads, trails a banner can't step back onto that pull an army back when struck, inns, tomes, seams and chests; flick battles on fields built from the four tiles round the fight: a queue of three, aim, charge and launch, knocks that hurt by the striking disk's own melee, water, the closing haze and stalemates; the original's 15 disks with their numbers, 8 skills, 10 campaign wars, the streak and 2P | Rimshire, the Brass and Plum banners, the Plum Empress, Lady Brass's letters, all 16 disks, 10 new boards |
 | 47 | **WOBBLE DERBY** | Quibble Race | three punters and three runners a race, odds from a form book of twenty unseen races, rising bet caps and an open last race, one tip a race, five dirty tricks and a minder with the same prices and fines, a lender at 15 % compounded, sponsoring from a shortlist and a coach, meteors, garbage and smog, 26 runners in the same speed and clumsiness bands, 3-player hot-seat | Crater Downs, the 26 wobblers, the sixteen punters (five of them UFO 40 cameos), the Fixer, the Lender and the Wobble Wire |
@@ -820,6 +821,41 @@ the top.
   waves, the nippers, redbacks, fangcats, clubtails, gliders, gnats, the
   shagtusk and the Four Lords (Snap, Jaw, Plate and Gale), the villagers
   and the music.
+
+### 31 · TILTSHOT
+
+<p align="center">
+  <img src="docs/shots/tiltshot.gif" width="640" alt="Tiltshot: a putt off the tee on The Chute, slammed onto the drop, runs up the far bank on fire and into the cup">
+</p>
+<p align="center">
+  <img src="docs/shots/tiltshot_skylark.png" width="320" alt="Skylark: the ball over a bottomless canyon between two wheeling sparks">
+  <img src="docs/shots/tiltshot_board.png" width="320" alt="The leaderboard after the first hole: a hole in one and seven CPU rivals">
+</p>
+
+*A tribute to **Pingolf** (UFO 50 #31).*
+
+- **Plays the same:** golf seen side-on on courses built like pinball
+  tables. LEFT and RIGHT turn a dotted guide; hold A and the meter fills and
+  stays full, but hold it there and the golfer flashes red (EASY NOW!) and
+  blows up, and the stroke is gone. Let go to swing. While the ball flies,
+  A slams it down once a stroke, keeping its speed across; slammed onto a
+  slope that falls away it races off on fire. Sand stops it dead, water and
+  pits send it back to where it was hit from (the stroke counts, nothing
+  more), a fast flat ball skips across water, and the hole counts the moment
+  the ball is in the cup.
+- **The courses:** bumpers, spring pads and spring lines, orange movers
+  (blimps, hop-bots, kites, fish, sparks) that break at a touch and nearly
+  stop the ball, purple junk that breaks and slows it a little, pegs,
+  tunnels, and a red block with a strange message.
+- **Structure:** eighteen fixed holes in order at the original's pars (61
+  in all, with the par-1 TOSS-UP at 9 and the par-6 LAST ORBIT at 18),
+  eight golfers on the board, lowest total wins; the CPU rivals are weak and
+  random (the best of them ends 4 to 13 over par). 1P or 2P versus, five
+  golfers who all play the same, records, and a code in the credits. The
+  tests replay a route round every hole with real button presses.
+- **Ours:** the Comet Classic, Nova, Digby, Peaches, Tuck and Moss, the
+  twelve regulars, Wick (HOMESPUN) and Kip (SKYWELL) by the code, all
+  eighteen holes, the movers and junk, and the music.
 
 ### 44 · HOMESPUN
 

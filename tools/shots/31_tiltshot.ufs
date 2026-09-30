@@ -1,0 +1,41 @@
+# README media: TILTSHOT. The GIF is the demo player's own route on The Chute
+# (real button presses): a putt off the tee, slammed onto the drop, on fire
+# up the far bank and into the cup. The stills are the title, a hole card,
+# the demo player in flight on its routes, the warning and the board.
+shotscale 2
+seed 31
+game tiltshot
+wait 90
+shot tiltshot_title
+# The Chute: the slam onto the drop, the fire, the hole in one
+cheat hole 5
+gifstart tiltshot 3 2
+botuntil state == 7 1200
+wait 60
+gifstop
+wait 200
+# Skylark: over the canyon between the sparks
+cheat hole 4
+botuntil ball_x > 250 600
+shot tiltshot_skylark
+# The Pagoda: rattling down through the pegs
+cheat hole 17
+botuntil ball_x > 320 600
+wait 8
+shot tiltshot_pagoda
+# the card for the last hole
+cheat card 18
+wait 30
+shot tiltshot_card
+# held too long: EASY NOW!, the golfer flashing red
+cheat hole 12
+wait 20
+hold A 100
+shot tiltshot_warn
+release A
+wait 120
+# the board after the first hole
+cheat hole 1
+botuntil state == 8 3000
+wait 60
+shot tiltshot_board
