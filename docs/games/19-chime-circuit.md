@@ -63,6 +63,32 @@ against the CPUs, the scrum and the pickups it takes about 12 minutes:
 | CROOKED MILE | 63 s | 77 s | 1st |
 | GRAND OCTAVE | 76 s | 150 s | 1st |
 
+## Structure
+
+- **Title**: 1 PLAYER, 2 PLAYERS or CODE, over a race of six CPU pilots;
+  the stats (each player's average lap and race) and the cups and races
+  won along the bottom. B goes back to the library.
+- **Pilots**: each player picks one of the six with their own pad; the
+  unpicked pilots fly the CPU ships.
+- **The tournament**: eight races, one on each track in order. Before
+  each, a card shows the track, what it is for and the standings. Each
+  race: a 3-2-1 countdown on the grid, eight laps, then the results
+  (places, times, points) and the standings.
+- **The end**: the podium. If a player won the cup, their pilot's ending,
+  then the credits and THE END; if a CPU won, back to the title.
+- **Not kept**: a tournament is played in one sitting (START pauses it);
+  the stats and records are saved.
+
+## The three goals
+
+| UFO 40 goal | Condition | The Big Bell Race's goal [W], [GGC] |
+|---|---|---|
+| Beacon | take 1st place in a race | gift: win first place in at least one race |
+| Saucer | win the tournament (the Chime Cup) | gold: win the tournament |
+| Alien | take 1st place in all eight races | cherry: win first place in every race |
+
+A tournament begun with the LOOT-GALE code on earns none of them.
+
 ## Mechanics checklist
 
 | Mechanic | How CHIME CIRCUIT does it | Source | Test |
@@ -96,7 +122,7 @@ against the CPUs, the scrum and the pickups it takes about 12 minutes:
 | The side route | CROOKED MILE's tunnel beats the CPUs, who never take it | [G] | chm_t7 |
 | 2P | two players race at once on one screen with their own pads | [W], [ST-1P], [STATIC] | chm_13 |
 | Pilots | six, the same ship in six colours, each with an ending | [W], [LIZ] | chm_01, chm_18 |
-| Ending | the result, the winner's own ending, the credits and THE END | [LIZ], [W] | chm_11, chm_18 |
+| Ending | the result, the winner's own ending, the credits and THE END; a CPU's cup goes back to the title | [LIZ], [W] | chm_11, chm_18, chm_19 |
 | Goals | Beacon: 1st place in a race; Saucer: win the tournament; Alien: 1st place in all 8 races | [W], [GGC] | chm_11, chm_12 |
 | Stats | P1 and P2 average lap and average race, on the title | [W] | chm_12, chm_13, chm_18 |
 | No save mid-run | a tournament is played in one sitting; START pauses | [ST-SAVES], [G] | chm_12, chm_17 |
@@ -207,21 +233,20 @@ out-of-bounds respawn is a bug fix (see Readings).
 
 ## Controls
 
-| Input | Action |
-|---|---|
-| D-pad left / right | steer (the ship faces the way it last steered) |
-| A (hold) | thrust up; tap to hover |
-| B | slash to the side the ship faces |
-| START | pause |
-| 2P | the second pad (or the other half of the keyboard) flies ship two |
-| Menus | d-pad moves, A picks, B goes back; on the CODE screen up and down change a letter |
+| Input | Action | Source |
+|---|---|---|
+| D-pad left / right | steer (the ship faces the way it last steered) | [MM] |
+| A (hold) | thrust up; tap to hover | [MM], [W-CAMP] |
+| B | slash to the side the ship faces | [MM] (NOT CONFIRMED: which side; "in front of you" [MM], "to the left or right" [W-CAMP]) |
+| D-pad up / down | nothing in a race | NOT CONFIRMED: no source gives them a role |
+| START | pause | [CONV], [G] |
+| 2P | the second pad (or the other half of the keyboard) flies ship two | [W] (the pad split is UFO 40's) |
+| Menus | d-pad moves, A picks, B goes back; on the CODE screen up and down change a letter | UFO 40's |
 
 ## Not confirmed
 
 | Reading | Why it is flagged |
 |---|---|
-| D-pad up and down do nothing in a race | no source gives them a role; Campanella uses only left, right and thrust |
-| The slash goes to the side the ship faces | the manual says "in front of you", a review "to the left or right" |
 | The slash doesn't slow the fall | Campanella's does [MM-CAMP]; nobody says so for this game |
 | Walls bounce a ship back | sources only say walls hurt; the pinball scrum suggests bouncing |
 | How laps are checked (checkpoints) | not described anywhere |
@@ -239,7 +264,7 @@ out-of-bounds respawn is a bug fix (see Readings).
 
 ## Tests
 
-`tests/chm_01` … `chm_18` drive the rules with button presses, or set up a
+`tests/chm_01` … `chm_19` drive the rules with button presses, or set up a
 moment with cheats (a ship placed, a pickup given, a finishing order) and
 then play it: flight (`chm_02`), walls and mercy (`chm_03`), the slash
 (`chm_04`), ramming (`chm_05`), wrecks and relaunching (`chm_06`), laps,
@@ -247,11 +272,11 @@ checkpoints and the lap heal (`chm_07`), stations (`chm_08`), the five
 pickups and fires (`chm_09`), points and the reversed grid (`chm_10`), a
 whole tournament with a tie broken on wins (`chm_11`), goals and saving
 (`chm_12`), two players (`chm_13`), the code and the page (`chm_14`), the
-out-of-bounds fix (`chm_15`), the CPUs and the scrum (`chm_16`) and pausing
-(`chm_17`). `chm_t1` … `chm_t8` have the demo pilot fly all eight laps of
-each track against the five CPUs with real button presses, and `chm_18`
-plays a whole tournament from the title (every menu and every lap) and wins
-the Chime Cup. The demo pilot is `chm_ai` with `bot = true`, read through
+out-of-bounds fix (`chm_15`), the CPUs and the scrum (`chm_16`), pausing
+(`chm_17`) and losing the cup (`chm_19`). `chm_t1` … `chm_t8` have the
+demo pilot fly all eight laps of each track against the five CPUs with
+real button presses, and `chm_18` plays a whole tournament from the title
+(every menu and every lap) and wins the Chime Cup. The demo pilot is `chm_ai` with `bot = true`, read through
 the cartridge's `bot` query.
 
 ## Sources

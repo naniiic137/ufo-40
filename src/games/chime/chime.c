@@ -885,18 +885,22 @@ static void chm_quit(void) {
 }
 
 static void chm_label(int x, int y, int w, int h, int t) {
+    /* three chime ships lapping a little loop, above the sticker */
     gfx_rect(x, y, w, h, C_SKY);
-    gfx_rect(x, y + h / 2, w, h / 2, C_CYAN);
-    gfx_dither(x, y + h / 2 - 6, w, 6, C_CYAN, 8);
-    /* a loop of track */
-    gfx_rect(x, y + h - 14, w, 14, C_TAN);
-    gfx_hline(x, x + w - 1, y + h - 14, C_LEAF);
-    gfx_rect(x + 30, y + 30, w - 60, 10, C_TAN);
-    gfx_hline(x + 30, x + w - 31, y + 30, C_LEAF);
+    gfx_rect(x, y + 24, w, h - 24, C_CYAN);
+    gfx_dither(x, y + 18, w, 6, C_CYAN, 8);
+    gfx_circ(x + w - 20, y + 20, 7, C_CREAM);
+    int cx = x + w / 2, cy = y + 31, rx = w / 2 - 16, ry = 11;
+    gfx_rect(cx - rx + 14, cy - 4, 2 * rx - 28, 9, C_TAN);
+    gfx_hline(cx - rx + 14, cx + rx - 15, cy - 4, C_LEAF);
+    gfx_rect(x, y + 45, w, h - 45, C_TAN);
+    gfx_hline(x, x + w - 1, y + 45, C_LEAF);
+    for (int k = 0; k < 4; k++) gfx_rect(cx - 30, cy + 6 + k * 2, 2, 2, (k & 1) ? C_INK : C_WHITE);
     for (int k = 0; k < 3; k++) {
-        int sx = x + ((t * (3 + k)) / 3 + k * 47) % (w + 24) - 12;
-        int sy = y + h - 24 + ((t / 7 + k * 3) % 5) - (k == 1 ? 26 : 0);
-        chm_draw_ship(k == 1 ? 1 : k == 2 ? 4 : 0, sx, sy, 1, (t / 4 + k) % 3 != 0, 0, 3, t);
+        int a = t * 2 + k * 60;
+        int sx = cx + chm_cos(a) * rx / 127, sy = cy + chm_sin(a) * ry / 127;
+        int face = chm_sin(a) >= 0 ? -1 : 1; /* round the loop anticlockwise on screen */
+        chm_draw_ship(k == 0 ? 0 : k == 1 ? 1 : 4, sx, sy, face, chm_cos(a) < 0, 0, 3, t);
     }
     ui_fancy_text("CHIME CIRCUIT", x + 4, y + 3, 1, GOLD, 4, C_INK, -1);
 }
