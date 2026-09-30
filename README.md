@@ -113,6 +113,7 @@ when there is more above or below.
 | 15 | **FENNEC FOUNTAIN** | Block Koala | pushing numbered blocks (never into a heavier one, a 1 that can't move is taken in), grey at five, blue and black blocks, mimics, arrows, stone patches and doors, unlimited undo and a room menu, fifty rooms behind gates, a room editor | Fen the fennec, a dry spring garden, 50 new rooms |
 | 16 | **TINTAIL** | Camouflage | sneaking on a grid past watchers by taking the colour of the ground you stand on, hollow logs, sun and rain pads, hatchlings with their own colour, a danger view you can't move in, undo, a branching map | Twig the chameleon, Salt Island, toads and storks, 15 new levels |
 | 18 | **LOST LINKS** | Golfaria | a top-down open world where every roll is a stroke and strokes are your health, twenty to start and three more for each of twenty irons found underground, pins and safe zones, sand you can only chip out of, water and pits that send you back, jumping flowers, holes down to a whole layer underneath, parbot-style scorecrows, two kinds of bug, four abilities in the four corners, the four-piece star relic, a plate puzzle and a burrowing boss | Dimple the golf ball, the Brass Badger, slicers, sippers, larks, strays, twenty ball folk and a hidden village of Keepers, both layers of the world |
+| 19 | **CHIME CIRCUIT** | The Big Bell Race | side-view flight with gravity, thrust and drift, six ships on one screen, eight laps on each of eight courses in a fixed order, three hit points that walls, floors and weapons take, a slash that only knocks, a relaunch from under the start line to fly the lap again, a hit point back every lap, pickup stations with a "!!" warning (bullets, mines, fireballs, the big slash, the payload), boost arrows and side routes, 9/7/5/3/2/1 points, the winner starting last, CPUs that turn on you, 2P at once | the chime ship, Ansel and Clary and four visitors from other UFO 40 cartridges, the eight tracks and their skies, the LOOT-GALE code |
 | 25 | **OPEN HOUSE** | Party House | drawing guests from a deck into a house with limited space, the original's 46 guest abilities, costs and trouble, police, fire marshal and bans, set guest lists and a random list, win by ending a party with four stars within 25 nights, 2P hot-seat; the fame and cash caps; the owner's endless OPEN ALL NIGHT, a custom list and two guests of his own | a whitewashed house by the sea, all 48 guests' names and faces |
 | 28 | **DUNE EXPRESS** | Rail Heist | real time until a guard is alert, then 10-second turns, one-bullet lawmen who hit each other too, punches through walls and floors, carrying and throwing, hiding in barrels, levers, a crank gun, rams, three outlaws, three stars a mission with the original's time goals, 2P versus | Wade, Hush and Pearl, the Governor's tax trains, Biscuit the camel, 20 new trains |
 | 45 | **DOT & DASH** | Mini & Max | one room at four sizes, where holding down shrinks you into whatever you stand on and holding up grows you back, a generated micro world that is the same for everyone inside every speck, a tiny size for one-tile gaps, lifting things from under your feet to throw, stack and ride (and carrying one up to full size as a step), a dog who roams and sniffs out secrets, long falls that send you back to full size, 39 upgrades that level up wherever they're found, five shops, favours for tiny towns, a 500 door and a 1,000 true ending | Dot and her talking dog Dash, the lumber room, Queen Tabitha the cat, Sir Sprocket, 21 towns and landmarks |
@@ -594,6 +595,46 @@ the top.
   <img src="docs/shots/lostlinks_map_under.png" width="640" alt="The caves underneath">
 </p>
 </details>
+
+### 19 · CHIME CIRCUIT
+
+<p align="center">
+  <img src="docs/shots/chime.gif" width="640" alt="Chime Circuit: six chime ships race through the X of HOURGLASS">
+</p>
+<p align="center">
+  <img src="docs/shots/chime_dipper.png" width="320" alt="THE DIPPER: the dip under the hanging rock and the slot through it">
+  <img src="docs/shots/chime_scrum.png" width="320" alt="The opening scrum on NEEDLE'S EYE">
+</p>
+<p align="center">
+  <img src="docs/shots/chime_pilots.png" width="320" alt="Two players pick their pilots">
+  <img src="docs/shots/chime_cup.png" width="320" alt="The Chime Cup podium">
+</p>
+
+*A tribute to **The Big Bell Race** (UFO 50 #19).*
+
+- **Plays the same:** the chime ship flies side-on: it falls unless you
+  hold thrust, steers left and right with a drift that carries it on, and
+  never runs out of fuel. Six ships race eight laps round a track that fits
+  on one screen. Walls, floors and ceilings take one of your three hit
+  points; B is a short slash that doesn't hurt, it only knocks a rival
+  away, ideally into a wall. A wrecked ship relaunches from under the start
+  line and flies that lap again, and every finished lap mends a hit point.
+- **Pickups:** stations flash "!!" before a pickup appears, and flying into
+  it uses it at once: bullets in four directions, a trail of mines (they
+  don't spare you), two circling fireballs, a big slash, or a payload on a
+  chain that blows up into three fires.
+- **Structure:** eight hand-made tracks in a fixed order (a tutorial loop,
+  a dip with a slot through it, a narrow loop, three figure-8s, a forked
+  loop and a mile of bends with a tunnel underneath), 9/7/5/3/2/1 points
+  over eight races, the last race's winner starting at the back, CPUs that
+  are slower than you but sometimes turn back to hunt you, and two players
+  at once on the same screen. The stats keep each player's average lap and
+  race; each pilot has an ending. A ship knocked out of the track is
+  relaunched, where the original's could get stuck. A demo pilot in the
+  tests flies all eight tracks and wins the cup with real button presses.
+- **Ours:** the chime ship, Ansel and his sister Clary, visitors from
+  HOMESPUN, SKYWELL and WOBBLE DERBY, all eight tracks and their skies,
+  the LOOT-GALE code and the LAST-LAMP page, and the music.
 
 ### 25 · OPEN HOUSE
 
