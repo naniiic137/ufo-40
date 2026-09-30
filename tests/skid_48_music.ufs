@@ -1,0 +1,27 @@
+# SKID KIDS: its own tunes: the title, picking teams, the tournament board,
+# two match tunes, one for the kangaroo's match and one for the robot's.
+seed 30
+game skidkids
+wait 20
+expect music_is.skid_title == 1
+press A
+wait 5
+expect music_is.skid_pick == 1
+cheat tourney 0 1
+cheat round 0
+wait 5
+expect music_is.skid_bracket == 1
+botuntil state == 7 800
+expect music_is.skid_gym == 1
+cheat round 1
+botuntil state == 7 800
+expect music_is.skid_recess == 1
+cheat round 4
+botuntil state == 7 800
+expect music_is.skid_roo == 1
+cheat round 5
+botuntil state == 7 800
+expect music_is.skid_bot == 1
+cheat win 0
+wait 155
+expect music_is.skid_win == 1

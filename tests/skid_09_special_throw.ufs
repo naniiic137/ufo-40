@@ -1,0 +1,55 @@
+# SKID KIDS: a full wind-up with a star in stock is the kid's special throw
+# and spends the star; without one it's an ordinary full throw. The house
+# rules can make a special cost two stars.
+game skidkids
+wait 5
+cheat match 0 5 3 11 0
+cheat coach 0
+cheat clearbags
+cheat freeze 1
+cheat freeze 2
+cheat freeze 3
+cheat play
+cheat kid 0 100 100
+cheat kid 2 250 60
+cheat kid 3 250 160
+# half a star is not enough
+cheat stars 0 1
+cheat give 0 1
+hold B 70
+wait 2
+expect n_sthrow == 0
+expect stars0 == 1
+cheat clearbags
+cheat stars 0 2
+cheat give 0 1
+hold B 70
+wait 2
+expect n_sthrow == 1
+expect stars0 == 0
+# NOODLE's special throw is the comet
+expect bagkind0 == 1
+# a wind-up that isn't full keeps the star
+cheat clearbags
+cheat stars 0 2
+cheat give 0 1
+hold B 40
+wait 2
+expect n_sthrow == 1
+expect stars0 == 2
+# two stars a special
+cheat rules 15 5 2 0 0
+cheat clearbags
+cheat stars 0 3
+cheat give 0 1
+hold B 70
+wait 2
+expect n_sthrow == 1
+expect stars0 == 3
+cheat clearbags
+cheat stars 0 4
+cheat give 0 1
+hold B 70
+wait 2
+expect n_sthrow == 2
+expect stars0 == 0

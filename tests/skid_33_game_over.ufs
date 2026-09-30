@@ -1,0 +1,21 @@
+# SKID KIDS: one loss and the tournament is over: GAME OVER, then the title.
+seed 14
+game skidkids
+wait 5
+cheat tourney 0 1
+botuntil state == 7 800
+cheat win 0
+wait 160
+botuntil state == 7 800
+cheat win 1
+wait 160
+expect state == 8
+expect result_win == 0
+wait 60
+press A
+expect state == 9
+wait 70
+press A
+expect state == 0
+expect wins == 1
+expect goals == 0

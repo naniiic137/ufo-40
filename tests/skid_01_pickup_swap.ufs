@@ -1,0 +1,49 @@
+# SKID KIDS: B next to a bag bends down for it (it takes a moment, and the
+# kid can be hit meanwhile); B with nothing near swaps to the other kid.
+game skidkids
+wait 5
+cheat match 0 5 3 11 0
+cheat coach 0
+cheat clearbags
+cheat freeze 2
+cheat freeze 3
+cheat play
+cheat kid 0 60 100
+cheat kid 1 60 140
+cheat loose 66 100
+expect held0 == 0
+expect ctrl0 == 0
+press B
+# bending down: rooted for a quarter of a second
+expect kst0 == 1
+hold RIGHT 5
+expect kx0 == 60
+wait 12
+expect kst0 == 0
+expect held0 == 1
+expect n_pick == 1
+expect ctrl0 == 0
+# nothing within reach: B swaps to the partner, and back
+cheat clearbags
+press B
+expect ctrl0 == 1
+expect n_swap == 1
+cheat freeze 0
+cheat kid 0 60 100
+cheat kid 1 60 140
+hold UP 10
+expect ky1 == 130
+expect ky0 == 100
+press B
+expect ctrl0 == 0
+cheat thaw 0
+# a kid bent over a bag can be hit
+cheat freeze 1
+cheat kid 0 60 100
+cheat loose 66 100
+press B
+expect kst0 == 1
+cheat bag 90 100 -3 0 1 0
+wait 12
+expect score1 == 1
+expect held0 == 0

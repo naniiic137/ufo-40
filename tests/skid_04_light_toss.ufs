@@ -1,0 +1,27 @@
+# SKID KIDS: a light tap-and-let-go is a short lob that lands by the
+# thrower's feet and stops there, to be picked up again at once.
+game skidkids
+wait 5
+cheat match 0 5 3 11 0
+cheat coach 0
+cheat clearbags
+cheat freeze 1
+cheat freeze 2
+cheat freeze 3
+cheat play
+cheat kid 0 80 100
+cheat give 0 1
+hold B 12
+wait 1
+expect n_toss == 1
+expect n_throw == 1
+expect bagst0 == 3
+expect bagz0 > 5
+wait 40
+expect bagst0 == 1
+expect bagx0 > 90
+expect bagx0 < 112
+hold RIGHT 19
+press B
+wait 16
+expect held0 == 1

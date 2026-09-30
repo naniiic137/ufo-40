@@ -1,0 +1,56 @@
+# SKID KIDS: the GYMR-ULES code opens the house rules for 1P and co-op:
+# points to win (5 to 30), bags on the court (1 to 7), what a special costs
+# (1 or 2 stars), the partner (fetches bags, or plays alone) and jumping
+# (together, or one at a time). DUEL-RULE does the same for versus only.
+seed 23
+game skidkids
+wait 20
+press UP
+press A
+wait 10
+expect state == 13
+hold UP 45
+press RIGHT
+hold DOWN 80
+press RIGHT
+hold UP 75
+press RIGHT
+hold UP 100
+press RIGHT
+hold DOWN 100
+press RIGHT
+hold UP 70
+press RIGHT
+hold UP 35
+press RIGHT
+hold UP 105
+press A
+expect codes == 8
+expect state == 14
+hold LEFT 65
+press DOWN
+press LEFT
+press LEFT
+press DOWN
+press RIGHT
+press DOWN
+press RIGHT
+press DOWN
+press RIGHT
+press DOWN
+press A
+expect state == 0
+cheat tourney 0 1
+botuntil state == 7 800
+expect goal == 5
+expect max_bags == 3
+expect cost == 2
+expect mate_ai == 1
+expect mate_jump == 1
+# versus keeps the standard rules without DUEL-RULE
+cheat versus 0 1 2 3
+expect goal == 15
+expect cost == 1
+cheat code DUELRULE
+cheat versus 0 1 2 3
+expect goal == 15

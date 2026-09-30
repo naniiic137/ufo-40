@@ -1,0 +1,64 @@
+# SKID KIDS: BENCHBOT, the robot the left-over kid builds for the final.
+# Three kids' passives in one: arcing throws, a quick wind-up, and a shove
+# that beats any other shove. Its special throw is the HOMING POPPER (it
+# goes off, then flies home to the robot's hand); its move is the SWEEPER
+# (a wall slides from the other team's back wall to the line, tripping
+# everyone in its way and dragging every bag over to the robot's side; some
+# come out crushed). (2P versus: MOOSE shoves back.)
+game skidkids
+wait 5
+cheat versus 13 1 11 3
+cheat coach 0
+cheat clearbags
+cheat freeze 1
+cheat freeze 3
+cheat play
+expect who0 == 13
+# the robot's shove beats the big kid's
+cheat kid 0 156 100
+cheat kid 2 164 80
+hold P2DOWN 20
+expect n_push == 1
+expect kst2 == 5
+expect kst0 == 0
+# a quick wind-up and an arcing throw
+waituntil kst2 == 0 100
+cheat kid 0 100 100
+cheat kid 2 200 100
+cheat give 0 1
+hold B 32
+wait 3
+expect bagst0 == 3
+waituntil score0 == 1 60
+expect kst2 == 5
+# the homing popper goes off and comes home
+waituntil kst2 == 0 100
+cheat clearbags
+cheat stars 0 2
+cheat give 0 1
+hold B 32
+wait 2
+expect bagkind0 == 5
+waituntil n_boom == 1 120
+waituntil held0 == 1 120
+# the sweeper
+cheat clearbags
+cheat kid 2 250 60
+cheat kid 3 220 150
+cheat freeze 2
+cheat loose 270 100
+cheat loose 230 120
+cheat loose 200 80
+cheat stars 0 2
+press A
+wait 4
+press A
+expect sweep == 1
+expect sweep_x > 290
+waituntil sweep == 0 160
+expect kst2 == 5
+expect kst3 == 5
+expect score0 == 3
+wait 40
+expect loose_r == 0
+expect loose_l >= 1

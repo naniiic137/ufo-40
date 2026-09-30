@@ -1,0 +1,31 @@
+# SKID KIDS: the Coach starts play by tossing a bag onto the centre line,
+# then keeps throwing bags and juice boxes in, mostly onto the line, never
+# more bags than the court holds. A bag of his that lands on a kid is a point
+# for the other team.
+game skidkids
+wait 5
+cheat match 0 1 3 11 0
+cheat freeze 0
+cheat freeze 1
+cheat freeze 2
+cheat freeze 3
+expect bags == 2
+wait 60
+expect mstate == 1
+wait 90
+expect coach_items == 1
+expect n_cbag == 1
+expect bags == 3
+expect bagx2 > 150
+expect bagx2 < 170
+# his bag on a kid is the other side's point
+cheat kid 0 100 100
+cheat coachthrow 0 100 100
+wait 45
+expect score1 == 1
+# at the bag limit he throws juice boxes only
+cheat rules 15 3 1 0 0
+wait 2400
+expect n_cbag == 2
+expect n_cjuice >= 3
+expect bags == 4

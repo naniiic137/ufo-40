@@ -1,0 +1,22 @@
+# SKID KIDS: your partner, by default, only fetches bags and passes them to
+# you; otherwise it keeps to the corner of your half away from you. With the
+# house rule it plays on its own.
+seed 28
+game skidkids
+wait 5
+cheat match 0 1 3 11 0
+cheat coach 0
+cheat clearbags
+cheat freeze 2
+cheat freeze 3
+cheat play
+cheat kid 0 130 60
+cheat kid 1 60 150
+cheat loose 40 120
+waituntil n_pass == 1 200
+waituntil held0 == 1 60
+expect held1 == 0
+expect n_throw == 0
+wait 120
+expect ky1 > 130
+expect kx1 < 60

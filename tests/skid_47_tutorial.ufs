@@ -1,0 +1,35 @@
+# SKID KIDS: the Coach explains the game before the first tournament of the
+# session (six pages; START skips), then not again until the cartridge is
+# started afresh.
+seed 29
+game skidkids
+wait 5
+cheat tourney 0 1
+expect state == 4
+expect coach_page == 0
+wait 12
+press A
+expect coach_page == 1
+wait 12
+press A
+wait 12
+press A
+wait 12
+press A
+wait 12
+press A
+expect coach_page == 5
+wait 12
+press A
+expect state == 5
+expect coach_seen == 1
+cheat tourney 2 3
+expect state == 5
+reload
+game skidkids
+wait 5
+cheat tourney 0 1
+expect state == 4
+wait 12
+press START
+expect state == 5

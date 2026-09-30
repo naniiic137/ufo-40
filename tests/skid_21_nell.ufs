@@ -1,0 +1,47 @@
+# SKID KIDS: NELL (Bea's kit). Every half-star she earns goes to her
+# partner too; her special throw is the YO-YO (out, knocking down, then home
+# again, hitting on the way back, into her hand); her move is the STOMP.
+game skidkids
+wait 5
+cheat match 5 1 3 11 0
+cheat coach 0
+cheat clearbags
+cheat freeze 1
+cheat freeze 2
+cheat freeze 3
+cheat play
+cheat kid 0 100 80
+cheat kid 1 100 150
+cheat bag 150 80 -3 0 1 0
+wait 6
+press A
+wait 30
+expect stars0 == 1
+expect stars1 == 1
+cheat juice 104 80
+press B
+wait 16
+expect stars0 == 2
+expect stars1 == 2
+# the yo-yo: two points from one throw, and the bag comes home
+cheat clearbags
+cheat kid 0 100 100
+cheat kid 2 190 100
+cheat kid 3 280 170
+cheat give 0 1
+hold B 70
+wait 2
+expect bagkind0 == 2
+waituntil score0 == 1 40
+expect kst2 == 5
+waituntil score0 == 2 120
+waituntil held0 == 1 120
+expect n_throw == 1
+# the stomp
+waituntil kst2 == 0 100
+cheat stars 0 2
+press A
+wait 4
+press A
+expect kst2 == 5
+expect kst3 == 5

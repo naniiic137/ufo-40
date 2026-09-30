@@ -1,0 +1,32 @@
+# SKID KIDS: A again in the air, with a star, is the kid's special move and
+# spends the star; without a star the second A does nothing.
+game skidkids
+wait 5
+cheat match 0 5 3 11 0
+cheat coach 0
+cheat clearbags
+cheat freeze 1
+cheat freeze 2
+cheat freeze 3
+cheat play
+cheat kid 2 200 80
+cheat kid 3 200 140
+press A
+wait 3
+press A
+wait 20
+expect n_smove == 0
+wait 20
+cheat stars 0 3
+press A
+wait 3
+press A
+expect n_smove == 1
+expect stars0 == 1
+# NOODLE's move is the stomp: the other team, on the floor, falls
+expect kst2 == 5
+expect kst3 == 5
+expect score0 == 0
+# only once a jump
+press A
+expect n_smove == 1

@@ -1,0 +1,41 @@
+# SKID KIDS: A jumps, and by default the whole team jumps together. Jumping
+# over a sliding bag earns that kid half a star, so one jump can earn both
+# kids one; three stars at most.
+game skidkids
+wait 5
+cheat match 0 1 3 11 0
+cheat coach 0
+cheat clearbags
+cheat freeze 1
+cheat freeze 2
+cheat freeze 3
+cheat play
+cheat kid 0 100 80
+cheat kid 1 100 130
+cheat bag 150 80 -3 0 1 0
+cheat bag 150 130 -3 0 1 0
+wait 6
+press A
+expect kz0 > 0
+expect kz1 > 0
+wait 30
+expect score1 == 0
+expect stars0 == 1
+expect stars1 == 1
+expect n_half == 2
+# the same bag gives nothing twice; a full three stars stays three
+cheat clearbags
+cheat stars 0 6
+cheat bag 150 80 -3 0 1 0
+wait 6
+press A
+wait 30
+expect stars0 == 6
+expect score1 == 0
+# jump too late and the bag hits
+cheat clearbags
+cheat bag 150 80 -3 0 1 0
+wait 14
+press A
+wait 20
+expect score1 == 1

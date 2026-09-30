@@ -1,0 +1,52 @@
+# SKID KIDS: the SWAP-ONLY code (switch on its own button): B only swaps
+# kids (a bag goes across with you if the kid you leave has one and the
+# other has none); A picks up, winds up with a bag in hand (a tap tosses,
+# B calls it off) and, with empty hands, jumps.
+seed 22
+game skidkids
+wait 5
+cheat code SWAPONLY
+cheat match 0 1 3 11 0
+expect swap_only == 1
+cheat coach 0
+cheat clearbags
+cheat freeze 2
+cheat freeze 3
+cheat play
+cheat kid 0 60 100
+cheat kid 1 60 150
+cheat loose 64 100
+press A
+expect kst0 == 1
+wait 16
+expect held0 == 1
+expect kz0 == 0
+# B swaps, and the bag goes across
+press B
+expect ctrl0 == 1
+expect n_pass == 1
+waituntil held1 == 1 40
+press B
+expect ctrl0 == 0
+expect n_pass == 2
+waituntil held0 == 1 40
+# A with a bag winds up; B calls it off
+hold A
+wait 20
+expect kst0 == 2
+press B
+expect kst0 == 0
+expect n_cancel == 1
+expect ctrl0 == 0
+release A
+wait 5
+# a tap of A tosses it
+hold A 12
+wait 2
+expect n_toss == 1
+expect held0 == 0
+wait 30
+# A with empty hands and nothing near jumps
+cheat clearbags
+press A
+expect kz0 > 0

@@ -1,0 +1,41 @@
+# SKID KIDS: a sliding bag from the other team that touches a kid is a
+# point. A plain throw makes the kid flinch; a full wind-up knocks it flat.
+# A kid already down can still be hit and scored on, but it stays down no
+# longer for it. Your own team's bags pass you by.
+game skidkids
+wait 5
+cheat match 0 5 3 11 0
+cheat coach 0
+cheat clearbags
+cheat freeze 1
+cheat freeze 2
+cheat freeze 3
+cheat play
+cheat kid 0 100 100
+cheat kid 1 40 160
+cheat bag 150 100 -3 0 1 0
+wait 20
+expect score1 == 1
+expect kst0 == 4
+expect n_down == 0
+wait 20
+expect kst0 == 0
+# a full wind-up's bag
+cheat bag 150 100 -3 0 1 1
+wait 20
+expect score1 == 2
+expect kst0 == 5
+expect timer0 > 50
+cheat bag 150 100 -3 0 1 0
+wait 18
+expect score1 == 3
+expect kst0 == 5
+expect timer0 < 60
+expect n_down == 1
+waituntil kst0 == 0 80
+# a bag of your own team's slides straight past
+cheat bag 150 100 -3 0 0 1
+wait 25
+expect score1 == 3
+expect score0 == 0
+expect kst0 == 0

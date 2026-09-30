@@ -1,0 +1,41 @@
+# SKID KIDS: the CPU. Its kids chase every item the Coach throws in; the
+# early teams leave a fallen kid alone, while the fifth and sixth pile on
+# (the stun-lock: hits on a kid who is down still count).
+seed 27
+game skidkids
+wait 5
+cheat match 0 1 3 11 0
+cheat coach 0
+cheat clearbags
+cheat freeze 0
+cheat freeze 1
+cheat play
+cheat kid 2 250 60
+cheat kid 3 250 160
+cheat coachthrow 0 175 110
+waituntil n_pick == 1 200
+# an easy team: the fallen kid is left alone
+cheat clearbags
+cheat kid 0 130 100
+cheat kid 2 190 60
+cheat kid 3 190 100
+cheat bag 150 100 -3 0 1 1
+wait 15
+expect kst0 == 5
+expect score1 == 1
+cheat freeze 2
+cheat give 3 1
+wait 60
+expect score1 == 1
+# the robot's team piles on
+waituntil kst0 == 0 100
+cheat clearbags
+cheat level 5
+cheat kid 0 130 100
+cheat kid 3 190 100
+cheat bag 150 100 -3 0 1 1
+wait 15
+expect kst0 == 5
+cheat give 3 1
+wait 60
+expect score1 >= 3

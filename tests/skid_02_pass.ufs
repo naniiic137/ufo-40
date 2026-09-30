@@ -1,0 +1,29 @@
+# SKID KIDS: B tapped with a bag in hand passes it to the partner and swaps
+# to them; the pass flies over and is caught. Tapped twice, the second tap
+# swaps straight back: a pass without swapping.
+game skidkids
+wait 5
+cheat match 0 5 3 11 0
+cheat coach 0
+cheat clearbags
+cheat freeze 2
+cheat freeze 3
+cheat play
+cheat kid 0 60 80
+cheat kid 1 70 140
+cheat give 0 1
+press B
+expect n_pass == 1
+expect ctrl0 == 1
+expect held0 == 0
+expect passing == 1
+waituntil held1 == 1 30
+expect passing == 0
+# now back, tapping twice: kid 0 catches it, but you still drive kid 1
+press B
+press B
+expect n_pass == 2
+expect ctrl0 == 1
+waituntil held0 == 1 30
+expect held1 == 0
+expect ctrl0 == 1

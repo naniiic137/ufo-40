@@ -1,0 +1,25 @@
+# SKID KIDS: BUILD TEAM, with the buttons: any two of the twelve kids (the
+# kangaroo and the robot only with a code). The rest fill the tournament,
+# one of them left over for the final.
+seed 12
+game skidkids
+wait 20
+press A
+wait 10
+press DOWN
+press A
+wait 12
+expect state == 3
+expect build_slots == 12
+press RIGHT
+press RIGHT
+press A
+press DOWN
+press A
+wait 5
+expect state == 4
+expect teama0 == 2
+expect teama1 == 9
+expect bracket_ok == 1
+expect leftover != 2
+expect leftover != 9

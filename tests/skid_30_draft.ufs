@@ -1,0 +1,30 @@
+# SKID KIDS: DRAFT TEAM, with the buttons. Five kids come off the bench at
+# random; you pick one, the other side picks two, you pick one of the last
+# two, and the kid nobody picked is left crying. The CPU's two are your
+# first match; the left-over kid comes back in the final with a robot.
+seed 11
+game skidkids
+wait 20
+expect state == 0
+press A
+wait 10
+expect state == 1
+press A
+wait 12
+expect state == 2
+expect phase == 0
+press RIGHT
+press A
+expect phase == 1
+expect owner1 == 0
+
+wait 90
+expect phase == 2
+press A
+expect phase == 3
+wait 50
+press A
+wait 5
+expect state == 4
+expect leftover >= 0
+expect bracket_ok == 1

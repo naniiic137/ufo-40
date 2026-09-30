@@ -1,0 +1,24 @@
+# SKID KIDS: A during a wind-up calls the throw off; the kid keeps the bag.
+game skidkids
+wait 5
+cheat match 0 5 3 11 0
+cheat coach 0
+cheat clearbags
+cheat freeze 1
+cheat freeze 2
+cheat freeze 3
+cheat play
+cheat kid 0 80 100
+cheat give 0 1
+hold B
+wait 25
+expect kst0 == 2
+press A
+expect kst0 == 0
+expect n_cancel == 1
+release B
+wait 5
+expect held0 == 1
+expect n_throw == 0
+# it's no jump: the kid stayed on the floor
+expect kz0 == 0

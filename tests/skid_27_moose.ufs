@@ -1,0 +1,45 @@
+# SKID KIDS: MOOSE (July's kit) runs rivals over: walking into one at the
+# line knocks it down (no point), unless it jumps. Special throw YO-YO, move
+# REEL. (2P versus, so player 2 can jump.)
+game skidkids
+wait 5
+cheat versus 11 1 0 3
+cheat coach 0
+cheat clearbags
+cheat freeze 1
+cheat freeze 3
+cheat play
+cheat kid 0 156 80
+cheat kid 2 164 100
+hold DOWN 20
+expect n_push == 1
+expect kst2 == 5
+expect score0 == 0
+waituntil kst2 == 0 100
+# a rival in the air can't be run over
+cheat kid 0 156 80
+cheat kid 2 164 100
+press P2A
+hold DOWN 12
+expect n_push == 1
+expect kst2 != 5
+# the yo-yo
+wait 30
+cheat kid 0 100 100
+cheat kid 2 200 100
+cheat stars 0 2
+cheat give 0 1
+hold B 70
+wait 2
+expect bagkind0 == 2
+waituntil score0 == 2 150
+# the reel
+waituntil kst2 == 0 100
+cheat clearbags
+cheat kid 0 100 60
+cheat loose 40 160
+cheat stars 0 2
+press A
+wait 5
+press A
+waituntil held0 == 1 60
