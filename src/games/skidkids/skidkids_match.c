@@ -33,7 +33,7 @@ const KidDef SKID_KID[SKID_ROSTER] = {
     {"MOOSE", "RUNS RIVALS OVER", "EXCUSE ME. COMING THROUGH.",
      P_PUSH, ST_YOYO, SA_REEL, C_HIDE, C_EARTH, C_DUSK, C_BROWN},
     {"BOOMER", "HOPS, POUCH, SPEED", "THUMP. THUMP THUMP.",
-     P_HIGHJUMP | P_TWOBAGS | P_FAST | P_NOSLIP, ST_MARBLE, SA_POUCH, C_AMBER, C_BROWN, C_TAN, C_BROWN},
+     P_HIGHJUMP | P_TWOBAGS | P_FAST, ST_MARBLE, SA_POUCH, C_AMBER, C_BROWN, C_TAN, C_BROWN},
     {"BENCHBOT", "LOBS, WINDS, SHOVES", "BENCHBOT ONLINE. OBJECTIVE: THE TEAM THAT LEFT MY MAKER ON THE BENCH.",
      P_LOB | P_QUICKCHARGE | P_PUSH | P_BIGPUSH, ST_HOMING, SA_SWEEPER, C_GREY, C_SLATE, C_GREY, C_SLATE},
 };
@@ -313,7 +313,9 @@ static void throw_bag(Match *m, int i, int charge, bool forced) {
     Bag *g = &m->bag[b];
     int full_t = skid_charge_full(k);
     bool full = charge >= full_t;
-    float p = fclamp((float)(charge - SKID_TAP) / (float)(full_t - SKID_TAP), 0, 1);
+    /* the light toss is the same window for every kid; a throw's power
+     * grows from there to the full wind-up (half the time for quick kids) */
+    float p = fclamp((float)(charge - SKID_TOSS) / (float)(full_t - SKID_TOSS), 0, 1);
     float dx, dy;
     aim_of(k, &dx, &dy);
     g->team = (int8_t)k->team;
@@ -379,7 +381,7 @@ static void throw_bag(Match *m, int i, int charge, bool forced) {
         }
         return;
     }
-    if (p < 0.2f) {
+    if (charge < SKID_TOSS) {
         /* the light toss: a short lob that lands by your feet and stops */
         bool far = (k->pas & P_LOB) != 0;
         float sp = far ? 2.0f : 1.0f;
@@ -623,6 +625,21 @@ static void team_jump(Match *m, int i) {
     do_jump(m, mate_of(i));
 }
 
+/* The jump button on the floor: the kid a player drives takes the team up
+ * with it; a CPU kid, a co-op player's kid, or a partner jumping on its own
+ * (the house rule) jumps alone; an ordinary partner waits for yours. */
+static void press_jump(Match *m, int i) {
+    const Kid *k = &m->k[i];
+    if (m->player[k->team] != CTRL_AI && !(m->coop && k->team == 0) && m->ctrl[k->team] == i) team_jump(m, i);
+    else if (m->player[k->team] == CTRL_AI || (m->coop && k->team == 0) || m->rules.mate_jump) do_jump(m, i);
+}
+
+/* the partner's hands have room for a bag passed over */
+static bool mate_has_room(const Match *m, int i) {
+    const Kid *o = &m->k[mate_of(i)];
+    return o->held < skid_capacity(o);
+}
+
 static void clamp_kid(Match *m, int i) {
     Kid *k = &m->k[i];
     float x0, x1;
@@ -636,6 +653,7 @@ static void kid_update(Match *m, int i, const Pad *p) {
     k->t++;
     k->anim++;
     k->moved = false;
+    k->walking = false;
     if (k->slip_cd > 0) k->slip_cd--;
     if (k->state != KS_DOWN) k->since_up++;
     /* height */
@@ -679,7 +697,7 @@ static void kid_update(Match *m, int i, const Pad *p) {
     if (k->held > 0) {
         k->hold_t++;
         if (k->hold_t >= SKID_FORCED) {
-            int c = k->state == KS_CHARGE ? k->charge : (SKID_TAP + skid_charge_full(k)) / 2;
+            int c = k->state == KS_CHARGE ? k->charge : (SKID_TOSS + skid_charge_full(k)) / 2;
             if (k->state != KS_CHARGE) {
                 k->aimx = (int8_t)team_dir(k->team);
                 k->aimy = 0;
@@ -699,13 +717,15 @@ static void kid_update(Match *m, int i, const Pad *p) {
         if (k->aimx) k->face = k->aimx;
         bool cancel = swap_only ? p->bp : p->ap;
         if (cancel) {
-            /* the jump button (B under SWAP-ONLY) calls the throw off */
+            /* the jump calls the throw off, and it's a jump: one press
+             * (under SWAP-ONLY, A is held for the wind-up, so B calls it off) */
             k->state = KS_STAND;
             k->t = 0;
             k->armed = false;
             k->charge = 0;
             m->n_cancel++;
             ev(m, EV_CANCEL, k->x, k->y);
+            if (!swap_only) press_jump(m, i);
             return;
         }
         if (th) {
@@ -725,6 +745,7 @@ static void kid_update(Match *m, int i, const Pad *p) {
         k->y += my * s;
         clamp_kid(m, i);
         k->moved = fabsf(k->x - ox) > 0.01f || fabsf(k->y - oy) > 0.01f;
+        k->walking = true; /* even against the line: the push counts */
         if (p->dx) k->face = p->dx;
         k->aimx = p->dx;
         k->aimy = p->dy;
@@ -732,11 +753,8 @@ static void kid_update(Match *m, int i, const Pad *p) {
         k->aimx = (int8_t)team_dir(k->team);
         k->aimy = 0;
     }
-    /* SWAP-ONLY: B swaps (and tosses the bag across if the kid left has one
-     * and the other has none) */
+    /* SWAP-ONLY: B only swaps; passing has moved to A */
     if (swap_only && p->bp) {
-        Kid *o = &m->k[mate_of(i)];
-        if (k->held > 0 && o->held == 0) pass_bag(m, i);
         swap_to_mate(m, i);
         return;
     }
@@ -750,10 +768,8 @@ static void kid_update(Match *m, int i, const Pad *p) {
     if (jp) {
         if (skid_airborne(k)) {
             if (!k->air_move && k->stars >= m->rules.cost * 2) special_move(m, i);
-        } else if (m->player[k->team] != CTRL_AI && !(m->coop && k->team == 0) && m->ctrl[k->team] == i) {
-            team_jump(m, i);
-        } else if (m->player[k->team] == CTRL_AI || (m->coop && k->team == 0) || m->rules.mate_jump) {
-            do_jump(m, i); /* a CPU kid, a co-op player, or a mate on its own */
+        } else {
+            press_jump(m, i);
         }
     }
     /* the action button */
@@ -783,19 +799,18 @@ static void kid_update(Match *m, int i, const Pad *p) {
         return;
     }
     if (tr || !th) {
-        /* a tap: a second bag within reach (two-bag kids), else a pass */
+        /* a tap: a second bag within reach (two-bag kids) is picked up;
+         * else the bag goes across as you swap, if the partner has room
+         * (hands full, it's only a swap). Under SWAP-ONLY a tap of A
+         * passes and you keep the kid you drive. */
         k->armed = false;
-        if (swap_only) {
-            throw_bag(m, i, k->charge, false); /* the light toss */
-            return;
-        }
         int idx = 0, kind = reach_thing(m, i, &idx);
         if (kind == 1 && !skid_airborne(k)) {
             start_pickup(m, i, kind, idx);
-        } else {
-            pass_bag(m, i);
-            if (swapper(m, i)) swap_to_mate(m, i);
+            return;
         }
+        if (mate_has_room(m, i)) pass_bag(m, i);
+        if (!swap_only && swapper(m, i)) swap_to_mate(m, i);
     }
 }
 
@@ -1254,18 +1269,22 @@ static void slips(Match *m) {
     }
 }
 
-/* running into a rival knocks them flat; the robot's push beats any other */
+/* Walking into a rival knocks them flat: close by with the pad held is
+ * enough, even pressed against the line. The robot's push beats any other
+ * when both stand, but a pusher jumping into it knocks it down; a kid in
+ * the air can't be pushed. */
 static void pushes(Match *m) {
     for (int i = 0; i < 4; i++) {
         Kid *a = &m->k[i];
-        if (!(a->pas & P_PUSH) || !a->moved || skid_airborne(a) || a->state != KS_STAND) continue;
+        if (!(a->pas & P_PUSH) || !a->walking || a->state != KS_STAND) continue;
+        bool jumping_in = skid_airborne(a);
         for (int j = 0; j < 4; j++) {
             Kid *b = &m->k[j];
             if (b->team == a->team || skid_airborne(b)) continue;
             if (b->state == KS_DOWN || b->state == KS_WIN || b->state == KS_SAD) continue;
             if (fabsf(a->x - b->x) > 9 || fabsf(a->y - b->y) > 6) continue;
             int loser = j;
-            if ((b->pas & P_BIGPUSH) && !(a->pas & P_BIGPUSH)) loser = i;
+            if (!jumping_in && (b->pas & P_BIGPUSH) && !(a->pas & P_BIGPUSH)) loser = i;
             skid_knockdown(m, loser, skid_down_time(&m->k[loser]));
             m->n_push++;
             ev(m, EV_PUSH, b->x, b->y);

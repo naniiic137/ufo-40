@@ -1,8 +1,9 @@
 /* SKID KIDS - the CPU. Rival kids play on their own (both can wind up at
  * once, they hold a full wind-up waiting for someone to bend down for a bag,
- * and they chase every item the Coach throws in, ambush or not); your
- * partner fetches bags and passes them to you; the demo player in the tests
- * plays your kid the way the best rival does, with real buttons. */
+ * and they chase every item the Coach throws in, ambush or not; they read a
+ * wiggly throw as a straight one, and steer round puddles); your partner
+ * fetches bags and holds them for you to swap to; the demo player in the
+ * tests plays your kid the way the best rival does, with real buttons. */
 #include "skidkids.h"
 
 typedef struct Skill {
@@ -56,8 +57,10 @@ static bool ambushed(const Match *m, const Kid *k, float x, float y) {
 
 /* Frames until the most urgent danger reaches kid i (99 = none); *lead is
  * how many frames ahead to jump it (an arcing bag is cleared only at the
- * top of a jump). */
-static int threat_lead(const Match *m, int i, int *which, int *lead) {
+ * top of a jump). The CPU reads a wiggly throw as a straight one (players
+ * note it doesn't adjust for it); only the demo player allows for the
+ * wiggle. */
+static int threat_lead(const Match *m, int i, int *which, int *lead, bool wiggle) {
     const Kid *k = &m->k[i];
     int best = 99;
     *which = -1;
@@ -72,7 +75,7 @@ static int threat_lead(const Match *m, int i, int *which, int *lead) {
         float t = (rx * g->vx + ry * g->vy) / v2;
         if (t < -1 || t > 45) continue;
         float cx = rx - g->vx * t, cy = ry - g->vy * t;
-        float slack = g->radius + (g->wavy ? 7 : 0);
+        float slack = g->radius + (g->wavy && wiggle ? 7 : 0);
         if (fabsf(cx) > 7 + slack || fabsf(cy) > 6 + slack) continue;
         if ((int)t < best) {
             best = imax(0, (int)t);
@@ -151,7 +154,7 @@ static void aim8(const Kid *k, float tx, float ty, Pad *o) {
 
 static bool dodge_now(Match *m, int i, const Skill *s, int *th_out) {
     Kid *k = &m->k[i];
-    int which, lead, th = threat_lead(m, i, &which, &lead);
+    int which, lead, th = threat_lead(m, i, &which, &lead, s == &SKILL[6]);
     *th_out = th;
     if (th >= 99) {
         k->ai_seen = -1;
@@ -272,7 +275,7 @@ static void keep_winding(Match *m, int i, const Skill *s, Pad *o, int th, bool s
         int patience = smart ? SKID_FORCED - 20 : 100;
         if (!open && k->hold_t < SKID_FORCED - 20 && k->ai_wait < patience) ready = false;
     }
-    if (th <= 3 && k->charge >= SKID_TAP + 8 && !smart) ready = true; /* throw rather than be hit */
+    if (th <= 3 && k->charge >= SKID_TOSS && !smart) ready = true; /* throw rather than be hit */
     if (!ready) {
         o->b = true;
         return;
@@ -335,13 +338,15 @@ static void rival(Match *m, int i, const Skill *s, Pad *o, bool smart) {
         bool late = k->hold_t > SKID_FORCED - 80;
         bool there = fabsf(k->x - want_x) < 10;
         if (!air && ((smart && there) || (!smart && lined) || late) && k->hold_t > s->hesitate) {
-            int full = skid_charge_full(k);
+            /* wind-up lengths past the light toss, as a share of the kid's
+             * own full wind-up, so the quick kids throw as hard sooner */
+            int full = skid_charge_full(k), span = full - SKID_TOSS;
             if (smart) k->ai_charge_to = full + 1;
-            else if (t->state == KS_DOWN && t->timer > 30) k->ai_charge_to = SKID_TAP + 8 + rng_range(&m->rng, 0, 6);
+            else if (t->state == KS_DOWN && t->timer > 30) k->ai_charge_to = SKID_TOSS + rng_range(&m->rng, 0, span / 4);
             else if (rng_chance(&m->rng, s->full) || (k->stars >= cost && rng_chance(&m->rng, s->special)))
                 k->ai_charge_to = full + 1;
-            else k->ai_charge_to = SKID_TAP + rng_range(&m->rng, 18, full - SKID_TAP - 4);
-            if (late) k->ai_charge_to = imin(k->ai_charge_to, SKID_TAP + 20);
+            else k->ai_charge_to = SKID_TOSS + rng_range(&m->rng, span * 3 / 10, span - 2);
+            if (late) k->ai_charge_to = imin(k->ai_charge_to, SKID_TOSS + span / 3);
             k->ai_wait = 0;
             o->bp = o->b = true;
             return;
@@ -403,54 +408,126 @@ static void rival(Match *m, int i, const Skill *s, Pad *o, bool smart) {
     wander(m, i, s, o);
 }
 
+/* A spot the partner won't walk to for a bag: in the lane of a throw coming
+ * over, or by a popper of the other team about to go off. */
+static bool spot_in_danger(const Match *m, int team, float x, float y) {
+    for (int b = 0; b < SKID_MAX_BAGS; b++) {
+        const Bag *g = &m->bag[b];
+        if (g->state == BG_GONE || g->team == team) continue;
+        if (g->fuse > 0) {
+            float dx = x - g->x, dy = (y - g->y) * 1.4f;
+            if (g->kind != BK_MARBLE && dx * dx + dy * dy < 36 * 36) return true;
+            continue;
+        }
+        if ((g->state != BG_SLIDE && g->state != BG_AIR) || g->dead) continue;
+        float v2 = g->vx * g->vx + g->vy * g->vy;
+        if (v2 < 0.05f) continue;
+        float rx = x - g->x, ry = y - g->y;
+        float t = (rx * g->vx + ry * g->vy) / v2;
+        if (t < 0 || t > 60) continue;
+        if (fabsf(rx - g->vx * t) < 14 && fabsf(ry - g->vy * t) < 12) return true;
+    }
+    return false;
+}
+
+/* Your partner, by default: it only fetches bags. A bag in its hands stays
+ * there (in its corner, away from you) until you swap to it, or the forced
+ * throw comes; it never passes one over by itself. It no longer walks into
+ * a throw coming at it or to a bag in a throw's way, but the jump is still
+ * yours: it jumps when you do. */
 static void mate_bags(Match *m, int i, Pad *o) {
     Kid *k = &m->k[i];
-    int team = k->team, dir = dir_of(team);
+    int team = k->team;
     const Kid *h = &m->k[m->ctrl[team]];
+    int th, which, lead;
     if (m->rules.mate_jump) {
-        int th;
         if (dodge_now(m, i, &SKILL[0], &th) && !skid_airborne(k) && k->state == KS_STAND) {
             o->ap = o->a = true;
             return;
         }
+    } else {
+        th = threat_lead(m, i, &which, &lead, false);
     }
     if (k->state != KS_STAND && k->state != KS_THROW) return;
+    if (th < 20) return; /* something is coming: it stops where it is */
     float corner_x = team == 0 ? SKID_LEFT + 34 : SKID_RIGHT - 34;
     float corner_y = h->y < (SKID_TOP + SKID_BOT) / 2 ? SKID_BOT - 18 : SKID_TOP + 18;
-    if (k->held > 0) {
-        if (k->armed) {
-            o->br = true; /* the second half of a tap: the pass */
+    if (k->held == 0) {
+        int best = -1;
+        float bd = 1e9f;
+        for (int b = 0; b < SKID_MAX_BAGS; b++) {
+            const Bag *g = &m->bag[b];
+            if (g->state != BG_LOOSE || !reachable_x(m, i, g->x)) continue;
+            if (fabsf(g->x - h->x) < 14 && fabsf(g->y - h->y) < 12) continue; /* yours */
+            if (spot_in_danger(m, team, g->x, g->y)) continue;
+            float d = fabsf(g->x - k->x) + fabsf(g->y - k->y);
+            if (d < bd) { bd = d; best = b; }
+        }
+        if (best >= 0) {
+            const Bag *g = &m->bag[best];
+            if (in_reach(k, g->x, g->y) && !skid_airborne(k)) {
+                o->bp = o->b = true;
+                return;
+            }
+            seek(k, g->x, g->y, o, 1);
             return;
         }
-        bool free = h->held < skid_capacity(h) && h->state != KS_DOWN && h->state != KS_PICKUP && !h->armed &&
-                    h->state != KS_CHARGE;
-        if (free && !skid_airborne(k)) {
-            o->bp = o->b = true;
-            return;
-        }
-        seek(k, corner_x, corner_y, o, 2);
-        return;
     }
-    int best = -1;
-    float bd = 1e9f;
-    for (int b = 0; b < SKID_MAX_BAGS; b++) {
-        const Bag *g = &m->bag[b];
-        if (g->state != BG_LOOSE || !reachable_x(m, i, g->x)) continue;
-        if (fabsf(g->x - h->x) < 14 && fabsf(g->y - h->y) < 12) continue; /* yours */
-        float d = fabsf(g->x - k->x) + fabsf(g->y - k->y);
-        if (d < bd) { bd = d; best = b; }
-    }
-    if (best >= 0) {
-        const Bag *g = &m->bag[best];
-        if (in_reach(k, g->x, g->y) && !skid_airborne(k)) {
-            o->bp = o->b = true;
-            return;
-        }
-        seek(k, g->x, g->y, o, 1);
-        return;
-    }
-    (void)dir;
     seek(k, corner_x, corner_y, o, 2);
+}
+
+/* ---- puddles ---------------------------------------------------------------
+ * The CPU steers round a puddle lying on the floor (a kid who can't slip
+ * doesn't bother); a water balloon still in the air isn't a puddle yet. */
+
+/* the puddle at (x, y), or nearly (a few pixels to spare), or -1 */
+static int puddle_at(const Match *m, float x, float y, float spare) {
+    for (int n = 0; n < SKID_MAX_ITEMS; n++) {
+        const Item *it = &m->it[n];
+        if (it->kind != IT_PUDDLE || it->flying) continue;
+        float dx = x - it->x, dy = y - it->y, r = it->r + spare;
+        if (dx * dx + dy * dy * 2.5f < r * r) return n;
+    }
+    return -1;
+}
+
+static void steer_dry(Match *m, int i, Pad *o) {
+    static const int8_t DX[8] = {1, 1, 0, -1, -1, -1, 0, 1}, DY[8] = {0, 1, 1, 1, 0, -1, -1, -1};
+    Kid *k = &m->k[i];
+    if (puddle_at(m, k->x, k->y, 16) < 0) k->ai_detour = 0; /* clear of puddles */
+    if ((k->pas & P_NOSLIP) || (!o->dx && !o->dy) || k->state == KS_CHARGE || skid_airborne(k)) return;
+    int d0 = 0;
+    for (int d = 0; d < 8; d++)
+        if (DX[d] == o->dx && DY[d] == o->dy) d0 = d;
+    float x0, x1;
+    skid_kid_bounds(m, i, &x0, &x1);
+    /* a step ahead each way: into a puddle? open (not a wall or the line)? */
+    int wet[8];
+    bool open[8];
+    for (int d = 0; d < 8; d++) {
+        float l = DX[d] && DY[d] ? 0.7071f : 1.0f;
+        float nx = fclamp(k->x + DX[d] * l * 8, x0, x1), ny = fclamp(k->y + DY[d] * l * 8, SKID_TOP + 2, SKID_BOT - 2);
+        wet[d] = puddle_at(m, nx, ny, 3);
+        open[d] = fabsf(nx - k->x) + fabsf(ny - k->y) >= 4;
+    }
+    int p = wet[d0];
+    if (p < 0) return; /* dry ahead */
+    if (!k->ai_detour) {
+        /* go round on the side the kid is already on (turning +1 is
+         * clockwise on the screen), and keep to it */
+        float cross = (float)DX[d0] * (k->y - m->it[p].y) - (float)DY[d0] * (k->x - m->it[p].x);
+        k->ai_detour = cross > 0 ? 1 : cross < 0 ? -1 : (k->slot ? 1 : -1);
+    }
+    int s = k->ai_detour;
+    for (int side = 0; side < 2; side++, s = -s)
+        for (int turn = 1; turn <= 3; turn++) {
+            int d = (d0 + s * turn + 8) % 8;
+            if (wet[d] >= 0 || !open[d]) continue;
+            o->dx = DX[d];
+            o->dy = DY[d];
+            return;
+        }
+    /* no dry way round: straight on, and maybe a slip */
 }
 
 
@@ -464,17 +541,36 @@ void skid_ai_pad(Match *m, int i, Pad *o) {
     if (mate) {
         if (m->rules.mate_ai == 0) mate_bags(m, i, o);
         else rival(m, i, &SKILL[3], o, false);
-        return;
+    } else {
+        rival(m, i, &SKILL[iclamp(m->level[team], 0, 6)], o, false);
     }
-    rival(m, i, &SKILL[iclamp(m->level[team], 0, 6)], o, false);
+    steer_dry(m, i, o);
 }
 
 /* ---- the demo player ------------------------------------------------------
  * It plays the kid you drive the way a sharp player does: it jumps every bag
- * it sees in time (it even calls a wind-up off to jump), camps by the centre
- * line where the Coach's items land and the rivals come running, and throws
- * short: a light toss into a rival at point blank knocks it flat, and a
- * quick throw finds a rival who is bent over a bag, winding up or down. */
+ * it sees in time (a jump calls a wind-up off, in the same press), camps by
+ * the centre line where the Coach's items land and the rivals come running,
+ * and throws short: a light toss into a rival at point blank knocks it
+ * flat, and a quick throw finds a rival who is bent over a bag, winding up
+ * or down. The partner never passes by itself, so for the partner's bag it
+ * swaps over and straight back (the bag is tossed across as it swaps). */
+
+static int bot_back = -1, bot_back_t; /* the swap-and-back: the kid to come back to */
+
+/* a wind-up past the light toss: a share of the kid's own full wind-up */
+static int bot_charge(const Kid *k, float share) {
+    int full = skid_charge_full(k);
+    return SKID_TOSS + (int)(share * (float)(full - SKID_TOSS) + 0.5f);
+}
+
+static bool bot_near_thing(const Match *m, const Kid *k) {
+    for (int b = 0; b < SKID_MAX_BAGS; b++)
+        if (m->bag[b].state == BG_LOOSE && in_reach(k, m->bag[b].x, m->bag[b].y)) return true;
+    for (int n = 0; n < SKID_MAX_ITEMS; n++)
+        if (m->it[n].kind == IT_JUICE && !m->it[n].flying && in_reach(k, m->it[n].x, m->it[n].y)) return true;
+    return false;
+}
 
 static bool quick_line(const Kid *k, const Kid *t, float max_d, int *ax, int *ay, float *dist) {
     float dx = t->x - k->x, dy = t->y - k->y;
@@ -489,13 +585,26 @@ static bool quick_line(const Kid *k, const Kid *t, float max_d, int *ax, int *ay
 static void bot_play(Match *m, int i, Pad *o) {
     const Skill *s = &SKILL[6];
     Kid *k = &m->k[i];
-    int which, lead, th = threat_lead(m, i, &which, &lead);
+    int th;
     bool dodge = dodge_now(m, i, s, &th);
     bool air = skid_airborne(k);
     int foe = 1 - k->team, dir = dir_of(k->team), cost = m->rules.cost * 2;
+    if (bot_back == (i ^ 1)) {
+        /* on the partner for its bag: a tap tosses it across and swaps back */
+        if (k->held == 0) bot_back = -1;
+        else if (k->state == KS_STAND || k->state == KS_THROW) {
+            if (!k->armed) {
+                o->bp = o->b = true;
+            } else {
+                o->br = true;
+                bot_back = -1;
+            }
+            return;
+        }
+    }
     if (k->state == KS_CHARGE) {
-        if (th <= lead + 2) {
-            o->ap = true; /* call it off: the jump comes next frame */
+        if (dodge) {
+            o->ap = o->a = true; /* the jump calls it off and jumps, in one */
             return;
         }
         const Kid *t = &m->k[iclamp(k->ai_target, foe * 2, foe * 2 + 1)];
@@ -536,10 +645,10 @@ static void bot_play(Match *m, int i, Pad *o) {
             int plan = -1;
             if (quick_line(k, t, 22, &ax, &ay, &d)) plan = SKID_TAP + 1; /* the light toss */
             else if (t->state == KS_DOWN && t->timer > 40 && quick_line(k, t, 140, &ax, &ay, &d))
-                plan = k->stars >= cost && t->timer > 70 ? skid_charge_full(k) + 1 : SKID_TAP + 16;
-            else if ((t->state == KS_PICKUP || t->state == KS_HURT) && quick_line(k, t, 60, &ax, &ay, &d)) plan = SKID_TAP + 12;
-            else if (t->state == KS_CHARGE && quick_line(k, t, 150, &ax, &ay, &d)) plan = SKID_TAP + 28;
-            else if (k->hold_t > SKID_FORCED - 50 && quick_line(k, t, 300, &ax, &ay, &d)) plan = SKID_TAP + 30;
+                plan = k->stars >= cost && t->timer > 70 ? skid_charge_full(k) + 1 : bot_charge(k, 0.32f);
+            else if ((t->state == KS_PICKUP || t->state == KS_HURT) && quick_line(k, t, 60, &ax, &ay, &d)) plan = bot_charge(k, 0.24f);
+            else if (t->state == KS_CHARGE && quick_line(k, t, 150, &ax, &ay, &d)) plan = bot_charge(k, 0.56f);
+            else if (k->hold_t > SKID_FORCED - 50 && quick_line(k, t, 300, &ax, &ay, &d)) plan = bot_charge(k, 0.6f);
             if (plan < 0) continue;
             k->ai_target = j;
             k->ai_charge_to = plan;
@@ -569,13 +678,23 @@ static void bot_play(Match *m, int i, Pad *o) {
         seek(k, SKID_MID - dir * 10, wy, o, 1);
         return;
     }
-    /* empty hands: the Coach's item, else the nearest bag or juice box */
+    /* empty hands: the Coach's item coming down on this side */
     float lx, ly;
     int kind, idx;
     if (coach_landing(m, &lx, &ly, &kind, &idx) && own_side(k, lx)) {
         seek(k, lx - dir * 3, ly, o, 1);
         return;
     }
+    /* the partner holding a bag? swap over to it and straight back (the
+     * pass follows the kid, so it needn't wait for it) */
+    const Kid *mate = &m->k[i ^ 1];
+    if (mate->held > 0 && (mate->state == KS_STAND || mate->state == KS_THROW) && !bot_near_thing(m, k)) {
+        bot_back = i;
+        bot_back_t = 0;
+        o->bp = o->b = true;
+        return;
+    }
+    /* else the nearest bag or juice box */
     int best = -1, best_kind = 0;
     float bd = 1e9f;
     for (int b = 0; b < SKID_MAX_BAGS; b++) {
@@ -614,16 +733,14 @@ static void bot_play(Match *m, int i, Pad *o) {
 void skid_bot_pad(Match *m, int i, Pad *o) {
     memset(o, 0, sizeof *o);
     Kid *k = &m->k[i];
-    if (m->state != MS_PLAY) return;
+    if (bot_back >= 0 && ++bot_back_t > 12) bot_back = -1; /* the swap-and-back fell through */
+    if (m->state != MS_PLAY) {
+        bot_back = -1;
+        return;
+    }
     if (k->state == KS_DOWN || k->state == KS_HURT || k->state == KS_PICKUP) return;
     bot_play(m, i, o);
-    /* a press of B with nothing within reach would swap kids: don't */
-    if (o->bp && k->held == 0) {
-        bool near = false;
-        for (int b = 0; b < SKID_MAX_BAGS; b++)
-            if (m->bag[b].state == BG_LOOSE && in_reach(k, m->bag[b].x, m->bag[b].y)) near = true;
-        for (int n = 0; n < SKID_MAX_ITEMS; n++)
-            if (m->it[n].kind == IT_JUICE && !m->it[n].flying && in_reach(k, m->it[n].x, m->it[n].y)) near = true;
-        if (!near) o->bp = o->b = false;
-    }
+    /* a press of B with nothing within reach would swap kids: only on purpose */
+    if (o->bp && k->held == 0 && bot_back != i && !bot_near_thing(m, k)) o->bp = o->b = false;
+    steer_dry(m, i, o);
 }

@@ -1,6 +1,6 @@
-# SKID KIDS: BUILD TEAM, with the buttons: any two of the twelve kids (the
-# kangaroo and the robot only with a code). The rest fill the tournament,
-# one of them left over for the final.
+# SKID KIDS: HAND-PICK (the free build), with the buttons: any two of the
+# twelve kids (the kangaroo and the robot only with a code). The rest fill
+# the tournament, one of them left over for the final.
 seed 12
 game skidkids
 wait 20

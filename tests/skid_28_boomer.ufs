@@ -1,9 +1,10 @@
 # SKID KIDS: BOOMER, the kangaroo who partners the fifth match. Three kids'
-# passives in one: high quick hops, two bags in the pouch, fast feet that
-# never slip. His special throw is the MARBLE BAG (it bursts into a ring of
-# eight marbles; a kid who steps on one slips and lies helpless for longer,
-# and the marble is spent); his move is the POUCH GRAB (two bags pulled in,
-# one after the other). (2P versus: player 2 has the kangaroo.)
+# passives in one: high quick hops, two bags in the pouch, fast feet (he
+# slips like anyone: no source gives him the fast kid's grip). His special
+# throw is the MARBLE BAG (it bursts into a ring of eight marbles; a kid who
+# steps on one slips and lies helpless for longer, and the marble is
+# spent); his move is the POUCH GRAB (two bags pulled in, one after the
+# other). (2P versus: player 2 has the kangaroo.)
 game skidkids
 wait 5
 cheat versus 0 1 12 3
@@ -22,7 +23,9 @@ expect kx2 <= 242
 cheat puddle 250 140
 cheat kid 2 280 140
 hold P2LEFT 50
-expect n_slip == 0
+expect n_slip == 1
+expect kst2 == 5
+waituntil kst2 == 0 100
 # two bags in the pouch
 cheat kid 2 250 100
 cheat loose 244 100
@@ -48,7 +51,7 @@ expect score1 == 1
 cheat marble 90 150
 cheat kid 0 60 150
 hold RIGHT 30
-expect n_slip == 1
+expect n_slip == 2
 expect kst0 == 5
 expect timer0 > 120
 expect marbles == 8

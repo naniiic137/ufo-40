@@ -20,7 +20,7 @@ enum { MODE_1P, MODE_COOP, MODE_VS };
 /* ---- the save: the menu stats and a few totals -------------------------------- */
 typedef struct Save {
     uint32_t magic;
-    uint16_t used, won_with; /* athletes used, athletes won with (a bit per kid) */
+    uint16_t used, won_with; /* kids played, kids crowned (a bit per kid) */
     uint8_t best_wins, cups, blowout_cups, pad0;
     uint32_t matches_won;
 } Save;
@@ -29,7 +29,7 @@ typedef struct Save {
 /* ---- the codes (our own, entered from the title's CODES screen) ---------------- */
 enum { CODE_ALLSTARS = 1, CODE_SWAPONLY = 2, CODE_HORNETS = 4, CODE_GYMRULES = 8, CODE_DUELRULE = 16 };
 static const struct { const char *code; int bit; const char *says; } CODES[] = {
-    {"ALLSTARS", CODE_ALLSTARS, "THE KANGAROO AND THE ROBOT JOIN BUILD TEAM!"},
+    {"ALLSTARS", CODE_ALLSTARS, "THE KANGAROO AND THE ROBOT JOIN HAND-PICK!"},
     {"SWAPONLY", CODE_SWAPONLY, "B ONLY SWAPS KIDS. A DOES THE REST."},
     {"HORNETS!", CODE_HORNETS, "2P CO-OP: THE KANGAROO AND THE ROBOT!"},
     {"GYMRULES", CODE_GYMRULES, "HOUSE RULES FOR 1P AND CO-OP."},
@@ -915,7 +915,7 @@ static void draw_teamtype(void) {
     draw_backdrop();
     static const char *const HEAD[3] = {"1 PLAYER", "2P CO-OP", "2P VERSUS"};
     ui_fancy_center(HEAD[mode], 160, 8, 2, GRAD_GOLD, 4, C_INK, C_MAROON);
-    static const char *const NAME[2] = {"DRAFT TEAM", "BUILD TEAM"};
+    static const char *const NAME[2] = {"TAKE TURNS", "HAND-PICK"};
     static const char *const WHAT[2] = {
         "FIVE KIDS COME OFF THE BENCH. YOU PICK ONE, THE OTHER SIDE PICKS TWO, YOU PICK ONE OF THE LAST TWO.",
         "PICK ANY TWO KIDS YOU LIKE.",
@@ -1198,7 +1198,7 @@ static void draw_credits(void) {
     }
     int last = y0 + (CREDIT_LINES - 1) * 14;
     if (last <= 110) {
-        tiny_center("ENTER IT UNDER CODES FOR EVERYONE IN BUILD TEAM", 160, 126, C_GREY);
+        tiny_center("ENTER IT UNDER CODES FOR EVERYONE IN HAND-PICK", 160, 126, C_GREY);
         skid_draw_kid_at(K_BOOMER, 0, KP_IDLE0, 130, 170, 0, 1, false);
         skid_draw_kid_at(K_BENCHBOT, 1, KP_IDLE0, 190, 170, 1, 1, false);
     }
@@ -1216,16 +1216,16 @@ static void draw_records(void) {
         else spr_draw_ex(&skid_kid_spr[i][0][KP_IDLE0], x + 18, y + 22, 0, NULL, C_DUSK);
         gfx_noclip();
         tiny_center(SKID_KID[i].name, x + 24, y + 44, used ? C_LIGHT : C_SLATE);
-        tiny_draw("USED", x + 3, y + 52, C_GREY);
+        tiny_draw("PLAY", x + 3, y + 52, C_GREY);
         tiny_draw(used ? "Y" : "-", x + 21, y + 52, used ? C_LIME : C_SLATE);
-        tiny_draw("WON", x + 27, y + 52, C_GREY);
+        tiny_draw("CUP", x + 27, y + 52, C_GREY);
         tiny_draw(won ? "Y" : "-", x + 41, y + 52, won ? C_YELLOW : C_SLATE);
     }
     char buf[40];
     ui_panel(40, 152, 240, 26, C_NIGHT, C_AMBER);
-    snprintf(buf, sizeof buf, "ATHLETES USED  %d/%d", bits12(sv.used), SKID_KIDS);
+    snprintf(buf, sizeof buf, "KIDS PLAYED  %d/%d", bits12(sv.used), SKID_KIDS);
     text_center(buf, 160, 155, C_WHITE);
-    snprintf(buf, sizeof buf, "ATHLETES WON WITH  %d/%d", bits12(sv.won_with), SKID_KIDS);
+    snprintf(buf, sizeof buf, "KIDS CROWNED  %d/%d", bits12(sv.won_with), SKID_KIDS);
     text_center(buf, 160, 166, C_YELLOW);
 }
 
@@ -1752,7 +1752,7 @@ const GameDef GAME_SKIDKIDS = {
     "HOLD " GLYPH_B "\tWIND UP, LET GO TO THROW\n"
     GLYPH_A "\tJUMP (THE WHOLE TEAM)\n"
     GLYPH_A " IN THE AIR\tSPECIAL MOVE (1 STAR)\n"
-    GLYPH_A " WINDING UP\tCALL THE THROW OFF\n"
+    GLYPH_A " WINDING UP\tCALL IT OFF AND JUMP\n"
     "START\tPAUSE\n"
     "2P KEYS: WASD F G / ARROWS K L",
     C_AMBER, C_RED,

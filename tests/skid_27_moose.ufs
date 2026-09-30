@@ -1,5 +1,6 @@
 # SKID KIDS: MOOSE (July's kit) runs rivals over: walking into one at the
-# line knocks it down (no point), unless it jumps. Special throw YO-YO, move
+# line knocks it down (no point), unless it jumps; holding the pad toward a
+# rival counts even when the line stops him. Special throw YO-YO, move
 # REEL. (2P versus, so player 2 can jump.)
 game skidkids
 wait 5
@@ -23,6 +24,16 @@ press P2A
 hold DOWN 12
 expect n_push == 1
 expect kst2 != 5
+# pressed against the line, holding toward a rival just over it: that's
+# walking into it (the centre-line trick), though MOOSE can't step closer
+wait 30
+cheat kid 0 156 100
+cheat kid 2 164 100
+hold RIGHT 10
+expect n_push == 2
+expect kst2 == 5
+expect kx0 == 156
+waituntil kst2 == 0 100
 # the yo-yo
 wait 30
 cheat kid 0 100 100

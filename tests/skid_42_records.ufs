@@ -1,6 +1,6 @@
-# SKID KIDS: the stats the title's RECORDS screen keeps: athletes used (a
-# kid a player took into a match, either side in versus) and athletes won
-# with (both kids of a team that won the tournament). Saved.
+# SKID KIDS: the stats the title's RECORDS screen keeps: kids played (a
+# kid a player took into a match, either side in versus) and kids crowned
+# (both kids of a team that won the tournament). Saved.
 seed 24
 game skidkids
 wait 5

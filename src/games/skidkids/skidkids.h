@@ -44,7 +44,7 @@ enum {
     P_SHARE = 1 << 5,       /* half-stars go to the partner too */
     P_TWOBAGS = 1 << 6,     /* carries two bags */
     P_FAST = 1 << 7,        /* runs faster */
-    P_NOSLIP = 1 << 8,      /* never slips */
+    P_NOSLIP = 1 << 8,      /* never slips (and so the CPU needn't steer round puddles) */
     P_QUICKGRAB = 1 << 9,   /* picks things up faster */
     P_CROSS = 1 << 10,      /* may cross the centre line */
     P_FAVORED = 1 << 11,    /* the Coach's favourite */
@@ -107,6 +107,7 @@ typedef struct Kid {
     int slip_cd;            /* no slipping again for a while after getting up */
     int since_up;           /* frames since last on its feet again */
     bool moved;             /* walked this frame */
+    bool walking;           /* the pad held to walk this frame, blocked or not (the push) */
     int anim;
     int queued_reel;        /* the pouch grab's second pull */
     /* the AI's working memory */
@@ -116,6 +117,7 @@ typedef struct Kid {
     int ai_seen;            /* the bag it saw coming */
     int ai_react;           /* frames until it reacts to it */
     int ai_jump_roll;
+    int ai_detour;          /* going round a puddle: the way it turns (+1/-1), 0 none */
 } Kid;
 
 /* bag states */
@@ -250,6 +252,7 @@ int skid_capacity(const Kid *k);
 void skid_knockdown(Match *m, int i, int frames);
 void skid_coach_throw(Match *m, int kind, float tx, float ty);
 #define SKID_TAP 10     /* B held this long with a bag starts a wind-up */
+#define SKID_TOSS 20    /* a wind-up let go before this is the light toss, for every kid */
 #define SKID_FORCED 300 /* holding a bag this long throws it for you */
 
 /* the CPU (skidkids_ai.c) */
