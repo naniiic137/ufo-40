@@ -1,0 +1,51 @@
+# SKID KIDS: the stats the title's RECORDS screen keeps: kids played (a
+# kid a player took into a match, either side in versus) and kids crowned
+# (both kids of a team that won the tournament). Saved.
+seed 24
+game skidkids
+wait 5
+expect used == 0
+expect won_with == 0
+cheat tourney 4 10
+botuntil state == 7 800
+expect used == 1040
+expect won_with == 0
+cheat win 0
+wait 160
+botuntil state == 7 800
+cheat win 0
+wait 160
+botuntil state == 7 800
+cheat win 0
+wait 160
+botuntil state == 7 800
+cheat win 0
+wait 160
+botuntil state == 7 800
+cheat win 0
+wait 160
+botuntil state == 7 800
+cheat win 0
+wait 160
+expect won_with == 1040
+expect used_n == 2
+expect won_n == 2
+# a versus match counts both sides' kids as used, and no win
+cheat versus 0 1 2 3
+expect used == 1055
+cheat win 0
+wait 160
+expect won_with == 1040
+reload
+game skidkids
+wait 20
+expect used == 1055
+expect won_with == 1040
+press DOWN
+press DOWN
+press DOWN
+press A
+expect state == 12
+wait 10
+press B
+expect state == 0

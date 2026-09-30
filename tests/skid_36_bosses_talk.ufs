@@ -1,0 +1,45 @@
+# SKID KIDS: before each match the other side's lead has a word; some pairs
+# have a word for each other; match 5 brings the kangaroo, match 6 the kid
+# nobody picked and the robot. A secret: a team of MILO and SPARKY finds out
+# what the robot is made of.
+seed 17
+game skidkids
+wait 5
+cheat tourney 3 4
+expect opp4_1 == 12
+expect opp5_1 == 13
+cheat round 4
+wait 25
+press A
+wait 5
+expect state == 6
+expect talk_n == 3
+cheat round 5
+wait 25
+press A
+wait 5
+expect talk_n == 5
+expect talk_special == 1
+wait 14
+press A
+wait 14
+press A
+wait 14
+press A
+wait 14
+press A
+wait 14
+press A
+wait 5
+expect state == 7
+expect music_is.skid_bot == 1
+expect who3 == 13
+expect level == 5
+# without that pair, just two lines and your lead's gasp
+cheat tourney 0 1
+cheat round 5
+wait 25
+press A
+wait 5
+expect talk_n == 3
+expect talk_special == 0

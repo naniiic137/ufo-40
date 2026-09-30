@@ -1,0 +1,22 @@
+# SKID KIDS: left alone on the title, the cartridge plays a CPU-against-CPU
+# demo that never ends (the score keeps climbing past 15); any button goes
+# back to the title. A secret: left long enough to reach 999 each, the Coach
+# calls it a day.
+seed 25
+game skidkids
+wait 20
+expect state == 0
+wait 720
+expect state == 15
+expect mstate <= 1
+cheat score 30 28
+wait 600
+expect mstate == 1
+expect nines == 0
+press A
+expect state == 0
+cheat demo
+cheat score 998 998
+waituntil nines == 1 6000
+expect score0 == 999
+expect score1 == 999

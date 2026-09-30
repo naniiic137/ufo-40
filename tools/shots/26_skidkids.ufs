@@ -1,0 +1,64 @@
+# README media: SKID KIDS. The GIF and the match shot are the demo player
+# pressing real buttons; the draft is picked with buttons; the kangaroo's
+# marbles and the robot's sweeper are thrown by player 2's buttons in a
+# versus match set up with cheats.
+shotscale 2
+seed 26
+game skidkids
+wait 40
+shot skidkids_title
+# the draft: pick one, the CPU picks two, pick one more; one kid is left
+press A
+wait 10
+press A
+wait 20
+press A
+wait 90
+press A
+wait 30
+shot skidkids_draft
+# the tournament board and the demo player's first match
+botuntil state == 5 2000
+wait 30
+shot skidkids_bracket
+botuntil state == 7 2000
+botplay 700
+gifstart skidkids 3 2
+botplay 540
+gifstop
+
+shot skidkids_match
+# the final's talk: the kid nobody picked, and a friend
+cheat round 5
+wait 25
+press A
+wait 20
+shot skidkids_final
+# the kangaroo's marble bag, thrown by player 2
+cheat versus 7 5 2 12
+cheat play
+cheat coach 0
+cheat ctrl 1 3
+cheat kid 3 250 100
+cheat stars 3 2
+cheat give 3 1
+wait 30
+hold P2B 70
+waituntil marbles >= 8 400
+wait 20
+shot skidkids_kangaroo
+# the robot's sweeper, called by player 2
+cheat versus 0 1 9 13
+cheat play
+cheat coach 0
+cheat ctrl 1 3
+cheat loose 60 70
+cheat loose 90 150
+cheat loose 120 110
+cheat stars 3 2
+wait 40
+press P2A
+wait 4
+press P2A
+wait 44
+shot skidkids_robot

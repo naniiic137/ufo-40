@@ -1,0 +1,15 @@
+# SKID KIDS: the tournament can be won. The demo player drives your kid
+# with real button presses every frame, from the title on: it drafts, jumps
+# every bag it sees in time, keeps back from a rival with a bag, camps by
+# the line where the Coach's items land and the rivals come running, and
+# throws short (a light toss at point blank, a quick one at a rival bent
+# over a bag or winding up). Your partner is the ordinary partner, who
+# never passes by itself: for its bag the demo player swaps over to it and
+# straight back. Over several seeds it wins all six matches.
+seed 2
+game skidkids
+wait 20
+botuntil state >= 9 400000
+expect state == 10
+expect wins == 6
+expect goals & 2

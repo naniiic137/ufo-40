@@ -1,0 +1,35 @@
+# SKID KIDS: the CPU steers round a puddle lying on the floor on its way to
+# a bag, and doesn't slip; a kid of its who never slips (ROXIE) runs
+# straight through.
+game skidkids
+wait 5
+cheat match 0 1 3 11 0
+cheat coach 0
+cheat clearbags
+cheat freeze 0
+cheat freeze 1
+cheat freeze 3
+cheat play
+cheat kid 2 260 100
+cheat puddle 222 100
+cheat loose 185 100
+waituntil kx2 <= 222 150
+expect ky2 > 108
+waituntil held2 == 1 150
+expect n_slip == 0
+# the fast kid who never slips goes straight on
+cheat match 0 1 7 11 0
+cheat coach 0
+cheat clearbags
+cheat freeze 0
+cheat freeze 1
+cheat freeze 3
+cheat play
+cheat kid 2 260 100
+cheat puddle 222 100
+cheat loose 185 100
+waituntil kx2 <= 222 150
+expect ky2 >= 99
+expect ky2 <= 101
+waituntil held2 == 1 150
+expect n_slip == 0

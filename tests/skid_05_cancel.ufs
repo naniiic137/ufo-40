@@ -1,0 +1,43 @@
+# SKID KIDS: A during a wind-up calls the throw off and jumps, in the same
+# press ("you can cancel a throw by jumping"): the whole team goes up, and
+# the kid keeps the bag.
+game skidkids
+wait 5
+cheat match 0 5 3 11 0
+cheat coach 0
+cheat clearbags
+cheat freeze 1
+cheat freeze 2
+cheat freeze 3
+cheat play
+cheat kid 0 80 100
+cheat give 0 1
+hold B
+wait 25
+expect kst0 == 2
+press A
+expect kst0 == 0
+expect n_cancel == 1
+# one press: it's a jump too, and the partner jumps with you
+expect n_jump == 2
+expect kz0 > 0
+expect kz1 > 0
+release B
+wait 40
+expect kz0 == 0
+expect held0 == 1
+expect n_throw == 0
+# and it clears a bag coming at it: half a star, no point
+cheat kid 0 80 100
+cheat stars 0 0
+hold B
+wait 25
+expect kst0 == 2
+cheat bag 120 100 -3 0 1 0
+wait 3
+press A
+release B
+wait 30
+expect score1 == 0
+expect stars0 == 1
+expect held0 == 1

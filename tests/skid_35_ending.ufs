@@ -1,0 +1,35 @@
+# SKID KIDS: winning the sixth match: the robot sits down, the left-over kid
+# is promised a place, the Coach hands over the cup (with a word more after
+# six blowouts), then the credits roll and show a code.
+seed 16
+game skidkids
+wait 5
+cheat tourney 4 8
+cheat round 5
+botuntil state == 7 800
+cheat win 0
+wait 230
+press A
+wait 5
+expect state == 10
+expect ending == 0
+expect music_is.skid_champs == 1
+wait 35
+press A
+wait 35
+press A
+wait 35
+press A
+wait 35
+press A
+wait 35
+press A
+expect ending == 5
+expect state == 10
+wait 35
+press A
+expect state == 11
+expect music_is.skid_credits == 1
+wait 1300
+press A
+expect state == 0

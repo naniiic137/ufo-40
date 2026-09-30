@@ -1,0 +1,55 @@
+# SKID KIDS: 2P VERSUS. Each player drives a team (and swaps between its
+# two kids); no kid can be on both teams (player 2 first tries the kid
+# player 1 already has, and is refused). One match, then back to the
+# team select for another.
+seed 19
+game skidkids
+wait 20
+press DOWN
+press DOWN
+press A
+wait 10
+expect mode == 2
+press DOWN
+press A
+wait 12
+expect state == 3
+press A
+press RIGHT
+press A
+press P2A
+wait 3
+expect state == 3
+press P2RIGHT
+press P2RIGHT
+press P2A
+press P2RIGHT
+press P2A
+wait 5
+expect state == 6
+expect teama0 == 0
+expect teama1 == 1
+expect teamb0 == 3
+expect teamb1 == 4
+wait 14
+press A
+wait 5
+expect state == 7
+cheat coach 0
+cheat play
+cheat clearbags
+cheat kid 2 250 80
+hold P2LEFT 20
+expect kx2 == 230
+press P2B
+expect ctrl1 == 3
+expect ctrl0 == 0
+cheat win 1
+wait 160
+expect state == 8
+expect winner == 1
+wait 60
+press A
+expect state == 1
+expect used == 27
+expect goals == 0

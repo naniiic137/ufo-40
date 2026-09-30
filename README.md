@@ -114,6 +114,7 @@ when there is more above or below.
 | 16 | **TINTAIL** | Camouflage | sneaking on a grid past watchers by taking the colour of the ground you stand on, hollow logs, sun and rain pads, hatchlings with their own colour, a danger view you can't move in, undo, a branching map | Twig the chameleon, Salt Island, toads and storks, 15 new levels |
 | 18 | **LOST LINKS** | Golfaria | a top-down open world where every roll is a stroke and strokes are your health, twenty to start and three more for each of twenty irons found underground, pins and safe zones, sand you can only chip out of, water and pits that send you back, jumping flowers, holes down to a whole layer underneath, parbot-style scorecrows, two kinds of bug, four abilities in the four corners, the four-piece star relic, a plate puzzle and a burrowing boss | Dimple the golf ball, the Brass Badger, slicers, sippers, larks, strays, twenty ball folk and a hidden village of Keepers, both layers of the world |
 | 25 | **OPEN HOUSE** | Party House | drawing guests from a deck into a house with limited space, the original's 46 guest abilities, costs and trouble, police, fire marshal and bans, set guest lists and a random list, win by ending a party with four stars within 25 nights, 2P hot-seat; the fame and cash caps; the owner's endless OPEN ALL NIGHT, a custom list and two guests of his own | a whitewashed house by the sea, all 48 guests' names and faces |
+| 26 | **SKID KIDS** | Hot Foot | top-down two-on-two dodgeball with beanbags that skid along the floor, one button to pick up, pass, swap kids and wind up (a tap tosses, a full wind-up knocks down, a jump calls it off), a team jump that earns half-stars over sliding bags, stars for each kid's special throw or move, juice boxes, the Coach's items, the forced throw, first to 15; the original's 12 kits one for one, a draft or a free pick of the team, six matches with the kid nobody picked coming back with a robot, co-op, versus, the codes and the demo | NOODLE, PIPPA, HOPS, MILO, SPARKY, NELL, KIKI, ROXIE, TOBY, SID, BUZZY and MOOSE, Boomer the kangaroo, Benchbot, the Coach and the Hornets' gym |
 | 28 | **DUNE EXPRESS** | Rail Heist | real time until a guard is alert, then 10-second turns, one-bullet lawmen who hit each other too, punches through walls and floors, carrying and throwing, hiding in barrels, levers, a crank gun, rams, three outlaws, three stars a mission with the original's time goals, 2P versus | Wade, Hush and Pearl, the Governor's tax trains, Biscuit the camel, 20 new trains |
 | 45 | **DOT & DASH** | Mini & Max | one room at four sizes, where holding down shrinks you into whatever you stand on and holding up grows you back, a generated micro world that is the same for everyone inside every speck, a tiny size for one-tile gaps, lifting things from under your feet to throw, stack and ride (and carrying one up to full size as a step), a dog who roams and sniffs out secrets, long falls that send you back to full size, 39 upgrades that level up wherever they're found, five shops, favours for tiny towns, a 500 door and a 1,000 true ending | Dot and her talking dog Dash, the lumber room, Queen Tabitha the cat, Sir Sprocket, 21 towns and landmarks |
 | 46 | **MANDIBLES** | Combatants | you are one slow ant who holds a button for a cross of nine commands (follow, hold, instinct, their soldier-only versions, the queen's workers or soldiers, surrender), shouted to ants in earshot, and spits in eight directions while followers spit with you, food carried home to queens who lay workers for 1 and soldiers for 2, free respawns while your army lives, red ants with twice the health and exploitable brains (locked aim, food first, stuck on corners, stuck on your queen), brawls in a dust cloud, giant spiders that eat both sides, a branching road of 12 fields to the capital and a pointless bonus one, 2P versus | the Bluebell Colony and the Rust Horde, General Stag, the longlegs, every command's name, all 16 fields |
@@ -672,6 +673,59 @@ the top.
   tag until the party they miss, a peek leaves the guest waiting by the
   door while the party goes on, stars show a no-limit sign in the shop, and
   every list is open from the start, turning gold once beaten.
+
+### 26 · SKID KIDS
+
+<p align="center">
+  <img src="docs/shots/skidkids.gif" width="640" alt="Skid Kids: beanbags skid across the gym floor while the kids jump them">
+</p>
+<p align="center">
+  <img src="docs/shots/skidkids_draft.png" width="320" alt="The draft: nobody picked Pippa">
+  <img src="docs/shots/skidkids_bracket.png" width="320" alt="The Gym Class Cup: six matches">
+</p>
+<p align="center">
+  <img src="docs/shots/skidkids_kangaroo.png" width="320" alt="Boomer the kangaroo's marble bag bursts into a ring of marbles">
+  <img src="docs/shots/skidkids_robot.png" width="320" alt="Benchbot's sweeper wall drags the bags over to its side">
+</p>
+
+*A tribute to **Hot Foot** (UFO 50 #26).*
+
+- **Plays the same:** two on two in a school gym, seen from above, your team
+  on the left of a centre line nobody may cross. Beanbags skid along the
+  floor, bounce off the walls and stop, and a sliding bag that touches a
+  kid of the other team is a point; first to 15. One button does it all:
+  tap B by a bag to pick it up, tap it with a bag to pass (and swap), tap it
+  with nothing near to swap kids, hold it to wind up (rooted, the pad aims),
+  and let go. A quick tap-and-let-go tosses the bag by your feet; a full
+  wind-up knocks the kid it hits flat. A jumps, and your partner jumps
+  with you; A during a wind-up calls it off and jumps. A bag held too long
+  throws itself. Your partner only fetches bags and holds them: swap to it
+  (or over and back) to get one.
+- **Stars:** jumping over a sliding bag, or a juice box, is half a star, so
+  one jump can earn both kids one. With a star, a full wind-up is the kid's
+  special throw, and A again in the air its special move. The Coach starts
+  play with a bag on the line and keeps throwing in bags and juice boxes,
+  mostly onto the line; the CPU chases every one, ambush or not, steers
+  round puddles and can't read a wiggly throw.
+- **The kids:** the original's twelve kits one for one: wiggly throws,
+  getting up fast, high jumps, arcing lobs, a quick wind-up, stars shared
+  with a partner, two bags, speed that never slips, quick hands, a kid who
+  ignores the line, the Coach's pet and a kid who runs rivals over, with
+  the comet, ripple, yo-yo and popper throws and the stomp, gust, reel and
+  splash moves, each on three kids.
+- **The tournament:** TAKE TURNS (five kids at random: you pick one, the
+  other side two, you one of the last two, and the one left over cries) or
+  HAND-PICK, then six matches with no second chances: the CPU's two picks
+  first, three more teams, a kid with Boomer the kangaroo, and at last the
+  kid nobody picked with the robot it built to get even. 2P co-op (the
+  goals count) and 2P versus, a demo that plays when the title sits, the
+  kids played and crowned, and our own codes (no saving or goals while
+  on). A demo player in the tests wins the whole tournament with button
+  presses.
+- **Ours:** NOODLE, PIPPA, HOPS, MILO, SPARKY, NELL, KIKI, ROXIE, TOBY, SID,
+  BUZZY and MOOSE in red and blue bibs, Boomer and his marble bag, Benchbot
+  and its sweeper wall, the Coach, the Hornets' gym, every line of talk and
+  the music.
 
 ### 28 · DUNE EXPRESS
 

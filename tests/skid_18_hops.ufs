@@ -1,0 +1,47 @@
+# SKID KIDS: HOPS (Chandar's kit). He jumps higher and quicker; his special
+# throw is the RIPPLE; his move is the REEL (the nearest bag flies into his
+# hand; with his hands full it's gone).
+game skidkids
+wait 5
+cheat match 2 1 3 11 0
+cheat coach 0
+cheat clearbags
+cheat freeze 1
+cheat freeze 2
+cheat freeze 3
+cheat play
+cheat rules 15 5 1 0 1
+press A
+waituntil kz0 >= 18 20
+wait 18
+expect kz0 == 0
+# the ripple
+cheat kid 2 220 100
+cheat stars 0 2
+cheat give 0 1
+hold B 70
+wait 2
+expect waves == 1
+waituntil score0 == 1 100
+# the reel
+waituntil waves == 0 100
+cheat clearbags
+cheat kid 0 140 60
+cheat loose 40 160
+cheat stars 0 4
+press A
+wait 5
+press A
+expect n_reel == 1
+expect reeling == 1
+waituntil held0 == 1 60
+# again with full hands: the bag it pulls is gone
+wait 30
+cheat loose 40 160
+expect bags == 2
+press A
+wait 5
+press A
+expect n_reel == 2
+waituntil bags == 1 60
+expect held0 == 1

@@ -1,0 +1,22 @@
+# SKID KIDS: each team keeps to its own half of the gym; only SID ignores
+# the centre line.
+game skidkids
+wait 5
+cheat match 0 1 3 11 0
+cheat coach 0
+cheat clearbags
+cheat freeze 1
+cheat freeze 2
+cheat freeze 3
+cheat play
+hold RIGHT 200
+expect kx0 == 156
+cheat match 9 1 3 11 0
+cheat coach 0
+cheat clearbags
+cheat freeze 1
+cheat freeze 2
+cheat freeze 3
+cheat play
+hold RIGHT 200
+expect kx0 > 250

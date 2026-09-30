@@ -1,0 +1,21 @@
+# SKID KIDS: the team jumps together unless the house rules say one at a
+# time; the CPU's kids always jump on their own.
+game skidkids
+wait 5
+cheat match 0 5 3 11 0
+cheat coach 0
+cheat clearbags
+cheat freeze 1
+cheat freeze 2
+cheat freeze 3
+cheat play
+expect mate_jump == 0
+press A
+expect kz0 > 0
+expect kz1 > 0
+wait 40
+cheat rules 15 5 1 0 1
+expect mate_jump == 1
+press A
+expect kz0 > 0
+expect kz1 == 0

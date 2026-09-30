@@ -1,0 +1,44 @@
+# SKID KIDS: the first team to 15 hits wins; nothing counts after that. A
+# loser on 9 or less is a blowout, on 13 or more a close game.
+game skidkids
+wait 5
+cheat match 0 1 3 11 0
+cheat coach 0
+cheat clearbags
+cheat freeze 0
+cheat freeze 1
+cheat freeze 2
+cheat freeze 3
+cheat play
+expect goal == 15
+cheat score 14 9
+cheat kid 2 200 100
+cheat bag 150 100 3 0 0 0
+wait 20
+expect score0 == 15
+expect mstate == 2
+expect winner == 0
+cheat bag 150 100 3 0 0 0
+wait 20
+expect score0 == 15
+wait 140
+expect state == 8
+expect result_win == 1
+expect result_blowout == 1
+expect result_close == 0
+# a close one
+cheat match 0 1 3 11 1
+cheat coach 0
+cheat play
+cheat score 13 14
+cheat freeze 0
+cheat freeze 1
+cheat freeze 2
+cheat freeze 3
+cheat kid 0 100 100
+cheat bag 150 100 -3 0 1 0
+wait 170
+expect state == 8
+expect result_win == 0
+expect result_close == 1
+expect result_blowout == 0

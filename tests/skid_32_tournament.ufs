@@ -1,0 +1,43 @@
+# SKID KIDS: the tournament is six matches, one after another: four
+# ordinary teams, the kangaroo's team, and the robot with the kid nobody
+# picked. Three wins in one tournament earn the Beacon, all six the Saucer,
+# and all six by a blowout (the other side on 9 or less) the Alien.
+seed 13
+game skidkids
+wait 5
+cheat tourney 0 1
+botuntil state == 7 800
+expect round == 0
+expect level == 0
+cheat win 0
+wait 160
+expect state == 8
+expect wins == 1
+botuntil state == 7 800
+cheat win 0
+wait 160
+botuntil state == 7 800
+expect round == 2
+cheat win 0
+wait 160
+expect wins == 3
+expect goals == 1
+botuntil state == 7 800
+cheat win 0
+wait 160
+botuntil state == 7 800
+expect round == 4
+expect level == 4
+expect opp4_1 == 12
+cheat win 0
+wait 160
+botuntil state == 7 800
+expect round == 5
+expect level == 5
+expect opp5_1 == 13
+cheat win 0
+wait 160
+expect wins == 6
+expect blowouts == 1
+expect goals == 7
+expect cups == 1
