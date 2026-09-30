@@ -1,0 +1,21 @@
+# TILTSHOT: find a route round every hole (tools/tiltshot/mkroutes.sh runs this).
+game tiltshot
+wait 5
+cheat solve 1 4
+cheat solve 2 4
+cheat solve 3 4
+cheat solve 4 4
+cheat solve 5 4
+cheat solve 6 4
+cheat solve 7 4
+cheat solve 8 4
+cheat solve 9 4
+cheat solve 10 4
+cheat solve 11 4
+cheat solve 12 4
+cheat solve 13 4
+cheat solve 14 4
+cheat solve 15 4
+cheat solve 16 4
+cheat solve 17 4
+cheat solve 18 4
