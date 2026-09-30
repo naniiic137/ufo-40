@@ -37,7 +37,7 @@ gifstop
 shot chime_hourglass
 # the scrum at the start of NEEDLE'S EYE
 cheat race 3
-botuntil t >= 150 2000
+botuntil t >= 45 2000
 shot chime_scrum
 # a whole tournament: the standings after the last race, the cup, an ending
 cheat cup 1

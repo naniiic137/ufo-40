@@ -54,14 +54,14 @@ against the CPUs, the scrum and the pickups it takes about 12 minutes:
 
 | Track | Demo pilot alone | Demo pilot in a race | Its place |
 |---|---|---|---|
-| PRELUDE RING | 41 s | 52 s | 3rd |
-| THE DIPPER | 47 s | 70 s | 1st |
-| NEEDLE'S EYE | 62 s | 133 s | 2nd |
-| HOURGLASS | 48 s | 83 s | 2nd |
-| FORKED REED | 44 s | 59 s | 3rd |
-| TWIN FLUE | 51 s | 105 s | 1st |
-| CROOKED MILE | 63 s | 99 s | 1st |
-| GRAND OCTAVE | 76 s | 109 s | 1st |
+| PRELUDE RING | 41 s | 61 s | 4th |
+| THE DIPPER | 47 s | 58 s | 1st |
+| NEEDLE'S EYE | 62 s | 134 s | 3rd |
+| HOURGLASS | 48 s | 65 s | 1st |
+| FORKED REED | 44 s | 69 s | 3rd |
+| TWIN FLUE | 51 s | 93 s | 1st |
+| CROOKED MILE | 63 s | 77 s | 1st |
+| GRAND OCTAVE | 76 s | 150 s | 1st |
 
 ## Mechanics checklist
 
@@ -149,7 +149,7 @@ against the CPUs, the scrum and the pickups it takes about 12 minutes:
 - **Goals in 2P**: either player earns them.
 - **2P pilots**: the two players can't fly the same pilot (six ships, six
   colours).
-- **CPU pilots**: each has a top speed for the race of 400–470 (71–84 % of
+- **CPU pilots**: each has a top speed for the race of 370–440 (66–79 % of
   a ship's); on TWIN FLUE seven eighths of that. Moods, drawn afresh every
   6 to 12 s: calm 55 %, jostling 35 %, hunting 10 % (on TWIN FLUE 20, 40 and
   40). For the first 5 s everyone jostles. A jostler slashes a player in

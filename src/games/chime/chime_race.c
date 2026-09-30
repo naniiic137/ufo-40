@@ -192,7 +192,7 @@ void chm_race_begin(ChmRace *r, const ChmCup *c, int track, uint64_t seed) {
         if (!s->human) {
             /* CPU pilots are slower than a good player: each has its own
              * speed limit for the race */
-            s->skill = (int16_t)rng_range(&r->rng, 400, 470);
+            s->skill = (int16_t)rng_range(&r->rng, 370, 440);
             chm_ai_mood(r, i);
         }
     }

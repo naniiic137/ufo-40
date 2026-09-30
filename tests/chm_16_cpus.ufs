@@ -7,12 +7,12 @@ game chime
 wait 30
 cheat race 3
 expect skill0 == 0
-expect skill1 >= 400
-expect skill1 <= 470
-expect skill2 <= 470
-expect skill3 <= 470
-expect skill4 <= 470
-expect skill5 <= 470
+expect skill1 >= 370
+expect skill1 <= 440
+expect skill2 <= 440
+expect skill3 <= 440
+expect skill4 <= 440
+expect skill5 <= 440
 botuntil cpu_knocks >= 1 600
 botuntil fin0 == 1 30000
 expect cpu_laps >= 20
