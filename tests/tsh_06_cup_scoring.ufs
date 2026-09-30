@@ -1,0 +1,75 @@
+# TILTSHOT: the cup and the scorecard. The hole is over the moment the ball
+# is in the cup, even one moving fast enough to jump straight out again;
+# the strokes go on the card against par, and the board shows the total.
+# There is no stroke limit on a hole.
+seed 6
+game tiltshot
+wait 5
+cheat hole 1
+wait 2
+# two real strokes
+hold A 10
+waituntil phase == 0 1000
+hold A 10
+waituntil phase == 0 1000
+expect strokes == 2
+# then a hard drop straight into the cup
+cheat ball 708 100 0 6
+waituntil holed == 1 20
+expect state == 7
+expect score1_1 == 2
+expect sunk_diff == -1
+expect total1 == -1
+# on to the board after the hole
+waituntil state == 8 200
+expect total1 == -1
+wait 45
+press A
+wait 5
+expect hole == 2
+expect state == 5
+# no limit: blow up again and again, then finish
+wait 160
+expect state == 6
+hold A 140
+release A
+wait 90
+hold A 140
+release A
+wait 90
+hold A 140
+release A
+wait 90
+hold A 140
+release A
+wait 90
+hold A 140
+release A
+wait 90
+hold A 140
+release A
+wait 90
+hold A 140
+release A
+wait 90
+hold A 140
+release A
+wait 90
+hold A 140
+release A
+wait 90
+hold A 140
+release A
+wait 90
+hold A 140
+release A
+wait 90
+hold A 140
+release A
+wait 90
+expect strokes == 12
+expect phase == 0
+cheat ball 788 60 0 4
+waituntil holed == 1 60
+expect score1_2 == 12
+expect total1 == 8

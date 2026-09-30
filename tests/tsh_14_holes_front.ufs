@@ -1,0 +1,42 @@
+# TILTSHOT: every hole can be finished (the front nine). The route finder's way round
+# each hole (tiltshot_routes.c) is played by the demo player with real presses
+# from the tee; each drops in, at or under par.
+seed 14
+game tiltshot
+wait 5
+cheat hole 1
+botuntil holed == 1 8000
+expect sunk_diff <= 0
+expect state == 7
+cheat hole 2
+botuntil holed == 1 8000
+expect sunk_diff <= 0
+expect state == 7
+cheat hole 3
+botuntil holed == 1 8000
+expect sunk_diff <= 0
+expect state == 7
+cheat hole 4
+botuntil holed == 1 8000
+expect sunk_diff <= 0
+expect state == 7
+cheat hole 5
+botuntil holed == 1 8000
+expect sunk_diff <= 0
+expect state == 7
+cheat hole 6
+botuntil holed == 1 8000
+expect sunk_diff <= 0
+expect state == 7
+cheat hole 7
+botuntil holed == 1 8000
+expect sunk_diff <= 0
+expect state == 7
+cheat hole 8
+botuntil holed == 1 8000
+expect sunk_diff <= 0
+expect state == 7
+cheat hole 9
+botuntil holed == 1 8000
+expect sunk_diff <= 0
+expect state == 7

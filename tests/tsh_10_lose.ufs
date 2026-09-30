@@ -1,0 +1,30 @@
+# TILTSHOT: losing. A round that is well over par finishes behind the CPU
+# rivals: no Saucer, no Alien, no ending; the final screen goes back to the
+# title, and the records count the round but not a win.
+seed 10
+game tiltshot
+wait 30
+press A
+wait 20
+press A
+wait 40
+press A
+wait 5
+# seventeen holes at five over par each, then the last hole played for real
+cheat goto 18
+cheat par_all 5
+expect total1 == 85
+wait 160
+expect state == 6
+expect hole == 18
+botuntil state == 9 20000
+expect place1 > 1
+expect champ == 0
+expect goals == 0
+expect wins == 0
+expect played == 1
+# no ending: back to the title
+wait 70
+press A
+wait 5
+expect state == 0

@@ -1,0 +1,40 @@
+# TILTSHOT: water and pits. A ball that sinks in water or drops down a pit
+# comes back to where it was hit from; the stroke counts, with no penalty
+# stroke on top. A fast ball skimming flat across the water skips instead.
+seed 5
+game tiltshot
+wait 5
+# Stone Skip: a lob that falls short into the lake
+cheat hole 2
+wait 2
+hold A 31
+waituntil lost == 1 600
+expect strokes == 1
+waituntil phase == 0 200
+expect strokes == 1
+expect ball_x == 28
+expect ball_y == 101
+# a low, hard shot skips over the water and stays dry
+press RIGHT
+press RIGHT
+press RIGHT
+press RIGHT
+press RIGHT
+press RIGHT
+press RIGHT
+expect aim == 2
+hold A 59
+waituntil skips >= 1 300
+expect lost == 0
+waituntil phase == 0 2000
+expect strokes == 2
+expect ball_x > 250
+# Skylark: short of the far side of the canyon, down the pit
+cheat hole 4
+wait 2
+hold A 31
+waituntil lost == 2 600
+expect strokes == 1
+waituntil phase == 0 200
+expect ball_x == 100
+expect strokes == 1

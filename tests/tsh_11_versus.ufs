@@ -1,0 +1,54 @@
+# TILTSHOT: 2P versus. Two players pick their own golfers with their own
+# pads and play the same tournament against six CPU rivals: on each hole
+# player 1 plays it out, then player 2 (each with their own buttons; the
+# other pad does nothing meanwhile), then the board shows everyone.
+seed 11
+game tiltshot
+wait 30
+press DOWN
+expect title_sel == 1
+press A
+wait 20
+expect state == 3
+expect versus == 1
+press A
+wait 10
+press P2RIGHT
+press P2A
+wait 40
+expect state == 4
+expect humans == 2
+expect cpu_count == 6
+expect pick1 == 0
+expect pick2 == 2
+press A
+wait 5
+expect turn == 1
+wait 160
+expect state == 6
+# player 2's pad can't aim player 1's shot
+press P2LEFT
+expect aim == 9
+botuntil state == 7 3000
+expect score1_1 > 0
+expect score2_1 == 0
+botuntil state == 5 400
+expect turn == 2
+wait 160
+expect state == 6
+# now player 1's pad does nothing, player 2's aims
+press LEFT
+expect aim == 9
+press P2LEFT
+expect aim == 10
+press P2RIGHT
+expect aim == 9
+botuntil state == 7 3000
+expect score2_1 > 0
+botuntil state == 8 400
+expect hole == 1
+wait 45
+press A
+wait 5
+expect hole == 2
+expect turn == 1

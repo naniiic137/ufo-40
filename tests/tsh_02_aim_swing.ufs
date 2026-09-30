@@ -1,0 +1,53 @@
+# TILTSHOT: aiming and swinging. LEFT and RIGHT turn the dotted guide five
+# degrees a press (held, it keeps turning), from flat right (0) to flat left
+# (36); it starts at 45 degrees. Held B looks along the hole instead (the aim
+# stays put). A short hold is a short shot, a longer one goes further.
+seed 2
+game tiltshot
+wait 5
+cheat hole 1
+wait 2
+expect aim == 9
+press LEFT
+expect aim == 10
+press RIGHT
+press RIGHT
+press RIGHT
+expect aim == 7
+# held, it keeps turning, and stops at flat left and flat right
+hold LEFT 60
+expect aim > 20
+hold LEFT 200
+expect aim == 36
+hold RIGHT 300
+expect aim == 0
+# looking along the hole with B: the view moves, the aim does not
+expect cam < 20
+hold B RIGHT 80
+expect aim == 0
+expect cam > 200
+release
+wait 90
+expect cam < 20
+# a short shot and a long one, both at 45 degrees
+press LEFT
+press LEFT
+press LEFT
+press LEFT
+press LEFT
+press LEFT
+press LEFT
+press LEFT
+press LEFT
+expect aim == 9
+hold A 8
+wait 1
+expect phase == 2
+expect strokes == 1
+waituntil phase == 0 1000
+expect ball_x < 120
+hold A 45
+wait 1
+expect strokes == 2
+waituntil phase == 0 1500
+expect ball_x > 300

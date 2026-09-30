@@ -1,0 +1,43 @@
+# TILTSHOT: what's on the courses. Sand stops a ball dead where it lands
+# (turf lets it run on); purple junk breaks and slows the ball a little;
+# an orange mover breaks and nearly stops it; bumpers kick the ball away
+# faster than it came; spring pads throw it higher than it fell from.
+seed 7
+game tiltshot
+wait 5
+# Dune Steps: into the first sand pit, then onto the turf past it
+cheat hole 7
+wait 2
+cheat ball 230 60 1 0
+waituntil phase == 0 400
+expect ball_x >= 250
+expect ball_x <= 275
+cheat ball 330 60 1 0
+waituntil phase == 0 600
+expect ball_x > 372
+# Opening Tee: rolling into the cone
+cheat hole 1
+wait 2
+cheat ball 470 125 3 0
+waituntil junk_gone == 1 40
+expect speed100 < 200
+expect speed100 > 100
+# the bumper over the rise
+cheat ball 244 20 0 2
+waituntil ball_vy100 < 0 30
+expect ball_vy100 < -270
+# Stone Skip: into the near blimp
+cheat hole 2
+wait 2
+expect mover0_y == 64
+expect mover0_x > 310
+cheat ball 296 64 4 0
+waituntil movers_gone == 1 20
+expect speed100 < 120
+# Bounce House: dropped on the spring pads, it comes back up higher
+cheat hole 3
+wait 2
+cheat ball 180 60 0 0
+waituntil ball_vy100 < 0 60
+waituntil ball_vy100 >= 0 120
+expect ball_y < 60

@@ -1,0 +1,118 @@
+# TILTSHOT: the code. CODE on the title opens an eight-letter entry (UP and
+# DOWN change a letter, LEFT and RIGHT move, A enters). A wrong code does
+# nothing; BEAM-DOWN (printed in the credits) brings two old friends onto
+# the tour for good: WICK and KIP join the five golfers, cosmetic like them.
+seed 12
+game tiltshot
+wait 30
+expect cameos == 0
+expect golfers == 5
+press DOWN
+press DOWN
+press A
+wait 5
+expect state == 1
+# AAAA-AAAA does nothing
+press A
+expect code_ok == 0
+expect cameos == 0
+press A
+expect state == 1
+press UP
+press RIGHT
+press UP
+press UP
+press UP
+press UP
+press RIGHT
+press RIGHT
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press RIGHT
+press UP
+press UP
+press UP
+press RIGHT
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press RIGHT
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press RIGHT
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press A
+expect code_ok == 1
+expect cameos == 1
+expect golfers == 7
+press A
+wait 5
+expect state == 0
+# it sticks
+reload
+game tiltshot
+wait 30
+expect cameos == 1
+expect golfers == 7
+press A
+wait 20
+expect state == 3
+press RIGHT
+press RIGHT
+press RIGHT
+press RIGHT
+press RIGHT
+expect pick1 == 5
+press RIGHT
+expect pick1 == 6
+press RIGHT
+expect pick1 == 0
+press LEFT
+expect pick1 == 6
+press UP
+expect coat1 == 1
