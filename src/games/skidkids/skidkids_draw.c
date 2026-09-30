@@ -287,9 +287,6 @@ void skid_draw_hud(const Match *m, int frame) {
             }
         }
     }
-    char goal[16];
-    snprintf(goal, sizeof goal, "TO %d", m->rules.goal);
-    if (!m->endless) tiny_center(goal, SKID_MID, 4, C_GREY);
     (void)frame;
 }
 

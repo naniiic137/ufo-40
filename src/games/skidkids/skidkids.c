@@ -1106,11 +1106,6 @@ static void draw_result(void) {
     text_center(buf, 160, 68, C_WHITE);
     if (result_blowout) text_center("BLOWOUT!", 160, 82, C_ORANGE);
     else if (result_close) text_center("CLOSE GAME!", 160, 82, C_CYAN);
-    if (mode != MODE_VS) {
-        snprintf(buf, sizeof buf, "MATCHES WON: %d OF %d", wins, ROUNDS);
-        tiny_center(buf, 160, 98, C_LIGHT);
-        if (all_blowouts && wins > 0 && result_win) tiny_center("EVERY WIN A BLOWOUT SO FAR", 160, 106, C_ORANGE);
-    }
     if (state_t > 60 && (state_t / 20) % 2) text_center("PRESS " GLYPH_A, 160, 120, C_WHITE);
 }
 

@@ -193,6 +193,9 @@ What each special does:
   wind-up in ambush, whether it piles on a kid who is down) rises from match
   1 to 4 and jumps for 5 and 6.
 - **The demo** starts after 12 s on the title and never ends by itself.
+- **The HUD:** the two score boxes and the Coach [MAN]; each kid's stars sit
+  beside the scores (halves too), since the circling star alone can't show
+  halves, with the kid's name to tell them apart.
 
 ### Controls we couldn't confirm
 
