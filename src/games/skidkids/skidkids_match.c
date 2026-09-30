@@ -651,6 +651,8 @@ static void kid_update(Match *m, int i, const Pad *p) {
     }
     if (k->queued_reel > 0 && --k->queued_reel == 0) reel_nearest(m, i);
     if (m->state == MS_OVER) return;
+    /* a kid on the floor or reeling can't act, but its player can swap */
+    if ((k->state == KS_DOWN || k->state == KS_HURT) && p->bp && m->state == MS_PLAY && swapper(m, i)) swap_to_mate(m, i);
     switch (k->state) {
     case KS_DOWN:
         if (--k->timer <= 0) {

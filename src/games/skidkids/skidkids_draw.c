@@ -157,7 +157,7 @@ static void draw_item(const Item *it, int frame) {
         shadow(x, y, 6);
         spr_draw(&skid_spr[SS_BALLOON], x - 3, y - z - 7, 0);
         break;
-    case IT_MARBLE: spr_draw(&skid_spr[SS_MARBLE], x - 1, y - 2, 0); break;
+    case IT_MARBLE: spr_draw(&skid_spr[SS_MARBLE], x - 2, y - 3, 0); break;
     case IT_PUDDLE: {
         int r = (int)it->r;
         bool fading = it->life < 90 && (frame / 4) % 2;

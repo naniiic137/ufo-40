@@ -39,3 +39,9 @@ wait 25
 expect score1 == 3
 expect score0 == 0
 expect kst0 == 0
+# down on the floor, B still swaps to the partner
+cheat bag 150 100 -3 0 1 1
+wait 20
+expect kst0 == 5
+press B
+expect ctrl0 == 1

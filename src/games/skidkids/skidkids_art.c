@@ -544,9 +544,11 @@ static const char JUICE[] =
     "kiiik"
     "kkkkk";
 static const char MARBLE[] =
-    ".k."
-    "kIk"
-    ".k.";
+    ".kkk."
+    "kPPIk"
+    "kPPPk"
+    "kVPPk"
+    ".kkk.";
 static const char BALLOON[] =
     ".kkkk."
     "kCIICk"
@@ -678,7 +680,7 @@ void skid_art_load(void) {
     mk(&skid_spr[SS_COACH_WHISTLE], 14, 22, COACH_WHISTLE);
     mk(&skid_spr[SS_BAG], 6, 5, BAG);
     mk(&skid_spr[SS_JUICE], 5, 7, JUICE);
-    mk(&skid_spr[SS_MARBLE], 3, 3, MARBLE);
+    mk(&skid_spr[SS_MARBLE], 5, 5, MARBLE);
     mk(&skid_spr[SS_BALLOON], 6, 7, BALLOON);
     mk(&skid_spr[SS_STAR], 5, 5, STAR);
     mk(&skid_spr[SS_HALFSTAR], 5, 5, HALFSTAR);
