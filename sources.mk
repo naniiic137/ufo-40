@@ -127,6 +127,13 @@ CORE_SRC += src/games/wobble/wobble.c
 CORE_SRC += src/games/wobble/wobble_logic.c
 CORE_SRC += src/games/wobble/wobble_art.c
 CORE_SRC += src/games/wobble/wobble_audio.c
+CORE_SRC += src/games/chime/chime.c
+CORE_SRC += src/games/chime/chime_flight.c
+CORE_SRC += src/games/chime/chime_tracks.c
+CORE_SRC += src/games/chime/chime_race.c
+CORE_SRC += src/games/chime/chime_ai.c
+CORE_SRC += src/games/chime/chime_art.c
+CORE_SRC += src/games/chime/chime_audio.c
 
 HEADLESS_SRC += src/platform/headless/main_headless.c
 HEADLESS_SRC += src/platform/headless/imgwrite.c

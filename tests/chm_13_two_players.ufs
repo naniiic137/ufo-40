@@ -1,0 +1,82 @@
+# CHIME CIRCUIT: two players race at once on the same screen, against four
+# CPU ships. Each picks a pilot with their own pad (not the same one); the
+# second pad flies ship 1. The race goes on until both have finished, and
+# each keeps their own stats.
+seed 8
+game chime
+wait 30
+press DOWN
+wait 5
+press A
+wait 5
+expect state == 3
+expect humans == 2
+expect p1pick == 0
+expect p2pick == 1
+wait 10
+# player one takes ANSEL; player two can't land on him
+press A
+expect p1locked == 1
+press P2LEFT
+expect p2pick == 5
+press P2RIGHT
+expect p2pick == 1
+press P2RIGHT
+press P2RIGHT
+expect p2pick == 3
+press P2A
+wait 5
+expect state == 4
+expect cpilot0 == 0
+expect cpilot1 == 3
+expect cpilot2 == 1
+wait 25
+press A
+wait 5
+expect human0 == 1
+expect human1 == 2
+expect human2 == 0
+expect pilot1 == 3
+# the second pad flies the second ship, and only that one
+cheat go
+cheat park 2
+cheat park 3
+cheat park 4
+cheat park 5
+cheat place 0 100 30
+cheat place 1 180 30
+hold P2A 10
+expect vy1 == -300
+expect vy0 == 200
+hold P2RIGHT 10
+expect vx1 == 160
+expect vx0 == 0
+hold RIGHT 10
+expect vx0 == 160
+expect vx1 == 130
+# player one finishes; the race waits for player two
+cheat revive 0
+cheat revive 1
+cheat laps 0 7
+cheat cp 0 4
+cheat place 0 70 140
+cheat vel 0 300 -250
+cheat park 1
+wait 20
+expect fin0 == 1
+expect place0 == 1
+wait 200
+expect phase == 1
+cheat laps 1 7
+cheat cp 1 4
+cheat place 1 70 140
+cheat vel 1 300 -250
+wait 20
+expect fin1 == 1
+expect place1 == 2
+wait 120
+expect phase == 2
+expect race_n1 == 1
+expect race_n2 == 1
+expect lap_n2 == 1
+expect lap_n1 == 1

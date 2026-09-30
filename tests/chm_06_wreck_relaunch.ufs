@@ -1,0 +1,29 @@
+# CHIME CIRCUIT: a ship with no hit points left is wrecked. Its laps are
+# kept, but the lap it was on starts over: a replacement launches from the
+# launcher in the floor just past the start line 80 frames later, with all
+# three hit points and a moment of safety.
+seed 1
+game chime
+wait 30
+cheat race 1
+cheat park_cpus
+cheat go
+cheat laps 0 3
+cheat cp 0 3
+cheat hp 0 1
+cheat place 0 140 30
+waituntil alive0 == 0 120
+expect wrecks0 == 1
+expect laps0 == 3
+expect cp0 == 1
+wait 79
+expect alive0 == 0
+wait 1
+expect alive0 == 1
+expect x0 == 92
+expect y0 == 165
+expect hp0 == 3
+expect mercy0 >= 59
+expect vy0 < 0
+expect laps0 == 3
+expect cp0 == 1

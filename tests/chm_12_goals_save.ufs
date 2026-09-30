@@ -1,0 +1,133 @@
+# CHIME CIRCUIT: the three goals are the original's: 1st place in a race
+# (Beacon), the Chime Cup (Saucer), and 1st place in all eight races
+# (Alien). The tournament itself is not saved (it is played in one
+# sitting); the stats and records are: each player's average lap and race
+# time, cups and races won, the best score.
+seed 7
+game chime
+wait 30
+expect goals == 0
+cheat cup 1
+wait 25
+press A
+wait 5
+cheat finish 1 0 2 3 4 5
+wait 5
+expect goals == 0
+wait 60
+press A
+wait 25
+press A
+wait 25
+press A
+wait 25
+press A
+wait 5
+cheat finish 0 1 2 3 4 5
+wait 5
+expect goals == 1
+expect race_wins == 1
+expect race_n1 == 2
+# leaving mid-tournament keeps the records but not the tournament
+reload
+expect goals.chime == 1
+game chime
+wait 30
+expect state == 0
+expect race_wins == 1
+expect race_n1 == 2
+expect cups == 0
+# a clean sweep: every goal
+cheat cup 1
+wait 25
+press A
+wait 5
+cheat finish 0 1 2 3 4 5
+wait 60
+press A
+wait 25
+press A
+wait 25
+press A
+wait 25
+press A
+wait 5
+cheat finish 0 2 1 3 4 5
+wait 60
+press A
+wait 25
+press A
+wait 25
+press A
+wait 25
+press A
+wait 5
+cheat finish 0 3 2 1 4 5
+wait 60
+press A
+wait 25
+press A
+wait 25
+press A
+wait 25
+press A
+wait 5
+cheat finish 0 4 2 3 1 5
+wait 60
+press A
+wait 25
+press A
+wait 25
+press A
+wait 25
+press A
+wait 5
+cheat finish 0 5 2 3 4 1
+wait 60
+press A
+wait 25
+press A
+wait 25
+press A
+wait 25
+press A
+wait 5
+cheat finish 0 1 3 2 4 5
+wait 60
+press A
+wait 25
+press A
+wait 25
+press A
+wait 25
+press A
+wait 5
+cheat finish 0 2 3 1 4 5
+wait 60
+press A
+wait 25
+press A
+wait 25
+press A
+wait 25
+press A
+wait 5
+expect goals == 1
+cheat finish 0 1 2 3 4 5
+wait 5
+expect points0 == 72
+expect goals == 7
+expect cups == 1
+expect cup_wins == 1
+expect race_wins == 9
+expect best == 72
+expect race_n1 == 10
+reload
+game chime
+wait 30
+expect goals == 7
+expect cups == 1
+expect cup_wins == 1
+expect race_wins == 9
+expect best == 72
+expect race_n1 == 10
