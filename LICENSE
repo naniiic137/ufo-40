@@ -1,4 +1,42 @@
+# UFO 40 licence
+
 Required Notice: Copyright (c) 2026 naniiic137 (https://github.com/naniiic137)
+
+## One licence for everything
+
+Everything in this repository and in its released builds is one piece of
+software under one licence, the **PolyForm Noncommercial License 1.0.0**
+(full text below). That includes the source code, the pixel art (drawn as text
+in the source), the music and sound effects (written as text in the source),
+the level designs, the in-game text and the documentation.
+
+In short (the licence text below is what counts): you may play, share, study
+and change UFO 40 for any **non-commercial** purpose, as long as you keep this
+file and the Required Notice line above. You may **not** sell it, charge for
+it, put it behind a paywall or ads, or use it in any commercial product.
+
+## Fan project notice
+
+- UFO 40 is an **unofficial, non-commercial fan tribute**. It is not affiliated
+  with, sponsored by or endorsed by Mossmouth.
+- "UFO 50" and the names of its games belong to Mossmouth. They are used only
+  to say which original game each cartridge is a tribute to.
+- UFO 40 contains **no code, art, music, sound, levels or text from UFO 50**.
+  Every asset was made from scratch for this project; the games' rules were
+  recreated from public written descriptions.
+- UFO 40 is free and will stay free: no sales, no donations, no ads, no paid
+  extras.
+- **Rights holders:** if you have any concern about this project, please open
+  an issue at https://github.com/naniiic137/ufo-40/issues. It will be answered
+  promptly, and anything you object to will be changed or taken down.
+
+## Third-party software
+
+The release builds include **SDL2** (https://www.libsdl.org/), which is under
+the zlib licence. The Windows download includes it as `SDL2-LICENSE.txt`.
+The Vita and web builds are made with vitasdk and Emscripten.
+
+---
 
 # PolyForm Noncommercial License 1.0.0
 

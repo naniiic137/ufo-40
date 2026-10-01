@@ -244,7 +244,7 @@ static void cr_draw(void) {
     tiny_center("A VIBE-CODED PROJECT, MADE WITH AN AI ASSISTANT BY", 160, y, C_GREY);
     text_center("@NANIIIC137", 160, y + 7, C_YELLOW);
     tiny_center("SDL2, VITASDK AND EMSCRIPTEN RUN IT ON EVERY SYSTEM", 160, y + 21, C_GREY);
-    tiny_center("NON-COMMERCIAL USE ONLY: POLYFORM NC AND CC BY-NC", 160, y + 29, C_GREY);
+    tiny_center("FREE AND NON-COMMERCIAL: POLYFORM NONCOMMERCIAL 1.0.0", 160, y + 29, C_GREY);
     int bob = (int)(sinf((float)cr_t * 0.07f) * 2.0f);
     ui_saucer(150, 146 + bob, cr_t, 1);
     footer(NULL, "BACK");

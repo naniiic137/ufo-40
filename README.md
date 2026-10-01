@@ -1312,8 +1312,11 @@ expect px < 180
 UFO 40 is **non-commercial**. You may play, share, study and change it for any
 non-commercial purpose, but you may not sell it or use it commercially.
 
-- **Code:** [PolyForm Noncommercial License 1.0.0](LICENSE).
-- **Pixel art, music, sound effects, text and level designs:**
-  [Creative Commons Attribution-NonCommercial 4.0](LICENSE-ASSETS.md).
-- Third-party parts keep their own licences: SDL2 (zlib) and stb_image_write
-  (public domain).
+- **One licence for everything** (code, pixel art, music, sound, levels and
+  text): the [PolyForm Noncommercial License 1.0.0](LICENSE).
+- UFO 40 is free and stays free: no sales, no donations, no ads.
+- It is an unofficial fan tribute, not affiliated with or endorsed by
+  Mossmouth; "UFO 50" and its game names belong to Mossmouth. Rights holders
+  with any concern can [open an issue](https://github.com/naniiic137/ufo-40/issues)
+  and it will be changed or taken down.
+- SDL2 keeps its own zlib licence.
