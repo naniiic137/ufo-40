@@ -5,7 +5,7 @@
 <h1 align="center">UFO 40</h1>
 
 <p align="center">
-  <b>A pretend 1980s console with fifty cartridges (well, twenty-two so far), built from scratch<br>
+  <b>A pretend 1980s console with fifty cartridges (well, twenty-six so far), built from scratch<br>
   for the PlayStation Vita, Windows and the web.</b><br><br>
   <a href="https://naniiic137.github.io/ufo-40/"><b>▶ Play it in your browser</b></a> ·
   <a href="https://github.com/naniiic137/ufo-40/releases">Download for Vita / Windows</a>
@@ -18,20 +18,15 @@
 > coding assistant (Claude Code), which wrote the code, pixel art, music, levels
 > and tests from my descriptions, research notes and play-testing feedback.
 
-## What's new (v0.6.2)
+## What's new (v0.7.0)
 
-- **22 cartridges** in a 50-slot library, each checked against its UFO 50 original by an independent review.
-- **OPEN HOUSE** got the owner's overhaul:
-  - a guest book that works like Party House's rolodex (still to come / at the party / out tonight)
-  - badges on every guest (fame, cash, trouble, star, ability) and an icon guide
-  - red OVER CAPACITY / TOO MUCH TROUBLE / BANNED notices
-  - a door peek that never blocks the screen, ∞ stock on stars
-  - every scenario open, with gold BEATEN tiles
-  - the endless OPEN ALL NIGHT mode, a CUSTOM scenario builder, and two new guests (CROONER, ALBATROSS)
-  - Party House's 65 fame / $30 cash caps, and a slower end-of-party tally (hold A to hurry)
-- **SKYWELL** is fairer after player feedback: shorter knockback, safety after a star landing, and no bats doubling up.
-- **Controls:** one press is always one action, and sticks can't flicker into double moves.
-- **Screens:** no text runs off the edge or over other text in the library, save data, jukebox, pause menu or goal pop-ups. A test checks every cartridge.
+- **26 cartridges** in a 50-slot library, each checked against its UFO 50 original by an independent review, then fixed.
+- **Four new cartridges:**
+  - **19 CHIME CIRCUIT** (tribute to The Big Bell Race): side-view gravity racing, eight one-screen tracks, eight laps each, six ships, 1P or 2P at once.
+  - **26 SKID KIDS** (tribute to Hot Foot): two-on-two gym-class beanbag ball, twelve kids with their own specials, a six-match tournament with a kangaroo and a robot, 1P, co-op or versus.
+  - **31 TILTSHOT** (tribute to Pingolf): side-on pinball golf over eighteen holes, a meter that holds at full until the golfer blows up, the slam, 1P or 2P.
+  - **39 BUZZBOLT** (tribute to Star Waspir): a wide-screen vertical shooter, three ships, letters that spell words for the multiplier, five waves and their bosses.
+- **DUSKLING** starts gently now, after player feedback: the first rooms bring in one hazard at a time, and a test keeps them forgiving.
 
 ---
 
@@ -87,7 +82,7 @@ and the music and sound volumes are in every game's pause menu too.
   <img src="docs/shots/savedata.png" width="320" alt="The save data screen">
 </p>
 
-## The library (22 of 50 loaded)
+## The library (26 of 50 loaded)
 
 <p align="center"><img src="docs/shots/library.png" width="640" alt="The UFO 40 game library with 50 cartridge slots"></p>
 
@@ -125,7 +120,7 @@ when there is more above or below.
 | 44 | **HOMESPUN** | Pilot Quest | a camp that keeps working in real time while the console is on, even in other cartridges; a yo-yo that knocks glints out of a crystal; plants, bars, huts, anvils, bins and research at the original's prices; jerky as two minutes of trip time a strip, and a clock that is also your health; one Wilds map whose roadblocks and caves are shuffled per save; three dungeons with a ship part each; a gun that costs a glint a shot; coins for hopstones, vendors and a gambling den; a spider that spins thread at camp; a super boss beaten six times in one trip; new-game-plus stones | Wick and the *Tumbleweed*, the moor-moon Oddmoor and its folk, the Wilds, three dungeons, all 19 foes and 6 bosses |
 | 41 | **RIMSHIRE** | Lords of Diskonia | a board where two banners take turns stepping along roads, trails a banner can't step back onto that pull an army back when struck, inns, tomes, seams and chests; flick battles on fields built from the four tiles round the fight: a queue of three, aim, charge and launch, knocks that hurt by the striking disk's own melee, water, the closing haze and stalemates; the original's 15 disks with their numbers, 8 skills, 10 campaign wars, the streak and 2P | Rimshire, the Brass and Plum banners, the Plum Empress, Lady Brass's letters, all 16 disks, 10 new boards |
 | 47 | **WOBBLE DERBY** | Quibble Race | three punters and three runners a race, odds from a form book of twenty unseen races, rising bet caps and an open last race, one tip a race, five dirty tricks and a minder with the same prices and fines, a lender at 15 % compounded, sponsoring from a shortlist and a coach, meteors, garbage and smog, 26 runners in the same speed and clumsiness bands, 3-player hot-seat | Crater Downs, the 26 wobblers, the sixteen punters (five of them UFO 40 cameos), the Fixer, the Lender and the Wobble Wire |
-| 08, 11–12, 17, 19–24, 26–27, 29, 31–40, 42–44, 48–50 | *coming soon* | | | still in the saucer's cargo hold |
+| 08, 11–12, 17, 20–24, 27, 29, 32–38, 40, 42–43, 48–50 | *coming soon* | | | still in the saucer's cargo hold |
 
 Every cartridge has three goals, which follow the original's own three: a
 **Beacon** (a side challenge), the **Saucer** (beating the game) and the
@@ -1246,8 +1241,8 @@ src/platform/headless/ scripted test runner, PNG / GIF / WAV writers, Vita LiveA
     plays notes with lengths, ties and repeat blocks.
   - Sound effects use the same notation and take over one channel for a
     moment, just like old hardware.
-  - Every track and jingle is original: 182 compositions across the console and
-    the twenty-two cartridges.
+  - Every track and jingle is original: 227 compositions across the console and
+    the twenty-six cartridges.
 - **Art.** Sprites are written as strings of palette letters in the C source
   (`k` ink, `y` yellow, `C` cyan and so on), so there are no binary assets at
   all. The Vita LiveArea images are drawn by the engine itself
