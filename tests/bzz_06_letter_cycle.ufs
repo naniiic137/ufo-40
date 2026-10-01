@@ -1,0 +1,82 @@
+# BUZZBOLT: every kill drops one letter, always in the order B, Z, Z, B,
+# Z, Z... counted from the run's first kill. Letters are caught by flying
+# into them. A midboss (or boss) drops three, which carry on the cycle.
+game buzzbolt
+# the opening: A skips it
+press A
+press A
+wait 10
+press A
+cheat quiet
+wait 130
+cheat pos 160 150
+expect drops == 0
+expect next_letter == 1
+# 1: B
+cheat dummy 0 160 100
+press A
+wait 3
+expect drops == 1
+expect letters == 1
+expect next_letter == 2
+waituntil caught == 1 150
+expect nword == 1
+expect word0 == 1
+# 2: Z
+wait 30
+cheat dummy 0 160 100
+press A
+wait 3
+expect drops == 2
+waituntil caught == 2 150
+expect word1 == 2
+# 3: Z, and B Z Z multiplies the score
+wait 30
+cheat dummy 0 160 100
+press A
+wait 3
+expect drops == 3
+expect next_letter == 1
+waituntil caught == 3 150
+expect nword == 0
+expect last_word == 1
+expect mult == 2
+# 4, 5, 6: B, Z, Z again
+wait 30
+cheat dummy 0 160 100
+press A
+waituntil caught == 4 150
+expect word0 == 1
+wait 30
+cheat dummy 0 160 100
+press A
+waituntil caught == 5 150
+expect word1 == 2
+wait 30
+cheat dummy 0 160 100
+press A
+waituntil caught == 6 150
+expect mult == 3
+# a letter that falls past the ship is lost, but the cycle moves on
+wait 30
+cheat pos 40 150
+cheat dummy 0 160 100
+cheat pos 160 150
+press A
+cheat pos 40 150
+wait 150
+expect letters == 0
+expect caught == 6
+expect drops == 7
+expect next_letter == 2
+# a midboss drops three at once, next in the cycle: Z, B, Z
+cheat drops 7
+cheat pos 160 150
+cheat bigdummy 0 160 100
+expect midbosses == 1
+press A
+wait 3
+expect midbosses == 0
+expect letters == 3
+expect drops == 10
+expect next_letter == 2

@@ -1,0 +1,21 @@
+# BUZZBOLT: wave 1's boss, the Ironback pair, can be beaten. Both must
+# fall; each drops three letters; then the next wave starts. (The demo
+# player flies the lacewing with real presses.)
+game buzzbolt
+# the opening: A skips it
+press A
+press A
+wait 10
+press A
+wait 10
+cheat lives 3
+cheat boss
+waituntil boss_count == 2 200
+expect boss_kind == 1
+botuntil boss_dead == 1 6000
+expect boss_count == 0
+expect drops == 6
+waituntil state == 4 400
+expect wave == 1
+waituntil state == 3 400
+expect wave == 2

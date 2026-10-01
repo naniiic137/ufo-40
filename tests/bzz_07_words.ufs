@@ -1,0 +1,221 @@
+# BUZZBOLT: every three letters caught make a word. BZZ puts the
+# multiplier up by one (there is no limit); ZZZ brings an option; BBB and
+# ZBB are the ship's own specials (here the lacewing's guard orbs and its
+# hiveship); any other word puts the multiplier back to x1. Any two letters
+# can still be finished with one more. Letters are flown into.
+game buzzbolt
+# the opening: A skips it
+press A
+press A
+wait 10
+press A
+cheat quiet
+wait 130
+cheat pos 160 150
+# BZZ: x2
+cheat drops 0
+cheat letter 190 150
+hold RIGHT 15
+expect caught == 1
+expect nword == 1
+expect word0 == 1
+cheat drops 1
+cheat letter 160 150
+hold LEFT 15
+expect caught == 2
+expect nword == 2
+expect word1 == 2
+cheat drops 1
+cheat letter 190 150
+hold RIGHT 15
+expect caught == 3
+expect nword == 0
+expect last_word == 1
+expect mult == 2
+# and again: x3
+cheat drops 0
+cheat letter 160 150
+hold LEFT 15
+expect caught == 4
+expect nword == 1
+expect word0 == 1
+cheat drops 1
+cheat letter 190 150
+hold RIGHT 15
+expect caught == 5
+expect nword == 2
+expect word1 == 2
+cheat drops 1
+cheat letter 160 150
+hold LEFT 15
+expect caught == 6
+expect nword == 0
+expect mult == 3
+# ZZZ: an option, and the multiplier stays
+cheat drops 1
+cheat letter 190 150
+hold RIGHT 15
+expect caught == 7
+expect nword == 1
+expect word0 == 2
+cheat drops 1
+cheat letter 160 150
+hold LEFT 15
+expect caught == 8
+expect nword == 2
+expect word1 == 2
+cheat drops 1
+cheat letter 190 150
+hold RIGHT 15
+expect caught == 9
+expect nword == 0
+expect last_word == 2
+expect nopt == 1
+expect mult == 3
+# BBB: the lacewing's two guard orbs
+cheat drops 0
+cheat letter 160 150
+hold LEFT 15
+expect caught == 10
+expect nword == 1
+expect word0 == 1
+cheat drops 0
+cheat letter 190 150
+hold RIGHT 15
+expect caught == 11
+expect nword == 2
+expect word1 == 1
+cheat drops 0
+cheat letter 160 150
+hold LEFT 15
+expect caught == 12
+expect nword == 0
+expect last_word == 3
+expect orbs == 2
+expect mult == 3
+# ZBB: the lacewing's hiveship
+cheat drops 1
+cheat letter 190 150
+hold RIGHT 15
+expect caught == 13
+expect nword == 1
+expect word0 == 2
+cheat drops 0
+cheat letter 160 150
+hold LEFT 15
+expect caught == 14
+expect nword == 2
+expect word1 == 1
+cheat drops 0
+cheat letter 190 150
+hold RIGHT 15
+expect caught == 15
+expect nword == 0
+expect last_word == 4
+expect hive_on == 1
+expect mult == 3
+# BZB: a wrong word, back to x1
+cheat drops 0
+cheat letter 160 150
+hold LEFT 15
+expect caught == 16
+expect nword == 1
+expect word0 == 1
+cheat drops 1
+cheat letter 190 150
+hold RIGHT 15
+expect caught == 17
+expect nword == 2
+expect word1 == 2
+cheat drops 0
+cheat letter 160 150
+hold LEFT 15
+expect caught == 18
+expect nword == 0
+expect last_word == 5
+expect mult == 1
+cheat mult 5
+# BBZ: a wrong word, back to x1
+cheat drops 0
+cheat letter 190 150
+hold RIGHT 15
+expect caught == 19
+expect nword == 1
+expect word0 == 1
+cheat drops 0
+cheat letter 160 150
+hold LEFT 15
+expect caught == 20
+expect nword == 2
+expect word1 == 1
+cheat drops 1
+cheat letter 190 150
+hold RIGHT 15
+expect caught == 21
+expect nword == 0
+expect last_word == 5
+expect mult == 1
+cheat mult 5
+# ZZB: a wrong word, back to x1
+cheat drops 1
+cheat letter 160 150
+hold LEFT 15
+expect caught == 22
+expect nword == 1
+expect word0 == 2
+cheat drops 1
+cheat letter 190 150
+hold RIGHT 15
+expect caught == 23
+expect nword == 2
+expect word1 == 2
+cheat drops 0
+cheat letter 160 150
+hold LEFT 15
+expect caught == 24
+expect nword == 0
+expect last_word == 5
+expect mult == 1
+cheat mult 5
+# ZBZ: a wrong word, back to x1
+cheat drops 1
+cheat letter 190 150
+hold RIGHT 15
+expect caught == 25
+expect nword == 1
+expect word0 == 2
+cheat drops 0
+cheat letter 160 150
+hold LEFT 15
+expect caught == 26
+expect nword == 2
+expect word1 == 1
+cheat drops 1
+cheat letter 190 150
+hold RIGHT 15
+expect caught == 27
+expect nword == 0
+expect last_word == 5
+expect mult == 1
+cheat mult 5
+# no limit on the multiplier
+cheat mult 40
+# x41
+cheat drops 0
+cheat letter 160 150
+hold LEFT 15
+expect caught == 28
+expect nword == 1
+expect word0 == 1
+cheat drops 1
+cheat letter 190 150
+hold RIGHT 15
+expect caught == 29
+expect nword == 2
+expect word1 == 2
+cheat drops 1
+cheat letter 160 150
+hold LEFT 15
+expect caught == 30
+expect nword == 0
+expect mult == 41

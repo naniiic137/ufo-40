@@ -1,0 +1,43 @@
+# BUZZBOLT: wave 4's rot walls come down in rows; some blocks are gates
+# that switch on and off. On, a block is solid (touching it is a loss) and
+# can be shot down; off, it is harmless: shots and the ship pass through.
+game buzzbolt
+# the opening: A skips it
+press A
+press A
+wait 10
+press A
+cheat quiet
+wait 130
+cheat gate 160 80 60
+expect gates_on == 1
+expect gates_off == 0
+waituntil gates_off == 1 70
+expect gates_on == 0
+# off: shots go straight through it, and so does the ship
+cheat pos 160 150
+press A
+wait 20
+expect foe0_hp == 16
+cheat pos 160 92
+hold UP 12
+expect py < 72
+expect alive == 1
+# on again: it can be shot...
+waituntil gates_on == 1 70
+cheat pos 160 150
+press A
+wait 10
+expect foe0_hp < 16
+# ...and touching it is a loss
+wait 20
+cheat gate 60 80 200
+cheat pos 60 100
+hold UP 20
+expect alive == 0
+# in the wave: rows come down, and the gate rows switch
+cheat wave 4
+cheat god
+waituntil foes_10 > 0 400
+waituntil gates_off > 0 600
+expect gates_on > 0

@@ -1,0 +1,51 @@
+# BUZZBOLT: the multiplier carries on into the next wave (only a wrong
+# word or a lost ship puts it back to x1), and so does everything else
+# the letters gave.
+game buzzbolt
+# the opening: A skips it
+press A
+press A
+wait 10
+press A
+cheat god
+cheat boss
+wait 10
+cheat pos 160 150
+# BZZ twice, with real letters: x3
+cheat drops 0
+cheat letter 190 150
+hold RIGHT 15
+cheat drops 1
+cheat letter 160 150
+hold LEFT 15
+cheat drops 1
+cheat letter 190 150
+hold RIGHT 15
+expect mult == 2
+cheat drops 0
+cheat letter 160 150
+hold LEFT 15
+cheat drops 1
+cheat letter 190 150
+hold RIGHT 15
+cheat drops 1
+cheat letter 160 150
+hold LEFT 15
+expect mult == 3
+
+# the Ironback pair, cashed in at x3 (300 points each, times three)
+waituntil boss_count == 2 200
+cheat bosshp 1
+botuntil boss_dead == 1 3000
+expect score >= 1800
+cheat word 2
+expect nopt == 1
+waituntil state == 4 300
+expect wave == 1
+expect mult >= 3
+# the next wave keeps the multiplier and the option
+waituntil state == 3 400
+expect wave == 2
+expect mult >= 3
+expect best_mult_run >= 3
+expect nopt == 1

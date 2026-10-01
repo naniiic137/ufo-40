@@ -1,0 +1,20 @@
+# BUZZBOLT: wave 3 is the spike and the last boss is not. Each fought alone
+# by the demo player, the Sporeheart's aimed fans put fewer shots on the
+# screen, on average, than the Queen Tick's rings and fans (yet plenty:
+# ten or more). The order of whole waves, 1 < 2 < 3 and wave 3 above all
+# the rest, is checked in the full runs (bzz_24 ... bzz_26).
+game buzzbolt
+# the opening: A skips it
+press A
+cheat run 2
+cheat god
+cheat wave 3
+cheat boss
+botuntil boss_dead == 1 8000
+cheat wave 5
+waituntil boss_count == 1 300
+botuntil boss_dead == 1 9000
+print es_avg3
+print es_avg5
+expect es_lt_53 == 1
+expect es_avg5 >= 100

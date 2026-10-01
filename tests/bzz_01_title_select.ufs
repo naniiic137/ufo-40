@@ -1,0 +1,69 @@
+# BUZZBOLT: the cartridge opens on its opening (the Nebula Garden, the
+# Blight, the Hive Wing flying out), which any button skips; then the
+# title. A goes to the ship select, LEFT/RIGHT pick one of three ships, B
+# goes back, A launches wave 1 with two ships (the one in play and one
+# spare). B on the title leaves.
+game buzzbolt
+wait 5
+expect state == 10
+expect paused == 0
+press A
+expect state == 0
+press A
+expect state == 1
+expect sel == 0
+press RIGHT
+expect sel == 1
+press RIGHT
+expect sel == 2
+press RIGHT
+expect sel == 0
+press LEFT
+expect sel == 2
+press B
+expect state == 0
+press A
+wait 10
+press LEFT
+expect sel == 1
+press A
+expect state == 3
+expect ship == 1
+expect wave == 1
+expect lives == 1
+expect alive == 1
+expect mult == 1
+expect score == 0
+expect nword == 0
+# the wave's banner first, then the first gnats
+expect foes == 0
+wait 200
+expect foes > 0
+# no saving in the middle of a run: back to the library, then in again,
+# and it is the opening, then the title
+press START
+expect paused == 1
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press A
+wait 60
+expect_scene library
+game buzzbolt
+wait 5
+expect_scene runner
+expect state == 10
+expect score == 0
+press B
+expect state == 0
+press B
+wait 60
+expect_scene library
+# left alone, the opening plays to its end and the title follows
+game buzzbolt
+wait 600
+expect state == 10
+wait 60
+expect state == 0

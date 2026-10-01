@@ -1,0 +1,21 @@
+# BUZZBOLT: wave 2's boss, the Bloatfly, can be beaten: homing shots in
+# repeating patterns, and gnats called in (worth 100 each). Flown by the
+# demo player in the firefly.
+game buzzbolt
+# the opening: A skips it
+press A
+press A
+wait 10
+press LEFT
+press A
+wait 10
+cheat lives 3
+cheat wave 2
+cheat boss
+waituntil boss_count == 1 200
+expect boss_kind == 5
+botuntil boss_dead == 1 9000
+expect boss_count == 0
+waituntil state == 4 400
+waituntil state == 3 400
+expect wave == 3
