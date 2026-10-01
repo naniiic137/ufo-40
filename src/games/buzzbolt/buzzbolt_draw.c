@@ -221,7 +221,9 @@ static void draw_foes(void) {
     for (int i = 0; i < BZZ_MAX_FOES; i++) {
         Foe *e = &bz.foe[i];
         if (!e->alive || e->t < 0) continue;
-        bool w = e->flash > 0;
+        /* a hit shows as a white flash; a big foe under steady fire only
+         * flickers now and then, so it stays readable */
+        bool w = e->role == ROLE_FOE ? e->flash > 0 : e->flash >= 3 && bz.frame_t % 3 == 0;
         int t = e->t + i * 7;
         switch (e->kind) {
         case EK_GNAT: spr_c((t / 3) % 2 ? SP_GNAT1 : SP_GNAT2, e->x, e->y, 0, w); break;
