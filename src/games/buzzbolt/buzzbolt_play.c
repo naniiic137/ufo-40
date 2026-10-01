@@ -15,9 +15,15 @@ static const int OPT_HP[BZ_SHIPS] = {10, 24, 8};
 #define BOMB_FUSE 36   /* a bomb goes off this long after launch */
 #define BLAST_R 40.0f
 #define BLAST_T 26
+#define BLAST_HIT 150  /* a bomb's blow as it goes off, to every foe in reach... */
+#define BLAST_TICK 8   /* ...then this every other frame while it burns: about 250 in all */
+#define ORB_HP 3       /* bumps into foes a lacewing orb takes before it breaks */
+#define CLEAR_DMG 3    /* the shieldbug's screen clear: a little damage to every foe */
 #define HIVE_T 190     /* the lacewing's big ally: arrives, fires, leaves */
 #define HIVE_FIRE0 22
 #define HIVE_FIRE1 170
+#define FLY_FIRE0 12   /* the dragonfly's first shot, then one every FLY_GAP frames */
+#define FLY_GAP 10
 #define CLEAR_WAIT 150 /* after the last boss: time to catch its letters */
 
 /* ------------------------------------------------------------------------ */
@@ -149,11 +155,7 @@ int bzz_word_of(const uint8_t *w) {
 }
 
 static void add_option(void) {
-    if (bz.nopt >= BZZ_MAX_OPTIONS) {
-        /* both out already: the word patches them up */
-        for (int i = 0; i < bz.nopt; i++) bz.opt[i].hp = bz.opt[i].maxhp;
-        return;
-    }
+    if (bz.nopt >= BZZ_MAX_OPTIONS) return; /* both out already: nothing happens */
     Option *o = &bz.opt[bz.nopt++];
     memset(o, 0, sizeof *o);
     o->alive = 1;
@@ -172,7 +174,7 @@ static void screen_clear(void) {
     }
     for (int i = 0; i < BZZ_MAX_FOES; i++) {
         Foe *e = &bz.foe[i];
-        if (e->alive && e->y > -8 && e->y < BZZ_H + 8 && e->x > -8 && e->x < BZZ_W + 8) bzz_hurt_foe(i, 10);
+        if (e->alive && e->y > -8 && e->y < BZZ_H + 8 && e->x > -8 && e->x < BZZ_W + 8) bzz_hurt_foe(i, CLEAR_DMG);
     }
     bz.flash = 8;
 }
@@ -187,7 +189,8 @@ void bzz_word_effect(int w) {
         break;
     case W_ZZZ: add_option(); sfx_play_name("bzz_option"); break;
     case W_BBB:
-        if (bz.ship == BZ_LACEWING) bz.orb[0] = bz.orb[1] = true;
+        if (bz.ship == BZ_LACEWING)
+            for (int o = 0; o < 2; o++) { bz.orb[o] = true; bz.orb_hp[o] = ORB_HP; bz.orb_cd[o] = 0; }
         else if (bz.ship == BZ_SHIELDBUG) bz.power_t = POWER_T; /* a fresh ten seconds, never more */
         else if (bz.bombs < BZZ_MAX_BOMBS) bz.bombs++;
         sfx_play_name("bzz_special");
@@ -262,18 +265,21 @@ void bzz_kill_foe(int i) {
             if (j >= 0) { bz.foe[j].vx = k ? 0.9f : -0.9f; bz.foe[j].vy = 1.0f; }
         }
     }
-    if (e->role == ROLE_BOSS) {
-        bz.boss_count--;
-        if (bz.boss_count <= 0 && !bz.boss_dead) {
-            bz.boss_dead = true;
-            bz.clear_t = 0;
-            bz.time_bonus = imax(0, BZZ_WAVE[bz.wave].par_s - bz.wave_t / 60) * 100;
-            /* the rest flee and every shot fizzles out */
-            for (int k = 0; k < BZZ_MAX_FOES; k++) if (bz.foe[k].alive) bz.foe[k].leaving = 1;
-            for (int k = 0; k < BZZ_MAX_ESHOTS; k++)
-                if (bz.es[k].alive) { bz.es[k].alive = 0; bzz_burst(bz.es[k].x, bz.es[k].y, C_GREY, 1, 0.5f); }
-        }
-    }
+    if (e->role == ROLE_BOSS) bzz_boss_gone();
+}
+
+/* One of the wave's bosses is gone: beaten, or (only wave 1's pair does
+ * this) given up and flown off. When the last one goes, the wave is won. */
+void bzz_boss_gone(void) {
+    bz.boss_count--;
+    if (bz.boss_count > 0 || bz.boss_dead) return;
+    bz.boss_dead = true;
+    bz.clear_t = 0;
+    bz.time_bonus = imax(0, BZZ_WAVE[bz.wave].par_s - bz.wave_t / 60) * 100;
+    /* the rest flee and every shot fizzles out */
+    for (int k = 0; k < BZZ_MAX_FOES; k++) if (bz.foe[k].alive) bz.foe[k].leaving = 1;
+    for (int k = 0; k < BZZ_MAX_ESHOTS; k++)
+        if (bz.es[k].alive) { bz.es[k].alive = 0; bzz_burst(bz.es[k].x, bz.es[k].y, C_GREY, 1, 0.5f); }
 }
 
 void bzz_hurt_foe(int i, int dmg) {
@@ -365,7 +371,9 @@ static void fire_spread(void) {
         Option *o = &bz.opt[i];
         if (s == BZ_LACEWING) add_pshot(PS_BOLT, o->x, o->y - 4, 0, -6.5f, 2, 3, 2);
         else if (s == BZ_SHIELDBUG)
-            for (int k = -1; k <= 1; k++) add_pshot(PS_BOLT, o->x, o->y - 4, sinf(k * 0.4f) * 5.5f, -cosf(k * 0.4f) * 5.5f, 2, 2, bz.power_t > 0 ? 4 : 2);
+            /* the same arc of seven as the ship's, each shot a little weaker */
+            for (int k = -3; k <= 3; k++)
+                add_pshot(PS_BOLT, o->x, o->y - 4, sinf(k * 0.35f) * 5.5f, -cosf(k * 0.35f) * 5.5f, 2, 2, bz.power_t > 0 ? 2 : 1);
         /* the firefly's option only fires while fire is held */
     }
     bzz_sfx("bzz_shot", 12);
@@ -544,19 +552,25 @@ static void orbs_pos(int i, float *x, float *y) {
 
 static void allies_update(void) {
     bz.orb_a += 0.09f;
-    /* the orbs break on a foe's body */
+    /* the orbs wear out on foes' bodies (never on shots): a few bumps and one breaks */
     for (int o = 0; o < 2; o++) {
         if (!bz.orb[o] || !bz.alive) continue;
+        if (bz.orb_cd[o] > 0) { bz.orb_cd[o]--; continue; }
         float ox, oy;
         orbs_pos(o, &ox, &oy);
         for (int j = 0; j < BZZ_MAX_FOES; j++) {
             Foe *e = &bz.foe[j];
             if (!e->alive || (e->kind == EK_ROTWALL && !e->state)) continue;
             if (fabsf(e->x - ox) < e->hw + 3 && fabsf(e->y - oy) < e->hh + 3) {
-                bz.orb[o] = false;
                 bzz_hurt_foe(j, 6);
-                bzz_burst(ox, oy, C_CYAN, 10, 1.3f);
-                sfx_play_name("bzz_optlost");
+                bz.orb_cd[o] = 8;
+                if (--bz.orb_hp[o] <= 0) {
+                    bz.orb[o] = false;
+                    bzz_burst(ox, oy, C_CYAN, 10, 1.3f);
+                    sfx_play_name("bzz_optlost");
+                } else {
+                    bzz_burst(ox, oy, C_CYAN, 3, 0.9f);
+                }
                 break;
             }
         }
@@ -571,6 +585,13 @@ static void allies_update(void) {
             b->alive = 0;
             for (int k = 0; k < BZZ_MAX_BLASTS; k++)
                 if (!bz.blast[k].alive) { bz.blast[k] = (Blast){b->x, b->y, 4, 0, 1}; break; }
+            /* the blow: high damage to every foe in reach */
+            for (int k = 0; k < BZZ_MAX_FOES; k++) {
+                Foe *e = &bz.foe[k];
+                if (!e->alive) continue;
+                float ddx = fmaxf(0, fabsf(e->x - b->x) - e->hw), ddy = fmaxf(0, fabsf(e->y - b->y) - e->hh);
+                if (ddx * ddx + ddy * ddy < BLAST_R * BLAST_R) bzz_hurt_foe(k, BLAST_HIT);
+            }
             bz.shake = 10;
             sfx_play_name("bzz_blast");
         }
@@ -589,7 +610,7 @@ static void allies_update(void) {
                 Foe *e = &bz.foe[k];
                 if (!e->alive) continue;
                 float ddx = fmaxf(0, fabsf(e->x - b->x) - e->hw), ddy = fmaxf(0, fabsf(e->y - b->y) - e->hh);
-                if (ddx * ddx + ddy * ddy < b->r * b->r) bzz_hurt_foe(k, 5);
+                if (ddx * ddx + ddy * ddy < b->r * b->r) bzz_hurt_foe(k, BLAST_TICK);
             }
         if (b->t >= BLAST_T) b->alive = 0;
     }
@@ -605,19 +626,18 @@ static void allies_update(void) {
             }
         if (bz.hive.t >= HIVE_T) bz.hive.on = false;
     }
-    /* the firefly's dragonfly: across the screen, nine shots at three angles */
+    /* the firefly's dragonfly: across the screen, nine single shots, each at
+     * one of three set angles in turn (up and left, straight up, up and
+     * right); never aimed, so they may miss everything */
     if (bz.fly.on) {
         bz.fly.t++;
         bz.fly.x += 2.8f;
         bz.fly.y = 62 + sinf(bz.fly.t * 0.08f) * 6;
-        if (bz.fly.t == 20 || bz.fly.t == 48 || bz.fly.t == 76) {
-            int f = nearest_foe(bz.fly.x, bz.fly.y, false);
-            float a = f >= 0 ? atan2f(bz.foe[f].y - bz.fly.y, bz.foe[f].x - bz.fly.x) : -1.5708f;
-            for (int k = -1; k <= 1; k++) {
-                add_pshot(PS_ALLY, bz.fly.x, bz.fly.y, cosf(a + k * 0.38f) * 5.0f, sinf(a + k * 0.38f) * 5.0f, 3, 3, 15);
-                bz.fly.fired++;
-            }
-            sfx_play_name("bzz_shot2");
+        if (bz.fly.t >= FLY_FIRE0 && (bz.fly.t - FLY_FIRE0) % FLY_GAP == 0 && bz.fly.fired < 9) {
+            float a = -1.5708f + (bz.fly.fired % 3 - 1) * 0.5236f;
+            add_pshot(PS_ALLY, bz.fly.x, bz.fly.y, cosf(a) * 5.0f, sinf(a) * 5.0f, 3, 3, 15);
+            bz.fly.fired++;
+            bzz_sfx("bzz_shot2", 6);
         }
         for (int k = 0; k < BZZ_MAX_ESHOTS; k++) {
             EShot *s = &bz.es[k];
@@ -778,6 +798,9 @@ void bzz_new_run(int ship) {
 
 void bzz_start_wave(int w) {
     bz.wave = w;
+    /* every wave starts again at x1: the multiplier is built up during a
+     * wave and cashed in on its boss (see the design document's readings) */
+    bz.mult = 1;
     bz.wave_t = -120; /* the banner, then the first foes */
     bz.spawn_i = 0;
     bz.boss_out = bz.boss_dead = false;

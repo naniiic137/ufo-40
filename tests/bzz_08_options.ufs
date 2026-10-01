@@ -1,9 +1,12 @@
-# BUZZBOLT: ZZZ brings an option, two at most (a third ZZZ patches both
-# up). Options soak up shots and break after enough of them, and each
-# ship's option does its own thing: the lacewing's rushes out at foes
-# while fire is held, the shieldbug's moves in front as a shield, the
-# firefly's fires homing rockets, but only while fire is held.
+# BUZZBOLT: ZZZ brings an option, two at most (a third ZZZ with two out
+# does nothing at all). Options soak up shots and break after enough of
+# them, and each ship's option does its own thing: the lacewing's rushes
+# out at foes while fire is held, the shieldbug's copies the ship's arc of
+# seven and moves in front as a shield while fire is held, the firefly's
+# fires homing rockets, but only while fire is held.
 game buzzbolt
+# the opening: A skips it
+press A
 press A
 wait 10
 press A
@@ -23,10 +26,11 @@ wait 25
 expect opt0_hp == 9
 expect alive == 1
 expect eshots == 0
-# a third ZZZ: still two, mended
+# a third ZZZ: still two, and nothing mended
 cheat word 2
 expect nopt == 2
-expect opt0_hp == 10
+expect opt0_hp == 9
+expect mult == 1
 # ten shots at once break it
 cheat eshot 0 146 120 0 2
 cheat eshot 0 146 120 0 2
@@ -52,6 +56,8 @@ wait 40
 expect opt0_dy > 0
 # the shieldbug's: in front while fire is held, beside while tapping
 game buzzbolt
+# the opening: A skips it
+press A
 press A
 wait 10
 press RIGHT
@@ -63,7 +69,12 @@ cheat word 2
 expect opt0_hp == 24
 wait 10
 expect opt0_dy > 0
+# a tap: the ship's arc of seven, and the option's copy of it
+press A
+expect pshots_0 == 14
+wait 40
 hold A
+
 wait 30
 expect opt0_dy < -10
 expect opt0_dx > -10
@@ -77,6 +88,8 @@ wait 20
 expect opt0_dy > 0
 # the firefly's: nothing while tapping, homing rockets while holding
 game buzzbolt
+# the opening: A skips it
+press A
 press A
 wait 10
 press LEFT

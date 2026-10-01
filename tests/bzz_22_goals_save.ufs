@@ -1,9 +1,13 @@
 # BUZZBOLT: the three goals. Beacon: reach a 10x multiplier (spelt here
-# with real letters). Saucer: beat all five waves. Alien: win with 300,000
-# points or more, checked at the ending. The high-score table (names
+# with real letters). Saucer: burn out the Sporeheart, the end of wave 5.
+# Alien: fly home (win) with 300,000 points or more, checked at the
+# ending. The high-score table (names
+
 # entered with the pad) and the tracked stats (highest multiplier, each
 # ship's best) are saved; a run in progress is not.
 game buzzbolt
+# the opening: A skips it
+press A
 press A
 wait 10
 press A
@@ -153,6 +157,8 @@ expect state == 0
 # all of it survives a restart
 reload
 game buzzbolt
+# the opening: A skips it
+press A
 wait 5
 expect goals == 7
 expect hs0_c0 == 66
@@ -161,7 +167,8 @@ expect save_best0 >= 300000
 expect save_best_mult == 10
 expect save_cherries == 1
 expect save_runs == 1
-# a run in progress is not saved: in, then out, then in again: the title
+# a run in progress is not saved: in, then out, then in again: the
+# opening and the title
 press A
 wait 10
 press A
@@ -170,5 +177,8 @@ expect state == 3
 reload
 game buzzbolt
 wait 5
+expect state == 10
+press A
 expect state == 0
 expect save_runs == 2
+

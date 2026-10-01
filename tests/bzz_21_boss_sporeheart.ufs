@@ -3,6 +3,8 @@
 # can be beaten, and the ending follows. Flown by the demo player in the
 # firefly.
 game buzzbolt
+# the opening: A skips it
+press A
 press A
 wait 10
 press LEFT

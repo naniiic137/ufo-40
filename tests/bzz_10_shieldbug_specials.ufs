@@ -1,8 +1,10 @@
 # BUZZBOLT: the shieldbug's specials. BBB: both kinds of fire hit twice
 # as hard for ten seconds; a second BBB starts the ten seconds again, it
 # doesn't add them up. ZBB: every enemy shot is wiped away and every foe
-# on screen takes a little damage.
+# on screen takes a little damage (3): enough for the popcorn, not more.
 game buzzbolt
+# the opening: A skips it
+press A
 press A
 wait 10
 press RIGHT
@@ -39,7 +41,10 @@ cheat eshot 2 200 30 0 1
 expect eshots == 4
 cheat dummy 0 60 80
 cheat dummy 3 260 80
+expect kind_hp_3 == 6
 cheat word 4
 expect eshots == 0
 expect foes_0 == 0
-expect foes_3 == 0
+expect foes_3 == 1
+expect kind_hp_3 == 3
+

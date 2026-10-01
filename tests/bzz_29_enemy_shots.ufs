@@ -3,6 +3,8 @@
 # turn after the ship for a while; the Queen Tick's rings bounce off the
 # bottom of the screen once.
 game buzzbolt
+# the opening: A skips it
+press A
 press A
 wait 10
 press A

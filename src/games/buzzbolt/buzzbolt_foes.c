@@ -11,7 +11,7 @@ const FoeDef BZZ_FOE[EK_COUNT] = {
     {"WHIRLER", 20, 6, 5, 5},
     {"CRICKET", 200, 40, 6, 6},
     {"BLOATFLY", 400, 900, 18, 12},
-    {"BLISTER", 80, 12, 5, 5},
+    {"BLISTER", 80, 20, 5, 5},
     {"BIG PUFFBALL", 50, 30, 9, 9},
     {"PUFFBALL", 20, 6, 4, 4},
     {"QUEEN TICK", 500, 1300, 24, 14},
@@ -153,7 +153,8 @@ void bzz_run_spawns(void) {
             if (s->form == FM_DRIFT) x = s->x + k * (s->arg ? s->arg : 40);
             int shots = s->shots;
             if (s->form == FM_ARC) shots = (shots & 15) | (((s->n - 1) / 2) << 4);
-            bzz_spawn_foe(s->kind, s->form, x, y, k, s->dir, shots, s->form == FM_ARC ? 0 : s->arg);
+            int i = bzz_spawn_foe(s->kind, s->form, x, y, k, s->dir, shots, s->form == FM_ARC ? 0 : s->arg);
+            if (i >= 0) bz.foe[i].fan = s->fan;
         }
     }
     if (!bz.boss_out && bz.wave_t >= w->boss_t) {
@@ -199,9 +200,14 @@ static bool boss_enter(Foe *e) {
     return true;
 }
 
+/* Wave 1's pair are the only bosses that give up: left alone this long
+ * after they arrive, they fly off (no points, no letters) and the wave ends. */
+#define IRONBACK_STAY 2100
+
 static void ironback_boss(Foe *e) {
     if (boss_enter(e)) return;
     e->pt++;
+    if (e->pt >= IRONBACK_STAY) { e->leaving = 1; e->vx = 0; e->vy = -0.3f; return; }
     e->x = e->ax + sinf(e->pt * 0.018f + (e->dir > 0 ? 3.1f : 0)) * 52;
     e->y = e->ay + sinf(e->pt * 0.031f) * 10;
     /* the pair take turns: spread volleys, and every third a wide fan */
@@ -288,29 +294,41 @@ static void dustwing_boss(Foe *e) {
     if (e->pt % 100 == 40) { bzz_ring(e->x, e->y, 1.25f, 16, e->pt * 0.2f, ES_SPORE); bzz_sfx("bzz_puff", 8); }
 }
 
+/* The last boss is a fight of aimed volleys: fans of five to nine shots
+ * at the ship, wide and slow or narrow and quick, so it is beaten by
+ * sitting a little off to one side and weaving through each fan as it
+ * comes. Its only shots that aren't aimed are slow spores that drip from
+ * its tendrils. It thins out after wave 3's spike: fewer shots on screen
+ * than the Queen Tick puts up. */
 static void sporeheart_boss(Foe *e) {
     if (boss_enter(e)) return;
     e->pt++;
     e->x = e->ax + sinf(e->pt * 0.011f) * 14;
     int stage = e->hp * 3 > e->maxhp * 2 ? 0 : e->hp * 3 > e->maxhp ? 1 : 2;
-    float rot = e->pt * 0.19f;
+    float my = e->y + 14;
+    if (e->pt % 40 == 0) {
+        /* the drip: a slow spore that falls from a tendril */
+        float tx = e->x + sinf(e->pt * 0.71f) * 30;
+        bzz_add_eshot(ES_SPORE, tx, e->y + 18, sinf(e->pt * 0.37f) * 0.3f, 0.9f);
+    }
     if (stage == 0) {
-        /* a turning spray of spores, and volleys aimed at the ship */
-        if (e->pt % 5 == 0)
-            for (int k = 0; k < 3; k++) bzz_add_eshot(ES_SPORE, e->x, e->y + 6, cosf(rot + k * 2.0944f) * 1.7f, sinf(rot + k * 2.0944f) * 1.7f);
-        if (e->pt % 70 == 50) { bzz_aimed(e->x, e->y + 14, shot_speed(2.4f), 7, 11); bzz_sfx("bzz_efire", 8); }
+        /* a wide fan, then a narrow one twice at two speeds */
+        int c = e->pt % 80;
+        if (c == 10) { bzz_aimed(e->x, my, shot_speed(2.2f), 7, 12); bzz_sfx("bzz_efire", 8); }
+        if (c == 46) { bzz_aimed(e->x, my, shot_speed(2.8f), 5, 7); bzz_sfx("bzz_efire", 8); }
+        if (c == 54) bzz_aimed(e->x, my, shot_speed(2.2f), 5, 7);
     } else if (stage == 1) {
-        if (e->pt % 40 == 0) { bzz_ring(e->x, e->y + 6, 1.7f, 22, e->pt * 0.05f, ES_SPORE); bzz_sfx("bzz_puff", 8); }
-        if (e->pt % 30 == 15) bzz_aimed(e->x, e->y + 14, shot_speed(2.5f), 3, 10);
+        /* a slow fan of nine, then two quick fans at two speeds */
+        int c = e->pt % 84;
+        if (c == 10) { bzz_aimed(e->x, my, shot_speed(2.0f), 9, 12); bzz_sfx("bzz_efire2", 8); }
+        if (c == 50) { bzz_aimed(e->x, my, shot_speed(2.9f), 5, 8); bzz_sfx("bzz_efire", 8); }
+        if (c == 58) bzz_aimed(e->x, my, shot_speed(2.3f), 5, 8);
     } else {
-        if (e->pt % 6 == 0)
-            for (int k = 0; k < 4; k++) bzz_add_eshot(ES_SPORE, e->x, e->y + 6, cosf(-rot * 0.8f + k * 1.5708f) * 1.7f, sinf(-rot * 0.8f + k * 1.5708f) * 1.7f);
-        if (e->pt % 80 == 30) {
-            for (int k = -1; k <= 1; k += 2)
-                bzz_add_eshot(ES_HOMING, e->x + k * 20, e->y + 10, k * 0.9f, 2.0f);
-            bzz_aimed(e->x, e->y + 14, shot_speed(2.4f), 5, 12);
-            bzz_sfx("bzz_homing", 8);
-        }
+        /* from each side of it in turn, and a wide one from the heart */
+        int c = e->pt % 90;
+        if (c == 10) { bzz_aimed(e->x - 22, my, shot_speed(2.5f), 5, 11); bzz_sfx("bzz_efire", 8); }
+        if (c == 40) { bzz_aimed(e->x + 22, my, shot_speed(2.5f), 5, 11); bzz_sfx("bzz_efire", 8); }
+        if (c == 70) { bzz_aimed(e->x, my, shot_speed(2.2f), 7, 13); bzz_sfx("bzz_efire2", 8); }
     }
 }
 
@@ -319,8 +337,9 @@ static void sporeheart_boss(Foe *e) {
 
 static void fire_kind(Foe *e) {
     switch (e->kind) {
-    case EK_GNAT: bzz_aimed(e->x, e->y + 3, shot_speed(2.3f), 1, 0); break;
-    case EK_MIDGE: bzz_aimed(e->x, e->y + 3, shot_speed(2.0f), 1, 0); break;
+    /* one shot at the ship, or (later squads) a small aimed fan */
+    case EK_GNAT: bzz_aimed(e->x, e->y + 3, shot_speed(2.3f), imax(1, e->fan), 15); break;
+    case EK_MIDGE: bzz_aimed(e->x, e->y + 3, shot_speed(2.0f), imax(1, e->fan), 15); break;
     case EK_WHIRLER: bzz_aimed(e->x, e->y + 4, shot_speed(2.4f), 3, 13); break;
     case EK_CRICKET: {
         float a = bzz_aim(e->x, e->y);
@@ -330,10 +349,17 @@ static void fire_kind(Foe *e) {
         bzz_sfx("bzz_homing", 8);
         return;
     }
-    case EK_BLISTER:
-        if (e->sub++ % 2 == 0) bzz_ring(e->x, e->y, shot_speed(1.7f), 16, e->t * 0.13f, ES_AIMED);
-        else bzz_aimed(e->x, e->y + 4, shot_speed(2.4f), 7, 11);
+    case EK_BLISTER: {
+        /* dense, but every volley is aimed, so it can be herded: a wide
+         * fan, two fans at once at two speeds, a quick fan */
+        int v = e->sub++ % 3;
+        if (v == 0) bzz_aimed(e->x, e->y + 4, shot_speed(2.1f), 9, 12);
+        else if (v == 1) {
+            bzz_aimed(e->x, e->y + 4, shot_speed(2.7f), 5, 9);
+            bzz_aimed(e->x, e->y + 4, shot_speed(1.8f), 5, 9);
+        } else bzz_aimed(e->x, e->y + 4, shot_speed(2.5f), 7, 10);
         break;
+    }
     case EK_IRONBACK:
         bzz_aimed(e->x, e->y + 8, shot_speed(2.1f), e->sub++ % 2 ? 9 : 7, 11);
         break;
@@ -447,7 +473,8 @@ void bzz_foes_update(void) {
             if (e->shots > 0 && e->t >= e->fire_t && on_screen(e) && bz.alive) {
                 fire_kind(e);
                 e->shots--;
-                e->fire_t = e->t + (e->kind == EK_BLISTER ? 36 : e->kind == EK_CRICKET ? 60 : e->kind == EK_WHIRLER ? 22 : 16);
+                e->fire_t = e->t + (e->kind == EK_BLISTER ? 32 : e->kind == EK_CRICKET ? 60 : e->kind == EK_WHIRLER ? 22 :
+                                    e->form == FM_PEST ? 34 : 16);
             }
         }
         e->x += e->vx;
@@ -458,6 +485,7 @@ void bzz_foes_update(void) {
             if (e->kind == EK_GNAT && e->form == FM_PEST) bz.pest_t = 180;
             e->alive = 0;
             bz.escaped++;
+            if (e->role == ROLE_BOSS) bzz_boss_gone(); /* wave 1's pair, given up */
         }
     }
     /* wave 5: a gnat keeps pestering the ship through the last fight */

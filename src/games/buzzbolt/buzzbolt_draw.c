@@ -473,6 +473,69 @@ static void draw_play(void) {
 
 static const uint8_t LOGO[] = {C_CREAM, C_YELLOW, C_YELLOW, C_AMBER, C_AMBER, C_ORANGE};
 
+/* The opening, before the title: the Nebula Garden in bloom; the Blight
+ * seeping down over it and its flowers wilting; the hive opening and the
+ * Hive Wing flying out to meet it. Any button skips it. */
+#define INTRO_S1 220
+#define INTRO_S2 430
+static void draw_intro(void) {
+    int t = bz.state_t;
+    int scene = t < INTRO_S1 ? 0 : t < INTRO_S2 ? 1 : 2;
+    draw_sky(scene == 0 ? 0 : 2, bz.scroll);
+    /* how far the Blight has crept, left to right, over the flowers */
+    int creep = scene == 0 ? -1 : scene == 1 ? (t - INTRO_S1) * 2 : 999;
+    if (scene >= 1) {
+        int depth = scene == 1 ? imin(96, (t - INTRO_S1) / 2) : 96;
+        gfx_dither(0, 0, BZZ_W, depth, C_PURPLE, 5);
+        gfx_dither(0, 0, BZZ_W, depth / 2, C_MAROON, 6);
+        for (int k = 0; k < 14; k++) {
+            int gx = ((k * 61 + t * (k % 2 ? 1 : -1) * (1 + k % 3)) % 360 + 360) % 360 - 20;
+            int gy = 12 + (k * 23) % imax(8, depth) + (int)(sinf(t * 0.1f + k) * 3);
+            spr_c((t / 3 + k) % 2 ? SP_GNAT1 : SP_GNAT2, (float)gx, (float)gy, 0, false);
+        }
+    }
+    gfx_rect(0, 152, BZZ_W, 28, C_FOREST);
+    for (int i = 0; i < BZZ_W; i += 3) gfx_pset(i, 152 + (i * 7) % 5, C_JADE);
+    for (int k = 0; k < 14; k++) {
+        int x = 12 + k * 23, h = 14 + (k * 7) % 9;
+        bool wilt = creep > x;
+        int sway = wilt ? 3 : (int)(sinf(t * 0.04f + k) * 1.5f);
+        int top = 152 - h + (wilt ? 5 : 0);
+        gfx_line(x, 152, x + sway, top, wilt ? C_EARTH : C_JADE);
+        int c = wilt ? C_GREY : k % 3 == 0 ? C_ICE : k % 3 == 1 ? C_PINK : C_YELLOW;
+        gfx_circ(x + sway, top, wilt ? 2 : 3, c);
+        if (!wilt) gfx_pset(x + sway, top, C_AMBER);
+    }
+    if (scene == 2) {
+        /* the hive opens, and the three ships climb out of it */
+        int u = t - INTRO_S2;
+        for (int k = 0; k < 7; k++) {
+            int cx = 160 + (k - 3) * 9, cy = 160 + (k % 2) * 5;
+            gfx_circ(cx, cy, 5, C_BROWN);
+            gfx_circ(cx, cy, 4, k == 3 ? C_YELLOW : C_AMBER);
+        }
+        for (int s = 0; s < BZ_SHIPS; s++) {
+            int v = u - s * 24;
+            if (v < 0) continue;
+            int x = 160 + (s - 1) * imin(v, 60), y = 150 - v * 6 / 5;
+            if (y < -20) continue;
+            draw_ship_at(s, x, y, t);
+            gfx_vline(x, y + 9, y + 9 + imin(v, 14), C_YELLOW);
+        }
+    }
+    static const char *const LINES[3] = {
+        "FAR OUT AMONG THE STARS, THE NEBULA GARDEN BLOOMED.",
+        "THEN THE BLIGHT SEEPED IN, AND THE FLOWERS WILTED.",
+        "SO THE HIVE WING FLEW OUT TO BURN IT BACK.",
+    };
+    int st = scene == 0 ? t : scene == 1 ? t - INTRO_S1 : t - INTRO_S2;
+    if (st > 20) {
+        gfx_rect(0, 118, BZZ_W, 13, C_INK);
+        text_center(LINES[scene], 160, 121, C_LIGHT);
+    }
+    if ((t / 20) % 2) text_center(GLYPH_A " SKIP", 290, 168, C_SLATE);
+}
+
 static void draw_title(void) {
     draw_sky(0, bz.scroll);
     int t = bz.frame_t;
@@ -561,7 +624,7 @@ static void draw_select(void) {
 static void draw_clear(void) {
     draw_play();
     ui_panel(70, 52, 180, 70, C_INK, C_YELLOW);
-    char buf[48];
+    char buf[64];
     snprintf(buf, sizeof buf, "WAVE %d CLEAR!", bz.wave + 1);
     static const uint8_t grad[] = {C_WHITE, C_YELLOW, C_AMBER};
     ui_fancy_center(buf, 160, 58, 1, grad, 3, C_INK, C_MAROON);
@@ -570,7 +633,8 @@ static void draw_clear(void) {
     tiny_center("(NOT MULTIPLIED)", 160, 86, C_SLATE);
     snprintf(buf, sizeof buf, "SCORE %s", num(bz.score));
     text_center(buf, 160, 96, C_WHITE);
-    snprintf(buf, sizeof buf, "MULTIPLIER X%d", bz.mult);
+    if (bz.wave + 1 < BZZ_WAVES) snprintf(buf, sizeof buf, "MULTIPLIER X%d, THE NEXT WAVE STARTS AT X1", bz.mult);
+    else snprintf(buf, sizeof buf, "MULTIPLIER X%d", bz.mult);
     tiny_center(buf, 160, 110, C_YELLOW);
 }
 
@@ -695,6 +759,7 @@ void bzz_draw(void) {
     gfx_noclip();
     if (bz.sheet) { draw_sheet(); return; }
     switch (bz.state) {
+    case BS_INTRO: draw_intro(); break;
     case BS_TITLE: draw_title(); break;
     case BS_SCORES: draw_scores(); break;
     case BS_SELECT: draw_select(); break;

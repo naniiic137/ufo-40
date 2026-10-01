@@ -95,6 +95,7 @@ typedef struct {
     int8_t dir;      /* -1 / 1: which way it breaks or enters */
     int8_t shots;    /* how many times each fires (0 = never) */
     uint16_t arg;    /* formation-specific: a wall's gap bits, a spacing */
+    uint8_t fan;     /* a gnat's or midge's volley: this many shots in a small aimed fan */
 } Spawn;
 
 typedef struct {
@@ -121,6 +122,7 @@ typedef struct {
     int arg, value;           /* value: points (base) */
     int lance;                /* the last lance that hit it */
     int touch_t;              /* an option's ramming cooldown */
+    int fan;                  /* shots in each of its volleys (gnats, midges) */
 } Foe;
 
 /* enemy shots */
@@ -155,8 +157,10 @@ typedef struct { float x, y, vx, vy; int life, col; uint8_t kind; } Part;
 
 /* the game's states */
 enum {
-    BS_TITLE, BS_SELECT, BS_BANNER, BS_PLAY, BS_CLEAR, BS_OVER, BS_ENDING, BS_CREDITS, BS_NAME, BS_SCORES
+    BS_TITLE, BS_SELECT, BS_BANNER, BS_PLAY, BS_CLEAR, BS_OVER, BS_ENDING, BS_CREDITS, BS_NAME, BS_SCORES,
+    BS_INTRO   /* the opening before the title */
 };
+#define BZZ_INTRO_T 640
 
 #define BZZ_HISCORES 8
 typedef struct {
@@ -208,6 +212,7 @@ typedef struct {
     Option opt[BZZ_MAX_OPTIONS];
     int nopt;
     bool orb[2];
+    int orb_hp[2], orb_cd[2];         /* bumps into foes an orb can still take */
     float orb_a;
     int power_t;                      /* shieldbug: powered-up frames left */
     int bombs;                        /* firefly: bombs trailing behind */
@@ -249,6 +254,7 @@ int bzz_next_drop(void);
 int bzz_foe_value(const Foe *e);
 void bzz_hurt_foe(int i, int dmg);
 void bzz_kill_foe(int i);
+void bzz_boss_gone(void);   /* a boss beaten, or (wave 1's pair only) flown off */
 int bzz_add_eshot(int kind, float x, float y, float vx, float vy);
 void bzz_aimed(float x, float y, float speed, int n, float spread_deg);
 void bzz_ring(float x, float y, float speed, int n, float rot, int kind);

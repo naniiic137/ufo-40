@@ -1,0 +1,28 @@
+# BUZZBOLT: wave 1's boss pair is the only boss that gives up: left alone
+# for 35 seconds after they arrive, the two Ironbacks fly off, with no
+# points and no letters, and the wave ends as if they were beaten (by then
+# the time bonus is all but gone). Every other boss stays (bzz_15).
+game buzzbolt
+# the opening: A skips it
+press A
+press A
+wait 10
+press A
+cheat god
+cheat boss
+waituntil boss_count == 2 200
+wait 1800
+expect boss_count == 2
+expect boss_dead == 0
+# about 36 seconds after they came: up and away
+waituntil boss_count == 0 700
+expect boss_dead == 1
+expect kills == 0
+expect drops == 0
+expect letters == 0
+expect score == 0
+expect time_bonus <= 200
+waituntil state == 4 300
+expect wave == 1
+waituntil state == 3 400
+expect wave == 2

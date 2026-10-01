@@ -112,6 +112,16 @@ static void name_update(void) {
 static void bzz_update(void) {
     bz.state_t++;
     switch (bz.state) {
+    case BS_INTRO:
+        /* the opening: the garden, the Blight, the Hive Wing flying out */
+        bz.frame_t++;
+        bz.scroll += 1.0f;
+        game_set_pausable(false);
+        if (bz.state_t > BZZ_INTRO_T || btnp(BTN_A) || btnp(BTN_START) || btnp(BTN_B)) {
+            input_consume();
+            to_title();
+        }
+        break;
     case BS_TITLE:
         bz.frame_t++;
         bz.scroll += 1.0f;
@@ -201,6 +211,7 @@ static void bzz_start(void) {
     bz.sel = 0;
     bz.mult = 1;
     to_title();
+    set_state(BS_INTRO); /* the opening first, with the title's music */
 }
 
 static void bzz_quit(void) { bzz_save_now(); }
@@ -281,6 +292,14 @@ static int bzz_query(const char *key, int *out) {
         *out = n;
         return 1;
     }
+    if (!strncmp(key, "kind_hp_", 8)) {
+        /* the hit points of the first live foe of a kind (-1: none) */
+        int k = atoi(key + 8);
+        *out = -1;
+        for (int i = 0; i < BZZ_MAX_FOES; i++)
+            if (bz.foe[i].alive && bz.foe[i].kind == k) { *out = bz.foe[i].hp; break; }
+        return 1;
+    }
     if (!strncmp(key, "foes_", 5)) {
         int k = atoi(key + 5), n = 0;
         for (int i = 0; i < BZZ_MAX_FOES; i++) n += bz.foe[i].alive && bz.foe[i].kind == k;
@@ -318,12 +337,21 @@ static int bzz_query(const char *key, int *out) {
         *out = n;
         return 1;
     }
-    /* wave 3 has more enemy shots on screen, on average, than waves 1, 2 and 4 */
+    /* wave 3 has more enemy shots on screen, on average, than any other wave
+     * (the last boss's included) */
     if (!strcmp(key, "wave3_spike")) {
         int a3 = bz.es_frames[2] ? bz.es_sum[2] * 10 / bz.es_frames[2] : 0;
         *out = 1;
-        for (int w = 0; w < 4; w++)
+        for (int w = 0; w < BZZ_WAVES; w++)
             if (w != 2 && bz.es_frames[w] && bz.es_sum[w] * 10 / bz.es_frames[w] >= a3) *out = 0;
+        return 1;
+    }
+    /* es_lt_AB: 1 when wave A had fewer enemy shots on screen, on average, than wave B */
+    if (!strncmp(key, "es_lt_", 6) && key[6] >= '1' && key[6] <= '5' && key[7] >= '1' && key[7] <= '5' && !key[8]) {
+        int a = key[6] - '1', b = key[7] - '1';
+        int64_t va = bz.es_frames[a] ? (int64_t)bz.es_sum[a] * 1000 / bz.es_frames[a] : 0;
+        int64_t vb = bz.es_frames[b] ? (int64_t)bz.es_sum[b] * 1000 / bz.es_frames[b] : 0;
+        *out = bz.es_frames[a] && bz.es_frames[b] && va < vb;
         return 1;
     }
     if (!strcmp(key, "gold_dir")) {
@@ -442,7 +470,7 @@ const GameDef GAME_BUZZBOLT = {
     "1988",
     "ARCADE SHOOTER",
     "FAST, WIDE, ONE HIT. EVERY KILL DROPS A LETTER: SPELL BZZ TO MULTIPLY.",
-    {"REACH A 10X MULTIPLIER", "BEAT ALL FIVE WAVES", "WIN WITH 300,000 POINTS"},
+    {"REACH A 10X MULTIPLIER", "BURN OUT THE SPOREHEART", "FLY HOME WITH 300,000 POINTS OR MORE"},
     "D-PAD\tFLY\n"
     "TAP " GLYPH_A "\tSPREAD SHOT, FULL SPEED\n"
     "HOLD " GLYPH_A "\tFOCUSED SHOT, SLOWER\n"

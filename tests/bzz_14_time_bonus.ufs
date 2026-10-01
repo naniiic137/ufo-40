@@ -2,6 +2,8 @@
 # time bonus (100 points for every second under the wave's par), and the
 # bonus is never multiplied.
 game buzzbolt
+# the opening: A skips it
+press A
 press A
 wait 10
 press A

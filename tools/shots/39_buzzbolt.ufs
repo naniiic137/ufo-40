@@ -4,8 +4,11 @@
 shotscale 2
 seed 39
 game buzzbolt
+# the opening (any button skips it), then the title
+press A
 wait 60
 shot buzzbolt_title
+
 press A
 wait 10
 press RIGHT

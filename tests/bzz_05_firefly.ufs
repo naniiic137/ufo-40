@@ -2,6 +2,8 @@
 # that reaches up to the first foe in its way and burns it. Only the
 # firefly uses B: it launches a bomb, if it has one.
 game buzzbolt
+# the opening: A skips it
+press A
 press A
 wait 10
 press LEFT

@@ -4,6 +4,8 @@
 # word. The next ship comes in blinking and can't be hit for a while. With
 # no ship to spare, the game is over.
 game buzzbolt
+# the opening: A skips it
+press A
 press A
 wait 10
 press A
@@ -54,6 +56,8 @@ wait 70
 expect state == 5
 # the shieldbug loses its power-up, the firefly its bombs
 game buzzbolt
+# the opening: A skips it
+press A
 press A
 wait 10
 press LEFT
@@ -68,6 +72,8 @@ wait 20
 expect alive == 0
 expect bombs == 0
 game buzzbolt
+# the opening: A skips it
+press A
 press A
 wait 10
 press RIGHT

@@ -1,6 +1,8 @@
 # BUZZBOLT: the SHIELDBUG. A tap fires a wide arc of seven; held fire
 # throws a crescent straight ahead. B does nothing for it.
 game buzzbolt
+# the opening: A skips it
+press A
 press A
 wait 10
 press RIGHT

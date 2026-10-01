@@ -1,9 +1,12 @@
 # BUZZBOLT: the firefly's specials. BBB: one more bomb trailing behind the
 # ship, three at most; B launches one forward and it goes off a moment
-# later, wiping out shots and hurting foes inside its blast. ZBB: a
-# dragonfly crosses the screen, fires nine shots at three angles at once,
-# three times, and wipes out the shots it flies through.
+# later, wiping out shots and dealing high damage (about 250) to every foe
+# in its blast. ZBB: a dragonfly crosses the screen, fires nine single
+# shots, each at one of three set angles in turn, never aimed (they can
+# miss everything), and wipes out the shots it flies through.
 game buzzbolt
+# the opening: A skips it
+press A
 press A
 wait 10
 press LEFT
@@ -17,7 +20,7 @@ cheat word 3
 expect bombs == 3
 cheat word 3
 expect bombs == 3
-cheat dummy 1 160 72
+cheat dummy 5 160 72
 cheat eshot 0 150 80 0 0
 cheat eshot 0 172 64 0 0
 cheat eshot 0 40 40 0 0
@@ -32,7 +35,8 @@ expect blasts == 1
 wait 30
 expect blasts == 0
 expect eshots == 1
-expect foe0_hp < 180
+expect foe0_hp <= 660
+expect foe0_hp >= 620
 # the next two
 press B
 wait 5
@@ -42,13 +46,23 @@ expect bombs_flying == 2
 press B
 expect bombs_flying == 2
 wait 60
-# ZBB: the dragonfly
+# ZBB: the dragonfly. A gnat low on the screen, under its path: shots
+# that aimed at foes would hit it; these go up and never do
+cheat clear
 cheat eshot 0 100 62 0 0
-cheat dummy 1 200 30
+cheat dummy 0 250 150
 cheat word 4
 expect fly_on == 1
-wait 100
+wait 13
+expect fly_fired == 1
+expect pshots_5 == 1
+wait 10
+expect fly_fired == 2
+wait 77
 expect fly_fired == 9
-expect eshots == 1
+expect eshots == 0
 wait 60
 expect fly_on == 0
+expect fly_fired == 9
+expect foes_0 == 1
+

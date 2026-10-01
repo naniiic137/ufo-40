@@ -1,6 +1,8 @@
 # BUZZBOLT: tapping fire keeps a wide spread going at full speed; holding
 # it turns into focused fire after a moment, and the ship goes much slower.
 game buzzbolt
+# the opening: A skips it
+press A
 press A
 wait 10
 press A

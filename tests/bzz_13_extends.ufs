@@ -1,6 +1,8 @@
 # BUZZBOLT: two ships to start, and one more at 25,000, 100,000 and
 # 200,000 points: those three and no others.
 game buzzbolt
+# the opening: A skips it
+press A
 press A
 wait 10
 press A

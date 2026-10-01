@@ -1,8 +1,8 @@
-# BUZZBOLT: proof the game can be completed. From the title, the demo
-# player picks the SHIELDBUG and clears all five waves on its own,
-# pressing the buttons for real (no cheats). Then the ending, the
-# credits, the high-score table and back to the title; the Saucer goal
-# is earned and the win is saved.
+# BUZZBOLT: proof the game can be completed. From the opening, the demo
+# player skips to the title, picks the SHIELDBUG and clears all five waves
+# on its own, pressing the buttons for real (no cheats). Then the ending,
+# the credits, the high-score table and back to the title; the Saucer
+# goal is earned and the win is saved.
 game buzzbolt
 cheat botship 1
 botuntil state == 6 40000
@@ -18,7 +18,10 @@ print es_avg2
 print es_avg3
 print es_avg4
 print es_avg5
-# wave 3 is the hard one: more shots on screen than in waves 1, 2 and 4
+# the shots on screen climb from wave 1 to wave 2 to wave 3, and wave 3
+# is the hard one: more than any other wave, the last boss included
+expect es_lt_12 == 1
+expect es_lt_23 == 1
 expect wave3_spike == 1
 botuntil state == 0 4000
 expect save_wins == 1

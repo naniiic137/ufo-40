@@ -2,6 +2,8 @@
 # bolts straight up; not firing at all charges a lance that pierces every
 # foe in its way, bigger the longer you wait, fired by the next press.
 game buzzbolt
+# the opening: A skips it
+press A
 press A
 wait 10
 press A

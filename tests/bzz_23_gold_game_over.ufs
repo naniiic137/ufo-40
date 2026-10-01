@@ -2,6 +2,8 @@
 # Losing the last ship ends the run: GAME OVER, then the name entry if the
 # score made the table, then the table and the title. No continues.
 game buzzbolt
+# the opening: A skips it
+press A
 press A
 wait 10
 press A
@@ -16,6 +18,8 @@ expect score < 300000
 expect goals == 2
 # a lost run: no table, back to the title
 game buzzbolt
+# the opening: A skips it
+press A
 press A
 wait 10
 press A

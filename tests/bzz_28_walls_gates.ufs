@@ -2,6 +2,8 @@
 # that switch on and off. On, a block is solid (touching it is a loss) and
 # can be shot down; off, it is harmless: shots and the ship pass through.
 game buzzbolt
+# the opening: A skips it
+press A
 press A
 wait 10
 press A

@@ -1,7 +1,10 @@
 # BUZZBOLT: the lacewing's specials. BBB: two guard orbs circle the ship
-# and soak up any number of shots, but break on a foe's body. ZBB: the
-# hiveship rises under where the ship is and beams straight up for a while.
+# and soak up any number of shots; foes' bodies wear them out, three bumps
+# each and an orb breaks. ZBB: the hiveship rises under where the ship is
+# and beams straight up for a while.
 game buzzbolt
+# the opening: A skips it
+press A
 press A
 wait 10
 press A
@@ -26,10 +29,17 @@ wait 90
 expect eshots == 0
 expect orbs == 2
 expect alive == 1
-# a foe's body breaks one
-cheat dummy 0 177 150
-wait 80
-expect orbs == 1
+# a tough foe's body, just out of the ship's reach: each orb bumps it
+# three times (six damage a bump), then both are gone
+cheat dummy 1 186 150
+waituntil foe0_hp < 220 80
+expect orbs == 2
+wait 160
+expect orbs == 0
+expect foe0_hp == 184
+expect alive == 1
+cheat clear
+
 # ZBB: the hiveship comes up under the ship and beams up its column
 cheat dummy 1 160 40
 cheat dummy 1 100 40

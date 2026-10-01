@@ -16,7 +16,10 @@ expect hs7_score == 5000
 expect save_best_mult == 0
 expect save_best0 == 0
 expect save_runs == 0
-# left alone, the title shows the table, then comes back
+# left alone: the opening, the title, then the table, then the title again
+expect state == 10
+wait 640
+expect state == 0
 wait 620
 expect state == 9
 wait 430

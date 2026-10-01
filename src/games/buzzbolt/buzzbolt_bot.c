@@ -204,7 +204,7 @@ int bzz_bot_buttons(void) {
     int m = 0;
     bool edge = tick % 2 == 0;
     switch (bz.state) {
-    case BS_TITLE: if (edge && bz.state_t > 10) m = BTN_A; break;
+    case BS_INTRO: case BS_TITLE: if (edge && bz.state_t > 10) m = BTN_A; break;
     case BS_SELECT:
         if (!edge || bz.state_t < 10) break;
         if (bz.sel < bzz_bot_ship) m = BTN_RIGHT;
