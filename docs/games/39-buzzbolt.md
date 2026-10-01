@@ -75,7 +75,7 @@ than the Queen Tick (`bzz_33`). The numbers are under "Review fixes".
 | ZZZ | an option, two at most; with two out it does nothing | [MH] | bzz_07, bzz_08 |
 | Valid words keep the combo | ZZZ, BBB and ZBB don't touch the multiplier | [MH], [STEAM-RANT] | bzz_07 |
 | Any other word | the multiplier goes back to x1 | [MH], [STEAM-MECH] | bzz_07 |
-| A wave's multiplier | built up within the wave and cashed in on its boss; every wave starts again at x1 (see the readings) | [STEAM-RANT], [MONTAGE] | bzz_31 |
+| A wave's multiplier | carries on from wave to wave; built up and cashed in on the bosses and the golden swarm (see the readings) | [MONTAGE], [STEAM-RANT] | bzz_31 |
 | Two letters can always be saved | BZ→Z, ZZ→Z, BB→B, ZB→B | [MH] | bzz_07 |
 | Lacewing's option | beside the ship firing up while tapping; rushes at foes up close while fire is held; breakable | [MH], [STEAM-W3] | bzz_08 |
 | Shieldbug's option | beside the ship copying its fire (the same arc of seven, each shot weaker, and the crescent); moves in front as a shield while fire is held; takes a lot | [MH], [STEAM-W3] | bzz_08 |
@@ -138,17 +138,17 @@ slip (20x by the end of wave 2 is the cherry pace in [MONTAGE]).
   whole run, across waves and lives. A boss's three spread out sideways.
   A half-spelt word is lost with the ship (the wiki says every benefit
   goes). After the last boss of a wave there are 2.5 s to catch its letters.
-- **The multiplier and the waves:** every wave starts again at x1; the
-  multiplier is built up during a wave and cashed in on its boss. The one
-  first-hand report says it "resets if I -die (...) - clear a wave (you
-  know how many times ive finished on MULTI 9x!?)" [STEAM-RANT], and the
-  reply corrects only another of its claims; the guide's advice to "build
-  multiplier earlier in the stage and then 'cash it in' on the boss" fits
-  it [MONTAGE]. The same guide's stage 1 notes can be read the other way
-  ("A 15x multiplier is actually fine for cherry, if you can keep it
-  through the end of Stage 2, where you'll be able to apply it to the
-  stage boss"), so this reading rests on one report. Carrying it over
-  instead is one line in `bzz_start_wave()`.
+- **The multiplier and the waves:** the multiplier carries on from wave to
+  wave; only a wrong word or a lost ship puts it back to x1. The cherry
+  guide's stage 1 notes say "A 15x multiplier is actually fine for cherry,
+  if you can keep it through the end of Stage 2, where you'll be able to
+  apply it to the stage boss", and call 15-20x in wave 1 cherry pace
+  [MONTAGE]: both only make sense if it carries over. One player's post
+  says it "resets if I -die (...) - clear a wave" [STEAM-RANT], but the
+  same post also claimed GGG resets it, which another player corrected, so
+  the expert guide is preferred. (The review round first switched it to a
+  reset per wave on that post; it was switched back on 01/10 for this
+  reason.) Resetting per wave instead is one line in `bzz_start_wave()`.
 - **Wave 1's pair leaving:** 35 s after they arrive; they rise off the top
   with no points and no letters, and the wave ends with whatever time
   bonus is left (by then almost none) [MONTAGE].
@@ -253,7 +253,7 @@ source again. Each finding and what was done:
 
 | Finding | Done |
 |---|---|
-| The multiplier carried from wave to wave, so the 10x gift came by itself | Fixed: every wave starts again at x1 (`bzz_31`); the clear screen says so. See the readings for the sources on both sides |
+| The multiplier carried from wave to wave, so the 10x gift came by itself | First changed to a reset per wave, then **switched back to carrying over** (01/10): the expert cherry guide says to keep the multiplier through stage 2; the one post saying otherwise also got another rule wrong. See the readings (`bzz_31`) |
 | Wave 1's boss pair never timed out | Fixed: 35 s after arriving they fly off, no points, no letters, and the wave ends (`bzz_32`); every other boss stays (`bzz_15`) |
 | The last boss was the densest fight, built from spirals | Fixed: rebuilt around aimed fans (see the readings), one slow unaimed drip; wave 5 is now in the spike check, and the Sporeheart is checked against the Queen Tick (`bzz_24` … `bzz_26`, `bzz_33`) |
 | Waves 1 and 2 were much sparser than the reports | Fixed: after the first squads (one shot, then away), gnats and midges fire small aimed fans, several times, often from both sides at once; low side runs cross where letters fall; wave 3 stays the highest (`bzz_24` … `bzz_26`) |
@@ -316,7 +316,7 @@ and every word (06, 07), options (08), every special (09-11), losing a
 ship (12), extra ships (13), the time bonus (14), foes leaving and bosses
 staying (15), scoring (16), each boss beaten by the demo player (17-21),
 goals and saving (22, 23), the structure (27), walls and gates (28),
-enemy shots (29), the table (30), each wave starting at x1 (31), wave
+enemy shots (29), the table (30), the multiplier carrying into the next wave (31), wave
 1's pair flying off (32) and the last boss thinner than wave 3's (33).
 The demo player (`buzzbolt_bot.c`) tries every way the pad can point, at
 full speed and slowed, looks 22 frames ahead at every shot (homing ones

@@ -1,7 +1,6 @@
-# BUZZBOLT: the multiplier is built up within a wave and cashed in on its
-# boss; when the wave is cleared, the next one starts again at x1. The
-# run's highest multiplier is kept, and so is everything else the letters
-# gave (only losing a ship takes those).
+# BUZZBOLT: the multiplier carries on into the next wave (only a wrong
+# word or a lost ship puts it back to x1), and so does everything else
+# the letters gave.
 game buzzbolt
 # the opening: A skips it
 press A
@@ -44,9 +43,9 @@ expect nopt == 1
 waituntil state == 4 300
 expect wave == 1
 expect mult >= 3
-# the next wave starts at x1; the option stays
+# the next wave keeps the multiplier and the option
 waituntil state == 3 400
 expect wave == 2
-expect mult == 1
+expect mult >= 3
 expect best_mult_run >= 3
 expect nopt == 1

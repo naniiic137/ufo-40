@@ -633,8 +633,7 @@ static void draw_clear(void) {
     tiny_center("(NOT MULTIPLIED)", 160, 86, C_SLATE);
     snprintf(buf, sizeof buf, "SCORE %s", num(bz.score));
     text_center(buf, 160, 96, C_WHITE);
-    if (bz.wave + 1 < BZZ_WAVES) snprintf(buf, sizeof buf, "MULTIPLIER X%d, THE NEXT WAVE STARTS AT X1", bz.mult);
-    else snprintf(buf, sizeof buf, "MULTIPLIER X%d", bz.mult);
+    snprintf(buf, sizeof buf, "MULTIPLIER X%d", bz.mult);
     tiny_center(buf, 160, 110, C_YELLOW);
 }
 

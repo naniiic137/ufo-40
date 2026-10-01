@@ -798,9 +798,8 @@ void bzz_new_run(int ship) {
 
 void bzz_start_wave(int w) {
     bz.wave = w;
-    /* every wave starts again at x1: the multiplier is built up during a
-     * wave and cashed in on its boss (see the design document's readings) */
-    bz.mult = 1;
+    /* the multiplier carries on from wave to wave; only a wrong word or a
+     * lost ship puts it back to x1 (see the design document's readings) */
     bz.wave_t = -120; /* the banner, then the first foes */
     bz.spawn_i = 0;
     bz.boss_out = bz.boss_dead = false;
