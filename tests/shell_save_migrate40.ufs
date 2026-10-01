@@ -1,7 +1,8 @@
 # SHELL: a progress file from the days of 40 slots still loads after the
 # library grew to 50. Goals and play counts for slots 01-40 carry over, the
 # settings stay, the new slots 41-50 start empty, and the file is written
-# back in the 50-slot layout.
+# back in the 50-slot layout (with the NEW tags' bits: like any save from
+# before them, only the latest batch of cartridges is NEW).
 legacy_progress 4 6 14 1 1 3 7 5 3 28 2 40 4
 reload
 expect goals.underdelve == 1
@@ -16,7 +17,12 @@ expect music_vol == 4
 expect sfx_vol == 6
 expect library_cursor == 14
 expect total_goals == 8
-progress_bytes 120
+expect new.chime == 1
+expect new.buzzbolt == 1
+expect new.underdelve == 0
+expect new.dune == 0
+expect new.wobble == 0
+progress_bytes 136
 # a second start reads the upgraded file the same way
 reload
 expect goals.roofcat == 7

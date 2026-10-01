@@ -5,9 +5,11 @@
 #include <stdlib.h>
 
 Progress g_progress;
+int g_progress_origin;
 
-_Static_assert(sizeof(Progress) == 2 * MAX_GAMES + 20, "Progress is bytes only, no padding");
-_Static_assert(sizeof(Progress) != PROGRESS_LEGACY40_SIZE, "the two layouts must differ in size");
+_Static_assert(sizeof(Progress) == PROGRESS_UNTAGGED_SIZE + 16, "Progress is bytes only, no padding");
+_Static_assert(PROGRESS_UNTAGGED_SIZE != PROGRESS_LEGACY40_SIZE, "the layouts must differ in size");
+_Static_assert(MAX_GAMES <= 64, "known and opened hold a bit per slot");
 
 #define SAVE_MAGIC 0x30344655u /* "UF40" little-endian */
 #define SAVE_VERSION 1
@@ -70,6 +72,16 @@ void progress_defaults(void) {
     g_progress.fullscreen = 0;
 }
 
+bool progress_bit(const uint8_t *set, int slot) {
+    return slot >= 0 && slot < MAX_GAMES && (set[slot / 8] >> (slot % 8)) & 1;
+}
+
+void progress_set_bit(uint8_t *set, int slot, bool on) {
+    if (slot < 0 || slot >= MAX_GAMES) return;
+    if (on) set[slot / 8] = (uint8_t)(set[slot / 8] | (1u << (slot % 8)));
+    else set[slot / 8] = (uint8_t)(set[slot / 8] & ~(1u << (slot % 8)));
+}
+
 /* A progress file from the 40-slot library: goals[40], played[40], then the
  * settings bytes in the order they still have. Slots 01-40 keep their goals
  * and play counts; 41-50 start empty. */
@@ -87,16 +99,25 @@ static void progress_from_legacy40(const uint8_t *b) {
     memcpy(g_progress.reserved, st + 6, sizeof g_progress.reserved);
 }
 
+/* The older layouts are written back in the current one by the shell, once
+ * it has filled in the known and opened bits (shell_sync_cartridges): a file
+ * written back before that would make every cartridge look new. */
 bool progress_load(void) {
     union { Progress p; uint8_t raw[sizeof(Progress)]; } u;
+    memset(&u, 0, sizeof u);
     int n = read_wrapped("progress.dat", &u, (int)sizeof u);
     if (n == PROGRESS_LEGACY40_SIZE) {
         progress_from_legacy40(u.raw);
-        progress_save(); /* written back in the 50-slot layout */
+        g_progress_origin = PROGRESS_UPGRADED;
+    } else if (n == PROGRESS_UNTAGGED_SIZE) {
+        g_progress = u.p; /* the bits it lacks read 0: nothing known yet */
+        g_progress_origin = PROGRESS_UPGRADED;
     } else if (n == (int)sizeof u.p) {
         g_progress = u.p;
+        g_progress_origin = PROGRESS_CURRENT;
     } else {
         progress_defaults();
+        g_progress_origin = PROGRESS_FRESH;
         return false;
     }
     if (g_progress.music_vol > 10) g_progress.music_vol = 7;

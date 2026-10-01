@@ -1,7 +1,24 @@
 /* UFO 40 - the game library: 50 cartridge slots in full-size cartridges,
  * eight to a row. Five rows show at a time; the grid scrolls to follow the
- * cursor, and a bar in the left margin shows what lies above and below. */
+ * cursor, and a bar in the left margin shows what lies above and below.
+ * An empty slot holds a grey placeholder cartridge for the game still to
+ * come; a cartridge not started since it arrived wears a NEW tag. */
 #include "shell.h"
+
+/* Every UFO 50 game by number, for the tribute sticker on the placeholders
+ * (credit only, as on the real cartridges). */
+const char *const UFO50_TITLES[GAME_SLOTS] = {
+    "BARBUTA", "BUG HUNTER", "NINPEK", "PAINT CHASE", "MAGIC GARDEN",
+    "MORTOL", "VELGRESS", "PLANET ZOLDATH", "ATTACTICS", "DEVILITION",
+    "KICK CLUB", "AVIANOS", "MOONCAT", "BUSHIDO BALL", "BLOCK KOALA",
+    "CAMOUFLAGE", "CAMPANELLA", "GOLFARIA", "THE BIG BELL RACE", "WARPTANK",
+    "WALDORF'S JOURNEY", "PORGY", "ONION DELIVERY", "CARAMEL CARAMEL", "PARTY HOUSE",
+    "HOT FOOT", "DIVERS", "RAIL HEIST", "VAINGER", "ROCK ON! ISLAND",
+    "PINGOLF", "MORTOL II", "FIST HELL", "OVERBOLD", "CAMPANELLA 2",
+    "HYPER CONTENDER", "VALBRACE", "RAKSHASA", "STAR WASPIR", "GRIMSTONE",
+    "LORDS OF DISKONIA", "NIGHT MANOR", "ELFAZAR'S HAT", "PILOT QUEST", "MINI & MAX",
+    "COMBATANTS", "QUIBBLE RACE", "SEASIDE DRIVE", "CAMPANELLA 3", "CYBER OWLS",
+};
 
 #define GRID_X 8
 #define GRID_Y 24
@@ -16,7 +33,7 @@
 #define PANEL_X 172
 #define PANEL_W 142
 
-static int t, launch_t, shake_t;
+static int t, launch_t, shake_t, dud_t; /* dud_t: "NOT LOADED YET" on show */
 static bool launching;
 static int top_row;   /* first row in view */
 static int scroll_px; /* drawn offset in pixels, easing toward top_row * CELL_H */
@@ -37,6 +54,7 @@ static void lib_enter(void) {
     launching = false;
     launch_t = 0;
     shake_t = 0;
+    dud_t = 0;
     if (g_library_cursor < 0 || g_library_cursor >= GAME_SLOTS) g_library_cursor = 0;
     top_row = 0;
     follow_cursor();
@@ -54,6 +72,7 @@ static int available_count(void) {
 static void lib_update(void) {
     t++;
     if (shake_t > 0) shake_t--;
+    if (dud_t > 0) dud_t--;
     /* ease the view toward its row: a quarter of the way each frame */
     int want = top_row * CELL_H, d = want - scroll_px;
     if (d) scroll_px += d / 4 ? d / 4 : (d > 0 ? 1 : -1);
@@ -74,6 +93,7 @@ static void lib_update(void) {
     c = imin(c, row_len(r) - 1);
     if (r * COLS + c != old) {
         g_library_cursor = r * COLS + c;
+        dud_t = 0;
         follow_cursor();
         sfx_play_name("ui_move");
     }
@@ -83,9 +103,10 @@ static void lib_update(void) {
             launch_t = 0;
             sfx_play_name("cart_insert");
             music_fade(30);
-        } else {
+        } else { /* a placeholder: nothing to start */
             shake_t = 12;
-            sfx_play_name("ui_error");
+            dud_t = 60;
+            sfx_play_name("cart_dud");
         }
     }
     if (btnp(BTN_SELECT)) {
@@ -99,12 +120,15 @@ static void lib_update(void) {
 
 static void draw_cart(int x, int y, int idx, bool sel) {
     const GameDef *g = GAMES[idx];
-    int body = g ? C_LIGHT : C_DUSK, edge = g ? C_GREY : C_NIGHT, dark = g ? C_SLATE : C_INK;
+    /* a placeholder is the same cartridge in greys, a shade lighter under
+     * the cursor */
+    int body = g ? C_LIGHT : sel ? C_GREY : C_SLATE, edge = g ? C_GREY : C_DUSK, dark = g ? C_SLATE : C_NIGHT;
+    int shine = g ? C_WHITE : sel ? C_LIGHT : C_GREY;
     gfx_rect(x + 2, y, 14, 2, body);
     gfx_rect(x, y + 2, 18, 20, body);
     gfx_vline(x + 17, y + 2, y + 21, edge);
     gfx_hline(x, x + 17, y + 21, edge);
-    gfx_vline(x, y + 2, y + 21, g ? C_WHITE : C_SLATE);
+    gfx_vline(x, y + 2, y + 21, shine);
     /* grip ridges */
     for (int i = 0; i < 3; i++) gfx_hline(x + 5, x + 12, y + 1 + i * 1 + 1, i % 2 ? edge : body);
     char num[12];
@@ -120,12 +144,34 @@ static void draw_cart(int x, int y, int idx, bool sel) {
             gfx_rect(x + 4 + b * 4, y + 14, 2, 2, on ? C_YELLOW : C_INK);
         }
     } else {
-        gfx_rect(x + 2, y + 5, 14, 12, C_NIGHT);
-        text_draw("?", x + 7, y + 7, sel ? C_GREY : C_SLATE);
+        /* a blank grey label with the slot number, and a hatched strip where
+         * a real cartridge has its colours and goal pips */
+        gfx_rect(x + 2, y + 5, 14, 12, C_DUSK);
+        gfx_hline(x + 2, x + 15, y + 12, C_INK);
+        tiny_draw(num, x + 4, y + 6, sel ? C_LIGHT : C_GREY);
+        for (int yy = 0; yy < 4; yy++)
+            for (int xx = 0; xx < 14; xx++) gfx_pset(x + 2 + xx, y + 13 + yy, (xx + yy) % 4 == 0 ? C_SLATE : C_NIGHT);
     }
     /* contacts */
     gfx_rect(x + 3, y + 18, 12, 3, dark);
     for (int i = 0; i < 6; i++) gfx_pset(x + 4 + i * 2, y + 19, g ? C_AMBER : C_DUSK);
+}
+
+/* The NEW tag of a cartridge drawn at (x, y): a small red badge over its
+ * grip, inside the cartridge's own width and the gap above it, so it never
+ * reaches a neighbour. */
+static void new_tag_box(int x, int y, int *bx, int *by, int *bw, int *bh) {
+    *bw = tiny_width("NEW") + 4;
+    *bh = 7;
+    *bx = x + 9 - *bw / 2;
+    *by = y - 1;
+}
+
+static void draw_new_tag(int x, int y) {
+    int bx, by, bw, bh;
+    new_tag_box(x, y, &bx, &by, &bw, &bh);
+    ui_panel(bx, by, bw, bh, C_RED, C_INK);
+    tiny_draw("NEW", bx + 2, by + 1, (t / 20) % 2 ? C_YELLOW : C_WHITE);
 }
 
 /* The scroll bar in the left margin: its arrows light up when there is more
@@ -169,32 +215,36 @@ static void draw_scrollbar(void) {
 
 static const uint8_t TITLE_GRAD[] = {C_WHITE, C_CREAM, C_YELLOW, C_AMBER};
 
-static void draw_title(const char *title, int x) {
+static void draw_title(const char *title, int x, const uint8_t *grad, int n, int shadow) {
     if (ui_fancy_width(title, 2) <= PANEL_W) {
-        ui_fancy_text(title, x + 1, TITLE_Y, 2, TITLE_GRAD, 4, C_INK, C_WINE);
-        ui_audit_fancy("title", title, x + 1, TITLE_Y, 2, true);
+        ui_fancy_text(title, x + 1, TITLE_Y, 2, grad, n, C_INK, shadow);
+        ui_audit_fancy("title", title, x + 1, TITLE_Y, 2, shadow >= 0);
     } else if (ui_fancy_width(title, 1) <= PANEL_W) {
-        ui_fancy_text(title, x + 1, TITLE_Y + 4, 1, TITLE_GRAD, 4, C_INK, C_WINE);
-        ui_audit_fancy("title", title, x + 1, TITLE_Y + 4, 1, true);
+        ui_fancy_text(title, x + 1, TITLE_Y + 4, 1, grad, n, C_INK, shadow);
+        ui_audit_fancy("title", title, x + 1, TITLE_Y + 4, 1, shadow >= 0);
     } else {
         char l[2][UI_WRAP_LEN];
         int n = ui_wrap(title, PANEL_W - 3, false, l, 2);
         for (int i = 0; i < imin(n, 2); i++) {
-            ui_fancy_text(l[i], x + 1, TITLE_Y + i * 10, 1, TITLE_GRAD, 4, C_INK, C_WINE);
-            ui_audit_fancy(i ? "title line 2" : "title line 1", l[i], x + 1, TITLE_Y + i * 10, 1, true);
+            ui_fancy_text(l[i], x + 1, TITLE_Y + i * 10, 1, grad, n, C_INK, shadow);
+            ui_audit_fancy(i ? "title line 2" : "title line 1", l[i], x + 1, TITLE_Y + i * 10, 1, shadow >= 0);
         }
         if (n > 2) ui_audit_fail("title", "needs more than two lines");
     }
 }
 
+/* The last sticker drawn, for the tests (library_sticker_has.WORD). */
+static char last_sticker[160];
+
 /* A small sticker along the bottom of the label art: one line if it fits,
  * else two. */
-static void draw_sticker(const GameDef *g, int x, int y) {
+static void draw_sticker(const char *tribute, int tribute_no, int x, int y) {
     char tb[96];
     int room = PANEL_W - 2;
-    snprintf(tb, sizeof tb, "TRIBUTE TO %s " GLYPH_DOT " UFO 50 #%d", g->tribute, g->tribute_no);
-    if (tiny_width(tb) > room) snprintf(tb, sizeof tb, "TRIBUTE: %s " GLYPH_DOT " UFO 50 #%d", g->tribute, g->tribute_no);
+    snprintf(tb, sizeof tb, "TRIBUTE TO %s " GLYPH_DOT " UFO 50 #%d", tribute, tribute_no);
+    if (tiny_width(tb) > room) snprintf(tb, sizeof tb, "TRIBUTE: %s " GLYPH_DOT " UFO 50 #%d", tribute, tribute_no);
     if (tiny_width(tb) <= room) {
+        snprintf(last_sticker, sizeof last_sticker, "%s", tb);
         gfx_rect(x, y + LABEL_H - 7, PANEL_W, 7, C_INK);
         gfx_hline(x, x + PANEL_W - 1, y + LABEL_H - 8, C_NIGHT);
         tiny_center(tb, x + PANEL_W / 2, y + LABEL_H - 6, C_GREY);
@@ -203,10 +253,11 @@ static void draw_sticker(const GameDef *g, int x, int y) {
     }
     /* longer still: the sticker takes two lines */
     char t1[96], t2[24];
-    snprintf(t1, sizeof t1, "TRIBUTE TO %s", g->tribute);
-    if (tiny_width(t1) > room) snprintf(t1, sizeof t1, "TRIBUTE: %s", g->tribute);
-    if (tiny_width(t1) > room) snprintf(t1, sizeof t1, "%s", g->tribute);
-    snprintf(t2, sizeof t2, "UFO 50 #%d", g->tribute_no);
+    snprintf(t1, sizeof t1, "TRIBUTE TO %s", tribute);
+    if (tiny_width(t1) > room) snprintf(t1, sizeof t1, "TRIBUTE: %s", tribute);
+    if (tiny_width(t1) > room) snprintf(t1, sizeof t1, "%s", tribute);
+    snprintf(t2, sizeof t2, "UFO 50 #%d", tribute_no);
+    snprintf(last_sticker, sizeof last_sticker, "%s %s", t1, t2);
     gfx_rect(x, y + LABEL_H - 14, PANEL_W, 14, C_INK);
     gfx_hline(x, x + PANEL_W - 1, y + LABEL_H - 15, C_NIGHT);
     tiny_center(t1, x + PANEL_W / 2, y + LABEL_H - 13, C_GREY);
@@ -240,34 +291,51 @@ static void draw_goals(const GameDef *g, int idx, int x, int shown) {
     }
 }
 
+/* The label of a placeholder: grey hatching, the slot number, COMING SOON
+ * and the tribute sticker for the UFO 50 game the slot is waiting for. */
+static void draw_placeholder_label(int idx, int x, int y) {
+    for (int yy = 0; yy < LABEL_H; yy++)
+        for (int xx = 0; xx < PANEL_W; xx++)
+            gfx_pset(x + xx, y + yy, (xx + yy) % 8 < 3 ? C_NIGHT : C_INK);
+    static const uint8_t grad[] = {C_LIGHT, C_LIGHT, C_GREY};
+    char num[12];
+    snprintf(num, sizeof num, "%02d", idx + 1);
+    int nw = text_width_scaled(num, 2);
+    ui_fancy_text(num, x + PANEL_W / 2 - nw / 2, y + 7, 2, grad, 3, C_INK, C_DUSK);
+    ui_audit_fancy("slot number", num, x + PANEL_W / 2 - nw / 2, y + 7, 2, true);
+    const char *soon = "COMING SOON";
+    int sw = text_width(soon);
+    ui_panel(x + PANEL_W / 2 - sw / 2 - 6, y + 28, sw + 12, 15, C_INK, C_SLATE);
+    text_draw(soon, x + PANEL_W / 2 - sw / 2, y + 32, C_GREY);
+    ui_audit_box("coming soon plate", x + PANEL_W / 2 - sw / 2 - 6, y + 28, sw + 12, 15);
+    draw_sticker(UFO50_TITLES[idx], idx + 1, x, y);
+}
+
 /* The right-hand panel for slot idx, showing goal `shown` (0-2). */
 static void draw_panel_for(int idx, int shown) {
     const GameDef *g = GAMES[idx];
     int x = PANEL_X, y = LABEL_Y;
     /* label window */
     gfx_rect(x - 1, y - 1, PANEL_W + 2, LABEL_H + 2, C_INK);
-    ui_panel(x - 2, y - 2, PANEL_W + 4, LABEL_H + 4, C_INK, g ? C_GREY : C_DUSK);
+    ui_panel(x - 2, y - 2, PANEL_W + 4, LABEL_H + 4, C_INK, g ? C_GREY : C_SLATE);
     ui_audit_area("label", x, y, PANEL_W, LABEL_H);
+    gfx_clip(x, y, PANEL_W, LABEL_H);
     if (g && g->draw_label) {
-        gfx_clip(x, y, PANEL_W, LABEL_H);
         g->draw_label(x, y, PANEL_W, LABEL_H, t);
-        if (g->tribute) draw_sticker(g, x, y);
-        gfx_noclip();
-    } else {
-        /* no-signal static */
-        for (int yy = 0; yy < LABEL_H; yy++)
-            for (int xx = 0; xx < PANEL_W; xx += 2) {
-                uint32_t h = (uint32_t)(xx * 73856093u) ^ (uint32_t)((yy + t * 3) * 19349663u);
-                h ^= h >> 13; h *= 0x5bd1e995u; h ^= h >> 15;
-                int c = (h & 7) == 0 ? C_SLATE : (h & 7) == 1 ? C_DUSK : C_NIGHT;
-                gfx_rect(x + xx, y + yy, 2, 1, c);
-            }
-        ui_panel(x + 26, y + 22, 90, 20, C_INK, C_DUSK);
-        text_center("NO SIGNAL", x + PANEL_W / 2, y + 28, (t / 30) % 2 ? C_GREY : C_SLATE);
+        if (g->tribute) draw_sticker(g->tribute, g->tribute_no, x, y);
+    } else if (!g) {
+        draw_placeholder_label(idx, x, y);
+    }
+    gfx_noclip();
+    if (!g && dud_t > 0) { /* A was pressed on it */
+        const char *m = "NOT LOADED YET";
+        int mw = text_width(m);
+        ui_panel(x + PANEL_W / 2 - mw / 2 - 8, y + 26, mw + 16, 19, C_INK, C_GREY);
+        text_draw(m, x + PANEL_W / 2 - mw / 2, y + 32, (dud_t / 8) % 2 ? C_WHITE : C_LIGHT);
     }
     ui_audit_area("info panel", x, INFO_Y, PANEL_W, INFO_H);
     if (g) {
-        draw_title(g->title, x);
+        draw_title(g->title, x, TITLE_GRAD, 4, C_WINE);
         char meta[64];
         snprintf(meta, sizeof meta, "%s - %s", g->year, g->genre);
         tiny_draw(meta, x, META_Y, C_SKY);
@@ -286,15 +354,33 @@ static void draw_panel_for(int idx, int shown) {
         }
         draw_goals(g, idx, x, shown);
     } else {
-        static const uint8_t grad[] = {C_GREY, C_SLATE};
-        ui_fancy_text("COMING SOON", x + 1, TITLE_Y + 4, 1, grad, 2, C_INK, -1);
-        ui_audit_fancy("title", "COMING SOON", x + 1, TITLE_Y + 4, 1, false);
-        char buf[64];
-        snprintf(buf, sizeof buf, "SLOT %02d IS STILL IN THE\nSAUCER'S CARGO HOLD.", idx + 1);
-        text_draw(buf, x, BLURB_Y, C_SLATE);
-        ui_audit_text("message", buf, x, BLURB_Y);
-        tiny_draw("CHECK BACK AFTER THE NEXT LANDING", x, GOAL_Y, C_DUSK);
-        ui_audit_tiny("hint", "CHECK BACK AFTER THE NEXT LANDING", x, GOAL_Y);
+        /* a placeholder: the same layout, in greys, and nothing to play */
+        static const uint8_t grad[] = {C_LIGHT, C_GREY, C_SLATE};
+        draw_title("NOT PLAYABLE YET", x, grad, 3, C_NIGHT);
+        char meta[64];
+        snprintf(meta, sizeof meta, "SLOT %02d - EMPTY", idx + 1);
+        tiny_draw(meta, x, META_Y, C_SLATE);
+        ui_audit_tiny("slot", meta, x, META_Y);
+        char l[BLURB_LINES][UI_WRAP_LEN];
+        int n = ui_wrap("STILL IN THE SAUCER'S CARGO HOLD. COMING SOON.", PANEL_W, false, l, BLURB_LINES);
+        static const char *const what[BLURB_LINES] = {"message line 1", "message line 2", "message line 3"};
+        for (int i = 0; i < imin(n, BLURB_LINES); i++) {
+            text_draw(l[i], x, BLURB_Y + i * LINE_H, C_GREY);
+            ui_audit_text(what[i], l[i], x, BLURB_Y + i * LINE_H);
+        }
+        if (n > BLURB_LINES) ui_audit_fail("message", "needs more lines than it has room for");
+        static const char *const names[3] = {"BEACON", "SAUCER", "ALIEN"};
+        for (int b = 0; b < 3; b++) {
+            ui_goal_icon(x + b * 13, GOAL_Y, 1 << b, false, t);
+            ui_audit_box(names[b], x + b * 13, GOAL_Y, 9, 9);
+        }
+        n = ui_wrap("ITS GOALS ARRIVE WITH THE CARTRIDGE", PANEL_W - GOAL_TX, true, l, GOAL_LINES);
+        static const char *const gwhat[GOAL_LINES] = {"goal line 1", "goal line 2"};
+        for (int i = 0; i < imin(n, GOAL_LINES); i++) {
+            tiny_draw(l[i], x + GOAL_TX, GOAL_Y + 1 + i * 6, C_SLATE);
+            ui_audit_tiny(gwhat[i], l[i], x + GOAL_TX, GOAL_Y + 1 + i * 6);
+        }
+        if (n > GOAL_LINES) ui_audit_fail("goal words", "need more lines than they have room for");
     }
 }
 
@@ -312,6 +398,29 @@ static int audit_slot(int idx, bool log) {
         draw_panel_for(idx, goal);
         bad += ui_audit_end();
         if (!GAMES[idx]) break; /* an empty slot has no goals to show */
+    }
+    return bad;
+}
+
+/* Every slot's NEW tag must stay inside the slot's own cell of the grid
+ * (the cells tile the grid with no gaps), resting or lifted under the
+ * cursor; returns the problems found. */
+static int audit_grid(void) {
+    int bad = 0;
+    for (int i = 0; i < GAME_SLOTS; i++) {
+        int x = GRID_X + (i % COLS) * CELL_W, y = GRID_Y + (i / COLS) * CELL_H;
+        for (int lift = 0; lift <= 3; lift += 3) {
+            char subject[64];
+            snprintf(subject, sizeof subject, "library grid slot %02d, lifted %d", i + 1, lift);
+            ui_audit_begin(subject, true);
+            ui_audit_area("cell", x - 1, y - 4, CELL_W, CELL_H);
+            int bx, by, bw, bh;
+            new_tag_box(x, y - lift, &bx, &by, &bw, &bh);
+            ui_audit_box("NEW tag", bx, by, bw, bh);
+            ui_audit_area("NEW tag", bx + 1, by + 1, bw - 2, bh - 2); /* inside its border */
+            ui_audit_tiny("NEW", "NEW", bx + 2, by + 1);
+            bad += ui_audit_end();
+        }
     }
     return bad;
 }
@@ -350,6 +459,7 @@ static void lib_draw(void) {
         if (sel && launching && launch_t > 20 && (launch_t / 2) % 2) continue;
         if (sel) gfx_rect(x + 1, y + 21, 17, 3, C_NIGHT); /* shadow */
         draw_cart(x, y - lift, i, sel);
+        if (shell_cart_is_new(i)) draw_new_tag(x, y - lift);
         if (sel && !launching) {
             int bl = (t / 16) % 2;
             int col = GAMES[i] ? C_YELLOW : C_GREY;
@@ -381,6 +491,22 @@ bool library_query(const char *key, int *out) {
     if (!strcmp(key, "library_rows")) { *out = ROWS; return true; }
     /* layout problems in the panel for the slot under the cursor / every slot */
     if (!strcmp(key, "library_layout")) { *out = audit_slot(g_library_cursor, true); return true; }
+    if (!strcmp(key, "library_grid_layout")) { *out = audit_grid(); return true; }
+    /* the slot under the cursor: 1 if it holds a grey placeholder; frames
+     * left of its "NOT LOADED YET" message */
+    if (!strcmp(key, "library_placeholder")) { *out = GAMES[g_library_cursor] == NULL; return true; }
+    if (!strcmp(key, "library_dud")) { *out = dud_t; return true; }
+    /* 1 if the sticker on the cursor's label holds WORD (an _ for a space) */
+    if (!strncmp(key, "library_sticker_has.", 20)) {
+        char want[96];
+        snprintf(want, sizeof want, "%s", key + 20);
+        for (char *p = want; *p; p++)
+            if (*p == '_') *p = ' ';
+        last_sticker[0] = 0;
+        draw_panel_for(g_library_cursor, 0);
+        *out = strstr(last_sticker, want) != NULL;
+        return true;
+    }
     if (!strcmp(key, "library_layout_all")) {
         *out = 0;
         for (int i = 0; i < GAME_SLOTS; i++) *out += audit_slot(i, true);

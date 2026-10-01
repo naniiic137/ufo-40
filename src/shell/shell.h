@@ -26,6 +26,19 @@ const char *app_scene_name(void);
 /* Library selection persists across scenes. */
 extern int g_library_cursor;
 
+/* The UFO 50 game behind every slot (index 0 = UFO 50 #1), in capitals. A
+ * loaded cartridge credits its own GameDef.tribute; the grey placeholder in
+ * an empty slot credits the game from this table. */
+extern const char *const UFO50_TITLES[GAME_SLOTS];
+
+/* NEW tags. After the progress file loads, every cartridge in GAMES[] that
+ * the file didn't know yet is recorded as known; it is NEW until it is first
+ * started, except on a brand-new save (nothing is NEW) and when a save from
+ * before the tags is upgraded (only the latest batch is NEW). */
+void shell_sync_cartridges(void);
+bool shell_cart_is_new(int slot);
+int shell_new_count(void);
+
 /* Controls reference text for the current platform (the pause menu's
  * CONTROLS page lists each game's own moves instead). */
 const char *shell_controls_text(void);

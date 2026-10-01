@@ -528,12 +528,17 @@ static int run_script(const char *path) {
             char fname[32];
             snprintf(fname, sizeof fname, "game%02d.sav", gi + 1);
             plat_save_write(fname, blob, bytes);
-        } else if (!strcmp(cmd, "legacy_progress")) {
+        } else if (!strcmp(cmd, "legacy_progress") || !strcmp(cmd, "untagged_progress")) {
             /* legacy_progress MUSIC SFX LAST SLOT BITS [SLOT BITS ...] : write a
              * progress file in the old 40-slot layout (goals[40], played[40],
              * settings), as a UFO 40 from before the library grew would have
-             * left it. SLOT is 1-based; each listed slot counts as played once. */
-            uint8_t old[PROGRESS_LEGACY40_SIZE + 16];
+             * left it. SLOT is 1-based; each listed slot counts as played once.
+             * untagged_progress takes the same and writes the 50-slot layout
+             * from before the NEW tags (v0.7.0 and older). */
+            bool tagless = !strcmp(cmd, "untagged_progress");
+            int slots = tagless ? MAX_GAMES : LEGACY_GAMES;
+            int size = tagless ? PROGRESS_UNTAGGED_SIZE : PROGRESS_LEGACY40_SIZE;
+            uint8_t old[PROGRESS_UNTAGGED_SIZE + 16];
             uint8_t *b = old + 16;
             memset(old, 0, sizeof old);
             char tmp[256];
@@ -543,17 +548,17 @@ static int run_script(const char *path) {
             if (nv < 3 || (nv - 3) % 2) { fail("bad legacy_progress: %s%ld", arg, 0); continue; }
             for (int i = 3; i + 1 < nv; i += 2) {
                 int slot = vals[i] - 1;
-                if (slot < 0 || slot >= LEGACY_GAMES) { fail("bad legacy_progress slot: %s%ld", arg, vals[i]); continue; }
+                if (slot < 0 || slot >= slots) { fail("bad progress slot: %s%ld", arg, vals[i]); continue; }
                 b[slot] = (uint8_t)(vals[i + 1] & 7);
-                b[LEGACY_GAMES + slot] = 1;
+                b[slots + slot] = 1;
             }
-            uint8_t *st = b + 2 * LEGACY_GAMES;
+            uint8_t *st = b + 2 * slots;
             st[0] = (uint8_t)vals[0]; st[1] = (uint8_t)vals[1]; st[2] = 3; st[3] = 0;
             st[4] = (uint8_t)vals[2]; st[5] = 0;
-            uint32_t hdr[4] = {0x30344655u, 1u, (uint32_t)PROGRESS_LEGACY40_SIZE, crc32_buf(b, PROGRESS_LEGACY40_SIZE)};
+            uint32_t hdr[4] = {0x30344655u, 1u, (uint32_t)size, crc32_buf(b, size)};
             for (int k = 0; k < 4; k++)
                 for (int j = 0; j < 4; j++) old[k * 4 + j] = (uint8_t)(hdr[k] >> (8 * j));
-            plat_save_write("progress.dat", old, (int)sizeof old);
+            plat_save_write("progress.dat", old, size + 16);
         } else if (!strcmp(cmd, "progress_bytes")) {
             /* progress_bytes N : the progress file on disk holds N bytes of data */
             checks++;
@@ -564,6 +569,17 @@ static int run_script(const char *path) {
                 failures++;
                 fprintf(stderr, "FAIL %s:%d: progress file holds %d bytes, expected %d\n", script_name, line_no, n - 16, want);
             }
+        } else if (!strcmp(cmd, "forget_cart")) {
+            /* forget_cart GAME : the progress file forgets a cartridge, as if
+             * it was written by a UFO 40 that didn't have that cartridge yet */
+            char name[64] = {0};
+            sscanf(arg, "%63s", name);
+            int gi = app_find_game(name);
+            if (gi < 0) { fail("bad forget_cart '%s'%ld", arg, 0); continue; }
+            progress_set_bit(g_progress.known, gi, false);
+            progress_set_bit(g_progress.opened, gi, false);
+            g_progress.played[gi] = 0;
+            progress_save();
         } else if (!strcmp(cmd, "set_goals")) {
             /* set_goals GAME BITS : set a cartridge's goals (1 beacon, 2 saucer, 4 alien) */
             char name[64] = {0};

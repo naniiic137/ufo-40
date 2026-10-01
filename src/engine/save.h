@@ -23,9 +23,19 @@ typedef struct Progress {
     uint8_t last_game;
     uint8_t menu_pos;           /* main menu cursor (was reserved: old files read 0) */
     uint8_t reserved[14];
+    /* One bit per slot (slot i is bit i % 8 of byte i / 8). known: the
+     * cartridge was in the library when this file was last written. opened:
+     * it has been started since it arrived. A known cartridge that was never
+     * opened wears a NEW tag in the library (the shell keeps both up to date:
+     * shell_sync_cartridges). */
+    uint8_t known[8];
+    uint8_t opened[8];
 } Progress;
 
 extern Progress g_progress;
+
+bool progress_bit(const uint8_t *set, int slot);
+void progress_set_bit(uint8_t *set, int slot, bool on);
 
 uint32_t crc32_buf(const void *data, int len);
 
@@ -34,6 +44,14 @@ bool progress_load(void);
 /* Size in bytes of the progress record from the 40-slot days (goals[40],
  * played[40], then the same settings bytes). progress_load upgrades it. */
 #define PROGRESS_LEGACY40_SIZE (2 * LEGACY_GAMES + 20)
+/* ... and of the 50-slot record from before the known/opened bits (up to
+ * v0.7.0): the same layout without them. progress_load upgrades it too. */
+#define PROGRESS_UNTAGGED_SIZE (2 * MAX_GAMES + 20)
+/* Where the progress in memory came from at the last progress_load: no file
+ * (or a damaged one: a fresh start), a file from before the known/opened
+ * bits (either older layout), or a current one. */
+enum { PROGRESS_FRESH, PROGRESS_UPGRADED, PROGRESS_CURRENT };
+extern int g_progress_origin;
 bool progress_save(void);
 /* Returns true if the goal was newly earned (queues a toast). */
 bool progress_award(int game, int goal_bit);

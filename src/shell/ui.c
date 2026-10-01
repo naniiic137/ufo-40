@@ -243,6 +243,22 @@ int ui_hint(int x, int y, const char *glyph, const char *label, int col) {
     return text_draw(label, nx + 2, y, col) + 6;
 }
 
+#define CHOICE_CURSOR 8 /* the cursor's room before a label */
+#define CHOICE_GAP 18   /* between the first label and the second cursor */
+
+void ui_choices(int cx, int y, const char *a, const char *b, int sel, int t, int on, int off) {
+    int wa = CHOICE_CURSOR + text_width(a), wb = CHOICE_CURSOR + text_width(b);
+    int total = wa + CHOICE_GAP + wb;
+    int xa = cx - total / 2, xb = xa + wa + CHOICE_GAP;
+    text_draw(a, xa + CHOICE_CURSOR, y, sel == 0 ? on : off);
+    text_draw(b, xb + CHOICE_CURSOR, y, sel == 1 ? on : off);
+    ui_cursor(sel == 0 ? xa : xb, y, t);
+    ui_audit_text("first choice", a, xa + CHOICE_CURSOR, y);
+    ui_audit_text("second choice", b, xb + CHOICE_CURSOR, y);
+    ui_audit_box("cursor", sel == 0 ? xa : xb, y, 5, 7); /* it bobs a pixel to the right */
+    ui_audit_centred("choices", xa, total);
+}
+
 /* ---- word wrap ------------------------------------------------------------ */
 
 static int wrap_width(const char *s, bool tiny) { return tiny ? tiny_width(s) : text_width(s); }
@@ -365,6 +381,16 @@ static void audit_glyphs(const char *what, const char *s, int missing) {
     char why[160];
     snprintf(why, sizeof why, "\"%.100s\" has %d character%s the font can't draw", s, missing, missing == 1 ? "" : "s");
     ui_audit_fail(what, why);
+}
+
+void ui_audit_centred(const char *what, int x, int w) {
+    if (!au.on) return;
+    int left = x - au.ax, right = au.ax + au.aw - (x + w);
+    if (left - right > 1 || right - left > 1) {
+        char why[160];
+        snprintf(why, sizeof why, "is off centre in the %s: %d px to its left, %d to its right", au.area, left, right);
+        ui_audit_fail(what, why);
+    }
 }
 
 void ui_audit_text(const char *what, const char *s, int x, int y) {

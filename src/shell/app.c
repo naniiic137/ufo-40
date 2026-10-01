@@ -50,6 +50,7 @@ void app_init(void) {
     engine_init();
     ui_init();
     progress_load();
+    shell_sync_cartridges();
     audio_set_volume(g_progress.music_vol, g_progress.sfx_vol);
     shell_audio_init();
     if (!owners_ready) memset(song_owner, -1, sizeof song_owner); /* the console's own songs */
@@ -65,6 +66,45 @@ void app_init(void) {
     g_jukebox_song = -1;
     g_library_cursor = g_progress.last_game < GAME_SLOTS ? g_progress.last_game : 0;
     scene_set(&SCENE_BOOT);
+}
+
+/* ---- NEW tags ------------------------------------------------------------ */
+
+/* The cartridges a save from before the NEW tags gets tagged with when it is
+ * upgraded: the latest batch only (v0.7.0's 19, 26, 31 and 39, and 11, the
+ * one after it), so an old save doesn't light up with a wall of tags. Later
+ * cartridges need no entry here: anything in GAMES[] that a save doesn't
+ * know yet is NEW by itself. Slot numbers, 1-based. */
+static const uint8_t NEW_ON_UPGRADE[] = {11, 19, 26, 31, 39};
+
+static bool new_on_upgrade(int slot) {
+    for (size_t i = 0; i < sizeof NEW_ON_UPGRADE; i++)
+        if (NEW_ON_UPGRADE[i] == slot + 1) return true;
+    return false;
+}
+
+void shell_sync_cartridges(void) {
+    bool changed = g_progress_origin == PROGRESS_UPGRADED; /* written back in the new layout */
+    for (int i = 0; i < GAME_SLOTS; i++) {
+        if (!GAMES[i] || progress_bit(g_progress.known, i)) continue;
+        progress_set_bit(g_progress.known, i, true);
+        bool tag = g_progress_origin == PROGRESS_CURRENT ||
+                   (g_progress_origin == PROGRESS_UPGRADED && new_on_upgrade(i) && g_progress.played[i] == 0);
+        if (!tag) progress_set_bit(g_progress.opened, i, true); /* already familiar */
+        changed = true;
+    }
+    if (changed) progress_save();
+}
+
+bool shell_cart_is_new(int slot) {
+    return slot >= 0 && slot < GAME_SLOTS && GAMES[slot] && progress_bit(g_progress.known, slot) &&
+           !progress_bit(g_progress.opened, slot);
+}
+
+int shell_new_count(void) {
+    int n = 0;
+    for (int i = 0; i < GAME_SLOTS; i++) n += shell_cart_is_new(i);
+    return n;
 }
 
 int shell_song_owner(int song) { return song >= 0 && song < OWNER_MAX ? song_owner[song] : -1; }
@@ -147,6 +187,12 @@ bool shell_query(const char *key, int *out) {
         *out = g >= 0 ? shell_save_state(g) : -1;
         return true;
     }
+    if (!strcmp(key, "new_count")) { *out = shell_new_count(); return true; }
+    if (!strncmp(key, "new.", 4)) {
+        int g = app_find_game(key + 4);
+        *out = g >= 0 ? shell_cart_is_new(g) : -1;
+        return true;
+    }
     if (!strncmp(key, "played.", 7)) {
         int g = app_find_game(key + 7);
         *out = g >= 0 ? g_progress.played[g] : -1;
@@ -195,6 +241,7 @@ void app_launch_game(int index, bool with_transition) {
     if (index < 0 || index >= GAME_SLOTS || !GAMES[index]) return;
     cur_game = index;
     if (g_progress.played[index] < 255) g_progress.played[index]++;
+    progress_set_bit(g_progress.opened, index, true); /* its NEW tag comes off for good */
     g_progress.last_game = (uint8_t)index;
     progress_save();
     if (with_transition) scene_goto_speed(&SCENE_RUNNER, 3);
@@ -404,11 +451,14 @@ static void draw_pause_for(const GameDef *g) {
     tiny_center(g->title, 160, py + 20, C_GREY);
     ui_audit_tiny("title", g->title, 160 - tiny_width(g->title) / 2, py + 20);
     if (pause_page == 2) {
-        text_center("RESTART GAME?", 160, py + 40, C_YELLOW);
-        tiny_center("UNSAVED PROGRESS IS LOST", 160, py + 52, C_GREY);
-        text_draw("YES", 126, py + 68, confirm_sel == 0 ? C_WHITE : C_SLATE);
-        text_draw("NO", 180, py + 68, confirm_sel == 1 ? C_WHITE : C_SLATE);
-        ui_cursor(confirm_sel == 0 ? 118 : 172, py + 68, pause_t);
+        static const char *const q = "RESTART GAME?", *const d = "UNSAVED PROGRESS IS LOST";
+        text_center(q, 160, py + 40, C_YELLOW);
+        ui_audit_text("question", q, 160 - text_width(q) / 2, py + 40);
+        ui_audit_centred("question", 160 - text_width(q) / 2, text_width(q));
+        tiny_center(d, 160, py + 52, C_GREY);
+        ui_audit_tiny("detail", d, 160 - tiny_width(d) / 2, py + 52);
+        ui_audit_centred("detail", 160 - tiny_width(d) / 2, tiny_width(d));
+        ui_choices(160, py + 68, "YES", "NO", confirm_sel, pause_t, C_WHITE, C_SLATE);
         return;
     }
     for (int i = 0; i < pause_rows(); i++) {

@@ -88,9 +88,15 @@ and the music and sound volumes are in every game's pause menu too.
 
 Eight full-size cartridges to a row, five rows at a time: the grid scrolls
 as the cursor moves down to slots 41–50, and a bar in the left margin shows
-when there is more above or below.
+when there is more above or below. An empty slot holds a grey placeholder
+cartridge for the game still to come (COMING SOON, its number and the UFO 50
+game it will pay tribute to); it can't be started yet. A cartridge you
+haven't started since it arrived wears a red NEW tag until you play it.
 
-<p align="center"><img src="docs/shots/library_scrolled.png" width="320" alt="The library scrolled down to slots 41-50"></p>
+<p align="center">
+  <img src="docs/shots/library_scrolled.png" width="320" alt="The library scrolled down to slots 41-50">
+  <img src="docs/shots/library_new.png" width="320" alt="Grey placeholder cartridges in the empty slots, and NEW tags on the latest cartridges">
+</p>
 
 | # | Cartridge | Tribute to | What plays the same | What's ours |
 |---|---|---|---|---|

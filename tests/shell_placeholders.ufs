@@ -1,0 +1,67 @@
+# SHELL: every empty slot holds a grey placeholder cartridge for the UFO 50
+# game it is waiting for: COMING SOON, the slot number and the tribute
+# sticker on its label. A starts nothing: a dull sound and a short NOT
+# LOADED YET. (Slots 08 and 50 are still empty; a test for a slot that gets
+# its cartridge must move to another empty one.)
+wait 30
+press A
+wait 30
+press A
+wait 30
+expect_scene library
+expect library_cursor == 0
+# a real cartridge credits its own tribute
+expect library_placeholder == 0
+expect library_sticker_has.TRIBUTE_TO_BARBUTA == 1
+expect library_sticker_has.UFO_50_#1 == 1
+# slot 08, at the end of the first row: Planet Zoldath's placeholder
+press LEFT
+expect library_cursor == 7
+expect library_placeholder == 1
+# (a long title shortens "TRIBUTE TO" to "TRIBUTE:", as on the real ones)
+expect library_sticker_has.TRIBUTE == 1
+expect library_sticker_has.PLANET_ZOLDATH == 1
+expect library_sticker_has.UFO_50_#8 == 1
+expect library_sticker_has.BARBUTA == 0
+expect library_dud == 0
+# A on it: the message, and nothing starts
+press A
+expect library_dud > 0
+wait 60
+expect_scene library
+expect library_cursor == 7
+expect library_dud == 0
+press START
+wait 60
+expect_scene library
+# moving off clears the message at once
+press A
+expect library_dud > 0
+press RIGHT
+expect library_dud == 0
+expect library_cursor == 0
+# slot 50, the last one: Cyber Owls
+press UP
+press RIGHT
+expect library_cursor == 49
+expect library_placeholder == 1
+expect library_sticker_has.TRIBUTE_TO_CYBER_OWLS == 1
+expect library_sticker_has.UFO_50_#50 == 1
+press A
+wait 60
+expect_scene library
+# every placeholder's panel lays out cleanly, and no placeholder turns up in
+# the save data list (they have no save to delete)
+expect library_layout_all == 0
+press B
+wait 30
+press DOWN
+press DOWN
+press A
+wait 30
+expect_scene savedata
+expect savedata_cart == 0
+press UP
+expect savedata_cart == -1
+press UP
+expect savedata_cart >= 0

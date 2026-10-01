@@ -47,5 +47,6 @@ void shell_audio_init(void) {
     sfx_define("ui_error", CH_P2, 180, "@37 v11 o3 c16 r32 c16");
     sfx_define("ui_toast", CH_P1, 160, "@39 v12 o5 l16 c e g >c e g >c4");
     sfx_define("ui_pause", CH_P2, 180, "@15 v11 o5 e16 c16 <g8");
+    sfx_define("cart_dud", CH_NOISE, 150, "@13 v11 o2 c16 r32 @13 v7 o2 c16"); /* an empty cartridge */
     sfx_define("cart_insert", CH_NOISE, 150, "@21 v12 o5 c16 r16 @13 v14 o3 c8 @40 v10 o6 c4");
 }
