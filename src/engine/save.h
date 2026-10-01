@@ -30,6 +30,12 @@ typedef struct Progress {
      * shell_sync_cartridges). */
     uint8_t known[8];
     uint8_t opened[8];
+    /* Each cartridge's own button layout (see shell_remap_*): 0 = as the
+     * cartridge was made. Settings, so DELETE ALL leaves them alone. */
+    uint8_t remap[MAX_GAMES];
+    uint8_t spare[6];                /* keeps what follows 4-byte aligned */
+    uint32_t play_secs[MAX_GAMES];   /* seconds played; the pause menu doesn't count */
+    uint32_t last_played[MAX_GAMES]; /* when last started, Unix seconds; 0 = never */
 } Progress;
 
 extern Progress g_progress;
@@ -47,6 +53,9 @@ bool progress_load(void);
 /* ... and of the 50-slot record from before the known/opened bits (up to
  * v0.7.0): the same layout without them. progress_load upgrades it too. */
 #define PROGRESS_UNTAGGED_SIZE (2 * MAX_GAMES + 20)
+/* ... and with the bits but before the button layouts and play times (a
+ * development build only): the rest reads 0. */
+#define PROGRESS_TAGGED_SIZE (PROGRESS_UNTAGGED_SIZE + 16)
 /* Where the progress in memory came from at the last progress_load: no file
  * (or a damaged one: a fresh start), a file from before the known/opened
  * bits (either older layout), or a current one. */

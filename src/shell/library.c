@@ -33,7 +33,8 @@ const char *const UFO50_TITLES[GAME_SLOTS] = {
 #define PANEL_X 172
 #define PANEL_W 142
 
-static int t, launch_t, shake_t, dud_t; /* dud_t: "NOT LOADED YET" on show */
+static int t, launch_t, shake_t, dud_t; /* dud_t: dud_msg on show over a placeholder */
+static const char *dud_msg = "NOT LOADED YET";
 static bool launching;
 static int top_row;   /* first row in view */
 static int scroll_px; /* drawn offset in pixels, easing toward top_row * CELL_H */
@@ -55,6 +56,7 @@ static void lib_enter(void) {
     launch_t = 0;
     shake_t = 0;
     dud_t = 0;
+    cartinfo_open(-1); /* closed */
     if (g_library_cursor < 0 || g_library_cursor >= GAME_SLOTS) g_library_cursor = 0;
     top_row = 0;
     follow_cursor();
@@ -76,6 +78,10 @@ static void lib_update(void) {
     /* ease the view toward its row: a quarter of the way each frame */
     int want = top_row * CELL_H, d = want - scroll_px;
     if (d) scroll_px += d / 4 ? d / 4 : (d > 0 ? 1 : -1);
+    if (cartinfo_active()) { /* the cartridge card has the buttons */
+        cartinfo_update();
+        return;
+    }
     if (launching) {
         launch_t++;
         if (launch_t == 26) gfx_set_flash(3);
@@ -106,12 +112,19 @@ static void lib_update(void) {
         } else { /* a placeholder: nothing to start */
             shake_t = 12;
             dud_t = 60;
+            dud_msg = "NOT LOADED YET";
             sfx_play_name("cart_dud");
         }
     }
     if (btnp(BTN_SELECT)) {
-        sfx_play_name("ui_ok");
-        shell_open_options(&SCENE_LIBRARY);
+        if (GAMES[g_library_cursor]) { /* the cartridge card, over the library */
+            cartinfo_open(g_library_cursor);
+            sfx_play_name("ui_ok");
+        } else {
+            dud_t = 60;
+            dud_msg = "COMING SOON";
+            sfx_play_name("cart_dud");
+        }
     } else if (btnp(BTN_B)) {
         sfx_play_name("ui_back");
         scene_goto(&SCENE_MENU);
@@ -328,7 +341,7 @@ static void draw_panel_for(int idx, int shown) {
     }
     gfx_noclip();
     if (!g && dud_t > 0) { /* A was pressed on it */
-        const char *m = "NOT LOADED YET";
+        const char *m = dud_msg;
         int mw = text_width(m);
         ui_panel(x + PANEL_W / 2 - mw / 2 - 8, y + 26, mw + 16, 19, C_INK, C_GREY);
         text_draw(m, x + PANEL_W / 2 - mw / 2, y + 32, (dud_t / 8) % 2 ? C_WHITE : C_LIGHT);
@@ -480,9 +493,10 @@ static void lib_draw(void) {
     int fx = ui_hint(6, 170, GLYPH_A, "PLAY", C_LIGHT);
     fx = ui_hint(fx, 170, GLYPH_B, "MENU", C_LIGHT);
     fx = text_draw("SELECT", fx, 170, C_WHITE);
-    text_draw("OPTIONS", fx + 4, 170, C_LIGHT);
+    text_draw("INFO", fx + 4, 170, C_LIGHT);
     snprintf(buf, sizeof buf, "SLOT %02d/%d", g_library_cursor + 1, GAME_SLOTS);
     text_draw(buf, SCREEN_W - 6 - text_width(buf), 170, C_GREY);
+    cartinfo_draw(); /* SELECT's cartridge card, over everything */
 }
 
 bool library_query(const char *key, int *out) {

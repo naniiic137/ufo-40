@@ -5,6 +5,7 @@ static int cur_game = -1;
 static bool paused, pausable = true, exit_requested;
 static int pause_sel, pause_page, confirm_sel, pause_t;
 static int toast_timer, toast_game_i, toast_bit_i;
+static int play_frames, unsaved_secs; /* the running cartridge's play time */
 
 /* real time for the cartridges that keep going (realtime_tick) */
 static uint32_t rt_last;    /* the platform clock at the last hand-over */
@@ -51,6 +52,7 @@ void app_init(void) {
     ui_init();
     progress_load();
     shell_sync_cartridges();
+    shell_remap_apply(-1);
     audio_set_volume(g_progress.music_vol, g_progress.sfx_vol);
     shell_audio_init();
     if (!owners_ready) memset(song_owner, -1, sizeof song_owner); /* the console's own songs */
@@ -148,6 +150,8 @@ void shell_delete_all(void) {
     for (int i = 0; i < GAME_SLOTS; i++) game_save_erase(i);
     memset(g_progress.goals, 0, sizeof g_progress.goals);
     memset(g_progress.played, 0, sizeof g_progress.played);
+    memset(g_progress.play_secs, 0, sizeof g_progress.play_secs);
+    memset(g_progress.last_played, 0, sizeof g_progress.last_played);
     g_progress.last_game = 0;
     g_library_cursor = 0;
     progress_save(); /* volumes, video and the menu position stay */
@@ -160,6 +164,7 @@ bool options_query(const char *key, int *out);
 bool jukebox_query(const char *key, int *out);
 bool savedata_query(const char *key, int *out);
 bool library_query(const char *key, int *out);
+bool cartinfo_query(const char *key, int *out);
 
 static int audit_runner(void);
 
@@ -193,13 +198,32 @@ bool shell_query(const char *key, int *out) {
         *out = g >= 0 ? shell_cart_is_new(g) : -1;
         return true;
     }
+    if (!strcmp(key, "pause_sel")) { *out = paused ? pause_sel : -1; return true; }
+    if (!strcmp(key, "input_down")) { *out = (int)input_down(); return true; }
+    if (!strncmp(key, "play_secs.", 10)) {
+        int g = app_find_game(key + 10);
+        *out = g >= 0 ? (int)g_progress.play_secs[g] : -1;
+        return true;
+    }
+    if (!strncmp(key, "last_played.", 12)) {
+        int g = app_find_game(key + 12);
+        *out = g >= 0 ? (int)g_progress.last_played[g] : -1;
+        return true;
+    }
+    if (!strncmp(key, "remap.", 6)) { /* the physical buttons of A, B, SELECT as digits: 12 3 = as made */
+        int g = app_find_game(key + 6);
+        *out = g >= 0 ? 100 * (shell_remap_button(g, JOB_A) + 1) + 10 * (shell_remap_button(g, JOB_B) + 1) +
+                            shell_remap_button(g, JOB_SELECT) + 1
+                      : -1;
+        return true;
+    }
     if (!strncmp(key, "played.", 7)) {
         int g = app_find_game(key + 7);
         *out = g >= 0 ? g_progress.played[g] : -1;
         return true;
     }
     return menu_query(key, out) || options_query(key, out) || jukebox_query(key, out) || savedata_query(key, out) ||
-           library_query(key, out);
+           library_query(key, out) || cartinfo_query(key, out);
 }
 
 /* ---- real time for the cartridges that keep going ----------------------- */
@@ -242,6 +266,8 @@ void app_launch_game(int index, bool with_transition) {
     cur_game = index;
     if (g_progress.played[index] < 255) g_progress.played[index]++;
     progress_set_bit(g_progress.opened, index, true); /* its NEW tag comes off for good */
+    uint32_t now = plat_unix_time();
+    if (now) g_progress.last_played[index] = now;
     g_progress.last_game = (uint8_t)index;
     progress_save();
     if (with_transition) scene_goto_speed(&SCENE_RUNNER, 3);
@@ -283,6 +309,8 @@ static void runner_enter(void) {
     pausable = true;
     exit_requested = false;
     toast_timer = 0;
+    play_frames = 0;
+    unsaved_secs = 0;
     music_duck(false);
     game_pause_items(0, NULL, NULL);
     if (G()) G()->start();
@@ -291,6 +319,9 @@ static void runner_enter(void) {
 static void runner_leave(void) {
     music_duck(false);
     input_set_versus(false); /* the library always gets the whole keyboard */
+    shell_remap_apply(-1);   /* ... and every button as itself */
+    if (unsaved_secs) progress_save();
+    unsaved_secs = 0;
     if (G() && G()->quit) G()->quit();
     paused = false;
 }
@@ -404,7 +435,19 @@ static void runner_update(void) {
         scene_goto(&SCENE_LIBRARY);
         return;
     }
+    /* the cartridge's own button layout, but not in the pause menu */
+    shell_remap_apply(paused ? -1 : cur_game);
     if (scene_transitioning()) return;
+    /* play time: every second the cartridge runs unpaused (saved each
+     * minute, and on the way out) */
+    if (!paused && G() && ++play_frames >= 60) {
+        play_frames = 0;
+        if (g_progress.play_secs[cur_game] < 0xFFFFFFFFu) g_progress.play_secs[cur_game]++;
+        if (++unsaved_secs >= 60) {
+            progress_save();
+            unsaved_secs = 0;
+        }
+    }
     if (paused) {
         pause_update();
     } else if (pausable && btnp(BTN_START)) {
@@ -436,8 +479,13 @@ static void draw_pause_for(const GameDef *g) {
         ui_audit_area("controls panel", 32, 24, 256, 132);
         text_center("CONTROLS", 160, 30, C_YELLOW);
         ui_audit_text("heading", "CONTROLS", 160 - text_width("CONTROLS") / 2, 30);
-        text_draw(g->controls, 42, 46, C_LIGHT);
-        ui_audit_text("controls", g->controls, 42, 46);
+        /* the list as this cartridge's button layout has it */
+        char list[600];
+        int slot = 0;
+        while (slot < GAME_SLOTS - 1 && GAMES[slot] != g) slot++;
+        shell_controls_for(slot, list, sizeof list);
+        text_draw(list, 42, 46, C_LIGHT);
+        ui_audit_text("controls", list, 42, 46);
         text_center(GLYPH_A " BACK", 160, 147, C_GREY);
         ui_audit_box("back, with room above", 160 - text_width(GLYPH_A " BACK") / 2, 145, text_width(GLYPH_A " BACK"), 9);
         return;

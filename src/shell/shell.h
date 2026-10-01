@@ -62,6 +62,27 @@ int shell_save_state(int game);
 void shell_delete_save(int game);
 void shell_reset_goals(int game); /* the goals and the save that would give them back */
 void shell_delete_all(void);   /* every save and goal; settings stay */
+/* The question and detail line for deleting cartridge g's save. */
+void shell_delete_save_question(int g, char *q, int qn, char *d, int dn);
+
+/* Button layouts, one per cartridge: the A, B and SELECT jobs can move
+ * between the A, B and SELECT buttons (START always pauses). Saved in the
+ * progress file; the runner applies the running cartridge's layout through
+ * the input layer, except in the pause menu. */
+enum { JOB_A, JOB_B, JOB_SELECT, JOB_COUNT };
+int shell_remap_button(int slot, int job); /* the JOB_* button doing that job */
+bool shell_remap_default(int slot);
+void shell_remap_cycle(int slot, int job); /* the job moves to the next button */
+void shell_remap_reset(int slot);
+void shell_remap_apply(int slot);          /* -1: every button is itself */
+/* The cartridge's controls list with its A, B and SELECT as now pressed. */
+void shell_controls_for(int slot, char *out, int n);
+
+/* The cartridge card: a panel over the library (SELECT on a cartridge). */
+void cartinfo_open(int slot);
+bool cartinfo_active(void);
+void cartinfo_update(void);
+void cartinfo_draw(void);
 
 /* State for the headless tests ("menu_sel", "music_vol", ...). */
 bool shell_query(const char *key, int *out);

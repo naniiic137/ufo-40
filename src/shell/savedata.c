@@ -289,15 +289,21 @@ static void draw_actions(void) {
     }
 }
 
+/* The question and its detail for deleting cartridge g's save, here and on
+ * the library's cartridge card. */
+void shell_delete_save_question(int g, char *q, int qn, char *d, int dn) {
+    snprintf(q, (size_t)qn, "DELETE %s'S SAVE?", GAMES[g]->title);
+    snprintf(d, (size_t)dn, "GOALS STAY. THE SAVE CAN'T COME BACK.");
+}
+
 static void draw_confirm(void) {
     int g = cart();
     char q[64], d[64];
-    const char *yes_label = "YES";
+    const char *yes_label = "YES", *step = NULL;
     int border = C_YELLOW;
     switch (ask) {
     case ASK_DELETE_SAVE:
-        snprintf(q, sizeof q, "DELETE %s'S SAVE?", GAMES[g]->title);
-        snprintf(d, sizeof d, "GOALS STAY. THE SAVE CAN'T COME BACK.");
+        shell_delete_save_question(g, q, sizeof q, d, sizeof d);
         break;
     case ASK_RESET_GOALS:
         snprintf(q, sizeof q, "RESET %s'S GOALS?", GAMES[g]->title);
@@ -307,41 +313,17 @@ static void draw_confirm(void) {
         snprintf(q, sizeof q, "DELETE ALL DATA?");
         snprintf(d, sizeof d, "EVERY SAVE, GOAL AND PLAY COUNT, ALL %d SLOTS.", GAME_SLOTS);
         border = C_RED;
+        step = "STEP 1 OF 2";
         break;
     default:
         snprintf(q, sizeof q, "ARE YOU SURE?");
         snprintf(d, sizeof d, "THIS CANNOT BE UNDONE. LAST CHANCE!");
         yes_label = "DELETE ALL";
         border = C_RED;
+        step = "STEP 2 OF 2";
         break;
     }
-    /* Every line, and the NO / YES pair as a whole, sits in the middle of
-     * the box (the pair used to start at a fixed spot, so a long YES label
-     * such as DELETE ALL ran off to the right); the audit measures each
-     * one's margins. */
-    int cx = SCREEN_W / 2;
-    int w = imax(text_width(q), tiny_width(d)) + 24;
-    w = imax(w, 150);
-    int bx = cx - w / 2;
-    ui_audit_area("screen", 4, 0, SCREEN_W - 8, 166);
-    ui_audit_box("question box", bx, 58, w, 62);
-    ui_panel(bx, 58, w, 62, C_INK, border);
-    ui_audit_area("question box", bx + 2, 60, w - 4, 58);
-    int qx = cx - text_width(q) / 2, dx = cx - tiny_width(d) / 2;
-    text_draw(q, qx, 66, border == C_RED ? C_RED : C_YELLOW);
-    ui_audit_text("question", q, qx, 66);
-    ui_audit_centred("question", qx, text_width(q));
-    tiny_draw(d, dx, 80, C_LIGHT);
-    ui_audit_tiny("detail", d, dx, 80);
-    ui_audit_centred("detail", dx, tiny_width(d));
-    ui_choices(cx, 100, "NO", yes_label, yes, t, C_WHITE, C_SLATE);
-    if (ask == ASK_ALL_1 || ask == ASK_ALL_2) {
-        const char *st = ask == ASK_ALL_2 ? "STEP 2 OF 2" : "STEP 1 OF 2";
-        int sx = cx - tiny_width(st) / 2;
-        tiny_draw(st, sx, 112, C_GREY);
-        ui_audit_tiny("step", st, sx, 112);
-        ui_audit_centred("step", sx, tiny_width(st));
-    }
+    ui_confirm_box(q, d, yes_label, yes, border, step, t);
 }
 
 /* Draws every question (delete a save and reset the goals for every

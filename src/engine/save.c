@@ -3,11 +3,13 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <stddef.h>
 
 Progress g_progress;
 int g_progress_origin;
 
-_Static_assert(sizeof(Progress) == PROGRESS_UNTAGGED_SIZE + 16, "Progress is bytes only, no padding");
+_Static_assert(sizeof(Progress) == PROGRESS_TAGGED_SIZE + 56 + 8 * MAX_GAMES, "Progress has no padding");
+_Static_assert(offsetof(Progress, play_secs) % 4 == 0, "the play times are aligned");
 _Static_assert(PROGRESS_UNTAGGED_SIZE != PROGRESS_LEGACY40_SIZE, "the layouts must differ in size");
 _Static_assert(MAX_GAMES <= 64, "known and opened hold a bit per slot");
 
@@ -110,10 +112,10 @@ bool progress_load(void) {
         progress_from_legacy40(u.raw);
         g_progress_origin = PROGRESS_UPGRADED;
     } else if (n == PROGRESS_UNTAGGED_SIZE) {
-        g_progress = u.p; /* the bits it lacks read 0: nothing known yet */
+        g_progress = u.p; /* the fields it lacks read 0: nothing known yet */
         g_progress_origin = PROGRESS_UPGRADED;
-    } else if (n == (int)sizeof u.p) {
-        g_progress = u.p;
+    } else if (n == PROGRESS_TAGGED_SIZE || n == (int)sizeof u.p) {
+        g_progress = u.p; /* the fields a shorter one lacks read 0 */
         g_progress_origin = PROGRESS_CURRENT;
     } else {
         progress_defaults();

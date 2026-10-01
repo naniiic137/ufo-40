@@ -22,7 +22,11 @@ expect new.buzzbolt == 1
 expect new.underdelve == 0
 expect new.dune == 0
 expect new.wobble == 0
-progress_bytes 136
+# nothing played on the clock yet, every button as made
+expect play_secs.underdelve == 0
+expect last_played.underdelve == 0
+expect remap.underdelve == 123
+progress_bytes 592
 # a second start reads the upgraded file the same way
 reload
 expect goals.roofcat == 7

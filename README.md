@@ -98,6 +98,17 @@ haven't started since it arrived wears a red NEW tag until you play it.
   <img src="docs/shots/library_new.png" width="320" alt="Grey placeholder cartridges in the empty slots, and NEW tags on the latest cartridges">
 </p>
 
+SELECT on a cartridge opens its card over the library: time played, times
+opened and the day it was last played, its three goals, DELETE SAVE, and
+CONTROLS, where the A, B and SELECT jobs can move between those three
+buttons for that cartridge only (its controls list, here and in the pause
+menu, shows the buttons as you now press them). SELECT or B closes it.
+
+<p align="center">
+  <img src="docs/shots/library_card.png" width="320" alt="The cartridge card over the library: time played, times opened, last played, goals and actions">
+  <img src="docs/shots/library_card_controls.png" width="320" alt="The card's CONTROLS page with A and B swapped">
+</p>
+
 | # | Cartridge | Tribute to | What plays the same | What's ours |
 |---|---|---|---|---|
 | 01 | **UNDERDELVE** | Barbuta | an 8×8 wrapping map, one-hit deaths, six spare lives and no continue, one fixed jump with no air control, a roaming death that moves a room whenever you do, traps, hidden walls and ladders, hint-givers, a death taken on purpose, items that open the way, three paths to the final boss | Mo the mole, a dark mine, the Gloom, the glow-worms, 64 new screens |
@@ -1161,7 +1172,10 @@ Download `UFO40-windows.zip` from the releases and run `ufo40.exe`.
 | SELECT | Shift or Backspace | SELECT | Back / Select |
 
 - **START** opens the pause menu in every game: Resume, Restart, Controls, Quit.
-- **SELECT** opens Options in the library, and **B** goes back to the main menu.
+- **SELECT** on a cartridge in the library opens its card: time played,
+  times opened, goals, DELETE SAVE and its own CONTROLS, where A, B and
+  SELECT can swap jobs for that cartridge only. **B** goes back to the main
+  menu.
 - **Two players:** the 2-player modes of Wet Paint, Bannerfall, Duskling and Cutlass Cup take two
   gamepads, or split the keyboard: player 1 on WASD + F/G, player 2 on the
   arrows + K/L. On the Vita (one controller) those modes are locked.

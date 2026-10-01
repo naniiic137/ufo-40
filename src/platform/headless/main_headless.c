@@ -60,6 +60,9 @@ void plat_request_quit(void) { quit_requested = true; }
  * clock_skip moves it on without running any frames (a stalled loop). */
 static uint64_t clock_sixtieths; /* in 1/60 ms */
 uint32_t plat_clock_ms(void) { return (uint32_t)(clock_sixtieths / 60u); }
+/* a fixed morning (2026-10-01 09:00 UTC) plus the run's own clock, so the
+ * tests and screenshots always see the same dates */
+uint32_t plat_unix_time(void) { return 1790845200u + (uint32_t)(clock_sixtieths / 60000u); }
 const char *plat_save_where(void) { return save_dir; }
 
 static void mkdirs(const char *path) {

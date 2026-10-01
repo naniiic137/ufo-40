@@ -177,6 +177,9 @@ expect library_layout == 0
 expect library_layout_all == 0
 # every slot's NEW tag stays inside its own cell of the grid
 expect library_grid_layout == 0
+# every cartridge's card (SELECT): its stats, goals, items, controls page
+# with each button layout's list, and its delete question
+expect card_layout == 0
 # the save data list, details and questions for every cartridge
 press B
 wait 30

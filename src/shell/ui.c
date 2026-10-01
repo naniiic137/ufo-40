@@ -259,6 +259,36 @@ void ui_choices(int cx, int y, const char *a, const char *b, int sel, int t, int
     ui_audit_centred("choices", xa, total);
 }
 
+void ui_confirm_box(const char *q, const char *d, const char *yes_label, int yes, int border, const char *step,
+                    int t) {
+    /* Every line, and the NO / YES pair as a whole, sits in the middle of
+     * the box (the pair used to start at a fixed spot, so a long YES label
+     * such as DELETE ALL ran off to the right); the audit measures each
+     * one's margins. */
+    int cx = SCREEN_W / 2;
+    int w = imax(text_width(q), tiny_width(d)) + 24;
+    w = imax(w, 150);
+    int bx = cx - w / 2;
+    ui_audit_area("screen", 4, 0, SCREEN_W - 8, 166);
+    ui_audit_box("question box", bx, 58, w, 62);
+    ui_panel(bx, 58, w, 62, C_INK, border);
+    ui_audit_area("question box", bx + 2, 60, w - 4, 58);
+    int qx = cx - text_width(q) / 2, dx = cx - tiny_width(d) / 2;
+    text_draw(q, qx, 66, border == C_RED ? C_RED : C_YELLOW);
+    ui_audit_text("question", q, qx, 66);
+    ui_audit_centred("question", qx, text_width(q));
+    tiny_draw(d, dx, 80, C_LIGHT);
+    ui_audit_tiny("detail", d, dx, 80);
+    ui_audit_centred("detail", dx, tiny_width(d));
+    ui_choices(cx, 100, "NO", yes_label, yes, t, C_WHITE, C_SLATE);
+    if (step) {
+        int sx = cx - tiny_width(step) / 2;
+        tiny_draw(step, sx, 112, C_GREY);
+        ui_audit_tiny("step", step, sx, 112);
+        ui_audit_centred("step", sx, tiny_width(step));
+    }
+}
+
 /* ---- word wrap ------------------------------------------------------------ */
 
 static int wrap_width(const char *s, bool tiny) { return tiny ? tiny_width(s) : text_width(s); }

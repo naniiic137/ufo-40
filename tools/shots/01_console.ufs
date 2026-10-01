@@ -31,7 +31,11 @@ press UP
 press UP
 press UP
 wait 30
-press SELECT
+# the options, from the main menu
+press B
+wait 40
+press DOWN
+press A
 wait 40
 shot options
 press DOWN
@@ -59,14 +63,11 @@ press B
 wait 30
 press B
 wait 40
-press B
-wait 40
 # the save data screen, with a couple of cartridges played
 fake_save underdelve 64
 fake_save roofcat 20
 set_goals underdelve 1
 set_goals roofcat 3
-press DOWN
 press DOWN
 press A
 wait 40

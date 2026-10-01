@@ -32,6 +32,11 @@ int ui_hint(int x, int y, const char *glyph, const char *label, int col);
  * or 1). The chosen label is drawn in on, the other in off. Reports the
  * labels, the cursor and the pair's centring to the layout audit. */
 void ui_choices(int cx, int y, const char *a, const char *b, int sel, int t, int on, int off);
+/* A question box in the middle of the screen: the question, a line of
+ * detail, NO and yes_label (yes = 1 when the cursor is on it), and an
+ * optional step line ("STEP 1 OF 2"). Every line is centred in the box,
+ * and the layout audit checks that it is. */
+void ui_confirm_box(const char *q, const char *d, const char *yes_label, int yes, int border, const char *step, int t);
 
 void ui_init(void);
 

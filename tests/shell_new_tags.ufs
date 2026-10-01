@@ -25,8 +25,12 @@ expect new.roofcat == 0
 expect new.wobble == 0
 expect new_count >= 3
 expect new_count <= 4
+# the play times, dates and button layouts it lacks start empty
+expect play_secs.chime == 0
+expect last_played.chime == 0
+expect remap.chime == 123
 # written back in the current layout, and the tags last
-progress_bytes 136
+progress_bytes 592
 reload
 expect new.skidkids == 1
 expect new.buzzbolt == 1
