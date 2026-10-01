@@ -1,0 +1,31 @@
+# BUZZBOLT: the FIREFLY. A tap fires three streams; held fire is a laser
+# that reaches up to the first foe in its way and burns it. Only the
+# firefly uses B: it launches a bomb, if it has one.
+game buzzbolt
+press A
+wait 10
+press LEFT
+press A
+expect ship == 2
+cheat quiet
+wait 130
+cheat pos 160 150
+press A
+expect pshots_0 == 3
+wait 40
+cheat dummy 1 160 60
+hold A 60
+expect laser_len >= 70
+expect laser_len <= 74
+expect foe0_hp < 165
+expect foe0_hp > 120
+wait 10
+expect laser_len == 0
+# no bombs: B does nothing
+press B
+expect bombs_flying == 0
+cheat word 3
+expect bombs == 1
+press B
+expect bombs == 0
+expect bombs_flying == 1

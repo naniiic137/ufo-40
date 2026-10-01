@@ -1,0 +1,43 @@
+# BUZZBOLT: most enemy shots are aimed at where the ship is when they are
+# fired and then fly straight, so they can be herded; green homing shots
+# turn after the ship for a while; the Queen Tick's rings bounce off the
+# bottom of the screen once.
+game buzzbolt
+press A
+wait 10
+press A
+cheat quiet
+cheat god
+wait 130
+# a gnat fires at the ship, far over to the left
+cheat pos 40 150
+cheat foe 0 4 160 40 1
+waituntil eshots == 1 200
+wait 20
+expect es0_x < 170
+expect es0_y > 60
+# the ship moves away; the shot keeps going the way it was aimed
+hold RIGHT 40
+wait 10
+expect px == 120
+expect es0_x < 80
+expect es0_y > 120
+# a homing shot turns after the ship; a straight one doesn't
+cheat clear
+cheat pos 60 150
+cheat eshot 0 160 30 0 2
+wait 30
+expect es0_x == 160
+cheat clear
+cheat eshot 1 160 30 0 2
+wait 30
+expect es0_x < 150
+# a ring bounces off the bottom, once
+cheat clear
+cheat pos 40 150
+cheat eshot 2 200 150 0 3
+wait 15
+expect rings_bounced == 1
+expect es0_y < 172
+wait 60
+expect eshots == 0

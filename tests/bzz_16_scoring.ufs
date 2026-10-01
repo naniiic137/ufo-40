@@ -1,0 +1,38 @@
+# BUZZBOLT: a kill is worth the foe's points times the multiplier. The
+# gnats the second boss calls in are worth ten times their usual 10; the
+# last boss is worth nothing.
+game buzzbolt
+press A
+wait 10
+press A
+cheat quiet
+wait 130
+cheat pos 160 150
+cheat mult 7
+cheat dummy 0 160 100
+press A
+wait 10
+expect score == 70
+cheat dummy 4 160 100
+cheat hp 0 1
+press A
+wait 10
+expect score == 1470
+cheat mult 3
+cheat dummy 11 160 100
+press A
+wait 10
+expect score == 2370
+cheat score 0
+cheat mult 9
+cheat dummy 14 160 100
+cheat hp 0 1
+press A
+wait 10
+expect foes == 0
+expect score == 0
+# the second boss's gnats
+cheat wave 2
+cheat god
+cheat boss
+waituntil gnat_value == 100 1200

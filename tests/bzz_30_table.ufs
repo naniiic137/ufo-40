@@ -1,0 +1,23 @@
+# BUZZBOLT: the high-score table as it first comes: eight scores whose
+# initials spell out a message (our own), and the tracked stats start at
+# nothing.
+game buzzbolt
+wait 5
+expect hs0_c0 == 78
+expect hs1_c0 == 79
+expect hs2_c0 == 84
+expect hs3_c0 == 65
+expect hs4_c0 == 76
+expect hs5_c0 == 79
+expect hs6_c0 == 78
+expect hs7_c0 == 69
+expect hs0_score == 50000
+expect hs7_score == 5000
+expect save_best_mult == 0
+expect save_best0 == 0
+expect save_runs == 0
+# left alone, the title shows the table, then comes back
+wait 620
+expect state == 9
+wait 430
+expect state == 0

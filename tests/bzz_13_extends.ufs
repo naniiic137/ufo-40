@@ -1,0 +1,45 @@
+# BUZZBOLT: two ships to start, and one more at 25,000, 100,000 and
+# 200,000 points: those three and no others.
+game buzzbolt
+press A
+wait 10
+press A
+cheat quiet
+wait 130
+cheat pos 160 150
+expect lives == 1
+expect extends == 0
+cheat score 24990
+cheat dummy 0 160 100
+press A
+wait 10
+expect score == 25000
+expect extends == 1
+expect lives == 2
+wait 30
+cheat score 99990
+cheat dummy 0 160 100
+press A
+wait 10
+expect extends == 2
+expect lives == 3
+wait 30
+cheat score 199990
+cheat dummy 0 160 100
+press A
+wait 10
+expect extends == 3
+expect lives == 4
+wait 30
+cheat score 299990
+cheat dummy 0 160 100
+press A
+wait 10
+expect score == 300000
+expect extends == 3
+expect lives == 4
+cheat score 999990
+cheat dummy 0 160 100
+press A
+wait 10
+expect lives == 4

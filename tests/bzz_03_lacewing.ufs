@@ -1,0 +1,47 @@
+# BUZZBOLT: the LACEWING. A tap fires weaving pairs; held fire sends twin
+# bolts straight up; not firing at all charges a lance that pierces every
+# foe in its way, bigger the longer you wait, fired by the next press.
+game buzzbolt
+press A
+wait 10
+press A
+expect ship == 0
+cheat quiet
+wait 130
+cheat pos 160 150
+press A
+expect pshots_1 == 2
+expect pshots_0 == 0
+wait 40
+hold A 24
+expect focused == 1
+expect pshots_0 >= 4
+wait 40
+# resting: the charge builds while nothing fires, up to its limit
+expect charge >= 20
+wait 200
+expect charge == 150
+# two tough foes in a line: the full lance goes through both
+cheat dummy 1 160 70
+cheat dummy 1 160 30
+expect foe0_hp == 220
+expect foe1_hp == 220
+press A
+expect pshots_3 == 1
+expect lance_w == 16
+expect lance_dmg == 38
+expect charge == 0
+wait 30
+expect foe1_hp == 182
+expect foe0_hp <= 182
+# a short rest makes a thinner, weaker lance
+wait 60
+press A
+expect pshots_3 == 1
+expect lance_w < 12
+expect lance_dmg < 30
+# B does nothing for the lacewing
+cheat word 3
+press B
+expect bombs == 0
+expect bombs_flying == 0

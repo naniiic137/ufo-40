@@ -1,0 +1,52 @@
+# BUZZBOLT: a win under 300,000 points earns the saucer but not the alien.
+# Losing the last ship ends the run: GAME OVER, then the name entry if the
+# score made the table, then the table and the title. No continues.
+game buzzbolt
+press A
+wait 10
+press A
+wait 10
+cheat wave 5
+cheat lives 3
+waituntil boss_count == 1 300
+cheat bosshp 1
+botuntil boss_dead == 1 3000
+waituntil state == 6 600
+expect score < 300000
+expect goals == 2
+# a lost run: no table, back to the title
+game buzzbolt
+press A
+wait 10
+press A
+cheat quiet
+wait 130
+cheat over
+wait 80
+expect state == 5
+wait 200
+expect state == 9
+wait 500
+expect state == 0
+# one that makes the table: its name is entered
+press A
+wait 10
+press A
+cheat quiet
+wait 130
+cheat score 26000
+cheat over
+wait 80
+expect state == 5
+wait 60
+press A
+wait 5
+expect state == 8
+expect name_rank == 3
+wait 15
+press START
+wait 5
+expect state == 9
+expect hs3_score == 26000
+expect hs3_c0 == 65
+expect hs4_score == 25000

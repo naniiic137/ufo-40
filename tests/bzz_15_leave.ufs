@@ -1,0 +1,22 @@
+# BUZZBOLT: foes that aren't shot give up after a while and leave, often
+# firing as they go, and take their letters with them. Bosses never leave:
+# the wave only ends when its boss is beaten.
+game buzzbolt
+press A
+wait 10
+press A
+cheat god
+cheat pos 300 170
+wait 600
+expect kills == 0
+expect drops == 0
+expect letters == 0
+expect escaped >= 10
+expect eshots > 0
+cheat boss
+wait 3000
+expect boss_out == 1
+expect boss_count == 2
+expect boss_dead == 0
+expect state == 3
+expect wave == 1

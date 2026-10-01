@@ -1,0 +1,45 @@
+# BUZZBOLT: the shieldbug's specials. BBB: both kinds of fire hit twice
+# as hard for ten seconds; a second BBB starts the ten seconds again, it
+# doesn't add them up. ZBB: every enemy shot is wiped away and every foe
+# on screen takes a little damage.
+game buzzbolt
+press A
+wait 10
+press RIGHT
+press A
+cheat quiet
+wait 130
+cheat pos 160 150
+# unpowered, one tap at a tough foe
+cheat dummy 1 160 60
+press A
+wait 40
+expect foe0_hp == 214
+# powered: twice the damage
+cheat word 3
+expect power_t == 600
+press A
+wait 40
+expect foe0_hp == 202
+expect power_t < 560
+cheat word 3
+expect power_t == 600
+wait 100
+cheat word 3
+expect power_t == 600
+# the crescent too: a powered one is wider and hits harder
+hold A 18
+wait 30
+expect foe0_hp <= 174
+# ZBB: the screen clear
+cheat eshot 0 40 40 0 0
+cheat eshot 0 280 60 0 0
+cheat eshot 1 100 30 0 1
+cheat eshot 2 200 30 0 1
+expect eshots == 4
+cheat dummy 0 60 80
+cheat dummy 3 260 80
+cheat word 4
+expect eshots == 0
+expect foes_0 == 0
+expect foes_3 == 0

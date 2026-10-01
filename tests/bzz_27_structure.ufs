@@ -1,0 +1,70 @@
+# BUZZBOLT: the five waves as written. Which foes turn up where follows
+# the original's table: wave 1 gnats and the Ironback pair; wave 2 gnats,
+# midges, whirlers and crickets, then the Bloatfly; wave 3 midges,
+# crickets, blisters and spore-rocks big and small, two Ironback
+# midbosses, then the Queen Tick; wave 4 gnats, rot walls and the golden
+# swarm (48, from the left first), then Scythewing and Dustwing; wave 5
+# only the Sporeheart. 15 kinds of foe in all.
+game buzzbolt
+expect wave_count_1_0 > 80
+expect wave_count_1_2 == 0
+expect wave_count_1_3 == 0
+expect wave_count_1_4 == 0
+expect wave_count_1_6 == 0
+expect wave_count_1_10 == 0
+expect wave_count_1_11 == 0
+expect wave_count_2_0 > 40
+expect wave_count_2_2 > 60
+expect wave_count_2_3 > 10
+expect wave_count_2_4 >= 6
+expect wave_count_2_6 == 0
+expect wave_count_2_7 == 0
+expect wave_count_3_0 == 0
+expect wave_count_3_1 == 2
+expect wave_count_3_2 > 60
+expect wave_count_3_4 >= 5
+expect wave_count_3_6 > 20
+expect wave_count_3_7 >= 8
+expect wave_count_3_8 >= 20
+expect wave_count_3_11 == 0
+expect wave_count_4_0 > 30
+expect wave_count_4_10 > 100
+expect wave_count_4_11 == 48
+expect wave_count_4_2 == 0
+expect wave_count_4_6 == 0
+expect wave_count_5_0 == 0
+# the bosses, wave by wave
+press A
+wait 10
+press A
+wait 10
+cheat god
+cheat boss
+waituntil boss_count == 2 200
+expect boss_kind == 1
+expect foes_1 == 2
+cheat wave 2
+cheat boss
+waituntil boss_count == 1 200
+expect boss_kind == 5
+cheat wave 3
+cheat boss
+waituntil boss_count == 1 200
+expect boss_kind == 9
+cheat wave 4
+cheat boss
+waituntil boss_count == 2 200
+expect foes_12 == 1
+expect foes_13 == 1
+cheat wave 5
+waituntil boss_count == 1 200
+expect boss_kind == 14
+# wave 3's two midbosses
+cheat wave 3
+waituntil midbosses == 1 1500
+expect foes_1 == 1
+cheat wave 4
+# the golden swarm comes from the left first, then the right
+waituntil foes_11 > 0 2200
+expect gold_dir == 1
+waituntil gold_dir == -1 1200

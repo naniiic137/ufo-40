@@ -1,0 +1,19 @@
+# BUZZBOLT: wave 4's bosses, Scythewing and Dustwing, can be beaten: big
+# homing shots, sweeps and rings of spores. Both must fall. Flown by the
+# demo player in the lacewing.
+game buzzbolt
+press A
+wait 10
+press A
+wait 10
+cheat lives 3
+cheat wave 4
+cheat boss
+waituntil boss_count == 2 200
+expect foes_12 == 1
+expect foes_13 == 1
+botuntil boss_dead == 1 12000
+expect boss_count == 0
+waituntil state == 4 400
+waituntil state == 3 400
+expect wave == 5

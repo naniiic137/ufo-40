@@ -1,0 +1,47 @@
+# BUZZBOLT: tapping fire keeps a wide spread going at full speed; holding
+# it turns into focused fire after a moment, and the ship goes much slower.
+game buzzbolt
+press A
+wait 10
+press A
+cheat quiet
+wait 130
+# not firing: two pixels a frame
+cheat pos 100 120
+hold RIGHT 30
+expect px == 160
+expect focused == 0
+# tapping: still two pixels a frame, and the spread keeps coming
+cheat pos 100 120
+hold RIGHT
+press A
+press A
+press A
+press A
+press A
+release RIGHT
+expect px == 130
+expect focused == 0
+expect spread_win > 0
+expect pshots_1 > 4
+wait 40
+# holding: the first ten frames are a press, then focused and slow
+cheat pos 100 120
+hold RIGHT A 40
+expect focused == 1
+expect px10 >= 1440
+expect px10 <= 1447
+# up and down the same
+cheat pos 160 160
+hold UP 20
+expect py == 120
+cheat pos 160 160
+hold UP A 30
+expect py >= 122
+expect py <= 126
+# diagonals are no faster than straight lines
+wait 20
+cheat pos 100 100
+hold RIGHT DOWN 20
+expect px == 128
+expect py == 128

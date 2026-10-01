@@ -1,0 +1,174 @@
+# BUZZBOLT: the three goals. Beacon: reach a 10x multiplier (spelt here
+# with real letters). Saucer: beat all five waves. Alien: win with 300,000
+# points or more, checked at the ending. The high-score table (names
+# entered with the pad) and the tracked stats (highest multiplier, each
+# ship's best) are saved; a run in progress is not.
+game buzzbolt
+press A
+wait 10
+press A
+cheat quiet
+wait 130
+cheat pos 160 150
+expect goals == 0
+cheat drops 0
+cheat letter 190 150
+hold RIGHT 15
+cheat drops 1
+cheat letter 160 150
+hold LEFT 15
+cheat drops 1
+cheat letter 190 150
+hold RIGHT 15
+expect mult == 2
+expect goals == 0
+cheat drops 0
+cheat letter 160 150
+hold LEFT 15
+cheat drops 1
+cheat letter 190 150
+hold RIGHT 15
+cheat drops 1
+cheat letter 160 150
+hold LEFT 15
+expect mult == 3
+expect goals == 0
+cheat drops 0
+cheat letter 190 150
+hold RIGHT 15
+cheat drops 1
+cheat letter 160 150
+hold LEFT 15
+cheat drops 1
+cheat letter 190 150
+hold RIGHT 15
+expect mult == 4
+expect goals == 0
+cheat drops 0
+cheat letter 160 150
+hold LEFT 15
+cheat drops 1
+cheat letter 190 150
+hold RIGHT 15
+cheat drops 1
+cheat letter 160 150
+hold LEFT 15
+expect mult == 5
+expect goals == 0
+cheat drops 0
+cheat letter 190 150
+hold RIGHT 15
+cheat drops 1
+cheat letter 160 150
+hold LEFT 15
+cheat drops 1
+cheat letter 190 150
+hold RIGHT 15
+expect mult == 6
+expect goals == 0
+cheat drops 0
+cheat letter 160 150
+hold LEFT 15
+cheat drops 1
+cheat letter 190 150
+hold RIGHT 15
+cheat drops 1
+cheat letter 160 150
+hold LEFT 15
+expect mult == 7
+expect goals == 0
+cheat drops 0
+cheat letter 190 150
+hold RIGHT 15
+cheat drops 1
+cheat letter 160 150
+hold LEFT 15
+cheat drops 1
+cheat letter 190 150
+hold RIGHT 15
+expect mult == 8
+expect goals == 0
+cheat drops 0
+cheat letter 160 150
+hold LEFT 15
+cheat drops 1
+cheat letter 190 150
+hold RIGHT 15
+cheat drops 1
+cheat letter 160 150
+hold LEFT 15
+expect mult == 9
+expect goals == 0
+cheat drops 0
+cheat letter 190 150
+hold RIGHT 15
+cheat drops 1
+cheat letter 160 150
+hold LEFT 15
+cheat drops 1
+cheat letter 190 150
+hold RIGHT 15
+expect mult == 10
+expect goals == 1
+# the beacon is earned at once, in the middle of the run
+wait 220
+# then the last boss beaten with 300,000 points: the saucer and the alien
+cheat wave 5
+cheat lives 3
+cheat score 300000
+waituntil boss_count == 1 300
+cheat bosshp 1
+botuntil boss_dead == 1 3000
+waituntil state == 6 600
+expect goals == 7
+# the ending, then the credits (hold A to hurry them), then the table
+wait 250
+press A
+wait 10
+expect state == 7
+hold A 520
+waituntil state == 8 400
+expect name_rank == 0
+wait 15
+press UP
+press RIGHT
+press UP
+press UP
+press A
+press DOWN
+press A
+waituntil state == 9 60
+expect hs0_c0 == 66
+expect hs0_c1 == 67
+expect hs0_c2 == 33
+expect hs0_ship == 0
+expect hs1_score == 50000
+expect save_best_mult == 10
+expect save_wins == 1
+expect save_cherries == 1
+wait 15
+press A
+wait 10
+expect state == 0
+# all of it survives a restart
+reload
+game buzzbolt
+wait 5
+expect goals == 7
+expect hs0_c0 == 66
+expect hs0_score >= 300000
+expect save_best0 >= 300000
+expect save_best_mult == 10
+expect save_cherries == 1
+expect save_runs == 1
+# a run in progress is not saved: in, then out, then in again: the title
+press A
+wait 10
+press A
+wait 200
+expect state == 3
+reload
+game buzzbolt
+wait 5
+expect state == 0
+expect save_runs == 2

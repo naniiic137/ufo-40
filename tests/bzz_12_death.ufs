@@ -1,0 +1,82 @@
+# BUZZBOLT: one hit and the ship is gone, from a shot or a foe's body.
+# Losing a ship puts the multiplier back to x1 and takes away everything
+# the letters gave: options, orbs, the power-up, bombs, the half-spelt
+# word. The next ship comes in blinking and can't be hit for a while. With
+# no ship to spare, the game is over.
+game buzzbolt
+press A
+wait 10
+press A
+cheat quiet
+wait 130
+cheat pos 160 150
+cheat mult 6
+cheat word 2
+cheat word 3
+cheat drops 0
+cheat letter 190 150
+hold RIGHT 15
+expect nword == 1
+expect nopt == 1
+expect orbs == 2
+expect lives == 1
+cheat pos 160 150
+cheat eshot 0 160 100 0 0
+cheat pos 160 101
+wait 3
+expect alive == 0
+expect deaths == 1
+expect mult == 1
+expect nopt == 0
+expect orbs == 0
+expect nword == 0
+expect lives == 1
+wait 60
+expect alive == 1
+expect lives == 0
+expect inv > 100
+expect px == 160
+expect py == 160
+# blinking: shots pass through
+cheat eshot 0 160 140 0 2
+wait 15
+expect alive == 1
+expect deaths == 1
+wait 120
+expect inv == 0
+# a foe's body is as deadly as a shot
+cheat dummy 0 160 120
+hold UP 30
+expect alive == 0
+expect deaths == 2
+# no ship to spare: game over
+wait 70
+expect state == 5
+# the shieldbug loses its power-up, the firefly its bombs
+game buzzbolt
+press A
+wait 10
+press LEFT
+press A
+cheat quiet
+wait 130
+cheat word 3
+cheat word 3
+expect bombs == 2
+cheat eshot 0 160 140 0 2
+wait 20
+expect alive == 0
+expect bombs == 0
+game buzzbolt
+press A
+wait 10
+press RIGHT
+press A
+cheat quiet
+wait 130
+cheat word 3
+expect power_t == 600
+cheat eshot 0 160 140 0 2
+wait 20
+expect alive == 0
+expect power_t == 0

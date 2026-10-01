@@ -1,0 +1,21 @@
+# BUZZBOLT: wave 3's boss, the Queen Tick, can be beaten: rings that bounce
+# off the bottom of the screen, fans, and bursts once she is hurt. Flown
+# by the demo player in the shieldbug.
+game buzzbolt
+press A
+wait 10
+press RIGHT
+press A
+wait 10
+cheat lives 3
+cheat wave 3
+cheat boss
+waituntil boss_count == 1 200
+expect boss_kind == 9
+waituntil rings_bounced > 0 400
+botuntil boss_dead == 1 9000
+expect boss_count == 0
+expect drops >= 3
+waituntil state == 4 400
+waituntil state == 3 400
+expect wave == 4

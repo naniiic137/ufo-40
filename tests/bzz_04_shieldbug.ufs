@@ -1,0 +1,24 @@
+# BUZZBOLT: the SHIELDBUG. A tap fires a wide arc of seven; held fire
+# throws a crescent straight ahead. B does nothing for it.
+game buzzbolt
+press A
+wait 10
+press RIGHT
+press A
+expect ship == 1
+cheat quiet
+wait 130
+cheat pos 160 150
+press A
+expect pshots_0 == 7
+expect pshots_2 == 0
+wait 40
+hold A 30
+expect focused == 1
+expect pshots_2 >= 2
+wait 30
+cheat word 3
+press B
+expect bombs == 0
+expect bombs_flying == 0
+expect power_t > 0

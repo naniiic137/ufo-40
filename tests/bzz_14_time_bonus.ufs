@@ -1,0 +1,25 @@
+# BUZZBOLT: a wave ends when its boss is beaten; a quick clear earns a
+# time bonus (100 points for every second under the wave's par), and the
+# bonus is never multiplied.
+game buzzbolt
+press A
+wait 10
+press A
+wait 10
+cheat boss
+cheat mult 7
+cheat bosshp 1
+botuntil boss_dead == 1 3000
+expect time_bonus > 1500
+expect time_bonus < 3800
+waituntil state == 4 300
+expect bonus_given > 0
+expect bonus_diff == 0
+# a slow clear gets nothing
+cheat wave 2
+cheat god
+cheat boss
+wait 6000
+cheat bosshp 1
+botuntil boss_dead == 1 3000
+expect time_bonus == 0

@@ -1,0 +1,54 @@
+# BUZZBOLT: the firefly's specials. BBB: one more bomb trailing behind the
+# ship, three at most; B launches one forward and it goes off a moment
+# later, wiping out shots and hurting foes inside its blast. ZBB: a
+# dragonfly crosses the screen, fires nine shots at three angles at once,
+# three times, and wipes out the shots it flies through.
+game buzzbolt
+press A
+wait 10
+press LEFT
+press A
+cheat quiet
+wait 130
+cheat pos 160 150
+cheat word 3
+cheat word 3
+cheat word 3
+expect bombs == 3
+cheat word 3
+expect bombs == 3
+cheat dummy 1 160 72
+cheat eshot 0 150 80 0 0
+cheat eshot 0 172 64 0 0
+cheat eshot 0 40 40 0 0
+press B
+expect bombs == 2
+expect bombs_flying == 1
+wait 20
+expect blasts == 0
+wait 20
+expect bombs_flying == 0
+expect blasts == 1
+wait 30
+expect blasts == 0
+expect eshots == 1
+expect foe0_hp < 180
+# the next two
+press B
+wait 5
+press B
+expect bombs == 0
+expect bombs_flying == 2
+press B
+expect bombs_flying == 2
+wait 60
+# ZBB: the dragonfly
+cheat eshot 0 100 62 0 0
+cheat dummy 1 200 30
+cheat word 4
+expect fly_on == 1
+wait 100
+expect fly_fired == 9
+expect eshots == 1
+wait 60
+expect fly_on == 0
