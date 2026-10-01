@@ -825,10 +825,10 @@ the top.
 ### 31 · TILTSHOT
 
 <p align="center">
-  <img src="docs/shots/tiltshot.gif" width="640" alt="Tiltshot: a putt off the tee on The Chute, slammed onto the drop, runs up the far bank on fire and into the cup">
+  <img src="docs/shots/tiltshot.gif" width="640" alt="Tiltshot: the first hole's slammed hole in one: a full shot over the mound, slammed onto its far side, races off on fire over the sand trap and the pond, off the backstop and into the cup">
 </p>
 <p align="center">
-  <img src="docs/shots/tiltshot_skylark.png" width="320" alt="Skylark: the ball over a bottomless canyon between two wheeling sparks">
+  <img src="docs/shots/tiltshot_skylark.png" width="320" alt="Skylark: the ball high over a bottomless canyon, a spark wheeling below it, the SLAM lamp lit on the display">
   <img src="docs/shots/tiltshot_board.png" width="320" alt="The leaderboard after the first hole: a hole in one and seven CPU rivals">
 </p>
 
@@ -838,24 +838,31 @@ the top.
   tables. LEFT and RIGHT turn a dotted guide; hold A and the meter fills and
   stays full, but hold it there and the golfer flashes red (EASY NOW!) and
   blows up, and the stroke is gone. Let go to swing. While the ball flies,
-  A slams it down once a stroke, keeping its speed across; slammed onto a
-  slope that falls away it races off on fire. Sand stops it dead, water and
-  pits send it back to where it was hit from (the stroke counts, nothing
-  more), a fast flat ball skips across water, and the hole counts the moment
-  the ball is in the cup.
-- **The courses:** bumpers, spring pads and spring lines, orange movers
-  (blimps, hop-bots, kites, fish, sparks) that break at a touch and nearly
-  stop the ball, purple junk that breaks and slows it a little, pegs,
-  tunnels, and a red block with a strange message.
+  A slams it down once a stroke, keeping its speed across (a SLAM lamp on
+  the dot-matrix display shows it is ready); slammed onto a slope that
+  falls away it races off on fire. Sand stops it dead, water and pits send
+  it back to where it was hit from (the stroke counts, nothing more), a
+  fast flat ball skips across water, and the hole counts the moment the
+  ball is in the cup. SPLASH!, KA-BOOM!, BIRDIE! and the rest flash up on
+  the display, pinball style.
+- **The courses:** bumpers, spring pads and spring lines that throw far
+  harder than bumpers, orange movers on thirteen holes (blimps, hop-bots,
+  kites, fish, sparks, trundlers on the ground and lanterns on chains) that
+  break at a touch and nearly stop the ball, purple junk that breaks and
+  slows it a little, pegs, roofs, tunnels, bridges, a pillar hanging from
+  the sky, and a red block with a strange message. No hole but the par 1
+  can be aced without a slam, and the tests prove it.
 - **Structure:** eighteen fixed holes in order at the original's pars (61
   in all, with the par-1 TOSS-UP at 9 and the par-6 LAST ORBIT at 18),
   eight golfers on the board, lowest total wins; the CPU rivals are weak and
   random (the best of them ends 4 to 13 over par). 1P or 2P versus, five
-  golfers who all play the same, records, and a code in the credits. The
-  tests replay a route round every hole with real button presses.
+  golfers who all play the same, the original's two stats, and a code in
+  the credits that works like a terminal code. The tests replay a route
+  round every hole with real button presses (34 strokes in all).
 - **Ours:** the Comet Classic, Nova, Digby, Peaches, Tuck and Moss, the
   twelve regulars, Wick (HOMESPUN) and Kip (SKYWELL) by the code, all
-  eighteen holes, the movers and junk, and the music.
+  eighteen holes, the movers and junk, the words on the display, and the
+  music.
 
 ### 44 · HOMESPUN
 
