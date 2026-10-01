@@ -22,13 +22,13 @@ the guide's descriptions [G]:
 | # | The original's course [G] | CHIME CIRCUIT |
 |---|---|---|
 | 1 | a simple loop with two boost pads; the tutorial | PRELUDE RING: a wide loop over a meadow, a boost arrow on each straight |
-| 2 | a loop with a dip and a big drop that decide where to build momentum, and a narrow passage that is hard to use | THE DIPPER: the track dives under a hanging rock (the dip) and then drops the whole height of the screen; a three-tile slot through the rock is the hard short cut, with a pickup station inside it |
-| 3 | a very narrow loop; easy to stay ahead, hard to catch up, pile-ups | NEEDLE'S EYE: three tiles wide all the way round, with a hump over the top and a dip under the bottom |
+| 2 | a loop with a dip and a big drop that decide where to build momentum, and a narrow passage that has its uses but is often a trap | THE DIPPER: the main line dives under a hanging rock (the dip), climbs out and then drops the whole height of the screen; a slot through the top of the rock, three tiles high with a two-tile step in the middle, is a short, risky bypass with a pickup station inside it |
+| 3 | a very narrow loop; easy to stay ahead, hard to catch up, pile-ups | NEEDLE'S EYE: three tiles wide over the top and the bottom and four down the sides, with a hump over the top and a dip under the bottom |
 | 4 | the first figure-8, probably the toughest; rising and falling | HOURGLASS: two round lobes that cross in an X in the middle, where every lap climbs through and drops through |
 | 5 | a forked loop: the top half longer with a boost plate, the bottom plain; they rejoin before another boost plate down a straightaway | FORKED REED: after the climb the way splits into a long high branch with a boost and a plain low one; they meet on the right and drop to a straightaway with a boost |
 | 6 | a figure-8 the AI runs badly; it turns to wrecking ships instead | TWIN FLUE: a figure-8 of two lobes in opposite corners of the screen, crossing square in the middle; the CPUs hunt |
 | 7 | a bendy loop whose narrow passage is easy and is the key to beating the AI | CROOKED MILE: a square-wave mile of bends along the top, and a plain three-tile tunnel under them that cuts the whole mile; the CPUs never take it |
-| 8 | the last figure-8, with a long bottom half; the most balanced | GRAND OCTAVE: a figure-8 with a tight loop on top and a long low straight with a boost |
+| 8 | the last figure-8, with a long bottom half; the most balanced | GRAND OCTAVE: a figure-8 with a wide loop on top (lanes seven tiles across), an open crossing and a long low straight with a boost; the CPUs run it closest to your pace |
 
 | Full scale | The Big Bell Race | CHIME CIRCUIT |
 |---|---|---|
@@ -48,20 +48,27 @@ the guide's descriptions [G]:
 | Meta message | a terminal page that says "I'M SO TIRED" [W] | LAST-LAMP, a tired note in our own words |
 
 **How long it takes.** A whole tournament is about 12–20 minutes for a new
-player and 7:51 for the best speedrun [ST-BEATEN], [STATIC], [SR]. The demo
-pilot's clean runs (the CPUs taken off the track) add up to 7:12 of racing;
-against the CPUs, the scrum and the pickups it takes about 12 minutes:
+player and 7:51 for the best speedrun, and a race about a minute
+[ST-BEATEN], [STATIC], [SR]. The demo pilot's clean runs (the CPUs taken off
+the track) add up to 6:43 of racing; against the CPUs, the scrum and the
+pickups it averages 63 s a race, about 8:30 of racing in all, and it wins
+146 of 160 races (20 seeds on each track, with its lone wrecks at 0.7 a
+race). The CPUs' pace against it is the track's own (see Readings):
 
-| Track | Demo pilot alone | Demo pilot in a race | Its place |
-|---|---|---|---|
-| PRELUDE RING | 41 s | 61 s | 4th |
-| THE DIPPER | 47 s | 58 s | 1st |
-| NEEDLE'S EYE | 62 s | 134 s | 3rd |
-| HOURGLASS | 48 s | 65 s | 1st |
-| FORKED REED | 44 s | 69 s | 3rd |
-| TWIN FLUE | 51 s | 93 s | 1st |
-| CROOKED MILE | 63 s | 77 s | 1st |
-| GRAND OCTAVE | 76 s | 150 s | 1st |
+| Track | Demo pilot alone | A CPU alone, against it | Demo pilot in a race (mean) | Races it wins |
+|---|---|---|---|---|
+| PRELUDE RING | 41 s | 65 % | 54 s | 20 of 20 |
+| THE DIPPER | 53 s | 70 % | 67 s | 19 of 20 |
+| NEEDLE'S EYE | 51 s | 62 % | 73 s | 19 of 20 |
+| HOURGLASS | 48 s | 75 % | 64 s | 14 of 20 |
+| FORKED REED | 37 s | 74 % | 43 s | 20 of 20 |
+| TWIN FLUE | 48 s | 57 % | 65 s | 20 of 20 |
+| CROOKED MILE | 51 s | 47 % | 53 s | 20 of 20 |
+| GRAND OCTAVE | 73 s | 79 % | 89 s | 14 of 20 |
+
+On PRELUDE RING the CPUs are still on their third to fifth lap when it
+finishes, so it laps them more than once, as in the original's tutorial
+race [G].
 
 ## Structure
 
@@ -94,31 +101,33 @@ A tournament begun with the LOOT-GALE code on earns none of them.
 | Mechanic | How CHIME CIRCUIT does it | Source | Test |
 |---|---|---|---|
 | Side view, gravity | the ship falls unless A is held; tapping A hovers | [MM], [W] | chm_02 |
-| Thrust | hold A to push up; no fuel | [MM], [W], [TVT] | chm_02 |
+| Thrust | hold A to push up; no fuel; held with a steer, it helps the ship pick up speed that way | [MM], [W], [TVT], [G] | chm_02 |
 | Steering with inertia | left and right accelerate the ship, which drifts on when let go; the same model as the chime-ship games (`chime_flight.c`) | [W], [STATIC-CAMP], [SEARCH-CAMP] | chm_02 |
-| Slash | B: a short swipe to the side the ship faces; no damage; the ship it reaches is knocked away and can't steer for a moment | [MM], [W], [W-CAMP] | chm_04 |
+| Slash | B: a short swipe to the side the ship faces; no damage; the ship it reaches is knocked away and can't steer for a moment (its thrust still works); the swipe slows the slasher's fall a little | [MM], [MM-CAMP], [W], [W-CAMP] | chm_04 |
 | Ramming | ships bump apart and swap speed; no damage | [G] | chm_05 |
 | Hit points | 3; walls, floors, ceilings and weapons each take one | [MM], [W], [G] | chm_03, chm_09 |
-| Damage shown | a ship on its last hit point smokes | [G], [STATIC] | (drawn) |
+| Damage shown | a meter pops up over the ship for a second whenever its hit points change; a ship on its last hit point smokes | [MM], [G], [STATIC] | chm_03, chm_06, chm_07 |
 | Wrecked | at 0 hit points; a replacement launches from under the start line a moment later and flies that lap again; laps are kept | [MM], [G], [W] | chm_06 |
 | Mercy after a hit | a short time, "not super generous" | [G] | chm_03, chm_06 |
 | Laps | a lap counts at the line after the track's checkpoints in order, so no short cut skips half a lap | (reading) | chm_07 |
 | Lap heal | every finished lap mends one hit point, never above three | [MM], [W] | chm_07 |
 | Boost arrows | flying over one throws the ship the way it points | [MM], [G] | chm_t1, chm_t5, chm_t8 |
-| Pickup stations | a yellow "!!" flashes where a pickup is about to appear; flying into it uses it at once | [W], [G], [W-CH] | chm_08 |
+| Pickup stations | nothing shows at an empty station; a yellow "!!" flashes where a pickup is about to appear; flying into it uses it at once | [W], [G], [W-CH] | chm_08 |
 | Bullets | fired by themselves in the four directions for a short time; they hurt other ships | [W] | chm_09 |
-| Mines | laid behind by themselves; they hurt on contact, the layer too | [W], [G] | chm_09 |
+| Mines | laid behind by themselves; they hurt on contact, the layer too if it loops back into them | [W], [G] | chm_09 |
 | Fireballs | two circle the ship for a while and hurt any ship they touch | [W], [G] | chm_09 |
 | Big slash | knocks ships much further | [W], [G] | chm_09 |
-| Payload | a ball on a chain for a few seconds, then it blows up, throws nearby ships back and leaves three fires in a spread triangle; fires hurt and slow | [W], [G] | chm_09 |
+| Payload | a ball on a chain for a few seconds, then it blows up, throws the other ships near it back and leaves three fires in a spread triangle; fires hurt and slow; the payload never turns on its own ship | [W], [G] | chm_09, chm_20 |
 | Six ships, one screen | the whole track on one screen, all six ships on it | [STATIC], [TVT] | chm_01 |
 | HUD | top left: the running order and each ship's laps left | [MM] | (drawn) |
 | Points | 9, 7, 5, 3, 2, 1 by place | [G] | chm_10 |
 | The grid | bunched just past the line; the winner starts the next race at the back | [POPCAR], [ST-BEATEN] | chm_10 |
 | The tournament | 8 races on the 8 tracks in order; most points wins | [W], [G] | chm_11 |
-| CPU pilots | slower than a good player; their aggression changes at random, some even turn back to hunt you | [LIZ], [G], [ST-BEATEN] | chm_16 |
+| CPU pilots | slower than a good player, by a pace set for each track; their aggression is drawn at random for each race: sometimes they let you by, sometimes one turns back to hunt you; once you lap them only a hunter still bothers you | [LIZ], [G], [ST-BEATEN], [POPCAR] | chm_16, chm_21 |
 | The opening scrum | the first seconds are a scramble of slashes | [POPCAR], [LIZ] | chm_16 |
-| TWIN FLUE | the CPUs run it badly and go after ships instead | [G] | chm_16, chm_t6 |
+| TWIN FLUE | the CPUs run it badly and go after ships instead | [G] | chm_16, chm_21, chm_t6 |
+| THE DIPPER | the dip is everyone's line; the slot is a short, risky bypass | [G] | chm_22 |
+| GRAND OCTAVE | the most even race; a ship on its own flies it clean | [G] | chm_t8 |
 | The side route | CROOKED MILE's tunnel beats the CPUs, who never take it | [G] | chm_t7 |
 | 2P | two players race at once on one screen with their own pads | [W], [ST-1P], [STATIC] | chm_13 |
 | Pilots | six, the same ship in six colours, each with an ending | [W], [LIZ] | chm_01, chm_18 |
@@ -126,18 +135,21 @@ A tournament begun with the LOOT-GALE code on earns none of them.
 | Goals | Beacon: 1st place in a race; Saucer: win the tournament; Alien: 1st place in all 8 races | [W], [GGC] | chm_11, chm_12 |
 | Stats | P1 and P2 average lap and average race, on the title | [W] | chm_12, chm_13, chm_18 |
 | No save mid-run | a tournament is played in one sitting; START pauses | [ST-SAVES], [G] | chm_12, chm_17 |
-| The code | LOOT-GALE: stations restock four times as fast | [W], [W-CH] | chm_14 |
+| The code | LOOT-GALE: stations stock and restock four times as fast | [W], [W-CH] | chm_14 |
 | The meta page | LAST-LAMP shows a tired note | [W], [W-META] | chm_14 |
 | No out-of-bounds bug | see Readings | [ST-OOB] | chm_15 |
 
 ### Readings we had to choose
 
 - **Flight** (1/256 px and frames): gravity 20, thrust 50 (30 up net),
-  steering 16, a drift that slows by 3 a frame, top speeds 560 across
-  (2.2 px a frame), 512 up and 704 down. A ship pushed faster (a boost, a
-  knock) slows back by 14 a frame; nothing goes over 7 px a frame. The hit
-  box is 8 × 8. Only "the same as Campanella" is known [STATIC]; these give
-  the heavy, floaty handling the reviews describe.
+  steering 16, or 24 while thrust is held too (thrust "can help accelerate
+  the saucer if applied directionally" [G]), a drift that slows by 3 a
+  frame, top speeds 560 across (2.2 px a frame), 512 up and 704 down. A
+  ship pushed faster (a boost, a knock) slows back by 14 a frame; nothing
+  goes over 7 px a frame. The hit box is 8 × 8. Only "the same as
+  Campanella" is known [STATIC]; these give the heavy, floaty handling the
+  reviews describe. With thrust and a steer held together the ship leans
+  that way.
 - **Walls** bounce a ship back at 43 % of its speed (at least 0.63 px a
   frame). After any hit nothing hurts the ship for 45 frames; a relaunched
   ship is safe for 60.
@@ -147,21 +159,30 @@ A tournament begun with the LOOT-GALE code on earns none of them.
 - **The slash** reaches 19 px to the facing side and 20 px up and down (the
   big slash 24 and 26), hits in the first 8 of its 14 frames and can be
   used again after 24. It knocks at 3.6 px a frame (the big slash 6.4) with
-  a little lift, and the ship it hits can't steer for 16 frames (26). It
-  does not slow the fall as Campanella's does (not confirmed for this game).
+  a little lift, and the ship it hits can't steer for 16 frames (26); it
+  can still thrust. While the blade is out (8 frames) the slasher's
+  downward speed loses an eighth a frame, so it falls about a third
+  slower over the swipe: Campanella's slash "slightly slows down your
+  falling rate" [MM-CAMP], and the two games share their controls [W-CAMP].
 - **Ramming**: ships push apart and trade their speed along the push (90 %).
 - **Laps**: each track has two to seven checkpoint lines, passed in order.
   On a fork a checkpoint is a line in each branch, so either branch counts.
-- **Stations**: fixed spots on each track; the first pickup comes 4 to 7 s
-  after the start, the next 8 to 14 s after one is taken (with LOOT-GALE, a
-  quarter of that); the "!!" shows for 1 s. The pickup is one of the five
-  at random. A new pickup replaces one still working.
+- **Stations**: fixed spots on each track, drawn only once the "!!" shows;
+  the first pickup comes 4 to 7 s after the start, the next 8 to 14 s after
+  one is taken (with LOOT-GALE, a quarter of both); the "!!" shows for 1 s.
+  The pickup is one of the five at random. A new pickup replaces one still
+  working.
 - **How long pickups last**: bullets 4 s (four shots every 16 frames at
   3.5 px a frame); mines 4 s (one every 20 frames, armed after half a
-  second, gone after 8 s); fireballs 5 s (two, 14 px out, a turn every 32
-  frames); the big slash 6 s; the payload 3 s, then the blast throws every
-  ship within 36 px clear at 4 px a frame (no damage) and leaves three
-  fires 16 px out for 5 s, each cutting a ship's speed to 40 % as it hurts.
+  second, gone after 3 s, before even the fastest lap (5 s) comes round
+  again, so a layer only meets its own mines by turning back); fireballs 5 s
+  (two, 14 px out, a turn every 32 frames); the big slash 6 s; the payload
+  3 s, then the blast throws every other ship within 36 px clear at 4 px a
+  frame (no damage; its own ship is left alone) and leaves three fires
+  16 px out for 3 s ("a short time" [G]): the point of the triangle faces
+  away from the ship that towed it, and its own fires spare it for their
+  first second. A ship in a fire is hurt and can go no faster than 40 % of
+  its top speeds while it is in it, so it flies on out with one hit.
 - **Boost arrows** set a ship's speed to 4.2 px a frame their way.
 - **The grid**: two rows of three past the line. The first race's grid is
   drawn by lot; after that the last race's finish runs the other way (one
@@ -176,22 +197,39 @@ A tournament begun with the LOOT-GALE code on earns none of them.
 - **2P pilots**: the two players can't fly the same pilot (six ships, six
   colours).
 - **CPU pilots**: each has a top speed for the race of 370–440 (66–79 % of
-  a ship's); on TWIN FLUE seven eighths of that. Moods, drawn afresh every
-  6 to 12 s: calm 55 %, jostling 35 %, hunting 10 % (on TWIN FLUE 20, 40 and
-  40). For the first 5 s everyone jostles. A jostler slashes a player in
-  reach one frame in five and a CPU one in twelve; a hunter goes for a
+  a ship's), times the track's pace: PRELUDE RING 75 %, TWIN FLUE 88 %,
+  GRAND OCTAVE 102 %, the rest 100 %. Against the demo pilot's clean runs
+  that makes them 65 % as fast on PRELUDE RING (it laps them more than
+  once [G]), 79 % on GRAND OCTAVE (the most even race [G]), 75 % on
+  HOURGLASS (where "the AI keeps pace" [G]) and 47 % on CROOKED MILE (whose
+  tunnel "chumps" them [G]). Their temper is drawn once for each race
+  ("sometimes they just let you run by … sometimes they literally turn
+  around" [ST-BEATEN]): calm half the time (nobody slashes after the
+  scrum), mixed 35 % (each CPU jostles or not, even odds), mean 15 % (one
+  hunter, the rest jostle); TWIN FLUE is always mean, with two hunters.
+  For the first 5 s everyone jostles, a slash one frame in ten for a ship
+  in reach. A jostler slashes a player in reach one frame in twenty and a
+  CPU one in forty, and never a ship that is a lap or more ahead of it:
+  once you are clear you are left alone [POPCAR]. A hunter goes for a
   player within 110 px (on TWIN FLUE any ship), turning back if it must,
-  slashes whenever it can and gives up past 165 px. They fly by following
-  the track's distance field (`chime_ai.c`); the demo pilot in the tests is
-  the same pilot at full speed on each track's fastest line.
-- **The damage lamp**: the manual says the damage is shown by an indicator
-  [MM] and the guide says a ship smokes on its last hit point [G]; ours
-  smokes and also has a lamp on top (green, yellow, red).
+  and slashes whenever it can, lapping or not; once a knock lands it lets
+  its prey go for 4 s, and it gives up past 165 px. They fly by following
+  the track's distance field (`chime_ai.c`) and mind only the walls.
+- **The demo pilot** in the tests is the same pilot at full speed on each
+  track's fastest line, standing in for a player: it also watches for what
+  a player sees coming (mines, fires, fireballs and the ships just ahead)
+  and edges round them or eases off, and when there is no clear way it
+  just flies on.
+- **The damage meter**: the manual says the damage is shown by "an
+  indicator that appears above your ship whenever this changes" [MM], and
+  the guide says a ship smokes on its last hit point [G]. Ours pops three
+  pips up over the ship for a second when its hit points change (a hit, a
+  lap's mend, a relaunch), and a ship on its last hit point smokes.
 - **LOOT-GALE** is our own name for the more-pickups code, typed on the
   title's CODE screen. As with the collection's cheats [CONV], a tournament
   begun with it on earns no goals or stats. The credits mention it.
-- **LAST-LAMP** shows a note taped inside the cartridge, in our words. The
-  credits mention it too.
+- **LAST-LAMP** shows a note taped inside the cartridge, in our words: a
+  tired pilot-tester's note with no signature. The credits mention it too.
 - **Saving**: only the stats and records (cups and races won, the best
   score, the last pilots picked). The stats are the average of every lap
   and every finished race each player has flown.
@@ -200,6 +238,45 @@ A tournament begun with the LOOT-GALE code on earns none of them.
   moves ships in half-pixel steps, so a ship can't pass through a wall; and
   a ship that ever ends up outside the track or inside a wall is wrecked
   and relaunched like any other. This is a bug fix, not an addition.
+
+## Review fixes
+
+An independent review (2026-09-30) found the scale and the rules faithful
+but the feel off: the original is "definitely the easiest" [ST-CHERRY], and
+once you are ahead you are "not bothered again" [POPCAR], while ours made
+demolition derbies of three tracks. What changed:
+
+| Finding | Fix |
+|---|---|
+| F1 the payload hurt its own ship | the blast skips its own ship; the fire triangle points away from it; its own fires spare it for their first second; a fire now slows a ship (40 % of its top speeds while in it) instead of all but stopping it, so a ship flies on out with one hit |
+| F2 PRELUDE RING was the hardest race to win | a CPU pace for each track; PRELUDE RING's is 75 %, so a clean player laps the field more than once |
+| F3 every race a scrum, the leader never left alone | the CPUs' temper is drawn once a race (calm 50 %, mixed 35 %, mean 15 %; TWIN FLUE always mean); a jostler slashes one frame in twenty and never at a ship lapping it; one hunter at most (two on TWIN FLUE), and a hunter that lands a knock leaves its prey for 4 s |
+| F4 mines outlived a lap | mines last 3 s; fires too |
+| F5 GRAND OCTAVE was the most chaotic track | its top loop's lanes and the crossing are seven tiles or more across; a ship alone flies it clean; its CPU pace is the closest of all |
+| F6 NEEDLE'S EYE never let a leader be | the side shafts are four tiles wide (F3 and F4 did the rest) |
+| F7 THE DIPPER's slot was the only line | the dip is the main line for everyone; the slot is three tiles high with a two-tile step: rushed, a ship hits the step; flown well it saves about half a second |
+| F8 thrust didn't help sideways | steering is 24 instead of 16 while thrust is held; the ship leans that way |
+| F9 the slash didn't slow the fall | a slash takes an eighth off the fall each of its 8 active frames |
+| F10 an always-on damage lamp | a three-pip meter pops up over the ship for a second when its hit points change |
+| F11 stations shown when empty | nothing is drawn until the "!!" |
+| F12 a knocked ship lost its thrust | a knock locks the steering only |
+| F13 CROOKED MILE's card hinted at the tunnel | "A MILE OF BENDS." |
+| Nits | LOOT-GALE's first pickup comes in a quarter of the time, as written; the LAST-LAMP note no longer mentions how long the game took to make, and has no signature. TWIN FLUE still opens with a climb (optional; kept) |
+
+The review's probes (`p8_stats` and `p3_all_tracks`, the full-pace demo
+pilot against five CPUs, 56 races over the eight tracks), before and
+after:
+
+| | Before | Game fixes only | With the demo pilot's eyes |
+|---|---|---|---|
+| Races won by the demo pilot | 40 of 56 | 49 of 56 | 52 of 56 |
+| Its wrecks a race (mean) | 4.34 | 1.18 | 0.73 |
+| Its race (mean) | 90.6 s | 65.0 s | 63.3 s |
+| The longest track's race | 130.6 s (GRAND OCTAVE) | 91.0 s (GRAND OCTAVE) | 86.7 s (GRAND OCTAVE) |
+| The CPUs' wrecks a race (mean, each) | 5.17 | 2.33 | 1.80 |
+
+("The demo pilot's eyes": it now also watches for mines, fires and the
+ships ahead, as a player would; the CPU pilots don't.)
 
 ## What is ours
 
@@ -247,7 +324,8 @@ out-of-bounds respawn is a bug fix (see Readings).
 
 | Reading | Why it is flagged |
 |---|---|
-| The slash doesn't slow the fall | Campanella's does [MM-CAMP]; nobody says so for this game |
+| The slash slows the fall (about a third over the swipe) | Campanella's does [MM-CAMP], and the two share controls [W-CAMP]; nobody says so for this game |
+| Thrust with a steer: 24 instead of 16 | "can help accelerate the saucer if applied directionally" [G]; no number |
 | Walls bounce a ship back | sources only say walls hurt; the pinball scrum suggests bouncing |
 | How laps are checked (checkpoints) | not described anywhere |
 | The grid runs backwards after each race | one player's report [ST-BEATEN] |
@@ -255,7 +333,11 @@ out-of-bounds respawn is a bug fix (see Readings).
 | Every number in Readings (speeds, times, reaches, durations) | only "the same as Campanella", "a short time", "a few seconds" |
 | Stations' places and timing | the code's wording says "stations" [W-CH]; nothing else is known |
 | A new pickup replaces the one in use | not described |
-| The damage lamp on the ship | "an indicator" [MM]; only the smoke is described |
+| How the damage meter looks (three pips, a second) | "an indicator that appears above your ship whenever this changes" [MM] |
+| A knocked ship can't steer (but can thrust) for a moment | only "can send them flying into obstacles" [MM] |
+| The CPUs' tempers (half calm, a third mixed, the rest mean) and each track's CPU pace | only "sometimes … sometimes" [ST-BEATEN] and the guide's remarks on each track [G] |
+| A hunter lets its prey go for 4 s after a knock | not described |
+| A fire slows a ship to 40 % of its top speeds while it is in it | "damage your saucer and slow it down" [G] |
 | The tie-break on points | unknown |
 | The race ends after the players finish; the rest are placed by order | unknown |
 | Goals count in 2P for either player | unknown |
@@ -264,7 +346,7 @@ out-of-bounds respawn is a bug fix (see Readings).
 
 ## Tests
 
-`tests/chm_01` … `chm_19` drive the rules with button presses, or set up a
+`tests/chm_01` … `chm_22` drive the rules with button presses, or set up a
 moment with cheats (a ship placed, a pickup given, a finishing order) and
 then play it: flight (`chm_02`), walls and mercy (`chm_03`), the slash
 (`chm_04`), ramming (`chm_05`), wrecks and relaunching (`chm_06`), laps,
@@ -273,10 +355,13 @@ pickups and fires (`chm_09`), points and the reversed grid (`chm_10`), a
 whole tournament with a tie broken on wins (`chm_11`), goals and saving
 (`chm_12`), two players (`chm_13`), the code and the page (`chm_14`), the
 out-of-bounds fix (`chm_15`), the CPUs and the scrum (`chm_16`), pausing
-(`chm_17`) and losing the cup (`chm_19`). `chm_t1` … `chm_t8` have the
-demo pilot fly all eight laps of each track against the five CPUs with
-real button presses, and `chm_18` plays a whole tournament from the title
-(every menu and every lap) and wins the Chime Cup. The demo pilot is `chm_ai` with `bot = true`, read through
+(`chm_17`), losing the cup (`chm_19`), the payload sparing its own ship
+(`chm_20`), the CPUs' temper for a race and who they slash (`chm_21`) and
+THE DIPPER's dip and slot (`chm_22`). `chm_t1` … `chm_t8` have the demo
+pilot fly all eight laps of each track against the five CPUs with real
+button presses (`chm_t8` also flies GRAND OCTAVE alone, clean), and
+`chm_18` plays a whole tournament from the title (every menu and every
+lap) and wins the Chime Cup. The demo pilot is `chm_ai` with `bot = true`, read through
 the cartridge's `bot` query.
 
 ## Sources
@@ -305,6 +390,9 @@ the cartridge's `bot` query.
   games…": a winner starts last; the opponents' aggression is random; 12
   minutes for a first clean sweep.
   https://steamcommunity.com/app/1147860/discussions/0/4852154959746797715/?ctp=5
+- [ST-CHERRY] Steam thread "Easiest and hardest game to Cherry?": "definitely
+  the easiest … managed to win every race".
+  https://steamcommunity.com/app/1147860/discussions/0/604150365670110300/
 - [ST-OOB] Steam thread "Big Bell Race out of bounds glitch".
   https://steamcommunity.com/app/1147860/discussions/1/595136072544997971/
 - [ST-1P] Steam thread on the 1P/2P choice.
