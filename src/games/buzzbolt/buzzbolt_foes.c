@@ -25,7 +25,8 @@ const FoeDef BZZ_FOE[EK_COUNT] = {
 
 float bzz_aim(float x, float y) { return atan2f(bz.py - y, bz.px - x); }
 
-static float shot_speed(float base) { return base + 0.1f * (float)bz.wave; }
+/* shots get quicker wave by wave: a little slower than base in wave 1, faster by wave 5 */
+static float shot_speed(float base) { return base - 0.2f + 0.15f * (float)bz.wave; }
 
 static bool on_screen(const Foe *e) { return e->y > -4 && e->y < BZZ_H - 6 && e->x > -4 && e->x < BZZ_W + 4; }
 
@@ -180,7 +181,7 @@ void bzz_spawn_boss(int wave) {
     case 0: {
         int a = boss(EK_IRONBACK, 96, 42), b = boss(EK_IRONBACK, 224, 42);
         if (a >= 0) { bz.foe[a].sub = 0; bz.foe[a].dir = -1; }
-        if (b >= 0) { bz.foe[b].sub = 45; bz.foe[b].dir = 1; }
+        if (b >= 0) { bz.foe[b].sub = 42; bz.foe[b].dir = 1; }
         break;
     }
     case 1: boss(EK_BLOATFLY, 160, 44); break;
@@ -203,15 +204,14 @@ static void ironback_boss(Foe *e) {
     e->pt++;
     e->x = e->ax + sinf(e->pt * 0.018f + (e->dir > 0 ? 3.1f : 0)) * 52;
     e->y = e->ay + sinf(e->pt * 0.031f) * 10;
-    /* the pair take turns: spread volleys, and every third a wide double fan */
-    int c = (e->pt + e->sub) % 64;
+    /* the pair take turns: spread volleys, and every third a wide fan */
+    int c = (e->pt + e->sub) % 84;
     if (c == 0) {
         e->phase++;
-        if (e->phase % 3 == 0) { bzz_aimed(e->x, e->y + 8, shot_speed(1.9f), 11, 10); sfx_play_name("bzz_efire2"); }
-        else { bzz_aimed(e->x, e->y + 8, shot_speed(2.3f), 5, 14); sfx_play_name("bzz_efire"); }
+        if (e->phase % 3 == 0) { bzz_aimed(e->x, e->y + 8, shot_speed(1.9f), 9, 12); bzz_sfx("bzz_efire2", 8); }
+        else { bzz_aimed(e->x, e->y + 8, shot_speed(2.2f), 5, 14); bzz_sfx("bzz_efire", 8); }
     }
-    if (e->phase % 3 == 0 && c == 14) bzz_aimed(e->x, e->y + 8, shot_speed(1.9f), 10, 10);
-    if (e->phase % 3 == 1 && c == 32) bzz_aimed(e->x, e->y + 8, shot_speed(2.5f), 3, 8);
+    if (e->phase % 3 == 0 && c == 16) bzz_aimed(e->x, e->y + 8, shot_speed(1.9f), 8, 12);
 }
 
 static void bloatfly_boss(Foe *e) {
@@ -226,14 +226,14 @@ static void bloatfly_boss(Foe *e) {
             float a = 1.5708f + k * 1.0f;
             bzz_add_eshot(ES_HOMING, e->x + k * 14, e->y + 6, cosf(a) * shot_speed(2.1f), sinf(a) * shot_speed(2.1f));
         }
-        sfx_play_name("bzz_homing");
+        bzz_sfx("bzz_homing", 8);
     } else if (cyc == 1 && c % 50 == 20) {
         for (int k = -2; k <= 2; k++) {
             float a = 1.5708f + k * 0.45f;
             bzz_add_eshot(ES_HOMING, e->x, e->y + 8, cosf(a) * shot_speed(2.0f), sinf(a) * shot_speed(2.0f));
         }
         bzz_aimed(e->x, e->y + 8, shot_speed(2.4f), 5, 12);
-        sfx_play_name("bzz_homing");
+        bzz_sfx("bzz_homing", 8);
     } else if (cyc == 2) {
         /* it calls in gnats (worth 100 each while it lives) and sprays */
         if (c == 20) for (int k = 0; k < 5; k++) bzz_spawn_foe(EK_GNAT, FM_SIDE, 0, 70, k, 1, 2, 0);
@@ -255,9 +255,9 @@ static void tick_boss(Foe *e) {
             float vx = (k - (n - 1) / 2.0f) * 1.1f;
             bzz_add_eshot(ES_RING, e->x, e->y + 10, vx, shot_speed(2.0f));
         }
-        sfx_play_name("bzz_ring");
+        bzz_sfx("bzz_ring", 8);
     }
-    if (e->pt % 60 == 36) { bzz_aimed(e->x, e->y + 12, shot_speed(2.5f), 9, 10); sfx_play_name("bzz_efire"); }
+    if (e->pt % 60 == 36) { bzz_aimed(e->x, e->y + 12, shot_speed(2.5f), 9, 10); bzz_sfx("bzz_efire", 8); }
     if (e->pt % 100 == 70) bzz_ring(e->x, e->y + 8, shot_speed(1.7f), angry ? 24 : 16, e->pt * 0.07f, ES_AIMED);
 }
 
@@ -270,12 +270,12 @@ static void scythe_boss(Foe *e) {
         /* big homing shots, heavier than the bloatfly's */
         bzz_add_eshot(ES_BIG, e->x - 14, e->y + 8, -1.2f, shot_speed(1.9f));
         bzz_add_eshot(ES_BIG, e->x + 14, e->y + 8, 1.2f, shot_speed(1.9f));
-        sfx_play_name("bzz_homing");
+        bzz_sfx("bzz_homing", 8);
     }
     if (e->pt % 110 == 56) {
         /* a scything sweep */
         bzz_aimed(e->x, e->y + 10, shot_speed(2.4f), 11, 9);
-        sfx_play_name("bzz_efire2");
+        bzz_sfx("bzz_efire2", 8);
     }
 }
 
@@ -284,8 +284,8 @@ static void dustwing_boss(Foe *e) {
     e->pt++;
     e->x = e->ax + sinf(e->pt * 0.023f) * 68;
     e->y = e->ay + sinf(e->pt * 0.05f) * 16;
-    if (e->pt % 54 == 5) { bzz_add_eshot(ES_HOMING, e->x, e->y + 6, 0, shot_speed(2.1f)); sfx_play_name("bzz_homing"); }
-    if (e->pt % 100 == 40) { bzz_ring(e->x, e->y, 1.25f, 16, e->pt * 0.2f, ES_SPORE); sfx_play_name("bzz_puff"); }
+    if (e->pt % 54 == 5) { bzz_add_eshot(ES_HOMING, e->x, e->y + 6, 0, shot_speed(2.1f)); bzz_sfx("bzz_homing", 8); }
+    if (e->pt % 100 == 40) { bzz_ring(e->x, e->y, 1.25f, 16, e->pt * 0.2f, ES_SPORE); bzz_sfx("bzz_puff", 8); }
 }
 
 static void sporeheart_boss(Foe *e) {
@@ -298,9 +298,9 @@ static void sporeheart_boss(Foe *e) {
         /* a turning spray of spores, and volleys aimed at the ship */
         if (e->pt % 5 == 0)
             for (int k = 0; k < 3; k++) bzz_add_eshot(ES_SPORE, e->x, e->y + 6, cosf(rot + k * 2.0944f) * 1.7f, sinf(rot + k * 2.0944f) * 1.7f);
-        if (e->pt % 70 == 50) { bzz_aimed(e->x, e->y + 14, shot_speed(2.4f), 7, 11); sfx_play_name("bzz_efire"); }
+        if (e->pt % 70 == 50) { bzz_aimed(e->x, e->y + 14, shot_speed(2.4f), 7, 11); bzz_sfx("bzz_efire", 8); }
     } else if (stage == 1) {
-        if (e->pt % 40 == 0) { bzz_ring(e->x, e->y + 6, 1.7f, 22, e->pt * 0.05f, ES_SPORE); sfx_play_name("bzz_puff"); }
+        if (e->pt % 40 == 0) { bzz_ring(e->x, e->y + 6, 1.7f, 22, e->pt * 0.05f, ES_SPORE); bzz_sfx("bzz_puff", 8); }
         if (e->pt % 30 == 15) bzz_aimed(e->x, e->y + 14, shot_speed(2.5f), 3, 10);
     } else {
         if (e->pt % 6 == 0)
@@ -309,7 +309,7 @@ static void sporeheart_boss(Foe *e) {
             for (int k = -1; k <= 1; k += 2)
                 bzz_add_eshot(ES_HOMING, e->x + k * 20, e->y + 10, k * 0.9f, 2.0f);
             bzz_aimed(e->x, e->y + 14, shot_speed(2.4f), 5, 12);
-            sfx_play_name("bzz_homing");
+            bzz_sfx("bzz_homing", 8);
         }
     }
 }
@@ -327,7 +327,7 @@ static void fire_kind(Foe *e) {
         for (int k = -1; k <= 1; k += 2)
             bzz_add_eshot(ES_HOMING, e->x + k * 4, e->y + 4, cosf(a + k * 0.7f) * shot_speed(2.2f), sinf(a + k * 0.7f) * shot_speed(2.2f));
         bzz_aimed(e->x, e->y + 4, shot_speed(2.4f), 3, 16);
-        sfx_play_name("bzz_homing");
+        bzz_sfx("bzz_homing", 8);
         return;
     }
     case EK_BLISTER:
@@ -340,7 +340,7 @@ static void fire_kind(Foe *e) {
     case EK_GOLDBUG: bzz_aimed(e->x, e->y + 3, shot_speed(2.2f), 1, 0); break;
     default: return;
     }
-    sfx_play_name("bzz_efire");
+    bzz_sfx("bzz_efire", 8);
 }
 
 static void move_foe(Foe *e) {

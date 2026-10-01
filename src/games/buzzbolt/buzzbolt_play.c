@@ -35,6 +35,21 @@ void bzz_burst(float x, float y, int col, int n, float sp) {
     }
 }
 
+void bzz_sfx(const char *name, int gap) {
+    static struct { const char *name; uint32_t at; } last[12];
+    uint32_t now = engine_frame();
+    int slot = -1;
+    for (int i = 0; i < 12; i++) {
+        if (last[i].name && !strcmp(last[i].name, name)) { slot = i; break; }
+        if (!last[i].name && slot < 0) slot = i;
+    }
+    if (slot < 0) slot = 0;
+    if (last[slot].name && !strcmp(last[slot].name, name) && now - last[slot].at < (uint32_t)gap) return;
+    last[slot].name = name;
+    last[slot].at = now;
+    sfx_play_name(name);
+}
+
 static int add_pshot(int kind, float x, float y, float vx, float vy, float w, float h, int dmg) {
     for (int i = 0; i < BZZ_MAX_PSHOTS; i++) {
         PShot *s = &bz.ps[i];
@@ -232,7 +247,7 @@ void bzz_kill_foe(int i) {
     bool big = e->role != ROLE_FOE;
     bzz_burst(e->x, e->y, col, big ? 40 : 8, big ? 2.6f : 1.4f);
     if (big) { bz.shake = 20; bz.flash = 6; sfx_play_name("bzz_bigboom"); }
-    else sfx_play_name("bzz_pop");
+    else bzz_sfx("bzz_pop", 4);
     if (big) {
         drop_letter(e->x - 10, e->y, -0.9f);
         drop_letter(e->x, e->y, 0);
@@ -353,7 +368,7 @@ static void fire_spread(void) {
             for (int k = -1; k <= 1; k++) add_pshot(PS_BOLT, o->x, o->y - 4, sinf(k * 0.4f) * 5.5f, -cosf(k * 0.4f) * 5.5f, 2, 2, bz.power_t > 0 ? 4 : 2);
         /* the firefly's option only fires while fire is held */
     }
-    sfx_play_name("bzz_shot");
+    bzz_sfx("bzz_shot", 12);
 }
 
 static void fire_focus(void) {
@@ -367,7 +382,7 @@ static void fire_focus(void) {
         for (int i = 0; i < bz.nopt; i++)
             add_pshot(PS_CRESCENT, bz.opt[i].x, bz.opt[i].y - 4, 0, -6.5f, 5, 2, pw ? 8 : 4);
     }
-    sfx_play_name("bzz_shot2");
+    bzz_sfx("bzz_shot2", 10);
 }
 
 static void fire_lance(void) {

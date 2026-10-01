@@ -254,6 +254,8 @@ void bzz_aimed(float x, float y, float speed, int n, float spread_deg);
 void bzz_ring(float x, float y, float speed, int n, float rot, int kind);
 void bzz_eshot_step(EShot *s, float px, float py);
 void bzz_burst(float x, float y, int col, int n, float sp);
+/* a sound that fires often: played at most once every gap frames */
+void bzz_sfx(const char *name, int gap);
 void bzz_save_now(void);
 void bzz_clear_world(void);
 void bzz_launch_bomb(void);
