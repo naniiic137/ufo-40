@@ -26,6 +26,7 @@ press DOWN
 press DOWN
 press DOWN
 press DOWN
+press DOWN
 expect savedata_cart == 14
 press A
 expect savedata_step == 1

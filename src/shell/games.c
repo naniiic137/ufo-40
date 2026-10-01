@@ -30,6 +30,7 @@ extern const GameDef GAME_HOMESPUN;
 extern const GameDef GAME_RIMSHIRE;
 extern const GameDef GAME_WOBBLE;
 extern const GameDef GAME_CHIME;
+extern const GameDef GAME_HATTRICK;
 
 const GameDef *const GAMES[GAME_SLOTS] = {
     [0] = &GAME_UNDERDELVE,  /* 01 Barbuta */
@@ -42,6 +43,7 @@ const GameDef *const GAMES[GAME_SLOTS] = {
     [8] = &GAME_BANNERFALL,  /* 09 Attactics */
     [12] = &GAME_DUSKLING,   /* 13 Mooncat */
     [9] = &GAME_BOOMTOWN,    /* 10 Devilition */
+    [10] = &GAME_HATTRICK,   /* 11 Kick Club */
     [13] = &GAME_CUTLASS,    /* 14 Bushido Ball */
     [14] = &GAME_FENNEC,     /* 15 Block Koala */
     [15] = &GAME_TINTAIL,    /* 16 Camouflage */
