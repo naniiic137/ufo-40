@@ -1,0 +1,61 @@
+# HAT TRICK, world 3 (the Lido): buoys slide straight up and down through
+# ledges, round through an open top or bottom and back off a wall (a few
+# slide along instead, back off the side walls); polo
+# players swim their ledge and squirt at a kid, level or down; duckies
+# paddle round and round the ledge they sit on: along the top, round the
+# end, back underneath.
+game hattrick
+wait 5
+cheat level 21
+cheat skipintro
+cheat god
+cheat nofoes
+cheat foe 6 60 20 1
+cheat foe 1 300 20 1
+waituntil fy_6 > 150 300
+waituntil fy_6 < 20 100
+expect fx_6 == 60
+# in a column walled at the top and bottom: down, back off the floor, up,
+# back off the ceiling
+cheat nofoes
+cheat foe 6 108 40 1
+cheat foe 1 300 20 1
+expect foe0_vdir == 1
+waituntil foe0_vdir == -1 300
+expect fy_6 > 140
+waituntil foe0_vdir == 1 400
+expect fy_6 < 30
+expect fx_6 == 108
+# a buoy starting up (the other letter): out through the open top, in at
+# the bottom, still going up
+cheat nofoes
+cheat foealt 6 60 100 1
+cheat foe 1 300 20 1
+expect foe0_vdir == -1
+waituntil fy_6 < 10 200
+waituntil fy_6 > 150 60
+expect foe0_vdir == -1
+expect fx_6 == 60
+# a buoy along: across, and back off the side wall
+cheat nofoes
+cheat foealong 6 280 140 1
+cheat foe 1 300 20 1
+waituntil foe0_dir == -1 100
+expect fy_6 == 140
+expect fx_6 > 290
+# a polo player squirts, never upwards
+cheat nofoes
+cheat foe 7 100 88 1
+cheat foe 1 300 20 1
+cheat pos 0 100 40
+waituntil shots_2 == 1 600
+expect shot0_vy100 >= 25
+# a ducky: round its ledge, above it and below it in turn
+cheat noshots
+cheat nofoes
+cheat foe 8 120 88 1
+cheat foe 1 300 20 1
+waituntil fy_8 > 100 400
+waituntil fy_8 < 96 400
+expect fx_8 >= 82
+expect fx_8 <= 238

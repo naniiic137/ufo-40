@@ -1,0 +1,63 @@
+# HAT TRICK: START pauses play (not on the title); the ball is only picked
+# up on the ground, never in the air; the ball never hurts a kid; a ball at
+# rest kills nothing.
+game hattrick
+wait 20
+press START
+expect paused == 0
+press A
+wait 10
+press A
+wait 50
+press A
+wait 100
+expect sub == 1
+press START
+wait 2
+expect paused == 1
+press START
+wait 10
+expect paused == 0
+cheat still
+cheat god
+# in the air the ball goes past: no catch
+cheat pos 0 100 160
+press A 1
+wait 8
+cheat ball 100 125 0 0
+wait 3
+expect carrier == -1
+waituntil p0_ground == 1 60
+# a ball that hits a kid hurts nobody
+cheat mortal
+cheat pos 0 200 160
+cheat ball 150 150 4 -1
+cheat light
+wait 30
+expect p0_alive == 1
+# a ball at rest touching a creature: nothing happens
+cheat nofoes
+cheat foe 0 250 154 1
+cheat foe 1 300 20 1
+cheat pos 0 60 160
+cheat ball 250 157 0 0
+wait 30
+expect foes == 2
+# up against a wall the ball stays out of it: carried, kicked into it, and
+# dropped by a kid who loses a life there
+cheat god
+cheat pos 0 305 160
+cheat carry 0
+hold RIGHT 10
+expect ball_x < 309
+press B 1
+wait 30
+expect ball_x < 309
+expect ball_x > 10
+cheat pos 0 305 160
+cheat carry 0
+hold RIGHT 10
+cheat mortal
+cheat kill 0
+wait 60
+expect ball_x < 309

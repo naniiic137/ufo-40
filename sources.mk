@@ -159,6 +159,14 @@ CORE_SRC += src/games/chime/chime_race.c
 CORE_SRC += src/games/chime/chime_ai.c
 CORE_SRC += src/games/chime/chime_art.c
 CORE_SRC += src/games/chime/chime_audio.c
+CORE_SRC += src/games/hattrick/hattrick.c
+CORE_SRC += src/games/hattrick/hattrick_play.c
+CORE_SRC += src/games/hattrick/hattrick_foes.c
+CORE_SRC += src/games/hattrick/hattrick_levels.c
+CORE_SRC += src/games/hattrick/hattrick_bot.c
+CORE_SRC += src/games/hattrick/hattrick_draw.c
+CORE_SRC += src/games/hattrick/hattrick_art.c
+CORE_SRC += src/games/hattrick/hattrick_audio.c
 
 HEADLESS_SRC += src/platform/headless/main_headless.c
 HEADLESS_SRC += src/platform/headless/imgwrite.c

@@ -1,0 +1,47 @@
+# HAT TRICK: wherever the screen has no wall it wraps: out of one side and in
+# at the other, down a hole in the floor and in at the top. Kids, the ball,
+# bodies and creatures all go round. Where there is a wall, it stops you.
+game hattrick
+wait 5
+cheat level 1
+cheat skipintro
+cheat still
+cheat god
+# 1-1 is walled all round
+cheat pos 0 20 160
+hold LEFT 30
+expect p0_x == 14
+# 1-4's sides are open low down
+cheat level 4
+cheat skipintro
+cheat still
+cheat god
+cheat pos 0 20 160
+hold LEFT 20
+expect p0_x > 290
+expect p0_y == 160
+hold RIGHT 20
+expect p0_x < 30
+# the ball rolls round too
+cheat ball 300 157 3 0
+wait 12
+expect ball_x < 40
+# 1-5 has holes in the floor: down one, in at the top
+cheat level 5
+cheat skipintro
+cheat still
+cheat god
+cheat pos 0 60 140
+wait 20
+expect p0_y < 60
+waituntil p0_ground == 1 120
+expect p0_y == 64
+# a pin runs down the hole in 2-1 and comes round again from the top
+cheat level 11
+cheat skipintro
+cheat unstill
+cheat nofoes
+cheat foe 3 64 148 1
+cheat foe 1 300 20 1
+waituntil fy_3 < 40 300
+waituntil fy_3 > 140 300

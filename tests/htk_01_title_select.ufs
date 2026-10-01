@@ -1,0 +1,56 @@
+# HAT TRICK: the title offers 1 PLAYER, 2 PLAYERS and CODES; 1 PLAYER asks
+# who's playing, and the kid picked sets the side of the screen they start
+# on (Teddy the left, Mae the right). The story, then 1-1 and its banner.
+game hattrick
+wait 20
+expect state == 0
+expect paused == 0
+press DOWN
+expect sel == 1
+press DOWN
+expect sel == 2
+press DOWN
+expect sel == 0
+# Mae
+press A
+wait 10
+expect state == 1
+expect kid_sel == 0
+press RIGHT
+expect kid_sel == 1
+press A
+wait 5
+expect state == 3
+wait 40
+press A
+wait 5
+expect state == 4
+expect level == 1
+expect mode == 0
+expect p0_ch == 1
+expect p0_start_x > 160
+expect p0_x > 160
+expect p0_lives == 3
+expect sub == 0
+expect counts == 20
+# the banner holds everything still, then play
+wait 100
+expect sub == 1
+expect counts == 20
+# Teddy, on the left
+game hattrick
+wait 20
+press A
+wait 10
+press A
+wait 50
+press A
+wait 5
+expect p0_ch == 0
+expect p0_start_x < 160
+# B on the title goes back to the library
+game hattrick
+wait 20
+press B
+wait 40
+expect_scene library

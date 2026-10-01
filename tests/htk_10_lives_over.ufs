@@ -1,0 +1,64 @@
+# HAT TRICK: one touch of anything takes a life; three lives to start, more
+# at 10,000, 25,000, 50,000, 75,000 and 100,000 points and never after. A
+# lost life starts the kid again at their spot with a moment's safety (the
+# clock runs on). Out of lives is the end: no continue, and the next game
+# starts again at 1-1.
+game hattrick
+wait 20
+press A
+wait 10
+press A
+wait 50
+press A
+wait 100
+expect state == 4
+expect p0_lives == 3
+expect p0_spare == 2
+cheat addscore 0 9990
+expect p0_spare == 2
+cheat addscore 0 10
+expect p0_spare == 3
+cheat addscore 0 15000
+expect p0_spare == 4
+cheat addscore 0 25000
+expect p0_spare == 5
+cheat addscore 0 25000
+expect p0_spare == 6
+cheat addscore 0 25000
+expect p0_spare == 7
+expect p0_score == 100000
+cheat addscore 0 400000
+expect p0_spare == 7
+expect p0_ext == 5
+# a life lost: back at the start, safe for a moment; the clock doesn't stop
+cheat spare 0 1
+cheat pos 0 200 160
+wait 200
+expect clock < 2800
+cheat kill 0
+expect p0_alive == 0
+wait 80
+expect p0_alive == 1
+expect p0_spare == 0
+expect p0_x == 28
+expect p0_inv > 0
+expect clock < 2720
+# the last one
+cheat kill 0
+wait 80
+expect p0_out == 1
+expect state == 5
+wait 400
+expect state == 0
+expect save_top == 500000
+expect save_best_level == 1
+# a new game is 1-1 again
+press A
+wait 10
+press A
+wait 50
+press A
+wait 5
+expect level == 1
+expect p0_score == 0
+expect p0_lives == 3

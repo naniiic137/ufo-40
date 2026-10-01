@@ -1,0 +1,64 @@
+# HAT TRICK: the three goals, the original's own. Beacon: beat Lucky Lanes,
+# the second world. Saucer: beat all four worlds. Alien: win with 150,000
+# points or more (checked at the end of the run). The cartridge keeps only
+# records (top score, furthest screen, wins, most desserts in a run): like
+# the original, a run is never saved.
+game hattrick
+wait 20
+press A
+wait 10
+press A
+wait 50
+press A
+wait 5
+expect goals == 0
+cheat level 20
+cheat skipintro
+cheat nofoes
+waituntil level == 21 600
+expect goals == 1
+# the Captain beaten, under 150,000: the Saucer, not the Alien
+cheat level 40
+cheat skipintro
+cheat score 0 140000
+cheat nofoes
+waituntil state == 6 600
+expect won == 1
+expect goals == 3
+expect cherry == 0
+waituntil state == 7 1000
+waituntil state == 0 2000
+expect save_wins == 1
+expect save_best_level == 40
+# 150,000 or more at the end: the Alien
+wait 20
+press A
+wait 10
+press A
+wait 50
+press A
+wait 5
+cheat level 40
+cheat skipintro
+cheat score 0 150000
+cheat nofoes
+waituntil state == 6 600
+expect cherry == 1
+expect goals == 7
+press A
+wait 250
+press A
+waituntil state == 0 2000
+expect save_wins == 2
+expect save_cherries == 1
+expect save_top >= 150000
+# all kept after switching off
+reload
+game hattrick
+wait 5
+expect goals == 7
+expect save_wins == 2
+expect save_cherries == 1
+expect save_top >= 150000
+expect save_best_level == 40
+expect save_runs == 2

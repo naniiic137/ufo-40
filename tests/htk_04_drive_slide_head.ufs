@@ -1,0 +1,91 @@
+# HAT TRICK: holding B on the ground and letting go is a driven shot: much
+# faster, flatter, and three times as hard on a boss. With no ball, B on the
+# run is a slide that keeps its line over a gap (no gravity) and knocks a
+# loose ball on, but hurts nothing; standing still, B does nothing; B in the
+# air is a header.
+game hattrick
+wait 5
+cheat level 1
+cheat skipintro
+cheat still
+cheat god
+cheat pos 0 140 160
+cheat carry 0
+wait 2
+hold B
+wait 40
+expect p0_charge >= 30
+expect carrier == 0
+release
+wait 1
+expect carrier == -1
+expect ball_power == 1
+expect ball_vx100 == 416
+expect ball_vy100 < -100
+expect ball_vy100 > -160
+# a short press is no driven shot
+cheat pos 0 140 160
+cheat carry 0
+wait 2
+hold B 10
+wait 1
+expect ball_power == 0
+expect ball_vx100 == 260
+# standing still, B with no ball does nothing
+cheat pos 0 100 160
+wait 2
+press B 1
+expect p0_slide == 0
+expect p0_vx100 == 0
+wait 5
+# the slide comes out of a run: along the ground, low, on its own line
+hold RIGHT 6
+hold RIGHT B 1
+expect p0_slide > 0
+wait 1
+expect p0_vx100 == 260
+wait 30
+expect p0_slide == 0
+# off the end of a ledge: it slides on over thin air, then drops
+cheat pos 0 60 128
+wait 2
+expect p0_ground == 1
+hold RIGHT 2
+hold RIGHT B 1
+wait 6
+expect p0_slide > 0
+expect p0_ground == 0
+expect p0_y == 128
+wait 30
+expect p0_y > 128
+# the slide knocks a loose ball on and lights it
+cheat pos 0 120 160
+cheat ball 150 157 0 0
+wait 70
+expect lit == 0
+hold RIGHT 4
+hold RIGHT B 1
+wait 10
+expect lit == 1
+expect ball_vx100 > 100
+expect ball_last == 0
+# ...but it does nothing to a creature
+cheat nofoes
+cheat foe 0 180 154 1
+cheat pos 0 140 160
+cheat ball 20 157 0 0
+expect foes == 1
+hold RIGHT 3
+hold RIGHT B 1
+wait 20
+expect foes == 1
+# a header: B in the air, the ball over the kid's head
+cheat foe 1 300 20 1
+cheat pos 0 40 160
+cheat ball 40 120 0 1
+press A 1
+press B 1
+wait 2
+expect ball_vy100 < 0
+expect ball_last == 0
+expect lit == 1

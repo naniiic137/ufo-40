@@ -1,0 +1,95 @@
+# HAT TRICK: the fixes from the fidelity review, each played out.
+# 1. Every boss starts at full strength: the ball waits on its own spot, so
+#    nothing hits a boss before a kid has kicked it (no free opening hit).
+# 2. The balloons carry each kid over to their own side before lifting them
+#    away: a kid who ends a screen on their own side is soon gone, one who
+#    ends it across the screen takes much longer.
+# 3. The jump: a tap hops, a hold goes high, the pad steers in the air.
+# 4. The ball stays lit while it bounces or rolls; only at rest does it fade.
+game hattrick
+wait 5
+cheat run 0 0
+# 1. the bosses, left alone after the intro
+cheat level 10
+expect hp_12 == 12
+wait 220
+expect sub == 1
+expect hp_12 == 12
+expect ball_x == 160
+expect ball_rests == 1
+cheat level 20
+wait 220
+expect hp_13 == 15
+expect ball_rests == 1
+cheat level 30
+wait 220
+expect hp_14 == 40
+expect hp_15 == 10
+expect ball_rests == 1
+cheat level 40
+wait 220
+expect hp_16 == 20
+expect ball_rests == 1
+# 2. Teddy ends 1-1 on his own side (the left): away in well under two seconds
+cheat level 1
+cheat skipintro
+cheat god
+cheat nofoes
+waituntil sub == 3 400
+expect p0_x == 28
+waituntil level == 2 100
+# ...and ends 1-2 across the screen, on the right: carried back over first
+cheat skipintro
+cheat god
+cheat nofoes
+cheat pos 0 290 160
+waituntil sub == 3 400
+wait 100
+expect level == 2
+expect p0_x < 200
+expect p0_x > 28
+waituntil level == 3 300
+# Mae's own side is the right
+cheat run 0 1
+cheat level 1
+cheat skipintro
+cheat god
+cheat nofoes
+waituntil sub == 3 400
+expect p0_start_x == 292
+waituntil level == 2 100
+# 3. the jump and the air
+cheat level 1
+cheat skipintro
+cheat still
+cheat god
+cheat pos 0 100 160
+wait 3
+hold A 1
+waituntil p0_vy100 >= 0 60
+expect p0_y > 140
+waituntil p0_ground == 1 60
+hold A
+wait 2
+waituntil p0_vy100 >= 0 60
+expect p0_y < 125
+release
+waituntil p0_ground == 1 60
+cheat pos 0 60 160
+wait 3
+hold RIGHT 30
+hold RIGHT A 1
+hold LEFT A 24
+expect p0_vx100 < 0
+release
+waituntil p0_ground == 1 60
+# 4. dropped from high, the ball bounces lit; it fades only lying still
+cheat pos 0 300 160
+cheat ball 100 30 0 0
+cheat light
+waituntil ball_bounces == 3 300
+expect lit == 1
+expect ball_ground == 0
+waituntil lit == 0 300
+expect ball_ground == 1
+expect ball_rest >= 60

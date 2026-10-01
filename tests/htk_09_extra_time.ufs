@@ -1,0 +1,51 @@
+# HAT TRICK: when the clock runs out it is extra time: no time bonus, and the
+# Timekeeper walks in and slowly homes in on the kids, through walls and
+# all. The ball goes straight through him; his touch takes a life, and he
+# stays after it, until the screen is cleared or the run is over. Boss
+# screens get him too.
+game hattrick
+wait 5
+cheat level 1
+cheat skipintro
+cheat still
+cheat clock 3
+expect timekeeper == 0
+wait 3
+expect overtime == 1
+expect counts == 0
+expect timekeeper == 1
+# a ball straight through him does nothing
+cheat unstill
+cheat pos 0 30 160
+cheat foe 17 160 100 1
+expect timekeeper == 2
+cheat ball 120 100 4 0
+cheat light
+wait 30
+expect timekeeper == 2
+# he homes in, slowly, and his touch takes a life
+cheat pos 0 30 160
+cheat start 0 30 160
+expect p0_spare == 2
+waituntil p0_alive == 0 900
+expect p0_hit_by == 17
+waituntil p0_alive == 1 200
+expect p0_spare == 1
+expect timekeeper == 2
+expect overtime == 1
+# cleared in extra time: no bonus, and he goes
+cheat god
+cheat nofoes
+cheat foe 0 200 154 1
+cheat foe 17 30 20 1
+cheat ball 150 150 4 0
+cheat light
+waituntil sub == 2 60
+expect bonus == 0
+expect timekeeper == 0
+# a boss screen
+cheat level 10
+cheat skipintro
+cheat clock 2
+wait 3
+expect timekeeper == 1

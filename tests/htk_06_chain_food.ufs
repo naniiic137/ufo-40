@@ -1,0 +1,53 @@
+# HAT TRICK: the chain. Each kill while the ball stays lit drops better food:
+# popcorn 100, a pretzel 200, a taco 500, then a drumstick 1,000 for the
+# fourth kill and every one after. A kill by a dark ball is popcorn and
+# starts nothing. The food only appears where the body lands.
+game hattrick
+wait 5
+cheat level 1
+cheat skipintro
+cheat god
+cheat still
+cheat nofoes
+cheat foe 0 180 154 1
+cheat foe 0 196 154 1
+cheat foe 0 212 154 1
+cheat foe 0 228 154 1
+cheat foe 0 244 154 1
+cheat foe 1 300 20 1
+cheat pos 0 160 160
+cheat carry 0
+wait 2
+expect foes == 6
+hold DOWN
+press B 1
+release
+waituntil kills == 1 30
+# the body is in the air: no food yet
+expect falling == 1
+expect food == 0
+wait 40
+expect foes == 1
+expect kills == 5
+expect combo == 5
+waituntil falling == 0 120
+expect food == 5
+expect food_item0 == 1
+expect food_item1 == 1
+expect food_item2 == 1
+expect food_item3 == 2
+expect food_value == 2800
+# eat it: walk over it
+expect p0_score == 0
+cheat pos 0 170 160
+hold RIGHT 80
+expect food == 0
+expect p0_score == 2800
+# a dark ball: popcorn, and no chain
+cheat foe 0 120 154 1
+cheat ball 60 150 3 0
+cheat dark
+expect lit == 0
+waituntil food == 1 200
+expect food_item0 == 1
+expect combo == 0

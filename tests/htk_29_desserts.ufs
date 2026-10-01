@@ -1,0 +1,53 @@
+# HAT TRICK: hidden desserts. Some screens hide a spot: kick the ball through
+# it and a dessert appears and drops (a lolly 100 in Sandy Court, a cookie
+# 200 in Lucky Lanes, a donut 500 at the Lido, a parfait 1,000 at the Big
+# Stadium). Each spot gives one, once. The most eaten in a run is kept.
+game hattrick
+wait 20
+press A
+wait 10
+press A
+wait 50
+press A
+wait 100
+cheat still
+cheat god
+cheat nofoes
+cheat foe 1 300 140 1
+expect dessert_spot == 1
+expect dessert_found == 0
+# 1-1's spot is high up in the top left corner
+cheat ball 32 18 -3 0
+waituntil dessert_found == 1 60
+waituntil falling == 0 120
+expect food_item4 == 1
+expect food_value == 100
+# a kid eats it (it came down on the ledge below the spot)
+cheat pos 0 50 64
+hold LEFT 60
+expect food == 0
+expect p0_desserts == 1
+expect p0_score == 100
+# once only
+cheat ball 32 18 -3 0
+wait 60
+expect falling == 0
+expect food == 0
+# the Big Stadium's are worth 1,000
+cheat level 34
+cheat skipintro
+cheat still
+cheat god
+expect dessert_spot == 1
+cheat ball 100 84 3 0
+waituntil dessert_found == 1 60
+waituntil falling == 0 120
+expect food_item7 == 1
+# a screen with no spot
+cheat level 2
+cheat skipintro
+expect dessert_spot == 0
+# the record: kept when the run ends
+cheat over
+wait 400
+expect save_desserts == 1

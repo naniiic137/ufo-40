@@ -1,0 +1,23 @@
+# HAT TRICK: DOWN crouches, and a shot at chest height goes over a crouching
+# kid. Standing, the same shot takes the life.
+game hattrick
+wait 5
+cheat level 1
+cheat skipintro
+cheat still
+cheat pos 0 150 160
+hold DOWN
+wait 2
+expect p0_crouch == 1
+expect p0_vx100 == 0
+cheat shot 0 220 145 -2 0
+wait 50
+expect p0_alive == 1
+expect p0_spare == 2
+release
+wait 2
+expect p0_crouch == 0
+cheat shot 0 220 145 -2 0
+wait 50
+expect p0_alive == 0
+expect p0_hit_by == 100

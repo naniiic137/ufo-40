@@ -1,0 +1,41 @@
+# README media: HAT TRICK. The GIF and the play shots are the demo player
+# pressing real buttons; later screens are reached with cheats, then played
+# by the demo player.
+shotscale 2
+seed 11
+game hattrick
+wait 40
+shot hattrick_title
+press A
+wait 10
+press RIGHT
+wait 20
+shot hattrick_select
+press LEFT
+wait 10
+press A
+wait 60
+press A
+# 1-1: the kick-about begins
+wait 100
+botplay 160
+gifstart hattrick 3 2
+botplay 480
+gifstop
+cheat spare 0 9
+# Lucky Lanes
+cheat level 15
+cheat skipintro
+botplay 300
+shot hattrick_lanes
+# the Lido's boss pair, under the Morse lane rope
+cheat level 30
+cheat skipintro
+botplay 200
+shot hattrick_lido
+# the Big Stadium, in extra time
+cheat level 38
+cheat skipintro
+cheat clock 1
+botplay 302
+shot hattrick_stadium

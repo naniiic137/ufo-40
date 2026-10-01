@@ -1,0 +1,30 @@
+# HAT TRICK: each screen's clock counts down from 20, one count every 2.5 s
+# (50 s in all). Clearing the screen stops it and pays 100 points for each
+# count left; then a little time to pick up the food, and balloons carry
+# the kids off to the next screen.
+game hattrick
+wait 5
+cheat level 1
+cheat skipintro
+expect counts == 20
+expect clock == 3000
+wait 150
+expect counts == 19
+wait 150
+expect counts == 18
+cheat clock 1501
+cheat nofoes
+wait 1
+expect sub == 2
+expect bonus == 1000
+expect p0_score == 1000
+expect clock == 1500
+wait 100
+expect clock == 1500
+# the time to eat, then the balloons
+waituntil sub == 3 300
+expect p0_score == 1000
+waituntil level == 2 200
+expect sub == 0
+expect counts == 20
+expect p0_score == 1000
