@@ -31,8 +31,15 @@ bool btnp(int mask);       /* pressed this tick */
 bool btnr(int mask);       /* released this tick */
 bool btn_repeat(int mask); /* pressed, with auto-repeat while held (menus) */
 uint32_t input_held(void);
+/* Every button down this tick, consumed or not (tests). */
+uint32_t input_down(void);
 /* Swallow the current presses (e.g. after a scene change). */
 void input_consume(void);
+/* A button layout: from the next tick, logical button bit i (BTN_UP is bit
+ * 0 ... BTN_SELECT bit 7) reads physical bit src[i], for both players, so
+ * every btn/btnp/... call sees the buttons moved. NULL = each button is
+ * itself. Held buttons don't count as fresh presses when it changes. */
+void input_set_remap(const uint8_t src[8]);
 
 /* Player 2 versions of the above (mask uses the normal BTN_* values). */
 bool btn2(int mask);

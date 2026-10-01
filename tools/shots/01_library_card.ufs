@@ -1,0 +1,29 @@
+# README media: SELECT's cartridge card over the library (ROOFCAT after a
+# couple of minutes' play), and its CONTROLS page with A and B swapped
+set_goals roofcat 3
+wait 30
+press A
+wait 30
+press A
+wait 30
+press RIGHT
+press RIGHT
+press A
+wait 7400
+test_pause 0
+wait 2
+press UP
+press A
+wait 60
+press SELECT
+wait 20
+shotscale 2
+shot library_card
+press A
+press A
+wait 20
+shot library_card_controls
+press DOWN
+press A
+wait 2
+wipe_saves

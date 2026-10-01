@@ -1,6 +1,5 @@
 /* UFO 40 - OPTIONS: volumes (heard live), the jukebox and, on PC, video.
- * Opened from the main menu or with SELECT in the library; B goes back to
- * whichever opened it. */
+ * Opened from the main menu; B goes back to whichever opened it. */
 #include "shell.h"
 
 enum { OPT_MUSIC, OPT_SFX, OPT_JUKEBOX, OPT_SCALE, OPT_FULL, OPT_BACK };

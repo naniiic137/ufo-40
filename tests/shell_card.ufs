@@ -1,0 +1,199 @@
+# SHELL: SELECT on a cartridge in the library opens its card over the
+# library (no new screen): time played, times opened and the last day
+# played, its goals, DELETE SAVE and CONTROLS, where the A, B and SELECT
+# jobs move between those buttons for that cartridge only. SELECT or B
+# closes it. On a placeholder SELECT only says COMING SOON.
+set_goals roofcat 3
+fake_save roofcat 40
+wait 30
+press A
+wait 30
+press A
+wait 30
+expect_scene library
+expect play_secs.roofcat == 0
+expect played.roofcat == 0
+expect last_played.roofcat == 0
+# open and close, with SELECT and with B
+press RIGHT
+press RIGHT
+expect library_cursor == 2
+press SELECT
+expect card_open == 1
+expect card_page == 0
+expect card_item == 1
+expect_scene library
+press SELECT
+expect card_open == 0
+press SELECT
+expect card_open == 1
+press B
+expect card_open == 0
+expect_scene library
+# the library doesn't move while the card is open
+press SELECT
+press RIGHT
+press DOWN
+expect library_cursor == 2
+press B
+# a placeholder has no card
+press LEFT
+press LEFT
+press LEFT
+expect library_cursor == 7
+expect library_placeholder == 1
+press SELECT
+expect card_open == 0
+expect library_dud > 0
+press RIGHT
+press RIGHT
+press RIGHT
+expect library_cursor == 2
+# play ROOFCAT for a minute and a bit: time and opens count, and the day
+press A
+wait 60
+expect_scene runner
+expect played.roofcat == 1
+expect last_played.roofcat >= 1790845200
+wait 3720
+expect play_secs.roofcat >= 61
+expect play_secs.roofcat <= 64
+# the pause menu doesn't count
+test_pause 0
+wait 600
+expect play_secs.roofcat <= 64
+press UP
+press A
+wait 60
+expect_scene library
+# all of it lasts
+reload
+expect play_secs.roofcat >= 61
+expect played.roofcat == 1
+expect last_played.roofcat >= 1790845200
+wait 30
+press A
+wait 30
+press A
+wait 30
+expect library_cursor == 2
+# DELETE SAVE on the card: the same question as the save data screen; NO
+# keeps it, YES deletes it, the goals stay
+expect save.roofcat > 0
+press SELECT
+press UP
+expect card_item == 0
+press A
+expect card_page == 2
+press A
+expect card_page == 0
+expect save.roofcat > 0
+press A
+press RIGHT
+press A
+expect card_page == 0
+expect save.roofcat == 0
+expect goals.roofcat == 3
+# with no save left, DELETE SAVE does nothing
+press A
+expect card_page == 0
+press SELECT
+expect card_open == 0
+# CONTROLS, on UNDERDELVE (slot 01): A on the A job moves it to the B
+# button, and B's job to A
+press LEFT
+press LEFT
+expect library_cursor == 0
+press SELECT
+expect card_item == 1
+press A
+expect card_page == 1
+expect card_item == 0
+expect remap.underdelve == 123
+press A
+expect remap.underdelve == 213
+# again: A's job moves on to SELECT, and SELECT's to B
+press A
+expect remap.underdelve == 312
+# RESET TO DEFAULT, under the A job
+press DOWN
+expect card_item == 3
+press A
+expect remap.underdelve == 123
+press UP
+expect card_item == 0
+press A
+expect remap.underdelve == 213
+# the B job's turn: it moves from the A button to B, so A's goes home
+press RIGHT
+expect card_item == 1
+press A
+expect remap.underdelve == 123
+press LEFT
+press A
+expect remap.underdelve == 213
+expect remap.roofcat == 123
+# B goes back to the card, SELECT closes it
+press B
+expect card_page == 0
+press SELECT
+expect card_open == 0
+# UNDERDELVE now sees the A button as B and the B button as A
+press A
+wait 120
+expect_scene runner
+hold A
+wait 2
+expect input_down == 32
+release A
+wait 2
+hold B
+wait 2
+expect input_down == 16
+release B
+wait 2
+# ... but the pause menu has every button as itself (A on SOUND FX does
+# nothing, so the menu stays)
+test_pause 0
+wait 2
+press UP
+press UP
+hold A
+wait 2
+expect input_down == 16
+expect paused == 1
+release A
+wait 2
+press DOWN
+press A
+wait 60
+expect_scene library
+# leaving the cartridge puts every button back, and the layout lasts
+hold A
+wait 2
+expect input_down == 16
+release A
+reload
+expect remap.underdelve == 213
+expect remap.roofcat == 123
+# RESET TO DEFAULT from the card
+wait 30
+press A
+wait 30
+press A
+wait 30
+expect library_cursor == 0
+press SELECT
+press A
+press DOWN
+expect card_item == 3
+press A
+expect remap.underdelve == 123
+press RIGHT
+expect card_item == 4
+press A
+expect card_page == 0
+press B
+expect card_open == 0
+# every card, page and item lays out cleanly
+expect card_layout == 0

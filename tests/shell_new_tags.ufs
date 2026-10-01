@@ -1,0 +1,89 @@
+# SHELL: NEW tags. A cartridge the player hasn't started since it arrived
+# wears a NEW tag in the library, until it is started. A brand-new save has
+# none (everything is new to a new player); a save from before the tags gets
+# them on the latest batch only (19, 26, 31, 39 and 11), less any already
+# played; after that, any cartridge the save doesn't know yet is NEW.
+wait 30
+expect new_count == 0
+expect new.underdelve == 0
+expect new.buzzbolt == 0
+expect library_grid_layout == 0
+# a v0.7.0 save: Underdelve and Chime Circuit played, the rest not
+untagged_progress 5 6 0 1 1 19 2
+reload
+expect music_vol == 5
+expect sfx_vol == 6
+expect goals.underdelve == 1
+expect goals.chime == 2
+expect played.chime == 1
+expect new.chime == 0
+expect new.skidkids == 1
+expect new.tiltshot == 1
+expect new.buzzbolt == 1
+expect new.underdelve == 0
+expect new.roofcat == 0
+expect new.wobble == 0
+expect new_count >= 3
+expect new_count <= 4
+# the play times, dates and button layouts it lacks start empty
+expect play_secs.chime == 0
+expect last_played.chime == 0
+expect remap.chime == 123
+# written back in the current layout, and the tags last
+progress_bytes 592
+reload
+expect new.skidkids == 1
+expect new.buzzbolt == 1
+expect new.chime == 0
+# start SKID KIDS (slot 26) from the library: its tag comes off
+wait 30
+press A
+wait 30
+press A
+wait 30
+expect_scene library
+expect library_cursor == 0
+press DOWN
+press DOWN
+press DOWN
+press RIGHT
+expect library_cursor == 25
+press A
+wait 60
+expect_scene runner
+expect new.skidkids == 0
+expect new.tiltshot == 1
+# ... for good
+reload
+expect new.skidkids == 0
+expect new.tiltshot == 1
+expect new.buzzbolt == 1
+# delete all data keeps the tags as they are
+wait 30
+press A
+wait 30
+press DOWN
+press DOWN
+press A
+wait 30
+expect_scene savedata
+press UP
+press A
+press RIGHT
+press A
+press RIGHT
+press A
+wait 10
+expect played.chime == 0
+expect new.tiltshot == 1
+expect new.skidkids == 0
+expect new.chime == 0
+# a cartridge the save has never seen (as when an update adds one) is NEW
+# by itself
+forget_cart roofcat
+reload
+expect new.roofcat == 1
+game roofcat
+expect new.roofcat == 0
+reload
+expect new.roofcat == 0

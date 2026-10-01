@@ -17,6 +17,7 @@ CORE_SRC += src/shell/library.c
 CORE_SRC += src/shell/settings.c
 CORE_SRC += src/shell/jukebox.c
 CORE_SRC += src/shell/savedata.c
+CORE_SRC += src/shell/cartinfo.c
 CORE_SRC += src/shell/shell_audio.c
 CORE_SRC += src/shell/games.c
 CORE_SRC += src/games/underdelve/underdelve.c

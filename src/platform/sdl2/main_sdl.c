@@ -4,6 +4,7 @@
  * The engine renders a 320x180 indexed framebuffer; we convert it through a
  * 32-entry palette LUT into a streaming texture and draw it integer-scaled. */
 #include "../../shell/shell.h"
+#include <time.h>
 
 #if defined(__vita__) || defined(__EMSCRIPTEN__)
 #include <SDL2/SDL.h>
@@ -62,6 +63,10 @@ void plat_request_quit(void) { quit_flag = true; }
 
 /* SDL's millisecond ticks run on while frames stall (a hidden tab, a hitch). */
 uint32_t plat_clock_ms(void) { return (uint32_t)SDL_GetTicks(); }
+uint32_t plat_unix_time(void) {
+    time_t now = time(NULL);
+    return now > 0 ? (uint32_t)now : 0;
+}
 
 const char *plat_save_where(void) {
 #ifdef __EMSCRIPTEN__
