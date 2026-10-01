@@ -64,6 +64,9 @@ static const struct { const char *id, *title; } TITLES[] = {
     {"fh_battle1", "HORNS AT DAWN"}, {"fh_battle2", "ASH AND FERN"}, {"fh_battle3", "VINES AND WINGS"},
     {"fh_lords", "THE FOUR LORDS"}, {"fh_end", "EMBERS HOME"}, {"fh_wave", "WAVE HELD"},
     {"fh_clear", "THE CAVE HOLDS"}, {"fh_fell", "THE CAVE FALLS"},
+    {"tsh_title", "COMET CLASSIC"}, {"tsh_front", "FRONT NINE"}, {"tsh_back", "BACK NINE"},
+    {"tsh_last", "EIGHTEENTH HOLE"}, {"tsh_board", "THE LEADERBOARD"}, {"tsh_champ", "CHAMPION OF THE COMET"},
+    {"tsh_cup", "IN THE CUP"}, {"tsh_ace", "HOLE IN ONE"}, {"tsh_over", "OVER PAR"}, {"tsh_runnerup", "RUNNER-UP"},
     {"hs_title", "HOMESPUN"}, {"hs_camp", "GLOWSTONE CAMP"}, {"hs_wilds", "INTO THE WILDS"}, {"hs_deep", "DEEPER DOWN"},
     {"hs_cave", "DRIPPING CAVES"}, {"hs_boss", "GUARDIAN"}, {"hs_mawbo", "MAWBO"}, {"hs_end", "THE LONG WAY HOME"},
     {"hs_home", "HOME SAFE"}, {"hs_fade", "TOLLY'S DRAG"},
@@ -76,6 +79,9 @@ static const struct { const char *id, *title; } TITLES[] = {
     {"rsh_win", "FIELD WON"}, {"rsh_lose", "FIELD LOST"}, {"rsh_warwon", "THE WAR IS WON"}, {"rsh_warlost", "BANNER DOWN"},
     {"wb_title", "CRATER DOWNS"}, {"wb_paddock", "THE TOTE BOARD"}, {"wb_race", "POST TIME"}, {"wb_final", "THE BIG PAYOUT"},
     {"wb_news", "WOBBLE WIRE"}, {"wb_win", "PHOTO FINISH"}, {"wb_lose", "TORN TICKET"}, {"wb_bell", "OFF THEY GO"},
+    {"chm_title", "CHIME CIRCUIT"}, {"chm_pit", "PIT LANE"}, {"chm_race1", "FULL THRUST"}, {"chm_race2", "UPDRAFT"},
+    {"chm_race3", "PINBALL PACK"}, {"chm_finale", "GRAND OCTAVE"}, {"chm_cup", "THE CUP"}, {"chm_home", "HOMEWARD"},
+    {"chm_flag", "CHEQUERED FLAG"}, {"chm_also", "ALSO RAN"},
 };
 
 const char *shell_song_title(int song) {

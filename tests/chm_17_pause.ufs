@@ -1,0 +1,19 @@
+# CHIME CIRCUIT: START pauses a race (the title can't be paused); the race
+# stands still until it is resumed.
+seed 12
+game chime
+wait 30
+press START
+expect paused == 0
+cheat race 1
+cheat go
+wait 10
+press START
+expect paused == 1
+print t
+wait 60
+expect t <= 15
+press START
+wait 10
+expect paused == 0
+expect t >= 20

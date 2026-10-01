@@ -24,10 +24,12 @@ extern const GameDef GAME_DOTDASH;
 extern const GameDef GAME_LOSTLINKS;
 extern const GameDef GAME_MANDIBLES;
 extern const GameDef GAME_FLINTHOLD;
+extern const GameDef GAME_TILTSHOT;
 extern const GameDef GAME_BUZZBOLT;
 extern const GameDef GAME_HOMESPUN;
 extern const GameDef GAME_RIMSHIRE;
 extern const GameDef GAME_WOBBLE;
+extern const GameDef GAME_CHIME;
 
 const GameDef *const GAMES[GAME_SLOTS] = {
     [0] = &GAME_UNDERDELVE,  /* 01 Barbuta */
@@ -44,12 +46,14 @@ const GameDef *const GAMES[GAME_SLOTS] = {
     [14] = &GAME_FENNEC,     /* 15 Block Koala */
     [15] = &GAME_TINTAIL,    /* 16 Camouflage */
     [17] = &GAME_LOSTLINKS,  /* 18 Golfaria */
+    [18] = &GAME_CHIME,      /* 19 The Big Bell Race */
     [24] = &GAME_OPENHOUSE,  /* 25 Party House */
     [25] = &GAME_SKIDKIDS,   /* 26 Hot Foot */
     [27] = &GAME_DUNE,       /* 28 Rail Heist */
     [44] = &GAME_DOTDASH,    /* 45 Mini & Max */
     [45] = &GAME_MANDIBLES,  /* 46 Combatants */
     [29] = &GAME_FLINTHOLD,  /* 30 Rock On! Island */
+    [30] = &GAME_TILTSHOT,   /* 31 Pingolf */
     [38] = &GAME_BUZZBOLT,   /* 39 Star Waspir */
     [43] = &GAME_HOMESPUN,   /* 44 Pilot Quest */
     [40] = &GAME_RIMSHIRE,   /* 41 Lords of Diskonia */

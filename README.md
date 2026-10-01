@@ -113,12 +113,14 @@ when there is more above or below.
 | 15 | **FENNEC FOUNTAIN** | Block Koala | pushing numbered blocks (never into a heavier one, a 1 that can't move is taken in), grey at five, blue and black blocks, mimics, arrows, stone patches and doors, unlimited undo and a room menu, fifty rooms behind gates, a room editor | Fen the fennec, a dry spring garden, 50 new rooms |
 | 16 | **TINTAIL** | Camouflage | sneaking on a grid past watchers by taking the colour of the ground you stand on, hollow logs, sun and rain pads, hatchlings with their own colour, a danger view you can't move in, undo, a branching map | Twig the chameleon, Salt Island, toads and storks, 15 new levels |
 | 18 | **LOST LINKS** | Golfaria | a top-down open world where every roll is a stroke and strokes are your health, twenty to start and three more for each of twenty irons found underground, pins and safe zones, sand you can only chip out of, water and pits that send you back, jumping flowers, holes down to a whole layer underneath, parbot-style scorecrows, two kinds of bug, four abilities in the four corners, the four-piece star relic, a plate puzzle and a burrowing boss | Dimple the golf ball, the Brass Badger, slicers, sippers, larks, strays, twenty ball folk and a hidden village of Keepers, both layers of the world |
+| 19 | **CHIME CIRCUIT** | The Big Bell Race | side-view flight with gravity, thrust and drift, six ships on one screen, eight laps on each of eight courses in a fixed order, three hit points that walls, floors and weapons take, a slash that only knocks, a relaunch from under the start line to fly the lap again, a hit point back every lap, pickup stations with a "!!" warning (bullets, mines, fireballs, the big slash, the payload), boost arrows and side routes, 9/7/5/3/2/1 points, the winner starting last, CPUs that turn on you, 2P at once | the chime ship, Ansel and Clary and four visitors from other UFO 40 cartridges, the eight tracks and their skies, the LOOT-GALE code |
 | 25 | **OPEN HOUSE** | Party House | drawing guests from a deck into a house with limited space, the original's 46 guest abilities, costs and trouble, police, fire marshal and bans, set guest lists and a random list, win by ending a party with four stars within 25 nights, 2P hot-seat; the fame and cash caps; the owner's endless OPEN ALL NIGHT, a custom list and two guests of his own | a whitewashed house by the sea, all 48 guests' names and faces |
 | 26 | **SKID KIDS** | Hot Foot | top-down two-on-two dodgeball with beanbags that skid along the floor, one button to pick up, pass, swap kids and wind up (a tap tosses, a full wind-up knocks down, a jump calls it off), a team jump that earns half-stars over sliding bags, stars for each kid's special throw or move, juice boxes, the Coach's items, the forced throw, first to 15; the original's 12 kits one for one, a draft or a free pick of the team, six matches with the kid nobody picked coming back with a robot, co-op, versus, the codes and the demo | NOODLE, PIPPA, HOPS, MILO, SPARKY, NELL, KIKI, ROXIE, TOBY, SID, BUZZY and MOOSE, Boomer the kangaroo, Benchbot, the Coach and the Hornets' gym |
 | 28 | **DUNE EXPRESS** | Rail Heist | real time until a guard is alert, then 10-second turns, one-bullet lawmen who hit each other too, punches through walls and floors, carrying and throwing, hiding in barrels, levers, a crank gun, rams, three outlaws, three stars a mission with the original's time goals, 2P versus | Wade, Hush and Pearl, the Governor's tax trains, Biscuit the camel, 20 new trains |
 | 45 | **DOT & DASH** | Mini & Max | one room at four sizes, where holding down shrinks you into whatever you stand on and holding up grows you back, a generated micro world that is the same for everyone inside every speck, a tiny size for one-tile gaps, lifting things from under your feet to throw, stack and ride (and carrying one up to full size as a step), a dog who roams and sniffs out secrets, long falls that send you back to full size, 39 upgrades that level up wherever they're found, five shops, favours for tiny towns, a 500 door and a 1,000 true ending | Dot and her talking dog Dash, the lumber room, Queen Tabitha the cat, Sir Sprocket, 21 towns and landmarks |
 | 46 | **MANDIBLES** | Combatants | you are one slow ant who holds a button for a cross of nine commands (follow, hold, instinct, their soldier-only versions, the queen's workers or soldiers, surrender), shouted to ants in earshot, and spits in eight directions while followers spit with you, food carried home to queens who lay workers for 1 and soldiers for 2, free respawns while your army lives, red ants with twice the health and exploitable brains (locked aim, food first, stuck on corners, stuck on your queen), brawls in a dust cloud, giant spiders that eat both sides, a branching road of 12 fields to the capital and a pointless bonus one, 2P versus | the Bluebell Colony and the Rust Horde, General Stag, the longlegs, every command's name, all 16 fields |
 | 30 | **FLINTHOLD** | Rock On! Island | waves down fixed roads to a cave with 30 hearts, a build phase as long as you like and a horn to start the wave, a pay-out between waves, a heroine who walks and throws eight ways, ten hunters in three upgrade trees, hens cooked by fire pits for meat (99 at most), fire pits that boost hunters, the original's beasts and bosses, 10 stages and 3 villages (two hidden), the Four Lords together in the last wave | Pim of the Hearth Clan, Flint Isle and its 13 layouts, the Four Lords of the Scale, every beast, hunter and villager |
+| 31 | **TILTSHOT** | Pingolf | side-on golf on pinball courses: aim, hold A to fill a meter that stays full until the golfer blows up, a slam in mid-air once a stroke (slammed onto a falling slope the ball catches fire), bumpers, spring pads, orange movers and purple junk, water and pits that send you back, eighteen fixed holes at the original's pars (61), eight golfers on the board against weak, random CPU rivals, 2P versus, a code for two cameo golfers | the Comet Classic, Nova, Digby, Peaches, Tuck and Moss, twelve CPU regulars, Wick and Kip by the code, all 18 holes |
 | 39 | **BUZZBOLT** | Star Waspir | a fast vertical shooter over the whole wide screen where one hit is a loss, tap fire for a wide spread at full speed and hold it for focused fire and a slower ship, three ships with their own fire, options and two specials each (a charge lance, guard orbs, a shield drone, bombs on the second button), every kill dropping a letter in the fixed order B, Z, Z, words of three (BZZ puts the multiplier up with no limit, ZZZ brings an option, BBB and ZBB are the ship's specials, any other word puts it back to x1), losing a ship costs the multiplier and every gift, ships at 25k, 100k and 200k, five waves with a boss each (wave 3 the hard one; walls, gates and a golden swarm in wave 4), an unmultiplied time bonus, a high-score table | the Hive Wing (lacewing, shieldbug, firefly), the hiveship and the dragonfly, the Blight's gnats, midges, whirlers, crickets, blisters, puffballs, rot walls and goldbugs, the Ironbacks, the Bloatfly, the Queen Tick, Scythewing and Dustwing, the Sporeheart, five new waves |
 | 44 | **HOMESPUN** | Pilot Quest | a camp that keeps working in real time while the console is on, even in other cartridges; a yo-yo that knocks glints out of a crystal; plants, bars, huts, anvils, bins and research at the original's prices; jerky as two minutes of trip time a strip, and a clock that is also your health; one Wilds map whose roadblocks and caves are shuffled per save; three dungeons with a ship part each; a gun that costs a glint a shot; coins for hopstones, vendors and a gambling den; a spider that spins thread at camp; a super boss beaten six times in one trip; new-game-plus stones | Wick and the *Tumbleweed*, the moor-moon Oddmoor and its folk, the Wilds, three dungeons, all 19 foes and 6 bosses |
 | 41 | **RIMSHIRE** | Lords of Diskonia | a board where two banners take turns stepping along roads, trails a banner can't step back onto that pull an army back when struck, inns, tomes, seams and chests; flick battles on fields built from the four tiles round the fight: a queue of three, aim, charge and launch, knocks that hurt by the striking disk's own melee, water, the closing haze and stalemates; the original's 15 disks with their numbers, 8 skills, 10 campaign wars, the streak and 2P | Rimshire, the Brass and Plum banners, the Plum Empress, Lady Brass's letters, all 16 disks, 10 new boards |
@@ -598,6 +600,46 @@ the top.
 </p>
 </details>
 
+### 19 · CHIME CIRCUIT
+
+<p align="center">
+  <img src="docs/shots/chime.gif" width="640" alt="Chime Circuit: six chime ships race through the X of HOURGLASS">
+</p>
+<p align="center">
+  <img src="docs/shots/chime_dipper.png" width="320" alt="THE DIPPER: the dip under the hanging rock and the slot through it">
+  <img src="docs/shots/chime_scrum.png" width="320" alt="The opening scrum on NEEDLE'S EYE">
+</p>
+<p align="center">
+  <img src="docs/shots/chime_pilots.png" width="320" alt="Two players pick their pilots">
+  <img src="docs/shots/chime_cup.png" width="320" alt="The Chime Cup podium">
+</p>
+
+*A tribute to **The Big Bell Race** (UFO 50 #19).*
+
+- **Plays the same:** the chime ship flies side-on: it falls unless you
+  hold thrust, steers left and right with a drift that carries it on, and
+  never runs out of fuel. Six ships race eight laps round a track that fits
+  on one screen. Walls, floors and ceilings take one of your three hit
+  points; B is a short slash that doesn't hurt, it only knocks a rival
+  away, ideally into a wall. A wrecked ship relaunches from under the start
+  line and flies that lap again, and every finished lap mends a hit point.
+- **Pickups:** stations flash "!!" before a pickup appears, and flying into
+  it uses it at once: bullets in four directions, a trail of mines (they
+  don't spare you), two circling fireballs, a big slash, or a payload on a
+  chain that blows up into three fires.
+- **Structure:** eight hand-made tracks in a fixed order (a tutorial loop,
+  a dip with a slot through it, a narrow loop, three figure-8s, a forked
+  loop and a mile of bends with a tunnel underneath), 9/7/5/3/2/1 points
+  over eight races, the last race's winner starting at the back, CPUs that
+  are slower than you but sometimes turn back to hunt you, and two players
+  at once on the same screen. The stats keep each player's average lap and
+  race; each pilot has an ending. A ship knocked out of the track is
+  relaunched, where the original's could get stuck. A demo pilot in the
+  tests flies all eight tracks and wins the cup with real button presses.
+- **Ours:** the chime ship, Ansel and his sister Clary, visitors from
+  HOMESPUN, SKYWELL and WOBBLE DERBY, all eight tracks and their skies,
+  the LOOT-GALE code and the LAST-LAMP page, and the music.
+
 ### 25 · OPEN HOUSE
 
 <p align="center">
@@ -876,6 +918,48 @@ the top.
   waves, the nippers, redbacks, fangcats, clubtails, gliders, gnats, the
   shagtusk and the Four Lords (Snap, Jaw, Plate and Gale), the villagers
   and the music.
+
+### 31 · TILTSHOT
+
+<p align="center">
+  <img src="docs/shots/tiltshot.gif" width="640" alt="Tiltshot: the first hole's slammed hole in one: a full shot over the mound, slammed onto its far side, races off on fire over the sand trap and the pond, off the backstop and into the cup">
+</p>
+<p align="center">
+  <img src="docs/shots/tiltshot_skylark.png" width="320" alt="Skylark: the ball high over a bottomless canyon, a spark wheeling below it, the SLAM lamp lit on the display">
+  <img src="docs/shots/tiltshot_board.png" width="320" alt="The leaderboard after the first hole: a hole in one and seven CPU rivals">
+</p>
+
+*A tribute to **Pingolf** (UFO 50 #31).*
+
+- **Plays the same:** golf seen side-on on courses built like pinball
+  tables. LEFT and RIGHT turn a dotted guide; hold A and the meter fills and
+  stays full, but hold it there and the golfer flashes red (EASY NOW!) and
+  blows up, and the stroke is gone. Let go to swing. While the ball flies,
+  A slams it down once a stroke, keeping its speed across (a SLAM lamp on
+  the dot-matrix display shows it is ready); slammed onto a slope that
+  falls away it races off on fire. Sand stops it dead, water and pits send
+  it back to where it was hit from (the stroke counts, nothing more), a
+  fast flat ball skips across water, and the hole counts the moment the
+  ball is in the cup. SPLASH!, KA-BOOM!, BIRDIE! and the rest flash up on
+  the display, pinball style.
+- **The courses:** bumpers, spring pads and spring lines that throw far
+  harder than bumpers, orange movers on thirteen holes (blimps, hop-bots,
+  kites, fish, sparks, trundlers on the ground and lanterns on chains) that
+  break at a touch and nearly stop the ball, purple junk that breaks and
+  slows it a little, pegs, roofs, tunnels, bridges, a pillar hanging from
+  the sky, and a red block with a strange message. No hole but the par 1
+  can be aced without a slam, and the tests prove it.
+- **Structure:** eighteen fixed holes in order at the original's pars (61
+  in all, with the par-1 TOSS-UP at 9 and the par-6 LAST ORBIT at 18),
+  eight golfers on the board, lowest total wins; the CPU rivals are weak and
+  random (the best of them ends 4 to 13 over par). 1P or 2P versus, five
+  golfers who all play the same, the original's two stats, and a code in
+  the credits that works like a terminal code. The tests replay a route
+  round every hole with real button presses (34 strokes in all).
+- **Ours:** the Comet Classic, Nova, Digby, Peaches, Tuck and Moss, the
+  twelve regulars, Wick (HOMESPUN) and Kip (SKYWELL) by the code, all
+  eighteen holes, the movers and junk, the words on the display, and the
+  music.
 
 ### 39 · BUZZBOLT
 

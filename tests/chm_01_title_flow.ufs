@@ -1,0 +1,56 @@
+# CHIME CIRCUIT: the title offers 1 PLAYER, 2 PLAYERS and CODE; B leaves
+# for the library. One player picks a pilot, sees the first race's card
+# (PRELUDE RING, race 1 of 8) and the countdown starts the race. The
+# other five pilots fly the CPU ships, so every race has all six colours.
+seed 3
+game chime
+wait 30
+expect state == 0
+expect title_sel == 0
+expect art_ok == 1
+press DOWN
+expect title_sel == 1
+press DOWN
+expect title_sel == 2
+press DOWN
+expect title_sel == 0
+wait 10
+press A
+wait 5
+expect state == 3
+expect humans == 1
+# pick the third pilot (WICK)
+press RIGHT
+press RIGHT
+press A
+wait 5
+expect state == 4
+expect race == 0
+expect cpilot0 == 2
+expect cpilot1 != 2
+expect cpilot2 != 2
+expect cpilot3 != 2
+expect cpilot4 != 2
+expect cpilot5 != 2
+wait 25
+press A
+wait 5
+expect state == 5
+expect track == 0
+expect map_ok == 1
+expect phase == 0
+expect human0 == 1
+expect human1 == 0
+expect pilot0 == 2
+# the countdown holds everyone on the grid
+wait 60
+expect phase == 0
+wait 70
+expect phase == 1
+# B on the title goes back to the library
+reload
+game chime
+wait 30
+press B
+wait 60
+expect_scene library

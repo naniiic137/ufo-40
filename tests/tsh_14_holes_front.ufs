@@ -1,0 +1,52 @@
+# TILTSHOT: every hole can be finished (the front nine). The route finder's way round
+# each hole (tiltshot_routes.c) is played by the demo player with real presses
+# from the tee; each drops in, at or under par.
+seed 14
+game tiltshot
+wait 5
+# the route finder's strokes: about 33 to 38 for the course (the record is
+# 32), at least 2 on the par 3s with no slammed ace and on every par 4
+expect route_total >= 33
+expect route_total <= 38
+expect route2 >= 2
+expect route4 >= 2
+expect route5 >= 2
+expect route6 >= 2
+expect route7 >= 2
+expect route8 >= 2
+cheat hole 1
+botuntil holed == 1 8000
+expect sunk_diff <= 0
+expect state == 7
+cheat hole 2
+botuntil holed == 1 8000
+expect sunk_diff <= 0
+expect state == 7
+cheat hole 3
+botuntil holed == 1 8000
+expect sunk_diff <= 0
+expect state == 7
+cheat hole 4
+botuntil holed == 1 8000
+expect sunk_diff <= 0
+expect state == 7
+cheat hole 5
+botuntil holed == 1 8000
+expect sunk_diff <= 0
+expect state == 7
+cheat hole 6
+botuntil holed == 1 8000
+expect sunk_diff <= 0
+expect state == 7
+cheat hole 7
+botuntil holed == 1 8000
+expect sunk_diff <= 0
+expect state == 7
+cheat hole 8
+botuntil holed == 1 8000
+expect sunk_diff <= 0
+expect state == 7
+cheat hole 9
+botuntil holed == 1 8000
+expect sunk_diff <= 0
+expect state == 7

@@ -1,0 +1,90 @@
+# CHIME CIRCUIT: THE DIPPER. The main line dives under the hanging rock
+# (the dip) and climbs out again, and everyone flies it: the demo pilot
+# and every CPU. The slot through the rock is a short, risky bypass: three
+# tiles high with a two-tile step in the middle. Rushed through level at
+# full speed, a ship hits the step; flown well, with a climb timed through
+# the step, it comes out clean and a little ahead of the dip line.
+seed 701
+game chime
+wait 30
+cheat race 2
+expect route0 == 0
+expect route1 == 0
+expect route2 == 0
+expect route3 == 0
+expect route4 == 0
+expect route5 == 0
+cheat park_cpus
+cheat go
+# the demo pilot's lap: down into the dip ...
+botuntil laps0 == 1 2000
+botuntil x0 <= 205 2000
+botplay 30
+expect y0 > 70
+# ... and 80 frames on it is still short of checkpoint 1
+botplay 50
+expect cp0 == 1
+botuntil cp0 == 2 100
+expect walls0 == 0
+# the slot rushed: level along its middle at full speed, into the step
+cheat place 0 205 38
+cheat vel 0 -560 0
+cheat hp 0 3
+cheat mercy 0 0
+cheat cp 0 1
+hold LEFT 2
+hold LEFT+A 1
+hold LEFT 2
+hold LEFT+A 1
+hold LEFT 2
+hold LEFT+A 1
+hold LEFT 2
+hold LEFT+A 1
+hold LEFT 2
+hold LEFT+A 1
+hold LEFT 2
+hold LEFT+A 1
+hold LEFT 2
+hold LEFT+A 1
+hold LEFT 2
+hold LEFT+A 1
+expect walls0 >= 1
+expect hp0 == 2
+# the slot flown well: in low and slower, a climb through the step,
+# then a hover out: clean, and through checkpoint 1 within 70 frames
+cheat place 0 205 44
+cheat vel 0 -300 0
+cheat hp 0 3
+cheat mercy 0 0
+cheat cp 0 1
+cheat clear
+expect walls0 == 1
+hold LEFT+A 6
+hold LEFT+A 1
+hold LEFT 2
+hold LEFT+A 1
+hold LEFT 2
+hold LEFT+A 1
+hold LEFT 2
+hold LEFT+A 1
+hold LEFT 2
+hold LEFT+A 1
+hold LEFT 2
+hold LEFT+A 1
+hold LEFT 2
+hold LEFT+A 1
+hold LEFT 2
+hold LEFT+A 1
+hold LEFT 2
+hold LEFT+A 1
+hold LEFT 2
+hold LEFT+A 1
+hold LEFT 2
+hold LEFT+A 1
+hold LEFT 2
+hold LEFT+A 1
+hold LEFT 2
+expect x0 < 120
+waituntil cp0 == 2 22
+expect hp0 == 3
+expect walls0 == 1

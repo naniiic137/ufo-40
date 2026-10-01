@@ -1,0 +1,136 @@
+# CHIME CIRCUIT: the tournament. Eight races on the eight tracks in a fixed
+# order; points 9 7 5 3 2 1 each race, so 72 at most. Most points wins the
+# Chime Cup; a tie goes to the one with more wins (then more seconds and
+# so on). Here player one and ship 1 both end on 46, and player one's
+# three wins beat ship 1's two.
+seed 6
+game chime
+wait 30
+cheat cup 1
+expect state == 4
+expect race == 0
+# race 1
+wait 25
+press A
+wait 5
+expect track == 0
+cheat finish 0 1 2 3 4 5
+wait 60
+press A
+wait 25
+press A
+wait 25
+press A
+# race 2
+wait 25
+press A
+wait 5
+expect track == 1
+cheat finish 0 1 3 4 5 2
+wait 60
+press A
+wait 25
+press A
+wait 25
+press A
+# race 3
+wait 25
+press A
+wait 5
+expect track == 2
+cheat finish 0 1 4 5 2 3
+wait 60
+press A
+wait 25
+press A
+wait 25
+press A
+# race 4
+wait 25
+press A
+wait 5
+expect track == 3
+cheat finish 1 0 5 2 3 4
+wait 60
+press A
+wait 25
+press A
+wait 25
+press A
+# race 5
+wait 25
+press A
+wait 5
+expect track == 4
+cheat finish 1 2 3 0 4 5
+wait 60
+press A
+wait 25
+press A
+wait 25
+press A
+# race 6
+wait 25
+press A
+wait 5
+expect track == 5
+cheat finish 4 5 1 0 2 3
+wait 60
+press A
+wait 25
+press A
+wait 25
+press A
+# race 7
+wait 25
+press A
+wait 5
+expect track == 6
+cheat finish 2 3 4 0 5 1
+wait 60
+press A
+wait 25
+press A
+wait 25
+press A
+# race 8
+wait 25
+press A
+wait 5
+expect track == 7
+cheat finish 5 4 3 0 2 1
+wait 60
+press A
+wait 25
+expect state == 6
+press A
+wait 25
+expect state == 7
+expect race == 8
+expect points0 == 46
+expect points1 == 46
+expect points2 == 31
+expect points3 == 29
+expect points4 == 34
+expect points5 == 30
+expect pts_total == 216
+expect wins0 == 3
+expect wins1 == 2
+expect rank0 == 1
+expect rank1 == 2
+expect rank4 == 3
+expect leader == 0
+press A
+wait 5
+expect state == 8
+expect champion == 0
+# the gift for a race won and the gold for the cup, but no cherry
+expect goals == 3
+wait 70
+press A
+wait 5
+expect state == 9
+wait 70
+press A
+wait 5
+expect state == 10

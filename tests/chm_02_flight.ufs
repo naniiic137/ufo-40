@@ -1,0 +1,57 @@
+# CHIME CIRCUIT: flight, as in the chime-ship games. Gravity pulls the ship
+# down; holding A thrusts it up (no fuel); left and right steer with
+# inertia, so the ship drifts on when you let go; it faces the way it last
+# steered. Thrust held with a steer helps it pick up speed that way.
+# Speeds are in 1/256 px a frame: gravity 20, thrust 50, steering 16 (24
+# with thrust), a drift that slows by 3 a frame, 560 at most across.
+seed 1
+game chime
+wait 30
+cheat race 1
+cheat park_cpus
+cheat go
+cheat place 0 140 22
+wait 10
+expect vy0 == 200
+expect y0 > 22
+hold A 10
+expect vy0 == -100
+wait 1
+expect vy0 == -80
+# steering, then letting go: it drifts on
+hold RIGHT 10
+expect vx0 == 160
+expect face0 == 1
+wait 10
+expect vx0 == 130
+expect x0 > 142
+hold LEFT 1
+expect face0 == -1
+expect vx0 == 114
+# thrust and a steer together: the steer bites harder (24 a frame)
+cheat place 0 60 40
+cheat vel 0 0 0
+hold RIGHT+A 10
+expect vx0 == 240
+expect vy0 == -300
+expect face0 == 1
+cheat place 0 200 40
+cheat vel 0 0 0
+hold LEFT+A 5
+expect vx0 == -120
+# the top speed across
+cheat place 0 60 24
+cheat vel 0 0 -300
+hold RIGHT 40
+expect vx0 == 560
+# held thrust climbs no faster than 512
+cheat place 0 140 40
+cheat vel 0 0 0
+hold A 20
+expect vy0 == -512
+# and a fall tops out at 704
+cheat place 0 30 60
+cheat vel 0 0 0
+wait 40
+expect vy0 == 704
+expect walls0 == 0
