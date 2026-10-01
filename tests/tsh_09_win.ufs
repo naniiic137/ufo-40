@@ -1,0 +1,27 @@
+# TILTSHOT: winning the Comet Classic. From the title, the demo player plays
+# all eighteen holes in order with real presses (its routes, with their
+# slammed holes in one), clears the cards and boards, and finishes first
+# under par: the Saucer and the Alien light up, the Beacon too (a hole in
+# one); the records keep the original's two stats (golfers used, most holes
+# in one in a round); the ending rolls and goes back to the title.
+seed 9
+game tiltshot
+wait 30
+press A
+wait 20
+press A
+wait 40
+expect state == 4
+botuntil state == 9 120000
+expect place1 == 1
+expect total1 <= 0
+expect champ == 1
+expect goals == 7
+expect most_aces >= 1
+expect used & 1
+expect score1_18 > 0
+# the ending, then the title
+wait 70
+press A
+expect state == 10
+botuntil state == 0 5000

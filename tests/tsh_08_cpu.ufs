@@ -1,0 +1,109 @@
+# TILTSHOT: the CPU rivals are weak and random. Their rounds are made when a
+# tournament starts: whatever the seed, the best of them finishes between
+# 4 and 13 over par (never at par or under), the rest behind, and no CPU
+# ever takes fewer than one stroke on a hole. Seven rivals in 1P, six in 2P.
+game tiltshot
+wait 30
+# through the menus
+seed 101
+press A
+wait 20
+press A
+wait 30
+expect state == 4
+expect cpu_count == 7
+expect cpu_best >= 4
+expect cpu_best <= 13
+expect cpu_worst >= 4
+expect cpu_low >= 1
+seed 1
+cheat hole 1
+expect cpu_best >= 4
+expect cpu_best <= 13
+expect cpu_low >= 1
+seed 2
+cheat hole 1
+expect cpu_best >= 4
+expect cpu_best <= 13
+expect cpu_low >= 1
+seed 3
+cheat hole 1
+expect cpu_best >= 4
+expect cpu_best <= 13
+expect cpu_low >= 1
+seed 5
+cheat hole 1
+expect cpu_best >= 4
+expect cpu_best <= 13
+expect cpu_low >= 1
+seed 8
+cheat hole 1
+expect cpu_best >= 4
+expect cpu_best <= 13
+expect cpu_low >= 1
+seed 13
+cheat hole 1
+expect cpu_best >= 4
+expect cpu_best <= 13
+expect cpu_low >= 1
+seed 21
+cheat hole 1
+expect cpu_best >= 4
+expect cpu_best <= 13
+expect cpu_low >= 1
+seed 34
+cheat hole 1
+expect cpu_best >= 4
+expect cpu_best <= 13
+expect cpu_low >= 1
+seed 55
+cheat hole 1
+expect cpu_best >= 4
+expect cpu_best <= 13
+expect cpu_low >= 1
+seed 89
+cheat hole 1
+expect cpu_best >= 4
+expect cpu_best <= 13
+expect cpu_low >= 1
+seed 144
+cheat hole 1
+expect cpu_best >= 4
+expect cpu_best <= 13
+expect cpu_low >= 1
+seed 233
+cheat hole 1
+expect cpu_best >= 4
+expect cpu_best <= 13
+expect cpu_low >= 1
+seed 377
+cheat hole 1
+expect cpu_best >= 4
+expect cpu_best <= 13
+expect cpu_low >= 1
+seed 610
+cheat hole 1
+expect cpu_best >= 4
+expect cpu_best <= 13
+expect cpu_low >= 1
+seed 987
+cheat hole 1
+expect cpu_best >= 4
+expect cpu_best <= 13
+expect cpu_low >= 1
+seed 1597
+cheat hole 1
+expect cpu_best >= 4
+expect cpu_best <= 13
+expect cpu_low >= 1
+# 2P: six rivals
+seed 7
+cheat hole2p 1
+expect cpu_count == 6
+expect cpu_best >= 4
+expect cpu_best <= 13
+seed 77
+cheat hole2p 1
+expect cpu_count == 6
+expect cpu_best >= 4
+expect cpu_best <= 13

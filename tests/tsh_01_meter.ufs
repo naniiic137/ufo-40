@@ -1,0 +1,61 @@
+# TILTSHOT: the meter. Held A fills it over a second (60 frames) and then
+# stays full, not swinging back; a moment later EASY NOW! and the golfer
+# flashes red; held on, the golfer blows up. The shot is cancelled (the ball
+# doesn't move) and the stroke is spent. Everything from the title with real
+# presses.
+seed 1
+game tiltshot
+wait 30
+expect state == 0
+# 1 PLAYER, the first golfer, the field
+press A
+wait 20
+expect state == 3
+press A
+wait 40
+expect state == 4
+press A
+wait 10
+expect state == 5
+# the hole card closes by itself
+wait 160
+expect state == 6
+expect hole == 1
+expect phase == 0
+expect strokes == 0
+expect ball_x == 28
+hold A
+wait 30
+expect phase == 1
+expect meter == 29
+wait 31
+expect meter == 60
+# full, and it stays full
+wait 20
+expect meter == 60
+expect warning == 0
+wait 5
+expect warning == 1
+expect meter == 60
+wait 40
+expect phase == 1
+# held too long: the golfer blows up
+wait 10
+expect phase == 4
+expect strokes == 1
+expect ball_x == 28
+expect ball_y == 117
+release A
+# back to the tee a moment later, the stroke counted
+wait 90
+expect phase == 0
+expect strokes == 1
+expect meter == 0
+# let go in time and it is a swing (at full power)
+hold A
+wait 70
+expect warning == 0
+release A
+wait 1
+expect phase == 2
+expect strokes == 2

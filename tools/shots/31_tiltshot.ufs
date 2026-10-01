@@ -1,0 +1,42 @@
+# README media: TILTSHOT. The GIF is the demo player's own route on Opening
+# Tee (real button presses): a full shot over the mound, slammed onto its
+# far side, on fire over the trap and the pond, off the backstop and into
+# the cup, HOLE IN ONE! on the display. The stills are the title, a hole
+# card, the demo player in flight on its routes, the warning and the board.
+shotscale 2
+seed 31
+game tiltshot
+wait 90
+shot tiltshot_title
+# Opening Tee: the slam onto the mound, the fire, the hole in one
+cheat hole 1
+gifstart tiltshot 3 2
+botuntil state == 7 1200
+wait 60
+gifstop
+wait 200
+# Skylark: over the canyon between the sparks
+cheat hole 4
+botuntil ball_x > 250 600
+shot tiltshot_skylark
+# The Pagoda: rattling down through the pegs
+cheat hole 17
+botuntil ball_x > 320 600
+wait 8
+shot tiltshot_pagoda
+# the card for the last hole
+cheat card 18
+wait 30
+shot tiltshot_card
+# held too long: EASY NOW!, the golfer flashing red
+cheat hole 12
+wait 20
+hold A 100
+shot tiltshot_warn
+release A
+wait 120
+# the board after the first hole
+cheat hole 1
+botuntil state == 8 3000
+wait 60
+shot tiltshot_board
