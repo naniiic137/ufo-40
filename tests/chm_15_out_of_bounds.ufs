@@ -1,0 +1,39 @@
+# CHIME CIRCUIT: the original has a bug where a big slash can push a ship
+# through a wall into the space outside the track, where it stays stuck.
+# Here a ship can't pass through a wall, and a ship that somehow ends up
+# outside the track or inside a wall is wrecked and relaunched from under
+# the start line like any other.
+seed 10
+game chime
+wait 30
+cheat race 1
+cheat park_cpus
+cheat go
+cheat place 0 4 90
+wait 1
+expect lost0 == 1
+expect alive0 == 0
+wait 80
+expect alive0 == 1
+expect x0 == 92
+cheat place 0 330 100
+wait 1
+expect lost0 == 2
+expect alive0 == 0
+wait 80
+expect alive0 == 1
+# a big slash into a wall at full force: the ship bounces off it
+cheat idle 1
+cheat power 0 4
+cheat place 0 250 30
+cheat place 1 264 30
+cheat vel 0 0 -100
+cheat vel 1 0 -100
+cheat face 0 1
+press B
+expect vx1 > 1500
+wait 40
+expect lost1 == 0
+expect alive1 == 1
+expect walls1 >= 1
+expect x1 < 300

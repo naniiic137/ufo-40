@@ -1,0 +1,29 @@
+# CHIME CIRCUIT: ships that run into each other bump apart and trade their
+# speed; ramming does no damage.
+seed 1
+game chime
+wait 30
+cheat race 1
+cheat park_cpus
+cheat go
+cheat idle 1
+cheat place 0 120 30
+cheat place 1 132 30
+cheat vel 0 400 0
+wait 5
+expect hp0 == 3
+expect hp1 == 3
+expect vx1 > 300
+expect vx0 < 100
+expect walls0 == 0
+expect walls1 == 0
+# and head on
+cheat place 0 140 30
+cheat place 1 160 30
+cheat vel 0 300 0
+cheat vel 1 -300 0
+wait 6
+expect vx0 < 0
+expect vx1 > 0
+expect hp0 == 3
+expect hp1 == 3

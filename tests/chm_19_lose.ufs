@@ -1,0 +1,119 @@
+# CHIME CIRCUIT: losing. When a CPU pilot wins the tournament, the podium
+# says the cup goes to it and there is no ending: A goes back to the title.
+# No Saucer and no Alien; without a race won there is no Beacon either.
+# A race lost plays the losing jingle.
+seed 20
+game chime
+wait 30
+cheat cup 1
+wait 25
+press A
+wait 5
+cheat finish 1 2 3 4 5 0
+wait 5
+expect music_is.chm_also == 1
+wait 55
+press A
+wait 25
+press A
+wait 25
+press A
+wait 25
+press A
+wait 5
+cheat finish 1 2 3 4 5 0
+wait 5
+expect music_is.chm_also == 1
+wait 55
+press A
+wait 25
+press A
+wait 25
+press A
+wait 25
+press A
+wait 5
+cheat finish 1 2 3 4 5 0
+wait 5
+expect music_is.chm_also == 1
+wait 55
+press A
+wait 25
+press A
+wait 25
+press A
+wait 25
+press A
+wait 5
+cheat finish 1 2 3 4 5 0
+wait 5
+expect music_is.chm_also == 1
+wait 55
+press A
+wait 25
+press A
+wait 25
+press A
+wait 25
+press A
+wait 5
+cheat finish 1 2 3 4 5 0
+wait 5
+expect music_is.chm_also == 1
+wait 55
+press A
+wait 25
+press A
+wait 25
+press A
+wait 25
+press A
+wait 5
+cheat finish 1 2 3 4 5 0
+wait 5
+expect music_is.chm_also == 1
+wait 55
+press A
+wait 25
+press A
+wait 25
+press A
+wait 25
+press A
+wait 5
+cheat finish 1 2 3 4 5 0
+wait 5
+expect music_is.chm_also == 1
+wait 55
+press A
+wait 25
+press A
+wait 25
+press A
+wait 25
+press A
+wait 5
+cheat finish 1 2 3 4 5 0
+wait 60
+press A
+wait 25
+press A
+wait 25
+expect state == 7
+expect points0 == 8
+expect points1 == 72
+expect rank0 == 6
+press A
+wait 5
+expect state == 8
+expect champion == 1
+expect goals == 0
+expect music_is.chm_also == 1
+wait 70
+press A
+wait 5
+expect state == 0
+expect cups == 1
+expect cup_wins == 0
+expect race_wins == 0
+expect best == 8

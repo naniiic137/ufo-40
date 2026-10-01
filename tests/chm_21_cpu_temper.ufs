@@ -1,0 +1,1291 @@
+# CHIME CIRCUIT: the CPUs' temper is drawn once for the whole race, not
+# every few seconds: half the races are calm (they let you by), a third
+# are mixed (some jostle), the rest are mean, with one hunter at most; on
+# TWIN FLUE every race is mean, with two hunters. A jostler swings at a
+# player in reach now and then (one frame in twenty), but never at a ship
+# that is lapping it; only a hunter does that. A hunter that lands a knock
+# lets its prey go for four seconds.
+game chime
+wait 30
+# a calm race stays calm
+seed 1
+cheat race 2
+expect temper == 0
+expect hunters == 0
+botplay 1500
+expect aggro1 == 0
+expect aggro2 == 0
+expect aggro3 == 0
+expect aggro4 == 0
+expect aggro5 == 0
+# a mixed one: some jostle, nobody hunts, and it stays that way
+seed 2
+cheat race 2
+expect temper == 1
+expect hunters == 0
+expect aggro1 == 1
+expect aggro5 == 1
+botplay 1500
+expect aggro1 == 1
+expect aggro5 == 1
+expect hunters == 0
+# a mean one: a single hunter, the rest jostle
+seed 7
+cheat race 2
+expect temper == 2
+expect hunters == 1
+expect aggro5 == 2
+botplay 1500
+expect hunters == 1
+expect aggro5 == 2
+# TWIN FLUE: always mean, two hunters
+seed 1
+cheat race 6
+expect temper == 2
+expect hunters == 2
+seed 2
+cheat race 6
+expect temper == 2
+expect hunters == 2
+# a jostler alongside a player (after the opening scrum) swings at it
+seed 1
+cheat race 1
+cheat park_cpus
+cheat go
+wait 320
+cheat place 1 120 30
+cheat aggro 1 1
+cheat revive 0
+cheat revive 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+expect knocks1 >= 1
+# ... but never at a ship lapping it
+cheat laps 0 3
+cheat laps 1 2
+cheat cp 0 1
+cheat cp 1 1
+expect knocks1 == 3
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+expect knocks1 == 3
+# a hunter does, and then leaves it be for a while
+cheat aggro 1 2
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+cheat place 1 120 30
+cheat face 1 1
+cheat place 0 134 30
+wait 1
+expect knocks1 == 4
+expect rest1 > 200

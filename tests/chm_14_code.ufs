@@ -1,0 +1,181 @@
+# CHIME CIRCUIT: the CODE screen. LOOT-GALE (our take on the original's
+# more-pickups code) makes the stations restock four times as fast; a
+# tournament begun with it on earns no goals or stats. LAST-LAMP shows a
+# page left inside the cartridge. Anything else: NO SUCH CODE.
+seed 9
+game chime
+wait 30
+press DOWN
+press DOWN
+wait 5
+press A
+wait 5
+expect state == 1
+expect code_pos == 0
+# L O O T - G A L E
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press RIGHT
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press RIGHT
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press RIGHT
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press RIGHT
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press RIGHT
+press RIGHT
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press RIGHT
+press UP
+press UP
+press UP
+press UP
+expect code_pos == 7
+expect fast_loot == 0
+press A
+expect fast_loot == 1
+expect state == 1
+# a wrong code does nothing
+press UP
+press A
+expect fast_loot == 1
+expect state == 1
+press DOWN
+# back to the title, and a tournament with the code on
+press B
+wait 10
+expect state == 0
+press UP
+press UP
+wait 5
+press A
+wait 15
+press A
+wait 5
+expect state == 4
+wait 25
+press A
+wait 5
+expect st_t0 <= 105
+expect st_t1 <= 105
+cheat finish 0 1 2 3 4 5
+wait 5
+expect goals == 0
+expect race_wins == 0
+expect race_n1 == 0
+# L A S T - L A M P from there: the page
+reload
+game chime
+wait 30
+press DOWN
+press DOWN
+wait 5
+press A
+wait 5
+expect code_pos == 0
+press RIGHT
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press RIGHT
+press UP
+press UP
+press UP
+press UP
+press RIGHT
+press RIGHT
+press UP
+press UP
+press UP
+press UP
+press UP
+press RIGHT
+press RIGHT
+press UP
+press RIGHT
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press A
+wait 5
+expect state == 2
+wait 30
+press A
+wait 5
+expect state == 1

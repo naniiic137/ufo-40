@@ -1,0 +1,22 @@
+# CHIME CIRCUIT: a whole tournament from the title, every menu and every
+# lap flown by the demo pilot's button presses: it wins the Chime Cup,
+# sees its pilot's ending and the credits, and is back at the title.
+seed 19
+game chime
+wait 30
+botuntil state == 4 600
+expect humans == 1
+botuntil race == 8 200000
+expect rank0 == 1
+botuntil state == 8 3000
+expect champion == 0
+expect goals & 2
+botuntil state == 9 3000
+botuntil state == 10 3000
+botuntil state == 0 5000
+expect cups == 1
+expect cup_wins == 1
+expect lap_n1 == 64
+expect race_n1 == 8
+expect lap_avg1 > 300
+expect race_avg1 > 2400

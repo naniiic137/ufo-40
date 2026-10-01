@@ -1,0 +1,57 @@
+# README media: CHIME CIRCUIT. The races are the demo pilot's real button
+# presses against the five CPU pilots; the GIF is a lap of HOURGLASS.
+shotscale 2
+seed 19
+game chime
+wait 120
+shot chime_title
+# the pilots, two players picking
+press DOWN
+wait 5
+press A
+wait 12
+press A
+press P2RIGHT
+press P2RIGHT
+wait 20
+shot chime_pilots
+press B
+press B
+wait 30
+# one player: the first card, then THE DIPPER and HOURGLASS
+press UP
+wait 5
+press A
+wait 15
+press A
+wait 40
+shot chime_card
+cheat race 2
+botuntil t >= 1500 20000
+shot chime_dipper
+cheat race 4
+botuntil t >= 1300 20000
+gifstart chime 3 1
+botuntil t >= 2080 20000
+gifstop
+shot chime_hourglass
+# the scrum at the start of NEEDLE'S EYE
+cheat race 3
+botuntil t >= 45 2000
+shot chime_scrum
+# a whole tournament: the standings after the last race, the cup, an ending
+cheat cup 1
+botuntil race == 7 150000
+botuntil track == 7 3000
+botuntil t >= 900 20000
+shot chime_octave
+botuntil state == 7 30000
+# (past the goal toast)
+wait 230
+shot chime_standings
+botuntil state == 8 2000
+wait 90
+shot chime_cup
+botuntil state == 9 2000
+wait 90
+shot chime_ending

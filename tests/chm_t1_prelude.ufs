@@ -1,0 +1,13 @@
+# CHIME CIRCUIT: track 1 can be finished. The demo pilot flies player one's
+# ship with real button presses (steer, thrust, slash) for all eight laps,
+# against the five CPU pilots, who race too.
+seed 11
+game chime
+wait 30
+cheat race 1
+expect track == 0
+expect map_ok == 1
+botuntil fin0 == 1 30000
+expect laps0 == 8
+expect place0 >= 1
+expect cpu_laps >= 8

@@ -1,0 +1,43 @@
+# CHIME CIRCUIT: points by place, 9 7 5 3 2 1. The next race's grid runs
+# the other way: the winner starts at the back, the last at the front.
+seed 4
+game chime
+wait 30
+cheat race 1
+cheat finish 3 1 0 2 4 5
+wait 5
+expect race == 1
+expect points3 == 9
+expect points1 == 7
+expect points0 == 5
+expect points2 == 3
+expect points4 == 2
+expect points5 == 1
+expect pts_total == 27
+expect grid0 == 5
+expect grid1 == 4
+expect grid2 == 2
+expect grid3 == 0
+expect grid4 == 1
+expect grid5 == 3
+# the results, the standings, the next card, and that grid on the track
+wait 60
+press A
+wait 5
+expect state == 6
+wait 25
+press A
+wait 5
+expect state == 7
+wait 25
+press A
+wait 5
+expect state == 4
+expect race == 1
+wait 25
+press A
+wait 5
+expect track == 1
+expect slot3 == 5
+expect slot5 == 0
+expect slot0 == 3
