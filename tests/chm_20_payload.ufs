@@ -1,0 +1,139 @@
+# CHIME CIRCUIT: the payload never turns on the ship that tows it. When it
+# blows, the ships near it are thrown clear but its own ship is not; the
+# three fires are left in a triangle whose point is away from its ship
+# (here the ball hangs below it, so the point is below) and whose corners
+# are clear of it either side; and its own fires spare it for their first
+# second. Anyone else is hurt by them. A ship in a fire is slowed, not
+# stopped: it flies on out with one hit.
+seed 1
+game chime
+wait 30
+cheat race 1
+cheat park_cpus
+cheat go
+cheat idle 1
+# player one hovers (two frames of thrust in five) with the payload in tow
+cheat place 0 150 26
+cheat vel 0 0 30
+cheat power 0 5
+hold A 2
+wait 3
+hold A 2
+wait 3
+hold A 2
+wait 3
+hold A 2
+wait 3
+hold A 2
+wait 3
+hold A 2
+wait 3
+hold A 2
+wait 3
+hold A 2
+wait 3
+hold A 2
+wait 3
+hold A 2
+wait 3
+hold A 2
+wait 3
+hold A 2
+wait 3
+hold A 2
+wait 3
+hold A 2
+wait 3
+hold A 2
+wait 3
+hold A 2
+wait 3
+hold A 2
+wait 3
+hold A 2
+wait 3
+hold A 2
+wait 3
+hold A 2
+wait 3
+hold A 2
+wait 3
+hold A 2
+wait 3
+hold A 2
+wait 3
+hold A 2
+wait 3
+hold A 2
+wait 3
+hold A 2
+wait 3
+hold A 2
+wait 3
+hold A 2
+wait 3
+hold A 2
+wait 3
+hold A 2
+wait 3
+hold A 2
+wait 3
+hold A 2
+wait 3
+hold A 2
+wait 3
+hold A 2
+wait 3
+hold A 2
+wait 3
+expect power0 == 5
+expect x0 == 150
+expect bally0 > 34
+# ship two comes alongside just before it blows
+cheat place 1 176 40
+cheat revive 1
+hold A 2
+wait 3
+expect power0 == 0
+expect fires == 3
+# the other ship is thrown clear; its own ship is left alone
+expect stun1 > 0
+expect vx1 > 800
+expect stun0 == 0
+expect vx0 == 0
+expect hp0 == 3
+# the point is below the ball, the corners either side of the ship
+expect fire_x0 == 150
+expect fire_y0 > 40
+expect fire_x1 < 140
+expect fire_x2 > 160
+# its own fire spares it for a second ...
+cheat place 0 136 30
+cheat vel 0 0 0
+cheat mercy 0 0
+wait 2
+expect hp0 == 3
+# ... and then it doesn't
+wait 60
+cheat place 0 136 30
+cheat vel 0 0 0
+wait 2
+expect hp0 == 2
+# another ship is hurt by them at once
+cheat place 1 163 29
+cheat vel 1 0 0
+cheat hp 1 3
+cheat mercy 1 0
+wait 1
+expect hp1 == 2
+# a fire slows a ship but can't hold it: out the other side with one hit
+cheat clear
+cheat fire 100 30
+cheat place 0 100 30
+cheat vel 0 0 0
+cheat hp 0 3
+cheat mercy 0 0
+hold LEFT 24
+expect x0 < 91
+expect hp0 == 2
+expect alive0 == 1

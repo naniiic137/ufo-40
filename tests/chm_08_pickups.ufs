@@ -1,7 +1,7 @@
-# CHIME CIRCUIT: pickups wait at stations. An empty station flashes "!!"
-# for a second before a pickup appears there (one of five, at random); a
-# ship that flies into it uses it at once, and the station restocks some
-# seconds later. PRELUDE RING has two stations.
+# CHIME CIRCUIT: pickups wait at stations. An empty station shows nothing
+# at all; it flashes "!!" for a second before a pickup appears there (one
+# of five, at random); a ship that flies into it uses it at once, and the
+# station restocks some seconds later. PRELUDE RING has two stations.
 seed 2
 game chime
 wait 30
@@ -13,6 +13,8 @@ cheat park 0
 expect nst == 2
 expect st_state0 == 0
 expect st_state1 == 0
+expect st_drawn0 == 0
+expect st_drawn1 == 0
 waituntil st_state0 == 1 500
 expect st_state0 == 1
 wait 59
@@ -21,6 +23,7 @@ wait 1
 expect st_state0 == 2
 expect st_kind0 >= 1
 expect st_kind0 <= 5
+expect st_drawn0 > 50
 # fly into it: it works at once, and the station empties
 cheat place 0 100 32
 cheat vel 0 300 -100
@@ -28,3 +31,8 @@ wait 4
 expect power0 >= 1
 expect st_state0 == 0
 expect st_t0 >= 470
+# (once the sparkle has faded) the empty station shows nothing again
+cheat park 0
+wait 40
+expect st_state0 == 0
+expect st_drawn0 == 0

@@ -1,6 +1,8 @@
 # CHIME CIRCUIT: B slashes to the side the ship faces. It does no damage:
 # it knocks the ship it reaches away (3.6 px a frame) and leaves it unable
-# to steer for a moment, so it may fly into a wall. A ship behind is safe.
+# to steer for a moment (its thrust still works), so it may fly into a
+# wall. A ship behind is safe. Slashing also slows the slasher's fall a
+# little.
 seed 1
 game chime
 wait 30
@@ -42,3 +44,23 @@ press B
 expect knocks0 == 2
 expect vx1 < -800
 expect hp1 == 3
+# a knocked ship can't steer, but it can still thrust
+wait 30
+cheat stun 0 16
+cheat place 0 60 40
+cheat vel 0 0 0
+hold RIGHT+A 5
+expect vx0 == 0
+expect vy0 == -150
+expect stun0 == 11
+# a fall of three frames, plain and then with a slash: the slash slows it
+cheat stun 0 0
+cheat place 0 60 22
+cheat vel 0 0 600
+wait 3
+expect vy0 == 660
+cheat place 0 60 22
+cheat vel 0 0 600
+press B
+expect vy0 < 480
+expect vy0 > 400

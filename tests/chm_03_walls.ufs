@@ -1,7 +1,8 @@
 # CHIME CIRCUIT: floors, ceilings and walls all hurt. A ship that touches
 # one loses a hit point (three to a ship) and bounces back off it; for
 # three quarters of a second after, nothing hurts it again. The third
-# lost hit point wrecks it.
+# lost hit point wrecks it. The damage meter pops up over the ship for a
+# second when its hit points change, and is gone the rest of the time.
 seed 1
 game chime
 wait 30
@@ -9,6 +10,7 @@ cheat race 1
 cheat park_cpus
 cheat go
 expect hp0 == 3
+expect hpshow0 == 0
 # up into the ceiling
 cheat place 0 140 22
 cheat vel 0 0 -500
@@ -17,9 +19,11 @@ expect hp0 == 2
 expect vy0 > 0
 expect mercy0 > 40
 expect alive0 == 1
+expect hpshow0 > 55
 # down onto the floor while it's still flashing: no harm
 waituntil walls0 >= 2 60
 expect hp0 == 2
+expect hpshow0 > 0
 # after that, every touch counts
 waituntil hp0 == 1 300
 waituntil alive0 == 0 300

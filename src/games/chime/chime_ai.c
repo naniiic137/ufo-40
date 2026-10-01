@@ -9,13 +9,20 @@
  * touch a wall, it tries again more slowly.
  *
  * CPU pilots are slower than a good player: each keeps to its own speed
- * limit for the race and only looks again every third frame. They have
- * moods: calm, jostling (a slash for anyone in reach) and hunting (they go
- * for a nearby player, even turning back to do it). Everyone jostles in the
- * opening scrum, and on TWIN FLUE they would rather wreck ships than race.
+ * limit for the race (and each track has its own pace) and only looks
+ * again every third frame. Their temper is drawn once per race: in a calm
+ * race they just let you by, in a mixed one some jostle (now and then a
+ * slash for a ship in reach), and in a mean one a single hunter goes for a
+ * nearby player, even turning back to do it. Everyone jostles in the
+ * opening scrum; only a hunter swings at a ship that is lapping it. On
+ * TWIN FLUE they would rather wreck ships than race: every race there is
+ * mean, with two hunters.
  *
  * The demo pilot (bot = true) flies player one's ship for the tests with
- * the same pilot at full pace, on the track's fastest line. */
+ * the same pilot at full pace, on the track's fastest line. It stands in
+ * for a player, so it also looks out for what a player sees coming: mines,
+ * fires, fireballs and the ships ahead, and edges round them or eases off.
+ * (The CPU pilots only mind the walls.) */
 #include "chime.h"
 
 #define LOOK 24        /* frames flown forward to check a plan */
@@ -25,17 +32,41 @@
 #define SCRUM 300      /* frames of the opening scrum */
 #define HUNT_R 110     /* px: a player this close can be hunted */
 #define FLUE 5         /* TWIN FLUE's track index */
+#define ODDS_SCRUM 10  /* 1 in this many frames: a slash at a ship in reach in the scrum */
+#define ODDS_JOSTLE 20 /* ... a jostler's slash at a player in reach */
+#define ODDS_CPU 40    /* ... a jostler's slash at another CPU */
 
 static int PX(int32_t v) { return (int)(v >> 8); }
 int chm_ai_debug; /* tests: print the next plan */
 
-void chm_ai_mood(ChmRace *r, int i) {
-    ChmShip *s = &r->s[i];
+/* The CPUs' temper for the race: calm half the time, mixed a third, mean
+ * the rest (always on TWIN FLUE). */
+void chm_ai_moods(ChmRace *r) {
+    int cpu[CHM_SHIPS], n = 0;
+    for (int i = 0; i < CHM_SHIPS; i++)
+        if (!r->s[i].human) cpu[n++] = i;
     int roll = rng_range(&r->rng, 0, 99);
-    bool mean = r->track == FLUE;
-    s->aggro = roll < (mean ? 40 : 10) ? AG_HUNT : roll < (mean ? 80 : 45) ? AG_JOSTLE : AG_CALM;
-    s->aggro_t = (uint16_t)rng_range(&r->rng, 360, 720);
-    s->prey = 255;
+    r->temper = r->track == FLUE ? TEMPER_MEAN : roll < 50 ? TEMPER_CALM : roll < 85 ? TEMPER_MIXED : TEMPER_MEAN;
+    for (int k = 0; k < n; k++) {
+        ChmShip *s = &r->s[cpu[k]];
+        s->prey = 255;
+        s->aggro = r->temper == TEMPER_CALM ? AG_CALM
+                 : r->temper == TEMPER_MIXED ? (rng_range(&r->rng, 0, 1) ? AG_JOSTLE : AG_CALM)
+                 : AG_JOSTLE;
+    }
+    /* the hunters: one in a mean race, two on TWIN FLUE */
+    int hunters = r->temper != TEMPER_MEAN ? 0 : r->track == FLUE ? 2 : 1;
+    for (int h = 0; h < hunters && n > 0; h++) {
+        int k = rng_range(&r->rng, 0, n - 1);
+        r->s[cpu[k]].aggro = AG_HUNT;
+        cpu[k] = cpu[--n];
+    }
+}
+
+/* is ship j a lap or more ahead of ship i (lapping it)? */
+static bool lapping(const ChmRace *r, int i, int j) {
+    int per = chm_map.ncp + 1;
+    return (r->s[j].laps - r->s[i].laps) * per + (r->s[j].cp - r->s[i].cp) >= per;
 }
 
 /* the buttons that hold a velocity */
@@ -149,9 +180,43 @@ static void flow(int32_t x, int32_t y, int z, int zn, int pace, int32_t *dvx, in
     *dvy = ay * speed / la;
 }
 
-/* frames flown safely following the path at this pace */
-static int try_pace(const ChmShip *s, int z, int zn, int pace, int half, const int32_t *prey) {
-    ChmFlight f = s->f;
+/* the demo pilot's eyes: would a ship at (x, y), k frames from now, run
+ * into a mine or a fire, or (ships) someone's fireballs or another ship? */
+static bool hazard(const ChmRace *r, int self, int32_t x, int32_t y, int k, bool ships) {
+    int px = PX(x), py = PX(y);
+    for (int m = 0; m < CHM_MINES; m++) {
+        const ChmMine *mn = &r->mine[m];
+        if (mn->on && iabs(px - mn->x) <= 10 && iabs(py - mn->y) <= 10) return true;
+    }
+    for (int f = 0; f < CHM_FIRES; f++) {
+        const ChmFire *fi = &r->fire[f];
+        if (fi->on && iabs(px - fi->x) <= 10 && iabs(py - fi->y) <= 11) return true;
+    }
+    int ahead = imin(k, 8); /* other ships are guessed at a short way on */
+    for (int j = 0; j < CHM_SHIPS && ships; j++) {
+        const ChmShip *t = &r->s[j];
+        if (j == self || !t->alive || t->finished || t->parked) continue;
+        int dx = iabs(px - PX(t->f.x + t->f.vx * ahead)), dy = iabs(py - PX(t->f.y + t->f.vy * ahead));
+        int reach = t->power == PW_FIREBALLS ? 22 : 10;
+        if (k > 0 && dx <= reach && dy <= reach) return true;
+    }
+    return false;
+}
+
+/* a velocity turned a little to one side (side -1 or +1): to edge round
+ * something */
+static void veer(int32_t *dvx, int32_t *dvy, int side) {
+    int32_t x = *dvx, y = *dvy;
+    *dvx = x - side * y * 3 / 5;
+    *dvy = y + side * x * 3 / 5;
+}
+
+/* Frames flown safely following the path at this pace. The demo pilot
+ * may also veer to one side, and minds the hazards too (eyes: 1 mines and
+ * fires, 2 the ships as well). */
+static int try_pace(const ChmRace *r, int self, int z, int zn, int pace, int eyes, int side, int half,
+                    const int32_t *prey) {
+    ChmFlight f = r->s[self].f;
     int32_t dvx = 0, dvy = 0;
     for (int k = 0; k < LOOK; k++) {
         if ((k & 3) == 0) {
@@ -162,11 +227,13 @@ static int try_pace(const ChmShip *s, int z, int zn, int pace, int half, const i
             } else {
                 flow(f.x, f.y, z, zn, pace, &dvx, &dvy);
             }
+            if (side) veer(&dvx, &dvy, side);
         }
         chm_flight_control(&f, &CHM_TUNE, hold(&f, dvx, dvy));
         f.x += f.vx;
         f.y += f.vy;
         if (chm_flight_blocked(half, chm_solid, &chm_map, f.x, f.y)) return k;
+        if (eyes && hazard(r, self, f.x, f.y, k, eyes > 1)) return k;
     }
     return LOOK;
 }
@@ -198,6 +265,7 @@ static int nearest_player(const ChmRace *r, int i, int radius) {
 }
 
 static const uint8_t PACES[4] = {100, 70, 45, 25}; /* per cent of top speed */
+static const int8_t SIDES[3] = {0, 1, -1};          /* the demo pilot's veers */
 
 unsigned chm_ai(ChmRace *r, int i, bool bot) {
     ChmShip *s = &r->s[i];
@@ -211,8 +279,11 @@ unsigned chm_ai(ChmRace *r, int i, bool bot) {
 
     bool scrum = r->t < SCRUM;
     if (!bot) {
-        if (s->aggro_t > 0 && --s->aggro_t == 0) chm_ai_mood(r, i);
-        if (s->aggro == AG_HUNT) {
+        if (s->aggro == AG_HUNT && s->rest_t) {
+            /* it has just knocked its prey: back to racing for a moment */
+            s->rest_t--;
+            s->prey = 255;
+        } else if (s->aggro == AG_HUNT) {
             if (s->prey < CHM_SHIPS) {
                 const ChmShip *t = &r->s[s->prey];
                 if (!t->alive || t->finished || iabs(PX(t->f.x - s->f.x)) + iabs(PX(t->f.y - s->f.y)) > HUNT_R * 3 / 2)
@@ -233,14 +304,18 @@ unsigned chm_ai(ChmRace *r, int i, bool bot) {
     }
 
     int top = bot ? CHM_TUNE.max_vx : s->skill;
-    if (!bot && r->track == FLUE) top = top * 7 / 8; /* it never gets the hang of this one */
     if (bot || s->plan_t == 0) {
+        /* the demo pilot looks for a clear way past everything, then past
+         * the mines and fires only, and if there is none just flies */
         int best = -1, pick = 3;
-        for (int k = 0; k < 4; k++) {
-            int ok = try_pace(s, z, zn, top * PACES[k] / 100, half, pp);
-            if (chm_ai_debug) printf("  pace %d%%: %d frames\n", PACES[k], ok);
-            if (ok > best) { best = ok; pick = k; }
-            if (ok >= LOOK) break;
+        for (int eyes = bot ? 2 : 0; eyes >= 0 && best < LOOK; eyes--) {
+            best = -1;
+            for (int k = 0; k < 4 && best < LOOK; k++)
+                for (int v = 0; v < (eyes ? 3 : 1) && best < LOOK; v++) {
+                    int ok = try_pace(r, i, z, zn, top * PACES[k] / 100, eyes, SIDES[v], half, pp);
+                    if (chm_ai_debug) printf("  eyes %d pace %d%% side %d: %d frames\n", eyes, PACES[k], SIDES[v], ok);
+                    if (ok > best) { best = ok; pick = k | v << 2; }
+                }
         }
         if (chm_ai_debug) { printf("  pick %d (z %d zn %d)\n", pick, z, zn); chm_ai_debug = 0; }
         s->act = (uint8_t)pick;
@@ -257,22 +332,27 @@ unsigned chm_ai(ChmRace *r, int i, bool bot) {
     } else {
         flow(s->f.x, s->f.y, z, zn, pace, &dvx, &dvy);
     }
+    if (s->act >> 2) veer(&dvx, &dvy, SIDES[(s->act >> 2) % 3]);
     unsigned c = hold(&s->f, dvx, dvy);
 
     /* slashes. A hunter always swings at its prey; in the opening scrum
      * and when jostling a CPU swings at a player in reach now and then,
-     * and at another CPU more rarely. The demo pilot swings at whoever
-     * crowds it from in front. */
+     * and at another CPU more rarely, but never at a ship lapping it. The
+     * demo pilot swings at whoever crowds it from in front. */
     if (!s->slash_cd) {
         int face = s->f.face >= 0 ? 1 : -1;
         if (bot) {
             if (in_reach(r, i, face, -1) >= 0) c |= CHM_CTL_SLASH;
-        } else if (scrum || s->aggro != AG_CALM || r->track == FLUE) {
+        } else if (scrum || s->aggro != AG_CALM) {
             bool hunting = s->aggro == AG_HUNT && s->prey < CHM_SHIPS;
             int only = hunting && !scrum ? s->prey : -1;
             int j = in_reach(r, i, face, only), back = in_reach(r, i, -face, only);
-            int odds = hunting ? 1 : 5;
-            if (j >= 0 && rng_range(&r->rng, 1, r->s[j].human || r->track == FLUE ? odds : 12) == 1) c |= CHM_CTL_SLASH;
+            if (j >= 0 && !hunting && lapping(r, i, j)) j = -1;
+            int odds = hunting ? 1
+                     : scrum ? ODDS_SCRUM
+                     : j >= 0 && (r->s[j].human || r->track == FLUE) ? ODDS_JOSTLE
+                     : ODDS_CPU;
+            if (j >= 0 && rng_range(&r->rng, 1, odds) == 1) c |= CHM_CTL_SLASH;
             else if (back >= 0 && r->s[back].human && hunting) {
                 /* turn round for it: the next frame's slash goes that way */
                 c &= ~(unsigned)(CHF_LEFT | CHF_RIGHT);

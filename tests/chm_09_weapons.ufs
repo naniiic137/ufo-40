@@ -49,6 +49,22 @@ cheat place 0 91 34
 cheat vel 0 0 0
 wait 2
 expect hp0 == 2
+# a mine lasts three seconds, less than the fastest lap
+cheat clear
+cheat revive 0
+cheat hp 0 3
+cheat place 0 60 30
+cheat vel 0 0 -110
+cheat face 0 1
+cheat power 0 2
+wait 11
+expect mines == 1
+cheat power 0 0
+cheat park 0
+wait 170
+expect mines == 1
+wait 12
+expect mines == 0
 # fireballs
 cheat clear
 cheat power 0 3

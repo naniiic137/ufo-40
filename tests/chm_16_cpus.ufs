@@ -1,7 +1,9 @@
 # CHIME CIRCUIT: the CPU pilots. They fly the same ships, but slower than a
 # good player: each has its own top speed for the race, under the ships'
-# 560. In the opening scrum they slash at whoever is in reach. On TWIN FLUE
-# they would rather wreck ships than race: more of them hunt.
+# 560, and each track has its own CPU pace: PRELUDE RING three quarters
+# (you can lap them more than once), GRAND OCTAVE the closest. In the
+# opening scrum they slash at whoever is in reach. On TWIN FLUE they would
+# rather wreck ships than race: two of them hunt.
 seed 11
 game chime
 wait 30
@@ -16,7 +18,22 @@ expect skill5 <= 440
 botuntil cpu_knocks >= 1 600
 botuntil fin0 == 1 30000
 expect cpu_laps >= 20
+cheat race 1
+expect skill1 >= 277
+expect skill1 <= 330
+expect skill2 <= 330
+expect skill3 <= 330
+expect skill4 <= 330
+expect skill5 <= 330
+botuntil fin0 == 1 30000
+expect place0 == 1
+expect cpu_laps <= 30
+cheat race 8
+expect skill1 >= 377
+expect skill1 <= 448
+expect skill5 >= 377
 cheat race 6
-expect hunters >= 2
+expect skill1 <= 387
+expect hunters == 2
 botuntil fin0 == 1 30000
 expect place0 >= 1

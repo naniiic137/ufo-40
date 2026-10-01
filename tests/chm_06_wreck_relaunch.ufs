@@ -23,6 +23,7 @@ expect alive0 == 1
 expect x0 == 92
 expect y0 == 165
 expect hp0 == 3
+expect hpshow0 >= 59
 expect mercy0 >= 59
 expect vy0 < 0
 expect laps0 == 3

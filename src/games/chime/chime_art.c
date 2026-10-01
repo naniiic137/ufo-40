@@ -318,28 +318,39 @@ void chm_art_load(void) {
 
 /* ---- ships and pilots ------------------------------------------------------ */
 
-void chm_draw_ship(int pilot, int x, int y, int face, bool flame, int tilt, int hp, int t) {
+/* The chime ship. With thrust and a steer held together it leans that way
+ * (tilt -1 or +1): the top of the bell shifts a pixel toward the steer and
+ * the flame a pixel away from it. The damage meter is drawn by the race
+ * (chime.c), only when the hit points change. */
+void chm_draw_ship(int pilot, int x, int y, int face, bool flame, int tilt, int t) {
     const ChmPilot *p = &CHM_PILOT[pilot % CHM_PILOTS];
     uint8_t map[256];
     pal_identity(map);
     map[C_RED] = p->body;
     map[C_ORANGE] = p->trim;
-    int fl = face < 0 ? SPR_FLIPX : 0;
     int sx = x - 6, sy = y - 5;
-    (void)tilt;
+    tilt = tilt < 0 ? -1 : tilt > 0 ? 1 : 0;
     if (flame) {
-        int k = (t >> 1) & 1;
-        gfx_rect(sx + 5, sy + 10, 2, 2 + k, C_YELLOW);
-        gfx_pset(sx + 4 + k, sy + 11, C_ORANGE);
-        gfx_pset(sx + 7 - k, sy + 11, C_ORANGE);
-        gfx_pset(sx + 5 + k, sy + 12 + k, C_ORANGE);
-        gfx_pset(sx + 6 - k, sy + 13, C_RED);
+        int k = (t >> 1) & 1, fx = sx - tilt;
+        gfx_rect(fx + 5, sy + 10, 2, 2 + k, C_YELLOW);
+        gfx_pset(fx + 4 + k, sy + 11, C_ORANGE);
+        gfx_pset(fx + 7 - k, sy + 11, C_ORANGE);
+        gfx_pset(fx + 5 + k, sy + 12 + k, C_ORANGE);
+        gfx_pset(fx + 6 - k, sy + 13, C_RED);
     }
-    spr_draw_ex(&chm_spr[CA_SHIP], sx, sy, fl, map, -1);
-    /* the lamp on top shows the damage */
-    if (hp > 0) {
-        int c = hp >= 3 ? C_LIME : hp == 2 ? C_YELLOW : ((t >> 3) & 1 ? C_RED : C_MAROON);
-        gfx_rect(sx + 5, sy + 1, 2, 1, c);
+    if (!tilt) {
+        spr_draw_ex(&chm_spr[CA_SHIP], sx, sy, face < 0 ? SPR_FLIPX : 0, map, -1);
+        return;
+    }
+    /* leaning: the dome's rows (the top half) drawn a pixel over */
+    const Sprite *sp = &chm_spr[CA_SHIP];
+    if (!sp->px) return;
+    for (int r = 0; r < sp->h; r++) {
+        int shift = r < sp->h / 2 ? tilt : 0;
+        for (int c = 0; c < sp->w; c++) {
+            uint8_t v = sp->px[r * sp->w + (face < 0 ? sp->w - 1 - c : c)];
+            if (v != TRANSPARENT) gfx_pset(sx + c + shift, sy + r, map[v]);
+        }
     }
 }
 

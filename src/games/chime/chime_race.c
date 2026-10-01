@@ -23,8 +23,9 @@ const uint16_t CHM_POWER_T[PW_COUNT] = {0, 240, 240, 300, 360, 180};
 #define SHOT_LIFE 90
 #define MINE_EVERY 20
 #define MINE_ARM 30        /* a fresh mine can't go off yet (so it isn't under its layer) */
-#define MINE_LIFE 480
-#define FIRE_LIFE 300
+#define MINE_LIFE 180      /* 3 s: gone before the fastest lap (5 s) comes round again */
+#define FIRE_LIFE 180      /* 3 s: "a short time" */
+#define FIRE_OWNER_SAFE 60 /* the payload's own fires spare its ship this long */
 #define ORBIT_R 14
 #define BLAST_R 36
 #define BLAST_PUSH 1024
@@ -191,11 +192,11 @@ void chm_race_begin(ChmRace *r, const ChmCup *c, int track, uint64_t seed) {
         pick_route(r, i);
         if (!s->human) {
             /* CPU pilots are slower than a good player: each has its own
-             * speed limit for the race */
-            s->skill = (int16_t)rng_range(&r->rng, 370, 440);
-            chm_ai_mood(r, i);
+             * speed limit for the race, and each track its own pace */
+            s->skill = (int16_t)(rng_range(&r->rng, 370, 440) * CHM_TRACK[r->track].cpu_pace / 100);
         }
     }
+    chm_ai_moods(r);
     int k = 0;
     for (int row = 0; row < CHM_TH; row++)
         for (int col = 0; col < CHM_TW; col++)
@@ -203,7 +204,7 @@ void chm_race_begin(ChmRace *r, const ChmCup *c, int track, uint64_t seed) {
                 ChmStation *st = &r->st[k++];
                 st->x = (int16_t)(col * CHM_TILE + 4);
                 st->y = (int16_t)(CHM_OY + row * CHM_TILE + 4);
-                st->t = (uint16_t)(rng_range(&r->rng, 240, 420) / (r->fast_loot ? 3 : 1));
+                st->t = (uint16_t)(rng_range(&r->rng, 240, 420) / (r->fast_loot ? 4 : 1));
             }
     r->nst = (uint8_t)k;
     for (int slot = 0; slot < CHM_SHIPS; slot++) r->order[slot] = (uint8_t)(c->grid[slot] % CHM_SHIPS);
@@ -235,6 +236,7 @@ void chm_race_hurt(ChmRace *r, int i) {
     ChmShip *s = &r->s[i];
     if (!in_play(s) || s->mercy) return;
     s->hp--;
+    s->hp_show = CHM_HP_SHOW;
     s->mercy = CHM_MERCY;
     r->ev |= EV_HURT;
     if (s->human) r->ev_human |= EV_HURT;
@@ -245,6 +247,7 @@ static void relaunch(ChmRace *r, int i) {
     ChmShip *s = &r->s[i];
     s->alive = 1;
     s->hp = CHM_HP;
+    s->hp_show = CHM_HP_SHOW;
     s->f.x = M()->spawn_x;
     s->f.y = M()->spawn_y;
     s->f.vx = 0;
@@ -289,7 +292,10 @@ static void lap_done(ChmRace *r, int i) {
     s->lap_t0 = r->t;
     s->cp = 1;
     s->rz = 1;
-    if (s->hp < CHM_HP) s->hp++;
+    if (s->hp < CHM_HP) {
+        s->hp++;
+        s->hp_show = CHM_HP_SHOW;
+    }
     if (!s->human) pick_route(r, i);
     r->ev |= EV_LAP;
     if (s->human) r->ev_human |= s->laps == CHM_LAPS - 1 ? EV_LASTLAP : EV_LAP;
@@ -370,6 +376,7 @@ static void do_slash(ChmRace *r, int i) {
         t->f.vy = t->f.vy / 2 - 160;
         t->stun = super ? CHM_SUPER_STUN : CHM_STUN;
         s->knocks++;
+        if (!s->human && s->aggro == AG_HUNT) s->rest_t = CHM_HUNT_REST;
         burst(r, tx, ty, 6, C_WHITE, PK_SPARK, 28);
         r->ev |= EV_KNOCK;
         if (s->human || t->human) r->ev_human |= EV_KNOCK;
@@ -387,22 +394,38 @@ static void fire_shot(ChmRace *r, int owner, int dx, int dy) {
     }
 }
 
-static void add_fire(ChmRace *r, int x, int y) {
+static void add_fire(ChmRace *r, int x, int y, int owner) {
     if (chm_flight_blocked(3, chm_solid, M(), x * CHF_ONE, y * CHF_ONE)) return;
     for (int k = 0; k < CHM_FIRES; k++)
         if (!r->fire[k].on) {
-            r->fire[k] = (ChmFire){(int16_t)x, (int16_t)y, 1, 0};
+            r->fire[k] = (ChmFire){(int16_t)x, (int16_t)y, 1, (uint8_t)owner, 0};
             return;
         }
 }
 
-void chm_race_fire(ChmRace *r, int x, int y) { add_fire(r, x, y); }
+void chm_race_fire(ChmRace *r, int x, int y) { add_fire(r, x, y, 255); }
 
+/* the direction of (dx, dy), in 1/256 turns (to the nearest 1/64) */
+static int angle_of(int dx, int dy) {
+    int best = 64, bv = -0x7FFFFFFF;
+    for (int a = 0; a < 256; a += 4) {
+        int v = icos(a) * dx + isin(a) * dy;
+        if (v > bv) { bv = v; best = a; }
+    }
+    return best;
+}
+
+/* The payload goes off: ships near it (not its own) are thrown clear, and
+ * three fires are left in a spread triangle whose point faces away from
+ * the ship that towed it. */
 static void blast(ChmRace *r, int owner, int32_t bx, int32_t by) {
     int x = PX(bx), y = PX(by);
+    const ChmShip *o = &r->s[owner];
+    int dx0 = x - PX(o->f.x), dy0 = y - PX(o->f.y);
+    int away = dx0 || dy0 ? angle_of(dx0, dy0) : 64; /* the ball hangs below: down */
     for (int j = 0; j < CHM_SHIPS; j++) {
         ChmShip *t = &r->s[j];
-        if (!in_play(t)) continue;
+        if (j == owner || !in_play(t)) continue;
         int dx = PX(t->f.x) - x, dy = PX(t->f.y) - y;
         int d2 = dx * dx + dy * dy;
         if (d2 > BLAST_R * BLAST_R) continue;
@@ -413,19 +436,19 @@ static void blast(ChmRace *r, int owner, int32_t bx, int32_t by) {
         t->f.vy = BLAST_PUSH * dy / d;
         t->stun = 12;
     }
-    /* three fires in a spread triangle */
+    /* three fires in a spread triangle: the point away from the owner, the
+     * two corners either side */
     for (int k = 0; k < 3; k++) {
-        int a = 192 + k * 85; /* up, then down-right, then down-left */
+        int a = away + k * 85;
         int fx = x + icos(a) * 16 / 127, fy = y + isin(a) * 16 / 127;
         if (chm_flight_blocked(3, chm_solid, M(), fx * CHF_ONE, fy * CHF_ONE)) {
             fx = x + icos(a) * 8 / 127;
             fy = y + isin(a) * 8 / 127;
         }
-        add_fire(r, fx, fy);
+        add_fire(r, fx, fy, owner);
     }
     burst(r, x, y, 22, C_ORANGE, PK_BOOM, 44);
     r->ev |= EV_BLAST;
-    (void)owner;
 }
 
 static void powers(ChmRace *r, int i) {
@@ -532,11 +555,12 @@ static void shots_step(ChmRace *r) {
         if (++f->t > FIRE_LIFE) { f->on = 0; continue; }
         for (int j = 0; j < CHM_SHIPS; j++) {
             ChmShip *t = &r->s[j];
-            if (!in_play(t)) continue;
+            if (!in_play(t) || (j == f->owner && f->t <= FIRE_OWNER_SAFE)) continue;
             if (iabs(PX(t->f.x) - f->x) <= 7 && iabs(PX(t->f.y) - f->y) <= 8) {
-                /* a fire hurts and slows */
-                t->f.vx = t->f.vx * 2 / 5;
-                t->f.vy = t->f.vy * 2 / 5;
+                /* a fire hurts, and slows a ship to 40 % of its top speeds
+                 * while it is in it (it still flies on through) */
+                t->f.vx = iclamp(t->f.vx, -CHM_TUNE.max_vx * 2 / 5, CHM_TUNE.max_vx * 2 / 5);
+                t->f.vy = iclamp(t->f.vy, -CHM_TUNE.max_up * 2 / 5, CHM_TUNE.max_down * 2 / 5);
                 if (!t->mercy) r->ev |= EV_FIRE;
                 chm_race_hurt(r, j);
             }
@@ -644,12 +668,12 @@ static void ship_step(ChmRace *r, int i, const unsigned ctl[2]) {
         return;
     }
     unsigned c = s->human ? ctl[(s->human - 1) & 1] : s->idle ? 0 : chm_ai(r, i, false);
-    s->ctl = (uint8_t)c;
     if (s->stun) {
+        /* knocked: no steering for a moment, but the thrust still works */
         s->stun--;
-        c = 0;
+        c &= ~(unsigned)(CHF_LEFT | CHF_RIGHT);
     }
-    chm_flight_control(&s->f, &CHM_TUNE, c & (CHF_LEFT | CHF_RIGHT | CHF_THRUST));
+    s->ctl = (uint8_t)c;
     if ((c & CHM_CTL_SLASH) && !s->slash_cd) {
         s->slash_t = CHM_SLASH_T;
         s->slash_cd = CHM_SLASH_CD;
@@ -657,7 +681,10 @@ static void ship_step(ChmRace *r, int i, const unsigned ctl[2]) {
         r->ev |= EV_SLASH;
         if (s->human) r->ev_human |= EV_SLASH;
     }
-    if (s->slash_t > CHM_SLASH_T - CHM_SLASH_ACTIVE) do_slash(r, i);
+    bool slashing = s->slash_t > CHM_SLASH_T - CHM_SLASH_ACTIVE;
+    /* a slash also slows the ship's fall a little */
+    chm_flight_control(&s->f, &CHM_TUNE, (c & (CHF_LEFT | CHF_RIGHT | CHF_THRUST)) | (slashing ? CHF_SLASHING : 0));
+    if (slashing) do_slash(r, i);
     int32_t ox = s->f.x, oy = s->f.y;
     int hit = chm_flight_move(&s->f, &CHM_TUNE, chm_solid, m);
     if (hit) {
@@ -723,6 +750,7 @@ void chm_race_step(ChmRace *r, const unsigned ctl[2]) {
         ChmShip *s = &r->s[i];
         if (in_play(s)) unstick(r, i);
         if (s->mercy) s->mercy--;
+        if (s->hp_show) s->hp_show--;
         if (s->slash_t) s->slash_t--;
         if (s->slash_cd) s->slash_cd--;
         if (s->boost_t) s->boost_t--;

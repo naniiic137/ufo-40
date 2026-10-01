@@ -2,12 +2,14 @@
 #include "chime_flight.h"
 
 /* Gravity 0.078 px a frame each frame; thrust lifts at 0.117 net; steering
- * 0.0625. A ship falls a full screen in about a second, climbs one in a
- * little more, and crosses it in two and a half seconds flat out. */
+ * 0.0625 (0.094 with thrust held too). A ship falls a full screen in about
+ * a second, climbs one in a little more, and crosses it in two and a half
+ * seconds flat out. */
 const ChmFlightTune CHM_TUNE = {
     20,   /* gravity */
     50,   /* thrust */
     16,   /* accel_x */
+    24,   /* accel_thrust_x */
     3,    /* drag_x */
     560,  /* max_vx: 2.19 px a frame */
     512,  /* max_up: 2 */
@@ -16,6 +18,7 @@ const ChmFlightTune CHM_TUNE = {
     1792, /* top_speed: 7 */
     110,  /* bounce: 43 % */
     160,  /* min_bounce: 0.63 px a frame */
+    224,  /* slash_drag: a slash takes an eighth off the fall each frame */
     4,    /* half: an 8 x 8 hit box */
 };
 
@@ -35,7 +38,7 @@ void chm_flight_control(ChmFlight *f, const ChmFlightTune *t, unsigned ctl) {
     int dir = ((ctl & CHF_RIGHT) ? 1 : 0) - ((ctl & CHF_LEFT) ? 1 : 0);
     int32_t vx = f->vx;
     if (dir) {
-        vx += dir * t->accel_x;
+        vx += dir * ((ctl & CHF_THRUST) ? t->accel_thrust_x : t->accel_x);
         f->face = (int8_t)dir;
     } else if (vx > 0) {
         vx = mx(0, vx - t->drag_x);
@@ -45,6 +48,7 @@ void chm_flight_control(ChmFlight *f, const ChmFlightTune *t, unsigned ctl) {
     f->vx = settle(f->vx, vx, -t->max_vx, t->max_vx, t->over_decay);
     int32_t vy = f->vy + t->gravity - ((ctl & CHF_THRUST) ? t->thrust : 0);
     f->vy = settle(f->vy, vy, -t->max_up, t->max_down, t->over_decay);
+    if ((ctl & CHF_SLASHING) && f->vy > 0) f->vy = f->vy * t->slash_drag / CHF_ONE;
     f->vx = mx(-t->top_speed, mn(t->top_speed, f->vx));
     f->vy = mx(-t->top_speed, mn(t->top_speed, f->vy));
 }

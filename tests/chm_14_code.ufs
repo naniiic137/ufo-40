@@ -113,8 +113,8 @@ expect state == 4
 wait 25
 press A
 wait 5
-expect st_t0 <= 140
-expect st_t1 <= 140
+expect st_t0 <= 105
+expect st_t1 <= 105
 cheat finish 0 1 2 3 4 5
 wait 5
 expect goals == 0

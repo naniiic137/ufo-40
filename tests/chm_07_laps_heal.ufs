@@ -24,6 +24,7 @@ wait 20
 expect laps0 == 1
 expect cp0 == 1
 expect hp0 == 2
+expect hpshow0 > 30
 expect lastlap0 > 0
 # the next lap mends another
 cheat cp 0 4

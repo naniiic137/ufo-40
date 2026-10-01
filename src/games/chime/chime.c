@@ -443,19 +443,32 @@ static void draw_slash(const ChmShip *s, int x, int y) {
     }
 }
 
+/* The damage meter: three pips that pop up over a ship for a second when
+ * its hit points change (a hit, the lap's mend, a relaunch). */
+static void draw_meter(const ChmShip *s, int x, int y) {
+    if (!s->hp_show || (s->hp_show < 16 && (frame_t >> 1) & 1)) return;
+    int x0 = x - 6, y0 = y - 12;
+    int col = s->hp >= 3 ? C_LIME : s->hp == 2 ? C_YELLOW : C_RED;
+    gfx_rect(x0, y0, 13, 4, C_INK);
+    for (int k = 0; k < CHM_HP; k++) gfx_rect(x0 + 1 + k * 4, y0 + 1, 3, 2, k < s->hp ? col : C_SLATE);
+}
+
 static void draw_ship_full(const ChmRace *r, int i) {
     const ChmShip *s = &r->s[i];
     if (!s->alive || s->finished || s->parked) return;
     int x = (int)(s->f.x >> 8), y = (int)(s->f.y >> 8);
     draw_power_bits(r, s, x, y);
+    bool thrust = s->ctl & CHF_THRUST;
+    int steer = ((s->ctl & CHF_RIGHT) ? 1 : 0) - ((s->ctl & CHF_LEFT) ? 1 : 0);
     if (!(s->mercy && (frame_t >> 1) % 3 == 0))
-        chm_draw_ship(s->pilot, x, y, s->f.face, (s->ctl & CHF_THRUST) && !s->stun, 0, s->hp, frame_t + i * 5);
+        chm_draw_ship(s->pilot, x, y, s->f.face, thrust, thrust ? steer : 0, frame_t + i * 5);
     draw_slash(s, x, y);
+    draw_meter(s, x, y);
     if (s->human && (r->humans > 1 || r->t < 240 || r->phase == RP_COUNTDOWN)) {
         const char *tag = s->human == 1 ? "1P" : "2P";
-        int tw = tiny_width(tag);
-        gfx_rect(x - tw / 2 - 1, y - 14, tw + 2, 7, C_INK);
-        tiny_draw(tag, x - tw / 2, y - 13, s->human == 1 ? C_YELLOW : C_CYAN);
+        int tw = tiny_width(tag), ty = s->hp_show ? y - 20 : y - 14;
+        gfx_rect(x - tw / 2 - 1, ty, tw + 2, 7, C_INK);
+        tiny_draw(tag, x - tw / 2, ty + 1, s->human == 1 ? C_YELLOW : C_CYAN);
     }
 }
 
@@ -493,10 +506,9 @@ static void draw_race_scene(const ChmRace *r, bool hud) {
     for (int i = 0; i < CHM_SHIPS; i++)
         if (!r->s[i].alive && !r->s[i].finished && r->s[i].wreck_t < 30 && (frame_t & 2))
             gfx_rect(m->launch_c * CHM_TILE + 1, CHM_OY + m->launch_r * CHM_TILE, 6, 2, C_YELLOW);
+    /* stations: nothing shows until the "!!", then the pickup */
     for (int k = 0; k < r->nst; k++) {
         const ChmStation *st = &r->st[k];
-        gfx_circb(st->x, st->y + 6, 5, C_SLATE);
-        gfx_hline(st->x - 4, st->x + 4, st->y + 8, C_GREY);
         if (st->state == 1 && (frame_t >> 2) & 1) {
             gfx_rect(st->x - 5, st->y - 5, 11, 9, C_INK);
             text_draw("!!", st->x - 4, st->y - 4, C_YELLOW);
@@ -619,15 +631,16 @@ static void draw_page(void) {
     static const char *const L[] = {
         "A NOTE TAPED INSIDE THE CARTRIDGE:",
         "",
-        "TWO WEEKS. EIGHT TRACKS. SIX SHIPS.",
+        "EIGHT TRACKS. SIX SHIPS. NO SLEEP.",
         "I HAVE FLOWN EVERY LAP OF EVERY",
         "ONE OF THEM A HUNDRED TIMES.",
         "I CAN HEAR CHIMES WITH MY EYES SHUT.",
         "",
         "WAKE ME AT THE FINISH LINE.",
+        "",
+        "P.S. LAST ONE OUT, GET THE LAMP.",
     };
     for (int k = 0; k < ARRAY_LEN(L); k++) text_draw(L[k], 40, 36 + k * 10, C_NAVY);
-    text_draw("- T.", 240, 150, C_NAVY);
 }
 
 static void draw_pilots(void) {
@@ -642,7 +655,7 @@ static void draw_pilots(void) {
         if (s1 && s2) gfx_rectb(x + 1, y + 1, 46, 68, locked[1] ? C_CYAN : C_SKY);
         chm_draw_face(k, x + 8, y + 4, 2);
         tiny_center(p->name, x + 24, y + 40, C_WHITE);
-        chm_draw_ship(k, x + 24, y + 56, 1, (frame_t / 8 + k) % 3 == 0, 0, 3, frame_t);
+        chm_draw_ship(k, x + 24, y + 56, 1, (frame_t / 8 + k) % 3 == 0, 0, frame_t);
         if (s1) tiny_center(locked[0] ? "1P OK" : "1P", x + 24, y - 7, C_YELLOW);
         if (s2) tiny_center(locked[1] ? "2P OK" : "2P", x + 24, y + 72, C_CYAN);
     }
@@ -714,7 +727,7 @@ static void draw_result(void) {
         bool human = s->human != 0;
         gfx_rect(40, y, 240, 13, human ? C_DUSK : C_NIGHT);
         text_draw(ordinal(pl), 46, y + 3, pl == 1 ? C_YELLOW : C_LIGHT);
-        chm_draw_ship(s->pilot, 86, y + 6, 1, false, 0, 3, 0);
+        chm_draw_ship(s->pilot, 86, y + 6, 1, false, 0, 0);
         text_draw(CHM_PILOT[s->pilot].name, 100, y + 3, human ? (s->human == 1 ? C_YELLOW : C_CYAN) : C_WHITE);
         if (s->finished) snprintf(b, sizeof b, "%s S", secs(s->finish_t));
         else snprintf(b, sizeof b, "--");
@@ -777,7 +790,7 @@ static void draw_ending(void) {
     gfx_rect(0, 100, SCREEN_W, 80, C_FOREST);
     gfx_dither(0, 100, SCREEN_W, 8, C_JADE, 8);
     int sx = 60 + (state_t * 2) % 240, sy = 70 + (state_t / 6) % 8;
-    chm_draw_ship(p, sx, sy, 1, true, 0, 3, frame_t);
+    chm_draw_ship(p, sx, sy, 1, true, 0, frame_t);
     spr_draw(&chm_spr[CA_CUP], sx - 8, sy - 24, 0);
     chm_draw_face(p, 16, 110, 3);
     for (int k = 0; k < 3; k++) text_draw(ENDING[p][k], 72, 116 + k * 12, C_WHITE);
@@ -900,7 +913,7 @@ static void chm_label(int x, int y, int w, int h, int t) {
         int a = t * 2 + k * 60;
         int sx = cx + chm_cos(a) * rx / 127, sy = cy + chm_sin(a) * ry / 127;
         int face = chm_sin(a) >= 0 ? -1 : 1; /* round the loop anticlockwise on screen */
-        chm_draw_ship(k == 0 ? 0 : k == 1 ? 1 : 4, sx, sy, face, chm_cos(a) < 0, 0, 3, t);
+        chm_draw_ship(k == 0 ? 0 : k == 1 ? 1 : 4, sx, sy, face, chm_cos(a) < 0, 0, t);
     }
     ui_fancy_text("CHIME CIRCUIT", x + 4, y + 3, 1, GOLD, 4, C_INK, -1);
 }
@@ -910,6 +923,29 @@ static int ship_key(const char *key, const char *name, int *ship) {
     if (strncmp(key, name, n) || key[n] < '0' || key[n] > '9' || key[n + 1]) return 0;
     *ship = (key[n] - '0') % CHM_SHIPS;
     return 1;
+}
+
+/* key is name followed by a number (any size) */
+static int num_key(const char *key, const char *name, int *n) {
+    size_t len = strlen(name);
+    if (strncmp(key, name, len) || key[len] < '0' || key[len] > '9') return 0;
+    *n = atoi(key + len);
+    return 1;
+}
+
+/* pixels drawn over the track in a 17 x 17 box round station k (tests: an
+ * empty station shows nothing) */
+static int station_drawn(int k) {
+    if (k < 0 || k >= race.nst) return -1;
+    gfx_set_target(NULL);
+    gfx_camera(0, 0);
+    gfx_noclip();
+    draw_race_scene(&race, false);
+    int n = 0;
+    for (int y = race.st[k].y - 8; y <= race.st[k].y + 8; y++)
+        for (int x = race.st[k].x - 8; x <= race.st[k].x + 8; x++)
+            if (x >= 0 && y >= 0 && x < SCREEN_W && y < SCREEN_H && g_screen.px[y * SCREEN_W + x] != track_px[y * SCREEN_W + x]) n++;
+    return n;
 }
 
 static int chm_query(const char *key, int *out) {
@@ -951,6 +987,10 @@ static int chm_query(const char *key, int *out) {
     if (!strcmp(key, "cpu_knocks")) { int n = 0; for (int k = 0; k < CHM_SHIPS; k++) if (!race.s[k].human) n += race.s[k].knocks; *out = n; return 1; }
     if (!strcmp(key, "hunters")) { int n = 0; for (int k = 0; k < CHM_SHIPS; k++) n += !race.s[k].human && race.s[k].aggro == AG_HUNT; *out = n; return 1; }
     if (!strcmp(key, "cpu_laps")) { int n = 0; for (int k = 0; k < CHM_SHIPS; k++) if (!race.s[k].human) n += race.s[k].laps; *out = n; return 1; }
+    if (!strcmp(key, "temper")) { *out = race.temper; return 1; }
+    if (num_key(key, "fire_x", &i)) { *out = i < CHM_FIRES && race.fire[i].on ? race.fire[i].x : -1; return 1; }
+    if (num_key(key, "fire_y", &i)) { *out = i < CHM_FIRES && race.fire[i].on ? race.fire[i].y : -1; return 1; }
+    if (num_key(key, "st_drawn", &i)) { *out = station_drawn(i); return 1; }
     /* per player: stats */
     for (int p = 0; p < 2; p++) {
         char k1[16], k2[16], k3[16], k4[16];
@@ -974,7 +1014,8 @@ static int chm_query(const char *key, int *out) {
     if (ship_key(key, "cpilot", &i)) { *out = cup.pilot[i]; return 1; }
     static const char *const SK[] = {"laps", "hp", "alive", "place", "cp", "x", "y", "vx", "vy", "stun", "mercy",
                                      "power", "face", "walls", "wrecks", "lost", "human", "pilot", "fin", "slash",
-                                     "knocks", "lastlap", "fin_t", "prog", "rz", "route", "skill", "slot"};
+                                     "knocks", "lastlap", "fin_t", "prog", "rz", "route", "skill", "slot",
+                                     "aggro", "hpshow", "rest", "ballx", "bally"};
     for (int k = 0; k < ARRAY_LEN(SK); k++)
         if (ship_key(key, SK[k], &i)) {
             const ChmShip *s = &race.s[i];
@@ -1007,6 +1048,11 @@ static int chm_query(const char *key, int *out) {
             case 25: *out = s->route; break;
             case 26: *out = s->skill; break;
             case 27: *out = s->grid; break;
+            case 28: *out = s->aggro; break;
+            case 29: *out = s->hp_show; break;
+            case 30: *out = s->rest_t; break;
+            case 31: *out = (int)(s->ball_x >> 8); break;
+            case 32: *out = (int)(s->ball_y >> 8); break;
             }
             return 1;
         }
@@ -1076,9 +1122,17 @@ static int chm_cheat(const char *cmd) {
     if (sscanf(cmd, "laps %d %d", &a, &b) == 2) { race.s[a % CHM_SHIPS].laps = (uint8_t)b; prev_laps[a % CHM_SHIPS] = b; return 1; }
     if (sscanf(cmd, "cp %d %d", &a, &b) == 2) { race.s[a % CHM_SHIPS].cp = (uint8_t)b; return 1; }
     if (sscanf(cmd, "rz %d %d", &a, &b) == 2) { race.s[a % CHM_SHIPS].rz = (uint8_t)b; return 1; }
+    if (sscanf(cmd, "route %d %d", &a, &b) == 2) {
+        /* fly ship a on the track's line b from here on (tests) */
+        race.s[a % CHM_SHIPS].route = (uint8_t)(b % imax(1, chm_map.nroutes));
+        race.s[a % CHM_SHIPS].rz = 1;
+        return 1;
+    }
     if (sscanf(cmd, "power %d %d", &a, &b) == 2) { chm_race_power(&race, a % CHM_SHIPS, b); return 1; }
     if (sscanf(cmd, "station %d %d", &a, &b) == 2) { chm_station_fill(&race, a, b); return 1; }
     if (sscanf(cmd, "mercy %d %d", &a, &b) == 2) { race.s[a % CHM_SHIPS].mercy = (uint16_t)b; return 1; }
+    if (sscanf(cmd, "stun %d %d", &a, &b) == 2) { race.s[a % CHM_SHIPS].stun = (uint16_t)b; return 1; }
+    if (sscanf(cmd, "aggro %d %d", &a, &b) == 2) { race.s[a % CHM_SHIPS].aggro = (uint8_t)iclamp(b, AG_CALM, AG_HUNT); return 1; }
     if (sscanf(cmd, "wreck %d", &a) == 1) { chm_race_wreck(&race, a % CHM_SHIPS); return 1; }
     if (!strcmp(cmd, "plan")) {
         extern int chm_ai_debug;

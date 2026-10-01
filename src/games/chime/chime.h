@@ -46,8 +46,10 @@
 #define CHM_SLASH_T 14
 #define CHM_SLASH_CD 24
 #define CHM_SLASH_ACTIVE 8   /* the first frames of a slash hit */
-#define CHM_STUN 16
+#define CHM_STUN 16          /* a knocked ship can't steer for this long (it can still thrust) */
 #define CHM_SUPER_STUN 26
+#define CHM_HP_SHOW 60       /* the damage meter shows over a ship this long after a change */
+#define CHM_HUNT_REST 240    /* a hunter's knock lands: it races on for this long before hunting again */
 #define CHM_END_WAIT 120     /* after the last player finishes */
 
 /* the controls a pilot gives in one frame: the flight bits plus a slash */
@@ -72,6 +74,7 @@ typedef struct ChmTrackDef {
     uint8_t theme;
     uint8_t cpu_routes;      /* the CPUs pick among the first this many routes */
     uint8_t bot_route;       /* the demo pilot's line */
+    uint8_t cpu_pace;        /* per cent: the CPUs' speed limits on this track */
     const char *routes[CHM_ROUTES]; /* zones in order, from the line: "S123", "Sx1234" */
 } ChmTrackDef;
 extern const ChmTrackDef CHM_TRACK[CHM_TRACKS];
@@ -119,6 +122,7 @@ typedef struct ChmShip {
     uint8_t parked;          /* tests: taken out of the race altogether */
     uint8_t idle;            /* tests: a CPU that gives no controls */
     uint16_t wreck_t, mercy, stun, slash_t, slash_cd, boost_t;
+    uint16_t hp_show;        /* the damage meter pops up while this runs */
     uint8_t slash_hits;      /* a bit for each ship this slash has knocked */
     uint8_t power;
     uint16_t power_t, power_tick;
@@ -126,8 +130,9 @@ typedef struct ChmShip {
     uint16_t orbit;          /* the fireballs' angle, 1/256 turns */
     uint8_t route, rz;       /* the pilot's line and the zone it heads for */
     uint8_t ctl, act;        /* this frame's controls; the planner's last pick */
-    uint8_t aggro, prey;     /* CPU mood (AG_*) and the ship it hunts */
-    uint16_t aggro_t, plan_t;
+    uint8_t aggro, prey;     /* CPU mood for the race (AG_*) and the ship it hunts */
+    uint16_t plan_t;
+    uint16_t rest_t;         /* a hunter that has just knocked its prey lets it go this long */
     int16_t skill;           /* a CPU's speed limit, 1/256 px a frame */
     uint8_t grid;
     uint32_t lap_t0, finish_t;
@@ -136,6 +141,8 @@ typedef struct ChmShip {
 } ChmShip;
 
 enum { AG_CALM, AG_JOSTLE, AG_HUNT };
+/* the CPUs' temper for a whole race */
+enum { TEMPER_CALM, TEMPER_MIXED, TEMPER_MEAN };
 
 typedef struct ChmStation {
     int16_t x, y;
@@ -145,7 +152,7 @@ typedef struct ChmStation {
 
 typedef struct ChmShot { int32_t x, y, vx, vy; uint8_t owner, life, on; } ChmShot;
 typedef struct ChmMine { int16_t x, y; uint8_t owner, on; uint16_t t; } ChmMine;
-typedef struct ChmFire { int16_t x, y; uint8_t on; uint16_t t; } ChmFire;
+typedef struct ChmFire { int16_t x, y; uint8_t on, owner; uint16_t t; } ChmFire; /* owner 255: nobody's */
 typedef struct ChmPart { int16_t x, y, vx, vy; uint8_t life, col, kind, on; } ChmPart; /* 1/16 px */
 
 enum { RP_COUNTDOWN, RP_RUN, RP_OVER };
@@ -161,6 +168,7 @@ enum {
 typedef struct ChmRace {
     uint8_t track, humans, fast_loot;
     uint8_t phase;
+    uint8_t temper;          /* TEMPER_*: drawn once per race */
     uint16_t count_t, over_t;
     uint32_t t;              /* frames since GO */
     ChmShip s[CHM_SHIPS];
@@ -209,7 +217,7 @@ void chm_race_fire(ChmRace *r, int x, int y);        /* a fire on the course (te
 /* ---- pilots (chime_ai.c) ---------------------------------------------- */
 /* the controls a CPU pilot (or the demo pilot, bot = true) gives this frame */
 unsigned chm_ai(ChmRace *r, int ship, bool bot);
-void chm_ai_mood(ChmRace *r, int ship);            /* a CPU's mood for a stretch */
+void chm_ai_moods(ChmRace *r);                      /* the CPUs' temper and moods for the race */
 
 /* ---- art & audio ------------------------------------------------------- */
 typedef struct ChmPilot {
@@ -228,7 +236,8 @@ extern Sprite chm_spr[CA_COUNT];
 extern Sprite chm_face[CHM_PILOTS];
 void chm_art_load(void);
 bool chm_art_ok(void);
-void chm_draw_ship(int pilot, int x, int y, int face, bool flame, int tilt, int hp, int t);
+/* tilt: -1, 0, +1, the ship leans that way (thrust and steer together) */
+void chm_draw_ship(int pilot, int x, int y, int face, bool flame, int tilt, int t);
 void chm_draw_face(int pilot, int x, int y, int scale);
 /* the track: the sky and scenery behind, then the walls, into a 320 x 180 buffer */
 void chm_render_track(const ChmMap *m, uint8_t *px);
