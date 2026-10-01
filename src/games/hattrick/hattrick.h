@@ -5,7 +5,7 @@
  * and jump about a screen that wraps wherever it has no wall, pick the ball
  * up by walking into it, and kick it (tap B), drive it (hold B, let go) or
  * aim it with the d-pad into the creatures that took over the pitches. With
- * no ball, B slides along the ground or heads it in the air. A lit ball
+ * no ball, B slides on the run or heads it in the air. A lit ball
  * keeps the chain going and each kill in a chain drops better food; the
  * food only appears once the body lands. Four worlds of nine screens and a
  * boss, 40 in all, a 20-count clock and the Timekeeper in extra time. */
@@ -35,9 +35,10 @@ enum { T_EMPTY, T_SOLID, T_LEDGE, T_GOAL };
 #define HTK_BONUS 100         /* points for each count left */
 #define HTK_RUN 1.25f         /* run speed, px a frame */
 #define HTK_GROUND_ACC 0.35f
-#define HTK_AIR_ACC 0.03f     /* stiff: a jump's course is mostly set at take-off */
+#define HTK_AIR_ACC 0.13f     /* the pad steers in the air, but slower than on the ground: stiff */
 #define HTK_GRAV 0.2f
-#define HTK_JUMP (-4.0f)      /* one fixed height, held or tapped: about 38 px */
+#define HTK_JUMP (-4.0f)      /* A held all the way up: about 38 px */
+#define HTK_JUMP_CUT (-2.4f)  /* A let go on the way up: the rise is cut (a tap: a hop of about 17 px) */
 #define HTK_MAXFALL 4.0f
 #define HTK_PW 6              /* half width of a kid: 12 x 19, a big target */
 #define HTK_PH 19
@@ -54,13 +55,15 @@ enum { T_EMPTY, T_SOLID, T_LEDGE, T_GOAL };
 #define HTK_BALL_R 3
 #define HTK_BALL_GRAV 0.16f
 #define HTK_KILL_SPEED 1.0f   /* a ball slower than this is at rest: it kills nothing */
-#define HTK_DARK_BOUNCES 3    /* a loose ball goes dark on its third bounce ... */
-#define HTK_DARK_REST 60      /* ... or after a second on the ground */
+#define HTK_DARK_REST 60      /* a loose ball goes dark once it has lain still on the ground a second */
+#define HTK_REST_VX 0.3f      /* ... still: landed and slower than this (a roll or a bounce is not rest) */
 #define HTK_DARK_HOLD 180     /* carried this long without a kick, it goes dark too */
 #define HTK_POWER_T 90        /* a driven shot hits bosses three times as hard */
 
 #define HTK_COLLECT_T 240     /* after the last kill: time to pick up the food */
-#define HTK_EXIT_T 110        /* the balloons lift the kids to the next screen */
+#define HTK_LIFT_VX 1.5f      /* the balloons carry each kid across to their own side, */
+#define HTK_LIFT_UP 20        /* ... then up and off: a kid who ends on their own side is soon away */
+#define HTK_EXIT_MAX 400      /* (a safety cap on the lift) */
 #define HTK_INTRO_T 90
 
 /* ---- creatures -------------------------------------------------------------- */

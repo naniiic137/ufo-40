@@ -37,7 +37,7 @@ void htk_foe_setup(HtkPlay *g, HtkFoe *f) {
     f->hh = SIZE[f->kind][1];
     f->ax = f->x;
     f->ay = f->y;
-    f->vdir = f->alt ? -1 : 1;
+    f->vdir = f->alt == 1 ? -1 : 1; /* the other letter: a buoy or a glove starting up */
     if (walks(f->kind)) f->y = (float)((int)(f->y / HTK_T) * HTK_T + HTK_T) - f->hh;
     if (f->kind >= FK_KINGSPIKER && f->kind <= FK_CAPTAIN) {
         f->hp = f->maxhp = BOSS_HP[f->kind - FK_KINGSPIKER];
@@ -481,10 +481,21 @@ void htk_foes_update(HtkPlay *g) {
             f->y = f->ay + sinf(f->ang) * 22;
             break;
         case FK_BUOY:
-            if (f->alt) f->x = htk_wrapx(f->x + f->dir * 0.8f);
-            else {
-                f->y += 0.8f;
-                if (f->y >= HTK_H) f->y -= HTK_H;
+            /* slides straight, up and down (or along), round through an open
+             * edge and back off a wall; ledges it slides through */
+            if (f->alt == 2) {
+                float nx = f->x + f->dir * 0.8f, lead = nx + f->dir * f->hw;
+                if (htk_tile(g, lead, f->y) == T_SOLID) f->dir = (int16_t)-f->dir;
+                else f->x = htk_wrapx(nx);
+            } else {
+                float ny = f->y + f->vdir * 0.8f, lead = ny + f->vdir * f->hh;
+                if (htk_tile(g, f->x - f->hw + 1, lead) == T_SOLID || htk_tile(g, f->x + f->hw - 1, lead) == T_SOLID)
+                    f->vdir = (int16_t)-f->vdir;
+                else {
+                    f->y = ny;
+                    if (f->y >= HTK_H) f->y -= HTK_H;
+                    if (f->y < 0) f->y += HTK_H;
+                }
             }
             break;
         case FK_DUCKY: route(f, 0.7f); break;

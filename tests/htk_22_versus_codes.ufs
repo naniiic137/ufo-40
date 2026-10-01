@@ -138,7 +138,7 @@ cheat carry 1
 cheat pos 0 170 160
 wait 2
 hold RIGHT 2
-press B 1
+hold RIGHT B 1
 wait 10
 expect carrier == -1
 expect ball_last == 0

@@ -627,6 +627,7 @@ static int htk_query(const char *key, int *out) {
                 char ch = d->rows[r][c];
                 if (ch >= 'a' && ch <= 'c') cnt[world * 3 + ch - 'a'] += 2;
                 if (ch >= 'A' && ch <= 'C') cnt[world * 3 + ch - 'A'] += 2;
+                if (ch == '~') cnt[FK_BUOY] += 2;
                 if (ch == 'P') starts++;
                 if (ch == 'O') balls++;
                 if (ch == '*') spots++;
@@ -645,6 +646,35 @@ static int htk_query(const char *key, int *out) {
         if (!strcmp(w, "foes")) { int k = 0; for (int i = 0; i < FK_REGULAR; i++) k += cnt[i]; *out = k; return 1; }
         if (!strncmp(w, "kind", 4)) { int k = atoi(w + 4); *out = k >= 0 && k < FK_COUNT ? cnt[k] : 0; return 1; }
         return 0;
+    }
+    if (!strncmp(key, "var_", 4)) {
+        /* how varied the 36 ordinary screens are: how many different heights
+         * the ball starts at, how many have blocks or walls inside (not only
+         * ledges), how many start the kid above the floor */
+        int rows_seen = 0, blocks = 0, high = 0;
+        for (int n = 0; n < HTK_LEVELS; n++) {
+            if (n % HTK_PER_WORLD == HTK_PER_WORLD - 1) continue;
+            const HtkLevelDef *d = &HTK_LEVEL[n];
+            bool block = false;
+            for (int r = 0; r < HTK_ROWS; r++) {
+                if (strchr(d->rows[r], 'O')) rows_seen |= 1 << r;
+                if (strchr(d->rows[r], 'P') && r < HTK_ROWS - 2) high++;
+                if (r > 0 && r < HTK_ROWS - 1 && strchr(d->rows[r] + 1, '#')) block = true;
+            }
+            blocks += block;
+        }
+        int nrows = 0;
+        for (int r = 0; r < HTK_ROWS; r++) nrows += (rows_seen >> r) & 1;
+        if (!strcmp(key, "var_ballrows")) { *out = nrows; return 1; }
+        if (!strcmp(key, "var_blocks")) { *out = blocks; return 1; }
+        if (!strcmp(key, "var_highstarts")) { *out = high; return 1; }
+        return 0;
+    }
+    if (!strcmp(key, "ball_rests")) {
+        /* the ball is lying on something (it doesn't drop at the start) */
+        int t = htk_tile(&htk, b->x, b->y + HTK_BALL_R + 1);
+        *out = t != T_EMPTY && b->carrier < 0 && fabsf(b->vx) < 0.01f && (b->ground || htk_ball_speed(&htk) == 0);
+        return 1;
     }
     if (!strcmp(key, "unreach") || !strcmp(key, "dead_ledges")) {
         int u = 0, d = 0;
@@ -744,6 +774,7 @@ static int htk_cheat(const char *cmd) {
     if (sscanf(cmd, "combo %d", &a) == 1) { htk.combo = a; return 1; }
     if (sscanf(cmd, "foe %d %f %f %d", &a, &x, &y, &b) == 4) { htk_spawn_foe(&htk, iclamp(a, 0, FK_COUNT - 1), x, y, b, 0); return 1; }
     if (sscanf(cmd, "foealt %d %f %f %d", &a, &x, &y, &b) == 4) { htk_spawn_foe(&htk, iclamp(a, 0, FK_COUNT - 1), x, y, b, 1); return 1; }
+    if (sscanf(cmd, "foealong %d %f %f %d", &a, &x, &y, &b) == 4) { htk_spawn_foe(&htk, iclamp(a, 0, FK_COUNT - 1), x, y, b, 2); return 1; }
     if (sscanf(cmd, "shot %d %f %f %f %f", &a, &x, &y, &vx, &vy) == 5) { htk_add_shot(&htk, a, x, y, vx, vy); return 1; }
     if (sscanf(cmd, "body %d %f %f %d", &a, &x, &y, &b) == 4) { htk_spawn_body(&htk, x, y, a, b, 0); return 1; }
     if (sscanf(cmd, "clock %d", &a) == 1) { htk.clock = a; return 1; }
@@ -802,12 +833,12 @@ const GameDef GAME_HATTRICK = {
     "1984",
     "ARCADE PLATFORMER",
     "ONLY A KICKED BALL STOPS THEM. KEEP IT LIT AND THE FOOD GETS BETTER.",
-    {"BEAT LUCKY LANES, THE SECOND WORLD", "BEAT ALL FOUR WORLDS", "WIN WITH 150,000 POINTS OR MORE"},
+    {"BEAT LUCKY LANES, THE SECOND WORLD", "TAKE BACK ALL FORTY PITCHES", "HEAR THE LAST WHISTLE WITH 150,000 OR MORE"},
     "D-PAD\tRUN, AIM THE KICK\n"
-    GLYPH_A "\tJUMP, ALWAYS AS HIGH\n"
+    GLYPH_A "\tJUMP, HOLD FOR HIGHER\n"
     "TAP " GLYPH_B "\tKICK THE BALL\n"
     "HOLD " GLYPH_B "\tDRIVEN SHOT, LET GO\n"
-    GLYPH_B " NO BALL\tSLIDE, OR HEADER\n"
+    GLYPH_B " NO BALL\tRUNNING SLIDE, HEADER\n"
     "DOWN\tCROUCH\n"
     "START\tPAUSE\n"
     "\n"

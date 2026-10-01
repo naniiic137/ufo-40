@@ -184,6 +184,10 @@ void htk_load_level(HtkPlay *g, int level) {
                 int kind = world * 3 + lower;
                 htk_spawn_foe(g, kind, x, y, 1, alt);
                 htk_spawn_foe(g, kind, HTK_W - x, y, -1, alt);
+            } else if (ch == '~') {
+                /* a buoy sliding along instead of up and down */
+                htk_spawn_foe(g, FK_BUOY, x, y, 1, 2);
+                htk_spawn_foe(g, FK_BUOY, HTK_W - x, y, -1, 2);
             } else if (ch == 'X' || ch == 'Y') {
                 int kind = ch == 'Y' ? FK_TOWER : BOSS_OF_WORLD[world];
                 if (ch == 'X') g->boss_kind = kind;
@@ -393,6 +397,9 @@ static void update_kid(HtkPlay *g, int i, uint16_t held) {
             p->vy = HTK_JUMP;
             p->ground = 0;
             htk_sfx("htk_jump");
+        } else if (!p->ground && !(held & BTN_A) && p->vy < HTK_JUMP_CUT) {
+            /* A let go on the way up: a lower jump (held, the full height) */
+            p->vy = HTK_JUMP_CUT;
         }
         p->vy = fminf(p->vy + HTK_GRAV, HTK_MAXFALL);
     }
@@ -419,7 +426,9 @@ static void update_kid(HtkPlay *g, int i, uint16_t held) {
         p->charging = 0;
         p->charge = 0;
         if (pressed & BTN_B) {
-            if (p->ground && p->slide_t == 0) {
+            /* the slide comes out of a run: standing still, B does nothing */
+            bool running = dx != 0 || fabsf(p->vx) > 0.6f;
+            if (p->ground && p->slide_t == 0 && running) {
                 p->slide_t = HTK_SLIDE_T;
                 p->crouch = 0;
                 htk_sfx("htk_slide");
@@ -513,7 +522,7 @@ static void update_ball(HtkPlay *g) {
                 b->y = top - HTK_BALL_R;
                 if (b->vy > 0.9f) {
                     b->vy = -b->vy * 0.6f;
-                    if (b->lit && ++b->bounces >= HTK_DARK_BOUNCES) go_dark(g);
+                    b->bounces++;
                     htk_sfx("htk_bounce");
                 } else {
                     b->vy = 0;
@@ -534,8 +543,12 @@ static void update_ball(HtkPlay *g) {
     if (landed) {
         b->vx *= 0.97f;
         if (fabsf(b->vx) < 0.05f) b->vx = 0;
-        if (b->lit && ++b->rest_t >= HTK_DARK_REST) go_dark(g);
     }
+    /* it goes dark only once it has come to rest: on the ground and all but
+     * still for a second. Bouncing, rolling along or falling, it stays lit. */
+    if (landed && fabsf(b->vx) < HTK_REST_VX) {
+        if (b->lit && ++b->rest_t >= HTK_DARK_REST) go_dark(g);
+    } else b->rest_t = 0;
     b->vy = fminf(b->vy + HTK_BALL_GRAV, 5.0f);
     b->spin += (int16_t)(fabsf(b->vx) * 2);
     /* the hidden dessert spot: kick the ball through it */
@@ -750,13 +763,30 @@ void htk_step(HtkPlay *g, uint16_t pad0, uint16_t pad1) {
         return;
     }
     if (g->sub == LS_EXIT) {
+        /* the balloons carry each kid across to their own side of the
+         * screen, then up and away: ending on your own side is quicker */
+        bool away = true;
         for (int k = 0; k < 2; k++) {
             HtkPlayer *p = &g->pl[k];
             p->prev = k ? pad1 : pad0;
             if (!p->on || p->out || !p->alive) continue;
-            if (g->sub_t > 30) p->y -= fminf((g->sub_t - 30) * 0.06f, 2.5f);
+            if (g->sub_t <= HTK_LIFT_UP) {
+                away = false;
+                continue;
+            }
+            float dx = p->start_x - p->x;
+            if (fabsf(dx) > 0.5f) {
+                p->x += fclamp(dx, -HTK_LIFT_VX, HTK_LIFT_VX);
+                if (p->y > 40) p->y -= 0.8f;
+                away = false;
+            } else if (p->y > -4) {
+                p->x = p->start_x;
+                p->vy = fminf(p->vy + 0.1f, 3.5f);
+                p->y -= p->vy;
+                away = false;
+            }
         }
-        if (g->sub_t >= HTK_EXIT_T) g->ev_exit = 1;
+        if (away || g->sub_t >= HTK_EXIT_MAX) g->ev_exit = 1;
         return;
     }
     update_kid(g, 0, pad0);
@@ -781,7 +811,11 @@ void htk_step(HtkPlay *g, uint16_t pad0, uint16_t pad1) {
         if (g->sub_t >= HTK_COLLECT_T) {
             g->sub = LS_EXIT;
             g->sub_t = 0;
-            for (int k = 0; k < 2; k++) g->pl[k].lifted = 1;
+            for (int k = 0; k < 2; k++) {
+                g->pl[k].lifted = 1;
+                g->pl[k].vx = g->pl[k].vy = 0;
+                g->pl[k].slide_t = g->pl[k].head_t = 0;
+            }
             htk_sfx("htk_balloon");
         }
     }

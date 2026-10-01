@@ -366,7 +366,10 @@ void htk_draw_play(const HtkPlay *g) {
         int pose = kid_pose(p), x = (int)lroundf(p->x), y = (int)lroundf(p->y);
         uint8_t map[PAL_COUNT];
         htk_kid_remap(p->ch, map);
-        draw_wrapped(&htk_spr[SP_KID_STAND + pose], x - 7, y - 20, p->facing < 0 ? SPR_FLIPX : 0, map, -1);
+        if (p->lifted && p->alive) {
+            /* carried off the top: no copy wrapping round at the bottom */
+            spr_draw_ex(&htk_spr[SP_KID_STAND + pose], x - 7, HTK_TOP + y - 20, p->facing < 0 ? SPR_FLIPX : 0, map, -1);
+        } else draw_wrapped(&htk_spr[SP_KID_STAND + pose], x - 7, y - 20, p->facing < 0 ? SPR_FLIPX : 0, map, -1);
         if (p->lifted && p->alive) {
             for (int b = 0; b < 3; b++) {
                 int bx = x - 9 + b * 6, by = HTK_TOP + y - 38 - (b == 1) * 3;

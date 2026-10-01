@@ -157,8 +157,10 @@ static int make_plan(BotMind *m, const HtkPlay *g, int who, uint16_t *out) {
     for (int f = 0; f < PLAN_MAX; f++) out[f] = 0;
     for (int f = 0; f < move_n && f < PLAN_MAX; f++) out[f] |= dirb;
     if (jump_at >= 0) {
-        out[jump_at] |= BTN_A;
-        if (jump_at + 1 < PLAN_MAX) out[jump_at + 1] |= BTN_A;
+        /* mostly a full jump (A held all the way up), now and then a hop */
+        int hold = rng_chance(r, 70) ? 22 : rng_range(r, 1, 10);
+        for (int f = jump_at; f < jump_at + hold && f < PLAN_MAX; f++) out[f] |= BTN_A;
+        len = imax(len, imin(jump_at + hold, PLAN_MAX - 1));
     }
     if (rng_chance(r, 8) && !carrying) {
         /* duck for a moment */
@@ -330,8 +332,7 @@ static void replan(HtkPlay *g, int who) {
                 int len = j + 34;
                 memset(cand, 0, sizeof cand);
                 for (int f = 0; f < len; f++) cand[f] = dirb;
-                cand[j] |= BTN_A;
-                cand[j + 1] |= BTN_A;
+                for (int f = j; f < j + 22; f++) cand[f] |= BTN_A; /* held: the full height */
                 float sc = judge(g, who, cand, len, other);
                 if (sc > best_s) {
                     best_s = sc;

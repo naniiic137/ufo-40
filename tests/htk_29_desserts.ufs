@@ -22,8 +22,8 @@ waituntil dessert_found == 1 60
 waituntil falling == 0 120
 expect food_item4 == 1
 expect food_value == 100
-# a kid eats it
-cheat pos 0 60 160
+# a kid eats it (it came down on the ledge below the spot)
+cheat pos 0 50 64
 hold LEFT 60
 expect food == 0
 expect p0_desserts == 1

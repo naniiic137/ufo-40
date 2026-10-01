@@ -1,7 +1,8 @@
-# HAT TRICK: running, the one fixed jump (a tap and a long press go just as
-# high: 38 px from the floor, enough for the next ledge up, 32 px), the
-# stiff air control (from a standing jump the pad barely bends the arc), and
-# the big kid (12 x 19). Ledges let you jump up through them.
+# HAT TRICK: running, the jump (hold A for the full height, 38 px from the
+# floor, enough for the next ledge up, 32 px; let go early and the rise is
+# cut: a tap is a hop of about 17 px), real but stiff air control (the pad
+# steers in the air, slower than on the ground, enough to turn round before
+# landing), and the big kid (12 x 19). Ledges let you jump up through them.
 game hattrick
 wait 5
 cheat level 1
@@ -14,20 +15,30 @@ expect p0_ground == 1
 hold RIGHT 30
 expect p0_vx100 == 125
 expect p0_x > 130
-# a tap
+# a tap: a short hop
 cheat pos 0 100 160
 wait 3
 hold A 1
 expect p0_ground == 0
 waituntil p0_vy100 >= 0 60
-expect p0_y10 == 1220
+expect p0_y10 >= 1400
+expect p0_y10 <= 1460
 waituntil p0_ground == 1 60
 expect p0_y == 160
-# held: the same height
+# held all the way up: the full height
 wait 3
-hold A 15
+hold A
+wait 2
 waituntil p0_vy100 >= 0 60
 expect p0_y10 == 1220
+release A
+waituntil p0_ground == 1 60
+# let go half way: in between
+wait 3
+hold A 6
+waituntil p0_vy100 >= 0 60
+expect p0_y10 > 1220
+expect p0_y10 < 1400
 waituntil p0_ground == 1 60
 # no jumping again while A stays down
 wait 3
@@ -36,21 +47,52 @@ wait 70
 expect p0_ground == 1
 expect p0_y == 160
 release A
-# a standing jump, then RIGHT in the air: it hardly moves across
+# a standing jump, then RIGHT in the air: the pad steers it across, but
+# picks up speed more slowly than on the ground (0.13 a frame against 0.35)
+cheat pos 0 100 160
 wait 3
-press A 1
-hold RIGHT 20
-expect p0_vx100 <= 60
-expect p0_x < 108
+hold A 1
+hold RIGHT A 4
+expect p0_vx100 > 40
+expect p0_vx100 < 60
+hold RIGHT A 16
+expect p0_vx100 == 125
+expect p0_x > 115
+release
 waituntil p0_ground == 1 60
+# from a full run to the right, a jump and LEFT held: the kid turns round
+# in the air and comes down moving left
+cheat pos 0 60 160
+wait 3
+hold RIGHT 30
+expect p0_vx100 == 125
+hold RIGHT A 1
+hold LEFT A 24
+expect p0_ground == 0
+expect p0_vx100 < 0
+expect p0_facing == -1
+hold LEFT
+waituntil p0_ground == 1 60
+release
+expect p0_vx100 < -100
 # a running jump up onto the ledge above (its top is 32 px up): through it from below
 cheat pos 0 100 160
 wait 2
 hold LEFT 8
-hold LEFT A 2
+hold LEFT A 22
 hold LEFT
 wait 5
 waituntil p0_ground == 1 60
 release
 expect p0_ground == 1
 expect p0_y == 128
+# a tap is not enough for it
+cheat pos 0 100 160
+wait 2
+hold LEFT 8
+hold LEFT A 1
+hold LEFT
+wait 5
+waituntil p0_ground == 1 60
+release
+expect p0_y == 160

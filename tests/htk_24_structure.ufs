@@ -1,8 +1,9 @@
 # HAT TRICK: the structure. Four worlds of nine screens and a boss, 40
 # fixed screens, each the same on both sides (tiles and creatures), with one
-# start, the ball on the middle line, holes in the floor only under holes in
-# the ceiling, and every place a ball can come to rest within a kid's reach
-# (and back). Each world uses its own three kinds of creature, and all three
+# start, the ball on the middle line lying on something (boss screens too,
+# so no boss is hit by a falling ball at the start), holes in the floor only
+# under holes in the ceiling, and every place a ball can come to rest within
+# a kid's reach (and back). Each world uses its own three kinds of creature, and all three
 # of them; the tenth screen of each world is its boss. Four screens in every
 # world hide a dessert spot.
 game hattrick
@@ -25,6 +26,7 @@ expect lvl_1_kind9 == 0
 expect lvl_1_kind10 == 0
 expect lvl_1_kind11 == 0
 cheat level 1
+expect ball_rests == 1
 expect sym == 1
 expect unreach == 0
 expect dead_ledges == 0
@@ -46,6 +48,7 @@ expect lvl_2_kind9 == 0
 expect lvl_2_kind10 == 0
 expect lvl_2_kind11 == 0
 cheat level 2
+expect ball_rests == 1
 expect sym == 1
 expect unreach == 0
 expect dead_ledges == 0
@@ -67,6 +70,7 @@ expect lvl_3_kind9 == 0
 expect lvl_3_kind10 == 0
 expect lvl_3_kind11 == 0
 cheat level 3
+expect ball_rests == 1
 expect sym == 1
 expect unreach == 0
 expect dead_ledges == 0
@@ -88,6 +92,7 @@ expect lvl_4_kind9 == 0
 expect lvl_4_kind10 == 0
 expect lvl_4_kind11 == 0
 cheat level 4
+expect ball_rests == 1
 expect sym == 1
 expect unreach == 0
 expect dead_ledges == 0
@@ -109,6 +114,7 @@ expect lvl_5_kind9 == 0
 expect lvl_5_kind10 == 0
 expect lvl_5_kind11 == 0
 cheat level 5
+expect ball_rests == 1
 expect sym == 1
 expect unreach == 0
 expect dead_ledges == 0
@@ -130,6 +136,7 @@ expect lvl_6_kind9 == 0
 expect lvl_6_kind10 == 0
 expect lvl_6_kind11 == 0
 cheat level 6
+expect ball_rests == 1
 expect sym == 1
 expect unreach == 0
 expect dead_ledges == 0
@@ -151,6 +158,7 @@ expect lvl_7_kind9 == 0
 expect lvl_7_kind10 == 0
 expect lvl_7_kind11 == 0
 cheat level 7
+expect ball_rests == 1
 expect sym == 1
 expect unreach == 0
 expect dead_ledges == 0
@@ -172,6 +180,7 @@ expect lvl_8_kind9 == 0
 expect lvl_8_kind10 == 0
 expect lvl_8_kind11 == 0
 cheat level 8
+expect ball_rests == 1
 expect sym == 1
 expect unreach == 0
 expect dead_ledges == 0
@@ -193,6 +202,7 @@ expect lvl_9_kind9 == 0
 expect lvl_9_kind10 == 0
 expect lvl_9_kind11 == 0
 cheat level 9
+expect ball_rests == 1
 expect sym == 1
 expect unreach == 0
 expect dead_ledges == 0
@@ -201,7 +211,9 @@ expect lvl_10_starts == 1
 expect lvl_10_half == 1
 expect lvl_10_wrapok == 1
 expect lvl_10_spots == 0
+expect lvl_10_balls == 1
 cheat level 10
+expect ball_rests == 1
 expect sym == 1
 expect unreach == 0
 expect dead_ledges == 0
@@ -224,6 +236,7 @@ expect lvl_11_kind9 == 0
 expect lvl_11_kind10 == 0
 expect lvl_11_kind11 == 0
 cheat level 11
+expect ball_rests == 1
 expect sym == 1
 expect unreach == 0
 expect dead_ledges == 0
@@ -245,6 +258,7 @@ expect lvl_12_kind9 == 0
 expect lvl_12_kind10 == 0
 expect lvl_12_kind11 == 0
 cheat level 12
+expect ball_rests == 1
 expect sym == 1
 expect unreach == 0
 expect dead_ledges == 0
@@ -266,6 +280,7 @@ expect lvl_13_kind9 == 0
 expect lvl_13_kind10 == 0
 expect lvl_13_kind11 == 0
 cheat level 13
+expect ball_rests == 1
 expect sym == 1
 expect unreach == 0
 expect dead_ledges == 0
@@ -287,6 +302,7 @@ expect lvl_14_kind9 == 0
 expect lvl_14_kind10 == 0
 expect lvl_14_kind11 == 0
 cheat level 14
+expect ball_rests == 1
 expect sym == 1
 expect unreach == 0
 expect dead_ledges == 0
@@ -308,6 +324,7 @@ expect lvl_15_kind9 == 0
 expect lvl_15_kind10 == 0
 expect lvl_15_kind11 == 0
 cheat level 15
+expect ball_rests == 1
 expect sym == 1
 expect unreach == 0
 expect dead_ledges == 0
@@ -329,6 +346,7 @@ expect lvl_16_kind9 == 0
 expect lvl_16_kind10 == 0
 expect lvl_16_kind11 == 0
 cheat level 16
+expect ball_rests == 1
 expect sym == 1
 expect unreach == 0
 expect dead_ledges == 0
@@ -350,6 +368,7 @@ expect lvl_17_kind9 == 0
 expect lvl_17_kind10 == 0
 expect lvl_17_kind11 == 0
 cheat level 17
+expect ball_rests == 1
 expect sym == 1
 expect unreach == 0
 expect dead_ledges == 0
@@ -371,6 +390,7 @@ expect lvl_18_kind9 == 0
 expect lvl_18_kind10 == 0
 expect lvl_18_kind11 == 0
 cheat level 18
+expect ball_rests == 1
 expect sym == 1
 expect unreach == 0
 expect dead_ledges == 0
@@ -392,6 +412,7 @@ expect lvl_19_kind9 == 0
 expect lvl_19_kind10 == 0
 expect lvl_19_kind11 == 0
 cheat level 19
+expect ball_rests == 1
 expect sym == 1
 expect unreach == 0
 expect dead_ledges == 0
@@ -400,7 +421,9 @@ expect lvl_20_starts == 1
 expect lvl_20_half == 1
 expect lvl_20_wrapok == 1
 expect lvl_20_spots == 0
+expect lvl_20_balls == 1
 cheat level 20
+expect ball_rests == 1
 expect sym == 1
 expect unreach == 0
 expect dead_ledges == 0
@@ -423,6 +446,7 @@ expect lvl_21_kind9 == 0
 expect lvl_21_kind10 == 0
 expect lvl_21_kind11 == 0
 cheat level 21
+expect ball_rests == 1
 expect sym == 1
 expect unreach == 0
 expect dead_ledges == 0
@@ -444,6 +468,7 @@ expect lvl_22_kind9 == 0
 expect lvl_22_kind10 == 0
 expect lvl_22_kind11 == 0
 cheat level 22
+expect ball_rests == 1
 expect sym == 1
 expect unreach == 0
 expect dead_ledges == 0
@@ -465,6 +490,7 @@ expect lvl_23_kind9 == 0
 expect lvl_23_kind10 == 0
 expect lvl_23_kind11 == 0
 cheat level 23
+expect ball_rests == 1
 expect sym == 1
 expect unreach == 0
 expect dead_ledges == 0
@@ -486,6 +512,7 @@ expect lvl_24_kind9 == 0
 expect lvl_24_kind10 == 0
 expect lvl_24_kind11 == 0
 cheat level 24
+expect ball_rests == 1
 expect sym == 1
 expect unreach == 0
 expect dead_ledges == 0
@@ -507,6 +534,7 @@ expect lvl_25_kind9 == 0
 expect lvl_25_kind10 == 0
 expect lvl_25_kind11 == 0
 cheat level 25
+expect ball_rests == 1
 expect sym == 1
 expect unreach == 0
 expect dead_ledges == 0
@@ -528,6 +556,7 @@ expect lvl_26_kind9 == 0
 expect lvl_26_kind10 == 0
 expect lvl_26_kind11 == 0
 cheat level 26
+expect ball_rests == 1
 expect sym == 1
 expect unreach == 0
 expect dead_ledges == 0
@@ -549,6 +578,7 @@ expect lvl_27_kind9 == 0
 expect lvl_27_kind10 == 0
 expect lvl_27_kind11 == 0
 cheat level 27
+expect ball_rests == 1
 expect sym == 1
 expect unreach == 0
 expect dead_ledges == 0
@@ -570,6 +600,7 @@ expect lvl_28_kind9 == 0
 expect lvl_28_kind10 == 0
 expect lvl_28_kind11 == 0
 cheat level 28
+expect ball_rests == 1
 expect sym == 1
 expect unreach == 0
 expect dead_ledges == 0
@@ -591,6 +622,7 @@ expect lvl_29_kind9 == 0
 expect lvl_29_kind10 == 0
 expect lvl_29_kind11 == 0
 cheat level 29
+expect ball_rests == 1
 expect sym == 1
 expect unreach == 0
 expect dead_ledges == 0
@@ -599,7 +631,9 @@ expect lvl_30_starts == 1
 expect lvl_30_half == 1
 expect lvl_30_wrapok == 1
 expect lvl_30_spots == 0
+expect lvl_30_balls == 1
 cheat level 30
+expect ball_rests == 1
 expect sym == 1
 expect unreach == 0
 expect dead_ledges == 0
@@ -623,6 +657,7 @@ expect lvl_31_kind6 == 0
 expect lvl_31_kind7 == 0
 expect lvl_31_kind8 == 0
 cheat level 31
+expect ball_rests == 1
 expect sym == 1
 expect unreach == 0
 expect dead_ledges == 0
@@ -644,6 +679,7 @@ expect lvl_32_kind6 == 0
 expect lvl_32_kind7 == 0
 expect lvl_32_kind8 == 0
 cheat level 32
+expect ball_rests == 1
 expect sym == 1
 expect unreach == 0
 expect dead_ledges == 0
@@ -665,6 +701,7 @@ expect lvl_33_kind6 == 0
 expect lvl_33_kind7 == 0
 expect lvl_33_kind8 == 0
 cheat level 33
+expect ball_rests == 1
 expect sym == 1
 expect unreach == 0
 expect dead_ledges == 0
@@ -686,6 +723,7 @@ expect lvl_34_kind6 == 0
 expect lvl_34_kind7 == 0
 expect lvl_34_kind8 == 0
 cheat level 34
+expect ball_rests == 1
 expect sym == 1
 expect unreach == 0
 expect dead_ledges == 0
@@ -707,6 +745,7 @@ expect lvl_35_kind6 == 0
 expect lvl_35_kind7 == 0
 expect lvl_35_kind8 == 0
 cheat level 35
+expect ball_rests == 1
 expect sym == 1
 expect unreach == 0
 expect dead_ledges == 0
@@ -728,6 +767,7 @@ expect lvl_36_kind6 == 0
 expect lvl_36_kind7 == 0
 expect lvl_36_kind8 == 0
 cheat level 36
+expect ball_rests == 1
 expect sym == 1
 expect unreach == 0
 expect dead_ledges == 0
@@ -749,6 +789,7 @@ expect lvl_37_kind6 == 0
 expect lvl_37_kind7 == 0
 expect lvl_37_kind8 == 0
 cheat level 37
+expect ball_rests == 1
 expect sym == 1
 expect unreach == 0
 expect dead_ledges == 0
@@ -770,6 +811,7 @@ expect lvl_38_kind6 == 0
 expect lvl_38_kind7 == 0
 expect lvl_38_kind8 == 0
 cheat level 38
+expect ball_rests == 1
 expect sym == 1
 expect unreach == 0
 expect dead_ledges == 0
@@ -791,6 +833,7 @@ expect lvl_39_kind6 == 0
 expect lvl_39_kind7 == 0
 expect lvl_39_kind8 == 0
 cheat level 39
+expect ball_rests == 1
 expect sym == 1
 expect unreach == 0
 expect dead_ledges == 0
@@ -799,7 +842,9 @@ expect lvl_40_starts == 1
 expect lvl_40_half == 1
 expect lvl_40_wrapok == 1
 expect lvl_40_spots == 0
+expect lvl_40_balls == 1
 cheat level 40
+expect ball_rests == 1
 expect sym == 1
 expect unreach == 0
 expect dead_ledges == 0
@@ -817,3 +862,9 @@ expect lvl_23_kind8 >= 2
 expect lvl_31_kind9 >= 2
 expect lvl_32_kind10 >= 2
 expect lvl_33_kind11 >= 2
+# the screens differ: the ball starts at many heights (on the floor, on a
+# post, a shelf, a roof, in a cup, high up), most have blocks or walls to
+# bounce it off, and some start the kid up on a ledge
+expect var_ballrows >= 10
+expect var_blocks >= 12
+expect var_highstarts >= 6
