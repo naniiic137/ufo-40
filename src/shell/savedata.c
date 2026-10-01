@@ -277,6 +277,7 @@ static void draw_actions(void) {
     snprintf(buf, sizeof buf, "%02d %s", g + 1, GAMES[g]->title);
     text_center(buf, 160, 62, C_WHITE);
     ui_audit_text("title", buf, 160 - text_width(buf) / 2, 62);
+    ui_audit_centred("title", 160 - text_width(buf) / 2, text_width(buf));
     static const char *const names[ACT_COUNT] = {"DELETE SAVE", "RESET GOALS", "CANCEL"};
     for (int i = 0; i < ACT_COUNT; i++) {
         int y = 78 + i * 13;
@@ -288,15 +289,21 @@ static void draw_actions(void) {
     }
 }
 
+/* The question and its detail for deleting cartridge g's save, here and on
+ * the library's cartridge card. */
+void shell_delete_save_question(int g, char *q, int qn, char *d, int dn) {
+    snprintf(q, (size_t)qn, "DELETE %s'S SAVE?", GAMES[g]->title);
+    snprintf(d, (size_t)dn, "GOALS STAY. THE SAVE CAN'T COME BACK.");
+}
+
 static void draw_confirm(void) {
     int g = cart();
     char q[64], d[64];
-    const char *yes_label = "YES";
+    const char *yes_label = "YES", *step = NULL;
     int border = C_YELLOW;
     switch (ask) {
     case ASK_DELETE_SAVE:
-        snprintf(q, sizeof q, "DELETE %s'S SAVE?", GAMES[g]->title);
-        snprintf(d, sizeof d, "GOALS STAY. THE SAVE CAN'T COME BACK.");
+        shell_delete_save_question(g, q, sizeof q, d, sizeof d);
         break;
     case ASK_RESET_GOALS:
         snprintf(q, sizeof q, "RESET %s'S GOALS?", GAMES[g]->title);
@@ -306,32 +313,47 @@ static void draw_confirm(void) {
         snprintf(q, sizeof q, "DELETE ALL DATA?");
         snprintf(d, sizeof d, "EVERY SAVE, GOAL AND PLAY COUNT, ALL %d SLOTS.", GAME_SLOTS);
         border = C_RED;
+        step = "STEP 1 OF 2";
         break;
     default:
         snprintf(q, sizeof q, "ARE YOU SURE?");
         snprintf(d, sizeof d, "THIS CANNOT BE UNDONE. LAST CHANCE!");
         yes_label = "DELETE ALL";
         border = C_RED;
+        step = "STEP 2 OF 2";
         break;
     }
-    int w = imax(text_width(q), tiny_width(d)) + 24;
-    w = imax(w, 150);
-    ui_audit_area("screen", 4, 0, SCREEN_W - 8, 166);
-    ui_audit_box("question box", 160 - w / 2, 58, w, 62);
-    ui_panel(160 - w / 2, 58, w, 62, C_INK, border);
-    ui_audit_area("question box", 160 - w / 2 + 2, 60, w - 4, 58);
-    text_center(q, 160, 66, border == C_RED ? C_RED : C_YELLOW);
-    ui_audit_text("question", q, 160 - text_width(q) / 2, 66);
-    tiny_center(d, 160, 80, C_LIGHT);
-    ui_audit_tiny("detail", d, 160 - tiny_width(d) / 2, 80);
-    int nx = 160 - 50, yx = 160 + 14;
-    text_draw("NO", nx + 8, 100, !yes ? C_WHITE : C_SLATE);
-    ui_audit_text("no", "NO", nx + 8, 100);
-    text_draw(yes_label, yx + 8, 100, yes ? C_WHITE : C_SLATE);
-    ui_audit_text("yes", yes_label, yx + 8, 100);
-    ui_cursor(yes ? yx : nx, 100, t);
-    if (ask == ASK_ALL_2) tiny_center("STEP 2 OF 2", 160, 112, C_GREY);
-    else if (ask == ASK_ALL_1) tiny_center("STEP 1 OF 2", 160, 112, C_GREY);
+    ui_confirm_box(q, d, yes_label, yes, border, step, t);
+}
+
+/* Draws every question (delete a save and reset the goals for every
+ * cartridge, and both steps of DELETE ALL DATA), with the cursor on NO and
+ * on YES, with the layout audit on: each line and the NO / YES pair must sit
+ * in the middle of the box. Returns the problems found. */
+static int audit_confirms(void) {
+    refresh();
+    int save_sel = sel, save_step = step, save_ask = ask, save_yes = yes, bad = 0;
+    char subject[80];
+    for (int r = 0; r < n_rows; r++) {
+        int g = rows[r];
+        sel = r;
+        static const int asks_cart[] = {ASK_DELETE_SAVE, ASK_RESET_GOALS}, asks_all[] = {ASK_ALL_1, ASK_ALL_2};
+        for (int k = 0; k < 2; k++)
+            for (yes = 0; yes <= 1; yes++) {
+                ask = g >= 0 ? asks_cart[k] : asks_all[k];
+                snprintf(subject, sizeof subject, "save data question %d for %s, on %s", ask,
+                         g >= 0 ? GAMES[g]->title : "DELETE ALL DATA", yes ? "YES" : "NO");
+                ui_audit_begin(subject, true);
+                step = STEP_CONFIRM;
+                draw_confirm();
+                bad += ui_audit_end();
+            }
+    }
+    sel = save_sel;
+    step = save_step;
+    ask = save_ask;
+    yes = save_yes;
+    return bad;
 }
 
 /* Draws every row, detail, action box and question for every cartridge
@@ -415,5 +437,7 @@ bool savedata_query(const char *key, int *out) {
     if (!strcmp(key, "savedata_cart")) { *out = n_rows > 0 ? rows[sel] : -2; return true; }
     /* layout problems in every row, detail and question, for every cartridge */
     if (!strcmp(key, "savedata_layout")) { *out = audit_all(); return true; }
+    /* the same, for the questions only (each line's margins in its box) */
+    if (!strcmp(key, "savedata_confirm_layout")) { *out = audit_confirms(); return true; }
     return false;
 }

@@ -27,6 +27,16 @@ void ui_saucer(int x, int y, int t, int scale);
 void ui_cursor(int x, int y, int t);
 /* Draws "A" / "B" button glyph + label, returns x after. */
 int ui_hint(int x, int y, const char *glyph, const char *label, int col);
+/* Two choices side by side (NO / YES), centred as a pair on cx: each is a
+ * cursor's room and its label, and the cursor sits at the chosen one (sel 0
+ * or 1). The chosen label is drawn in on, the other in off. Reports the
+ * labels, the cursor and the pair's centring to the layout audit. */
+void ui_choices(int cx, int y, const char *a, const char *b, int sel, int t, int on, int off);
+/* A question box in the middle of the screen: the question, a line of
+ * detail, NO and yes_label (yes = 1 when the cursor is on it), and an
+ * optional step line ("STEP 1 OF 2"). Every line is centred in the box,
+ * and the layout audit checks that it is. */
+void ui_confirm_box(const char *q, const char *d, const char *yes_label, int yes, int border, const char *step, int t);
 
 void ui_init(void);
 
@@ -52,6 +62,9 @@ void ui_audit_text(const char *what, const char *s, int x, int y);
 void ui_audit_tiny(const char *what, const char *s, int x, int y);
 /* ui_fancy_text(s, x, y, scale, ...) with or without a shadow. */
 void ui_audit_fancy(const char *what, const char *s, int x, int y, int scale, bool shadow);
+/* A row of width w starting at x must sit in the middle of the current area:
+ * its left and right margins equal, give or take a pixel. */
+void ui_audit_centred(const char *what, int x, int w);
 /* A problem found by the screen itself (say, a blurb with too many lines). */
 void ui_audit_fail(const char *what, const char *why);
 int ui_audit_end(void); /* closes the audit, returns the problems found */

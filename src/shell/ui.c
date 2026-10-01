@@ -243,6 +243,52 @@ int ui_hint(int x, int y, const char *glyph, const char *label, int col) {
     return text_draw(label, nx + 2, y, col) + 6;
 }
 
+#define CHOICE_CURSOR 8 /* the cursor's room before a label */
+#define CHOICE_GAP 18   /* between the first label and the second cursor */
+
+void ui_choices(int cx, int y, const char *a, const char *b, int sel, int t, int on, int off) {
+    int wa = CHOICE_CURSOR + text_width(a), wb = CHOICE_CURSOR + text_width(b);
+    int total = wa + CHOICE_GAP + wb;
+    int xa = cx - total / 2, xb = xa + wa + CHOICE_GAP;
+    text_draw(a, xa + CHOICE_CURSOR, y, sel == 0 ? on : off);
+    text_draw(b, xb + CHOICE_CURSOR, y, sel == 1 ? on : off);
+    ui_cursor(sel == 0 ? xa : xb, y, t);
+    ui_audit_text("first choice", a, xa + CHOICE_CURSOR, y);
+    ui_audit_text("second choice", b, xb + CHOICE_CURSOR, y);
+    ui_audit_box("cursor", sel == 0 ? xa : xb, y, 5, 7); /* it bobs a pixel to the right */
+    ui_audit_centred("choices", xa, total);
+}
+
+void ui_confirm_box(const char *q, const char *d, const char *yes_label, int yes, int border, const char *step,
+                    int t) {
+    /* Every line, and the NO / YES pair as a whole, sits in the middle of
+     * the box (the pair used to start at a fixed spot, so a long YES label
+     * such as DELETE ALL ran off to the right); the audit measures each
+     * one's margins. */
+    int cx = SCREEN_W / 2;
+    int w = imax(text_width(q), tiny_width(d)) + 24;
+    w = imax(w, 150);
+    int bx = cx - w / 2;
+    ui_audit_area("screen", 4, 0, SCREEN_W - 8, 166);
+    ui_audit_box("question box", bx, 58, w, 62);
+    ui_panel(bx, 58, w, 62, C_INK, border);
+    ui_audit_area("question box", bx + 2, 60, w - 4, 58);
+    int qx = cx - text_width(q) / 2, dx = cx - tiny_width(d) / 2;
+    text_draw(q, qx, 66, border == C_RED ? C_RED : C_YELLOW);
+    ui_audit_text("question", q, qx, 66);
+    ui_audit_centred("question", qx, text_width(q));
+    tiny_draw(d, dx, 80, C_LIGHT);
+    ui_audit_tiny("detail", d, dx, 80);
+    ui_audit_centred("detail", dx, tiny_width(d));
+    ui_choices(cx, 100, "NO", yes_label, yes, t, C_WHITE, C_SLATE);
+    if (step) {
+        int sx = cx - tiny_width(step) / 2;
+        tiny_draw(step, sx, 112, C_GREY);
+        ui_audit_tiny("step", step, sx, 112);
+        ui_audit_centred("step", sx, tiny_width(step));
+    }
+}
+
 /* ---- word wrap ------------------------------------------------------------ */
 
 static int wrap_width(const char *s, bool tiny) { return tiny ? tiny_width(s) : text_width(s); }
@@ -365,6 +411,16 @@ static void audit_glyphs(const char *what, const char *s, int missing) {
     char why[160];
     snprintf(why, sizeof why, "\"%.100s\" has %d character%s the font can't draw", s, missing, missing == 1 ? "" : "s");
     ui_audit_fail(what, why);
+}
+
+void ui_audit_centred(const char *what, int x, int w) {
+    if (!au.on) return;
+    int left = x - au.ax, right = au.ax + au.aw - (x + w);
+    if (left - right > 1 || right - left > 1) {
+        char why[160];
+        snprintf(why, sizeof why, "is off centre in the %s: %d px to its left, %d to its right", au.area, left, right);
+        ui_audit_fail(what, why);
+    }
 }
 
 void ui_audit_text(const char *what, const char *s, int x, int y) {

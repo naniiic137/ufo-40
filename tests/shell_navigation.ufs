@@ -56,13 +56,16 @@ expect menu_sel == 0
 press A
 wait 30
 expect_scene library
-# SELECT in the library still opens the options, and B returns there
+# SELECT in the library opens the cartridge card over it (no new screen),
+# and SELECT closes it again
 press SELECT
 wait 30
-expect_scene settings
-press B
+expect_scene library
+expect card_open == 1
+press SELECT
 wait 30
 expect_scene library
+expect card_open == 0
 # B in the library goes back to the main menu
 press B
 wait 30

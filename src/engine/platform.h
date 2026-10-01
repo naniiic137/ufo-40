@@ -22,5 +22,7 @@ void plat_request_quit(void);
  * stalls (a hidden browser tab, a slow frame). Any starting point; it may wrap,
  * so callers only ever use the unsigned difference of two readings. */
 uint32_t plat_clock_ms(void);
+/* The date and time now, as Unix seconds (0 if the platform can't tell). */
+uint32_t plat_unix_time(void);
 
 #endif
