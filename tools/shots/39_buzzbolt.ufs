@@ -1,0 +1,44 @@
+# README media: BUZZBOLT. The GIF and the play shots are the demo player
+# pressing real buttons; later waves are reached with cheats, then flown
+# by the demo player.
+shotscale 2
+seed 39
+game buzzbolt
+wait 60
+shot buzzbolt_title
+press A
+wait 10
+press RIGHT
+wait 20
+shot buzzbolt_select
+press LEFT
+wait 10
+press A
+# wave 1, about halfway: gnats coming from every side, letters falling
+botplay 2200
+gifstart buzzbolt 3 2
+botplay 540
+gifstop
+shot buzzbolt_meadow
+# wave 3, the hard one
+cheat wave 3
+cheat lives 5
+botplay 2030
+shot buzzbolt_rot
+# wave 4: the rot walls and their gates, then the golden swarm
+cheat wave 4
+botplay 640
+shot buzzbolt_walls
+botplay 1600
+shot buzzbolt_swarm
+# the Queen Tick
+cheat wave 3
+cheat boss
+cheat lives 5
+botplay 600
+shot buzzbolt_tick
+# the last boss
+cheat wave 5
+cheat lives 5
+botplay 700
+shot buzzbolt_heart
