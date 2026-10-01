@@ -15,9 +15,14 @@
 
 /* ---- tiles ------------------------------------------------------------------ */
 
+/* a full solid tile in the top row carries on up out of sight: a roof or a
+ * wall that reaches the top of the screen can't be flown over */
+static bool sky_high(char ch) { return ch && strchr("#XIsTR", ch) != NULL; }
+
 char tsh_tile(const TshCourse *c, int col, int row) {
-    if (row < 0 || row >= TSH_ROWS) return '.';
-    if (col < 0 || col >= c->cols) return 'X'; /* the course is walled at both ends */
+    if (row >= TSH_ROWS) return '.';
+    if (col < 0 || col >= c->cols) return row < 0 ? '.' : 'X'; /* the course is walled at both ends */
+    if (row < 0) return sky_high(c->tile[0][col]) ? 'X' : '.';
     return c->tile[row][col];
 }
 
@@ -239,9 +244,16 @@ void tsh_course_build(TshCourse *c, int hole) {
             }
         }
     merge_segs(c);
-    /* the walls at both ends reach well above the sky */
+    /* the walls at both ends reach well above the sky, and so does anything
+     * standing in the top row */
     add_seg(c, 0, -3000.0f, 0, TSH_VIEW_H + 40.0f, TM_TURF, false);
     add_seg(c, (float)c->w, TSH_VIEW_H + 40.0f, (float)c->w, -3000.0f, TM_TURF, false);
+    for (int col = 0; col < c->cols; col++) {
+        if (!sky_high(c->tile[0][col])) continue;
+        float x0 = (float)(col * TSH_T), x1 = x0 + TSH_T;
+        if (col > 0 && !sky_high(c->tile[0][col - 1])) add_seg(c, x0, 0, x0, -3000.0f, TM_TURF, false);
+        if (col + 1 < c->cols && !sky_high(c->tile[0][col + 1])) add_seg(c, x1, -3000.0f, x1, 0, TM_TURF, false);
+    }
     for (int i = 0; i < d->nsprings; i++) {
         const TshSpringDef *s = &d->springs[i];
         add_seg(c, s->x0, s->y0, s->x1, s->y1, TM_SPRING, true);
@@ -261,6 +273,21 @@ bool tsh_mover_pos(const TshMoverDef *m, int t, float *x, float *y) {
         float s = u * 2;
         *x = m->cx - m->ax + 2 * m->ax * s;
         *y = m->cy - m->ay * 4 * s * (1 - s);
+        return true;
+    }
+    if (m->kind == MV_ROLLER) {
+        /* along its floor and back at a steady speed */
+        float s = u < 0.5f ? u * 2 : 2 - u * 2;
+        *x = m->cx - m->ax + 2 * m->ax * s;
+        *y = m->cy;
+        return true;
+    }
+    if (m->kind == MV_SWING) {
+        /* a pendulum: out to one side, back through the bottom, out to the other */
+        float len = m->ay > 0 ? m->ay : 1;
+        float th = asinf(fminf(1.0f, fabsf((float)m->ax) / len)) * sinf(u * 6.2831853f);
+        *x = m->cx + len * sinf(th);
+        *y = m->cy + len * cosf(th);
         return true;
     }
     float a = u * 6.2831853f;
@@ -319,6 +346,7 @@ static void lose(TshPlay *p, int why) {
 typedef struct Contact {
     float pen, nx, ny;
     int mat, circ;
+    bool corner; /* touching the end of a surface, not its face */
 } Contact;
 
 static void seg_contact(const TshSeg *s, float cx, float cy, Contact *best) {
@@ -326,7 +354,8 @@ static void seg_contact(const TshSeg *s, float cx, float cy, Contact *best) {
     float l2 = dx * dx + dy * dy;
     float t = ((cx - s->x0) * dx + (cy - s->y0) * dy) / l2;
     float nx = s->nx, ny = s->ny, pen;
-    if (t > 0 && t < 1) {
+    bool corner = !(t > 0 && t < 1);
+    if (!corner) {
         float ds = (cx - s->x0) * nx + (cy - s->y0) * ny;
         if (s->two_sided && ds < 0) { ds = -ds; nx = -nx; ny = -ny; }
         if (ds >= TSH_R || ds < -TSH_R) return;
@@ -347,11 +376,12 @@ static void seg_contact(const TshSeg *s, float cx, float cy, Contact *best) {
         best->ny = ny;
         best->mat = s->mat;
         best->circ = -1;
+        best->corner = corner;
     }
 }
 
 static void find_contact(const TshPlay *p, const TshCourse *c, Contact *best) {
-    *best = (Contact){0, 0, -1, TM_TURF, -1};
+    *best = (Contact){0, 0, -1, TM_TURF, -1, false};
     int b0 = iclamp((int)floorf((p->x - TSH_R) / BUCKET_W), 0, c->nbucket - 1);
     int b1 = iclamp((int)floorf((p->x + TSH_R) / BUCKET_W), 0, c->nbucket - 1);
     for (int b = b0; b <= b1; b++)
@@ -375,6 +405,7 @@ static void find_contact(const TshPlay *p, const TshCourse *c, Contact *best) {
             best->ny = d > 1e-4f ? ey / d : -1;
             best->mat = q->kind == TC_PEG ? TM_PEG : TM_BUMPER;
             best->circ = i;
+            best->corner = false;
         }
     }
 }
@@ -405,8 +436,9 @@ static void respond(TshPlay *p, const Contact *k, bool kicks, bool *ground) {
         p->slammed = false;
         return;
     case TM_SPRING:
-        if (-vn > 1.2f) {
-            out = fminf(-vn * 1.05f + 1.6f, 9.0f);
+        /* far wilder than a bumper: it gives back more than it gets */
+        if (-vn > 0.8f) {
+            out = fminf(-vn * 1.3f + 2.4f, 10.0f);
             p->fx |= FXT_SPRING;
         } else out = 0;
         break;
@@ -423,10 +455,11 @@ static void respond(TshPlay *p, const Contact *k, bool kicks, bool *ground) {
         } else out = 0;
         break;
     }
-    /* a slam onto a slope that falls away: the ball takes off down it, on fire */
+    /* a slam onto a slope that falls away: the ball takes off down it, on
+     * fire (the face of a slope; the corner of a ledge is not a slope) */
     if (p->slammed) {
         p->slammed = false;
-        if ((mat == TM_TURF || mat == TM_ICE) && fabsf(nx) >= 0.4f && ny < 0) {
+        if ((mat == TM_TURF || mat == TM_ICE) && !k->corner && fabsf(nx) >= 0.4f && ny < 0) {
             float dx = -ny, dy = nx; /* along the surface */
             if (dy < 0) { dx = -dx; dy = -dy; }
             float along = tx * dx + ty * dy;
@@ -568,7 +601,7 @@ void tsh_play_step(TshPlay *p, const TshCourse *c, uint8_t b) {
     p->phase_t++;
     switch (p->phase) {
     case TP_AIM:
-        if (!(b & TB_LOOK) && (b & (TB_LEFT | TB_RIGHT))) {
+        if (b & (TB_LEFT | TB_RIGHT)) {
             p->rep_t++;
             bool step = (pressed & (TB_LEFT | TB_RIGHT)) || (p->rep_t > 14 && (p->rep_t - 14) % 3 == 0);
             if (step) {

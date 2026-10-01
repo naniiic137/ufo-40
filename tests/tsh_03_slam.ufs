@@ -1,33 +1,41 @@
 # TILTSHOT: the slam. A in the air fires the ball straight down on its way,
-# keeping its speed across; once a stroke; nothing while it rolls. Set up
-# with the ball placed in flight, then played with real presses.
+# keeping its speed across; once a stroke; nothing while it rolls. The SLAM
+# lamp on the display is lit while the slam is there to use in the air and
+# goes dark once it is spent. Set up with the ball placed in flight, then
+# played with real presses.
 seed 3
 game tiltshot
 wait 5
 cheat hole 1
 wait 2
-# a real swing: while the ball is up, A slams it
+# on the tee the lamp is dark
+expect slam_lamp == 0
+# a real swing: while the ball is up, the lamp is lit and A slams it
 hold A 40
 wait 12
 expect phase == 2
 expect slam_used == 0
+expect slam_lamp == 1
 press A
 expect slam_used == 1
+expect slam_lamp == 0
 expect ball_vy100 >= 480
 # and only once a stroke
 press A
 expect ball_vy100 < 600
 waituntil phase == 0 2000
-# placed in flight over the flat: the slam keeps the speed across
-cheat ball 520 40 2 0
+expect slam_lamp == 0
+# placed in flight over the green: the slam keeps the speed across
+cheat ball 760 40 2 0
 wait 1
+expect slam_lamp == 1
 press A
 expect slam_used == 1
 expect ball_vx100 == 200
 expect ball_vy100 >= 500
 waituntil phase == 0 2000
 # rolling along the ground: A does nothing
-cheat ball 520 125 3 0
+cheat ball 640 117 3 0
 wait 3
 press A
 expect slam_used == 0

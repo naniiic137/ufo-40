@@ -1,7 +1,8 @@
 # TILTSHOT: what's on the courses. Sand stops a ball dead where it lands
 # (turf lets it run on); purple junk breaks and slows the ball a little;
-# an orange mover breaks and nearly stops it; bumpers kick the ball away
-# faster than it came; spring pads throw it higher than it fell from.
+# an orange mover breaks and nearly stops it (a blimp, a trundler on the
+# ground, a lantern on its chain); bumpers kick the ball away faster than
+# it came, and spring lines far harder again.
 seed 7
 game tiltshot
 wait 5
@@ -15,29 +16,53 @@ expect ball_x <= 275
 cheat ball 330 60 1 0
 waituntil phase == 0 600
 expect ball_x > 372
-# Opening Tee: rolling into the cone
+# Opening Tee: rolling along the mound's top into the crate
 cheat hole 1
 wait 2
-cheat ball 470 125 3 0
+cheat ball 290 69 3 0
 waituntil junk_gone == 1 40
 expect speed100 < 200
 expect speed100 > 100
-# the bumper over the rise
-cheat ball 244 20 0 2
+# the bumper past the mound: dropped onto it at about 2.8 a frame
+cheat ball 420 46 0 2
 waituntil ball_vy100 < 0 30
-expect ball_vy100 < -270
-# Stone Skip: into the near blimp
-cheat hole 2
-wait 2
-expect mover0_y == 64
-expect mover0_x > 310
-cheat ball 296 64 4 0
-waituntil movers_gone == 1 20
-expect speed100 < 120
-# Bounce House: dropped on the spring pads, it comes back up higher
+expect ball_vy100 < -400
+expect ball_vy100 > -480
+# Bounce House: a spring line, hit at the same speed, throws far harder
 cheat hole 3
 wait 2
-cheat ball 180 60 0 0
+cheat ball 130 100 0 2
+waituntil ball_vy100 < 0 30
+expect ball_vy100 < -580
+# dropped on it from higher, it comes back up higher than it fell from
+cheat ball 130 60 0 0
 waituntil ball_vy100 < 0 60
 waituntil ball_vy100 >= 0 120
 expect ball_y < 60
+# Stone Skip: into the near blimp
+cheat hole 2
+wait 2
+expect mover0_y == 76
+expect mover0_x > 250
+cheat ball 220 76 4 0
+waituntil movers_gone == 1 20
+expect speed100 < 120
+# Dune Steps: a trundler patrols the approach along the ground
+cheat hole 7
+wait 2
+expect mover0_y == 123
+expect mover0_x < 725
+wait 100
+expect mover0_x > 760
+expect mover0_y == 123
+# Double Spring: a lantern swings on its chain between the spring lines:
+# low in the middle, higher out to each side
+cheat hole 10
+wait 2
+expect mover0_y > 72
+wait 38
+expect mover0_x > 305
+expect mover0_y < 66
+wait 80
+expect mover0_x < 230
+expect mover0_y < 66

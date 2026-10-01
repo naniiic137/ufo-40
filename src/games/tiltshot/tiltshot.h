@@ -30,17 +30,22 @@
  *   ~  water         U  the cup                 S  the tee
  *   O  big bumper    o  small bumper            !  peg
  *   C  crate   K  cone   N  churn   Y  bucket   (junk: breaks, slows a little)
- * Anything off the bottom of the map is a pit. */
+ * Anything off the bottom of the map is a pit; a full solid tile in the top
+ * row carries on up out of sight (a roof or wall that can't be flown over). */
 extern const char *const *const TSH_MAP[TSH_HOLES];
 
 enum { TH_MEADOW, TH_DUSK, TH_NIGHT, TH_ICE, TH_BEACH, TH_TEMPLE, TH_FAIR, TH_COUNT };
 
-/* moving hazards: orange, break at a touch and nearly stop the ball */
-enum { MV_BLIMP, MV_HOPPER, MV_KITE, MV_FISH, MV_SPARK, MV_KINDS };
+/* moving hazards: orange, break at a touch and nearly stop the ball.
+ * Most circle or sweep an ellipse; a fish leaps out of the water and back;
+ * a trundler patrols a floor back and forth at a steady speed; a lantern
+ * swings on a chain from a pivot (cx, cy), ay the chain's length and ax how
+ * far to the side the lantern swings. */
+enum { MV_BLIMP, MV_HOPPER, MV_KITE, MV_FISH, MV_SPARK, MV_ROLLER, MV_SWING, MV_KINDS };
 typedef struct TshMoverDef {
     uint8_t kind;
-    int16_t cx, cy;   /* centre of its path, in pixels */
-    int16_t ax, ay;   /* half widths of the path */
+    int16_t cx, cy;   /* centre of its path (a lantern: its pivot), in pixels */
+    int16_t ax, ay;   /* half widths of the path (a lantern: swing, chain) */
     uint16_t period;  /* frames for one round */
     uint16_t phase;   /* frames into the round at the hole's start */
 } TshMoverDef;
@@ -133,7 +138,7 @@ enum { TP_AIM, TP_CHARGE, TP_FLIGHT, TP_LOST, TP_BOOM, TP_HOLED };
 enum { TL_WATER = 1, TL_PIT };
 
 /* buttons as the play sees them (held this frame) */
-enum { TB_LEFT = 1, TB_RIGHT = 2, TB_A = 4, TB_LOOK = 8 };
+enum { TB_LEFT = 1, TB_RIGHT = 2, TB_A = 4 };
 
 /* events for the presentation, cleared by it */
 enum {
@@ -191,6 +196,7 @@ int tsh_solve(const TshCourse *c, const TshPlay *start, TshShot *out, int max, i
 /* strokes on a hole by a player who knows the course but whose swing is a
  * little off every time (a yardstick for the designs) */
 int tsh_steady_play(const TshCourse *c, uint64_t seed, int *lost_out);
+extern bool tsh_yard_log; /* design checks: print each of its shots */
 
 /* ---- the tournament (tiltshot_tour.c) ---------------------------------------- */
 
@@ -228,6 +234,7 @@ const char *tsh_score_word(int strokes, int par);
 enum {
     TS_BALL, TS_FLAG1, TS_FLAG2, TS_CRATE, TS_CONE, TS_CHURN, TS_BUCKET,
     TS_BLIMP1, TS_BLIMP2, TS_HOPPER1, TS_HOPPER2, TS_KITE1, TS_KITE2, TS_FISH1, TS_FISH2, TS_SPARK1, TS_SPARK2,
+    TS_ROLLER1, TS_ROLLER2, TS_LANTERN,
     TS_TROPHY, TS_COMET,
     TS_COUNT
 };

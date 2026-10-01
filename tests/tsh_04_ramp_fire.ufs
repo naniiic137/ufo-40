@@ -1,29 +1,31 @@
 # TILTSHOT: a slam onto a slope that falls away sends the ball racing down
 # it, on fire, much faster than it came; a slam onto flat ground only makes
-# it bounce, and a ball that just drops onto the slope is no faster.
+# it bounce, and a ball that just drops onto the slope is no faster. Fire
+# goes up on the dot-matrix display, not over the course.
 seed 4
 game tiltshot
 wait 5
 cheat hole 1
 wait 2
-# over the long slope down from the rise (x 304 to 368)
-cheat ball 322 40 1.2 0
+# over the slope down the far side of the mound (x 336 to 384)
+cheat ball 344 40 1.2 0
 wait 1
 press A
 waituntil fire > 0 60
 expect speed100 > 600
 expect ball_vx100 > 400
+expect dmd == 1
 waituntil phase == 0 3000
 expect ball_x > 600
 # the same drop without the slam: no fire, a slower roll
-cheat ball 322 40 1.2 0
+cheat ball 344 40 1.2 0
 waituntil ball_y > 90 60
 wait 6
 expect fire == 0
 expect speed100 < 450
 waituntil phase == 0 3000
-# a slam onto the flat: a bounce, no fire
-cheat ball 560 40 1.2 0
+# a slam onto the flat green: a bounce, no fire
+cheat ball 760 40 1.2 0
 wait 1
 press A
 waituntil ball_vy100 < 0 60

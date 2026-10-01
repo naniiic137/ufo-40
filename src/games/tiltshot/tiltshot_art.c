@@ -221,6 +221,42 @@ static const char SPARK2[] =
     "...yyy...."
     "k...k...k.";
 
+/* a trundler: patrols a floor on two wheels */
+static const char ROLLER1[] =
+    "...kkkkkk..."
+    "..koooooak.."
+    ".kowwkooook."
+    ".kowkkooaak."
+    ".koooooooak."
+    "..kaaaaaak.."
+    ".kkkkkkkkkk."
+    "kglgk..kglgk"
+    "kgkgk..kgkgk"
+    ".kkk....kkk.";
+static const char ROLLER2[] =
+    "...kkkkkk..."
+    "..koooooak.."
+    ".kowwkooook."
+    ".kowkkooaak."
+    ".koooooooak."
+    "..kaaaaaak.."
+    ".kkkkkkkkkk."
+    "kgkgk..kgkgk"
+    "kglgk..kglgk"
+    ".kkk....kkk.";
+/* a lantern on a chain */
+static const char LANTERN[] =
+    "...kkk..."
+    "..kgggk.."
+    ".kkkkkkk."
+    "kooyyyook"
+    "koyyyyyok"
+    "koyywyyok"
+    "kooyyyook"
+    ".kkkkkkk."
+    "..kaaak.."
+    "...kkk...";
+
 static const char FLAG1[] =
     "rrrrrr"
     "rrrrrm"
@@ -275,6 +311,9 @@ void tsh_art_load(void) {
     spr_make(&tsh_spr[TS_FISH2], 10, 6, FISH2);
     spr_make(&tsh_spr[TS_SPARK1], 10, 9, SPARK1);
     spr_make(&tsh_spr[TS_SPARK2], 10, 9, SPARK2);
+    spr_make(&tsh_spr[TS_ROLLER1], 12, 10, ROLLER1);
+    spr_make(&tsh_spr[TS_ROLLER2], 12, 10, ROLLER2);
+    spr_make(&tsh_spr[TS_LANTERN], 9, 10, LANTERN);
     spr_make(&tsh_spr[TS_FLAG1], 6, 4, FLAG1);
     spr_make(&tsh_spr[TS_FLAG2], 6, 4, FLAG2);
     spr_make(&tsh_spr[TS_TROPHY], 16, 16, TROPHY);

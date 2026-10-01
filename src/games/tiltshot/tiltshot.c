@@ -14,17 +14,13 @@ enum { S_TITLE, S_CODE, S_RECORDS, S_PICK, S_FIELD, S_CARD, S_PLAY, S_SUNK, S_BO
 static const char CODE_WORD[CODE_LEN + 1] = "BEAMDOWN"; /* BEAM-DOWN, printed in the credits */
 static const char CODE_ABC[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 
+/* the original's two stats (golfers used, most holes in one in a round)
+ * and the goals; nothing else is kept */
 typedef struct Save {
     uint32_t magic;
-    uint8_t cameos, used, goals, most_aces;
-    uint8_t wins, played, aces, pad;
-    int8_t best;            /* lowest total against par, 127 = none yet */
-    uint8_t pad2[3];
-    uint32_t best_time;     /* the quickest win, in frames (0 = none) */
-    uint8_t hole_best[TSH_HOLES];
-    uint8_t pad3[2];
+    uint8_t used, goals, most_aces, pad;
 } Save;
-#define SAVE_MAGIC 0x54534801u
+#define SAVE_MAGIC 0x54534802u
 
 typedef struct Part {
     float x, y, vx, vy;
@@ -41,7 +37,10 @@ static int pick_g[2], pick_c[2], pick_who;
 static int code_pos, code_msg_t;
 static char code_buf[CODE_LEN];
 static bool code_ok;
-static uint32_t tour_frames;
+/* the code works like a terminal code in the original: it lasts until you
+ * leave the cartridge, and while it is on nothing is saved and no goals
+ * are given */
+static bool code_on;
 static int aces_this, final_place[2], final_total[2];
 static bool champ[2];
 static int sunk_strokes;
@@ -50,11 +49,11 @@ static uint64_t next_seed = 31;
 /* presentation */
 static float cam;
 static int cam_lock = -1;     /* tests and screenshots: hold the view */
-static bool looking;
 static uint8_t flash[TSH_MAXCIRC];
 static Part parts[220];
-static const char *msg;
-static int msg_t, msg_col, shake, follow_t, secret_t, card_scroll;
+/* the dot-matrix display's event message (SPLASH!, BIRDIE!, ...) */
+static const char *dmd_msg;
+static int dmd_t, dmd_col, shake, follow_t, secret_t, card_scroll;
 static float gx, gy;          /* where the golfer stands */
 static bool gflip;
 
@@ -62,6 +61,9 @@ static bool gflip;
 static TshShot plan[TSH_ROUTE_MAX + 4];
 static int plan_n, swings;
 static bool plan_stale;
+
+/* design checks (test hooks) */
+static int sweep_in, sweep_n, timing_in, timing_n, timing_run, play_in;
 
 static void part_add(float x, float y, float vx, float vy, int life, int col, int kind) {
     for (int i = 0; i < ARRAY_LEN(parts); i++)
@@ -75,6 +77,7 @@ static void part_add(float x, float y, float vx, float vy, int life, int col, in
 /* save                                                                             */
 
 static void save_now(void) {
+    if (code_on) return;
     sv.magic = SAVE_MAGIC;
     game_save_write(game_current_index(), &sv, (int)sizeof sv);
 }
@@ -87,7 +90,6 @@ static void load_save(void) {
     else {
         memset(&sv, 0, sizeof sv);
         sv.magic = SAVE_MAGIC;
-        sv.best = 127;
     }
     /* goals come back from what the save remembers */
     if (sv.goals & GOAL_BEACON) game_award(GOAL_BEACON);
@@ -96,6 +98,7 @@ static void load_save(void) {
 }
 
 static void award(int bit) {
+    if (code_on) return;
     game_award(bit);
     if (!(sv.goals & bit)) {
         sv.goals |= (uint8_t)bit;
@@ -103,7 +106,7 @@ static void award(int bit) {
     }
 }
 
-static int golfers_open(void) { return sv.cameos ? TSH_GOLFERS : 5; }
+static int golfers_open(void) { return code_on ? TSH_GOLFERS : 5; }
 
 /* ------------------------------------------------------------------------------ */
 /* flow                                                                             */
@@ -142,15 +145,14 @@ static void begin_turn(void) {
     for (int i = 0; i < TSH_ROUTE_MAX && TSH_ROUTE[course.hole][i].aim >= 0; i++) plan[plan_n++] = TSH_ROUTE[course.hole][i];
     plan_stale = false;
     cam = fmaxf(0, fminf(play.x - 110, (float)(course.w - SCREEN_W)));
-    looking = false;
     follow_t = 0;
     gx = play.x - 9;
     gy = play.y + TSH_R;
     gflip = false;
     memset(parts, 0, sizeof parts);
     memset(flash, 0, sizeof flash);
-    msg = NULL;
-    msg_t = 0;
+    dmd_msg = NULL;
+    dmd_t = 0;
 }
 
 static void go_card(void) {
@@ -179,11 +181,12 @@ static void start_tour(void) {
     int g[2] = {pick_g[0], pick_g[1]}, c[2] = {pick_c[0], pick_c[1]};
     uint64_t seed = rng_next(&g_rng) ^ ((uint64_t)next_seed++ << 32);
     tsh_tour_new(&tour, humans, g, c, seed);
-    for (int i = 0; i < humans; i++) sv.used |= (uint8_t)(1u << pick_g[i]);
-    save_now();
+    if (!code_on) {
+        for (int i = 0; i < humans; i++) sv.used |= (uint8_t)(1u << pick_g[i]);
+        save_now();
+    }
     turn = 0;
     aces_this = 0;
-    tour_frames = 0;
     set_state(S_FIELD);
     game_set_pausable(true);
     music_play(TSH_MUS_BOARD);
@@ -200,23 +203,13 @@ static void go_final(void) {
         final_place[i] = tsh_tour_place(&tour, i, TSH_HOLES);
         final_total[i] = tsh_tour_total(&tour, i, TSH_HOLES);
         champ[i] = final_place[i] == 1;
-        if (final_total[i] < sv.best) sv.best = (int8_t)iclamp(final_total[i], -99, 126);
-        for (int h = 0; h < TSH_HOLES; h++) {
-            uint8_t s = tour.e[i].score[h];
-            if (s && (!sv.hole_best[h] || s < sv.hole_best[h])) sv.hole_best[h] = s;
-        }
         if (champ[i]) {
             won_any = 1;
             award(GOAL_SAUCER);
             if (final_total[i] <= 0) award(GOAL_ALIEN);
         }
     }
-    if (won_any) {
-        if (sv.wins < 255) sv.wins++;
-        if (!sv.best_time || tour_frames < sv.best_time) sv.best_time = tour_frames;
-    }
-    if (sv.played < 255) sv.played++;
-    if (aces_this > sv.most_aces) sv.most_aces = (uint8_t)aces_this;
+    if (!code_on && aces_this > sv.most_aces) sv.most_aces = (uint8_t)aces_this;
     save_now();
     set_state(S_FINAL);
     input_set_versus(false);
@@ -229,10 +222,19 @@ static void sunk(void) {
     sunk_strokes = s;
     if (s == 1) {
         aces_this++;
-        if (sv.aces < 255) sv.aces++;
         award(GOAL_BEACON);
         music_restart(TSH_MUS_ACE);
     } else music_restart(s <= par ? TSH_MUS_CUP : TSH_MUS_OVER);
+    /* the result goes up on the display */
+    static char word[16];
+    const char *w = tsh_score_word(s, par);
+    if (!w) {
+        snprintf(word, sizeof word, "+%d", s - par);
+        w = word;
+    }
+    dmd_msg = w;
+    dmd_col = s <= par ? C_YELLOW : C_AMBER;
+    dmd_t = 1 << 20;
     set_state(S_SUNK);
 }
 
@@ -261,14 +263,14 @@ static uint8_t read_buttons(void) {
     if (h(BTN_LEFT)) b |= TB_LEFT;
     if (h(BTN_RIGHT)) b |= TB_RIGHT;
     if (h(BTN_A)) b |= TB_A;
-    if (h(BTN_B)) b |= TB_LOOK;
     return b;
 }
 
+/* an event flashes up on the dot-matrix display, pinball style */
 static void say(const char *m, int col, int t) {
-    msg = m;
-    msg_col = col;
-    msg_t = t;
+    dmd_msg = m;
+    dmd_col = col;
+    dmd_t = t;
 }
 
 static void handle_fx(void) {
@@ -282,14 +284,10 @@ static void handle_fx(void) {
         swings++;
     }
     if (fx & FXT_FULL) sfx_play_name("tsh_full");
-    if (fx & FXT_WARN) {
-        sfx_play_name("tsh_warn");
-        say("EASY NOW!", C_RED, TSH_WARN);
-    }
+    if (fx & FXT_WARN) sfx_play_name("tsh_warn");
     if (fx & FXT_BOOM) {
         sfx_play_name("tsh_boom");
         shake = 14;
-        say("KA-BOOM!", C_ORANGE, 70);
         for (int i = 0; i < 26; i++) {
             float a = i / 26.0f * 6.2831853f;
             part_add(gx, gy - 8, cosf(a) * (1.2f + (i % 3) * 0.7f), sinf(a) * 1.6f - 1.0f, 22 + i % 9,
@@ -298,27 +296,33 @@ static void handle_fx(void) {
     }
     if (fx & FXT_SLAM) {
         sfx_play_name("tsh_slam");
+        say("SLAM!", C_YELLOW, 24);
         for (int i = 0; i < 6; i++) part_add(play.x, play.y - 3, (i - 2.5f) * 0.4f, -1.0f, 10, C_WHITE, 1);
     }
     if (fx & FXT_FIRE) {
         sfx_play_name("tsh_fire");
-        say("ON FIRE!", C_ORANGE, 60);
         shake = imax(shake, 6);
     }
     if (fx & FXT_BUMPER) {
         sfx_play_name("tsh_bumper");
+        say("BUMPER!", C_YELLOW, 30);
         if (play.fx_circ >= 0 && play.fx_circ < TSH_MAXCIRC) flash[play.fx_circ] = 10;
-    } else if (fx & FXT_SPRING) sfx_play_name("tsh_spring");
+    } else if (fx & FXT_SPRING) {
+        sfx_play_name("tsh_spring");
+        say("BOING!", C_YELLOW, 30);
+    }
     else if ((fx & FXT_BOUNCE) && play.fx_power > 1.2f) {
         sfx_play_name("tsh_bounce");
         for (int i = 0; i < 3; i++) part_add(play.fx_x, play.fx_y, (i - 1) * 0.5f, -0.6f, 8, C_LIGHT, 1);
     }
     if (fx & FXT_JUNK) {
         sfx_play_name("tsh_junk");
+        say("CRUNCH!", C_AMBER, 30);
         for (int i = 0; i < 10; i++) part_add(play.fx_x, play.fx_y, (i - 4.5f) * 0.35f, -1.2f - (i % 3) * 0.4f, 24, i & 1 ? C_VIOLET : C_PURPLE, 0);
     }
     if (fx & FXT_MOVER) {
         sfx_play_name("tsh_mover");
+        say("SMASH!", C_ORANGE, 40);
         shake = imax(shake, 5);
         for (int i = 0; i < 12; i++) {
             float a = i / 12.0f * 6.2831853f;
@@ -327,17 +331,18 @@ static void handle_fx(void) {
     }
     if (fx & FXT_SKIP) {
         sfx_play_name("tsh_skip");
+        say("SKIP!", C_YELLOW, 24);
         for (int i = 0; i < 5; i++) part_add(play.fx_x, play.fx_y, (i - 2) * 0.4f, -0.9f, 14, C_ICE, 0);
     }
     if (fx & FXT_SPLASH) {
         sfx_play_name("tsh_splash");
-        say("SPLASH!", C_SKY, TSH_LOST_T);
+        say("SPLASH!", C_AMBER, TSH_LOST_T);
         for (int i = 0; i < 16; i++) part_add(play.fx_x, play.fx_y, (i - 7.5f) * 0.25f, -1.6f - (i % 4) * 0.5f, 26, i & 1 ? C_ICE : C_SKY, 0);
         plan_stale = true;
     }
     if (fx & FXT_PIT) {
         sfx_play_name("tsh_pit");
-        say("DOWN THE PIT!", C_LIGHT, TSH_LOST_T);
+        say("DOWN THE PIT!", C_AMBER, TSH_LOST_T);
         plan_stale = true;
     }
     if (fx & FXT_SAND) {
@@ -349,19 +354,18 @@ static void handle_fx(void) {
         secret_t = 300;
     }
     if (fx & FXT_CUP) sfx_play_name("tsh_cup");
-    if (fx & FXT_BOOM) plan_stale = true;
+    /* the big ones last, so they win the display */
+    if ((fx & FXT_FIRE) && !(fx & (FXT_SPLASH | FXT_PIT))) say("ON FIRE!", C_ORANGE, 60);
+    if (fx & FXT_BOOM) {
+        say("KA-BOOM!", C_ORANGE, 70);
+        plan_stale = true;
+    }
 }
 
 static void update_camera(void) {
     float maxc = (float)imax(0, course.w - SCREEN_W);
     float want;
     if (cam_lock >= 0) { cam = fminf((float)cam_lock, maxc); return; }
-    if (state == S_PLAY && play.phase == TP_AIM && looking) {
-        uint8_t b = read_buttons();
-        cam += ((b & TB_RIGHT) ? 4.0f : 0) - ((b & TB_LEFT) ? 4.0f : 0);
-        cam = fmaxf(0, fminf(cam, maxc));
-        return;
-    }
     if (play.phase == TP_FLIGHT) want = play.x - 160 + play.vx * 18;
     else want = play.x - (play.aim > 18 ? 210 : 110);
     want = fmaxf(0, fminf(want, maxc));
@@ -370,7 +374,6 @@ static void update_camera(void) {
 
 static void update_play(void) {
     uint8_t b = read_buttons();
-    looking = play.phase == TP_AIM && (b & TB_LOOK);
     int before = play.phase;
     tsh_play_step(&play, &course, b);
     if (before == TP_CHARGE && play.phase == TP_CHARGE && play.meter < TSH_FILL && play.meter % 12 == 11) sfx_play_name("tsh_tick");
@@ -434,8 +437,7 @@ static void update_code(void) {
     if (btnp(BTN_A) || btnp(BTN_START)) {
         code_ok = memcmp(code_buf, CODE_WORD, CODE_LEN) == 0;
         if (code_ok) {
-            sv.cameos = 1;
-            save_now();
+            code_on = true;
             sfx_play_name("tsh_code");
         } else sfx_play_name("ui_error");
         code_msg_t = 150;
@@ -471,7 +473,7 @@ static void tsh_update(void) {
     frame_t++;
     state_t++;
     if (shake > 0) shake--;
-    if (msg_t > 0) msg_t--;
+    if (dmd_t > 0 && state != S_SUNK) dmd_t--;
     if (secret_t > 0) secret_t--;
     for (int i = 0; i < TSH_MAXCIRC; i++)
         if (flash[i]) flash[i]--;
@@ -483,7 +485,6 @@ static void tsh_update(void) {
         p->y += p->vy;
         if (p->kind == 0) p->vy += 0.1f;
     }
-    if (state >= S_FIELD && state <= S_BOARD) tour_frames++;
     switch (state) {
     case S_TITLE: update_title(); break;
     case S_CODE: update_code(); break;
@@ -542,19 +543,49 @@ static void dmd_text(const char *s, int x, int y, int col) {
     text_draw(s, x, y, col);
 }
 
+/* the slam lamp at the right end of the display: lit while the ball is in
+ * the air and the slam is still there to use, dark once it is spent */
+static bool slam_ready(void) { return state == S_PLAY && play.phase == TP_FLIGHT && !play.slam_used; }
+
+static void draw_slam_lamp(int x, int y) {
+    bool lit = slam_ready();
+    gfx_rect(x, y, 44, 16, C_INK);
+    gfx_rectb(x, y, 44, 16, lit ? C_YELLOW : C_MAROON);
+    gfx_rect(x + 2, y + 2, 40, 12, lit ? ((frame_t / 8) & 1 ? C_AMBER : C_YELLOW) : C_NIGHT);
+    if (lit)
+        for (int k = 0; k < 3; k++) gfx_pset(x + 4 + k * 17, y + 3, C_WHITE);
+    text_center("SLAM", x + 22, y + 5, lit ? C_INK : C_MAROON);
+}
+
 static void draw_hud(void) {
     gfx_camera(0, 0);
     dmd_panel(0, DMD_Y, SCREEN_W, SCREEN_H - DMD_Y);
     gfx_hline(0, SCREEN_W - 1, DMD_Y, C_SLATE);
+    draw_slam_lamp(272, DMD_Y + 2);
     char buf[48];
+    if (dmd_t > 0 && dmd_msg) {
+        /* an event takes over the display for a moment, flashing */
+        int w = text_width_scaled(dmd_msg, 2), x = 134 - w / 2;
+        int col = (frame_t / 4) & 1 ? dmd_col : C_WHITE;
+        text_draw_scaled(dmd_msg, x + 1, DMD_Y + 4, C_MAROON, 2);
+        text_draw_scaled(dmd_msg, x, DMD_Y + 3, col, 2);
+        /* stars round a hole in one */
+        if (state == S_SUNK && play.strokes == 1)
+            for (int i = 0; i < 8; i++) {
+                uint32_t h = (uint32_t)(i * 2654435761u) ^ (uint32_t)(frame_t / 4 * 40503u);
+                h ^= h >> 15;
+                gfx_pset(4 + (int)(h % 260), DMD_Y + 2 + (int)((h >> 8) % 16), (i + frame_t / 4) % 2 ? C_YELLOW : C_WHITE);
+            }
+        return;
+    }
     snprintf(buf, sizeof buf, "HOLE %d  PAR %d", tour.hole + 1, course.par);
     dmd_text(buf, 4, DMD_Y + 3, C_AMBER);
     const char *name = course.hole >= 0 ? TSH_HOLE[course.hole].name : "";
     dmd_text(name, 4, DMD_Y + 12, C_ORANGE);
     snprintf(buf, sizeof buf, "STROKE %d", play.strokes + (play.phase == TP_AIM || play.phase == TP_CHARGE ? 1 : 0));
-    dmd_text(buf, 110, DMD_Y + 3, C_YELLOW);
+    dmd_text(buf, 108, DMD_Y + 3, C_YELLOW);
     snprintf(buf, sizeof buf, "%d YDS", tsh_distance(&play, &course));
-    dmd_text(buf, 110, DMD_Y + 12, C_AMBER);
+    dmd_text(buf, 108, DMD_Y + 12, C_AMBER);
     /* the meter: twenty dots; full, it turns white, then red */
     int mx = 184, my = DMD_Y + 4;
     int lit = play.phase == TP_CHARGE ? play.meter * 20 / TSH_FILL : 0;
@@ -569,13 +600,11 @@ static void draw_hud(void) {
     const char *line = buf;
     int col = C_AMBER;
     if (warn) { line = "EASY NOW!"; col = (frame_t / 4) & 1 ? C_RED : C_YELLOW; }
-    else if (play.phase == TP_FLIGHT && play.fire_t > 0) { line = "ON FIRE!"; col = (frame_t / 4) & 1 ? C_ORANGE : C_YELLOW; }
-    else if (play.phase == TP_FLIGHT && play.slam_used) { line = "SLAM!"; col = C_YELLOW; }
     dmd_text(line, 184, DMD_Y + 12, col);
     int tot = tsh_tour_total(&tour, turn, tour.hole);
     if (tot == 0) snprintf(buf, sizeof buf, "E");
     else snprintf(buf, sizeof buf, "%+d", tot);
-    dmd_text(buf, SCREEN_W - 4 - text_width(buf), DMD_Y + 12, C_YELLOW);
+    dmd_text(buf, 266 - text_width(buf), DMD_Y + 12, C_YELLOW);
 }
 
 static void draw_ball_and_golfer(void) {
@@ -644,16 +673,10 @@ static void draw_field_view(void) {
     draw_parts();
     gfx_noclip();
     gfx_camera(0, 0);
-    if (msg_t > 0 && msg) {
-        text_center_shadow(msg, SCREEN_W / 2, 40, msg_col, C_INK);
-    }
     if (secret_t > 0) {
         ui_panel(40, 50, 240, 34, C_INK, C_RED);
         text_center("THEY BUILT IT FOR FORTY.", 160, 57, C_RED);
         text_center("FIFTY CAME DOWN.", 160, 69, C_RED);
-    }
-    if (looking) {
-        text_center_shadow("LOOKING " GLYPH_LEFT " " GLYPH_RIGHT, 160, 6, C_WHITE, C_INK);
     }
     draw_hud();
 }
@@ -678,29 +701,8 @@ static void draw_card(void) {
     } else text_center(GLYPH_A " TEE OFF", 160, y + 98, C_GREY);
 }
 
-static void draw_sunk(void) {
-    draw_field_view();
-    const char *w = tsh_score_word(sunk_strokes, course.par);
-    char buf[32];
-    if (!w) {
-        snprintf(buf, sizeof buf, "+%d", sunk_strokes - course.par);
-        w = buf;
-    }
-    static const uint8_t good[] = {C_WHITE, C_CREAM, C_YELLOW, C_AMBER};
-    static const uint8_t meh[] = {C_WHITE, C_LIGHT, C_GREY, C_SLATE};
-    bool fine = sunk_strokes <= course.par;
-    int sc = ui_fancy_width(w, 2) <= 300 ? 2 : 1;
-    ui_fancy_center(w, 160, 44, sc, fine ? good : meh, 4, C_INK, C_WINE);
-    char s2[40];
-    snprintf(s2, sizeof s2, "%d STROKE%s", sunk_strokes, sunk_strokes == 1 ? "" : "S");
-    text_center_shadow(s2, 160, 70, C_WHITE, C_INK);
-    if (sunk_strokes == 1)
-        for (int i = 0; i < 10; i++) {
-            uint32_t hsh = (uint32_t)(i * 2654435761u) ^ (uint32_t)(frame_t / 4 * 40503u);
-            hsh ^= hsh >> 15;
-            gfx_pset(40 + (int)(hsh % 240), 30 + (int)((hsh >> 8) % 60), (i + frame_t / 4) % 2 ? C_YELLOW : C_WHITE);
-        }
-}
+/* in the cup: the course stays clear, the result is on the display */
+static void draw_sunk(void) { draw_field_view(); }
 
 static void total_str(int tot, char *buf, size_t n) {
     if (tot == 0) snprintf(buf, n, "E");
@@ -773,7 +775,7 @@ static void draw_final(void) {
             }
     } else {
         ui_fancy_center("THE COMET CLASSIC", 160, 24, 2, grad, 4, C_INK, C_WINE);
-        text_center("IS OVER FOR ANOTHER YEAR", 160, 48, C_LIGHT);
+        text_center("IS OVER TILL THE COMET RETURNS", 160, 48, C_LIGHT);
     }
     char buf[64];
     for (int i = 0; i < humans; i++) {
@@ -837,9 +839,9 @@ static void draw_title(void) {
     gfx_circ(252, 129, 2, C_WHITE);
     spr_draw(&tsh_spr[TS_FLAG1], 205, 110, 0);
     gfx_vline(204, 110, 132, C_LIGHT);
-    tiny_center("EVERY TIME THE COMET COMES ROUND, THE GALAXY'S BEST GOLFERS MEET", 160, 141, C_CREAM);
+    tiny_center("THE COMET IS BACK. THE BUMPERS ARE WAITING.", 160, 141, C_CREAM);
     tiny_center("(C) 1987 BEAMDOWN SOFTWORKS", 160, 170, C_PINK);
-    if (sv.cameos) tiny_center("WICK AND KIP ARE ON THE TOUR", 160, 155, C_YELLOW);
+    if (code_on) tiny_center("CODE ON: WICK AND KIP PLAY, NO GOALS OR SAVING", 160, 155, C_YELLOW);
 }
 
 static void draw_code(void) {
@@ -859,8 +861,10 @@ static void draw_code(void) {
         }
     }
     text_draw("-", 86 + 4 * 18 - 3, 70, C_AMBER);
-    if (code_msg_t > 0) text_center(code_ok ? "WICK AND KIP JOIN THE TOUR!" : "NOTHING HAPPENS.", 160, 104, code_ok ? C_YELLOW : C_ORANGE);
-    else text_center(GLYPH_A " ENTER   " GLYPH_B " BACK", 160, 118, C_GREY);
+    if (code_msg_t > 0) {
+        text_center(code_ok ? "WICK AND KIP JOIN THE TOUR!" : "NOTHING HAPPENS.", 160, 100, code_ok ? C_YELLOW : C_ORANGE);
+        if (code_ok) tiny_center("TILL YOU LEAVE. NO GOALS OR SAVING MEANWHILE.", 160, 114, C_AMBER);
+    } else text_center(GLYPH_A " ENTER   " GLYPH_B " BACK", 160, 118, C_GREY);
 }
 
 static void record_row(const char *label, const char *value, int y) {
@@ -868,31 +872,20 @@ static void record_row(const char *label, const char *value, int y) {
     text_draw(value, 280 - text_width(value), y, C_YELLOW);
 }
 
+/* the original's two stats and nothing more */
 static void draw_records(void) {
     gfx_cls(C_INK);
-    dmd_panel(20, 16, 280, 150);
-    gfx_rectb(20, 16, 280, 150, C_AMBER);
-    text_center("RECORDS", 160, 24, C_YELLOW);
+    dmd_panel(20, 40, 280, 100);
+    gfx_rectb(20, 40, 280, 100, C_AMBER);
+    text_center("RECORDS", 160, 50, C_YELLOW);
     char v[24];
-    if (sv.best == 127) snprintf(v, sizeof v, "-");
-    else total_str(sv.best, v, sizeof v);
-    record_row("LOWEST TOTAL", v, 44);
-    if (sv.best_time) {
-        uint32_t s = sv.best_time / 60;
-        snprintf(v, sizeof v, "%u:%02u", (unsigned)(s / 60), (unsigned)(s % 60));
-    } else snprintf(v, sizeof v, "-");
-    record_row("QUICKEST WIN", v, 58);
-    snprintf(v, sizeof v, "%d", sv.most_aces);
-    record_row("MOST HOLES IN ONE", v, 72);
     int used = 0;
-    for (int i = 0; i < TSH_GOLFERS; i++) used += (sv.used >> i) & 1;
-    snprintf(v, sizeof v, "%d/%d", used, golfers_open());
-    record_row("GOLFERS USED", v, 86);
-    snprintf(v, sizeof v, "%d OF %d", sv.wins, sv.played);
-    record_row("CLASSICS WON", v, 100);
-    snprintf(v, sizeof v, "%d", sv.aces);
-    record_row("HOLES IN ONE", v, 114);
-    text_center(GLYPH_B " BACK", 160, 150, C_GREY);
+    for (int i = 0; i < 5; i++) used += (sv.used >> i) & 1;
+    snprintf(v, sizeof v, "%d/5", used);
+    record_row("GOLFERS USED", v, 76);
+    snprintf(v, sizeof v, "%d", sv.most_aces);
+    record_row("MOST HOLES IN ONE", v, 92);
+    text_center(GLYPH_B " BACK", 160, 124, C_GREY);
 }
 
 static void draw_pick(void) {
@@ -985,6 +978,7 @@ static void tsh_load(void) {
 }
 
 static void tsh_start(void) {
+    code_on = code_ok = false; /* a code from an earlier visit is gone */
     load_save();
     course.cols = 0;
     course.hole = -1;
@@ -996,6 +990,7 @@ static void tsh_start(void) {
 
 static void tsh_quit(void) {
     save_now();
+    code_on = false; /* leaving the cartridge switches the code off */
     input_set_versus(false);
 }
 
@@ -1080,27 +1075,28 @@ static int tsh_query(const char *key, int *out) {
     if (!strcmp(key, "holed")) { *out = play.phase == TP_HOLED; return 1; }
     if (!strcmp(key, "skips")) { *out = play.skips; return 1; }
     if (!strcmp(key, "secret")) { *out = play.secret; return 1; }
-    if (!strcmp(key, "looking")) { *out = looking; return 1; }
+    if (!strcmp(key, "slam_lamp")) { *out = slam_ready(); return 1; }
+    if (!strcmp(key, "sweep_in")) { *out = sweep_in; return 1; }
+    if (!strcmp(key, "play_in")) { *out = play_in; return 1; }
+    if (!strcmp(key, "sweep_n")) { *out = sweep_n; return 1; }
+    if (!strcmp(key, "timing_pct")) { *out = timing_in * 100 / imax(1, timing_n); return 1; }
+    if (!strcmp(key, "timing_run")) { *out = timing_run; return 1; }
+    if (!strcmp(key, "dmd")) { *out = dmd_t > 0 && dmd_msg; return 1; }
     if (!strcmp(key, "cam")) { *out = (int)lroundf(cam); return 1; }
     if (!strcmp(key, "junk_gone")) { int n = 0; for (int i = 0; i < 32; i++) n += (play.junk_gone >> i) & 1; *out = n; return 1; }
     if (!strcmp(key, "movers_gone")) { int n = 0; for (int i = 0; i < 32; i++) n += (play.mover_gone >> i) & 1; *out = n; return 1; }
     if (!strcmp(key, "cup_x")) { *out = (int)course.cup_x; return 1; }
     if (!strcmp(key, "tee_x")) { *out = (int)course.tee_x; return 1; }
     if (!strcmp(key, "par")) { *out = course.par; return 1; }
-    if (!strcmp(key, "cameos")) { *out = sv.cameos; return 1; }
+    if (!strcmp(key, "cameos")) { *out = code_on; return 1; }
     if (!strcmp(key, "golfers")) { *out = golfers_open(); return 1; }
     if (!strcmp(key, "pick1")) { *out = pick_g[0]; return 1; }
     if (!strcmp(key, "pick2")) { *out = pick_g[1]; return 1; }
     if (!strcmp(key, "coat1")) { *out = pick_c[0]; return 1; }
     if (!strcmp(key, "code_ok")) { *out = code_ok && code_msg_t > 0; return 1; }
     if (!strcmp(key, "title_sel")) { *out = title_sel; return 1; }
-    if (!strcmp(key, "wins")) { *out = sv.wins; return 1; }
-    if (!strcmp(key, "played")) { *out = sv.played; return 1; }
-    if (!strcmp(key, "best")) { *out = sv.best; return 1; }
-    if (!strcmp(key, "aces")) { *out = sv.aces; return 1; }
     if (!strcmp(key, "most_aces")) { *out = sv.most_aces; return 1; }
     if (!strcmp(key, "used")) { *out = sv.used; return 1; }
-    if (!strcmp(key, "best_time")) { *out = (int)sv.best_time; return 1; }
     if (!strcmp(key, "champ")) { *out = champ[0] | (champ[1] << 1); return 1; }
     if (!strcmp(key, "place1")) { *out = tsh_tour_place(&tour, 0, TSH_HOLES); return 1; }
     if (!strcmp(key, "place2")) { *out = tsh_tour_place(&tour, 1, TSH_HOLES); return 1; }
@@ -1144,6 +1140,14 @@ static int tsh_query(const char *key, int *out) {
             return 1;
         }
     }
+    if (!strcmp(key, "route_total")) {
+        /* strokes in all the stored routes together */
+        int n = 0;
+        for (int h = 0; h < TSH_HOLES; h++)
+            for (int i = 0; i < TSH_ROUTE_MAX && TSH_ROUTE[h][i].aim >= 0; i++) n++;
+        *out = n;
+        return 1;
+    }
     if (!strncmp(key, "route", 5)) {
         /* route<hole>: strokes in its stored route */
         int h = atoi(key + 5), n = 0;
@@ -1153,6 +1157,182 @@ static int tsh_query(const char *key, int *out) {
         return 1;
     }
     return 0;
+}
+
+/* ---- design checks ---------------------------------------------------------- */
+
+/* how long until every mover is back where it started (capped) */
+static int movers_round(const TshCourse *c) {
+    int l = 1;
+    for (int i = 0; i < c->nmover; i++) {
+        int p = imax(1, c->mover[i].period), a = l, b = p;
+        while (b) { int t = a % b; a = b; b = t; }
+        l = imin(l / a * p, 7200);
+    }
+    return l;
+}
+
+/* is (x, y) where a mover could be met (within reach of any point of its
+ * path, with some to spare)? */
+static bool near_mover_path(const TshCourse *c, float x, float y) {
+    for (int i = 0; i < c->nmover; i++) {
+        const TshMoverDef *m = &c->mover[i];
+        int per = m->period ? m->period : 1;
+        for (int k = 0; k < 96; k++) {
+            float mx, my;
+            if (!tsh_mover_pos(m, k * per / 96, &mx, &my)) continue;
+            float ex = x - mx, ey = y - my, r = TSH_R + 5 + 4;
+            if (ex * ex + ey * ey < r * r) return true;
+        }
+    }
+    return false;
+}
+
+/* play a shot on a copy of the course with nothing moving; where the ball
+ * passes a mover's path, also play on as if it had struck the mover there
+ * (the mover keeps a fifth of the ball's speed). Returns 1 if any of these
+ * drops in. */
+static int sweep_lost;
+
+static int sweep_shot(TshCourse *still, const TshCourse *moving, const TshShot *s, int *branches) {
+    TshPlay q;
+    tsh_play_begin(&q, still);
+    bool fired = false;
+    for (int f = 0; f < 6000; f++) {
+        tsh_play_step(&q, still, tsh_bot_buttons(&q, s));
+        q.fx = 0;
+        if (q.phase == TP_HOLED) return 1;
+        if (q.phase == TP_FLIGHT) {
+            fired = true;
+            if (moving->nmover && near_mover_path(moving, q.x, q.y)) {
+                TshPlay b = q;
+                b.vx *= 0.2f;
+                b.vy *= 0.2f;
+                (*branches)++;
+                for (int g = 0; g < 6000 && b.phase == TP_FLIGHT; g++) {
+                    tsh_play_step(&b, still, 0);
+                    b.fx = 0;
+                }
+                if (b.phase == TP_HOLED) return 1;
+            }
+        } else if (fired || q.phase == TP_LOST || q.phase == TP_BOOM) {
+            if (q.phase == TP_LOST) sweep_lost++;
+            return 0;
+        }
+    }
+    return 0;
+}
+
+/* Every aim at every strength with no slam, from the tee: how many drop in?
+ * Exact for a course with nothing moving; with movers, every shot is also
+ * played on from every point where it could meet one (a mover keeps a fifth
+ * of the ball's speed), and then the real course is swept again at `moments`
+ * start times spread through the movers' whole round. */
+static void sweep_hole(int hole, int moments, bool log) {
+    TshCourse *mv = malloc(sizeof *mv), *st = malloc(sizeof *st);
+    if (!mv || !st) { free(mv); free(st); return; }
+    tsh_course_build(mv, hole);
+    *st = *mv;
+    st->nmover = 0;
+    int hits = 0, n = 0, branches = 0, per = 0;
+    sweep_lost = 0;
+    for (int aim = 0; aim < TSH_AIMS; aim++)
+        for (int pw = 0; pw <= TSH_FILL; pw++) {
+            TshShot s = {(int8_t)aim, (int8_t)pw, -1};
+            n++;
+            if (sweep_shot(st, mv, &s, &branches)) {
+                hits++;
+                if (log) printf("    ace without a slam: aim %d, %d frames of A\n", aim, pw);
+            }
+        }
+    if (mv->nmover) per = movers_round(mv);
+    int timed = 0;
+    for (int m = 0; per && m < moments; m++) {
+        int d = (int)((long)per * m / moments) + m % 7;
+        for (int aim = 0; aim < TSH_AIMS; aim++)
+            for (int pw = 0; pw <= TSH_FILL; pw++) {
+                TshPlay q;
+                tsh_play_begin(&q, mv);
+                q.clock = d;
+                TshShot s = {(int8_t)aim, (int8_t)pw, -1};
+                n++;
+                timed++;
+                if (tsh_try_shot(&q, mv, &s) == TP_HOLED) {
+                    hits++;
+                    if (log) printf("    ace without a slam: aim %d, %d frames of A, %d frames in\n", aim, pw, d);
+                }
+            }
+    }
+    sweep_in = hits;
+    sweep_n = n;
+    if (log) {
+        printf("  hole %d: %d of %d shots with no slam drop in, %d lost (%d mover strikes tried, %d timed shots)\n", hole + 1,
+               hits, n, sweep_lost, branches, timed);
+        fflush(stdout);
+    }
+    free(mv);
+    free(st);
+}
+
+/* one shot swung at every moment of the movers' round (the aim-and-pray
+ * odds): how often it drops in, and the pattern (# in, . not) */
+static void timing_hole(int hole, int aim, int power) {
+    TshCourse *cc = malloc(sizeof *cc);
+    if (!cc) return;
+    tsh_course_build(cc, hole);
+    int per = movers_round(cc);
+    char pat[1800];
+    int np = 0, run = 0, best_run = 0;
+    timing_in = timing_n = 0;
+    for (int d = 0; d < per; d++) {
+        TshPlay q;
+        tsh_play_begin(&q, cc);
+        q.clock = d;
+        TshShot s = {(int8_t)aim, (int8_t)power, -1};
+        bool in = tsh_try_shot(&q, cc, &s) == TP_HOLED;
+        timing_n++;
+        timing_in += in;
+        run = in ? run + 1 : 0;
+        best_run = imax(best_run, run);
+        if (d % 4 == 0 && np < (int)sizeof pat - 1) pat[np++] = in ? '#' : '.';
+    }
+    pat[np] = 0;
+    timing_run = best_run;
+    printf("  hole %d aim %d power %d: %d of %d moments drop in (%d%%), longest window %d frames\n  %s\n", hole + 1, aim, power,
+           timing_in, timing_n, timing_in * 100 / imax(1, timing_n), best_run, pat);
+    fflush(stdout);
+    free(cc);
+}
+
+/* the yardstick player round after round: strokes hole by hole */
+static void yard_rounds(int rounds, int from, int to) {
+    TshCourse *cc = malloc(sizeof *cc);
+    if (!cc) return;
+    int tot_all = 0, best = 999, worst = 0, hole_sum[TSH_HOLES] = {0}, hole_lost[TSH_HOLES] = {0}, par = 0;
+    for (int h = from; h <= to; h++) par += TSH_HOLE[h].par;
+    for (int r = 0; r < rounds; r++) {
+        int tot = 0;
+        printf("  round %2d:", r + 1);
+        for (int h = from; h <= to; h++) {
+            tsh_course_build(cc, h);
+            int l = 0, s = tsh_steady_play(cc, (uint64_t)(r * 1000 + h * 7919 + 17), &l);
+            hole_sum[h] += s;
+            hole_lost[h] += l;
+            tot += s;
+            printf(" %d", s);
+        }
+        printf("  = %d (%+d)\n", tot, tot - par);
+        fflush(stdout);
+        tot_all += tot;
+        best = imin(best, tot);
+        worst = imax(worst, tot);
+    }
+    printf("  holes:");
+    for (int h = from; h <= to; h++) printf(" %d:%.1f(%d lost)", h + 1, hole_sum[h] / (float)rounds, hole_lost[h]);
+    printf("\n  average %.1f (%+.1f), best %d (%+d), worst %d (%+d)\n", tot_all / (float)rounds, tot_all / (float)rounds - par,
+           best, best - par, worst, worst - par);
+    fflush(stdout);
+    free(cc);
 }
 
 static void quick_tour(int h, int n, bool card) {
@@ -1216,9 +1396,11 @@ static int tsh_cheat(const char *cmd) {
         free(cc);
         return 1;
     }
-    if (sscanf(cmd, "landscape %d %d %d", &a, &b, &c) == 3) {
-        /* design check: where tee shots at one aim come to rest, power by
-         * power (c = slam frame, -1 none) */
+    int lx = 0, ly = 0, lclk = 0;
+    int nl = sscanf(cmd, "landscape %d %d %d %d %d %d", &a, &b, &c, &lx, &ly, &lclk);
+    if (nl >= 3) {
+        /* design check: where shots at one aim come to rest, power by power
+         * (c = slam frame, -1 none), from the tee or from x y at a clock */
         TshCourse *cc = malloc(sizeof *cc);
         if (!cc) return 1;
         tsh_course_build(cc, iclamp(a - 1, 0, TSH_HOLES - 1));
@@ -1226,6 +1408,12 @@ static int tsh_cheat(const char *cmd) {
         for (int pw = 0; pw <= TSH_FILL; pw += 2) {
             TshPlay q;
             tsh_play_begin(&q, cc);
+            if (nl >= 5) {
+                q.x = q.sx = (float)lx;
+                q.y = q.sy = (float)ly;
+                q.clock = lclk;
+                q.aim = b;
+            }
             TshShot s = {(int8_t)b, (int8_t)pw, (int16_t)c};
             int ph = tsh_try_shot(&q, cc, &s);
             if (ph == TP_HOLED) printf(" [%d:IN]", pw);
@@ -1274,6 +1462,129 @@ static int tsh_cheat(const char *cmd) {
         free(cc);
         return 1;
     }
+    if (sscanf(cmd, "sweep %d %d", &a, &b) == 2) {
+        /* design check: no shot without a slam drops in (hole, how many
+         * start times through the movers' round to sweep as well) */
+        sweep_hole(iclamp(a - 1, 0, TSH_HOLES - 1), b, true);
+        return 1;
+    }
+    int d = 0, e = -1, g = -1, clk = 0;
+    int nt = sscanf(cmd, "trace %d %d %d %d %d %d %d", &a, &b, &c, &d, &e, &g, &clk);
+    if (nt >= 4) {
+        /* design check: the path of one shot (hole, aim, frames of A, slam;
+         * then where from and the movers' clock, if not the tee) */
+        TshCourse *cc = malloc(sizeof *cc);
+        if (!cc) return 1;
+        tsh_course_build(cc, iclamp(a - 1, 0, TSH_HOLES - 1));
+        TshPlay q;
+        tsh_play_begin(&q, cc);
+        if (nt >= 6) {
+            q.x = q.sx = (float)e;
+            q.y = q.sy = (float)g;
+            q.clock = clk;
+        }
+        TshShot s = {(int8_t)b, (int8_t)c, (int16_t)d};
+        printf("  hole %d aim %d power %d slam %d:", a, b, c, d);
+        for (int f = 0; f < 4000; f++) {
+            tsh_play_step(&q, cc, tsh_bot_buttons(&q, &s));
+            uint32_t fx = q.fx;
+            q.fx = 0;
+            if (q.phase == TP_FLIGHT && (q.fly_t % 10 == 0 || (fx & (FXT_SLAM | FXT_BUMPER | FXT_SPRING | FXT_JUNK | FXT_MOVER | FXT_FIRE | FXT_SAND))))
+                printf(" %d:(%d,%d)%s%s%s%s%s%s", q.fly_t, (int)q.x, (int)q.y, fx & FXT_SLAM ? "S" : "", fx & FXT_BUMPER ? "B" : "",
+                       fx & FXT_SPRING ? "T" : "", fx & (FXT_JUNK | FXT_MOVER) ? "J" : "", fx & FXT_FIRE ? "F" : "", fx & FXT_SAND ? "s" : "");
+            if (q.phase == TP_HOLED) { printf(" IN\n"); break; }
+            if (q.phase == TP_LOST) { printf(" LOST(%d,%d)\n", (int)q.x, (int)q.y); break; }
+            if (q.phase == TP_AIM && q.strokes) { printf(" REST(%d,%d)\n", (int)q.x, (int)q.y); break; }
+        }
+        fflush(stdout);
+        free(cc);
+        return 1;
+    }
+    if (!strncmp(cmd, "play ", 5)) {
+        /* design check: play shots from the tee (hole, then aim power slam
+         * for each) and say where each one ends */
+        int hole = 0, used = 0;
+        const char *s = cmd + 5;
+        play_in = 0;
+        if (sscanf(s, "%d%n", &hole, &used) != 1) return 1;
+        s += used;
+        TshCourse *cc = malloc(sizeof *cc);
+        if (!cc) return 1;
+        tsh_course_build(cc, iclamp(hole - 1, 0, TSH_HOLES - 1));
+        TshPlay q;
+        tsh_play_begin(&q, cc);
+        int sa, sp, ss;
+        printf("  hole %d:", hole);
+        while (sscanf(s, "%d %d %d%n", &sa, &sp, &ss, &used) == 3) {
+            s += used;
+            TshShot sh = {(int8_t)sa, (int8_t)sp, (int16_t)ss};
+            int ph = tsh_try_shot(&q, cc, &sh);
+            play_in = ph == TP_HOLED;
+            if (ph == TP_LOST)
+                for (int f = 0; f < TSH_LOST_T + 2 && q.phase == TP_LOST; f++) tsh_play_step(&q, cc, 0);
+            q.fx = 0;
+            printf(" [%d %d %d] %s (%d,%d) clock %d;", sa, sp, ss, ph == TP_HOLED ? "IN" : ph == TP_LOST ? "lost" : "rests",
+                   (int)q.x, (int)q.y, q.clock);
+            if (ph == TP_HOLED) break;
+        }
+        printf("\n");
+        fflush(stdout);
+        free(cc);
+        return 1;
+    }
+    if (sscanf(cmd, "slamaces %d %d %d", &a, &b, &c) == 3) {
+        /* design check: tee shots with a slam that drop in (hole, power step,
+         * slam step), every aim */
+        TshCourse *cc = malloc(sizeof *cc);
+        if (!cc) return 1;
+        tsh_course_build(cc, iclamp(a - 1, 0, TSH_HOLES - 1));
+        int hits = 0, n = 0;
+        for (int aim = 0; aim < TSH_AIMS; aim++)
+            for (int pw = 0; pw <= TSH_FILL; pw += imax(1, b)) {
+                TshPlay q0;
+                tsh_play_begin(&q0, cc);
+                TshShot s0 = {(int8_t)aim, (int8_t)pw, -1};
+                if (tsh_try_shot(&q0, cc, &s0) == TP_HOLED) continue; /* in without the slam */
+                for (int sl = 2; sl <= 200; sl += imax(1, c)) {
+                    TshPlay q;
+                    tsh_play_begin(&q, cc);
+                    TshShot s = {(int8_t)aim, (int8_t)pw, (int16_t)sl};
+                    n++;
+                    if (tsh_try_shot(&q, cc, &s) == TP_HOLED) {
+                        if (hits < 30) printf("    slam ace: aim %d, %d frames of A, slam at %d\n", aim, pw, sl);
+                        hits++;
+                    }
+                }
+            }
+        printf("  hole %d: %d of %d slammed tee shots drop in\n", a, hits, n);
+        fflush(stdout);
+        free(cc);
+        return 1;
+    }
+    if (sscanf(cmd, "timing %d %d %d", &a, &b, &c) == 3) {
+        /* design check: one shot (hole, aim, frames of A) at every moment */
+        timing_hole(iclamp(a - 1, 0, TSH_HOLES - 1), b, c);
+        return 1;
+    }
+    if (sscanf(cmd, "yardlog %d %d %d", &a, &b, &c) == 3) {
+        /* design check: the yardstick player's shots, round a, holes b to c */
+        tsh_yard_log = true;
+        TshCourse *cc = malloc(sizeof *cc);
+        for (int h = iclamp(b - 1, 0, TSH_HOLES - 1); cc && h <= iclamp(c - 1, 0, TSH_HOLES - 1); h++) {
+            tsh_course_build(cc, h);
+            printf("  hole %d:\n", h + 1);
+            tsh_steady_play(cc, (uint64_t)((a - 1) * 1000 + h * 7919 + 17), NULL);
+        }
+        free(cc);
+        tsh_yard_log = false;
+        fflush(stdout);
+        return 1;
+    }
+    if (sscanf(cmd, "yard %d %d %d", &a, &b, &c) == 3) {
+        /* design check: the yardstick player, a rounds over holes b to c */
+        yard_rounds(a, iclamp(b - 1, 0, TSH_HOLES - 1), iclamp(c - 1, 0, TSH_HOLES - 1));
+        return 1;
+    }
     if (!strcmp(cmd, "save")) { save_now(); return 1; }
     if (!strcmp(cmd, "title")) { go_title(); return 1; }
     return 0;
@@ -1290,7 +1601,6 @@ const GameDef GAME_TILTSHOT = {
     "HOLD " GLYPH_A "\tFILL THE METER\n"
     "LET GO\tSWING\n"
     GLYPH_A " IN THE AIR\tSLAM (ONCE A SHOT)\n"
-    "HOLD " GLYPH_B "\tLOOK ALONG THE HOLE\n"
     "START\tPAUSE\n"
     "2P KEYS: WASD F G / ARROWS K L",
     C_MAGENTA, C_LIME,

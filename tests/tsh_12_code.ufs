@@ -1,7 +1,9 @@
 # TILTSHOT: the code. CODE on the title opens an eight-letter entry (UP and
 # DOWN change a letter, LEFT and RIGHT move, A enters). A wrong code does
 # nothing; BEAM-DOWN (printed in the credits) brings two old friends onto
-# the tour for good: WICK and KIP join the five golfers, cosmetic like them.
+# the tour: WICK and KIP join the five golfers, cosmetic like them. Like the
+# original's terminal codes it lasts until you leave the cartridge, and
+# while it is on nothing is saved and no goals are given.
 seed 12
 game tiltshot
 wait 30
@@ -93,12 +95,11 @@ expect golfers == 7
 press A
 wait 5
 expect state == 0
-# it sticks
-reload
-game tiltshot
-wait 30
-expect cameos == 1
-expect golfers == 7
+# the two cameo golfers are on the golfer screen while the code is on
+wait 15
+press UP
+press UP
+expect title_sel == 0
 press A
 wait 20
 expect state == 3
@@ -116,3 +117,20 @@ press LEFT
 expect pick1 == 6
 press UP
 expect coat1 == 1
+press B
+wait 15
+expect state == 0
+# like the original's terminal codes: while it is on nothing is saved and
+# no goals are given, not even for a hole in one
+cheat hole 9
+botuntil holed == 1 3000
+expect strokes == 1
+expect goals == 0
+expect save.tiltshot == 0
+# leaving the cartridge switches it off: it has to be entered again
+reload
+game tiltshot
+wait 30
+expect cameos == 0
+expect golfers == 5
+expect goals == 0

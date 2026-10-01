@@ -1,0 +1,22 @@
+# TILTSHOT design test: Toss-Up's odds. The par-1 hole is "aim and pray": a
+# full shot over the pit at 45 degrees goes in only when it slips between
+# the four juggling hop-bots. Swung at every moment of their round it goes
+# in between a tenth and three tenths of the time, with gaps of well over
+# ten frames for a player who watches them; the aims either side are worse.
+# Then the real thing from the tee: full power, timed through a gap.
+seed 18
+game tiltshot
+wait 5
+cheat timing 9 9 60
+expect timing_pct >= 10
+expect timing_pct <= 30
+expect timing_run >= 12
+cheat timing 9 8 60
+expect timing_pct < 20
+cheat timing 9 10 60
+expect timing_pct < 20
+# with real presses: the demo player's route is a timed full shot
+cheat hole 9
+botuntil holed == 1 3000
+expect strokes == 1
+expect sunk_diff == 0

@@ -211,9 +211,18 @@ int tsh_solve(const TshCourse *c, const TshPlay *start, TshShot *out, int max, i
  * moments), each tried a few times with the strength and the slam a little
  * off, and plays the one that does best on average; then its own swing is a
  * little off too. It knows the course but not the exact outcome, much like
- * a player who has learned the holes. Returns the strokes it took (40 means
- * it gave up). A yardstick for the hole designs. */
+ * a player who has learned the holes. Where things move it also chooses
+ * when to swing, and that is a little off as well. Returns the strokes it
+ * took (40 means it gave up). A yardstick for the hole designs. */
 static int wobble(Rng *r, int spread) { return rng_range(r, -spread, spread); }
+
+bool tsh_yard_log;
+
+#define WAIT_STEP 24
+static void wait_frames(TshPlay *p, const TshCourse *c, int n) {
+    for (int i = 0; i < n; i++) tsh_play_step(p, c, 0);
+    p->fx = 0;
+}
 
 int tsh_steady_play(const TshCourse *c, uint64_t seed, int *lost_out) {
     flow(c);
@@ -221,31 +230,42 @@ int tsh_steady_play(const TshCourse *c, uint64_t seed, int *lost_out) {
     rng_seed(&r, seed);
     TshPlay p;
     tsh_play_begin(&p, c);
-    int lost = 0;
+    int lost = 0, nwait = c->nmover ? 6 : 1;
     while (p.strokes < 40) {
         TshShot best = {0, 0, -1};
+        int best_w = 0;
         float best_sc = 1e30f;
-        for (int kind = 0; kind < 2; kind++)
-            for (int a = 0; a < TSH_AIMS; a += kind ? 4 : 2)
-                for (int pw = 4; pw <= TSH_FILL; pw += kind ? 8 : 4)
-                    for (int sl = kind ? 15 : -1; sl <= (kind ? 75 : -1); sl += 15) {
-                        TshShot s = {(int8_t)a, (int8_t)pw, (int16_t)sl};
-                        float tot = 0;
-                        for (int k = 0; k < 4; k++) {
-                            TshShot t = s;
-                            static const int8_t DP[4] = {-5, -2, 2, 5}, DS[4] = {-6, 3, -3, 6};
-                            t.power = (int8_t)iclamp(pw + DP[k], 0, TSH_FILL);
-                            if (sl >= 0) t.slam = (int16_t)imax(2, sl + DS[k]);
-                            TshPlay q = p;
-                            int ph = tsh_try_shot(&q, c, &t);
-                            tot += ph == TP_HOLED ? -40.0f : ph == TP_AIM ? (float)judge(&q) : (float)judge(&p) + 80.0f;
+        for (int w = 0; w < nwait; w++)
+            for (int kind = 0; kind < 2; kind++)
+                for (int a = 0; a < TSH_AIMS; a += kind ? 4 : 2)
+                    for (int pw = 4; pw <= TSH_FILL; pw += kind ? 8 : 4)
+                        for (int sl = kind ? 15 : -1; sl <= (kind ? 135 : -1); sl += 15) {
+                            TshShot s = {(int8_t)a, (int8_t)pw, (int16_t)sl};
+                            float tot = 0;
+                            for (int k = 0; k < 4; k++) {
+                                TshShot t = s;
+                                static const int8_t DP[4] = {-5, -2, 2, 5}, DS[4] = {-6, 3, -3, 6}, DW[4] = {2, -3, 3, -2};
+                                t.power = (int8_t)iclamp(pw + DP[k], 0, TSH_FILL);
+                                if (sl >= 0) t.slam = (int16_t)imax(2, sl + DS[k]);
+                                TshPlay q = p;
+                                if (w) wait_frames(&q, c, w * WAIT_STEP + DW[k]);
+                                int ph = tsh_try_shot(&q, c, &t);
+                                tot += ph == TP_HOLED ? -40.0f : ph == TP_AIM ? (float)judge(&q) : (float)judge(&p) + 320.0f;
+                            }
+                            if (tot < best_sc) {
+                                best_sc = tot;
+                                best = s;
+                                best_w = w;
+                            }
                         }
-                        if (tot < best_sc) { best_sc = tot; best = s; }
-                    }
         TshShot t = best;
         t.power = (int8_t)iclamp(best.power + wobble(&r, 5), 0, TSH_FILL);
         if (t.slam >= 0) t.slam = (int16_t)imax(2, t.slam + wobble(&r, 6));
+        if (best_w) wait_frames(&p, c, best_w * WAIT_STEP + wobble(&r, 3));
         int ph = tsh_try_shot(&p, c, &t);
+        if (tsh_yard_log)
+            printf("    stroke %d: aim %d power %d slam %d wait %d -> %s (%d,%d)\n", p.strokes, t.aim, t.power, t.slam,
+                   best_w * WAIT_STEP, ph == TP_HOLED ? "in" : ph == TP_LOST ? "lost" : "rests", (int)p.x, (int)p.y);
         if (ph == TP_HOLED) break;
         if (ph == TP_LOST) {
             lost++;

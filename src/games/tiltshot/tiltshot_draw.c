@@ -241,6 +241,23 @@ void tsh_draw_mover(const TshMoverDef *m, float x, float y, int t) {
         for (int k = 1; k < 6; k++) gfx_pset(ix + (int)(sinf((t + k * 9) * 0.1f) * 2), iy + 4 + k * 2, k % 2 ? C_RED : C_YELLOW);
         break;
     case MV_FISH: spr_draw(&tsh_spr[f ? TS_FISH2 : TS_FISH1], ix - 5, iy - 3, 0); break;
+    case MV_ROLLER: {
+        int per = m->period ? m->period : 1;
+        bool back = (t + m->phase) % per >= per / 2;
+        spr_draw(&tsh_spr[(t / 5) & 1 ? TS_ROLLER2 : TS_ROLLER1], ix - 6, iy - 5, back ? SPR_FLIPX : 0);
+        break;
+    }
+    case MV_SWING: {
+        /* the chain from the pivot, then the lantern */
+        int n = imax(1, m->ay / 3);
+        for (int k = 0; k < n; k++) {
+            int cx = m->cx + (ix - m->cx) * k / n, cy = m->cy + (iy - 5 - m->cy) * k / n;
+            gfx_pset(cx, cy, k & 1 ? C_GREY : C_LIGHT);
+        }
+        gfx_rect(m->cx - 2, m->cy - 2, 5, 2, C_SLATE);
+        spr_draw(&tsh_spr[TS_LANTERN], ix - 4, iy - 5, 0);
+        break;
+    }
     default: spr_draw(&tsh_spr[f ? TS_SPARK2 : TS_SPARK1], ix - 5, iy - 4, 0); break;
     }
 }
@@ -313,7 +330,7 @@ void tsh_draw_course(const TshCourse *c, const TshPlay *p, int cam, int t, const
     for (int i = 0; i < c->nmover; i++) {
         if (p && (p->mover_gone & (1u << i))) continue;
         float mx, my;
-        if (tsh_mover_pos(&c->mover[i], clock, &mx, &my)) tsh_draw_mover(&c->mover[i], mx, my, t);
+        if (tsh_mover_pos(&c->mover[i], clock, &mx, &my)) tsh_draw_mover(&c->mover[i], mx, my, clock);
     }
     gfx_noclip();
 }

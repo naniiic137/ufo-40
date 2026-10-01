@@ -1,6 +1,6 @@
 # TILTSHOT: losing. A round that is well over par finishes behind the CPU
 # rivals: no Saucer, no Alien, no ending; the final screen goes back to the
-# title, and the records count the round but not a win.
+# title.
 seed 10
 game tiltshot
 wait 30
@@ -21,8 +21,6 @@ botuntil state == 9 20000
 expect place1 > 1
 expect champ == 0
 expect goals == 0
-expect wins == 0
-expect played == 1
 # no ending: back to the title
 wait 70
 press A

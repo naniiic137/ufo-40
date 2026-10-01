@@ -1,7 +1,9 @@
 # TILTSHOT: goals and saving. A hole in one lights the Beacon at once (here
-# on Toss-Up, the par-1 hole, with real presses); the cartridge saves its
-# records and goals, which come back after the console is switched off and
-# on. Nothing else is saved mid-round: a new start is a new tournament.
+# on Toss-Up, the par-1 hole, with real presses) and HOLE IN ONE! goes up on
+# the display; the cartridge saves its two stats (golfers used, most holes
+# in one in a round) and the goals, which come back after the console is
+# switched off and on. Nothing else is saved mid-round: a new start is a new
+# tournament.
 seed 13
 game tiltshot
 wait 30
@@ -10,7 +12,7 @@ cheat hole 9
 botuntil holed == 1 3000
 expect strokes == 1
 expect goals == 1
-expect aces == 1
+expect dmd == 1
 expect save.tiltshot > 0
 wait 200
 reload
@@ -18,7 +20,6 @@ expect goals.tiltshot == 1
 game tiltshot
 wait 30
 expect state == 0
-expect aces == 1
 expect goals == 1
 expect used & 1
 # the records screen

@@ -14,12 +14,14 @@ hold A 10
 waituntil phase == 0 1000
 expect strokes == 2
 # then a hard drop straight into the cup
-cheat ball 708 100 0 6
+cheat ball 692 100 0 6
 waituntil holed == 1 20
 expect state == 7
 expect score1_1 == 2
 expect sunk_diff == -1
 expect total1 == -1
+# the result goes up on the display
+expect dmd == 1
 # on to the board after the hole
 waituntil state == 8 200
 expect total1 == -1
@@ -69,7 +71,7 @@ release A
 wait 90
 expect strokes == 12
 expect phase == 0
-cheat ball 788 60 0 4
+cheat ball 852 60 0 4
 waituntil holed == 1 60
 expect score1_2 == 12
 expect total1 == 8

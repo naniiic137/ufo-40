@@ -1,14 +1,15 @@
-# README media: TILTSHOT. The GIF is the demo player's own route on The Chute
-# (real button presses): a putt off the tee, slammed onto the drop, on fire
-# up the far bank and into the cup. The stills are the title, a hole card,
-# the demo player in flight on its routes, the warning and the board.
+# README media: TILTSHOT. The GIF is the demo player's own route on Opening
+# Tee (real button presses): a full shot over the mound, slammed onto its
+# far side, on fire over the trap and the pond, off the backstop and into
+# the cup, HOLE IN ONE! on the display. The stills are the title, a hole
+# card, the demo player in flight on its routes, the warning and the board.
 shotscale 2
 seed 31
 game tiltshot
 wait 90
 shot tiltshot_title
-# The Chute: the slam onto the drop, the fire, the hole in one
-cheat hole 5
+# Opening Tee: the slam onto the mound, the fire, the hole in one
+cheat hole 1
 gifstart tiltshot 3 2
 botuntil state == 7 1200
 wait 60

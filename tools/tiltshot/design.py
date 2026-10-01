@@ -10,6 +10,7 @@
 # (two columns a row).
 
 ROWS = 20
+BS = chr(92)  # the tile that falls away to the right
 
 
 class Hole:
@@ -73,15 +74,16 @@ class Hole:
     def pit(self, c0, c1):
         self.clear(c0, 0, c1, ROWS)
 
-    def surface(self, c):
-        for r in range(ROWS):
+    def surface(self, c, below=0):
+        """the first solid row at or under row `below` (the ground under a roof)"""
+        for r in range(below, ROWS):
             if self.g[r][c] not in '.~SUOo!CKNY':
                 return r
         return ROWS
 
-    def sand(self, c0, c1, depth=2):
+    def sand(self, c0, c1, depth=2, below=0):
         for c in range(c0, c1):
-            top = self.surface(c)
+            top = self.surface(c, below)
             for r in range(top, min(ROWS, top + depth)):
                 if self.g[r][c] == '#':
                     self.g[r][c] = 's'
@@ -98,14 +100,28 @@ class Hole:
                 else:
                     self.g[r][c] = '#'
 
-    def tee(self, c):
-        self.put(c, self.surface(c) - 1, 'S')
+    def tee(self, c, below=0):
+        self.put(c, self.surface(c, below) - 1, 'S')
 
-    def cup(self, c):
-        self.put(c, self.surface(c), 'U')
+    def cup(self, c, below=0):
+        self.put(c, self.surface(c, below), 'U')
 
-    def on_ground(self, c, ch):
-        self.put(c, self.surface(c) - 1, ch)
+    def on_ground(self, c, ch, below=0):
+        self.put(c, self.surface(c, below) - 1, ch)
+
+    def roof(self, c0, c1, bottom, top=0, ch='X'):
+        """a ceiling from row `top` down to row `bottom` (inclusive), its
+        lower corners cut at 45 degrees (the p and q tiles)"""
+        self.rect(c0, top, c1, bottom + 1, ch)
+        self.put(c0, bottom, 'p')
+        self.put(c1 - 1, bottom, 'q')
+
+    def diamond(self, c, r):
+        """a corner block: two tiles by two, every corner cut"""
+        self.put(c, r, '/')
+        self.put(c + 1, r, '\\')
+        self.put(c, r + 1, 'p')
+        self.put(c + 1, r + 1, 'q')
 
     def text(self):
         return [''.join(row) for row in self.g]
@@ -113,7 +129,8 @@ class Hole:
 
 # ------------------------------------------------------------------------------
 # The eighteen holes. Each note says what the hole is for; the pars follow
-# the original's card, the layouts are ours.
+# the original's card, the layouts are ours. The things that move and the
+# spring lines are in src/games/tiltshot/tiltshot_holes.c.
 
 holes = {}
 
@@ -127,115 +144,153 @@ def hole(n):
 
 @hole(1)
 def opening_tee():
-    # Par 3, the gentle start: a rise with a bumper over it, a long slope
-    # down to a bowl of a green against a stone backstop. Land a full shot
-    # on the far slope and slam it: it takes off down the hill, on fire,
-    # and can run all the way into the cup.
-    h = Hole(104)
-    h.ground([(0, 15), (18, 15), (24, 12), (38, 12), (46, 16), (104, 16)])
+    # Par 3, the gentle start: a mound with a crate on it, a bumper past
+    # it, a sand trap under the bumper and a pond before the green. A full
+    # shot over the mound drops into the trap; chip on from there. Slam the
+    # ball onto the mound's far side at just the right moment and it races
+    # off on fire, over the trap and the pond, off the backstop and home.
+    h = Hole(112)
+    h.ground([(0, 15), (22, 15), (34, 9), (42, 9), (48, 15), (112, 15)])
     h.tee(3)
-    h.put(30, 6, 'O')
-    h.rect(100, 8, 104, 16, 'X')
-    h.cup(88)
-    h.on_ground(62, 'K')
+    h.on_ground(40, 'C')
+    h.put(52, 9, 'O')
+    h.sand(52, 60)
+    h.water(64, 74, 15, 18)
+    h.rect(108, 8, 112, 15, 'X')
+    h.cup(86)
     return h
 
 
 @hole(2)
 def stone_skip():
-    # Par 3: a lake in the way and blimps over it. A flat, hard shot skips
-    # across the water; a lob has to thread the blimps. A rock in the
-    # middle is the safe way round in three.
-    h = Hole(120)
-    h.ground([(0, 13), (12, 13), (14, 15), (72, 15), (76, 13), (120, 13)])
-    h.water(14, 72, 15, 18)
-    for c in range(37, 49):
+    # Par 3: a lake between the tee cliff and the green, blimps patrolling
+    # over it. A hard, flat shot skips across into the trap at the top of
+    # the far bank; a rock with a sand top halfway is the safe way; the way
+    # over the top runs along a high stone ledge set with bumpers. Past the
+    # green the ground ends.
+    h = Hole(128)
+    h.ground([(0, 12), (13, 12)])
+    h.ground([(13, 15), (72, 15), (78, 12), (116, 12)])
+    h.water(13, 72, 15, 18)
+    for c in range(36, 45):
         h.column(c, 14)
-    h.sand(38, 48, 1)
-    h.rect(116, 7, 120, 13, 'X')
+    h.sand(37, 44, 1)
+    h.rect(52, 7, 72, 8, 'X')
+    h.put(58, 5, 'o')
+    h.put(68, 5, 'o')
+    h.sand(79, 88, 1)
     h.tee(3)
-    h.cup(98)
+    h.cup(106)
     return h
 
 
 @hole(3)
 def bounce_house():
-    # Par 3: a bed of spring pads between two stone posts. Drop the ball on
-    # the pads and they throw it over the posts; the green sits behind a
-    # third post, so the last shot is a chip. A perfect bounce is an ace.
+    # Par 3: two bouncy lines across a pit with a stone post between them,
+    # birds hovering over them. Land on a line and it flings the ball high
+    # and on; the post turns it back. Past the pit a sand trap, then the
+    # green: a low cave in a cliff of stone that rises out of sight, sand in
+    # its mouth, the cup inside and a drop past it. Chip in low from the
+    # trap. One exact chain of bounces and a slam goes in from the tee.
     h = Hole(100)
-    h.ground([(0, 15), (16, 15), (18, 17), (40, 17), (42, 15), (63, 15), (66, 12), (68, 12), (71, 15), (82, 15)])
-    h.rect(18, 17, 40, 18, 'T')
-    h.rect(27, 9, 29, 17, 'X')
-    h.rect(52, 7, 54, 15, 'X')
+    h.ground([(0, 13), (14, 13)])
+    h.ground([(46, 13), (86, 13)])
+    h.rect(26, 11, 28, 20, 'X')
+    h.sand(46, 54, 1)
+    h.sand(57, 63, 1)
+    h.roof(60, 100, 9)
     h.tee(3)
-    h.cup(66)
+    h.cup(74, 11)
     return h
 
 
 @hole(4)
 def skylark():
-    # Par 4: big air. A canyon with no bottom, sparks wheeling over it, and a
-    # mesa to land on: loft it high and slam it down before it runs off the
-    # far side. The junk on the mesa is a brake.
+    # Par 4: big air. A bottomless canyon with sparks wheeling over it, a
+    # sheer-sided mesa to land on (junk at its far end to stop against), a
+    # second canyon with a sun and a bumper over it, then the green, a sand
+    # trap at its near edge and a drop past it. Loft it high and slam it
+    # down before it runs off.
     h = Hole(140)
-    h.ground([(0, 14), (26, 14)])
-    h.ground([(45, 13), (86, 13), (92, 16), (140, 16)])
-    h.tee(12)
-    for c, k in ((68, 'C'), (73, 'N'), (78, 'C')):
-        h.on_ground(c, k)
-    h.rect(136, 8, 140, 16, 'X')
-    h.cup(124)
+    h.ground([(0, 14), (24, 14)])
+    h.ground([(44, 11), (72, 11)])
+    h.ground([(92, 14), (128, 14)])
+    h.on_ground(66, 'C')
+    h.on_ground(69, 'N')
+    h.sand(92, 97, 1)
+    h.put(83, 6, 'o')
+    h.tee(10)
+    h.cup(116)
     return h
 
 
 @hole(5)
 def the_chute():
-    # Par 4: a steep drop into a hollow and a long climb out of it. A ball
-    # that just rolls in rolls back; slammed onto the drop it catches fire
-    # and runs up and over the far bank.
+    # Par 4: a steep drop into a hollow and a climb out of it that runs up
+    # inside the hill, under a stone roof: a ball that just rolls in rolls
+    # back, one slammed onto the drop races up the climb and into the sand
+    # at the top. The tunnel goes on through the hill, sparks spinning in it
+    # and corner blocks hanging from its roof; or loft it over the hill
+    # (junk on top). The green is down past the hill, a sand trap at the
+    # foot of the slope and a drop past the cup.
     h = Hole(140)
-    h.ground([(0, 11), (14, 11), (21, 18), (38, 18), (52, 11), (60, 11), (64, 9), (100, 9),
-              (108, 13), (140, 13)])
-    h.rect(136, 5, 140, 13, 'X')
+    h.ground([(0, 10), (12, 10), (20, 18), (30, 18), (38, 10), (106, 10), (112, 13), (134, 13)])
+    for k in range(8):
+        h.put(30 + k, 13 - k, 'q')
+        h.rect(30 + k, 10 - k, 31 + k, 13 - k, 'X')
+    h.rect(38, 3, 104, 7, 'X')
+    h.put(103, 6, 'q')
+    h.sand(38, 46, 1, 7)
+    h.put(60, 7, 'q')
+    h.put(61, 7, 'p')
+    h.put(84, 7, 'q')
+    h.put(85, 7, 'p')
+    h.sand(112, 115, 1)
+    h.on_ground(70, 'C')
+    h.on_ground(88, 'N')
     h.tee(3)
-    h.cup(124)
-    h.on_ground(120, 'Y')
+    h.cup(123)
     return h
 
 
 @hole(6)
 def three_storeys():
-    # Par 4: three floors of stone over a floor with two pits in it. The
-    # shelves end short of the green, with a pit between: run off the top
-    # one fast enough (a slam along it helps) or chip over from below.
+    # Par 4, one of the hardest: a floor broken by pits, and two ice shelves
+    # stacked over it. The green stands on a pillar past a wide pit, higher
+    # than the middle shelf: a ball sliding off the shelf's end drops short,
+    # so slam it onto the ice near the end and it hops across. The top
+    # shelf ends at a wall: lob on from there. Junk on the shelves stops a
+    # ball on the ice, suns drift round and corner blocks turn it back.
     h = Hole(130)
-    h.ground([(0, 17), (60, 17)])
-    h.ground([(72, 17), (104, 17)])
-    h.ground([(112, 17), (130, 17)])
-    h.rect(30, 12, 90, 14, 'X')
-    h.rect(50, 6, 104, 8, 'X')
-    h.rect(126, 4, 130, 17, 'X')
+    h.ground([(0, 17), (40, 17)])
+    h.ground([(52, 17), (86, 17)])
+    h.ground([(110, 11), (124, 11)])
+    h.rect(30, 12, 96, 13, 'I')
+    h.rect(50, 5, 98, 6, 'I')
+    h.rect(96, 1, 98, 5, 'X')
+    h.diamond(66, 15)
+    h.put(76, 6, 'q')
+    h.on_ground(62, 'C', 8)
+    h.on_ground(84, 'K', 8)
+    h.on_ground(90, 'N', 2)
     h.tee(3)
-    h.cup(119)
-    h.on_ground(96, 'C')
-    h.on_ground(80, 'N')
+    h.cup(118)
     return h
 
 
 @hole(7)
 def dune_steps():
     # Par 3: terraces of dunes with sand in every hollow. A pool before the
-    # first sand pit: skim the ball off it and it hops the sand.
+    # first sand pit: skim the ball off it and it hops the sand. A corner
+    # block over the dunes, and a trundler patrols the approach.
     h = Hole(132)
-    h.ground([(0, 11), (14, 11), (17, 14), (58, 14), (60, 15), (68, 15), (70, 14), (86, 14),
-              (88, 16), (132, 16)])
+    h.ground([(0, 11), (14, 11), (17, 14), (58, 14), (60, 15), (68, 15), (70, 14), (86, 14), (88, 16), (124, 16)])
     h.water(17, 26, 14, 17)
     h.sand(26, 36)
     h.sand(60, 68)
     h.sand(100, 106)
     h.sand(116, 122)
-    h.rect(128, 9, 132, 16, 'X')
+    h.diamond(46, 9)
     h.tee(3)
     h.cup(111)
     return h
@@ -246,136 +301,191 @@ def frost_tunnel():
     # Par 4, on ice: a mountain in the way with a narrow shaft in its top. A
     # ball slammed into the shaft drops into a tunnel that runs out on the
     # far side by the green. Over the top the ice is quick and the drop
-    # beyond is long. Something red sits up on the peak.
+    # beyond is long; a bumper hangs over the approach, and the green ends
+    # in a drop. Something red sits up on the peak.
     h = Hole(140)
-    h.ground([(0, 14), (16, 14), (26, 4), (80, 4), (90, 14), (140, 14)])
-    h.clear(40, 4, 41, 11)          # the shaft, one tile wide
-    h.clear(40, 11, 96, 13)         # the tunnel
-    h.rect(40, 13, 96, 14, 'X')     # its floor (not ice)
+    h.ground([(0, 14), (16, 14), (26, 4), (80, 4), (90, 14), (128, 14)])
+    h.clear(40, 4, 41, 11)
+    h.clear(40, 11, 96, 13)
+    h.rect(40, 13, 96, 14, 'X')
     h.put(78, 3, 'R')
-    h.rect(136, 6, 140, 14, 'X')
+    h.put(100, 9, 'o')
     h.tee(3)
-    h.cup(122)
+    h.cup(116)
     return h
 
 
 @hole(9)
 def toss_up():
-    # Par 1, and the only par 1: over a pit into a funnel that runs down
-    # into the cup, with two hop-bots bobbing in the way. Anything but an
-    # ace is over par.
-    h = Hole(50)
+    # Par 1, and the only par 1: a full shot high over a pit onto a slope
+    # that runs down against a stone wall, the cup at its foot. Four
+    # hop-bots juggle themselves up and down right across the ball's way:
+    # watch them and swing through a gap. Anything but an ace is over par.
+    h = Hole(60)
     h.ground([(0, 12), (8, 12)])
-    h.ground([(30, 11), (35, 16), (37, 16), (42, 11), (50, 11)])
-    h.rect(45, 3, 50, 11, 'X')
+    h.ground([(42, 11), (47, 16), (48, 16)])
+    h.rect(48, 6, 60, 20, 'X')
     h.tee(3)
-    h.cup(36)
+    h.cup(47)
     return h
 
 
 @hole(10)
 def double_spring():
-    # Par 3, at night: a chasm with two spring lines over it. Hit the first
-    # and it throws the ball high; slam it into the second and that one
-    # sends it on to the green.
+    # Par 3, at night: a chasm with two spring lines over it and a lantern
+    # swinging between them. The green is a low hall under a stone roof,
+    # sand at its door and an open far end over a drop; the roof rises to a
+    # ridge with a chimney at its peak, right over the cup. Land by the door
+    # and putt along the hall. To ace it, slam the ball back down onto a
+    # spring line at the right moment: it flies up over the ridge and comes
+    # in down the chimney or round through the hall's far end.
     h = Hole(110)
     h.ground([(0, 15), (12, 15)])
-    h.ground([(70, 14), (110, 14)])
-    h.rect(106, 6, 110, 14, 'X')
+    h.ground([(70, 14), (104, 14)])
+    h.sand(70, 81, 1)
+    for k in range(6):
+        for j, t in enumerate('12'):
+            c, r = 76 + 2 * k + j, 8 - k
+            h.put(c, r, t)
+            h.rect(c, r + 1, c + 1, 10, 'X')
+    for k in range(6):
+        for j, t in enumerate('34'):
+            c, r = 89 + 2 * k + j, 3 + k
+            h.put(c, r, t)
+            h.rect(c, r + 1, c + 1, 10, 'X')
+    h.rect(87, 2, 88, 3, 'X')
+    h.put(87, 1, '/')
+    h.rect(89, 2, 90, 3, 'X')
+    h.put(89, 1, BS)
+    h.put(76, 9, 'p')
     h.tee(3)
-    h.cup(84)
+    h.cup(88)
+    h.on_ground(97, 'K', 10)
     return h
 
 
 @hole(11)
 def pebble():
-    # Par 2: short. The tee is on a hilltop above a steep slope; slam the
-    # first shot onto the slope and it runs down on fire, hits the backstop
-    # and comes back to the cup.
-    h = Hole(70)
-    h.ground([(0, 9), (10, 9), (16, 15), (46, 15), (48, 14), (60, 14), (62, 15), (64, 15)])
+    # Par 2: short. The tee is on a hilltop over a steep ramp with a stone
+    # ledge above it; below, a flat runs into a low hall packed with junk,
+    # the cup past the junk and a drop at the far end. Chip down onto the
+    # flat and roll into the hall, then putt through what is left of the
+    # junk. To ace it, drive the ball in low off the ramp and slam it at
+    # just the right moment, so it hops the last of the junk and drops in.
+    h = Hole(72)
+    h.ground([(0, 9), (10, 9), (16, 15), (60, 15)])
+    h.rect(14, 5, 28, 6, 'X')
+    h.roof(36, 72, 12, 6)
+    for c, k in ((39, 'C'), (41, 'K'), (43, 'N'), (45, 'Y'), (47, 'K')):
+        h.on_ground(c, k, 13)
     h.tee(3)
-    h.cup(54)
+    h.cup(51, 13)
     return h
 
 
 @hole(12)
 def atoll():
-    # Par 4: little islands in open water, and fish that leap between them.
-    # Every shot has to stop on the next island (the sand helps); a fast flat
-    # one can skip.
+    # Par 4, a run-killer: little islands in open water, fish leaping in
+    # every gap. Each island has a strip of sand and a piece of junk to stop
+    # on, and a ball that runs on sinks. A plank bridge stands alone in the
+    # last stretch of water, halfway to the green island.
     h = Hole(150)
     h.ground([(0, 14), (150, 14)])
-    h.water(12, 36, 15, 18)
-    h.water(48, 74, 15, 18)
-    h.water(86, 110, 15, 18)
-    h.sand(40, 44)
-    h.sand(78, 82)
-    h.rect(146, 6, 150, 14, 'X')
+    h.water(10, 38, 15, 18)
+    h.water(52, 76, 15, 18)
+    h.water(90, 116, 15, 18)
+    h.water(134, 150, 15, 18)
+    h.sand(41, 48)
+    h.sand(79, 86)
+    h.on_ground(50, 'N')
+    h.on_ground(88, 'K')
+    h.rect(98, 13, 108, 14, 'X')
     h.tee(3)
-    h.cup(134)
+    h.cup(127)
     return h
 
 
 @hole(13)
 def boulder():
-    # Par 3: a stone wall far taller than anything so far, close to the tee.
-    # Loft it over; slam it down behind the wall or it runs past the cup.
-    h = Hole(90)
-    h.ground([(0, 15), (90, 15)])
-    h.rect(30, 3, 36, 15, 'X')
-    h.put(29, 3, '/')
-    h.put(36, 3, '\\')
-    h.rect(84, 6, 90, 15, 'X')
+    # Par 3, the hardest: a stone wall far taller than anything so far,
+    # close to the tee, a pit right behind it. Loft it over into the sand
+    # past the pit. Beyond, two trundlers patrol a yard either side of a
+    # two-row stone step with the cup on top, a bumper over the yard and a
+    # pit past it. Drop the ball onto the step between the trundlers, or
+    # putt it up the step's short ramp and let it die at the cup.
+    h = Hole(96)
+    h.ground([(0, 15), (26, 15)])
+    h.ground([(32, 15), (76, 15)])
+    h.rect(18, 3, 26, 15, 'X')
+    h.put(18, 3, '/')
+    h.put(25, 3, BS)
+    h.sand(32, 52, 1)
+    h.rect(59, 13, 63, 15, 'X')
+    h.put(58, 14, '/')
+    h.put(59, 13, '/')
+    h.put(62, 13, BS)
+    h.put(63, 14, BS)
+    h.put(56, 9, 'o')
     h.tee(3)
-    h.cup(60)
+    h.cup(60, 12)
     return h
 
 
 @hole(14)
 def bumper_alley():
     # Par 4: a spring pad by the tee throws the ball over a pit full of
-    # bumpers. Near full power carries it; slam to slip past a bumper.
+    # bumpers; near full power carries it, a slam slips it under a bumper.
+    # The far side is a sand-edged shelf with more bumpers over it, then a
+    # gap with a big bumper over it, and the green in a hall whose roof
+    # rises out of sight, sand at its door and a pit inside past the cup.
     h = Hole(140)
-    h.ground([(0, 15), (40, 15)])
-    h.ground([(88, 15), (140, 15)])
-    h.rect(14, 15, 24, 16, 'T')
-    for c, r, k in ((46, 9, 'O'), (54, 12, 'o'), (60, 7, 'O'), (68, 11, 'O'), (74, 6, 'o'), (80, 10, 'O'),
-                    (52, 4, 'o'), (86, 5, 'o')):
+    h.ground([(0, 15), (28, 15)])
+    h.ground([(54, 14), (94, 14)])
+    h.ground([(102, 11), (124, 11)])
+    h.ground([(132, 11), (140, 11)])
+    h.rect(12, 15, 22, 16, 'T')
+    for c, r, k in ((32, 8, 'O'), (38, 11, 'o'), (42, 6, 'O'), (48, 10, 'O'), (36, 3, 'o'),
+                    (66, 6, 'O'), (78, 9, 'o'), (86, 4, 'O'), (98, 6, 'O')):
         h.put(c, r, k)
-    h.rect(136, 7, 140, 15, 'X')
+    h.sand(54, 60, 1)
+    h.sand(102, 108, 1)
+    h.roof(107, 140, 7)
     h.tee(3)
-    h.cup(122)
+    h.cup(117, 8)
     return h
 
 
 @hole(15)
 def high_shelf():
-    # Par 4, one of the hardest: a fairway strewn with junk, a kicker ramp at
-    # its end, and the green on a high shelf past a pit. Fly the junk, land
-    # running and let the kicker throw the ball up onto the shelf.
+    # Par 4, one of the hardest: a fairway strewn with junk, a kicker ramp
+    # at its end and the green on a high shelf. Land running and let the
+    # kicker throw the ball up onto the shelf; or take the bottom path: down
+    # in the valley under the kicker (a pit at its near end), then a long
+    # climb up to the shelf with a blimp drifting over it. A sand trap on
+    # the shelf short of the cup, and a drop past it.
     h = Hole(140)
-    h.ground([(0, 15), (50, 15), (56, 9)])
-    h.ground([(80, 6), (140, 6)])
+    h.ground([(0, 15), (50, 15), (56, 9), (58, 9)])
+    h.ground([(64, 17), (74, 17), (96, 6), (128, 6)])
     for c, k in ((20, 'C'), (24, 'N'), (28, 'K'), (32, 'C'), (36, 'Y'), (40, 'N'), (44, 'K')):
         h.on_ground(c, k)
-    h.rect(136, 1, 140, 6, 'X')
+    h.sand(104, 111, 1)
     h.tee(3)
-    h.cup(122)
+    h.cup(118)
     return h
 
 
 @hole(16)
 def nerve():
-    # Par 3: two islands of turf on pillars over pits. Lob onto the first,
-    # then onto the green, whose junk stops a ball that would run off.
+    # Par 3: two pillars over pits, the first all sand, and a lantern
+    # swinging between them. Lob onto the first, then onto the green, whose
+    # junk stops a ball that would run off before the drop at its end.
     h = Hole(100)
     h.ground([(0, 14), (10, 14)])
-    h.ground([(40, 12), (54, 12)])
-    h.ground([(72, 13), (100, 13)])
+    h.ground([(36, 12), (54, 12)])
+    h.ground([(72, 13), (96, 13)])
+    h.sand(36, 54, 1)
     h.on_ground(90, 'Y')
-    h.on_ground(94, 'C')
-    h.rect(97, 5, 100, 13, 'X')
+    h.on_ground(93, 'C')
     h.tee(3)
     h.cup(84)
     return h
@@ -384,43 +494,51 @@ def nerve():
 @hole(17)
 def the_pagoda():
     # Par 3, one of the hardest: a lattice of pegs over a sand pit guards a
-    # raised green. A ball rattles down through the pegs; a slam at the
-    # right moment drops it through a gap and on.
+    # raised green, a pit between the sand and the green's bank. A ball
+    # rattles down through the pegs into the sand; from there it has to
+    # clear the pit onto the green without running off its far end.
     h = Hole(100)
-    h.ground([(0, 15), (28, 15), (30, 17), (62, 17), (66, 13), (100, 13)])
-    h.sand(30, 62)
-    for r in range(4, 13, 2):
-        off = 0 if (r // 2) % 2 == 0 else 2
-        for c in range(32 + off, 62, 4):
+    h.ground([(0, 15), (28, 15), (30, 17), (60, 17)])
+    h.ground([(63, 13), (94, 13)])
+    h.sand(30, 60)
+    for r in range(5, 13, 3):
+        off = 0 if (r // 3) % 2 == 0 else 2
+        for c in range(33 + off, 60, 4):
             h.put(c, r, '!')
-    h.rect(96, 4, 100, 13, 'X')
     h.tee(3)
-    h.cup(84)
+    h.cup(82)
     return h
 
 
 @hole(18)
 def last_orbit():
-    # Par 6, the long way home: a lake with fish, sand on the far shore, a
-    # forest of pegs over a sand bed, a spring pad, a second lake, a last
-    # climb and the green.
+    # Par 6, the long way home: a lake with fish, a beach, a forest of pegs
+    # over a sand bed, a second sand trap, then a second lake with a plank
+    # bridge in it and a stone pillar hanging down out of the sky, a lantern
+    # swinging under it: everything has to pass low beneath. Then a climb
+    # to a plateau where a trundler patrols, and a wall to the sky across
+    # its end with a low gate under it: the green lies beyond, down a bank.
     h = Hole(240)
-    h.ground([(0, 14), (240, 14)])
-    h.water(14, 58, 15, 18)
-    h.sand(62, 70)
-    h.ground([(96, 14), (98, 15), (128, 15), (130, 14)])
-    h.sand(98, 128)
-    for r in range(6, 13, 3):
+    h.ground([(0, 14), (14, 14)])
+    h.ground([(46, 14), (62, 14), (64, 15), (88, 15), (90, 14), (106, 14)])
+    h.water(14, 46, 15, 18)
+    h.sand(46, 52, 1)
+    h.sand(64, 88)
+    for r in range(5, 13, 3):
         off = 0 if (r // 3) % 2 == 0 else 3
-        for c in range(100 + off, 128, 6):
+        for c in range(66 + off, 88, 6):
             h.put(c, r, '!')
-    h.rect(136, 14, 144, 15, 'T')
-    h.water(150, 184, 15, 18)
-    h.ground([(190, 14), (196, 11), (206, 11), (210, 13), (240, 13)])
-    h.sand(214, 218)
-    h.rect(236, 5, 240, 13, 'X')
+    h.sand(98, 103, 1)
+    h.water(106, 150, 15, 18)
+    h.ground([(106, 18), (150, 18)])
+    h.rect(118, 13, 130, 14, 'X')
+    h.rect(138, 0, 141, 10, 'X')
+    h.ground([(150, 14), (162, 8), (198, 8), (208, 13), (232, 13)])
+    h.rect(190, 0, 194, 6, 'X')
+    h.on_ground(184, 'K')
+    h.water(232, 240, 15, 18)
     h.tee(3)
-    h.cup(228)
+    h.cup(222)
     return h
 
 
