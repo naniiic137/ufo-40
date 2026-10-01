@@ -16,7 +16,7 @@ int htk_bot_width = 64;
 typedef struct {
     uint16_t plan[PLAN_MAX];
     int len, pos;
-    int since_touch;
+    int since_touch, since_hit, kills_seen;
     Rng rng;
 } BotMind;
 
@@ -34,9 +34,9 @@ void htk_bot_reset(void) {
 /* ---- finding the way: which ledges lead to which ------------------------------------ */
 
 #define NAV_N (HTK_ROWS * HTK_COLS)
-#define NAV_MAXE 48
+#define NAV_MAXE 200
 static int16_t nav_edge[NAV_N][NAV_MAXE];  /* the nodes that lead here (reversed) */
-static uint8_t nav_ne[NAV_N];
+static uint16_t nav_ne[NAV_N];
 static uint8_t nav_ok[NAV_N];               /* a place a kid can stand */
 static int16_t nav_ball[NAV_N], nav_foe[NAV_N];
 static int nav_level = -99;
@@ -83,8 +83,8 @@ static void nav_build(const HtkPlay *g) {
                     }
             }
             for (int up = -6; up <= 4; up++) {
-                if (up == 0) continue;
-                int reach = up == 4 ? 4 : up > 0 ? 5 : 6;
+                /* (up 0: a jump across a gap on the same level) */
+                int reach = up == 4 ? 3 : up > 0 ? 5 : 6; /* a jump to the next ledge up: 3 tiles across at most */
                 bool blocked = false;
                 for (int k = 1; k <= up + 3 && up > 0; k++)
                     if (t_solid(g, r - k, c)) blocked = true;
@@ -143,7 +143,7 @@ static int make_plan(BotMind *m, const HtkPlay *g, int who, uint16_t *out) {
     Rng *r = &m->rng;
     const HtkPlayer *p = &g->pl[who];
     bool carrying = g->ball.carrier == who;
-    int explore = m->since_touch > 900 ? 2 : 1;
+    int explore = m->since_touch > 900 || m->since_hit > 900 ? 2 : 1;
     int d = rng_range(r, -1, 1);
     /* lean towards the ball when we haven't got it */
     if (!carrying && rng_chance(r, 45)) {
@@ -318,8 +318,51 @@ static void replan(HtkPlay *g, int who) {
         best_len = n;
         memcpy(best, cand, (size_t)n * sizeof best[0]);
     }
-    /* when every plan so far loses the life, look much harder */
-    int tries = htk_bot_width;
+    /* every running jump: run one way, take off at each moment in turn, and
+     * keep running in the air */
+    if (htk_bot_width >= 16)
+        for (int side = -1; side <= 1; side += 2)
+            for (int j = 0; j <= 42; j += 3) {
+                uint16_t dirb = side > 0 ? BTN_RIGHT : BTN_LEFT;
+                int len = j + 34;
+                memset(cand, 0, sizeof cand);
+                for (int f = 0; f < len; f++) cand[f] = dirb;
+                cand[j] |= BTN_A;
+                cand[j + 1] |= BTN_A;
+                float sc = judge(g, who, cand, len, other);
+                if (sc > best_s) {
+                    best_s = sc;
+                    best_len = len;
+                    memcpy(best, cand, (size_t)len * sizeof best[0]);
+                }
+            }
+    /* with the ball at its feet: every straight shot from here, each aim,
+     * tapped or driven, either way */
+    if (g->ball.carrier == who && g->pl[who].ground && htk_bot_width >= 16) {
+        static const uint16_t AIMS[5] = {0, BTN_UP, BTN_DOWN, BTN_UP | 0x8000, 0x8000};
+        for (int side = -1; side <= 1; side += 2)
+            for (int a = 0; a < 5; a++)
+                for (int charge = 0; charge < 2; charge++) {
+                    uint16_t dirb = side > 0 ? BTN_RIGHT : BTN_LEFT;
+                    uint16_t aim = (uint16_t)(AIMS[a] & 0xFF);
+                    if (AIMS[a] & 0x8000) aim |= dirb;
+                    int n = charge ? HTK_CHARGE_T + 2 : 1, len = n + 2;
+                    memset(cand, 0, sizeof cand);
+                    cand[0] = dirb; /* turn that way first */
+                    for (int f = 1; f <= n; f++) cand[f] = BTN_B;
+                    cand[n] = (uint16_t)(BTN_B | aim);
+                    cand[n + 1] = aim;
+                    float sc = judge(g, who, cand, len, other);
+                    if (sc > best_s) {
+                        best_s = sc;
+                        best_len = len;
+                        memcpy(best, cand, (size_t)len * sizeof best[0]);
+                    }
+                }
+    }
+    /* when every plan so far loses the life, look much harder; and when
+     * nothing has been hit for a long while, try more and longer plans */
+    int tries = htk_bot_width * (m->since_hit > 900 ? 3 : 1);
     for (int k = 0; k < tries; k++) {
         if (k == tries - 1 && best_s < -1e6f && tries < htk_bot_width * 6) tries += htk_bot_width;
         int len = make_plan(m, g, who, cand);
@@ -345,6 +388,11 @@ uint16_t htk_bot_buttons(HtkPlay *g, int who) {
     }
     if (g->ball.carrier == who) m->since_touch = 0;
     else m->since_touch++;
+    int hits = g->kills * 100;
+    for (int i = 0; i < HTK_MAX_FOES; i++)
+        if (g->foe[i].alive && g->foe[i].kind >= FK_KINGSPIKER && g->foe[i].kind != FK_TIMEKEEPER) hits -= g->foe[i].hp;
+    if (hits != m->kills_seen) { m->kills_seen = hits; m->since_hit = 0; }
+    else m->since_hit++;
     if (m->pos >= m->len || m->pos >= COMMIT) replan(g, who);
     return m->pos < m->len ? m->plan[m->pos++] : 0;
 }
@@ -403,4 +451,42 @@ int htk_bot_nav(const HtkPlay *g, int who, int what) {
     int n = kid_node(g, &g->pl[who]);
     if (n < 0) return -3;
     return what ? nav_foe[n] : nav_ball[n];
+}
+
+/* For the tests: on the screen in play, how many places a kid can stand
+ * that can't be reached from the start, or can't get back to it, and how
+ * many ledges a ball could come to rest on with no room for a kid. Both
+ * must be 0: wherever the ball settles, a kid can get to it. */
+int htk_reach_log;
+void htk_reach_check(const HtkPlay *g, int *unreach, int *dead) {
+    nav_level = -99;
+    nav_build(g);
+    static int16_t back[NAV_N];
+    static uint8_t fwd[NAV_N];
+    int start = node_under(g, g->pl[0].start_x, g->pl[0].start_y - 1);
+    nav_bfs(back, &start, 1);
+    memset(fwd, 0, sizeof fwd);
+    static int16_t q[NAV_N];
+    int qh = 0, qt = 0;
+    if (start >= 0) { fwd[start] = 1; q[qt++] = (int16_t)start; }
+    while (qh < qt) {
+        int u = q[qh++];
+        for (int v = 0; v < NAV_N; v++) {
+            if (fwd[v]) continue;
+            for (int i = 0; i < nav_ne[v]; i++)
+                if (nav_edge[v][i] == u) { fwd[v] = 1; q[qt++] = (int16_t)v; break; }
+        }
+    }
+    *unreach = 0;
+    *dead = 0;
+    for (int r = 1; r < HTK_ROWS; r++)
+        for (int c = 0; c < HTK_COLS; c++) {
+            int n = r * HTK_COLS + c;
+            if (nav_ok[n] && (!fwd[n] || back[n] < 0)) {
+                (*unreach)++;
+                if (htk_reach_log) printf("  # unreachable %d,%d (%s)\n", r, c, !fwd[n] ? "can't get there" : "can't get back");
+            }
+            if (t_ground(g, r, c) && g->tile[r - 1][c] == T_EMPTY && !nav_ok[n]) (*dead)++;
+        }
+    nav_level = -99;
 }

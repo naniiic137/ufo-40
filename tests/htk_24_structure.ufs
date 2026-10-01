@@ -1,0 +1,819 @@
+# HAT TRICK: the structure. Four worlds of nine screens and a boss, 40
+# fixed screens, each the same on both sides (tiles and creatures), with one
+# start, the ball on the middle line, holes in the floor only under holes in
+# the ceiling, and every place a ball can come to rest within a kid's reach
+# (and back). Each world uses its own three kinds of creature, and all three
+# of them; the tenth screen of each world is its boss. Four screens in every
+# world hide a dessert spot.
+game hattrick
+wait 5
+# 1-1
+expect lvl_1_starts == 1
+expect lvl_1_half == 1
+expect lvl_1_wrapok == 1
+expect lvl_1_spots == 1
+expect lvl_1_balls == 1
+expect lvl_1_kinds >= 1
+expect lvl_1_foes >= 2
+expect lvl_1_kind3 == 0
+expect lvl_1_kind4 == 0
+expect lvl_1_kind5 == 0
+expect lvl_1_kind6 == 0
+expect lvl_1_kind7 == 0
+expect lvl_1_kind8 == 0
+expect lvl_1_kind9 == 0
+expect lvl_1_kind10 == 0
+expect lvl_1_kind11 == 0
+cheat level 1
+expect sym == 1
+expect unreach == 0
+expect dead_ledges == 0
+# 1-2
+expect lvl_2_starts == 1
+expect lvl_2_half == 1
+expect lvl_2_wrapok == 1
+expect lvl_2_spots == 0
+expect lvl_2_balls == 1
+expect lvl_2_kinds >= 1
+expect lvl_2_foes >= 2
+expect lvl_2_kind3 == 0
+expect lvl_2_kind4 == 0
+expect lvl_2_kind5 == 0
+expect lvl_2_kind6 == 0
+expect lvl_2_kind7 == 0
+expect lvl_2_kind8 == 0
+expect lvl_2_kind9 == 0
+expect lvl_2_kind10 == 0
+expect lvl_2_kind11 == 0
+cheat level 2
+expect sym == 1
+expect unreach == 0
+expect dead_ledges == 0
+# 1-3
+expect lvl_3_starts == 1
+expect lvl_3_half == 1
+expect lvl_3_wrapok == 1
+expect lvl_3_spots == 1
+expect lvl_3_balls == 1
+expect lvl_3_kinds >= 1
+expect lvl_3_foes >= 2
+expect lvl_3_kind3 == 0
+expect lvl_3_kind4 == 0
+expect lvl_3_kind5 == 0
+expect lvl_3_kind6 == 0
+expect lvl_3_kind7 == 0
+expect lvl_3_kind8 == 0
+expect lvl_3_kind9 == 0
+expect lvl_3_kind10 == 0
+expect lvl_3_kind11 == 0
+cheat level 3
+expect sym == 1
+expect unreach == 0
+expect dead_ledges == 0
+# 1-4
+expect lvl_4_starts == 1
+expect lvl_4_half == 1
+expect lvl_4_wrapok == 1
+expect lvl_4_spots == 0
+expect lvl_4_balls == 1
+expect lvl_4_kinds >= 1
+expect lvl_4_foes >= 2
+expect lvl_4_kind3 == 0
+expect lvl_4_kind4 == 0
+expect lvl_4_kind5 == 0
+expect lvl_4_kind6 == 0
+expect lvl_4_kind7 == 0
+expect lvl_4_kind8 == 0
+expect lvl_4_kind9 == 0
+expect lvl_4_kind10 == 0
+expect lvl_4_kind11 == 0
+cheat level 4
+expect sym == 1
+expect unreach == 0
+expect dead_ledges == 0
+# 1-5
+expect lvl_5_starts == 1
+expect lvl_5_half == 1
+expect lvl_5_wrapok == 1
+expect lvl_5_spots == 0
+expect lvl_5_balls == 1
+expect lvl_5_kinds >= 1
+expect lvl_5_foes >= 2
+expect lvl_5_kind3 == 0
+expect lvl_5_kind4 == 0
+expect lvl_5_kind5 == 0
+expect lvl_5_kind6 == 0
+expect lvl_5_kind7 == 0
+expect lvl_5_kind8 == 0
+expect lvl_5_kind9 == 0
+expect lvl_5_kind10 == 0
+expect lvl_5_kind11 == 0
+cheat level 5
+expect sym == 1
+expect unreach == 0
+expect dead_ledges == 0
+# 1-6
+expect lvl_6_starts == 1
+expect lvl_6_half == 1
+expect lvl_6_wrapok == 1
+expect lvl_6_spots == 1
+expect lvl_6_balls == 1
+expect lvl_6_kinds >= 1
+expect lvl_6_foes >= 2
+expect lvl_6_kind3 == 0
+expect lvl_6_kind4 == 0
+expect lvl_6_kind5 == 0
+expect lvl_6_kind6 == 0
+expect lvl_6_kind7 == 0
+expect lvl_6_kind8 == 0
+expect lvl_6_kind9 == 0
+expect lvl_6_kind10 == 0
+expect lvl_6_kind11 == 0
+cheat level 6
+expect sym == 1
+expect unreach == 0
+expect dead_ledges == 0
+# 1-7
+expect lvl_7_starts == 1
+expect lvl_7_half == 1
+expect lvl_7_wrapok == 1
+expect lvl_7_spots == 0
+expect lvl_7_balls == 1
+expect lvl_7_kinds >= 1
+expect lvl_7_foes >= 2
+expect lvl_7_kind3 == 0
+expect lvl_7_kind4 == 0
+expect lvl_7_kind5 == 0
+expect lvl_7_kind6 == 0
+expect lvl_7_kind7 == 0
+expect lvl_7_kind8 == 0
+expect lvl_7_kind9 == 0
+expect lvl_7_kind10 == 0
+expect lvl_7_kind11 == 0
+cheat level 7
+expect sym == 1
+expect unreach == 0
+expect dead_ledges == 0
+# 1-8
+expect lvl_8_starts == 1
+expect lvl_8_half == 1
+expect lvl_8_wrapok == 1
+expect lvl_8_spots == 1
+expect lvl_8_balls == 1
+expect lvl_8_kinds >= 1
+expect lvl_8_foes >= 2
+expect lvl_8_kind3 == 0
+expect lvl_8_kind4 == 0
+expect lvl_8_kind5 == 0
+expect lvl_8_kind6 == 0
+expect lvl_8_kind7 == 0
+expect lvl_8_kind8 == 0
+expect lvl_8_kind9 == 0
+expect lvl_8_kind10 == 0
+expect lvl_8_kind11 == 0
+cheat level 8
+expect sym == 1
+expect unreach == 0
+expect dead_ledges == 0
+# 1-9
+expect lvl_9_starts == 1
+expect lvl_9_half == 1
+expect lvl_9_wrapok == 1
+expect lvl_9_spots == 0
+expect lvl_9_balls == 1
+expect lvl_9_kinds >= 1
+expect lvl_9_foes >= 2
+expect lvl_9_kind3 == 0
+expect lvl_9_kind4 == 0
+expect lvl_9_kind5 == 0
+expect lvl_9_kind6 == 0
+expect lvl_9_kind7 == 0
+expect lvl_9_kind8 == 0
+expect lvl_9_kind9 == 0
+expect lvl_9_kind10 == 0
+expect lvl_9_kind11 == 0
+cheat level 9
+expect sym == 1
+expect unreach == 0
+expect dead_ledges == 0
+# 1-10
+expect lvl_10_starts == 1
+expect lvl_10_half == 1
+expect lvl_10_wrapok == 1
+expect lvl_10_spots == 0
+cheat level 10
+expect sym == 1
+expect unreach == 0
+expect dead_ledges == 0
+expect foes_12 == 1
+# 2-1
+expect lvl_11_starts == 1
+expect lvl_11_half == 1
+expect lvl_11_wrapok == 1
+expect lvl_11_spots == 0
+expect lvl_11_balls == 1
+expect lvl_11_kinds >= 1
+expect lvl_11_foes >= 2
+expect lvl_11_kind0 == 0
+expect lvl_11_kind1 == 0
+expect lvl_11_kind2 == 0
+expect lvl_11_kind6 == 0
+expect lvl_11_kind7 == 0
+expect lvl_11_kind8 == 0
+expect lvl_11_kind9 == 0
+expect lvl_11_kind10 == 0
+expect lvl_11_kind11 == 0
+cheat level 11
+expect sym == 1
+expect unreach == 0
+expect dead_ledges == 0
+# 2-2
+expect lvl_12_starts == 1
+expect lvl_12_half == 1
+expect lvl_12_wrapok == 1
+expect lvl_12_spots == 1
+expect lvl_12_balls == 1
+expect lvl_12_kinds >= 1
+expect lvl_12_foes >= 2
+expect lvl_12_kind0 == 0
+expect lvl_12_kind1 == 0
+expect lvl_12_kind2 == 0
+expect lvl_12_kind6 == 0
+expect lvl_12_kind7 == 0
+expect lvl_12_kind8 == 0
+expect lvl_12_kind9 == 0
+expect lvl_12_kind10 == 0
+expect lvl_12_kind11 == 0
+cheat level 12
+expect sym == 1
+expect unreach == 0
+expect dead_ledges == 0
+# 2-3
+expect lvl_13_starts == 1
+expect lvl_13_half == 1
+expect lvl_13_wrapok == 1
+expect lvl_13_spots == 0
+expect lvl_13_balls == 1
+expect lvl_13_kinds >= 1
+expect lvl_13_foes >= 2
+expect lvl_13_kind0 == 0
+expect lvl_13_kind1 == 0
+expect lvl_13_kind2 == 0
+expect lvl_13_kind6 == 0
+expect lvl_13_kind7 == 0
+expect lvl_13_kind8 == 0
+expect lvl_13_kind9 == 0
+expect lvl_13_kind10 == 0
+expect lvl_13_kind11 == 0
+cheat level 13
+expect sym == 1
+expect unreach == 0
+expect dead_ledges == 0
+# 2-4
+expect lvl_14_starts == 1
+expect lvl_14_half == 1
+expect lvl_14_wrapok == 1
+expect lvl_14_spots == 1
+expect lvl_14_balls == 1
+expect lvl_14_kinds >= 1
+expect lvl_14_foes >= 2
+expect lvl_14_kind0 == 0
+expect lvl_14_kind1 == 0
+expect lvl_14_kind2 == 0
+expect lvl_14_kind6 == 0
+expect lvl_14_kind7 == 0
+expect lvl_14_kind8 == 0
+expect lvl_14_kind9 == 0
+expect lvl_14_kind10 == 0
+expect lvl_14_kind11 == 0
+cheat level 14
+expect sym == 1
+expect unreach == 0
+expect dead_ledges == 0
+# 2-5
+expect lvl_15_starts == 1
+expect lvl_15_half == 1
+expect lvl_15_wrapok == 1
+expect lvl_15_spots == 0
+expect lvl_15_balls == 1
+expect lvl_15_kinds >= 1
+expect lvl_15_foes >= 2
+expect lvl_15_kind0 == 0
+expect lvl_15_kind1 == 0
+expect lvl_15_kind2 == 0
+expect lvl_15_kind6 == 0
+expect lvl_15_kind7 == 0
+expect lvl_15_kind8 == 0
+expect lvl_15_kind9 == 0
+expect lvl_15_kind10 == 0
+expect lvl_15_kind11 == 0
+cheat level 15
+expect sym == 1
+expect unreach == 0
+expect dead_ledges == 0
+# 2-6
+expect lvl_16_starts == 1
+expect lvl_16_half == 1
+expect lvl_16_wrapok == 1
+expect lvl_16_spots == 0
+expect lvl_16_balls == 1
+expect lvl_16_kinds >= 1
+expect lvl_16_foes >= 2
+expect lvl_16_kind0 == 0
+expect lvl_16_kind1 == 0
+expect lvl_16_kind2 == 0
+expect lvl_16_kind6 == 0
+expect lvl_16_kind7 == 0
+expect lvl_16_kind8 == 0
+expect lvl_16_kind9 == 0
+expect lvl_16_kind10 == 0
+expect lvl_16_kind11 == 0
+cheat level 16
+expect sym == 1
+expect unreach == 0
+expect dead_ledges == 0
+# 2-7
+expect lvl_17_starts == 1
+expect lvl_17_half == 1
+expect lvl_17_wrapok == 1
+expect lvl_17_spots == 1
+expect lvl_17_balls == 1
+expect lvl_17_kinds >= 1
+expect lvl_17_foes >= 2
+expect lvl_17_kind0 == 0
+expect lvl_17_kind1 == 0
+expect lvl_17_kind2 == 0
+expect lvl_17_kind6 == 0
+expect lvl_17_kind7 == 0
+expect lvl_17_kind8 == 0
+expect lvl_17_kind9 == 0
+expect lvl_17_kind10 == 0
+expect lvl_17_kind11 == 0
+cheat level 17
+expect sym == 1
+expect unreach == 0
+expect dead_ledges == 0
+# 2-8
+expect lvl_18_starts == 1
+expect lvl_18_half == 1
+expect lvl_18_wrapok == 1
+expect lvl_18_spots == 0
+expect lvl_18_balls == 1
+expect lvl_18_kinds >= 1
+expect lvl_18_foes >= 2
+expect lvl_18_kind0 == 0
+expect lvl_18_kind1 == 0
+expect lvl_18_kind2 == 0
+expect lvl_18_kind6 == 0
+expect lvl_18_kind7 == 0
+expect lvl_18_kind8 == 0
+expect lvl_18_kind9 == 0
+expect lvl_18_kind10 == 0
+expect lvl_18_kind11 == 0
+cheat level 18
+expect sym == 1
+expect unreach == 0
+expect dead_ledges == 0
+# 2-9
+expect lvl_19_starts == 1
+expect lvl_19_half == 1
+expect lvl_19_wrapok == 1
+expect lvl_19_spots == 1
+expect lvl_19_balls == 1
+expect lvl_19_kinds >= 1
+expect lvl_19_foes >= 2
+expect lvl_19_kind0 == 0
+expect lvl_19_kind1 == 0
+expect lvl_19_kind2 == 0
+expect lvl_19_kind6 == 0
+expect lvl_19_kind7 == 0
+expect lvl_19_kind8 == 0
+expect lvl_19_kind9 == 0
+expect lvl_19_kind10 == 0
+expect lvl_19_kind11 == 0
+cheat level 19
+expect sym == 1
+expect unreach == 0
+expect dead_ledges == 0
+# 2-10
+expect lvl_20_starts == 1
+expect lvl_20_half == 1
+expect lvl_20_wrapok == 1
+expect lvl_20_spots == 0
+cheat level 20
+expect sym == 1
+expect unreach == 0
+expect dead_ledges == 0
+expect foes_13 == 1
+# 3-1
+expect lvl_21_starts == 1
+expect lvl_21_half == 1
+expect lvl_21_wrapok == 1
+expect lvl_21_spots == 0
+expect lvl_21_balls == 1
+expect lvl_21_kinds >= 1
+expect lvl_21_foes >= 2
+expect lvl_21_kind0 == 0
+expect lvl_21_kind1 == 0
+expect lvl_21_kind2 == 0
+expect lvl_21_kind3 == 0
+expect lvl_21_kind4 == 0
+expect lvl_21_kind5 == 0
+expect lvl_21_kind9 == 0
+expect lvl_21_kind10 == 0
+expect lvl_21_kind11 == 0
+cheat level 21
+expect sym == 1
+expect unreach == 0
+expect dead_ledges == 0
+# 3-2
+expect lvl_22_starts == 1
+expect lvl_22_half == 1
+expect lvl_22_wrapok == 1
+expect lvl_22_spots == 1
+expect lvl_22_balls == 1
+expect lvl_22_kinds >= 1
+expect lvl_22_foes >= 2
+expect lvl_22_kind0 == 0
+expect lvl_22_kind1 == 0
+expect lvl_22_kind2 == 0
+expect lvl_22_kind3 == 0
+expect lvl_22_kind4 == 0
+expect lvl_22_kind5 == 0
+expect lvl_22_kind9 == 0
+expect lvl_22_kind10 == 0
+expect lvl_22_kind11 == 0
+cheat level 22
+expect sym == 1
+expect unreach == 0
+expect dead_ledges == 0
+# 3-3
+expect lvl_23_starts == 1
+expect lvl_23_half == 1
+expect lvl_23_wrapok == 1
+expect lvl_23_spots == 0
+expect lvl_23_balls == 1
+expect lvl_23_kinds >= 1
+expect lvl_23_foes >= 2
+expect lvl_23_kind0 == 0
+expect lvl_23_kind1 == 0
+expect lvl_23_kind2 == 0
+expect lvl_23_kind3 == 0
+expect lvl_23_kind4 == 0
+expect lvl_23_kind5 == 0
+expect lvl_23_kind9 == 0
+expect lvl_23_kind10 == 0
+expect lvl_23_kind11 == 0
+cheat level 23
+expect sym == 1
+expect unreach == 0
+expect dead_ledges == 0
+# 3-4
+expect lvl_24_starts == 1
+expect lvl_24_half == 1
+expect lvl_24_wrapok == 1
+expect lvl_24_spots == 1
+expect lvl_24_balls == 1
+expect lvl_24_kinds >= 1
+expect lvl_24_foes >= 2
+expect lvl_24_kind0 == 0
+expect lvl_24_kind1 == 0
+expect lvl_24_kind2 == 0
+expect lvl_24_kind3 == 0
+expect lvl_24_kind4 == 0
+expect lvl_24_kind5 == 0
+expect lvl_24_kind9 == 0
+expect lvl_24_kind10 == 0
+expect lvl_24_kind11 == 0
+cheat level 24
+expect sym == 1
+expect unreach == 0
+expect dead_ledges == 0
+# 3-5
+expect lvl_25_starts == 1
+expect lvl_25_half == 1
+expect lvl_25_wrapok == 1
+expect lvl_25_spots == 0
+expect lvl_25_balls == 1
+expect lvl_25_kinds >= 1
+expect lvl_25_foes >= 2
+expect lvl_25_kind0 == 0
+expect lvl_25_kind1 == 0
+expect lvl_25_kind2 == 0
+expect lvl_25_kind3 == 0
+expect lvl_25_kind4 == 0
+expect lvl_25_kind5 == 0
+expect lvl_25_kind9 == 0
+expect lvl_25_kind10 == 0
+expect lvl_25_kind11 == 0
+cheat level 25
+expect sym == 1
+expect unreach == 0
+expect dead_ledges == 0
+# 3-6
+expect lvl_26_starts == 1
+expect lvl_26_half == 1
+expect lvl_26_wrapok == 1
+expect lvl_26_spots == 1
+expect lvl_26_balls == 1
+expect lvl_26_kinds >= 1
+expect lvl_26_foes >= 2
+expect lvl_26_kind0 == 0
+expect lvl_26_kind1 == 0
+expect lvl_26_kind2 == 0
+expect lvl_26_kind3 == 0
+expect lvl_26_kind4 == 0
+expect lvl_26_kind5 == 0
+expect lvl_26_kind9 == 0
+expect lvl_26_kind10 == 0
+expect lvl_26_kind11 == 0
+cheat level 26
+expect sym == 1
+expect unreach == 0
+expect dead_ledges == 0
+# 3-7
+expect lvl_27_starts == 1
+expect lvl_27_half == 1
+expect lvl_27_wrapok == 1
+expect lvl_27_spots == 0
+expect lvl_27_balls == 1
+expect lvl_27_kinds >= 1
+expect lvl_27_foes >= 2
+expect lvl_27_kind0 == 0
+expect lvl_27_kind1 == 0
+expect lvl_27_kind2 == 0
+expect lvl_27_kind3 == 0
+expect lvl_27_kind4 == 0
+expect lvl_27_kind5 == 0
+expect lvl_27_kind9 == 0
+expect lvl_27_kind10 == 0
+expect lvl_27_kind11 == 0
+cheat level 27
+expect sym == 1
+expect unreach == 0
+expect dead_ledges == 0
+# 3-8
+expect lvl_28_starts == 1
+expect lvl_28_half == 1
+expect lvl_28_wrapok == 1
+expect lvl_28_spots == 1
+expect lvl_28_balls == 1
+expect lvl_28_kinds >= 1
+expect lvl_28_foes >= 2
+expect lvl_28_kind0 == 0
+expect lvl_28_kind1 == 0
+expect lvl_28_kind2 == 0
+expect lvl_28_kind3 == 0
+expect lvl_28_kind4 == 0
+expect lvl_28_kind5 == 0
+expect lvl_28_kind9 == 0
+expect lvl_28_kind10 == 0
+expect lvl_28_kind11 == 0
+cheat level 28
+expect sym == 1
+expect unreach == 0
+expect dead_ledges == 0
+# 3-9
+expect lvl_29_starts == 1
+expect lvl_29_half == 1
+expect lvl_29_wrapok == 1
+expect lvl_29_spots == 0
+expect lvl_29_balls == 1
+expect lvl_29_kinds >= 1
+expect lvl_29_foes >= 2
+expect lvl_29_kind0 == 0
+expect lvl_29_kind1 == 0
+expect lvl_29_kind2 == 0
+expect lvl_29_kind3 == 0
+expect lvl_29_kind4 == 0
+expect lvl_29_kind5 == 0
+expect lvl_29_kind9 == 0
+expect lvl_29_kind10 == 0
+expect lvl_29_kind11 == 0
+cheat level 29
+expect sym == 1
+expect unreach == 0
+expect dead_ledges == 0
+# 3-10
+expect lvl_30_starts == 1
+expect lvl_30_half == 1
+expect lvl_30_wrapok == 1
+expect lvl_30_spots == 0
+cheat level 30
+expect sym == 1
+expect unreach == 0
+expect dead_ledges == 0
+expect foes_14 == 1
+expect foes_15 == 1
+# 4-1
+expect lvl_31_starts == 1
+expect lvl_31_half == 1
+expect lvl_31_wrapok == 1
+expect lvl_31_spots == 0
+expect lvl_31_balls == 1
+expect lvl_31_kinds >= 1
+expect lvl_31_foes >= 2
+expect lvl_31_kind0 == 0
+expect lvl_31_kind1 == 0
+expect lvl_31_kind2 == 0
+expect lvl_31_kind3 == 0
+expect lvl_31_kind4 == 0
+expect lvl_31_kind5 == 0
+expect lvl_31_kind6 == 0
+expect lvl_31_kind7 == 0
+expect lvl_31_kind8 == 0
+cheat level 31
+expect sym == 1
+expect unreach == 0
+expect dead_ledges == 0
+# 4-2
+expect lvl_32_starts == 1
+expect lvl_32_half == 1
+expect lvl_32_wrapok == 1
+expect lvl_32_spots == 1
+expect lvl_32_balls == 1
+expect lvl_32_kinds >= 1
+expect lvl_32_foes >= 2
+expect lvl_32_kind0 == 0
+expect lvl_32_kind1 == 0
+expect lvl_32_kind2 == 0
+expect lvl_32_kind3 == 0
+expect lvl_32_kind4 == 0
+expect lvl_32_kind5 == 0
+expect lvl_32_kind6 == 0
+expect lvl_32_kind7 == 0
+expect lvl_32_kind8 == 0
+cheat level 32
+expect sym == 1
+expect unreach == 0
+expect dead_ledges == 0
+# 4-3
+expect lvl_33_starts == 1
+expect lvl_33_half == 1
+expect lvl_33_wrapok == 1
+expect lvl_33_spots == 0
+expect lvl_33_balls == 1
+expect lvl_33_kinds >= 1
+expect lvl_33_foes >= 2
+expect lvl_33_kind0 == 0
+expect lvl_33_kind1 == 0
+expect lvl_33_kind2 == 0
+expect lvl_33_kind3 == 0
+expect lvl_33_kind4 == 0
+expect lvl_33_kind5 == 0
+expect lvl_33_kind6 == 0
+expect lvl_33_kind7 == 0
+expect lvl_33_kind8 == 0
+cheat level 33
+expect sym == 1
+expect unreach == 0
+expect dead_ledges == 0
+# 4-4
+expect lvl_34_starts == 1
+expect lvl_34_half == 1
+expect lvl_34_wrapok == 1
+expect lvl_34_spots == 1
+expect lvl_34_balls == 1
+expect lvl_34_kinds >= 1
+expect lvl_34_foes >= 2
+expect lvl_34_kind0 == 0
+expect lvl_34_kind1 == 0
+expect lvl_34_kind2 == 0
+expect lvl_34_kind3 == 0
+expect lvl_34_kind4 == 0
+expect lvl_34_kind5 == 0
+expect lvl_34_kind6 == 0
+expect lvl_34_kind7 == 0
+expect lvl_34_kind8 == 0
+cheat level 34
+expect sym == 1
+expect unreach == 0
+expect dead_ledges == 0
+# 4-5
+expect lvl_35_starts == 1
+expect lvl_35_half == 1
+expect lvl_35_wrapok == 1
+expect lvl_35_spots == 0
+expect lvl_35_balls == 1
+expect lvl_35_kinds >= 1
+expect lvl_35_foes >= 2
+expect lvl_35_kind0 == 0
+expect lvl_35_kind1 == 0
+expect lvl_35_kind2 == 0
+expect lvl_35_kind3 == 0
+expect lvl_35_kind4 == 0
+expect lvl_35_kind5 == 0
+expect lvl_35_kind6 == 0
+expect lvl_35_kind7 == 0
+expect lvl_35_kind8 == 0
+cheat level 35
+expect sym == 1
+expect unreach == 0
+expect dead_ledges == 0
+# 4-6
+expect lvl_36_starts == 1
+expect lvl_36_half == 1
+expect lvl_36_wrapok == 1
+expect lvl_36_spots == 0
+expect lvl_36_balls == 1
+expect lvl_36_kinds >= 1
+expect lvl_36_foes >= 2
+expect lvl_36_kind0 == 0
+expect lvl_36_kind1 == 0
+expect lvl_36_kind2 == 0
+expect lvl_36_kind3 == 0
+expect lvl_36_kind4 == 0
+expect lvl_36_kind5 == 0
+expect lvl_36_kind6 == 0
+expect lvl_36_kind7 == 0
+expect lvl_36_kind8 == 0
+cheat level 36
+expect sym == 1
+expect unreach == 0
+expect dead_ledges == 0
+# 4-7
+expect lvl_37_starts == 1
+expect lvl_37_half == 1
+expect lvl_37_wrapok == 1
+expect lvl_37_spots == 1
+expect lvl_37_balls == 1
+expect lvl_37_kinds >= 1
+expect lvl_37_foes >= 2
+expect lvl_37_kind0 == 0
+expect lvl_37_kind1 == 0
+expect lvl_37_kind2 == 0
+expect lvl_37_kind3 == 0
+expect lvl_37_kind4 == 0
+expect lvl_37_kind5 == 0
+expect lvl_37_kind6 == 0
+expect lvl_37_kind7 == 0
+expect lvl_37_kind8 == 0
+cheat level 37
+expect sym == 1
+expect unreach == 0
+expect dead_ledges == 0
+# 4-8
+expect lvl_38_starts == 1
+expect lvl_38_half == 1
+expect lvl_38_wrapok == 1
+expect lvl_38_spots == 0
+expect lvl_38_balls == 1
+expect lvl_38_kinds >= 1
+expect lvl_38_foes >= 2
+expect lvl_38_kind0 == 0
+expect lvl_38_kind1 == 0
+expect lvl_38_kind2 == 0
+expect lvl_38_kind3 == 0
+expect lvl_38_kind4 == 0
+expect lvl_38_kind5 == 0
+expect lvl_38_kind6 == 0
+expect lvl_38_kind7 == 0
+expect lvl_38_kind8 == 0
+cheat level 38
+expect sym == 1
+expect unreach == 0
+expect dead_ledges == 0
+# 4-9
+expect lvl_39_starts == 1
+expect lvl_39_half == 1
+expect lvl_39_wrapok == 1
+expect lvl_39_spots == 1
+expect lvl_39_balls == 1
+expect lvl_39_kinds >= 1
+expect lvl_39_foes >= 2
+expect lvl_39_kind0 == 0
+expect lvl_39_kind1 == 0
+expect lvl_39_kind2 == 0
+expect lvl_39_kind3 == 0
+expect lvl_39_kind4 == 0
+expect lvl_39_kind5 == 0
+expect lvl_39_kind6 == 0
+expect lvl_39_kind7 == 0
+expect lvl_39_kind8 == 0
+cheat level 39
+expect sym == 1
+expect unreach == 0
+expect dead_ledges == 0
+# 4-10
+expect lvl_40_starts == 1
+expect lvl_40_half == 1
+expect lvl_40_wrapok == 1
+expect lvl_40_spots == 0
+cheat level 40
+expect sym == 1
+expect unreach == 0
+expect dead_ledges == 0
+expect foes_16 == 1
+# each world's three kinds all appear (counted over its nine screens)
+expect lvl_2_kind0 >= 2
+expect lvl_1_kind1 >= 2
+expect lvl_3_kind2 >= 2
+expect lvl_11_kind3 >= 2
+expect lvl_12_kind4 >= 2
+expect lvl_12_kind5 >= 2
+expect lvl_21_kind6 >= 2
+expect lvl_22_kind7 >= 2
+expect lvl_23_kind8 >= 2
+expect lvl_31_kind9 >= 2
+expect lvl_32_kind10 >= 2
+expect lvl_33_kind11 >= 2

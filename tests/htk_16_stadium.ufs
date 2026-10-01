@@ -1,0 +1,51 @@
+# HAT TRICK, world 4 (the Big Stadium): props pace their ledge and throw
+# rugby balls that bounce hard, off floors several times and off walls,
+# never the same way twice; gloves shoot straight up or down through
+# everything and round through the top and bottom; bulldogs sleep until a
+# kid is carrying the ball, then come straight for that kid.
+game hattrick
+wait 5
+cheat level 31
+cheat skipintro
+cheat god
+cheat nofoes
+cheat foe 9 100 88 1
+cheat foe 1 300 20 1
+cheat pos 0 200 160
+waituntil shots_3 == 1 600
+expect shot0_vy100 < 0
+waituntil shot0_bounces >= 2 200
+# a glove: fast, straight down and round
+cheat noshots
+cheat nofoes
+cheat foe 10 60 20 1
+cheat foe 1 300 20 1
+wait 10
+expect fy_10 == 39
+waituntil fy_10 < 15 120
+expect fx_10 == 60
+cheat nofoes
+cheat foealt 10 60 100 1
+cheat foe 1 300 20 1
+wait 10
+expect fy_10 == 81
+# a bulldog: asleep...
+cheat nofoes
+cheat foe 11 160 60 1
+cheat foe 1 300 20 1
+cheat pos 0 60 160
+wait 60
+expect fx_11 == 160
+expect fy_11 == 60
+expect foe0_state == 0
+# ...until the kid has the ball
+cheat carry 0
+wait 2
+expect foe0_state == 1
+wait 60
+expect fx_11 < 120
+expect fy_11 > 80
+# put the ball down and it stops where it is
+press B 1
+wait 2
+expect foe0_state == 0

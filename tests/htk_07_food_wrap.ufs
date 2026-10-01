@@ -1,0 +1,32 @@
+# HAT TRICK: a body falls until it lands on something solid, and only then
+# turns into its food. Knocked over a hole in the floor, it falls out of the
+# bottom, back in at the top, and down to a ledge: the food comes late, and
+# up there.
+game hattrick
+wait 5
+cheat level 5
+cheat skipintro
+cheat god
+cheat still
+cheat nofoes
+cheat foe 1 64 140 1
+cheat foe 1 300 20 1
+cheat pos 0 140 160
+cheat ball 64 100 0 2
+cheat light
+waituntil kills == 1 40
+expect falling == 1
+expect food == 0
+wait 45
+expect falling == 1
+expect food == 0
+waituntil food == 1 200
+expect falling == 0
+expect food_y < 70
+expect food_item0 == 1
+# a body on the floor feeds you much sooner
+cheat foe 1 200 140 1
+cheat ball 170 140 3 0
+cheat light
+waituntil kills == 2 40
+waituntil food == 2 60

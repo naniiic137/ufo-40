@@ -1,0 +1,55 @@
+# HAT TRICK: 2 PLAYERS is co-op: Teddy (1P) starts on the left, Mae (2P) on
+# the right, on the same screen with one ball between them, passed back and
+# forth. Each has their own lives and score; when one is out of lives the
+# other plays on, and the run ends when both are out.
+game hattrick
+wait 20
+press DOWN
+press A
+wait 40
+expect state == 3
+press A
+wait 100
+expect state == 4
+expect mode == 1
+expect p0_on == 1
+expect p1_on == 1
+expect p0_ch == 0
+expect p1_ch == 1
+expect p0_x < 160
+expect p1_x > 160
+expect p0_lives == 3
+expect p1_lives == 3
+cheat still
+cheat god
+# Mae walks to the ball and takes it
+hold P2LEFT 110
+expect carrier == 1
+# and passes it along the ground to Teddy
+hold P2LEFT
+press P2B 1
+release
+expect carrier == -1
+expect ball_last == 1
+cheat pos 0 100 160
+waituntil carrier == 0 200
+# her score is her own
+cheat addscore 1 700
+expect p1_score == 700
+expect p0_score == 0
+# Mae out of lives: Teddy plays on
+cheat mortal
+cheat spare 1 0
+cheat kill 1
+wait 90
+expect p1_out == 1
+expect p0_out == 0
+expect state == 4
+cheat kill 0
+wait 90
+expect p0_alive == 1
+expect p0_spare == 1
+cheat spare 0 0
+cheat kill 0
+wait 90
+expect state == 5

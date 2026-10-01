@@ -293,7 +293,7 @@ static void draw_title(void) {
     gfx_rect(0, 0, 320, HTK_TOP, C_SKY);
     gfx_rect(0, 160, 320, 20, C_AMBER);
     ui_fancy_center("HAT TRICK", 160, 20, 3, LOGO_GRAD, ARRAY_LEN(LOGO_GRAD), C_INK, C_NAVY);
-    text_center("THE NEIGHBOURHOOD'S ONE BALL", 160, 46, C_NAVY);
+    text_center("ONE BALL. FORTY PITCHES.", 160, 46, C_NAVY);
     /* the kids with the ball between them */
     int bx = 160 + (int)(sinf(ui.t * 0.05f) * 50), by = 150 - (int)fabsf(sinf(ui.t * 0.1f) * 34);
     htk_draw_kid(KID_TEDDY, 90, 160, (ui.t / 20) % 2 ? 4 : 0, 1, ui.t);
@@ -544,16 +544,37 @@ static int htk_query(const char *key, int *out) {
         if (!strcmp(key + 5, "alive")) { *out = f->alive; return 1; }
         if (!strcmp(key + 5, "state")) { *out = f->state; return 1; }
         if (!strcmp(key + 5, "dir")) { *out = f->dir; return 1; }
+        if (!strcmp(key + 5, "vdir")) { *out = f->vdir; return 1; }
+        if (!strcmp(key + 5, "r")) { *out = (int)lroundf(sqrtf((f->x - f->ax) * (f->x - f->ax) + (f->y - f->ay) * (f->y - f->ay))); return 1; }
         return 0;
     }
     if (!strncmp(key, "fx_", 3)) { int i = first_foe(atoi(key + 3)); *out = i >= 0 ? (int)lroundf(htk.foe[i].x) : -1; return 1; }
     if (!strncmp(key, "fy_", 3)) { int i = first_foe(atoi(key + 3)); *out = i >= 0 ? (int)lroundf(htk.foe[i].y) : -1; return 1; }
     if (!strncmp(key, "hp_", 3)) { int i = first_foe(atoi(key + 3)); *out = i >= 0 ? htk.foe[i].hp : -1; return 1; }
     if (!strncmp(key, "away_", 5)) { int i = first_foe(atoi(key + 5)); *out = i >= 0 ? htk.foe[i].away : -1; return 1; }
+    if (!strncmp(key, "shot0_", 6)) {
+        const HtkShot *sh = NULL;
+        for (int i = 0; i < HTK_MAX_SHOTS && !sh; i++) if (htk.shot[i].alive) sh = &htk.shot[i];
+        const char *k = key + 6;
+        if (!sh) { *out = -999; return 1; }
+        if (!strcmp(k, "x")) { *out = (int)lroundf(sh->x); return 1; }
+        if (!strcmp(k, "y")) { *out = (int)lroundf(sh->y); return 1; }
+        if (!strcmp(k, "vx100")) { *out = (int)lroundf(sh->vx * 100); return 1; }
+        if (!strcmp(k, "vy100")) { *out = (int)lroundf(sh->vy * 100); return 1; }
+        if (!strcmp(k, "bounces")) { *out = sh->bounces; return 1; }
+        if (!strcmp(k, "kind")) { *out = sh->kind; return 1; }
+        return 0;
+    }
     if (!strcmp(key, "shots")) { int n = 0; for (int i = 0; i < HTK_MAX_SHOTS; i++) n += htk.shot[i].alive; *out = n; return 1; }
     if (!strncmp(key, "shots_", 6)) { int k = atoi(key + 6), n = 0; for (int i = 0; i < HTK_MAX_SHOTS; i++) n += htk.shot[i].alive && htk.shot[i].kind == k; *out = n; return 1; }
     if (!strcmp(key, "falling")) { int n = 0; for (int i = 0; i < HTK_MAX_ITEMS; i++) n += htk.item[i].alive && htk.item[i].falling; *out = n; return 1; }
     if (!strcmp(key, "food")) { int n = 0; for (int i = 0; i < HTK_MAX_ITEMS; i++) n += htk.item[i].alive && !htk.item[i].falling; *out = n; return 1; }
+    if (!strcmp(key, "food_x") || !strcmp(key, "food_y")) {
+        *out = -1;
+        for (int i = 0; i < HTK_MAX_ITEMS; i++)
+            if (htk.item[i].alive && !htk.item[i].falling) { *out = (int)lroundf(key[5] == 'x' ? htk.item[i].x : htk.item[i].y); break; }
+        return 1;
+    }
     if (!strcmp(key, "food_value")) {
         int n = 0;
         for (int i = 0; i < HTK_MAX_ITEMS; i++) if (htk.item[i].alive && !htk.item[i].falling) n += HTK_ITEM_VALUE[htk.item[i].item];
@@ -617,6 +638,12 @@ static int htk_query(const char *key, int *out) {
         if (!strncmp(w, "kind", 4)) { int k = atoi(w + 4); *out = k >= 0 && k < FK_COUNT ? cnt[k] : 0; return 1; }
         return 0;
     }
+    if (!strcmp(key, "unreach") || !strcmp(key, "dead_ledges")) {
+        int u = 0, d = 0;
+        htk_reach_check(&htk, &u, &d);
+        *out = key[0] == 'u' ? u : d;
+        return 1;
+    }
     if (!strcmp(key, "sym")) {
         /* the screen in play is the same on both sides: tiles and creatures */
         int ok = 1;
@@ -675,8 +702,10 @@ static int htk_cheat(const char *cmd) {
         return 1;
     }
     if (!strcmp(cmd, "skipintro")) { htk.sub = LS_PLAY; htk.sub_t = 0; return 1; }
-    if (!strcmp(cmd, "god")) { htk.god ^= 1; return 1; }
-    if (!strcmp(cmd, "still")) { htk.still ^= 1; return 1; }
+    if (!strcmp(cmd, "god")) { htk.god = 1; return 1; }
+    if (!strcmp(cmd, "mortal")) { htk.god = 0; return 1; }
+    if (!strcmp(cmd, "still")) { htk.still = 1; return 1; }
+    if (!strcmp(cmd, "unstill")) { htk.still = 0; return 1; }
     if (!strcmp(cmd, "nofoes")) { for (int i = 0; i < HTK_MAX_FOES; i++) htk.foe[i].alive = 0; return 1; }
     if (!strcmp(cmd, "noshots")) { memset(htk.shot, 0, sizeof htk.shot); return 1; }
     if (sscanf(cmd, "pos %d %f %f", &a, &x, &y) == 3) {
@@ -702,6 +731,8 @@ static int htk_cheat(const char *cmd) {
         return 1;
     }
     if (!strcmp(cmd, "light")) { htk.ball.lit = 1; return 1; }
+    if (!strcmp(cmd, "dark")) { htk.ball.lit = 0; htk.combo = 0; return 1; }
+    if (sscanf(cmd, "bounces %d", &a) == 1) { htk.ball.bounces = (int16_t)a; return 1; }
     if (sscanf(cmd, "combo %d", &a) == 1) { htk.combo = a; return 1; }
     if (sscanf(cmd, "foe %d %f %f %d", &a, &x, &y, &b) == 4) { htk_spawn_foe(&htk, iclamp(a, 0, FK_COUNT - 1), x, y, b, 0); return 1; }
     if (sscanf(cmd, "foealt %d %f %f %d", &a, &x, &y, &b) == 4) { htk_spawn_foe(&htk, iclamp(a, 0, FK_COUNT - 1), x, y, b, 1); return 1; }
@@ -715,6 +746,22 @@ static int htk_cheat(const char *cmd) {
     if (sscanf(cmd, "bosshp %d", &a) == 1) {
         for (int i = 0; i < HTK_MAX_FOES; i++)
             if (htk.foe[i].alive && htk.foe[i].kind >= FK_KINGSPIKER && htk.foe[i].kind != FK_TIMEKEEPER) htk.foe[i].hp = (int16_t)a;
+        return 1;
+    }
+    if (sscanf(cmd, "vsscore %d %d", &a, &b) == 2) { htk.vs_score[0] = a; htk.vs_score[1] = b; return 1; }
+    if (sscanf(cmd, "foehp %d %d", &a, &b) == 2) {
+        for (int i = 0; i < HTK_MAX_FOES; i++)
+            if (htk.foe[i].alive && htk.foe[i].kind == a) htk.foe[i].hp = (int16_t)b;
+        return 1;
+    }
+    if (sscanf(cmd, "bosspos %f %f", &x, &y) == 2) {
+        for (int i = 0; i < HTK_MAX_FOES; i++)
+            if (htk.foe[i].alive && htk.foe[i].kind >= FK_KINGSPIKER && htk.foe[i].kind != FK_TIMEKEEPER && htk.foe[i].kind != FK_TOWER) {
+                htk.foe[i].x = x;
+                htk.foe[i].y = y;
+                htk.foe[i].vx = htk.foe[i].vy = 0;
+                break;
+            }
         return 1;
     }
     if (sscanf(cmd, "bot %d %d", &a, &b) == 2) { ui.bot1 = a != 0; ui.bot2 = b != 0; return 1; }
@@ -732,6 +779,7 @@ static int htk_cheat(const char *cmd) {
         fair_idle = worst;
         return 1;
     }
+    if (!strcmp(cmd, "reachlog")) { htk_reach_log ^= 1; return 1; }
     if (!strcmp(cmd, "win")) { htk.level = HTK_LEVELS - 1; start_ending(); return 1; }
     if (!strcmp(cmd, "over")) {
         for (int k = 0; k < 2; k++) { htk.pl[k].spare = 0; htk.god = 0; htk.pl[k].inv = 0; htk_kill_player(&htk, k); }

@@ -1,0 +1,39 @@
+# HAT TRICK, 1-10: King Spiker, a big spiker with a crown. It hops at you
+# three times, then lobs three spades over in arcs, and round again. A
+# kicked ball takes one off it, a driven shot three; beaten, it bursts into
+# five spikers' bodies and five drumsticks. The demo player beats it.
+game hattrick
+wait 5
+cheat level 10
+cheat skipintro
+cheat god
+expect foes_12 == 1
+expect hp_12 == 12
+waituntil shots_4 == 3 600
+# a kick, then a driven shot
+cheat noshots
+cheat still
+cheat bosspos 180 148
+cheat pos 0 100 160
+cheat carry 0
+wait 2
+hold DOWN
+press B 1
+release
+waituntil hp_12 == 11 60
+cheat pos 0 100 160
+cheat carry 0
+wait 2
+hold B
+wait 40
+hold DOWN B
+wait 1
+release
+waituntil hp_12 == 8 60
+# and the rest by the demo player, with real presses
+cheat unstill
+cheat mortal
+cheat spare 0 99
+botuntil foes == 0 9000
+expect falling == 5
+waituntil food_item3 >= 1 100

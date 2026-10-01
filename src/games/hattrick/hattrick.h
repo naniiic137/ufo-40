@@ -35,7 +35,7 @@ enum { T_EMPTY, T_SOLID, T_LEDGE, T_GOAL };
 #define HTK_BONUS 100         /* points for each count left */
 #define HTK_RUN 1.25f         /* run speed, px a frame */
 #define HTK_GROUND_ACC 0.35f
-#define HTK_AIR_ACC 0.05f     /* stiff: a jump's course is mostly set at take-off */
+#define HTK_AIR_ACC 0.03f     /* stiff: a jump's course is mostly set at take-off */
 #define HTK_GRAV 0.2f
 #define HTK_JUMP (-4.0f)      /* one fixed height, held or tapped: about 38 px */
 #define HTK_MAXFALL 4.0f
@@ -207,6 +207,8 @@ int htk_nearest_player(const HtkPlay *g, float x, float y);
 uint16_t htk_bot_buttons(HtkPlay *g, int who);
 void htk_bot_reset(void);
 int htk_bot_nav(const HtkPlay *g, int who, int what);
+void htk_reach_check(const HtkPlay *g, int *unreach, int *dead);
+extern int htk_reach_log;
 extern int htk_bot_width;     /* candidates a decision (fewer: a weaker player) */
 /* fairness: of n tries by a modest player at screen L, how many lose no life */
 int htk_fair_runs(int level, int n, int width, int *worst_first_t);

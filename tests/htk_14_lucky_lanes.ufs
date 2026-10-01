@@ -1,0 +1,37 @@
+# HAT TRICK, world 2 (Lucky Lanes): pins never stop running, off the ends of
+# ledges and down the holes, round through the wrap; bowlers pace their
+# ledge and bowl at a kid on a slant downwards; spinners circle a spot.
+game hattrick
+wait 5
+cheat level 11
+cheat skipintro
+cheat god
+cheat nofoes
+# a pin on a ledge: it runs straight off the end
+cheat foe 3 120 120 1
+cheat foe 1 300 20 1
+wait 2
+expect fy_3 < 130
+waituntil fy_3 > 140 200
+# a bowler: down on a slant, towards the kid's side
+cheat nofoes
+cheat foe 4 120 56 1
+cheat foe 1 300 20 1
+cheat pos 0 40 160
+waituntil shots_1 == 1 600
+expect shot0_vx100 == -130
+expect shot0_vy100 == 130
+cheat noshots
+cheat pos 0 280 160
+waituntil shots_1 == 1 600
+expect shot0_vx100 == 130
+expect shot0_vy100 == 130
+# a spinner: round and round its spot, never further than 22 px from it
+cheat noshots
+cheat nofoes
+cheat foe 5 160 80 1
+cheat foe 1 300 20 1
+wait 30
+expect foe0_r == 22
+wait 100
+expect foe0_r == 22

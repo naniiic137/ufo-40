@@ -77,7 +77,7 @@ void htk_foe_setup(HtkPlay *g, HtkFoe *f) {
         f->fire_t = 100;
         break;
     case FK_LIFEGUARD: f->fire_t = 120; f->ax = f->x; f->ay = f->y; break;
-    case FK_CAPTAIN: f->fire_t = 90; break;
+    case FK_CAPTAIN: f->fire_t = 120; break;
     default: break;
     }
 }
@@ -171,8 +171,21 @@ static void drift_x(HtkPlay *g, HtkFoe *f) {
     if (f->vx) f->dir = (int16_t)(f->vx > 0 ? 1 : -1);
 }
 
-static void home(HtkFoe *f, float tx, float ty, float speed) {
-    float dx = htk_wrapdx(tx - f->x), dy = htk_wrapdy(ty - f->y), d = sqrtf(dx * dx + dy * dy);
+/* across to a kid: the short way round only where that row of the screen
+ * really wraps (no wall at its edge) */
+static float kid_dx(const HtkPlay *g, float fx, float kx, float y) {
+    bool open = htk_tile(g, 0, y) != T_SOLID && htk_tile(g, HTK_W - 1, y) != T_SOLID;
+    return open ? htk_wrapdx(kx - fx) : kx - fx;
+}
+
+/* and up or down: through the top and bottom only where that column is open */
+static float kid_dy(const HtkPlay *g, float fy, float ky, float x) {
+    bool open = htk_tile(g, x, 0) != T_SOLID && htk_tile(g, x, HTK_H - 1) != T_SOLID;
+    return open ? htk_wrapdy(ky - fy) : ky - fy;
+}
+
+static void home(const HtkPlay *g, HtkFoe *f, float tx, float ty, float speed) {
+    float dx = kid_dx(g, f->x, tx, f->y), dy = kid_dy(g, f->y, ty, f->x), d = sqrtf(dx * dx + dy * dy);
     if (d < 0.5f) return;
     f->x = htk_wrapx(f->x + dx / d * speed);
     f->y += dy / d * speed;
@@ -185,7 +198,7 @@ static void home(HtkFoe *f, float tx, float ty, float speed) {
 static bool aim(HtkPlay *g, HtkFoe *f, float speed, bool down_only, float *vx, float *vy) {
     int k = htk_nearest_player(g, f->x, f->y);
     if (k < 0) return false;
-    float dx = htk_wrapdx(g->pl[k].x - f->x), dy = htk_wrapdy(g->pl[k].y - 9 - f->y);
+    float dx = kid_dx(g, f->x, g->pl[k].x, f->y), dy = kid_dy(g, f->y, g->pl[k].y - 9, f->x);
     float d = sqrtf(dx * dx + dy * dy);
     if (d < 1) d = 1;
     *vx = dx / d * speed;
@@ -200,7 +213,7 @@ static bool aim(HtkPlay *g, HtkFoe *f, float speed, bool down_only, float *vx, f
 static float side_of_kid(HtkPlay *g, HtkFoe *f) {
     int k = htk_nearest_player(g, f->x, f->y);
     if (k < 0) return (float)f->dir;
-    return htk_wrapdx(g->pl[k].x - f->x) < 0 ? -1.0f : 1.0f;
+    return kid_dx(g, f->x, g->pl[k].x, f->y) < 0 ? -1.0f : 1.0f;
 }
 
 /* the shooters: walk, stop to wind up, fire, walk on */
@@ -363,7 +376,7 @@ static void boss_update(HtkPlay *g, HtkFoe *f) {
             }
             break;
         }
-        home(f, f->ax, f->ay, 0.9f);
+        home(g, f, f->ax, f->ay, 0.9f);
         if ((fabsf(htk_wrapdx(f->ax - f->x)) < 3 && fabsf(f->ay - f->y) < 3) || f->t % 240 == 0) {
             f->ax = (float)rng_range(&g->rng, 40, 280);
             f->ay = (float)rng_range(&g->rng, 30, 136);
@@ -411,7 +424,7 @@ static void boss_update(HtkPlay *g, HtkFoe *f) {
             htk_add_shot(g, SH_RUGBY, f->x + s * 10, f->y - 10, s * 1.5f, -2.6f);
             htk_add_shot(g, SH_RUGBY, f->x + s * 10, f->y - 10, s * 2.2f, -2.2f);
             htk_sfx("htk_throw");
-            f->fire_t = 90;
+            f->fire_t = 130;
         }
         break;
     }
@@ -484,12 +497,12 @@ void htk_foes_update(HtkPlay *g) {
             /* asleep until a kid carries the ball, then straight for them */
             int c = g->ball.carrier;
             f->state = c >= 0 && g->pl[c].alive;
-            if (f->state) home(f, g->pl[c].x, g->pl[c].y - 9, 0.95f);
+            if (f->state) home(g, f, g->pl[c].x, g->pl[c].y - 9, 0.95f);
             break;
         }
         case FK_TIMEKEEPER: {
             int k = htk_nearest_player(g, f->x, f->y);
-            if (k >= 0) home(f, g->pl[k].x, g->pl[k].y - 9, 0.42f);
+            if (k >= 0) home(g, f, g->pl[k].x, g->pl[k].y - 9, 0.42f);
             break;
         }
         default: boss_update(g, f); break;
@@ -525,7 +538,7 @@ void htk_shots_update(HtkPlay *g) {
             }
             if (s->y >= HTK_H) s->y -= HTK_H;
             if (s->y < 0) s->y += HTK_H;
-            if (s->bounces >= 5 || s->t > 330) s->alive = 0;
+            if (s->bounces >= 4 || s->t > 300) s->alive = 0;
             continue;
         }
         if (s->kind == SH_SPADE) {

@@ -1,0 +1,15 @@
+# HAT TRICK, 4-10: the Captain, a big prop with the armband, walks and jumps
+# about the whole stadium after you, throwing two rugby balls at a time. The
+# demo player beats him.
+game hattrick
+wait 5
+cheat level 40
+cheat skipintro
+cheat god
+expect foes_16 == 1
+expect hp_16 == 20
+waituntil shots_3 >= 2 200
+cheat mortal
+cheat spare 0 99
+botuntil foes == 0 9000
+expect falling == 5

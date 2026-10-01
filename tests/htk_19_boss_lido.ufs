@@ -1,0 +1,54 @@
+# HAT TRICK, 3-10: the Lifeguard and his Chair. The Lifeguard (a big polo
+# player) swims about throwing rings and takes many hits; beaten, he bursts
+# into five drumsticks but the match goes on: he is back from the changing
+# hut a few seconds later. The Chair only hops about, and it is the one that
+# matters: knock it down and the Lifeguard goes with it. The top lane rope
+# carries our own message in Morse. The demo player beats them.
+game hattrick
+wait 5
+cheat level 30
+cheat skipintro
+cheat god
+expect foes_14 == 1
+expect foes_15 == 1
+expect hp_14 == 40
+expect hp_15 == 10
+expect morse_ok == 1
+waituntil shots_6 >= 2 300
+# the Lifeguard beaten: food, but he comes back
+cheat noshots
+cheat still
+cheat bosspos 200 140
+cheat foehp 14 1
+cheat pos 0 120 160
+cheat carry 0
+wait 2
+hold DOWN
+press B 1
+release
+waituntil away_14 == 1 60
+expect foes == 2
+expect falling == 5
+cheat unstill
+wait 320
+expect away_14 == 0
+expect hp_14 == 40
+# the Chair down: both gone
+cheat still
+cheat noshots
+cheat foehp 15 1
+cheat foehp 14 40
+wait 1
+cheat mortal
+cheat spare 0 99
+cheat unstill
+botuntil foes == 0 9000
+expect foes_14 == 0
+expect foes_15 == 0
+expect sub == 2
+# and the whole fight from the start, at full strength
+cheat level 30
+cheat skipintro
+cheat spare 0 99
+botuntil sub >= 2 12000
+expect foes == 0

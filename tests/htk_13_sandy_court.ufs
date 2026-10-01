@@ -1,0 +1,56 @@
+# HAT TRICK, world 1 (Sandy Court): spikers walk their ledge, turning at its
+# ends, and now and then stop, wind up and serve a ball at a kid, level or
+# down, never up (stay above them); frisbees fly to and fro; beach balls go
+# on a slant and bounce off everything.
+game hattrick
+wait 5
+cheat level 1
+cheat skipintro
+cheat god
+cheat nofoes
+cheat foe 0 40 120 1
+cheat foe 1 300 20 1
+wait 1
+expect foe0_y == 122
+# it patrols the ledge (x 24-72) and never walks off
+wait 200
+expect foe0_y == 122
+expect fx_0 >= 24
+expect fx_0 <= 72
+# a serve: the kid is up on the ledge above, the spiker below on the floor
+cheat nofoes
+cheat foe 0 160 150 1
+cheat foe 1 300 20 1
+cheat pos 0 120 96
+waituntil foe0_state == 1 500
+waituntil shots_0 == 1 40
+expect shot0_vy100 >= 20
+# a kid below gets served downhill
+cheat noshots
+cheat nofoes
+cheat foe 0 40 120 1
+cheat foe 1 300 20 1
+cheat pos 0 100 160
+waituntil shots_0 == 1 600
+expect shot0_vy100 > 50
+expect shot0_vx100 > 0
+# the frisbee flies to and fro, level
+cheat noshots
+cheat nofoes
+cheat foe 1 160 60 1
+cheat foe 1 300 20 1
+expect foe0_dir == 1
+waituntil foe0_dir == -1 400
+expect foe0_y >= 57
+expect foe0_y <= 63
+waituntil foe0_dir == 1 400
+# the beach ball: on a slant, and back off a ledge or wall
+cheat nofoes
+cheat foe 2 120 120 1
+cheat foe 1 300 20 1
+expect foe0_vdir == 1
+wait 2
+expect fx_2 > 120
+expect fy_2 > 120
+waituntil foe0_vdir == -1 200
+waituntil foe0_dir == -1 400

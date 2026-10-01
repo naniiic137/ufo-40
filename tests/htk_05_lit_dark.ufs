@@ -1,0 +1,79 @@
+# HAT TRICK: the lit ball. Touching it lights it (white); it goes dark when
+# a loose ball settles (its third bounce, or a second on the ground) or
+# when it is carried too long (3 s) without a kick, and a dark ball ends the
+# chain. A touch before it settles keeps it lit; a ball still falling (down
+# a hole, round through the wrap) stays lit.
+game hattrick
+wait 5
+cheat level 1
+cheat skipintro
+cheat still
+cheat god
+cheat pos 0 140 160
+cheat carry 0
+cheat combo 2
+wait 2
+press B 1
+expect lit == 1
+expect combo == 2
+waituntil ball_bounces == 1 120
+expect lit == 1
+waituntil ball_bounces == 2 120
+expect lit == 1
+expect combo == 2
+waituntil lit == 0 120
+expect ball_bounces == 3
+expect combo == 0
+# rolling along the ground: a second on the ground and it goes dark
+cheat pos 0 60 160
+cheat carry 0
+cheat combo 1
+wait 2
+hold DOWN
+press B 1
+release
+expect lit == 1
+waituntil ball_ground == 1 30
+wait 40
+expect lit == 1
+wait 25
+expect lit == 0
+expect combo == 0
+# carried too long
+cheat pos 0 140 160
+cheat carry 0
+cheat combo 3
+wait 170
+expect lit == 1
+expect combo == 3
+wait 15
+expect lit == 0
+expect combo == 0
+# a kick lights it again, but the chain starts over
+press B 1
+expect lit == 1
+expect combo == 0
+# kept alive: a header before it settles (two bounces already)
+cheat pos 0 300 160
+cheat ball 300 60 0 0
+cheat light
+cheat bounces 2
+wait 3
+press A 1
+wait 10
+hold B 2
+wait 10
+expect ball_bounces == 0
+expect ball_vy100 < 0
+expect lit == 1
+# a ball falling through the wrap stays lit: down a hole in the floor, in
+# at the top, and on down to a ledge
+cheat level 5
+cheat skipintro
+cheat still
+cheat god
+cheat ball 60 150 0 1
+cheat light
+waituntil ball_y < 40 60
+expect lit == 1
+expect ball_bounces == 0

@@ -1,0 +1,96 @@
+# HAT TRICK: walking into the ball on the ground picks it up (no button) and
+# lights it. Tapping B kicks it, and the kick takes the pad, the run and the
+# jump into account: a chip from standing, a lob straight up, up and over,
+# along the ground, a low drive on the run, a volley down in the air.
+game hattrick
+wait 5
+cheat level 1
+cheat skipintro
+cheat still
+cheat god
+cheat pos 0 140 160
+expect carrier == -1
+expect lit == 0
+hold RIGHT 20
+expect carrier == 0
+expect lit == 1
+expect ball_last == 0
+# the kick comes when B is let go: still carried while it is down
+hold B
+wait 5
+expect carrier == 0
+release
+wait 1
+expect carrier == -1
+# a chip from standing
+cheat pos 0 140 160
+cheat carry 0
+wait 2
+press B 1
+expect ball_vx100 == 260
+expect ball_vy100 == -244
+expect ball_power == 0
+# a lob, nearly straight up
+cheat pos 0 140 160
+cheat carry 0
+wait 2
+hold UP
+press B 1
+release
+expect ball_vx100 == 90
+expect ball_vy100 == -444
+# up and over
+cheat pos 0 140 160
+cheat carry 0
+wait 2
+hold UP RIGHT
+press B 1
+release
+expect ball_vx100 > 240
+expect ball_vy100 == -344
+# along the ground
+cheat pos 0 140 160
+cheat carry 0
+wait 2
+hold DOWN
+press B 1
+release
+expect ball_vx100 == 340
+expect ball_vy100 > -20
+# a drive on the run: the run adds to it
+cheat pos 0 140 160
+cheat carry 0
+wait 2
+hold RIGHT 20
+hold RIGHT
+press B 1
+release
+expect ball_vx100 > 380
+expect ball_vy100 == -144
+# in the air, B kicks at once; DOWN volleys it down
+cheat pos 0 140 160
+cheat carry 0
+wait 2
+press A 1
+wait 6
+expect p0_ground == 0
+hold DOWN
+press B 1
+release
+expect ball_vy100 > 200
+# facing left, it goes left
+cheat pos 0 200 160
+cheat carry 0
+hold LEFT 3
+press B 1
+expect ball_vx100 < -200
+# a kicked ball can't be picked straight back up by the kicker
+cheat pos 0 140 160
+cheat carry 0
+wait 2
+hold DOWN
+press B 1
+release
+expect carrier == -1
+wait 3
+expect carrier == -1

@@ -454,6 +454,7 @@ static void update_kid(HtkPlay *g, int i, uint16_t held) {
         if (fabsf(htk_wrapdx(o->x - p->x)) < HTK_PW * 2 && fabsf(htk_wrapdy(o->y - p->y)) < 10) {
             b->carrier = -1;
             touch_ball(g, i, p->facing * 2.4f, -2.6f);
+            b->nopick[1 - i] = 40; /* knocked off it: no grabbing it straight back */
             g->pl[1 - i].charging = 0;
         }
     }
@@ -569,7 +570,7 @@ static void ball_vs_foes(HtkPlay *g) {
         f->alive = 0;
         g->kills++;
         if (b->last >= 0) g->pl[b->last].kills++;
-        htk_spawn_body(g, f->x, f->y, f->kind, item, b->vx > 0 ? 0.6f : -0.6f);
+        htk_spawn_body(g, f->x, f->y, f->kind, item, fclamp(b->vx * 0.2f, -0.6f, 0.6f));
         htk_burst(g, f->x, f->y, C_WHITE, 6, 1.2f);
         htk_sfx(item >= IT_DRUMSTICK ? "htk_kill4" : "htk_kill");
         b->vx *= 0.92f;
@@ -708,7 +709,7 @@ static void update_versus(HtkPlay *g) {
         }
         return;
     }
-    if (b->carrier < 0 && (b->x < 3 || b->x > HTK_W - 3) && htk_tile(g, b->x, b->y) == T_GOAL) {
+    if (b->carrier < 0 && htk_tile(g, b->x, b->y) == T_GOAL) {
         /* in the left goal: a point to the kid on the right, and the other way */
         g->vs_scorer = b->x < 160 ? 1 : 0;
         g->vs_score[g->vs_scorer]++;

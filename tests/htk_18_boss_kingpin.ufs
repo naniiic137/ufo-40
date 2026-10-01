@@ -1,0 +1,19 @@
+# HAT TRICK, 2-10: the Kingpin, a big pin, runs round and round the edges of
+# the lanes (along the floor, up a wall, along the ceiling, down the other
+# wall) throwing cans at you. The demo player beats it.
+game hattrick
+wait 5
+cheat level 20
+cheat skipintro
+cheat god
+expect foes_13 == 1
+expect hp_13 == 15
+expect fy_13 > 140
+waituntil fx_13 < 20 300
+waituntil fy_13 < 30 300
+waituntil fx_13 > 300 400
+waituntil shots_5 >= 1 400
+cheat mortal
+cheat spare 0 99
+botuntil foes == 0 9000
+expect falling == 5
