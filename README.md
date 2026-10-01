@@ -104,6 +104,7 @@ when there is more above or below.
 | 09 | **BANNERFALL** | Attactics | a 6×8 field between two keeps, a countdown turn where you drag troops within your half, the same end-of-turn order and clashes, eight unit types with promotions and heroes, the original's 24 campaign battles, ranked, survival and 2P versus | the Marigold Guard and the Thistle Host, all units and battle names |
 | 13 | **DUSKLING** | Mooncat | every way on the D-pad is left and both buttons are right (or the other way round); a jump goes toward the side held (higher the longer you press), low hops, rolls and sprints, somersaults, and a slam that pauses with a "!" and drops straight down; spiked foes flipped by a slam beside them and kicked away; one touch and back to the room's start, as often as it takes; flowers that mean a warp, stone faces that show hidden ledges, warps within warps to three eggs and three bosses, 42 rooms, 2P co-op | the duskling and the dayling, the Hush Wood, the Sunken Mere, the Old Steps and the Humming Works, the Ember Caves and the Windy Heights, the Brass Warden, the Ember Hermit and the Old Badger, 42 new rooms |
 | 10 | **BOOMTOWN** | Devilition | a 10 × 8 board, pieces dealt three at a time from bags of six, nine piece patterns (rockets land on their own pad), one detonation a night whose chain sets off every piece it reaches, demons that take one or two hits or heal, a hole a night, the original's round table, a 10-hit boss in the middle four tiles, the win score and clock bonus | Hazel the fireworks maker, Mossbury's folk, the bogles and the Bog King, eight fireworks |
+| 11 | **HAT TRICK** | Kick Club | one-screen pitches that wrap wherever there is no wall, every one the same on both sides; one ball, the only thing that hurts the creatures, picked up by walking into it, tapped, aimed with the pad (lobs, drives, volleys) or held for a driven shot, and with no ball a slide that floats over gaps or a header; a fixed jump and stiff air; the lit ball whose chain drops 100, 200, 500 and then 1,000 food, which only appears where the body lands; hidden desserts; a 20-count clock at 2.5 s a count and 100 a count left; an invincible hunter in extra time who stays; three lives, extends at 10k to 100k, no continues; 4 worlds of 9 screens and a boss (a pair in world 3); co-op with one ball, and versus by two codes | Teddy and Mae, Sandy Court, Lucky Lanes, the Lido and the Big Stadium, all 12 creatures, King Spiker, the Kingpin, the Lifeguard and his Chair, the Captain, the Timekeeper, 40 new screens, a Morse secret of our own |
 | 14 | **CUTLASS CUP** | Bushido Ball | first to 8 points, a ball that gets faster with every return, aimed, lobbed and curved strikes, secondary weapons and charged super shots, the fouls and penalty points, six fighters, a five-match tournament, 2P versus and co-op doubles | six corsairs, the galley *Merry Mackerel*, old Bosun Crabbe |
 | 15 | **FENNEC FOUNTAIN** | Block Koala | pushing numbered blocks (never into a heavier one, a 1 that can't move is taken in), grey at five, blue and black blocks, mimics, arrows, stone patches and doors, unlimited undo and a room menu, fifty rooms behind gates, a room editor | Fen the fennec, a dry spring garden, 50 new rooms |
 | 16 | **TINTAIL** | Camouflage | sneaking on a grid past watchers by taking the colour of the ground you stand on, hollow logs, sun and rain pads, hatchlings with their own colour, a danger view you can't move in, undo, a branching map | Twig the chameleon, Salt Island, toads and storks, 15 new levels |
@@ -462,6 +463,50 @@ the top.
 - **Ours:** Hazel the fireworks maker, Mossbury and its folk, the bogles and
   the Bog King, the names and looks of all eight fireworks, the words and the
   music. A demo player in the tests wins a whole run with button presses.
+
+### 11 · HAT TRICK
+
+<p align="center">
+  <img src="docs/shots/hattrick.gif" width="640" alt="Hat Trick: Teddy kicks the ball through the frisbees of the first beach court while the food drops">
+</p>
+<p align="center">
+  <img src="docs/shots/hattrick_lido.png" width="320" alt="The Lido's boss pair, the Lifeguard and his Chair, under a lane rope of floats">
+  <img src="docs/shots/hattrick_stadium.png" width="320" alt="Extra time at the Big Stadium: the Timekeeper comes for Teddy among the props and bulldogs">
+</p>
+<p align="center">
+  <img src="docs/shots/hattrick_select.png" width="320" alt="Who's playing: Teddy starts on the left, Mae on the right">
+  <img src="docs/shots/hattrick_lanes.png" width="320" alt="Lucky Lanes: bowlers on the top ledges, a pin and the spinners">
+</p>
+
+*A tribute to **Kick Club** (UFO 50 #11).*
+
+- **Plays the same:** one screen at a time, walled round the edges and
+  wrapping wherever a wall is missing, out of one side and in at the other,
+  down a hole and in at the top; every screen the same on both sides. Your
+  only weapon is the ball: walk into it to pick it up, tap B to kick it
+  (the pad, your run and your jump all change the kick), hold B for a fast,
+  flat driven shot, and without it slide (over gaps, on thin air) or head
+  it. The jump is always the same height, the air barely steers, and the
+  kid is a big target: one touch of anything is a life.
+- **The lit ball:** touch it and it glows; leave it to settle (three
+  bounces, a second on the ground) or carry it too long and it goes dark.
+  Kills while it stays lit drop popcorn 100, a pretzel 200, a taco 500,
+  then a drumstick 1,000 every time, but only once the body lands. Kick the
+  ball through a hidden spot and a dessert drops.
+- **The clock:** 20 counts of 2.5 s; whatever is left is 100 points a
+  count. At zero it is extra time, and the Timekeeper walks in, through
+  walls, and stays, deaths and all, until the screen is clear.
+- **Structure:** four worlds of nine screens and a boss, 40 in all; three
+  lives, more at 10,000, 25,000, 50,000, 75,000 and 100,000, no continues,
+  and back to 1-1. Co-op shares the one ball; two codes open the unfinished
+  versus pitch. The demo player in the tests clears all 40 screens and
+  every boss with button presses, and a test keeps the first world gentle.
+- **Ours:** Teddy and Mae of the Hat Trick Club, Sandy Court, Lucky Lanes,
+  the Lido and the Big Stadium, spikers, frisbees, beach balls, pins,
+  bowlers, spinners, buoys, polo players, duckies, props, gloves and
+  bulldogs, King Spiker, the Kingpin, the Lifeguard and his Chair, the
+  Captain, the Timekeeper, the food, the codes, a secret of our own and the
+  music.
 
 ### 14 · CUTLASS CUP
 

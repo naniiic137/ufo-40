@@ -216,6 +216,7 @@ extern int htk_fair_killer[128]; /* what took the life in the tries that lost on
 
 /* hattrick_draw.c */
 void htk_draw_play(const HtkPlay *g);
+extern uint32_t htk_hud_top;
 void htk_draw_label(int x, int y, int w, int h, int t);
 void htk_draw_backdrop(int world, int t);
 void htk_draw_kid(int ch, int x, int y, int pose, int facing, int t);

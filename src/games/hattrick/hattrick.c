@@ -357,14 +357,19 @@ static void draw_text_page(const char *s, int y, int col) {
 }
 
 static void draw_story(void) {
-    htk_draw_backdrop(3, ui.t);
-    gfx_darken_rect(0, 0, 320, 180, 3);
+    gfx_cls(C_NAVY);
+    gfx_rect(0, 150, 320, 30, C_FOREST);
+    for (int x = 0; x < 320; x += 32) gfx_rect(x, 150, 16, 30, C_JADE);
+    gfx_hline(0, 319, 150, C_WHITE);
+    htk_draw_kid(KID_TEDDY, 120, 166, (ui.t / 20) % 2 ? 4 : 0, 1, ui.t);
+    htk_draw_kid(KID_MAE, 200, 166, (ui.t / 20) % 2 ? 0 : 4, -1, ui.t);
+    spr_draw(&htk_spr[SP_BALL], 157 + (int)(sinf(ui.t * 0.05f) * 20), 158 - (int)fabsf(sinf(ui.t * 0.1f) * 16), 0);
     text_center_shadow("SATURDAY MORNING", 160, 16, C_YELLOW, C_INK);
     draw_text_page("EVERY PITCH IN TOWN HAS GONE WILD. THE BALLS, THE PINS, THE FLOATS AND THE GLOVES HAVE "
                    "COME TO LIFE, AND ONLY A KICKED BALL STOPS THEM. TEDDY AND MAE HAVE ONE BALL BETWEEN THEM. "
                    "CLEAR EVERY PITCH, EAT WHAT FALLS, AND MIND THE CLOCK: THE TIMEKEEPER COMES OUT IN EXTRA TIME.",
                    36, C_WHITE);
-    if ((ui.state_t / 20) % 2) text_center(GLYPH_A, 160, 164, C_WHITE);
+    if ((ui.state_t / 20) % 2) text_center(GLYPH_A, 160, 136, C_WHITE);
 }
 
 static void draw_over(void) {
@@ -425,7 +430,10 @@ static void htk_draw(void) {
     case ST_SELECT: draw_select(); break;
     case ST_CODES: draw_codes(); break;
     case ST_STORY: draw_story(); break;
-    case ST_PLAY: htk_draw_play(&htk); break;
+    case ST_PLAY:
+        htk_hud_top = sv.top;
+        htk_draw_play(&htk);
+        break;
     case ST_OVER: draw_over(); break;
     case ST_ENDING: draw_ending(); break;
     case ST_CREDITS: draw_credits(); break;

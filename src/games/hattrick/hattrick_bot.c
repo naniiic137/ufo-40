@@ -304,7 +304,10 @@ static void replan(HtkPlay *g, int who) {
         int fr = (int)floorf(e->y / HTK_T), fc = (int)floorf(e->x / HTK_T);
         for (int dr = 1; dr <= 7; dr++)
             for (int dc = -7; dc <= 7; dc++) {
-                int n = wr(fr + dr) * HTK_COLS + wc(fc + dc);
+                int cc = fc + dc, rr = fr + dr;
+                /* round through an edge only where the screen is open there */
+                if ((cc < 0 || cc >= HTK_COLS) && t_solid(g, rr, 0)) continue;
+                int n = wr(rr) * HTK_COLS + wc(cc);
                 if (nav_ok[n] && nf < NAV_N) ft[nf++] = n;
             }
     }

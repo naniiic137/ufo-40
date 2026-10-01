@@ -1,0 +1,18 @@
+# HAT TRICK: proof that world 3's ten screens can be cleared, one after the
+# other with the real flow between them (the clock, the food, the balloons):
+# the demo player plays them with real presses, from 3-1 through
+# the boss, with a few spare lives in hand.
+game hattrick
+wait 20
+press A
+wait 10
+press A
+wait 50
+press A
+wait 5
+cheat level 21
+cheat spare 0 9
+botuntil level == 31 40000
+print p0_deaths
+print p0_score
+expect p0_deaths <= 6

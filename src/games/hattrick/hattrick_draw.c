@@ -2,6 +2,8 @@
  * tiles, the kids, the ball, the creatures, the food and the HUD. */
 #include "hattrick.h"
 
+uint32_t htk_hud_top; /* the best score so far, for the HUD */
+
 /* ---- wrap-aware drawing: anything near an open edge shows on the other side too ---- */
 
 static void draw_wrapped(const Sprite *s, int x, int y, int flags, const uint8_t *remap, int solid) {
@@ -305,12 +307,16 @@ static void draw_hud(const HtkPlay *g) {
         const HtkPlayer *p = &g->pl[k];
         if (!p->on) continue;
         bool right = g->mode == MODE_1P ? false : k == 1;
-        int x = right ? 230 : 4;
+        int x = right ? 200 : 4;
         snprintf(buf, sizeof buf, "%s %06u", g->mode == MODE_VS ? (k ? "2P" : "1P") : (k ? "2P" : "1P"), (unsigned)p->score);
         if (g->mode == MODE_VS) snprintf(buf, sizeof buf, "%s %s", HTK_KID_NAME[p->ch], k ? "2P" : "1P");
         text_draw(buf, x, 2, p->out ? C_SLATE : (p->ch == KID_MAE ? C_YELLOW : C_LEAF));
         if (g->mode != MODE_VS)
             for (int l = 0; l < imin(p->spare, 6); l++) gfx_circ(x + 74 + l * 6, 5, 2, C_RED);
+    }
+    if (g->mode == MODE_1P) {
+        snprintf(buf, sizeof buf, "TOP %06u", (unsigned)(htk_hud_top > g->pl[0].score ? htk_hud_top : g->pl[0].score));
+        text_draw(buf, 238, 2, C_GREY);
     }
     if (g->mode == MODE_VS) {
         snprintf(buf, sizeof buf, "%d - %d", g->vs_score[0], g->vs_score[1]);

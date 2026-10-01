@@ -1,0 +1,27 @@
+# HAT TRICK: a gentle start, a hard wall at the end. "cheat fair L N W" plays
+# screen L N times with a modest demo player (W = 6 plans a decision, where
+# the full one weighs 64 and tries every running jump) and no spare life,
+# and counts the tries that keep their life until the screen is cleared or
+# the clock runs out; it also times how long a kid who just stands at the
+# start lasts (600 = ten seconds, untouched). The first three screens let
+# almost every try through and leave a kid standing still alone for four
+# seconds or more; the Big Stadium's hardest screens catch a modest player
+# out far more often.
+game hattrick
+wait 5
+cheat level 1
+cheat fair 1 24 6
+expect fair_pct >= 90
+expect fair_idle >= 240
+cheat fair 2 24 6
+expect fair_pct >= 90
+expect fair_idle >= 240
+cheat fair 3 24 6
+expect fair_pct >= 90
+expect fair_idle >= 240
+cheat fair 34 24 6
+expect fair_pct <= 75
+cheat fair 35 24 6
+expect fair_pct <= 75
+cheat fair 39 24 6
+expect fair_pct <= 75

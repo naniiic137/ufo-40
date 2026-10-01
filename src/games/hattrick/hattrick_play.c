@@ -479,10 +479,19 @@ static void update_ball(HtkPlay *g) {
         b->x = htk_wrapx(p->x + p->facing * 7);
         b->y = p->y - HTK_BALL_R - 1;
         if (b->y < 0) b->y += HTK_H;
+        /* up against a wall it stays at the kid's feet, never in the wall */
+        if (htk_box_solid(g, b->x - HTK_BALL_R, b->y - HTK_BALL_R, b->x + HTK_BALL_R, b->y + HTK_BALL_R, false))
+            b->x = p->x;
         b->vx = b->vy = 0;
         b->spin += (int16_t)(fabsf(p->vx) > 0.2f ? 1 : 0);
         if (++b->hold_t > HTK_DARK_HOLD) go_dark(g);
         return;
+    }
+    /* never left inside a wall (the original's kick-into-a-wall bug): out
+     * towards the middle of the screen, or up */
+    for (int k = 0; k < 24 && htk_box_solid(g, b->x - HTK_BALL_R, b->y - HTK_BALL_R, b->x + HTK_BALL_R, b->y + HTK_BALL_R, false); k++) {
+        if (k < 16) b->x = htk_wrapx(b->x + (b->x < HTK_W / 2 ? 1.0f : -1.0f));
+        else b->y -= 2;
     }
     float sp = fmaxf(fabsf(b->vx), fabsf(b->vy));
     int n = 1 + (int)(sp / 2.5f);
