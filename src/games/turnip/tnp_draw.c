@@ -334,15 +334,21 @@ static void draw_beet(int sx, int sy, const TnpMob *m, int t) {
 }
 
 static void draw_saucer(int sx, int sy, int kind, int t) {
-    int r = kind == MK_SAUCER_S ? 5 : kind == MK_SAUCER_M ? 8 : 14;
-    /* the shadow on the ground, then the saucer high above */
-    gfx_dither(sx - r + 6, sy + 10, r * 2, r / 2 + 2, C_INK, 8);
-    sy -= 6;
-    gfx_rect(sx - r, sy - 1, r * 2 + 1, 3, C_GREY);
-    gfx_hline(sx - r - 1, sx + r + 1, sy, C_LIGHT);
-    gfx_rect(sx - r / 2, sy - r / 2 - 1, r + 1, r / 2 + 1, C_CYAN);
-    gfx_hline(sx - r / 2, sx + r / 2, sy - r / 2 - 1, C_ICE);
-    for (int i = -r; i <= r; i += 4) gfx_pset(sx + i, sy + 1, ((t / 6 + i) & 4) ? C_YELLOW : C_RED);
+    int r = kind == MK_SAUCER_S ? 6 : kind == MK_SAUCER_M ? 9 : 15;
+    int h = r / 3 + 1;
+    /* the shadow on the ground, then the saucer high above it */
+    gfx_dither(sx - r + 5, sy + 8, r * 2, h + 1, C_INK, 10);
+    sy -= 8;
+    gfx_circ(sx, sy - h + 1, r / 2, C_INK);
+    gfx_circ(sx, sy - h + 1, r / 2 - 1, C_CYAN);
+    gfx_pset(sx - r / 4, sy - h - r / 4 + 1, C_ICE);
+    for (int dy = -h; dy <= h; dy++) {
+        float f = 1.0f - (float)(dy * dy) / (float)((h + 1) * (h + 1));
+        int w = (int)((float)r * sqrtf(f));
+        gfx_hline(sx - w - 1, sx + w + 1, sy + dy, C_INK);
+        gfx_hline(sx - w, sx + w, sy + dy, dy < 0 ? C_LIGHT : dy == 0 ? C_GREY : C_SLATE);
+    }
+    for (int i = -r + 2; i <= r - 2; i += 4) gfx_pset(sx + i, sy, ((t / 6 + i) & 4) ? C_YELLOW : C_RED);
 }
 
 static void draw_arrow(int sx, int sy, float ang, int col) {

@@ -1,0 +1,57 @@
+# README media: TURNIP TRUCK. The GIF and the driving shots are the demo
+# player pressing real buttons; the chaos is set up with cheats (which day,
+# where the truck is, a saucer or the beet close by), then driven.
+shotscale 2
+seed 23
+game turnip
+wait 60
+shot turnip_title
+press A
+wait 150
+shot turnip_news
+press A
+wait 2
+# Monday: the first deliveries round the depot
+botplay 120
+gifstart turnip 4 2
+botplay 480
+gifstop
+# the big beet, charging down the street
+seed 5
+cheat day 3 2
+cheat notraffic
+cheat traffic
+cheat clearmobs
+cheat pos 400 276
+cheat ang 0
+cheat stop
+cheat mob 0 520 264
+botplay 14
+shot turnip_beet
+# the downpour, puddles on every road
+seed 6
+cheat day 5 5
+botplay 900
+shot turnip_rain
+# the moon raid over Old Blipton
+seed 7
+cheat day 6 6
+cheat clearmobs
+cheat pos 400 276
+cheat ang 0
+cheat stop
+cheat mob 4 470 230
+cheat mob 3 330 300
+cheat mob 2 440 330
+cheat mob 2 360 220
+botplay 50
+shot turnip_moon
+# brine bursting from the pipes at the Pickle Works
+seed 8
+cheat day 4 1
+cheat notraffic
+cheat pos 520 1212
+cheat ang 0
+cheat stop
+wait 130
+shot turnip_brine
