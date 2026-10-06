@@ -491,7 +491,7 @@ static void draw_title(void) {
     snprintf(b, sizeof b, "FUEL BURNED %lu.%lu TANKS  " GLYPH_DOT "  CRASHES %lu  " GLYPH_DOT "  WINS %d",
              tanks10 / 10, tanks10 % 10, (unsigned long)sv.crashes, sv.wins);
     tiny_center(b, 160, 155, C_LIGHT);
-    tiny_center(GLYPH_A " CHOOSE   " GLYPH_B " LIBRARY", 160, 168, C_GREY);
+    text_center(GLYPH_A " CHOOSE   " GLYPH_B " LIBRARY", 160, 166, C_GREY);
 }
 
 static void draw_code(void) {
@@ -556,12 +556,12 @@ static void draw_tea(void) {
     snprintf(b, sizeof b, "%s IS CLEAR", BHP_WORLD_NAME[w]);
     text_center(b, 160, 40, C_LIGHT);
     for (int k = 0; k < 8; k++) {
-        int x = 160 - 4 * 24 + k * 24 + 6, y = 64;
+        int x = 160 - 4 * 32 + k * 32 + 4, y = 58;
         int stage = w * BHP_PER_WORLD + (k < 4 ? k : k + 1);
         bool got = run.cup[w * 8 + k];
-        gfx_rect(x - 4, y - 4, 20, 22, C_INK);
-        bhp_draw_cup(x, y, got);
-        tiny_center(bhp_stage_label(stage), x + 5, y + 10, got ? C_CREAM : C_SLATE);
+        gfx_rect(x - 3, y - 3, 26, 32, C_INK);
+        bhp_draw_cup_big(x, y, got);
+        tiny_center(bhp_stage_label(stage), x + 10, y + 20, got ? C_CREAM : C_SLATE);
     }
     snprintf(b, sizeof b, "TEA THIS WORLD %d/8   ALL TOLD %d/40", world_tea(w), tea_count());
     text_center(b, 160, 100, C_YELLOW);

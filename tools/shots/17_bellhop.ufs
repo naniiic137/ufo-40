@@ -1,0 +1,74 @@
+# README media: BELLHOP. Everything in flight is the demo pilot's real
+# button presses. The GIF is A-1: the hidden spot, the cup, and out.
+shotscale 2
+seed 17
+game bellhop
+wait 60
+shot bellhop_title
+press A
+wait 40
+shot bellhop_story
+cheat stage 0
+wait 2
+gifstart bellhop 3 1
+botuntil stage == 1 2000
+gifstop
+# A-1 again, just as the cup appears
+cheat stage 0
+wait 2
+botuntil cup == 1 2000
+wait 4
+shot bellhop_a1
+# C-1, the fire wheels of the Clockworks
+cheat stage 20
+wait 2
+botuntil t >= 330 2000
+shot bellhop_clockworks
+# D-6, the vertical plates of the Sugarworks
+cheat stage 35
+wait 2
+botuntil t >= 200 2000
+shot bellhop_sugarworks
+# E-7, the gallery of guns
+cheat stage 46
+wait 2
+botuntil t >= 300 2000
+shot bellhop_citadel
+# the third round of a crystal room
+cheat stage 14
+wait 2
+botuntil round == 3 3000
+botplay 12
+shot bellhop_crystals
+# the bosses
+cheat stage 9
+wait 2
+botuntil t >= 260 2000
+shot bellhop_millwheel
+cheat stage 19
+wait 2
+botuntil boss_phase == 2 15000
+botuntil t >= 120 2000
+shot bellhop_press
+cheat stage 49
+wait 2
+botuntil boss_hp <= 6 15000
+wait 20
+shot bellhop_hush
+# a world's tea card
+cheat stage 39
+wait 2
+cheat all_tea
+cheat tea 33 0
+cheat boss_down
+botuntil state == 5 3000
+wait 70
+shot bellhop_tea
+# the ending with every cup
+cheat stage 49
+wait 2
+cheat all_tea
+cheat boss_down
+botuntil state == 7 3000
+wait 120
+shot bellhop_ending

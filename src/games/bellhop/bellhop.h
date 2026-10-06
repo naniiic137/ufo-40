@@ -258,6 +258,7 @@ bool bhp_art_ok(void);
 void bhp_draw_stage(const BhpStage *s, int t, bool owl);
 void bhp_draw_world_backdrop(int world, int t);
 void bhp_draw_cup(int x, int y, bool full);
+void bhp_draw_cup_big(int x, int y, bool full);
 void bhp_draw_ship(int x, int y, int face, bool flame, int t);
 void bhp_draw_lady(int x, int y, int scale);
 void bhp_draw_ansel(int x, int y, int scale);

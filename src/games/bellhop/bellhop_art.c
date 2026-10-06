@@ -263,6 +263,16 @@ void bhp_draw_ship(int x, int y, int face, bool flame, int t) { chm_draw_ship(0,
 void bhp_draw_lady(int x, int y, int scale) { spr_draw_scaled(&spr[SP_LADY], x, y, scale, 0); }
 void bhp_draw_ansel(int x, int y, int scale) { chm_draw_face(0, x, y, scale); }
 
+/* twice the size, for the tea card */
+void bhp_draw_cup_big(int x, int y, bool full) {
+    if (full) spr_draw_scaled(&spr[SP_CUP], x, y, 2, 0);
+    else {
+        gfx_rectb(x + 2, y + 4, 12, 10, C_DUSK);
+        gfx_rectb(x + 14, y + 6, 3, 5, C_DUSK);
+        gfx_hline(x + 4, x + 11, y + 15, C_DUSK);
+    }
+}
+
 void bhp_draw_cup(int x, int y, bool full) {
     if (full) spr_draw(&spr[SP_CUP], x, y, 0);
     else {
@@ -463,11 +473,13 @@ static void draw_tiles_live(const BhpStage *s, int t) {
                 gfx_rectb(x, y, 8, 8, C_INK);
                 break;
             case BTL_THORN:
-                gfx_rect(x + 3, y, 2, 8, C_FOREST);
-                gfx_pset(x + 1, y + 2, C_LIME);
-                gfx_pset(x + 6, y + 5, C_LIME);
-                gfx_pset(x + 2, y + 6, C_LIME);
-                gfx_pset(x + 5, y + 1, C_LIME);
+                /* a bramble: a thick stem with thorns both ways */
+                gfx_rect(x + 2, y, 4, 8, C_FOREST);
+                gfx_vline(x + 3, y, y + 7, C_JADE);
+                gfx_hline(x, x + 1, y + 1, C_LIME);
+                gfx_hline(x + 6, x + 7, y + 3, C_LIME);
+                gfx_hline(x, x + 1, y + 5, C_LIME);
+                gfx_hline(x + 6, x + 7, y + 7, C_LIME);
                 break;
             default: break;
             }
@@ -594,7 +606,7 @@ static void draw_boss(const BhpStage *s, int t) {
     case 1: {
         if (b->down && b->down_t > 60) break;
         /* the wheel: rim, spokes, hub */
-        gfx_rect(BHP_MILL_X - 3, BHP_MILL_Y, 6, SCREEN_H - BHP_MILL_Y, C_BROWN);
+        gfx_dither(BHP_MILL_X - 3, BHP_MILL_Y, 6, SCREEN_H - BHP_MILL_Y, C_BROWN, 8);
         gfx_circb(BHP_MILL_X, BHP_MILL_Y, BHP_MILL_R, C_BROWN);
         gfx_circb(BHP_MILL_X, BHP_MILL_Y, BHP_MILL_R - 1, C_EARTH);
         for (int k = 0; k < BHP_MILL_N * 2; k++) {
