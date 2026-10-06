@@ -135,6 +135,10 @@ lost ship with a spare starts the stage again; with none, the game is over.
 - **Points:** 50 to 500 for foes, 1,000 for a generator, 3,000 to 20,000
   for the big ones (Old Croak 5,000, as the sources say), 1,000 for a
   wrench with the armour on, 10 for a shot-down crumb or drip.
+- **Bulbs while firing:** the bible reads them as coming only when you
+  stop firing; the manual says they "slowly float towards you" and the
+  cherry guide that they move "significantly faster when you're not
+  shooting", so they creep toward a firing ship and fly to one that isn't.
 - **Stunned foes still hurt to touch**; only the photo's effects listed
   above are claimed.
 - **"Scrollable sections"** are read as tall caves where the view follows
