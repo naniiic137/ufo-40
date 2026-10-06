@@ -1,0 +1,14 @@
+# BRAVADO: the demo player, pressing real buttons, plays a whole run from
+# the title: it buys gear, raises the prize (3, 5, 6, 7, 8 and 8 packs),
+# and comes out of all eight fights standing, the Pit Boss included.
+seed 3
+game bravado
+wait 10
+botuntil state == 3 600
+botuntil round == 2 20000
+expect goals == 0
+botuntil state >= 6 400000
+expect won == 1
+expect round == 8
+expect goals & 2
+expect goals & 1

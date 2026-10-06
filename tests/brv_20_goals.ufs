@@ -1,0 +1,43 @@
+# BRAVADO: the three goals. Beacon: win a fight worth 500 or more. Saucer:
+# come out of all eight fights standing. Alien: finish with 4,500 or more
+# (so at least 1,300 kept for the last fight's 3,200).
+game bravado
+wait 5
+expect goals == 0
+cheat run 1
+cheat round 3
+press A
+press A
+press A
+expect prize == 400
+cheat fight
+cheat clear
+wait 2
+expect state == 4
+expect goals == 0
+expect save_best_fight == 400
+cheat round 4
+press A
+press A
+press A
+press A
+expect prize == 500
+cheat fight
+cheat clear
+wait 2
+expect goals == 1
+expect save_best_fight == 500
+# the last fight with 1,200 kept: gold, but no cherry
+cheat run 1
+cheat cash 1200
+cheat win
+expect goals == 3
+expect cash == 4400
+# with 1,300 kept: both
+cheat run 1
+cheat cash 1300
+cheat win
+expect cash == 4500
+expect goals == 7
+expect save_wins == 2
+expect save_best_cash == 4500

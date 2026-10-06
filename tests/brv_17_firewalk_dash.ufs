@@ -1,0 +1,66 @@
+# BRAVADO: FIREWALKERS let Dice wade into one lava pool a fight (two at the
+# second tier): the pool cools to rock. ROCKET DASH: tap B twice and she
+# dashes the way she faces, safe, over lava, flattening any monster in the
+# way; one tap still drops a bomb. The wiki's reading (B twice) is the
+# default; TV Tropes' (fire twice while moving) can be switched on.
+game bravado
+wait 5
+cheat run 1
+cheat gear 10 1
+cheat fight
+cheat empty
+cheat nopools
+cheat pool 200 94
+cheat pool 260 94
+expect pools == 2
+expect p1_walks == 1
+hold RIGHT 35
+expect pools == 1
+expect p1_walks == 0
+expect p1_hp == 6
+hold RIGHT 60
+expect p1_hp < 6
+# the dash
+cheat run 1
+cheat gear 11 1
+cheat fight
+cheat empty
+cheat nopools
+cheat still 0 160 50
+cheat still 4 160 40
+cheat pool 160 70
+press B
+press B
+expect p1_dash > 0
+expect bombs_out == 0
+wait 20
+expect foes == 0
+expect kills == 2
+expect p1_hp == 6
+expect p1_y < 50
+expect p1_dashes == 1
+# a single tap is a bomb, a moment later
+wait 30
+press B
+expect bombs_out == 0
+wait 16
+expect bombs_out == 1
+# the other reading: fire twice while moving
+cheat run 1
+cheat gear 11 1
+cheat fight
+cheat empty
+cheat nopools
+cheat dashreading 1
+press A
+wait 2
+press A
+expect p1_dashes == 0
+wait 30
+hold RIGHT
+press A
+wait 2
+press A
+release
+expect p1_dashes == 1
+cheat dashreading 0

@@ -1,0 +1,46 @@
+# BRAVADO: a dash into the Pit Boss takes 100 of its 400, so four finish
+# it; a bomb takes 40.
+game bravado
+wait 5
+cheat run 1
+cheat gear 11 1
+cheat empty
+cheat nopools
+cheat god
+cheat still 7 160 50
+expect boss_hp == 400
+press B
+press B
+wait 20
+expect boss_hp == 300
+hold DOWN 40
+press UP
+wait 20
+press B
+press B
+wait 20
+expect boss_hp == 200
+hold DOWN 40
+press UP
+wait 20
+press B
+press B
+wait 20
+expect boss_hp == 100
+hold DOWN 40
+press UP
+wait 20
+press B
+press B
+wait 20
+expect boss_dead == 1
+expect p1_dashes == 4
+# a bomb
+cheat run 1
+cheat empty
+cheat nopools
+cheat god
+cheat still 7 160 50
+cheat bomb 160 50 2
+wait 5
+expect boss_hp == 360

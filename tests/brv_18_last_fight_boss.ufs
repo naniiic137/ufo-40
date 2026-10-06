@@ -1,0 +1,40 @@
+# BRAVADO: the eighth fight is the last: twelve random packs, already in
+# the window, then the Pit Boss, for 3,200; there's no raising it. The
+# boss drifts, fires fans of bullets and sends out pairs of fizzers that
+# run at Dice and blow up (they don't count among those left). Beating it
+# wins the fight and the run.
+game bravado
+wait 5
+cheat run 1
+cheat round 8
+expect round == 8
+expect groups == 12
+expect prize == 3200
+expect bad_groups == 0
+expect shop_btn == 2
+press LEFT
+press A
+expect groups == 12
+expect prize == 3200
+press RIGHT
+press A
+wait 2
+expect state == 2
+expect queued_7 == 1
+expect boss_out == 0
+cheat god
+cheat skipq
+waituntil boss_out == 1 200
+expect queue_left == 0
+expect enemies_left == 1
+expect boss_hp == 400
+waituntil eshots >= 7 600
+waituntil foes_8 >= 2 900
+expect enemies_left == 1
+cheat killboss
+wait 2
+expect boss_dead == 1
+expect foes == 0
+expect state == 4
+expect cash == 3200
+expect won == 1

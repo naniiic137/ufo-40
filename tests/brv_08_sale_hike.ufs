@@ -1,0 +1,43 @@
+# BRAVADO: an item on sale costs 100 less (never under 50), a hiked one
+# 100 more, for that tier only: once bought, the next tier is back to its
+# list price. Three hiked buys in a run and the house says thank you.
+game bravado
+wait 5
+cheat run 1
+cheat round 3
+cheat cash 2000
+cheat sale 2
+cheat hike 0
+expect price2 == 50
+expect price0 == 400
+cheat sale 1
+expect price1 == 50
+cheat sale 5
+expect price5 == 300
+# buy the sale item (FIRST AID, 150 - 100 = 50)
+cheat sale 1
+press LEFT
+press A
+press RIGHT
+expect shop_sel == 1
+press A
+expect gear1 == 1
+expect cash == 1950
+expect sale == -1
+expect price1 == 300
+# buy the hiked one (HEART PLATE, 300 + 100)
+press LEFT
+expect shop_sel == 0
+press A
+expect gear0 == 1
+expect cash == 1550
+expect hike == -1
+expect price0 == 300
+expect hike_note == 0
+# two more hiked buys
+cheat hike 0
+press A
+cheat hike 0
+press A
+expect gear0 == 3
+expect hike_note == 1

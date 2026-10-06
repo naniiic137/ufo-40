@@ -1,0 +1,60 @@
+# BRAVADO: 2 PLAYERS puts Dice and her brother Domino in the pit together
+# (our reading of the original's two-player mode): one purse, one shop
+# that either can work, the same gear for both, and each with their own
+# health and bombs. A player knocked down sits out the rest of the fight
+# and is back for the next; the run ends when both are down.
+game bravado
+wait 5
+press DOWN
+press A
+wait 30
+press A
+expect players == 2
+expect p2_on == 1
+expect p1_x == 146
+expect p2_x == 174
+wait 110
+expect state == 3
+cheat empty
+cheat nopools
+hold P2RIGHT 20
+expect p2_x == 194
+expect p1_x == 146
+press P2A
+expect pshots == 1
+expect p2_fired == 1
+expect p1_fired == 0
+press P2B
+expect bombs_out == 1
+expect p2_bombs == 0
+expect p1_bombs == 1
+hold P2RIGHT 60
+# Dice walks into a mite: down, but the fight goes on
+cheat still 0 134 90
+hold LEFT 6
+expect p1_down == 1
+expect p2_down == 0
+wait 10
+expect state == 3
+# won: one purse
+cheat clear
+wait 2
+expect state == 4
+expect cash == 100
+wait 41
+press P2A
+expect state == 5
+# Domino raises the prize, then starts the fight
+press P2A
+expect prize == 200
+press P2RIGHT
+press P2A
+expect state == 2
+expect p1_down == 0
+expect p1_hp == 6
+expect p2_hp == 6
+# both down: busted
+wait 110
+cheat die
+wait 2
+expect state == 6

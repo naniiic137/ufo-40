@@ -216,6 +216,14 @@ CORE_SRC += src/games/forlorn/forlorn_bot.c
 CORE_SRC += src/games/forlorn/forlorn_draw.c
 CORE_SRC += src/games/forlorn/forlorn_art.c
 CORE_SRC += src/games/forlorn/forlorn_audio.c
+CORE_SRC += src/games/bravado/bravado.c
+CORE_SRC += src/games/bravado/bravado_rules.c
+CORE_SRC += src/games/bravado/bravado_play.c
+CORE_SRC += src/games/bravado/bravado_foes.c
+CORE_SRC += src/games/bravado/bravado_bot.c
+CORE_SRC += src/games/bravado/bravado_draw.c
+CORE_SRC += src/games/bravado/bravado_art.c
+CORE_SRC += src/games/bravado/bravado_audio.c
 
 HEADLESS_SRC += src/platform/headless/main_headless.c
 HEADLESS_SRC += src/platform/headless/imgwrite.c

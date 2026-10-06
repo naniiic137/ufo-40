@@ -1,0 +1,28 @@
+# BRAVADO: Dice walks eight ways at one pixel a frame (a shade quicker than
+# a mite), the same speed along a diagonal, and the walls stop her.
+game bravado
+wait 5
+cheat run 1
+cheat empty
+cheat nopools
+expect p1_x == 160
+expect p1_y == 90
+hold RIGHT 60
+expect p1_x == 220
+expect p1_face == 0
+hold LEFT 60
+expect p1_x == 160
+expect p1_face == 4
+hold DOWN RIGHT 60
+expect p1_x == 202
+expect p1_y == 132
+expect p1_face == 1
+hold UP 30
+expect p1_face == 6
+hold LEFT 400
+expect p1_x == 13
+hold UP 300
+expect p1_y == 21
+hold RIGHT DOWN 600
+expect p1_x == 307
+expect p1_y == 161

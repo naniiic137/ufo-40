@@ -1,0 +1,56 @@
+# BRAVADO: the title offers 1 PLAYER and 2 PLAYERS (UP and DOWN move
+# between them) and B goes back to the library. A on 1 PLAYER opens the
+# story (any button skips it), then fight 1: Dice alone in the middle of
+# the pit, 6 health of 6, one bomb, three pools, and a fixed lineup of one
+# pack of nine mites for 100.
+game bravado
+wait 5
+expect state == 0
+expect paused == 0
+expect menu == 0
+press DOWN
+expect menu == 1
+press UP
+expect menu == 0
+press A
+expect state == 1
+wait 30
+press A
+expect state == 2
+expect players == 1
+expect p2_on == 0
+expect round == 1
+expect prize == 100
+expect groups == 1
+expect group0_kind == 0
+expect group0_count == 9
+expect queue == 9
+expect queued_0 == 9
+expect p1_x == 160
+expect p1_y == 90
+expect p1_hp == 6
+expect p1_maxhp == 6
+expect p1_bombs == 1
+expect pools == 3
+expect cash == 0
+wait 110
+expect state == 3
+expect enemies_left == 9
+# no saving in the middle of a run: out to the library and back in is the title
+press START
+expect paused == 1
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press A
+wait 60
+expect_scene library
+game bravado
+wait 5
+expect state == 0
+expect save_runs == 1
+press B
+wait 60
+expect_scene library

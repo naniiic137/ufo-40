@@ -1,0 +1,57 @@
+# BRAVADO: BOMB BAG carries 3 more bombs a tier (they come back every
+# fight); CLICKER sets your bombs off with B; NAIL BOMBS throw 8 nails (14,
+# harder, at the second tier) that never hurt Dice; BAIT BOMBS draw every
+# monster but the peepers to the bomb instead of her.
+game bravado
+wait 5
+cheat run 1
+cheat gear 12 2
+cheat fight
+cheat empty
+cheat nopools
+expect p1_bombs == 7
+press B
+wait 3
+press B
+expect p1_bombs == 5
+expect bombs_out == 2
+# the clicker
+cheat run 1
+cheat gear 13 1
+cheat gear 12 1
+cheat fight
+cheat empty
+cheat nopools
+press B
+hold LEFT 50
+expect bombs_out == 1
+press B
+expect bombs_out == 0
+expect blasts >= 1
+expect p1_bombs == 3
+# nails, which never hurt her
+cheat run 1
+cheat gear 14 1
+cheat fight
+cheat empty
+cheat nopools
+cheat bomb 200 90 2
+wait 3
+expect nails == 8
+wait 30
+expect p1_hp == 6
+cheat gear 14 2
+cheat bomb 200 90 2
+wait 3
+expect nails == 14
+# bait: a mite heads for the bomb, not for Dice
+cheat run 1
+cheat gear 15 1
+cheat fight
+cheat empty
+cheat nopools
+cheat god
+cheat foe 0 120 90
+cheat bomb 120 150 300
+wait 60
+expect foe0_y > 120

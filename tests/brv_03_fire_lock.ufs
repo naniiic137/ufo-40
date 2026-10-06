@@ -1,0 +1,40 @@
+# BRAVADO: a tap of A shoots once the way Dice faces. Held, A keeps
+# shooting and holds the aim: she can walk any way (strafe) and the shots
+# still go the way she faced when she pressed it. Let go and the pad turns
+# her again. Held fire comes every 14 frames.
+game bravado
+wait 5
+cheat run 1
+cheat empty
+cheat nopools
+expect p1_face == 6
+press A
+expect p1_fired == 1
+expect pshots == 1
+expect shot0_vy100 == -400
+expect shot0_vx100 == 0
+wait 30
+# hold fire, then walk right: still aiming up
+hold A
+wait 3
+hold RIGHT 30
+expect p1_face == 6
+expect p1_locked == 1
+expect p1_x == 190
+expect p1_fired >= 3
+expect shot0_vx100 == 0
+# let go, and the pad turns her
+press RIGHT
+expect p1_face == 0
+expect p1_locked == 0
+# A pressed together with a direction faces that way at once
+wait 20
+press DOWN A
+expect p1_face == 2
+expect shot0_vy100 == 400
+# the rate of held fire: shots on frames 0, 14, 28, 42 and 56
+cheat run 1
+cheat empty
+cheat nopools
+hold A 57
+expect p1_fired == 5

@@ -1,0 +1,44 @@
+# BRAVADO: B drops a bomb at Dice's feet (one a fight to start with). It
+# goes off 2.5 s later and kills every monster in the blast outright: a
+# brute with all its health, a gasbag without splitting it. It hurts Dice
+# too, all of her, head included.
+game bravado
+wait 5
+cheat run 1
+cheat empty
+cheat nopools
+cheat still 0 160 70
+cheat still 2 185 90
+cheat still 1 160 115
+cheat still 0 160 40
+expect foes == 4
+press B
+expect bombs_out == 1
+expect p1_bombs == 0
+# no more to drop
+press B
+expect bombs_out == 1
+hold LEFT 60
+wait 100
+expect bombs_out == 0
+expect foes == 1
+expect foes_1 == 0
+expect foes_2 == 0
+expect p1_hp == 6
+# the blast takes her head too: a bomb just over it
+cheat run 1
+cheat empty
+cheat nopools
+wait 31
+cheat bomb 160 54 3
+wait 10
+expect p1_down == 1
+expect hurt_src == 300
+expect state == 6
+# and one at her feet
+cheat run 1
+cheat empty
+cheat nopools
+press B
+wait 160
+expect p1_down == 1
