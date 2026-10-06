@@ -4,7 +4,12 @@
 # an eye turret shoots; an acid pod bursts when the ship comes close; a
 # sentry shoots only while Clary is in the ship and can only be killed on
 # foot. The Cloister is dark until its light switch is found; the Spire's
-# magnets stop when its switch is thrown.
+# magnets stop when its switch is thrown; either switch holds for the
+# whole region. The Cloister's wall eyes drink the ship's fuel close by; a
+# nest lets out flitters; the big belly sends out two slow missiles; a
+# boomerang goes when the boomer that threw it does; coins
+# drift in to the player from close by; in the Cellars a loose stone in
+# the ceiling drops on whoever passes under it, and a stone kills outright.
 seed 1
 game clarion
 wait 10
@@ -35,12 +40,12 @@ cheat ent 24 200 120
 wait 2
 expect count24 == 0
 expect count14 == 1
-press B 1
+press A 1
 wait 20
 cheat place 180 120
 cheat vel 0 0
 cheat face 1
-press B 1
+press A 1
 wait 3
 expect count14 == 0
 # wind
@@ -98,7 +103,7 @@ expect shotk7 == 0
 wait 100
 expect shotk7 == 0
 expect dead == 0
-hold B 60
+hold A 60
 expect count11 == 0
 # the Cloister's dark, and its light switch
 cheat area 5 0
@@ -116,6 +121,9 @@ press UP
 wait 3
 expect state == 4
 expect dark == 0
+cheat goto 5 1
+wait 2
+expect dark == 0
 # the Spire's magnet switch
 cheat area 6 0
 wait 2
@@ -129,3 +137,78 @@ wait 2
 press UP
 wait 3
 expect magnets_off == 1
+cheat goto 6 1
+wait 2
+expect magnets_off == 1
+# a wall eye: it drinks fuel while the ship is close
+cheat area 6 2
+wait 2
+cheat no_foes
+cheat fuel 500
+cheat place 180 120
+cheat vel 0 0
+cheat ent 65 194 120
+wait 10
+expect fuel < 500
+expect fuel >= 494
+cheat no_foes
+cheat place 180 60
+cheat vel 0 0
+cheat fuel 500
+wait 10
+expect fuel == 500
+# a boomer's boomerang goes when its thrower does
+cheat place 180 120
+cheat vel 0 0
+cheat ent 16 240 120
+waituntil shotk10 > 0 200
+cheat no_foes
+wait 2
+expect shotk10 == 0
+# a nest: a flitter out of it while the ship is near
+cheat place 180 120
+cheat vel 0 0
+cheat ent 63 230 120
+wait 101
+expect count1 == 1
+cheat no_foes
+# the big belly: two slow missiles, which a slash can stop
+cheat place 180 120
+cheat vel 0 0
+cheat ent 19 240 112
+wait 91
+expect count66 == 2
+cheat no_foes
+# a coin close by drifts in; one further off doesn't
+cheat place 100 242
+cheat vel 0 0
+wait 20
+expect on_foot == 1
+cheat ent 26 125 244
+wait 30
+expect count26 == 0
+cheat ent 26 160 244
+wait 30
+expect count26 == 1
+# the Cellars' loose stones: one drops on whoever passes under it
+cheat area 0 0
+wait 2
+cheat no_foes
+cheat clear 21 2 27 8
+cheat tile 23 1 11
+cheat place 188 40
+cheat vel 0 0
+wait 1
+expect count64 == 1
+cheat place 212 40
+cheat vel 0 0
+wait 60
+expect count64 == 0
+expect dead == 0
+# and Clary standing under one is crushed
+cheat tile 22 9 1
+cheat tile 23 9 1
+cheat tile 24 9 1
+cheat tile 23 1 11
+cheat foot 188 72
+waituntil dead == 1 120

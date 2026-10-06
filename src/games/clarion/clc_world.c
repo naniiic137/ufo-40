@@ -35,7 +35,7 @@ static const ChmFlightTune DIVE_TUNE = {36, 44, 12, 14, 2, 384, 448, 900, 14, 17
 
 #define SLASH_T 12
 #define SLASH_ACTIVE 8
-#define SLASH_CD 18
+#define SLASH_CD 11 /* mashed, a slow glide that costs no fuel */
 #define SLASH_REACH 18
 
 /* ---- small maths ----------------------------------------------------------- */
@@ -112,28 +112,28 @@ void clc_set_tile(ClcWorld *w, int c, int r, int t) {
 enum { KF_FOE = 1, KF_SHIPPROOF = 2, KF_INVULN = 4, KF_THROUGH = 8, KF_PICKUP = 16, KF_HARMLESS = 32 };
 typedef struct Kind { int8_t hw, hh, hp; uint8_t dmg, coins, flags; } Kind;
 static const Kind KIND[EK_COUNT] = {
-    [EK_FLITTER] = {5, 4, 2, 2, 3, KF_FOE},
-    [EK_CREEPER] = {5, 3, 2, 2, 3, KF_FOE},
-    [EK_GRUB] = {9, 4, 6, 2, 50, KF_FOE},
-    [EK_SNAP] = {6, 3, 3, 2, 3, KF_FOE},
-    [EK_FIREDRONE] = {5, 5, 3, 2, 5, KF_FOE},
-    [EK_WINDDRONE] = {5, 5, 3, 2, 5, KF_FOE},
-    [EK_LEECH] = {3, 3, 1, 2, 2, KF_FOE},
-    [EK_EYE] = {4, 4, 2, 2, 5, KF_FOE},
-    [EK_ACID] = {4, 4, 1, 2, 3, KF_FOE},
-    [EK_BLOB] = {5, 5, 2, 2, 5, KF_FOE},
-    [EK_SENTRY] = {5, 4, 4, 2, 10, KF_FOE | KF_SHIPPROOF},
-    [EK_SNAKE] = {4, 4, 6, 2, 50, KF_FOE},
-    [EK_CRAB] = {4, 4, 3, 2, 5, KF_FOE},
-    [EK_GHOST] = {5, 5, 4, 2, 10, KF_FOE | KF_THROUGH},
-    [EK_JETFIRE] = {4, 4, 0, 2, 0, KF_FOE | KF_INVULN},
-    [EK_BOOMER] = {4, 5, 3, 2, 10, KF_FOE},
-    [EK_WORM] = {5, 5, 8, 2, 50, KF_FOE},
-    [EK_CHASER] = {5, 5, 4, 2, 10, KF_FOE},
-    [EK_BIGBELLY] = {10, 9, 10, 4, 50, KF_FOE},
-    [EK_POD] = {4, 4, 2, 2, 5, KF_FOE},
+    [EK_FLITTER] = {5, 4, 2, 4, 3, KF_FOE},
+    [EK_CREEPER] = {5, 3, 2, 4, 3, KF_FOE},
+    [EK_GRUB] = {9, 4, 6, 4, 50, KF_FOE},
+    [EK_SNAP] = {6, 3, 3, 4, 3, KF_FOE},
+    [EK_FIREDRONE] = {5, 5, 3, 4, 5, KF_FOE},
+    [EK_WINDDRONE] = {5, 5, 3, 4, 5, KF_FOE},
+    [EK_LEECH] = {3, 3, 1, 4, 2, KF_FOE},
+    [EK_EYE] = {4, 4, 2, 4, 5, KF_FOE},
+    [EK_ACID] = {4, 4, 1, 4, 3, KF_FOE},
+    [EK_BLOB] = {5, 5, 2, 4, 5, KF_FOE},
+    [EK_SENTRY] = {5, 4, 4, 4, 10, KF_FOE | KF_SHIPPROOF},
+    [EK_SNAKE] = {4, 4, 6, 4, 50, KF_FOE},
+    [EK_CRAB] = {4, 4, 3, 4, 5, KF_FOE},
+    [EK_GHOST] = {5, 5, 4, 4, 10, KF_FOE | KF_THROUGH},
+    [EK_JETFIRE] = {4, 4, 0, 4, 0, KF_FOE | KF_INVULN},
+    [EK_BOOMER] = {4, 5, 3, 4, 10, KF_FOE},
+    [EK_WORM] = {5, 5, 8, 4, 50, KF_FOE},
+    [EK_CHASER] = {5, 5, 4, 4, 10, KF_FOE},
+    [EK_BIGBELLY] = {10, 9, 10, 6, 50, KF_FOE}, /* the big one: 3 points */
+    [EK_POD] = {4, 4, 2, 4, 5, KF_FOE},
     [EK_LATE] = {5, 5, 0, 99, 0, KF_FOE | KF_INVULN | KF_THROUGH},
-    [EK_SEG] = {4, 4, 0, 2, 0, KF_FOE},
+    [EK_SEG] = {4, 4, 0, 4, 0, KF_FOE},
     [EK_NOTE] = {5, 5, 0, 0, 0, KF_PICKUP},
     [EK_FAKENOTE] = {5, 5, 0, 0, 0, KF_HARMLESS},
     [EK_PLUM] = {4, 4, 0, 0, 0, KF_PICKUP},
@@ -141,6 +141,10 @@ static const Kind KIND[EK_COUNT] = {
     [EK_RING] = {6, 6, 0, 0, 0, KF_PICKUP},
     [EK_FUELCAN] = {4, 5, 0, 0, 0, KF_PICKUP},
     [EK_ARROW] = {4, 4, 0, 0, 0, KF_HARMLESS},
+    [EK_NEST] = {6, 6, 3, 4, 5, KF_FOE},
+    [EK_FALLER] = {4, 4, 0, 99, 0, KF_FOE | KF_INVULN},
+    [EK_WALLEYE] = {4, 4, 2, 4, 5, KF_FOE},
+    [EK_BMISSILE] = {3, 3, 1, 4, 0, KF_FOE},
 };
 
 int clc_ent_add(ClcWorld *w, int kind, int x, int y) {
@@ -339,7 +343,7 @@ static void kill_ent(ClcWorld *w, ClcPlayer *p, ClcEnt *e, bool by_ship) {
     w->ev |= CEV_KILL;
     w->kills++;
     add_fx(w, x, y, e->kind == EK_BIGBELLY || e->kind == EK_GRUB ? FX_BOOM : FX_POP);
-    drop_coins(w, p, x, y, KIND[e->kind].coins);
+    drop_coins(w, p, x, y, KIND[e->kind].coins * (e->champ ? 2 : 1));
     if (by_ship && clc_has(p, G_SIPHON)) {
         clc_add_fuel(p, 100);
         w->ev |= CEV_FUEL;
@@ -471,8 +475,9 @@ static void ship_step(ClcWorld *w, ClcPlayer *p, unsigned held, unsigned pressed
     bool thrust = (held & BTN_A) != 0;
     if (thrust) {
         if (p->fuel > 0) {
-            if (++p->drip >= CLC_BURN_FRAMES) {
-                p->drip = 0;
+            p->drip = (uint8_t)(p->drip + CLC_BURN_NUM);
+            while (p->drip >= CLC_BURN_DEN) {
+                p->drip = (uint8_t)(p->drip - CLC_BURN_DEN);
                 p->fuel = (int16_t)imax(0, p->fuel - 1);
             }
             ctl |= CHF_THRUST;
@@ -541,12 +546,17 @@ static void ship_step(ClcWorld *w, ClcPlayer *p, unsigned held, unsigned pressed
     } else if (grounded) {
         w->air_t = 0;
         bool flat = flat_floor_under(w, x, y + 4) || flat_floor_under(w, x, y + 5);
+        /* a landing pad takes a little more */
+        bool pad = clc_map_tile(w, x - 4, y + 5) == MT_PAD || clc_map_tile(w, x + 3, y + 5) == MT_PAD ||
+                   clc_map_tile(w, x - 4, y + 4) == MT_PAD || clc_map_tile(w, x + 3, y + 4) == MT_PAD;
+        int land_vy = pad ? CLC_PAD_VY : CLC_LAND_VY, land_vx = pad ? CLC_PAD_VX : CLC_LAND_VX;
         if (p->fuel <= 0 && p->coins <= 0) {
-            /* nothing left to burn: down it goes, and that's the end */
+            /* nothing left to burn: down it goes, and that is the end */
+            w->hurt_by = 203;
             die(w, p);
             return;
         }
-        if (flat && vy <= CLC_LAND_VY && iabs(vx) <= CLC_LAND_VX) {
+        if (flat && vy <= land_vy && iabs(vx) <= land_vx) {
             /* a landing: set down, and Clary hops out */
             if (!clc_map_solid(w, x - 4, y + 4) && !clc_map_solid(w, x + 3, y + 4)) y++;
             w->f.y = (int32_t)y * 256;
@@ -562,7 +572,9 @@ static void ship_step(ClcWorld *w, ClcPlayer *p, unsigned held, unsigned pressed
             park_clary_beside(w);
             return;
         }
-        if (vy > CLC_BAD_LAND) {
+        if (vy > land_vy || iabs(vx) > land_vx) {
+            /* a failed landing: a point off the bar */
+            w->hurt_by = 201;
             hurt_player(w, p, 2, w->f.x);
             w->ev |= CEV_BADLAND;
             add_fx(w, x, y + 4, FX_DUST);
@@ -571,6 +583,7 @@ static void ship_step(ClcWorld *w, ClcPlayer *p, unsigned held, unsigned pressed
         int sp = (hit & CHF_HIT_X) ? iabs(vx) : iabs(vy);
         if ((hit & CHF_HIT_X) && (hit & CHF_HIT_Y)) sp = imax(iabs(vx), iabs(vy));
         if (sp > CLC_WALL_HURT) {
+            w->hurt_by = 200;
             hurt_player(w, p, 2, w->f.x - (vx > 0 ? 2560 : -2560));
             w->ev |= CEV_BUMP;
             add_fx(w, x + (vx > 0 ? 4 : vx < 0 ? -4 : 0), y + (vy > 0 ? 4 : vy < 0 ? -4 : 0), FX_DUST);
@@ -591,6 +604,12 @@ static void ship_step(ClcWorld *w, ClcPlayer *p, unsigned held, unsigned pressed
 }
 
 /* ---- Clary outside ---------------------------------------------------------------------- */
+
+static int pistol_shots(const ClcShot *sh, int n) {
+    int k = 0;
+    for (int i = 0; i < n; i++) k += sh[i].on && (sh[i].kind == SH_PISTOL || sh[i].kind == SH_BIG);
+    return k;
+}
 
 static void fire(ClcWorld *w, ClcPlayer *p, bool tap, unsigned held) {
     ClcWalker *c = &w->cl;
@@ -643,6 +662,7 @@ static void foot_step(ClcWorld *w, ClcPlayer *p, unsigned held, unsigned pressed
             int dx = d->c * CLC_T + CLC_T / 2;
             if (iabs(cx - dx) > 6 || cy != (d->r + 1) * CLC_T) continue;
             bool gold = d->type == DT_GOLD;
+            if (d->shut) { w->ev |= CEV_CLANG; return; }
             if (w->timer_on && !gold && w->kind == WK_GEN) { w->ev |= CEV_CLANG; return; }
             if (!w->timer_on && gold && w->kind == WK_GEN) { w->ev |= CEV_CLANG; return; }
             if (d->type == DT_YELLOW && !d->used) {
@@ -674,10 +694,11 @@ static void foot_step(ClcWorld *w, ClcPlayer *p, unsigned held, unsigned pressed
         die(w, p);
         return;
     }
-    /* the pistol: held fires steadily, a fresh press fires sooner */
-    if (held & BTN_B) {
+    /* the pistol: three shots in the air at most; held fires steadily, a
+     * fresh press as soon as there is room */
+    if ((held & BTN_B) && pistol_shots(w->shot, CLC_SHOTS) < CLC_SHOTS_OUT) {
         bool tap = (pressed & BTN_B) != 0;
-        if ((tap && c->shot_cd <= 8) || c->shot_cd == 0) {
+        if (tap || c->shot_cd == 0) {
             fire(w, p, tap, held);
             c->shot_cd = 14;
         }
@@ -770,7 +791,61 @@ static void ent_step(ClcWorld *w, ClcPlayer *p, ClcEnt *e) {
         }
         break;
     case EK_EYE:
-        if (e->t % 100 == 0 && d < 120) foe_shoot(w, e, SH_PELLET, 300, 160);
+        if (e->t % 100 == 0 && d < 120) {
+            foe_shoot(w, e, SH_PELLET, 300, 160);
+            if (e->champ) {
+                /* a gold one fires three */
+                for (int k = -1; k <= 1; k += 2) {
+                    int32_t vx, vy;
+                    clc_aim(e->x, e->y, px + k * 4096, py, 300, &vx, &vy);
+                    shot_add(w, SH_PELLET, e->x, e->y, vx, vy, 160, 2);
+                }
+            }
+        }
+        break;
+    case EK_WALLEYE:
+        /* an eye in the wall that drinks the ship's fuel close by */
+        e->flag = !w->on_foot && d < 22;
+        if (e->flag && p->fuel > 0 && (e->t & 1)) {
+            p->fuel--;
+            w->ev |= CEV_DRY;
+        }
+        break;
+    case EK_NEST: {
+        /* it lets out flitters, two at a time, while the player is near */
+        if (d < 130 && e->t % 200 == 100) {
+            int n = 0, me = (int)(e - w->e);
+            for (int i = 0; i < w->ne; i++) n += w->e[i].on && w->e[i].kind == EK_FLITTER && w->e[i].link == me + 1;
+            if (n < 2) {
+                int j = clc_ent_add(w, EK_FLITTER, PX(e->x), PX(e->y) - e->dir * 6);
+                if (j >= 0) {
+                    w->e[j].link = (uint8_t)(me + 1);
+                    w->e[j].dir = (int8_t)(px > e->x ? 1 : -1);
+                }
+            }
+        }
+        break;
+    }
+    case EK_FALLER:
+        /* a shudder first, then the drop */
+        if (e->a < 20) { e->a++; e->x = e->hx * 256 + ((e->a & 2) ? 256 : -256); break; }
+        e->x = e->hx * 256;
+        e->vy = imin(900, e->vy + 30);
+        e->y += e->vy;
+        if (clc_map_solid(w, PX(e->x), PX(e->y) + 4)) {
+            e->on = 0;
+            add_fx(w, PX(e->x), PX(e->y), FX_DUST);
+            w->ev |= CEV_BREAK;
+        }
+        break;
+    case EK_BMISSILE:
+        clc_aim(e->x, e->y, px, py, 130, &e->vx, &e->vy);
+        e->x += e->vx;
+        e->y += e->vy;
+        if (++e->b > 360 || clc_map_solid(w, PX(e->x), PX(e->y))) {
+            e->on = 0;
+            add_fx(w, PX(e->x), PX(e->y), FX_POP);
+        }
         break;
     case EK_ACID:
         if (e->flag == 0 && d < 28) { e->flag = 1; e->a = 30; }
@@ -866,7 +941,7 @@ static void ent_step(ClcWorld *w, ClcPlayer *p, ClcEnt *e) {
             int x0 = e->dir > 0 ? PX(e->x) + 4 : PX(e->x) - 28, x1 = x0 + 24;
             int a0, b0, a1, b1;
             player_box(w, &a0, &b0, &a1, &b1);
-            if (rects_overlap(x0, PX(e->y) - 4, x1 - x0, 8, a0, b0, a1 - a0 + 1, b1 - b0 + 1)) { w->hurt_by = EK_JETFIRE; hurt_player(w, p, 2, e->x); }
+            if (rects_overlap(x0, PX(e->y) - 4, x1 - x0, 8, a0, b0, a1 - a0 + 1, b1 - b0 + 1)) { w->hurt_by = EK_JETFIRE; hurt_player(w, p, 4, e->x); }
         }
         break;
     case EK_BOOMER:
@@ -884,7 +959,7 @@ static void ent_step(ClcWorld *w, ClcPlayer *p, ClcEnt *e) {
             clc_aim(e->x, e->y, px, py, 180, &e->vx, &e->vy);
             ent_move(w, e, false);
             if (e->t % 130 == 0) {
-                for (int k = -1; k <= 1; k++) {
+                for (int k = e->champ ? -2 : -1; k <= (e->champ ? 2 : 1); k++) {
                     int32_t vx, vy;
                     clc_aim(e->x, e->y, px + k * 2048, py, 340, &vx, &vy);
                     shot_add(w, SH_FIREBALL, e->x, e->y, vx, vy, 40, 2);
@@ -909,6 +984,11 @@ static void ent_step(ClcWorld *w, ClcPlayer *p, ClcEnt *e) {
         }
         if (iabs(PX(e->x) - e->hx) > 80) e->vx = PX(e->x) > e->hx ? -70 : 70;
         if (iabs(PX(e->y) - e->hy) > 40) e->vy = PX(e->y) > e->hy ? -40 : 40;
+        /* a load of slow missiles when the player is near */
+        if (d < 110 && e->t % 180 == 90) {
+            for (int k = 0; k < 2; k++) clc_ent_add(w, EK_BMISSILE, PX(e->x) + (k ? 8 : -8), PX(e->y) + 6);
+            w->ev |= CEV_FOESHOT;
+        }
         break;
     case EK_POD:
         if (e->flag && e->t % 120 == 0 && d < 140) foe_shoot(w, e, SH_PELLET, 320, 160);
@@ -953,9 +1033,12 @@ static void shots_step(ClcWorld *w, ClcPlayer *p) {
                 s->vx += (vx - s->vx) / 10;
                 s->vy += (vy - s->vy) / 10;
             }
-        } else if (s->kind == SH_BOOMERANG && s->life < 75) {
+        } else if (s->kind == SH_BOOMERANG) {
+            /* it goes when the boomer that threw it goes; on the way back it
+             * homes on the thrower */
             const ClcEnt *e = s->target >= 0 && s->target < w->ne ? &w->e[s->target] : NULL;
-            if (e && e->on) {
+            if (!e || !e->on || e->kind != EK_BOOMER) { s->on = 0; continue; }
+            if (s->life < 75) {
                 int32_t vx, vy;
                 clc_aim(s->x, s->y, e->x, e->y, 420, &vx, &vy);
                 s->vx = vx;
@@ -1010,7 +1093,7 @@ static void shots_step(ClcWorld *w, ClcPlayer *p) {
         } else {
             if (sx + 2 >= a0 && sx - 2 <= a1 && sy + 2 >= b0 && sy - 2 <= b1) {
                 w->hurt_by = (uint8_t)(100 + s->kind);
-                hurt_player(w, p, s->dmg, s->x);
+                hurt_player(w, p, 4, s->x);
                 if (s->kind != SH_BOOMERANG) s->on = 0;
             }
         }
@@ -1028,9 +1111,10 @@ static void touches(ClcWorld *w, ClcPlayer *p) {
         ClcEnt *e = &w->e[i];
         if (!e->on) continue;
         int k = e->kind;
-        if ((KIND[k].flags & KF_PICKUP) && magnet && (k == EK_NOTE || k == EK_COIN || k == EK_PLUM)) {
-            int dx = PX(px - e->x), dy = PX(py - e->y);
-            if (dx * dx + dy * dy < 44 * 44) {
+        if ((k == EK_COIN || k == EK_PLUM) || (magnet && k == EK_NOTE)) {
+            /* coins drift in from close by; the Magnet pulls from further, notes too */
+            int dx = PX(px - e->x), dy = PX(py - e->y), reach = magnet ? 44 : 16;
+            if (dx * dx + dy * dy < reach * reach) {
                 int32_t vx, vy;
                 clc_aim(e->x, e->y, px, py, 300, &vx, &vy);
                 e->x += vx;
@@ -1068,6 +1152,9 @@ static void touches(ClcWorld *w, ClcPlayer *p) {
             add_fx(w, PX(e->x), PX(e->y), FX_FUEL);
             break;
         case EK_LATE:
+        case EK_FALLER:
+            /* the latecomers, and a falling block: no bar saves her */
+            w->hurt_by = (uint8_t)k;
             die(w, p);
             return;
         case EK_LEECH:
@@ -1114,6 +1201,28 @@ static void clock_step(ClcWorld *w, ClcPlayer *p) {
     }
 }
 
+/* the Cellars' loose blocks drop when the player passes under them */
+static void loose_blocks(ClcWorld *w) {
+    int x = PX(player_x(w)), y = PX(player_y(w));
+    int r0 = y / CLC_T;
+    /* the columns right over her (or the ship) */
+    for (int cc = (x - 4) / CLC_T; cc <= (x + 3) / CLC_T; cc++) {
+        if (cc < 0 || cc >= w->w) continue;
+        for (int r = r0 - 1; r >= 0 && r >= r0 - 8; r--) {
+            int t = w->tile[r][cc];
+            if (t == MT_AIR || t == MT_LADDER) continue;
+            if (t == MT_LOOSE) {
+                w->tile[r][cc] = MT_AIR;
+                w->ver++;
+                int i = clc_ent_add(w, EK_FALLER, cc * CLC_T + 4, r * CLC_T + 4);
+                if (i >= 0) w->e[i].vy = 0;
+                w->ev |= CEV_BREAK;
+            }
+            break;
+        }
+    }
+}
+
 /* ---- a step --------------------------------------------------------------------------- */
 
 void clc_world_step(ClcWorld *w, ClcPlayer *p, unsigned buttons) {
@@ -1129,6 +1238,7 @@ void clc_world_step(ClcWorld *w, ClcPlayer *p, unsigned buttons) {
     }
     w->prev = (uint8_t)buttons;
     if (w->enter >= 0) return; /* through a door: the world waits */
+    if (w->region == RG_CELLARS && !p->dead) loose_blocks(w);
     for (int i = 0; i < w->ne; i++)
         if (w->e[i].on) ent_step(w, p, &w->e[i]);
     shots_step(w, p);

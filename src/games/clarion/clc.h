@@ -41,11 +41,16 @@ int clc_region_tier(int region);
 #define CLC_TIMER 1800         /* the dash: "60" counting double = 30 s */
 #define CLC_RING_PAUSE 120     /* a clock ring stops the dash this long */
 #define CLC_ESCAPE_T 5940      /* 99 s up the escape shaft */
-#define CLC_BURN_FRAMES 1      /* frames of thrust that burn one unit of fuel */
-#define CLC_COIN_BURN 6        /* with the tank dry, a coin for this many frames of thrust */
+#define CLC_BURN_NUM 5         /* thrust burns 5 units of fuel ... */
+#define CLC_BURN_DEN 4         /* ... every 4 frames */
+#define CLC_COIN_BURN 1        /* with the tank dry, a coin for this many frames of thrust */
 #define CLC_SHIP_INV 50
 #define CLC_FOOT_INV 60
-#define CLC_WALL_HURT 256      /* the ship hits a wall faster than this: 1 point */
+#define CLC_WALL_HURT 102      /* the ship hits a wall faster than this (0.4 px a frame): a point */
+#define CLC_PAD_VY 256         /* a landing pad takes a landing up to 1 px a frame down ... */
+#define CLC_PAD_VX 205         /* ... and 0.8 across */
+#define CLC_SHOTS_OUT 3        /* Clary's pistol: three shots in the air at most */
+#define CLC_TORTOISE 100       /* shots that make the dozing tortoise talk */
 #define CLC_LAND_VY 192        /* a landing slower than this (and level) is safe ... */
 #define CLC_LAND_VX 160
 #define CLC_BAD_LAND 320       /* ... faster than this down is a bad landing */
@@ -85,6 +90,8 @@ void clc_add_fuel(ClcPlayer *p, int n);
 int clc_coin_drop(const ClcPlayer *p, int n);
 /* give an item to the player (bought, found or chosen) */
 void clc_give(ClcPlayer *p, int item);
+int clc_pool_of(int item);
+int clc_pool_pick(Rng *r, uint32_t owned, int pool, bool extras, const ClcPlayer *p);
 
 /* ---- the walker: Clary on her feet, on a map (scale 1) or behind a door
  * (scale 2, the closer view) ------------------------------------------- */
@@ -129,6 +136,8 @@ enum {
     EK_BARREL, EK_CHEST, EK_ITEM, EK_NPC, EK_SWITCH,
     /* bosses and their parts */
     EK_LOBBER, EK_BOMB, EK_ENGINE, EK_HUSH, EK_HUSHSLURP, EK_TOCK, EK_TOCKHEAD, EK_MISSILE,
+    /* added later (map things; kept at the end so the numbers above stay) */
+    EK_NEST, EK_FALLER, EK_WALLEYE, EK_BMISSILE, EK_SCOIN,
     EK_COUNT
 };
 typedef struct ClcEnt {
@@ -142,6 +151,7 @@ typedef struct ClcEnt {
     uint8_t flag;              /* per kind */
     uint8_t hitno;             /* the last slash that struck it */
     uint8_t link;              /* a segment's leader */
+    uint8_t champ;             /* a gold champion: tougher, richer */
 } ClcEnt;
 
 /* shots, both sides */
@@ -183,7 +193,8 @@ enum {
 #define CLC_DOORS 16
 #define CLC_FX 16
 
-enum { MT_AIR, MT_ROCK, MT_ROCK2, MT_COIN, MT_LADDER, MT_MAGNET_PULL, MT_MAGNET_PUSH, MT_GATE, MT_GATE_OPEN, MT_FLAME };
+enum { MT_AIR, MT_ROCK, MT_ROCK2, MT_COIN, MT_LADDER, MT_MAGNET_PULL, MT_MAGNET_PUSH, MT_GATE, MT_GATE_OPEN, MT_FLAME,
+       MT_PAD, MT_LOOSE };
 bool clc_map_solid_tile(int t);
 
 /* doors: how they look, and what is behind them */
@@ -200,6 +211,7 @@ typedef struct ClcDoor {
     int16_t pad_c;             /* the ship lands with its middle here (tile column) */
     uint8_t hidden;            /* the gold door until ten notes; the secret door */
     uint8_t seed;
+    uint8_t shut;              /* she has been in and come back out: it won't open again */
 } ClcDoor;
 
 enum { WK_GEN, WK_CROWN, WK_ESCAPE };
@@ -229,6 +241,7 @@ typedef struct ClcWorld {
     uint8_t notes, timer_on, late_on;
     int16_t timer, ring_pause;
     uint8_t gold_door;         /* its index */
+    uint8_t gw, gh;            /* the generator's cells across and down */
     uint8_t dark, magnets_off, sentries_off;
     ClcEnt e[CLC_ENTS];
     int ne;
@@ -371,6 +384,7 @@ unsigned clc_bot(const ClcBotView *v);
 /* which door the bot is heading for, for the tests (-1) */
 int clc_bot_target(void);
 extern int clc_bot_debug;
+extern int clc_bot_mode; /* what the bot was about (for the debug output) */
 
 /* ---- drawing, art and sound ---------------------------------------------- */
 void clc_art_load(void);

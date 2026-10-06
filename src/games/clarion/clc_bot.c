@@ -16,6 +16,7 @@
 #include "clc.h"
 
 int clc_bot_debug;
+int clc_bot_mode;
 
 static int PX(int32_t v) { return (int)(v / 256) - (v < 0 && v % 256 ? 1 : 0); }
 
@@ -61,6 +62,8 @@ static void build_clearance(const ClcWorld *w) {
     }
 }
 
+static void danger_loose(const ClcWorld *w);
+
 /* how much the turrets and throwers can see of each cell */
 static uint8_t danger_[FH][FW];
 static bool danger_dash;
@@ -68,10 +71,18 @@ static bool danger_dash;
 static void build_danger(const ClcWorld *w) {
     memset(danger_, 0, sizeof danger_);
     danger_dash = w->timer_on;
+    danger_loose(w);
     for (int i = 0; i < w->ne; i++) {
         const ClcEnt *e = &w->e[i];
         if (!e->on) continue;
         int k = e->kind;
+        if (k == EK_POD || k == EK_NEST || k == EK_WALLEYE || k == EK_ACID || k == EK_SENTRY || k == EK_BIGBELLY) {
+            /* the ones that sit still: give them a wide berth */
+            int ec = PX(e->x) / CLC_T, er = PX(e->y) / CLC_T, rr = k == EK_BIGBELLY ? 4 : 2;
+            for (int r = er - rr; r <= er + rr; r++)
+                for (int c = ec - rr; c <= ec + rr; c++)
+                    if (r >= 0 && c >= 0 && r < FH && c < FW && danger_[r][c] < 200) danger_[r][c] = (uint8_t)imin(200, danger_[r][c] + 90);
+        }
         if (!(k == EK_SENTRY || k == EK_EYE || k == EK_BOOMER || (k == EK_POD && w->timer_on))) continue;
         int ex = (int)(e->x >> 8), ey = (int)(e->y >> 8), reach = k == EK_BOOMER ? 13 : 15;
         int ec = ex / CLC_T, er = ey / CLC_T;
@@ -89,6 +100,19 @@ static void build_danger(const ClcWorld *w) {
                 if (seen && danger_[r][c] < 200) danger_[r][c] = (uint8_t)(danger_[r][c] + 25);
             }
     }
+}
+
+/* the Cellars' loose stones: keep out from under them */
+static void danger_loose(const ClcWorld *w) {
+    for (int r = 0; r < w->h; r++)
+        for (int c = 0; c < w->w; c++) {
+            if (w->tile[r][c] != MT_LOOSE) continue;
+            for (int rr = r + 1; rr <= r + 10 && rr < FH; rr++) {
+                if (rr < w->h && clc_map_solid_tile(w->tile[rr][c])) break;
+                for (int cc = c - 1; cc <= c + 2; cc++)
+                    if (cc >= 0 && cc < FW && danger_[rr][cc] < 200) danger_[rr][cc] = (uint8_t)imin(200, danger_[rr][cc] + 70);
+            }
+        }
 }
 
 static int step_cost(int c, int r) {
@@ -262,6 +286,7 @@ static int field_at(uint16_t f[FH][FW], const ClcWorld *w, int x, int y) {
 /* ---- what the bot wants ------------------------------------------------------------ */
 
 static bool foe_kind(int k) {
+    if (k == EK_NEST || k == EK_WALLEYE || k == EK_BMISSILE) return true;
     return (k >= EK_FLITTER && k <= EK_SEG) && k != EK_LATE && k != EK_JETFIRE && k != EK_SNAP && k != EK_SENTRY && k != EK_POD;
 }
 
@@ -273,16 +298,19 @@ static bool wants_door(const ClcBotView *v, int k) {
     if (d->type == DT_GOLD) return false;
     switch (d->room) {
     case RM_NPC: return !d->used;
-    case RM_SAGE: return v->goal == BOT_CHERRY && !d->used;
+    case RM_SAGE:
+        /* only the sexton the chain leads to */
+        if (v->goal != BOT_CHERRY || d->used) return false;
+        return w->region == RG_SPIRE ? v->scrolls == 3 && v->chain == RG_SPIRE : v->chain == w->region;
     case RM_CHARMSHOP: return p->coins >= 100 && !clc_has(p, G_CHARM);
     /* fuel comes first: coins burn as fuel when the tank is dry */
     case RM_HEALTH:
         if (v->goal == BOT_CHERRY && w->region == RG_SPIRE && p->hp <= p->hpmax - 2 && p->coins >= 100) return true;
-        return p->coins >= 100 && (p->hp <= 6 || (p->hp <= p->hpmax - 4 && p->fuel >= 400));
+        return p->coins >= 100 && (p->hp <= 6 || p->hp <= p->hpmax - 4);
     case RM_SHOP:
     case RM_MEGA:
         if (v->goal == BOT_CHERRY && w->region == RG_SPIRE && p->hp <= p->hpmax - 2 && p->coins >= 110) return true;
-        return p->coins >= 110 && (p->hp <= p->hpmax - 4 || p->fuel < 500 || p->coins >= 400);
+        return p->coins >= 110 && (p->hp <= p->hpmax - 4 || p->fuel < 500 || p->coins >= 150);
     case RM_CAVE: return !d->used && w->region == RG_CELLARS && w->area == 1;
     case RM_ARMOR: return p->key && v->goal != BOT_BAD;
     case RM_SHORTCUT: return p->key && v->goal == BOT_BAD;
@@ -304,6 +332,78 @@ static void door_goal(const ClcWorld *w, int k) {
 }
 
 static void choose_goal_(const ClcBotView *v);
+
+/* A round of the notes: from the ship through `need` of the n notes (or all
+ * of them if fewer) and on to the gold door, as cheap as it can be flown.
+ * Costs come from the fields (climbing dear, falling cheap); a small dynamic
+ * programme over the subsets finds it. Gives the index of the first note. */
+#define RT_MAX 12
+static uint16_t rt_field[FH][FW];
+static uint32_t rt_dp[1 << RT_MAX][RT_MAX];
+static int8_t rt_par[1 << RT_MAX][RT_MAX];
+
+static int route_first(const ClcWorld *w, int n, const int *id, const int *from_ship, uint16_t gold[FH][FW], int need) {
+    if (n <= 0) return -1;
+    if (need > n) need = n;
+    if (need < 1) need = 1;
+    static uint32_t dist[RT_MAX][RT_MAX];
+    uint32_t to_gold[RT_MAX];
+    for (int a = 0; a < n; a++) {
+        const ClcEnt *e = &w->e[id[a]];
+        int c, r;
+        cell_of(w, PX(e->x), PX(e->y), &c, &r);
+        outward = true;
+        dijkstra(rt_field, w, c, r);
+        outward = false;
+        for (int b = 0; b < n; b++) {
+            const ClcEnt *f = &w->e[id[b]];
+            dist[a][b] = (uint32_t)field_at(rt_field, w, PX(f->x), PX(f->y));
+        }
+        to_gold[a] = (uint32_t)field_at(gold, w, PX(e->x), PX(e->y));
+    }
+    const uint32_t BIG = 0xFFFFFFFFu;
+    int full = 1 << n;
+    for (int m = 0; m < full; m++)
+        for (int a = 0; a < n; a++) rt_dp[m][a] = BIG;
+    for (int a = 0; a < n; a++) { rt_dp[1 << a][a] = (uint32_t)from_ship[a]; rt_par[1 << a][a] = -1; }
+    uint32_t best = BIG;
+    int bm = 0, ba = -1;
+    for (int m = 1; m < full; m++) {
+        int pc = 0;
+        for (int q = m; q; q &= q - 1) pc++;
+        if (pc > need) continue;
+        for (int a = 0; a < n; a++) {
+            uint32_t c0 = rt_dp[m][a];
+            if (c0 == BIG || !(m >> a & 1)) continue;
+            if (pc == need) {
+                uint32_t t = c0 + to_gold[a];
+                if (to_gold[a] != INF && t < best) { best = t; bm = m; ba = a; }
+                continue;
+            }
+            for (int b = 0; b < n; b++) {
+                if (m >> b & 1 || dist[a][b] == INF) continue;
+                uint32_t c1 = c0 + dist[a][b];
+                int m2 = m | 1 << b;
+                if (c1 < rt_dp[m2][b]) { rt_dp[m2][b] = c1; rt_par[m2][b] = (int8_t)a; }
+            }
+        }
+    }
+    if (ba < 0) {
+        /* no way on to the gold door from any of them: the nearest */
+        int k = 0;
+        for (int a = 1; a < n; a++) if (from_ship[a] < from_ship[k]) k = a;
+        return k;
+    }
+    /* back along the round to its first note */
+    int m = bm, a = ba;
+    while (rt_par[m][a] >= 0) {
+        int pa = rt_par[m][a];
+        m &= ~(1 << a);
+        a = pa;
+    }
+    if (clc_bot_debug) fprintf(stderr, "round of %d from %d notes: cost %u, first note %d\n", need, n, (unsigned)best, id[a]);
+    return a;
+}
 
 /* a fresh look at what to do; the same goal again keeps its record of
  * headway (so a goal that can't be reached is given up in the end) */
@@ -357,38 +457,62 @@ static void choose_goal_(const ClcBotView *v) {
     int best = INF, bk = GK_NONE, bi = -1;
     int gpx, gpy;
     clc_door_pad(&w->door[w->gold_door], &gpx, &gpy);
+    /* the true route: the Spire's sexton sends her straight on to the
+     * secret boss, so a stall or a shop comes first */
+    bool heal_first = false, sexton_left = false;
+    if (v->goal == BOT_CHERRY && w->region == RG_SPIRE)
+        for (int k = 0; k < w->nd; k++) {
+            int rm = w->door[k].room;
+            if ((rm == RM_HEALTH || rm == RM_SHOP || rm == RM_MEGA) && p->hp <= p->hpmax - 4 && p->coins >= 110 && wants_door(v, k))
+                heal_first = true;
+            if (rm == RM_SAGE && wants_door(v, k)) sexton_left = true;
+        }
     for (int k = 0; k < w->nd; k++) {
         if (!wants_door(v, k)) continue;
         int x, y;
         clc_door_pad(&w->door[k], &x, &y);
         int d = field_at(from_, w, x, y - 10);
-        if (w->door[k].room == RM_SHORTCUT || w->door[k].room == RM_SAGE) d /= 4; /* the point of the area */
+        /* the tank first: a detour only with fuel to spare for it, unless
+         * the door is where the fuel is */
+        int room = w->door[k].room;
+        bool fuel_src = room == RM_NPC || ((room == RM_SHOP || room == RM_MEGA || room == RM_HEALTH) && p->coins >= 110);
+        int cost = d / 2; /* about what the trip burns */
+        bool must = room == RM_SHORTCUT || room == RM_SAGE || room == RM_ARMOR || (room == RM_CAVE && v->goal == BOT_BAD);
+        if (!fuel_src && !must && p->fuel < cost * 2 + 250) continue;
+        if (fuel_src && p->fuel < cost + 120) continue;
+        if (fuel_src && p->fuel < 300) d /= 2;
+        if (room == RM_SAGE && heal_first) continue;
+        if (room == RM_SHORTCUT || room == RM_SAGE) d /= 4; /* the point of the area */
         if (d < best) { best = d; bk = GK_DOOR; bi = k; }
     }
     bool doors_left = bk == GK_DOOR;
+    /* the notes: the cheapest round of the ones still needed that ends at
+     * the gold door, and the first note on it */
+    static uint16_t gold_field[FH][FW];
+    static uint16_t gf_ver = 0xFFFF;
+    static const ClcWorld *gf_w;
+    if (gf_ver != w->ver || gf_w != w) {
+        int gc, gr;
+        cell_of(w, gpx, gpy - 10, &gc, &gr);
+        dijkstra(gold_field, w, gc, gr);
+        gf_ver = w->ver;
+        gf_w = w;
+    }
+    int ni = 0, id[RT_MAX], from_ship[RT_MAX];
     for (int i = 0; i < w->ne; i++) {
         const ClcEnt *e = &w->e[i];
         if (!e->on || e->kind != EK_NOTE || B.skip_note[i]) continue;
+        if (w->notes >= CLC_NOTES_NEEDED - 1 && (doors_left || sexton_left)) continue; /* the tenth waits for the doors */
         int d = field_at(from_, w, PX(e->x), PX(e->y));
         if (d == INF) continue;
-        if (w->notes >= CLC_NOTES_NEEDED - 1) {
-            /* the tenth: the one handiest for the gold door after it */
-            if (doors_left) continue;
-            static uint16_t gold_field[FH][FW];
-            static uint16_t gf_ver = 0xFFFF;
-            static const ClcWorld *gf_w;
-            if (gf_ver != w->ver || gf_w != w) {
-                int gc, gr;
-                cell_of(w, gpx, gpy - 10, &gc, &gr);
-                dijkstra(gold_field, w, gc, gr);
-                gf_ver = w->ver;
-                gf_w = w;
-            }
-            d = d / 3 + field_at(gold_field, w, PX(e->x), PX(e->y));
-            if (clc_bot_debug) fprintf(stderr, "tenth? note %d at %d,%d score %d (gold %d)\n", i, PX(e->x), PX(e->y), d, field_at(gold_field, w, PX(e->x), PX(e->y)));
-        }
-        if (d < best) { best = d; bk = GK_NOTE; bi = i; }
+        if (ni < RT_MAX) { id[ni] = i; from_ship[ni] = d; ni++; continue; }
+        /* too many to plan over: keep the nearest */
+        int far = 0;
+        for (int k = 1; k < RT_MAX; k++) if (from_ship[k] > from_ship[far]) far = k;
+        if (d < from_ship[far]) { id[far] = i; from_ship[far] = d; }
     }
+    int first = route_first(w, ni, id, from_ship, gold_field, CLC_NOTES_NEEDED - w->notes);
+    if (first >= 0 && from_ship[first] < best) { best = from_ship[first]; bk = GK_NOTE; bi = id[first]; }
     if (bk == GK_DOOR) { door_goal(w, bi); return; }
     if (bk == GK_NOTE) {
         B.gk = GK_NOTE;
@@ -406,6 +530,15 @@ static void choose_goal_(const ClcBotView *v) {
 static unsigned steer(const ClcWorld *w, int dvx, int dvy) {
     unsigned b = 0;
     int vx = w->f.vx, vy = w->f.vy;
+    /* rock just ahead: come in slower than a knock costs */
+    int32_t fx = w->f.x, fy = w->f.y;
+    if (dvx > 90 && chm_flight_blocked(4, clc_map_solid, w, fx + 6 * 256, fy)) dvx = 90;
+    if (dvx < -90 && chm_flight_blocked(4, clc_map_solid, w, fx - 6 * 256, fy)) dvx = -90;
+    if (dvy < -90 && chm_flight_blocked(4, clc_map_solid, w, fx, fy - 6 * 256)) dvy = -90;
+    /* and a ceiling coming up while going along fast */
+    if (dvy < -60 && (chm_flight_blocked(4, clc_map_solid, w, fx + vx * 6, fy - 5 * 256) || chm_flight_blocked(4, clc_map_solid, w, fx + vx * 3, fy - 4 * 256)))
+        dvy = -60;
+    if (dvy > 150 && chm_flight_blocked(4, clc_map_solid, w, fx, fy + 6 * 256)) dvy = 150;
     if (vy + CLC_TUNE.gravity > dvy) b |= BTN_A;
     if (vx < dvx - 8) b |= BTN_RIGHT;
     else if (vx > dvx + 8) b |= BTN_LEFT;
@@ -451,7 +584,7 @@ static void desired(const ClcWorld *w, int gx, int gy, bool arrive, int *odvx, i
     int dx = tx - x, dy = ty - y, d = clc_isqrt(dx * dx + dy * dy);
     /* faster in the open, gentle near the walls */
     int k = clear_[r][c];
-    int speed = k >= 5 ? 330 : k == 4 ? 290 : k == 3 ? 230 : k == 2 ? 180 : 140;
+    int speed = k >= 5 ? 380 : k == 4 ? 300 : k == 3 ? 240 : k == 2 ? 160 : 110;
     if (arrive) speed = imin(speed, 30 + (iabs(gx - x) + iabs(gy - y)) * 5);
     int dvx = 0, dvy = 0;
     if (d > 0) {
@@ -470,7 +603,7 @@ static unsigned slash_near(const ClcWorld *w, const ClcPlayer *p, unsigned b, bo
  * one that gets nearest the goal unhurt wins and is kept for a few frames. */
 static ClcWorld simW;
 static ClcPlayer simWP;
-static int safe_ox, safe_oy, safe_left;
+static int safe_plan, safe_f, safe_left, safe_dvx, safe_dvy;
 
 static unsigned safe_steer(const ClcWorld *w, const ClcPlayer *p, int dvx, int dvy, bool use_field);
 
@@ -482,25 +615,66 @@ static unsigned fly_to(const ClcWorld *w, const ClcPlayer *p, int gx, int gy, bo
 
 static int hunt_x, hunt_y;
 
+/* the plans: the line plus eight nudges round it, then (by loose stones)
+ * straight back, and two baits: on for a while to bring a stone down, then
+ * straight back out from under it */
+static const int16_t OFF[9][2] = {{0, 0}, {170, 0}, {-170, 0}, {0, -190}, {0, 190}, {130, -130}, {-130, -130}, {130, 130}, {-130, 130}};
+
+static unsigned plan_steer(const ClcWorld *w, int j, int f, int dvx, int dvy) {
+    if (j < 9) return steer(w, dvx + OFF[j][0], dvy + OFF[j][1]);
+    int on = j == 10 ? 10 : j == 11 ? 18 : 0;
+    if (f < on) return steer(w, dvx, dvy);
+    int d = imax(1, clc_isqrt(dvx * dvx + dvy * dvy));
+    return steer(w, -dvx * 260 / d, -dvy * 260 / d);
+}
+
+static int count_fallers(const ClcWorld *w) {
+    int n = 0;
+    for (int i = 0; i < w->ne; i++) n += w->e[i].on && w->e[i].kind == EK_FALLER;
+    return n;
+}
+
 static unsigned safe_steer(const ClcWorld *w, const ClcPlayer *p, int dvx, int dvy, bool use_field) {
-    static const int16_t OFF[9][2] = {{0, 0}, {170, 0}, {-170, 0}, {0, -190}, {0, 190}, {130, -130}, {-130, -130}, {130, 130}, {-130, 130}};
     if (safe_left <= 0) {
         int best = -(1 << 30), bo = 0;
-        for (int j = 0; j < 9; j++) {
+        /* look further ahead near the Cellars' loose stones */
+        int horizon = 20;
+        if (w->region == RG_CELLARS) {
+            int sc = PX(w->f.x) / CLC_T, sr = PX(w->f.y) / CLC_T;
+            for (int r = imax(0, sr - 10); r <= sr && horizon == 20; r++)
+                for (int c = imax(0, sc - 4); c <= imin(w->w - 1, sc + 4); c++)
+                    if (w->tile[r][c] == MT_LOOSE) { horizon = 40; break; }
+            if (count_fallers(w)) horizon = 40; /* one on its way down */
+        }
+        int nplans = horizon > 20 ? 12 : 9, fall0 = count_fallers(w);
+        if (clc_bot_debug > 3) {
+            fprintf(stderr, "plan dv %d,%d field %d ship v %d,%d\n", dvx, dvy, use_field, (int)w->f.vx, (int)w->f.vy);
+            for (int i = 0; i < w->ne; i++)
+                if (w->e[i].on && iabs(PX(w->e[i].x - w->f.x)) < 40 && iabs(PX(w->e[i].y - w->f.y)) < 40)
+                    fprintf(stderr, "  near kind %d at %d,%d flag %d a %d\n", w->e[i].kind, PX(w->e[i].x), PX(w->e[i].y), w->e[i].flag, w->e[i].a);
+        }
+        for (int j = 0; j < nplans; j++) {
             memcpy(&simW, w, sizeof simW);
             simWP = *p;
             simW.sim = 1;
             int score = 0;
-            for (int f = 0; f < 20; f++) {
-                unsigned b = steer(&simW, dvx + OFF[j][0], dvy + OFF[j][1]);
+            for (int f = 0; f < horizon; f++) {
+                unsigned b = plan_steer(&simW, j, f, dvx, dvy);
                 b = slash_near(&simW, &simWP, b, simW.timer_on);
                 clc_world_step(&simW, &simWP, b);
-                if (simW.ev & (CEV_HURT | CEV_BADLAND)) score -= 3000 - f * 40;
+                if (simW.ev & (CEV_HURT | CEV_BADLAND)) score -= 6000 - f * 60; /* worse than a kill is good */
                 if (simW.ev & CEV_BUMP) score -= 500;
                 if (simW.ev & CEV_DIE) { score -= 100000; break; }
                 if (simW.on_foot) { score -= 400; break; }
                 if (simW.leeches > w->leeches) score -= 300;
             }
+            /* by the stones: and not left right under one that is coming down */
+            if (horizon > 20 && !simWP.dead && !simW.on_foot)
+                for (int f = 0; f < 25; f++) {
+                    clc_world_step(&simW, &simWP, steer(&simW, 0, 0));
+                    if (simW.ev & CEV_DIE) { score -= 50000; break; }
+                }
+
             if (use_field) {
                 int fv = field_at(fld, &simW, PX(simW.f.x), PX(simW.f.y));
                 score -= fv == INF ? 30000 : fv;
@@ -509,14 +683,20 @@ static unsigned safe_steer(const ClcWorld *w, const ClcPlayer *p, int dvx, int d
                 score += (simW.kills - w->kills) * 2000;
             }
             if (j == 0) score += 15; /* the plain line, all else equal */
+            if (j >= 10 && score > -3000 && count_fallers(&simW) > fall0) score += 400; /* a stone brought down safely */
+            if (clc_bot_debug > 2) fprintf(stderr, " opt %d score %d ev %x at %d,%d\n", j, score, simW.ev, PX(simW.f.x), PX(simW.f.y));
             if (score > best) { best = score; bo = j; }
         }
-        safe_ox = OFF[bo][0];
-        safe_oy = OFF[bo][1];
-        safe_left = 5;
+        safe_plan = bo;
+        safe_f = 0;
+        safe_dvx = dvx;
+        safe_dvy = dvy;
+        safe_left = bo >= 9 ? horizon : 5; /* a way out from under a stone is flown right through */
     }
     safe_left--;
-    return steer(w, dvx + safe_ox, dvy + safe_oy);
+    /* the straight-back plans are flown as they were tried */
+    if (safe_plan >= 9) return plan_steer(w, safe_plan, safe_f++, safe_dvx, safe_dvy);
+    return plan_steer(w, safe_plan, safe_f++, dvx, dvy);
 }
 
 /* slash anything close in front (and turn to face it if it's right behind) */
@@ -525,17 +705,19 @@ static unsigned slash_near(const ClcWorld *w, const ClcPlayer *p, unsigned b, bo
     for (int i = 0; i < w->ne; i++) {
         const ClcEnt *e = &w->e[i];
         if (!e->on) continue;
-        bool foe = foe_kind(e->kind) || (hunt_all && e->kind == EK_POD);
+        bool foe = foe_kind(e->kind) || e->kind == EK_POD;
+        (void)hunt_all;
         if (!foe || (e->kind == EK_BLOB && e->flag)) continue;
         int dx = PX(e->x) - x, dy = PX(e->y) - y;
         if (iabs(dy) > 12 || iabs(dx) > 26) continue;
         int side = dx >= 0 ? 1 : -1;
-        if (side == w->f.face || clc_has(p, G_TWIN)) {
-            if (!((w->sim ? w->prev : B.prevb) & BTN_B)) b |= BTN_B;
-        } else if (iabs(dx) < 20) {
+        /* face it (the slash goes the way last steered), and slash the
+         * moment the blade is ready */
+        if (side != w->f.face && !clc_has(p, G_TWIN)) {
             b &= ~(unsigned)(BTN_LEFT | BTN_RIGHT);
             b |= side > 0 ? BTN_RIGHT : BTN_LEFT;
         }
+        if (!w->slash_cd && !((w->sim ? w->prev : B.prevb) & BTN_B)) b |= BTN_B;
         break;
     }
     return b;
@@ -588,7 +770,7 @@ static unsigned land_at(const ClcWorld *w, const ClcPlayer *p, int k) {
     }
     if (y >= py - 30 && y <= py + 1 && iabs(x - px) < 48) {
         /* level with the spot already: slide across (the floor there is open) */
-        int dvx = iclamp((px - x) * 12, -170, 170);
+        int dvx = iclamp((px - x) * 12, -96, 96); /* below what a knock on a wall costs */
         return steer(w, dvx, y < py - 14 ? 40 : -10);
     }
     return fly_to(w, p, px, py - 10, true);
@@ -613,7 +795,7 @@ static int threat_near(const ClcWorld *w, int x, int y, int range) {
         int k = e->kind;
         bool t = k == EK_CHASER || k == EK_FLITTER || k == EK_GHOST || k == EK_CRAB || k == EK_SNAKE ||
                  k == EK_WORM || k == EK_FIREDRONE || k == EK_WINDDRONE || k == EK_BOOMER || k == EK_EYE || k == EK_LEECH ||
-                 (k == EK_BLOB && !e->flag) || (k == EK_POD && w->timer_on);
+                 k == EK_BMISSILE || k == EK_NEST || k == EK_WALLEYE || k == EK_GRUB || k == EK_SNAP || (k == EK_BLOB && !e->flag) || (k == EK_POD && (w->timer_on || iabs(PX(e->x) - x) + iabs(PX(e->y) - y) < 40));
         if (!t) continue;
         int dx = PX(e->x) - x, dy = PX(e->y) - y, dd = dx * dx + dy * dy;
         if (dd >= bd) continue;
@@ -650,6 +832,14 @@ static int coin_near(const ClcWorld *w, int x, int y, int range) {
 
 static unsigned fly_bot_(const ClcBotView *v);
 
+/* gentler by the walls (a knock above 0.4 px a frame costs a point) */
+static int wall_cap(const ClcWorld *w, int sp) {
+    int c, r;
+    cell_of(w, PX(w->f.x), PX(w->f.y), &c, &r);
+    int k = clear_[r][c];
+    return imin(sp, k >= 4 ? 400 : k == 3 ? 190 : k == 2 ? 120 : 90);
+}
+
 /* no headway at all for a few seconds: a shove in some direction */
 static unsigned fly_bot(const ClcBotView *v) {
     const ClcWorld *w = v->w;
@@ -659,7 +849,10 @@ static unsigned fly_bot(const ClcBotView *v) {
     if (B.nudge_t > 0) {
         B.nudge_t--;
         static const int16_t N[4][2] = {{0, -200}, {200, -60}, {-200, -60}, {0, 160}};
-        return steer(w, N[B.nudge_k & 3][0], N[B.nudge_k & 3][1]);
+        hunt_x = PX(w->f.x) + N[B.nudge_k & 3][0] / 4;
+        hunt_y = PX(w->f.y) + N[B.nudge_k & 3][1] / 4;
+        clc_bot_mode = 6;
+        return safe_steer(w, v->p, N[B.nudge_k & 3][0], N[B.nudge_k & 3][1], false);
     }
     if (B.still_t > 200 && !w->on_foot) {
         B.still_t = 0;
@@ -689,10 +882,13 @@ static unsigned fly_bot_(const ClcBotView *v) {
         if (++B.hunt_n[h] > 240) B.ignore_h[h] = 1;
         int ex = PX(e->x);
         int off = (e->kind == EK_SNAKE || e->kind == EK_WORM) ? 15 : 14;
+        if (e->kind == EK_CHASER || e->kind == EK_BMISSILE) off = 22; /* they come to the ship: wait for them, blade out */
         hunt_x = ex + (x < ex ? -off : off);
         hunt_y = strike_y(w, e);
         int dx = hunt_x - x, dy = hunt_y - y, d = imax(1, clc_isqrt(dx * dx + dy * dy));
-        int sp = imin(240, 40 + d * 6);
+        int sp = wall_cap(w, imin(240, 40 + d * 6));
+        clc_bot_mode = 1;
+        if (clc_bot_debug > 3) fprintf(stderr, "hunt k%d ship %d,%d v %d,%d foe %d,%d hp %d slash %d cd %d face %d\n", e->kind, x, y, (int)w->f.vx, (int)w->f.vy, PX(e->x), PX(e->y), e->hp, w->slash_t, w->slash_cd, w->f.face);
         b = safe_steer(w, p, dx * sp / d, dy * sp / d, false);
         return slash_near(w, p, b, w->timer_on);
     }
@@ -704,7 +900,8 @@ static unsigned fly_bot_(const ClcBotView *v) {
         hunt_x = PX(e->x);
         hunt_y = PX(e->y) - 2;
         int dx = hunt_x - x, dy = hunt_y - y, d = imax(1, clc_isqrt(dx * dx + dy * dy));
-        int sp = imin(200, 40 + d * 6);
+        int sp = wall_cap(w, imin(200, 40 + d * 6));
+        clc_bot_mode = 2;
         b = safe_steer(w, p, dx * sp / d, dy * sp / d, false);
         return slash_near(w, p, b, false);
     }
@@ -715,11 +912,12 @@ static unsigned fly_bot_(const ClcBotView *v) {
             B.gx = PX(e->x) + (x < PX(e->x) ? -14 : 14);
             B.gy = PX(e->y);
         }
+        clc_bot_mode = 3;
         b = fly_to(w, p, B.gx, B.gy, B.gk == GK_HUNT);
         int d = field_at(fld, w, x, y);
         B.frames++;
         if (d < B.best_d) { B.best_d = d; B.frames = 0; }
-        if (B.frames > 360) {
+        if (B.frames > 240) {
             /* no headway: try something else for a while */
             if (B.gk == GK_NOTE) B.skip_note[B.gi] = 1;
             B.gk = GK_NONE;
@@ -741,6 +939,7 @@ static unsigned fly_bot_(const ClcBotView *v) {
             if (clc_bot_debug > 1 && (w->t % 10) == 0)
                 fprintf(stderr, "clearing kind %d at %d,%d hp %d ship %d,%d face %d slash %d t%d\n", e->kind, PX(e->x), PX(e->y), e->hp, x, y,
                         w->f.face, w->slash_t, B.clear_t[dz]);
+            clc_bot_mode = 4;
             b = fly_to(w, p, PX(e->x) + side, strike_y(w, e), true);
             b = slash_near(w, p, b, true);
             return b;
@@ -748,6 +947,7 @@ static unsigned fly_bot_(const ClcBotView *v) {
         /* the last moment before setting down: not with shots about */
         if (shots_near(w, px, py - 4, 64) && iabs(x - px) < 24 && y > py - 30 && (!w->timer_on || w->timer > 600))
             return steer(w, 0, -60);
+        clc_bot_mode = 5;
         b = land_at(w, p, B.gi);
         if (B.land_t > 240) { B.land_t = 0; B.fx = -999; }
         B.frames++;
@@ -841,9 +1041,30 @@ static int sub_goal(const ClcBotView *v, bool *door_up, int *want_item_x) {
     int door_x = s->door_c * CLC_ST + 8, exit_x = s->exit_c * CLC_ST + 8;
     switch (s->room) {
     case RM_CAVE: {
+        int cx = PX(s->cl.x), cy = PX(s->cl.y);
+        for (int i = 0; i < s->ne; i++) {
+            const ClcEnt *e = &s->e[i];
+            if (e->on && e->kind == EK_SCOIN && iabs(PX(e->x) - cx) < 64 && iabs(PX(e->y) - cy) < 20 && e->b > 20) return PX(e->x);
+        }
         const ClcEnt *ch = sub_find(s, EK_CHEST);
         if (ch && !ch->flag) return PX(ch->x);
-        const ClcEnt *it = sub_find(s, EK_ITEM);
+        /* the chest's three: the key first, then whatever is worth most */
+        const ClcEnt *it = NULL;
+        int best = -1;
+        for (int i = 0; i < s->ne; i++) {
+            const ClcEnt *e = &s->e[i];
+            if (!e->on || e->kind != EK_ITEM || e->c == 2) continue;
+            int a = e->a, sc = 10;
+            if (a == IT_KEY) sc = 100;
+            else if (a == G_PLATE) sc = 90;
+            else if (a == G_SIPHON) sc = 80;
+            else if (a == G_PURSE || a == G_TWIN) sc = 70;
+            else if (a == IT_DRUM || a == IT_SPARETANK || a == IT_HEARTPIN) sc = 60;
+            else if (a == IT_TOFFEE && p->hp < p->hpmax - 4) sc = 65;
+            else if (a == IT_FLASK) sc = 50;
+            else if (a < G_COUNT) sc = 40;
+            if (sc > best) { best = sc; it = e; }
+        }
         if (it) { *want_item_x = PX(it->x); return PX(it->x); }
         *door_up = true;
         return exit_x;
@@ -888,9 +1109,9 @@ static int sub_goal(const ClcBotView *v, bool *door_up, int *want_item_x) {
                 if (e->a == G_CHARM) sc = 100;
                 else if (e->a == G_PLATE) sc = 90;
                 else if (e->a == IT_TOFFEE && p->hp <= p->hpmax - 4) sc = p->hp <= 6 || p->fuel >= 400 ? 80 : 50;
-                else if (e->a == IT_DRUM && p->fuel < p->fuelmax - 900) sc = 60;
-                else if (e->a == IT_FLASK && p->fuel < p->fuelmax - 400) sc = 70;
-                else if (e->a == IT_HEARTPIN) sc = 30;
+                else if (e->a == IT_DRUM && p->fuel < p->fuelmax - 900) sc = p->fuel < 300 ? 95 : 60;
+                else if (e->a == IT_FLASK && p->fuel < p->fuelmax - 400) sc = p->fuel < 300 ? 92 : 70;
+                else if (e->a == IT_HEARTPIN) sc = 75;
                 else if (e->a == G_SIPHON || e->a == G_PURSE) sc = 20;
                 if (sc > pick_score) { pick_score = sc; pick = i; }
             }
@@ -945,6 +1166,8 @@ static int score_plan(const ClcBotView *v, int goal_x, int dir, int jump, int up
     int x = PX(simS.cl.x);
     score -= iabs(goal_x - x) * 6;
     if (count_items(&simS) < items) score += 3000;
+    const ClcEnt *ch0 = sub_find(s, EK_CHEST), *ch1 = sub_find(&simS, EK_CHEST);
+    if (ch0 && !ch0->flag && ch1 && ch1->flag) score += 3000; /* the chest opened */
     score += (boss0 - simS.boss_hp) * 80;
     lob = sub_find(&simS, EK_LOBBER);
     eng = sub_find(&simS, EK_ENGINE);
@@ -982,7 +1205,7 @@ static unsigned sub_bot(const ClcBotView *v) {
         B.plan_left = 0;
         return (B.prevb & BTN_UP) ? 0 : BTN_UP;
     }
-    if (want_x >= 0 && iabs(x - want_x) <= 3 && s->cl.ground && !fight) return (B.prevb & BTN_A) ? 0 : BTN_A;
+    if (want_x >= 0 && iabs(x - want_x) <= 3 && s->cl.ground) return (B.prevb & BTN_A) ? 0 : BTN_A;
     if (door_up && iabs(x - gx) < 30 && s->cl.ground) {
         /* the last few steps to a door: walk them */
         B.plan_left = 0;

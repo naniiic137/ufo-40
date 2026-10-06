@@ -77,28 +77,30 @@ static const Shape SHAPE[RG_COUNT] = {
 /* what lives where: map enemies by region (weights) */
 typedef struct Spawn { uint8_t kind, weight; } Spawn;
 static const Spawn MAP_FOES[RG_COUNT][6] = {
-    {{EK_FLITTER, 5}, {EK_CREEPER, 4}, {EK_BIGBELLY, 1}, {0, 0}, {0, 0}, {0, 0}},
+    {{EK_FLITTER, 5}, {EK_CREEPER, 4}, {EK_NEST, 2}, {EK_BIGBELLY, 1}, {0, 0}, {0, 0}},
     {{EK_GRUB, 4}, {EK_FLITTER, 3}, {EK_SNAP, 3}, {EK_CHASER, 2}, {EK_BIGBELLY, 1}, {0, 0}},
-    {{EK_FIREDRONE, 4}, {EK_WINDDRONE, 3}, {EK_FLITTER, 2}, {EK_BIGBELLY, 1}, {0, 0}, {0, 0}},
+    {{EK_FIREDRONE, 4}, {EK_WINDDRONE, 3}, {EK_FLITTER, 2}, {EK_JETFIRE, 2}, {EK_BIGBELLY, 1}, {0, 0}},
     {{EK_LEECH, 4}, {EK_EYE, 3}, {EK_ACID, 3}, {EK_BLOB, 3}, {EK_BIGBELLY, 1}, {0, 0}},
     {{EK_SENTRY, 4}, {EK_SNAKE, 2}, {EK_CRAB, 3}, {EK_CHASER, 2}, {EK_FLITTER, 2}, {0, 0}},
-    {{EK_JETFIRE, 3}, {EK_FLITTER, 2}, {EK_CHASER, 1}, {0, 0}, {0, 0}, {0, 0}},
+    {{EK_JETFIRE, 3}, {EK_WALLEYE, 3}, {EK_FLITTER, 2}, {EK_CHASER, 1}, {0, 0}, {0, 0}},
     {{EK_BOOMER, 3}, {EK_WORM, 2}, {EK_EYE, 2}, {EK_CHASER, 2}, {EK_LEECH, 2}, {EK_FIREDRONE, 2}},
 };
 
 /* where a kind lives: 0 the air, 1 a floor, 2 a floor or a ceiling, 3 a side wall */
 static int habitat(int k) {
     switch (k) {
-    case EK_CREEPER: case EK_SENTRY: return 2;
+    case EK_CREEPER: case EK_SENTRY: case EK_NEST: return 2;
     case EK_GRUB: case EK_SNAP: return 1;
-    case EK_EYE: case EK_ACID: case EK_CRAB: case EK_BOOMER: case EK_JETFIRE: return 3;
+    case EK_EYE: case EK_ACID: case EK_CRAB: case EK_BOOMER: case EK_JETFIRE: case EK_WALLEYE: return 3;
     default: return 0;
     }
 }
 
 /* ---- carving helpers --------------------------------------------------- */
 
-static int GW_(void) { return CLC_GW; }
+/* the generator's grid: 8 x 5 cells, or less for the Cellars' first area */
+static int gw_ = CLC_GW, gh_ = CLC_GH;
+static int GW_(void) { return gw_; }
 
 static void carve(ClcWorld *w, int c0, int r0, int c1, int r1) {
     for (int r = imax(1, r0); r <= imin(w->h - 2, r1); r++)
@@ -243,7 +245,7 @@ static int find_strips(const ClcWorld *w, Strip *s) {
                 s[n].r = (int16_t)r;
                 s[n].c0 = (int16_t)c0;
                 s[n].c1 = (int16_t)(c - 1);
-                s[n].cell = (uint8_t)((r / CLC_CH) * CLC_GW + ((c0 + c) / 2) / CLC_CW);
+                s[n].cell = (uint8_t)((r / CLC_CH) * gw_ + ((c0 + c) / 2) / CLC_CW);
                 s[n].used = 0;
                 n++;
             }
@@ -278,8 +280,10 @@ static bool near_thing(const ClcWorld *w, int x, int y, int d) {
 
 static void build_map(ClcWorld *w, const ClcAreaSpec *sp, Rng *rng, Room *rooms, int *start_cell) {
     const Shape *sh = &SHAPE[sp->region];
-    w->w = CLC_GW * CLC_CW;
-    w->h = CLC_GH * CLC_CH;
+    w->w = (uint8_t)(gw_ * CLC_CW);
+    w->h = (uint8_t)(gh_ * CLC_CH);
+    w->gw = (uint8_t)gw_;
+    w->gh = (uint8_t)gh_;
     fill(w, 0, 0, CLC_MW - 1, CLC_MH - 1, MT_ROCK);
     /* deeper rock for looks */
     for (int r = 0; r < w->h; r++)
@@ -293,29 +297,29 @@ static void build_map(ClcWorld *w, const ClcAreaSpec *sp, Rng *rng, Room *rooms,
     memset(seen, 0, sizeof seen);
     int layout = rng_range(rng, 0, 2);
     if (sp->region == RG_CLOISTER) layout = 0;
-    int sx = rng_range(rng, 0, GW_() - 1), sy = rng_range(rng, 0, CLC_GH - 1);
-    if (sp->region == RG_CELLARS && sp->area == 0) { sx = rng_range(rng, 0, 1); sy = CLC_GH - 1; }
-    *start_cell = sy * CLC_GW + sx;
+    int sx = rng_range(rng, 0, GW_() - 1), sy = rng_range(rng, 0, gh_ - 1);
+    if (sp->region == RG_CELLARS && sp->area == 0) { sx = rng_range(rng, 0, 1); sy = gh_ - 1; }
+    *start_cell = sy * gw_ + sx;
     if (layout == 2) {
         /* the serpent: every row a hall, the rows joined end to end */
-        for (int y = 0; y < CLC_GH; y++) {
-            for (int x = 0; x < CLC_GW - 1; x++) hl[y][x] = 1;
-            if (y < CLC_GH - 1) vl[y][(y & 1) ? 0 : CLC_GW - 1] = 1;
+        for (int y = 0; y < gh_; y++) {
+            for (int x = 0; x < gw_ - 1; x++) hl[y][x] = 1;
+            if (y < gh_ - 1) vl[y][(y & 1) ? 0 : gw_ - 1] = 1;
         }
     } else {
         /* a random tree: depth first (layout 0) or grown from a frontier (1) */
         static int16_t stack[CLC_GW * CLC_GH * 4];
         int top = 0;
-        stack[top++] = (int16_t)(sy * CLC_GW + sx);
+        stack[top++] = (int16_t)(sy * gw_ + sx);
         seen[sy][sx] = 1;
         while (top > 0) {
             int pick = layout == 0 ? top - 1 : rng_range(rng, 0, top - 1);
-            int cur = stack[pick], x = cur % CLC_GW, y = cur / CLC_GW;
+            int cur = stack[pick], x = cur % gw_, y = cur / gw_;
             int opts[4], wts[4], no = 0, tw = 0;
             static const int8_t D[4][2] = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
             for (int k = 0; k < 4; k++) {
                 int nx = x + D[k][0], ny = y + D[k][1];
-                if (nx < 0 || ny < 0 || nx >= CLC_GW || ny >= CLC_GH || seen[ny][nx]) continue;
+                if (nx < 0 || ny < 0 || nx >= gw_ || ny >= gh_ || seen[ny][nx]) continue;
                 int wt = 4 + (k >= 2 ? sh->vbias : -sh->vbias);
                 if (wt < 1) wt = 1;
                 opts[no] = k;
@@ -335,21 +339,21 @@ static void build_map(ClcWorld *w, const ClcAreaSpec *sp, Rng *rng, Room *rooms,
             else if (d == 2) vl[y][x] = 1;
             else vl[ny][x] = 1;
             seen[ny][nx] = 1;
-            stack[top++] = (int16_t)(ny * CLC_GW + nx);
+            stack[top++] = (int16_t)(ny * gw_ + nx);
         }
     }
     /* loops */
-    for (int y = 0; y < CLC_GH; y++)
-        for (int x = 0; x < CLC_GW; x++) {
+    for (int y = 0; y < gh_; y++)
+        for (int x = 0; x < gw_; x++) {
             int bias = sh->vbias * 4;
-            if (x < CLC_GW - 1 && !hl[y][x] && rng_chance(rng, imax(0, sh->extra - bias))) hl[y][x] = 1;
-            if (y < CLC_GH - 1 && !vl[y][x] && rng_chance(rng, imax(0, sh->extra + bias))) vl[y][x] = 1;
+            if (x < gw_ - 1 && !hl[y][x] && rng_chance(rng, imax(0, sh->extra - bias))) hl[y][x] = 1;
+            if (y < gh_ - 1 && !vl[y][x] && rng_chance(rng, imax(0, sh->extra + bias))) vl[y][x] = 1;
         }
 
     /* chambers */
-    for (int y = 0; y < CLC_GH; y++)
-        for (int x = 0; x < CLC_GW; x++) {
-            Room *rm = &rooms[y * CLC_GW + x];
+    for (int y = 0; y < gh_; y++)
+        for (int x = 0; x < gw_; x++) {
+            Room *rm = &rooms[y * gw_ + x];
             int ww = rng_range(rng, sh->wmin, sh->wmax), hh = rng_range(rng, sh->hmin, sh->hmax);
             ww = imin(ww, CLC_CW - 3);
             hh = imin(hh, CLC_CH - 3);
@@ -363,11 +367,11 @@ static void build_map(ClcWorld *w, const ClcAreaSpec *sp, Rng *rng, Room *rooms,
         }
 
     /* passages */
-    for (int y = 0; y < CLC_GH; y++)
-        for (int x = 0; x < CLC_GW; x++) {
-            const Room *a = &rooms[y * CLC_GW + x];
-            if (x < CLC_GW - 1 && hl[y][x]) {
-                const Room *b = &rooms[y * CLC_GW + x + 1];
+    for (int y = 0; y < gh_; y++)
+        for (int x = 0; x < gw_; x++) {
+            const Room *a = &rooms[y * gw_ + x];
+            if (x < gw_ - 1 && hl[y][x]) {
+                const Room *b = &rooms[y * gw_ + x + 1];
                 int p = rng_chance(rng, sh->chute) ? 2 : rng_range(rng, sh->pmin, sh->pmax);
                 int lo = imax(a->y0, b->y0), hi = imin(a->y1, b->y1);
                 if (hi - lo + 1 >= p) {
@@ -384,8 +388,8 @@ static void build_map(ClcWorld *w, const ClcAreaSpec *sp, Rng *rng, Room *rooms,
                     carve(w, bx, yb, b->x0, yb + p - 1);
                 }
             }
-            if (y < CLC_GH - 1 && vl[y][x]) {
-                const Room *b = &rooms[(y + 1) * CLC_GW + x];
+            if (y < gh_ - 1 && vl[y][x]) {
+                const Room *b = &rooms[(y + 1) * gw_ + x];
                 int p = rng_chance(rng, sh->chute) ? 2 : rng_range(rng, sh->pmin, sh->pmax);
                 int lo = imax(a->x0, b->x0), hi = imin(a->x1, b->x1);
                 int left;
@@ -425,7 +429,7 @@ static void build_map(ClcWorld *w, const ClcAreaSpec *sp, Rng *rng, Room *rooms,
                 w->tile[r][c] = MT_AIR;
         }
     /* rocks hung in the big chambers */
-    for (int i = 0; i < CLC_GW * CLC_GH; i++) {
+    for (int i = 0; i < gw_ * gh_; i++) {
         const Room *rm = &rooms[i];
         if (rm->x1 - rm->x0 < 9 || rm->y1 - rm->y0 < 7) continue;
         for (int k = 0; k < sh->islands; k++) {
@@ -463,7 +467,8 @@ static int pick_kind(Rng *rng, int region) {
 static bool place_on_surface(ClcWorld *w, Rng *rng, int hab, int *x, int *y, int *dir, int avoid_cell) {
     for (int tries = 0; tries < 400; tries++) {
         int c = rng_range(rng, 2, w->w - 3), r = rng_range(rng, 2, w->h - 3);
-        if ((r / CLC_CH) * CLC_GW + c / CLC_CW == avoid_cell) continue;
+        if ((r / CLC_CH) * gw_ + c / CLC_CW == avoid_cell) continue;
+        if (avoid_cell >= 0 && iabs(c - w->spawn_c) < 7 && iabs(r - w->spawn_r) < 6) continue; /* not by the ship either */
         if (!is_air(w, c, r)) continue;
         if (hab == 1 || hab == 2) {
             bool floor = is_rock(w, c, r + 1) && is_air(w, c, r - 1) && is_air(w, c - 1, r) && is_air(w, c + 1, r);
@@ -494,13 +499,14 @@ static bool place_in_air(ClcWorld *w, Rng *rng, int *x, int *y, int avoid_cell, 
     for (int tries = 0; tries < 600; tries++) {
         int c, r;
         if (cell_only >= 0) {
-            c = (cell_only % CLC_GW) * CLC_CW + rng_range(rng, 1, CLC_CW - 2);
-            r = (cell_only / CLC_GW) * CLC_CH + rng_range(rng, 1, CLC_CH - 2);
+            c = (cell_only % gw_) * CLC_CW + rng_range(rng, 1, CLC_CW - 2);
+            r = (cell_only / gw_) * CLC_CH + rng_range(rng, 1, CLC_CH - 2);
         } else {
             c = rng_range(rng, 2, w->w - 3);
             r = rng_range(rng, 2, w->h - 3);
         }
-        if ((r / CLC_CH) * CLC_GW + c / CLC_CW == avoid_cell) continue;
+        if ((r / CLC_CH) * gw_ + c / CLC_CW == avoid_cell) continue;
+        if (avoid_cell >= 0 && iabs(c - w->spawn_c) < 7 && iabs(r - w->spawn_r) < 6) continue;
         if (!open_spot(w, c, r)) continue;
         *x = c * CLC_T + CLC_T;
         *y = r * CLC_T + CLC_T;
@@ -516,6 +522,11 @@ static void add_foe(ClcWorld *w, int k, int x, int y, int dir, Rng *rng) {
     ClcEnt *e = &w->e[i];
     e->dir = (int8_t)dir;
     e->t = (uint16_t)rng_range(rng, 0, 239);
+    /* now and then a gold champion: half again as tough, twice the coins */
+    if (k != EK_JETFIRE && k != EK_WALLEYE && rng_range(rng, 0, 11) == 0) {
+        e->champ = 1;
+        e->hp = (int16_t)(e->hp + (e->hp + 1) / 2);
+    }
     if (k == EK_SNAKE || k == EK_WORM) {
         /* a long body: segments that follow the head */
         int lead = i;
@@ -538,6 +549,9 @@ static bool try_world(ClcWorld *w, const ClcAreaSpec *sp, Rng *rng) {
     uint32_t keep_ver = w->ver;
     memset(w, 0, sizeof *w);
     w->ver = (uint16_t)(keep_ver + 1);
+    /* the Cellars' first area is small, and crowded with notes */
+    gw_ = sp->region == RG_CELLARS && sp->area == 0 ? 5 : CLC_GW;
+    gh_ = sp->region == RG_CELLARS && sp->area == 0 ? 3 : CLC_GH;
     w->region = sp->region;
     w->area = sp->area;
     w->kind = WK_GEN;
@@ -548,8 +562,8 @@ static bool try_world(ClcWorld *w, const ClcAreaSpec *sp, Rng *rng) {
     /* the start: a floor in the start cell (or the nearest one with a floor) */
     int best = -1, bestd = 99;
     for (int i = 0; i < ns; i++) {
-        int cx = strips[i].cell % CLC_GW, cy = strips[i].cell / CLC_GW;
-        int d = iabs(cx - start_cell % CLC_GW) + iabs(cy - start_cell / CLC_GW);
+        int cx = strips[i].cell % gw_, cy = strips[i].cell / gw_;
+        int d = iabs(cx - start_cell % gw_) + iabs(cy - start_cell / gw_);
         if (strips[i].c1 - strips[i].c0 < 8) continue;
         if (d < bestd || (d == bestd && rng_chance(rng, 50))) { bestd = d; best = i; }
     }
@@ -607,23 +621,23 @@ static bool try_world(ClcWorld *w, const ClcAreaSpec *sp, Rng *rng) {
     /* the notes: two near the start, the rest spread over the cells */
     int nn = 0;
     int cells[CLC_GW * CLC_GH], ncells = 0;
-    for (int i = 0; i < CLC_GW * CLC_GH; i++)
+    for (int i = 0; i < gw_ * gh_; i++)
         if (i != start_cell) cells[ncells++] = i;
     for (int i = ncells - 1; i > 0; i--) {
         int j = rng_range(rng, 0, i), t = cells[i];
         cells[i] = cells[j];
         cells[j] = t;
     }
-    int gold_cell = (w->door[w->gold_door].r / CLC_CH) * CLC_GW + w->door[w->gold_door].c / CLC_CW;
-    for (int k = 0; k < 4; k++) {
+    int gold_cell = (w->door[w->gold_door].r / CLC_CH) * gw_ + w->door[w->gold_door].c / CLC_CW;
+    for (int k = sp->region == RG_CELLARS ? 0 : 2; k < 4; k++) {
         int x, y;
-        /* two near the start, and two near the gold door for the dash */
+        /* in the Cellars two near the start; everywhere two near the gold door */
         int sc = k < 2 ? start_cell : gold_cell;
-        int cand[5] = {sc, sc - 1, sc + 1, sc - CLC_GW, sc + CLC_GW};
+        int cand[5] = {sc, sc - 1, sc + 1, sc - gw_, sc + gw_};
         bool done = false;
         for (int j = 0; j < 5 && !done; j++) {
             int c = cand[(j + k) % 5];
-            if (c < 0 || c >= CLC_GW * CLC_GH) continue;
+            if (c < 0 || c >= gw_ * gh_) continue;
             if (place_in_air(w, rng, &x, &y, -1, c, 24) && reach_at(x, y) < 0xFFFF) {
                 clc_ent_add(w, EK_NOTE, x, y);
                 nn++;
@@ -631,7 +645,7 @@ static bool try_world(ClcWorld *w, const ClcAreaSpec *sp, Rng *rng) {
             }
         }
     }
-    for (int k = 0; nn < CLC_NOTES_PLACED && k < ncells * 2; k++) {
+    for (int k = 0; nn < CLC_NOTES_PLACED && k < ncells * 6; k++) {
         int x, y;
         if (place_in_air(w, rng, &x, &y, -1, cells[k % ncells], 32) && reach_at(x, y) < 0xFFFF) {
             clc_ent_add(w, EK_NOTE, x, y);
@@ -650,6 +664,7 @@ static bool try_world(ClcWorld *w, const ClcAreaSpec *sp, Rng *rng) {
     /* the enemies */
     int tier = clc_region_tier(sp->region);
     int foes = 11 + sp->area * 3 + tier * 2;
+    foes = foes * gw_ * gh_ / (CLC_GW * CLC_GH); /* fewer in a smaller map */
     if (sp->region == RG_CLOISTER) foes /= 2; /* the dark is enemy enough: few of them */
     for (int k = 0; k < foes; k++) {
         int kind = pick_kind(rng, sp->region), x, y, dir = 1;
@@ -658,7 +673,7 @@ static bool try_world(ClcWorld *w, const ClcAreaSpec *sp, Rng *rng) {
         if (ok) add_foe(w, kind, x, y, dir, rng);
     }
     /* pods that hatch when the dash starts */
-    for (int k = 0; k < 4 + sp->area + tier; k++) {
+    for (int k = 0; k < (4 + sp->area + tier) * gw_ * gh_ / (CLC_GW * CLC_GH); k++) {
         int x, y, dir;
         if (place_on_surface(w, rng, 2, &x, &y, &dir, start_cell)) {
             int i = clc_ent_add(w, EK_POD, x, y);
@@ -669,7 +684,7 @@ static bool try_world(ClcWorld *w, const ClcAreaSpec *sp, Rng *rng) {
     if (sp->region == RG_SPIRE)
         for (int k = 0, tries = 0; k < 4 && tries < 2000; tries++) {
             int c = rng_range(rng, 2, w->w - 3), r = rng_range(rng, 2, w->h - 3);
-            if (!is_rock(w, c, r) || (r / CLC_CH) * CLC_GW + c / CLC_CW == start_cell) continue;
+            if (!is_rock(w, c, r) || (r / CLC_CH) * gw_ + c / CLC_CW == start_cell) continue;
             bool face = (is_air(w, c + 1, r) && is_air(w, c + 2, r) && is_air(w, c + 3, r)) ||
                         (is_air(w, c - 1, r) && is_air(w, c - 2, r) && is_air(w, c - 3, r));
             if (!face || is_air(w, c, r - 1)) continue;
@@ -692,6 +707,40 @@ static bool try_world(ClcWorld *w, const ClcAreaSpec *sp, Rng *rng) {
         w->ring_r[w->nrings] = (int16_t)r;
         w->nrings++;
     }
+    /* landing pads: under every door's landing spot, and on a few other floors */
+    for (int k = 0; k < w->nd; k++) {
+        const ClcDoor *d = &w->door[k];
+        for (int c = d->pad_c - 1; c <= d->pad_c + 1; c++)
+            if (is_rock(w, c, d->r + 1)) w->tile[d->r + 1][c] = MT_PAD;
+    }
+    for (int i = 0, extra = 0; i < ns && extra < 3; i++) {
+        const Strip *st = &strips[i];
+        if (st->used || !rng_chance(rng, 30)) continue;
+        int mid = (st->c0 + st->c1) / 2;
+        for (int c = mid - 1; c <= mid + 1; c++)
+            if (is_rock(w, c, st->r + 1)) w->tile[st->r + 1][c] = MT_PAD;
+        extra++;
+    }
+    /* the Cellars' loose blocks: ceiling stones that drop on whoever passes under */
+    if (sp->region == RG_CELLARS)
+        for (int k = 0, tries = 0; k < 4 + sp->area * 3 && tries < 3000; tries++) {
+            int c = rng_range(rng, 2, w->w - 3), r = rng_range(rng, 2, w->h - 8);
+            if (!is_rock(w, c, r)) continue;
+            /* only over open chambers (never a passage or a shaft) */
+            bool open = true;
+            for (int rr = r + 1; rr <= r + 5 && open; rr++)
+                for (int cc = c - 3; cc <= c + 3 && open; cc++) open = is_air(w, cc, rr);
+            /* and open all the way down to the floor under it, as far as it can be set off from */
+            for (int rr = r + 6; rr <= r + 8 && open && rr < w->h && is_air(w, c, rr); rr++)
+                for (int cc = c - 3; cc <= c + 3 && open; cc++) open = is_air(w, cc, rr);
+            if (!open) continue;
+            bool clear = iabs(c - w->spawn_c) > 3;
+            for (int i = 0; i < w->nd && clear; i++)
+                clear = iabs(c - w->door[i].c) > 2 && iabs(c - w->door[i].pad_c) > 3;
+            if (!clear) continue;
+            w->tile[r][c] = MT_LOOSE;
+            k++;
+        }
     w->dark = sp->region == RG_CLOISTER;
     return clc_check_world(w, NULL, 0) == 0;
 }
@@ -736,7 +785,7 @@ int clc_check_world(const ClcWorld *w, char *why, int n) {
             if (why) snprintf(why, (size_t)n, "door %d (room %d) unreachable", k, d->room);
         }
     }
-    if (w->kind == WK_GEN && nearest > 60) {
+    if (w->kind == WK_GEN && nearest > (w->region == RG_CELLARS ? 60 : 400)) {
         bad++;
         if (why) snprintf(why, (size_t)n, "nearest note %d cells away", nearest);
     }
@@ -779,6 +828,31 @@ void clc_gen_crown(ClcWorld *w, bool secret) {
     w->region = RG_SPIRE;
     w->area = 2;
     w->kind = WK_CROWN;
+    if (secret) {
+        /* the sexton's way: a short hall under the Crown, its only door the
+         * secret one (no health stall, no shop, no Lady Hush) */
+        w->w = 40;
+        w->h = 34;
+        fill(w, 0, 0, CLC_MW - 1, CLC_MH - 1, MT_ROCK);
+        carve(w, 2, 16, 37, 30);
+        fill(w, 18, 16, 21, 21, MT_ROCK);
+        fill(w, 26, 27, 28, 30, MT_ROCK2);
+        carve(w, 26, 27, 28, 30);
+        for (int r = 0; r < w->h; r++)
+            for (int c = 0; c < w->w; c++)
+                if (w->tile[r][c] == MT_ROCK && ((c * 5 + r * 3) % 13) == 0) w->tile[r][c] = MT_ROCK2;
+        w->spawn_c = 6;
+        w->spawn_r = 30;
+        add_door(w, DT_SECRET, RM_TOCK, 33, 30, 29, false);
+        for (int c = 28; c <= 30; c++) w->tile[31][c] = MT_PAD;
+        w->gold_door = 0;
+        int i = clc_ent_add(w, EK_FLITTER, 24 * CLC_T, 24 * CLC_T);
+        if (i >= 0) w->e[i].dir = -1;
+        w->notes = CLC_NOTES_NEEDED;
+        rng_seed(&w->rng, 36);
+        w->enter = -1;
+        return;
+    }
     w->w = 64;
     w->h = 34;
     fill(w, 0, 0, CLC_MW - 1, CLC_MH - 1, MT_ROCK);
@@ -795,7 +869,7 @@ void clc_gen_crown(ClcWorld *w, bool secret) {
             if (w->tile[r][c] == MT_ROCK && ((c * 5 + r * 3) % 13) == 0) w->tile[r][c] = MT_ROCK2;
     w->spawn_c = 6;
     w->spawn_r = 30;
-    add_door(w, DT_SECRET, RM_TOCK, 17, 30, 13, !secret);
+    add_door(w, DT_SECRET, RM_TOCK, 17, 30, 13, true);
     add_door(w, DT_BLUE, RM_HEALTH, 26, 25, 30, false);
     add_door(w, DT_GREEN, RM_SHOP, 40, 25, 36, false);
     add_door(w, DT_GOLD, RM_HUSH, 59, 13, 54, false);
@@ -838,6 +912,8 @@ void clc_gen_escape(ClcWorld *w) {
             w->tile[r + 1][c] = MT_GATE_OPEN;
         }
         clc_ent_add(w, EK_FUELCAN, (g0 + 3) * CLC_T, (r + 5) * CLC_T);
+        /* and a clock ring below each gate: fuel, and two seconds back */
+        clc_ent_add(w, EK_RING, (g0 + 3) * CLC_T, (r + 8) * CLC_T);
         int a = clc_ent_add(w, EK_ARROW, (g0 + 3) * CLC_T, (r + 3) * CLC_T);
         if (a >= 0) w->e[a].dir = -1; /* points up */
     }
@@ -1162,7 +1238,12 @@ void clc_gen_sub(ClcSub *s, const ClcSubSpec *sp) {
         switch (sp->room) {
         case RM_NPC: {
             int i = clc_sub_ent_add(s, EK_NPC, cx + 24, fl);
-            if (i >= 0) { s->e[i].a = sp->hint; s->e[i].b = sp->used; s->e[i].flag = (uint8_t)(sp->seed % 5 == 0); }
+            /* now and then the dozing tortoise, now and then someone rude */
+            if (i >= 0) {
+                s->e[i].a = sp->hint;
+                s->e[i].b = sp->used;
+                s->e[i].flag = (uint8_t)(sp->seed % 5 == 0 ? 1 : sp->seed % 7 == 3 ? 5 : 0);
+            }
             break;
         }
         case RM_SAGE: {
@@ -1189,8 +1270,9 @@ void clc_gen_sub(ClcSub *s, const ClcSubSpec *sp) {
             int8_t items[9];
             int n;
             if (sp->room == RM_CHARMSHOP) {
+                /* the Arboretum's stall: the charm alone, cheap */
                 items[0] = G_CHARM;
-                n = 1 + stock(&rng, sp->owned | (1u << G_CHARM), 3, false, items + 1);
+                n = (sp->owned >> G_CHARM & 1u) ? 0 : 1;
             } else {
                 n = stock(&rng, sp->owned, sp->room == RM_MEGA ? 9 : 4, sp->room == RM_HEALTH, items);
             }
@@ -1219,12 +1301,11 @@ void clc_gen_sub(ClcSub *s, const ClcSubSpec *sp) {
             break;
         }
         case RM_BOON: {
-            /* pick one of three, free */
-            int8_t items[4];
-            int n = stock(&rng, sp->owned, 4, false, items);
-            for (int k = 0; k < imin(3, n); k++) {
+            /* pick one of three, free: an upgrade from each kind */
+            for (int k = 0; k < 3; k++) {
+                int it = clc_pool_pick(&rng, sp->owned, k, false, NULL);
                 int i = clc_sub_ent_add(s, EK_ITEM, 104 + k * 56, fl - 26);
-                if (i >= 0) { s->e[i].a = items[k] < G_COUNT ? items[k] : IT_DRUM; s->e[i].b = 0; s->e[i].flag = 1; }
+                if (i >= 0) { s->e[i].a = (int16_t)(it >= 0 ? it : IT_DRUM); s->e[i].b = 0; s->e[i].flag = 1; }
             }
             break;
         }

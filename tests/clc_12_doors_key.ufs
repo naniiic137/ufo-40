@@ -1,15 +1,16 @@
 # CLARION CALL: what each area's doors hold. Every area has a red cave
 # with a chest, a friendly sort's red door (or what replaces it), a green
-# shop from the Cellars' second area on, and the hidden gold door; a
-# region's second area has the sexton when the chain leads there. The
+# shop from the Cellars' second area on, and the hidden gold door; every
+# region's second area has a sexton (met out of order, he has nothing). The
 # regions swap some: the Arboretum's first stall sells the charm; the
 # Icehouse's second has a yellow door to a boon instead of a cave; the
 # Gullet's first, a yellow door to free armour instead of the friendly
 # sort; Cogtown's first, a yellow door to a shortcut instead of a cave, and
 # its second the mega store; the Cloister's first, six empty red doors and
 # a light switch; the Spire's first, a yellow door to the magnet switch.
-# The yellow key from the Cellars' second cave opens one yellow door: it is
-# used up, and that door stays open.
+# The yellow key from the Cellars' second cave (the middle one of the
+# chest's three) opens one yellow door: it is used up, and like every
+# door but the gold one, that door shuts once she is back out.
 seed 1
 game clarion
 wait 10
@@ -23,6 +24,9 @@ expect doors == 5
 expect find_room6 >= 0
 expect find_room9 >= 0
 expect find_room0 >= 0
+cheat area 1 1
+wait 2
+expect find_room9 >= 0
 cheat area 1 0
 wait 2
 expect find_room8 >= 0
@@ -61,9 +65,9 @@ cheat no_foes
 cheat sub_goto_kind 51
 hold RIGHT 20
 expect chest_item == 22
-cheat sub_goto_kind 52
-hold RIGHT 18
-press A 12
+cheat sub_goto_kind 51
+hold RIGHT 15
+press B 12
 wait 30
 expect key == 1
 # a yellow door without the key: shut
@@ -76,7 +80,7 @@ wait 2
 press UP
 wait 3
 expect state == 4
-# with it: open, the key gone, the door open from now on
+# with it: open, the key gone; back out, the door shuts
 cheat give 22
 cheat at_room 14
 wait 2
@@ -93,7 +97,7 @@ cheat at_room 14
 wait 2
 press UP
 wait 3
-expect state == 5
+expect state == 4
 # Cogtown's shortcut: straight to the Spire, its engine left alone
 cheat goto 4 0
 wait 2

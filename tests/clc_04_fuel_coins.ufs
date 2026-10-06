@@ -1,6 +1,7 @@
-# CLARION CALL: one tank for the whole run. Thrust burns a unit of fuel
-# a frame; with the tank dry the burner takes coins instead, one for every
-# six frames of thrust; with no coins either the ship can't thrust at all,
+# CLARION CALL: one tank for the whole run. Thrust (B, held) burns 5 units
+# of fuel every 4 frames; with the tank dry the burner takes coins
+# instead, a coin every frame of thrust (they go fast); with no coins
+# either the ship can't thrust at all,
 # drops, and bursts when it reaches the ground: the run is over (there are
 # no lives), and A goes back to the title.
 seed 1
@@ -11,14 +12,14 @@ wait 2
 cheat place 100 180
 cheat vel 0 0
 cheat fuel 0
-cheat coins 10
-hold A 30
+cheat coins 40
+hold B 30
 expect fuel == 0
-expect coins == 5
+expect coins == 10
 expect vy < 0
 # no coins: nothing to burn
 cheat coins 0
-hold A 30
+hold B 30
 expect vy > 0
 expect dead == 0
 waituntil dead == 1 200

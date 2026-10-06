@@ -3,7 +3,7 @@
 # a region, it goes there, and so on to the Spire's sexton, who opens the
 # Crown's secret door; it fights Grandsire Tock on his machine and escapes.
 # The bells ring again (the Saucer and the Alien goals).
-seed 2
+seed 8
 game clarion
 wait 20
 cheat bot_goal 1

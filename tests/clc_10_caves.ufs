@@ -1,11 +1,14 @@
 # CLARION CALL: a red cave. It runs left to right; a skull drifts in from
 # the left, slower than Clary runs, and shoots once it is close. The chest
-# at the end holds the area's item (the Cellars' first: the Penny Purse),
-# which pops out above it; the door past it leads back out to the map, to
-# the door she came in by. Blocks give a coin to a shot (two with the
-# purse); a barrel blows up and takes the enemies near it with it, with a
-# bonus. Crouching ducks under a stinger's sting; DOWN + A drops through a
-# thin floor. Back in, the chest stays open.
+# at the end opens on three free things to choose one of: the area's item
+# in the middle (the Cellars' first: the Penny Purse) and one from each of
+# the other kinds of upgrade beside it; taking one, the rest go. The door
+# past it leads back out to the map, to the door she came in by, and that
+# door shuts behind her. Blocks give a coin to a shot (two with the
+# purse), and coins come out as pickups that bounce, drift in when she is
+# close and fade; a barrel blows up and takes the enemies near it with
+# it, with a bonus, and never hurts her. Crouching ducks under a stinger's
+# sting; DOWN + B (the jump) drops through a thin floor. A shoots.
 seed 1
 game clarion
 wait 10
@@ -20,38 +23,47 @@ expect skull_x < -30
 expect sub_w > 80
 wait 60
 expect skull_x > -10
-# the chest, and the purse above it
+# the chest, and three things above it
 cheat no_foes
 cheat sub_goto_kind 51
 hold RIGHT 20
-expect count52 == 1
+expect count52 == 3
 expect chest_item == 14
-cheat sub_goto_kind 52
-hold RIGHT 18
-press A 12
+# the purse is the middle one, right over the chest
+cheat sub_goto_kind 51
+hold RIGHT 15
+press B 12
 wait 30
 expect has14 == 1
-# a block: one coin, two with the purse
+expect count52 == 0
+# a block: one coin, two with the purse (a pickup to collect)
 cheat coins 0
 cheat sub_place 80 144
 cheat face 1
 cheat sub_tile 7 8 4
 wait 20
-press B 1
+press A 1
 wait 15
+expect count67 == 1
+cheat sub_goto_kind 67
+hold RIGHT 20
+wait 10
 expect coins == 2
-# a barrel and a stinger beside it
+# a barrel, close by, and a stinger beside it: the blast spares her (the
+# cave's own barrel further on is left standing)
 cheat coins 0
-cheat sub_place 60 144
+cheat hp 16
+cheat sub_place 98 144
 cheat face 1
 cheat sub_ent 50 130 144
 cheat sub_ent 30 150 144
 wait 20
-press B 1
+press A 1
 wait 20
-expect count50 == 0
+expect count50 == 1
 expect count30 == 0
-expect coins >= 14
+expect count67 >= 2
+expect hp == 16
 cheat no_foes
 # crouching under a sting
 cheat hp 16
@@ -67,9 +79,10 @@ cheat sub_tile 10 6 3
 cheat sub_place 160 96
 wait 5
 expect sub_y == 96
-hold DOWN A 4
+hold DOWN B 4
 wait 30
-expect sub_y == 144
+expect sub_y > 100
+expect sub_ground == 1
 # out through the far door: back on the map at the cave's door
 cheat sub_at_exit
 wait 5
@@ -78,7 +91,10 @@ wait 3
 expect state == 4
 expect on_foot == 1
 expect door_used0 == 1
-# back in: the chest is open and empty
-cheat enter_room 0
+# that door has shut: UP at it does nothing now
+expect shut == 1
+cheat at_door 0
 wait 2
-expect count52 == 0
+press UP
+wait 3
+expect state == 4

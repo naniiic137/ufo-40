@@ -3,7 +3,7 @@
 # Plate halves every hit. The Fan Shot adds two short shots; Ghost Lead
 # shots fly through walls; Creeper Caps crawl on from where a shot hits;
 # the Big Bang makes a tap a triple-damage shot that costs a coin (held
-# fire stays plain and free); Feather Boots slow her fall while A is held
+# fire stays plain and free); Feather Boots slow her fall while B is held
 # (behind doors only); the Lucky Thimble does nothing at all. Outside, the
 # Homing Charm calls the ship to her with a second jump in the air (and
 # earns the gift goal); the Magnet pulls coins and notes in.
@@ -44,7 +44,7 @@ cheat gear 6
 cheat sub_place 100 144
 cheat face 1
 wait 20
-press B 1
+press A 1
 expect shotk0 == 1
 expect shotk1 == 2
 # the big bang: a tap costs a coin; held fire is plain
@@ -52,12 +52,12 @@ cheat gear 9
 cheat coins 5
 cheat clear_shots
 wait 20
-press B 1
+press A 1
 expect shotk2 == 1
 expect coins == 4
 cheat clear_shots
 wait 20
-hold B 20
+hold A 20
 expect coins == 3
 expect shotk0 >= 1
 # ghost lead: through the wall (no coins, so taps are plain shots)
@@ -66,12 +66,12 @@ cheat clear_shots
 cheat sub_place 280 144
 cheat face 1
 wait 20
-press B 1
+press A 1
 wait 12
 expect shotk0 == 0
 cheat gear 7
 wait 20
-press B 1
+press A 1
 wait 12
 expect shotk0 == 1
 # creeper caps: a shot that hits a wall crawls on
@@ -81,7 +81,7 @@ cheat sub_place 280 144
 cheat face 1
 cheat give 8
 wait 20
-press B 1
+press A 1
 wait 12
 expect shotk3 == 0
 # (ghost lead lets shots through, so take it off to see the caps)
@@ -93,16 +93,16 @@ cheat gear 8
 cheat sub_place 280 144
 cheat face 1
 wait 20
-press B 1
+press A 1
 wait 8
 expect shotk3 == 1
-# feather boots: a slow fall with A held
+# feather boots: a slow fall with B held
 cheat sub_place 160 40
-hold A 30
+hold B 30
 expect sub_vy > 1200
 cheat gear 5
 cheat sub_place 160 40
-hold A 30
+hold B 30
 expect sub_vy < 430
 # the lucky thimble: nothing changes
 cheat gear 10
@@ -116,8 +116,8 @@ cheat gear 11
 expect goals == 1
 cheat foot 120 248
 wait 5
-press A 6
-press A 2
+press B 6
+press B 2
 expect on_foot == 0
 expect ship == 0
 expect ship_x >= 116

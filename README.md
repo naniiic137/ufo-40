@@ -139,7 +139,7 @@ menu, shows the buttons as you now press them). SELECT or B closes it.
 | 46 | **MANDIBLES** | Combatants | you are one slow ant who holds a button for a cross of nine commands (follow, hold, instinct, their soldier-only versions, the queen's workers or soldiers, surrender), shouted to ants in earshot, and spits in eight directions while followers spit with you, food carried home to queens who lay workers for 1 and soldiers for 2, free respawns while your army lives, red ants with twice the health and exploitable brains (locked aim, food first, stuck on corners, stuck on your queen), brawls in a dust cloud, giant spiders that eat both sides, a branching road of 12 fields to the capital and a pointless bonus one, 2P versus | the Bluebell Colony and the Rust Horde, General Stag, the longlegs, every command's name, all 16 fields |
 | 30 | **FLINTHOLD** | Rock On! Island | waves down fixed roads to a cave with 30 hearts, a build phase as long as you like and a horn to start the wave, a pay-out between waves, a heroine who walks and throws eight ways, ten hunters in three upgrade trees, hens cooked by fire pits for meat (99 at most), fire pits that boost hunters, the original's beasts and bosses, 10 stages and 3 villages (two hidden), the Four Lords together in the last wave | Pim of the Hearth Clan, Flint Isle and its 13 layouts, the Four Lords of the Scale, every beast, hunter and villager |
 | 31 | **TILTSHOT** | Pingolf | side-on golf on pinball courses: aim, hold A to fill a meter that stays full until the golfer blows up, a slam in mid-air once a stroke (slammed onto a falling slope the ball catches fire), bumpers, spring pads, orange movers and purple junk, water and pits that send you back, eighteen fixed holes at the original's pars (61), eight golfers on the board against weak, random CPU rivals, 2P versus, a code for two cameo golfers | the Comet Classic, Nova, Digby, Peaches, Tuck and Moss, twelve CPU regulars, Wick and Kip by the code, all 18 holes |
-| 35 | **CLARION CALL** | Campanella 2 | the Campanella ship on one tank for the whole run (coins burn when it's dry, and then it falls), a bar of 8 for the ship and for Clary behind doors, landing slowly on level ground and getting out, one hit or a two-tile drop the end outside, doors on foot into side-on caves with a skull at your back and rooms with shops (one buy a visit), stalls, trials and sextons, ten notes to open the gold door and a 30-second dash, nine areas of a generated station in four of seven regions chosen on a map, sixteen cryptic upgrades, the yellow key, the Lobber and three Hush Engines, Lady Hush, the secret Grandsire Tock behind three sextons' sheets, the escape and three endings; one sitting, no save | Clary and the Clarion (CHIME CIRCUIT's), Ansel and Lady Hush (BELLHOP's), Grandsire Tock, the Carillon and its seven regions, the generator and every cave piece, the Crown, the sextons, the dozing tortoise, the FULL-PEAL code |
+| 35 | **CLARION CALL** | Campanella 2 | the Campanella ship on one tank for the whole run (coins burn when it's dry, and then it falls), a bar of 8 for the ship and for Clary behind doors, landing slowly on level ground and getting out, one hit or a two-tile drop the end outside, doors on foot into side-on caves with a skull at your back and a chest of three to choose from, and rooms with shops (one buy each, and every door shuts behind you), stalls, trials and sextons, ten notes to open the gold door and a 30-second dash, nine areas of a generated station in four of seven regions chosen on a map, sixteen cryptic upgrades, the yellow key, the Lobber and three Hush Engines, Lady Hush, the secret Grandsire Tock behind three sextons' sheets, the escape and three endings; one sitting, no save | Clary and the Clarion (CHIME CIRCUIT's), Ansel and Lady Hush (BELLHOP's), Grandsire Tock, the Carillon and its seven regions, the generator and every cave piece, the Crown, the sextons, the dozing tortoise, the FULL-PEAL code |
 | 39 | **BUZZBOLT** | Star Waspir | a fast vertical shooter over the whole wide screen where one hit is a loss, tap fire for a wide spread at full speed and hold it for focused fire and a slower ship, three ships with their own fire, options and two specials each (a charge lance, guard orbs, a shield drone, bombs on the second button), every kill dropping a letter in the fixed order B, Z, Z, words of three (BZZ puts the multiplier up with no limit, ZZZ brings an option, BBB and ZBB are the ship's specials, any other word puts it back to x1), the multiplier built up and cashed in on the bosses, losing a ship costs the multiplier and every gift, ships at 25k, 100k and 200k, five waves with a boss each (wave 1's pair flies off if left alone; wave 3 the hard one; walls, gates and a golden swarm in wave 4; a last boss of aimed fans), an unmultiplied time bonus, a high-score table | the Hive Wing (lacewing, shieldbug, firefly), the hiveship and the dragonfly, the Blight's gnats, midges, whirlers, crickets, blisters, puffballs, rot walls and goldbugs, the Ironbacks, the Bloatfly, the Queen Tick, Scythewing and Dustwing, the Sporeheart, five new waves |
 | 44 | **HOMESPUN** | Pilot Quest | a camp that keeps working in real time while the console is on, even in other cartridges; a yo-yo that knocks glints out of a crystal; plants, bars, huts, anvils, bins and research at the original's prices; jerky as two minutes of trip time a strip, and a clock that is also your health; one Wilds map whose roadblocks and caves are shuffled per save; three dungeons with a ship part each; a gun that costs a glint a shot; coins for hopstones, vendors and a gambling den; a spider that spins thread at camp; a super boss beaten six times in one trip; new-game-plus stones | Wick and the *Tumbleweed*, the moor-moon Oddmoor and its folk, the Wilds, three dungeons, all 19 foes and 6 bosses |
 | 41 | **RIMSHIRE** | Lords of Diskonia | a board where two banners take turns stepping along roads, trails a banner can't step back onto that pull an army back when struck, inns, tomes, seams and chests; flick battles on fields built from the four tiles round the fight: a queue of three, aim, charge and launch, knocks that hurt by the striking disk's own melee, water, the closing haze and stalemates; the original's 15 disks with their numbers, 8 skills, 10 campaign wars, the streak and 2P | Rimshire, the Brass and Plum banners, the Plum Empress, Lady Brass's letters, all 16 disks, 10 new boards |
@@ -1139,31 +1139,39 @@ the top.
 *A tribute to **Campanella 2** (UFO 50 #35).*
 
 - **Plays the same:** the Campanella ship (CHIME CIRCUIT's flight model,
-  BELLHOP's numbers): gravity, a held thrust, a drifting steer, the slash
-  to the side you last steered, DOWN to fall faster. Now it has a bar of 8,
-  walls bounce it (and hurt if hit hard), and it can set down: slowly, on
-  level ground, where the mark shows, and Clary hops out. One tank of 800
-  for the whole run, a unit a frame of thrust; dry, it burns coins; with
-  none, it falls and bursts. Outside on her feet Clary has no bar: one
-  touch or a drop of more than a tile ends the run. UP at a door goes in,
-  and the view comes closer: side-on caves left to right with a skull at
-  your back, blocks, barrels and a chest, and rooms: shops (icons and
-  prices, no names, one buy a visit), health stalls, friendly folk with
-  free fuel and advice, the wriggler trial, the cursed encounter, the
-  sextons. In there Clary uses the bar, mashes her pistol (nothing has a
-  grace after a hit), aims up, crouches, drops through thin floors.
+  BELLHOP's numbers): gravity, a held thrust (B), a drifting steer, the
+  slash (A) to the side you last steered, DOWN to fall faster. Now it has a
+  bar of 8, walls bounce it (and hurt at anything over a nudge), enemies
+  take two points, and it can set down: slowly, on level ground (grey pads
+  take a little more), where the mark shows, and Clary hops out; any
+  harder touchdown costs a point. One tank of 800 for the whole run, and
+  it runs low; dry, it burns a coin a frame; with none, it falls and
+  bursts. Outside on her feet Clary has no bar: one touch or a drop of
+  more than a tile ends the run. UP at a door goes in, and the view comes
+  closer: side-on caves left to right with a skull at your back, blocks,
+  barrels and a chest of three free things, one to keep, and rooms: shops
+  (icons and prices, no names, one buy each), health stalls, friendly
+  folk with free fuel and advice (and a rude one), the wriggler trial, the
+  cursed encounter, a sexton in every second area. Every door but the
+  gold one shuts once you're back out. In there Clary uses the bar, fires
+  her pistol (three shots in the air at most; nothing has a grace after a
+  hit), aims up, crouches, drops through thin floors. A is the main
+  action, as everywhere in UFO 40 (the original has thrust on A).
 - **The run:** nine areas: the Cellars, the Arboretum or the Icehouse, the
   Gullet, Cogtown or the Cloister (chosen on the station map), then the
   Spire and its fixed Crown. Every other area is generated for the run.
   Fourteen notes in each: the tenth shows the gold door, locks the rest,
   turns the spares to plum coins, brings out clock rings and hatches the
   pods, and a clock reading 60 runs down at double speed; at 0 the
-  latecomers come. Each region has its own enemies and its own doors (a
-  charm stall, a boon, free armour, a shortcut, a mega store, the dark and
-  its light switch, magnets and their switch). Sixteen upgrades, a yellow
-  key for one yellow door, the Lobber and three Hush Engines keeping Ansel
-  locked away, Lady Hush, and behind the sextons' chain of peal sheets, the
-  secret Grandsire Tock. Then the escape, and one of three endings. The
+  latecomers come. Each region has its own enemies (gold champions among
+  them) and its own doors (a charm stall, a boon, free armour, a shortcut,
+  a mega store, the dark and its light switch, magnets and their switch);
+  the Cellars drop loose stones on you, the Cloister's walls drink your
+  fuel. Sixteen upgrades, a yellow key for one yellow door, the Lobber and
+  three Hush Engines keeping Ansel locked away, Lady Hush, and behind the
+  sextons' chain of peal sheets, straight on to the secret Grandsire Tock.
+  Then the escape, and one of three endings; any win over Lady Hush earns
+  the gold goal, Ansel or not. The
   demo player in the tests reaches all three on generated runs with button
   presses.
 - **Ours:** Clary and the Clarion, Ansel, Lady Hush, Grandsire Tock, the

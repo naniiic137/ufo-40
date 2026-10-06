@@ -1,12 +1,13 @@
 # CLARION CALL: the things behind the doors, region by region. A dropper
 # hangs from the ceiling and drops when Clary passes under; a wisp nest
 # keeps sending wisps (three at a time) while it is on screen; a louse
-# dies to one shot; a brute takes six and leaves 60 coins; a ringworm
+# dies to one shot; a brute takes six and leaves 8 coins (a pickup, as
+# all coins behind doors are); a ringworm
 # throws a ring of six; a pelter lobs rocks; a trooper fires along the
 # floor; a cocoon lets out bees; a spitter spits fire that spreads along
 # the floor; a jet's fire wall comes and goes; a fire wheel turns over the
 # path (walkable under, not to jump through). On the Icehouse's ice Clary
-# slides.
+# slides. (A shoots.)
 seed 1
 game clarion
 wait 10
@@ -31,10 +32,10 @@ cheat sub_place 100 144
 cheat face 1
 cheat sub_ent 32 150 144
 wait 2
-press B 1
+press A 1
 wait 20
 expect count32 == 0
-# a brute: six shots, 60 coins
+# a brute: six shots, 8 coins
 cheat coins 0
 cheat hp 32
 cheat give 16
@@ -49,24 +50,24 @@ cheat sub_place 60 144
 cheat face 1
 cheat sub_ent 34 200 144
 wait 2
-press B 1
+press A 1
 wait 6
-press B 1
+press A 1
 wait 6
-press B 1
+press A 1
 wait 6
-press B 1
+press A 1
 wait 6
-press B 1
+press A 1
 wait 6
-press B 1
+press A 1
 wait 6
-press B 1
+press A 1
 wait 6
-press B 1
+press A 1
 wait 30
 expect count34 == 0
-expect coins == 60
+expect count67 >= 1
 # a ringworm's ring, a pelter's rock, a trooper's shots, a spitter's fire
 cheat clear_shots
 cheat sub_place 60 144

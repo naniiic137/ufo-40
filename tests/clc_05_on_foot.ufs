@@ -2,8 +2,9 @@
 # enemy or a shot, or a drop of more than one tile, ends the run. A drop of
 # a single tile is fine, and so is landing from her own jump. She climbs
 # ladders (UP and DOWN), stands on a ladder's top, goes through a door with
-# UP in front of it, and climbs into the ship with UP beside it. B fires her
-# pistol the way she faces: held, it fires steadily; mashed, faster.
+# UP in front of it, and climbs into the ship with UP beside it. A fires her
+# pistol the way she faces (B jumps: the owner's layout), never more than
+# three shots in the air: held, it fires steadily; mashed, faster.
 seed 1
 game clarion
 wait 10
@@ -16,7 +17,8 @@ hold LEFT 20
 expect dead == 0
 expect y == 248
 # her own jump, back down where she started: fine
-press A 20
+press B 20
+expect y < 240
 wait 40
 expect dead == 0
 expect y == 248
@@ -48,17 +50,18 @@ expect on_foot == 1
 # the pistol: steady when held, quicker when mashed
 cheat foot 212 208
 wait 40
-hold B 28
+hold A 28
 expect shotk0 == 2
 wait 40
-press B 1
-press B 1
-press B 1
-press B 1
-press B 1
-press B 1
-press B 1
+press A 1
+press A 1
+press A 1
+press A 1
+press A 1
+press A 1
+press A 1
 expect shotk0 >= 3
+expect shots <= 3
 # walking off the top terrace: twelve tiles down, the end
 cheat foot 384 112
 hold LEFT 60

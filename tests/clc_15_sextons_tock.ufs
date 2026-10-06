@@ -1,11 +1,12 @@
-# CLARION CALL: the sextons' chain and Grandsire Tock. The Cellars' second
-# area always has a sexton: he gives a peal sheet and names the region
-# where the next one waits (nothing reminds her later). Going anywhere else
-# breaks the chain: no sexton there. Three sheets bring the Spire's sexton,
-# who opens the secret door on the Crown's lowest floor, before the health
-# stall and the shop. Behind it, Tock's machine: only his head can be hurt,
-# when the hatch is open, from on top of the machine. Beaten: the escape,
-# the true ending, and the Saucer and Alien goals together.
+# CLARION CALL: the sextons' chain and Grandsire Tock. Every region's
+# second area has a sexton. The Cellars' one gives a peal sheet and names
+# the region where the next one waits (nothing reminds her later); one met
+# out of order says something vague and gives nothing. Three sheets bring
+# the Spire's sexton, and after him the Crown is only a short hall to the
+# secret door: no health stall, no shop, no Lady Hush. Behind it, Tock's
+# machine: only his head can be hurt, when the hatch is open, from on top
+# of the machine (A shoots). Beaten: the escape, the true ending, and the
+# Saucer and Alien goals together.
 seed 1
 game clarion
 wait 10
@@ -26,10 +27,17 @@ hold RIGHT 6
 expect talk == 1
 expect scrolls == 1
 expect chain == 2
-# the wrong way: no sexton
+# the wrong way: a sexton, with nothing for her
 cheat goto 1 1
 wait 2
-expect find_room9 == -1
+expect find_room9 >= 0
+cheat enter_room 9
+wait 2
+cheat sub_goto_kind 53
+hold RIGHT 6
+expect talk == 1
+expect scrolls == 1
+expect chain == 2
 # the right way
 cheat goto 2 1
 wait 2
@@ -57,9 +65,11 @@ wait 2
 cheat sub_goto_kind 53
 hold RIGHT 6
 expect final_sage == 1
-# the secret door shows in the Crown
+# the Crown: a short hall to the secret door, and nothing else
 cheat goto 6 2
 wait 2
+expect doors == 1
+expect door_room0 == 17
 expect door_hidden0 == 0
 cheat at_door 0
 wait 2
@@ -76,21 +86,21 @@ cheat hp 24
 cheat sub_place 180 112
 cheat face 1
 waituntil head_open == 0 400
-press B 1
+press A 1
 wait 6
-press B 1
+press A 1
 wait 6
-press B 1
+press A 1
 wait 6
 expect boss_hp == 100
 waituntil head_open == 1 400
 cheat sub_place 180 112
 cheat face 1
-press B 1
+press A 1
 wait 6
-press B 1
+press A 1
 wait 6
-press B 1
+press A 1
 wait 6
 expect boss_hp < 100
 # beaten
@@ -102,7 +112,7 @@ press UP
 wait 5
 expect world_kind == 2
 cheat place 160 30
-hold A 30
+hold B 30
 wait 2
 expect state == 9
 expect ending == 3

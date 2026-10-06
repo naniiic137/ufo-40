@@ -74,6 +74,6 @@ shot clarion_tock
 cheat escape 3
 wait 2
 cheat place 160 30
-hold A 30
+hold B 30
 wait 470
 shot clarion_ending

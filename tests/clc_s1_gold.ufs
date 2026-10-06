@@ -21,4 +21,8 @@ expect ending == 2
 expect goals & 2
 expect goals !& 4
 expect wins_gold == 1
+# and fuel is tight: the tank fell under a quarter in the third area and
+# nearly dry in the fifth (the burner took coins on the way)
+expect fuel_low3 < 200
+expect fuel_low5 < 100
 botuntil state == 0 8000

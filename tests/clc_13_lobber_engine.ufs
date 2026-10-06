@@ -5,7 +5,7 @@
 # Lobber). The Hush Engine behind it can't be hurt while the Lobber
 # stands; it takes twenty. Then the way on opens, with fuel by it, as at
 # the end of every gold cave, and the station map comes next. The Cloister
-# has no Lobber: its engine stands alone.
+# has no Lobber: its engine stands alone. (A shoots.)
 seed 1
 game clarion
 wait 10
@@ -28,32 +28,34 @@ cheat sub_place 1600 144
 cheat face 1
 cheat clear_shots
 wait 3
-press B 1
+press A 1
 wait 8
-press B 1
+press A 1
 wait 8
-press B 1
+press A 1
 wait 30
 expect lobber_hp <= 10
 expect lobber_hp > 0
 expect engine_hp == 20
-# the Big Bang: three a tap, a coin each (the Lobber leaves 20 coins)
+# the Big Bang: three a tap, a coin each (the Lobber leaves 20 coins, as
+# two pickups)
 cheat gear 9
 cheat coins 10
 cheat sub_kill 56
 wait 3
-press B 1
+press A 1
 wait 8
-press B 1
+press A 1
 wait 8
-press B 1
+press A 1
 wait 8
-press B 1
+press A 1
 wait 8
-press B 1
+press A 1
 wait 30
 expect lobber_hp == -1
-expect coins >= 25
+expect coins == 5
+expect count67 == 2
 # the engine now
 cheat sub_kill 56
 cheat coins 0
@@ -61,45 +63,45 @@ cheat fuel 100
 cheat sub_place 1690 144
 cheat face 1
 wait 60
-press B 1
+press A 1
 wait 7
-press B 1
+press A 1
 wait 7
-press B 1
+press A 1
 wait 7
-press B 1
+press A 1
 wait 7
-press B 1
+press A 1
 wait 7
-press B 1
+press A 1
 wait 7
-press B 1
+press A 1
 wait 7
-press B 1
+press A 1
 wait 7
-press B 1
+press A 1
 wait 7
-press B 1
+press A 1
 wait 7
-press B 1
+press A 1
 wait 7
-press B 1
+press A 1
 wait 7
-press B 1
+press A 1
 wait 7
-press B 1
+press A 1
 wait 7
-press B 1
+press A 1
 wait 7
-press B 1
+press A 1
 wait 7
-press B 1
+press A 1
 wait 7
-press B 1
+press A 1
 wait 7
-press B 1
+press A 1
 wait 7
-press B 1
+press A 1
 wait 20
 expect engine_hp == -1
 expect sub_done == 1

@@ -143,6 +143,16 @@ static void draw_map_tiles(const ClcWorld *w, int cx, int cy, int t) {
                     if (!w->magnets_off && (t / 6) & 1) gfx_rectb(x - 1, y - 1, 10, 10, mc);
                 } else if (tt == MT_FLAME) {
                     gfx_rect(x + 2, y + 2, 4, 4, C_RED);
+                } else if (tt == MT_PAD) {
+                    /* a landing pad: grey plates with a stripe */
+                    gfx_rect(x, y, 8, 3, C_GREY);
+                    gfx_hline(x, x + 7, y, C_LIGHT);
+                    gfx_pset(x + ((c & 1) ? 2 : 5), y + 1, C_YELLOW);
+                } else if (tt == MT_LOOSE) {
+                    /* a loose stone: cracked through */
+                    gfx_line(x + 1, y + 2, x + 4, y + 5, th->dark);
+                    gfx_line(x + 4, y + 5, x + 6, y + 3, th->dark);
+                    gfx_pset(x + 2, y + 6, th->dark);
                 }
                 break;
             }
@@ -153,6 +163,19 @@ static void draw_map_tiles(const ClcWorld *w, int cx, int cy, int t) {
 /* ---- map things -------------------------------------------------------------------- */
 
 static void draw_door(const ClcWorld *w, const ClcDoor *d, int t) {
+    if (d->hidden && d->type == DT_GOLD && w->kind == WK_GEN) {
+        /* where the gold door will come up: note-coloured tiles in the rock above */
+        for (int r = d->r - 2; r >= 0; r--) {
+            if (!clc_map_solid_tile(w->tile[r][d->c])) continue;
+            for (int c = d->c - 1; c <= d->c + 1; c++)
+                if (c >= 0 && c < w->w && clc_map_solid_tile(w->tile[r][c])) {
+                    gfx_rect(c * CLC_T + 1, r * CLC_T + 5, 6, 3, (t / 12 + c) & 1 ? C_VIOLET : C_PURPLE);
+                    gfx_pset(c * CLC_T + 3, r * CLC_T + 6, C_PINK);
+                }
+            break;
+        }
+        return;
+    }
     if (d->hidden) return;
     int x = d->c * CLC_T, y = (d->r - 1) * CLC_T;
     int col = d->type == DT_GREEN ? C_LEAF : d->type == DT_BLUE ? C_SKY : d->type == DT_YELLOW ? C_YELLOW :
@@ -175,6 +198,12 @@ static void draw_door(const ClcWorld *w, const ClcDoor *d, int t) {
         gfx_rect(x + 2, y + 6, 4, 4, C_INK);
         gfx_pset(x + 3, y + 7, C_GREY);
     }
+    if (d->shut) {
+        /* been and gone: shut for good */
+        gfx_rect(x, y - 1, 8, 17, C_SLATE);
+        for (int k = 1; k < 8; k += 3) gfx_vline(x + k, y, y + 15, C_DUSK);
+        gfx_hline(x, x + 7, y + 7, C_GREY);
+    }
 }
 
 static void draw_note(int x, int y, bool fake, bool big, int t) {
@@ -193,10 +222,42 @@ static void draw_note(int x, int y, bool fake, bool big, int t) {
     if (((t + x) / 10) % 6 == 0) gfx_pset(x + 3, y - 4 + bob, C_WHITE);
 }
 
+static void draw_ent_(const ClcWorld *w, const ClcEnt *e, int t);
+
 static void draw_ent(const ClcWorld *w, const ClcEnt *e, int t) {
+    draw_ent_(w, e, t);
+    if (e->champ && (t / 4) & 1) {
+        /* a gold champion glints */
+        int x = PX(e->x), y = PX(e->y);
+        gfx_pset(x - 6, y - 5, C_YELLOW);
+        gfx_pset(x + 5, y - 5, C_YELLOW);
+        gfx_pset(x, y - 7, C_WHITE);
+        gfx_rectb(x - 6, y - 6, 12, 12, C_AMBER);
+    }
+}
+
+static void draw_ent_(const ClcWorld *w, const ClcEnt *e, int t) {
     int x = PX(e->x), y = PX(e->y);
     int f = e->dir < 0 ? SPR_FLIPX : 0;
     switch (e->kind) {
+    case EK_NEST:
+        gfx_circ(x, y, 6, C_HIDE);
+        gfx_circ(x, y, 3, C_BROWN);
+        for (int k = 0; k < 3; k++) gfx_pset(x - 3 + k * 3, y - 1 + (k & 1), C_INK);
+        break;
+    case EK_FALLER:
+        gfx_rect(x - 4, y - 4, 8, 8, C_SLATE);
+        gfx_line(x - 3, y - 2, x + 1, y + 2, C_INK);
+        break;
+    case EK_WALLEYE:
+        gfx_circ(x, y, 3, e->flag ? C_RED : C_CREAM);
+        gfx_pset(x + e->dir, y, C_INK);
+        if (e->flag) gfx_line(x, y, x + e->dir * 8, y + clc_sin(t * 9) * 3 / 127, C_LIME);
+        break;
+    case EK_BMISSILE:
+        gfx_rect(x - 2, y - 2, 4, 4, C_GREY);
+        gfx_pset(x, y, (t / 3) & 1 ? C_RED : C_ORANGE);
+        break;
     case EK_FLITTER: clc_spr(CS_FLITTER, x - 5, y - 4 - ((t / 6) & 1), 0); break;
     case EK_CREEPER:
         gfx_rect(x - 5, y - 2, 10, 5, C_ORANGE);
@@ -471,7 +532,8 @@ void clc_draw_world(const ClcWorld *w, const ClcPlayer *p, int t) {
     if (clc_has(p, G_DOWSER)) {
         for (int k = 0; k < w->nd; k++) {
             const ClcDoor *d = &w->door[k];
-            if (d->hidden || d->type == DT_RED) continue;
+            /* the doors that aren't red, and the gold door even before it shows */
+            if ((d->hidden && d->type != DT_GOLD) || d->type == DT_RED) continue;
             int dx = d->c * CLC_T + 4 - cx, dy = d->r * CLC_T - cy;
             if (dx >= 0 && dx < SCREEN_W && dy >= 0 && dy < SCREEN_H) continue;
             int mx = iclamp(dx, 4, SCREEN_W - 5), my = iclamp(dy, 24, SCREEN_H - 5);
@@ -656,9 +718,15 @@ static void draw_sub_ent(const ClcSub *s, const ClcPlayer *p, const ClcEnt *e, i
         gfx_rect(x - 9, y - 7 - (e->flag ? 4 : 0), 18, 4, C_TAN);
         gfx_rect(x - 1, y - 2, 3, 3, C_YELLOW);
         break;
+    case EK_SCOIN:
+        if (e->b > 600 && (t / 3) & 1) break;
+        gfx_circ(x, y, 3, C_YELLOW);
+        gfx_pset(x, y, C_AMBER);
+        break;
     case EK_ITEM: {
         int bob = clc_sin(t * 3 + x) * 2 / 127;
         clc_draw_item(e->a, x, y + bob, t);
+        if (e->c == 2) gfx_darken_rect(x - 7, y + bob - 7, 14, 14, 3); /* had already: greyed out */
         if (e->b > 0) {
             char b[8];
             snprintf(b, sizeof b, "%d", e->b);
@@ -790,7 +858,9 @@ void clc_draw_sub(const ClcSub *s, const ClcPlayer *p, int t) {
         for (int i = 0; i < s->ne; i++) {
             const ClcEnt *e = &s->e[i];
             if (!e->on || e->kind != EK_NPC || iabs(PX(s->cl.x - e->x)) >= 30) continue;
-            if (e->flag == 4) line = s->mega ? "NINE THINGS, ONE EACH VISIT. A TENTH ON TOP." : "ONE THING EACH VISIT, DEAR. NO MORE.";
+            if (e->flag == 4) line = s->mega ? "NINE THINGS. YOU GET ONE. A TENTH ON TOP." : "ONE THING, DEAR. CHOOSE WELL.";
+            else if (e->flag == 5) line = "WHO LET YOU IN? NO FUEL FOR YOU. OUT.";
+            else if (e->flag == 2 && e->a == -3) line = "THE BELLS ARE QUIET TODAY. GO ON, NOW.";
             else if (e->flag == 2) {
                 if (e->a == -2) line = "YOUR SHEETS ARE WHOLE. THE WAY TO TOCK IS OPEN.";
                 else if (e->a >= 0 && e->a < RG_COUNT) {

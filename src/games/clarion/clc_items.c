@@ -58,6 +58,27 @@ void clc_give(ClcPlayer *p, int item) {
     }
 }
 
+/* the three kinds of upgrade (ship 0, Clary 1, everything else 2) */
+int clc_pool_of(int item) { return item <= G_SPIT ? 0 : item <= G_THIMBLE ? 1 : 2; }
+
+/* one item not yet had from a pool; pool 2 with extras also offers the
+ * stats and the consumables (toffee only if hurt, the sack only at a full
+ * bar); -1 if there is nothing */
+int clc_pool_pick(Rng *r, uint32_t owned, int pool, bool extras, const ClcPlayer *p) {
+    int cand[IT_COUNT], n = 0;
+    for (int g = 0; g < G_COUNT; g++)
+        if (clc_pool_of(g) == pool && !(owned >> g & 1u)) cand[n++] = g;
+    if (extras && pool == 2) {
+        cand[n++] = IT_HEARTPIN;
+        cand[n++] = IT_SPARETANK;
+        cand[n++] = IT_FLASK;
+        cand[n++] = IT_DRUM;
+        if (p && p->hp < p->hpmax) cand[n++] = IT_TOFFEE;
+        else cand[n++] = IT_SACK;
+    }
+    return n ? cand[rng_range(r, 0, n - 1)] : -1;
+}
+
 /* ---- the walker ----------------------------------------------------------- */
 
 /* On a map Clary is small: 6 x 8, a jump of about two and a half tiles. In
@@ -78,6 +99,7 @@ static bool row_hit(const ClcWalkTune *t, ClcSolidFn solid, const void *ctx, int
 }
 
 static bool col_hit(const ClcWalkTune *t, ClcSolidFn solid, const void *ctx, int px, int y, int h) {
+    (void)t;
     for (int py = y - h;; py += 3) {
         if (py > y - 1) py = y - 1;
         if (solid(ctx, px, py, false)) return true;

@@ -1,6 +1,7 @@
 # CLARION CALL: the Clarion flies on CHIME CIRCUIT's flight model with
 # BELLHOP's numbers. UP beside the ship climbs in; parked, it sits still
-# until it has been up. Holding A thrusts (one unit of fuel a frame);
+# until it has been up. Holding B thrusts (5 units of fuel every 4 frames;
+# the owner's layout puts the slash on A and the thrust on B);
 # gravity pulls 18/256 px a frame each frame; left and right steer with
 # inertia (12 a frame, the drift dying by 2 a frame); holding DOWN falls
 # twice as hard. The slash goes the way the ship last steered.
@@ -24,8 +25,8 @@ expect on_foot == 0
 expect ship_y == 244
 expect fuel == 800
 # thrust burns fuel and climbs
-hold A 30
-expect fuel == 770
+hold B 30
+expect fuel == 763
 expect vy < 0
 expect ship_y < 240
 # let go and it falls back

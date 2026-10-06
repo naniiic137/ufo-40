@@ -21,11 +21,20 @@ static int PX(int32_t v) { return (int)(v / 256) - (v < 0 && v % 256 ? 1 : 0); }
 const char *const CLC_NPC_LINE[] = {
     "TEN NOTES OPEN THE GOLD DOOR.",
     "THE KEY IS NEARER THAN YOU THINK.",
-    "A HOMING CHARM CALLS YOUR SHIP TO YOU.",
-    "SOME PESTS ARE EASIER TO SQUASH ON FOOT.",
+    "JUMP TWICE WITH THE CHARM AND YOUR SHIP COMES RUNNING.",
+    "SOME THINGS ONLY DIE TO A PISTOL.",
     "NOT EVERY NOTE THAT GLOWS IS A NOTE.",
     "A LUCKY THIMBLE KEEPS THE SPOOKS AWAY. SO THEY SAY.",
-    "GRANDSIRE TOCK IS WAITING FOR YOU. MIND HOW YOU GO.",
+    "A LEECH LETS GO WHEN YOU SET DOWN.",
+    "DRY TANK? THE BURNER EATS COINS. FAST.",
+    "SLASH AS YOU FALL AND YOU FALL SLOWER.",
+    "THE WALLS HAVE EYES IN THE CLOISTER. THEY DRINK FUEL.",
+    "LOOK FOR THE GOLD TILES. THE DOOR COMES UP UNDER THEM.",
+    "MIND THE LOOSE STONES IN THE CELLARS.",
+    "GO HIGH FIRST. FALLING COSTS NOTHING.",
+    "A SHOP SELLS YOU ONE THING. CHOOSE WELL.",
+    "THE GOLD ONES ARE TOUGHER, AND RICHER.",
+    "THE OLD CLOCK UNDER THE CROWN HAS BEEN EXPECTING YOU.",
 };
 const int CLC_NPC_LINES = ARRAY_LEN(CLC_NPC_LINE);
 
@@ -79,7 +88,7 @@ static const SKind SK[EK_COUNT] = {
     [EK_DROPPER] = {6, 6, 2, 4, 3, SF_FOE},
     [EK_LOUSE] = {5, 4, 1, 4, 1, SF_FOE},
     [EK_JET] = {6, 6, 0, 4, 0, SF_INVULN | SF_HAZARD},
-    [EK_BRUTE] = {10, 13, 6, 6, 60, SF_FOE},
+    [EK_BRUTE] = {10, 13, 6, 6, 8, SF_FOE},
     [EK_RINGWORM] = {6, 7, 3, 4, 5, SF_FOE},
     [EK_SLURP] = {6, 6, 2, 4, 3, SF_FOE},
     [EK_PELTER] = {6, 8, 3, 4, 5, SF_FOE},
@@ -108,6 +117,7 @@ static const SKind SK[EK_COUNT] = {
     [EK_TOCK] = {32, 20, 0, 4, 0, SF_FOE | SF_INVULN},
     [EK_TOCKHEAD] = {8, 7, 0, 0, 0, SF_FOE},
     [EK_MISSILE] = {3, 5, 1, 4, 0, SF_FOE},
+    [EK_SCOIN] = {4, 4, 0, 0, 0, 0},
 };
 
 int clc_sub_ent_add(ClcSub *s, int kind, int x, int y) {
@@ -203,13 +213,23 @@ static void hurt(ClcSub *s, ClcPlayer *p, int half, int32_t from_x) {
     }
 }
 
-static void coins_in(ClcSub *s, ClcPlayer *p, int n, int x, int y) {
-    n = clc_coin_drop(p, n);
-    if (n <= 0 || s->sim) return;
-    p->coins += n;
-    s->ev |= CEV_COIN;
+/* coins burst out as pickups that bounce, drift to Clary when she is
+ * close (further with the Magnet) and fade after a while */
+static void coins_raw(ClcSub *s, int n, int x, int y) {
+    if (n <= 0) return;
+    int pieces = imin(6, (n + 9) / 10);
+    for (int k = 0; k < pieces; k++) {
+        int v = n / pieces + (k < n % pieces ? 1 : 0);
+        int i = clc_sub_ent_add(s, EK_SCOIN, x, y);
+        if (i < 0) break;
+        s->e[i].a = (int16_t)v;
+        s->e[i].vx = (int32_t)((k * 97 + (int)s->t * 13) % 360) - 180;
+        s->e[i].vy = -500 - (k * 61 % 300);
+    }
     sfx_(s, x, y, FX_COINS);
 }
+
+static void coins_in(ClcSub *s, ClcPlayer *p, int n, int x, int y) { coins_raw(s, clc_coin_drop(p, n), x, y); }
 
 static void sub_fire(ClcSub *s, ClcPlayer *p, bool tap, unsigned held) {
     ClcWalker *c = &s->cl;
@@ -247,16 +267,18 @@ static bool boss_open(const ClcSub *s, const ClcEnt *e) {
     return true;
 }
 
-static void explode(ClcSub *s, ClcPlayer *p, int32_t x, int32_t y, int r, bool hurts_foes);
+static void explode(ClcSub *s, ClcPlayer *p, int32_t x, int32_t y, int r, bool hurts_foes, bool hurts_her);
 
 static void kill(ClcSub *s, ClcPlayer *p, ClcEnt *e) {
-    int x = PX(e->x), y = PX(e->y);
+    /* (what it was, before its slot can be taken by the coins it drops) */
+    int x = PX(e->x), y = PX(e->y), kind = e->kind;
+    int32_t ex = e->x, ey = e->y;
     e->on = 0;
     s->ev |= CEV_KILL;
-    sfx_(s, x, y, e->kind == EK_BRUTE || e->kind == EK_LOBBER || e->kind == EK_ENGINE ? FX_BOOM : FX_POP);
-    coins_in(s, p, SK[e->kind].coins, x, y);
-    switch (e->kind) {
-    case EK_BARREL: explode(s, p, e->x, e->y, 34, true); break;
+    sfx_(s, x, y, kind == EK_BRUTE || kind == EK_LOBBER || kind == EK_ENGINE ? FX_BOOM : FX_POP);
+    coins_in(s, p, SK[kind].coins, x, y);
+    switch (kind) {
+    case EK_BARREL: explode(s, p, ex, ey, 34, true, false); break; /* fatal to foes, harmless to her */
     case EK_LOBBER:
         s->ev |= CEV_BOSS_HIT;
         /* its bombs go out with it */
@@ -315,22 +337,23 @@ static bool hit(ClcSub *s, ClcPlayer *p, ClcEnt *e, int dmg) {
     return true;
 }
 
-static void explode(ClcSub *s, ClcPlayer *p, int32_t x, int32_t y, int r, bool hurts_foes) {
+static void explode(ClcSub *s, ClcPlayer *p, int32_t x, int32_t y, int r, bool hurts_foes, bool hurts_her) {
     s->ev |= CEV_BLAST;
     sfx_(s, PX(x), PX(y), FX_BOOM);
     int a0, b0, a1, b1;
     cl_box(s, &a0, &b0, &a1, &b1);
     int cx = PX(x), cy = PX(y);
-    if (a1 >= cx - r && a0 <= cx + r && b1 >= cy - r && b0 <= cy + r) hurt(s, p, 4, x);
+    if (hurts_her && a1 >= cx - r && a0 <= cx + r && b1 >= cy - r && b0 <= cy + r) hurt(s, p, 4, x);
     if (!hurts_foes) return;
     for (int i = 0; i < s->ne; i++) {
         ClcEnt *e = &s->e[i];
         if (!e->on || !(SK[e->kind].flags & SF_FOE) || (SK[e->kind].flags & SF_INVULN)) continue;
         if (e->kind == EK_LOBBER || e->kind == EK_ENGINE || e->kind == EK_HUSH || e->kind == EK_TOCKHEAD) continue;
         if (iabs(PX(e->x) - cx) < r + SK[e->kind].hw && iabs(PX(e->y) - cy) < r + SK[e->kind].hh) {
+            int bx = PX(e->x), by = PX(e->y);
             e->hp = 0;
             kill(s, p, e);
-            coins_in(s, p, 5, PX(e->x), PX(e->y)); /* a barrel's bonus */
+            coins_in(s, p, 5, bx, by); /* a barrel's bonus */
         }
     }
 }
@@ -542,7 +565,30 @@ static void estep(ClcSub *s, ClcPlayer *p, ClcEnt *e) {
         e->vx = 0;
         if (emove(s, e) & 2) e->vy = 0;
         break;
+    case EK_SCOIN: {
+        /* a coin: it bounces, drifts in when she is close, and fades */
+        int reach = clc_has(p, G_MAGNET) ? 44 : 16;
+        if (adx < reach && iabs(dy) < reach) {
+            clc_aim(e->x, e->y, cx, cy, 340, &e->vx, &e->vy);
+            e->x += e->vx;
+            e->y += e->vy;
+        } else {
+            e->vy = imin(900, e->vy + 50);
+            int h = emove(s, e);
+            if (h & 2) e->vy = e->vy > 0 ? -e->vy / 3 : 0;
+            if (h & 1) e->vx = -e->vx / 2;
+            e->vx = e->vx * 15 / 16;
+        }
+        if (++e->b > 720) e->on = 0;
+        break;
+    }
     case EK_NPC:
+        if (e->flag == 1 && s->npc_shots > 0 && e->t % 90 == 0 && adx < 160) {
+            /* the tortoise has had enough: it shoots back, slowly */
+            int32_t vx, vy;
+            clc_aim(e->x, e->y - 4 * 256, cx, cy, 260, &vx, &vy);
+            eshoot(s, e, SH_PELLET, vx, vy, 150);
+        }
         if (e->flag == 3 && adx < 56 && !s->done) {
             /* the cursed one: it splits in two and comes for her */
             e->on = 0;
@@ -583,7 +629,7 @@ static void estep(ClcSub *s, ClcPlayer *p, ClcEnt *e) {
         }
         if (--e->a <= 0) {
             e->on = 0;
-            explode(s, p, e->x, e->y, 28, false);
+            explode(s, p, e->x, e->y, 28, false, true);
         }
         break;
     case EK_HUSH: {
@@ -668,7 +714,7 @@ static void estep(ClcSub *s, ClcPlayer *p, ClcEnt *e) {
         e->y += e->vy;
         if (clc_sub_solid(s, PX(e->x), PX(e->y) + 5, true) || PX(e->y) > FLOOR_Y) {
             e->on = 0;
-            explode(s, p, e->x, e->y, 16, false);
+            explode(s, p, e->x, e->y, 16, false, true);
         }
         break;
     default: break;
@@ -677,21 +723,37 @@ static void estep(ClcSub *s, ClcPlayer *p, ClcEnt *e) {
 
 /* ---- touching -------------------------------------------------------------------------------- */
 
-static int chest_draw(ClcSub *s, const ClcPlayer *p, int item) {
-    if (item >= 0 && item < G_COUNT && clc_has(p, item)) item = -1;
-    if (item >= 0) return item;
-    /* a draw: an upgrade not yet had, or a toffee if hurt, a money sack if not */
-    if (rng_chance(&s->rng, 40)) {
-        int pool[G_COUNT], n = 0;
-        for (int g = 0; g < G_COUNT; g++)
-            if (!clc_has(p, g) && g != G_CHARM && g != G_PLATE) pool[n++] = g;
-        if (n) return pool[rng_range(&s->rng, 0, n - 1)];
+/* a chest opens on three free things to choose one of: the area's own item
+ * in the middle (greyed out if she has it already) and one from each of the
+ * two other kinds of upgrade (the last kind also offers the stats and the
+ * consumables) */
+static void chest_open(ClcSub *s, const ClcPlayer *p, const ClcEnt *ch) {
+    int g = ch->a, cx = PX(ch->x), y = PX(ch->y) - 30;
+    int gp = g >= 0 ? clc_pool_of(g) : -1, slot = 0;
+    static const int8_t X[3] = {-26, 26, 0};
+    for (int pool = 0; pool < 3; pool++) {
+        if (pool == gp) continue;
+        if (slot >= 2) break;
+        int it = clc_pool_pick(&s->rng, p->gear, pool, true, p);
+        if (it < 0) it = IT_FLASK;
+        int j = clc_sub_ent_add(s, EK_ITEM, cx + X[slot], y);
+        if (j >= 0) { s->e[j].a = (int16_t)it; s->e[j].b = 0; s->e[j].flag = 1; }
+        slot++;
     }
-    return p->hp < p->hpmax ? IT_TOFFEE : IT_SACK;
+    int mid = g >= 0 ? g : clc_pool_pick(&s->rng, p->gear, 2, true, p);
+    int j = clc_sub_ent_add(s, EK_ITEM, cx, y);
+    if (j >= 0) {
+        s->e[j].a = (int16_t)(mid >= 0 ? mid : IT_FLASK);
+        s->e[j].b = 0;
+        s->e[j].flag = 1;
+        if (mid >= 0 && mid < G_COUNT && clc_has(p, mid)) s->e[j].c = 2; /* had already: greyed out */
+    }
+    s->chest_item = (uint8_t)(mid >= 0 ? mid : IT_FLASK);
 }
 
 static void take_item(ClcSub *s, ClcPlayer *p, ClcEnt *e) {
     int item = e->a, price = e->b;
+    if (e->c == 2) return; /* greyed out */
     if (price > 0) {
         if (s->bought || p->coins < price) {
             if (!e->c) s->ev |= CEV_CLANG;
@@ -742,14 +804,19 @@ static void touches(ClcSub *s, ClcPlayer *p) {
         bool talk_range = e->kind == EK_NPC && iabs(PX(s->cl.x - e->x)) < 30;
         if (talk_range) {
             s->talk = 1;
-            if (e->flag != 3 && e->flag != 4 && !e->b && e->flag != 2) {
+            if (e->flag != 3 && e->flag != 4 && !e->b && e->flag != 2 && e->flag != 5) {
                 /* a free tank's worth of fuel, once */
                 e->b = 1;
                 if (!s->sim) clc_add_fuel(p, 500);
                 s->gave_fuel = 500;
                 s->ev |= CEV_FUEL | CEV_TALK;
             }
-            if (e->flag == 2 && !e->b) {
+            /* the rude one and a sexton met out of order: words, and nothing else */
+            if ((e->flag == 5 || (e->flag == 2 && e->a == -3)) && !e->b) {
+                e->b = 1;
+                s->ev |= CEV_TALK;
+            }
+            if (e->flag == 2 && !e->b && e->a != -3) {
                 e->b = 1;
                 s->got_item = IT_SHEET;
                 s->ev |= CEV_ITEM | CEV_TALK;
@@ -758,13 +825,15 @@ static void touches(ClcSub *s, ClcPlayer *p) {
         if (!rects_overlap(a0, b0, a1 - a0 + 1, b1 - b0 + 1, x0, y0, x1 - x0 + 1, y1 - y0 + 1)) continue;
         switch (e->kind) {
         case EK_ITEM: take_item(s, p, e); break;
+        case EK_SCOIN:
+            e->on = 0;
+            p->coins += e->a;
+            s->ev |= CEV_COIN;
+            break;
         case EK_CHEST:
             if (!e->flag) {
                 e->flag = 1;
-                int it = chest_draw(s, p, e->a);
-                int j = clc_sub_ent_add(s, EK_ITEM, PX(e->x), PX(e->y) - 26);
-                if (j >= 0) { s->e[j].a = (int16_t)it; s->e[j].b = 0; }
-                s->chest_item = (uint8_t)it;
+                chest_open(s, p, e);
                 s->ev |= CEV_OPEN;
             }
             break;
@@ -925,9 +994,13 @@ void clc_sub_step(ClcSub *s, ClcPlayer *p, unsigned buttons) {
     if (clc_has(p, G_FEATHER)) flags |= WK_FEATHER;
     if (s->ice && clc_sub_tile(s, cx, cy) == ST_ICE) flags |= WK_ICE;
     clc_walk(c, &CLC_WALK_SUB, buttons, pressed, flags, clc_sub_solid, NULL, s);
-    if (buttons & BTN_B) {
+    int out = 0;
+    for (int k = 0; k < CLC_SSHOTS; k++) out += s->shot[k].on && (s->shot[k].kind == SH_PISTOL || s->shot[k].kind == SH_BIG);
+    if ((buttons & BTN_B) && out < CLC_SHOTS_OUT) {
+        /* three shots in the air at most: held fires steadily, a fresh
+         * press as soon as there is room */
         bool tap = (pressed & BTN_B) != 0;
-        if ((tap && c->shot_cd <= 8) || c->shot_cd == 0) {
+        if (tap || c->shot_cd == 0) {
             sub_fire(s, p, tap, buttons);
             c->shot_cd = 14;
         }
@@ -944,10 +1017,9 @@ void clc_sub_step(ClcSub *s, ClcPlayer *p, unsigned buttons) {
     /* the trial and the cursed encounter end when the last one falls */
     if (s->room == RM_TRIAL && !s->done && all_dead(s, EK_WRIGGLER)) {
         s->done = 1;
-        /* 150 coins, purse or no purse */
-        if (!s->sim) p->coins += 150;
-        s->ev |= CEV_OPEN | CEV_COIN;
-        sfx_(s, PX(c->x), PX(c->y) - 20, FX_COINS);
+        /* a shower of 150 coins, purse or no purse */
+        coins_raw(s, 150, PX(c->x), PX(c->y) - 48);
+        s->ev |= CEV_OPEN;
     }
     if (s->room == RM_CURSED && s->locked && !s->done && all_dead(s, EK_FACE) && !find_kind(s, EK_NPC)) {
         s->done = 1;

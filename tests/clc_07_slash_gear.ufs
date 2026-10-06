@@ -1,4 +1,4 @@
-# CLARION CALL: the slash and the ship's gear. B slashes to the side the
+# CLARION CALL: the slash and the ship's gear. A slashes to the side the
 # ship last steered (2 damage); a flitter (2) goes in one, drops its coins,
 # and the coins are picked up by touch. The slash breaks coin blocks in the
 # walls (10 coins). Sentries are proof against the ship. The Twin Swipe
@@ -16,7 +16,7 @@ cheat place 180 120
 cheat vel 0 0
 cheat face 1
 cheat ent 1 194 120
-press B 1
+press A 1
 wait 2
 expect count1 == 0
 expect count26 == 1
@@ -29,7 +29,7 @@ cheat vel 0 0
 cheat face 1
 cheat ent 1 166 120
 wait 20
-press B 1
+press A 1
 wait 2
 expect count1 == 1
 cheat no_foes
@@ -39,7 +39,7 @@ cheat tile 25 15 3
 cheat place 190 120
 cheat vel 0 0
 cheat face 1
-press B 1
+press A 1
 wait 2
 expect coins == 13
 # a sentry shrugs it off
@@ -48,7 +48,7 @@ cheat place 180 120
 cheat vel 0 0
 cheat face 1
 cheat ent 11 194 120
-press B 1
+press A 1
 wait 2
 expect count11 == 1
 cheat no_foes
@@ -59,7 +59,7 @@ cheat place 180 120
 cheat vel 0 0
 cheat ent 1 194 120
 cheat ent 1 168 120
-press B 1
+press A 1
 wait 2
 expect count1 == 0
 # the fuel siphon
@@ -70,7 +70,7 @@ cheat place 180 120
 cheat vel 0 0
 cheat face 1
 cheat ent 1 194 120
-press B 1
+press A 1
 wait 2
 expect fuel == 200
 # the penny purse: 3 coins become 5
@@ -82,7 +82,7 @@ cheat place 180 120
 cheat vel 0 0
 cheat face 1
 cheat ent 1 194 120
-press B 1
+press A 1
 wait 2
 cheat goto_kind 26
 wait 2
@@ -92,22 +92,22 @@ cheat gear 1
 wait 20
 cheat place 180 120
 cheat vel 0 0
-press B 1
+press A 1
 wait 2
 expect shotk4 == 1
 wait 20
-press B 1
+press A 1
 wait 2
 expect shotk4 == 2
 wait 20
-press B 1
+press A 1
 wait 2
 expect shotk4 == 2
 # the bounce beam and the spit gun
 cheat gear 2
 cheat gear 4
 wait 20
-press B 1
+press A 1
 wait 1
 expect shotk5 >= 1
 expect shotk6 == 1

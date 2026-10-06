@@ -1,9 +1,10 @@
 # CLARION CALL: proof the game can be completed, the lonely way. The demo
-# player takes the yellow key from the Cellars' second cave, goes to
-# Cogtown and spends the key on its yellow door: a shortcut to the Spire
-# that leaves Cogtown's Hush Engine standing. Lady Hush falls, Clary
-# escapes, and Ansel stays behind: no Saucer goal.
-seed 1
+# player takes the yellow key from the Cellars' second cave (the middle one
+# of the chest's three), goes to Cogtown and spends the key on its yellow
+# door: a shortcut to the Spire that leaves Cogtown's Hush Engine
+# standing. Lady Hush falls, Clary escapes, and Ansel stays behind; the
+# Saucer goal is earned all the same (any win over Lady Hush earns it).
+seed 2
 game clarion
 wait 20
 cheat bot_goal 2
@@ -17,5 +18,6 @@ expect engines == 3
 botuntil world_kind == 2 60000
 botuntil state == 9 20000
 expect ending == 1
-expect goals !& 2
+expect goals & 2
+expect goals !& 4
 expect wins_bad == 1

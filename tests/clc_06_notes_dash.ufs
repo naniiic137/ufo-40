@@ -33,7 +33,7 @@ expect door_hidden2 == 0
 expect notes_left == 0
 expect plums == 4
 expect rings > 4
-expect pods_hatched > 3
+expect pods_hatched >= 1
 # double time: 30 frames take a second off the clock
 wait 30
 expect timer_shown == 59

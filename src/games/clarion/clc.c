@@ -39,6 +39,9 @@ typedef struct Run {
     uint8_t shortcut;          /* went through Cogtown's yellow door */
     uint8_t ending;
     uint8_t areas;             /* areas entered */
+    uint8_t lights_on;         /* the Cloister's switch: lit for the whole region */
+    int16_t fuel_low[10];      /* the lowest the tank fell in each area (for the tests) */
+    uint8_t magnets_off;       /* the Spire's switch: off for the whole region */
     uint32_t seed;
     int bought;
     int deaths_cause;
@@ -116,10 +119,8 @@ static void start_area(int region, int area) {
     run.path[clc_region_tier(region)] = (uint8_t)region;
     run.areas++;
     if (!run.cheat && area_number() > sv.best_area) sv.best_area = (uint8_t)area_number();
-    if (run.cheat) {
-        run.p.hp = run.p.hpmax;
-        run.p.fuel = run.p.fuelmax;
-    }
+    if (area_number() < 10) run.fuel_low[area_number()] = run.p.fuel;
+    if (run.cheat) run.p.hp = run.p.hpmax; /* the code: a full bar every area (the tank is on its own) */
     if (region == RG_SPIRE && area == 2) {
         clc_gen_crown(&world, run.final_sage != 0);
     } else {
@@ -128,13 +129,16 @@ static void start_area(int region, int area) {
         sp.area = (uint8_t)area;
         sp.seed = area_seed(region, area);
         int tier = clc_region_tier(region);
+        (void)tier;
         if (area == 1) {
-            if (region == RG_CELLARS) sp.sage = 1;
-            else if (region == RG_SPIRE) sp.sage = run.scrolls == 3 && run.chain == RG_SPIRE;
-            else sp.sage = run.chain == region && run.scrolls == tier;
+            /* a sexton waits in every region's second area (met out of
+             * order, he has nothing for her) */
+            sp.sage = 1;
             sp.final_sage = region == RG_SPIRE;
         }
         clc_gen_world(&world, &sp);
+        if (region == RG_CLOISTER && run.lights_on) world.dark = 0;
+        if (region == RG_SPIRE && run.magnets_off) world.magnets_off = 1;
     }
     clc_world_start(&world, &run.p, true);
     clc_fx_clear();
@@ -158,11 +162,13 @@ static void new_run(bool cheat) {
     run.chain_plan[2] = RG_SPIRE;
     run.cheat = cheat;
     if (cheat) {
-        /* eight of the sixteen, a bigger bar and a bigger tank */
-        static const int8_t EIGHT[8] = {G_TWIN, G_SEEKER, G_SIPHON, G_FEATHER, G_FAN, G_CHARM, G_MAGNET, G_PURSE};
+        /* eight of the sixteen (the Tin Plate among them), a bar of 16 and
+         * a tank of 1,600 holding 800 */
+        static const int8_t EIGHT[8] = {G_TWIN, G_PLATE, G_SIPHON, G_FEATHER, G_FAN, G_CHARM, G_MAGNET, G_PURSE};
         for (int k = 0; k < 8; k++) run.p.gear |= 1u << EIGHT[k];
         run.p.hp = run.p.hpmax = 32;
-        run.p.fuel = run.p.fuelmax = 1600;
+        run.p.fuelmax = 1600;
+        run.p.fuel = 800;
     } else {
         if (sv.runs < 65535) sv.runs++;
         save_now();
@@ -219,7 +225,11 @@ static void finish_run(void) {
     if (!run.cheat) {
         if (run.ending == END_TRUE) { award(GOAL_SAUCER); award(GOAL_ALIEN); if (sv.cherry < 65535) sv.cherry++; }
         else if (run.ending == END_GOLD) { award(GOAL_SAUCER); if (sv.gold < 65535) sv.gold++; }
-        else if (sv.bad < 65535) sv.bad++;
+        else {
+            /* out alone: the gold goal still asks whether Ansel came too */
+            award(GOAL_SAUCER);
+            if (sv.bad < 65535) sv.bad++;
+        }
         save_now();
     }
     goto_state(S_ENDING);
@@ -257,12 +267,16 @@ static void open_door(int k) {
         sp.lobber = sp.engine && world.region != RG_CLOISTER;
         break;
     case RM_NPC: {
-        int line = (int)(d->seed % 6);
-        if (world.region == RG_SPIRE) line = 6;
+        int line = (int)(d->seed % (CLC_NPC_LINES - 1));
+        if (world.region == RG_SPIRE) line = CLC_NPC_LINES - 1;
         sp.hint = (int8_t)line;
         break;
     }
-    case RM_SAGE: sp.hint = (int8_t)(world.region == RG_SPIRE ? -2 : run.chain_plan[tier]); break;
+    case RM_SAGE:
+        /* only the sexton the chain leads to has a sheet (-3: nothing) */
+        if (world.region == RG_SPIRE) sp.hint = (int8_t)(run.scrolls == 3 && run.chain == RG_SPIRE ? -2 : -3);
+        else sp.hint = (int8_t)(run.chain == world.region && run.scrolls == tier ? run.chain_plan[tier] : -3);
+        break;
     case RM_CURSED: sp.item = (int8_t)(world.region == RG_ARBOR ? G_FAN : G_TWIN); break;
     default: break;
     }
@@ -306,8 +320,8 @@ static void sub_news(void) {
     if ((d->room == RM_TRIAL || d->room == RM_CURSED) && sub.done) d->used = 1;
     if (sub.lit_switch && (d->room == RM_LIGHTS || d->room == RM_MAGNETS)) {
         d->used = 1;
-        if (d->room == RM_LIGHTS) world.dark = 0;
-        else world.magnets_off = 1;
+        if (d->room == RM_LIGHTS) { world.dark = 0; run.lights_on = 1; }
+        else { world.magnets_off = 1; run.magnets_off = 1; }
     }
 }
 
@@ -344,6 +358,17 @@ static void news_sounds(uint32_t ev) {
     else if (ev & CEV_DRY && (frame_t & 15) == 0) sfx_play_name("clc_dry");
 }
 
+/* The buttons as the rules read them. The owner's layout puts the main
+ * action on A: A slashes (in the ship) and shoots (on foot), B thrusts and
+ * jumps. The rules keep their own names: BTN_A is thrust and jump, BTN_B
+ * the slash and the pistol. */
+static unsigned swap_ab(unsigned b) {
+    unsigned o = b & ~(unsigned)(BTN_A | BTN_B);
+    if (b & BTN_A) o |= BTN_B;
+    if (b & BTN_B) o |= BTN_A;
+    return o;
+}
+
 static unsigned play_buttons(void) {
     unsigned b = 0;
     if (btn(BTN_LEFT)) b |= BTN_LEFT;
@@ -352,7 +377,7 @@ static unsigned play_buttons(void) {
     if (btn(BTN_DOWN)) b |= BTN_DOWN;
     if (btn(BTN_A)) b |= BTN_A;
     if (btn(BTN_B)) b |= BTN_B;
-    return b;
+    return swap_ab(b);
 }
 
 static void check_gift(void) {
@@ -366,12 +391,13 @@ static void update_map(void) {
     if (banner_t > 0) banner_t--;
     bool was_timer = world.timer_on;
     clc_world_step(&world, &run.p, play_buttons());
+    if (area_number() < 10 && run.p.fuel < run.fuel_low[area_number()]) run.fuel_low[area_number()] = run.p.fuel;
     clc_fx_feed(world.fx, world.nfx);
     news_sounds(world.ev);
     if (clc_bot_debug && (world.ev & (CEV_HURT | CEV_DIE)))
-        fprintf(stderr, "HURT map region %d area %d at %d,%d hp %d foot %d by %d\n", world.region, world.area,
+        fprintf(stderr, "HURT map region %d area %d at %d,%d hp %d foot %d by %d mode %d v %d,%d\n", world.region, world.area,
                 (int)((world.on_foot ? world.cl.x : world.f.x) >> 8), (int)((world.on_foot ? world.cl.y : world.f.y) >> 8),
-                run.p.hp, world.on_foot, (unsigned)world.hurt_by);
+                run.p.hp, world.on_foot, (unsigned)world.hurt_by, clc_bot_mode, (int)world.f.vx, (int)world.f.vy);
     check_gift();
     if (!was_timer && world.timer_on) music_play(CLC_MUS_DASH);
     if (world.ev & CEV_DIE) { goto_state(S_DEAD); music_stop(); return; }
@@ -391,6 +417,8 @@ static void update_sub(void) {
     if (sub.ev & CEV_BOSS_DOWN) music_play(CLC_MUS_CLEAR);
     if (sub.ev & CEV_DIE) { goto_state(S_DEAD); music_stop(); return; }
     if (sub.leave == 1) {
+        /* back out: the door shuts behind her (all but the gold one) */
+        if (world.door[cur_door].type != DT_GOLD) world.door[cur_door].shut = 1;
         clc_world_return(&world, cur_door);
         clc_fx_clear();
         goto_state(S_MAP);
@@ -613,7 +641,7 @@ static void draw_ending(void) {
     if (e != END_BAD) clc_draw_tinkler(sx - 22, 74, 1, true, frame_t + 3);
     clc_draw_face(0, 16, 112, 3);
     if (e != END_BAD) clc_draw_face(1, 260, 112, 3);
-    static const char *const BAD[3] = {"CLARY GOT OUT. THE CLARION SAILS FOR HOME,", "AND SHE WONDERS HOW ANSEL IS GETTING ON.", "PROBABLY FINE. PROBABLY!"};
+    static const char *const BAD[3] = {"CLARY GOT OUT ALONE. SOMEWHERE BEHIND HER", "A BELL KEEPS RINGING IN THE CARILLON,", "AND SHE TRIES NOT TO LISTEN."};
     static const char *const GOLD[3] = {"CLARY AND ANSEL GOT OUT TOGETHER. BEHIND", "THEM THE CARILLON HANGS SILENT AND EMPTY,", "ITS BELLS NEVER TO RING AGAIN."};
     static const char *const TRUE_[3] = {"GRANDSIRE TOCK IS STOPPED. THE CARILLON'S BELLS", "RING OUT AND ITS FOLK COME HOME. CLARY AND ANSEL", "SET OFF FOR WHEREVER IS NEXT."};
     const char *const *L = e == END_TRUE ? TRUE_ : e == END_GOLD ? GOLD : BAD;
@@ -693,7 +721,7 @@ static int bot_buttons(void) {
     case S_MAP:
     case S_SUB: {
         ClcBotView v = {state == S_SUB, &world, &sub, &run.p, bot_goal, run.chain, run.scrolls, true};
-        return (int)clc_bot(&v);
+        return (int)swap_ab(clc_bot(&v)); /* the bot thinks in the rules' buttons */
     }
     case S_STATION: {
         if (state_t < 25) return 0;
@@ -846,6 +874,7 @@ static int clc_query(const char *key, int *out) {
     if (!strcmp(key, "world_bad")) { *out = clc_check_world(&world, NULL, 0); return 1; }
     if (!strcmp(key, "pieces_bad")) { *out = clc_pieces_bad(); return 1; }
     if (num_key(key, "gen_bad", &i)) { *out = gen_bad(i); return 1; }
+    if (num_key(key, "fuel_low", &i)) { *out = i >= 0 && i < 10 ? run.fuel_low[i] : -1; return 1; }
     if (num_key(key, "count", &i)) { *out = state == S_SUB ? count_sub(i) : count_world(i); return 1; }
     if (!strcmp(key, "room")) { *out = state == S_SUB ? sub.room : -1; return 1; }
     if (!strcmp(key, "sub_done")) { *out = sub.done; return 1; }
@@ -970,6 +999,34 @@ static int clc_query(const char *key, int *out) {
     if (!strcmp(key, "lit_switch")) { *out = sub.lit_switch; return 1; }
     if (!strcmp(key, "spawn_x")) { *out = world.spawn_c * CLC_T + CLC_T / 2; return 1; }
     if (!strcmp(key, "spawn_y")) { *out = (world.spawn_r + 1) * CLC_T - 4; return 1; }
+    if (!strcmp(key, "champs")) {
+        int n = 0;
+        for (int k = 0; k < world.ne; k++) n += world.e[k].on && world.e[k].champ;
+        *out = n;
+        return 1;
+    }
+    if (!strcmp(key, "map_w")) { *out = world.w; return 1; }
+    if (!strcmp(key, "map_h")) { *out = world.h; return 1; }
+    if (!strcmp(key, "loose")) {
+        int n = 0;
+        for (int r = 0; r < world.h; r++)
+            for (int c = 0; c < world.w; c++) n += world.tile[r][c] == MT_LOOSE;
+        *out = n;
+        return 1;
+    }
+    if (!strcmp(key, "pads")) {
+        int n = 0;
+        for (int r = 0; r < world.h; r++)
+            for (int c = 0; c < world.w; c++) n += world.tile[r][c] == MT_PAD;
+        *out = n;
+        return 1;
+    }
+    if (!strcmp(key, "shut")) {
+        int n = 0;
+        for (int k = 0; k < world.nd; k++) n += world.door[k].shut;
+        *out = n;
+        return 1;
+    }
     if (!strcmp(key, "shots")) {
         int n = 0;
         for (int k = 0; k < CLC_SHOTS; k++) n += world.shot[k].on;
@@ -1102,6 +1159,12 @@ static int clc_cheat(const char *cmd) {
                         (int)(sub.e[k].y >> 8), sub.e[k].hp, sub.e[k].flag);
         return 1;
     }
+    if (!strcmp(cmd, "rude")) {
+        /* the friendly sort here is the rude one */
+        for (int k = 0; k < sub.ne; k++)
+            if (sub.e[k].on && sub.e[k].kind == EK_NPC && sub.e[k].flag == 0) sub.e[k].flag = 5;
+        return 1;
+    }
     if (!strcmp(cmd, "tortoise")) {
         /* the friendly sort here is the dozing tortoise */
         for (int k = 0; k < sub.ne; k++)
@@ -1124,6 +1187,13 @@ static int clc_cheat(const char *cmd) {
     if (sscanf(cmd, "sub_ent %d %d %d", &a, &b, &c) == 3) { clc_sub_ent_add(&sub, a, b, c); return 1; }
     if (sscanf(cmd, "ent %d %d %d", &a, &b, &c) == 3) { clc_ent_add(&world, a, b, c); return 1; }
     if (sscanf(cmd, "tile %d %d %d", &a, &b, &c) == 3) { clc_set_tile(&world, a, b, c); return 1; }
+    int d4;
+    if (sscanf(cmd, "clear %d %d %d %d", &a, &b, &c, &d4) == 4) {
+        /* open up a block of the map (columns a..c, rows b..d4) */
+        for (int r = b; r <= d4; r++)
+            for (int k = a; k <= c; k++) clc_set_tile(&world, k, r, MT_AIR);
+        return 1;
+    }
     if (!strcmp(cmd, "boss_down")) { clc_sub_boss_down(&sub); return 1; }
     if (!strcmp(cmd, "no_foes")) {
         for (int i = 0; i < world.ne; i++)
@@ -1177,10 +1247,10 @@ const GameDef GAME_CLARION = {
     "1987",
     "ADVENTURE",
     "ONE TANK OF FUEL, A STATION FULL OF DOORS, AND A BROTHER TO BRING HOME.",
-    {"GET THE HOMING CHARM", "FLY HOME WITH ANSEL", "STOP GRANDSIRE TOCK"},
+    {"GET THE HOMING CHARM", "FLY OUT OF THE CARILLON. ANSEL TOO?", "STOP GRANDSIRE TOCK"},
     GLYPH_LEFT GLYPH_RIGHT "\tSTEER / WALK\n"
-    GLYPH_A " (HOLD)\tTHRUST / JUMP\n"
-    GLYPH_B "\tSLASH / SHOOT (HOLD)\n"
+    GLYPH_A "\tSLASH / SHOOT (HOLD)\n"
+    GLYPH_B " (HOLD)\tTHRUST / JUMP\n"
     GLYPH_DOWN "\tFALL FASTER / CROUCH\n"
     GLYPH_UP "\tAIM UP, DOORS, BOARD\n"
     "START\tPAUSE",
