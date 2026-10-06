@@ -1,0 +1,378 @@
+# CLARION CALL: what the cartridge keeps. A run is one sitting and is
+# never saved; the records are: runs started, gear bought (the original's
+# stat), the furthest area reached, and the wins of each kind, shown on the
+# title. FULL-PEAL, typed on the code screen, starts runs with eight of the
+# sixteen upgrades (the Tin Plate among them), a bar of 16 and a tank of
+# 1,600 holding 800; the bar (not the tank) fills again in every area, and
+# such runs earn no goals and no records. The dozing tortoise that some
+# friendly rooms hold mumbles the code once it has been shot a hundred
+# times (the guide's count; the UFO Companion says 200), and once shot it
+# shoots back now and then.
+seed 1
+game clarion
+wait 20
+expect runs == 0
+expect gear_bought == 0
+expect best_area == 0
+press A
+wait 10
+expect runs == 1
+cheat area 2 1
+wait 2
+expect runs == 2
+expect area_no == 4
+cheat coins 500
+cheat enter_room 6
+wait 2
+cheat sub_place 88 144
+wait 5
+press B 10
+wait 30
+expect gear_bought == 1
+cheat die
+wait 120
+expect state == 8
+wait 100
+press A
+wait 5
+expect state == 0
+reload
+game clarion
+wait 20
+expect state == 0
+expect runs == 2
+expect best_area == 4
+expect gear_bought == 1
+# the code: F-U-L-L, P-E-A-L
+press DOWN
+wait 5
+press A
+wait 10
+expect state == 1
+press UP
+press UP
+press UP
+press UP
+press UP
+press RIGHT
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press RIGHT
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press RIGHT
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press RIGHT
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press RIGHT
+press UP
+press UP
+press UP
+press UP
+press RIGHT
+press RIGHT
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press RIGHT
+wait 10
+press A
+wait 5
+expect code == 1
+press B
+wait 20
+expect state == 0
+press UP
+wait 20
+press A
+wait 10
+expect cheat_run == 1
+expect runs == 2
+expect has0 == 1
+expect has11 == 1
+expect has15 == 1
+expect hpmax == 32
+expect fuelmax == 1600
+expect fuel == 800
+expect goals == 0
+cheat hp 10
+cheat fuel 100
+cheat goto 1 0
+wait 2
+expect hp == 32
+expect fuel == 100
+# the tortoise
+cheat room 2
+wait 2
+cheat tortoise
+cheat sub_place 150 144
+cheat face 1
+wait 30
+press A 1
+wait 5
+press A 1
+wait 5
+press A 1
+wait 5
+press A 1
+wait 5
+press A 1
+wait 5
+press A 1
+wait 5
+press A 1
+wait 5
+press A 1
+wait 5
+press A 1
+wait 5
+press A 1
+wait 5
+press A 1
+wait 5
+press A 1
+wait 5
+press A 1
+wait 5
+press A 1
+wait 5
+press A 1
+wait 5
+press A 1
+wait 5
+press A 1
+wait 5
+press A 1
+wait 5
+press A 1
+wait 5
+press A 1
+wait 5
+press A 1
+wait 5
+press A 1
+wait 5
+press A 1
+wait 5
+press A 1
+wait 5
+press A 1
+wait 5
+press A 1
+wait 5
+press A 1
+wait 5
+press A 1
+wait 5
+press A 1
+wait 5
+press A 1
+wait 5
+press A 1
+wait 5
+press A 1
+wait 5
+press A 1
+wait 5
+press A 1
+wait 5
+press A 1
+wait 5
+press A 1
+wait 5
+press A 1
+wait 5
+press A 1
+wait 5
+press A 1
+wait 5
+press A 1
+wait 5
+press A 1
+wait 5
+press A 1
+wait 5
+press A 1
+wait 5
+press A 1
+wait 5
+press A 1
+wait 5
+press A 1
+wait 5
+press A 1
+wait 5
+press A 1
+wait 5
+press A 1
+wait 5
+press A 1
+wait 5
+press A 1
+wait 5
+press A 1
+wait 5
+press A 1
+wait 5
+press A 1
+wait 5
+press A 1
+wait 5
+press A 1
+wait 5
+press A 1
+wait 5
+press A 1
+wait 5
+press A 1
+wait 5
+press A 1
+wait 5
+press A 1
+wait 5
+press A 1
+wait 5
+press A 1
+wait 5
+press A 1
+wait 5
+press A 1
+wait 5
+press A 1
+wait 5
+press A 1
+wait 5
+press A 1
+wait 5
+press A 1
+wait 5
+press A 1
+wait 5
+press A 1
+wait 5
+press A 1
+wait 5
+press A 1
+wait 5
+press A 1
+wait 5
+press A 1
+wait 5
+press A 1
+wait 5
+press A 1
+wait 5
+press A 1
+wait 5
+press A 1
+wait 5
+press A 1
+wait 5
+press A 1
+wait 5
+press A 1
+wait 5
+press A 1
+wait 5
+press A 1
+wait 5
+press A 1
+wait 5
+press A 1
+wait 5
+press A 1
+wait 5
+press A 1
+wait 5
+press A 1
+wait 5
+press A 1
+wait 5
+press A 1
+wait 5
+press A 1
+wait 5
+press A 1
+wait 5
+press A 1
+wait 5
+press A 1
+wait 5
+press A 1
+wait 5
+press A 1
+wait 5
+press A 1
+wait 5
+press A 1
+wait 5
+press A 1
+wait 5
+press A 1
+wait 5
+press A 1
+wait 5
+expect npc_shots >= 100
+expect hp < 32
+cheat sub_goto_kind 53
+hold RIGHT 4
+expect talk == 1

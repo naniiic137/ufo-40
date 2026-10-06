@@ -143,6 +143,7 @@ menu, shows the buttons as you now press them). SELECT or B closes it.
 | 31 | **TILTSHOT** | Pingolf | side-on golf on pinball courses: aim, hold A to fill a meter that stays full until the golfer blows up, a slam in mid-air once a stroke (slammed onto a falling slope the ball catches fire), bumpers, spring pads, orange movers and purple junk, water and pits that send you back, eighteen fixed holes at the original's pars (61), eight golfers on the board against weak, random CPU rivals, 2P versus, a code for two cameo golfers | the Comet Classic, Nova, Digby, Peaches, Tuck and Moss, twelve CPU regulars, Wick and Kip by the code, all 18 holes |
 | 32 | **FORLORN HOPE** | Mortol II | 99 lives on a counter over the door and no way to gain more, one massive fixed open map, five classes picked at the door for every life (a sword who turns into a stone that floats where it is made, a rifle who leaves an endless ammo pouch, a double-jumping star thrower whose teleporter you take from the base and back, a wrench thrower who builds a pipe down through the ground, a bomber with no attack who explodes for 15), hold B to flash and let go to sacrifice, a charge that carries through teleporters and pipes, a death while charging setting the gift off, everything persisting, the original's 17 foes with their hit points, three switches raising yellow, green and blue blocks, spawners you can block or break, bombable rock and out-of-place brick, tall worms fed one life each, four hearts of 30 lingering on the black screen between lives, keys and locked doors, 2P co-op | the volunteers of Holloway and their trades, the Old Yew, the undercroft, the caves, the deep, the sump, the roots, the chimney, the tower and Thornkeep, all 17 foes and the thorn hearts, the whole map, eight tunes |
 | 34 | **BRAVADO** | Overbold | one fixed arena with four corner pads and lava, eight fights: a fixed first fight for 100, then each bet adding 100 and a random pack at a time up to 16 packs and 1,600, and a forced last fight of twelve packs and the only boss for 3,200; six health against hits of six, held fire that keeps the aim while you strafe, bombs that kill outright and hurt you too, lava that bites, twelve monsters on the floor at most and spawns that quicken up to a 900 prize; the original's seven pack kinds (two of them nine to a pack), sixteen kinds of gear at its prices with a sale and a hike every visit, the drone, the dash, medkits past full health, 2P in one arena | Dice the fox and her brother Domino, the Glass Pit, mites, gasbags, brutes, powder kegs, stilters, peepers, slag, the Pit Boss and its fizzers, every piece of gear's name and icon, ten tunes |
+| 35 | **CLARION CALL** | Campanella 2 | the Campanella ship on one tank for the whole run (coins burn when it's dry, and then it falls), a bar of 8 for the ship and for Clary behind doors, landing slowly on level ground and getting out, one hit or a two-tile drop the end outside, doors on foot into side-on caves with a skull at your back and a chest of three to choose from, and rooms with shops (one buy each, and every door shuts behind you), stalls, trials and sextons, ten notes to open the gold door and a 30-second dash, nine areas of a generated station in four of seven regions chosen on a map, sixteen cryptic upgrades, the yellow key, the Lobber and three Hush Engines, Lady Hush, the secret Grandsire Tock behind three sextons' sheets, the escape and three endings; one sitting, no save | Clary and the Clarion (CHIME CIRCUIT's), Ansel and Lady Hush (BELLHOP's), Grandsire Tock, the Carillon and its seven regions, the generator and every cave piece, the Crown, the sextons, the dozing tortoise, the FULL-PEAL code |
 | 39 | **BUZZBOLT** | Star Waspir | a fast vertical shooter over the whole wide screen where one hit is a loss, tap fire for a wide spread at full speed and hold it for focused fire and a slower ship, three ships with their own fire, options and two specials each (a charge lance, guard orbs, a shield drone, bombs on the second button), every kill dropping a letter in the fixed order B, Z, Z, words of three (BZZ puts the multiplier up with no limit, ZZZ brings an option, BBB and ZBB are the ship's specials, any other word puts it back to x1), the multiplier built up and cashed in on the bosses, losing a ship costs the multiplier and every gift, ships at 25k, 100k and 200k, five waves with a boss each (wave 1's pair flies off if left alone; wave 3 the hard one; walls, gates and a golden swarm in wave 4; a last boss of aimed fans), an unmultiplied time bonus, a high-score table | the Hive Wing (lacewing, shieldbug, firefly), the hiveship and the dragonfly, the Blight's gnats, midges, whirlers, crickets, blisters, puffballs, rot walls and goldbugs, the Ironbacks, the Bloatfly, the Queen Tick, Scythewing and Dustwing, the Sporeheart, five new waves |
 | 44 | **HOMESPUN** | Pilot Quest | a camp that keeps working in real time while the console is on, even in other cartridges; a yo-yo that knocks glints out of a crystal; plants, bars, huts, anvils, bins and research at the original's prices; jerky as two minutes of trip time a strip, and a clock that is also your health; one Wilds map whose roadblocks and caves are shuffled per save; three dungeons with a ship part each; a gun that costs a glint a shot; coins for hopstones, vendors and a gambling den; a spider that spins thread at camp; a super boss beaten six times in one trip; new-game-plus stones | Wick and the *Tumbleweed*, the moor-moon Oddmoor and its folk, the Wilds, three dungeons, all 19 foes and 6 bosses |
 | 41 | **RIMSHIRE** | Lords of Diskonia | a board where two banners take turns stepping along roads, trails a banner can't step back onto that pull an army back when struck, inns, tomes, seams and chests; flick battles on fields built from the four tiles round the fight: a queue of three, aim, charge and launch, knocks that hurt by the striking disk's own melee, water, the closing haze and stalemates; the original's 15 disks with their numbers, 8 skills, 10 campaign wars, the streak and 2P | Rimshire, the Brass and Plum banners, the Plum Empress, Lady Brass's letters, all 16 disks, 10 new boards |
@@ -1310,6 +1311,66 @@ the top.
   Domino; the Glass Pit and the back room; mites, gasbags, brutes, powder
   kegs, stilters, peepers, slag, the Pit Boss and its fizzers; every
   piece of gear's name and icon; the story, the words and ten tunes.
+### 35 · CLARION CALL
+
+<p align="center">
+  <img src="docs/shots/clarion.gif" width="640" alt="Clarion Call: Clary climbs into the Clarion and flies the Cellars after its first notes">
+</p>
+<p align="center">
+  <img src="docs/shots/clarion_cave.png" width="320" alt="A red cave: Clary runs right with the skull behind">
+  <img src="docs/shots/clarion_dash.png" width="320" alt="Ten notes in: the dash for the gold door in the Gullet">
+</p>
+<p align="center">
+  <img src="docs/shots/clarion_lobber.png" width="320" alt="The Lobber before a Hush Engine">
+  <img src="docs/shots/clarion_station.png" width="320" alt="The station map: where next?">
+</p>
+<p align="center">
+  <img src="docs/shots/clarion_hush.png" width="320" alt="Lady Hush's saucer over Clary">
+  <img src="docs/shots/clarion_tock.png" width="320" alt="Grandsire Tock's machine, his head out of the hatch">
+</p>
+
+*A tribute to **Campanella 2** (UFO 50 #35).*
+
+- **Plays the same:** the Campanella ship (CHIME CIRCUIT's flight model,
+  BELLHOP's numbers): gravity, a held thrust (B), a drifting steer, the
+  slash (A) to the side you last steered, DOWN to fall faster. Now it has a
+  bar of 8, walls bounce it (and hurt at anything over a nudge), enemies
+  take two points, and it can set down: slowly, on level ground (grey pads
+  take a little more), where the mark shows, and Clary hops out; any
+  harder touchdown costs a point. One tank of 800 for the whole run, and
+  it runs low; dry, it burns a coin a frame; with none, it falls and
+  bursts. Outside on her feet Clary has no bar: one touch or a drop of
+  more than a tile ends the run. UP at a door goes in, and the view comes
+  closer: side-on caves left to right with a skull at your back, blocks,
+  barrels and a chest of three free things, one to keep, and rooms: shops
+  (icons and prices, no names, one buy each), health stalls, friendly
+  folk with free fuel and advice (and a rude one), the wriggler trial, the
+  cursed encounter, a sexton in every second area. Every door but the
+  gold one shuts once you're back out. In there Clary uses the bar, fires
+  her pistol (three shots in the air at most; nothing has a grace after a
+  hit), aims up, crouches, drops through thin floors. A is the main
+  action, as everywhere in UFO 40 (the original has thrust on A).
+- **The run:** nine areas: the Cellars, the Arboretum or the Icehouse, the
+  Gullet, Cogtown or the Cloister (chosen on the station map), then the
+  Spire and its fixed Crown. Every other area is generated for the run.
+  Fourteen notes in each: the tenth shows the gold door, locks the rest,
+  turns the spares to plum coins, brings out clock rings and hatches the
+  pods, and a clock reading 60 runs down at double speed; at 0 the
+  latecomers come. Each region has its own enemies (gold champions among
+  them) and its own doors (a charm stall, a boon, free armour, a shortcut,
+  a mega store, the dark and its light switch, magnets and their switch);
+  the Cellars drop loose stones on you, the Cloister's walls drink your
+  fuel. Sixteen upgrades, a yellow key for one yellow door, the Lobber and
+  three Hush Engines keeping Ansel locked away, Lady Hush, and behind the
+  sextons' chain of peal sheets, straight on to the secret Grandsire Tock.
+  Then the escape, and one of three endings; any win over Lady Hush earns
+  the gold goal, Ansel or not. The
+  demo player in the tests reaches all three on generated runs with button
+  presses.
+- **Ours:** Clary and the Clarion, Ansel, Lady Hush, Grandsire Tock, the
+  Carillon and its seven regions, the generator and all its cave pieces,
+  the Crown, the sextons, the dozing tortoise, every enemy, the sixteen
+  upgrades, the music and the FULL-PEAL code.
 
 ### 39 · BUZZBOLT
 

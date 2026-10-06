@@ -1,0 +1,76 @@
+# CLARION CALL: outside, on her feet, Clary has no bar: one touch of an
+# enemy or a shot, or a drop of more than one tile, ends the run. A drop of
+# a single tile is fine, and so is landing from her own jump. She climbs
+# ladders (UP and DOWN), stands on a ladder's top, goes through a door with
+# UP in front of it, and climbs into the ship with UP beside it. A fires her
+# pistol the way she faces (B jumps: the owner's layout), never more than
+# three shots in the air: held, it fires steadily; mashed, faster.
+seed 1
+game clarion
+wait 10
+cheat area 6 2
+wait 2
+# a tile's drop: fine
+cheat tile 9 30 1
+cheat foot 76 240
+hold LEFT 20
+expect dead == 0
+expect y == 248
+# her own jump, back down where she started: fine
+press B 20
+expect y < 240
+wait 40
+expect dead == 0
+expect y == 248
+# a ladder up to the middle terrace (her feet on its top rung)
+cheat tile 21 26 4
+cheat tile 21 27 4
+cheat tile 21 28 4
+cheat tile 21 29 4
+cheat tile 21 30 4
+cheat foot 172 248
+hold UP 80
+expect y == 208
+expect dead == 0
+hold RIGHT 20
+expect x > 180
+expect y == 208
+expect ground == 1
+# UP at the blue door: through it
+cheat foot 212 208
+wait 2
+press UP
+wait 2
+expect state == 5
+expect room == 5
+press UP
+wait 5
+expect state == 4
+expect on_foot == 1
+# the pistol: steady when held, quicker when mashed
+cheat foot 212 208
+wait 40
+hold A 28
+expect shotk0 == 2
+wait 40
+press A 1
+press A 1
+press A 1
+press A 1
+press A 1
+press A 1
+press A 1
+expect shotk0 >= 3
+expect shots <= 3
+# walking off the top terrace: twelve tiles down, the end
+cheat foot 384 112
+hold LEFT 60
+expect dead == 1
+expect state == 7
+# (a fresh run) one touch of a flitter, the end
+cheat area 6 2
+wait 2
+cheat foot 120 248
+cheat ent 1 106 244
+wait 30
+expect dead == 1

@@ -235,6 +235,15 @@ CORE_SRC += src/games/bravado/bravado_bot.c
 CORE_SRC += src/games/bravado/bravado_draw.c
 CORE_SRC += src/games/bravado/bravado_art.c
 CORE_SRC += src/games/bravado/bravado_audio.c
+CORE_SRC += src/games/clarion/clc.c
+CORE_SRC += src/games/clarion/clc_items.c
+CORE_SRC += src/games/clarion/clc_gen.c
+CORE_SRC += src/games/clarion/clc_world.c
+CORE_SRC += src/games/clarion/clc_sub.c
+CORE_SRC += src/games/clarion/clc_bot.c
+CORE_SRC += src/games/clarion/clc_draw.c
+CORE_SRC += src/games/clarion/clc_art.c
+CORE_SRC += src/games/clarion/clc_audio.c
 
 HEADLESS_SRC += src/platform/headless/main_headless.c
 HEADLESS_SRC += src/platform/headless/imgwrite.c

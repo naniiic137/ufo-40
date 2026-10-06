@@ -1,0 +1,56 @@
+# CLARION CALL: the title offers START and CODE, with the records under
+# them; B goes back to the library. START shows the story, then the area
+# card (THE CELLARS I, area 1 of 9), then the map: Clary on her feet next
+# to the Clarion, a full bar of 8 (16 half points), a full tank of 800,
+# no coins, no notes. The first area has three doors: the cave, the
+# friendly sort's (or the trial) and the hidden gold one. START pauses.
+seed 3
+game clarion
+wait 30
+expect state == 0
+expect title_sel == 0
+expect art_ok == 1
+press DOWN
+expect title_sel == 1
+press UP
+expect title_sel == 0
+wait 10
+press A
+wait 5
+expect state == 2
+wait 40
+press A
+wait 5
+expect state == 3
+expect region == 0
+expect area == 0
+expect area_no == 1
+wait 130
+expect state == 4
+expect on_foot == 1
+expect ship == 1
+expect hp == 16
+expect hpmax == 16
+expect fuel == 800
+expect fuelmax == 800
+expect coins == 0
+expect notes == 0
+expect doors == 3
+expect door_room0 == 0
+expect door_type2 == 4
+expect door_hidden2 == 1
+expect world_bad == 0
+# a run is one sitting: started, it counts
+expect runs == 1
+press START
+expect paused == 1
+press START
+wait 5
+expect paused == 0
+# the title again (a fresh cartridge session): B leaves for the library
+game clarion
+wait 30
+expect state == 0
+press B
+wait 30
+expect_scene library

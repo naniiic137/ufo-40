@@ -1,0 +1,113 @@
+# CLARION CALL: Lady Hush at the top of the Crown (gold door), fought on
+# foot: 100 points, her saucer high above firing energy shots down, now and
+# then dropping slurps or the whole saucer on its spikes; shoot up at her
+# (UP and A). Beaten, she opens the way out: the escape shaft, 99 seconds
+# to fly up through the opened gates past fuel, arrows and a clock ring
+# by each gate. With all three Hush Engines broken Ansel comes too (the
+# gold ending); without, Clary leaves alone. Either way the Saucer goal is
+# earned (it asks whether Ansel comes too; he is optional). Too slow up
+# the shaft, and the latecomers come.
+seed 1
+game clarion
+wait 10
+cheat area 6 2
+wait 2
+expect door_room3 == 16
+cheat enter_room 16
+wait 2
+expect room == 16
+expect boss_hp == 100
+waituntil shotk14 > 0 90
+# shooting up from under her
+cheat hp 32
+cheat give 16
+cheat give 16
+cheat give 16
+cheat give 16
+cheat give 16
+cheat give 16
+cheat give 16
+cheat give 16
+cheat sub_place 160 144
+hold UP A 4
+press UP A 2
+press UP A 2
+press UP A 2
+press UP A 2
+press UP A 2
+press UP A 2
+press UP A 2
+press UP A 2
+press UP A 2
+press UP A 2
+press UP A 2
+press UP A 2
+press UP A 2
+press UP A 2
+press UP A 2
+press UP A 2
+press UP A 2
+press UP A 2
+press UP A 2
+expect boss_hp < 100
+# slurps or the drop come in time
+waituntil count59 > 0 800
+# beaten (all three engines broken): the escape
+cheat engines 7
+cheat boss_down
+wait 2
+expect exit_open == 1
+cheat sub_at_exit
+wait 3
+press UP
+wait 5
+expect state == 4
+expect world_kind == 2
+expect timer_on == 1
+expect timer_shown == 99
+expect on_foot == 1
+expect count28 == 5
+expect count27 >= 3
+# up and out
+cheat place 160 30
+hold B 30
+wait 2
+expect state == 9
+expect ending == 2
+expect goals & 2
+expect goals !& 4
+expect wins_gold == 1
+# the credits, then the title
+wait 130
+press A
+wait 5
+expect state == 10
+botuntil state == 0 6000
+# alone: an engine left standing
+cheat area 6 2
+wait 2
+cheat engines 3
+cheat enter_room 16
+wait 2
+cheat boss_down
+wait 2
+cheat sub_at_exit
+wait 3
+press UP
+wait 5
+expect world_kind == 2
+cheat place 160 30
+hold B 30
+wait 2
+expect state == 9
+expect ending == 1
+expect wins_bad == 1
+# too slow
+cheat area 6 2
+wait 2
+cheat escape 2
+wait 2
+cheat timer 2
+wait 30
+expect late > 0
+waituntil dead == 1 900

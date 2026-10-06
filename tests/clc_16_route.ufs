@@ -1,0 +1,70 @@
+# CLARION CALL: the route through the station. A region's first gold cave
+# leads to its second area; the second's (past the engine) to the station
+# map, where Clary picks where next: the Arboretum or the Icehouse after
+# the Cellars; the Gullet, Cogtown or the Cloister after those; then the
+# Spire, whose second gold cave leads up to the Crown. Nine areas in all.
+seed 1
+game clarion
+wait 10
+cheat area 0 0
+wait 2
+expect area_no == 1
+cheat enter_room 1
+wait 2
+cheat sub_at_exit
+wait 3
+press UP
+wait 3
+expect state == 3
+expect region == 0
+expect area == 1
+expect area_no == 2
+cheat station 0
+wait 2
+expect state == 6
+expect station_n == 2
+expect station_opt0 == 1
+expect station_opt1 == 2
+wait 25
+press RIGHT
+expect station_sel == 1
+press A
+wait 3
+expect state == 3
+expect region == 2
+expect area == 0
+expect area_no == 3
+cheat station 2
+wait 2
+expect station_n == 3
+expect station_opt0 == 3
+expect station_opt1 == 4
+expect station_opt2 == 5
+wait 25
+press LEFT
+expect station_sel == 2
+press A
+wait 3
+expect region == 5
+expect area_no == 5
+cheat station 5
+wait 2
+expect station_n == 1
+expect station_opt0 == 6
+wait 25
+press A
+wait 3
+expect region == 6
+expect area_no == 7
+cheat goto 6 1
+wait 2
+cheat enter_room 1
+wait 2
+cheat sub_at_exit
+wait 3
+press UP
+wait 3
+expect region == 6
+expect area == 2
+expect area_no == 9
+expect world_kind == 1

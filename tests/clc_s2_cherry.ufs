@@ -1,0 +1,25 @@
+# CLARION CALL: proof the game can be completed, the true way. The demo
+# player follows the sextons: the sheet from the Cellars' second area names
+# a region, it goes there, and so on to the Spire's sexton, who opens the
+# Crown's secret door; it fights Grandsire Tock on his machine and escapes.
+# The bells ring again (the Saucer and the Alien goals).
+seed 8
+game clarion
+wait 20
+cheat bot_goal 1
+botuntil state == 2 600
+botuntil area_no >= 3 40000
+expect scrolls == 1
+botuntil area_no >= 5 40000
+expect scrolls == 2
+botuntil area_no >= 7 40000
+expect scrolls == 3
+botuntil area_no >= 9 40000
+expect final_sage == 1
+expect door_hidden0 == 0
+botuntil world_kind == 2 40000
+botuntil state == 9 20000
+expect ending == 3
+expect goals & 2
+expect goals & 4
+expect wins_true == 1
