@@ -1,0 +1,50 @@
+# TURNIP TRUCK: START WORK begins a week. Every morning opens with the
+# Channel 9 newscast; Monday is quiet and the six chaos events fall on
+# Tuesday to Sunday, each once, in an order shuffled for every week. The day
+# starts at the depot with 45 seconds, three hearts, three tries for the
+# week and the first delivery already chosen; START pauses the driving but
+# not the title or the newscast.
+seed 4
+game turnip
+wait 20
+press START
+expect paused == 0
+press A
+wait 10
+expect state == 3
+expect music_is.tnp_news == 1
+expect day == 1
+expect tries == 3
+expect week == 0
+expect ev_perm_ok == 1
+expect ev_1 == 0
+expect save_starts == 1
+press START
+expect paused == 0
+wait 40
+press A
+wait 2
+expect state == 4
+expect event == 0
+expect music_is.tnp_day == 1
+expect time == 45
+expect hearts == 3
+expect delivered == 0
+expect dest >= 0
+expect in_hq == 0
+expect x == 672
+expect y == 504
+expect tstate == 0
+press START
+wait 2
+expect paused == 1
+press START
+wait 10
+expect paused == 0
+# another week, another order
+game turnip
+wait 20
+seed 99
+press A
+wait 2
+expect ev_perm_ok == 1

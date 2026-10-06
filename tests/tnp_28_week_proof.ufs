@@ -1,0 +1,16 @@
+# TURNIP TRUCK: the whole week can be done. From the title, the demo player
+# presses real buttons through every newscast, all seven workdays (each
+# chaos event once) and the screens between, to the ending: the Saucer and,
+# with 50 or more deliveries, the Alien.
+seed 7
+game turnip
+wait 30
+botuntil state == 8 90000
+expect won == 1
+expect day == 7
+expect week >= 50
+expect cherry == 1
+expect goals == 7
+expect save_weeks == 1
+expect save_best >= 6
+expect tries >= 1

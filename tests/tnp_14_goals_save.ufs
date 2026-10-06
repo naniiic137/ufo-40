@@ -1,0 +1,67 @@
+# TURNIP TRUCK: the three goals. Beacon: clear two workdays. Saucer: survive
+# the week (clear Sunday). Alien: reach the ending with 50 or more
+# deliveries. The ending changes for the Alien. The cartridge saves only its
+# records (the daily best, weeks, best week), never a week half-way.
+seed 3
+game turnip
+wait 20
+press A
+wait 45
+press A
+wait 2
+cheat delivered 6
+cheat clockout
+wait 2
+expect goals == 0
+expect save_best == 6
+wait 65
+press A
+wait 45
+press A
+wait 2
+expect day == 2
+cheat delivered 5
+cheat clockout
+wait 2
+expect goals == 1
+# Sunday with 49 in all: the Saucer, not the Alien
+cheat day 7 2
+cheat total 44
+cheat delivered 5
+cheat clockout
+wait 2
+wait 65
+press A
+wait 2
+expect state == 8
+expect won == 1
+expect cherry == 0
+expect goals == 3
+expect save_weeks == 1
+expect save_week == 49
+expect music_is.tnp_end == 1
+# Sunday with 50: the Alien and the early retirement
+cheat day 7 6
+cheat total 45
+cheat delivered 5
+cheat clockout
+wait 2
+wait 65
+press A
+wait 2
+expect state == 8
+expect cherry == 1
+expect goals == 7
+expect save_cherries == 1
+wait 200
+press A
+wait 2
+expect state == 9
+waituntil state == 0 1200
+# the records survive a restart
+reload
+game turnip
+wait 5
+expect save_best == 6
+expect save_weeks == 2
+expect save_week == 50

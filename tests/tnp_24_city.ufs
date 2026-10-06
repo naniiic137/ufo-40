@@ -1,0 +1,18 @@
+# TURNIP TRUCK: Blipton as written. 32 x 32 cells that wrap both ways;
+# 33 named places, each on a road beside a building and reachable from the
+# depot and back; 7 crates (over the hazards past the ramps), 4 canister stacks, 10 crossing pipes and 9 drop
+# zones, one never far from the brine; the edges join (the Gloop Diner on
+# the top row is a short drive from the Pickle Works gate near the bottom).
+game turnip
+wait 5
+expect map_rows_ok == 1
+expect map_dests == 33
+expect map_dests_ok == 1
+expect map_wrap_ok == 1
+expect map_crates == 7
+expect map_cans == 4
+expect map_pipes == 10
+expect map_drops == 9
+expect map_drops_ok <= 260
+expect path_max <= 40
+expect path_0_26 <= 8

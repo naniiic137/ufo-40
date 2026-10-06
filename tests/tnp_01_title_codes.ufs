@@ -1,0 +1,256 @@
+# TURNIP TRUCK: the title offers START WORK and CODES; B goes back to the
+# library. On the CODES page (UFO 40 has no terminal) JOYRIDES turns on the
+# endless practice drive and BACKWARD turns the reverse steering round; a
+# second entry turns a code off, and a wrong one does nothing. While a code
+# is on, nothing is saved and no goal is given.
+game turnip
+wait 20
+expect state == 0
+expect sel == 0
+press DOWN
+expect sel == 1
+press DOWN
+expect sel == 0
+press B
+wait 40
+expect_scene library
+game turnip
+wait 20
+expect save_starts == 0
+press DOWN
+press A
+wait 10
+expect state == 1
+# a code that doesn't exist
+press A
+wait 2
+expect codes == 0
+# JOYRIDES
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press RIGHT
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press RIGHT
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press RIGHT
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press RIGHT
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press RIGHT
+press UP
+press UP
+press UP
+press RIGHT
+press UP
+press UP
+press UP
+press UP
+press RIGHT
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press A
+wait 2
+expect codes == 1
+# BACKWARD (the cursor is on the last letter: round to the first)
+press RIGHT
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press RIGHT
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press RIGHT
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press RIGHT
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press RIGHT
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press RIGHT
+press DOWN
+press DOWN
+press DOWN
+press RIGHT
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press RIGHT
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press A
+wait 2
+expect codes == 3
+# BACKWARD again turns it off
+press A
+wait 2
+expect codes == 1
+press B
+wait 10
+expect state == 0
+# the practice drive: no clock, no harm, no events, no end
+press UP
+press A
+wait 5
+expect state == 4
+expect practice == 1
+expect event == 0
+expect time_f == 0
+wait 120
+expect time_f == 0
+expect state == 4
+# straight into the canal: back at a drop zone, unhurt
+cheat pos 400 894
+cheat ang 90
+cheat vel 0 2
+wait 120
+expect falls == 1
+expect hearts == 3
+expect state == 4
+cheat delivered 6
+cheat clockout
+wait 30
+expect state == 4
+# nothing saved, no goal
+expect save_starts == 0
+expect goals == 0

@@ -182,6 +182,14 @@ CORE_SRC += src/games/driftline/driftline_bot.c
 CORE_SRC += src/games/driftline/driftline_draw.c
 CORE_SRC += src/games/driftline/driftline_art.c
 CORE_SRC += src/games/driftline/driftline_audio.c
+CORE_SRC += src/games/turnip/tnp.c
+CORE_SRC += src/games/turnip/tnp_city.c
+CORE_SRC += src/games/turnip/tnp_drive.c
+CORE_SRC += src/games/turnip/tnp_events.c
+CORE_SRC += src/games/turnip/tnp_bot.c
+CORE_SRC += src/games/turnip/tnp_draw.c
+CORE_SRC += src/games/turnip/tnp_art.c
+CORE_SRC += src/games/turnip/tnp_audio.c
 
 HEADLESS_SRC += src/platform/headless/main_headless.c
 HEADLESS_SRC += src/platform/headless/imgwrite.c

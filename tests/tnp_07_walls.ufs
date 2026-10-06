@@ -1,0 +1,22 @@
+# TURNIP TRUCK: walls never hurt. Hitting one at speed bounces the truck
+# back and spins it round; it costs no heart.
+game turnip
+wait 5
+cheat day 1 0
+cheat notraffic
+cheat pos 400 276
+cheat ang -80
+cheat vel 0.4 -2.6
+wait 25
+expect hearts == 3
+expect hits == 0
+expect y >= 245
+expect ang != -80
+expect ang > -70
+# straight on at a wall: bounced back
+cheat pos 400 276
+cheat ang -90
+cheat vel 0 -2.6
+wait 16
+expect vy100 > 0
+expect hearts == 3

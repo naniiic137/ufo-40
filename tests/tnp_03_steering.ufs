@@ -1,0 +1,46 @@
+# TURNIP TRUCK: the camera never turns, the truck does, and LEFT and RIGHT
+# turn it to its own left and right. Driving east, RIGHT turns it down the
+# screen; driving south (down the screen), RIGHT turns it towards the
+# screen's left. A stopped truck can't turn, and with the gas down at speed
+# it turns wider than when coasting.
+game turnip
+wait 5
+cheat day 1 0
+cheat notraffic
+cheat pos 320 264
+cheat ang 0
+cheat vel 2 0
+hold RIGHT 12
+expect ang > 20
+expect vy100 > 0
+# down the screen on the x=16 street: RIGHT sends it screen-left
+cheat pos 792 300
+cheat ang 90
+cheat vel 0 2
+hold RIGHT 12
+expect ang > 110
+expect vx100 < 0
+cheat pos 792 300
+cheat ang 90
+cheat vel 0 2
+hold LEFT 12
+expect ang < 70
+expect vx100 > 0
+# no turning from a stand
+cheat pos 792 300
+cheat ang 90
+cheat stop
+hold RIGHT 30
+expect ang == 90
+# gas down at top speed: a wider turn than coasting
+cheat pos 320 264
+cheat ang 0
+cheat vel 2.6 0
+hold A RIGHT 10
+expect ang <= 25
+expect ang >= 18
+cheat pos 320 264
+cheat ang 0
+cheat vel 2.6 0
+hold RIGHT 10
+expect ang >= 28

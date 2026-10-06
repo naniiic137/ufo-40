@@ -1,0 +1,9 @@
+# TURNIP TRUCK: a second week with another order of events, played the same
+# way to the ending.
+seed 4
+game turnip
+wait 30
+botuntil state == 8 90000
+expect won == 1
+expect week >= 50
+expect goals == 7

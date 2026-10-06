@@ -1,0 +1,48 @@
+# TURNIP TRUCK: ramps throw a fast truck over brine pools and gas
+# canisters; too slow, and it drives off the end into the pool. Rocky ground
+# is harmless but slows the truck hard.
+game turnip
+wait 5
+cheat day 1 0
+cheat notraffic
+# the ramp at (7, 24) over the pool at (8, 24)
+cheat pos 250 1188
+cheat ang 0
+cheat vel 2.6 0
+waituntil air_t > 0 60
+hold A 80
+expect falls == 0
+expect x > 470
+expect tstate == 0
+# too slow
+cheat stop
+cheat pos 330 1188
+cheat ang 0
+cheat vel 1.4 0
+wait 70
+expect falls == 1
+# the ramp at (8, 28) over the canisters at (9, 28)
+waituntil tstate == 0 60
+cheat inv 0
+cheat pos 300 1380
+cheat ang 0
+cheat vel 2.6 0
+hold A 70
+expect cans == 4
+expect hit_by2 == 0
+expect x > 470
+# rocks: the yard at (1-4, 25-27)
+cheat stop
+cheat pos 24 1272
+cheat ang 0
+cheat vel 2.6 0
+wait 30
+expect speed100 < 100
+expect hits == 1
+# the same on the road keeps its speed
+cheat stop
+cheat pos 24 1176
+cheat ang 0
+cheat vel 2.6 0
+wait 30
+expect speed100 > 200

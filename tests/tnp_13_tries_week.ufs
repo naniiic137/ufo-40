@@ -1,0 +1,68 @@
+# TURNIP TRUCK: three spare tries for the whole week. Each lost day uses
+# one and starts that day again; deliveries from a lost day don't count;
+# losing with none left ends the week, and it is back to Monday.
+seed 2
+game turnip
+wait 20
+press A
+wait 45
+press A
+wait 2
+expect day == 1
+cheat delivered 5
+cheat clockout
+wait 2
+expect state == 5
+wait 65
+press A
+wait 45
+press A
+wait 2
+expect day == 2
+expect week == 5
+cheat delivered 3
+cheat fail
+waituntil state == 6 200
+wait 65
+press A
+wait 2
+expect tries == 2
+expect week == 5
+wait 45
+press A
+wait 2
+cheat fail
+waituntil state == 6 200
+wait 65
+press A
+wait 2
+expect tries == 1
+wait 45
+press A
+wait 2
+cheat fail
+waituntil state == 6 200
+wait 65
+press A
+wait 2
+expect tries == 0
+wait 45
+press A
+wait 2
+cheat fail
+waituntil state == 6 200
+wait 65
+press A
+wait 2
+expect state == 7
+expect music_is.tnp_fired == 1
+wait 100
+press A
+wait 5
+expect state == 0
+wait 20
+press A
+wait 5
+expect day == 1
+expect tries == 3
+expect week == 0

@@ -1,0 +1,61 @@
+# TURNIP TRUCK: what costs a heart. Crashing into a car does (a nudge at
+# walking pace does not); gas canisters explode and do; falling into the
+# brine does, and the truck comes back at the nearest drop zone. With no
+# heart left the truck is wrecked and the day is lost.
+game turnip
+wait 5
+cheat day 1 0
+cheat notraffic
+cheat pos 400 276
+cheat ang 0
+cheat vel 2.5 0
+cheat carat 0 440 276
+wait 30
+expect hearts == 2
+expect hit_by0 == 1
+expect tstate == 0
+# a gentle nudge: no harm
+cheat notraffic
+cheat hearts 3
+cheat inv 0
+cheat pos 400 276
+cheat ang 0
+cheat vel 0.3 0
+cheat carat 0 414 276
+wait 30
+expect hearts == 3
+expect hit_by0 == 1
+# gas canisters at (3, 28)
+cheat notraffic
+expect cans == 4
+cheat inv 0
+cheat pos 110 1368
+cheat ang 0
+cheat vel 2 0
+wait 40
+expect cans == 3
+expect hit_by2 == 1
+expect hearts == 2
+# the canal: down into the brine, up at the drop zone
+cheat inv 0
+cheat pos 400 894
+cheat ang 90
+cheat vel 0 2
+wait 12
+expect tstate == 1
+expect hit_by1 == 1
+expect hearts == 1
+wait 40
+expect tstate == 0
+expect at_drop == 1
+expect speed100 == 0
+# the last heart: wrecked
+cheat inv 0
+cheat pos 400 894
+cheat ang 90
+cheat vel 0 2
+wait 12
+expect hearts == 0
+expect tstate == 2
+waituntil state == 6 200
+expect fail_reason == 2

@@ -1,0 +1,73 @@
+# TURNIP TRUCK: one clock, always on screen. Deliveries one to four add
+# 8 seconds, the fifth 30, overtime ones nothing; a crate adds 12. The
+# crates hang from balloons over the hazards past the ramps: only a truck in
+# the air reaches one. They are all back for every new try.
+game turnip
+wait 5
+cheat day 1 0
+cheat notraffic
+expect time == 45
+wait 600
+expect time == 35
+expect time_f == 2100
+# deliveries: the place is fixed by the cheat, the truck is set down in its circle
+cheat dest 0
+cheat pos 168 24
+cheat stop
+wait 1
+expect delivered == 1
+expect time_f == 2579
+cheat dest 1
+cheat pos 936 120
+wait 1
+expect delivered == 2
+expect time_f == 3058
+cheat dest 0
+cheat pos 168 24
+wait 1
+cheat dest 1
+cheat pos 936 120
+wait 1
+expect delivered == 4
+expect time_f == 4016
+cheat dest 0
+cheat pos 168 24
+wait 1
+expect delivered == 5
+expect time_f == 5815
+cheat dest 1
+cheat pos 936 120
+wait 1
+expect delivered == 6
+expect time_f == 5814
+# a crate: not from the ground (the one over the rocks at (23, 26))
+expect crates == 7
+cheat pos 1080 1272
+cheat ang 0
+cheat vel 1.5 0
+wait 50
+expect crates == 7
+# off the ramp at (7, 24), over the pool: +12
+cheat stop
+cheat pos 250 1176
+cheat ang 0
+cheat vel 2.6 0
+cheat timef 6000
+hold A 70
+expect crates == 6
+expect crates_broken == 1
+expect time_f > 6620
+expect falls == 0
+# a new try: every crate is back
+cheat fail
+waituntil state == 6 200
+expect tries == 3
+wait 70
+press A
+wait 50
+press A
+wait 2
+expect state == 4
+expect crates == 7
+expect delivered == 0
+expect time == 45

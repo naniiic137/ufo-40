@@ -1,0 +1,45 @@
+# TURNIP TRUCK: DOWNPOUR. Rain all day, and only the rain to hear until the
+# overtime tune; puddles appear in an instant on the roads (some right on the
+# road ahead), and one hit fast spins the truck out. Reversing through a
+# puddle is safe.
+seed 9
+game turnip
+wait 5
+cheat day 3 5
+cheat notraffic
+expect music_is.tnp_rain == 1
+waituntil puddles >= 10 400
+# some appear just ahead of a moving truck, slick almost at once
+cheat nopuddles
+cheat pos 320 264
+cheat ang 0
+cheat vel 1.4 0
+hold A 120
+expect puddles_ahead >= 1
+waituntil spin_t == 0 120
+cheat stop
+cheat inv 0
+cheat nopuddles
+cheat puddle 440 276
+cheat pos 400 276
+cheat ang 0
+cheat vel 2.5 0
+wait 20
+expect spin_t > 0
+expect hearts == 3
+waituntil spin_t == 0 120
+cheat nopuddles
+cheat puddle 440 276
+cheat pos 480 276
+cheat ang 0
+cheat vel -0.9 0
+hold B 60
+expect x < 430
+expect spin_t == 0
+# overtime: the tune comes back
+cheat delivered 4
+cheat dest 0
+cheat pos 168 24
+cheat stop
+wait 2
+expect music_is.tnp_overtime == 1

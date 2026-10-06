@@ -1,0 +1,43 @@
+# TURNIP TRUCK: speed heals. A short spell at top speed with nothing in the
+# way brings back one heart at a time; a slow truck heals nothing, and a
+# delivery heals it fully.
+game turnip
+wait 5
+cheat day 1 0
+cheat notraffic
+cheat pos 320 276
+cheat ang 0
+cheat stop
+cheat hearts 1
+hold A 120
+expect hearts == 1
+hold A 100
+expect hearts == 2
+hold A 160
+expect hearts == 3
+# slow: nothing
+cheat hearts 1
+cheat pos 320 276
+cheat ang 0
+cheat vel 1.2 0
+wait 300
+expect hearts == 1
+# a wall resets the count
+cheat hearts 1
+cheat pos 320 276
+cheat ang 0
+cheat stop
+hold A 100
+expect regen_t > 0
+cheat ang -90
+cheat vel 0 -2.6
+wait 20
+expect regen_t == 0
+# a delivery: full hearts
+cheat hearts 1
+cheat dest 0
+cheat pos 168 24
+cheat stop
+wait 2
+expect delivered == 1
+expect hearts == 3
