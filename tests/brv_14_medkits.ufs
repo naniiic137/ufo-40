@@ -1,0 +1,36 @@
+# BRAVADO: FIRST AID brings a medkit to the floor every 30 s (every 15 s at
+# the second tier). A medkit heals 6 and may take Dice past her most
+# health, up to 40.
+game bravado
+wait 5
+cheat run 1
+cheat gear 1 1
+cheat fight
+cheat empty
+cheat god
+wait 1795
+expect medkits == 0
+wait 10
+expect medkits == 1
+cheat run 1
+cheat gear 1 2
+cheat fight
+cheat empty
+cheat god
+wait 895
+expect medkits == 0
+wait 10
+expect medkits == 1
+# over the top
+cheat run 1
+cheat empty
+cheat nopools
+cheat medkit 170 90
+hold RIGHT 6
+expect p1_hp == 12
+expect p1_maxhp == 6
+expect medkits == 0
+cheat hp 1 38
+cheat medkit 180 90
+hold RIGHT 10
+expect p1_hp == 40

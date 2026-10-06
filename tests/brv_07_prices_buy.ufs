@@ -1,0 +1,82 @@
+# BRAVADO: the sixteen kinds of gear at the original's prices, tier by
+# tier; everything together costs 7,900. BUY moves into the rack, the
+# pad picks, A buys, B goes back to the buttons.
+game bravado
+wait 5
+expect total_gear_cost == 7900
+expect base0_0 == 300
+expect base0_1 == 300
+expect base0_2 == 350
+expect base0_3 == 350
+expect base1_0 == 150
+expect base1_1 == 300
+expect base2_0 == 100
+expect base2_1 == 100
+expect base3_0 == 100
+expect base3_1 == 100
+expect base4_0 == 150
+expect base4_1 == 250
+expect base5_0 == 400
+expect base5_1 == 400
+expect base6_0 == 350
+expect base6_1 == 350
+expect base7_0 == 350
+expect base7_1 == 250
+expect base8_0 == 200
+expect base8_1 == 0
+expect base9_0 == 600
+expect base9_1 == 300
+expect base10_0 == 150
+expect base10_1 == 150
+expect base11_0 == 350
+expect base11_1 == 0
+expect base12_0 == 100
+expect base12_1 == 100
+expect base12_2 == 150
+expect base12_3 == 200
+expect base13_0 == 300
+expect base14_0 == 100
+expect base14_1 == 200
+expect base15_0 == 350
+expect base15_1 == 0
+# buying with the buttons
+cheat run 1
+cheat round 2
+cheat sale -1
+cheat cash 1000
+press LEFT
+expect shop_btn == 0
+press A
+expect shop_row == 1
+expect shop_sel == 0
+press A
+expect gear0 == 1
+expect cash == 700
+expect upgrades == 1
+expect price0 == 300
+press DOWN
+press DOWN
+press DOWN
+expect shop_sel == 12
+press A
+expect gear12 == 1
+expect cash == 600
+expect price12 == 100
+# too dear: nothing happens
+cheat cash 50
+press A
+expect gear12 == 1
+expect cash == 50
+# off the bottom of the grid, or B, back to the buttons
+press DOWN
+expect shop_row == 0
+press LEFT
+press LEFT
+press LEFT
+expect shop_btn == 0
+press A
+press B
+expect shop_row == 0
+# a maxed item is sold out
+cheat gear 8 1
+expect price8 == 0

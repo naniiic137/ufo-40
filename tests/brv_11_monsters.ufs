@@ -1,0 +1,89 @@
+# BRAVADO: the six kinds of monster. A mite takes one shot; a gasbag
+# splits in two when shot (and the halves split again) but a bomb kills it
+# whole; a brute takes seven; a powder keg charges along the eight ways and
+# blows up when it dies, taking its neighbours with it; a stilter shoots
+# with no warning; a peeper sprouts right under Dice with a tone
+# and fires the occasional slow shot after a long wind-up.
+game bravado
+wait 5
+cheat run 1
+cheat empty
+cheat nopools
+cheat still 0 160 60
+press A
+wait 10
+expect foes == 0
+expect kills == 1
+# a gasbag: two halves, then four quarters, then nothing
+cheat still 1 160 50
+press A
+wait 12
+expect foes_1 == 2
+expect foe0_size == 1
+cheat run 1
+cheat empty
+cheat nopools
+cheat still 2 160 50
+press A
+wait 20
+expect foe0_hp == 12
+# a powder keg next to a mite: shoot the keg, both go
+cheat run 1
+cheat empty
+cheat nopools
+cheat still 3 160 40
+cheat still 0 175 40
+press A
+wait 20
+press A
+wait 20
+press A
+wait 20
+expect foes == 0
+expect blasts >= 0
+expect kills == 2
+# a keg on Dice's row winds up, then charges along it
+cheat run 1
+cheat empty
+cheat nopools
+cheat god
+cheat foe 3 260 90
+waituntil foe0_state == 1 200
+expect foe0_dir == 4
+waituntil foe0_state == 2 30
+wait 10
+expect foe0_x < 240
+# a stilter shoots without winding up
+cheat run 1
+cheat empty
+cheat nopools
+cheat god
+cheat foe 4 260 60
+waituntil eshots >= 1 200
+# a peeper: the tone, a mark under Dice, up after 1 s, then slow shots
+cheat run 1
+cheat nopools
+cheat god
+cheat nolineup
+cheat group 5 2
+cheat fight
+cheat god
+waituntil foes_5 == 1 100
+expect tone > 0
+expect foe0_state == 0
+expect foe0_x == 160
+expect foe0_y == 92
+# a bomb dropped on the tone is waiting for it when it comes up
+press B
+hold LEFT 50
+waituntil foe0_state == 2 30
+waituntil kills == 1 120
+# the second one comes up under her new spot; its eye glows for nearly 3 s,
+# then it fires one slow pair
+waituntil foes_5 == 1 200
+expect foe1_x < 130
+waituntil foe1_state == 2 200
+hold RIGHT 60
+wait 90
+expect eshots == 0
+waituntil eshots == 2 40

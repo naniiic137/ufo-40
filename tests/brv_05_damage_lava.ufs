@@ -1,0 +1,73 @@
+# BRAVADO: Dice starts with 6 health and a touch takes 6: one hit and the
+# run is over. With a heart plate (+4) she lives through one touch and is
+# safe for a second after it. Lava bites 1 as she steps in and 1 every
+# half second while she stays (dead in 2.5 s from 6); monsters walk through
+# it unhurt.
+game bravado
+wait 5
+cheat run 1
+cheat empty
+cheat nopools
+wait 31
+cheat still 0 172 90
+hold RIGHT 6
+expect p1_hp == 0
+expect p1_down == 1
+expect hurt_src == 100
+wait 2
+expect state == 6
+# a heart plate
+cheat run 1
+cheat gear 0 1
+cheat fight
+cheat empty
+cheat nopools
+expect p1_maxhp == 10
+expect p1_hp == 10
+wait 31
+cheat still 2 172 90
+hold RIGHT 6
+expect p1_hp == 4
+expect p1_inv > 50
+wait 30
+expect p1_hp == 4
+wait 40
+expect p1_down == 1
+# her whole sprite takes shots, head and all
+cheat run 1
+cheat empty
+cheat nopools
+wait 31
+cheat eshot 0 120 84 2 0
+wait 30
+expect p1_down == 1
+expect hurt_src == 200
+# lava
+cheat run 1
+cheat empty
+cheat nopools
+cheat pool 160 94
+wait 1
+expect p1_lava == 1
+expect p1_hp == 5
+expect hurt_src == 400
+wait 29
+expect p1_hp == 5
+wait 1
+expect p1_hp == 4
+wait 89
+expect p1_hp == 2
+wait 30
+expect p1_hp == 1
+wait 30
+expect p1_down == 1
+# a mite crosses a pool to reach her and is none the worse
+cheat run 1
+cheat empty
+cheat nopools
+cheat god
+cheat pool 110 90
+cheat foe 0 70 90
+wait 120
+expect foes_0 == 1
+expect foe0_x > 125

@@ -1,0 +1,45 @@
+# BRAVADO: monsters come out of the four corner pads a few at a time, the
+# bigger the prize the quicker (100 frames apart at 100, 30 at 900 and
+# over), and never more than twelve on the floor at once: the rest wait
+# their turn. A spawn comes from one of the two pads farthest from Dice.
+game bravado
+wait 5
+expect spawn_interval100 == 100
+expect spawn_interval500 == 65
+expect spawn_interval900 == 30
+expect spawn_interval1000 == 30
+expect spawn_interval1600 == 30
+cheat run 1
+cheat round 3
+cheat nolineup
+cheat group 2 6
+cheat group 2 6
+cheat group 2 6
+cheat prize 900
+cheat fight
+cheat god
+expect queue == 18
+expect foes == 0
+wait 61
+expect foes == 1
+wait 30
+expect foes == 2
+wait 300
+expect foes == 12
+expect queue_left == 6
+wait 600
+expect foes == 12
+expect queue_left == 6
+expect enemies_left == 18
+# Dice in the top-left corner: they come from the far pads
+cheat run 1
+cheat round 3
+cheat nolineup
+cheat group 0 9
+cheat prize 100
+cheat fight
+cheat god
+cheat pos 1 30 30
+wait 61
+expect foes == 1
+expect foe0_x > 150

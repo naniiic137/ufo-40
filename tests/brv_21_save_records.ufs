@@ -1,0 +1,63 @@
+# BRAVADO: there is no saving a run, only records: runs, wins, the most
+# upgrades and kills in a run, the best fight and the furthest fight, the
+# most cash at a win. A busted run goes to the title. Goals come back from
+# the records if the goals were lost but the records weren't.
+game bravado
+wait 5
+press A
+wait 30
+press A
+wait 110
+cheat die
+wait 2
+expect state == 6
+wait 30
+press A
+expect state == 6
+wait 40
+press A
+expect state == 0
+expect save_runs == 1
+expect save_best_round == 1
+reload
+game bravado
+wait 5
+expect save_runs == 1
+expect save_best_round == 1
+# a run with upgrades and kills, then a win
+cheat run 1
+cheat round 2
+cheat cash 1000
+press LEFT
+press A
+press A
+press RIGHT
+press A
+cheat fight
+cheat still 0 160 60
+press A
+wait 20
+cheat cash 2000
+cheat win
+wait 2
+expect state == 4
+wait 41
+press A
+expect state == 7
+wait 121
+press A
+expect state == 8
+hold A 600
+expect state == 0
+expect save_wins == 1
+expect save_most_upgrades == 2
+expect save_most_kills >= 1
+expect save_best_cash == 5200
+expect save_best_round == 8
+expect goals == 7
+# the goals, lost and rebuilt
+set_goals bravado 0
+reload
+game bravado
+wait 5
+expect goals == 7

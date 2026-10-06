@@ -1,0 +1,57 @@
+# BRAVADO: a fight is won when the whole lineup is beaten; the prize goes
+# into the purse and A goes on to the shop (the back room). Fight 1 pays a
+# fixed 100. The next fight starts as one random pack for 100. On the
+# first visit nothing is hiked, and only gear a sale would bring down to
+# 100 or less can be on sale.
+game bravado
+wait 5
+press A
+wait 30
+press A
+expect state == 2
+cheat clear
+wait 110
+expect state == 4
+expect cash == 100
+expect enemies_left == 0
+# A only works once the payout has sunk in
+press A
+expect state == 4
+wait 40
+press A
+expect state == 5
+expect round == 2
+expect prize == 100
+expect groups == 1
+expect bad_groups == 0
+expect hike == -1
+expect sale_price <= 100
+expect sale_price >= 50
+expect shop_row == 0
+expect shop_btn == 1
+# the first visit, again and again: never a hike, always a cheap sale
+cheat round 2
+expect hike == -1
+expect sale_price <= 100
+cheat round 2
+expect hike == -1
+expect sale_price <= 100
+cheat round 2
+expect hike == -1
+expect sale_price <= 100
+cheat round 2
+expect hike == -1
+expect sale_price <= 100
+cheat round 2
+expect hike == -1
+expect sale_price <= 100
+cheat round 2
+expect hike == -1
+expect sale_price <= 100
+# later visits: one item hiked by 100, another on sale for 100 less
+cheat round 3
+expect hike >= 0
+expect sale >= 0
+cheat round 5
+expect hike >= 0
+expect sale >= 0

@@ -1,0 +1,7 @@
+# BRAVADO: every gear line and shop message fits the screen; the library
+# panel, the card and the pause menu are checked by the shell's tests.
+# The cartridge's ten tunes are in the jukebox under their titles.
+game bravado
+wait 5
+expect shop_layout == 0
+expect jukebox_missing == 0

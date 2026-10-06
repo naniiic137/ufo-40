@@ -1,0 +1,79 @@
+# BRAVADO: the gun's gear. QUICK TRIGGER fires every 10, then every 7
+# frames; FAN FIRE shoots 2, then 3 at once; HEAVY ROUNDS hit for 3, then 4
+# (a plain shot is 2); RICOCHET bounces off 1, then 2 walls; KICKBACK
+# shoves harder. A monster is safe for a moment after each hit, so a fan
+# doesn't hit one monster three times at once.
+game bravado
+wait 5
+cheat run 1
+cheat gear 4 1
+cheat fight
+cheat empty
+cheat nopools
+hold A 57
+expect p1_fired == 6
+cheat run 1
+cheat gear 4 2
+cheat fight
+cheat empty
+cheat nopools
+hold A 57
+expect p1_fired == 9
+# fan fire
+cheat run 1
+cheat empty
+cheat nopools
+press A
+expect pshots == 1
+cheat gear 6 1
+wait 20
+press A
+expect pshots == 2
+cheat gear 6 2
+wait 20
+press A
+expect pshots == 3
+# heavy rounds
+cheat run 1
+cheat empty
+press A
+expect shot0_dmg == 2
+cheat gear 5 1
+wait 20
+press A
+expect shot0_dmg == 3
+cheat gear 5 2
+wait 20
+press A
+expect shot0_dmg == 4
+# ricochet
+cheat gear 7 2
+wait 20
+press A
+expect shot0_bounces == 2
+# three shots from a fan, one brute: one hit
+cheat run 1
+cheat empty
+cheat nopools
+cheat gear 6 2
+cheat still 2 160 60
+press A
+wait 15
+expect foe0_hp == 12
+# kickback: a plain shot shoves a brute a little, a kicked one more
+cheat run 1
+cheat empty
+cheat nopools
+cheat still 2 160 60
+press A
+wait 15
+expect foe0_y == 59
+cheat run 1
+cheat gear 8 1
+cheat fight
+cheat empty
+cheat nopools
+cheat still 2 160 60
+press A
+wait 15
+expect foe0_y == 56

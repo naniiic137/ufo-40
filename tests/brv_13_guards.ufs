@@ -1,0 +1,58 @@
+# BRAVADO: SHOT GUARD shrugs off one shot a fight (two at the second
+# tier), BLAST GUARD one blast (two). Neither does anything for a touch.
+# They come back full at the start of every fight.
+game bravado
+wait 5
+cheat run 1
+cheat gear 3 1
+cheat fight
+cheat empty
+cheat nopools
+wait 31
+expect p1_shot_sh == 1
+cheat eshot 0 160 60 0 2
+wait 20
+expect p1_hp == 6
+expect p1_shot_sh == 0
+wait 30
+cheat eshot 0 160 60 0 2
+wait 20
+expect p1_down == 1
+expect hurt_src == 200
+# a blast guard
+cheat run 1
+cheat gear 2 2
+cheat fight
+cheat empty
+cheat nopools
+wait 31
+expect p1_blast_sh == 2
+cheat bomb 160 90 3
+wait 10
+expect p1_hp == 6
+expect p1_blast_sh == 1
+# no help against a touch
+cheat gear 3 2
+wait 30
+cheat still 0 172 90
+hold RIGHT 6
+expect p1_down == 1
+# the next fight, full again
+cheat run 1
+cheat gear 2 2
+cheat gear 3 2
+cheat fight
+cheat empty
+cheat bomb 160 90 3
+wait 10
+cheat clear
+wait 2
+expect state == 4
+wait 41
+press A
+expect state == 5
+press RIGHT
+press A
+wait 2
+expect p1_blast_sh == 2
+expect p1_shot_sh == 2

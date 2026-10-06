@@ -112,6 +112,9 @@ static const struct { const char *id, *title; } TITLES[] = {
     {"fpl_queen", "QUEEN SORDINA"}, {"fpl_balloons", "BALLOON ROUND"}, {"fpl_ending", "RING OUT"},
     {"fpl_tally", "THE FINAL COUNT"}, {"fpl_radio", "INCOMING"}, {"fpl_grade", "WAVE GRADED"},
     {"fpl_perfect", "EVERY ONE"}, {"fpl_over", "TINKLER DOWN"},
+    {"brv_title", "ALL IN"}, {"brv_story", "DOWN ON MY LUCK"}, {"brv_shop", "HOUSE MONEY"},
+    {"brv_fight1", "THE GLASS PIT"}, {"brv_fight2", "DOUBLE OR NOTHING"}, {"brv_last", "FULL HOUSE"},
+    {"brv_boss", "THE PIT BOSS"}, {"brv_ending", "CASHING OUT"}, {"brv_win", "PAYOUT"}, {"brv_over", "BUSTED"},
 };
 
 const char *shell_song_title(int song) {
