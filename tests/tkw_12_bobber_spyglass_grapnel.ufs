@@ -1,0 +1,101 @@
+# TUSKWIND: the aimed items. The bobber (every journey starts with one) is
+# aimed and charged like a jump and flies just as Burl would; his next
+# meter shows a red line at the charge it was thrown with. The spyglass
+# lets him look far off in every direction for as long as he likes and is
+# used up when he puts it away. The grapnel shoots a line straight along
+# the aim and hauls him onto the first islet it catches.
+game tuskwind
+wait 20
+cheat journey
+wait 2
+cheat blank
+cheat plat 200 200 70 0
+cheat face 1
+cheat aim 45
+wait 2
+expect inv0 == 1
+hold B
+wait 2
+press RIGHT
+release B
+wait 1
+expect ps == 2
+expect inv0 == 1
+hold A 31
+wait 1
+expect ps == 3
+expect inv0 == 0
+expect red_line == 30
+expect mode == 0
+waituntil ps == 0 300
+expect ball_plat == 1
+expect ball_x == 216
+# the same jump lands where the bobber did
+hold A 31
+wait 1
+expect red_line == -1
+waituntil mode == 0 200
+expect plat == 1
+expect x == 216
+# B puts an unthrown bobber back
+cheat item 0 1
+hold B
+wait 2
+press RIGHT
+release B
+wait 2
+expect ps == 2
+press B
+expect ps == 0
+expect inv0 == 1
+# the spyglass
+cheat blank
+cheat item 0 0
+cheat item 1 1
+wait 2
+expect cam_x < 40
+hold B
+wait 2
+press RIGHT
+release B
+wait 2
+expect ps == 4
+hold RIGHT 200
+expect cam_x > 600
+hold UP 60
+expect cam_y == 0
+press A
+wait 2
+expect ps == 0
+expect inv1 == 0
+# the grapnel
+cheat blank
+cheat plat 220 150 40 0
+cheat item 1 0
+cheat item 2 1
+cheat face 1
+cheat aim 24
+wait 2
+hold B
+wait 2
+press RIGHT
+release B
+wait 1
+expect ps == 5
+expect inv2 == 0
+waituntil ps == 6 40
+waituntil ps == 0 60
+expect plat == 1
+expect y == 150
+expect mode == 0
+# pointed at nothing, the line comes back empty
+cheat item 2 1
+cheat aim 90
+wait 2
+hold B
+wait 2
+press RIGHT
+release B
+waituntil ps == 0 60
+expect plat == 1
+expect inv2 == 0

@@ -1,0 +1,84 @@
+# TUSKWIND: the three kinds of islet. A plain islet is one-way: Burl
+# passes up (or sideways) through it and lands on its top. A rock is solid
+# all round: hit from below or the side it bumps him away, his speed kept,
+# and he can stand on it. Pink foam holds only a short while once stood
+# on, just long enough to charge a full jump, then crumbles; it forms
+# again later. Landing stops him dead.
+game tuskwind
+wait 20
+cheat journey
+wait 2
+cheat blank
+# one-way: up through it, down onto it
+cheat plat 120 150 40 0
+cheat aim 90
+wait 2
+hold A 62
+wait 1
+waituntil mode == 0 200
+expect plat == 1
+expect y == 150
+expect vx10 == 0
+# a rock overhead: a bump, and back down onto the islet below
+cheat blank
+cheat plat 120 150 40 1
+cheat aim 90
+wait 2
+hold A 62
+wait 1
+waituntil vy10 > 0 60
+expect y >= 176
+waituntil mode == 0 200
+expect plat == 0
+expect y == 200
+# a rock's side bounces him back, his speed kept
+cheat blank
+cheat plat 200 140 20 1
+cheat pos 195 152
+cheat vel 2 0
+wait 1
+expect vx10 < 0
+expect vx10 <= -15
+# its top is solid ground
+cheat pos 210 120
+wait 1
+waituntil mode == 0 60
+expect plat == 1
+expect y == 140
+# foam: a full charge fits before it goes
+cheat blank
+cheat plat 220 200 40 2
+cheat land 1
+expect plat_kind == 2
+cheat aim 90
+wait 1
+hold A 61
+expect charge == 60
+expect plat_gone == 0
+wait 1
+expect mode == 1
+expect solid_plats == 2
+# ... but standing on it, it crumbles from under him
+cheat blank
+cheat plat 220 200 40 2
+cheat land 1
+wait 70
+expect mode == 0
+expect plat_gone == 0
+wait 4
+expect mode == 1
+expect plat == -1
+cheat god
+waituntil ps == 0 400
+cheat god
+# it forms again a few seconds later
+cheat blank
+cheat plat 220 200 40 2
+cheat land 1
+wait 75
+expect mode == 1
+cheat place 0 140
+wait 290
+expect solid_plats == 1
+wait 20
+expect solid_plats == 2

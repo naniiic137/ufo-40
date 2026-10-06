@@ -1,0 +1,70 @@
+# TUSKWIND: the Duchess Auk's stalls. Every journey has three, each
+# selling two of the six items (bobber 1, spyglass 2, grapnel 3, kite 5,
+# spinner 6, sprat tin 8 shells). Walk up to her and the stall opens;
+# each press of A buys one (holding A does not buy again and again); B or
+# LEAVE closes it, and she is gone for good: one visit per stall. Spent
+# shells are gone from the score too.
+game tuskwind
+wait 20
+cheat seed 5
+cheat journey
+wait 2
+expect count_7 == 3
+cheat blank
+cheat spawn 7 165 200
+cheat wares 5 1
+cheat shells 20
+cheat face 1
+wait 2
+hold RIGHT 40
+expect ps == 7
+expect shop_sel == 0
+# a tin: 8 shells
+wait 30
+press A
+expect shells == 12
+expect inv5 == 1
+expect spent == 8
+# held down, A buys just the once
+wait 20
+hold A 90
+expect shells == 4
+expect inv5 == 2
+# too dear now
+wait 20
+press A
+expect shells == 4
+expect inv5 == 2
+# the spyglass: 2
+press RIGHT
+expect shop_sel == 1
+press A
+expect shells == 2
+expect inv1 == 1
+press RIGHT
+expect shop_sel == 2
+press LEFT
+press LEFT
+press LEFT
+expect shop_sel == 2
+# LEAVE: she's gone
+press A
+expect ps == 0
+expect count_7 == 0
+hold LEFT 20
+hold RIGHT 40
+expect ps == 0
+# B closes the next one
+cheat spawn 7 120 200
+cheat wares 0 2
+cheat shells 10
+hold LEFT 60
+expect ps == 7
+wait 30
+press DOWN
+press A
+expect inv2 == 1
+expect shells == 7
+press B
+expect ps == 0
+expect count_7 == 0

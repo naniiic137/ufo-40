@@ -1,0 +1,68 @@
+# TUSKWIND: the map is new every journey, but every one keeps the same
+# rules: a chain of islets from the first one to the door at the far
+# end, every hop of it within a plain jump (calm air, no flapping);
+# rocks and foam among the plain islets; six lighthouses, three stalls,
+# two chests, two keys, 36 loose shells, 22 signs, five wind bells, ten
+# rams, forty sprats, eight mantas and the hidden sign.
+game tuskwind
+wait 20
+cheat seed 1
+cheat journey
+wait 2
+expect map_w == 8000
+expect route_bad == 0
+expect route >= 50
+expect rocks > 0
+expect foams > 0
+expect count_6 == 6
+expect count_7 == 3
+expect count_5 == 2
+expect count_2 == 2
+expect shell_pieces == 36
+expect count_8 == 22
+expect count_9 == 5
+expect count_10 == 10
+expect count_3 == 40
+expect count_13 == 1
+expect mantas == 8
+cheat seed 2
+cheat journey
+wait 2
+expect route_bad == 0
+expect count_6 == 6
+expect count_7 == 3
+expect count_5 == 2
+expect count_2 == 2
+expect shell_pieces == 36
+expect count_8 == 22
+expect count_9 == 5
+expect count_10 == 10
+expect mantas == 8
+expect map_hash != 1110241608
+cheat seed 3
+cheat journey
+wait 2
+expect route_bad == 0
+expect count_6 == 6
+expect count_7 == 3
+expect shell_pieces == 36
+expect count_8 == 22
+expect count_10 == 10
+cheat seed 4
+cheat journey
+wait 2
+expect route_bad == 0
+expect count_6 == 6
+expect count_7 == 3
+expect shell_pieces == 36
+expect count_8 == 22
+expect count_10 == 10
+# without a seed, each journey from the title is a new map
+game tuskwind
+wait 15
+press START
+press START
+wait 2
+expect map_hash != 1110241608
+expect route_bad == 0
+expect count_6 == 6

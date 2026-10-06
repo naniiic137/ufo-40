@@ -1,0 +1,64 @@
+# TUSKWIND: shells are money and score. A cockle is worth 1, a whelk 4;
+# loose shells, keys and sprats drift in to Burl once he is close and are
+# his on touch; farther off they stay put. A sea chest needs a key (it
+# takes one) and holds 10 shells; without a key it stays shut.
+game tuskwind
+wait 20
+cheat journey
+wait 2
+cheat blank
+cheat spawn 0 165 190
+wait 20
+expect shells == 1
+expect count_0 == 0
+cheat spawn 1 140 168
+wait 20
+expect shells == 5
+cheat spawn 2 118 194
+wait 20
+expect keys == 1
+cheat stamina 0
+cheat spawn 3 160 180
+wait 20
+expect stamina == 120
+# far away: it stays where it is
+cheat spawn 0 400 120
+wait 30
+expect shells == 5
+expect count_0 == 1
+# a chest without a key, then with one
+cheat keys 0
+cheat spawn 5 172 200
+wait 1
+hold RIGHT 80
+expect thing_state_5 == 0
+expect chests == 0
+expect msg == 1
+expect shells == 5
+cheat keys 1
+hold LEFT 30
+hold RIGHT 60
+expect thing_state_5 == 1
+expect chests == 1
+expect keys == 0
+expect shells == 15
+# an open chest gives nothing more
+hold LEFT 30
+hold RIGHT 60
+expect shells == 15
+# every journey has exactly 36 loose shells (cockles and three or four
+# whelks), two chests and two keys
+cheat seed 3
+cheat journey
+wait 2
+expect shell_pieces == 36
+expect shell_value >= 45
+expect shell_value <= 48
+expect count_5 == 2
+expect count_2 == 2
+cheat seed 4
+cheat journey
+wait 2
+expect shell_pieces == 36
+expect count_5 == 2
+expect count_2 == 2

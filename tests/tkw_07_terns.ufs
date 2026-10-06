@@ -1,0 +1,52 @@
+# TUSKWIND: the terns are Burl's lives. Each of the six lighthouses keeps
+# one; standing on its islet beside it lets the tern go, and it follows
+# him (the bar shows it). A fall into the sea with a tern in hand: it
+# carries him back to the islet he last jumped from. With none, Burl
+# wakes up and the journey is over: back to the title, records kept.
+game tuskwind
+wait 20
+cheat seed 5
+cheat journey
+wait 2
+expect count_6 == 6
+cheat blank
+cheat spawn 6 170 200
+wait 2
+expect terns == 0
+hold RIGHT 40
+expect terns == 1
+expect terns_found == 1
+expect thing_state_6 == 1
+# only once
+hold LEFT 30
+hold RIGHT 40
+expect terns == 1
+# off the end into the sea
+cheat aim 30
+wait 2
+hold A 40
+wait 1
+expect mode == 1
+expect takeoff == 0
+waituntil ps == 8 300
+expect terns == 1
+waituntil ps == 0 120
+expect terns == 0
+expect terns_used == 1
+expect rescues == 1
+expect plat == 0
+expect mode == 0
+expect x == 170
+# no tern this time
+wait 2
+hold A 40
+wait 1
+waituntil ps == 9 300
+expect terns == 0
+waituntil state == 7 200
+expect save_terns == 1
+expect paused == 0
+wait 60
+press A
+wait 2
+expect state == 0

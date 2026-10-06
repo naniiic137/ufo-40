@@ -1,0 +1,72 @@
+# TUSKWIND: the wind. It always rises on its own at about 40 % of the way
+# (and dies down by itself later) and again at about 80 % (and that one
+# stays). It pushes Burl along in the air, with him or against him. A
+# wind bell, touched, turns the wind off if it blows and on if it is
+# calm; each bell rings once only.
+game tuskwind
+wait 20
+cheat seed 5
+cheat journey
+wait 2
+cheat routepct 30
+cheat clear
+wait 2
+expect wind == 0
+cheat routepct 45
+cheat clear
+wait 2
+expect max_pct >= 40
+expect wind != 0
+expect wind_t > 2300
+wait 2400
+expect wind == 0
+cheat routepct 86
+cheat clear
+wait 2
+expect max_pct >= 80
+expect wind != 0
+expect wind_t == 0
+wait 3000
+expect wind != 0
+# a bell turns it off; the same bell does nothing the second time
+cheat blank
+cheat wind 1
+cheat spawn 9 165 200
+wait 2
+hold RIGHT 60
+expect wind == 0
+expect thing_state_9 == 1
+hold LEFT 60
+hold RIGHT 60
+expect wind == 0
+# a bell in a calm starts a wind
+cheat spawn 9 120 200
+hold LEFT 120
+expect wind != 0
+# the wind carries a jump: calm, with it, against it
+cheat blank
+cheat plat 180 230 400 0
+cheat wind 0
+cheat face 1
+cheat aim 45
+wait 2
+hold A 31
+wait 1
+waituntil mode == 0 200
+expect x == 238
+cheat place 0 140
+cheat wind 1
+wait 2
+hold A 31
+wait 1
+waituntil mode == 0 200
+print x
+expect x > 245
+cheat place 0 140
+cheat wind -1
+wait 2
+hold A 31
+wait 1
+waituntil mode == 0 200
+print x
+expect x < 232

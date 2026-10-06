@@ -1,0 +1,36 @@
+# TUSKWIND: a jump aimed dead flat, parallel to the ground, has no air
+# at all: Burl lunges forward along the islet and slows to a stop. A soft
+# one stays on the islet; a hard one slides him off its end.
+game tuskwind
+wait 20
+cheat journey
+wait 2
+cheat blank
+cheat aim 0
+wait 2
+hold A 11
+expect charge == 10
+wait 1
+expect mode == 2
+expect y == 200
+expect vx10 > 0
+wait 5
+expect mode == 2
+expect y == 200
+waituntil mode == 0 100
+expect y == 200
+expect plat == 0
+expect x >= 158
+expect x <= 166
+# no flapping out of a lunge on the ground
+expect stamina == 480
+# a hard lunge goes over the end
+cheat place 0 120
+wait 2
+hold A 62
+wait 1
+expect mode == 2
+waituntil mode == 1 100
+expect x >= 180
+waituntil y > 260 200
+expect plat == -1

@@ -1,0 +1,101 @@
+# TUSKWIND: mantas glide back and forth high up. Touch one and it knocks
+# Burl away; drop onto its back and he rides it (and can jump off it). A
+# manta burst by the spinner, the grapnel or a hard-thrown bobber leaves a
+# chest key. Riding the first one to the far top-left corner, behind the
+# bar, shows a sign nobody else sees.
+game tuskwind
+wait 20
+cheat seed 5
+cheat journey
+wait 2
+expect mantas == 8
+# the hidden sign
+cheat ride 0
+expect mode == 3
+waituntil secret == 1 1000
+expect sign_near == 22
+expect save_secret == 1
+expect mode == 3
+# a knock from the side
+cheat blank
+cheat manta 0 200 150
+cheat pos 186 150
+cheat vel 1 0
+wait 2
+expect hurt > 0
+expect vx10 < 0
+# onto its back: a ride, and a jump off it
+cheat manta 0 200 150
+cheat pos 200 138
+cheat vel 0 1
+waituntil mode == 3 30
+expect ride == 0
+cheat aim 60
+wait 25
+expect mode == 3
+hold A 20
+wait 1
+expect mode == 1
+expect ride == -1
+# the spinner bursts it: a key falls out
+cheat blank
+cheat manta 0 200 150
+cheat item 0 0
+cheat item 4 1
+wait 2
+expect inv4 == 1
+hold B
+wait 2
+press RIGHT
+release B
+wait 2
+expect spinner == 1
+expect mode == 1
+cheat pos 190 156
+wait 3
+expect mantas == 0
+waituntil keys == 1 60
+# the grapnel bursts one too
+cheat blank
+cheat manta 0 200 120
+cheat item 0 0
+cheat item 4 0
+cheat item 2 1
+cheat face 1
+cheat aim 51
+wait 2
+hold B
+wait 2
+press RIGHT
+release B
+wait 1
+expect ps == 5
+waituntil mantas == 0 40
+expect count_2 == 1
+expect inv2 == 0
+# so does a bobber thrown hard; a soft one bounces off
+cheat blank
+cheat manta 0 182 140
+cheat item 0 2
+cheat aim 60
+wait 2
+hold B
+wait 2
+press RIGHT
+release B
+wait 2
+expect ps == 2
+hold A 20
+wait 1
+expect ps == 3
+waituntil ps == 0 400
+expect mantas == 1
+hold B
+wait 2
+press RIGHT
+release B
+wait 2
+hold A 62
+wait 1
+waituntil mantas == 0 60
+expect count_2 == 1

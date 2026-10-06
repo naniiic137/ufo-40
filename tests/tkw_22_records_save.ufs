@@ -1,0 +1,69 @@
+# TUSKWIND: what the cartridge keeps (UFO 50 tracks the same three
+# stats): signs read, the most terns let go in one journey and the most
+# chests opened in one, plus journeys, wins, cherries, the furthest it got
+# and the most shells. They are saved when a journey ends either way, and
+# they outlast the console being switched off. A journey itself is not.
+game tuskwind
+wait 20
+cheat seed 5
+cheat journey
+wait 2
+expect save_runs == 1
+cheat blank
+cheat spawn 6 150 200
+cheat spawn 6 170 200
+cheat spawn 5 120 200
+cheat keys 1
+wait 2
+hold RIGHT 80
+hold LEFT 120
+expect terns == 2
+expect chests == 1
+cheat terns 0
+cheat aim 30
+cheat face -1
+wait 2
+hold A 40
+wait 1
+waituntil state == 7 600
+expect save_terns == 2
+expect save_chests == 1
+reload
+game tuskwind
+wait 5
+expect state == 0
+expect save_runs == 1
+expect save_terns == 2
+expect save_chests == 1
+expect save.tuskwind == 20
+# fewer the next time does not lower the record
+cheat seed 5
+cheat journey
+wait 2
+cheat blank
+cheat spawn 6 150 200
+wait 2
+hold RIGHT 40
+expect terns == 1
+cheat terns 0
+cheat aim 30
+cheat face -1
+wait 2
+hold A 40
+wait 1
+waituntil state == 7 600
+expect save_terns == 2
+expect save_runs == 2
+# a damaged save file starts the records afresh
+wait 70
+press A
+wait 20
+press B
+wait 60
+expect_scene library
+junk_save tuskwind 20
+reload
+game tuskwind
+wait 5
+expect save_runs == 0
+expect save_terns == 0

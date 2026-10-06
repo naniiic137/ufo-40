@@ -90,6 +90,8 @@ static const struct { const char *id, *title; } TITLES[] = {
     {"dfl_hightide", "HIGH TIDE"}, {"dfl_bonus", "BUBBLE AND BOUNCE"}, {"dfl_ending", "THE LAST MILE"},
     {"dfl_credits", "TAIL LIGHTS"}, {"dfl_clear", "STAGE CLEAR"}, {"dfl_over", "OUT OF CARS"},
     {"dfl_coin", "TWO MORE CARS"},
+    {"tkw_dream", "DRIFTSLEEP"}, {"tkw_hall", "THE DEEP HALL"}, {"tkw_ending", "WAKING TIDE"},
+    {"tkw_brawl", "FLOE BRAWL"}, {"tkw_wake", "EYES OPEN"}, {"tkw_round", "ROUND TO YOU"},
 };
 
 const char *shell_song_title(int song) {

@@ -1,0 +1,31 @@
+# TUSKWIND: proof that the better ending can be reached. The demo player
+# again plays with button presses only, but now goes out of its way for
+# shells, chests and keys, spends nothing at the stalls, keeps its terns
+# for the hall (three shells each) and climbs the shaft, and meets the old
+# one with 50 or more shells, on three different generated maps: the
+# long talk, and the alien.
+game tuskwind
+wait 20
+cheat seed 1
+botuntil state == 2 400
+cheat collect
+botuntil state == 4 36000
+expect cherry_end == 1
+expect goals & 4
+expect goals & 2
+expect goals & 1
+botuntil state == 0 4000
+expect save_cherries == 1
+cheat seed 3
+botuntil state == 2 400
+botuntil state == 4 36000
+expect cherry_end == 1
+botuntil state == 0 4000
+cheat seed 12
+botuntil state == 2 400
+botuntil state == 4 36000
+expect cherry_end == 1
+expect shells >= 50
+botuntil state == 0 4000
+expect save_cherries == 3
+expect save_chests >= 1
