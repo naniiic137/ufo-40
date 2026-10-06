@@ -1,0 +1,44 @@
+# BELLHOP: the goals are the original's. Beacon: hold 15 spare ships.
+# Saucer: beat all fifty stages (Lady Hush at E-10). Alien: beat her with
+# all 40 cups of tea taken in that same run (a run is one sitting).
+seed 1
+game bellhop
+wait 20
+expect goals == 0
+# beaten, with 39 cups: the Saucer only
+cheat stage 49
+wait 2
+cheat all_tea
+cheat tea 17 0
+expect tea == 39
+cheat boss_down
+wait 95
+expect exit_open == 1
+cheat place 164 160
+wait 50
+expect state == 7
+expect goals == 2
+expect wins == 1
+expect best_tea == 39
+# the ending, then the credits, then the title
+wait 100
+press A
+wait 5
+expect state == 8
+botuntil state == 0 4000
+# again with all forty: the Alien
+cheat stage 49
+wait 2
+cheat all_tea
+cheat boss_down
+wait 95
+cheat place 164 160
+wait 50
+expect state == 7
+expect goals == 6
+expect best_tea == 40
+# the Beacon
+cheat stage 0
+wait 2
+cheat ships 15
+expect goals == 7

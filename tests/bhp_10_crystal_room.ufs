@@ -1,0 +1,42 @@
+# BELLHOP: the crystal room (every X-5). Leaving the bubble starts it with
+# one slow crystal ricocheting round the room; each time the room is
+# cleared one more crystal comes and they all fly faster. Each is worth
+# 200. Once a round goes on too long, the crystals vanish and the exit
+# opens. The walls still wreck the ship. The demo pilot plays the rounds
+# with real presses.
+seed 2
+game bellhop
+wait 20
+cheat stage 4
+wait 30
+expect round == 0
+expect crystals == 0
+expect exit_open == 0
+press A
+wait 2
+expect round == 1
+expect crystals == 1
+expect cspeed <= 128
+expect cspeed > 60
+botuntil round == 2 2000
+expect score == 200
+expect crystals == 2
+expect cspeed > 128
+botuntil round == 3 2000
+expect score == 600
+expect crystals == 3
+expect cspeed > 256
+# the pilot now leaves them be: the round runs out
+cheat bot_rounds 2
+botuntil exit_open == 1 600
+expect bonus_done == 1
+expect crystals == 0
+expect score == 600
+botuntil stage == 5 1500
+expect state == 4
+# a wall is still a wall
+cheat goto 4
+wait 2
+cheat place 20 100
+hold LEFT 20
+expect mode == 2

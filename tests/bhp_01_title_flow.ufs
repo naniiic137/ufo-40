@@ -1,0 +1,48 @@
+# BELLHOP: the title offers START and CODE, with the records underneath; B
+# goes back to the library. START shows the story, then World A's card,
+# then A-1, with the Tinkler waiting in its bubble for as long as you like.
+seed 3
+game bellhop
+wait 30
+expect state == 0
+expect title_sel == 0
+expect art_ok == 1
+expect stages_bad == 0
+press DOWN
+expect title_sel == 1
+press UP
+expect title_sel == 0
+wait 10
+press A
+wait 5
+expect state == 2
+wait 40
+press A
+wait 5
+expect state == 3
+wait 40
+press A
+wait 5
+expect state == 4
+expect stage == 0
+expect mode == 0
+expect ships == 3
+expect score == 0
+expect fuel == 600
+# the bubble waits: no time limit
+wait 600
+expect mode == 0
+expect y == 120
+expect x == 28
+# START pauses the stage
+press START
+expect paused == 1
+press START
+wait 5
+expect paused == 0
+# a second cartridge session: B on the title leaves for the library
+game bellhop
+wait 30
+press B
+wait 30
+expect_scene library

@@ -128,6 +128,7 @@ menu, shows the buttons as you now press them). SELECT or B closes it.
 | 14 | **CUTLASS CUP** | Bushido Ball | first to 8 points, a ball that gets faster with every return, aimed, lobbed and curved strikes, secondary weapons and charged super shots, the fouls and penalty points, six fighters, a five-match tournament, 2P versus and co-op doubles | six corsairs, the galley *Merry Mackerel*, old Bosun Crabbe |
 | 15 | **FENNEC FOUNTAIN** | Block Koala | pushing numbered blocks (never into a heavier one, a 1 that can't move is taken in), grey at five, blue and black blocks, mimics, arrows, stone patches and doors, unlimited undo and a room menu, fifty rooms behind gates, a room editor | Fen the fennec, a dry spring garden, 50 new rooms |
 | 16 | **TINTAIL** | Camouflage | sneaking on a grid past watchers by taking the colour of the ground you stand on, hollow logs, sun and rain pads, hatchlings with their own colour, a danger view you can't move in, undo, a branching map | Twig the chameleon, Salt Island, toads and storks, 15 new levels |
+| 17 | **BELLHOP** | Campanella | side-on flight where gravity always pulls, a held thrust that burns fuel and a tap that hovers, steering that drifts, and any touch of a wall, an enemy or a shot a crash; a slash to the side you last steered that breaks blocks, glass and bubbles, puts fuel back and slows the fall a little; a start bubble with no time limit; three spare ships and one every 1,000 points; 50 one-screen stages in five worlds with a crystal room at X-5 and a boss at X-10; a cup behind an unmarked spot on all 40 regular stages; circlers, timed coins, levers that can lock a cup away, bombs, plates, fire wheels and cannons; four warp sparkles that show for five seconds (one chained on from another); a hidden face after a minute; one sitting, no save | Ansel and the Tinkler (the chime ship of CHIME CIRCUIT), Lady Hush, tea, the five worlds and all 50 stages, the Millwheel, the Cider Press, the Twin Cogs and the Gumball Machine, the owl, the BREW-ROOM code |
 | 18 | **LOST LINKS** | Golfaria | a top-down open world where every roll is a stroke and strokes are your health, twenty to start and three more for each of twenty irons found underground, pins and safe zones, sand you can only chip out of, water and pits that send you back, jumping flowers, holes down to a whole layer underneath, parbot-style scorecrows, two kinds of bug, four abilities in the four corners, the four-piece star relic, a plate puzzle and a burrowing boss | Dimple the golf ball, the Brass Badger, slicers, sippers, larks, strays, twenty ball folk and a hidden village of Keepers, both layers of the world |
 | 19 | **CHIME CIRCUIT** | The Big Bell Race | side-view flight with gravity, thrust and drift, six ships on one screen, eight laps on each of eight courses in a fixed order, three hit points that walls, floors and weapons take, a slash that only knocks, a relaunch from under the start line to fly the lap again, a hit point back every lap, pickup stations with a "!!" warning (bullets, mines, fireballs, the big slash, the payload), boost arrows and side routes, 9/7/5/3/2/1 points, the winner starting last, CPUs that turn on you, 2P at once | the chime ship, Ansel and Clary and four visitors from other UFO 40 cartridges, the eight tracks and their skies, the LOOT-GALE code |
 | 25 | **OPEN HOUSE** | Party House | drawing guests from a deck into a house with limited space, the original's 46 guest abilities, costs and trouble, police, fire marshal and bans, set guest lists and a random list, win by ending a party with four stars within 25 nights, 2P hot-seat; the fame and cash caps; the owner's endless OPEN ALL NIGHT, a custom list and two guests of his own | a whitewashed house by the sea, all 48 guests' names and faces |
@@ -615,6 +616,47 @@ the top.
   colour. Only the best single escape counts toward completion.
 - **Ours:** Twig, the toads, storks and falcon, Salt Island and the old lighthouse,
   all fifteen levels (a solver in the tests proves each one), and the music.
+
+### 17 · BELLHOP
+
+<p align="center">
+  <img src="docs/shots/bellhop.gif" width="640" alt="Bellhop: the Tinkler finds A-1's hidden spot, takes the cup of tea and leaves through the exit ring">
+</p>
+<p align="center">
+  <img src="docs/shots/bellhop_clockworks.png" width="320" alt="C-1 MAINSPRING: fire wheels and a glass wall in the Clockworks">
+  <img src="docs/shots/bellhop_millwheel.png" width="320" alt="A-10: the Millwheel's buckets">
+</p>
+<p align="center">
+  <img src="docs/shots/bellhop_hush.png" width="320" alt="E-10: Lady Hush and her spike balls">
+  <img src="docs/shots/bellhop_tea.png" width="320" alt="The TEA BREAK card after a world">
+</p>
+
+*A tribute to **Campanella** (UFO 50 #17).*
+
+- **Plays the same:** the Tinkler flies side-on on CHIME CIRCUIT's flight
+  model: it falls unless you hold A, a held thrust climbs and a tapped one
+  hovers, and steering builds slowly and drifts on. Thrust burns fuel from
+  the red bar top left; a dry tank means a fall. Any touch of a wall, a
+  floor, an enemy or a shot is a crash. B slashes to the side you last
+  steered: it takes enemies down, breaks blocks, glass and bubbles (most of
+  which put fuel back) and slows your fall a little while it lasts.
+- **Score is life:** three spare ships, and one more every 1,000 points,
+  always. Circlers pay 500 once you have flown close past all four sides,
+  a big coin scatters five timed coins worth 1,000 in all, and every regular
+  stage hides a cup of tea behind an unmarked one-tile spot.
+- **Structure:** fifty one-screen stages in five worlds, each with a
+  crystal room at X-5 and a boss at X-10: a millwheel of buckets, an apple
+  to knock into a cider press, twin cogs whose lamps light one cog at a
+  time, a gumball machine, and Lady Hush, whose blue spike balls are the
+  only thing that hurts her. Four warp sparkles show for five seconds,
+  levers can lock a cup away for good, a crash doesn't undo the damage
+  done to a boss, and a run is one sitting. The demo pilot in
+  the tests plays the whole game with real presses and takes all forty
+  cups.
+- **Ours:** Ansel and the Tinkler (the chime ship of CHIME CIRCUIT), Lady
+  Hush and her stolen bells, tea instead of coffee, Millbrook, the
+  Orchard, the Clockworks, the Sugarworks and Hush Citadel, all fifty
+  stages, the bosses, the owl, the BREW-ROOM code and the music.
 
 ### 18 · LOST LINKS
 

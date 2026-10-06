@@ -1,0 +1,39 @@
+# BELLHOP: A-10, THE MILLWHEEL. Six buckets on a turning wheel; one at a
+# time spits a fan of pellets; each bucket takes two slashes (the first
+# cracks it red); the wheel turns faster for every bucket gone. With all
+# six gone the exit opens. A crash doesn't mend a bucket. The demo pilot
+# beats it with real presses.
+seed 4
+game bellhop
+wait 20
+cheat stage 9
+wait 2
+expect boss == 1
+expect kind18 == 6
+expect boss_spin == 90
+expect ent_hp0 == 2
+expect exit_open == 0
+# a bucket hangs off the wheel: touching it is a crash
+press A 2
+wait 60
+expect shots >= 1
+botuntil kind18 == 5 6000
+wait 1
+expect boss_spin == 135
+expect score >= 400
+cheat crash
+wait 80
+expect mode == 0
+expect kind18 == 5
+botuntil boss_down == 1 12000
+expect kind18 == 0
+expect exit_open == 0
+wait 95
+expect exit_open == 1
+botuntil state == 5 3000
+# the world's tea card
+expect state == 5
+wait 70
+press A
+wait 5
+expect state == 3

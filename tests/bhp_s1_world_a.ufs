@@ -1,0 +1,20 @@
+# BELLHOP: the demo pilot flies all of world A (MILLBROOK), A-1 to A-10, with
+# real presses from a fresh run: every stage cleared, the crystal room
+# played, the boss beaten and all eight cups of tea taken.
+seed 11
+game bellhop
+wait 20
+cheat stage 0
+wait 2
+botuntil stage == 1 15000
+botuntil stage == 2 15000
+botuntil stage == 3 15000
+botuntil stage == 4 15000
+botuntil stage == 5 15000
+botuntil stage == 6 15000
+botuntil stage == 7 15000
+botuntil stage == 8 15000
+botuntil stage == 9 15000
+botuntil state == 5 20000
+expect tea == 8
+botuntil stage == 10 3000

@@ -1,0 +1,22 @@
+# BELLHOP: proof the game can be completed. From the title, the demo pilot
+# plays the whole game with real presses: the story, all fifty stages in
+# order (no warps), the five crystal rooms and the five bosses, taking all
+# forty cups of tea, to the ending. That earns all three goals: fifteen
+# spare ships, the fifty stages, and the win with every cup.
+seed 7
+game bellhop
+wait 20
+botuntil state == 2 600
+botuntil stage == 10 60000
+expect tea == 8
+botuntil stage == 20 60000
+expect tea == 16
+botuntil stage == 30 60000
+expect tea == 24
+botuntil stage == 40 60000
+expect tea == 32
+botuntil state == 7 60000
+expect tea == 40
+expect goals == 7
+expect wins == 1
+expect best_tea == 40

@@ -1,0 +1,68 @@
+# BELLHOP: what each enemy and moving part does, set loose in an empty
+# crystal room. Moths fly to and fro, mites bob up and down, wasps come for
+# the ship once it is near, crawlers creep along the floor, turrets shoot
+# at the ship, ghosts drift through walls, drones drop shots, plates slide
+# until they meet a wall, fire wheels turn, and cannons fire every few
+# seconds.
+seed 1
+game bellhop
+wait 20
+cheat stage 4
+wait 2
+# a moth (0) and a mite (1)
+cheat ent 1 160 30
+cheat ent 2 300 100
+wait 30
+expect ent_x0 != 160
+expect ent_y1 != 100
+# a wasp (2) comes for a ship close by
+cheat ent 3 100 100
+cheat place 160 100
+wait 20
+expect ent_x2 > 102
+# a crawler (3) on the floor keeps to it
+cheat ent 4 60 165
+wait 40
+expect ent_y3 == 169
+expect ent_x3 != 60
+# a turret (4) shoots at the ship
+cheat no_enemies
+cheat clear_shots
+cheat ent 5 160 100
+cheat place 100 60
+wait 40
+cheat place 100 60
+wait 40
+cheat place 100 60
+wait 40
+cheat place 100 60
+waituntil shots >= 1 40
+# ramming a turret wrecks the ship but not the turret
+cheat place 160 100
+wait 2
+expect mode == 2
+expect kind5 == 1
+# a ghost (5) inside a pillar: walls are nothing to it
+cheat stage 4
+wait 2
+cheat ent 6 84 60
+wait 30
+expect ent_on0 == 1
+expect ent_x0 != 84
+# a drone (1) drops shots straight down
+cheat ent 7 200 40
+waituntil shots >= 1 130
+# a plate (2) slides and turns at the wall
+cheat ent 11 300 140
+wait 60
+expect ent_x2 < 300
+# a fire wheel (3) wrecks a ship in its sweep
+cheat ent 10 160 100
+cheat place 160 72
+wait 1
+cheat place 160 72
+waituntil mode == 2 300
+# a cannon fires a ball every two and a half seconds
+cheat stage 40
+wait 2
+waituntil shots >= 1 160

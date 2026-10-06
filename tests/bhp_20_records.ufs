@@ -1,0 +1,43 @@
+# BELLHOP: a run is played in one sitting and is never saved; losing the
+# last ship ends it (GROUNDED) and A goes back to the title. What the
+# cartridge keeps are its records, shown on the title: the high score, the
+# most spare ships held, the best tea count, the fuel burned and the
+# crashes over every run, and the wins.
+seed 1
+game bellhop
+wait 20
+expect hiscore == 0
+expect crashes == 0
+expect fuel_used == 0
+cheat stage 4
+wait 2
+cheat place 160 140
+hold A 30
+expect fuel_used == 30
+cheat points 2500
+expect hiscore == 2500
+cheat ships 0
+cheat place 160 26
+hold A 20
+wait 80
+expect state == 6
+expect crashes == 1
+wait 100
+press A
+wait 5
+expect state == 0
+# switched off and on: the records stay, the run is gone
+reload
+game bellhop
+wait 20
+expect state == 0
+expect hiscore == 2500
+expect crashes == 1
+expect fuel_used == 36
+expect most_ships == 5
+expect runs == 1
+# a lower score leaves the high score alone
+cheat stage 4
+wait 2
+cheat points 1200
+expect hiscore == 2500

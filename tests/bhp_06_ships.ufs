@@ -1,0 +1,40 @@
+# BELLHOP: score is life. Three spare ships to start, and one more for
+# every 1,000 points, always (the green bar under the score fills toward
+# the next). Fifteen spare ships at once is the Beacon goal. The counter
+# stops at 99. Losing the last ship ends the run.
+seed 1
+game bellhop
+wait 20
+cheat stage 4
+wait 2
+expect ships == 3
+expect goals == 0
+cheat score 950
+cheat place 160 100
+cheat face 1
+cheat ent 1 176 100
+press B
+wait 3
+expect score == 1050
+expect ships == 4
+# several at once
+cheat points 2950
+expect score == 4000
+expect ships == 7
+# fifteen spares: the Beacon
+cheat ships 14
+expect goals == 0
+cheat points 1000
+expect ships == 15
+expect goals == 1
+expect most_ships == 15
+# the counter stops at 99
+cheat ships 99
+cheat points 1000
+expect ships == 99
+# no spares left and a crash: the run is over
+cheat ships 0
+cheat crash
+wait 80
+expect state == 6
+expect hiscore == 6000

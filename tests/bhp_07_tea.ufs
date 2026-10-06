@@ -1,0 +1,40 @@
+# BELLHOP: tea. Every regular stage hides one cup behind an unmarked spot a
+# single tile big; flying through it makes the cup appear somewhere else on
+# the screen, and taking it is worth 500. Nothing shows where the spot is.
+# A cup that has appeared stays out after a crash. The run remembers each
+# cup taken (the HUD shows the world's eight).
+seed 1
+game bellhop
+wait 20
+cheat stage 0
+wait 2
+expect cup == 0
+expect tea == 0
+# A-1's cup is up on the right, but it isn't there yet
+cheat place 292 92
+wait 2
+expect cup == 0
+expect score == 0
+# the hidden spot, high in the middle
+cheat place 228 40
+wait 2
+expect cup == 1
+# a crash: the cup stays out
+cheat crash
+wait 80
+expect mode == 0
+expect cup == 1
+expect ships == 2
+cheat place 292 92
+wait 2
+expect cup == 2
+expect score == 500
+expect tea == 1
+expect tea0 == 1
+expect tea1 == 0
+# the next stage's cup is its own
+cheat place 292 140
+wait 50
+expect stage == 1
+expect cup == 0
+expect tea == 1

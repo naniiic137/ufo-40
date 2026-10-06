@@ -1,0 +1,54 @@
+# BELLHOP: fuel. A full tank is ten seconds of thrust; every frame of
+# thrust burns one. With the tank dry, A does nothing and the ship falls.
+# Slashing enemies, bubbles and blocks puts fuel back, a fuel can fills the
+# tank, and every new life starts with a full one.
+seed 1
+game bellhop
+wait 20
+cheat stage 4
+wait 2
+cheat place 160 140
+cheat fuel 10
+hold A 30
+expect fuel == 0
+expect vy > 0
+# a moth slashed: +120 fuel and 100 points
+cheat place 160 100
+cheat face 1
+cheat fuel 100
+cheat ent 1 176 100
+press B
+wait 3
+expect fuel == 220
+expect score == 100
+# a block slashed: +90 fuel and 50 points
+wait 20
+cheat place 160 100
+cheat face 1
+cheat tile 21 11 4
+press B
+wait 3
+expect tile_x452 == 0
+expect fuel == 310
+expect score == 150
+# a bubble slashed: +150 fuel and 50 points
+wait 20
+cheat place 160 100
+cheat face 1
+cheat ent 8 176 100
+press B
+wait 3
+expect fuel == 460
+expect score == 200
+# a fuel can fills the tank at a touch
+cheat fuel 5
+cheat ent 13 120 60
+cheat place 120 60
+wait 2
+expect fuel == 600
+# dry again, then a crash: the next life has a full tank
+cheat fuel 0
+cheat crash
+wait 80
+expect mode == 0
+expect fuel == 600

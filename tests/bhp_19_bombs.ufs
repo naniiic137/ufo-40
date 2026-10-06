@@ -1,0 +1,40 @@
+# BELLHOP: bombs (B-3, BLASTING PIT). A slash lights the fuse; a second
+# later the bomb goes off, breaking cracked rock (which nothing else can),
+# blocks and glass nearby, and taking any enemy, and the ship, too close.
+seed 1
+game bellhop
+wait 20
+cheat stage 12
+wait 2
+expect tile_x115 == 6
+expect kind9 == 2
+cheat place 31 80
+cheat face 1
+press B
+wait 2
+expect kind9 == 2
+# away to safety while the fuse burns
+cheat place 200 40
+wait 20
+cheat place 200 40
+wait 20
+cheat place 200 40
+wait 25
+expect kind9 == 1
+expect tile_x115 == 0
+expect tile_x31 == 6
+expect mode == 1
+# the other bomb, with the ship staying close
+cheat place 191 80
+cheat face 1
+press B
+wait 2
+cheat place 204 50
+wait 20
+cheat place 204 50
+wait 20
+cheat place 204 50
+wait 20
+expect kind9 == 0
+expect tile_x574 == 0
+expect mode == 2

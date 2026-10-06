@@ -1,0 +1,54 @@
+# BELLHOP: E-10, LADY HUSH. She sprays shots and lobs spike balls. Red ones
+# can't be harmed; a blue one slashed flies back at her, the only thing
+# that hurts her (eight times). Slashing her ship fills the tank but does
+# her no harm, and touching it is a crash. Beating her ends the game: the
+# bells come home. The demo pilot does it with real presses.
+seed 9
+game bellhop
+wait 20
+cheat stage 49
+wait 2
+expect boss == 5
+expect boss_hp == 8
+# a red spike ball shrugs off the slash
+cheat place 100 150
+cheat face 1
+cheat spike 114 150 0
+press B
+wait 2
+expect kind24 == 1
+# a blue one flies back at her
+cheat stage 49
+wait 2
+cheat place 100 150
+cheat face 1
+cheat spike 114 150 1
+press B
+wait 2
+expect kind24 == 0
+waituntil boss_hp == 7 300
+expect score == 500
+# a crash doesn't heal her
+cheat crash
+wait 80
+expect mode == 0
+expect boss_hp == 7
+# her ship: a full tank, and no harm
+cheat fuel 50
+cheat beside_boss -24
+press B
+wait 1
+expect fuel == 600
+expect boss_hp == 7
+# her ship is a crash to touch
+cheat beside_boss -6
+wait 2
+expect mode == 2
+cheat stage 49
+wait 2
+botuntil boss_down == 1 20000
+expect boss_hp == 0
+wait 95
+expect exit_open == 1
+botuntil state == 7 2000
+expect goals & 2

@@ -1,0 +1,13 @@
+# BELLHOP: a secret. Wait about a minute on the very first stage and an owl
+# peeks out of the hills. Nowhere else.
+seed 1
+game bellhop
+wait 20
+cheat stage 0
+wait 3590
+expect owl == 0
+wait 20
+expect owl == 1
+cheat goto 1
+wait 3700
+expect owl == 0

@@ -1,0 +1,123 @@
+# BELLHOP: the code screen. BREW-ROOM plays the five crystal rooms by
+# themselves, one after another, with crystals worth 100 instead of 200.
+# A run with a code on earns no goals and leaves the records alone.
+seed 1
+game bellhop
+wait 20
+press DOWN
+wait 5
+press A
+wait 10
+expect state == 1
+# B
+press UP
+press RIGHT
+# R (17 up)
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press RIGHT
+# E
+press UP
+press UP
+press UP
+press UP
+press RIGHT
+# W (4 down)
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press RIGHT
+# R (9 down)
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press RIGHT
+# O (12 down)
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press RIGHT
+# O
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press RIGHT
+# M (14 down)
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press A
+expect brew == 1
+press B
+wait 5
+expect state == 0
+press UP
+wait 5
+press A
+wait 5
+expect state == 4
+expect brew_run == 1
+expect stage == 4
+press A
+wait 2
+expect round == 1
+botuntil round == 2 2000
+expect score == 100
+botuntil brew_room == 1 6000
+expect stage == 14
+botuntil state == 6 30000
+expect brew_room == 5
+expect goals == 0
+expect hiscore == 0
+expect fuel_used == 0

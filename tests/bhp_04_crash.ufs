@@ -1,0 +1,58 @@
+# BELLHOP: one touch is a crash. A wall, a floor, a ceiling, an enemy or a
+# shot wrecks the ship at once (no bounce, no hit points); some enemies
+# (moths, mites, wasps, crawlers, ghosts) are wrecked too, for no points,
+# and the rest (turrets, drones) stay. A spare ship
+# then waits in the bubble, the stage is back as it was (broken blocks and
+# all), but the stage clock (the warp sparkle's) keeps running.
+seed 1
+game bellhop
+wait 20
+cheat stage 0
+wait 2
+expect ships == 3
+# A-1's block, broken
+expect tile_x667 == 4
+cheat place 236 140
+cheat face 1
+press B
+wait 2
+expect tile_x667 == 0
+# (and the bubble beside it)
+expect score == 100
+# into the floor below
+wait 40
+expect mode == 2
+expect deaths == 1
+expect ships == 3
+wait 80
+expect mode == 0
+expect ships == 2
+expect x == 28
+expect y == 120
+expect tile_x667 == 4
+expect t > 120
+# the score stays
+expect score == 100
+# a wall: steer into the big block in the middle
+cheat place 100 60
+hold RIGHT 30
+expect mode == 2
+wait 80
+expect ships == 1
+# an enemy: A-1's moth
+cheat place 240 60
+cheat no_enemies
+cheat ent 1 240 64
+cheat score 0
+wait 3
+expect mode == 2
+# the moth went down with it, for nothing
+expect kind1 == 0
+expect score == 0
+wait 80
+expect ships == 0
+# the ceiling
+cheat place 160 26
+hold A 20
+expect mode == 2
+expect deaths == 4
