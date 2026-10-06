@@ -1,0 +1,86 @@
+# TUSKWIND: the hall at the dream's end. The terns Burl still has fly
+# ahead and perch at the west end of the floor (so no tern saves him in
+# here); walking west to them, each drops a spiral shell worth 3. East of
+# the door a shaft climbs through the vault, lined with 16 cockles: a
+# full jump and about half the flapping bar reach the top. Far west, over
+# the chasm and out of the spyglass's view, a shelf holds a third chest:
+# a full jump and about a quarter of the bar. Falling into the chasm ends
+# the journey.
+game tuskwind
+wait 20
+cheat seed 5
+cheat journey
+wait 2
+cheat terns 4
+cheat goal
+wait 2
+expect on_goal == 1
+hold RIGHT 160
+waituntil state == 3 120
+expect in_hall == 1
+expect hall_terns == 4
+expect terns == 0
+expect count_11 == 4
+expect wind == 0
+expect count_0 == 16
+expect count_5 == 1
+expect count_12 == 1
+expect x == 360
+# west to the terns: four spiral shells
+hold LEFT 220
+wait 90
+expect shells == 12
+expect count_14 == 0
+# up the shaft
+cheat place 0 456
+cheat aim 90
+cheat stamina 480
+wait 2
+hold A 62
+wait 1
+hold A+UP 120
+waituntil mode == 0 300
+expect plat == 0
+expect count_0 == 0
+expect shells == 28
+expect stamina >= 200
+expect stamina <= 280
+# no flapping: only the bottom few
+cheat hall
+cheat shells 0
+cheat place 0 456
+cheat aim 90
+wait 2
+hold A 62
+wait 1
+waituntil mode == 0 300
+expect shells < 6
+# the hidden shelf and its chest
+cheat hall
+cheat keys 1
+cheat shells 0
+cheat stamina 480
+cheat place 0 238
+cheat face -1
+cheat aim 54
+wait 2
+hold A 62
+wait 10
+hold A+UP 60
+waituntil mode == 0 300
+expect plat == 3
+expect stamina >= 320
+hold RIGHT 40
+expect chests == 1
+expect shells == 10
+expect keys == 0
+# no flapping at all: short of it, into the chasm, and he wakes
+cheat hall
+cheat place 0 238
+cheat face -1
+cheat aim 54
+wait 2
+hold A 62
+wait 1
+waituntil ps == 9 300
+waituntil state == 7 200

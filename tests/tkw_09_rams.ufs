@@ -1,0 +1,68 @@
+# TUSKWIND: rams. Land on a ram's islet and it notices him ("!"); after a
+# moment it charges and knocks him flying. Jump over it as it comes and it
+# runs straight off the edge into the sea; fly into one before it has
+# noticed him and it goes over instead.
+game tuskwind
+wait 20
+cheat seed 5
+cheat journey
+wait 2
+expect count_10 == 10
+cheat blank
+cheat plat 300 200 80 0
+cheat spawn 10 365 200
+expect thing_plat_10 == 1
+expect thing_state_10 == 0
+cheat land 1
+wait 1
+expect thing_state_10 == 1
+wait 30
+expect thing_state_10 == 1
+wait 12
+expect thing_state_10 == 2
+waituntil mode == 1 60
+expect hurt > 0
+expect vx10 < 0
+expect thing_state_10 == 3
+# jumped over as it comes: off the edge it goes
+cheat blank
+cheat plat 300 200 80 0
+cheat spawn 10 375 200
+cheat place 1 305
+cheat face 1
+cheat aim 90
+wait 30
+expect thing_state_10 == 1
+hold A 20
+wait 1
+expect mode == 1
+waituntil thing_state_10 == 2 30
+waituntil thing_state_10 == 4 80
+expect hurt == 0
+waituntil count_10 == 0 200
+waituntil mode == 0 100
+expect plat == 1
+expect hurt == 0
+# once warned it charges anyway, and with him gone it runs into the sea
+cheat blank
+cheat plat 300 200 80 0
+cheat spawn 10 340 200
+cheat land 1
+cheat place 1 310
+wait 1
+expect thing_state_10 == 1
+cheat place 0 140
+wait 45
+expect thing_state_10 == 2
+waituntil thing_state_10 == 4 80
+waituntil count_10 == 0 200
+# flown into before it noticed him
+cheat blank
+cheat plat 300 200 80 0
+cheat spawn 10 340 200
+wait 2
+cheat pos 326 196
+cheat vel 2 0
+wait 3
+expect thing_state_10 == 4
+waituntil count_10 == 0 200

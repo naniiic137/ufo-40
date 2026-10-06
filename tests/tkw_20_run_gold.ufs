@@ -1,0 +1,34 @@
+# TUSKWIND: proof that a journey can be finished. The demo player plays
+# with real button presses only (it picks each jump by trying aims and
+# charges through the game's own physics, walks to its spot, swings the
+# aim, holds A for that charge and lets go), from the title through the
+# story, across three different generated maps to the door, through the
+# hall to the old one, and on through the short talk (under 50 shells:
+# the first ending), the ending and the credits back to the title.
+game tuskwind
+wait 20
+cheat seed 7
+botuntil state == 2 400
+botuntil max_pct >= 50 30000
+expect goals & 1
+botuntil state == 3 30000
+expect in_hall == 1
+botuntil state == 4 6000
+expect cherry_end == 0
+expect goals & 2
+expect bot_fails <= 2
+botuntil state == 0 4000
+expect save_wins == 1
+cheat seed 11
+botuntil state == 2 400
+botuntil state == 4 36000
+expect cherry_end == 0
+botuntil state == 0 4000
+expect save_wins == 2
+cheat seed 14
+botuntil state == 2 400
+botuntil state == 4 36000
+expect cherry_end == 0
+botuntil state == 0 4000
+expect save_wins == 3
+expect save_terns >= 5

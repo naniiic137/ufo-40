@@ -1,0 +1,37 @@
+# TUSKWIND: the bar's % shows how far along the dream Burl is, and it
+# moves only when he lands on an islet (100 % is the door). Landing at
+# half way or beyond earns the beacon (UFO 50's gift: complete 50 % of the
+# journey), even if he falls short of the end.
+game tuskwind
+wait 20
+cheat seed 5
+cheat journey
+wait 2
+expect goals == 0
+cheat routepct 25
+expect pct >= 20
+expect pct <= 30
+# flying over the map does not count
+cheat pos 6000 100
+wait 1
+expect max_pct <= 30
+cheat routepct 44
+expect goals == 0
+cheat routepct 58
+expect max_pct >= 50
+expect goals & 1
+# back down the chain: the bar shows where he is, the best stays
+cheat routepct 20
+expect pct <= 25
+expect max_pct >= 50
+# the record of how far he got
+cheat clear
+cheat terns 0
+cheat land 0
+cheat aim 30
+cheat face -1
+wait 2
+hold A 40
+wait 1
+waituntil state == 7 600
+expect save_pct >= 50

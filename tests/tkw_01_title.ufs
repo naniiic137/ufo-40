@@ -1,0 +1,81 @@
+# TUSKWIND: the title offers JOURNEY and BRAWL (UP/DOWN), B goes back to
+# the library. A on JOURNEY tells the story a page at a time (A turns the
+# pages, START skips it) and then the journey starts: on the first islet,
+# no shells, no keys, no terns, one bobber, a full flapping bar, 0 %, no
+# wind. A journey is not saved: leave in the middle and the cartridge opens
+# on its title again.
+game tuskwind
+wait 5
+expect state == 0
+expect paused == 0
+expect sel == 0
+press DOWN
+expect sel == 1
+press DOWN
+expect sel == 0
+press UP
+expect sel == 1
+press UP
+expect sel == 0
+wait 10
+press A
+expect state == 1
+expect talk_page == 0
+wait 25
+press A
+expect talk_page == 1
+wait 25
+press A
+expect talk_page == 2
+expect state == 1
+wait 25
+press A
+wait 2
+expect state == 2
+expect shells == 0
+expect keys == 0
+expect terns == 0
+expect chests == 0
+expect inv0 == 1
+expect inv1 == 0
+expect inv5 == 0
+expect stamina == 480
+expect pct == 0
+expect wind == 0
+expect ps == 0
+expect mode == 0
+expect plat == 0
+expect in_hall == 0
+expect save_runs == 1
+# START pauses in a journey
+press START
+expect paused == 1
+press START
+expect paused == 0
+# quit to the library and come back: the title again
+press START
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press A
+wait 60
+expect_scene library
+game tuskwind
+wait 15
+expect_scene runner
+expect state == 0
+# START skips the story
+press START
+expect state == 1
+press START
+wait 2
+expect state == 2
+expect save_runs == 2
+# B on the title leaves
+game tuskwind
+wait 15
+press B
+wait 60
+expect_scene library

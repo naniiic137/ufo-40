@@ -1,0 +1,38 @@
+# TUSKWIND: 22 signs stand along the way, in the same order every
+# journey, the first right beside him where the dream starts. Burl reads
+# one by passing it (the words show at the top while he is near). Every
+# sign ever read is kept for the title's SIGNS
+# READ count. No line of the dream's words runs out of its box.
+game tuskwind
+wait 20
+expect text_bad == 0
+cheat seed 9
+cheat journey
+wait 2
+expect count_8 == 22
+cheat clear
+cheat seed 9
+cheat journey
+wait 2
+expect sign_near == 0
+expect signs_run == 1
+expect thing_plat_8 == 0
+cheat near 8 4
+wait 2
+expect sign_near == 0
+expect signs_run == 1
+expect save_signs == 1
+cheat seed 4
+cheat journey
+wait 2
+cheat near 8 4
+wait 2
+expect sign_near == 0
+expect signs_run == 1
+expect save_signs == 1
+# the records outlast the cartridge being switched off
+reload
+game tuskwind
+wait 5
+expect save_signs == 1
+expect save_runs == 3

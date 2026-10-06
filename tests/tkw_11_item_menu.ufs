@@ -1,0 +1,125 @@
+# TUSKWIND: holding B (when not charging) opens the item row with the
+# cursor on the cross; LEFT/RIGHT pick, and letting B go uses the item
+# under the cursor (on the cross: nothing). Items are used up. The sprat
+# tin fills the bar at once; the kite makes him float (low gravity, half
+# the flapping cost) until he next lands; the spinner flies him straight
+# where the pad points with no gravity, on a bar of its own. Aimed items
+# (bobber, spyglass, grapnel) only work on firm ground.
+game tuskwind
+wait 20
+cheat journey
+wait 2
+cheat blank
+cheat item 0 1
+cheat item 3 1
+cheat item 4 1
+cheat item 5 1
+wait 2
+# open and close on the cross
+hold B
+wait 2
+expect ps == 1
+expect item_sel == 0
+release B
+wait 1
+expect ps == 0
+expect inv0 == 1
+# around the row: cross, bobber, kite, spinner, tin, and round again
+hold B
+wait 2
+press RIGHT
+expect item_sel == 1
+press RIGHT
+press RIGHT
+press RIGHT
+expect item_sel == 4
+press RIGHT
+expect item_sel == 0
+press LEFT
+expect item_sel == 4
+# the tin
+cheat stamina 40
+release B
+wait 1
+expect stamina == 480
+expect inv5 == 0
+expect ps == 0
+# no charging with the row open: B first, A does nothing
+hold B
+wait 2
+hold B+A 10
+expect charging == 0
+release B
+wait 2
+# the kite: a soft jump goes much higher under it
+cheat aim 90
+wait 2
+hold A 11
+wait 1
+waituntil vy10 >= 0 60
+expect y >= 180
+waituntil mode == 0 60
+hold B
+wait 2
+press RIGHT
+press RIGHT
+release B
+wait 1
+expect kite == 1
+expect inv3 == 0
+hold A 11
+wait 1
+waituntil vy10 >= 0 100
+expect y <= 160
+# flapping costs half under it
+hold A 10
+expect stamina == 470
+waituntil mode == 0 300
+expect kite == 0
+# in the air the bobber is no use (it stays in the bag)
+hold A 40
+wait 1
+expect mode == 1
+hold B
+wait 1
+press RIGHT
+release B
+wait 1
+expect ps == 0
+expect inv0 == 1
+waituntil mode == 0 200
+# the spinner: up, across, stop dead, on its own bar
+hold B
+wait 2
+press RIGHT
+press RIGHT
+release B
+wait 1
+expect spinner == 1
+expect inv4 == 0
+expect mode == 1
+hold UP 30
+expect vy10 == -14
+hold RIGHT 30
+expect vx10 == 14
+expect vy10 == 0
+wait 10
+expect vx10 == 0
+expect vy10 == 0
+expect stamina == 470
+wait 400
+expect spinner == 0
+# a landing spends the spinner at once
+cheat item 0 0
+cheat item 4 1
+cheat place 0 140
+wait 2
+hold B
+wait 2
+press RIGHT
+release B
+wait 1
+expect spinner == 1
+hold DOWN 20
+expect mode == 0
+expect spinner == 0

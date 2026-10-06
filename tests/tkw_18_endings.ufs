@@ -1,0 +1,80 @@
+# TUSKWIND: the two endings. Burl walks up to the old one at the end of
+# the hall and the shells he holds decide what he hears: under 50, a
+# short, hurried warning (the saucer: reach the end); 50 or more, the
+# whole story and a way to stop the hunters (the alien as well). A turns
+# the pages; then the ending plays, the credits roll (hold A to hurry
+# them) and the title comes back. Shells spent in the stalls don't count.
+game tuskwind
+wait 20
+cheat seed 5
+cheat journey
+wait 2
+cheat hall
+cheat shells 49
+wait 2
+hold RIGHT 300
+waituntil state == 4 100
+expect cherry_end == 0
+expect goals & 2
+expect goals !& 4
+expect save_wins == 1
+expect save_cherries == 0
+expect save_shells == 49
+expect talk_page == 0
+wait 25
+press A
+expect talk_page == 1
+wait 25
+press A
+wait 25
+press A
+wait 25
+press A
+wait 25
+press A
+expect talk_page == 5
+expect state == 4
+wait 25
+press A
+expect state == 5
+wait 250
+press A
+expect state == 6
+hold A 500
+wait 2
+expect state == 0
+# fifty: the long talk, and the alien
+cheat seed 5
+cheat journey
+wait 2
+cheat hall
+cheat shells 50
+wait 2
+hold RIGHT 300
+waituntil state == 4 100
+expect cherry_end == 1
+expect goals & 4
+expect save_wins == 2
+expect save_cherries == 1
+expect save_shells == 50
+wait 25
+press A
+wait 25
+press A
+wait 25
+press A
+wait 25
+press A
+wait 25
+press A
+wait 25
+press A
+wait 25
+press A
+expect talk_page == 7
+expect state == 4
+wait 25
+press A
+expect state == 5
+waituntil state == 6 800
+waituntil state == 0 1300

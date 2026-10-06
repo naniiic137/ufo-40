@@ -1,0 +1,60 @@
+# README media: TUSKWIND. The journey is the demo player pressing real
+# buttons; the later sights (a stall, the storm, the hall) are reached with
+# cheats, then played or walked into with presses.
+shotscale 2
+seed 21
+game tuskwind
+wait 60
+shot tuskwind_title
+cheat seed 5
+botuntil state == 2 400
+botplay 240
+gifstart tuskwind 3 2
+botplay 840
+gifstop
+shot tuskwind_day
+# a stall of the Duchess Auk's
+cheat wares 3 5
+cheat near 7 -18
+cheat shells 14
+cheat face 1
+wait 2
+hold RIGHT 30
+wait 30
+shot tuskwind_stall
+press B
+# late in the dream: the sun down and the storm wind blowing
+cheat routepct 84
+botplay 300
+shot tuskwind_storm
+# the hall at the end, and the old one
+cheat terns 3
+cheat hall
+hold LEFT 104
+wait 10
+shot tuskwind_hall
+hold LEFT 100
+wait 60
+hold RIGHT 560
+wait 10
+press A
+wait 25
+press A
+wait 25
+press A
+wait 160
+shot tuskwind_elder
+# the brawl
+game tuskwind
+wait 20
+press DOWN
+press A
+wait 20
+press A
+wait 5
+cheat brawlbot
+hold RIGHT 10
+hold A 34
+wait 1
+botplay 30
+shot tuskwind_brawl

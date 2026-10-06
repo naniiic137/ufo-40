@@ -1,0 +1,93 @@
+# TUSKWIND: every jump is set up on the ground. UP/DOWN swing the "+"
+# cursor in an arc (from 45 degrees below flat to straight up); LEFT/RIGHT
+# scoot along the islet, and a press the other way turns Burl on the spot
+# first. Holding A charges the meter under him (a second to fill, then it
+# holds); letting go launches him at the cursor. After that the jump is
+# all ballistic: the pad does nothing to it. B during a charge calls it
+# off: A then has to be pressed afresh.
+game tuskwind
+wait 20
+cheat journey
+wait 2
+cheat blank
+wait 2
+expect aim10 == 450
+hold UP 40
+expect aim10 == 900
+hold DOWN 200
+expect aim10 == -450
+hold UP 60
+expect aim10 == 450
+# turning on the spot, then scooting
+expect face == 1
+expect x == 140
+press LEFT 1
+expect face == -1
+expect x == 140
+hold LEFT 30
+expect x >= 121
+expect x <= 123
+press RIGHT 1
+expect face == 1
+hold RIGHT 200
+expect x == 178
+# the meter: a second to fill, then it holds
+hold A 30
+expect charging == 1
+expect charge == 29
+hold A 100
+expect charge == 60
+expect mode == 0
+# no walking while charging
+hold A+LEFT 10
+expect x == 178
+expect charge == 60
+# B calls it off; the A still held does nothing
+hold A+B 2
+expect charging == 0
+hold A 20
+expect charging == 0
+expect mode == 0
+wait 1
+expect mode == 0
+hold A 100
+expect charge == 60
+cheat aim 90
+wait 1
+expect charging == 0
+expect mode == 1
+# straight up at full power: about 96 px, and back onto the same islet
+waituntil mode == 0 200
+expect plat == 0
+expect x == 178
+cheat place 0 140
+cheat aim 90
+wait 2
+hold A 62
+wait 1
+waituntil vy10 >= 0 100
+expect y >= 102
+expect y <= 106
+expect x == 140
+waituntil mode == 0 100
+expect plat == 0
+# a 45-degree half jump onto the next islet; the pad changes nothing in flight
+cheat plat 200 200 70 0
+cheat place 0 140
+cheat aim 45
+wait 2
+hold A 31
+wait 1
+expect mode == 1
+waituntil mode == 0 200
+expect plat == 1
+expect x == 216
+cheat place 0 140
+wait 2
+hold A 31
+hold LEFT 2
+hold RIGHT+DOWN 14
+hold LEFT+UP 14
+waituntil mode == 0 200
+expect plat == 1
+expect x == 216

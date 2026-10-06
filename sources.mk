@@ -199,6 +199,15 @@ CORE_SRC += src/games/shutterbug/shutterbug_bot.c
 CORE_SRC += src/games/shutterbug/shutterbug_draw.c
 CORE_SRC += src/games/shutterbug/shutterbug_art.c
 CORE_SRC += src/games/shutterbug/shutterbug_audio.c
+CORE_SRC += src/games/tuskwind/tuskwind.c
+CORE_SRC += src/games/tuskwind/tuskwind_map.c
+CORE_SRC += src/games/tuskwind/tuskwind_play.c
+CORE_SRC += src/games/tuskwind/tuskwind_brawl.c
+CORE_SRC += src/games/tuskwind/tuskwind_bot.c
+CORE_SRC += src/games/tuskwind/tuskwind_text.c
+CORE_SRC += src/games/tuskwind/tuskwind_draw.c
+CORE_SRC += src/games/tuskwind/tuskwind_art.c
+CORE_SRC += src/games/tuskwind/tuskwind_audio.c
 
 HEADLESS_SRC += src/platform/headless/main_headless.c
 HEADLESS_SRC += src/platform/headless/imgwrite.c

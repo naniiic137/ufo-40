@@ -131,6 +131,7 @@ menu, shows the buttons as you now press them). SELECT or B closes it.
 | 17 | **BELLHOP** | Campanella | side-on flight where gravity always pulls, a held thrust that burns fuel and a tap that hovers, steering that drifts, and any touch of a wall, an enemy or a shot a crash; a slash to the side you last steered that breaks blocks, glass and bubbles, puts fuel back and slows the fall a little; a start bubble with no time limit; three spare ships and one every 1,000 points; 50 one-screen stages in five worlds with a crystal room at X-5 and a boss at X-10; a cup behind an unmarked spot on all 40 regular stages; circlers, timed coins, levers that can lock a cup away, bombs, plates, fire wheels and cannons; four warp sparkles that show for five seconds (one chained on from another); a hidden face after a minute; one sitting, no save | Ansel and the Tinkler (the chime ship of CHIME CIRCUIT), Lady Hush, tea, the five worlds and all 50 stages, the Millwheel, the Cider Press, the Twin Cogs and the Gumball Machine, the owl, the BREW-ROOM code |
 | 18 | **LOST LINKS** | Golfaria | a top-down open world where every roll is a stroke and strokes are your health, twenty to start and three more for each of twenty irons found underground, pins and safe zones, sand you can only chip out of, water and pits that send you back, jumping flowers, holes down to a whole layer underneath, parbot-style scorecrows, two kinds of bug, four abilities in the four corners, the four-piece star relic, a plate puzzle and a burrowing boss | Dimple the golf ball, the Brass Badger, slicers, sippers, larks, strays, twenty ball folk and a hidden village of Keepers, both layers of the world |
 | 19 | **CHIME CIRCUIT** | The Big Bell Race | side-view flight with gravity, thrust and drift, six ships on one screen, eight laps on each of eight courses in a fixed order, three hit points that walls, floors and weapons take, a slash that only knocks, a relaunch from under the start line to fly the lap again, a hit point back every lap, pickup stations with a "!!" warning (bullets, mines, fireballs, the big slash, the payload), boost arrows and side routes, 9/7/5/3/2/1 points, the winner starting last, CPUs that turn on you, 2P at once | the chime ship, Ansel and Clary and four visitors from other UFO 40 cartridges, the eight tracks and their skies, the LOOT-GALE code |
+| 21 | **TUSKWIND** | Waldorf's Journey | a new random map every run, a chain of floating islets to a door at the far end; every jump aimed with a cursor and charged before launch (aimed flat, a lunge with no air), then nothing in the air but flapping on a bar only fish refill; one-way islets, solid bouncy rocks and foam that lasts one full charge; six terns from six lighthouses as lives; 36 loose shells that are money and score, two chests and two keys and a hidden third; winds at 40 % and 80 % and bells that toggle them once; charging rams; mantas to dodge, ride or burst for keys; stalls of two random wares from six items, one visit each; 22 signs and a hidden one; an end room with spiral shells for unused terns, a shaft and the hidden chest; two endings split at 50 shells; a 2P brawl on a wrapping screen whose islets crumble | Burl the walrus in his nightcap, Skerry the old one, the Duchess Auk, terns, rams and mantas, the bobber, spyglass, grapnel, kite, spinner and sprat tin, every sign, both talks and the hall |
 | 23 | **TURNIP TRUCK** | Onion Delivery | one wrapping city under a fixed camera, steering that turns the truck to its own left and right, a tapped turn that sidesteps, a weak brake that becomes reverse, A+B powerslides and the spin-out's spin attack, walls that only spin you, three hearts that come back at top speed and refill on every delivery, seven workdays of five timed deliveries (+8 s, +30 s for the fifth, +12 s for a crate hanging over a hazard past a ramp) and back to the depot before 00, overtime, three spare tries for the whole week, six chaos events in a shuffled order from Tuesday, ramps, brine pools and drop zones, gas canisters, rocks and right-hand traffic, a practice code and a reverse code | Zib, Granny Root, Glenda Glorp of Channel 9, Blipton and its 33 places, the brine burst, the big beet, the mush mob, the radish ring, the downpour and the moon raid |
 | 24 | **SHUTTERBUG** | Caramel Caramel | a side-scroller with no power-ups: hold fire for an automatic gun that also charges four rings which bounce off rock, tap the other button for a photo a third of the screen ahead that stuns, doubles damage and points, blows up the foes round it, stops green foes firing back, brings down wall foes, stops whole trains and opens boss weak points; a camera that refills slowly, or at once with two bulbs that only fly to you when you stop firing; rock that does no harm; two hits a life, no spare ships to start, eight from points, a lost ship back to the stage start with the shown score at 0; a tutorial, three planets and two open wave stages, two mid-bosses (one you can leave), three bosses, a red repair foe per planet, and U, F and O hidden one per planet for the true last boss; 2P co-op | Poppy and Sprig, Teatime, Gloom and Fossil Planets, Comet Rain, Madame Scone, the Teapot, Old Croak, the Signalman, King Thunderjaw, the Kaleidoscope, every cave and wave |
 | 25 | **OPEN HOUSE** | Party House | drawing guests from a deck into a house with limited space, the original's 46 guest abilities, costs and trouble, police, fire marshal and bans, set guest lists and a random list, win by ending a party with four stars within 25 nights, 2P hot-seat; the fame and cash caps; the owner's endless OPEN ALL NIGHT, a custom list and two guests of his own | a whitewashed house by the sea, all 48 guests' names and faces |
@@ -747,6 +748,48 @@ the top.
 - **Ours:** the chime ship, Ansel and his sister Clary, visitors from
   HOMESPUN, SKYWELL and WOBBLE DERBY, all eight tracks and their skies,
   the LOOT-GALE code and the LAST-LAMP page, and the music.
+
+### 21 · TUSKWIND
+
+<p align="center">
+  <img src="docs/shots/tuskwind.gif" width="640" alt="Tuskwind: Burl the walrus aims, charges and leaps from islet to islet in the afternoon sky">
+</p>
+<p align="center">
+  <img src="docs/shots/tuskwind_storm.png" width="320" alt="Late in the dream: the sun down, a storm wind and rain, a ram waiting on the next islet">
+  <img src="docs/shots/tuskwind_stall.png" width="320" alt="A stall of the Duchess Auk's: two wares, one visit">
+</p>
+<p align="center">
+  <img src="docs/shots/tuskwind_elder.png" width="320" alt="The hall at the dream's end: Skerry, the old one, speaks">
+  <img src="docs/shots/tuskwind_brawl.png" width="320" alt="The brawl: two walruses on one wrapping screen of crumbling islets">
+</p>
+
+*A tribute to **Waldorf's Journey** (UFO 50 #21).*
+
+- **Plays the same:** Burl is asleep, and in his dream he crosses a chain
+  of floating islets towards a door at the far end. Every jump is set up on
+  the ground: UP/DOWN swing a "+" cursor, holding A fills a meter under him,
+  and letting go sends him that way (aimed dead flat, he lunges along the
+  ground instead); B calls a charge off. In the air his flippers are all
+  he has: hold A to fly, LEFT/RIGHT trimming his speed, on a yellow bar that
+  only sprats fill. Plain islets let him through
+  from below; rocks bounce him off; pink foam lasts just one full charge.
+- **The way:** a new map every journey, with the same quotas every time:
+  six lighthouses whose terns each pull him out of the sea once, 36 loose
+  shells that are both money and score, two chests and two keys, three
+  stalls of the Duchess Auk (two wares, one visit), 22 signs, wind bells,
+  rams that charge whoever lands on their islet, and mantas gliding high
+  that knock him away, carry him, or drop a key when burst. The sky sets as
+  he goes; a wind rises at about 40 % and a storm wind at 80 % that stays.
+- **Structure:** reach the door, then the hall: spiral shells from the
+  terns he didn't need, a shaft lined with shells, a hidden chest over the
+  chasm, and the old one, whose talk depends on carrying 50 shells. A
+  journey takes a few minutes for the demo player in the tests, which
+  finishes generated maps from the title with real button presses, both
+  endings; 2P brawl on a single wrapping screen, best of 1 to 9 rounds.
+- **Ours:** Burl in his nightcap, Skerry the old one, the Duchess Auk,
+  terns, rams, mantas, cockles and whelks, the bobber, spyglass, grapnel,
+  kite, spinner and sprat tin, all 23 signs, both talks, the hall, and the
+  music.
 
 ### 23 · TURNIP TRUCK
 
