@@ -1,0 +1,84 @@
+# CLARION CALL: a red cave. It runs left to right; a skull drifts in from
+# the left, slower than Clary runs, and shoots once it is close. The chest
+# at the end holds the area's item (the Cellars' first: the Penny Purse),
+# which pops out above it; the door past it leads back out to the map, to
+# the door she came in by. Blocks give a coin to a shot (two with the
+# purse); a barrel blows up and takes the enemies near it with it, with a
+# bonus. Crouching ducks under a stinger's sting; DOWN + A drops through a
+# thin floor. Back in, the chest stays open.
+seed 1
+game clarion
+wait 10
+cheat area 0 0
+wait 2
+cheat enter_room 0
+wait 2
+expect room == 0
+expect count46 == 1
+expect count51 == 1
+expect skull_x < -30
+expect sub_w > 80
+wait 60
+expect skull_x > -10
+# the chest, and the purse above it
+cheat no_foes
+cheat sub_goto_kind 51
+hold RIGHT 20
+expect count52 == 1
+expect chest_item == 14
+cheat sub_goto_kind 52
+hold RIGHT 18
+press A 12
+wait 30
+expect has14 == 1
+# a block: one coin, two with the purse
+cheat coins 0
+cheat sub_place 80 144
+cheat face 1
+cheat sub_tile 7 8 4
+wait 20
+press B 1
+wait 15
+expect coins == 2
+# a barrel and a stinger beside it
+cheat coins 0
+cheat sub_place 60 144
+cheat face 1
+cheat sub_ent 50 130 144
+cheat sub_ent 30 150 144
+wait 20
+press B 1
+wait 20
+expect count50 == 0
+expect count30 == 0
+expect coins >= 14
+cheat no_foes
+# crouching under a sting
+cheat hp 16
+wait 70
+cheat sub_place 100 144
+cheat sub_ent 30 180 144
+hold DOWN 120
+expect hp == 16
+cheat no_foes
+# down through a thin floor
+cheat sub_tile 9 6 3
+cheat sub_tile 10 6 3
+cheat sub_place 160 96
+wait 5
+expect sub_y == 96
+hold DOWN A 4
+wait 30
+expect sub_y == 144
+# out through the far door: back on the map at the cave's door
+cheat sub_at_exit
+wait 5
+press UP
+wait 3
+expect state == 4
+expect on_foot == 1
+expect door_used0 == 1
+# back in: the chest is open and empty
+cheat enter_room 0
+wait 2
+expect count52 == 0

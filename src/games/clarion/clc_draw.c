@@ -808,7 +808,7 @@ void clc_draw_sub(const ClcSub *s, const ClcPlayer *p, int t) {
 
 /* ---- the HUD ------------------------------------------------------------------------ */
 
-void clc_draw_hud(const ClcPlayer *p, int notes, int timer, bool timer_on, int t) {
+void clc_draw_hud(const ClcPlayer *p, int notes, int timer, bool timer_on, int per, int t) {
     gfx_camera(0, 0);
     gfx_rect(0, 0, 112, 19, C_INK);
     /* the bar: red segments, one per point */
@@ -835,7 +835,7 @@ void clc_draw_hud(const ClcPlayer *p, int notes, int timer, bool timer_on, int t
     if (p->key) clc_draw_item(IT_KEY, 104, 9, 0);
     /* the dash */
     if (timer_on) {
-        int shown = (timer + 29) / 30;
+        int shown = (timer + per - 1) / imax(1, per);
         snprintf(b, sizeof b, "%02d", shown);
         gfx_rect(146, 1, 28, 13, C_INK);
         text_draw_scaled(b, 149, 2, shown <= 10 && (t / 6) & 1 ? C_RED : C_WHITE, 1);

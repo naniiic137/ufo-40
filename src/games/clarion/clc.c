@@ -568,7 +568,7 @@ static void draw_card(void) {
 
 static void draw_play_map(void) {
     clc_draw_world(&world, &run.p, frame_t);
-    clc_draw_hud(&run.p, world.notes, world.timer, world.timer_on, frame_t);
+    clc_draw_hud(&run.p, world.notes, world.timer, world.timer_on, world.kind == WK_ESCAPE ? 60 : 30, frame_t);
     if (world.kind == WK_ESCAPE && banner_t > 0) {
         gfx_rect(80, 40, 160, 14, C_INK);
         text_center("GET OUT! FLY UP!", 160, 43, (frame_t / 6) & 1 ? C_YELLOW : C_RED);
@@ -660,14 +660,14 @@ static void draw(void) {
     case S_MAP: draw_play_map(); break;
     case S_SUB:
         clc_draw_sub(&sub, &run.p, frame_t);
-        clc_draw_hud(&run.p, world.notes, world.timer, world.timer_on, frame_t);
+        clc_draw_hud(&run.p, world.notes, world.timer, world.timer_on, world.kind == WK_ESCAPE ? 60 : 30, frame_t);
         break;
     case S_STATION: draw_station(); break;
     case S_DEAD:
         if (world.enter < 0 && cur_door < 0) clc_draw_world(&world, &run.p, frame_t);
         else if (cur_door >= 0) clc_draw_sub(&sub, &run.p, frame_t);
         else clc_draw_world(&world, &run.p, frame_t);
-        clc_draw_hud(&run.p, world.notes, world.timer, world.timer_on, frame_t);
+        clc_draw_hud(&run.p, world.notes, world.timer, world.timer_on, world.kind == WK_ESCAPE ? 60 : 30, frame_t);
         if (state_t > 40) {
             gfx_rect(100, 80, 120, 16, C_INK);
             text_center("THE RUN IS OVER", 160, 84, C_RED);
@@ -824,7 +824,7 @@ static int clc_query(const char *key, int *out) {
     if (!strcmp(key, "late")) { *out = count_world(EK_LATE); return 1; }
     if (!strcmp(key, "timer")) { *out = world.timer; return 1; }
     if (!strcmp(key, "timer_on")) { *out = world.timer_on; return 1; }
-    if (!strcmp(key, "timer_shown")) { *out = (world.timer + 29) / 30; return 1; }
+    if (!strcmp(key, "timer_shown")) { int per = world.kind == WK_ESCAPE ? 60 : 30; *out = (world.timer + per - 1) / per; return 1; }
     if (!strcmp(key, "on_foot")) { *out = world.on_foot; return 1; }
     if (!strcmp(key, "ship")) { *out = world.ship; return 1; }
     if (!strcmp(key, "x")) { *out = (int)((world.on_foot ? world.cl.x : world.f.x) >> 8); return 1; }
@@ -845,6 +845,7 @@ static int clc_query(const char *key, int *out) {
     if (!strcmp(key, "magnets_off")) { *out = world.magnets_off; return 1; }
     if (!strcmp(key, "world_kind")) { *out = world.kind; return 1; }
     if (!strcmp(key, "world_bad")) { *out = clc_check_world(&world, NULL, 0); return 1; }
+    if (!strcmp(key, "pieces_bad")) { *out = clc_pieces_bad(); return 1; }
     if (num_key(key, "gen_bad", &i)) { *out = gen_bad(i); return 1; }
     if (num_key(key, "count", &i)) { *out = state == S_SUB ? count_sub(i) : count_world(i); return 1; }
     if (!strcmp(key, "room")) { *out = state == S_SUB ? sub.room : -1; return 1; }
@@ -900,6 +901,76 @@ static int clc_query(const char *key, int *out) {
     if (!strcmp(key, "bot_target")) { *out = clc_bot_target(); return 1; }
     if (!strcmp(key, "landing_icon")) { *out = world.landing_icon; return 1; }
     if (!strcmp(key, "ship_inv")) { *out = world.ship_inv; return 1; }
+    {
+        /* entities of the map (or behind the door, when Clary is there) */
+        bool insub = state == S_SUB;
+        const ClcEnt *E = insub ? sub.e : world.e;
+        int NE = insub ? sub.ne : world.ne;
+        if (num_key(key, "find_kind", &i)) {
+            *out = -1;
+            for (int k = 0; k < NE; k++)
+                if (E[k].on && E[k].kind == i) { *out = k; break; }
+            return 1;
+        }
+        if (num_key(key, "ent_x", &i)) { *out = i < NE && E[i].on ? (int)(E[i].x >> 8) : -1; return 1; }
+        if (num_key(key, "ent_y", &i)) { *out = i < NE && E[i].on ? (int)(E[i].y >> 8) : -1; return 1; }
+        if (num_key(key, "ent_on", &i)) { *out = i < NE ? E[i].on : 0; return 1; }
+        if (num_key(key, "ent_hp", &i)) { *out = i < NE ? E[i].hp : 0; return 1; }
+        if (num_key(key, "ent_kind", &i)) { *out = i < NE ? E[i].kind : 0; return 1; }
+        if (num_key(key, "ent_flag", &i)) { *out = i < NE ? E[i].flag : 0; return 1; }
+        if (num_key(key, "shotk", &i)) {
+            int n = 0;
+            const ClcShot *S = insub ? sub.shot : world.shot;
+            int NS = insub ? CLC_SSHOTS : CLC_SHOTS;
+            for (int k = 0; k < NS; k++) n += S[k].on && S[k].kind == i;
+            *out = n;
+            return 1;
+        }
+    }
+    if (num_key(key, "door_c", &i)) { *out = i < world.nd ? world.door[i].c : -1; return 1; }
+    if (num_key(key, "door_r", &i)) { *out = i < world.nd ? world.door[i].r : -1; return 1; }
+    if (num_key(key, "pad_x", &i)) { int x = -1, y; if (i < world.nd) clc_door_pad(&world.door[i], &x, &y); *out = x; return 1; }
+    if (num_key(key, "pad_y", &i)) { int x, y = -1; if (i < world.nd) clc_door_pad(&world.door[i], &x, &y); *out = y; return 1; }
+    if (!strcmp(key, "gold_door")) { *out = world.gold_door; return 1; }
+    if (!strcmp(key, "air_t")) { *out = world.air_t; return 1; }
+    if (!strcmp(key, "ladder")) { *out = world.cl.ladder; return 1; }
+    if (!strcmp(key, "ground")) { *out = world.on_foot ? world.cl.ground : 0; return 1; }
+    if (!strcmp(key, "sub_inv")) { *out = sub.cl.inv; return 1; }
+    if (!strcmp(key, "sub_face")) { *out = sub.cl.face; return 1; }
+    if (!strcmp(key, "sub_vy")) { *out = sub.cl.vy; return 1; }
+    if (!strcmp(key, "sub_vx")) { *out = sub.cl.vx; return 1; }
+    if (!strcmp(key, "chest_item")) { *out = sub.chest_item; return 1; }
+    if (!strcmp(key, "pods_hatched")) {
+        int n = 0;
+        for (int k = 0; k < world.ne; k++) n += world.e[k].on && world.e[k].kind == EK_POD && world.e[k].flag;
+        *out = n;
+        return 1;
+    }
+    if (!strcmp(key, "lobber_hp") || !strcmp(key, "engine_hp")) {
+        int kind = key[0] == 'l' ? EK_LOBBER : EK_ENGINE;
+        *out = -1;
+        for (int k = 0; k < sub.ne; k++)
+            if (sub.e[k].on && sub.e[k].kind == kind) *out = sub.e[k].hp;
+        return 1;
+    }
+    if (!strcmp(key, "arena_x")) { *out = sub.arena ? sub.arena_c * CLC_ST : -1; return 1; }
+    if (!strcmp(key, "head_open")) {
+        *out = 0;
+        for (int k = 0; k < sub.ne; k++)
+            if (sub.e[k].on && sub.e[k].kind == EK_TOCKHEAD) *out = sub.e[k].flag;
+        return 1;
+    }
+    if (!strcmp(key, "skull_x")) {
+        *out = -999;
+        for (int k = 0; k < sub.ne; k++)
+            if (sub.e[k].on && sub.e[k].kind == EK_SKULL) *out = (int)(sub.e[k].x >> 8);
+        return 1;
+    }
+    if (!strcmp(key, "nrings")) { *out = world.nrings; return 1; }
+    if (!strcmp(key, "ring_pause")) { *out = world.ring_pause; return 1; }
+    if (!strcmp(key, "lit_switch")) { *out = sub.lit_switch; return 1; }
+    if (!strcmp(key, "spawn_x")) { *out = world.spawn_c * CLC_T + CLC_T / 2; return 1; }
+    if (!strcmp(key, "spawn_y")) { *out = (world.spawn_r + 1) * CLC_T - 4; return 1; }
     if (!strcmp(key, "shots")) {
         int n = 0;
         for (int k = 0; k < CLC_SHOTS; k++) n += world.shot[k].on;
@@ -953,9 +1024,46 @@ static int clc_cheat(const char *cmd) {
     if (sscanf(cmd, "place %d %d", &a, &b) == 2) {
         world.on_foot = 0;
         world.ship = SM_PILOT;
+        world.air_t = 255;
         world.f.x = a * 256;
         world.f.y = b * 256;
         world.f.vx = world.f.vy = 0;
+        return 1;
+    }
+    if (sscanf(cmd, "foot %d %d", &a, &b) == 2) {
+        /* Clary on her feet at (a, b), b her feet; the ship stays where it is */
+        if (world.ship == SM_PILOT) world.ship = SM_PARKED;
+        world.on_foot = 1;
+        world.cl = (ClcWalker){0};
+        world.cl.x = a * 256;
+        world.cl.y = b * 256;
+        world.cl.fall_from = world.cl.y;
+        world.cl.face = 1;
+        world.cl.ground = 1;
+        return 1;
+    }
+    if (sscanf(cmd, "goto_kind %d", &a) == 1) {
+        /* the ship onto the first thing of kind a (a ring, a plum, a coin ...) */
+        for (int k = 0; k < world.ne; k++)
+            if (world.e[k].on && world.e[k].kind == a) {
+                world.on_foot = 0;
+                world.ship = SM_PILOT;
+                world.air_t = 255;
+                world.f.x = world.e[k].x;
+                world.f.y = world.e[k].y;
+                world.f.vx = world.f.vy = 0;
+                break;
+            }
+        return 1;
+    }
+    if (sscanf(cmd, "sub_goto_kind %d", &a) == 1) {
+        /* Clary next to (left of) the first thing of kind a behind the door */
+        for (int k = 0; k < sub.ne; k++)
+            if (sub.e[k].on && sub.e[k].kind == a) {
+                sub.cl.x = sub.e[k].x - 20 * 256;
+                sub.cl.vx = sub.cl.vy = 0;
+                break;
+            }
         return 1;
     }
     if (sscanf(cmd, "vel %d %d", &a, &b) == 2) { world.f.vx = a; world.f.vy = b; return 1; }
@@ -975,17 +1083,57 @@ static int clc_cheat(const char *cmd) {
         sub.cl.fall_from = sub.cl.y;
         return 1;
     }
+    if (sscanf(cmd, "room %d", &a) == 1) {
+        /* a room of kind a behind the first door of this map (tests) */
+        if (world.nd > 0) {
+            stand_at(0);
+            uint8_t keep = world.door[0].room;
+            world.door[0].room = (uint8_t)iclamp(a, 0, RM_COUNT - 1);
+            open_door(0);
+            world.door[0].room = keep;
+        }
+        return 1;
+    }
+    if (!strcmp(cmd, "key_off")) { run.p.key = 0; return 1; }
+    if (sscanf(cmd, "chain_plan %d %d", &a, &b) == 2) { run.chain_plan[0] = (uint8_t)a; run.chain_plan[1] = (uint8_t)b; return 1; }
+    if (!strcmp(cmd, "dump_sub")) {
+        for (int k = 0; k < sub.ne; k++)
+            if (sub.e[k].on)
+                fprintf(stderr, "sub ent %d kind %d at %d,%d hp %d flag %d\n", k, sub.e[k].kind, (int)(sub.e[k].x >> 8),
+                        (int)(sub.e[k].y >> 8), sub.e[k].hp, sub.e[k].flag);
+        return 1;
+    }
+    if (!strcmp(cmd, "tortoise")) {
+        /* the friendly sort here is the dozing tortoise */
+        for (int k = 0; k < sub.ne; k++)
+            if (sub.e[k].on && sub.e[k].kind == EK_NPC && sub.e[k].flag == 0) sub.e[k].flag = 1;
+        return 1;
+    }
+    if (sscanf(cmd, "sub_kill %d", &a) == 1) {
+        for (int k = 0; k < sub.ne; k++)
+            if (sub.e[k].on && sub.e[k].kind == a) sub.e[k].on = 0;
+        return 1;
+    }
+    if (!strcmp(cmd, "sub_at_exit")) {
+        if (sub.exit_c >= 0) { sub.cl.x = (sub.exit_c * CLC_ST + 8) * 256; sub.cl.y = (CLC_SH - 1) * CLC_ST * 256; sub.cl.vx = sub.cl.vy = 0; }
+        return 1;
+    }
+    if (sscanf(cmd, "sub_tile %d %d %d", &a, &b, &c) == 3) {
+        if (a >= 0 && a < CLC_SW && b >= 0 && b < CLC_SH) { sub.tile[b][a] = (uint8_t)c; sub.ver++; }
+        return 1;
+    }
     if (sscanf(cmd, "sub_ent %d %d %d", &a, &b, &c) == 3) { clc_sub_ent_add(&sub, a, b, c); return 1; }
     if (sscanf(cmd, "ent %d %d %d", &a, &b, &c) == 3) { clc_ent_add(&world, a, b, c); return 1; }
     if (sscanf(cmd, "tile %d %d %d", &a, &b, &c) == 3) { clc_set_tile(&world, a, b, c); return 1; }
     if (!strcmp(cmd, "boss_down")) { clc_sub_boss_down(&sub); return 1; }
     if (!strcmp(cmd, "no_foes")) {
         for (int i = 0; i < world.ne; i++)
-            if (world.e[i].on && world.e[i].kind < EK_NOTE) world.e[i].on = 0;
+            if (world.e[i].on && (world.e[i].kind < EK_NOTE || world.e[i].kind == EK_COIN)) world.e[i].on = 0;
         for (int i = 0; i < sub.ne; i++)
             if (sub.e[i].on && sub.e[i].kind >= EK_STINGER && sub.e[i].kind <= EK_FLAME) sub.e[i].on = 0;
         return 1;
     }
+    if (!strcmp(cmd, "clear_shots")) { memset(world.shot, 0, sizeof world.shot); memset(sub.shot, 0, sizeof sub.shot); return 1; }
     if (sscanf(cmd, "engines %d", &a) == 1) { run.engines = (uint8_t)a; return 1; }
     if (sscanf(cmd, "scrolls %d %d", &a, &b) == 2) { run.scrolls = (uint8_t)a; run.chain = (int8_t)b; return 1; }
     if (!strcmp(cmd, "final_sage")) { run.final_sage = 1; return 1; }

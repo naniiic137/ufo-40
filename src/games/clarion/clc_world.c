@@ -534,7 +534,12 @@ static void ship_step(ClcWorld *w, ClcPlayer *p, unsigned held, unsigned pressed
     int32_t vx = w->f.vx, vy = w->f.vy;
     int hit = chm_flight_move(&w->f, &CLC_TUNE, clc_map_solid, w);
     int x = PX(w->f.x), y = PX(w->f.y);
-    if (hit & CHF_HIT_Y && vy > 0) {
+    bool grounded = (hit & CHF_HIT_Y) && vy > 0;
+    if (grounded && w->air_t < 12) {
+        /* still sitting where it was parked: not a landing until it has been up */
+        w->air_t = 0;
+    } else if (grounded) {
+        w->air_t = 0;
         bool flat = flat_floor_under(w, x, y + 4) || flat_floor_under(w, x, y + 5);
         if (p->fuel <= 0 && p->coins <= 0) {
             /* nothing left to burn: down it goes, and that's the end */
@@ -571,11 +576,12 @@ static void ship_step(ClcWorld *w, ClcPlayer *p, unsigned held, unsigned pressed
             add_fx(w, x + (vx > 0 ? 4 : vx < 0 ? -4 : 0), y + (vy > 0 ? 4 : vy < 0 ? -4 : 0), FX_DUST);
         }
     }
+    if (!grounded && w->air_t < 255) w->air_t++;
     if (w->ship_inv) w->ship_inv--;
 
     /* where a landing would set down, for the safe-landing mark */
     w->landing_icon = -1;
-    for (int dy = 4; dy < 6 * CLC_T; dy++) {
+    for (int dy = 4; dy < 9 * CLC_T; dy++) {
         if (clc_map_solid(w, x - 4, y + dy) || clc_map_solid(w, x + 3, y + dy)) {
             if (flat_floor_under(w, x, y + dy)) w->landing_icon = (int16_t)((y + dy) / CLC_T);
             break;
@@ -622,9 +628,10 @@ static void foot_step(ClcWorld *w, ClcPlayer *p, unsigned held, unsigned pressed
     int cx = PX(c->x), cy = PX(c->y);
     /* UP at the ship climbs in; UP at a door goes through it */
     if ((pressed & BTN_UP) && c->ground) {
-        if (w->ship == SM_PARKED && iabs(cx - PX(w->f.x)) <= 10 && iabs(cy - (PX(w->f.y) + 4)) <= 2) {
+        if (w->ship == SM_PARKED && iabs(cx - PX(w->f.x)) <= 13 && iabs(cy - (PX(w->f.y) + 4)) <= 2) {
             w->on_foot = 0;
             w->ship = SM_PILOT;
+            w->air_t = 0;
             w->f.vx = w->f.vy = 0;
             w->f.face = c->face;
             w->ev |= CEV_BOARD;
@@ -655,6 +662,7 @@ static void foot_step(ClcWorld *w, ClcPlayer *p, unsigned held, unsigned pressed
             w->f = (ChmFlight){sx, sy, c->vx / 2, imin(0, c->vy / 2), c->face};
             w->on_foot = 0;
             w->ship = SM_PILOT;
+            w->air_t = 255;
             w->charm_jump = 1;
             w->ev |= CEV_BOARD;
             return;

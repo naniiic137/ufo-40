@@ -895,6 +895,25 @@ static const char *const PIECES[][CLC_SH] = {
 };
 #define NPIECES ARRAY_LEN(PIECES)
 
+/* every piece sound: the right size, closed at the bottom (no pit without
+ * a floor), open at both sides so one runs into the next */
+int clc_pieces_bad(void) {
+    int bad = 0;
+    for (int i = 0; i < (int)NPIECES; i++) {
+        bool ok = true;
+        for (int r = 0; r < CLC_SH; r++) ok = ok && PIECES[i][r] && strlen(PIECES[i][r]) == 16;
+        if (!ok) { bad++; continue; }
+        for (int c = 0; c < 16; c++) ok = ok && (PIECES[i][CLC_SH - 1][c] == '#' || PIECES[i][CLC_SH - 1][c] == '^');
+        bool left = false, right = false;
+        for (int r = 2; r < CLC_SH - 1; r++) {
+            left = left || PIECES[i][r][0] != '#';
+            right = right || PIECES[i][r][15] != '#';
+        }
+        if (!ok || !left || !right) bad++;
+    }
+    return bad;
+}
+
 /* the first piece (the door in) and the last ones */
 static const char *const START_PIECE[CLC_SH] = {
     "##########", "##########", "..........", "..........", "..........", "..........", "..........",
@@ -959,7 +978,8 @@ static void put_piece(ClcSub *s, const char *const *rows, int x0, int width, Rng
             case '^': t = ST_SPIKE; break;
             default: break;
             }
-            if (s->ice && t == ST_WALL && r < CLC_SH - 1 && rows[r][c] == '#' && (r == 0 || rows[r - 1][c] != '#')) t = ST_ICE;
+            /* the Icehouse: every floor's top is ice */
+            if (s->ice && (t == ST_WALL || t == ST_WALL2) && r > 1 && rows[r - 1][c] != '#') t = ST_ICE;
             sub_set(s, tc, r, t);
             int k = -1;
             switch (ch) {

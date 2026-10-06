@@ -219,6 +219,7 @@ typedef struct ClcWorld {
     uint8_t ship;              /* SM_* */
     uint8_t ship_inv, slash_t, slash_cd, slash_no, slash_side;
     uint8_t leeches, landed, crashed, dive;
+    uint8_t air_t;             /* frames off the ground (a ship must be up before it can land) */
     int16_t landing_icon;      /* the floor row under the ship that would take a landing (-1 none) */
     /* Clary */
     ClcWalker cl;
@@ -343,6 +344,7 @@ typedef struct ClcSubSpec {
 void clc_gen_sub(ClcSub *s, const ClcSubSpec *spec);
 /* the red cave's chest in a region's area (0 or 1): an item, or -1 for a draw */
 int clc_chest_item(int region, int area);
+int clc_pieces_bad(void);
 void clc_sub_step(ClcSub *s, ClcPlayer *p, unsigned buttons);
 bool clc_sub_solid(const void *ctx, int px, int py, bool feet);
 int clc_sub_ent_add(ClcSub *s, int kind, int x, int y);
@@ -375,7 +377,9 @@ void clc_art_load(void);
 bool clc_art_ok(void);
 void clc_draw_world(const ClcWorld *w, const ClcPlayer *p, int t);
 void clc_draw_sub(const ClcSub *s, const ClcPlayer *p, int t);
-void clc_draw_hud(const ClcPlayer *p, int notes, int timer, bool timer_on, int t);
+/* the clock reads timer / per (30: the dash's double-time "60"; 60: the
+ * escape's seconds) */
+void clc_draw_hud(const ClcPlayer *p, int notes, int timer, bool timer_on, int per, int t);
 void clc_draw_ship(int x, int y, int face, bool flame, int t);
 void clc_draw_clary_small(int x, int y, int face, int frame);
 void clc_draw_clary(int x, int y, int face, int frame, int aim);

@@ -1,0 +1,37 @@
+# CLARION CALL: every area but the Crown is generated for each run. Over
+# 200 seeds, all fourteen generated areas of all seven regions (2,800 maps):
+# every note, every door's landing spot and the gold door's are reachable
+# by the ship from where it starts (on the real collision rules), each
+# door stands on a level floor with a short walk from its landing spot,
+# and a note waits close to the start. The cave pieces are all sound. An
+# area holds fourteen notes, clock-ring spots, pods, and its region's own
+# enemies.
+seed 1
+game clarion
+wait 10
+expect pieces_bad == 0
+expect gen_bad200 == 0
+cheat area 0 0
+wait 2
+expect notes_left == 14
+expect nrings >= 6
+expect count20 >= 4
+cheat area 1 1
+wait 2
+expect world_bad == 0
+cheat area 3 1
+wait 2
+expect count7 >= 1
+cheat area 4 0
+wait 2
+expect count11 >= 1
+cheat area 5 0
+wait 2
+expect count24 >= 3
+expect dark == 1
+cheat area 6 1
+wait 2
+expect count16 >= 1
+cheat area 2 0
+wait 2
+expect count5 >= 1

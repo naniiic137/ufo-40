@@ -1,0 +1,45 @@
+# CLARION CALL: the three goals. Beacon: get the Homing Charm (here bought
+# at the Arboretum's stall for 100, with real presses). Saucer: fly home
+# with Ansel (beat Lady Hush with all three Hush Engines broken; the bad
+# ending earns nothing). Alien: stop Grandsire Tock (it earns the Saucer
+# too, as Ansel comes home that way as well). Goals are kept for good.
+seed 1
+game clarion
+wait 10
+expect goals == 0
+cheat area 1 0
+wait 2
+cheat coins 150
+cheat enter_room 8
+wait 2
+expect item_a0 == 11
+expect item_price0 == 100
+cheat sub_place 88 144
+wait 5
+press A 10
+wait 30
+expect has11 == 1
+expect coins == 50
+expect goals == 1
+reload
+game clarion
+wait 10
+expect goals == 1
+# the Saucer, then the Alien
+cheat area 6 2
+wait 2
+cheat engines 7
+cheat escape 2
+wait 2
+cheat place 160 30
+hold A 30
+wait 2
+expect goals == 3
+cheat area 6 2
+wait 2
+cheat escape 3
+wait 2
+cheat place 160 30
+hold A 30
+wait 2
+expect goals == 7

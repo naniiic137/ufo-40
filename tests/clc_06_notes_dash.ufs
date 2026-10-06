@@ -1,0 +1,76 @@
+# CLARION CALL: notes and the gold-door dash. Every area holds fourteen
+# notes; the first eight give 100 fuel each, the ninth and tenth 200 (the
+# HUD shows them in halves: five icons). The tenth starts the dash: the
+# gold door shows, every other door locks, the notes left turn to plum
+# coins (25 each), clock rings appear (200 fuel each and the clock stops
+# for two seconds), the pods hatch, and a clock reading 60 counts down at
+# double speed: 30 real seconds. At 0 the latecomers come, and one touch of
+# them ends the run whatever the bar says.
+seed 2
+game clarion
+wait 10
+cheat area 0 0
+wait 2
+expect notes_left == 14
+expect gold_door == 2
+expect door_hidden2 == 1
+cheat give 17
+cheat give 17
+cheat fuel 0
+cheat notes 8
+expect notes == 8
+expect fuel == 800
+cheat notes 9
+expect fuel == 1000
+expect timer_on == 0
+cheat notes 10
+expect notes == 10
+expect fuel == 1200
+expect timer_on == 1
+expect timer >= 1799
+expect timer_shown == 60
+expect door_hidden2 == 0
+expect notes_left == 0
+expect plums == 4
+expect rings > 4
+expect pods_hatched > 3
+# double time: 30 frames take a second off the clock
+wait 30
+expect timer_shown == 59
+# a plum coin
+cheat goto_kind 25
+wait 2
+expect coins == 25
+# a clock ring: fuel, and the clock stops
+cheat fuel 100
+cheat goto_kind 27
+wait 2
+expect fuel == 300
+expect ring_pause > 100
+cheat timer 900
+wait 60
+expect timer == 900
+wait 70
+expect timer < 900
+# the other doors are locked now
+cheat at_door 1
+wait 2
+press UP
+wait 3
+expect state == 4
+# the gold door is open
+cheat at_door 2
+wait 2
+press UP
+wait 3
+expect state == 5
+expect room == 1
+press UP
+wait 3
+expect state == 4
+# too late: the latecomers
+cheat timer 2
+wait 30
+expect late > 0
+waituntil dead == 1 600
+expect state == 7

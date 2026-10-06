@@ -1,0 +1,107 @@
+# CLARION CALL: what each area's doors hold. Every area has a red cave
+# with a chest, a friendly sort's red door (or what replaces it), a green
+# shop from the Cellars' second area on, and the hidden gold door; a
+# region's second area has the sexton when the chain leads there. The
+# regions swap some: the Arboretum's first stall sells the charm; the
+# Icehouse's second has a yellow door to a boon instead of a cave; the
+# Gullet's first, a yellow door to free armour instead of the friendly
+# sort; Cogtown's first, a yellow door to a shortcut instead of a cave, and
+# its second the mega store; the Cloister's first, six empty red doors and
+# a light switch; the Spire's first, a yellow door to the magnet switch.
+# The yellow key from the Cellars' second cave opens one yellow door: it is
+# used up, and that door stays open.
+seed 1
+game clarion
+wait 10
+cheat area 0 0
+wait 2
+expect doors == 3
+expect find_room6 == -1
+cheat area 0 1
+wait 2
+expect doors == 5
+expect find_room6 >= 0
+expect find_room9 >= 0
+expect find_room0 >= 0
+cheat area 1 0
+wait 2
+expect find_room8 >= 0
+expect find_room0 >= 0
+cheat area 2 1
+wait 2
+expect find_room13 >= 0
+expect find_room0 == -1
+cheat area 3 0
+wait 2
+expect find_room14 >= 0
+expect find_room2 == -1
+cheat area 4 0
+wait 2
+expect find_room15 >= 0
+expect find_room0 == -1
+cheat area 4 1
+wait 2
+expect find_room7 >= 0
+cheat area 5 0
+wait 2
+expect find_room11 >= 0
+expect find_room10 >= 0
+expect doors == 10
+cheat area 6 0
+wait 2
+expect find_room12 >= 0
+# every door's floor: a level walk from where the ship lands
+expect world_bad == 0
+# the yellow key, from the Cellars' second cave
+cheat area 0 1
+wait 2
+cheat enter_room 0
+wait 2
+cheat no_foes
+cheat sub_goto_kind 51
+hold RIGHT 20
+expect chest_item == 22
+cheat sub_goto_kind 52
+hold RIGHT 18
+press A 12
+wait 30
+expect key == 1
+# a yellow door without the key: shut
+cheat goto 3 0
+wait 2
+cheat give 22
+cheat key_off
+cheat at_room 14
+wait 2
+press UP
+wait 3
+expect state == 4
+# with it: open, the key gone, the door open from now on
+cheat give 22
+cheat at_room 14
+wait 2
+press UP
+wait 3
+expect state == 5
+expect room == 14
+expect key == 0
+cheat sub_place 40 144
+wait 2
+press UP
+wait 3
+cheat at_room 14
+wait 2
+press UP
+wait 3
+expect state == 5
+# Cogtown's shortcut: straight to the Spire, its engine left alone
+cheat goto 4 0
+wait 2
+cheat give 22
+cheat at_room 15
+wait 2
+press UP
+wait 5
+expect region == 6
+expect area == 0
+expect shortcut == 1

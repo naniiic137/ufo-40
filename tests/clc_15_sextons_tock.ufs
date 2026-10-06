@@ -1,0 +1,111 @@
+# CLARION CALL: the sextons' chain and Grandsire Tock. The Cellars' second
+# area always has a sexton: he gives a peal sheet and names the region
+# where the next one waits (nothing reminds her later). Going anywhere else
+# breaks the chain: no sexton there. Three sheets bring the Spire's sexton,
+# who opens the secret door on the Crown's lowest floor, before the health
+# stall and the shop. Behind it, Tock's machine: only his head can be hurt,
+# when the hatch is open, from on top of the machine. Beaten: the escape,
+# the true ending, and the Saucer and Alien goals together.
+seed 1
+game clarion
+wait 10
+cheat area 6 2
+wait 2
+expect door_room0 == 17
+expect door_hidden0 == 1
+cheat area 0 1
+wait 2
+# (this run's sextons point to the Icehouse, then the Cloister)
+cheat chain_plan 2 5
+expect chain == 0
+expect find_room9 >= 0
+cheat enter_room 9
+wait 2
+cheat sub_goto_kind 53
+hold RIGHT 6
+expect talk == 1
+expect scrolls == 1
+expect chain == 2
+# the wrong way: no sexton
+cheat goto 1 1
+wait 2
+expect find_room9 == -1
+# the right way
+cheat goto 2 1
+wait 2
+expect find_room9 >= 0
+cheat enter_room 9
+wait 2
+cheat sub_goto_kind 53
+hold RIGHT 6
+expect scrolls == 2
+expect chain == 5
+cheat goto 5 1
+wait 2
+cheat enter_room 9
+wait 2
+cheat sub_goto_kind 53
+hold RIGHT 6
+expect scrolls == 3
+expect chain == 6
+cheat goto 6 1
+wait 2
+expect find_room9 >= 0
+expect final_sage == 0
+cheat enter_room 9
+wait 2
+cheat sub_goto_kind 53
+hold RIGHT 6
+expect final_sage == 1
+# the secret door shows in the Crown
+cheat goto 6 2
+wait 2
+expect door_hidden0 == 0
+cheat at_door 0
+wait 2
+press UP
+wait 3
+expect room == 17
+expect boss_hp == 100
+# on top of the machine; the hatch shut: shots fly over it
+cheat give 16
+cheat give 16
+cheat give 16
+cheat give 16
+cheat hp 24
+cheat sub_place 180 112
+cheat face 1
+waituntil head_open == 0 400
+press B 1
+wait 6
+press B 1
+wait 6
+press B 1
+wait 6
+expect boss_hp == 100
+waituntil head_open == 1 400
+cheat sub_place 180 112
+cheat face 1
+press B 1
+wait 6
+press B 1
+wait 6
+press B 1
+wait 6
+expect boss_hp < 100
+# beaten
+cheat boss_down
+wait 2
+cheat sub_at_exit
+wait 3
+press UP
+wait 5
+expect world_kind == 2
+cheat place 160 30
+hold A 30
+wait 2
+expect state == 9
+expect ending == 3
+expect goals & 2
+expect goals & 4
+expect wins_true == 1

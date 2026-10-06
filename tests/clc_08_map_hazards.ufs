@@ -1,0 +1,131 @@
+# CLARION CALL: the maps' own trouble. A leech latches onto the ship and
+# weighs it down until it lands; a fake note wakes as a ghost that takes
+# two slashes; a wind drone pushes the ship; a magnet pulls (or pushes) it;
+# an eye turret shoots; an acid pod bursts when the ship comes close; a
+# sentry shoots only while Clary is in the ship and can only be killed on
+# foot. The Cloister is dark until its light switch is found; the Spire's
+# magnets stop when its switch is thrown.
+seed 1
+game clarion
+wait 10
+cheat area 6 2
+wait 2
+cheat no_foes
+# a leech
+cheat place 180 120
+cheat vel 0 0
+cheat ent 7 188 120
+wait 20
+expect leeches == 1
+expect count7 == 0
+cheat place 180 120
+cheat vel 0 0
+wait 10
+expect vy == 230
+cheat place 100 242
+cheat vel 0 0
+wait 20
+expect on_foot == 1
+expect leeches == 0
+# a fake note wakes, and takes two slashes
+cheat place 180 120
+cheat vel 0 0
+cheat face 1
+cheat ent 24 200 120
+wait 2
+expect count24 == 0
+expect count14 == 1
+press B 1
+wait 20
+cheat place 180 120
+cheat vel 0 0
+cheat face 1
+press B 1
+wait 3
+expect count14 == 0
+# wind
+cheat no_foes
+wait 60
+cheat place 180 120
+cheat vel 0 0
+cheat ent 6 150 120
+wait 10
+expect vx > 50
+cheat no_foes
+# a magnet that pulls, then one that pushes
+cheat tile 30 15 5
+cheat place 200 124
+cheat vel 0 0
+wait 10
+expect vx > 0
+cheat tile 30 15 6
+cheat place 200 124
+cheat vel 0 0
+wait 10
+expect vx < 0
+cheat tile 30 15 0
+# an eye turret
+cheat place 180 120
+cheat vel 0 0
+cheat ent 8 230 116
+wait 101
+expect shotk7 >= 1
+cheat no_foes
+# an acid pod
+wait 80
+cheat hp 16
+cheat place 200 120
+cheat vel 0 0
+cheat ent 9 212 120
+wait 25
+cheat place 200 120
+cheat vel 0 0
+wait 18
+expect hp < 16
+# a sentry: firing at the ship, quiet at Clary, and only she can kill it
+cheat no_foes
+cheat area 6 2
+wait 2
+cheat no_foes
+cheat place 100 200
+cheat vel 0 0
+cheat ent 11 140 244
+waituntil shotk7 > 0 80
+cheat clear_shots
+cheat foot 100 248
+wait 40
+expect shotk7 == 0
+wait 100
+expect shotk7 == 0
+expect dead == 0
+hold B 60
+expect count11 == 0
+# the Cloister's dark, and its light switch
+cheat area 5 0
+wait 2
+expect dark == 1
+cheat enter_room 11
+wait 2
+expect room == 11
+cheat sub_goto_kind 54
+hold RIGHT 20
+expect lit_switch == 1
+cheat sub_place 40 144
+wait 2
+press UP
+wait 3
+expect state == 4
+expect dark == 0
+# the Spire's magnet switch
+cheat area 6 0
+wait 2
+expect magnets_off == 0
+cheat enter_room 12
+wait 2
+cheat sub_goto_kind 54
+hold RIGHT 20
+cheat sub_place 40 144
+wait 2
+press UP
+wait 3
+expect magnets_off == 1

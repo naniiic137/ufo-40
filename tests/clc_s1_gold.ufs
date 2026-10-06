@@ -1,0 +1,24 @@
+# CLARION CALL: proof the game can be completed, the gold way. From the
+# title the demo player plays a whole generated run with real presses:
+# the story, all nine areas (notes, landings, doors, caves, shops, the
+# Lobber and all three Hush Engines, the station map), the Crown, Lady
+# Hush, the escape: Clary and Ansel get out together (the Saucer goal).
+seed 1
+game clarion
+wait 20
+cheat bot_goal 0
+botuntil state == 2 600
+botuntil area_no >= 3 40000
+expect engines == 1
+botuntil area_no >= 5 40000
+expect engines == 3
+botuntil area_no >= 7 40000
+expect engines == 7
+botuntil area_no >= 9 40000
+botuntil world_kind == 2 40000
+botuntil state == 9 20000
+expect ending == 2
+expect goals & 2
+expect goals !& 4
+expect wins_gold == 1
+botuntil state == 0 8000

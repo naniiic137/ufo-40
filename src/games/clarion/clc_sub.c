@@ -391,7 +391,7 @@ static void estep(ClcSub *s, ClcPlayer *p, ClcEnt *e) {
         if (iabs(dy) < 18 && adx < 150 && e->t % 90 == 0) {
             e->dir = (int8_t)(dx > 0 ? 1 : -1);
             /* a sting at her chest height: crouch under it */
-            sshot(s, SH_PELLET, e->x, e->y - 1 * 256, e->dir * 640, 0, 120, 4);
+            sshot(s, SH_PELLET, e->x, e->y - 6 * 256, e->dir * 640, 0, 120, 4);
             s->ev |= CEV_FOESHOT;
         }
         break;

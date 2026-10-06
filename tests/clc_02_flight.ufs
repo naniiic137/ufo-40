@@ -1,0 +1,59 @@
+# CLARION CALL: the Clarion flies on CHIME CIRCUIT's flight model with
+# BELLHOP's numbers. UP beside the ship climbs in; parked, it sits still
+# until it has been up. Holding A thrusts (one unit of fuel a frame);
+# gravity pulls 18/256 px a frame each frame; left and right steer with
+# inertia (12 a frame, the drift dying by 2 a frame); holding DOWN falls
+# twice as hard. The slash goes the way the ship last steered.
+# (The Crown, the Spire's third area, is a fixed map: it is used here.)
+seed 1
+game clarion
+wait 10
+cheat area 6 2
+wait 2
+expect world_kind == 1
+expect on_foot == 1
+expect x == 63
+expect y == 248
+expect ship_x == 52
+expect ship_y == 244
+press UP
+expect on_foot == 0
+expect ship == 0
+wait 20
+expect on_foot == 0
+expect ship_y == 244
+expect fuel == 800
+# thrust burns fuel and climbs
+hold A 30
+expect fuel == 770
+expect vy < 0
+expect ship_y < 240
+# let go and it falls back
+wait 40
+expect vy > 0
+# steering: speed builds up, then drifts on after the pad is let go
+cheat place 180 120
+cheat vel 0 0
+hold RIGHT 20
+expect vx == 240
+expect face == 1
+wait 20
+expect vx == 200
+cheat vel 0 0
+hold LEFT 5
+expect face == -1
+# gravity, and the dive
+cheat place 180 120
+cheat vel 0 0
+wait 10
+expect vy == 180
+cheat place 180 120
+cheat vel 0 0
+hold DOWN 10
+expect vy == 360
+# no fuel spent falling
+cheat fuel 500
+cheat place 180 120
+cheat vel 0 0
+wait 20
+expect fuel == 500

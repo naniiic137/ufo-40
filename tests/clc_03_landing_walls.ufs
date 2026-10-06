@@ -1,0 +1,61 @@
+# CLARION CALL: the Clarion sets down on a level floor when it comes down
+# slowly (under 0.75 px a frame) and nearly straight (under 0.63 across),
+# and Clary hops out beside it; the safe-landing mark shows on the floor
+# below while it is over somewhere that would take it. Coming down fast
+# (over 1.25 px a frame) is a bad landing: a point off the bar and a
+# bounce. Too fast sideways it won't set down. Walls and ceilings bounce
+# the ship back and only hurt (a point) when hit at over a pixel a frame.
+# The bar is one bar in half points: 8 points = 16.
+seed 1
+game clarion
+wait 10
+cheat area 6 2
+wait 2
+# the mark, from high above the floor
+cheat place 100 200
+cheat vel 0 0
+wait 1
+expect landing_icon == 31
+# a gentle landing (a 2 px drop: falling free for a tile is already too fast)
+cheat place 100 242
+cheat vel 0 0
+wait 20
+expect on_foot == 1
+expect ship == 1
+expect hp == 16
+expect ship_y == 244
+expect x == 111
+# a bad landing: a long fall
+cheat place 100 130
+cheat vel 0 0
+waituntil hp < 16 120
+expect hp == 14
+expect on_foot == 0
+expect vy < 0
+# sliding in too fast to set down
+cheat hp 16
+cheat place 100 240
+cheat vel 300 0
+wait 4
+expect on_foot == 0
+expect hp == 16
+# a wall hit hard
+wait 60
+cheat hp 16
+cheat place 165 225
+cheat vel 400 0
+waituntil vx < 0 40
+expect hp == 14
+expect ship_inv > 0
+# a wall touched gently
+wait 60
+cheat hp 16
+cheat place 165 225
+cheat vel 200 0
+waituntil vx < 0 40
+expect hp == 16
+# the ceiling, hard
+cheat place 100 130
+cheat vel 0 -440
+waituntil vy > 0 30
+expect hp == 14

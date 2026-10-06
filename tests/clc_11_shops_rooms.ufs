@@ -1,0 +1,126 @@
+# CLARION CALL: behind the other doors. A shop shows four things as icons
+# with prices and no names; touching one (they float at jumping height)
+# buys it, and only one may be bought a visit: the rest vanish until she
+# comes back. Cogtown's second area has the mega store: nine things at a
+# tenth over the price. The health stall sells toffee (100) and a heart pin
+# (150); the Arboretum's first stall sells the Homing Charm for 100. A
+# friendly sort gives 500 fuel, once, and a word of advice. The gworm trial
+# pays 150 when the seventh is down; the cursed one splits in two and won't
+# let her leave until both halves are beaten, then gives up its item; the
+# boon is three things for free, one to keep; the armoury, the Tin Plate.
+seed 1
+game clarion
+wait 10
+cheat area 0 1
+wait 2
+cheat coins 1000
+cheat enter_room 6
+wait 2
+expect room == 6
+expect items == 4
+expect bought == 0
+cheat sub_place 88 144
+wait 5
+press A 10
+wait 30
+expect bought == 1
+expect items == 0
+expect coins < 1000
+expect gear_bought == 1
+cheat sub_place 40 144
+wait 2
+press UP
+wait 3
+expect state == 4
+cheat enter_room 6
+wait 2
+expect items == 4
+expect bought == 0
+# the mega store
+cheat area 4 1
+wait 2
+cheat enter_room 7
+wait 2
+expect items == 9
+expect item_a5 == 19
+expect item_price5 == 110
+expect item_a7 == 20
+expect item_price7 == 275
+# the health stall
+cheat room 5
+wait 2
+expect items == 2
+expect item_a0 == 18
+expect item_price0 == 100
+expect item_a1 == 16
+expect item_price1 == 150
+# the charm stall
+cheat area 1 0
+wait 2
+cheat enter_room 8
+wait 2
+expect item_a0 == 11
+expect item_price0 == 100
+# a friendly sort: fuel once
+cheat area 3 1
+wait 2
+cheat fuel 100
+cheat enter_room 2
+wait 2
+cheat sub_goto_kind 53
+hold RIGHT 6
+expect talk == 1
+expect fuel == 600
+cheat sub_place 40 144
+wait 2
+press UP
+wait 3
+cheat enter_room 2
+wait 2
+cheat sub_goto_kind 53
+hold RIGHT 6
+expect fuel == 600
+# the gworm trial
+cheat coins 0
+cheat room 3
+wait 2
+expect count47 == 7
+cheat sub_kill 47
+wait 2
+expect sub_done == 1
+expect coins == 150
+# the cursed encounter
+cheat room 4
+wait 2
+cheat sub_goto_kind 53
+wait 5
+expect count48 == 2
+expect sub_locked == 1
+cheat sub_place 40 144
+wait 2
+press UP
+wait 3
+expect state == 5
+cheat sub_kill 48
+wait 2
+expect sub_locked == 0
+expect items == 1
+# the boon: three, one to keep
+cheat room 13
+wait 2
+expect items == 3
+expect item_price0 == 0
+cheat sub_place 104 144
+wait 3
+press A 10
+wait 30
+expect items == 0
+# the armoury
+cheat room 14
+wait 2
+expect item_a0 == 15
+cheat sub_place 168 144
+wait 3
+press A 10
+wait 30
+expect has15 == 1

@@ -1,0 +1,121 @@
+# CLARION CALL: the end of a region's second gold cave. The arena shuts
+# behind Clary; the Lobber takes twelve hits (four Big Bang taps), and
+# lobs bombs at her once she keeps her distance; a bomb takes three hits
+# or blows up on its own a few seconds later (its blast doesn't hurt the
+# Lobber). The Hush Engine behind it can't be hurt while the Lobber
+# stands; it takes twenty. Then the way on opens, with fuel by it, as at
+# the end of every gold cave, and the station map comes next. The Cloister
+# has no Lobber: its engine stands alone.
+seed 1
+game clarion
+wait 10
+cheat area 0 1
+wait 2
+cheat enter_room 1
+wait 2
+expect arena_x == 1440
+expect lobber_hp == 12
+expect engine_hp == 20
+cheat sub_place 1480 144
+cheat face 1
+wait 5
+expect sub_locked == 1
+# bombs at a distance
+waituntil count56 > 0 100
+# three plain hits
+cheat sub_kill 56
+cheat sub_place 1600 144
+cheat face 1
+cheat clear_shots
+wait 3
+press B 1
+wait 8
+press B 1
+wait 8
+press B 1
+wait 30
+expect lobber_hp <= 10
+expect lobber_hp > 0
+expect engine_hp == 20
+# the Big Bang: three a tap, a coin each (the Lobber leaves 20 coins)
+cheat gear 9
+cheat coins 10
+cheat sub_kill 56
+wait 3
+press B 1
+wait 8
+press B 1
+wait 8
+press B 1
+wait 8
+press B 1
+wait 8
+press B 1
+wait 30
+expect lobber_hp == -1
+expect coins >= 25
+# the engine now
+cheat sub_kill 56
+cheat coins 0
+cheat fuel 100
+cheat sub_place 1690 144
+cheat face 1
+wait 60
+press B 1
+wait 7
+press B 1
+wait 7
+press B 1
+wait 7
+press B 1
+wait 7
+press B 1
+wait 7
+press B 1
+wait 7
+press B 1
+wait 7
+press B 1
+wait 7
+press B 1
+wait 7
+press B 1
+wait 7
+press B 1
+wait 7
+press B 1
+wait 7
+press B 1
+wait 7
+press B 1
+wait 7
+press B 1
+wait 7
+press B 1
+wait 7
+press B 1
+wait 7
+press B 1
+wait 7
+press B 1
+wait 7
+press B 1
+wait 20
+expect engine_hp == -1
+expect sub_done == 1
+expect exit_open == 1
+expect fuel == 600
+cheat sub_at_exit
+wait 3
+press UP
+wait 5
+expect state == 6
+expect engines == 1
+expect station_n == 2
+# the Cloister: an engine alone
+cheat area 5 1
+wait 2
+cheat enter_room 1
+wait 2
+expect lobber_hp == -1
+expect engine_hp == 20
