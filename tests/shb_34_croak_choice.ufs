@@ -1,0 +1,28 @@
+# SHUTTERBUG: the F in Old Croak's ceiling only comes into view as his
+# fight starts, and the camera can't take both the F and him: a photo
+# refills in 22 s and he gives up after 20 s. The demo player, out for the
+# letters, photographs the F and can't finish him; told to leave the
+# letters alone, it photographs him instead and beats him.
+game shutterbug
+cheat run 1
+cheat stage 3
+cheat lives 9
+cheat goto 2400
+botuntil cam_x >= 2590 600
+expect letters == 0
+expect fx_26 > 316
+botuntil hold == 1 200
+botuntil foes_31 == 0 2000
+expect letters == 2
+expect big_kills == 0
+expect photos == 1
+# the other choice
+cheat letterbot 0
+cheat run 1
+cheat stage 3
+cheat lives 9
+cheat goto 2400
+botuntil hold == 1 600
+botuntil foes_31 == 0 2000
+expect letters == 0
+expect big_kills == 1

@@ -1,0 +1,12 @@
+# SHUTTERBUG: the prologue teaches the gun, the rings, the camera and the
+# bulbs with a tip at each step; finished without a single point, its clear
+# screen shows a message of its own.
+game shutterbug
+cheat run 1
+cheat god
+waituntil tip == 0 600
+waituntil tip == 3 2400
+waituntil state == 6 3000
+expect zero_prologue == 1
+expect score == 0
+expect stage == 0

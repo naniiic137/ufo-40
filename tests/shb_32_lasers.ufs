@@ -1,0 +1,25 @@
+# SHUTTERBUG: a laser gate switches on and off; it only hurts while on, it
+# can't be destroyed, and shooting it while it is on draws shots back.
+game shutterbug
+cheat run 1
+cheat quiet
+cheat stop
+cheat clear
+cheat pos 30 30
+cheat foe 22 150 84 0
+wait 2
+expect fstate_22 == 1
+waituntil fstate_22 == 0 120
+cheat pos 150 84
+wait 30
+expect armour == 1
+waituntil fstate_22 == 1 120
+wait 2
+expect armour == 0
+wait 120
+cheat pos 30 84
+cheat flash 0
+waituntil fstate_22 == 1 200
+hold B 60
+expect foes_22 == 1
+expect eshots_0 >= 1

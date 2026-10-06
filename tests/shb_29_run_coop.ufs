@@ -1,0 +1,12 @@
+# SHUTTERBUG: 2 PLAYERS through the prologue and Teatime Planet, the demo
+# player flying both ships (Sprig on the second pad), past Madame Scone
+# and the Teapot.
+game shutterbug
+wait 5
+press DOWN
+botuntil stage == 1 8000
+expect players == 2
+expect on2 == 1
+botuntil stage == 2 30000
+expect goals & 1
+expect state == 2

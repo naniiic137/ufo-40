@@ -1,0 +1,49 @@
+# SHUTTERBUG: Comet Rain's foes: a popper bursts into a ring of shots if it
+# is left alive too long; a geyser shows a rising burst at the edge before
+# it erupts (and is harmless till then); a big comet breaks in three; in
+# Comet Rain B, darts come in from the left after a "!", and the last set
+# stops in mid-screen before turning back, and bounders spring out of the
+# top or bottom edge after the same kind of warning and bounce from edge
+# to edge without firing.
+game shutterbug
+cheat run 1
+cheat stage 2
+cheat quiet
+cheat stop
+cheat clear
+cheat god
+cheat pos 40 20
+cheat foe 12 200 84 0
+wait 200
+expect foes_12 == 1
+wait 60
+expect foes_12 == 0
+expect eshots_0 >= 8
+expect score == 0
+cheat clear
+cheat foe 9 200 84 0
+wait 10
+expect fstate_9 == 0
+wait 50
+expect fstate_9 >= 1
+cheat clear
+cheat stage 4
+cheat quiet
+cheat stop
+cheat foe 14 200 84 16
+wait 10
+expect fstate_14 == 0
+expect harmful_14 == 0
+wait 50
+expect fstate_14 == 1
+wait 300
+expect eshots == 0
+cheat clear
+cheat foe 13 0 84 32
+wait 20
+expect fstate_13 == 1
+waituntil fstate_13 == 2 100
+expect fx_13 >= 165
+waituntil fstate_13 == 3 100
+wait 120
+expect foes_13 == 0

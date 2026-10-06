@@ -1,0 +1,35 @@
+# SHUTTERBUG: a photo also works on the scenery: a moving block stops dead
+# for a while, and crumbly rock in the picture is weakened to a single
+# shot. A moving block that pins the ship against rock hurts it.
+game shutterbug
+cheat run 1
+cheat quiet
+cheat stop
+cheat clear
+cheat foea 24 167 84 0 30
+cheat pos 60 84
+wait 10
+expect frozen == 0
+press A
+expect frozen == 1
+expect stun_24 > 250
+wait 300
+expect frozen == 0
+# pinned against the floor
+cheat clear
+cheat foea 24 167 120 0 30
+cheat pos 167 144
+wait 100
+expect armour == 0
+expect alive == 1
+# crumbly rock under the ceiling of Fossil Planet's first maze
+cheat stage 5
+cheat quiet
+cheat goto 860
+cheat stop
+cheat clear
+cheat god
+expect bhp_min == 6
+cheat pos 8 48
+press A
+expect bhp_min == 1

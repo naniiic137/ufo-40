@@ -1,0 +1,15 @@
+# SHUTTERBUG: the photo's frame is centred a third of the screen ahead of
+# the ship (107 pixels), 64 wide and 52 tall: a foe right beside the ship
+# isn't in it, one 30 pixels above or below the cursor is.
+game shutterbug
+cheat run 1
+cheat quiet
+cheat stop
+cheat clear
+cheat pos 60 84
+cheat dummy 6 100 84 0
+cheat dummy 6 167 112 0
+cheat dummy 6 167 56 0
+cheat dummy 6 250 84 0
+press A
+expect stunned == 2

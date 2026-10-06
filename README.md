@@ -132,6 +132,7 @@ menu, shows the buttons as you now press them). SELECT or B closes it.
 | 18 | **LOST LINKS** | Golfaria | a top-down open world where every roll is a stroke and strokes are your health, twenty to start and three more for each of twenty irons found underground, pins and safe zones, sand you can only chip out of, water and pits that send you back, jumping flowers, holes down to a whole layer underneath, parbot-style scorecrows, two kinds of bug, four abilities in the four corners, the four-piece star relic, a plate puzzle and a burrowing boss | Dimple the golf ball, the Brass Badger, slicers, sippers, larks, strays, twenty ball folk and a hidden village of Keepers, both layers of the world |
 | 19 | **CHIME CIRCUIT** | The Big Bell Race | side-view flight with gravity, thrust and drift, six ships on one screen, eight laps on each of eight courses in a fixed order, three hit points that walls, floors and weapons take, a slash that only knocks, a relaunch from under the start line to fly the lap again, a hit point back every lap, pickup stations with a "!!" warning (bullets, mines, fireballs, the big slash, the payload), boost arrows and side routes, 9/7/5/3/2/1 points, the winner starting last, CPUs that turn on you, 2P at once | the chime ship, Ansel and Clary and four visitors from other UFO 40 cartridges, the eight tracks and their skies, the LOOT-GALE code |
 | 23 | **TURNIP TRUCK** | Onion Delivery | one wrapping city under a fixed camera, steering that turns the truck to its own left and right, a tapped turn that sidesteps, a weak brake that becomes reverse, A+B powerslides and the spin-out's spin attack, walls that only spin you, three hearts that come back at top speed and refill on every delivery, seven workdays of five timed deliveries (+8 s, +30 s for the fifth, +12 s for a crate hanging over a hazard past a ramp) and back to the depot before 00, overtime, three spare tries for the whole week, six chaos events in a shuffled order from Tuesday, ramps, brine pools and drop zones, gas canisters, rocks and right-hand traffic, a practice code and a reverse code | Zib, Granny Root, Glenda Glorp of Channel 9, Blipton and its 33 places, the brine burst, the big beet, the mush mob, the radish ring, the downpour and the moon raid |
+| 24 | **SHUTTERBUG** | Caramel Caramel | a side-scroller with no power-ups: hold fire for an automatic gun that also charges four rings which bounce off rock, tap the other button for a photo a third of the screen ahead that stuns, doubles damage and points, blows up the foes round it, stops green foes firing back, brings down wall foes, stops whole trains and opens boss weak points; a camera that refills slowly, or at once with two bulbs that only fly to you when you stop firing; rock that does no harm; two hits a life, no spare ships to start, eight from points, a lost ship back to the stage start with the shown score at 0; a tutorial, three planets and two open wave stages, two mid-bosses (one you can leave), three bosses, a red repair foe per planet, and U, F and O hidden one per planet for the true last boss; 2P co-op | Poppy and Sprig, Teatime, Gloom and Fossil Planets, Comet Rain, Madame Scone, the Teapot, Old Croak, the Signalman, King Thunderjaw, the Kaleidoscope, every cave and wave |
 | 25 | **OPEN HOUSE** | Party House | drawing guests from a deck into a house with limited space, the original's 46 guest abilities, costs and trouble, police, fire marshal and bans, set guest lists and a random list, win by ending a party with four stars within 25 nights, 2P hot-seat; the fame and cash caps; the owner's endless OPEN ALL NIGHT, a custom list and two guests of his own | a whitewashed house by the sea, all 48 guests' names and faces |
 | 26 | **SKID KIDS** | Hot Foot | top-down two-on-two dodgeball with beanbags that skid along the floor, one button to pick up, pass, swap kids and wind up (a tap tosses, a full wind-up knocks down, a jump calls it off), a team jump that earns half-stars over sliding bags, stars for each kid's special throw or move, juice boxes, the Coach's items, the forced throw, first to 15; the original's 12 kits one for one, a draft or a free pick of the team, six matches with the kid nobody picked coming back with a robot, co-op, versus, the codes and the demo | NOODLE, PIPPA, HOPS, MILO, SPARKY, NELL, KIKI, ROXIE, TOBY, SID, BUZZY and MOOSE, Boomer the kangaroo, Benchbot, the Coach and the Hornets' gym |
 | 28 | **DUNE EXPRESS** | Rail Heist | real time until a guard is alert, then 10-second turns, one-bullet lawmen who hit each other too, punches through walls and floors, carrying and throwing, hiding in barrels, levers, a crank gun, rams, three outlaws, three stars a mission with the original's time goals, 2P versus | Wade, Hush and Pearl, the Governor's tax trains, Biscuit the camel, 20 new trains |
@@ -795,6 +796,52 @@ the top.
 - **Ours:** Zib, Granny Root and her turnip depot, Glenda Glorp, Blipton
   and all 33 places, its nine districts, the brine burst, the big beet,
   the mush mob, the radish ring, the downpour, the moon raid and the music.
+### 24 · SHUTTERBUG
+
+<p align="center">
+  <img src="docs/shots/shutterbug.gif" width="640" alt="Shutterbug: Poppy flies over Teatime Planet's lawn, photographing sugar cubes and shooting the rest">
+</p>
+<p align="center">
+  <img src="docs/shots/shutterbug_teapot.png" width="320" alt="The Teapot, its lid lifted by a photo, drips falling from the holes in the ceiling">
+  <img src="docs/shots/shutterbug_tall.png" width="320" alt="One of Teatime Planet's tall caves, where the view follows the ship up and down">
+</p>
+<p align="center">
+  <img src="docs/shots/shutterbug_fossil.png" width="320" alt="A laser gate in Fossil Planet's maze, and crumbly rock">
+  <img src="docs/shots/shutterbug_lens.png" width="320" alt="The true boss, the Kaleidoscope, its shards unwound">
+</p>
+
+*A tribute to **Caramel Caramel** (UFO 50 #24).*
+
+- **Plays the same:** a side-scrolling shooter with no power-ups at all.
+  Hold B and the gun fires by itself; hold it long enough and two dots
+  light, and letting go throws four rings that bounce off rock. Touching
+  rock does no harm; only being pinned by the scroll does. Two hits a
+  life (the armour, then the ship), no spare ships to start with, eight
+  from points (8,000 up to 186,000), and a lost ship starts the stage
+  again with the shown score back at 0.
+- **The camera:** tap A for a photo a third of the screen ahead. What it
+  catches stops still, takes double damage, pays double and goes up with
+  a bang that hurts its neighbours (and takes every foe of its kind from
+  the same photo with it). It cancels green foes' parting shots, drops
+  foes off walls and ceilings onto whatever is below, stops whole ghost
+  trains, makes wisps solid, freezes moving blocks, shakes score orbs out
+  of odd things, turns each planet's red foe into a repair wrench and
+  opens the bosses' weak points. The meter refills slowly, or at once with
+  two pink bulbs, which only fly to you when you stop firing.
+- **Structure:** a prologue that teaches it all, Teatime Planet (Madame
+  Scone, then the Teapot), Comet Rain A, Gloom Planet (Old Croak, who can
+  be left alone, then the Signalman), Comet Rain B and Fossil Planet
+  (laser mazes, two generators, then King Thunderjaw). Photograph the
+  hidden U, F and O, one on each planet, and the Kaleidoscope waits after
+  the king (the F shows only as Old Croak's fight starts, and the camera
+  can't take both the letter and him). The credits name every foe, with
+  a picture of each one you photographed. 1 player, or 2 in co-op. The demo player in the tests wins
+  the whole game from the title with real button presses, by both
+  routes.
+- **Ours:** Poppy the puffer-blimp and her pal Sprig, the three planets
+  and the Comet Rain, all 25 foes, Madame Scone, the Teapot, Old Croak,
+  the Signalman, King Thunderjaw, the Kaleidoscope, every cave and wave,
+  and the music.
 
 ### 25 · OPEN HOUSE
 

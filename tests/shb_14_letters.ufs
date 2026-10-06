@@ -1,0 +1,36 @@
+# SHUTTERBUG: the hidden O near the start of Fossil Planet (the gap in a
+# clump of fronds) lights up when photographed, and stays lit after a lost
+# ship. With U, F and O all lit, beating King Thunderjaw leads to the true
+# boss; without them, to the ending.
+game shutterbug
+cheat run 1
+cheat lives 1
+cheat stage 5
+cheat god
+expect letters == 0
+hold RIGHT 150
+press A
+expect letters == 4
+expect secrets == 1
+cheat god
+cheat hurt 0
+wait 101
+cheat hurt 0
+wait 160
+wait 200
+expect stage == 5
+expect letters == 4
+# a second photo of it is nothing new
+cheat god
+hold RIGHT 150
+press A
+expect letters == 4
+expect secrets == 1
+# U and F too: past the king, the true boss
+cheat letters 7
+cheat win
+wait 30
+expect stage == 6
+expect state == 2
+wait 120
+expect foes_35 == 1

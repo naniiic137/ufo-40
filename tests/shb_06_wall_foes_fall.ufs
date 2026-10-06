@@ -1,0 +1,18 @@
+# SHUTTERBUG: a foe fixed to rock (here a spout under the pillar in the
+# prologue) drops off when photographed, dies when it lands, and kills
+# what it lands on.
+game shutterbug
+cheat run 1
+cheat quiet
+cheat goto 600
+cheat stop
+cheat clear
+cheat dummy 3 116 60 8
+cheat dummy 6 116 84 0
+cheat pos 10 40
+press A
+expect falling == 1
+wait 40
+expect foes_3 == 0
+expect foes_6 == 0
+expect score == 800

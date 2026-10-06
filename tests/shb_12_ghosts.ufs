@@ -1,0 +1,21 @@
+# SHUTTERBUG: wisps fade in and out; while faded they can't be hurt (shots
+# pass through) and can't hurt. A photo makes one solid, and then it can be
+# shot down, for double points.
+game shutterbug
+cheat run 1
+cheat quiet
+cheat stop
+cheat clear
+cheat pos 40 84
+cheat foe 15 210 84 0
+waituntil fstate_15 == 2 200
+hold B
+wait 30
+expect hp_15 == 4
+expect foes_15 == 1
+release B
+press A
+expect stun_15 > 200
+hold B 40
+expect foes_15 == 0
+expect score == 600

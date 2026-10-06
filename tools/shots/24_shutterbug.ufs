@@ -1,0 +1,65 @@
+# README media: SHUTTERBUG. The GIF and the play shots are the demo player
+# pressing real buttons; later stages are reached with cheats, then flown
+# by the demo player.
+shotscale 2
+seed 24
+game shutterbug
+wait 40
+shot shutterbug_title
+press A
+wait 60
+botuntil state == 3 600
+# the prologue: the tips teach the gun, the rings and the camera
+botplay 1000
+shot shutterbug_prologue
+# Teatime Planet: the lawn, sugar cubes and toasties
+cheat stage 1
+cheat lives 5
+botplay 1500
+gifstart shutterbug 3 2
+botplay 600
+gifstop
+shot shutterbug_teatime
+# Madame Scone
+cheat goto 2400
+botplay 700
+shot shutterbug_scone
+# the second cave's tall rooms
+cheat goto 3700
+botplay 520
+shot shutterbug_tall
+# the Teapot, lid off
+cheat goto 4600
+botuntil open_30 == 1 2000
+wait 6
+shot shutterbug_teapot
+# Comet Rain A
+cheat stage 2
+cheat lives 5
+botplay 1700
+shot shutterbug_comet
+# Gloom Planet's sidings: ghost trains
+cheat stage 3
+cheat lives 5
+cheat goto 3700
+botuntil foes_16 >= 8 1500
+botplay 90
+shot shutterbug_gloom
+# Fossil Planet's laser maze
+cheat stage 5
+cheat lives 5
+cheat goto 2380
+botplay 500
+shot shutterbug_fossil
+# King Thunderjaw
+cheat goto 4400
+botuntil stun_33 > 0 2500
+wait 4
+shot shutterbug_king
+# the true boss, unwound
+cheat letters 7
+cheat stage 6
+cheat lives 5
+botuntil kalei_phase == 1 2500
+botplay 60
+shot shutterbug_lens

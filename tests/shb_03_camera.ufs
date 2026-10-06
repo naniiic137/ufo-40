@@ -1,0 +1,51 @@
+# SHUTTERBUG: A takes a photo centred a third of the screen ahead of the
+# ship, only with the camera's meter full; the meter then refills by itself
+# in 22 seconds. A foe in the frame is stunned: it stops still, takes
+# double damage, and is worth double. A foe outside the frame is not.
+game shutterbug
+cheat run 1
+cheat quiet
+cheat stop
+cheat clear
+cheat pos 60 84
+# a big comet right in the frame (60 + 107), and one off to the side
+cheat dummy 10 167 84 0
+cheat dummy 10 120 30 0
+expect flash == 1320
+press A
+expect photos == 1
+expect flash < 10
+expect stunned == 1
+expect stun_10 > 250
+# the meter must be full: another tap does nothing
+press A
+expect photos == 1
+wait 1280
+expect flash < 1320
+wait 40
+expect flash == 1320
+# double damage: two gun shots take four
+cheat clear
+cheat dummy 10 167 84 0
+press A
+expect stunned == 1
+expect hp_10 == 10
+hold B 7
+wait 25
+expect hp_10 == 8
+# and double points when it falls (a big comet is worth 300)
+expect score == 0
+hold B
+waituntil foes_10 == 0 80
+expect score == 600
+release B
+# photographed, it doesn't break up
+expect foes_11 == 0
+# shot down without a photo, a big comet breaks into three little ones
+cheat clear
+cheat dummy 10 167 84 0
+hold B
+waituntil foes_10 == 0 100
+release B
+expect foes_11 == 3
+expect score == 900

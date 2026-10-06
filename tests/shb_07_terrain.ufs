@@ -1,0 +1,22 @@
+# SHUTTERBUG: touching rock does no harm: the ship just stops against it.
+# Only being pinned against rock by the scroll (or by a moving block)
+# hurts.
+game shutterbug
+cheat run 1
+cheat quiet
+cheat goto 600
+cheat stop
+cheat clear
+cheat pos 90 120
+hold RIGHT 60
+hold UP 30
+hold RIGHT 30
+expect armour == 1
+expect alive == 1
+expect px < 100
+# now let the view scroll on, with the ship held against the bump
+cheat go
+cheat pos 90 120
+hold RIGHT 260
+expect armour == 0
+expect alive == 1

@@ -1,0 +1,16 @@
+# SHUTTERBUG: Madame Scone (Teatime Planet's mid-boss) holds up the view
+# until she is beaten; her falling crumbs can be shot down, and every other
+# one hides a bulb. The demo player photographs her and finishes her off.
+game shutterbug
+cheat run 1
+cheat stage 1
+cheat goto 2560
+cheat god
+waituntil foes_29 == 1 200
+waituntil hold == 1 200
+botuntil eshots_2 > 0 400
+botuntil stun_29 > 0 1500
+botuntil foes_29 == 0 4000
+expect big_kills == 1
+wait 20
+expect hold == 0

@@ -1,0 +1,36 @@
+# SHUTTERBUG: the cartridge keeps no run in the middle (a run starts from
+# the title), but it keeps its records: the best score, the most foe types
+# photographed in one run, the most secret photos in one run, and the
+# runs, wins and true wins. They survive a restart.
+game shutterbug
+cheat run 1
+cheat quiet
+cheat stop
+cheat clear
+cheat pos 60 84
+cheat dummy 25 167 84 0
+press A
+expect secrets == 1
+cheat dummy 6 167 84 0
+cheat flash 1320
+press A
+expect types == 1
+cheat addscore 4321
+cheat hurt 0
+wait 101
+cheat hurt 0
+wait 160
+expect state == 5
+wait 250
+expect state == 0
+expect save_best == 4321
+expect save_secrets == 1
+expect save_types == 1
+expect save_runs == 1
+reload
+game shutterbug
+wait 5
+expect save_best == 4321
+expect save_secrets == 1
+expect save_types == 1
+expect save_runs == 1

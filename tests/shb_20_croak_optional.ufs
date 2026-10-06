@@ -1,0 +1,18 @@
+# SHUTTERBUG: Old Croak (Gloom Planet's mid-boss) can be left alone: after a
+# while he slinks off into the chasm, worth nothing, and the way goes on.
+# The F hides in the ceiling of his hall.
+game shutterbug
+cheat run 1
+cheat stage 3
+cheat goto 2400
+cheat god
+waituntil hold == 1 500
+expect foes_31 == 1
+expect foes_26 == 1
+wait 1700
+expect foes_31 == 0
+expect big_kills == 0
+expect score == 0
+wait 60
+expect hold == 0
+expect cam_x > 2600

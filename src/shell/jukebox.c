@@ -97,6 +97,11 @@ static const struct { const char *id, *title; } TITLES[] = {
     {"tnp_title", "TURNIP TRUCK"}, {"tnp_news", "NEWS AT NINE"}, {"tnp_day", "ON THE CLOCK"},
     {"tnp_overtime", "AFTER HOURS"}, {"tnp_rain", "RAIN ON THE ROOF"}, {"tnp_clear", "CLOCKED OUT"},
     {"tnp_fail", "WRITTEN OFF"}, {"tnp_end", "SUNDAY OFF"}, {"tnp_fired", "PINK SLIP"},
+    {"shb_title", "SAY CHEESE"}, {"shb_story", "NEW CAMERA"}, {"shb_home", "HOME ORBIT"},
+    {"shb_teatime", "TEATIME PLANET"}, {"shb_comet", "COMET RAIN"}, {"shb_gloom", "GLOOM PLANET"},
+    {"shb_fossil", "FOSSIL PLANET"}, {"shb_boss", "FLASH POINT"}, {"shb_lens", "THE KALEIDOSCOPE"},
+    {"shb_clear", "DEVELOPED"}, {"shb_lost", "OVEREXPOSED"}, {"shb_over", "OUT OF FILM"},
+    {"shb_ending", "POSTCARDS HOME"}, {"shb_credits", "THE ALBUM"},
 };
 
 const char *shell_song_title(int song) {

@@ -1,0 +1,29 @@
+# SHUTTERBUG: the cartridge as written: a prologue and five stages (the
+# true boss's room is the sixth), each list in order; two mid-bosses,
+# three stage bosses and the true boss; one red repair foe on each planet;
+# the U, F and O, one per planet; a secret on every planet.
+game shutterbug
+expect spawns_sorted == 1
+expect spawn_count_29 == 1
+expect spawn_count_30 == 1
+expect spawn_count_31 == 1
+expect spawn_count_32 == 1
+expect spawn_count_33 == 1
+expect spawn_count_35 == 1
+expect spawn_count_26 == 3
+expect spawn_count_25 == 5
+expect red_in_0 == 0
+expect red_in_1 == 1
+expect red_in_2 == 0
+expect red_in_3 == 1
+expect red_in_4 == 0
+expect red_in_5 == 1
+expect spawn_count_23 == 2
+# Gloom's red rail crawler is in the cave just before Old Croak, with other
+# rail crawlers; Fossil's red spout has spouts on ledges above and below it;
+# Teatime's red cube flies in a formation of plain ones
+expect red_x_3 < 2910
+expect red_x_3 > 2200
+expect red_company_3 >= 2
+expect red_company_5 >= 2
+expect red_company_1 == 4

@@ -1,0 +1,41 @@
+# SHUTTERBUG: two hits a life: the first takes the armour (Poppy turns
+# blue underneath), the second the ship. With no spare ship it is over
+# (there are no continues); with one, the stage starts again from its
+# start, the shown score back to 0, and the letters already lit stay lit.
+game shutterbug
+cheat run 1
+cheat quiet
+cheat lives 1
+cheat letters 3
+cheat addscore 500
+expect score == 500
+cheat hurt 0
+expect armour == 0
+expect alive == 1
+expect inv > 0
+wait 101
+cheat hurt 0
+expect alive == 0
+expect deaths == 1
+wait 160
+expect state == 4
+wait 200
+expect lives == 0
+expect score == 0
+expect best == 500
+expect letters == 3
+expect stage == 0
+expect cam_x == 0
+wait 110
+expect state == 3
+expect armour == 1
+expect alive == 1
+# and with none to spare: game over, and back to the title
+cheat hurt 0
+wait 101
+cheat hurt 0
+wait 160
+expect state == 5
+wait 250
+expect state == 0
+expect save_best == 500

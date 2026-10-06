@@ -1,0 +1,47 @@
+# SHUTTERBUG: the title offers 1 PLAYER and 2 PLAYERS (co-op); UP and DOWN
+# move between them, B goes back to the library. A on 1 PLAYER opens the
+# story (any button skips it), then the prologue's name card, then play:
+# Poppy alone, armoured, her camera charged, no spare ships and no points.
+game shutterbug
+wait 5
+expect state == 0
+expect paused == 0
+expect menu == 0
+press DOWN
+expect menu == 1
+press UP
+expect menu == 0
+press A
+expect state == 1
+expect players == 1
+wait 30
+press A
+expect state == 2
+expect stage == 0
+wait 100
+expect state == 3
+expect alive == 1
+expect armour == 1
+expect on2 == 0
+expect flash == 1320
+expect lives == 0
+expect score == 0
+expect deaths == 0
+# no saving in the middle of a run: out to the library and back in is the title
+press START
+expect paused == 1
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press A
+wait 60
+expect_scene library
+game shutterbug
+wait 5
+expect state == 0
+expect save_runs == 1
+press B
+wait 60
+expect_scene library
