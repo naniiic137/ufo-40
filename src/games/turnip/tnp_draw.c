@@ -627,20 +627,19 @@ void tnp_draw_anchor(int x, int y, int t, bool talking) {
     if (talking && (t / 6) % 2) gfx_rect(x + 7 * 3, y + 8 * 3, 2 * 3, 2 * 3, C_INK);
 }
 
-/* the library label: a corner of Blipton with the truck going round the block */
+/* the library label: the truck going round the depot's block, the city scrolling under it */
 void tnp_draw_label(int x, int y, int w, int h, int t) {
     gfx_clip(x, y, w, h);
-    float cx = 12 * TNP_CELL + 10, cy = 9 * TNP_CELL + 10;
-    tnp_draw_city(NULL, cx - (float)w / 2, cy - (float)h / 2, x, y, w, h);
-    /* round the depot's block: along y=10, up x=16, along y=7, down x=11 */
-    float per = (float)((t * 2) % 600) / 600.0f;
+    /* along y=10, up x=16, along y=7, down x=11, on the right-hand side */
+    float per = (float)((t * 2) % 900) / 900.0f;
     float px, py, ang;
-    const float X0 = 11.5f * TNP_CELL, X1 = 16.5f * TNP_CELL, Y0 = 7.5f * TNP_CELL, Y1 = 10.5f * TNP_CELL;
+    const float X0 = 11.5f * TNP_CELL - 12, X1 = 16.5f * TNP_CELL + 12, Y0 = 7.5f * TNP_CELL - 12, Y1 = 10.5f * TNP_CELL + 12;
     float lx = X1 - X0, ly = Y1 - Y0, tot = 2 * (lx + ly), s = per * tot;
     if (s < lx) { px = X0 + s; py = Y1; ang = 0; }
     else if (s < lx + ly) { px = X1; py = Y1 - (s - lx); ang = -1.5708f; }
     else if (s < 2 * lx + ly) { px = X1 - (s - lx - ly); py = Y0; ang = 3.14159f; }
     else { px = X0; py = Y0 + (s - 2 * lx - ly); ang = 1.5708f; }
-    tnp_draw_truck((float)x + (float)w / 2 + (px - cx), (float)y + (float)h / 2 + (py - cy), ang, 0, 0);
+    tnp_draw_city(NULL, px - (float)w / 2, py - (float)h / 2, x, y, w, h);
+    tnp_draw_truck((float)x + (float)w / 2, (float)y + (float)h / 2, ang, 0, 0);
     gfx_noclip();
 }
