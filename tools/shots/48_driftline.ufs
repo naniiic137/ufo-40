@@ -1,0 +1,44 @@
+# README media: DRIFTLINE. Everything here is the demo player pressing real
+# buttons; the later stages and bosses are reached with cheats, then driven
+# by the demo player.
+shotscale 2
+seed 48
+game driftline
+wait 60
+shot driftline_title
+# stage 1, Harbour Road: kites, buzzers and road hogs, the Zephyr far off
+botplay 2560
+gifstart driftline 3 2
+botplay 600
+gifstop
+shot driftline_harbour
+# the Zephyr comes down
+botuntil boss_y >= 40 7000
+botplay 420
+shot driftline_zephyr
+# the bonus stage after a clean stage
+botuntil state == 3 6000
+botplay 170
+shot driftline_bonus
+# stage 2, the Sundown Strip, and the Orrery
+cheat stage 2
+cheat spare 9
+botplay 3460
+shot driftline_sundown
+cheat boss
+botplay 420
+shot driftline_orrery
+# stage 3: the moon was an eye all along
+cheat stage 3
+cheat spare 9
+cheat boss
+botplay 640
+shot driftline_moon
+# stage 4: the open sea, and Old Crab
+cheat stage 4
+cheat spare 9
+botplay 2380
+shot driftline_openwater
+cheat boss
+botplay 980
+shot driftline_crab

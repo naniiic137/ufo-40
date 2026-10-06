@@ -141,6 +141,7 @@ menu, shows the buttons as you now press them). SELECT or B closes it.
 | 44 | **HOMESPUN** | Pilot Quest | a camp that keeps working in real time while the console is on, even in other cartridges; a yo-yo that knocks glints out of a crystal; plants, bars, huts, anvils, bins and research at the original's prices; jerky as two minutes of trip time a strip, and a clock that is also your health; one Wilds map whose roadblocks and caves are shuffled per save; three dungeons with a ship part each; a gun that costs a glint a shot; coins for hopstones, vendors and a gambling den; a spider that spins thread at camp; a super boss beaten six times in one trip; new-game-plus stones | Wick and the *Tumbleweed*, the moor-moon Oddmoor and its folk, the Wilds, three dungeons, all 19 foes and 6 bosses |
 | 41 | **RIMSHIRE** | Lords of Diskonia | a board where two banners take turns stepping along roads, trails a banner can't step back onto that pull an army back when struck, inns, tomes, seams and chests; flick battles on fields built from the four tiles round the fight: a queue of three, aim, charge and launch, knocks that hurt by the striking disk's own melee, water, the closing haze and stalemates; the original's 15 disks with their numbers, 8 skills, 10 campaign wars, the streak and 2P | Rimshire, the Brass and Plum banners, the Plum Empress, Lady Brass's letters, all 16 disks, 10 new boards |
 | 47 | **WOBBLE DERBY** | Quibble Race | three punters and three runners a race, odds from a form book of twenty unseen races, rising bet caps and an open last race, one tip a race, five dirty tricks and a minder with the same prices and fines, a lender at 15 % compounded, sponsoring from a shortlist and a coach, meteors, garbage and smog, 26 runners in the same speed and clumsiness bands, 3-player hot-seat | Crater Downs, the 26 wobblers, the sixteen punters (five of them UFO 40 cameos), the Fixer, the Lender and the Wobble Wire |
+| 48 | **DRIFTLINE** | Seaside Drive | a car locked to the road at the bottom while the world scrolls by, steering that also swings the gun through a 90-degree cone (UP straightens it), a rapid main gun on B and side pairs along the road on A, a charge meter (grey, green, red; only the section counts) that fills only while you drive left and drains slowly otherwise, one hit per car and the screen swept clean as the next drives in, fliers that turn nasty if left alone, wrecks that pay only when shot again, four fixed stages from morning to the open sea, each with a boss (10,000 to 40,000) seen in the background all stage, a Breakout bonus stage after any stage with no car lost whose coin is two more cars (the only extra cars), 2P co-op | Lou and Dee, the Gull and the Tern, Harbour Road, the Sundown Strip, the Moonlit Mile and Open Water, every foe, the Zephyr, the Orrery, the Man in the Moon, Old Crab (from ROOFCAT) and a Beamdown saucer, all the waves, swells and block layouts |
 | 08, 12, 17, 20–24, 27, 29, 32–38, 40, 42–43, 48–50 | *coming soon* | | | still in the saucer's cargo hold |
 
 Every cartridge has three goals, which follow the original's own three: a
@@ -1189,6 +1190,45 @@ the top.
   punters, five of them cameos from other UFO 40 cartridges, the Tip Booth,
   the Fixer, the Lender, the Coach, Dot Dial and the Wobble Wire, and the
   music.
+
+### 48 · DRIFTLINE
+
+<p align="center">
+  <img src="docs/shots/driftline.gif" width="640" alt="Driftline: Lou's red convertible drifts and fires along Harbour Road while kites and rotors circle">
+</p>
+<p align="center">
+  <img src="docs/shots/driftline_zephyr.png" width="320" alt="The Zephyr, the airship seen far off all through stage 1, comes down with three turrets">
+  <img src="docs/shots/driftline_moon.png" width="320" alt="The moon over the Moonlit Mile turns out to be an eye, and its hand comes for the car">
+</p>
+<p align="center">
+  <img src="docs/shots/driftline_bonus.png" width="320" alt="A bonus stage: the car is the paddle and a coin in a bubble the ball">
+  <img src="docs/shots/driftline_crab.png" width="320" alt="Old Crab over the open sea: only the mark on its shell can be hurt, and its legs slam the road">
+</p>
+
+*A tribute to **Seaside Drive** (UFO 50 #48).*
+
+- **Plays the same:** a red convertible locked to the road at the bottom
+  of the screen while the coast goes by. Driving is aiming: the gun swings
+  the way you steer, through a 90-degree cone, and stays put when you stop;
+  UP brings it back to straight up. Hold B for the main stream, A for side
+  pairs along the road, the only thing that reaches cars on it. One hit
+  loses the car; the next drives in from the left and sweeps the screen.
+- **The meter:** grey, green, red, and only the section counts. It fills
+  only while you drive left (the power drift, with sparks) and drains slowly
+  otherwise, so the drive becomes a rhythm: surge right to shoot, drift left
+  to charge.
+- **Structure:** four fixed stages, morning to sunset to midnight to the
+  open sea, each with its own foes and a boss you can see in the background
+  all stage. Clear a stage without losing a car and a Breakout bonus stage
+  follows: the car is the paddle, a coin in a bubble the ball, gunfire
+  breaks blocks too, and clearing them all gives the coin, worth two more
+  cars (the only extra cars there are). 1P or 2P together with one shared
+  reserve. A run takes about 13 minutes; the demo player in the tests wins
+  it from the title with real presses, alone and in co-op.
+- **Ours:** Lou and the Gull, Dee and the Tern, Harbour Road, the Sundown
+  Strip, the Moonlit Mile and Open Water, every foe and wave, the whales'
+  swells, the three block layouts, the Zephyr, the Orrery, the Man in the
+  Moon and Old Crab (visiting from ROOFCAT), a Beamdown saucer, and the music.
 
 ## Install on PS Vita
 
