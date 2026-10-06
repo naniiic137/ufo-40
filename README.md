@@ -130,6 +130,7 @@ menu, shows the buttons as you now press them). SELECT or B closes it.
 | 16 | **TINTAIL** | Camouflage | sneaking on a grid past watchers by taking the colour of the ground you stand on, hollow logs, sun and rain pads, hatchlings with their own colour, a danger view you can't move in, undo, a branching map | Twig the chameleon, Salt Island, toads and storks, 15 new levels |
 | 18 | **LOST LINKS** | Golfaria | a top-down open world where every roll is a stroke and strokes are your health, twenty to start and three more for each of twenty irons found underground, pins and safe zones, sand you can only chip out of, water and pits that send you back, jumping flowers, holes down to a whole layer underneath, parbot-style scorecrows, two kinds of bug, four abilities in the four corners, the four-piece star relic, a plate puzzle and a burrowing boss | Dimple the golf ball, the Brass Badger, slicers, sippers, larks, strays, twenty ball folk and a hidden village of Keepers, both layers of the world |
 | 19 | **CHIME CIRCUIT** | The Big Bell Race | side-view flight with gravity, thrust and drift, six ships on one screen, eight laps on each of eight courses in a fixed order, three hit points that walls, floors and weapons take, a slash that only knocks, a relaunch from under the start line to fly the lap again, a hit point back every lap, pickup stations with a "!!" warning (bullets, mines, fireballs, the big slash, the payload), boost arrows and side routes, 9/7/5/3/2/1 points, the winner starting last, CPUs that turn on you, 2P at once | the chime ship, Ansel and Clary and four visitors from other UFO 40 cartridges, the eight tracks and their skies, the LOOT-GALE code |
+| 21 | **TUSKWIND** | Waldorf's Journey | a new random map every run, a chain of floating islets to a door at the far end; every jump aimed with a cursor and charged before launch (aimed flat, a lunge with no air), then nothing in the air but flapping on a bar only fish refill; one-way islets, solid bouncy rocks and foam that lasts one full charge; six terns from six lighthouses as lives; 36 loose shells that are money and score, two chests and two keys and a hidden third; winds at 40 % and 80 % and bells that toggle them once; charging rams; mantas to dodge, ride or burst for keys; stalls of two random wares from six items, one visit each; 22 signs and a hidden one; an end room with spiral shells for unused terns, a shaft and the hidden chest; two endings split at 50 shells; a 2P brawl on a wrapping screen whose islets crumble | Burl the walrus in his nightcap, Skerry the old one, the Duchess Auk, terns, rams and mantas, the bobber, spyglass, grapnel, kite, spinner and sprat tin, every sign, both talks and the hall |
 | 25 | **OPEN HOUSE** | Party House | drawing guests from a deck into a house with limited space, the original's 46 guest abilities, costs and trouble, police, fire marshal and bans, set guest lists and a random list, win by ending a party with four stars within 25 nights, 2P hot-seat; the fame and cash caps; the owner's endless OPEN ALL NIGHT, a custom list and two guests of his own | a whitewashed house by the sea, all 48 guests' names and faces |
 | 26 | **SKID KIDS** | Hot Foot | top-down two-on-two dodgeball with beanbags that skid along the floor, one button to pick up, pass, swap kids and wind up (a tap tosses, a full wind-up knocks down, a jump calls it off), a team jump that earns half-stars over sliding bags, stars for each kid's special throw or move, juice boxes, the Coach's items, the forced throw, first to 15; the original's 12 kits one for one, a draft or a free pick of the team, six matches with the kid nobody picked coming back with a robot, co-op, versus, the codes and the demo | NOODLE, PIPPA, HOPS, MILO, SPARKY, NELL, KIKI, ROXIE, TOBY, SID, BUZZY and MOOSE, Boomer the kangaroo, Benchbot, the Coach and the Hornets' gym |
 | 28 | **DUNE EXPRESS** | Rail Heist | real time until a guard is alert, then 10-second turns, one-bullet lawmen who hit each other too, punches through walls and floors, carrying and throwing, hiding in barrels, levers, a crank gun, rams, three outlaws, three stars a mission with the original's time goals, 2P versus | Wade, Hush and Pearl, the Governor's tax trains, Biscuit the camel, 20 new trains |
@@ -703,6 +704,47 @@ the top.
 - **Ours:** the chime ship, Ansel and his sister Clary, visitors from
   HOMESPUN, SKYWELL and WOBBLE DERBY, all eight tracks and their skies,
   the LOOT-GALE code and the LAST-LAMP page, and the music.
+
+### 21 · TUSKWIND
+
+<p align="center">
+  <img src="docs/shots/tuskwind.gif" width="640" alt="Tuskwind: Burl the walrus aims, charges and leaps from islet to islet in the afternoon sky">
+</p>
+<p align="center">
+  <img src="docs/shots/tuskwind_storm.png" width="320" alt="Late in the dream: the sun down, a storm wind and rain, a ram waiting on the next islet">
+  <img src="docs/shots/tuskwind_stall.png" width="320" alt="A stall of the Duchess Auk's: two wares, one visit">
+</p>
+<p align="center">
+  <img src="docs/shots/tuskwind_elder.png" width="320" alt="The hall at the dream's end: Skerry, the old one, speaks">
+  <img src="docs/shots/tuskwind_brawl.png" width="320" alt="The brawl: two walruses on one wrapping screen of crumbling islets">
+</p>
+
+*A tribute to **Waldorf's Journey** (UFO 50 #21).*
+
+- **Plays the same:** Burl is asleep, and in his dream he crosses a chain
+  of floating islets towards a door at the far end. Every jump is set up on
+  the ground: UP/DOWN swing a "+" cursor, holding A fills a meter under him,
+  and letting go sends him that way (aimed dead flat, he lunges along the
+  ground instead). In the air the only steering is his flippers: hold A to
+  flap, on a yellow bar that only sprats fill. Plain islets let him through
+  from below; rocks bounce him off; pink foam lasts just one full charge.
+- **The way:** a new map every journey, with the same quotas every time:
+  six lighthouses whose terns each pull him out of the sea once, 36 loose
+  shells that are both money and score, two chests and two keys, three
+  stalls of the Duchess Auk (two wares, one visit), 22 signs, wind bells,
+  rams that charge whoever lands on their islet, and mantas gliding high
+  that knock him away, carry him, or drop a key when burst. The sky sets as
+  he goes; a wind rises at about 40 % and a storm wind at 80 % that stays.
+- **Structure:** reach the door, then the hall: spiral shells from the
+  terns he didn't need, a shaft lined with shells, a hidden chest over the
+  chasm, and the old one, whose talk depends on carrying 50 shells. A
+  journey takes a few minutes for the demo player in the tests, which
+  finishes generated maps from the title with real button presses, both
+  endings; 2P brawl on a single wrapping screen, best of 1 to 9 rounds.
+- **Ours:** Burl in his nightcap, Skerry the old one, the Duchess Auk,
+  terns, rams, mantas, cockles and whelks, the bobber, spyglass, grapnel,
+  kite, spinner and sprat tin, all 23 signs, both talks, the hall, and the
+  music.
 
 ### 25 · OPEN HOUSE
 

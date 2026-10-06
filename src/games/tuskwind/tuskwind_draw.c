@@ -305,9 +305,9 @@ static void draw_rain(int t) {
 
 static void draw_hall_back(int t) {
     /* the deep hall: an ice vault under the sea, lit from below */
-    static const uint8_t BANDS[6] = {C_INK, C_INK, C_NIGHT, C_NIGHT, C_NAVY, C_NAVY};
-    for (int i = 0; i < 6; i++) gfx_rect(0, i * 30, SCREEN_W, 30, BANDS[i]);
-    for (int i = 1; i < 6; i++) gfx_dither(0, i * 30 - 6, SCREEN_W, 6, BANDS[i - 1], 6);
+    gfx_cls(C_NIGHT);
+    gfx_dither(0, 0, SCREEN_W, 60, C_INK, 10);
+    gfx_dither(0, 60, SCREEN_W, 30, C_INK, 4);
     int off = (int)(tkg.cam_x * 0.5f);
     for (int k = -1; k < 7; k++) {
         int x = k * 60 - off % 60 + 20;
