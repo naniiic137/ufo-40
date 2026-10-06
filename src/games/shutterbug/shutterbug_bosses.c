@@ -141,7 +141,7 @@ static void scone_update(Foe *e) {
     e->y = wy(84 + sinf(e->st * 0.02f) * 40);
     e->x = wx(236 + sinf(e->st * 0.013f) * 30);
     /* a volley of raisins that spreads as it flies */
-    if (e->st % 100 == 40) { shb_aimed(e->x - 16, e->y, 1.5f, 5, 13); shb_sfx("shb_volley", 6); }
+    if (e->st % 80 == 40) { shb_aimed(e->x - 16, e->y, 1.5f, 5, 13); shb_sfx("shb_volley", 6); }
     /* crumbs fall from the sky; every other one hides a bulb */
     if (e->st % 64 == 0) {
         int j = shb_add_eshot(ES_FALL, wx(40 + (e->st * 37) % 200), wy(-4), 0, 0.4f);
@@ -169,17 +169,17 @@ static void teapot_update(Foe *e) {
     if (shb_solid_at(nx, ny - e->hh) && e->vy < 0) e->vy = 0.5f;
     e->x += e->vx;
     e->y = ny;
-    if (e->st % 120 == 60) { shb_aimed(e->x - 10, e->y - 6, 1.6f, 3, 18); shb_sfx("shb_volley", 6); }
+    if (e->st % 90 == 60) { shb_aimed(e->x - 10, e->y - 6, 1.6f, 3, 18); shb_sfx("shb_volley", 6); }
     /* drips from the ceiling (shoot them for bulbs) */
-    if (e->st % 56 == 20) {
+    if (e->st % 48 == 20) {
         /* out of one of the four holes in the ceiling */
-        float hx = 580 * SHB_TILE + ((e->st / 56) % 4) * 10 * SHB_TILE + SHB_TILE;
+        float hx = 580 * SHB_TILE + ((e->st / 48) % 4) * 10 * SHB_TILE + SHB_TILE;
         int j = shb_add_eshot(ES_FALL, hx, wy(10), 0, 0.3f);
         if (j >= 0) sb.es[j].arg = 1;
     }
     /* toasties come in from the far end and pop crumbs that bounce */
-    if (e->st % 300 == 150 && count_kind(K_TOAST) < 2) {
-        int j = shb_spawn(K_TOAST, wx(SCREEN_W + 6), wy(SHB_PF_H - 20), (e->st / 300) % 2 ? F_CEIL | F_CRYSTAL : F_CRYSTAL, 0);
+    if (e->st % 240 == 120 && count_kind(K_TOAST) < 2) {
+        int j = shb_spawn(K_TOAST, wx(SCREEN_W + 6), wy(SHB_PF_H - 20), (e->st / 240) % 2 ? F_CEIL | F_CRYSTAL : F_CRYSTAL, 0);
         (void)j;
     }
 }
@@ -265,7 +265,7 @@ static void signal_update(Foe *e) {
             if (j >= 0) { sb.foe[j].group = g; sb.foe[j].idx = k; }
         }
     }
-    if (e->st % 110 == 80) shb_aimed(e->x - 8, e->y, 1.5f, 1, 0);
+    if (e->st % 90 == 80) shb_aimed(e->x - 8, e->y, 1.5f, 2, 12);
 }
 
 static void jaw_update(Foe *e) {
@@ -294,7 +294,7 @@ static void jaw_update(Foe *e) {
     if (c == 185) {
         for (int k = 0; k < 4; k++) shb_add_eshot(ES_ARROW, wx(60 + k * 50 + (e->st % 30)), wy(4), -0.2f, 0.6f);
     }
-    if (c == 60) shb_aimed(e->x - 14, e->y, 1.5f, 1, 0);
+    if (c == 60 || c == 100) shb_aimed(e->x - 14, e->y, 1.5f, 3, 14);
 }
 
 static void chute_update(Foe *e) {
