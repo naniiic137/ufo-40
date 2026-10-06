@@ -1,8 +1,9 @@
 # TURNIP TRUCK: A+B with a turn at speed is a powerslide: the truck
 # swings round fast while it carries on the old way, a U-turn on the spot.
 # Held too long it spins out, out of control, sliding straight on; in the
-# middle of the spin it smashes any car it touches and takes no harm. A+B
-# with a turn while stopped turns on the spot.
+# middle of the spin it smashes any car it touches and takes no harm; the
+# pad can nudge where the spin ends. A+B with a turn while stopped turns on
+# the spot.
 game turnip
 wait 5
 cheat day 1 0
@@ -30,13 +31,13 @@ expect wrecks == 1
 expect hearts == 3
 expect hits == 0
 waituntil spin_t == 0 80
-# the spin ignores the pad
+# in the spin the pad only nudges it: steering against the spin slows the turn a little
 cheat pos 320 264
 cheat ang 0
 cheat vel 2.6 0
 hold A B RIGHT 50
-hold LEFT 20
 expect spin_t > 0
+waituntil spin_t == 0 120
 # turning on the spot
 waituntil spin_t == 0 120
 cheat pos 320 264
@@ -45,3 +46,14 @@ cheat stop
 hold A B RIGHT 30
 expect ang > 50
 expect speed100 < 30
+# steering during the spin changes where it ends: against the spin it ends
+# further back round than without
+waituntil spin_t == 0 120
+cheat pos 320 264
+cheat ang 0
+cheat vel 2.6 0
+hold A B RIGHT 47
+expect spin_t > 0
+expect spin_steer <= 2
+hold LEFT 60
+expect spin_steer < -60

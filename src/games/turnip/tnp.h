@@ -56,6 +56,10 @@ extern const char *const TNP_DISTRICT_NAME[TNP_DISTRICTS];
 extern int tnp_n_crates, tnp_n_cans, tnp_n_pipes, tnp_n_drops;
 extern int8_t tnp_crate_c[TNP_MAX_CRATES][2], tnp_cans_c[TNP_MAX_CANS][2], tnp_pipe_c[TNP_MAX_PIPES][2],
     tnp_drop_c[TNP_MAX_DROPS][2];
+/* a hydrant's spot (at the kerb, on a corner of its crossing) and which corner (+1/-1 x, y) */
+#define TNP_PIPE_OFF 19
+extern float tnp_pipe_px[TNP_MAX_PIPES][2];
+extern int8_t tnp_pipe_side[TNP_MAX_PIPES][2];
 
 void tnp_city_load(void);
 const TnpCell *tnp_cell(int cx, int cy);           /* wraps */
@@ -74,7 +78,7 @@ int tnp_district_at(float x, float y);
 #define TNP_TOP 2.6f           /* top speed forward, px a frame */
 #define TNP_ACC 0.055f
 #define TNP_COAST 0.012f       /* speed lost a frame with no pedal */
-#define TNP_BRAKE 0.12f
+#define TNP_BRAKE 0.045f      /* weak: about a second from top speed to a stop */
 #define TNP_REV_TOP 0.9f       /* reverse: much slower */
 #define TNP_REV_ACC 0.03f
 #define TNP_TURN 0.055f        /* the wheel at full lock, at speed */
@@ -88,6 +92,9 @@ int tnp_district_at(float x, float y);
 #define TNP_PIVOT 0.04f        /* A+B with a turn while (nearly) stopped: turn on the spot */
 #define TNP_TAP 8              /* a turn let go within this many frames is a sidestep */
 #define TNP_JINK 1.4f          /* the sidestep's sideways push */
+#define TNP_JINK_STILL 0.8f    /* ... from a stand */
+#define TNP_SPIN_STEER 0.02f   /* steering in a spin-out nudges it */
+#define TNP_WALL_SPIN 0.095f   /* a wall hit swings the truck round */
 #define TNP_SPIN_T 100         /* a spin-out: wind-up, then the spin attack, then it eases */
 #define TNP_SPIN_ATTACK0 40
 #define TNP_SPIN_ATTACK1 80
@@ -123,6 +130,7 @@ enum { CK_TRAFFIC, CK_GANG, CK_POLICE };
 typedef struct {
     float x, y, speed, nudge, ang;
     int16_t dir, ncx, ncy, kind, col, wreck_t, fire_t, partner, bump_t;
+    int16_t chase_t, life;   /* a gang car: chasing the truck; frames left of its chase */
     uint8_t alive;
 } TnpCar;
 
@@ -154,14 +162,16 @@ enum { TS_DRIVE, TS_SINK, TS_WRECK, TS_BOOM };
 typedef struct {
     float x, y, vx, vy, ang, spin;
     float tap_ang;
+    float spin_steer;        /* how far the pad has nudged the current spin-out (radians) */
     int16_t state, state_t, hearts, inv, regen_t, drift_t, spin_t, air_t, air_max, tap_t, tap_dir;
     int16_t hit_wall_t;
     uint16_t prev;
-    uint8_t flip_reverse, swarmed;
+    uint8_t flip_reverse;
 } TnpTruck;
 
 /* one workday being played (copied whole by nothing: the bot reads it) */
 enum { DP_PLAY, DP_DONE, DP_FAIL };
+enum { FACE_DRIVE, FACE_SHOCK, FACE_HAPPY };
 enum { FAIL_NONE, FAIL_TIME, FAIL_WRECK };
 typedef struct {
     int day;                 /* 0..6 */
@@ -177,8 +187,10 @@ typedef struct {
     int add_t;               /* how long to show it */
     int practice, god;       /* the practice code; tests */
     int died_in_lot;         /* the try ended in the fenced lot */
-    int swarm_t, beet_sound_t;
+    int gang_t;              /* the radish ring: frames to the next chase */
+    int face, face_t;        /* the driver's face on the dashboard (FACE_*) and for how long */
     int squashed;            /* mushmen run over */
+    int puddles_ahead;       /* puddles that appeared on the road just ahead */
     int spawned, spawn_bad;  /* traffic that appeared; how many of those ahead of you going your way */
     Rng rng;
     TnpTruck tr;
@@ -219,10 +231,11 @@ void tnp_events_begin(TnpDay *d);
 void tnp_events_update(TnpDay *d);
 /* a brine spray or wave pushing at x, y (0 = none) */
 void tnp_brine_push(const TnpDay *d, float x, float y, float *fx, float *fy);
-bool tnp_pipe_spraying(const TnpDay *d, int pipe, int dir);
-int tnp_wave_band(const TnpDay *d, int lane, float *x0, float *x1);
+int tnp_pipe_spray_dir(const TnpDay *d, int pipe);
 #define TNP_WAVES 3
-extern const int TNP_WAVE_ROW[TNP_WAVES];
+typedef struct { uint8_t vertical; int8_t line, a0, a1, flow; } TnpWave; /* a row (or column) and its cells */
+extern const TnpWave TNP_WAVE[TNP_WAVES];
+int tnp_wave_rect(const TnpDay *d, int w, float *x, float *y, float *bw, float *bh);
 
 /* tnp_bot.c: the demo player */
 uint16_t tnp_bot_buttons(TnpDay *d);

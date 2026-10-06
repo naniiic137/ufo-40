@@ -8,42 +8,44 @@
  *   .  road            #  building        H  the depot         g  grass (park)
  *   T  tree            ~  brine (fall in)  r  rocky ground     F  fence
  *   l  the fenced lot  =  bridge           +  drop zone         x  pipe at a crossing
- *   c  a floating crate                    k  gas canisters     > < ^ v  ramp
+ *   k  gas canisters                       > < ^ v  ramp (throws a fast truck over what lies beyond)
+ *
+ * The time crates hang from balloons over the hazards past the ramps (TNP_CRATE_AT).
  */
 #include "tnp.h"
 
 const char *const TNP_MAP_ROWS[TNP_MAP] = {
     "...........x.........x.......+..", /*  0 */
     ".####.#####.####.####.#####.FFFF", /*  1 */
-    "...c..#####.####.........##.llkF", /*  2 */
+    "......#####.####.........##.llkF", /*  2 */
     ".####.#####.####.####.#####.F~lF", /*  3 */
     ".####.#####.####.####.#####.FFFF", /*  4 */
     ".....x..........................", /*  5 */
     ".##.#.##.##.####.####.##.##.####", /*  6 */
-    ".##.#.##c##.........#.##.##.####", /*  7 */
-    ".##.#.......#HH#.##.#.##c##.####", /*  8 */
+    ".##.#.##.##.........#.##.##.####", /*  7 */
+    ".##.#.......#HH#.##.#.##.##.####", /*  8 */
     ".##.#.#####.#HH#.####.#####.####", /*  9 */
     ".....x.....................x....", /* 10 */
     ".####.gggT#.Tggg.####.#####.##.#", /* 11 */
-    ".#.##.gTgg#.gggT.#c##.....#.##.#", /* 12 */
-    ".#c...gggg#.gggg.#.##.###.#.##c#", /* 13 */
+    ".#.##.gTgg#.gggT.#.##.....#.##.#", /* 12 */
+    ".#....gggg#.gggg.#.##.###.#.##.#", /* 13 */
     ".####.#####.gTgg.#.##.#####.####", /* 14 */
     "x...............x...............", /* 15 */
     ".####.##.##.####.#######.##.####", /* 16 */
-    ".####.##.##.####.#######c##.####", /* 17 */
-    "......+....+.....#######.##.####", /* 18 */
+    ".####.##.##.####.#######.##.####", /* 17 */
+    "......+....+....v#######v##.####", /* 18 */
     "=~~~~~~~~~~=~~~~~~~~~~~~~~~=~~~~", /* 19 */
     "=~~~~~~~~~~=~~~~~~~~~~~~~~~=~~~~", /* 20 */
     ".##########.....+.........+.....", /* 21 */
-    ".....######.##c#.####.#####.###.", /* 22 */
-    ".#.########.##.#.####.#####.###c", /* 23 */
+    ".....######.##.#.####.#####.###.", /* 22 */
+    ".#.###~~~~#.##.#.####.#####.###.", /* 23 */
     "..+....>~..x+..............x....", /* 24 */
-    ".rrrrv####c.####.####.rrrrr.#~~~", /* 25 */
+    ".rrrrv####..####.####.rrrrr.#~~~", /* 25 */
     ".rrrr~...kr..........>rrrrr.#~~~", /* 26 */
-    ".rrrrc####..####.####.rrrrr.#~~~", /* 27 */
+    ".rrrr.####..####.####.rrrrr.#~~~", /* 27 */
     "...k.+..>k...........x+.........", /* 28 */
     ".####.>~~...####.#.##.#####.##.#", /* 29 */
-    ".####.#~~~#.gTgg.#c##...........", /* 30 */
+    ".####.#~~~#.gTgg.#.##...........", /* 30 */
     ".####.#####.####.####.#####.####", /* 31 */
 };
 
@@ -67,7 +69,15 @@ const char *const TNP_DISTRICT_NAME[TNP_DISTRICTS] = {
     "THE CANAL", "PICKLE WORKS", "THE MARKET", "THE DOCKS",
 };
 
+/* the time crates, up in the air on balloons: each over a pool, a canister stack, a rocky yard
+ * or the canal, just past a ramp, so only a truck flying off the ramp can break it */
+static const int8_t TNP_CRATE_AT[][2] = {
+    {8, 24}, {5, 26}, {7, 29}, {9, 28}, {23, 26}, {16, 19}, {24, 19},
+};
+
 TnpCell tnp_map[TNP_MAP][TNP_MAP];
+float tnp_pipe_px[TNP_MAX_PIPES][2];
+int8_t tnp_pipe_side[TNP_MAX_PIPES][2];
 int tnp_n_crates, tnp_n_cans, tnp_n_pipes, tnp_n_drops;
 int8_t tnp_crate_c[TNP_MAX_CRATES][2], tnp_cans_c[TNP_MAX_CANS][2], tnp_pipe_c[TNP_MAX_PIPES][2],
     tnp_drop_c[TNP_MAX_DROPS][2];
@@ -107,17 +117,12 @@ void tnp_city_load(void) {
             case '=': c->type = CT_BRIDGE; break;
             case '+': c->type = CT_ROAD; c->feat = FT_DROP; break;
             case 'x': c->type = CT_ROAD; c->feat = FT_PIPE; break;
-            case 'c': c->type = CT_ROAD; c->feat = FT_CRATE; break;
             case 'k': c->type = CT_ROAD; c->feat = FT_CANS; break;
             case '>': c->type = CT_ROAD; c->feat = FT_RAMP; c->ramp_dir = DIR_E; break;
             case 'v': c->type = CT_ROAD; c->feat = FT_RAMP; c->ramp_dir = DIR_S; break;
             case '<': c->type = CT_ROAD; c->feat = FT_RAMP; c->ramp_dir = DIR_W; break;
             case '^': c->type = CT_ROAD; c->feat = FT_RAMP; c->ramp_dir = DIR_N; break;
             default: c->type = CT_ROAD; break;
-            }
-            if (c->feat == FT_CRATE && tnp_n_crates < TNP_MAX_CRATES) {
-                tnp_crate_c[tnp_n_crates][0] = (int8_t)x;
-                tnp_crate_c[tnp_n_crates++][1] = (int8_t)y;
             }
             if (c->feat == FT_CANS && tnp_n_cans < TNP_MAX_CANS) {
                 tnp_cans_c[tnp_n_cans][0] = (int8_t)x;
@@ -132,6 +137,25 @@ void tnp_city_load(void) {
                 tnp_drop_c[tnp_n_drops++][1] = (int8_t)y;
             }
         }
+    for (int i = 0; i < ARRAY_LEN(TNP_CRATE_AT) && i < TNP_MAX_CRATES; i++) {
+        tnp_crate_c[i][0] = TNP_CRATE_AT[i][0];
+        tnp_crate_c[i][1] = TNP_CRATE_AT[i][1];
+        tnp_n_crates = i + 1;
+    }
+    /* each hydrant stands at the kerb, on a corner of its crossing where a building
+     * comes up to the road (the first such corner going round from the south-east) */
+    for (int i = 0; i < tnp_n_pipes; i++) {
+        static const int8_t CORNER[4][2] = {{1, 1}, {-1, 1}, {-1, -1}, {1, -1}};
+        int cx = tnp_pipe_c[i][0], cy = tnp_pipe_c[i][1], k = (cx * 7 + cy * 3) % 4;
+        for (int j = 0; j < 4; j++) {
+            int q = (k + j) % 4;
+            if (tnp_solid_type(tnp_cell(cx + CORNER[q][0], cy + CORNER[q][1])->type)) { k = q; break; }
+        }
+        tnp_pipe_side[i][0] = CORNER[k][0];
+        tnp_pipe_side[i][1] = CORNER[k][1];
+        tnp_pipe_px[i][0] = tnp_cx(cx) + (float)(CORNER[k][0] * TNP_PIPE_OFF);
+        tnp_pipe_px[i][1] = tnp_cx(cy) + (float)(CORNER[k][1] * TNP_PIPE_OFF);
+    }
 }
 
 int tnp_wrapc(int c) { return ((c % TNP_MAP) + TNP_MAP) % TNP_MAP; }

@@ -372,20 +372,20 @@ static void draw_codes(void) {
 static const char *news_line(int ev) {
     switch (ev) {
     case EV_BRINE:
-        return "A MAIN HAS BURST AT THE PICKLE WORKS. BRINE IS SPRAYING FROM THE PIPES AT EVERY CROSSING, AND WAVES "
-               "OF IT ARE ROLLING DOWN THE WORKS' STREETS. HOLD ON TO YOUR WHEEL!";
+        return "A MAIN HAS BURST AT THE PICKLE WORKS. BRINE IS SPRAYING FROM THE HYDRANTS AT THE CROSSINGS, AND WAVES "
+               "OF IT ARE SWEEPING ACROSS THE ROADS BY THE WATER. HOLD ON TO YOUR WHEEL!";
     case EV_BEET:
         return "A GIANT BEETROOT HAS ESCAPED FROM THE COUNTY SHOW. IT IS CHARGING ROUND TOWN AFTER ANYTHING WITH "
                "WHEELS. KEEP MOVING!";
     case EV_MUSH:
-        return "THE MUSHMEN ARE UP EARLY. CROWDS OF THEM ARE SHUFFLING THROUGH EVERY STREET. RUN THEM OVER IF YOU MUST, "
-               "BUT NEVER STOP AMONG THEM.";
+        return "THE MUSHMEN ARE UP EARLY. HORDES OF THEM ARE SHUFFLING THROUGH THE STREETS. THEY WON'T HURT A SOUL, "
+               "BUT EVERY ONE YOU RUN OVER SLOWS YOU RIGHT DOWN.";
     case EV_RADISH:
-        return "THE RADISH RING ROBBED THE WOBBLY BANK AT DAWN. THE POLICE ARE CHASING THEIR CARS ALL OVER TOWN, AND "
-               "THEY SHOOT AT ANYONE WHO GETS CLOSE.";
+        return "THE RADISH RING ROBBED THE WOBBLY BANK AT DAWN. THE POLICE ARE CHASING THEIR CARS ALL OVER TOWN. "
+               "IF THE GANG SPOTS YOU, THEY WILL COME AFTER YOU, GUNS BLAZING.";
     case EV_RAIN:
-        return "HEAVY RAIN ALL DAY, FOLKS. PUDDLES ARE FORMING ON EVERY ROAD, AND HITTING ONE FAST WILL SPIN YOU RIGHT "
-               "ROUND. SLOW DOWN!";
+        return "HEAVY RAIN ALL DAY, FOLKS. PUDDLES ARE APPEARING ON EVERY ROAD IN AN INSTANT, AND HITTING ONE FAST "
+               "WILL SPIN YOU RIGHT ROUND. SLOW DOWN!";
     case EV_MOON:
         return "SAUCERS FROM THE MOON ARE OVER BLIPTON! THEY ARE DROPPING BOMBS ON ANYTHING THAT COMES NEAR. STAY ON "
                "THE MOVE!";
@@ -650,6 +650,19 @@ static int tnp_query(const char *key, int *out) {
     if (!strcmp(key, "event")) { *out = tnp.event; return 1; }
     if (!strcmp(key, "spawn_bad")) { *out = tnp.spawn_bad; return 1; }
     if (!strcmp(key, "squashed")) { *out = tnp.squashed; return 1; }
+    if (!strcmp(key, "gang_chasing")) {
+        int n = 0;
+        for (int i = 0; i < TNP_MAX_CARS; i++) n += tnp.car[i].alive && tnp.car[i].kind == CK_GANG && tnp.car[i].chase_t > 0;
+        *out = n;
+        return 1;
+    }
+    if (!strcmp(key, "gang_dist")) {
+        int best = 9999;
+        for (int i = 0; i < TNP_MAX_CARS; i++)
+            if (tnp.car[i].alive && tnp.car[i].kind == CK_GANG) best = imin(best, (int)tnp_dist(tnp.car[i].x, tnp.car[i].y, t->x, t->y));
+        *out = best;
+        return 1;
+    }
     if (!strcmp(key, "pair_gap")) {
         /* the widest gap between a gang car and the police car after it (-1: no pair) */
         int worst = -1;
@@ -735,6 +748,7 @@ static int tnp_query(const char *key, int *out) {
     if (!strcmp(key, "vy100")) { *out = (int)lroundf(t->vy * 100); return 1; }
     if (!strcmp(key, "spin_t")) { *out = t->spin_t; return 1; }
     if (!strcmp(key, "spin_attack")) { *out = tnp_spin_attack(t); return 1; }
+    if (!strcmp(key, "spin_steer")) { *out = (int)lroundf(t->spin_steer * 180 / 3.14159265f); return 1; }
     if (!strcmp(key, "air_t")) { *out = t->air_t; return 1; }
     if (!strcmp(key, "drift_t")) { *out = t->drift_t; return 1; }
     if (!strcmp(key, "regen_t")) { *out = t->regen_t; return 1; }
@@ -754,6 +768,11 @@ static int tnp_query(const char *key, int *out) {
     if (!strcmp(key, "beet_state")) { *out = -1; for (int i = 0; i < TNP_MAX_MOBS; i++) if (tnp.mob[i].alive && tnp.mob[i].kind == MK_BEET) *out = tnp.mob[i].state; return 1; }
     if (!strcmp(key, "shots")) { int n = 0; for (int i = 0; i < TNP_MAX_SHOTS; i++) n += tnp.shot[i].alive; *out = n; return 1; }
     if (!strncmp(key, "shots_", 6)) { int k = atoi(key + 6), n = 0; for (int i = 0; i < TNP_MAX_SHOTS; i++) n += tnp.shot[i].alive && tnp.shot[i].kind == k; *out = n; return 1; }
+    if (!strcmp(key, "puddles_ahead")) {
+        /* puddles born on the road in front of the truck (counted when they appear) */
+        *out = tnp.puddles_ahead;
+        return 1;
+    }
     if (!strcmp(key, "puddles")) { int n = 0; for (int i = 0; i < TNP_MAX_PUDDLES; i++) n += tnp.pud[i].alive; *out = n; return 1; }
     if (!strcmp(key, "crates")) { int n = 0; for (int i = 0; i < tnp_n_crates; i++) n += tnp.crate_ok[i]; *out = n; return 1; }
     if (!strcmp(key, "cans")) { int n = 0; for (int i = 0; i < tnp_n_cans; i++) n += tnp.cans_ok[i]; *out = n; return 1; }
@@ -779,6 +798,18 @@ static int tnp_query(const char *key, int *out) {
     if (!strcmp(key, "save_delivered")) { *out = (int)sv.delivered; return 1; }
     /* the city as written */
     if (!strcmp(key, "map_crates")) { *out = tnp_n_crates; return 1; }
+    if (!strcmp(key, "pipes_at_kerb")) {
+        /* every hydrant stands on a corner of its crossing, by a building, clear of the middle */
+        int ok = 1;
+        for (int i = 0; i < tnp_n_pipes; i++) {
+            float ox = tnp_pipe_px[i][0] - tnp_cx(tnp_pipe_c[i][0]), oy = tnp_pipe_px[i][1] - tnp_cx(tnp_pipe_c[i][1]);
+            if (fabsf(ox) < 17 || fabsf(oy) < 17) ok = 0;
+            if (!tnp_solid_type(tnp_cell(tnp_pipe_c[i][0] + tnp_pipe_side[i][0], tnp_pipe_c[i][1] + tnp_pipe_side[i][1])->type)) ok = 0;
+        }
+        *out = ok;
+        return 1;
+    }
+    if (!strcmp(key, "spray_dir2")) { *out = tnp_pipe_spray_dir(&tnp, 2); return 1; }
     if (!strcmp(key, "map_cans")) { *out = tnp_n_cans; return 1; }
     if (!strcmp(key, "map_pipes")) { *out = tnp_n_pipes; return 1; }
     if (!strcmp(key, "map_drops")) { *out = tnp_n_drops; return 1; }
@@ -900,6 +931,15 @@ static int tnp_cheat(const char *cmd) {
         tnp.tr.y = tnp_cx(tnp_wrapc(b));
         return 1;
     }
+    if (sscanf(cmd, "inspray %d %d", &a, &b) == 2) {
+        /* the truck B px from hydrant A, out in its spray across the road */
+        int k = tnp_pipe_spray_dir(&tnp, iclamp(a, 0, tnp_n_pipes - 1));
+        static const int SX[4] = {1, 0, -1, 0}, SY[4] = {0, 1, 0, -1};
+        if (k < 0) return 1;
+        tnp.tr.x = tnp_wrap(tnp_pipe_px[a][0] + (float)(SX[k] * b));
+        tnp.tr.y = tnp_wrap(tnp_pipe_px[a][1] + (float)(SY[k] * b));
+        return 1;
+    }
     if (sscanf(cmd, "ang %d", &a) == 1) { tnp.tr.ang = (float)a * 3.14159265f / 180; return 1; }
     if (sscanf(cmd, "vel %f %f", &x, &y) == 2) { tnp.tr.vx = x; tnp.tr.vy = y; return 1; }
     if (!strcmp(cmd, "stop")) { tnp.tr.vx = tnp.tr.vy = tnp.tr.spin = 0; tnp.tr.spin_t = tnp.tr.air_t = 0; return 1; }
@@ -915,14 +955,15 @@ static int tnp_cheat(const char *cmd) {
         /* car KIND CX CY DIR: a car in that cell's lane */
         int v[4];
         if (sscanf(cmd, "car %d %d %d %d", &v[0], &v[1], &v[2], &v[3]) == 4) {
-            tnp_car_spawn(&tnp, iclamp(v[0], 0, 2), v[1], v[2], v[3] & 3);
+            int i = tnp_car_spawn(&tnp, iclamp(v[0], 0, 2), v[1], v[2], v[3] & 3);
+            if (i >= 0) tnp.car[i].life = 3000;
             return 1;
         }
     }
     if (sscanf(cmd, "carat %d %f %f", &a, &x, &y) == 3) {
         /* a car standing still at a point (it starts moving next frame) */
         int i = tnp_car_spawn(&tnp, iclamp(a, 0, 2), (int)(x / TNP_CELL), (int)(y / TNP_CELL), DIR_E);
-        if (i >= 0) { tnp.car[i].x = x; tnp.car[i].y = y; tnp.car[i].speed = 0; tnp.car[i].bump_t = 200; }
+        if (i >= 0) { tnp.car[i].x = x; tnp.car[i].y = y; tnp.car[i].speed = 0; tnp.car[i].bump_t = 200; tnp.car[i].life = 3000; }
         return 1;
     }
     if (sscanf(cmd, "mob %d %f %f", &a, &x, &y) == 3) {
@@ -990,7 +1031,7 @@ const GameDef GAME_TURNIP = {
     "1986",
     "ARCADE DRIVING",
     "FIVE DROPS A DAY FOR A WEEK. THE WHEEL TURNS THE TRUCK, NOT THE SCREEN.",
-    {"CLEAR TWO WORKDAYS", "SURVIVE A WEEK ON THE JOB", "FINISH THE WEEK WITH 50 DELIVERIES"},
+    {"CLEAR TWO WORKDAYS", "CLOCK OUT ON SUNDAY", "DELIVER 50 TURNIPS IN ONE WEEK"},
     "HOLD " GLYPH_A "\tGAS\n"
     "HOLD " GLYPH_B "\tBRAKE, THEN REVERSE\n"
     "LEFT/RIGHT\tTURN THE TRUCK\n"

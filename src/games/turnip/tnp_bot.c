@@ -20,6 +20,7 @@ static struct {
     int home;              /* heading for the depot */
     int checked_dest;      /* the overtime delivery already weighed up (+1) */
     int last_frame;
+    int avoid_x, avoid_y;  /* the beet's cell, kept clear of when planning (-1 = none) */
 } B;
 
 static int cell_cost(int cx, int cy) {
@@ -32,8 +33,13 @@ static int cell_cost(int cx, int cy) {
     }
     if (c->feat == FT_CANS) return 80;
     if (c->feat == FT_RAMP) return 400;
-    if (c->feat == FT_PIPE) return 12;
-    return 10;
+    int base = c->feat == FT_PIPE ? 12 : 10;
+    if (B.avoid_x >= 0) {
+        int dx = iabs(tnp_wrapc(cx - B.avoid_x + TNP_MAP / 2) - TNP_MAP / 2);
+        int dy = iabs(tnp_wrapc(cy - B.avoid_y + TNP_MAP / 2) - TNP_MAP / 2);
+        if (dx <= 2 && dy <= 2) base += 200 - 50 * imax(dx, dy); /* round the beet, not past it */
+    }
+    return base;
 }
 
 static void build_field(int tx, int ty) {
@@ -63,7 +69,10 @@ static void build_field(int tx, int ty) {
 }
 
 int tnp_path_len(int sx, int sy, int tx, int ty) {
+    int ax = B.avoid_x;
+    B.avoid_x = -1; /* plain distances */
     build_field(tnp_wrapc(tx), tnp_wrapc(ty));
+    B.avoid_x = ax;
     int v = B.field[tnp_wrapc(sy) * TNP_MAP + tnp_wrapc(sx)];
     B.tx = -1; /* the field was for this question only */
     return v >= INF ? -1 : v / 10;
@@ -72,6 +81,7 @@ int tnp_path_len(int sx, int sy, int tx, int ty) {
 void tnp_bot_reset(void) {
     memset(&B, 0, sizeof B);
     B.tx = B.ty = -1;
+    B.avoid_x = B.avoid_y = -1;
 }
 
 static int next_cell(int x, int y) {
@@ -122,6 +132,20 @@ uint16_t tnp_bot_buttons(TnpDay *d) {
         B.home = 0;
         B.checked_dest = 0;
     }
+    /* the beet: plan round it while it is about */
+    int bx = -1, by = -1;
+    for (int i = 0; i < TNP_MAX_MOBS; i++) {
+        const TnpMob *mb = &d->mob[i];
+        if (mb->alive && mb->kind == MK_BEET && tnp_dist(mb->x, mb->y, t->x, t->y) < 300) {
+            bx = (int)(mb->x / TNP_CELL);
+            by = (int)(mb->y / TNP_CELL);
+        }
+    }
+    if (bx != B.avoid_x || by != B.avoid_y) {
+        B.avoid_x = bx;
+        B.avoid_y = by;
+        B.tx = -1;
+    }
     if (gcx != B.tx || gcy != B.ty) build_field(gcx, gcy);
 
     /* the route ahead as points on the right-hand side of the road */
@@ -133,7 +157,7 @@ uint16_t tnp_bot_buttons(TnpDay *d) {
         if (k < 0) break;
         x = tnp_wrapc(x + DX[k]);
         y = tnp_wrapc(y + DY[k]);
-        float ox = (float)(-DY[k]) * 8, oy = (float)DX[k] * 8;
+        float ox = (float)(-DY[k]) * 5, oy = (float)DX[k] * 5;
         if (np > 0 && prevk != k) {
             /* the cell before is a corner: take it through the middle */
             px[np - 1] = tnp_cx(tnp_wrapc(x - DX[k]));
@@ -174,7 +198,7 @@ uint16_t tnp_bot_buttons(TnpDay *d) {
                             : atan2f(tnp_wrapd(py[0] - t->y), tnp_wrapd(px[0] - t->x));
         if (fabsf(angdiff(ang1, ang0)) > 0.6f) {
             float dc = tnp_dist(t->x, t->y, px[i - 1], py[i - 1]);
-            float v = sqrtf(1.4f * 1.4f + 2 * 0.07f * fmaxf(0, dc - 10));
+            float v = sqrtf(1.4f * 1.4f + 2 * 0.032f * fmaxf(0, dc - 10));
             if (v < vmax) vmax = v;
             break;
         }
@@ -187,6 +211,10 @@ uint16_t tnp_bot_buttons(TnpDay *d) {
         float rx = tnp_wrapd(p->x - t->x), ry = tnp_wrapd(p->y - t->y);
         float a = rx * cosf(t->ang) + ry * sinf(t->ang), s = fabsf(-rx * sinf(t->ang) + ry * cosf(t->ang));
         if (a > 0 && a < 40 && s < 14) vmax = fminf(vmax, 1.3f);
+    }
+    if (d->event == EV_RAIN) {
+        /* puddles appear right ahead too fast to brake for: in the rain it never goes fast enough to spin */
+        vmax = fminf(vmax, 1.45f);
     }
     /* a car in the way: ease off and steer round it, or back off if it is right on the bumper */
     float dodge = 0;
@@ -201,6 +229,7 @@ uint16_t tnp_bot_buttons(TnpDay *d) {
             dodge += s >= 0 ? -0.6f : 0.6f;
             if (a < 18 && fabsf(f) < 0.4f) blocked = true;
         }
+        if (a > -4 && a < 80 && fabsf(s) < 16) vmax = fminf(vmax, 0.6f + a * 0.02f); /* weak brakes: ease off early */
         if (a < 0 && a > -44 && fabsf(s) < 16) behind = true;
     }
 
@@ -224,7 +253,7 @@ uint16_t tnp_bot_buttons(TnpDay *d) {
     bool wet = false;
     for (int k = 0; k < 4; k++)
         if (tnp_cell(cx + DX[k], cy + DY[k])->type == CT_BRINE) wet = true;
-    float pxf = t->x + t->vx * 14 + cosf(t->ang) * 6, pyf = t->y + t->vy * 14 + sinf(t->ang) * 6;
+    float pxf = t->x + t->vx * 30 + cosf(t->ang) * 6, pyf = t->y + t->vy * 30 + sinf(t->ang) * 6;
     bool doom = tnp_cell_at(pxf, pyf)->type == CT_BRINE;
     if (doom && f > 0.2f) return BTN_B; /* brake now */
     if (wet) vmax = fminf(vmax, 1.3f);

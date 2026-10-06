@@ -1,0 +1,72 @@
+# TURNIP TRUCK: every time crate can be had, and only off its ramp: at speed
+# the truck flies off each of the seven ramps and through the crate hanging
+# over the brine, the canisters, the rocks or the canal beyond, and lands
+# on the road.
+game turnip
+wait 5
+cheat day 1 0
+cheat notraffic
+cheat stop
+cheat inv 0
+cheat pos 250 1176
+cheat ang 0
+cheat vel 2.6 0
+hold A 70
+expect crates == 6
+expect falls == 0
+expect hit_by2 == 0
+cheat stop
+cheat inv 0
+cheat pos 264 1130
+cheat ang 90
+cheat vel 0 2.6
+hold A 70
+expect crates == 5
+expect falls == 0
+expect hit_by2 == 0
+cheat stop
+cheat inv 0
+cheat pos 250 1416
+cheat ang 0
+cheat vel 2.6 0
+hold A 70
+expect crates == 4
+expect falls == 0
+expect hit_by2 == 0
+cheat stop
+cheat inv 0
+cheat pos 300 1368
+cheat ang 0
+cheat vel 2.6 0
+hold A 70
+expect crates == 3
+expect falls == 0
+expect hit_by2 == 0
+cheat stop
+cheat inv 0
+cheat pos 980 1272
+cheat ang 0
+cheat vel 2.6 0
+hold A 70
+expect crates == 2
+expect falls == 0
+expect hit_by2 == 0
+cheat stop
+cheat inv 0
+cheat pos 792 820
+cheat ang 90
+cheat vel 0 2.6
+hold A 70
+expect crates == 1
+expect falls == 0
+expect hit_by2 == 0
+cheat stop
+cheat inv 0
+cheat pos 1176 820
+cheat ang 90
+cheat vel 0 2.6
+hold A 70
+expect crates == 0
+expect falls == 0
+expect hit_by2 == 0
+expect crates_broken == 7

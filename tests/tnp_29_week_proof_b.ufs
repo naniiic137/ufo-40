@@ -1,6 +1,6 @@
 # TURNIP TRUCK: a second week with another order of events, played the same
 # way to the ending.
-seed 9
+seed 4
 game turnip
 wait 30
 botuntil state == 8 90000

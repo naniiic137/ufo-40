@@ -1,5 +1,6 @@
 # TURNIP TRUCK: a tapped turn is a sidestep: the truck slides a little to
-# its own side and keeps its heading. A held turn turns.
+# its own side and keeps its heading, even from a stand (a smaller step). A
+# held turn turns.
 game turnip
 wait 5
 cheat day 1 0
@@ -37,3 +38,13 @@ cheat ang 0
 cheat vel 2 0
 hold RIGHT 12
 expect ang > 15
+# from a stand: a smaller step
+wait 2
+cheat pos 320 264
+cheat ang 0
+cheat stop
+press RIGHT 4
+expect ang == 0
+wait 30
+expect y >= 268
+expect y <= 272

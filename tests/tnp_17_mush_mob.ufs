@@ -1,12 +1,16 @@
-# TURNIP TRUCK: MUSH MOB. Crowds of mushmen shuffle about the streets and
-# towards the truck. Running one over is harmless but slows the truck a
-# lot; a stopped truck with mushmen all round it loses hearts.
+# TURNIP TRUCK: MUSH MOB. Hordes of mushmen (3 to 12 together, with empty
+# streets between) shuffle about. They never hurt: running one over is
+# harmless but slows the truck a lot and drags it onto the body, and a truck
+# stopped among them loses nothing.
 seed 7
 game turnip
 wait 5
 cheat day 3 3
 cheat notraffic
-wait 240
+wait 46
+expect mush >= 3
+expect mush <= 12
+wait 400
 expect mush > 15
 cheat clearmobs
 cheat pos 400 276
@@ -17,7 +21,7 @@ wait 14
 expect squashed == 1
 expect speed100 < 160
 expect hearts == 3
-# swarmed
+# stopped in the middle of a crowd: no harm at all
 cheat clearmobs
 cheat pos 400 276
 cheat stop
@@ -25,5 +29,6 @@ cheat mob 1 402 276
 cheat mob 1 398 276
 cheat mob 1 400 279
 cheat mob 1 400 273
-waituntil hit_by3 >= 1 120
-expect hearts == 2
+wait 300
+expect hearts == 3
+expect hits == 0

@@ -117,6 +117,8 @@ void tnp_hurt(TnpDay *d, int why) {
     t->regen_t = 0;
     d->hits++;
     d->hit_by[why & 3]++;
+    d->face = FACE_SHOCK;
+    d->face_t = 30;
     d->ev_hurt = 1;
     tnp_sfx("tnp_hurt");
     if (t->hearts <= 0) {
@@ -165,7 +167,7 @@ static void bounce_off(TnpTruck *t, float nx, float ny, float pen, float e) {
         float impact = -vn;
         if (impact > 0.7f) {
             float cross = cosf(t->ang) * ny - sinf(t->ang) * nx;
-            t->spin += (cross >= 0 ? 1.0f : -1.0f) * impact * 0.05f;
+            t->spin += (cross >= 0 ? 1.0f : -1.0f) * impact * TNP_WALL_SPIN;
             t->regen_t = 0;
             if (t->hit_wall_t <= 0) tnp_sfx("tnp_bump");
             t->hit_wall_t = 12;
@@ -199,13 +201,6 @@ static void collide_world(TnpDay *d) {
                     }
                     float dist = sqrtf(d2);
                     bounce_off(t, dx / dist, dy / dist, TNP_R - dist, TNP_BOUNCE);
-                } else if (c->feat == FT_PIPE && t->air_t <= 0 && pass == 0) {
-                    float px = x0 + TNP_CELL / 2, py = y0 + TNP_CELL / 2;
-                    float dx = t->x - px, dy = t->y - py, d2 = dx * dx + dy * dy, rr = TNP_R + 6;
-                    if (d2 < rr * rr && d2 > 1e-6f) {
-                        float dist = sqrtf(d2);
-                        bounce_off(t, dx / dist, dy / dist, rr - dist, TNP_BOUNCE);
-                    }
                 } else if (c->feat == FT_CANS && t->air_t <= 0 && pass == 0) {
                     int k = -1;
                     for (int i = 0; i < tnp_n_cans; i++)
@@ -226,12 +221,22 @@ static void collide_world(TnpDay *d) {
                     }
                 }
             }
+    /* the hydrants at the kerbs knock the truck about like a wall */
+    for (int i = 0; i < tnp_n_pipes && t->air_t <= 0; i++) {
+        float dx = tnp_wrapd(t->x - tnp_pipe_px[i][0]), dy = tnp_wrapd(t->y - tnp_pipe_px[i][1]);
+        float d2 = dx * dx + dy * dy, rr = TNP_R + 6;
+        if (d2 < rr * rr && d2 > 1e-6f) {
+            float dist = sqrtf(d2);
+            bounce_off(t, dx / dist, dy / dist, rr - dist, TNP_BOUNCE);
+        }
+    }
     t->x = tnp_wrap(t->x);
     t->y = tnp_wrap(t->y);
 }
 
 void tnp_spinout(TnpTruck *t, int dir) {
     t->spin_t = TNP_SPIN_T;
+    t->spin_steer = 0;
     t->drift_t = 0;
     t->tap_dir = 0;
     t->spin = dir >= 0 ? 0.0001f : -0.0001f;
@@ -266,6 +271,8 @@ static void truck_drive(TnpDay *d, uint16_t pad) {
         float rate = k < TNP_SPIN_ATTACK0 ? 0.08f + 0.3f * (float)k / TNP_SPIN_ATTACK0
                    : k < TNP_SPIN_ATTACK1 ? 0.38f : 0.38f * (float)t->spin_t / (TNP_SPIN_T - TNP_SPIN_ATTACK1);
         t->ang += t->spin >= 0 ? rate : -rate;
+        t->ang += (float)steer * TNP_SPIN_STEER; /* a little say in where the spin ends */
+        t->spin_steer += (float)steer * TNP_SPIN_STEER;
         t->spin_t--;
         t->vx *= 0.988f;
         t->vy *= 0.988f;
@@ -289,7 +296,7 @@ static void truck_drive(TnpDay *d, uint16_t pad) {
     if (t->tap_dir != 0) {
         if (steer == t->tap_dir) t->tap_t++;
         else {
-            if (t->tap_t <= TNP_TAP && fabsf(f0) >= 0.5f) jink = t->tap_dir;
+            if (t->tap_t <= TNP_TAP && !(A && B)) jink = t->tap_dir;
             t->tap_dir = 0;
         }
     }
@@ -335,7 +342,7 @@ static void truck_drive(TnpDay *d, uint16_t pad) {
     if (f > TNP_TOP) f = fapproach(f, TNP_TOP, 0.05f);
     l *= drifting ? TNP_DRIFT_GRIP : TNP_GRIP;
     if (jink) {
-        l += (float)jink * TNP_JINK;
+        l += (float)jink * (fabsf(f0) >= 0.5f ? TNP_JINK : TNP_JINK_STILL);
         tnp_sfx("tnp_jink");
     }
     t->vx = f * ca - l * sa;
@@ -424,6 +431,8 @@ static void truck_ground(TnpDay *d) {
             t->regen_t = 0;
             d->hits++;
             d->hit_by[1]++;
+            d->face = FACE_SHOCK;
+            d->face_t = 30;
             d->ev_hurt = 1;
             if (t->hearts <= 0) {
                 t->hearts = 0;
@@ -435,10 +444,10 @@ static void truck_ground(TnpDay *d) {
         }
         return;
     }
-    /* crates float: they break even from the air */
-    for (int i = 0; i < tnp_n_crates; i++) {
+    /* crates hang from balloons: only a truck in the air reaches one */
+    for (int i = 0; i < tnp_n_crates && t->air_t > 0; i++) {
         if (!d->crate_ok[i]) continue;
-        if (tnp_dist(t->x, t->y, tnp_cx(tnp_crate_c[i][0]), tnp_cx(tnp_crate_c[i][1])) < 12) {
+        if (tnp_dist(t->x, t->y, tnp_cx(tnp_crate_c[i][0]), tnp_cx(tnp_crate_c[i][1])) < 16) {
             d->crate_ok[i] = 0;
             d->crates_broken++;
             if (!d->practice) {
@@ -463,6 +472,8 @@ static void truck_ground(TnpDay *d) {
         }
         t->hearts = TNP_HEARTS;
         d->ev_delivered = 1;
+        d->face = FACE_HAPPY;
+        d->face_t = 45;
         tnp_burst(d, dx, dy, C_VIOLET, 14, 1.5f);
         tnp_burst(d, dx, dy, C_WHITE, 8, 1.0f);
         tnp_sfx(d->delivered == TNP_QUOTA ? "tnp_quota" : "tnp_deliver");
@@ -495,6 +506,16 @@ static int car_choose(TnpDay *d, TnpCar *c, int cx, int cy) {
         float bd = 1e9f;
         for (int i = 0; i < n; i++) {
             float dd = tnp_dist(tnp_cx(cx + DX[opts[i]]), tnp_cx(cy + DY[opts[i]]), g->x, g->y);
+            if (dd < bd) { bd = dd; best = opts[i]; }
+        }
+        return best;
+    }
+    if (c->kind == CK_GANG && c->chase_t > 0) {
+        /* after the truck: the way that gets closest to it */
+        int best = opts[0];
+        float bd = 1e9f;
+        for (int i = 0; i < n; i++) {
+            float dd = tnp_dist(tnp_cx(cx + DX[opts[i]]), tnp_cx(cy + DY[opts[i]]), d->tr.x, d->tr.y);
             if (dd < bd) { bd = dd; best = opts[i]; }
         }
         return best;
@@ -583,6 +604,21 @@ static void car_hit_truck(TnpDay *d, TnpCar *c) {
         return;
     }
     float dist = sqrtf(fmaxf(d2, 1e-4f)), nx = dist > 0.01f ? dx / dist : 1, ny = dist > 0.01f ? dy / dist : 0;
+    if (c->kind != CK_TRAFFIC) {
+        /* the gang's and the police's cars careen about but do no damage by contact: a bounce */
+        t->x = tnp_wrap(t->x + nx * (rr - dist));
+        t->y = tnp_wrap(t->y + ny * (rr - dist));
+        float vn2 = t->vx * nx + t->vy * ny;
+        if (vn2 < 0) {
+            t->vx -= 1.4f * vn2 * nx;
+            t->vy -= 1.4f * vn2 * ny;
+        }
+        t->vx += nx * 0.6f;
+        t->vy += ny * 0.6f;
+        if (t->hit_wall_t <= 0) tnp_sfx("tnp_bump");
+        t->hit_wall_t = 12;
+        return;
+    }
     /* how fast the two came together */
     float cvx = cosf(c->ang) * c->speed, cvy = sinf(c->ang) * c->speed;
     float closing = -((t->vx - cvx) * nx + (t->vy - cvy) * ny);
@@ -627,7 +663,7 @@ void tnp_traffic_update(TnpDay *d) {
             if (c->wreck_t % 10 == 0) tnp_burst(d, c->x, c->y, C_GREY, 1, 0.4f);
             continue;
         }
-        if (tnp_dist(c->x, c->y, t->x, t->y) > 470) {
+        if (c->kind == CK_TRAFFIC && tnp_dist(c->x, c->y, t->x, t->y) > 470) {
             c->alive = 0;
             if (c->partner >= 0) d->car[c->partner].partner = -1;
             continue;
@@ -636,7 +672,7 @@ void tnp_traffic_update(TnpDay *d) {
         /* a token effort: slow down and pull over if the truck is (or is about to be) just ahead */
         float hx = cosf(c->ang), hy = sinf(c->ang);
         bool wary = false;
-        for (int k = 0; k < 2; k++) {
+        for (int k = 0; k < 2 && c->kind == CK_TRAFFIC; k++) {
             float rx = tnp_wrapd(t->x + t->vx * (float)(k * 14) - c->x), ry = tnp_wrapd(t->y + t->vy * (float)(k * 14) - c->y);
             float ahead = rx * hx + ry * hy, side = fabsf(-rx * hy + ry * hx);
             if (ahead > -4 && ahead < 46 && side < 18) {
@@ -706,6 +742,7 @@ void tnp_step(TnpDay *d, uint16_t pad) {
     if (d->phase != DP_PLAY) return;
     d->frame++;
     d->dest_t++;
+    if (d->face_t > 0 && --d->face_t == 0) d->face = FACE_DRIVE;
     if (d->add_t > 0) d->add_t--;
     TnpTruck *t = &d->tr;
     if (!d->practice && (t->state == TS_DRIVE || t->state == TS_SINK)) {

@@ -14,7 +14,7 @@ wait 2
 # Monday: the first deliveries round the depot
 botplay 120
 gifstart turnip 4 2
-botplay 480
+botplay 400
 gifstop
 # the big beet, charging down the street
 seed 5

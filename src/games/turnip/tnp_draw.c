@@ -193,13 +193,6 @@ static void draw_feature(const TnpDay *d, int sx, int sy, int cx, int cy, int t)
         gfx_rect(mx - 6, my - 1, 13, 3, C_LIGHT);
         gfx_rect(mx - 1, my - 6, 3, 13, C_LIGHT);
         break;
-    case FT_PIPE: {
-        gfx_circ(mx + 1, my + 2, 6, C_NIGHT);
-        gfx_circ(mx, my, 6, C_SLATE);
-        gfx_circ(mx - 1, my - 1, 4, C_GREY);
-        gfx_rect(mx - 1, my - 1, 3, 3, C_RED);
-        break;
-    }
     case FT_CANS: {
         int k = -1;
         for (int i = 0; i < tnp_n_cans; i++)
@@ -271,6 +264,16 @@ void tnp_draw_city(const TnpDay *d, float camx, float camy, int vx, int vy, int 
             }
             if (c->type == CT_ROAD) draw_feature(d, sx, sy, cx, cy, t);
         }
+    /* the hydrants, at the kerbs of their crossings */
+    for (int i = 0; i < tnp_n_pipes; i++) {
+        int hx = vx + vw / 2 + (int)floorf(tnp_wrapd(tnp_pipe_px[i][0] - camx - (float)vw / 2));
+        int hy = vy + vh / 2 + (int)floorf(tnp_wrapd(tnp_pipe_px[i][1] - camy - (float)vh / 2));
+        if (hx < vx - 10 || hx > vx + vw + 10 || hy < vy - 10 || hy > vy + vh + 10) continue;
+        gfx_circ(hx + 1, hy + 2, 5, C_NIGHT);
+        gfx_circ(hx, hy, 5, C_RED);
+        gfx_circ(hx - 1, hy - 1, 3, C_ORANGE);
+        gfx_rect(hx - 1, hy - 1, 2, 2, C_YELLOW);
+    }
     /* the depot's sign: a turnip on the roof, its door */
     float hx = tnp_wrapd(14 * TNP_CELL - camx - (float)vw / 2) + (float)vw / 2, hy = tnp_wrapd(9 * TNP_CELL - camy - (float)vh / 2) + (float)vh / 2;
     int sx = vx + (int)hx, sy = vy + (int)hy;
@@ -377,78 +380,162 @@ static void draw_rain(int t) {
 
 /* ---- the dashboard ------------------------------------------------------------------------ */
 
-static const char *const DAY_NAME[TNP_DAYS] = {"MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY"};
+
+/* a sprite at a whole-number scale, in one colour if solid >= 0 */
+static void spr_scaled_solid(const Sprite *sp, int x, int y, int scale, int solid) {
+    for (int sy = 0; sy < sp->h; sy++)
+        for (int sx = 0; sx < sp->w; sx++) {
+            uint8_t c = sp->px[sy * sp->w + sx];
+            if (c != TRANSPARENT) gfx_rect(x + sx * scale, y + sy * scale, scale, scale, solid >= 0 ? solid : c);
+        }
+}
+
+/* Zib at the wheel, at the top of the dashboard: turns the wheel with you, is shocked by a
+ * hit, holds up a turnip for a delivery, and when the truck goes up in flames so does the
+ * picture, until the feed cuts to static. */
+static void draw_portrait(const TnpDay *d, int x, int y) {
+    const TnpTruck *t = &d->tr;
+    int w = 58, h = 33, fr = d->frame;
+    gfx_rect(x, y, w, h, C_NAVY);
+    gfx_dither(x, y, w, h / 2, C_BLUE, 4);
+    gfx_rectb(x - 1, y - 1, w + 2, h + 2, C_DUSK);
+    bool dead = t->state == TS_WRECK || t->state == TS_BOOM;
+    if (dead && t->state_t >= 60) {
+        /* static */
+        for (int i = 0; i < 260; i++) {
+            uint32_t hsh = hash2(i * 13 + fr, fr * 7 + i);
+            gfx_pset(x + (int)(hsh % (uint32_t)w), y + (int)((hsh >> 8) % (uint32_t)h), (hsh >> 16) & 1 ? C_LIGHT : C_SLATE);
+        }
+        return;
+    }
+    gfx_clip(x, y, w, h);
+    int zx = x + w / 2 - 16, zy = y - 5; /* his head and shoulders; the wheel in front */
+    spr_scaled_solid(&tnp_spr[SP_ZIB], zx, zy, 2, dead ? C_NIGHT : -1);
+    if (!dead && d->face == FACE_SHOCK) {
+        /* eye wide open, mouth an O, a "!" */
+        gfx_rect(zx + 9, zy + 11, 14, 12, C_WHITE);
+        gfx_rect(zx + 15, zy + 16, 2, 2, C_INK);
+        gfx_circ(zx + 16, zy + 26, 3, C_INK);
+        gfx_circ(zx + 16, zy + 26, 1, C_MAROON);
+        gfx_rect(x + w - 8, y + 4, 3, 9, C_YELLOW);
+        gfx_rect(x + w - 8, y + 15, 3, 3, C_YELLOW);
+    } else if (!dead && d->face == FACE_HAPPY) {
+        /* eye closed in a smile, a turnip held up */
+        gfx_rect(zx + 10, zy + 12, 12, 10, C_VIOLET);
+        gfx_hline(zx + 11, zx + 20, zy + 16, C_INK);
+        gfx_pset(zx + 10, zy + 15, C_INK);
+        gfx_pset(zx + 21, zy + 15, C_INK);
+        spr_draw(&tnp_spr[SP_TURNIP], x + w - 12, y + 3, 0);
+    }
+    /* the steering wheel, turned with the pad */
+    int steer = dead ? 0 : ((t->prev & BTN_RIGHT) ? 1 : 0) - ((t->prev & BTN_LEFT) ? 1 : 0);
+    int wx = x + w / 2, wy = y + h + 3;
+    for (int r = 15; r >= 12; r--) gfx_circb(wx, wy, r, r == 15 || r == 12 ? C_INK : C_SLATE);
+    float sa = (float)steer * 0.6f;
+    for (int k = -1; k <= 1; k += 2) {
+        /* two spokes, and a hand on the rim at each */
+        float ha = sa + (float)k * 0.9f;
+        gfx_line(wx, wy, wx + (int)lroundf(sinf(ha) * 13), wy - (int)lroundf(cosf(ha) * 13), C_GREY);
+        int hx = wx + (int)lroundf(sinf(ha) * 13), hy = wy - (int)lroundf(cosf(ha) * 13);
+        gfx_rect(hx - 2, hy - 2, 5, 4, C_INK);
+        gfx_rect(hx - 1, hy - 1, 3, 2, dead ? C_NIGHT : C_VIOLET);
+    }
+    gfx_circ(wx, wy, 3, C_DUSK);
+    if (dead) {
+        /* the cab in flames */
+        for (int k = 0; k < 7; k++) {
+            uint32_t hsh = hash2(k, fr / 3);
+            int fx = x + 4 + (int)(hsh % (uint32_t)(w - 8)), fy = y + h - 4 - (int)((hsh >> 8) % 20);
+            gfx_circ(fx, fy, 2 + (int)((hsh >> 16) % 3), (k + fr / 4) % 3 ? C_ORANGE : C_YELLOW);
+        }
+    }
+    gfx_noclip();
+}
 
 static void draw_hud(const TnpDay *d) {
+    static const char *const SHORT_DAY[TNP_DAYS] = {"MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"};
     const TnpTruck *t = &d->tr;
     gfx_rect(0, 0, TNP_HUD_W, SCREEN_H, C_NIGHT);
     gfx_vline(TNP_HUD_W - 1, 0, SCREEN_H - 1, C_INK);
     gfx_vline(TNP_HUD_W - 2, 0, SCREEN_H - 1, C_DUSK);
+    draw_portrait(d, 3, 1);
     char buf[48];
-    snprintf(buf, sizeof buf, d->practice ? "PRACTICE" : "DAY %d", d->day + 1);
-    tiny_draw(buf, 4, 3, C_YELLOW);
-    tiny_draw(d->practice ? "" : DAY_NAME[d->day], 4, 10, C_LIGHT);
+    if (d->practice) snprintf(buf, sizeof buf, "PRACTICE");
+    else snprintf(buf, sizeof buf, "DAY %d %s", d->day + 1, SHORT_DAY[d->day]);
+    tiny_draw(buf, 4, 37, C_YELLOW);
     /* the clock */
-    tiny_draw("TIME", 4, 19, C_GREY);
-    if (d->practice) text_draw("--", 4, 26, C_GREY);
+    tiny_draw("TIME", 4, 45, C_GREY);
+    if (d->practice) text_draw("--", 4, 52, C_GREY);
     else {
         int s = tnp_seconds(d);
         snprintf(buf, sizeof buf, "%02d", s);
         bool low = s <= 10;
-        text_draw_scaled(buf, 4, 26, low && (d->frame / 8) % 2 ? C_RED : low ? C_ORANGE : C_WHITE, 2);
+        text_draw_scaled(buf, 4, 52, low && (d->frame / 8) % 2 ? C_RED : low ? C_ORANGE : C_WHITE, 2);
         if (d->add_t > 0 && d->last_add > 0) {
             snprintf(buf, sizeof buf, "+%d", d->last_add);
-            tiny_draw(buf, 44, 32, C_LIME);
+            tiny_draw(buf, 44, 58, C_LIME);
         }
     }
-    /* hearts */
+    /* hearts, and beside them the speedometer: lit at healing speed, with its mark */
     for (int i = 0; i < TNP_HEARTS; i++)
-        spr_draw(&tnp_spr[i < t->hearts ? SP_HEART : SP_HEART_OFF], 4 + i * 9, 45, 0);
+        spr_draw(&tnp_spr[i < t->hearts ? SP_HEART : SP_HEART_OFF], 4 + i * 9, 69, 0);
+    {
+        int gx = 33, gy = 68, gw = 27, gh = 7;
+        float fwd = fmaxf(0, tnp_forward(t));
+        bool healing = fwd >= TNP_REGEN_SPEED;
+        gfx_rect(gx, gy, gw, gh, C_INK);
+        gfx_rectb(gx - 1, gy - 1, gw + 2, gh + 2, C_DUSK);
+        int fill = (int)(fminf(1.0f, fwd / TNP_TOP) * (float)gw);
+        for (int i = 0; i < fill; i++) {
+            int bh = 1 + (gh - 2) * (i + 1) / gw;
+            gfx_vline(gx + i, gy + gh - 1 - bh, gy + gh - 2, healing ? C_LIME : C_AMBER);
+        }
+        int mark = gx + (int)(TNP_REGEN_SPEED / TNP_TOP * (float)gw);
+        gfx_vline(mark, gy - 1, gy + gh, C_WHITE);
+    }
     if (t->regen_t > 0 && t->hearts < TNP_HEARTS)
-        gfx_rect(4 + t->hearts * 9, 52, 7 * t->regen_t / TNP_REGEN_T, 1, C_PINK);
+        gfx_rect(4, 76, 56 * t->regen_t / TNP_REGEN_T, 1, C_PINK);
     snprintf(buf, sizeof buf, "TRIES %d", tnp_hud_tries);
-    tiny_draw(buf, 4, 56, d->practice ? C_SLATE : C_LIGHT);
+    tiny_draw(buf, 4, 79, d->practice ? C_SLATE : C_LIGHT);
     if (d->delivered < TNP_QUOTA || d->practice) snprintf(buf, sizeof buf, "DONE %d/%d", d->delivered, TNP_QUOTA);
     else snprintf(buf, sizeof buf, "DONE 5+%d", d->delivered - TNP_QUOTA);
-    tiny_draw(buf, 4, 63, d->delivered >= TNP_QUOTA ? C_LIME : C_LIGHT);
+    tiny_draw(buf, 4, 86, d->delivered >= TNP_QUOTA ? C_LIME : C_LIGHT);
     snprintf(buf, sizeof buf, "WEEK %d", tnp_hud_week + d->delivered);
-    tiny_draw(buf, 4, 70, C_GREY);
+    tiny_draw(buf, 4, 93, C_GREY);
 
     /* the radar: you in the middle, the delivery in red, the depot in blue */
-    int rx = 4, ry = 78, rw = 56, rh = 56;
+    int rx = 4, ry = 101, rw = 56, rh = 42;
     gfx_rect(rx, ry, rw, rh, C_INK);
     gfx_rectb(rx - 1, ry - 1, rw + 2, rh + 2, C_DUSK);
     gfx_hline(rx, rx + rw - 1, ry + rh / 2, C_NAVY);
     gfx_vline(rx + rw / 2, ry, ry + rh - 1, C_NAVY);
-    float sc = (float)rw / (float)TNP_WORLD;
+    float sc = (float)rw / (float)TNP_WORLD, scy = (float)rh / (float)TNP_WORLD;
     float dx, dy;
     tnp_dest_pos(d->dest, &dx, &dy);
-    int ddx = rx + rw / 2 + (int)(tnp_wrapd(dx - t->x) * sc), ddy = ry + rh / 2 + (int)(tnp_wrapd(dy - t->y) * sc);
+    int ddx = rx + rw / 2 + (int)(tnp_wrapd(dx - t->x) * sc), ddy = ry + rh / 2 + (int)(tnp_wrapd(dy - t->y) * scy);
     if ((d->frame / 10) % 3) gfx_rect(ddx - 1, ddy - 1, 3, 3, C_RED);
     if (d->delivered >= TNP_QUOTA && !d->practice) {
-        int hx = rx + rw / 2 + (int)(tnp_wrapd(TNP_HQ_DOOR_X - t->x) * sc), hy = ry + rh / 2 + (int)(tnp_wrapd(TNP_HQ_DOOR_Y - t->y) * sc);
+        int hx = rx + rw / 2 + (int)(tnp_wrapd(TNP_HQ_DOOR_X - t->x) * sc), hy = ry + rh / 2 + (int)(tnp_wrapd(TNP_HQ_DOOR_Y - t->y) * scy);
         gfx_rect(hx - 1, hy - 1, 3, 3, C_SKY);
     }
     gfx_pset(rx + rw / 2, ry + rh / 2, C_YELLOW);
     gfx_pset(rx + rw / 2 + (int)lroundf(cosf(t->ang) * 2), ry + rh / 2 + (int)lroundf(sinf(t->ang) * 2), C_YELLOW);
 
     /* where to */
-    int y = 138;
+    int y = 146;
     char lines[3][UI_WRAP_LEN];
     if (d->delivered >= TNP_QUOTA && !d->practice) {
-        tiny_draw("CLOCK OUT AT", 4, y, C_SKY);
-        tiny_draw("THE DEPOT!", 4, y + 7, C_SKY);
-        tiny_draw("OR DELIVER TO", 4, y + 15, C_GREY);
-        int n = ui_wrap(TNP_DEST[d->dest].name, 56, true, lines, 1);
-        (void)n;
-        tiny_draw(lines[0], 4, y + 22, C_RED);
+        tiny_draw("DEPOT OPEN!", 4, y, C_SKY);
+        tiny_draw("OR DELIVER TO", 4, y + 7, C_GREY);
+        ui_wrap(TNP_DEST[d->dest].name, 56, true, lines, 1);
+        tiny_draw(lines[0], 4, y + 14, C_RED);
     } else {
         tiny_draw("DELIVER TO", 4, y, C_GREY);
         int n = ui_wrap(TNP_DEST[d->dest].name, 56, true, lines, 2);
         for (int i = 0; i < n && i < 2; i++) tiny_draw(lines[i], 4, y + 7 + i * 7, C_RED);
-        tiny_draw(TNP_DISTRICT_NAME[tnp_district_at(t->x, t->y)], 4, y + 23, C_GREY);
     }
-    if (d->event != EV_NONE) tiny_draw(TNP_EVENT_NAME[d->event], 4, 172, (d->frame / 30) % 2 ? C_ORANGE : C_AMBER);
+    tiny_draw(TNP_DISTRICT_NAME[tnp_district_at(t->x, t->y)], 4, y + 21, C_GREY);
+    if (d->event != EV_NONE) tiny_draw(TNP_EVENT_NAME[d->event], 4, y + 28, (d->frame / 30) % 2 ? C_ORANGE : C_AMBER);
 }
 
 void tnp_draw_play(const TnpDay *d) {
@@ -463,26 +550,25 @@ void tnp_draw_play(const TnpDay *d) {
     gfx_clip(TNP_HUD_W, 0, TNP_VIEW_W, TNP_VIEW_H);
     tnp_draw_city(d, g_cx - TNP_VIEW_W / 2, g_cy - TNP_VIEW_H / 2, TNP_HUD_W, 0, TNP_VIEW_W, TNP_VIEW_H);
 
-    /* brine sprays and waves */
+    /* brine sprays (from the hydrants across the road) and waves (sweeping across towards the brine) */
     if (d->event == EV_BRINE) {
-        for (int i = 0; i < tnp_n_pipes; i++)
-            for (int k = 0; k < 4; k++) {
-                if (!tnp_pipe_spraying(d, i, k)) continue;
-                int sx = scr_x(tnp_cx(tnp_pipe_c[i][0])), sy = scr_y(tnp_cx(tnp_pipe_c[i][1]));
-                if (!on_view(sx, sy, 80)) continue;
-                for (int j = 0; j < 14; j++) {
-                    int a = 6 + (j * 9 + fr * 3) % 58, w = (int)((hash2(j, fr / 3) % 13)) - 6;
-                    int px = sx + DX[k] * a + DY[k] * w / 2, py = sy + DY[k] * a + DX[k] * w / 2;
-                    gfx_rect(px, py, 2, 2, j & 1 ? C_LIME : C_LEAF);
-                }
+        for (int i = 0; i < tnp_n_pipes; i++) {
+            int k = tnp_pipe_spray_dir(d, i);
+            if (k < 0) continue;
+            int sx = scr_x(tnp_pipe_px[i][0]), sy = scr_y(tnp_pipe_px[i][1]);
+            if (!on_view(sx, sy, 70)) continue;
+            for (int j = 0; j < 20; j++) {
+                int a = 4 + (j * 7 + fr * 3) % 52, w = (int)((hash2(j, fr / 3) % 15)) - 7;
+                int px = sx + DX[k] * a + DY[k] * w / 2, py = sy + DY[k] * a + DX[k] * w / 2;
+                gfx_rect(px, py, 2, 2, j & 1 ? C_LIME : C_LEAF);
             }
+        }
         for (int w = 0; w < TNP_WAVES; w++) {
-            float x0, x1;
-            if (!tnp_wave_band(d, w, &x0, &x1)) continue;
-            int sx0 = scr_x(tnp_wrap(x0)), sy = scr_y(tnp_cx(TNP_WAVE_ROW[w])) - TNP_CELL / 2;
-            int ww = (int)(x1 - x0);
-            gfx_dither(sx0, sy + 4, ww, TNP_CELL - 8, C_LIME, 10);
-            gfx_vline(sx0 + ww - 1, sy + 4, sy + TNP_CELL - 5, C_WHITE);
+            float bx, by, bw, bh;
+            if (!tnp_wave_rect(d, w, &bx, &by, &bw, &bh)) continue;
+            int sx0 = scr_x(bx), sy0 = scr_y(by);
+            gfx_dither(sx0, sy0, (int)bw, (int)bh, C_LIME, 10);
+            gfx_rectb(sx0, sy0, (int)bw, (int)bh, C_LEAF);
         }
     }
     /* puddles */
@@ -491,7 +577,7 @@ void tnp_draw_play(const TnpDay *d) {
         if (!p->alive) continue;
         int sx = scr_x(p->x), sy = scr_y(p->y);
         if (!on_view(sx, sy, 12)) continue;
-        int lvl = p->t < 60 ? p->t / 5 + 2 : p->t > p->life - 30 ? (p->life - p->t) / 3 + 2 : 14;
+        int lvl = p->t < 9 ? p->t + 4 : p->t > p->life - 30 ? (p->life - p->t) / 3 + 2 : 14;
         gfx_dither(sx - 9, sy - 5, 18, 10, C_BLUE, lvl);
         gfx_dither(sx - 6, sy - 3, 10, 5, C_SKY, lvl / 2);
     }
@@ -540,15 +626,11 @@ void tnp_draw_play(const TnpDay *d) {
         tnp_draw_rot(s, (float)sx + 1.5f, (float)sy + 1.5f, c->ang, NULL, C_INK);
         tnp_draw_rot(s, (float)sx, (float)sy, c->ang, map, c->wreck_t > 0 ? C_DUSK : -1);
     }
-    /* crates, floating */
+    /* the crates' shadows on the ground (the crates hang high, drawn after the truck) */
     for (int i = 0; i < tnp_n_crates; i++) {
         if (!d->crate_ok[i]) continue;
         int sx = scr_x(tnp_cx(tnp_crate_c[i][0])), sy = scr_y(tnp_cx(tnp_crate_c[i][1]));
-        if (!on_view(sx, sy, 20)) continue;
-        int bob = (int)(sinf((float)(fr + i * 20) * 0.08f) * 2);
-        gfx_dither(sx - 4, sy + 3, 9, 4, C_INK, 8);
-        spr_draw(&tnp_spr[SP_BALLOON], sx - 3, sy - 19 + bob, 0);
-        spr_draw(&tnp_spr[SP_CRATE], sx - 5, sy - 10 + bob, 0);
+        if (on_view(sx, sy, 20)) gfx_dither(sx - 5, sy - 2, 11, 5, C_INK, 10);
     }
     /* the truck */
     {
@@ -565,13 +647,20 @@ void tnp_draw_play(const TnpDay *d) {
                          (k + fr / 3) % 3 ? C_ORANGE : C_YELLOW);
         } else
             tnp_draw_truck((float)sx, (float)sy, t->ang, lift, flash);
-        if (t->swarmed && (fr / 6) % 2) gfx_circb(sx, sy, 11, C_RED);
         /* the arrow: for a moment after each new delivery, and again when close */
         float ddist = tnp_dist(t->x, t->y, dx, dy);
         if (t->state == TS_DRIVE && (d->dest_t < 150 || ddist < 230) && !on_view(dsx, dsy, -24)) {
             float a = atan2f(tnp_wrapd(dy - t->y), tnp_wrapd(dx - t->x));
             draw_arrow(sx, sy, a, (fr / 6) % 2 ? C_RED : C_PINK);
         }
+    }
+    for (int i = 0; i < tnp_n_crates; i++) {
+        if (!d->crate_ok[i]) continue;
+        int sx = scr_x(tnp_cx(tnp_crate_c[i][0])), sy = scr_y(tnp_cx(tnp_crate_c[i][1]));
+        if (!on_view(sx, sy, 40)) continue;
+        int bob = (int)(sinf((float)(fr + i * 20) * 0.08f) * 2);
+        spr_draw(&tnp_spr[SP_BALLOON], sx - 3, sy - 33 + bob, 0);
+        spr_draw(&tnp_spr[SP_CRATE], sx - 5, sy - 24 + bob, 0);
     }
     /* the beet, bullets, bombs, saucers on top */
     for (int i = 0; i < TNP_MAX_MOBS; i++) {

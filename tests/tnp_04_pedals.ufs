@@ -1,5 +1,6 @@
-# TURNIP TRUCK: A is the gas up to the top speed; B brakes and, once the
-# truck has stopped, reverses at a much lower speed. Reversing steers like a
+# TURNIP TRUCK: A is the gas up to the top speed; B brakes, weakly (about a
+# second from top speed to a stop), and once the truck has stopped reverses
+# at a much lower speed. Reversing steers like a
 # steering wheel: RIGHT swings the nose the other way.
 game turnip
 wait 5
@@ -19,10 +20,15 @@ expect fwd100 == 260
 wait 30
 expect fwd100 < 260
 expect fwd100 > 180
-# the brake, then reverse
-hold B 18
-expect fwd100 >= 0
-expect fwd100 < 40
+# the brake: weak, about a second from top speed to a stop
+cheat vel 2.6 0
+hold B 30
+expect fwd100 > 110
+expect fwd100 < 150
+hold B 30
+expect fwd100 <= 5
+expect fwd100 > -15
+# then reverse
 hold B 80
 expect fwd100 < 0
 expect fwd100 >= -90

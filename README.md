@@ -130,7 +130,7 @@ menu, shows the buttons as you now press them). SELECT or B closes it.
 | 16 | **TINTAIL** | Camouflage | sneaking on a grid past watchers by taking the colour of the ground you stand on, hollow logs, sun and rain pads, hatchlings with their own colour, a danger view you can't move in, undo, a branching map | Twig the chameleon, Salt Island, toads and storks, 15 new levels |
 | 18 | **LOST LINKS** | Golfaria | a top-down open world where every roll is a stroke and strokes are your health, twenty to start and three more for each of twenty irons found underground, pins and safe zones, sand you can only chip out of, water and pits that send you back, jumping flowers, holes down to a whole layer underneath, parbot-style scorecrows, two kinds of bug, four abilities in the four corners, the four-piece star relic, a plate puzzle and a burrowing boss | Dimple the golf ball, the Brass Badger, slicers, sippers, larks, strays, twenty ball folk and a hidden village of Keepers, both layers of the world |
 | 19 | **CHIME CIRCUIT** | The Big Bell Race | side-view flight with gravity, thrust and drift, six ships on one screen, eight laps on each of eight courses in a fixed order, three hit points that walls, floors and weapons take, a slash that only knocks, a relaunch from under the start line to fly the lap again, a hit point back every lap, pickup stations with a "!!" warning (bullets, mines, fireballs, the big slash, the payload), boost arrows and side routes, 9/7/5/3/2/1 points, the winner starting last, CPUs that turn on you, 2P at once | the chime ship, Ansel and Clary and four visitors from other UFO 40 cartridges, the eight tracks and their skies, the LOOT-GALE code |
-| 23 | **TURNIP TRUCK** | Onion Delivery | one wrapping city under a fixed camera, steering that turns the truck to its own left and right, a tapped turn that sidesteps, a brake that becomes reverse, A+B powerslides and the spin-out's spin attack, walls that only spin you, three hearts that come back at top speed and refill on every delivery, seven workdays of five timed deliveries (+8 s, +30 s for the fifth, crates +12 s) and back to the depot before 00, overtime, three spare tries for the whole week, six chaos events in a shuffled order from Tuesday, ramps, brine pools and drop zones, gas canisters, rocks and right-hand traffic, a practice code and a reverse code | Zib, Granny Root, Glenda Glorp of Channel 9, Blipton and its 33 places, the brine burst, the big beet, the mush mob, the radish ring, the downpour and the moon raid |
+| 23 | **TURNIP TRUCK** | Onion Delivery | one wrapping city under a fixed camera, steering that turns the truck to its own left and right, a tapped turn that sidesteps, a weak brake that becomes reverse, A+B powerslides and the spin-out's spin attack, walls that only spin you, three hearts that come back at top speed and refill on every delivery, seven workdays of five timed deliveries (+8 s, +30 s for the fifth, +12 s for a crate hanging over a hazard past a ramp) and back to the depot before 00, overtime, three spare tries for the whole week, six chaos events in a shuffled order from Tuesday, ramps, brine pools and drop zones, gas canisters, rocks and right-hand traffic, a practice code and a reverse code | Zib, Granny Root, Glenda Glorp of Channel 9, Blipton and its 33 places, the brine burst, the big beet, the mush mob, the radish ring, the downpour and the moon raid |
 | 25 | **OPEN HOUSE** | Party House | drawing guests from a deck into a house with limited space, the original's 46 guest abilities, costs and trouble, police, fire marshal and bans, set guest lists and a random list, win by ending a party with four stars within 25 nights, 2P hot-seat; the fame and cash caps; the owner's endless OPEN ALL NIGHT, a custom list and two guests of his own | a whitewashed house by the sea, all 48 guests' names and faces |
 | 26 | **SKID KIDS** | Hot Foot | top-down two-on-two dodgeball with beanbags that skid along the floor, one button to pick up, pass, swap kids and wind up (a tap tosses, a full wind-up knocks down, a jump calls it off), a team jump that earns half-stars over sliding bags, stars for each kid's special throw or move, juice boxes, the Coach's items, the forced throw, first to 15; the original's 12 kits one for one, a draft or a free pick of the team, six matches with the kid nobody picked coming back with a robot, co-op, versus, the codes and the demo | NOODLE, PIPPA, HOPS, MILO, SPARKY, NELL, KIKI, ROXIE, TOBY, SID, BUZZY and MOOSE, Boomer the kangaroo, Benchbot, the Coach and the Hornets' gym |
 | 28 | **DUNE EXPRESS** | Rail Heist | real time until a guard is alert, then 10-second turns, one-bullet lawmen who hit each other too, punches through walls and floors, carrying and throwing, hiding in barrels, levers, a crank gun, rams, three outlaws, three stars a mission with the original's time goals, 2P versus | Wade, Hush and Pearl, the Governor's tax trains, Biscuit the camel, 20 new trains |
@@ -723,7 +723,7 @@ the top.
 - **Plays the same:** a top-down city under a camera that never turns,
   and a truck that does: LEFT and RIGHT turn it to its own left and right,
   so driving down the screen RIGHT goes screen-left. Hold A for the gas and
-  B to brake, then reverse slowly; tap a turn to sidestep, hold A+B with a
+  B to brake (weakly), then reverse slowly; tap a turn to sidestep, hold A+B with a
   turn for a powerslide that turns you round on the spot, and hold it too
   long to spin out (mid-spin, any car you touch is smashed). It can't turn
   from a stand, slides like soap, and walls only bounce and spin it.
@@ -731,14 +731,17 @@ the top.
   red dot on the radar, a red arrow now and then, a red circle on the
   road), then back to the depot's small half circle before the clock hits
   00, or the truck catches fire. Deliveries one to four add 8 seconds, the
-  fifth 30, overtime ones nothing; floating crates add 12. Three hearts:
-  cars, brine, gas canisters and the chaos take them, a stretch at top
-  speed brings one back and every delivery fills them. Three spare tries
-  for the whole week.
+  fifth 30, overtime ones nothing; crates on balloons over the hazards,
+  reached only by flying off a ramp, add 12. Three hearts: cars, brine,
+  gas canisters and the chaos take them, a stretch at top speed brings one
+  back (watch the speedometer) and every delivery fills them. Three spare
+  tries for the whole week. Zib sits at the wheel at the top of the
+  dashboard, turning it with you.
 - **Structure:** seven days, each opened by the Channel 9 newscast;
   Monday is quiet, and from Tuesday to Sunday one chaos event a day, each
-  once, in a shuffled order: brine spraying from the pipes, a giant
-  beetroot on the charge, a mob of mushmen, a gang shooting from its
+  once, in a shuffled order: brine spraying from the hydrants and waves
+  sweeping across the roads, a giant beetroot on the charge, harmless but
+  slowing hordes of mushmen, a gang that chases you and shoots from its
   getaway cars, rain with puddles that spin you out, and saucers bombing
   from above. One city, the same every time, that wraps in every direction,
   with dead ends, alleys, ramps, a brine canal and its bridges. Fifty

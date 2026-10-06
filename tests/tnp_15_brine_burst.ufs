@@ -1,28 +1,38 @@
-# TURNIP TRUCK: BRINE BURST. The pipes at the crossings spray brine along
-# the roads in turn and shove the truck; waves of brine roll along the
-# Pickle Works' streets and shove it too. Neither hurts.
+# TURNIP TRUCK: BRINE BURST. The hydrants stand at the kerbs of the
+# crossings and spray brine across the road in turn, shoving the truck;
+# waves of brine sweep across three roads towards the brine beside them, and
+# a truck near the downstream edge is swept in, while one by the upstream
+# kerb only slides. None of it hurts by itself.
 seed 5
 game turnip
 wait 5
+expect pipes_at_kerb == 1
 cheat day 3 1
 cheat notraffic
 expect event == 1
-# below the pipe at (5, 5), while it sprays north and south
-cheat pos 264 300
+# in the spray of the hydrant at the crossing (5, 5)
+waituntil spray_dir2 >= 0 240
 cheat stop
-waituntil push100 > 0 240
+cheat inspray 2 20
 wait 20
-expect y > 304
+expect speed100 > 20
 expect hearts == 3
-# a wave down the works' street at row 24
-cheat pos 300 1176
+# the works' street at row 24: a wave crosses it northwards towards the channel
 cheat stop
-cheat ang 90
-waituntil push100 > 0 420
-wait 15
-expect x > 304
-expect hearts == 3
-expect hits == 0
+cheat pos 300 1162
+cheat ang 0
+waituntil push100 > 0 300
+waituntil falls >= 1 120
+# by the upstream (south) kerb it only slides the truck along
+waituntil tstate == 0 120
+cheat stop
+cheat pos 300 1196
+cheat ang 0
+cheat inv 100
+waituntil push100 > 0 300
+wait 60
+expect falls == 1
+expect y < 1192
 # no brine on a quiet day
 cheat day 3 0
 cheat pos 264 300

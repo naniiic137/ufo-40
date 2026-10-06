@@ -1,27 +1,58 @@
-# TURNIP TRUCK: RADISH RING. Black getaway cars flee police cars all over
-# town (three of each round the truck); a gang car close to the truck
-# shoots at it, badly. A bullet that lands costs a heart.
+# TURNIP TRUCK: RADISH RING. One or two chases at a time roam the whole
+# town, gang cars fleeing police cars, with quiet spells between (none at
+# all for the first few seconds, and a new chase only every 15 to 30 s). A
+# gang car that sees the truck close by comes after it and shoots, badly; a
+# bullet that lands costs a heart. Bumping their cars costs nothing.
 seed 8
 game turnip
 wait 5
 cheat day 3 4
-waituntil gangs >= 3 3000
-waituntil police >= 3 600
+expect gangs == 0
+wait 290
+expect gangs == 0
+waituntil gangs >= 1 400
+expect police >= 1
+wait 800
+expect gangs <= 1
+# a gang car that sees the truck chases it, and shoots
 cheat notraffic
 cheat pos 400 276
 cheat stop
-cheat car 1 11 5 2
-waituntil shots_0 >= 1 90
+cheat car 1 9 5 0
+wait 2
+expect gang_chasing == 1
+waituntil shots_0 >= 1 400
+waituntil gang_dist < 60 400
 # a bullet on target
+cheat notraffic
 cheat clearmobs
+cheat stop
+cheat hearts 3
 cheat inv 0
 cheat shot 0 370 276 2.4 0 40
 wait 20
 expect hit_by3 == 1
 expect hearts == 2
+# ramming a gang car or a police car: a bounce, no heart
+cheat notraffic
+cheat inv 0
+cheat pos 400 276
+cheat ang 0
+cheat vel 2.4 0
+cheat carat 1 430 276
+wait 30
+cheat notraffic
+cheat inv 0
+cheat pos 400 276
+cheat ang 0
+cheat vel 2.4 0
+cheat carat 2 430 276
+wait 30
+expect hearts == 2
+expect hit_by0 == 0
 # the police stay on their gang car's tail
 cheat notraffic
-waituntil pair_gap >= 0 600
+waituntil pair_gap >= 0 2400
 wait 300
 expect pair_gap >= 0
 expect pair_gap < 160
