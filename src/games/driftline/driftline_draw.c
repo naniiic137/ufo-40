@@ -70,7 +70,10 @@ static void road(int stage, float scroll) {
     gfx_hline(0, SCREEN_W - 1, DFL_ROAD_BOT - 1, C_INK);
     int off = wrapx(scroll * 1.0f, 32);
     for (int x = -off; x < SCREEN_W; x += 32) gfx_rect(x, DFL_ROAD_TOP + 10, 16, 2, LINE[stage]);
-    /* the railing along the far side */
+    /* the railing along the far side, on a dark wall: the sea stops at the top rail,
+     * so these rows must be painted every frame or the barrel's tip, shots and foes
+     * that cross them leave copies of themselves behind */
+    gfx_rect(0, DFL_ROAD_TOP - 4, SCREEN_W, 4, C_INK);
     int poff = wrapx(scroll * 1.0f, 24);
     for (int x = -poff; x < SCREEN_W; x += 24) gfx_vline(x, DFL_ROAD_TOP - 5, DFL_ROAD_TOP - 1, stage == 2 ? C_DUSK : C_LIGHT);
     gfx_hline(0, SCREEN_W - 1, DFL_ROAD_TOP - 5, stage == 2 ? C_SLATE : C_WHITE);
@@ -234,13 +237,17 @@ static void draw_car_at(float x, float aim, int t, bool drifting, bool gunner) {
         gfx_rect(bx + 5, by + 2, 4, 1, C_CREAM);
     }
     /* the roof gun: a turret in the middle of the roof with the barrel pivoting on it;
-     * shots leave from the barrel's tip (fire_main uses the same point) */
-    float a = aim * 3.14159265f / 180.0f;
+     * shots leave from the barrel's tip (fire_main uses the same point). The barrel is
+     * drawn in 9 fixed steps across the cone, one solid 2-pixel line, so it turns in
+     * clean clicks instead of shimmering as the aim swings a little every frame. */
+    float step = roundf(aim / 11.25f) * 11.25f, a = step * 3.14159265f / 180.0f;
     int gx = (int)lroundf(x), gy = DFL_GUN_Y + (by - (DFL_ROAD_Y - 12));
     int ex = gx + (int)lroundf(sinf(a) * DFL_GUN_LEN), ey = gy - (int)lroundf(cosf(a) * DFL_GUN_LEN);
-    gfx_line(gx, gy, ex, ey, C_INK);
-    gfx_line(gx + 1, gy, ex + 1, ey, C_SLATE);
-    gfx_pset(ex, ey, C_LIGHT);
+    /* in the car's red, so it never blends with the railing's grey posts or the
+     * dark sea wall that scroll past behind it */
+    gfx_line(gx, gy, ex, ey, C_MAROON);
+    gfx_line(gx + 1, gy, ex + 1, ey, C_RED);
+    gfx_rect(ex, ey, 2, 1, C_YELLOW); /* the muzzle */
     gfx_rect(gx - 2, gy - 1, 6, 3, C_INK);
     gfx_rect(gx - 1, gy - 1, 4, 2, C_SLATE);
 }
