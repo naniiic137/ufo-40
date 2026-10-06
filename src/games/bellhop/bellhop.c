@@ -418,15 +418,8 @@ static void draw_hud(void) {
     gfx_rect(102, 10, iclamp(into * 30 / BHP_EXTEND, 0, 30), 1, C_LIME);
     /* the stage */
     text_draw(bhp_stage_label(st.idx), 142, 2, C_CYAN);
-    /* this world's tea, one cup a regular stage */
-    if (!run.brew) {
-        int w = st.idx / BHP_PER_WORLD;
-        for (int k = 0; k < 8; k++) {
-            bool got = run.cup[w * 8 + k];
-            int x = 222 + k * 12;
-            bhp_draw_cup(x, 2, got);
-        }
-    } else {
+    /* (the tea stays a secret here: the TEA BREAK card after each boss tallies it) */
+    if (run.brew) {
         snprintf(b, sizeof b, "ROOM %d OF 5", run.brew_room + 1);
         tiny_draw(b, 232, 4, C_LIME);
     }
@@ -810,6 +803,18 @@ static int bhp_query(const char *key, int *out) {
     if (!strcmp(key, "coins")) { *out = count_kind(BEK_COIN); return 1; }
     if (!strcmp(key, "coins_got")) { *out = st.coins_got; return 1; }
     if (!strcmp(key, "bot_step")) { *out = bot.step; return 1; }
+    if (!strcmp(key, "fuel_sources")) {
+        /* what on this stage puts fuel back: enemies that give it, bubbles, blocks, cans */
+        int n = 0;
+        for (int i = 0; i < st.ne; i++) {
+            int k = st.e[i].kind;
+            n += st.e[i].on && ((k >= BEK_MOTH && k <= BEK_BUBBLE && k != BEK_TURRET) || k == BEK_FUEL);
+        }
+        for (int r = 0; r < BHP_TH; r++)
+            for (int c = 0; c < BHP_TW; c++) n += st.tile[r][c] == BTL_BLOCK;
+        *out = n;
+        return 1;
+    }
     if (!strcmp(key, "boss_x")) { *out = (int)(st.boss.x >> 8); return 1; }
     if (!strcmp(key, "boss_y")) { *out = (int)(st.boss.y >> 8); return 1; }
     if (!strcmp(key, "cspeed") || !strcmp(key, "gum_size")) {
@@ -904,8 +909,8 @@ const GameDef GAME_BELLHOP = {
     "BELLHOP",
     "1985",
     "ARCADE",
-    "FIFTY SCREENS: THRUST, HOVER, SLASH AND TOUCH NOTHING. STOP FOR TEA.",
-    {"HAVE 15 SPARE SHIPS", "BEAT ALL 50 STAGES", "WIN WITH ALL 40 CUPS OF TEA"},
+    "THRUST, HOVER, SLASH, TOUCH NOTHING, AND NEVER PASS UP A CUP OF TEA.",
+    {"KEEP 15 SHIPS IN THE HANGAR", "BRING THE BELLS HOME", "BRING THEM HOME AFTER ALL 40 CUPS OF TEA"},
     GLYPH_LEFT GLYPH_RIGHT "\tSTEER\n"
     GLYPH_A " (HOLD)\tTHRUST (TAP TO HOVER)\n"
     GLYPH_B "\tSLASH\n"

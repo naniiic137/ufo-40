@@ -2,7 +2,8 @@
 # it has to go into the press's chute three times. After the first, thorns
 # grow from the floor and the ceiling; after the second a sprinkler sprays
 # the apple, and a jet that hits it stops it dead in the air. Hitting the
-# apple puts a little fuel back. The demo pilot does it with real presses.
+# apple puts a little fuel back. A crash keeps the phase (and its thorns).
+# The demo pilot does it with real presses.
 seed 5
 game bellhop
 wait 20
@@ -24,6 +25,11 @@ botuntil boss_phase == 1 12000
 expect tile_x328 == 17
 expect tile_x526 == 17
 expect score >= 500
+cheat crash
+wait 80
+expect mode == 0
+expect boss_phase == 1
+expect tile_x328 == 17
 botuntil boss_phase == 2 12000
 expect kind20 == 1
 botuntil shots >= 1 600

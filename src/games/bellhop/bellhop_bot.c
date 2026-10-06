@@ -409,6 +409,20 @@ static bool step_target(const BhpStage *s, const Tok *t, int *tx, int *ty) {
     return false;
 }
 
+/* have the gates of this lever's colour been swung from the layout's? */
+static bool lever_flipped(const BhpStage *s, int lever) {
+    int shut = lever == BTL_LEVER1 ? BTL_GATE1 : BTL_GATE2;
+    char cs = lever == BTL_LEVER1 ? '[' : ']', co = lever == BTL_LEVER1 ? '{' : '}';
+    const BhpStageDef *d = &BHP_STAGE[s->idx];
+    for (int r = 0; r < BHP_TH; r++)
+        for (int c = 0; c < BHP_TW; c++) {
+            char ch = d->rows[r][c];
+            if (ch == cs) return s->tile[r][c] != shut;
+            if (ch == co) return s->tile[r][c] == shut;
+        }
+    return false;
+}
+
 /* is the step done? */
 static bool step_done(const BhpStage *s, const Tok *t, int k, const BhpBot *b) {
     int x = PX(s->f.x), y = PX(s->f.y);
@@ -421,7 +435,13 @@ static bool step_done(const BhpStage *s, const Tok *t, int k, const BhpBot *b) {
         int tx = t->x * BHP_T + 4, ty = BHP_OY + t->y * BHP_T + 4;
         return iabs(x - tx) <= 6 && iabs(y - ty) <= 6;
     }
-    case TK_HIT: return done_mark[k] != 0;
+    case TK_HIT: {
+        /* a lever is done once its gates stand the other way from the
+         * layout's (that survives a crash); a bomb once it is lit */
+        int t0 = (t->x >= 0 && t->y >= 0 && t->x < BHP_TW && t->y < BHP_TH) ? s->tile[t->y][t->x] : BTL_AIR;
+        if (t0 == BTL_LEVER1 || t0 == BTL_LEVER2) return lever_flipped(s, t0);
+        return done_mark[k] != 0;
+    }
     case TK_WAIT: return wait_t >= t->n;
     case TK_CRYSTALS: return s->bonus_done != 0;
     case TK_CIRCLE: return nearest_ent(s, BEK_CIRCLER, x, y, NULL) < 0;

@@ -3,7 +3,8 @@
 # matters: lever 2 opens the way to lever 1 but shuts the nook with the
 # hidden tea spot, and lever 1 opens the exit but shuts the way back to
 # lever 2. Flip both before finding the spot and the cup is lost for that
-# visit. The demo pilot finds the spot first and takes the cup.
+# visit: a crash doesn't swing the gates back. The demo pilot finds the
+# spot first and takes the cup.
 seed 1
 game bellhop
 wait 20
@@ -32,6 +33,15 @@ expect tile_x658 == 8
 expect tile_x32 == 7
 expect tile_x318 == 9
 # the nook is shut, and lever 2 is shut away: no tea this visit
+expect cup == 0
+# and a crash changes nothing
+cheat crash
+wait 80
+expect mode == 0
+expect tile_x318 == 9
+expect tile_x520 == 10
+expect tile_x658 == 8
+expect tile_x32 == 7
 expect cup == 0
 # the right order, flown
 cheat stage 25

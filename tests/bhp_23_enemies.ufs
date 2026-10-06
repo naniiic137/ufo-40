@@ -37,6 +37,11 @@ cheat place 100 60
 wait 40
 cheat place 100 60
 waituntil shots >= 1 40
+# ramming a turret wrecks the ship but not the turret
+cheat place 160 100
+wait 2
+expect mode == 2
+expect kind5 == 1
 # a ghost (5) inside a pillar: walls are nothing to it
 cheat stage 4
 wait 2

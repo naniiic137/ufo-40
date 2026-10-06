@@ -224,6 +224,9 @@ bool bhp_boss_slash(BhpStage *s, int x0, int y0, int x1, int y1);
 bool bhp_boss_hits_ship(const BhpStage *s);
 int bhp_boss_progress(const BhpStage *s); /* goes up as the boss is worn down (the planner) */
 void bhp_boss_finish(BhpStage *s);        /* tests: beat it now */
+/* after a crash: the boss as freshly set up gets back the progress made
+ * against it (was, with its parts: the stage before the crash) */
+void bhp_boss_restore(BhpStage *s, const BhpBoss *was, const BhpEnt *ents, int ne);
 /* boss drawing helpers' geometry */
 #define BHP_MILL_N 6
 #define BHP_COG_N 5

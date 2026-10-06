@@ -2,7 +2,7 @@
 # Only one cog's lamps are lit at a time and only a lit lamp breaks; a
 # broken lamp turns grey. When one cog is dark, the other lights up. The
 # lamps shoot. The cogs themselves wreck the ship. The demo pilot finishes
-# the job with real presses.
+# the job with real presses. A crash relights no lamp.
 seed 6
 game bellhop
 wait 20
@@ -40,5 +40,10 @@ botuntil kind21 == 5 12000
 wait 1
 expect boss_active == 1
 expect ent_flag5 == 1
+cheat crash
+wait 80
+expect mode == 0
+expect kind21 == 5
+expect boss_active == 1
 botuntil boss_down == 1 12000
 expect kind21 == 0

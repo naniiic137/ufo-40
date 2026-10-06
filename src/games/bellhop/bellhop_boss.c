@@ -11,14 +11,15 @@
  *                      are all out, the other cog lights up. Lamps shoot.
  *   D  THE GUMBALL MACHINE  rounds of gumballs, each gone in one slash; the
  *                      slashed piece flies off and bursts into shrapnel where
- *                      it lands, and a piece that lands on the lid makes the
- *                      machine spray. Last a giant that splits and splits.
+ *                      it lands. Last a giant that splits and splits.
  *   E  LADY HUSH       sprays of shots and lobbed spike balls. Red ones can't
  *                      be touched; a blue one slashed flies back at her, the
  *                      only thing that hurts her. Slashing her ship fills the
  *                      tank but does her no harm.
  *
- * A boss and all its parts start again when the ship is wrecked. */
+ * A crash doesn't undo the damage done: buckets and lamps gone stay gone,
+ * the press keeps its phase, the machine its round and Lady Hush her hits
+ * (bhp_boss_restore). Only positions, timers and shots start again. */
 #include "bellhop.h"
 
 const int BHP_MILL_X = 160, BHP_MILL_Y = 94, BHP_MILL_R = 44;
@@ -303,15 +304,7 @@ static void step_gums(BhpStage *s) {
             e->x += e->vx;
             e->y += e->vy;
             int x = PX(e->x), y = PX(e->y);
-            if (iabs(x - BHP_LID_X) <= 14 && iabs(y - BHP_LID_Y) <= 6) {
-                /* on the lid: the machine sprays */
-                e->on = 0;
-                for (int k = -2; k <= 2; k++) {
-                    int a = 192 + k * 14;
-                    bhp_shot_add(s, BSH_PELLET, BHP_LID_X * CHF_ONE, (BHP_LID_Y - 6) * CHF_ONE, bhp_cos(a) * 300 / 127, bhp_sin(a) * 300 / 127);
-                }
-                s->ev |= BEV_SHOOT;
-            } else if (bhp_solid(s, x, y)) {
+            if (bhp_solid(s, x, y) || (iabs(x - BHP_LID_X) <= 14 && iabs(y - BHP_LID_Y) <= 3)) {
                 e->on = 0;
                 shrapnel(s, e->x - e->vx, e->y - e->vy);
             }
@@ -541,4 +534,50 @@ int bhp_boss_progress(const BhpStage *s) {
 
 void bhp_boss_finish(BhpStage *s) {
     if (s->boss.kind) boss_down(s, 0);
+}
+
+/* ---- after a crash -------------------------------------------------------------- */
+
+static const BhpEnt *find_part(const BhpEnt *ents, int ne, int kind, int a, int b) {
+    for (int i = 0; i < ne; i++)
+        if (ents[i].on && ents[i].kind == kind && ents[i].a == a && ents[i].b == b) return &ents[i];
+    return NULL;
+}
+
+void bhp_boss_restore(BhpStage *s, const BhpBoss *was, const BhpEnt *ents, int ne) {
+    BhpBoss *b = &s->boss;
+    b->t2 = was->t2;
+    switch (b->kind) {
+    case 1: /* the buckets already broken stay broken, the cracked ones cracked */
+        for (int i = 0; i < s->ne; i++) {
+            BhpEnt *e = &s->e[i];
+            if (e->kind != BEK_BUCKET) continue;
+            const BhpEnt *old = find_part(ents, ne, BEK_BUCKET, e->a, 0);
+            if (!old) e->on = 0;
+            else e->hp = old->hp;
+        }
+        break;
+    case 2: /* the press keeps its phase, its thorns and its sprinkler */
+        b->phase = was->phase;
+        if (b->phase >= 1) press_thorns(s);
+        if (b->phase >= 2) bhp_ent_add(s, BEK_SPRINKLER, 160, BHP_OY + 19 * BHP_T + 3);
+        break;
+    case 3: /* dead lamps stay dead, and the same cog stays lit */
+        b->active = was->active;
+        for (int i = 0; i < s->ne; i++) {
+            BhpEnt *e = &s->e[i];
+            if (e->kind != BEK_LAMP) continue;
+            if (!find_part(ents, ne, BEK_LAMP, e->a, e->b)) e->on = 0;
+            else e->flag = e->a == b->active;
+        }
+        break;
+    case 4: /* the round starts again, not the machine */
+        b->round = (uint8_t)(was->round - 1);
+        gum_round(s);
+        break;
+    case 5:
+        b->hp = was->hp;
+        b->lobs = was->lobs;
+        break;
+    }
 }

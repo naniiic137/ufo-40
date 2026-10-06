@@ -1,13 +1,18 @@
 # BELLHOP: all fifty stages are sound (rows the right size, one start and
 # one exit, one hidden tea spot and one cup on each of the forty regular
-# stages and none elsewhere, warps on A-1, C-7 and D-3 only, a route for
-# the demo pilot), every fifth is a crystal room, every tenth a boss, each
-# world's in its order.
+# stages and none elsewhere, warps on A-1, A-6, C-7 and D-3 only, a route
+# for the demo pilot), every fifth is a crystal room, every tenth a boss,
+# each world's in its order. Every regular stage has something that puts
+# fuel back (an enemy that gives it, a bubble, a block or a fuel can), and
+# every world has fuel cans.
 seed 1
 game bellhop
 wait 20
 expect stages_bad == 0
 cheat stage 0
+wait 2
+expect warp_shown == 1
+cheat goto 5
 wait 2
 expect warp_shown == 1
 cheat goto 4
@@ -45,3 +50,154 @@ cheat goto 48
 wait 2
 expect boss == 0
 expect exit_open == 1
+cheat goto 0
+wait 1
+expect fuel_sources >= 1
+cheat goto 1
+wait 1
+expect fuel_sources >= 1
+cheat goto 2
+wait 1
+expect fuel_sources >= 1
+cheat goto 3
+wait 1
+expect fuel_sources >= 1
+cheat goto 5
+wait 1
+expect fuel_sources >= 1
+cheat goto 6
+wait 1
+expect fuel_sources >= 1
+cheat goto 7
+wait 1
+expect fuel_sources >= 1
+cheat goto 8
+wait 1
+expect fuel_sources >= 1
+cheat goto 10
+wait 1
+expect fuel_sources >= 1
+cheat goto 11
+wait 1
+expect fuel_sources >= 1
+cheat goto 12
+wait 1
+expect fuel_sources >= 1
+cheat goto 13
+wait 1
+expect fuel_sources >= 1
+cheat goto 15
+wait 1
+expect fuel_sources >= 1
+cheat goto 16
+wait 1
+expect fuel_sources >= 1
+cheat goto 17
+wait 1
+expect fuel_sources >= 1
+cheat goto 18
+wait 1
+expect fuel_sources >= 1
+cheat goto 20
+wait 1
+expect fuel_sources >= 1
+cheat goto 21
+wait 1
+expect fuel_sources >= 1
+cheat goto 22
+wait 1
+expect fuel_sources >= 1
+cheat goto 23
+wait 1
+expect fuel_sources >= 1
+cheat goto 25
+wait 1
+expect fuel_sources >= 1
+cheat goto 26
+wait 1
+expect fuel_sources >= 1
+cheat goto 27
+wait 1
+expect fuel_sources >= 1
+cheat goto 28
+wait 1
+expect fuel_sources >= 1
+cheat goto 30
+wait 1
+expect fuel_sources >= 1
+cheat goto 31
+wait 1
+expect fuel_sources >= 1
+cheat goto 32
+wait 1
+expect fuel_sources >= 1
+cheat goto 33
+wait 1
+expect fuel_sources >= 1
+cheat goto 35
+wait 1
+expect fuel_sources >= 1
+cheat goto 36
+wait 1
+expect fuel_sources >= 1
+cheat goto 37
+wait 1
+expect fuel_sources >= 1
+cheat goto 38
+wait 1
+expect fuel_sources >= 1
+cheat goto 40
+wait 1
+expect fuel_sources >= 1
+cheat goto 41
+wait 1
+expect fuel_sources >= 1
+cheat goto 42
+wait 1
+expect fuel_sources >= 1
+cheat goto 43
+wait 1
+expect fuel_sources >= 1
+cheat goto 45
+wait 1
+expect fuel_sources >= 1
+cheat goto 46
+wait 1
+expect fuel_sources >= 1
+cheat goto 47
+wait 1
+expect fuel_sources >= 1
+cheat goto 48
+wait 1
+expect fuel_sources >= 1
+# fuel cans, world by world
+cheat goto 5
+wait 1
+expect kind13 >= 1
+cheat goto 8
+wait 1
+expect kind13 >= 1
+cheat goto 12
+wait 1
+expect kind13 >= 1
+cheat goto 16
+wait 1
+expect kind13 >= 1
+cheat goto 20
+wait 1
+expect kind13 >= 1
+cheat goto 26
+wait 1
+expect kind13 >= 1
+cheat goto 31
+wait 1
+expect kind13 >= 1
+cheat goto 35
+wait 1
+expect kind13 >= 1
+cheat goto 42
+wait 1
+expect kind13 >= 1
+cheat goto 46
+wait 1
+expect kind13 >= 1

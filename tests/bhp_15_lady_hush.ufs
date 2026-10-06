@@ -28,6 +28,11 @@ wait 2
 expect kind24 == 0
 waituntil boss_hp == 7 300
 expect score == 500
+# a crash doesn't heal her
+cheat crash
+wait 80
+expect mode == 0
+expect boss_hp == 7
 # her ship: a full tank, and no harm
 cheat fuel 50
 cheat beside_boss -24

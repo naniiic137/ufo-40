@@ -28,7 +28,7 @@ const ChmFlightTune BHP_TUNE = {
     1792, /* top_speed */
     0,    /* bounce: never (a touch is a crash) */
     0,    /* min_bounce */
-    200,  /* slash_drag: a slash takes a fifth off the fall each frame */
+    248,  /* slash_drag: a slash takes a thirty-second off the fall each frame ... */
     4,    /* half: an 8 x 8 hit box */
 };
 
@@ -357,9 +357,24 @@ void bhp_stage_load(BhpStage *s, int idx, int crystal_pts, uint64_t seed) {
     build(s);
 }
 
+static bool gate_tile(int t) { return t >= BTL_GATE1 && t <= BTL_GATE2_OPEN; }
+
 void bhp_stage_respawn(BhpStage *s) {
     uint8_t boss_down = s->boss.down, bonus_done = s->bonus_done;
+    /* what a crash doesn't undo: the gates as the levers left them, and
+     * how far the boss has been worn down */
+    static uint8_t gates[BHP_TH][BHP_TW];
+    static BhpBoss boss;
+    static BhpEnt ents[BHP_ENTS];
+    int ne = s->ne;
+    memcpy(gates, s->tile, sizeof gates);
+    boss = s->boss;
+    memcpy(ents, s->e, sizeof ents);
     build(s);
+    for (int r = 0; r < BHP_TH; r++)
+        for (int c = 0; c < BHP_TW; c++)
+            if (gate_tile(gates[r][c]) && gate_tile(s->tile[r][c])) s->tile[r][c] = gates[r][c];
+    if (s->kind == BHK_BOSS && !boss_down) bhp_boss_restore(s, &boss, ents, ne);
     for (int i = 0; i < s->ne; i++)
         if (s->e[i].on && (s->e[i].kind == BEK_CIRCLER || s->e[i].kind == BEK_BIGCOIN) && (s->taken >> (s->e[i].id & 63) & 1))
             s->e[i].on = 0;
@@ -764,7 +779,15 @@ static void touch_things(BhpStage *s) {
             break;
         }
         default:
-            if (bhp_ent_deadly(e)) bhp_kill_ship(s, 5);
+            if (bhp_ent_deadly(e)) {
+                bhp_kill_ship(s, 5);
+                /* some enemies go down with the ship, for no points */
+                if (e->kind == BEK_MOTH || e->kind == BEK_MITE || e->kind == BEK_WASP || e->kind == BEK_CRAWLER ||
+                    e->kind == BEK_GHOST) {
+                    e->on = 0;
+                    bhp_add_fx(s, PX(e->x), PX(e->y), 2);
+                }
+            }
             break;
         }
     }
@@ -845,6 +868,8 @@ void bhp_stage_step(BhpStage *s, unsigned ctl) {
         }
         if (s->slash_t) bits |= CHF_SLASHING;
         chm_flight_control(&s->f, &BHP_TUNE, bits);
+        /* ... and gravity pulls half as hard while it lasts: a slight brake */
+        if (s->slash_t && s->f.vy > 0) s->f.vy -= BHP_TUNE.gravity / 2;
         if (chm_flight_probe(&s->f, &BHP_TUNE, bhp_solid, s)) bhp_kill_ship(s, 1);
     } else if (s->mode != BSM_BUBBLE) {
         s->mode_t++;

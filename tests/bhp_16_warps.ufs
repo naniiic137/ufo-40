@@ -1,8 +1,9 @@
-# BELLHOP: three hidden warps. On A-1, C-7 and D-3 a little sparkle shows
-# for five seconds from the moment the stage loads (the bubble and a crash
-# don't stop the clock); flying into it in time skips ahead (A-1 to A-6,
-# C-7 to C-10, D-3 to D-8), and the skipped stages' tea with them. The
-# demo pilot takes all three with real presses.
+# BELLHOP: four hidden warps. On A-1, A-6, C-7 and D-3 a little sparkle
+# shows for five seconds from the moment the stage loads (the bubble and a
+# crash don't stop the clock); flying into it in time skips ahead (A-1 to
+# A-6, where the next sparkle waits, then A-9; C-7 to C-10; D-3 to D-8),
+# and the skipped stages' tea with them. The demo pilot takes all four
+# with real presses.
 seed 1
 game bellhop
 wait 20
@@ -34,6 +35,9 @@ cheat stage 0
 wait 2
 botuntil stage != 0 600
 expect stage == 5
+expect warp_shown == 1
+botuntil stage != 5 600
+expect stage == 8
 expect tea == 0
 cheat stage 26
 wait 2

@@ -1,7 +1,7 @@
 # BELLHOP: B is a short slash to one side: the side the ship last steered
 # toward. It breaks blocks and glass and takes enemies down, but only on
 # that side; it can't be swung again straight away; and while it lasts it
-# slows the ship's fall.
+# slows the ship's fall, slightly (half the pull and a little drag).
 seed 1
 game bellhop
 wait 20
@@ -58,7 +58,18 @@ cheat place 160 40
 wait 20
 press B 1
 wait 9
-expect vy < 120
+expect vy < 400
+expect vy > 250
+# slashing again and again is no hover: the ship still falls
+cheat place 160 40
+press B 1
+wait 16
+press B 1
+wait 16
+press B 1
+wait 16
+expect vy > 300
+expect y > 80
 # up, down and A don't slash
 cheat place 160 60
 wait 20
