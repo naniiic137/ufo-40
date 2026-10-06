@@ -5,7 +5,7 @@
  * out, a gold cave with fuel and the way on (or, in a region's second
  * area, with the Lobber and a Hush Engine). Rooms are single screens: a
  * friendly sort with free fuel and a word of advice, a shop where one thing
- * may be bought a visit, a health stall, the gworm trial, the cursed
+ * may be bought a visit, a health stall, the wriggler trial, the cursed
  * encounter, a sexton, a light or magnet switch, the boon, the armour, or
  * nothing at all. Here Clary takes hits on the bar like the ship does.
  * Enemies have no invincibility after a hit, so mashing B beats holding it. */
@@ -81,18 +81,18 @@ static const SKind SK[EK_COUNT] = {
     [EK_JET] = {6, 6, 0, 4, 0, SF_INVULN | SF_HAZARD},
     [EK_BRUTE] = {10, 13, 6, 6, 60, SF_FOE},
     [EK_RINGWORM] = {6, 7, 3, 4, 5, SF_FOE},
-    [EK_GOOPER] = {6, 6, 2, 4, 3, SF_FOE},
-    [EK_AXER] = {6, 8, 3, 4, 5, SF_FOE},
-    [EK_AIRBOT] = {6, 6, 2, 4, 3, SF_FOE},
+    [EK_SLURP] = {6, 6, 2, 4, 3, SF_FOE},
+    [EK_PELTER] = {6, 8, 3, 4, 5, SF_FOE},
+    [EK_HOVERBOT] = {6, 6, 2, 4, 3, SF_FOE},
     [EK_TROOPER] = {6, 9, 3, 4, 5, SF_FOE},
     [EK_COCOON] = {6, 8, 3, 4, 5, SF_FOE},
     [EK_BEE] = {4, 4, 1, 4, 1, SF_FOE},
-    [EK_SPEWER] = {7, 7, 3, 4, 5, SF_FOE},
+    [EK_SPITTER] = {7, 7, 3, 4, 5, SF_FOE},
     [EK_WHEEL] = {4, 4, 0, 4, 0, SF_INVULN | SF_HAZARD},
-    [EK_GHORBNEST] = {8, 8, 0, 0, 0, SF_INVULN},
-    [EK_GHORB] = {4, 4, 1, 4, 1, SF_FOE},
+    [EK_WISPNEST] = {8, 8, 0, 0, 0, SF_INVULN},
+    [EK_WISP] = {4, 4, 1, 4, 1, SF_FOE},
     [EK_SKULL] = {9, 9, 0, 4, 0, SF_FOE | SF_INVULN},
-    [EK_GWORM] = {7, 5, 2, 4, 0, SF_FOE},
+    [EK_WRIGGLER] = {7, 5, 2, 4, 0, SF_FOE},
     [EK_FACE] = {10, 10, 8, 4, 0, SF_FOE},
     [EK_FLAME] = {6, 6, 0, 4, 0, SF_INVULN | SF_HAZARD},
     [EK_BARREL] = {7, 8, 1, 0, 5, 0},
@@ -104,7 +104,7 @@ static const SKind SK[EK_COUNT] = {
     [EK_BOMB] = {5, 5, 3, 0, 0, SF_FOE},
     [EK_ENGINE] = {16, 40, 20, 0, 0, SF_FOE},
     [EK_HUSH] = {26, 9, 0, 6, 0, SF_FOE},
-    [EK_HUSHGOOP] = {6, 6, 2, 4, 0, SF_FOE},
+    [EK_HUSHSLURP] = {6, 6, 2, 4, 0, SF_FOE},
     [EK_TOCK] = {32, 20, 0, 4, 0, SF_FOE | SF_INVULN},
     [EK_TOCKHEAD] = {8, 7, 0, 0, 0, SF_FOE},
     [EK_MISSILE] = {3, 5, 1, 4, 0, SF_FOE},
@@ -130,7 +130,7 @@ int clc_sub_ent_add(ClcSub *s, int kind, int x, int y) {
     e->dir = -1;
     /* things that stand on the floor keep their feet at y: their middle is higher */
     switch (kind) {
-    case EK_STINGER: case EK_LOUSE: case EK_BRUTE: case EK_AXER: case EK_TROOPER: case EK_SPEWER:
+    case EK_STINGER: case EK_LOUSE: case EK_BRUTE: case EK_PELTER: case EK_TROOPER: case EK_SPITTER:
     case EK_BARREL: case EK_CHEST: case EK_NPC: case EK_SWITCH: case EK_LOBBER: case EK_ENGINE:
     case EK_RINGWORM: case EK_JET: case EK_FLAME:
         e->y -= SK[kind].hh * 256;
@@ -302,7 +302,7 @@ static bool hit(ClcSub *s, ClcPlayer *p, ClcEnt *e, int dmg) {
             sfx_(s, PX(e->x), PX(e->y), FX_BOOM);
             for (int i = 0; i < s->ne; i++) {
                 ClcEnt *o = &s->e[i];
-                if (o->on && (o->kind == EK_HUSHGOOP || o->kind == EK_MISSILE)) o->on = 0;
+                if (o->on && (o->kind == EK_HUSHSLURP || o->kind == EK_MISSILE)) o->on = 0;
             }
             for (int k2 = 0; k2 < CLC_SSHOTS; k2++)
                 if (s->shot[k2].kind >= SH_PELLET) s->shot[k2].on = 0;
@@ -423,7 +423,7 @@ static void estep(ClcSub *s, ClcPlayer *p, ClcEnt *e) {
             for (int k = 0; k < 6; k++) eshoot(s, e, SH_RING, clc_cos(k * 43) * 3, clc_sin(k * 43) * 3, 90);
         }
         break;
-    case EK_GOOPER:
+    case EK_SLURP:
         if (e->flag == 0) {
             if (adx < 60 && e->t > 40) { e->flag = 1; e->vy = -1300; e->vx = dx > 0 ? 160 : -160; }
         } else {
@@ -433,7 +433,7 @@ static void estep(ClcSub *s, ClcPlayer *p, ClcEnt *e) {
             if (e->y >= e->hy * 256 && e->vy > 0) { e->y = e->hy * 256; e->flag = 0; e->t = 0; e->vx = 0; }
         }
         break;
-    case EK_AXER:
+    case EK_PELTER:
         if (!near) break;
         walk_on(s, e, 60, true);
         if (e->t % 100 == 0 && adx < 180) {
@@ -443,7 +443,7 @@ static void estep(ClcSub *s, ClcPlayer *p, ClcEnt *e) {
             s->ev |= CEV_FOESHOT;
         }
         break;
-    case EK_AIRBOT:
+    case EK_HOVERBOT:
         if (!near) break;
         if (e->flag == 0) {
             e->vx = e->dir * 120;
@@ -473,9 +473,9 @@ static void estep(ClcSub *s, ClcPlayer *p, ClcEnt *e) {
         }
         break;
     case EK_BEE:
-    case EK_GHORB:
-    case EK_HUSHGOOP:
-        if (e->kind == EK_HUSHGOOP) {
+    case EK_WISP:
+    case EK_HUSHSLURP:
+        if (e->kind == EK_HUSHSLURP) {
             walk_on(s, e, 0, false);
             if (clc_sub_solid(s, PX(e->x), PX(e->y) + SK[e->kind].hh, true) && e->t % 40 == 0) {
                 e->vy = -1100;
@@ -488,7 +488,7 @@ static void estep(ClcSub *s, ClcPlayer *p, ClcEnt *e) {
         e->vy += clc_sin(e->t * 8) * 3;
         emove(s, e);
         break;
-    case EK_SPEWER:
+    case EK_SPITTER:
         if (near && e->t % 110 == 0) {
             e->dir = (int8_t)(dx > 0 ? 1 : -1);
             sshot(s, SH_FLAMELET, e->x, e->y - 4 * 256, e->dir * 500, -700, 150, 4);
@@ -498,12 +498,12 @@ static void estep(ClcSub *s, ClcPlayer *p, ClcEnt *e) {
     case EK_WHEEL:
         e->a = (int16_t)((e->a + 2) & 255);
         break;
-    case EK_GHORBNEST:
+    case EK_WISPNEST:
         if (on_screen(s, e) && e->t % 50 == 0) {
             int n = 0;
-            for (int i = 0; i < s->ne; i++) n += s->e[i].on && s->e[i].kind == EK_GHORB && s->e[i].link == (uint8_t)(e - s->e);
+            for (int i = 0; i < s->ne; i++) n += s->e[i].on && s->e[i].kind == EK_WISP && s->e[i].link == (uint8_t)(e - s->e);
             if (n < 3) {
-                int j = clc_sub_ent_add(s, EK_GHORB, PX(e->x), PX(e->y));
+                int j = clc_sub_ent_add(s, EK_WISP, PX(e->x), PX(e->y));
                 if (j >= 0) s->e[j].link = (uint8_t)(e - s->e);
             }
         }
@@ -523,7 +523,7 @@ static void estep(ClcSub *s, ClcPlayer *p, ClcEnt *e) {
         if (cx - e->x > 360 * 256) e->x = cx - 360 * 256;
         break;
     }
-    case EK_GWORM:
+    case EK_WRIGGLER:
         e->x += e->dir * 240;
         e->y = e->hy * 256 + clc_sin(e->t * 3) * 28 * 2;
         if (PX(e->x) > s->w * CLC_ST + 12) e->x = -12 * 256;
@@ -587,7 +587,7 @@ static void estep(ClcSub *s, ClcPlayer *p, ClcEnt *e) {
         }
         break;
     case EK_HUSH: {
-        /* Lady Hush's saucer: shots down, goopers, and now and then the
+        /* Lady Hush's saucer: shots down, slurps, and now and then the
          * whole saucer dropped on spikes */
         int floor_mid = FLOOR_Y - 10;
         switch (s->phase) {
@@ -601,10 +601,10 @@ static void estep(ClcSub *s, ClcPlayer *p, ClcEnt *e) {
                 s->phase = (uint8_t)(((e->t / 331) & 1) ? 1 : 2);
             }
             break;
-        case 1: /* goopers */
+        case 1: /* slurps */
             if (s->phase_t == 10)
                 for (int k = 0; k < 3; k++) {
-                    int j = clc_sub_ent_add(s, EK_HUSHGOOP, PX(e->x) + (k - 1) * 16, PX(e->y) + 12);
+                    int j = clc_sub_ent_add(s, EK_HUSHSLURP, PX(e->x) + (k - 1) * 16, PX(e->y) + 12);
                     if (j >= 0) s->e[j].vx = (k - 1) * 200;
                 }
             if (++s->phase_t > 60) { s->phase = 0; s->phase_t = 0; }
@@ -844,7 +844,7 @@ static void shots(ClcSub *s, ClcPlayer *p) {
                 sfx_(s, (tx / CLC_ST) * CLC_ST + 8, (ty / CLC_ST) * CLC_ST + 8, FX_DUST);
             }
             if (sh->kind == SH_FLAMELET && sh->vy > 0) {
-                /* the spewer's flame spreads along the floor */
+                /* the spitter's flame spreads along the floor */
                 sh->vy = 0;
                 sh->y = (int32_t)((ty / CLC_ST) * CLC_ST - 4) * 256;
                 sh->vx = sh->vx > 0 ? 300 : -300;
@@ -871,7 +871,7 @@ static void shots(ClcSub *s, ClcPlayer *p) {
                 if (!e->on) continue;
                 int k2 = e->kind;
                 if (k2 == EK_CHEST || k2 == EK_ITEM || (k2 == EK_NPC && e->flag != 1)) continue;
-                if (k2 == EK_JET || k2 == EK_FLAME || k2 == EK_WHEEL || k2 == EK_GHORBNEST) continue;
+                if (k2 == EK_JET || k2 == EK_FLAME || k2 == EK_WHEEL || k2 == EK_WISPNEST) continue;
                 int x0, y0, x1, y1;
                 ebox(e, &x0, &y0, &x1, &y1);
                 if (tx + r < x0 || tx - r > x1 || ty + r < y0 || ty - r > y1) continue;
@@ -942,7 +942,7 @@ void clc_sub_step(ClcSub *s, ClcPlayer *p, unsigned buttons) {
     shots(s, p);
     touches(s, p);
     /* the trial and the cursed encounter end when the last one falls */
-    if (s->room == RM_TRIAL && !s->done && all_dead(s, EK_GWORM)) {
+    if (s->room == RM_TRIAL && !s->done && all_dead(s, EK_WRIGGLER)) {
         s->done = 1;
         /* 150 coins, purse or no purse */
         if (!s->sim) p->coins += 150;
@@ -970,8 +970,8 @@ void clc_sub_boss_down(ClcSub *s) {
     for (int i = 0; i < s->ne; i++) {
         ClcEnt *e = &s->e[i];
         if (!e->on) continue;
-        if (e->kind == EK_LOBBER || e->kind == EK_BOMB || e->kind == EK_ENGINE || e->kind == EK_HUSHGOOP || e->kind == EK_MISSILE ||
-            e->kind == EK_GWORM || e->kind == EK_FACE)
+        if (e->kind == EK_LOBBER || e->kind == EK_BOMB || e->kind == EK_ENGINE || e->kind == EK_HUSHSLURP || e->kind == EK_MISSILE ||
+            e->kind == EK_WRIGGLER || e->kind == EK_FACE)
             e->on = 0;
     }
     if (s->boss_kind >= 2) s->boss_hp = 0;

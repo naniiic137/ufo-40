@@ -1,6 +1,6 @@
 # CLARION CALL: Lady Hush at the top of the Crown (gold door), fought on
 # foot: 100 points, her saucer high above firing energy shots down, now and
-# then dropping goopers or the whole saucer on its spikes; shoot up at her.
+# then dropping slurps or the whole saucer on its spikes; shoot up at her.
 # Beaten, she opens the way out: the escape shaft, 99 seconds to fly up
 # through the opened gates past fuel and arrows. With all three Hush
 # Engines broken Ansel comes too (the gold ending: the Saucer goal);
@@ -49,7 +49,7 @@ press UP B 2
 press UP B 2
 press UP B 2
 expect boss_hp < 100
-# goopers or the drop come in time
+# slurps or the drop come in time
 waituntil count59 > 0 800
 # beaten (all three engines broken): the escape
 cheat engines 7

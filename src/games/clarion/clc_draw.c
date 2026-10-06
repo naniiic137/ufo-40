@@ -576,19 +576,19 @@ static void draw_sub_ent(const ClcSub *s, const ClcPlayer *p, const ClcEnt *e, i
         gfx_circb(x, y - 7, 3, C_MAGENTA);
         gfx_pset(x, y - 7, C_INK);
         break;
-    case EK_GOOPER:
+    case EK_SLURP:
         gfx_circ(x, y, 6, C_LIME);
         gfx_pset(x - 2, y - 2, C_INK);
         gfx_pset(x + 2, y - 2, C_INK);
         gfx_hline(x - 2, x + 2, y + 2, C_FOREST);
         break;
-    case EK_AXER:
+    case EK_PELTER:
         gfx_rect(x - 5, y - 8, 10, 16, C_BROWN);
         gfx_rect(x - 4, y - 7, 8, 5, C_TAN);
         gfx_pset(x + e->dir * 2, y - 5, C_INK);
         gfx_line(x + e->dir * 5, y - 4, x + e->dir * 9, y - 9, C_GREY);
         break;
-    case EK_AIRBOT:
+    case EK_HOVERBOT:
         gfx_circ(x, y, 6, C_GREY);
         gfx_circ(x, y, 3, C_CYAN);
         gfx_hline(x - 8, x + 7, y - 7, (t / 2) & 1 ? C_LIGHT : C_SLATE);
@@ -606,7 +606,7 @@ static void draw_sub_ent(const ClcSub *s, const ClcPlayer *p, const ClcEnt *e, i
         gfx_pset(x - 2, y - 4 - ((t / 2) & 1), C_WHITE);
         gfx_pset(x + 2, y - 4 - ((t / 2) & 1), C_WHITE);
         break;
-    case EK_SPEWER:
+    case EK_SPITTER:
         gfx_rect(x - 7, y - 7, 14, 14, C_RED);
         gfx_rect(x - 4, y - 9, 8, 4, C_MAROON);
         gfx_circ(x + e->dir * 4, y - 2, 2, C_ORANGE);
@@ -619,17 +619,17 @@ static void draw_sub_ent(const ClcSub *s, const ClcPlayer *p, const ClcEnt *e, i
                 gfx_circ(x + clc_cos(ang) * k * 8 / 127, y + clc_sin(ang) * k * 8 / 127, 3, (k + t / 3) & 1 ? C_ORANGE : C_YELLOW);
             }
         break;
-    case EK_GHORBNEST:
+    case EK_WISPNEST:
         gfx_rect(x - 8, y - 8, 16, 16, C_DUSK);
         gfx_rectb(x - 8, y - 8, 16, 16, C_VIOLET);
         gfx_circ(x, y, 3, (t / 6) & 1 ? C_VIOLET : C_PURPLE);
         break;
-    case EK_GHORB:
+    case EK_WISP:
         gfx_circ(x, y, 4, C_VIOLET);
         gfx_pset(x, y, C_WHITE);
         break;
     case EK_SKULL: clc_spr(CS_SKULL, x - 9, y - 9 + ((t / 8) & 1), 0); break;
-    case EK_GWORM:
+    case EK_WRIGGLER:
         for (int k = 0; k < 3; k++) gfx_circ(x - e->dir * k * 5, y + clc_sin(t * 6 + k * 40) * 2 / 127, 4 - k / 2, k ? C_LEAF : C_LIME);
         gfx_pset(x + e->dir * 2, y - 1, C_INK);
         break;
@@ -697,7 +697,7 @@ static void draw_sub_ent(const ClcSub *s, const ClcPlayer *p, const ClcEnt *e, i
             }
         break;
     }
-    case EK_HUSHGOOP:
+    case EK_HUSHSLURP:
         gfx_circ(x, y, 6, C_MAGENTA);
         gfx_pset(x - 2, y - 2, C_WHITE);
         gfx_pset(x + 2, y - 2, C_WHITE);

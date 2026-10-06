@@ -611,7 +611,7 @@ static void draw_ending(void) {
     for (int k = 0; k < 5; k++) gfx_rect(bx + 6 + k * 6, by + 34 + (k & 1) * 12, 3, 4, e == END_TRUE ? C_AMBER : C_DUSK);
     int sx = (state_t * 2) % 400 - 40;
     clc_draw_ship(sx, 70, 1, true, frame_t);
-    if (e != END_BAD) clc_draw_ship(sx - 22, 74, 1, true, frame_t + 3);
+    if (e != END_BAD) clc_draw_tinkler(sx - 22, 74, 1, true, frame_t + 3);
     clc_draw_face(0, 16, 112, 3);
     if (e != END_BAD) clc_draw_face(1, 260, 112, 3);
     static const char *const BAD[3] = {"CLARY GOT OUT. THE CLARION SAILS FOR HOME,", "AND SHE WONDERS HOW ANSEL IS GETTING ON.", "PROBABLY FINE. PROBABLY!"};

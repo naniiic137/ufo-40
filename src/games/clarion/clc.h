@@ -122,13 +122,13 @@ enum {
     /* map things */
     EK_NOTE, EK_FAKENOTE, EK_PLUM, EK_COIN, EK_RING, EK_FUELCAN, EK_ARROW,
     /* behind doors: enemies */
-    EK_STINGER, EK_DROPPER, EK_LOUSE, EK_JET, EK_BRUTE, EK_RINGWORM, EK_GOOPER, EK_AXER, EK_AIRBOT,
-    EK_TROOPER, EK_COCOON, EK_BEE, EK_SPEWER, EK_WHEEL, EK_GHORBNEST, EK_GHORB, EK_SKULL, EK_GWORM,
+    EK_STINGER, EK_DROPPER, EK_LOUSE, EK_JET, EK_BRUTE, EK_RINGWORM, EK_SLURP, EK_PELTER, EK_HOVERBOT,
+    EK_TROOPER, EK_COCOON, EK_BEE, EK_SPITTER, EK_WHEEL, EK_WISPNEST, EK_WISP, EK_SKULL, EK_WRIGGLER,
     EK_FACE, EK_FLAME,
     /* behind doors: things */
     EK_BARREL, EK_CHEST, EK_ITEM, EK_NPC, EK_SWITCH,
     /* bosses and their parts */
-    EK_LOBBER, EK_BOMB, EK_ENGINE, EK_HUSH, EK_HUSHGOOP, EK_TOCK, EK_TOCKHEAD, EK_MISSILE,
+    EK_LOBBER, EK_BOMB, EK_ENGINE, EK_HUSH, EK_HUSHSLURP, EK_TOCK, EK_TOCKHEAD, EK_MISSILE,
     EK_COUNT
 };
 typedef struct ClcEnt {
@@ -381,6 +381,7 @@ void clc_draw_sub(const ClcSub *s, const ClcPlayer *p, int t);
  * escape's seconds) */
 void clc_draw_hud(const ClcPlayer *p, int notes, int timer, bool timer_on, int per, int t);
 void clc_draw_ship(int x, int y, int face, bool flame, int t);
+void clc_draw_tinkler(int x, int y, int face, bool flame, int t); /* Ansel's ship */
 void clc_draw_clary_small(int x, int y, int face, int frame);
 void clc_draw_clary(int x, int y, int face, int frame, int aim);
 void clc_draw_item(int item, int x, int y, int t);

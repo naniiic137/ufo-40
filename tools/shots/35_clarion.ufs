@@ -1,0 +1,79 @@
+# README media: CLARION CALL. Everything on the maps and behind the doors
+# is the demo player's real button presses. The GIF is the start of a run:
+# Clary climbs into the Clarion and goes after the Cellars' first notes.
+shotscale 2
+seed 35
+game clarion
+wait 60
+shot clarion_title
+press A
+wait 40
+shot clarion_story
+cheat bot_goal 0
+cheat area 0 0
+wait 2
+gifstart clarion 3 1
+botplay 1500
+gifstop
+# the Arboretum's trunks
+cheat area 1 0
+wait 2
+botplay 700
+shot clarion_arboretum
+# a red cave, the skull behind
+cheat area 0 0
+wait 2
+cheat enter_room 0
+botplay 420
+shot clarion_cave
+# the Gullet, ten notes in: the dash for the gold door
+cheat area 3 0
+wait 2
+botplay 200
+cheat notes 10
+botplay 240
+shot clarion_dash
+# the Cloister in the dark
+cheat area 5 0
+wait 2
+botplay 500
+shot clarion_cloister
+# Cogtown's mega store
+cheat area 4 1
+wait 2
+cheat enter_room 7
+wait 30
+shot clarion_shop
+# the Lobber and a Hush Engine
+cheat area 0 1
+wait 2
+cheat enter_room 1
+cheat sub_place 1500 144
+botplay 40
+shot clarion_lobber
+# the station map
+cheat station 0
+wait 40
+shot clarion_station
+# Lady Hush
+cheat area 6 2
+wait 2
+cheat enter_room 16
+botplay 520
+shot clarion_hush
+# Grandsire Tock
+cheat area 6 2
+wait 2
+cheat final_sage
+cheat goto 6 2
+wait 2
+cheat enter_room 17
+botplay 420
+shot clarion_tock
+# the true ending
+cheat escape 3
+wait 2
+cheat place 160 30
+hold A 30
+wait 470
+shot clarion_ending

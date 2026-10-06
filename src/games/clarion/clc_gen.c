@@ -929,13 +929,13 @@ static const char *const ARENA[CLC_SH] = {
 /* behind-door enemies by region: the walker, the flier, the ceiling thing,
  * the hazard */
 static const uint8_t CAVE_FOES[RG_COUNT][4] = {
-    {EK_STINGER, EK_GHORBNEST, EK_DROPPER, EK_FLAME},
+    {EK_STINGER, EK_WISPNEST, EK_DROPPER, EK_FLAME},
     {EK_LOUSE, EK_LOUSE, EK_LOUSE, EK_FLAME},
-    {EK_BRUTE, EK_GHORBNEST, EK_DROPPER, EK_JET},
-    {EK_AXER, EK_RINGWORM, EK_DROPPER, EK_GOOPER},
-    {EK_TROOPER, EK_AIRBOT, EK_DROPPER, EK_JET},
-    {EK_SPEWER, EK_AIRBOT, EK_COCOON, EK_WHEEL},
-    {EK_TROOPER, EK_AIRBOT, EK_COCOON, EK_WHEEL},
+    {EK_BRUTE, EK_WISPNEST, EK_DROPPER, EK_JET},
+    {EK_PELTER, EK_RINGWORM, EK_DROPPER, EK_SLURP},
+    {EK_TROOPER, EK_HOVERBOT, EK_DROPPER, EK_JET},
+    {EK_SPITTER, EK_HOVERBOT, EK_COCOON, EK_WHEEL},
+    {EK_TROOPER, EK_HOVERBOT, EK_COCOON, EK_WHEEL},
 };
 /* the Spire mixes in the others' */
 static int cave_foe(Rng *rng, int region, int slot) {
@@ -991,8 +991,8 @@ static void put_piece(ClcSub *s, const char *const *rows, int x0, int width, Rng
             default: break;
             }
             if (k < 0) continue;
-            if (k == EK_GOOPER) {
-                /* a gooper waits in an acid pit cut into the floor */
+            if (k == EK_SLURP) {
+                /* a slurp waits in an acid pit cut into the floor */
                 sub_set(s, tc, CLC_SH - 1, ST_ACID);
                 sub_set(s, tc + 1, CLC_SH - 1, ST_ACID);
                 py = (CLC_SH - 1) * CLC_ST + 4;
@@ -1003,7 +1003,7 @@ static void put_piece(ClcSub *s, const char *const *rows, int x0, int width, Rng
                 while (rr > 0 && rows[rr - 1][c] != '#') rr--;
                 py = rr * CLC_ST + 8;
             }
-            if (k == EK_FLAME || k == EK_JET || k == EK_SPEWER || k == EK_WHEEL) {
+            if (k == EK_FLAME || k == EK_JET || k == EK_SPITTER || k == EK_WHEEL) {
                 /* standing on the floor below the slot */
                 int rr = r;
                 while (rr < CLC_SH - 1 && rows[rr + 1][c] != '#' && rows[rr + 1][c] != '^') rr++;
@@ -1177,7 +1177,7 @@ void clc_gen_sub(ClcSub *s, const ClcSubSpec *sp) {
         }
         case RM_TRIAL:
             for (int k = 0; k < 7; k++) {
-                int i = clc_sub_ent_add(s, EK_GWORM, 40 + k * 44, 50 + (k % 3) * 28);
+                int i = clc_sub_ent_add(s, EK_WRIGGLER, 40 + k * 44, 50 + (k % 3) * 28);
                 if (i >= 0) { s->e[i].dir = (int8_t)(k & 1 ? -1 : 1); s->e[i].t = (uint16_t)(k * 17); }
             }
             break;

@@ -462,6 +462,7 @@ const Sprite *clc_sprite(int id) { return id >= 0 && id < CS_COUNT ? &spr[id] : 
 /* ---- characters ------------------------------------------------------------------- */
 
 void clc_draw_ship(int x, int y, int face, bool flame, int t) { chm_draw_ship(1, x, y, face, flame, 0, t); }
+void clc_draw_tinkler(int x, int y, int face, bool flame, int t) { chm_draw_ship(0, x, y, face, flame, 0, t); }
 
 void clc_draw_clary_small(int x, int y, int face, int frame) {
     /* x the middle, y the feet */

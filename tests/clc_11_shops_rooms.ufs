@@ -4,7 +4,7 @@
 # comes back. Cogtown's second area has the mega store: nine things at a
 # tenth over the price. The health stall sells toffee (100) and a heart pin
 # (150); the Arboretum's first stall sells the Homing Charm for 100. A
-# friendly sort gives 500 fuel, once, and a word of advice. The gworm trial
+# friendly sort gives 500 fuel, once, and a word of advice. The wriggler trial
 # pays 150 when the seventh is down; the cursed one splits in two and won't
 # let her leave until both halves are beaten, then gives up its item; the
 # boon is three things for free, one to keep; the armoury, the Tin Plate.
@@ -80,7 +80,7 @@ wait 2
 cheat sub_goto_kind 53
 hold RIGHT 6
 expect fuel == 600
-# the gworm trial
+# the wriggler trial
 cheat coins 0
 cheat room 3
 wait 2
