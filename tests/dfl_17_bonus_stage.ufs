@@ -1,0 +1,67 @@
+# DRIFTLINE: the bonus stage. The car is the paddle and the coin in its
+# bubble is the ball. The coin breaks a block in one hit; gunfire breaks
+# one with enough shots. The first block is worth 1,000, each one after it
+# 200 more than the last, and a block shot down 800 more on top. The meter
+# doesn't drain here. Let the coin fall and the bonus stage ends with no
+# coin (and no car lost); break every block and the bubble bursts: the
+# coin is worth two more cars, and the Beacon.
+game driftline
+wait 12
+press A
+cheat bonus
+expect state == 3
+expect blocks_total == 18
+expect blocks_left == 18
+expect spare == 3
+expect ball_live == 1
+expect next_block_value == 1000
+# no draining here
+cheat meter 600
+wait 30
+expect meter0 == 600
+# shot down, straight up the sixth column: two blocks, 1,800 and 2,000
+cheat pos 148
+hold B 30
+wait 20
+expect blocks_shot == 2
+expect blocks_broken == 2
+expect bonus_points == 3800
+expect score == 3800
+expect next_block_value == 1400
+# a block takes several shots: grey, twelve
+expect block_hp_0_04 == 12
+# the coin, dropped onto the car's middle, goes straight up and breaks
+# the block above it: 1,400, nothing more
+cheat pos 172
+cheat ball 172 120 0 2.5
+waituntil blocks_broken == 3 120
+expect blocks_shot == 2
+expect score == 5200
+# move away and it falls: the bonus stage ends, no car lost, no coin
+cheat pos 40
+waituntil ball_live == 0 200
+waituntil state == 4 200
+expect bonus_won == 0
+expect spare == 3
+expect coins == 0
+expect goals == 0
+waituntil state == 1 300
+expect stage == 2
+# the next bonus stage, down to its last block, shot down
+cheat bonus
+expect blocks_total == 20
+cheat blocks 1
+expect blocks_left == 1
+cheat meter 700
+cheat pos 100
+hold B
+waituntil blocks_left == 0 60
+release
+expect bonus_won == 1
+waituntil coins == 1 120
+expect spare == 5
+expect most_cars == 5
+expect goals == 1
+waituntil state == 4 300
+waituntil state == 1 300
+expect stage == 3

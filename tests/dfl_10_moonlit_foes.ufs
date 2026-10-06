@@ -1,0 +1,45 @@
+# DRIFTLINE: stage 3's haunts. A snapper starts blue and lunges at the
+# car; later it turns purple, then bursts into eight shots for nothing.
+# Shots knock it about. A sheet fires only at 45 degrees down, toward the
+# car's side, and fades out of reach now and then. A skull floats at the
+# car; a slab drops onto the road over the car.
+game driftline
+wait 12
+press A
+cheat stage 3
+cheat nospawn
+wait 10
+cheat god
+cheat pos 20
+cheat foe 11 200 80 1
+wait 2
+expect kind_state_11 == 1
+waituntil kind_state_11 == 2 320
+waituntil foes_11 == 0 140
+expect eshots == 8
+expect score == 0
+wait 200
+# the sheet, to the car's right: down and to the right, at 45 degrees
+cheat pos 260
+cheat foe 10 160 40 1
+waituntil eshots_4 >= 1 120
+expect es0_vx10 == 14
+expect es0_vy10 == 14
+wait 100
+# and it fades out of reach for a while
+waituntil kind_state_10 == 2 200
+cheat clear
+wait 60
+cheat god
+# the skull comes for the car
+cheat pos 160
+cheat foe 9 160 20 1
+waituntil alive0 == 0 400
+expect cause == 109
+waituntil alive0 == 1 120
+wait 130
+# the slab: it follows along the top, shakes, and drops
+cheat pos 100
+cheat foe 12 100 -10 1
+waituntil alive0 == 0 400
+expect cause == 112

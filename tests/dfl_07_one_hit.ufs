@@ -1,0 +1,53 @@
+# DRIFTLINE: one hit from any shot or foe loses the car. The next car
+# drives in from the left edge, blinking and safe for a moment, with an
+# empty meter, and every foe on screen (but a boss) is swept away as it
+# comes. When the last car is lost, the run is over.
+game driftline
+wait 12
+press A
+cheat nospawn
+wait 10
+cheat pos 160
+cheat meter 600
+cheat dummy 0 100 60
+cheat dummy 9 220 80
+expect foes == 2
+cheat eshot 160 120 0 2
+waituntil alive0 == 0 40
+expect cause == 0
+expect deaths == 1
+expect foes == 2
+expect spare == 3
+# the next car comes in from the left edge and clears the screen
+waituntil alive0 == 1 100
+expect spare == 2
+expect foes == 0
+expect x0 < 0
+expect inv0 > 0
+expect meter0 == 0
+wait 25
+expect x0 == 30
+# while it blinks, nothing can hurt it
+cheat eshot 30 120 0 2
+wait 30
+expect alive0 == 1
+expect deaths == 1
+# touching a foe loses the car too
+wait 80
+expect inv0 == 0
+cheat pos 160
+cheat dummy 9 160 155
+wait 2
+expect alive0 == 0
+expect cause == 109
+waituntil alive0 == 1 100
+expect spare == 1
+# out of cars: the run is over, and the title comes back
+cheat spare 0
+cheat kill
+expect alive0 == 0
+expect state == 1
+waituntil state == 5 100
+wait 60
+press A
+expect state == 0

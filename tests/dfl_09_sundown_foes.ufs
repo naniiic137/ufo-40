@@ -1,0 +1,67 @@
+# DRIFTLINE: stage 2's shapes. A shard shot down bursts into four pieces
+# of shrapnel. A tumbler rolling on the road can't be touched by the main
+# gun; a side shot pops it up, and in the air any shot hurts it. A prism
+# fires a beam to the road that walks inward, and every hit bounces the
+# prism back toward its side. A hoop bounces along the road.
+game driftline
+wait 12
+press A
+cheat stage 2
+cheat nospawn
+wait 10
+cheat pos 160
+hold UP 30
+cheat meter 700
+cheat foe 5 160 60 1
+hold B
+waituntil foes_5 == 0 120
+release
+expect score == 75
+expect eshots_1 == 4
+cheat god
+wait 120
+# the tumbler
+cheat pos 100
+cheat foe 8 300 155 -1
+hold B 40
+expect kind_hp_8 == 8
+expect kind_ground_8 == 1
+cheat pos 100
+hold A
+waituntil kind_ground_8 == 0 120
+release
+expect kind_vy10_8 < 0
+expect kind_hp_8 == 8
+wait 200
+cheat clear
+# up in the air, the main gun does hurt it
+cheat foe 8 100 90 -1
+hold B
+waituntil kind_hp_8 < 8 30
+release
+wait 120
+cheat clear
+# the prism: knocked back by hits
+cheat pos 100
+hold UP 30
+cheat meter 700
+cheat foe 6 100 40 1
+expect kind_x_6 == 100
+press B
+wait 25
+expect kind_x_6 < 100
+expect kind_hp_6 == 20
+# its beam
+cheat god
+cheat clear
+cheat foe 6 230 40 1
+cheat pos 230
+waituntil kind_state_6 == 2 300
+waituntil alive0 == 0 10
+expect cause == 200
+cheat clear
+cheat god
+# the hoop bounces off the road
+cheat foe 7 160 20 1
+waituntil kind_vy10_7 < 0 200
+expect kind_vy10_7 == -44

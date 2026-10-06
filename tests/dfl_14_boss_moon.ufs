@@ -1,0 +1,57 @@
+# DRIFTLINE: stage 3's boss. The moon that hung over the whole stage is an
+# eye: the face around it shows itself, and only the eye can be hurt. Its
+# hand takes turns: a five-way spread from the mouth, a fist that sweeps
+# low along a wave (drive where it rides high), and a pass over the road
+# that drops four snappers (a boss's chasers pay nothing). 30,000 points.
+game driftline
+wait 12
+press A
+cheat stage 3
+cheat boss
+waituntil boss_on == 1 10
+expect boss_kind == 2
+expect revealed == 0
+waituntil revealed == 1 120
+# the spread: five shots
+cheat god
+cheat pos 100
+cheat attack 1
+waituntil eshots == 5 40
+wait 140
+cheat clear
+# the summons: four snappers
+cheat attack 3
+waituntil foes_11 == 4 200
+cheat meter 700
+cheat pos 160
+hold UP 20
+botuntil foes_11 == 0 1500
+expect score == 0
+cheat god
+# the fist: where it rides low it takes the car; where it rides high, not
+waituntil hand_state == 0 400
+cheat pos 152
+cheat attack 2
+waituntil hand_state == 0 400
+expect alive0 == 1
+cheat pos 264
+cheat attack 2
+waituntil alive0 == 0 300
+expect cause == 202
+# shots at the face miss; the eye takes them
+waituntil alive0 == 1 100
+cheat god
+cheat bossstill
+cheat meter 700
+cheat pos 280
+hold UP 30
+hold B 60
+expect boss_hp == 800
+cheat pos 236
+hold B 60
+expect boss_hp < 800
+cheat bosshp 1
+hold B
+waituntil boss_dead == 1 60
+release
+expect score == 30000

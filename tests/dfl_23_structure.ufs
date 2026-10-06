@@ -1,0 +1,33 @@
+# DRIFTLINE: the drive as written. Four stages of fixed, hand-placed
+# waves, each reaching its boss after the same stretch of road; three
+# bonus stages of 18, 20 and 22 blocks; bosses worth 10,000 to 40,000.
+# The cherry's arithmetic: shooting down every foe and every boss with one
+# bonus stage, however well played, stays under 300,000; with two bonus
+# stages it is within reach (as on the original, where 300,000 takes two
+# or three bonus stages).
+game driftline
+wait 5
+expect plan_foes1 == 129
+expect plan_foes2 == 91
+expect plan_foes3 == 72
+expect plan_foes4 == 99
+expect plan_points1 == 24400
+expect plan_points2 == 24525
+expect plan_points3 == 28750
+expect plan_points4 == 31600
+expect plan_boss_t1 == 8700
+expect plan_boss_t4 == 8700
+expect plan_blocks1 == 18
+expect plan_blocks2 == 20
+expect plan_blocks3 == 22
+expect cherry_one_bonus_max < 300000
+expect cherry_two_bonus_min >= 300000
+print cherry_one_bonus_max
+print cherry_two_bonus_min
+# the same waves every time: two runs see the same first foes
+wait 12
+press A
+wait 400
+expect foes == 7
+expect foes_0 == 4
+expect foes_1 == 3

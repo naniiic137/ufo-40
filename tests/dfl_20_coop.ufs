@@ -1,0 +1,70 @@
+# DRIFTLINE: 2 PLAYERS is co-op: two cars on the road at once, each with
+# its own gun and its own meter, driven by the two pads, and one shared
+# reserve of cars. A lost car comes back from the reserve; the run is over
+# only when both cars are out. In the bonus stage both cars are paddles.
+game driftline
+wait 12
+press DOWN
+press A
+expect players == 2
+expect on0 == 1
+expect on1 == 1
+expect alive1 == 1
+expect spare == 3
+cheat nospawn
+wait 10
+cheat pos 100 0
+cheat pos 200 1
+hold P2RIGHT 20
+expect x1 > 200
+expect x0 == 100
+expect aim1 == 40
+expect aim0 == 0
+hold P2LEFT 40
+expect meter1 > 0
+expect meter0 == 0
+press P2B
+expect pshots_main == 1
+wait 40
+press P2A
+expect pshots_side == 2
+wait 60
+# the reserve is shared
+cheat kill 1
+waituntil alive1 == 1 120
+expect spare == 2
+expect alive0 == 1
+cheat kill 0
+waituntil alive0 == 1 120
+expect spare == 1
+# with nothing in reserve, one car out is not the end
+cheat spare 0
+cheat kill 0
+waituntil dead_t0 == 0 120
+expect alive0 == 0
+expect alive1 == 1
+wait 60
+expect state == 1
+# the bonus stage: a coin brings a car back, and both are paddles
+cheat bonus
+expect alive1 == 1
+cheat pos 120 1
+cheat ball 120 120 0 2.5
+waituntil ball_vy10 < 0 120
+cheat blocks 1
+cheat meter 700
+cheat pos 124 1
+hold P2B
+waituntil blocks_left == 0 60
+release
+waituntil coins == 1 200
+expect spare == 2
+waituntil state == 1 500
+expect alive0 == 1
+expect alive1 == 1
+expect spare == 1
+# both out: the end
+cheat spare 0
+cheat kill 0
+cheat kill 1
+waituntil state == 5 200

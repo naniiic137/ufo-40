@@ -31,6 +31,7 @@ extern const GameDef GAME_RIMSHIRE;
 extern const GameDef GAME_WOBBLE;
 extern const GameDef GAME_CHIME;
 extern const GameDef GAME_HATTRICK;
+extern const GameDef GAME_DRIFTLINE;
 
 const GameDef *const GAMES[GAME_SLOTS] = {
     [0] = &GAME_UNDERDELVE,  /* 01 Barbuta */
@@ -60,4 +61,5 @@ const GameDef *const GAMES[GAME_SLOTS] = {
     [43] = &GAME_HOMESPUN,   /* 44 Pilot Quest */
     [40] = &GAME_RIMSHIRE,   /* 41 Lords of Diskonia */
     [46] = &GAME_WOBBLE,     /* 47 Quibble Race */
+    [47] = &GAME_DRIFTLINE,  /* 48 Seaside Drive */
 };

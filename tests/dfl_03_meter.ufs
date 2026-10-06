@@ -1,0 +1,54 @@
+# DRIFTLINE: the charge meter. Driving left (the power drift, with sparks)
+# fills it; anything else drains it slowly: standing still, driving right,
+# even holding left against the end of the road. It has three sections,
+# grey, green and red.
+game driftline
+wait 12
+press A
+cheat nospawn
+wait 10
+cheat pos 280
+cheat meter 0
+expect tier0 == 0
+hold LEFT 20
+expect drifting0 == 1
+expect meter0 >= 200
+expect meter0 <= 240
+hold LEFT 20
+expect meter0 >= 440
+expect tier0 >= 1
+hold LEFT 10
+expect tier0 == 2
+# standing still drains it, a point a frame
+wait 20
+cheat meter 500
+wait 100
+expect meter0 == 400
+expect drifting0 == 0
+# so does driving right
+cheat pos 40
+cheat meter 500
+hold RIGHT 50
+expect meter0 == 450
+# and holding left at the end of the road (the car isn't moving)
+wait 20
+cheat pos 12
+cheat meter 300
+hold LEFT 60
+expect drifting0 == 0
+expect meter0 == 240
+# the three sections
+cheat meter 239
+expect tier0 == 0
+cheat meter 240
+expect tier0 == 1
+cheat meter 479
+expect tier0 == 1
+cheat meter 480
+expect tier0 == 2
+cheat meter 720
+expect tier0 == 2
+# it can't go past full
+cheat pos 300
+hold LEFT 40
+expect meter0 == 720

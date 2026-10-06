@@ -1,0 +1,49 @@
+# DRIFTLINE: stage 4's boss, Old Crab (on a visit from ROOFCAT's harbour).
+# Only the yellow mark on its shell takes damage; the rest of the shell
+# stops shots. Its six legs change colour before each slams the road. It
+# blows bubbles in fans of three, four and five. The swells keep coming.
+# 40,000 points.
+game driftline
+wait 12
+press A
+cheat stage 4
+cheat boss
+waituntil boss_on == 1 10
+expect boss_kind == 3
+expect boss_hp == 800
+waituntil boss_y >= 36 200
+# the legs: a warning first, the foot still up, then the slam
+waituntil part_t2 >= 0 100
+expect part_t2 < 50
+cheat god
+wait 40
+expect alive0 == 1
+# the bubbles, in fans
+waituntil eshots_3 == 3 120
+cheat clear
+cheat bossstill
+cheat meter 700
+# off the mark: the shell takes it
+cheat posboss -20
+hold UP 30
+hold B 60
+expect boss_hp == 800
+# on the mark
+cheat posboss 0
+hold B 60
+expect boss_hp < 800
+cheat bosshp 1
+hold B
+waituntil boss_dead == 1 60
+release
+expect score == 40000
+# a leg's slam takes a car under it
+cheat bossstill
+cheat stage 4
+cheat boss
+waituntil boss_y >= 36 200
+waituntil part_t2 >= 44 200
+cheat god
+cheat posboss -30
+waituntil alive0 == 0 30
+expect cause == 203

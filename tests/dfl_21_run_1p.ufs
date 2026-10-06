@@ -1,0 +1,19 @@
+# DRIFTLINE: proof the game can be completed. From the title, the demo
+# player starts a 1-player run and drives all four stages, bosses and
+# bonus stages included, pressing the buttons for real (no cheats), to the
+# ending; then the credits and the title. The Saucer is earned and the
+# win is saved.
+game driftline
+botuntil state == 6 70000
+expect won == 1
+expect stage == 4
+expect goals & 2
+print score
+print deaths
+print coins
+print frame
+expect bonus_played >= 1
+botuntil state == 0 4000
+expect save_wins == 1
+expect save_runs == 1
+expect save_best > 0
