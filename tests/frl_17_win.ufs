@@ -1,0 +1,28 @@
+# FORLORN HOPE: bursting the last thorn heart wins: Thornkeep comes down, the
+# ending is told and the credits roll. A win having lost fewer than 50 earns
+# the Saucer and the Alien together; the cartridge keeps the win and the
+# fewest lost.
+game forlorn
+cheat start 1
+wait 20
+cheat class 1
+wait 2
+expect hearts == 4
+cheat win
+wait 2
+expect hearts == 0
+expect phase == 3
+wait 160
+expect state == 5
+expect goals == 6
+expect wins == 1
+expect best_lost == 0
+wait 130
+press A
+wait 5
+expect state == 6
+hold A 400
+wait 2
+press A
+wait 5
+expect state == 0

@@ -1,0 +1,42 @@
+# FORLORN HOPE: nothing is put back when a volunteer is lost. A foe's wounds
+# stay (and a dead foe stays dead), a key stays carried, a door stays open.
+# Only what came out of a drain, comb or bell is swept away.
+game forlorn
+cheat start 1
+wait 20
+cheat class 1
+wait 2
+# the meadow's first shellback (2 hit points) takes one shot
+cheat place 300 195
+expect first_hp5 == 2
+press RIGHT 1
+press B
+wait 40
+expect first_hp5 == 1
+cheat die
+wait 110
+expect first_hp5 == 1
+cheat class 1
+wait 2
+cheat place 300 195
+press RIGHT 1
+press B
+wait 40
+expect first_on5 == 0
+# key 1 on its shelf
+cheat place 352 325
+wait 3
+expect keys == 1
+cheat die
+wait 110
+expect keys == 1
+expect key_taken3 == 1
+# a drain's oozles, swept away with the volunteer
+cheat class 0
+wait 2
+cheat place 470 365
+waituntil minions >= 1 120
+cheat die
+wait 110
+expect minions == 0
+expect first_on5 == 0

@@ -1,0 +1,51 @@
+# FORLORN HOPE: walking and jumping. A tap jumps low, a held A jumps higher
+# (2.4 tiles); only the runner jumps again in the air (let go of A, press it
+# again), which takes it about twice as high.
+game forlorn
+cheat start 1
+wait 20
+cheat no_foes
+cheat class 0
+wait 5
+expect bottom == 200
+hold A
+wait 14
+expect bottom <= 177
+expect bottom >= 175
+wait 3
+release A
+wait 40
+expect bottom == 200
+press A 1
+wait 5
+expect bottom >= 192
+expect bottom < 200
+wait 30
+# the mason has no second jump
+hold A
+wait 12
+release A
+wait 2
+hold A
+wait 12
+expect bottom >= 176
+release A
+wait 40
+# walking: a pixel a frame at full speed
+hold RIGHT 40
+expect x >= 105
+expect x <= 112
+cheat die
+wait 110
+cheat class 2
+wait 5
+hold A
+wait 12
+release A
+wait 2
+hold A
+wait 14
+expect bottom <= 154
+release A
+wait 110
+expect bottom == 200

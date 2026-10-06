@@ -36,6 +36,7 @@ extern const GameDef GAME_BELLHOP;
 extern const GameDef GAME_TURNIP;
 extern const GameDef GAME_SHUTTERBUG;
 extern const GameDef GAME_TUSKWIND;
+extern const GameDef GAME_FORLORN;
 
 const GameDef *const GAMES[GAME_SLOTS] = {
     [0] = &GAME_UNDERDELVE,  /* 01 Barbuta */
@@ -65,6 +66,7 @@ const GameDef *const GAMES[GAME_SLOTS] = {
     [45] = &GAME_MANDIBLES,  /* 46 Combatants */
     [29] = &GAME_FLINTHOLD,  /* 30 Rock On! Island */
     [30] = &GAME_TILTSHOT,   /* 31 Pingolf */
+    [31] = &GAME_FORLORN,    /* 32 Mortol II */
     [38] = &GAME_BUZZBOLT,   /* 39 Star Waspir */
     [43] = &GAME_HOMESPUN,   /* 44 Pilot Quest */
     [40] = &GAME_RIMSHIRE,   /* 41 Lords of Diskonia */

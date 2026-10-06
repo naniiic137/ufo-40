@@ -1,0 +1,69 @@
+# FORLORN HOPE: a charge carries through a waystone, and letting go on the
+# way gives the volunteer up on arrival. That is the original's endless
+# climb: a runner makes a waystone in mid-air; a mason charges at the pad,
+# goes through and lets go at once, and its stone appears just below the
+# waystone; the next runner arrives, lands on that stone, jumps and makes a
+# waystone higher up; and so on.
+game forlorn
+cheat start 1
+wait 20
+cheat no_foes
+cheat class 2
+wait 2
+cheat place 400 120
+cheat give_up
+wait 110
+# a mason, charged at the pad, through the waystone
+cheat class 0
+wait 2
+hold RIGHT
+waituntil x >= 113 120
+release RIGHT
+wait 8
+hold B
+wait 50
+expect charge >= 45
+press UP
+wait 2
+expect mode == 2
+expect charge >= 45
+release B
+wait 2
+expect phase == 2
+expect stones == 1
+expect tile13040 == 9
+wait 110
+# a runner through the waystone lands on that stone, jumps, and leaves a
+# waystone higher up
+cheat class 2
+wait 2
+hold RIGHT
+waituntil x >= 113 120
+release RIGHT
+wait 8
+press UP
+waituntil mode == 0 40
+wait 20
+expect bottom == 130
+hold A
+wait 12
+cheat give_up
+release A
+wait 2
+expect way_y < 110
+wait 110
+# the next mason: a stone higher again
+cheat class 0
+wait 2
+hold RIGHT
+waituntil x >= 113 120
+release RIGHT
+wait 8
+hold B
+wait 50
+press UP
+wait 2
+release B
+wait 2
+expect stones == 2
+expect tile11040 == 9

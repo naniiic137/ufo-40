@@ -1,0 +1,55 @@
+# FORLORN HOPE: foes on foot. A tusker that sees you on its level charges and
+# keeps running past where you were; an idol only spits bubbles the way it
+# faces; a wall-eye shoots when you come close; drains send out oozles when
+# you come near, and a stone over a drain stops it for good.
+game forlorn
+cheat start 1
+wait 20
+cheat no_foes
+cheat class 0
+wait 2
+cheat place 330 195
+wait 3
+# a tusker to the right, facing this way
+cheat spawn 8 410 190
+waituntil last_state == 1 60
+waituntil phase == 2 200
+expect cause == 2
+wait 30
+expect last_x < 320
+wait 110
+# an idol facing left: in front of it, bubbles come; behind it, none
+cheat class 0
+wait 2
+cheat place 330 195
+cheat spawn 9 400 188
+waituntil foe_shots >= 1 130
+cheat place 470 195
+wait 200
+expect phase == 1
+cheat die
+wait 110
+# the meadow's wall-eye opens up when you come close
+cheat start 1
+wait 20
+cheat class 0
+wait 2
+cheat place 400 195
+waituntil foe_shots >= 1 90
+cheat die
+wait 110
+# the undercroft's floor drain, and a stone over it
+cheat class 0
+wait 2
+cheat place 480 365
+waituntil alive2 >= 1 120
+cheat place 505 365
+cheat give_up
+wait 2
+expect tile36050 == 9
+wait 110
+cheat class 4
+wait 2
+cheat place 540 365
+wait 300
+expect minions == 0

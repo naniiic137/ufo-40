@@ -1,0 +1,42 @@
+# FORLORN HOPE: the title (1 PLAYER, 2 PLAYERS, CODE), the story, and the
+# troop's door, where LEFT and RIGHT browse the five trades and A sends one out.
+game forlorn
+wait 20
+expect state == 0
+expect title_sel == 0
+press DOWN
+expect title_sel == 1
+press DOWN
+expect title_sel == 2
+press DOWN
+expect title_sel == 0
+press A
+wait 5
+expect state == 2
+expect players == 1
+expect runs == 1
+wait 40
+press A
+wait 5
+expect state == 3
+expect phase == 0
+expect lives == 99
+expect lost == 0
+expect units == 0
+expect sel == 0
+expect allowed == 31
+wait 15
+press RIGHT
+expect sel == 1
+press LEFT
+press LEFT
+expect sel == 4
+press A
+wait 2
+expect phase == 1
+expect cls == 4
+expect units == 1
+# out of the troop's door, at the camp
+expect x == 75
+expect ground == 1
+expect ammo == 0

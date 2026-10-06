@@ -1,0 +1,28 @@
+# FORLORN HOPE: the bottom-right way up. The chimney's ledges include three
+# pairs of blocks, one pair for each plate, so it needs all three plates
+# held. With them held (stones put on them here) and the foes away, a sapper
+# at the chimney's foot climbs it with real presses and blows the heart
+# chamber's east wall open; the next volunteer walks into the chamber.
+game forlorn
+cheat start 1
+cheat no_foes
+cheat bot_route 3
+expect solid130171 == 0
+expect solid100167 == 0
+expect solid70171 == 0
+cheat tile 57 36 9
+cheat tile 54 6 9
+cheat tile 68 44 9
+botuntil phase == 1 200
+cheat place 1680 1595
+wait 2
+expect solid130171 == 1
+expect solid100167 == 1
+expect solid70171 == 1
+botuntil lost >= 1 6000
+expect tile56158 == 0
+botuntil phase == 1 200
+cheat place 1640 575
+botuntil x <= 1500 400
+expect phase == 1
+expect bottom == 580

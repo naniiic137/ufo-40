@@ -1,0 +1,30 @@
+# FORLORN HOPE: the Alien needs fewer than 50 volunteers lost. With exactly
+# 50 lost a win earns the Saucer only; with 49 it earns both. A sapper whose
+# blast bursts the last heart counts among the lost.
+game forlorn
+cheat start 1
+wait 20
+cheat class 1
+wait 2
+cheat lost 50
+cheat win
+wait 165
+expect state == 5
+expect goals == 2
+expect best_lost == 50
+cheat start 1
+wait 20
+cheat no_foes
+cheat hearts_hp 1
+cheat lost 48
+cheat class 4
+wait 2
+cheat hearts_at 400 190
+cheat place 430 172
+cheat give_up
+wait 70
+expect lost == 49
+expect hearts == 0
+waituntil state == 5 300
+expect goals == 6
+expect best_lost == 49

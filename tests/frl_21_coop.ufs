@@ -1,0 +1,49 @@
+# FORLORN HOPE: two players share the one pool of volunteers and take turns:
+# player 1 sends out the first, player 2 the next, and so on, each with
+# their own pad, at the door and in the field.
+game forlorn
+wait 20
+press DOWN
+press A
+wait 5
+expect state == 2
+expect players == 2
+wait 40
+press A
+wait 20
+expect player == 0
+press P2RIGHT
+expect sel == 0
+press RIGHT
+expect sel == 1
+press A
+wait 2
+expect phase == 1
+expect player == 0
+cheat no_foes
+hold P2RIGHT 20
+expect x == 75
+hold RIGHT 20
+expect x > 80
+cheat die
+wait 110
+# player 2's turn
+expect phase == 0
+expect player == 1
+press RIGHT
+expect sel == 1
+press P2RIGHT
+expect sel == 2
+press A
+wait 2
+expect phase == 0
+press P2A
+wait 2
+expect phase == 1
+expect player == 1
+expect cls == 2
+hold RIGHT 20
+expect x == 75
+hold P2RIGHT 20
+expect x > 80
+expect lives == 98

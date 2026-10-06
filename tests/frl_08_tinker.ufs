@@ -1,0 +1,84 @@
+# FORLORN HOPE: the tinker throws spanners in an arc (2 a hit, 15 of them)
+# and leaves a chute five cells long, built down from where the tinker was,
+# through the ground. Anyone standing on it presses DOWN to go down it; it
+# has no collision; a charge carries down a chute and can be let go there,
+# leaving a second chute that joins the first.
+game forlorn
+cheat start 1
+wait 20
+cheat no_foes
+cheat class 3
+wait 2
+cheat place 330 195
+wait 5
+expect ammo == 15
+press RIGHT 1
+cheat spawn 5 372 192
+press B
+wait 2
+expect ammo == 14
+wait 40
+expect alive5 == 0
+# a chute from key 1's shelf down to the undercroft floor
+cheat place 350 325
+wait 5
+cheat give_up
+wait 2
+expect pipes == 1
+wait 110
+cheat class 0
+wait 2
+cheat place 350 325
+wait 5
+expect ground == 1
+press DOWN
+wait 2
+expect mode == 1
+wait 30
+expect mode == 0
+expect bottom == 370
+# walking through a chute: it isn't solid
+cheat place 340 365
+hold RIGHT 30
+expect x >= 362
+cheat die
+wait 110
+# a chute can only be taken standing on it, not falling past it
+cheat class 0
+wait 2
+cheat place 350 300
+press DOWN
+expect mode == 0
+cheat die
+wait 110
+# on a canopy branch: a chute down through it
+cheat class 3
+wait 2
+cheat place 440 45
+wait 5
+cheat give_up
+wait 110
+expect pipes == 2
+# a tinker goes down it charging, and lets go half way: a second chute
+# from there, and the two act as one
+cheat class 3
+wait 2
+cheat place 440 45
+wait 5
+hold B
+wait 50
+press DOWN
+wait 3
+expect mode == 1
+release B
+wait 2
+expect phase == 2
+expect pipes == 3
+wait 110
+cheat class 0
+wait 2
+cheat place 440 45
+wait 5
+press DOWN
+waituntil mode == 0 40
+expect bottom >= 100

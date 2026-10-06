@@ -1,0 +1,32 @@
+# FORLORN HOPE: the map is open: the hearts can also be reached the castle
+# way, not just up the tower. With the foes sent away (this checks the
+# map, not the fighting), the demo player's castle plan walks it with real
+# presses: a mason stones the spike pit and the next takes key 1 (keys stay
+# counted for everyone); a mason turns to stone over the drop's mouth, and
+# the next crosses on it, hops the meadow's outcrop, hole and mound,
+# unlocks the gate, takes the key behind the idol on the courtyard's
+# walkway, drops into hall 1, takes the key on its platform, unlocks door
+# 2 and drops onto hall 2's ledge, where it turns to stone. A sapper then
+# follows and crosses the bridge plate 3 raises, takes the key past the bloater's
+# corridor, drops into the dungeon, unlocks the tower's west door, crosses
+# the tower's landing and unlocks its east door into the heart chamber.
+game forlorn
+cheat start 1
+cheat no_foes
+# plate 3 held (its blue blocks bridge hall 2's trench as well as the deep)
+cheat tile 68 44 9
+cheat bot_route 1
+expect bot_plans == 5
+botuntil units >= 5 9000
+botuntil x >= 1250 3000
+expect phase == 1
+expect units == 5
+expect lost == 4
+expect doors == 4
+expect plate2 == 1
+expect solid42084 == 1
+expect bottom == 580
+expect tile56116 == 11
+expect tile56104 == 11
+expect tile18074 == 11
+expect tile30079 == 11
