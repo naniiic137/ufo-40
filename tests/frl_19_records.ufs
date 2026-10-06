@@ -41,6 +41,7 @@ expect most_switches == 1
 expect wins == 0
 expect best_lost == 65535
 expect plate_ever == 1
+expect total_lost == 1
 expect goals == 1
 # quitting in the middle of a run: it isn't kept
 press A

@@ -280,12 +280,13 @@ void frl_draw_world(const FrlWorld *w, int t) {
     if (w->shake) { sx = ((t * 7) % 5) - 2; sy = ((t * 3) % 3) - 1; }
     int cx = w->cam_x + sx, cy = w->cam_y + sy;
     gfx_clip(0, FRL_OY, SCREEN_W, FRL_VH);
+    gfx_rect(0, FRL_OY, SCREEN_W, FRL_VH, C_INK);
     gfx_camera(cx, cy - FRL_OY);
     int tx0 = imax(0, cx / FRL_T - 1), tx1 = imin(FRL_MW - 1, (cx + SCREEN_W) / FRL_T + 1);
     int ty0 = imax(0, cy / FRL_T - 1), ty1 = imin(FRL_MH - 1, (cy + FRL_VH) / FRL_T + 1);
     for (int ty = ty0; ty <= ty1; ty++)
         for (int tx = tx0; tx <= tx1; tx++)
-            if (!frl_solid(w, tx, ty) || w->tile[ty][tx] == FT_COMB) draw_back(tx, ty, tx * FRL_T, ty * FRL_T, t);
+            if (!frl_solid(w, tx, ty) || w->tile[ty][tx] == FT_COMB || w->tile[ty][tx] == FT_WOOD) draw_back(tx, ty, tx * FRL_T, ty * FRL_T, t);
     if (cy < 200 && cx < 740) draw_far(cx, t);
     /* torches and banners on the castle's walls */
     for (int ty = ty0; ty <= ty1; ty++)

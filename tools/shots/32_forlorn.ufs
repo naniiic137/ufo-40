@@ -1,0 +1,37 @@
+# README media: FORLORN HOPE. Everything in play is the demo player's real
+# button presses on its route through the map. The GIF is the first two
+# volunteers: the blind drop into the spike pit (the first goes down
+# holding B and leaves a stone there), and the next, who lands on that
+# stone, takes key 1 from its shelf and stones plate 1.
+shotscale 2
+seed 32
+game forlorn
+wait 60
+shot forlorn_title
+cheat start 1
+wait 30
+shot forlorn_door
+gifstart forlorn 3 1
+botuntil lost >= 2 2000
+botplay 40
+gifstop
+# the runner up the Old Yew
+botuntil units >= 3 400
+botuntil y <= 120 900
+botplay 20
+shot forlorn_yew
+# the hunter climbing the tower, the bell's hornets about
+botuntil units >= 12 20000
+botuntil y >= 700 4000
+botuntil y <= 380 6000
+shot forlorn_tower
+# a sapper dropping on the upper left heart
+botuntil units >= 21 20000
+botuntil y >= 300 2000
+botuntil y >= 388 400
+botplay 6
+shot forlorn_hearts
+# the ending: a statue for every volunteer lost
+botuntil state == 5 30000
+wait 400
+shot forlorn_ending

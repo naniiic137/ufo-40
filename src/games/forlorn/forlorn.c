@@ -35,8 +35,7 @@ static bool code_on;          /* SLIM-PICK: three trades of the five, at random 
 static bool run_code;         /* this run was begun with the code (no goals, no records) */
 static bool counted;
 static int meta_t;            /* the last volunteer, and a lit fuse */
-static int last_phase;
-static int last_units;
+static int last_lost;      /* volunteers already added to the records */
 
 typedef struct Part { int16_t x, y, vx, vy; uint8_t life, col, on; } Part; /* 1/16 px, world */
 #define NPARTS 128
@@ -101,8 +100,7 @@ static void new_run(int players) {
     memset(parts, 0, sizeof parts);
     counted = false;
     meta_t = 0;
-    last_phase = frl_w.phase;
-    last_units = 0;
+    last_lost = 0;
     frl_bot_reset(&bot);
     input_set_versus(players == 2);
     if (!run_code) {
@@ -234,6 +232,10 @@ static void update_play(void) {
         if (w->lives == 0 && w->u.cls == FRC_SAPPER) meta_t = 300;
     }
     if (was != FWP_SELECT && w->phase == FWP_SELECT) music_play(FRL_MUS_SELECT);
+    if (w->lost > last_lost) {
+        if (!run_code && sv.total_lost < 0xFFFFFFFFu) sv.total_lost += (uint32_t)(w->lost - last_lost);
+        last_lost = w->lost;
+    }
     if (w->phase == FWP_SELECT && (w->ev & FEV_SPAWN)) sfx_play_name("frl_move");
     if (w->phase == FWP_WON && w->phase_t == 1) {
         sfx_play_name("frl_win");
@@ -454,7 +456,8 @@ static void draw_title(void) {
     if (sv.best_lost == 0xFFFF) snprintf(b, sizeof b, "RUNS %d  " GLYPH_DOT "  WINS %d  " GLYPH_DOT "  FEWEST LOST -", sv.runs, sv.wins);
     else snprintf(b, sizeof b, "RUNS %d  " GLYPH_DOT "  WINS %d  " GLYPH_DOT "  FEWEST LOST %d", sv.runs, sv.wins, sv.best_lost);
     tiny_center(b, 160, 160, C_YELLOW);
-    snprintf(b, sizeof b, "MOST DOORS UNLOCKED %d  " GLYPH_DOT "  MOST PLATES PRESSED %d", sv.most_doors, sv.most_switches);
+    snprintf(b, sizeof b, "MOST DOORS UNLOCKED %d  " GLYPH_DOT "  MOST PLATES PRESSED %d  " GLYPH_DOT "  ALL LOST %lu",
+             sv.most_doors, sv.most_switches, (unsigned long)sv.total_lost);
     tiny_center(b, 160, 168, C_LIGHT);
 }
 
@@ -734,6 +737,7 @@ static int frl_query(const char *key, int *out) {
     if (!strcmp(key, "most_doors")) { *out = sv.most_doors; return 1; }
     if (!strcmp(key, "most_switches")) { *out = sv.most_switches; return 1; }
     if (!strcmp(key, "plate_ever")) { *out = sv.plate_ever; return 1; }
+    if (!strcmp(key, "total_lost")) { *out = (int)sv.total_lost; return 1; }
     if (!strcmp(key, "art_ok")) { *out = frl_art_ok(); return 1; }
     if (!strcmp(key, "map_bad")) { *out = map_bad(); return 1; }
     if (!strcmp(key, "foes")) { *out = w->nplaced; return 1; }

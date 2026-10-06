@@ -138,6 +138,7 @@ menu, shows the buttons as you now press them). SELECT or B closes it.
 | 46 | **MANDIBLES** | Combatants | you are one slow ant who holds a button for a cross of nine commands (follow, hold, instinct, their soldier-only versions, the queen's workers or soldiers, surrender), shouted to ants in earshot, and spits in eight directions while followers spit with you, food carried home to queens who lay workers for 1 and soldiers for 2, free respawns while your army lives, red ants with twice the health and exploitable brains (locked aim, food first, stuck on corners, stuck on your queen), brawls in a dust cloud, giant spiders that eat both sides, a branching road of 12 fields to the capital and a pointless bonus one, 2P versus | the Bluebell Colony and the Rust Horde, General Stag, the longlegs, every command's name, all 16 fields |
 | 30 | **FLINTHOLD** | Rock On! Island | waves down fixed roads to a cave with 30 hearts, a build phase as long as you like and a horn to start the wave, a pay-out between waves, a heroine who walks and throws eight ways, ten hunters in three upgrade trees, hens cooked by fire pits for meat (99 at most), fire pits that boost hunters, the original's beasts and bosses, 10 stages and 3 villages (two hidden), the Four Lords together in the last wave | Pim of the Hearth Clan, Flint Isle and its 13 layouts, the Four Lords of the Scale, every beast, hunter and villager |
 | 31 | **TILTSHOT** | Pingolf | side-on golf on pinball courses: aim, hold A to fill a meter that stays full until the golfer blows up, a slam in mid-air once a stroke (slammed onto a falling slope the ball catches fire), bumpers, spring pads, orange movers and purple junk, water and pits that send you back, eighteen fixed holes at the original's pars (61), eight golfers on the board against weak, random CPU rivals, 2P versus, a code for two cameo golfers | the Comet Classic, Nova, Digby, Peaches, Tuck and Moss, twelve CPU regulars, Wick and Kip by the code, all 18 holes |
+| 32 | **FORLORN HOPE** | Mortol II | 99 lives on a counter over the door and no way to gain more, one big fixed open map, five classes picked at the door for every life (a sword who turns into a stone that floats where it is made, a rifle who leaves an endless ammo pouch, a double-jumping star thrower whose teleporter you take from the base and back, a wrench thrower who builds a pipe down through the ground, a bomber with no attack who explodes for 15), hold B to flash and let go to sacrifice, a death while charging setting the gift off, everything persisting (wounds, kills, keys, open doors and all that was left behind), the original's 17 foes with their hit points, switches held down by stones raising blocks elsewhere, loose rock, a sealed way in, a centipede fed one life, four hearts of 30, keys and locked doors, 2P co-op | the volunteers of Holloway and their trades, the Old Yew, the undercroft, the caves, the deep, the tower and Thornkeep, all 17 foes and the thorn hearts, the whole map, eight tunes |
 | 39 | **BUZZBOLT** | Star Waspir | a fast vertical shooter over the whole wide screen where one hit is a loss, tap fire for a wide spread at full speed and hold it for focused fire and a slower ship, three ships with their own fire, options and two specials each (a charge lance, guard orbs, a shield drone, bombs on the second button), every kill dropping a letter in the fixed order B, Z, Z, words of three (BZZ puts the multiplier up with no limit, ZZZ brings an option, BBB and ZBB are the ship's specials, any other word puts it back to x1), the multiplier built up and cashed in on the bosses, losing a ship costs the multiplier and every gift, ships at 25k, 100k and 200k, five waves with a boss each (wave 1's pair flies off if left alone; wave 3 the hard one; walls, gates and a golden swarm in wave 4; a last boss of aimed fans), an unmultiplied time bonus, a high-score table | the Hive Wing (lacewing, shieldbug, firefly), the hiveship and the dragonfly, the Blight's gnats, midges, whirlers, crickets, blisters, puffballs, rot walls and goldbugs, the Ironbacks, the Bloatfly, the Queen Tick, Scythewing and Dustwing, the Sporeheart, five new waves |
 | 44 | **HOMESPUN** | Pilot Quest | a camp that keeps working in real time while the console is on, even in other cartridges; a yo-yo that knocks glints out of a crystal; plants, bars, huts, anvils, bins and research at the original's prices; jerky as two minutes of trip time a strip, and a clock that is also your health; one Wilds map whose roadblocks and caves are shuffled per save; three dungeons with a ship part each; a gun that costs a glint a shot; coins for hopstones, vendors and a gambling den; a spider that spins thread at camp; a super boss beaten six times in one trip; new-game-plus stones | Wick and the *Tumbleweed*, the moor-moon Oddmoor and its folk, the Wilds, three dungeons, all 19 foes and 6 bosses |
 | 41 | **RIMSHIRE** | Lords of Diskonia | a board where two banners take turns stepping along roads, trails a banner can't step back onto that pull an army back when struck, inns, tomes, seams and chests; flick battles on fields built from the four tiles round the fight: a queue of three, aim, charge and launch, knocks that hurt by the striking disk's own melee, water, the closing haze and stalemates; the original's 15 disks with their numbers, 8 skills, 10 campaign wars, the streak and 2P | Rimshire, the Brass and Plum banners, the Plum Empress, Lady Brass's letters, all 16 disks, 10 new boards |
@@ -1066,6 +1067,55 @@ the top.
   twelve regulars, Wick (HOMESPUN) and Kip (SKYWELL) by the code, all
   eighteen holes, the movers and junk, the words on the display, and the
   music.
+
+### 32 · FORLORN HOPE
+
+<p align="center">
+  <img src="docs/shots/forlorn.gif" width="640" alt="Forlorn Hope: the first volunteer walks off the camp into the blind spike pit holding B and turns to stone there; the next lands on the stone, takes key 1 and stones the first plate">
+</p>
+<p align="center">
+  <img src="docs/shots/forlorn_door.png" width="320" alt="The troop's door: the counter of volunteers left, and the five trades to pick from">
+  <img src="docs/shots/forlorn_tower.png" width="320" alt="A hunter climbing the tower's ledges, an oozle below, the castle's bloater beyond the wall">
+</p>
+<p align="center">
+  <img src="docs/shots/forlorn_yew.png" width="320" alt="A runner double-jumping up the Old Yew">
+  <img src="docs/shots/forlorn_hearts.png" width="320" alt="A sapper dropping onto a thorn heart in the heart chamber">
+</p>
+
+*A tribute to **Mortol II** (UFO 50 #32).*
+
+- **Plays the same:** 99 volunteers wait on the counter over the troop's
+  door, and there is no way to get more. Each life you pick a trade there:
+  the mason swings a mallet and turns into a stone that stays where it is
+  made, in mid-air too; the hunter shoots far (20 shots) and leaves a pouch
+  that refills ammo forever; the runner double-jumps, throws knives (5) and
+  leaves the one waystone, which UP on the pad by the door goes to and back;
+  the tinker throws spanners in an arc (15) and leaves a chute down through
+  the ground; the sapper has no attack and blows up for 15. Tap B to
+  attack; hold it until the volunteer flashes and let go to give them up;
+  die while holding it and the gift goes off anyway (a mason who falls on
+  spikes covers them). Nothing is put back: foes keep their wounds and stay
+  dead, and keys, open doors, stones, pouches, chutes and the waystone stay
+  for the whole run. Seventeen kinds of foe with the original's hit points,
+  plates that raise blocks only while weighed down, loose rock, a gulper you
+  feed one volunteer, a tower of drains with a hornet bell at the top, a
+  sealed way in, and four thorn hearts of 30. One sitting, no saving.
+- **Structure:** one fixed 160 x 80 map. The obvious way on from the camp is
+  a blind drop into spikes; the tower way (three plates, the gulper, the
+  stingback, the drains, the seal) and the castle way (keys, doors, plate 4,
+  the bloater's corridor, the dungeon) both lead to the hearts, and they
+  meet halfway up the tower. Win having lost fewer than 50 for the Alien;
+  the title keeps the original's two stats, the most doors unlocked and the
+  most plates pressed. Two players take turns from one pool; a code lets
+  out only three trades. The demo player in the tests wins with real
+  presses having lost 28, and walks the castle way too.
+- **Ours:** the volunteers of Holloway and their five trades, the camp and
+  the Old Yew, the meadow, the undercroft, the caves and the vault, the
+  deep, the tower and Thornkeep, the whole map, every foe (wall-eyes,
+  oozles, midges, hornets, shellbacks, hatcheteers, squawkers, tuskers,
+  idols, drakes, hornet bells, rust knights, bloaters, broodhens,
+  hornheads, stingbacks, the gulper) and the thorn hearts, the words, and
+  eight tunes, one for each trade.
 
 ### 39 · BUZZBOLT
 
