@@ -1,0 +1,29 @@
+# BELLHOP: the exit ring (a blue circle round a flashing red cross) ends
+# the stage the moment the ship touches it, cup or no cup, and the next
+# stage starts in its bubble with a full tank. Stages go A-1 to A-10, then
+# B-1 and so on, in a fixed order.
+seed 1
+game bellhop
+wait 20
+cheat stage 0
+wait 2
+cheat place 292 140
+wait 2
+expect mode == 3
+wait 45
+expect stage == 1
+expect mode == 0
+expect tea == 0
+expect fuel == 600
+# A-9's exit leads to the boss, A-10
+cheat goto 8
+wait 2
+cheat place 300 160
+wait 50
+expect stage == 9
+expect boss == 1
+# a crystal room's and a boss's exit is shut until it is done
+expect exit_open == 0
+cheat goto 4
+wait 2
+expect exit_open == 0

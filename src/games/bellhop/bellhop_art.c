@@ -7,7 +7,7 @@ static bool art_ok = true;
 
 enum {
     SP_MOTH1, SP_MOTH2, SP_MITE, SP_WASP1, SP_WASP2, SP_CRAWL1, SP_CRAWL2, SP_TURRET, SP_GHOST, SP_DRONE,
-    SP_BOMB, SP_FUEL, SP_CUP, SP_CUP_EMPTY, SP_BUCKET, SP_APPLE, SP_SPRINKLER, SP_SPIKE, SP_HUSH, SP_OWL,
+    SP_BOMB, SP_FUEL, SP_CUP, SP_BUCKET, SP_APPLE, SP_SPRINKLER, SP_SPIKE, SP_HUSH, SP_OWL,
     SP_LADY, SP_COUNT
 };
 static Sprite spr[SP_COUNT];
@@ -135,15 +135,6 @@ static const char CUP[] =
     ".kwwwwwkkk"
     "..kwwwk..."
     "...kkk....";
-static const char CUP_FULL[] =
-    "........"
-    "........"
-    "kkkkkkk."
-    "kwwwwwkk"
-    "kwwwwwk."
-    "kwwwwwkk"
-    ".kwwwk.."
-    "..kkk...";
 static const char BUCKET[] =
     "..kkkkkkkk.."
     ".kbbbbbbbbk."
@@ -259,7 +250,6 @@ void bhp_art_load(void) {
     make(&spr[SP_BOMB], 8, 8, BOMB);
     make(&spr[SP_FUEL], 8, 10, FUEL);
     make(&spr[SP_CUP], 10, 8, CUP);
-    make(&spr[SP_CUP_EMPTY], 8, 8, CUP_FULL);
     make(&spr[SP_BUCKET], 12, 10, BUCKET);
     make(&spr[SP_APPLE], 13, 12, APPLE);
     make(&spr[SP_SPRINKLER], 10, 10, SPRINKLER);
@@ -276,12 +266,12 @@ void bhp_draw_ansel(int x, int y, int scale) { chm_draw_face(0, x, y, scale); }
 void bhp_draw_cup(int x, int y, bool full) {
     if (full) spr_draw(&spr[SP_CUP], x, y, 0);
     else {
-        uint8_t map[256];
-        pal_identity(map);
-        map[C_WHITE] = C_SLATE;
-        map[C_BROWN] = C_SLATE;
-        map[C_INK] = C_DUSK;
-        spr_draw_ex(&spr[SP_CUP_EMPTY], x, y, 0, map, -1);
+        /* a cup still to find: just its outline */
+        gfx_rectb(x + 1, y + 2, 6, 5, C_DUSK);
+        gfx_pset(x + 7, y + 3, C_DUSK);
+        gfx_pset(x + 8, y + 4, C_DUSK);
+        gfx_pset(x + 7, y + 5, C_DUSK);
+        gfx_hline(x + 2, x + 5, y + 7, C_DUSK);
     }
 }
 
@@ -314,27 +304,25 @@ static void sky(int w, int t) {
     gfx_dither(0, 50, SCREEN_W, 10, th->sky[1], 8);
     gfx_dither(0, 110, SCREEN_W, 10, th->sky[2], 8);
     switch (w) {
-    case 0: /* far hills and a mill */
+    case 0: /* far hills and a mill, faint behind the stage */
         gfx_circ(60, 40, 12, C_WHITE);
         for (int x = 0; x < SCREEN_W; x++) {
             int h = 130 + bhp_sin(x * 2) / 12 + bhp_sin(x / 2 + 40) / 9;
             gfx_vline(x, h, SCREEN_H, th->far);
         }
-        gfx_rect(240, 104, 18, 30, C_TAN);
+        gfx_dither(232, 96, 14, 36, C_LIGHT, 8);
         for (int k = 0; k < 4; k++) {
             int a = t / 4 + k * 64;
-            gfx_line(249, 104, 249 + bhp_cos(a) * 18 / 127, 104 + bhp_sin(a) * 18 / 127, C_BROWN);
+            gfx_line(239, 96, 239 + bhp_cos(a) * 15 / 127, 96 + bhp_sin(a) * 15 / 127, C_LIGHT);
         }
         break;
-    case 1: /* apple trees */
+    case 1: /* apple trees, faint behind the stage */
         for (int i = 0; i < 8; i++) {
             int x = 20 + i * 42, y = 118 + (i * 13) % 18;
-            gfx_rect(x - 2, y, 4, SCREEN_H - y, C_EARTH);
-            gfx_circ(x, y - 4, 15, th->far);
-            gfx_dither_circle(x - 4, y - 8, 7, C_LEAF, 6);
-            gfx_pset(x - 6, y - 2, C_RED);
-            gfx_pset(x + 5, y - 9, C_RED);
-            gfx_pset(x + 2, y + 3, C_RED);
+            gfx_dither(x - 2, y, 4, SCREEN_H - y, C_TAN, 8);
+            gfx_dither_circle(x, y - 4, 15, C_LEAF, 6);
+            gfx_pset(x - 6, y - 2, C_ORANGE);
+            gfx_pset(x + 5, y - 9, C_ORANGE);
         }
         break;
     case 2: /* gears turning in the dark */
@@ -352,9 +340,8 @@ static void sky(int w, int t) {
         for (int x = 0; x < SCREEN_W; x += 24) gfx_dither(x, 0, 12, SCREEN_H, C_PINK, 3);
         for (int i = 0; i < 6; i++) {
             int x = 26 + i * 54, y = 120 + (i * 11) % 16;
-            gfx_rect(x - 1, y, 2, SCREEN_H - y, C_WHITE);
-            gfx_circ(x, y - 8, 9, i & 1 ? C_PINK : C_LIME);
-            gfx_circb(x, y - 8, 5, C_WHITE);
+            gfx_dither(x - 1, y, 2, SCREEN_H - y, C_WHITE, 8);
+            gfx_dither_circle(x, y - 8, 9, i & 1 ? C_PINK : C_LIME, 7);
         }
         break;
     default: /* the citadel's towers under the stars */
@@ -502,10 +489,10 @@ static void draw_ent(const BhpStage *s, const BhpEnt *e, int t) {
         break;
     case BEK_DRONE: spr_draw(&spr[SP_DRONE], x - 5, y - 4, (t / 3) & 1 ? SPR_FLIPX : 0); break;
     case BEK_BUBBLE:
-        gfx_circb(x, y, 5, C_ICE);
+        gfx_dither_circle(x, y, 4, C_CYAN, 6);
+        gfx_circb(x, y, 5, C_WHITE);
         gfx_pset(x - 2, y - 2, C_WHITE);
         gfx_pset(x - 1, y - 3, C_WHITE);
-        gfx_dither_circle(x, y, 4, C_CYAN, 3);
         break;
     case BEK_BOMB:
         spr_draw(&spr[SP_BOMB], x - 4, y - 4, 0);

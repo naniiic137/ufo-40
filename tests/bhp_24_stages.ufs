@@ -1,0 +1,47 @@
+# BELLHOP: all fifty stages are sound (rows the right size, one start and
+# one exit, one hidden tea spot and one cup on each of the forty regular
+# stages and none elsewhere, warps on A-1, C-7 and D-3 only, a route for
+# the demo pilot), every fifth is a crystal room, every tenth a boss, each
+# world's in its order.
+seed 1
+game bellhop
+wait 20
+expect stages_bad == 0
+cheat stage 0
+wait 2
+expect warp_shown == 1
+cheat goto 4
+wait 2
+expect exit_open == 0
+expect boss == 0
+cheat goto 9
+wait 2
+expect boss == 1
+cheat goto 14
+wait 2
+expect exit_open == 0
+cheat goto 19
+wait 2
+expect boss == 2
+cheat goto 26
+wait 2
+expect warp_shown == 1
+cheat goto 29
+wait 2
+expect boss == 3
+cheat goto 32
+wait 2
+expect warp_shown == 1
+cheat goto 33
+wait 2
+expect warp_shown == 0
+cheat goto 39
+wait 2
+expect boss == 4
+cheat goto 49
+wait 2
+expect boss == 5
+cheat goto 48
+wait 2
+expect boss == 0
+expect exit_open == 1

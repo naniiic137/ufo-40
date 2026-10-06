@@ -1,0 +1,90 @@
+# BELLHOP: scoring things. Touching a big coin scatters five coins for five
+# seconds, worth 100, 100, 100, 200 and 500 in the order taken (1,000 for
+# all five, a whole ship). A circler is worth 500 once the ship has flown
+# close past all four of its sides to light them; touching its body before
+# that is a crash. A-4 has both.
+seed 1
+game bellhop
+wait 20
+cheat stage 3
+wait 2
+expect kind14 == 1
+expect kind16 == 1
+cheat place 108 56
+wait 2
+expect kind14 == 0
+expect coins == 5
+cheat place 84 40
+wait 2
+expect score == 100
+cheat place 148 40
+wait 2
+expect score == 200
+cheat place 212 40
+wait 2
+expect score == 300
+cheat place 84 104
+wait 2
+expect score == 500
+cheat place 180 104
+wait 2
+expect score == 1000
+expect coins == 0
+expect ships == 4
+# the circler: above, right, below, left
+cheat place 124 74
+wait 1
+expect kind16 == 1
+cheat place 142 92
+wait 1
+cheat place 124 110
+wait 1
+expect score == 1000
+cheat place 106 92
+wait 1
+expect kind16 == 0
+expect score == 1500
+# a second run: coins left alone vanish after five seconds
+cheat stage 3
+wait 2
+cheat place 108 56
+wait 2
+expect coins == 5
+cheat place 300 30
+wait 20
+cheat place 300 30
+wait 20
+cheat place 300 30
+wait 20
+cheat place 300 30
+wait 20
+cheat place 300 30
+wait 20
+cheat place 300 30
+wait 20
+cheat place 300 30
+wait 20
+cheat place 300 30
+wait 20
+cheat place 300 30
+wait 20
+cheat place 300 30
+wait 20
+cheat place 300 30
+wait 20
+cheat place 300 30
+wait 20
+cheat place 300 30
+wait 20
+cheat place 300 30
+wait 20
+expect coins == 5
+cheat place 300 30
+wait 20
+expect coins == 0
+expect score == 0
+# and the circler's body is a crash
+cheat place 124 92
+wait 2
+expect mode == 2
+expect score == 0

@@ -810,6 +810,19 @@ static int bhp_query(const char *key, int *out) {
     if (!strcmp(key, "coins")) { *out = count_kind(BEK_COIN); return 1; }
     if (!strcmp(key, "coins_got")) { *out = st.coins_got; return 1; }
     if (!strcmp(key, "bot_step")) { *out = bot.step; return 1; }
+    if (!strcmp(key, "boss_x")) { *out = (int)(st.boss.x >> 8); return 1; }
+    if (!strcmp(key, "boss_y")) { *out = (int)(st.boss.y >> 8); return 1; }
+    if (!strcmp(key, "cspeed") || !strcmp(key, "gum_size")) {
+        /* the first crystal's speed on its faster axis; the first gumball's size */
+        *out = -1;
+        for (int i = 0; i < st.ne; i++) {
+            const BhpEnt *e = &st.e[i];
+            if (!e->on) continue;
+            if (key[0] == 'c' && e->kind == BEK_CRYSTAL) { *out = imax(iabs(e->vx), iabs(e->vy)); break; }
+            if (key[0] == 'g' && e->kind == BEK_GUM) { *out = e->size; break; }
+        }
+        return 1;
+    }
     if (!strcmp(key, "ver")) { *out = st.ver; return 1; }
     if (!strcmp(key, "shots")) { int n = 0; for (int k = 0; k < BHP_SHOTS; k++) n += st.shot[k].on; *out = n; return 1; }
     if (num_key(key, "kind", &i)) { *out = count_kind(i); return 1; }
@@ -840,7 +853,8 @@ static int bhp_cheat(const char *cmd) {
         st.f.x = a * CHF_ONE;
         st.f.y = b * CHF_ONE;
         st.f.vx = st.f.vy = 0;
-        if (st.mode == BSM_BUBBLE) st.mode = BSM_FLY;
+        st.mode = BSM_FLY;
+        st.mode_t = 0;
         return 1;
     }
     if (sscanf(cmd, "vel %d %d", &a, &b) == 2) { st.f.vx = a; st.f.vy = b; return 1; }
@@ -854,7 +868,27 @@ static int bhp_cheat(const char *cmd) {
     if (sscanf(cmd, "bot_debug %d", &a) == 1) { bhp_bot_debug = a; return 1; }
     if (!strcmp(cmd, "dump")) { bhp_bot_dump(&bot); return 1; }
     if (!strcmp(cmd, "clear_shots")) { memset(st.shot, 0, sizeof st.shot); return 1; }
-    if (sscanf(cmd, "ent %d %d %d", &a, &b, &c) == 3) { bhp_ent_add(&st, a, b, c); return 1; }
+    if (sscanf(cmd, "bot_rounds %d", &a) == 1) { bhp_bot_rounds = a; return 1; }
+    if (sscanf(cmd, "spike %d %d %d", &a, &b, &c) == 3) {
+        /* a spike ball at rest: c = 0 red, 1 blue */
+        int i = bhp_ent_add(&st, BEK_SPIKE, a, b);
+        if (i >= 0) st.e[i].flag = (uint8_t)(c != 0);
+        return 1;
+    }
+    if (sscanf(cmd, "beside_boss %d", &a) == 1) {
+        /* the ship level with Lady Hush, a units to her side, facing her */
+        st.f.x = st.boss.x + a * CHF_ONE;
+        st.f.y = st.boss.y;
+        st.f.vx = st.f.vy = 0;
+        st.f.face = (int8_t)(a < 0 ? 1 : -1);
+        st.mode = BSM_FLY;
+        return 1;
+    }
+    if (sscanf(cmd, "ent %d %d %d", &a, &b, &c) == 3) {
+        int i = bhp_ent_add(&st, a, b, c);
+        if (i >= 0) bhp_ent_settle(&st, &st.e[i]);
+        return 1;
+    }
     if (sscanf(cmd, "tile %d %d %d", &a, &b, &c) == 3) { bhp_set_tile(&st, a, b, c); return 1; }
     if (!strcmp(cmd, "no_enemies")) {
         for (int i = 0; i < st.ne; i++)
@@ -870,7 +904,7 @@ const GameDef GAME_BELLHOP = {
     "BELLHOP",
     "1985",
     "ARCADE",
-    "FIFTY ONE-SCREEN STAGES. THRUST, HOVER AND SLASH; TOUCH ANYTHING AND IT'S A CRASH. STOP FOR TEA.",
+    "FIFTY SCREENS: THRUST, HOVER, SLASH AND TOUCH NOTHING. STOP FOR TEA.",
     {"HAVE 15 SPARE SHIPS", "BEAT ALL 50 STAGES", "WIN WITH ALL 40 CUPS OF TEA"},
     GLYPH_LEFT GLYPH_RIGHT "\tSTEER\n"
     GLYPH_A " (HOLD)\tTHRUST (TAP TO HOVER)\n"

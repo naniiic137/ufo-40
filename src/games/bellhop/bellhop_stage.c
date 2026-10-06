@@ -149,7 +149,23 @@ int bhp_ent_add(BhpStage *s, int kind, int x, int y) {
     e->id = (uint8_t)i;
     e->hp = 1;
     e->hitno = 255;
+    /* which way a mover sets off (a stage's own layout picks its own) */
+    switch (kind) {
+    case BEK_MOTH: case BEK_DRONE: case BEK_PLATE_H: case BEK_CRAWLER: e->vx = 1; break;
+    case BEK_MITE: case BEK_PLATE_V: e->vy = 1; break;
+    case BEK_FIREBAR: e->b = 1; break;
+    default: break;
+    }
     return i;
+}
+
+/* a crawler clings to the floor below it, or else to the ceiling above */
+void bhp_ent_settle(BhpStage *s, BhpEnt *e) {
+    if (e->kind != BEK_CRAWLER) return;
+    int x = PX(e->x), y = PX(e->y);
+    e->flag = bhp_solid(s, x, y + 6) ? 0 : bhp_solid(s, x, y - 6) ? 1 : 0;
+    if (e->flag == 0) e->y = (int32_t)((((y - BHP_OY) / BHP_T) * BHP_T + BHP_OY + 5) * CHF_ONE);
+    else e->y = (int32_t)((((y - BHP_OY) / BHP_T) * BHP_T + BHP_OY + 3) * CHF_ONE);
 }
 
 BhpShot *bhp_shot_add(BhpStage *s, int kind, int32_t x, int32_t y, int32_t vx, int32_t vy) {
@@ -314,15 +330,7 @@ static void build(BhpStage *s) {
             }
         }
     }
-    /* crawlers cling to the floor below them, or else the ceiling above */
-    for (int i = 0; i < s->ne; i++) {
-        BhpEnt *e = &s->e[i];
-        if (e->kind != BEK_CRAWLER) continue;
-        int x = PX(e->x), y = PX(e->y);
-        e->flag = bhp_solid(s, x, y + 6) ? 0 : bhp_solid(s, x, y - 6) ? 1 : 0;
-        if (e->flag == 0) e->y = (int32_t)((((y - BHP_OY) / BHP_T) * BHP_T + BHP_OY + 5) * CHF_ONE);
-        else e->y = (int32_t)((((y - BHP_OY) / BHP_T) * BHP_T + BHP_OY + 3) * CHF_ONE);
-    }
+    for (int i = 0; i < s->ne; i++) bhp_ent_settle(s, &s->e[i]);
     s->kind = (uint8_t)bhp_kind(s->idx);
     s->exit_open = s->kind == BHK_STAGE;
     s->f = (ChmFlight){s->start_x * CHF_ONE, s->start_y * CHF_ONE, 0, 0, 1};

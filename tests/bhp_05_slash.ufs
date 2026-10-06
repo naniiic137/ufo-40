@@ -1,0 +1,67 @@
+# BELLHOP: B is a short slash to one side: the side the ship last steered
+# toward. It breaks blocks and glass and takes enemies down, but only on
+# that side; it can't be swung again straight away; and while it lasts it
+# slows the ship's fall.
+seed 1
+game bellhop
+wait 20
+cheat stage 4
+wait 2
+# a block on each side; the ship last steered left
+cheat place 160 100
+cheat tile 17 11 4
+cheat tile 22 11 4
+hold LEFT 1
+expect face == -1
+cheat vel 0 0
+press B
+wait 2
+expect tile_x368 == 0
+expect tile_x473 == 4
+# then right: the other block goes
+wait 20
+cheat place 160 100
+hold RIGHT 1
+expect face == 1
+cheat vel 0 0
+press B
+wait 2
+expect tile_x473 == 0
+# glass breaks too (30 points, no fuel)
+wait 20
+cheat score 0
+cheat fuel 100
+cheat place 160 100
+cheat face 1
+cheat tile 22 11 5
+press B
+wait 2
+expect tile_x473 == 0
+expect score == 30
+expect fuel == 100
+# a slash lasts twelve frames and can't be swung again for eighteen
+wait 20
+cheat place 160 60
+press B 1
+expect slash == 11
+press B 1
+expect slash == 9
+wait 20
+press B 1
+expect slash == 11
+# falling, with and without a slash
+wait 20
+cheat place 160 40
+wait 12
+expect vy == 216
+cheat place 160 40
+wait 20
+press B 1
+wait 9
+expect vy < 120
+# up, down and A don't slash
+cheat place 160 60
+wait 20
+hold UP 3
+hold DOWN 3
+expect slash == 0

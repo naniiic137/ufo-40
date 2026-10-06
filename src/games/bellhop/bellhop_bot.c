@@ -38,10 +38,10 @@
 #define NCAND 10
 #define NMUT 12
 #define POLICY 0xFF
-#define BOT_ROUNDS 5   /* crystal rounds the pilot plays */
 #define MAXTOK 32
 
 int bhp_bot_debug;
+int bhp_bot_rounds = 5; /* crystal rounds the pilot plays before it waits by the exit */
 
 enum { TK_TEA, TK_CUP, TK_EXIT, TK_AT, TK_HIT, TK_WAIT, TK_WARP, TK_CRYSTALS, TK_BOSS, TK_CIRCLE, TK_COINS };
 typedef struct Tok { uint8_t kind; int16_t x, y, n; } Tok;
@@ -339,7 +339,7 @@ static bool step_target(const BhpStage *s, const Tok *t, int *tx, int *ty) {
     }
     case TK_CRYSTALS: {
         /* five rounds is plenty for the tests: then it waits by the exit */
-        if (s->round > BOT_ROUNDS) { *tx = s->exit_x; *ty = s->exit_y - 16; return true; }
+        if (s->round > bhp_bot_rounds) { *tx = s->exit_x; *ty = s->exit_y - 16; return true; }
         int i = nearest_ent(s, BEK_CRYSTAL, x, y, NULL);
         if (i < 0) { *tx = x; *ty = y; return true; }
         const BhpEnt *e = &s->e[i];
@@ -494,7 +494,8 @@ static bool want_slash(const BhpStage *s) {
         bool ok = false;
         switch (e->kind) {
         case BEK_MOTH: case BEK_MITE: case BEK_WASP: case BEK_CRAWLER: case BEK_TURRET: case BEK_GHOST: case BEK_DRONE:
-        case BEK_BUBBLE: case BEK_CRYSTAL: case BEK_BUCKET: case BEK_GUM: ok = true; break;
+        case BEK_BUBBLE: case BEK_BUCKET: case BEK_GUM: ok = true; break;
+        case BEK_CRYSTAL: ok = s->round <= bhp_bot_rounds; break;
         case BEK_LAMP: case BEK_SPIKE: ok = e->flag == 1; break;
         case BEK_APPLE: ok = s->f.face > 0 && PX(e->x) > cx; break;
         default: break;
@@ -564,7 +565,7 @@ static long rollout(const BhpStage *s, const BhpBot *b, const uint8_t *plan, con
     }
     long score = field_at(b, PX(sim.f.x), PX(sim.f.y));
     if (s->kind == BHK_BOSS) score -= (long)(bhp_boss_progress(&sim) - prog0) * 40;
-    if (s->kind == BHK_BONUS && s->round <= BOT_ROUNDS) score -= pts * 4;
+    if (s->kind == BHK_BONUS && s->round <= bhp_bot_rounds) score -= pts * 4;
     /* a ship that ends fast has less room to save itself */
     score += iabs(sim.f.vy) / 16 + iabs(sim.f.vx) / 24;
     if (sim.fuel < 60) score += (60 - sim.fuel) * 4;

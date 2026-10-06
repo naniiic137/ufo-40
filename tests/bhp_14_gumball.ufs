@@ -1,0 +1,36 @@
+# BELLHOP: D-10, THE GUMBALL MACHINE. Rounds of three, four and five
+# gumballs pop out of the machine; each goes in one slash, and the slashed
+# piece flies off and bursts into shrapnel where it lands. A piece that
+# lands on the lid makes the machine spray. Last comes a giant that splits
+# into two, and each of those into two again. The demo pilot clears it.
+seed 8
+game bellhop
+wait 20
+cheat stage 39
+wait 2
+expect boss == 4
+expect boss_round == 1
+# a piece dropped on the lid: a spray of five
+cheat ent 23 160 100
+wait 30
+expect kind23 == 0
+expect shots == 5
+cheat clear_shots
+# a piece that lands anywhere else bursts into three
+cheat ent 23 60 150
+wait 30
+expect kind23 == 0
+expect shots == 3
+cheat stage 39
+wait 2
+botuntil kind22 >= 1 600
+expect gum_size == 0
+botuntil boss_round == 2 12000
+botuntil boss_round == 4 20000
+botuntil kind22 >= 1 600
+expect gum_size == 2
+botuntil kind22 == 2 6000
+expect gum_size == 1
+botuntil boss_down == 1 12000
+wait 95
+expect exit_open == 1

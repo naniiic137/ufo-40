@@ -1,0 +1,19 @@
+# BELLHOP: the demo pilot flies all of world E (HUSH CITADEL), E-1 to E-10, with
+# real presses from a fresh run: every stage cleared, the crystal room
+# played, the boss beaten and all eight cups of tea taken.
+seed 15
+game bellhop
+wait 20
+cheat stage 40
+wait 2
+botuntil stage == 41 15000
+botuntil stage == 42 15000
+botuntil stage == 43 15000
+botuntil stage == 44 15000
+botuntil stage == 45 15000
+botuntil stage == 46 15000
+botuntil stage == 47 15000
+botuntil stage == 48 15000
+botuntil stage == 49 15000
+botuntil state == 7 30000
+expect tea == 8

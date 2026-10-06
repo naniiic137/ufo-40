@@ -199,6 +199,7 @@ bool bhp_ship_box_hits(const BhpStage *s, int x0, int y0, int x1, int y1); /* px
 void bhp_kill_ship(BhpStage *s, int cause);
 void bhp_add_fx(BhpStage *s, int x, int y, int kind);
 int bhp_ent_add(BhpStage *s, int kind, int x, int y);
+void bhp_ent_settle(BhpStage *s, BhpEnt *e); /* a crawler takes hold of its surface */
 BhpShot *bhp_shot_add(BhpStage *s, int kind, int32_t x, int32_t y, int32_t vx, int32_t vy);
 void bhp_set_tile(BhpStage *s, int c, int r, int t);
 int bhp_tile_at(const BhpStage *s, int px, int py); /* BTL_WALL off the stage */
@@ -249,6 +250,7 @@ unsigned bhp_bot(const BhpStage *s, BhpBot *b);
 int bhp_bot_route_len(int stage);
 void bhp_bot_dump(const BhpBot *b);
 extern int bhp_bot_debug;
+extern int bhp_bot_rounds;
 
 /* ---- art & audio ------------------------------------------------------- */
 void bhp_art_load(void);

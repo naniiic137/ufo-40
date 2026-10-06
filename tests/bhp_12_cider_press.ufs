@@ -1,0 +1,32 @@
+# BELLHOP: B-10, THE CIDER PRESS. The slash knocks the apple away and up;
+# it has to go into the press's chute three times. After the first, thorns
+# grow from the floor and the ceiling; after the second a sprinkler sprays
+# the apple, and a jet that hits it stops it dead in the air. Hitting the
+# apple puts a little fuel back. The demo pilot does it with real presses.
+seed 5
+game bellhop
+wait 20
+cheat stage 19
+wait 2
+expect boss == 2
+expect boss_phase == 0
+expect kind19 == 1
+expect tile_x328 == 0
+# a slash knocks the apple
+cheat place 83 120
+cheat face 1
+press B
+wait 2
+expect ent_x0 > 97
+cheat stage 19
+wait 2
+botuntil boss_phase == 1 12000
+expect tile_x328 == 17
+expect tile_x526 == 17
+expect score >= 500
+botuntil boss_phase == 2 12000
+expect kind20 == 1
+botuntil shots >= 1 600
+botuntil boss_down == 1 15000
+wait 95
+expect exit_open == 1

@@ -1,0 +1,74 @@
+# BELLHOP: the flight. Gravity always pulls the ship down; holding A thrusts
+# it up (and burns a frame of fuel a frame); tapping A about two frames in
+# five holds it near one height; steering builds speed slowly and the ship
+# drifts on after the pad is let go. Up and down do nothing.
+seed 1
+game bellhop
+wait 20
+# the first crystal room is wide open (and its crystals only come when
+# the bubble pops, so placing the ship there brings none)
+cheat stage 4
+wait 2
+cheat place 160 40
+expect mode == 1
+wait 30
+expect vy > 300
+expect y > 60
+# a long fall tops out
+cheat place 160 30
+wait 50
+expect vy == 608
+# hold thrust: up, and a frame of fuel a frame
+cheat place 160 140
+cheat fuel 600
+hold A 40
+expect vy < 0
+expect y < 120
+expect fuel == 560
+# tap two frames in five: it hovers
+cheat place 160 90
+press A 2
+wait 2
+press A 2
+wait 2
+press A 2
+wait 2
+press A 2
+wait 2
+press A 2
+wait 2
+press A 2
+wait 2
+press A 2
+wait 2
+press A 2
+wait 2
+press A 2
+wait 2
+press A 2
+wait 2
+press A 2
+wait 2
+press A 2
+wait 2
+expect y > 74
+expect y < 106
+# steering: slow to build, and it drifts on when let go
+cheat place 60 100
+hold RIGHT 10
+expect vx > 100
+expect vx < 140
+expect face == 1
+cheat place 60 100
+cheat vel 380 0
+wait 20
+expect vx > 300
+expect x > 82
+# up and down change nothing
+cheat place 160 40
+hold UP 10
+expect vx == 0
+cheat place 160 40
+hold DOWN 10
+expect vx == 0
+expect vy == 180

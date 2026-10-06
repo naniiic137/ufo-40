@@ -1,0 +1,44 @@
+# BELLHOP: C-10, THE TWIN COGS. Two turning cogs, five lamps on each.
+# Only one cog's lamps are lit at a time and only a lit lamp breaks; a
+# broken lamp turns grey. When one cog is dark, the other lights up. The
+# lamps shoot. The cogs themselves wreck the ship. The demo pilot finishes
+# the job with real presses.
+seed 6
+game bellhop
+wait 20
+cheat stage 29
+wait 2
+expect boss == 3
+expect kind21 == 10
+expect boss_active == 0
+expect ent_flag0 == 1
+expect ent_flag4 == 1
+expect ent_flag5 == 0
+expect ent_flag9 == 0
+# an unlit lamp on the right cog shrugs off a slash
+cheat place 268 113
+cheat face -1
+press B
+wait 1
+expect kind21 == 10
+# a lit lamp on the left cog breaks
+cheat stage 29
+wait 2
+cheat place 138 96
+cheat face -1
+press B
+wait 1
+expect kind21 == 9
+expect score == 200
+# into a cog: a crash
+cheat place 92 72
+wait 2
+expect mode == 2
+cheat stage 29
+wait 2
+botuntil kind21 == 5 12000
+wait 1
+expect boss_active == 1
+expect ent_flag5 == 1
+botuntil boss_down == 1 12000
+expect kind21 == 0
