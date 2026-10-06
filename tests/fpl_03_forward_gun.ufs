@@ -1,0 +1,45 @@
+# FULL PEAL: A is the forward gun (the owner's layout: the original has it on
+# Button 1, our B). Held, it fires again and again straight
+# into the distance down the lane the ship is in, and hits whatever is out
+# there in that lane (generously: a little into the lanes either side
+# counts), and nothing in the other lanes. Foes that have reached the
+# ship's plane are past it: the forward gun can't touch them.
+game fullpeal
+wait 12
+press A
+cheat sandbox
+cheat god
+cheat still
+# the ship in column 3, row 2
+cheat pos 0.5 0.5
+expect col == 3
+expect row == 2
+cheat foez 0 0.5 0.5 0.6
+cheat foez 0 -1.5 -0.5 0.6
+expect foes == 2
+hold A 40
+expect fired_fwd >= 5
+expect foes == 1
+expect kind_x100_0 == -150
+expect wave_kills == 1
+# a tenor takes three
+cheat foez 1 0.5 0.5 0.8
+hold A
+waituntil kind_hp_1 == 2 40
+expect foes_1 == 1
+waituntil foes_1 == 0 60
+release
+# a foe just over the line into the next lane still counts
+cheat foez 0 1.2 0.5 0.7
+hold A 40
+expect foes_0 == 1
+expect kind_x100_0 == -150
+# but one two lanes over doesn't
+cheat foez 0 2.0 0.5 0.7
+hold A 40
+expect foes_0 == 2
+# a foe on the plane in the very lane: the shots go past it
+cheat foez 0 0.5 0.5 0
+hold A 60
+expect foes_0 == 3
+expect kind_hp_0 == 1

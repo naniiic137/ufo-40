@@ -1,0 +1,51 @@
+# FULL PEAL: the title offers START and CODE (UP/DOWN); B goes back to the
+# library. START begins a run at stage A with Clary on the radio: three
+# ships, two continues (three credits in all), no grades yet, and the
+# first wave's foes after the call. START pauses. A run is not saved:
+# leave in the middle and the cartridge opens on its title again.
+game fullpeal
+wait 5
+expect state == 0
+expect paused == 0
+expect sel == 0
+press DOWN
+expect sel == 1
+press DOWN
+expect sel == 0
+press UP
+expect sel == 1
+press UP
+expect sel == 0
+press A
+expect state == 2
+expect stage == 1
+expect lives == 3
+expect continues == 2
+expect alive == 1
+expect grade_a1 == -1
+expect grades == 0
+expect radio_len > 0
+expect foes == 0
+# the radio call, then wave 1 of 4
+waituntil state == 3 300
+expect wave == 1
+waituntil foes > 0 120
+press START
+expect paused == 1
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press A
+wait 60
+expect_scene library
+game fullpeal
+wait 5
+expect_scene runner
+expect state == 0
+expect grades == 0
+# B on the title leaves
+press B
+wait 60
+expect_scene library

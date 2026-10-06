@@ -1,0 +1,73 @@
+# FULL PEAL, stages D and E. A treble comes in much quicker than a
+# clapper. A caltrop comes down its lane and rams on through the plane:
+# nothing hurts it, it hurts on the plane, and it isn't counted. A brooder
+# keeps its distance and spits motes at the ship. A dodger is slow, takes
+# two hits, and slips a lane sideways when hit. A nibbler takes two hits.
+game fullpeal
+wait 12
+press A
+cheat sandbox
+cheat god
+cheat pos -2.5 1.5
+cheat foe 0 1 1 0
+cheat foe 2 2 1 0
+wait 30
+expect kind_z100_0 == 80
+expect kind_z100_2 == 52
+waituntil kind_state_2 == 1 40
+expect kind_z100_0 > 50
+cheat endwave
+wait 10
+# the caltrop rams through the plane and is gone
+cheat foe 14 3 2 0
+expect kind_hp_14 == 0
+waituntil kind_z100_14 < 0 120
+waituntil foes_14 == 0 30
+expect wave_escaped == 0
+# it hurts on the plane
+cheat god
+cheat foe 14 0 3 0
+waituntil alive == 0 120
+expect cause == 114
+cheat god
+waituntil alive == 1 80
+cheat endwave
+# the brooder spits motes (shells that don't burst)
+cheat foe 15 2 1 0
+waituntil kind_state_15 == 1 120
+expect kind_hp_15 == 1
+waituntil eshots_shell >= 1 120
+wait 80
+expect eshots_plane == 0
+# the mote it lobbed lands and becomes a foe on the plane (not counted)
+expect foes_12 >= 1
+expect wave_escaped == 0
+cheat endwave
+wait 120
+# the dodger: two hits, and the first sends it a lane sideways
+cheat still
+cheat foez 3 0.5 0.5 0.6
+cheat pos 0.5 0.5
+expect kind_hp_3 == 2
+hold A 1
+wait 14
+expect kind_hp_3 == 1
+cheat still
+wait 20
+expect kind_x100_3 == 150
+cheat still
+cheat pos 1.5 0.5
+hold A 20
+expect foes_3 == 0
+expect wave_kills == 1
+# the nibbler: two hits on the plane
+cheat foez 13 1.5 -0.5 0
+cheat pos -1.5 -0.5
+hold LEFT
+hold B
+wait 1
+release LEFT
+waituntil kind_hp_13 == 1 40
+waituntil foes_13 == 0 40
+release
+expect wave_kills == 2

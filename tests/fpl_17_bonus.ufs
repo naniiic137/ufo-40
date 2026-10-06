@@ -1,0 +1,69 @@
+# FULL PEAL: the balloon round. A stage with a 100 or a 0 among its
+# waves brings it on after the boss. Balloons drift up out of the
+# distance: red ones are worth 1, orange ones 3, and each 100 in the stage
+# turns four more of them orange. Fifty points before the time runs out
+# win a continue (and the first goal). A stage with neither goes straight on.
+game fullpeal
+wait 12
+press A
+waituntil state == 3 300
+# a 100 in stage A
+cheat kills 28
+cheat endwave
+wait 2
+expect bonus_due == 1
+expect perfect_stage == 1
+cheat boss
+cheat god
+cheat bosshp 1
+cheat still
+cheat bosspos 0.5 0.86
+cheat pos 0.5 0.5
+hold A 15
+cheat still
+expect boss_dead == 1
+waituntil state == 7 200
+expect stage == 1
+waituntil state == 8 200
+expect bonus_orange == 8
+expect bonus_pts == 0
+expect continues == 2
+# shoot a balloon down its lane: one point (the first is red)
+waituntil bonus_spawned == 1 40
+cheat pos -0.75 1.5
+expect col == 2
+hold A 40
+expect bonus_pts >= 1
+# fifty points: a continue, and the goal
+cheat bonuspts 49
+waituntil bonus_spawned >= 3 120
+botuntil bonus_pts >= 50 1200
+waituntil state == 9 1800
+expect continues == 3
+expect bonuses_won == 1
+expect goals.fullpeal == 1
+waituntil state == 2 300
+expect stage == 2
+# stage B: no 100 and no 0: no balloons
+waituntil state == 3 300
+cheat kills 20
+cheat endwave
+wait 2
+expect bonus_due == 0
+cheat boss
+cheat bosshp 1
+cheat still
+cheat bosspos 0.5 0.29
+cheat pos 0.5 0.5
+hold A 15
+cheat still
+waituntil state == 2 300
+expect stage == 3
+expect continues == 3
+# a round lost: under fifty, no continue
+cheat bonus
+cheat perfect 0
+expect state == 8
+waituntil state == 9 1900
+expect bonus_pts < 50
+expect continues == 3

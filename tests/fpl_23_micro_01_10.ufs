@@ -1,0 +1,198 @@
+# FULL PEAL: Clary's console, micro-games 1 to 10. Each is reached
+# through the menu with player 2's presses, its rule tried, and its end
+# (a mistake) reached; the score it ends on is its high score.
+#  01 SHOO: you run round a grid in the way you last pointed; chasers come in from the corners in turn; 10 a second
+#  02 KILN: a ball and a paddle; tiles creep down; red ones spit back, gold ones take two; 2 a tile
+#  03 FLAP: flap to stay up (either button), steer; gold 5; red or the ground ends it
+#  04 PEEK: uncover squares; each miss points toward the face; 10 a face; 50 arrows or B ends it
+#  05 PIKE: a grid with a pike held out in front; chasers in from two crosses by turns; 10 a kill
+#  06 TIPTOE: a minefield shown for a second, then dark; step across to the gold; 10 a crossing
+#  07 ANGLER: the hook goes where you steer it; the first fish to touch it ends the game, scored by kind and size
+#  08 BURROW: a tunnel scrolling down, narrower and faster; 2 a second
+#  09 SLOPE: tilt left and right to steer down the slope; gold 10, red ends it
+#  10 OGRE 1: a boss to take apart from below; the score counts down from 400 a point a second, and only a win keeps it
+game fullpeal
+seed 4900
+wait 12
+press A
+cheat sandbox
+cheat god
+hold P2A 125
+wait 2
+expect mc_state == 1
+# 01 SHOO
+expect mc_sel == 1
+press P2A
+expect mc_state == 2
+expect mc_game == 1
+expect mc_i2 == 1
+wait 61
+expect mc_score == 10
+press P2UP
+expect mc_i3 == -1
+expect mc_i2 == 0
+waituntil mc_state == 3 4000
+expect mc_hi1 >= 10
+waituntil mc_state == 3 10
+wait 21
+press P2B
+expect mc_state == 1
+press P2RIGHT
+# 02 KILN
+expect mc_sel == 2
+press P2A
+expect mc_state == 2
+expect mc_game == 2
+expect mc_i2 == 28
+wait 29
+expect mc_f100_4 == -90
+waituntil mc_state == 3 6000
+waituntil mc_state == 3 10
+wait 21
+press P2B
+expect mc_state == 1
+press P2RIGHT
+# 03 FLAP
+expect mc_sel == 3
+press P2A
+expect mc_state == 2
+expect mc_game == 3
+wait 5
+expect mc_f100_2 > 0
+press P2A
+expect mc_f100_2 < 0
+waituntil mc_state == 3 400
+expect mc_score == 0
+waituntil mc_state == 3 10
+wait 21
+press P2B
+expect mc_state == 1
+press P2RIGHT
+# 04 PEEK
+expect mc_sel == 4
+press P2A
+expect mc_state == 2
+expect mc_game == 4
+press P2A
+expect mc_i4 <= 1
+press P2B
+expect mc_state == 3
+waituntil mc_state == 3 10
+wait 21
+press P2B
+expect mc_state == 1
+press P2RIGHT
+# 05 PIKE
+expect mc_sel == 5
+press P2A
+expect mc_state == 2
+expect mc_game == 5
+wait 70
+expect mc_n >= 1
+waituntil mc_state == 3 6000
+waituntil mc_state == 3 10
+wait 21
+press P2B
+expect mc_state == 1
+press P2RIGHT
+# 06 TIPTOE
+expect mc_sel == 6
+press P2A
+expect mc_state == 2
+expect mc_game == 6
+expect mc_i4 == 58
+press P2RIGHT
+expect mc_i0 == 0
+wait 60
+expect mc_i4 == 0
+press P2RIGHT
+expect mc_i0 == 1
+press P2RIGHT
+press P2RIGHT
+press P2RIGHT
+press P2RIGHT
+press P2RIGHT
+press P2RIGHT
+press P2RIGHT
+press P2RIGHT
+press P2RIGHT
+press P2RIGHT
+press P2RIGHT
+press P2RIGHT
+press P2RIGHT
+press P2RIGHT
+press P2RIGHT
+press P2RIGHT
+press P2RIGHT
+press P2RIGHT
+press P2RIGHT
+press P2RIGHT
+press P2RIGHT
+press P2RIGHT
+press P2RIGHT
+press P2RIGHT
+expect mc_state == 3
+waituntil mc_state == 3 10
+wait 21
+press P2B
+expect mc_state == 1
+press P2RIGHT
+# 07 ANGLER
+expect mc_sel == 7
+press P2A
+expect mc_state == 2
+expect mc_game == 7
+hold P2DOWN 30
+expect mc_f100_1 == 2500
+waituntil mc_state == 3 4000
+expect mc_score >= 5
+waituntil mc_state == 3 10
+wait 21
+press P2B
+expect mc_state == 1
+press P2RIGHT
+# 08 BURROW
+expect mc_sel == 8
+press P2A
+expect mc_state == 2
+expect mc_game == 8
+wait 61
+expect mc_score == 2
+waituntil mc_state == 3 4000
+waituntil mc_state == 3 10
+wait 21
+press P2B
+expect mc_state == 1
+press P2RIGHT
+# 09 SLOPE
+expect mc_sel == 9
+press P2A
+expect mc_state == 2
+expect mc_game == 9
+press P2RIGHT
+expect mc_i0 == 1
+press P2RIGHT
+press P2RIGHT
+press P2RIGHT
+expect mc_i0 == 3
+waituntil mc_state == 3 6000
+waituntil mc_state == 3 10
+wait 21
+press P2B
+expect mc_state == 1
+press P2RIGHT
+# 10 OGRE 1
+expect mc_sel == 10
+press P2A
+expect mc_state == 2
+expect mc_game == 10
+expect mc_score == 400
+wait 61
+expect mc_score == 399
+waituntil mc_state == 3 4000
+expect mc_score == 0
+waituntil mc_state == 3 10
+wait 21
+press P2B
+expect mc_state == 1
+expect mc_total >= 0

@@ -1,0 +1,42 @@
+# FULL PEAL: no gravity, no thrust, no fuel and no walls. The Tinkler
+# moves freely in eight directions over a flat plane that faces the screen
+# (6 lanes across, 4 down) and stays exactly where it is when let go; the
+# plane's edges stop it and nothing else.
+game fullpeal
+wait 12
+press A
+cheat sandbox
+expect state == 3
+expect x100 == 0
+expect y100 == 50
+wait 120
+expect x100 == 0
+expect y100 == 50
+expect alive == 1
+hold RIGHT 20
+expect x100 == 120
+expect col == 4
+hold UP 10
+expect y100 == -10
+expect row == 1
+# diagonals are no faster
+hold LEFT DOWN 20
+expect x100 == 35
+expect y100 == 75
+# the edges stop it; touching them does no harm
+hold RIGHT 200
+expect x100 == 275
+expect col == 5
+hold DOWN 200
+expect y100 == 175
+expect row == 3
+hold LEFT 300
+expect x100 == -275
+expect col == 0
+hold UP 300
+expect y100 == -175
+expect row == 0
+expect alive == 1
+expect deaths == 0
+wait 200
+expect y100 == -175

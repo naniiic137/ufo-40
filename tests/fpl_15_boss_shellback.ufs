@@ -1,0 +1,47 @@
+# FULL PEAL, stage D's boss: Shellback. It sweeps back and forth along the
+# top of the view firing fans of shots from the plane's top edge: three,
+# then four, then three, spreading as they fall, so the bottom of the plane
+# is the safest place. Its two pods now and then fire one aimed shot each.
+# Its weak point is its beak, underneath. It doesn't change at half health.
+game fullpeal
+wait 12
+press A
+cheat stage 4
+cheat boss
+cheat god
+expect boss_kind == 3
+expect boss_hp == 270
+wait 5
+expect boss_y100 == -105
+cheat pos -2.5 1.5
+waituntil boss_fired == 1 200
+expect boss_last_fan == 3
+expect eshots_plane == 3
+expect eshots_ymin100 <= -190
+expect eshots_xspread100 < 20
+wait 20
+expect eshots_xspread100 > 40
+expect eshots_ymin100 > -150
+waituntil boss_fired == 2 40
+expect boss_last_fan == 4
+waituntil boss_fired == 3 40
+expect boss_last_fan == 3
+waituntil boss_fired == 4 200
+expect boss_last_fan == 3
+# its beak is in the second row
+cheat still
+cheat bosspos 0.5 -1.05
+cheat pos 0.5 -0.5
+hold A 30
+expect boss_hits >= 3
+cheat pos 0.5 0.5
+hold A 30
+expect boss_blocked == 0
+cheat bosshp 100
+cheat pos 0.5 -0.5
+hold A 10
+expect boss_angry == 0
+cheat bosshp 1
+hold A 15
+expect boss_dead == 1
+waituntil stage == 5 200

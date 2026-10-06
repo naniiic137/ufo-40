@@ -1,0 +1,30 @@
+# FULL PEAL: the whole game can be won. The demo pilot plays from the
+# title with real button presses (no cheats, nothing made easier): all
+# five stages, twenty waves, the five bosses (Queen Sordina last, Clary
+# and all), the balloon rounds it earns, the ending and the final count,
+# which comes to more than 1,500: all three goals in one run.
+seed 4949
+game fullpeal
+wait 12
+expect state == 0
+botuntil state == 2 60
+expect stage == 1
+botuntil stage == 2 40000
+expect grade_a1 >= 0
+expect grade_a4 >= 0
+botuntil stage == 3 40000
+botuntil stage == 4 40000
+botuntil stage == 5 40000
+botuntil state == 5 40000
+expect boss_kind == 4
+botuntil boss_clary == 1 30000
+botuntil state == 10 60000
+expect won == 1
+expect goals.fullpeal & 2
+botuntil state == 11 2000
+expect grade_e4 >= 0
+expect final >= 1500
+expect goals.fullpeal == 7
+expect save_wins == 1
+expect save_furthest == 6
+botuntil state == 0 1000

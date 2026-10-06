@@ -52,4 +52,12 @@ bool btn_repeat2(int mask);
 void input_set_versus(bool on);
 bool input_versus(void);
 
+/* A cartridge with a hidden player-2 extra (slot 49's console) turns this
+ * on while it runs: the second gamepad, and on PC the numeric keypad
+ * (8 4 2/5 6, 0 for A, . for B) and Delete (A) / End (B), become player 2,
+ * while player 1 keeps every usual key and the first pad. Versus mode wins
+ * if both are on. The shell turns it off in the library and the menus. */
+void input_set_spare_p2(bool on);
+bool input_spare_p2(void);
+
 #endif

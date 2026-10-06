@@ -1,0 +1,55 @@
+# FULL PEAL, stage B's boss: Knucklebell. It flies a square in the
+# distance; its weak point is its nose. Two great fists close in along the
+# plane from both ends at the ship's height: they can't be hurt, but every
+# side-blaster shot knocks one back toward its end; when they meet they
+# clap and fly apart; touching one costs a ship.
+game fullpeal
+wait 12
+press A
+cheat stage 2
+cheat boss
+cheat god
+expect boss_kind == 1
+expect boss_hp == 190
+expect fist0_x100 == -325
+expect fist1_x100 == 325
+cheat pos 0 0.5
+wait 60
+expect fist0_x100 > -325
+expect fist1_x100 < 325
+expect boss_fy100 == 50
+# blast the left fist back toward its end
+hold RIGHT
+hold B
+wait 1
+release RIGHT
+wait 30
+release
+expect fist0_x100 < -300
+# left alone they meet in the middle, clap, and fly apart
+waituntil fist1_x100 < 60 400
+waituntil fist1_x100 > 150 200
+expect fist0_x100 < -150
+# the nose
+cheat still
+cheat bosspos 0.5 0.29
+cheat pos 0.5 0.5
+hold A 30
+expect boss_hits >= 3
+expect boss_hp < 190
+cheat still
+# a fist is solid
+cheat god
+cheat pos -2 0.5
+waituntil alive == 0 400
+expect cause == 200
+cheat god
+waituntil alive == 1 100
+# beaten
+cheat bosshp 1
+cheat still
+cheat bosspos 0.5 0.29
+cheat pos 0.5 0.5
+hold A 20
+expect boss_dead == 1
+waituntil stage == 3 200

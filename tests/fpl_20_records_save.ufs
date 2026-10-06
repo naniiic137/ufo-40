@@ -1,0 +1,71 @@
+# FULL PEAL: a run is not saved (as in the original), but the records are:
+# the best total of each stage's four grades (A to E), the best final
+# score, the furthest stage, runs, wins, and the console's high scores.
+# They show on the title and survive a restart.
+game fullpeal
+wait 12
+expect save_runs == 0
+press A
+expect save_runs == 1
+expect save_furthest == 1
+waituntil state == 3 300
+cheat kills 28
+cheat endwave
+wait 2
+waituntil state == 3 300
+cheat kills 0
+cheat endwave
+wait 2
+waituntil state == 3 300
+cheat kills 32
+cheat endwave
+wait 2
+waituntil state == 3 300
+cheat kills 34
+cheat endwave
+wait 2
+waituntil state == 5 300
+expect save_top_a == 300
+cheat stage 3
+expect save_furthest == 3
+cheat lives 1
+cheat continues 0
+cheat kill
+waituntil state == 12 100
+reload
+game fullpeal
+wait 12
+expect state == 0
+expect save_runs == 1
+expect save_top_a == 300
+expect save_furthest == 3
+expect save_wins == 0
+expect save_best == 0
+# a won run: the best final score and a win
+press A
+cheat grades 75
+cheat stage 5
+cheat grades 75
+cheat boss
+cheat god
+cheat bosshp 1
+cheat bossopen
+cheat still
+cheat bosspos 0.5 0.68
+cheat pos 0.5 0.5
+hold A 12
+cheat still
+waituntil boss_clary == 1 400
+waituntil boss_phase == 2 100
+cheat bosshp 1
+waituntil state == 10 500
+waituntil state == 11 1000
+expect final == 1700
+reload
+game fullpeal
+wait 5
+expect save_best == 1700
+expect save_wins == 1
+expect save_cherries == 1
+expect save_furthest == 6
+expect save_runs == 2

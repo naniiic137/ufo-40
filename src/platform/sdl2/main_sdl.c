@@ -336,10 +336,20 @@ static uint32_t read_input(void) {
         if (k[SDL_SCANCODE_K] || k[SDL_SCANCODE_PERIOD]) m2 |= BTN_A;
         if (k[SDL_SCANCODE_L] || k[SDL_SCANCODE_SLASH]) m2 |= BTN_B;
     }
+    /* a hidden second player (see input_set_spare_p2): spare keys only */
+    bool spare = !vs && input_spare_p2();
+    if (spare) {
+        if (k[SDL_SCANCODE_KP_8]) m2 |= BTN_UP;
+        if (k[SDL_SCANCODE_KP_2] || k[SDL_SCANCODE_KP_5]) m2 |= BTN_DOWN;
+        if (k[SDL_SCANCODE_KP_4]) m2 |= BTN_LEFT;
+        if (k[SDL_SCANCODE_KP_6]) m2 |= BTN_RIGHT;
+        if (k[SDL_SCANCODE_KP_0] || k[SDL_SCANCODE_DELETE]) m2 |= BTN_A;
+        if (k[SDL_SCANCODE_KP_PERIOD] || k[SDL_SCANCODE_END]) m2 |= BTN_B;
+    }
     if (pads[0] || pads[1]) {
         m |= pad_mask(pads[0]);
         uint32_t p2 = pad_mask(pads[1]);
-        if (vs) {
+        if (vs || spare) {
             m2 |= p2 & ~(uint32_t)BTN_START;
             m |= p2 & BTN_START; /* either player can pause */
         } else {

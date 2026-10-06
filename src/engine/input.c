@@ -67,3 +67,7 @@ bool btn_repeat2(int mask) { return btn_repeat(mask << BTN_P2_SHIFT); }
 
 void input_set_versus(bool on) { versus = on; }
 bool input_versus(void) { return versus; }
+
+static bool spare_p2;
+void input_set_spare_p2(bool on) { spare_p2 = on; }
+bool input_spare_p2(void) { return spare_p2; }

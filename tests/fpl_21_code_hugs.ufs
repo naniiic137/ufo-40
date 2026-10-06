@@ -1,0 +1,112 @@
+# FULL PEAL: CODE on the title takes eight letters. HUGS-ONLY flies with
+# no guns at all, only moving (so every wave is a 0, and every stage a
+# balloon round); while it is on, no records are kept and no goals given.
+# A wrong code is refused.
+game fullpeal
+wait 12
+press DOWN
+press A
+expect state == 1
+expect code_pos == 0
+press A
+expect hugs == 0
+# H U G S O N L Y
+press UP 2
+press UP 2
+press UP 2
+press UP 2
+press UP 2
+press UP 2
+press UP 2
+press RIGHT
+press DOWN 2
+press DOWN 2
+press DOWN 2
+press DOWN 2
+press DOWN 2
+press DOWN 2
+press RIGHT
+press UP 2
+press UP 2
+press UP 2
+press UP 2
+press UP 2
+press UP 2
+press RIGHT
+press DOWN 2
+press DOWN 2
+press DOWN 2
+press DOWN 2
+press DOWN 2
+press DOWN 2
+press DOWN 2
+press DOWN 2
+press RIGHT
+press DOWN 2
+press DOWN 2
+press DOWN 2
+press DOWN 2
+press DOWN 2
+press DOWN 2
+press DOWN 2
+press DOWN 2
+press DOWN 2
+press DOWN 2
+press DOWN 2
+press DOWN 2
+press RIGHT
+press DOWN 2
+press DOWN 2
+press DOWN 2
+press DOWN 2
+press DOWN 2
+press DOWN 2
+press DOWN 2
+press DOWN 2
+press DOWN 2
+press DOWN 2
+press DOWN 2
+press DOWN 2
+press DOWN 2
+press RIGHT
+press UP 2
+press UP 2
+press UP 2
+press UP 2
+press UP 2
+press UP 2
+press UP 2
+press UP 2
+press UP 2
+press UP 2
+press UP 2
+press RIGHT
+press DOWN 2
+press DOWN 2
+expect code_pos == 7
+press A
+expect hugs == 1
+press B
+expect state == 0
+press UP
+wait 12
+press A
+expect state == 2
+expect save_runs == 0
+expect hugs == 1
+waituntil state == 3 300
+cheat god
+hold A 60
+hold B 60
+expect fired_fwd == 0
+expect fired_side == 0
+# the waves all come to 0: a balloon round after the boss
+waituntil state == 4 6000
+expect last_grade == 0
+expect bonus_due == 1
+expect save_furthest == 0
+reload
+game fullpeal
+wait 5
+expect save_runs == 0
+expect goals.fullpeal == 0

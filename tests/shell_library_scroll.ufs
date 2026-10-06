@@ -52,10 +52,14 @@ press RIGHT
 expect library_cursor == 49
 press LEFT
 expect library_cursor == 48
-# an empty slot won't launch
+# an empty slot (50) won't launch
+press RIGHT
+expect library_cursor == 49
 press A
 wait 40
 expect_scene library
+press LEFT
+expect library_cursor == 48
 # up keeps the column; from 49 up to 41, then on up the rows
 press UP
 expect library_cursor == 40

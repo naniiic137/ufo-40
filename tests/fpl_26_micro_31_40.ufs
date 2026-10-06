@@ -1,0 +1,152 @@
+# FULL PEAL: Clary's console, micro-games 31 to 40. Each is reached
+# through the menu with player 2's presses, its rule tried, and its end
+# (a mistake) reached; the score it ends on is its high score.
+#  31 RING: an arena with an unbeatable gun at each side; shoot the rocks (2 each)
+#  32 THAW: every tile you land on melts once you jump off; you walk on air until you jump; 10 a second
+#  33 LAMP: a slug in the dark: press while it is in the lamp (10); a miss ends it
+#  34 SAYSO: do what the screen says, quicker and quicker (1 each); anything else ends it
+#  35 TACK: a tack slides along the floor: step so it passes under a lifted foot; 10 each time it reaches a wall
+#  36 PICK: fruit after fruit, starting with an apple: press on the cherry (10) and only the cherry
+#  37 WHICH?: 99 dots shown for a moment: more gold (UP) or more red (DOWN)? 5 each
+#  38 DRAW: press the moment the other one reaches, not before; 5 each
+#  39 BOBBLE: a ball bouncing by itself between fences above and below; gold 10
+#  40 PENNY: coins pour down, some of them fakes; 2 a coin
+game fullpeal
+seed 4903
+wait 12
+press A
+cheat sandbox
+cheat god
+hold P2A 125
+wait 2
+expect mc_state == 1
+press P2DOWN
+press P2DOWN
+press P2DOWN
+# 31 RING
+expect mc_sel == 31
+press P2A
+expect mc_state == 2
+expect mc_game == 31
+waituntil mc_state == 3 6000
+waituntil mc_state == 3 10
+wait 21
+press P2B
+expect mc_state == 1
+press P2RIGHT
+# 32 THAW
+expect mc_sel == 32
+press P2A
+expect mc_state == 2
+expect mc_game == 32
+wait 121
+expect mc_score == 20
+press P2A
+waituntil mc_state == 3 200
+waituntil mc_state == 3 10
+wait 21
+press P2B
+expect mc_state == 1
+press P2RIGHT
+# 33 LAMP
+expect mc_sel == 33
+press P2A
+expect mc_state == 2
+expect mc_game == 33
+press P2A
+expect mc_state == 3
+waituntil mc_state == 3 10
+wait 21
+press P2B
+expect mc_state == 1
+press P2RIGHT
+# 34 SAYSO
+expect mc_sel == 34
+press P2A
+expect mc_state == 2
+expect mc_game == 34
+cheat mcvar 0 4
+press P2A
+expect mc_score == 1
+cheat mcvar 0 0
+press P2DOWN
+expect mc_state == 3
+waituntil mc_state == 3 10
+wait 21
+press P2B
+expect mc_state == 1
+press P2RIGHT
+# 35 TACK
+expect mc_sel == 35
+press P2A
+expect mc_state == 2
+expect mc_game == 35
+waituntil mc_state == 3 4000
+waituntil mc_state == 3 10
+wait 21
+press P2B
+expect mc_state == 1
+press P2RIGHT
+# 36 PICK
+expect mc_sel == 36
+press P2A
+expect mc_state == 2
+expect mc_game == 36
+press P2A
+expect mc_state == 3
+waituntil mc_state == 3 10
+wait 21
+press P2B
+expect mc_state == 1
+press P2RIGHT
+# 37 WHICH?
+expect mc_sel == 37
+press P2A
+expect mc_state == 2
+expect mc_game == 37
+cheat mcvar 0 70
+press P2UP
+expect mc_score == 5
+wait 25
+cheat mcvar 0 20
+press P2UP
+expect mc_state == 3
+waituntil mc_state == 3 10
+wait 21
+press P2B
+expect mc_state == 1
+press P2RIGHT
+# 38 DRAW
+expect mc_sel == 38
+press P2A
+expect mc_state == 2
+expect mc_game == 38
+press P2A
+expect mc_state == 3
+waituntil mc_state == 3 10
+wait 21
+press P2B
+expect mc_state == 1
+press P2RIGHT
+# 39 BOBBLE
+expect mc_sel == 39
+press P2A
+expect mc_state == 2
+expect mc_game == 39
+waituntil mc_state == 3 5000
+waituntil mc_state == 3 10
+wait 21
+press P2B
+expect mc_state == 1
+press P2RIGHT
+# 40 PENNY
+expect mc_sel == 40
+press P2A
+expect mc_state == 2
+expect mc_game == 40
+waituntil mc_state == 3 6000
+waituntil mc_state == 3 10
+wait 21
+press P2B
+expect mc_state == 1
+expect mc_total >= 0

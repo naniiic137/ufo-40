@@ -32,6 +32,7 @@ static void menu_enter(void) {
     build_items();
     game_set_pausable(true);
     input_set_versus(false);
+    input_set_spare_p2(false);
     shell_menu_music();
 }
 

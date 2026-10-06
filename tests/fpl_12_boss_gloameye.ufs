@@ -1,0 +1,64 @@
+# FULL PEAL, stage A's boss: the Gloameye. It hangs in the distance with
+# one weak point, its great eye: forward shots down the eye's lane hurt it,
+# shots into the rest of its body stop dead, and shots in other lanes fly
+# past. Three orbs circle it and take turns lobbing crosses. At half health
+# it goes gold and fires twice as often. Beaten, it falls apart and the
+# next stage begins (no balloon round without a 100 or a 0 in the stage).
+game fullpeal
+wait 12
+press A
+cheat stage 1
+cheat boss
+cheat god
+expect state == 5
+expect boss_kind == 0
+expect boss_hp == 150
+expect boss_angry == 0
+cheat still
+# the eye at lane (3, 2)
+cheat bosspos 0.5 0.86
+cheat pos 0.5 0.5
+hold A 30
+expect boss_hits >= 3
+expect boss_hp < 150
+expect boss_blocked == 0
+# into the body below the eye: stopped
+cheat pos 0.5 1.5
+hold A 30
+expect boss_blocked >= 3
+expect boss_hits <= 5
+# a lane clear of it: nothing
+cheat pos -2.5 0.5
+hold A 30
+expect boss_blocked <= 9
+cheat still
+# the orbs take turns: a cross every 68 frames
+waituntil boss_fired >= 1 150
+expect boss_period == 68
+cheat bosshp 76
+cheat still
+cheat bosspos 0.5 0.86
+cheat pos 0.5 0.5
+hold A 15
+expect boss_angry == 1
+expect boss_hp <= 75
+cheat still
+cheat pos -2.5 1.5
+wait 2
+cheat bosshp 70
+# twice as often now
+wait 70
+expect boss_period == 34
+# the end of it
+cheat bosshp 1
+cheat still
+cheat bosspos 0.5 0.86
+cheat pos 0.5 0.5
+hold A 20
+expect boss_dead == 1
+expect state == 6
+expect foes == 0
+expect eshots == 0
+waituntil state == 2 200
+expect stage == 2
+expect boss_on == 0

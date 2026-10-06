@@ -1,0 +1,152 @@
+# FULL PEAL: Clary's console, micro-games 11 to 20. Each is reached
+# through the menu with player 2's presses, its rule tried, and its end
+# (a mistake) reached; the score it ends on is its high score.
+#  11 PLINK: shoot the red bird between two gold ships (never the ships); 5 a bird
+#  12 DRIP: tap as the drop reaches your fingertip; too soon or too late ends it; 10 a drop
+#  13 SHOO 2: move freely; bouncing chasers from two corners, gold from the others (5)
+#  14 LOOPY: always moving; LEFT turns one way, RIGHT the other; each prize (10) leaves a chaser behind
+#  15 FLITS: shoot up at bats that take two hits and shoot back; 10 a bat
+#  16 FORT: five guns on five buttons; saucers that reach the fort end it; 5 a saucer
+#  17 HAMMER: eight seconds; every press counts
+#  18 CUPID: symbols shown, then hidden; find the hearts (10 each); four misses or B end it
+#  19 BONK: a ball and a paddle against creatures creeping down; 10 a creature
+#  20 SPY: three faces, one an impostor: aim (LEFT, none, RIGHT) and shoot it; a person, or dawdling, ends it; 5 each
+game fullpeal
+seed 4901
+wait 12
+press A
+cheat sandbox
+cheat god
+hold P2A 125
+wait 2
+expect mc_state == 1
+press P2DOWN
+# 11 PLINK
+expect mc_sel == 11
+press P2A
+expect mc_state == 2
+expect mc_game == 11
+waituntil mc_state == 3 4000
+waituntil mc_state == 3 10
+wait 21
+press P2B
+expect mc_state == 1
+press P2RIGHT
+# 12 DRIP
+expect mc_sel == 12
+press P2A
+expect mc_state == 2
+expect mc_game == 12
+press P2A
+expect mc_state == 3
+expect mc_score == 0
+waituntil mc_state == 3 10
+wait 21
+press P2B
+expect mc_state == 1
+press P2RIGHT
+# 13 SHOO 2
+expect mc_sel == 13
+press P2A
+expect mc_state == 2
+expect mc_game == 13
+waituntil mc_state == 3 6000
+waituntil mc_state == 3 10
+wait 21
+press P2B
+expect mc_state == 1
+press P2RIGHT
+# 14 LOOPY
+expect mc_sel == 14
+press P2A
+expect mc_state == 2
+expect mc_game == 14
+cheat mcvar 0 44
+cheat mcvar 1 15
+wait 3
+expect mc_score == 10
+expect mc_n == 1
+hold P2LEFT 10
+expect mc_f100_2 == 70
+waituntil mc_state == 3 5000
+waituntil mc_state == 3 10
+wait 21
+press P2B
+expect mc_state == 1
+press P2RIGHT
+# 15 FLITS
+expect mc_sel == 15
+press P2A
+expect mc_state == 2
+expect mc_game == 15
+waituntil mc_state == 3 5000
+waituntil mc_state == 3 10
+wait 21
+press P2B
+expect mc_state == 1
+press P2RIGHT
+# 16 FORT
+expect mc_sel == 16
+press P2A
+expect mc_state == 2
+expect mc_game == 16
+press P2LEFT
+expect mc_score == 0
+waituntil mc_state == 3 4000
+waituntil mc_state == 3 10
+wait 21
+press P2B
+expect mc_state == 1
+press P2RIGHT
+# 17 HAMMER
+expect mc_sel == 17
+press P2A
+expect mc_state == 2
+expect mc_game == 17
+press P2A
+press P2B
+press P2A
+expect mc_score == 3
+waituntil mc_state == 3 500
+expect mc_score == 3
+waituntil mc_state == 3 10
+wait 21
+press P2B
+expect mc_state == 1
+press P2RIGHT
+# 18 CUPID
+expect mc_sel == 18
+press P2A
+expect mc_state == 2
+expect mc_game == 18
+expect mc_i0 > 80
+press P2B
+expect mc_state == 3
+waituntil mc_state == 3 10
+wait 21
+press P2B
+expect mc_state == 1
+press P2RIGHT
+# 19 BONK
+expect mc_sel == 19
+press P2A
+expect mc_state == 2
+expect mc_game == 19
+waituntil mc_state == 3 6000
+waituntil mc_state == 3 10
+wait 21
+press P2B
+expect mc_state == 1
+press P2RIGHT
+# 20 SPY
+expect mc_sel == 20
+press P2A
+expect mc_state == 2
+expect mc_game == 20
+wait 125
+expect mc_state == 3
+waituntil mc_state == 3 10
+wait 21
+press P2B
+expect mc_state == 1
+expect mc_total >= 0

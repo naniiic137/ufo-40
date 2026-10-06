@@ -1,0 +1,73 @@
+# FULL PEAL, the last boss: Queen Sordina. Only her mouth can be hurt, and
+# only while it is open; a hit shuts it; left open too long, she spits
+# caltrops at the ship. Wisps cross the plane. Emptied, she heals to full
+# and nothing hurts her, until Clary flies in and knocks her down to a
+# third: from then on any hit on her counts, her two pods lob crosses, and
+# Clary fires alongside. Beaten, the run is won.
+game fullpeal
+wait 12
+press A
+cheat stage 5
+cheat boss
+cheat god
+expect boss_kind == 4
+expect boss_hp == 300
+expect boss_mouth == 0
+expect weak_open == 0
+cheat still
+cheat bosspos 0.5 0.68
+cheat pos 0.5 0.5
+# shut: shots at her mouth stop on her
+hold A 20
+expect boss_hits == 0
+expect boss_blocked >= 2
+cheat still
+# it opens; a hit shuts it again, and no caltrops come
+cheat pos -2.5 1.5
+waituntil boss_mouth == 1 120
+cheat still
+cheat bosspos 0.5 0.68
+cheat pos 0.5 0.5
+hold A 10
+expect boss_hits >= 1
+cheat still
+cheat pos -2.5 1.5
+waituntil boss_mouth == 0 30
+expect foes_14 == 0
+# left open: caltrops
+waituntil boss_mouth == 1 150
+waituntil boss_mouth == 0 160
+expect foes_14 == 3
+# wisps cross the plane
+waituntil foes_16 >= 1 160
+# emptied: she heals, and nothing gets through
+cheat bossopen
+cheat bosshp 1
+cheat still
+cheat bosspos 0.5 0.68
+cheat pos 0.5 0.5
+hold A 12
+expect boss_dead == 0
+expect boss_phase == 1
+cheat still
+cheat pos -2.5 1.5
+wait 120
+expect boss_hp > 50
+# Clary comes, and knocks her down to a third
+waituntil boss_clary == 1 200
+waituntil boss_phase == 2 100
+expect boss_hp == 100
+expect radio_len > 0
+# any hit counts now, and Clary fires too
+waituntil boss_clary_fire >= 2 60
+expect boss_hp < 100
+cheat still
+cheat bosspos 0.5 0.5
+cheat pos 0.5 1.5
+hold A 20
+expect boss_hits >= 3
+cheat still
+cheat bosshp 1
+waituntil boss_dead == 1 60
+waituntil state == 10 300
+expect won == 1
