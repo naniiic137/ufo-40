@@ -38,13 +38,13 @@ hold LEFT 30
 expect meter0 > 200
 wait 30
 # only the gunner fires
-press B
 press A
+press B
 expect fired0 == 0
 expect pairs0 == 0
-press P2B
+press P2A
 expect fired0 == 1
-press P2LEFT P2A
+press P2LEFT P2B
 expect pairs0 == 1
 expect side_left == 2
 wait 60
@@ -63,7 +63,7 @@ cheat blocks 1
 cheat meter 700
 cheat pos 124
 hold P2UP 20
-hold P2B
+hold P2A
 waituntil blocks_left == 0 60
 release
 waituntil coins == 1 200

@@ -11,13 +11,13 @@ cheat pos 60
 cheat meter 0
 # one coming the other way
 cheat foe 2 300 157 -1
-hold A
+hold B
 waituntil foes_3 == 1 300
 release
 expect foes_2 == 0
 expect score == 0
 expect kills == 0
-hold A
+hold B
 waituntil foes_3 == 0 300
 release
 expect score == 500

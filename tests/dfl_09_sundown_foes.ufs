@@ -14,7 +14,7 @@ cheat pos 160
 hold UP 30
 cheat meter 700
 cheat foe 5 160 60 1
-hold B
+hold A
 waituntil foes_5 == 0 120
 release
 expect score == 75
@@ -33,11 +33,11 @@ expect score == 75
 # the tumbler
 cheat pos 100
 cheat foe 8 300 155 -1
-hold B 40
+hold A 40
 expect kind_hp_8 == 8
 expect kind_ground_8 == 1
 cheat pos 100
-hold A
+hold B
 waituntil kind_ground_8 == 0 120
 release
 expect kind_vy10_8 < 0
@@ -47,7 +47,7 @@ cheat clear
 # up in the air, the main gun does hurt it
 cheat meter 700
 cheat foe 8 100 90 0
-hold B
+hold A
 waituntil kind_hp_8 < 8 30
 release
 expect kind_vy10_8 <= -24
@@ -59,7 +59,7 @@ hold UP 30
 cheat meter 700
 cheat foe 6 100 40 1
 expect kind_x_6 == 100
-press B
+press A
 wait 25
 expect kind_x_6 < 100
 expect kind_hp_6 == 20

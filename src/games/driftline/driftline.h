@@ -19,6 +19,12 @@
 /* ---- the screen ---------------------------------------------------------- */
 #define DFL_HUD_H 0           /* nothing above the play field: score, meter and cars sit in the strip below */
 #define DFL_CAR_TOP 150       /* the car's top edge (where its gun is) */
+/* Owner's layout: A (Z / Space / Cross) fires the roof gun, B the side guns.
+ * The original has them the other way round; the card's CONTROLS page can swap them. */
+#define DFL_BTN_MAIN BTN_A
+#define DFL_BTN_SIDE BTN_B
+#define DFL_GUN_LEN 9          /* barrel length; shots leave from its tip */
+#define DFL_GUN_Y (DFL_CAR_TOP - 1) /* the turret on the roof, where the barrel pivots */
 #define DFL_ROAD_Y 162        /* where its wheels touch */
 #define DFL_ROAD_TOP 146      /* the road's far edge */
 #define DFL_ROAD_BOT 168      /* the road's near edge; the meter strip below */

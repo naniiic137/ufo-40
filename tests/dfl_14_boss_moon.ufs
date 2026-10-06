@@ -45,13 +45,13 @@ cheat bossstill
 cheat meter 700
 cheat pos 280
 hold UP 30
-hold B 60
+hold A 60
 expect boss_hp == 800
 cheat pos 236
-hold B 60
+hold A 60
 expect boss_hp < 800
 cheat bosshp 1
-hold B
+hold A
 waituntil boss_dead == 1 60
 release
 expect score == 30000

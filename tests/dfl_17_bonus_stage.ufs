@@ -21,7 +21,7 @@ wait 30
 expect meter0 == 600
 # shot down, straight up the sixth column: two blocks, 1,800 and 2,000
 cheat pos 148
-hold B 30
+hold A 30
 wait 20
 expect blocks_shot == 2
 expect blocks_broken == 2
@@ -54,7 +54,7 @@ cheat blocks 1
 expect blocks_left == 1
 cheat meter 700
 cheat pos 100
-hold B
+hold A
 waituntil blocks_left == 0 60
 release
 expect bonus_won == 1

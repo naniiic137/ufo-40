@@ -27,14 +27,14 @@ cheat meter 700
 # off the mark: the shell takes it
 cheat posboss -20
 hold UP 30
-hold B 60
+hold A 60
 expect boss_hp == 800
 # on the mark
 cheat posboss 0
-hold B 60
+hold A 60
 expect boss_hp < 800
 cheat bosshp 1
-hold B
+hold A
 waituntil boss_dead == 1 60
 release
 expect score == 40000

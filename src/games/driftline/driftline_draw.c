@@ -233,13 +233,16 @@ static void draw_car_at(float x, float aim, int t, bool drifting, bool gunner) {
         gfx_rect(bx + 5, by + 1, 4, 1, C_TEAL);
         gfx_rect(bx + 5, by + 2, 4, 1, C_CREAM);
     }
-    /* the gun, held up out of the seat */
+    /* the roof gun: a turret in the middle of the roof with the barrel pivoting on it;
+     * shots leave from the barrel's tip (fire_main uses the same point) */
     float a = aim * 3.14159265f / 180.0f;
-    int gx = gunner ? bx + 7 : (int)lroundf(x) + 1, gy = DFL_CAR_TOP + 1;
-    int ex = gx + (int)lroundf(sinf(a) * 9), ey = gy - (int)lroundf(cosf(a) * 9);
+    int gx = (int)lroundf(x), gy = DFL_GUN_Y + (by - (DFL_ROAD_Y - 12));
+    int ex = gx + (int)lroundf(sinf(a) * DFL_GUN_LEN), ey = gy - (int)lroundf(cosf(a) * DFL_GUN_LEN);
     gfx_line(gx, gy, ex, ey, C_INK);
     gfx_line(gx + 1, gy, ex + 1, ey, C_SLATE);
     gfx_pset(ex, ey, C_LIGHT);
+    gfx_rect(gx - 2, gy - 1, 6, 3, C_INK);
+    gfx_rect(gx - 1, gy - 1, 4, 2, C_SLATE);
 }
 
 static void draw_cars(void) {

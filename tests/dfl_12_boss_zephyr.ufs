@@ -21,14 +21,14 @@ cheat meter 700
 # under the gasbag, between the turrets: nothing gets through
 cheat pos 136
 hold UP 30
-hold B 60
+hold A 60
 expect part_hp0 == 80
 expect part_hp1 == 80
 expect boss_hp == 240
 # under the middle turret
 cheat meter 700
 cheat pos 160
-hold B
+hold A
 waituntil part_hp1 <= 0 200
 release
 expect boss_dead == 0
@@ -38,7 +38,7 @@ expect boss_dead == 0
 # the last one
 cheat meter 700
 cheat pos 208
-hold B
+hold A
 waituntil boss_dead == 1 200
 release
 expect score == 10000

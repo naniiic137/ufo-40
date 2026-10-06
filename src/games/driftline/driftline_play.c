@@ -207,8 +207,8 @@ static void fire_main(int p) {
         s->alive = 1;
         s->side = 0;
         s->owner = (uint8_t)p;
-        s->x = c->x + sinf(a) * 7;
-        s->y = DFL_CAR_TOP - 2;
+        s->x = c->x + 0.5f + sinf(a) * DFL_GUN_LEN; /* the barrel's tip on the roof */
+        s->y = DFL_GUN_Y - cosf(a) * DFL_GUN_LEN;
         s->vx = sinf(a) * sp;
         s->vy = -cosf(a) * sp;
         s->dmg = DFL_TIER_DMG[dfl_tier(c->meter)];
@@ -292,11 +292,11 @@ static void car_update(int p, uint16_t in, uint16_t gun, bool bonus) {
     if (c->main_cd > 0) c->main_cd--;
     if (c->side_cd > 0) c->side_cd--;
     int tier = dfl_tier(c->meter);
-    if ((gun & BTN_B) && c->main_cd == 0) {
+    if ((gun & DFL_BTN_MAIN) && c->main_cd == 0) {
         fire_main(p);
         c->main_cd = DFL_MAIN_CD[tier];
     }
-    if ((gun & BTN_A) && c->side_cd == 0) {
+    if ((gun & DFL_BTN_SIDE) && c->side_cd == 0) {
         fire_side(p, adir ? adir : c->face);
         c->side_cd = DFL_SIDE_CD[tier];
     }

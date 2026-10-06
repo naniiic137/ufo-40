@@ -28,7 +28,7 @@ cheat foe 18 160 100 1
 cheat clear
 cheat foe 18 160 100 1
 waituntil kind_vy10_18 > 10 100
-hold B
+hold A
 waituntil kind_vy10_18 == -34 60
 release
 # the core's colour

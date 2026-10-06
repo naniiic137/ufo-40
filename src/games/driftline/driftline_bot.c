@@ -216,7 +216,7 @@ static bool pick_target(int p, Target *out) {
 
 static int play_buttons(int p) {
     DflCar *c = &dfg.car[p];
-    if (!c->on || !c->alive || c->enter > 0) return BTN_B;
+    if (!c->on || !c->alive || c->enter > 0) return DFL_BTN_MAIN;
     gather(p);
     Target tg = {0, 0, 0, 0, false, 0};
     bool has = pick_target(p, &tg);
@@ -256,7 +256,7 @@ static int play_buttons(int p) {
     dfl_bot_dbg[1] = pick;
     dfl_bot_dbg[2] = hits;
     dfl_bot_dbg[3] = nthr;
-    int m = BTN_B;
+    int m = DFL_BTN_MAIN;
     int dir = PLANS[pick].frames > 0 ? PLANS[pick].dir : 0;
     if (dir < 0) m |= BTN_LEFT;
     if (dir > 0) m |= BTN_RIGHT;
@@ -267,15 +267,15 @@ static int play_buttons(int p) {
         int want = tg.x < c->x ? -1 : 1;
         if (c->side_cd == 0) {
             m &= ~(BTN_LEFT | BTN_RIGHT | BTN_UP);
-            m |= (want < 0 ? BTN_LEFT : BTN_RIGHT) | BTN_A;
-        } else if ((dir ? dir : c->face) == want) m |= BTN_A;
+            m |= (want < 0 ? BTN_LEFT : BTN_RIGHT) | DFL_BTN_SIDE;
+        } else if ((dir ? dir : c->face) == want) m |= DFL_BTN_SIDE;
     }
     /* any low flier close by: the side guns' upper arm reaches it */
     for (int i = 0; i < DFL_MAX_FOES; i++) {
         const DflFoe *e = &dfg.foe[i];
         if (!e->alive || e->t < 0 || e->y < 100) continue;
         int want = e->x < c->x ? -1 : 1;
-        if (fabsf(e->x - c->x) < 90 && (dir ? dir : c->face) == want) m |= BTN_A;
+        if (fabsf(e->x - c->x) < 90 && (dir ? dir : c->face) == want) m |= DFL_BTN_SIDE;
     }
 
     return m;
@@ -285,7 +285,7 @@ static int play_buttons(int p) {
 static int bonus_buttons(int p) {
     DflCar *c = &dfg.car[p];
     if (!c->on || !c->alive) return 0;
-    int m = BTN_B;
+    int m = DFL_BTN_MAIN;
     if (!dfg.ball_live) return m;
     /* where the coin comes down: its path played out, blocks and all */
     static uint8_t grid[DFL_BROWS][DFL_BCOLS];
@@ -330,7 +330,7 @@ static int bonus_buttons(int p) {
  * keeps the main gun going, and turns the side guns on road targets */
 static int gunner_buttons(void) {
     const DflCar *c = &dfg.car[0];
-    int m = BTN_B;
+    int m = DFL_BTN_MAIN;
     if (dfg.state == DS_BONUS) return m | BTN_UP;
     if (!c->alive) return m | BTN_UP;
     /* anything low and close: the side guns' V reaches it */
@@ -343,14 +343,14 @@ static int gunner_buttons(void) {
         if (d < lowd) { lowd = d; low = e->x < c->x ? -1 : 1; }
     }
     if (low) {
-        if (c->side_cd == 0) m |= (low < 0 ? BTN_LEFT : BTN_RIGHT) | BTN_A;
-        else if (c->face == low) m |= BTN_A;
+        if (c->side_cd == 0) m |= (low < 0 ? BTN_LEFT : BTN_RIGHT) | DFL_BTN_SIDE;
+        else if (c->face == low) m |= DFL_BTN_SIDE;
         return m;
     }
     if (!bot_has) return m | BTN_UP;
     if (bot_tg.ground && fabsf(bot_tg.x - c->x) < 170) {
         int want = bot_tg.x < c->x ? -1 : 1;
-        if (c->side_cd == 0) m |= (want < 0 ? BTN_LEFT : BTN_RIGHT) | BTN_A;
+        if (c->side_cd == 0) m |= (want < 0 ? BTN_LEFT : BTN_RIGHT) | DFL_BTN_SIDE;
         return m;
     }
     float h = fmaxf(8.0f, DFL_CAR_TOP - bot_tg.y);
@@ -389,6 +389,12 @@ int dfl_bot_buttons(int p) {
         bool driving = dfg.state == DS_PLAY || dfg.state == DS_BONUS;
         gun = driving ? gunner_buttons() : 0;
         if (driving) m &= BTN_LEFT | BTN_RIGHT; /* the driver only steers */
+    }
+    /* A also starts the stage, and a consumed press stays blocked until it is let
+     * go: like a player, let the trigger up for a frame now and then */
+    if ((dfg.state == DS_PLAY || dfg.state == DS_BONUS) && tick % 24 == 0) {
+        m &= ~(DFL_BTN_MAIN | DFL_BTN_SIDE);
+        gun &= ~(DFL_BTN_MAIN | DFL_BTN_SIDE);
     }
     /* the foes' places this frame */
     if (last_frame != dfg.frame_t) { remember_foes(); last_frame = dfg.frame_t; }

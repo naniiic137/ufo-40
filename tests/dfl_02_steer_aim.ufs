@@ -51,10 +51,10 @@ expect x0 == 308
 cheat meter 600
 cheat pos 160
 hold UP 30
-press B
+press A
 expect pshot_vx10 == 0
 expect pshot_vy10 == -60
 wait 20
 hold RIGHT 30
-press B
+press A
 expect pshot_vx10 == 42

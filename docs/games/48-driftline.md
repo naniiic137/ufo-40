@@ -121,7 +121,7 @@ pair of claws at the horizon.
   into the car by itself once the bubble bursts.
 - **Co-op:** one car [HANS], [STEAM-COOP]. Player 1's LEFT/RIGHT drive it
   (so the drift and the one meter are the driver's); player 2's LEFT/RIGHT
-  swing the gun and UP straightens it, B fires the main gun and A the side
+  swing the gun and UP straightens it, A fires the roof gun and B the side
   guns, which point the way player 2 holds (or last swung). Where the
   sources are silent, our reading: the driver doesn't fire, and the
   driver's steering doesn't move the gun; the gunner owns the aim and both
@@ -168,8 +168,8 @@ terminal, so they are left out.
 | LEFT / RIGHT | drive; the gun swings the same way |
 | LEFT (moving) | the power drift: fills the meter |
 | UP | gun back to straight up |
-| Hold B | main gun, up into the cone |
-| Hold A | side guns, along the road and diagonally up |
+| Hold A | roof gun, up into the cone (from a turret in the middle of the roof) |
+| Hold B | side guns, along the road and diagonally up |
 | START | pause |
 | 2 PLAYERS | player 1: LEFT/RIGHT drive. Player 2: LEFT/RIGHT swing the gun, UP straightens it, B and A fire |
 | Title | UP / DOWN pick 1 or 2 players, A starts, B to the library |
@@ -185,8 +185,11 @@ terminal, so they are left out.
 | Both buttons at once | both guns fire | not documented |
 | The co-op split | P1 only drives; P2 alone aims and fires | the sources say "P1 moves, P2 shoots", not whether P1 can fire too [HANS], [STEAM-COOP] |
 
-The button mapping (B main gun, A side guns) is settled by the manual's own
-text [MANUAL].
+The original's mapping (B main gun, A side guns) is settled by the manual's own
+text [MANUAL]. **Owner's change (06/10):** DRIFTLINE swaps them, so the button most
+players reach for first (A: Z / Space / Cross) fires the roof gun, and its shots
+leave from the barrel's tip on a turret in the middle of the roof. B fires the side
+guns. The cartridge card's CONTROLS page can swap them back.
 
 ## Tests
 

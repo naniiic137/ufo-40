@@ -49,7 +49,7 @@ hold UP 20
 cheat meter 700
 cheat foe 17 60 140 1
 cheat hp 1
-hold B
+hold A
 waituntil foes_17 == 0 300
 release
 expect score == 5000
