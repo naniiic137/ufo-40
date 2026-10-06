@@ -31,6 +31,8 @@ print types
 print secrets
 # a run under twenty minutes (72,000 frames), as the original's
 expect frame < 72000
+botuntil state == 8 2000
+expect cast_pictured >= 15
 botuntil state == 0 4000
 expect save_trues == 1
 expect save_wins == 1

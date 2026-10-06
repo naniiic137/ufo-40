@@ -26,7 +26,7 @@ hold P2B 20
 expect pshots_0 >= 2
 press P2A
 expect flash2 < 10
-expect flash == 600
+expect flash == 1320
 cheat hurt 1
 expect armour2 == 0
 expect armour == 1

@@ -7,7 +7,7 @@
  * when the core is photographed. See docs/games/24-shutterbug.md. */
 #include "shutterbug.h"
 
-#define CROAK_LEAVES 1500   /* Old Croak gives up and slinks into the chasm */
+#define CROAK_LEAVES 1200   /* Old Croak gives up after 20 s (a photo takes 22 s to refill) */
 #define KALEI_SHARDS 8
 #define KALEI_UNWOUND 330
 
@@ -67,6 +67,11 @@ bool shb_boss_photo(int i, int photo) {
             e->phase = 1; /* the shards unwind and wander */
             sfx_play_name("shb_unwind");
         }
+        return true;
+    case K_SIGNAL:
+        if (e->state == 0 || e->phase == 2) return false; /* faded away: nothing to photograph */
+        e->stun = SHB_BOSS_STUN_T;
+        e->photo = photo;
         return true;
     case K_TEAPOT:
         e->stun = SHB_BOSS_STUN_T;
@@ -155,6 +160,26 @@ static void teapot_update(Foe *e) {
         if (e->state == 1) { e->vx = -1.1f; e->vy = 0.8f; }
         return;
     }
+    /* the room keeps going, stunned pot or not: drips, and toasties */
+    e->arg2++;
+    if (e->arg2 % 48 == 20) {
+        /* out of one of the four holes in the ceiling; one drip in three is a bulb */
+        int n = e->arg2 / 48;
+        float hx = 580 * SHB_TILE + (n % 4) * 10 * SHB_TILE + SHB_TILE;
+        int j = shb_add_eshot(ES_FALL, hx, wy(10), 0, 0.3f);
+        if (j >= 0) {
+            sb.es[j].arg = n % 3 == 0;
+            sb.drips++;
+            sb.drip_bulbs += n % 3 == 0;
+            sb.drips_in_stun += e->stun > 0;
+        }
+    }
+    /* toasties come in from the far end and pop crumbs that bounce; every
+     * other one leaves a bulb */
+    if (e->arg2 % 240 == 120 && count_kind(K_TOAST) < 2) {
+        int n = e->arg2 / 240;
+        shb_spawn(K_TOAST, wx(SCREEN_W + 6), wy(SHB_PF_H - 20), (n % 2 ? F_CEIL : 0) | (n % 2 == 0 ? F_CRYSTAL : 0), 0);
+    }
     if (e->stun > 0) {
         e->stun--;
         if (e->stun == 0) e->open = false;
@@ -170,18 +195,6 @@ static void teapot_update(Foe *e) {
     e->x += e->vx;
     e->y = ny;
     if (e->st % 90 == 60) { shb_aimed(e->x - 10, e->y - 6, 1.6f, 3, 18); shb_sfx("shb_volley", 6); }
-    /* drips from the ceiling (shoot them for bulbs) */
-    if (e->st % 48 == 20) {
-        /* out of one of the four holes in the ceiling */
-        float hx = 580 * SHB_TILE + ((e->st / 48) % 4) * 10 * SHB_TILE + SHB_TILE;
-        int j = shb_add_eshot(ES_FALL, hx, wy(10), 0, 0.3f);
-        if (j >= 0) sb.es[j].arg = 1;
-    }
-    /* toasties come in from the far end and pop crumbs that bounce */
-    if (e->st % 240 == 120 && count_kind(K_TOAST) < 2) {
-        int j = shb_spawn(K_TOAST, wx(SCREEN_W + 6), wy(SHB_PF_H - 20), (e->st / 240) % 2 ? F_CEIL | F_CRYSTAL : F_CRYSTAL, 0);
-        (void)j;
-    }
 }
 
 static void croak_update(Foe *e) {
@@ -196,9 +209,9 @@ static void croak_update(Foe *e) {
         if (e->y > wy(SHB_PF_H + 40)) e->alive = 0;
         return;
     }
+    if (++e->arg2 > CROAK_LEAVES) { e->state = 2; e->stun = 0; sb.msg = "OLD CROAK SLINKS AWAY"; sb.msg_t = 90; return; }
     if (e->stun > 0) { e->stun--; return; }
     e->st++;
-    if (e->st > CROAK_LEAVES) { e->state = 2; sb.msg = "OLD CROAK SLINKS AWAY"; sb.msg_t = 90; return; }
     /* hops about, and spits shots that ricochet */
     if (e->phase == 0) {
         if (e->st % 80 == 0) {
@@ -235,6 +248,9 @@ static void signal_update(Foe *e) {
     if (e->state == 0) { enter(e, 262, 1.0f); return; }
     if (e->stun > 0) { e->stun--; return; }
     e->st++;
+    /* like every ghost: there, fading, gone, coming back */
+    int c = e->st % 240;
+    e->phase = c < 90 ? 0 : c < 120 ? 1 : c < 210 ? 2 : 3;
     e->y = wy(84 + sinf(e->st * 0.018f) * 50);
     /* a green spark down to a track, where it sets pink sparks crawling */
     if (e->st % 150 == 30) {

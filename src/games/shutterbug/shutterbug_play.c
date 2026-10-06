@@ -267,7 +267,8 @@ void shb_kill_foe(int i, bool by_blast) {
         shb_add_eshot(ES_RETAL, e->x, e->y, 0, 0);
         sb.retaliations++;
     }
-    if (e->kind == K_ROCKBIG) {
+    if (e->kind == K_ROCKBIG && !stunned) {
+        /* a big comet breaks in three, unless it was photographed */
         for (int k = 0; k < 3; k++) {
             int j = shb_spawn(K_ROCK, e->x, e->y, 0, 0);
             if (j >= 0) {
@@ -685,7 +686,6 @@ void shb_start_stage(int s) {
     sb.stage_t = 0;
     sb.boss_dead = false;
     sb.clear_t = 0;
-    sb.orbs_shot = 0;
     sb.warn_t = 0;
     sb.msg_t = 0;
     sb.tip = -1;
@@ -703,12 +703,14 @@ void shb_new_run(int players) {
     sb.lives = 0;          /* no spare lives: they are earned */
     sb.deaths = 0;
     sb.letters = 0;
+    sb.orbs_shot = 0; /* the orb ladder starts again only with a new life */
     sb.kinds = sb.kinds2 = 0;
     sb.secrets = 0;
     sb.won = sb.true_won = false;
     sb.beacon_given = false;
     sb.zero_prologue = false;
     sb.photos = sb.rings_thrown = sb.crystals_got = sb.wrenches = sb.retaliations = sb.big_kills = 0;
+    sb.drips = sb.drip_bulbs = sb.drips_in_stun = 0;
     if (sbs.runs < 65535) sbs.runs++;
     shb_save_now();
     shb_start_stage(0);

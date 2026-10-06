@@ -117,6 +117,7 @@ static void shb_update(void) {
             input_consume();
             sb.lives--;
             sb.score = 0; /* the shown score starts again with the stage */
+            sb.orbs_shot = 0;
             shb_start_stage(sb.stage);
         }
         break;
@@ -141,7 +142,8 @@ static void shb_update(void) {
     case SS_CREDITS:
         sb.frame_t++;
         if (btn(BTN_A)) sb.state_t += 3; /* hold A to hurry them along */
-        if (sb.state_t > 1600) { input_consume(); run_over(); to_title(); }
+        /* until the roll call has scrolled away */
+        if (sb.state_t / 2 > shb_credits_len() + SCREEN_H) { input_consume(); run_over(); to_title(); }
         break;
     }
 }
@@ -211,6 +213,34 @@ static int shb_query(const char *key, int *out) {
     if (!strcmp(key, "wrenches")) { *out = sb.wrenches; return 1; }
     if (!strcmp(key, "retaliations")) { *out = sb.retaliations; return 1; }
     if (!strcmp(key, "big_kills")) { *out = sb.big_kills; return 1; }
+    if (!strcmp(key, "drips")) { *out = sb.drips; return 1; }
+    if (!strcmp(key, "drips_in_stun")) { *out = sb.drips_in_stun; return 1; }
+    if (!strcmp(key, "drip_bulb_pct")) { *out = sb.drips ? sb.drip_bulbs * 100 / sb.drips : 0; return 1; }
+    if (!strncmp(key, "phase_", 6)) { int i = first_of(atoi(key + 6)); *out = i >= 0 ? sb.foe[i].phase : -1; return 1; }
+    if (!strncmp(key, "harmful_", 8)) { int i = first_of(atoi(key + 8)); *out = i >= 0 ? shb_foe_harmful(&sb.foe[i]) : -1; return 1; }
+    if (!strncmp(key, "red_x_", 6)) {
+        /* where a stage's red repair foe comes */
+        int st = iclamp(atoi(key + 6), 0, SHB_STAGES - 1);
+        *out = -1;
+        for (int i = 0; i < SHB_STAGE[st].nspawns; i++) if (SHB_STAGE[st].spawns[i].flags & F_RED) *out = SHB_STAGE[st].spawns[i].x;
+        return 1;
+    }
+    if (!strncmp(key, "red_company_", 12)) {
+        /* foes of the red one's own kind with it (within 120 px, its formation included) */
+        int st = iclamp(atoi(key + 12), 0, SHB_STAGES - 1), n = 0;
+        const StageDef *d = &SHB_STAGE[st];
+        for (int i = 0; i < d->nspawns; i++) {
+            if (!(d->spawns[i].flags & F_RED)) continue;
+            n += imax(1, d->spawns[i].n) - 1;
+            for (int j = 0; j < d->nspawns; j++)
+                if (j != i && d->spawns[j].kind == d->spawns[i].kind && iabs(d->spawns[j].x - d->spawns[i].x) <= 120) n += imax(1, d->spawns[j].n);
+        }
+        *out = n;
+        return 1;
+    }
+    if (!strcmp(key, "credits_len")) { *out = shb_credits_len(); return 1; }
+    if (!strcmp(key, "cast")) { *out = SHB_CAST_N; return 1; }
+    if (!strcmp(key, "cast_pictured")) { int n = 0; for (int i = 0; i < SHB_CAST_N; i++) n += shb_kind_photographed(SHB_CAST[i]); *out = n; return 1; }
     if (!strcmp(key, "orbs_shot")) { *out = sb.orbs_shot; return 1; }
     /* the ships */
     if (!strcmp(key, "alive")) { *out = s0->alive; return 1; }

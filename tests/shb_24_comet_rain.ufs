@@ -2,7 +2,9 @@
 # is left alive too long; a geyser shows a rising burst at the edge before
 # it erupts (and is harmless till then); a big comet breaks in three; in
 # Comet Rain B, darts come in from the left after a "!", and the last set
-# stops in mid-screen before turning back.
+# stops in mid-screen before turning back, and bounders spring out of the
+# top or bottom edge after the same kind of warning and bounce from edge
+# to edge without firing.
 game shutterbug
 cheat run 1
 cheat stage 2
@@ -28,7 +30,15 @@ cheat clear
 cheat stage 4
 cheat quiet
 cheat stop
-cheat god
+cheat foe 14 200 84 16
+wait 10
+expect fstate_14 == 0
+expect harmful_14 == 0
+wait 50
+expect fstate_14 == 1
+wait 300
+expect eshots == 0
+cheat clear
 cheat foe 13 0 84 32
 wait 20
 expect fstate_13 == 1

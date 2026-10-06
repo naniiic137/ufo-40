@@ -34,13 +34,13 @@ const FoeDef SHB_FOE[K_COUNT] = {
     [K_LETTER]   = {"LETTER",      1,    0,   5,  6, ROLE_PROP, 0},
     [K_ORB]      = {"ORB",         1,    0,   4,  4, ROLE_PROP, 0},
     [K_SIGN]     = {"SIGN",        1,    0,   1,  1, ROLE_PROP, 0},
-    [K_SCONE]    = {"MADAME SCONE", 120, 3000, 22, 20, ROLE_MID, 0},
-    [K_TEAPOT]   = {"THE TEAPOT",  140, 8000, 20, 18, ROLE_BOSS, 0},
-    [K_CROAK]    = {"OLD CROAK",   110, 5000, 18, 14, ROLE_MID, 0},
-    [K_SIGNAL]   = {"THE SIGNALMAN", 150, 8000, 14, 20, ROLE_BOSS, 0},
-    [K_JAW]      = {"KING THUNDERJAW", 200, 10000, 18, 14, ROLE_BOSS, 0},
+    [K_SCONE]    = {"MADAME SCONE", 200, 3000, 22, 20, ROLE_MID, 0},
+    [K_TEAPOT]   = {"THE TEAPOT",  180, 8000, 20, 18, ROLE_BOSS, 0},
+    [K_CROAK]    = {"OLD CROAK",   400, 5000, 18, 14, ROLE_MID, 0},
+    [K_SIGNAL]   = {"THE SIGNALMAN", 200, 8000, 14, 20, ROLE_BOSS, 0},
+    [K_JAW]      = {"KING THUNDERJAW", 260, 10000, 18, 14, ROLE_BOSS, 0},
     [K_CHUTE]    = {"BONE CHUTE",  14,  500,   8,  8, ROLE_PART, 0},
-    [K_KALEI]    = {"THE KALEIDOSCOPE", 200, 20000, 10, 10, ROLE_BOSS, 0},
+    [K_KALEI]    = {"THE KALEIDOSCOPE", 260, 20000, 10, 10, ROLE_BOSS, 0},
     [K_SHARD]    = {"SHARD",        1,    0,   5,  5, ROLE_PART, 0},
 };
 
@@ -53,6 +53,7 @@ bool shb_foe_hittable(const Foe *e) {
     switch (e->kind) {
     case K_GHOST: return e->stun > 0 || e->state == 0;
     case K_ERUPTER: return e->state > 0;
+    case K_HOPPER: return e->state > 0;
     case K_LASER: return false;
     case K_SHARD: return false;
     default: return e->role != ROLE_PROP;
@@ -65,6 +66,8 @@ bool shb_foe_harmful(const Foe *e) {
     case K_GHOST: return e->stun > 0 || e->state <= 1;
     case K_ERUPTER: return e->state > 0;
     case K_LASER: return e->state == 1;
+    case K_SIGNAL: return e->stun > 0 || e->phase != 2; /* a ghost: gone, he can't touch you */
+    case K_HOPPER: return e->state > 0;
     default: return true;
     }
 }
@@ -134,6 +137,10 @@ void shb_run_spawns(void) {
         for (int k = 0; k < imax(1, d->n); k++) {
             bool px = spaced_in_px(d->kind);
             float x = d->x + (px ? k * d->gap : 0);
+            /* geysers and bounders burst from the top or bottom edge on
+             * screen: their y in the list is the screen x of the first */
+            bool edge = d->kind == K_ERUPTER || d->kind == K_HOPPER;
+            if (edge) x = sb.cam_x + fminf(300.0f, (float)(d->y + k * 30));
             int flags = d->flags;
             /* only the first member of a group carries the red mark, and only
              * the last one drops a bulb when the whole group carries them */
@@ -160,6 +167,8 @@ static void mark_kind(int kind) {
 
 void shb_foe_photographed(int i, int photo) {
     Foe *e = &sb.foe[i];
+    /* every foe kind caught on film counts (and gets its picture in the credits) */
+    if (e->role != ROLE_PROP) mark_kind(e->kind);
     switch (e->kind) {
     case K_LETTER: {
         int bit = 1 << iclamp(e->arg, 0, 2);
@@ -197,7 +206,6 @@ void shb_foe_photographed(int i, int photo) {
     default: break;
     }
     if (e->role == ROLE_PROP) return;
-    mark_kind(e->kind);
     if (e->role == ROLE_MID || e->role == ROLE_BOSS || e->role == ROLE_PART) {
         shb_boss_photo(i, photo);
         return;
@@ -397,13 +405,21 @@ static void foe_update(int i) {
         }
         break;
     case K_HOPPER: {
-        if (e->state == 0) { e->vy = (e->flags & F_TOP) ? 1.0f : -1.0f; e->vx = -1.0f; e->state = 1; }
-        float hard = e->arg ? 1.6f : 1.0f;
-        e->x += e->vx * hard + scroll_v;
-        e->vy += ((e->flags & F_TOP) ? 1 : -1) * 0.0f;
-        e->y += e->vy * 1.6f * hard;
-        if (e->y < sb.cam_y + 8) { e->y = sb.cam_y + 8; e->vy = fabsf(e->vy); if (e->arg) shb_aimed(e->x, e->y, 1.4f, 1, 0); }
-        if (e->y > sb.cam_y + SHB_PF_H - 8) { e->y = sb.cam_y + SHB_PF_H - 8; e->vy = -fabsf(e->vy); if (e->arg) shb_aimed(e->x, e->y, 1.4f, 1, 0); }
+        /* like a geyser, a rising burst at the edge first; then it springs
+         * out and bounces from edge to edge, steeper than a geyser's arc */
+        bool top = (e->flags & F_TOP) != 0;
+        if (e->state == 0) {
+            e->y = top ? sb.cam_y - 8 : sb.cam_y + SHB_PF_H + 8;
+            e->x += scroll_v;
+            if (e->t >= 45) { e->state = 1; e->vy = top ? 2.9f : -2.9f; e->vx = -1.1f; }
+            break;
+        }
+        e->x += e->vx + scroll_v;
+        e->y += e->vy;
+        /* each bounce a little lower and quicker, then high again: hard to read */
+        float kick = 2.9f - (e->st % 3) * 0.5f;
+        if (e->y < sb.cam_y + 8 && e->vy < 0) { e->y = sb.cam_y + 8; e->vy = kick; e->st++; }
+        if (e->y > sb.cam_y + SHB_PF_H - 8 && e->vy > 0) { e->y = sb.cam_y + SHB_PF_H - 8; e->vy = -kick; e->st++; }
         break;
     }
     case K_GHOST: {

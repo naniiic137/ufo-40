@@ -22,7 +22,7 @@ expect score == 0
 # with the armour on: points
 wait 100
 cheat pos 60 84
-cheat flash 600
+cheat flash 1320
 cheat dummy 6 167 84 1
 press A
 hold RIGHT 90

@@ -18,4 +18,12 @@ expect red_in_2 == 0
 expect red_in_3 == 1
 expect red_in_4 == 0
 expect red_in_5 == 1
-expect spawn_count_23 == 4
+expect spawn_count_23 == 2
+# Gloom's red rail crawler is in the cave just before Old Croak, with other
+# rail crawlers; Fossil's red spout has spouts on ledges above and below it;
+# Teatime's red cube flies in a formation of plain ones
+expect red_x_3 < 2910
+expect red_x_3 > 2200
+expect red_company_3 >= 2
+expect red_company_5 >= 2
+expect red_company_1 == 4

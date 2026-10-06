@@ -23,7 +23,7 @@ expect state == 3
 expect alive == 1
 expect armour == 1
 expect on2 == 0
-expect flash == 600
+expect flash == 1320
 expect lives == 0
 expect score == 0
 expect deaths == 0

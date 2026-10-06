@@ -1,5 +1,5 @@
-# SHUTTERBUG: the Signalman is a ghost: shots pass through him until a
-# photo makes him solid. His green sparks set pink sparks crawling along
+# SHUTTERBUG: the Signalman is a ghost: he fades out and back like the
+# wisps, and shots pass through him until a photo makes him solid. His green sparks set pink sparks crawling along
 # his three tracks.
 game shutterbug
 cheat run 1
@@ -13,9 +13,14 @@ cheat pos 60 84
 hold B 400
 expect photos == 0
 expect foes_32 == 1
-expect hp_32 == 150
+# like any ghost he fades out: gone, he can't touch you (or be photographed)
+waituntil phase_32 == 2 300
+expect harmful_32 == 0
+waituntil phase_32 == 0 300
+expect harmful_32 == 1
+expect hp_32 == 200
 expect eshots_4 > 0
 botuntil stun_32 > 0 1200
-botuntil hp_32 < 150 300
+botuntil hp_32 < 200 300
 botuntil state == 6 6000
 expect stage == 3

@@ -17,9 +17,9 @@ release B
 wait 90
 expect crystals == 0
 expect crystals_got == 1
-expect flash >= 300
-expect flash < 600
+expect flash >= 660
+expect flash < 1320
 cheat drop 0 290 60
 wait 100
 expect crystals_got == 2
-expect flash == 600
+expect flash == 1320

@@ -178,7 +178,7 @@ static float plan_lane(const Ship *s, float want_y) {
 static bool needs_photo(const Foe *e) {
     switch (e->kind) {
     case K_TEAPOT: return !e->open;
-    case K_SIGNAL: return e->stun <= 0;
+    case K_SIGNAL: return e->stun <= 0 && e->phase != 2;
     case K_JAW: return e->stun <= 0;
     case K_KALEI: return !e->open && e->state > 0;
     default: return false;
@@ -223,6 +223,7 @@ static int photo_worth(const Ship *s, bool *letter_ahead) {
         if (e->kind == K_SECRET && e->state == 0) worth += 6;
         if (e->role == ROLE_PROP || e->kind == K_LASER || e->kind == K_SHARD) continue;
         if (e->stun > 0 || e->falling) continue;
+        if (e->kind == K_SIGNAL && e->phase == 2) continue; /* faded: the photo would be wasted */
         if (e->flags & F_RED) worth += 60;
         if (needs_photo(e)) worth += 50;
         if (e->role == ROLE_MID || e->role == ROLE_BOSS) worth += 30;

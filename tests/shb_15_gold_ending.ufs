@@ -13,7 +13,9 @@ expect goals & 2
 expect goals !& 4
 wait 900
 expect state == 8
-wait 1610
-expect state == 0
+# the credits: every foe kind by name; a picture only for those photographed
+expect cast == 31
+expect cast_pictured == 0
+waituntil state == 0 4000
 expect save_wins == 1
 expect save_trues == 0

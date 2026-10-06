@@ -12,11 +12,11 @@ cheat flash 0
 botplay 500
 expect foes_35 == 1
 expect foes_36 == 8
-expect hp_35 == 200
+expect hp_35 == 260
 expect kalei_phase == 0
 botuntil kalei_phase == 1 1500
 expect open_35 == 1
-botuntil hp_35 < 200 400
+botuntil hp_35 < 260 400
 botuntil state == 7 8000
 expect true_won == 1
 expect goals & 4

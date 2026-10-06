@@ -13,8 +13,8 @@ expect firing == 1
 expect pshots_0 >= 3
 expect hold_t >= 30
 expect pshots_1 == 0
-wait 30
-expect hold_t >= 54
+wait 50
+expect hold_t >= 80
 expect pshots_1 == 0
 release B
 wait 1
@@ -33,7 +33,7 @@ expect pshots_1 == 0
 cheat goto 600
 cheat stop
 cheat pos 70 118
-hold B 60
+hold B 90
 wait 16
 expect ring_back >= 1
 expect rings_thrown == 2

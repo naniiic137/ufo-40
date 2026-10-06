@@ -35,14 +35,14 @@ enum { TL_EMPTY, TL_ROCK, TL_CAVE, TL_BREAK, TL_RAIL };
 #define SHB_HIT_R 2.5f        /* what bullets and foes must touch */
 #define SHB_FIRE_GAP 7        /* the gun: a shot every 7 frames while B is held */
 #define SHB_SHOT_SPEED 6.0f
-#define SHB_CHARGE_T 54       /* B held this long: the two dots light, rings ready */
-#define SHB_RING_DMG 5
+#define SHB_CHARGE_T 80       /* B held this long: the two dots light, rings ready */
+#define SHB_RING_DMG 11       /* a close volley takes a big bite out of a boss */
 #define SHB_RING_SPEED 3.2f
 #define SHB_RING_LIFE 96
 #define SHB_RING_BOUNCES 3
-#define SHB_FLASH_MAX 600     /* the camera's meter; it must be full to snap */
-#define SHB_FLASH_RATE 1      /* refills by itself in ten seconds */
-#define SHB_CRYSTAL 300       /* a bulb is half the meter: two fill it */
+#define SHB_FLASH_MAX 1320    /* the camera's meter; it must be full to snap */
+#define SHB_FLASH_RATE 1      /* refills by itself, slowly: in 22 seconds */
+#define SHB_CRYSTAL 660       /* a bulb is half the meter: two fill it */
 #define SHB_CURSOR_DX 107     /* the photo's centre: a third of the screen ahead */
 #define SHB_PHOTO_W 64
 #define SHB_PHOTO_H 52
@@ -268,6 +268,7 @@ typedef struct {
     bool god;
     int photos, rings_thrown, crystals_got, wrenches, retaliations;
     int big_kills;
+    int drips, drip_bulbs, drips_in_stun; /* the Teapot's room */
 } ShbGame;
 extern ShbGame sb;
 extern ShbSave sbs;
@@ -330,6 +331,10 @@ extern bool shb_bot_letters;   /* go out of its way for U, F and O */
 /* shutterbug_draw.c */
 void shb_draw(void);
 void shb_draw_label(int x, int y, int w, int h, int t);
+int shb_credits_len(void);         /* the credits' height in pixels */
+bool shb_kind_photographed(int kind);
+extern const uint8_t SHB_CAST[];   /* the credits' roll call, in the order they turn up */
+extern const int SHB_CAST_N;
 
 /* art and sound */
 enum {

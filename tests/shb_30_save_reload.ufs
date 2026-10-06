@@ -12,7 +12,7 @@ cheat dummy 25 167 84 0
 press A
 expect secrets == 1
 cheat dummy 6 167 84 0
-cheat flash 600
+cheat flash 1320
 press A
 expect types == 1
 cheat addscore 4321

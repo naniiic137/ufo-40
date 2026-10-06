@@ -299,7 +299,12 @@ static void draw_signal(const Foe *e, bool w) {
     int x = SX(e->x), y = SY(e->y);
     bool solid = e->stun > 0;
     int c = w ? C_WHITE : C_ICE;
-    if (!solid) { gfx_dither(x - 14, y - 18, 28, 40, c, 9); }
+    if (!solid && e->phase == 2) {
+        /* gone: only his lantern glimmers */
+        if ((sb.frame_t / 4) % 3 == 0) gfx_circ(x - 25, y + 11, 2, C_JADE);
+        return;
+    }
+    if (!solid) { gfx_dither(x - 14, y - 18, 28, 40, c, e->phase == 0 ? 9 : 4); }
     else { gfx_rect(x - 12, y - 16, 24, 34, c); gfx_rectb(x - 12, y - 16, 24, 34, C_INK); }
     gfx_rect(x - 14, y - 24, 28, 6, C_NAVY);  /* the cap */
     gfx_rect(x - 8, y - 28, 16, 4, C_NAVY);
@@ -399,7 +404,19 @@ static void draw_foe(const Foe *e) {
         }
         spr_at(SP_DART, e->x, e->y, e->state == 3 ? SPR_FLIPX : 0, e);
         break;
-    case K_HOPPER: spr_at(SP_HOPPER, e->x, e->y, 0, e); break;
+    case K_HOPPER:
+        if (e->state == 0) {
+            /* the same warning as a geyser's, in amber */
+            bool top = (e->flags & F_TOP) != 0;
+            int x = SX(e->x), h = 4 + e->t / 4;
+            for (int k = 0; k < 4; k++) {
+                int px = x - 6 + k * 4, ph = h - (k % 2) * 3;
+                int c = (sb.frame_t / 3 + k) % 2 ? C_AMBER : C_YELLOW;
+                if (top) gfx_vline(px, SHB_PF_Y, SHB_PF_Y + ph, c);
+                else gfx_vline(px, SCREEN_H - 1 - ph, SCREEN_H - 1, c);
+            }
+        } else spr_at(SP_HOPPER, e->x, e->y, 0, e);
+        break;
     case K_GHOST: {
         const Sprite *s = &shb_spr[SP_GHOST];
         int x = SX(e->x) - 6, y = SY(e->y) - 6;
@@ -781,7 +798,7 @@ static void draw_clear(void) {
     if (nx) { snprintf(buf, sizeof buf, "TO NEXT SHIP  %s", num(nx - sb.total)); text_center(buf, 160, 98, C_AMBER); }
     if (sb.stage == 0 && sb.zero_prologue) {
         /* the meta message, for a prologue with not a single point */
-        text_center("NOT ONE POINT? WE MISS YOU TOO, OLD LUMEN.", 160, 126, C_PINK);
+        text_center("NOT ONE POINT? A HOLIDAY WITH NO TROUBLE AT ALL.", 160, 126, C_PINK);
     }
     /* the photo album so far */
     for (int k = 0; k < 5; k++) {
@@ -807,8 +824,8 @@ static void draw_ending(void) {
         ui_fancy_center("THE END", 160, 16, 2, grad, 3, C_INK, C_MAROON);
         text_center("POPPY FLEW HOME WITH A WHOLE ALBUM OF PICTURES.", 160, 120, C_LIGHT);
         if (t > 240) {
-            text_center("BUT THE ALBUM HAS ONE EMPTY PAGE...", 160, 138, C_PINK);
-            text_center("DEFEAT THE TRUE BOSS TO FILL IT.", 160, 150, C_PINK);
+            text_center("BUT THE ALBUM STILL HAS AN EMPTY PAGE...", 160, 138, C_PINK);
+            text_center("SNAP U, F AND O, AND SEE WHAT WAITS BEYOND.", 160, 150, C_PINK);
         }
     }
     char buf[48];
@@ -816,21 +833,72 @@ static void draw_ending(void) {
     text_center(buf, 160, 40, C_WHITE);
 }
 
+/* The roll call: every foe by name, in the order they turn up; its
+ * picture shows only if it was photographed this run. */
+const uint8_t SHB_CAST[] = {
+    K_PUFF, K_MINT, K_CUBE, K_TOAST, K_TURRET, K_WALLBOMB, K_CHOMPER, K_SCONE, K_TEAPOT,
+    K_SWIRL, K_ERUPTER, K_ROCKBIG, K_ROCK, K_BURSTER,
+    K_GHOST, K_CART, K_RAILBOMB, K_SILO, K_ROCKET, K_CROAK, K_SIGNAL,
+    K_DART, K_HOPPER,
+    K_NIP, K_KITE, K_LASER, K_GEN, K_JAW, K_CHUTE, K_KALEI, K_SHARD,
+};
+const int SHB_CAST_N = (int)sizeof SHB_CAST;
+
+bool shb_kind_photographed(int kind) {
+    return kind < 32 ? (sb.kinds >> kind) & 1 : (sb.kinds2 >> (kind - 32)) & 1;
+}
+
+static const char *const CRED_TOP[] = {
+    "SHUTTERBUG", "", "A BEAMDOWN SOFTWORKS GAME", "", "STARRING", "POPPY", "AND SPRIG", "",
+    "THE SIGHTS", "TEATIME PLANET", "COMET RAIN", "GLOOM PLANET", "FOSSIL PLANET", "", "", "POSING FOR PICTURES", "",
+};
+static const char *const CRED_END[] = {
+    "", "A TRIBUTE TO CARAMEL CARAMEL", "(UFO 50 #24, MOSSMOUTH)", "", "", "THANKS FOR LOOKING!",
+};
+#define CAST_ROW 40
+#define CRED_LINE 12
+
+int shb_credits_len(void) {
+    return ARRAY_LEN(CRED_TOP) * CRED_LINE + SHB_CAST_N * CAST_ROW + ARRAY_LEN(CRED_END) * CRED_LINE;
+}
+
+/* one cast member: a snapshot (or an empty frame) and the name */
+static void draw_cast(int kind, int y) {
+    int fx = 92, fw = 52, fh = 34;
+    gfx_rect(fx - 2, y - 2, fw + 4, fh + 4, C_WHITE);
+    gfx_rect(fx, y, fw, fh, C_NIGHT);
+    if (shb_kind_photographed(kind)) {
+        Foe f;
+        memset(&f, 0, sizeof f);
+        f.kind = (uint8_t)kind;
+        f.alive = 1;
+        f.role = SHB_FOE[kind].role;
+        f.hw = SHB_FOE[kind].hw;
+        f.hh = kind == K_LASER ? 14 : SHB_FOE[kind].hh;
+        f.state = 1;
+        f.arg = kind == K_LASER ? 90 : 0;
+        f.x = sb.cam_x + fx + fw / 2;
+        f.y = sb.cam_y + y + fh / 2 - SHB_PF_Y;
+        f.ay = f.y;
+        gfx_clip(fx, y, fw, fh);
+        gfx_rect(fx, y, fw, fh, C_SKY);
+        draw_foe(&f);
+        gfx_noclip();
+    } else {
+        text_center("?", fx + fw / 2, y + fh / 2 - 3, C_DUSK);
+    }
+    text_draw(SHB_FOE[kind].name, fx + fw + 12, y + fh / 2 - 3, shb_kind_photographed(kind) ? C_WHITE : C_GREY);
+}
+
 static void draw_credits(void) {
     gfx_cls(C_INK);
-    static const char *const LINES[] = {
-        "SHUTTERBUG", "", "A BEAMDOWN SOFTWORKS GAME", "", "STARRING", "POPPY", "AND SPRIG", "",
-        "THE SIGHTS", "TEATIME PLANET", "COMET RAIN", "GLOOM PLANET", "FOSSIL PLANET", "", "POSING FOR PICTURES",
-        "MADAME SCONE", "THE TEAPOT", "OLD CROAK", "THE SIGNALMAN", "KING THUNDERJAW", "", "",
-        "A TRIBUTE TO CARAMEL CARAMEL", "(UFO 50 #24, MOSSMOUTH)", "", "", "THANKS FOR LOOKING!",
-    };
-    int n = ARRAY_LEN(LINES);
-    int y0 = SCREEN_H - sb.state_t / 3;
-    for (int i = 0; i < n; i++) {
-        int y = y0 + i * 12;
-        if (y < -10 || y > SCREEN_H) continue;
-        text_center(LINES[i], 160, y, i == 0 ? C_PINK : C_LIGHT);
-    }
+    int y = SCREEN_H - sb.state_t / 2;
+    for (int i = 0; i < ARRAY_LEN(CRED_TOP); i++, y += CRED_LINE)
+        if (y > -10 && y < SCREEN_H) text_center(CRED_TOP[i], 160, y, i == 0 ? C_PINK : C_LIGHT);
+    for (int i = 0; i < SHB_CAST_N; i++, y += CAST_ROW)
+        if (y > -40 && y < SCREEN_H) draw_cast(SHB_CAST[i], y);
+    for (int i = 0; i < ARRAY_LEN(CRED_END); i++, y += CRED_LINE)
+        if (y > -10 && y < SCREEN_H) text_center(CRED_END[i], 160, y, C_LIGHT);
 }
 
 void shb_draw(void) {

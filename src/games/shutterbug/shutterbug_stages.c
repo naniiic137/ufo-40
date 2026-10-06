@@ -132,49 +132,49 @@ static const TerrKey SPACE_KEYS[] = {K(0, 0, 0)};
 static const SpawnDef A_SPAWNS[] = {
     S(340, 50, K_SWIRL, 6, 12, 0, 190),
     S(480, 120, K_SWIRL, 6, 12, F_TOP, 170),
-    S(600, 40, K_ERUPTER, 1, 0, 0, 0),
+    S(600, 220, K_ERUPTER, 1, 0, 0, 0),
     S(640, 90, K_ROCKBIG, 1, 0, F_CRYSTAL, 1),
-    S(700, 30, K_ERUPTER, 1, 0, F_TOP, 0),
+    S(700, 180, K_ERUPTER, 1, 0, F_TOP, 0),
     S(760, 120, K_ROCK, 4, 30, 0, 3),
     S(840, 84, K_MINT, 4, 22, F_GREEN | F_CRYSTAL, 0),
     S(920, 60, K_BURSTER, 1, 0, 0, 230),
     S(980, 70, K_SWIRL, 6, 12, F_CRYSTAL, 200),
-    S(1060, 40, K_ERUPTER, 2, 40, 0, 0),
+    S(1060, 200, K_ERUPTER, 2, 40, 0, 0),
     S(1120, 120, K_ROCKBIG, 1, 0, 0, 3),
     S(1180, 40, K_ROCKBIG, 1, 0, F_CRYSTAL, 1),
     S(1260, 110, K_BURSTER, 1, 0, 0, 250),
     S(1290, 50, K_BURSTER, 1, 0, 0, 200),
-    S(1360, 30, K_ERUPTER, 2, 40, F_TOP, 0),
+    S(1360, 160, K_ERUPTER, 2, 40, F_TOP, 0),
     S(1420, 120, K_SWIRL, 6, 12, F_TOP, 180),
     S(1500, 84, K_MINT, 5, 20, F_GREEN, 1),
     S(1580, 60, K_ROCK, 6, 18, 0, 1),
-    S(1640, 40, K_ERUPTER, 3, 30, 0, 0),
+    S(1640, 140, K_ERUPTER, 3, 30, 0, 0),
     S(1720, 84, K_BURSTER, 2, 60, F_CRYSTAL, 210),
     S(1800, 50, K_SWIRL, 6, 12, 0, 200),
     S(1880, 120, K_SWIRL, 6, 12, F_TOP, 200),
     S(1960, 90, K_ROCKBIG, 2, 70, F_CRYSTAL, 2),
-    S(2060, 40, K_ERUPTER, 3, 25, F_TOP, 0),
+    S(2060, 190, K_ERUPTER, 3, 25, F_TOP, 0),
     S(2140, 84, K_MINT, 5, 18, F_GREEN | F_CRYSTAL, 1),
     S(2240, 60, K_BURSTER, 1, 0, 0, 240),
     S(2280, 110, K_BURSTER, 1, 0, 0, 200),
     S(2360, 50, K_SWIRL, 8, 10, 0, 190),
-    S(2460, 30, K_ERUPTER, 4, 22, 0, 0),
+    S(2460, 120, K_ERUPTER, 4, 22, 0, 0),
     S(2520, 120, K_ROCK, 6, 16, 0, 3),
 };
 static const SpawnDef B_SPAWNS[] = {
     S(340, 60, K_SWIRL, 6, 12, 0, 190),
-    S(420, 120, K_HOPPER, 2, 40, F_TOP, 1),
+    S(420, 240, K_HOPPER, 2, 40, F_TOP, 1),
     S(520, 84, K_DART, 3, 30, 0, 0),
     S(600, 50, K_MINT, 4, 22, F_GREEN | F_CRYSTAL, 1),
     S(680, 120, K_SWIRL, 6, 12, F_TOP, 170),
-    S(740, 40, K_HOPPER, 3, 40, 0, 1),
+    S(740, 250, K_HOPPER, 3, 40, 0, 1),
     S(820, 40, K_DART, 2, 20, 0, 0),
     S(860, 130, K_DART, 2, 20, 0, 0),
     S(920, 90, K_ROCKBIG, 1, 0, F_CRYSTAL, 2),
     S(1000, 60, K_BURSTER, 2, 50, 0, 220),
     S(1080, 84, K_SWIRL, 8, 10, F_CRYSTAL, 200),
     S(1160, 100, K_DART, 4, 16, 0, 0),
-    S(1240, 30, K_HOPPER, 3, 30, F_TOP, 1),
+    S(1240, 220, K_HOPPER, 3, 30, F_TOP, 1),
     S(1320, 84, K_MINT, 5, 18, F_GREEN, 1),
     S(1400, 50, K_DART, 3, 24, 0, 0),
     S(1440, 120, K_DART, 3, 24, 0, 0),
@@ -182,7 +182,7 @@ static const SpawnDef B_SPAWNS[] = {
     S(1620, 84, K_BURSTER, 3, 40, 0, 230),
     S(1700, 40, K_SWIRL, 6, 12, 0, 200),
     S(1760, 130, K_SWIRL, 6, 12, F_TOP, 200),
-    S(1840, 80, K_HOPPER, 4, 30, 0, 1),
+    S(1840, 200, K_HOPPER, 4, 30, 0, 1),
     S(1940, 70, K_DART, 5, 14, 0, 0),
     S(2020, 84, K_MINT, 5, 16, F_GREEN | F_CRYSTAL, 1),
     S(2120, 40, K_DART, 3, 20, 0, 0),
@@ -199,8 +199,9 @@ static const TerrKey G_KEYS[] = {
     /* the haunted line */
     K(0, 0, 3), K(187, 0, 3),
     /* the first cave */
-    RC(188, 0, 3), KC(194, 4, 4), RC(215, 4, 4), KC(220, 6, 4), RC(235, 6, 4), KC(240, 3, 6), RC(260, 3, 6),
-    KC(266, 5, 5), RC(300, 5, 5),
+    RC(188, 0, 3), KC(194, 4, 4), RC(215, 4, 4), KC(220, 6, 4), RC(232, 6, 4),
+    /* a breath of open air, then the second cave, which ends at Old Croak's hall */
+    K(238, 0, 3), R(248, 0, 3), KC(254, 3, 6), RC(268, 3, 6), KC(274, 5, 5), RC(300, 5, 5),
     /* Old Croak's hall: a chasm in the floor, the F in the ceiling */
     K(312, 2, 3), K(340, 2, 0), K(351, 2, 3), K(370, 2, 3),
     /* the second cave */
@@ -212,7 +213,7 @@ static const TerrKey G_KEYS[] = {
 static const TerrRect G_RECTS[] = {
     {0, 17, 187, 1, TL_RAIL}, {490, 17, 150, 1, TL_RAIL}, {490, 5, 70, 1, TL_RAIL}, {490, 11, 70, 1, TL_RAIL},
     {566, 5, 74, 1, TL_RAIL}, {566, 10, 74, 1, TL_RAIL}, {566, 16, 74, 1, TL_RAIL},
-    {346, 0, 3, 2, TL_EMPTY},  /* the notch the F hides in */
+    {363, 0, 3, 2, TL_EMPTY},  /* the notch the F hides in: it only comes into view as the fight starts */
     {226, 12, 3, 4, TL_BREAK}, {430, 9, 3, 4, TL_BREAK},
 };
 static const SpawnDef G_SPAWNS[] = {
@@ -237,13 +238,14 @@ static const SpawnDef G_SPAWNS[] = {
     S(1940, 90, K_WALLBOMB, 2, 60, 0, 0),
     S(2000, 84, K_GHOST, 3, 30, F_CRYSTAL, 0),
     S(2080, 50, K_WALLBOMB, 2, 60, F_CEIL, 0),
-    S(2160, 120, K_RAILBOMB, 1, 0, 0, 0),
-    S(2240, 84, K_MINT, 4, 22, F_GREEN | F_CRYSTAL, 0),
-    S(2330, 40, K_SILO, 1, 0, F_CEIL, 0),
-    S(2784, 8, K_LETTER, 1, 0, 0, 1),
-    S(2900, 100, K_CROAK, 1, 0, 0, 0),
+    S(2160, 84, K_MINT, 4, 22, F_GREEN | F_CRYSTAL, 0),
+    S(2220, 120, K_RAILBOMB, 1, 0, 0, 0),
+    S(2270, 120, K_RAILBOMB, 1, 0, F_RED, 0),
+    S(2310, 50, K_RAILBOMB, 1, 0, F_CEIL, 0),
+    S(2910, 100, K_CROAK, 1, 0, 0, 0),
+    S(2916, 8, K_LETTER, 1, 0, 0, 1),
     S(3040, 84, K_GHOST, 3, 30, F_CRYSTAL, 0),
-    S(3120, 120, K_RAILBOMB, 1, 0, F_RED, 0),
+    S(3120, 120, K_RAILBOMB, 1, 0, 0, 0),
     S(3200, 40, K_CHOMPER, 2, 70, F_CEIL, 0),
     S(3280, 84, K_MINT, 4, 22, F_GREEN, 0),
     S(3360, 120, K_SILO, 2, 80, 0, 0),
@@ -263,7 +265,7 @@ static const SpawnDef G_SPAWNS[] = {
     S(4860, 84, K_SIGNAL, 1, 0, 0, 0),
 };
 static const BandDef G_BANDS[] = {{0, 0, 0}};
-static const ScrollDef G_SCROLL[] = {{0, 2, HOLD_NONE}, {2600, 2, HOLD_BIG}, {4560, 0, HOLD_BIG}};
+static const ScrollDef G_SCROLL[] = {{0, 2, HOLD_NONE}, {2610, 2, HOLD_BIG}, {4560, 0, HOLD_BIG}};
 
 /* ---- 5: Fossil Planet ------------------------------------------------------ */
 static const TerrKey F_KEYS[] = {
@@ -283,6 +285,7 @@ static const TerrKey F_KEYS[] = {
 };
 static const TerrRect F_RECTS[] = {
     {120, 4, 3, 4, TL_BREAK}, {182, 12, 3, 3, TL_BREAK}, {360, 10, 3, 4, TL_BREAK},
+    {203, 0, 10, 3, TL_ROCK}, {212, 14, 6, 4, TL_ROCK}, /* the ledges round the red spout */
 };
 static const SpawnDef F_SPAWNS[] = {
     S(300, 120, K_NIP, 2, 40, F_GREEN, 0),
@@ -303,7 +306,9 @@ static const SpawnDef F_SPAWNS[] = {
     S(1400, 40, K_TURRET, 2, 60, F_CEIL, 0),
     S(1480, 84, K_LASER, 1, 0, 0, 80 | (30 << 8)),
     S(1560, 84, K_MINT, 3, 26, F_GREEN, 0),
+    S(1650, 40, K_TURRET, 1, 0, F_CEIL, 0),
     S(1680, 120, K_TURRET, 1, 0, F_RED, 0),
+    S(1720, 100, K_TURRET, 1, 0, 0, 0),
     S(1760, 120, K_NIP, 3, 30, F_GREEN | F_CRYSTAL, 0),
     S(1840, 40, K_KITE, 3, 36, 0, 0),
     S(1900, 80, K_SECRET, 1, 0, 0, 0),
@@ -331,8 +336,8 @@ static const SpawnDef F_SPAWNS[] = {
     S(3770, 130, K_NIP, 4, 30, F_GREEN | F_CRYSTAL, 0),
     S(4080, 84, K_LASER, 1, 0, 0, 90),
     S(4160, 84, K_LASER, 1, 0, 0, 90 | (90 << 8)),
-    S(4200, 20, K_GEN, 2, 70, F_CEIL | F_CRYSTAL, 0),
-    S(4200, 150, K_GEN, 2, 70, F_CRYSTAL, 0),
+    S(4220, 20, K_GEN, 1, 0, F_CEIL | F_CRYSTAL, 0),
+    S(4220, 150, K_GEN, 1, 0, F_CRYSTAL, 0),
     S(4700, 84, K_JAW, 1, 0, 0, 0),
 };
 static const BandDef F_BANDS[] = {{0, 0, 0}};

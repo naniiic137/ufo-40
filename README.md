@@ -739,9 +739,11 @@ the top.
 - **Structure:** a prologue that teaches it all, Teatime Planet (Madame
   Scone, then the Teapot), Comet Rain A, Gloom Planet (Old Croak, who can
   be left alone, then the Signalman), Comet Rain B and Fossil Planet
-  (laser mazes, four generators, then King Thunderjaw). Photograph the
+  (laser mazes, two generators, then King Thunderjaw). Photograph the
   hidden U, F and O, one on each planet, and the Kaleidoscope waits after
-  the king. 1 player, or 2 in co-op. The demo player in the tests wins
+  the king (the F shows only as Old Croak's fight starts, and the camera
+  can't take both the letter and him). The credits name every foe, with
+  a picture of each one you photographed. 1 player, or 2 in co-op. The demo player in the tests wins
   the whole game from the title with real button presses, by both
   routes.
 - **Ours:** Poppy the puffer-blimp and her pal Sprig, the three planets
