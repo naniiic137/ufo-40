@@ -1,0 +1,33 @@
+# TURNIP TRUCK: A is the gas up to the top speed; B brakes and, once the
+# truck has stopped, reverses at a much lower speed. Reversing steers like a
+# steering wheel: RIGHT swings the nose the other way.
+game turnip
+wait 5
+cheat day 1 0
+cheat notraffic
+cheat pos 320 276
+cheat ang 0
+cheat stop
+hold A 40
+expect fwd100 > 150
+expect fwd100 < 250
+hold A 80
+expect fwd100 == 260
+hold A 60
+expect fwd100 == 260
+# coasting loses speed slowly
+wait 30
+expect fwd100 < 260
+expect fwd100 > 180
+# the brake, then reverse
+hold B 18
+expect fwd100 >= 0
+expect fwd100 < 40
+hold B 80
+expect fwd100 < 0
+expect fwd100 >= -90
+hold B 60
+expect fwd100 == -90
+# reversing: RIGHT turns the nose left (counter-clockwise)
+hold B RIGHT 20
+expect ang < -10

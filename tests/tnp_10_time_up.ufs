@@ -1,0 +1,29 @@
+# TURNIP TRUCK: when the clock reaches 00 the truck catches fire and the
+# day is lost, whatever was delivered. A try comes out of the week's pool
+# and the same day starts again from the newscast.
+game turnip
+wait 5
+cheat day 1 0
+cheat notraffic
+cheat delivered 7
+cheat time 1
+wait 62
+expect time == 0
+expect tstate == 3
+waituntil state == 6 200
+expect fail_reason == 1
+expect tries == 3
+wait 70
+press A
+wait 2
+expect state == 3
+expect tries == 2
+expect day == 1
+expect week == 0
+wait 45
+press A
+wait 2
+expect state == 4
+expect time == 45
+expect delivered == 0
+expect hearts == 3

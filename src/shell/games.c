@@ -31,6 +31,7 @@ extern const GameDef GAME_RIMSHIRE;
 extern const GameDef GAME_WOBBLE;
 extern const GameDef GAME_CHIME;
 extern const GameDef GAME_HATTRICK;
+extern const GameDef GAME_TURNIP;
 
 const GameDef *const GAMES[GAME_SLOTS] = {
     [0] = &GAME_UNDERDELVE,  /* 01 Barbuta */
@@ -49,6 +50,7 @@ const GameDef *const GAMES[GAME_SLOTS] = {
     [15] = &GAME_TINTAIL,    /* 16 Camouflage */
     [17] = &GAME_LOSTLINKS,  /* 18 Golfaria */
     [18] = &GAME_CHIME,      /* 19 The Big Bell Race */
+    [22] = &GAME_TURNIP,     /* 23 Onion Delivery */
     [24] = &GAME_OPENHOUSE,  /* 25 Party House */
     [25] = &GAME_SKIDKIDS,   /* 26 Hot Foot */
     [27] = &GAME_DUNE,       /* 28 Rail Heist */

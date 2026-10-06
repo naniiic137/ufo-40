@@ -1,0 +1,32 @@
+# TURNIP TRUCK: THE BIG BEET. A giant beetroot charges at the truck when it
+# can see it, faster than the truck for a moment; a touch costs a heart and
+# it bounces off. Out of sight it rolls along the streets after you, slower
+# than the truck; it never goes through a building.
+seed 6
+game turnip
+wait 5
+cheat day 3 2
+cheat notraffic
+expect beets == 1
+cheat clearmobs
+cheat pos 400 264
+cheat stop
+cheat mob 0 520 264
+wait 2
+expect mob0_state == 1
+waituntil hit_by3 >= 1 100
+expect hearts == 2
+expect mob0_state == 0
+# behind the buildings: it rolls round by the streets
+cheat clearmobs
+cheat hearts 3
+cheat inv 0
+cheat mob 0 168 120
+wait 5
+expect mob0_state == 2
+wait 30
+expect mob0_solid == 0
+wait 30
+expect mob0_solid == 0
+waituntil mob0_dist < 150 600
+expect mob0_solid == 0

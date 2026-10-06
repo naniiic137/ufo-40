@@ -1,0 +1,39 @@
+# TURNIP TRUCK: every kind of day can be cleared: the quiet one and each of
+# the six chaos events, driven by the demo player with real presses.
+game turnip
+wait 5
+seed 1
+cheat day 4 0
+botuntil state >= 5 9000
+expect state == 5
+expect count_4 >= 5
+seed 1
+cheat day 4 1
+botuntil state >= 5 9000
+expect state == 5
+expect count_4 >= 5
+seed 2
+cheat day 4 2
+botuntil state >= 5 9000
+expect state == 5
+expect count_4 >= 5
+seed 2
+cheat day 4 3
+botuntil state >= 5 9000
+expect state == 5
+expect count_4 >= 5
+seed 3
+cheat day 4 4
+botuntil state >= 5 9000
+expect state == 5
+expect count_4 >= 5
+seed 1
+cheat day 4 5
+botuntil state >= 5 9000
+expect state == 5
+expect count_4 >= 5
+seed 1
+cheat day 4 6
+botuntil state >= 5 9000
+expect state == 5
+expect count_4 >= 5

@@ -1,0 +1,8 @@
+# TURNIP TRUCK: the screens fit. The pause menu and its controls page lay
+# out cleanly for this cartridge like every other, and the HUD's place
+# names fit the dashboard.
+game turnip
+wait 5
+cheat day 1 0
+expect pause_layout == 0
+expect hud_fits == 1

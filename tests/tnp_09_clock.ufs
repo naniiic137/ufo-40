@@ -1,0 +1,61 @@
+# TURNIP TRUCK: one clock, always on screen. Deliveries one to four add
+# 8 seconds, the fifth 30, overtime ones nothing; a floating crate adds 12.
+# The crates float at fixed spots and are all back for every new try.
+game turnip
+wait 5
+cheat day 1 0
+cheat notraffic
+expect time == 45
+wait 600
+expect time == 35
+expect time_f == 2100
+# deliveries: the place is fixed by the cheat, the truck is set down in its circle
+cheat dest 0
+cheat pos 168 24
+cheat stop
+wait 1
+expect delivered == 1
+expect time_f == 2579
+cheat dest 1
+cheat pos 936 120
+wait 1
+expect delivered == 2
+expect time_f == 3058
+cheat dest 0
+cheat pos 168 24
+wait 1
+cheat dest 1
+cheat pos 936 120
+wait 1
+expect delivered == 4
+expect time_f == 4016
+cheat dest 0
+cheat pos 168 24
+wait 1
+expect delivered == 5
+expect time_f == 5815
+cheat dest 1
+cheat pos 936 120
+wait 1
+expect delivered == 6
+expect time_f == 5814
+# a crate: +12
+expect crates == 12
+cheat pos 168 120
+wait 1
+expect crates == 11
+expect crates_broken == 1
+expect time_f == 6533
+# a new try: every crate is back
+cheat fail
+waituntil state == 6 200
+expect tries == 3
+wait 70
+press A
+wait 50
+press A
+wait 2
+expect state == 4
+expect crates == 12
+expect delivered == 0
+expect time == 45

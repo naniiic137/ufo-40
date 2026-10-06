@@ -1,0 +1,39 @@
+# TURNIP TRUCK: a tapped turn is a sidestep: the truck slides a little to
+# its own side and keeps its heading. A held turn turns.
+game turnip
+wait 5
+cheat day 1 0
+cheat notraffic
+cheat pos 320 276
+cheat ang 0
+cheat vel 2 0
+press RIGHT 4
+expect ang == 0
+expect side100 > 50
+wait 20
+expect ang == 0
+expect y >= 280
+expect y <= 287
+# to its left
+cheat pos 320 276
+cheat ang 0
+cheat vel 2 0
+press LEFT 4
+expect ang == 0
+expect side100 < -50
+wait 20
+expect y <= 269
+# facing west, a tap of RIGHT goes up the screen (its own right)
+cheat pos 1200 252
+cheat ang 180
+cheat vel -2 0
+press RIGHT 4
+expect side100 > 50
+wait 20
+expect y <= 248
+# held, it turns
+cheat pos 320 276
+cheat ang 0
+cheat vel 2 0
+hold RIGHT 12
+expect ang > 15

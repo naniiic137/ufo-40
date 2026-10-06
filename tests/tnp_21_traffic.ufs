@@ -1,0 +1,33 @@
+# TURNIP TRUCK: town traffic keeps to the right-hand side of the road and
+# turns round where a road ends. Cars never appear ahead of a moving truck
+# going its way (so you never run up behind a fresh one), and they slow
+# down or pull over for the truck but never leave the road.
+seed 12
+game turnip
+wait 5
+cheat day 1 0
+botplay 600
+expect lanes_bad == 0
+botplay 600
+expect lanes_bad == 0
+expect spawned >= 10
+expect spawn_bad == 0
+botplay 600
+expect lanes_bad == 0
+expect spawn_bad == 0
+# a dead end: the cul-de-sac at x 24 below Comet Court
+cheat notraffic
+cheat pos 1100 276
+cheat stop
+cheat car 0 24 6 1
+expect car0_dir == 1
+waituntil car0_dir == 3 200
+# a car waits for a truck stopped in its lane
+cheat day 1 0
+cheat notraffic
+cheat car 0 10 5 0
+cheat pos 560 276
+cheat stop
+wait 90
+expect car0_speed100 == 0
+expect hits == 0

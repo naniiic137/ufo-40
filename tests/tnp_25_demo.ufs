@@ -1,0 +1,15 @@
+# TURNIP TRUCK: left alone on the title, the cartridge plays a demo: the
+# demo player drives a day on its own. Any button ends it.
+seed 14
+game turnip
+wait 700
+expect state == 0
+wait 40
+expect state == 2
+wait 900
+expect delivered >= 1
+expect phase == 0
+press A
+wait 5
+expect state == 0
+expect goals == 0

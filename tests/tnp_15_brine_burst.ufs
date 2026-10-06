@@ -1,0 +1,31 @@
+# TURNIP TRUCK: BRINE BURST. The pipes at the crossings spray brine along
+# the roads in turn and shove the truck; waves of brine roll along the
+# Pickle Works' streets and shove it too. Neither hurts.
+seed 5
+game turnip
+wait 5
+cheat day 3 1
+cheat notraffic
+expect event == 1
+# below the pipe at (5, 5), while it sprays north and south
+cheat pos 264 300
+cheat stop
+waituntil push100 > 0 240
+wait 20
+expect y > 304
+expect hearts == 3
+# a wave down the works' street at row 24
+cheat pos 300 1176
+cheat stop
+cheat ang 90
+waituntil push100 > 0 420
+wait 15
+expect x > 304
+expect hearts == 3
+expect hits == 0
+# no brine on a quiet day
+cheat day 3 0
+cheat pos 264 300
+cheat stop
+wait 60
+expect push100 == 0

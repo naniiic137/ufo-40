@@ -1,0 +1,79 @@
+# TURNIP TRUCK: the BACKWARD code turns the reverse steering round: RIGHT
+# while reversing turns the nose to the right, like going forwards.
+game turnip
+wait 20
+press DOWN
+press A
+wait 10
+press UP
+press RIGHT
+press RIGHT
+press UP
+press UP
+press RIGHT
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press RIGHT
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press RIGHT
+press RIGHT
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press RIGHT
+press UP
+press UP
+press UP
+press A
+wait 2
+expect codes == 2
+press B
+wait 10
+press UP
+press A
+wait 45
+press A
+wait 2
+expect state == 4
+expect flip == 1
+cheat notraffic
+cheat pos 320 264
+cheat ang 0
+cheat vel -0.9 0
+hold B RIGHT 20
+expect ang > 10

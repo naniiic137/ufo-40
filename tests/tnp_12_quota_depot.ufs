@@ -1,0 +1,33 @@
+# TURNIP TRUCK: five deliveries a day, then back to the depot's half circle
+# (smaller than a delivery circle) to clock out. Before the fifth the depot
+# does nothing; after it the radar shows the depot and the overtime tune
+# plays while more deliveries can still be made.
+game turnip
+wait 5
+cheat day 1 0
+cheat notraffic
+cheat pos 672 486
+cheat stop
+wait 30
+expect state == 4
+expect in_hq == 1
+cheat delivered 4
+cheat dest 0
+cheat pos 168 24
+wait 2
+expect delivered == 5
+expect music_is.tnp_overtime == 1
+cheat pos 672 486
+wait 2
+expect state == 5
+expect count_1 == 5
+expect week == 5
+expect save_best == 5
+# the half circle: only on the street side of the door, and only 11 px round
+cheat day 1 0
+cheat pos 672 494
+expect in_hq == 0
+cheat pos 678 486
+expect in_hq == 1
+cheat pos 672 476
+expect in_hq == 0

@@ -1,0 +1,23 @@
+# TURNIP TRUCK: MOON RAID. Saucers of three sizes (one big, two middling,
+# five small) wander the sky erratically and bomb where the truck is when
+# they come near; a bomb that lands on it costs a heart.
+seed 10
+game turnip
+wait 5
+cheat day 3 6
+cheat notraffic
+expect saucers == 8
+expect saucers_0 == 5
+expect saucers_1 == 2
+expect saucers_2 == 1
+cheat pos 400 276
+cheat stop
+waituntil shots_1 >= 1 900
+waituntil hit_by3 >= 1 900
+# a bomb on target
+cheat clearmobs
+cheat hearts 3
+cheat inv 0
+cheat shot 1 400 276 400 200 10
+wait 12
+expect hearts == 2

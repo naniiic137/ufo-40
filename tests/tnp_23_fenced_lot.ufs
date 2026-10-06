@@ -1,0 +1,39 @@
+# TURNIP TRUCK: a secret. Wreck the truck inside the old fenced lot on
+# Saucer Heights and the next morning's newscast has a word for you.
+seed 13
+game turnip
+wait 20
+press A
+wait 45
+press A
+wait 2
+# a wreck anywhere else: nothing
+cheat hearts 1
+cheat pos 400 894
+cheat ang 90
+cheat vel 0 2
+waituntil state == 6 200
+expect died_in_lot == 0
+expect lot_secret == 0
+wait 65
+press A
+wait 45
+press A
+wait 2
+# into the lot's brine with the last heart
+cheat hearts 1
+cheat pos 1416 120
+cheat ang 90
+cheat vel 0 1.5
+waituntil state == 6 200
+expect died_in_lot == 1
+expect lot_secret == 1
+wait 65
+press A
+wait 300
+expect state == 3
+expect lot_secret == 1
+press A
+wait 2
+expect state == 4
+expect lot_secret == 0
