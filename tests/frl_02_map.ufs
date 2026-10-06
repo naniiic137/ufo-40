@@ -1,20 +1,24 @@
-# FORLORN HOPE: the map is sound and at full scale: one base and one
-# waystone pad, four plates, four thorn hearts, eight keys, five doors,
-# every one of the seventeen kinds of foe (oozles, midges and hornets come
-# out of the drains, combs and bells on the map), and the art loads.
+# FORLORN HOPE: the map is sound and at full scale: one massive map of 190 x
+# 170 tiles, one base and one waystone pad, three plates (yellow, green and
+# blue blocks), four thorn hearts, fifteen keys, seven doors, three gulpers,
+# every one of the seventeen kinds of foe (oozles, midges and hornets come out
+# of the drains, combs and bells on the map), well over 80 foes placed, and
+# the art loads.
 game forlorn
 cheat start 1
 wait 5
 expect map_bad == 0
 expect kinds == 17
 expect hearts == 4
-expect keys_total == 8
-expect doors_total == 5
-expect drains >= 8
-expect combs >= 2
-expect foes >= 40
+expect keys_total == 15
+expect doors_total == 7
+expect drains >= 10
+expect combs >= 4
+expect foes >= 85
+expect alive17 == 3
 expect art_ok == 1
-expect bot_plans == 28
-# 160 x 80 tiles: the bottom right corner is rock, the map's edges are walls
-expect solid79159 == 1
+expect bot_plans == 21
+# the corners: the bottom right is rock, the map's edges are walls
+expect solid169189 == 1
 expect solid40000 == 1
+expect solid100000 == 1

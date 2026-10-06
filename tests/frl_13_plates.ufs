@@ -27,7 +27,7 @@ expect switches == 2
 cheat give_up
 wait 2
 expect tile36057 == 9
-wait 60
+wait 110
 expect plate0 == 1
 expect solid50050 == 1
 expect switches == 2

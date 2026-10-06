@@ -13,7 +13,7 @@ waituntil phase == 2 400
 release RIGHT
 expect cause == 1
 expect stones == 0
-wait 60
+wait 110
 cheat class 0
 wait 2
 hold B RIGHT
@@ -22,7 +22,7 @@ release B RIGHT
 expect cause == 1
 expect stones == 1
 expect tile36029 == 9
-wait 60
+wait 110
 # the next walks off the same way and lands on that stone
 cheat class 0
 wait 2
@@ -34,7 +34,7 @@ expect phase == 1
 expect ground == 1
 expect bottom == 360
 cheat die
-wait 60
+wait 110
 # a hunter holding B, touched by a shellback
 cheat class 1
 wait 2

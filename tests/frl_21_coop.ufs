@@ -26,7 +26,7 @@ expect x == 75
 hold RIGHT 20
 expect x > 80
 cheat die
-wait 60
+wait 110
 # player 2's turn
 expect phase == 0
 expect player == 1

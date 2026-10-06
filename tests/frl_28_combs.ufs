@@ -1,0 +1,42 @@
+# FORLORN HOPE: what sends out more foes can be blocked off or destroyed. A
+# comb takes 10 damage and breaks; a stone in its mouth (the open cell the
+# midges come out of) stops it for good.
+game forlorn
+cheat start 1
+wait 20
+cheat kill_kind 12
+cheat kill_kind 11
+expect comb_hp1 == 10
+# a hunter, level with hall 1's comb, puts a shot into it
+cheat class 1
+wait 2
+cheat place 985 235
+press RIGHT 1
+press B
+wait 12
+expect comb_hp1 == 9
+cheat die
+wait 110
+# a mason gives itself up in the comb's mouth
+cheat class 0
+wait 2
+cheat place 1015 245
+cheat give_up
+wait 2
+expect tile24101 == 9
+wait 110
+cheat class 0
+wait 2
+cheat place 985 315
+wait 400
+expect alive3 == 0
+cheat die
+wait 110
+# a sapper's blast breaks it
+cheat class 4
+wait 2
+cheat place 1000 250
+cheat give_up
+wait 2
+expect comb_hp1 == 0
+expect tile23101 == 0

@@ -1,0 +1,27 @@
+# FORLORN HOPE: between lives the screen goes black, and only the thorn
+# hearts still beating linger on it; then the troop's door. Not before the
+# first volunteer, and not after the win.
+game forlorn
+cheat start 1
+wait 5
+expect phase == 0
+wait 15
+cheat class 0
+wait 2
+cheat die
+wait 2
+expect phase == 2
+wait 50
+expect phase == 5
+expect hearts == 4
+shot frl_dark
+wait 52
+expect phase == 0
+cheat class 1
+wait 2
+cheat win
+wait 2
+expect phase == 3
+wait 100
+expect phase == 3
+waituntil state == 5 100

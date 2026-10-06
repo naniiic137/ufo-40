@@ -18,7 +18,7 @@ cheat give_up
 wait 2
 expect alive13 == 1
 expect last_hp == 15
-wait 60
+wait 110
 # the loose rock over the caves
 cheat class 4
 wait 2
@@ -30,7 +30,7 @@ expect tile37045 == 0
 expect tile38045 == 0
 expect tile37044 == 0
 expect tile38046 == 0
-wait 60
+wait 110
 # charging, it goes up when a shellback walks into it
 cheat class 4
 wait 2

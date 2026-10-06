@@ -1,0 +1,30 @@
+# FORLORN HOPE: the tower way can be won close to the original's best known
+# run (13 lost). The demo player's expert plan, with real presses: the
+# opening eight as in the demo (pit stone, key and plate 1, the runner's
+# waystone and plate 2, the loose rock, the waystone by the gulper and plate
+# 3, one volunteer fed to the gulper); then ONE mason duels the stingback
+# with the mallet, climbs the tower, strikes the wall-eye and the bell and
+# caps the drain; three sappers open the seal; and a last mason bursts all
+# four hearts with the mallet and walks away. 12 lost.
+game forlorn
+cheat start 1
+cheat bot_route 2
+expect bot_plans == 13
+botuntil lost >= 8 20000
+expect first_on17 == 0
+botuntil first_on16 == 0 4000
+expect lost == 8
+botuntil lost >= 9 9000
+expect first_on11 == 0
+expect tile21115 == 9
+botuntil lost >= 12 20000
+expect tile13120 == 0
+botuntil phase == 3 9000
+expect hearts == 0
+expect lost == 12
+expect lost <= 15
+expect lives == 87
+expect units == 13
+expect bot_stuck == 0
+botuntil state == 5 400
+expect goals == 7

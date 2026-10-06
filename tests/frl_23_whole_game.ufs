@@ -1,15 +1,15 @@
 # FORLORN HOPE: the whole game, played from the title by the demo player with
-# real button presses: 28 volunteers, one after another, each with its own
+# real button presses: 21 volunteers, one after another, each with its own
 # plan. A mason stones the spike pit, the next takes key 1 and stones plate
 # 1; a runner climbs the Old Yew and leaves a waystone by plate 2, which a
 # mason stones; a sapper opens the loose rock; a runner goes over the
 # bridge and up the steps the plates raised and leaves a waystone by the
-# gulper; a mason stones plate 3 and a sapper feeds the gulper. Hunters
-# and sappers wear the stingback down in the deep (its wounds persist), a
-# hunter climbs the tower and shoots the hornet bell, four masons cap the
-# tower's drains, a runner leaves a waystone at the top, three sappers blow
-# the seal open, and eight sappers burst the four thorn hearts. It wins
-# having lost fewer than 50, so all three goals light up.
+# gulper; a mason stones plate 3 and a sapper feeds the gulper. A mason then
+# duels the stingback with the mallet, climbs the tower, strikes the
+# wall-eye and the hornet bell and caps the drain at the top; a runner
+# leaves a waystone at the top, three sappers blow the seal open, and eight
+# sappers burst the four thorn hearts. It wins having lost fewer than 50, so
+# all three goals light up.
 game forlorn
 wait 20
 botuntil state == 3 400
@@ -20,14 +20,15 @@ botuntil plate2 == 1 3000
 expect first_on17 == 1
 botuntil first_on17 == 0 2000
 botuntil first_on16 == 0 8000
-botuntil stones >= 8 12000
+botuntil first_on11 == 0 8000
+botuntil stones >= 5 12000
 botuntil hearts <= 3 12000
 botuntil state == 5 12000
 expect hearts == 0
-expect lost == 28
+expect lost == 21
 expect lost < 50
-expect lives == 72
+expect lives == 79
 expect goals == 7
 expect wins == 1
-expect best_lost == 28
+expect best_lost == 21
 expect bot_stuck == 0

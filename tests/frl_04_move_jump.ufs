@@ -36,7 +36,7 @@ hold RIGHT 40
 expect x >= 105
 expect x <= 112
 cheat die
-wait 60
+wait 110
 cheat class 2
 wait 5
 hold A
@@ -47,5 +47,5 @@ hold A
 wait 14
 expect bottom <= 154
 release A
-wait 60
+wait 110
 expect bottom == 200

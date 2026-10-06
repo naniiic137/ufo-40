@@ -51,7 +51,6 @@ bool frl_solid(const FrlWorld *w, int tx, int ty) {
     case FT_BLOCK1: return w->plate[0].down;
     case FT_BLOCK2: return w->plate[1].down;
     case FT_BLOCK3: return w->plate[2].down;
-    case FT_BLOCK4: return w->plate[3].down;
     default: return false;
     }
 }
@@ -111,18 +110,18 @@ void frl_world_new(FrlWorld *w, int players, uint8_t allowed) {
             case '*': t = FT_LOOSE; break;
             case '$': t = FT_SEAL; break;
             case 'D': t = FT_DOOR; break;
+            case 'g': t = FT_GULP; break;     /* a gulper's body, under its head */
             case 'a': t = FT_BLOCK1; break;
             case 'b': t = FT_BLOCK2; break;
             case 'c': t = FT_BLOCK3; break;
-            case 'd': t = FT_BLOCK4; break;
             case 'm':
                 t = FT_COMB;
-                if (w->ncomb < FRL_COMBS) w->comb[w->ncomb++] = (FrlComb){(int16_t)tx, (int16_t)ty, 0, 0};
+                if (w->ncomb < FRL_COMBS) w->comb[w->ncomb++] = (FrlComb){(int16_t)tx, (int16_t)ty, 0, 0, 0, 0, FRL_COMB_HP};
                 break;
             case 'K':
                 if (w->nkey < FRL_KEYS) w->key[w->nkey++] = (FrlKey){(int16_t)tx, (int16_t)ty, 0};
                 break;
-            case '1': case '2': case '3': case '4':
+            case '1': case '2': case '3':
                 w->plate[c - '1'] = (FrlPlate){(int16_t)tx, (int16_t)ty, 0, 0};
                 break;
             case 'B':
@@ -151,7 +150,12 @@ void frl_world_new(FrlWorld *w, int players, uint8_t allowed) {
             frl_foe_size(k, &bw, &bh);
             int px, py;
             if (k == FK_WALLEYE || k == FK_GULPER) { px = tx * FRL_T; py = ty * FRL_T; }
-            else if (k == FK_BELL) { px = tx * FRL_T + (FRL_T - bw) / 2; py = ty * FRL_T; }
+            else if (k == FK_BELL) {
+                /* hung from the cell's top, nudged clear of a wall beside it */
+                px = tx * FRL_T + (FRL_T - bw) / 2;
+                py = ty * FRL_T;
+                for (int n = 0; n < 3 && frl_box_solid(w, px, py, bw, bh); n++) px++;
+            }
             else if (bw <= FRL_T) { px = tx * FRL_T + (FRL_T - bw) / 2; py = (ty + 1) * FRL_T - bh; }
             else { px = tx * FRL_T; py = (ty + 1) * FRL_T - bh; }
             int i = frl_foe_add(w, k, px, py);
@@ -159,16 +163,18 @@ void frl_world_new(FrlWorld *w, int players, uint8_t allowed) {
             FrlFoe *f = &w->foe[i];
             if (FRL_MAP[ty][tx] == 'i') f->face = -1;
             if (FRL_MAP[ty][tx] == 'I') f->face = 1;
-            if (k == FK_GULPER) {
-                /* the body fills the shaft below the head, as far as it is a shaft */
-                for (int y = ty + 1; y < FRL_MH; y++) {
-                    if (!frl_solid(w, tx - 1, y) || !frl_solid(w, tx + 2, y)) break;
-                    w->tile[y][tx] = w->tile[y][tx + 1] = FT_GULP;
-                }
-            }
             if (k == FK_HEART) w->hearts_left++;
         }
     w->nplaced = w->nfoe;
+    /* each comb's mouth: the first open cell below, beside or above it */
+    for (int i = 0; i < w->ncomb; i++) {
+        FrlComb *c = &w->comb[i];
+        static const int8_t D[4][2] = {{0, 1}, {-1, 0}, {1, 0}, {0, -1}};
+        c->mx = c->tx;
+        c->my = (int16_t)(c->ty + 1);
+        for (int k = 0; k < 4; k++)
+            if (!frl_solid(w, c->tx + D[k][0], c->ty + D[k][1])) { c->mx = (int16_t)(c->tx + D[k][0]); c->my = (int16_t)(c->ty + D[k][1]); break; }
+    }
     w->lives = FRL_LIVES;
     w->players = (uint8_t)(players == 2 ? 2 : 1);
     w->allowed = allowed ? allowed : 0x1F;
@@ -319,6 +325,27 @@ void frl_hurt_foe(FrlWorld *w, int i, int dmg) {
     }
 }
 
+/* damage to the comb in cell (tx, ty), if there is one */
+bool frl_hurt_comb(FrlWorld *w, int tx, int ty, int dmg) {
+    for (int i = 0; i < w->ncomb; i++) {
+        FrlComb *c = &w->comb[i];
+        if (c->tx != tx || c->ty != ty || c->hp <= 0) continue;
+        c->hp = (int16_t)(c->hp - dmg);
+        int x = tx * FRL_T + 5, y = ty * FRL_T + 5;
+        if (c->hp <= 0) {
+            c->hp = 0;
+            w->tile[ty][tx] = FT_AIR;
+            w->ev |= FEV_KILL;
+            frl_add_fx(w, x, y, FFX_KILL);
+        } else {
+            w->ev |= FEV_HIT;
+            frl_add_fx(w, x, y, FFX_HIT);
+        }
+        return true;
+    }
+    return false;
+}
+
 void frl_blast(FrlWorld *w, int cx, int cy) {
     w->ev |= FEV_BLAST;
     w->shake = imax(w->shake, 16);
@@ -334,9 +361,10 @@ void frl_blast(FrlWorld *w, int cx, int cy) {
     for (int ty = (cy - FRL_BLAST_R) / FRL_T - 1; ty <= (cy + FRL_BLAST_R) / FRL_T + 1; ty++)
         for (int tx = (cx - FRL_BLAST_R) / FRL_T - 1; tx <= (cx + FRL_BLAST_R) / FRL_T + 1; tx++) {
             int t = frl_tile(w, tx, ty);
-            if (t != FT_LOOSE && t != FT_SEAL) continue;
+            if (t != FT_LOOSE && t != FT_SEAL && t != FT_COMB) continue;
             int dx = tx * FRL_T + 5 - cx, dy = ty * FRL_T + 5 - cy;
             if (dx * dx + dy * dy > FRL_BLAST_R * FRL_BLAST_R) continue;
+            if (t == FT_COMB) { frl_hurt_comb(w, tx, ty, FRL_BLAST_DMG); continue; }
             w->tile[ty][tx] = FT_AIR;
             w->ev |= FEV_BREAK;
             frl_add_fx(w, tx * FRL_T + 5, ty * FRL_T + 5, FFX_BREAK);
@@ -349,7 +377,7 @@ static bool stone_ok(const FrlWorld *w, int tx, int ty) {
     if (tx < 0 || tx >= FRL_MW || ty < 0 || ty >= FRL_MH) return false;
     switch (w->tile[ty][tx]) {
     case FT_AIR: case FT_LEAVES: case FT_TRUNK: case FT_SPIKES: case FT_DOOR_OPEN: return true;
-    case FT_BLOCK1: case FT_BLOCK2: case FT_BLOCK3: case FT_BLOCK4: return !frl_solid(w, tx, ty);
+    case FT_BLOCK1: case FT_BLOCK2: case FT_BLOCK3: return !frl_solid(w, tx, ty);
     default: return false;
     }
 }
@@ -361,6 +389,7 @@ static void gift(FrlWorld *w) {
     switch (u->cls) {
     case FRC_MASON: {
         int tx = cx / FRL_T, ty = cy / FRL_T;
+        if (u->below) ty = ((u->y >> 8) + FRL_UH - 1) / FRL_T + 1; /* just under the arrival */
         if (!stone_ok(w, tx, ty)) ty--;
         if (stone_ok(w, tx, ty)) {
             w->tile[ty][tx] = FT_STONE;
@@ -436,7 +465,6 @@ static void warp_to(FrlWorld *w, int px, int py) {
     u->tx = (px - FRL_UW / 2) << 8;
     u->ty = (py - FRL_UH) << 8;
     u->vx = u->vy = 0;
-    u->charge = 0;
     w->ev |= FEV_WARP;
     frl_add_fx(w, frl_unit_cx(w), frl_unit_cy(w), FFX_WARP);
 }
@@ -468,7 +496,6 @@ static void enter_pipe(FrlWorld *w, int i) {
     u->ty = ((out + 1) * FRL_T - FRL_UH) << 8;
     u->x = u->tx;
     u->vx = u->vy = 0;
-    u->charge = 0;
     w->ev |= FEV_CHUTE;
 }
 
@@ -533,9 +560,9 @@ static void unit_hazards(FrlWorld *w) {
         if (f->kind == FK_GULPER) {
             /* it swallows the volunteer whole, and is never seen again */
             f->on = 0;
-            for (int y = 0; y < FRL_MH; y++)
-                for (int x = 0; x < FRL_MW; x++)
-                    if (w->tile[y][x] == FT_GULP) w->tile[y][x] = FT_AIR;
+            int gx = (f->x >> 8) / FRL_T;
+            for (int y = (f->y >> 8) / FRL_T + 1; y < FRL_MH && w->tile[y][gx] == FT_GULP; y++)
+                w->tile[y][gx] = w->tile[y][gx + 1] = FT_AIR;
             frl_unit_die(w, FCAUSE_EATEN);
             return;
         }
@@ -575,6 +602,12 @@ static void sword_hits(FrlWorld *w) {
         f->hit_no = w->u.swing_no;
         frl_hurt_foe(w, i, FRL_DAMAGE[FRC_MASON]);
     }
+    if (w->u.atk_t == 8)                   /* once a swing */
+        for (int i = 0; i < w->ncomb; i++) {
+            const FrlComb *c = &w->comb[i];
+            if (c->hp > 0 && rects_overlap(sx, sy, sw, sh, c->tx * FRL_T, c->ty * FRL_T, FRL_T, FRL_T))
+                frl_hurt_comb(w, c->tx, c->ty, FRL_DAMAGE[FRC_MASON]);
+        }
 }
 
 static void unit_step(FrlWorld *w) {
@@ -582,18 +615,30 @@ static void unit_step(FrlWorld *w) {
     u->life_t++;
     if (u->atk_t) u->atk_t--;
     if (u->atk_cd) u->atk_cd--;
-    if (u->mode == FUM_PIPE) {
-        u->mode_t++;
-        u->y = imin(u->y + 3 * FRL_ONE, u->ty);
-        if (u->y >= u->ty) { u->mode = FUM_WALK; u->vy = 0; }
-        return;
-    }
-    if (u->mode == FUM_WARP) {
-        if (++u->mode_t >= FRL_WARP_T) {
+    if (u->mode == FUM_PIPE || u->mode == FUM_WARP) {
+        /* the charge carries through a waystone or a chute, and can be let
+         * go there: in a chute it goes off where the volunteer is; through
+         * a waystone it goes off on arrival (a mason's stone just below) */
+        if (pressed(w, BTN_B)) u->charge = 1;
+        else if (held(w, BTN_B) && u->charge > 0) {
+            if (u->charge < 30000) u->charge++;
+            if (u->charge == FRL_CHARGE) w->ev |= FEV_READY;
+        }
+        bool go = released(w, BTN_B) && u->charge >= FRL_CHARGE;
+        if (released(w, BTN_B) && !go) u->charge = 0;
+        if (u->mode == FUM_PIPE) {
+            u->mode_t++;
+            if (go) { frl_give_up(w); return; }
+            u->y = imin(u->y + 3 * FRL_ONE, u->ty);
+            if (u->y >= u->ty) { u->mode = FUM_WALK; u->vy = 0; }
+            return;
+        }
+        if (++u->mode_t >= FRL_WARP_T || go) {
             u->x = u->tx;
             u->y = u->ty;
             u->mode = FUM_WALK;
             frl_add_fx(w, frl_unit_cx(w), frl_unit_cy(w), FFX_WARP);
+            if (go) { u->below = 1; frl_give_up(w); }
         }
         return;
     }
@@ -638,7 +683,7 @@ static void unit_step(FrlWorld *w) {
     sword_hits(w);
 
     /* down a chute; up through the waystone (either way) */
-    if (pressed(w, BTN_DOWN)) {
+    if (pressed(w, BTN_DOWN) && u->ground) {
         int px, py;
         unit_box(w, &px, &py);
         int p = frl_pipe_at(w, px, py, FRL_UW, FRL_UH);
@@ -721,6 +766,8 @@ static void shots_step(FrlWorld *w) {
         }
         /* a foe's shot starts inside it (a wall-eye's inside its rock) */
         if (frl_solid(w, x / FRL_T, y / FRL_T) && (s->mine || s->t > 5)) {
+            if (s->mine && frl_tile(w, x / FRL_T, y / FRL_T) == FT_COMB)
+                frl_hurt_comb(w, x / FRL_T, y / FRL_T, s->kind == FS_WRENCH ? FRL_DAMAGE[FRC_TINKER] : 1);
             s->on = 0;
             frl_add_fx(w, x, y, FFX_DUST);
         }
@@ -729,7 +776,7 @@ static void shots_step(FrlWorld *w) {
 
 static void camera_step(FrlWorld *w) {
     int fx, fy;
-    if (w->phase == FWP_SELECT) { fx = w->base_x; fy = w->base_y - 20; }
+    if (w->phase == FWP_SELECT || w->phase == FWP_DARK) { fx = w->base_x; fy = w->base_y - 20; }
     else {
         fx = frl_unit_cx(w);
         fy = frl_unit_cy(w);
@@ -785,13 +832,22 @@ void frl_world_step(FrlWorld *w, uint32_t pad1, uint32_t pad2) {
             else if (w->lives <= 0) { w->phase = FWP_OVER; w->phase_t = 0; }
             else {
                 w->lives--;
-                w->phase = FWP_SELECT;
+                w->phase = FWP_DARK;
                 w->phase_t = 0;
                 frl_clear_minions(w);
-                w->ctl_prev = 0xFFFFFFFFu; /* no press carries over to the door */
                 camera_step(w);
                 return;
             }
+        }
+        break;
+    case FWP_DARK:
+        /* black, but for the hearts still beating; then the door */
+        if (w->phase_t >= FRL_DARK_T) {
+            w->phase = FWP_SELECT;
+            w->phase_t = 0;
+            w->ctl_prev = 0xFFFFFFFFu; /* no press carries over to the door */
+            camera_step(w);
+            return;
         }
         break;
     default: break;

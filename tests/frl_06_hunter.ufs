@@ -49,7 +49,7 @@ wait 50
 release B
 wait 2
 expect pouches == 1
-wait 60
+wait 110
 # a runner (5 knives) throws two, then fills up at the pouch
 cheat class 2
 wait 2

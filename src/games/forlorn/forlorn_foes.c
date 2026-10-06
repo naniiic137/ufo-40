@@ -428,15 +428,16 @@ void frl_spawners_step(FrlWorld *w) {
             if (k >= 0) w->foe[k].face = (int8_t)(ux < cx ? -1 : 1);
         }
     }
-    /* combs: midges */
+    /* combs: midges out of the mouth, unless it's broken or a stone fills it */
     for (int i = 0; i < w->ncomb; i++) {
         FrlComb *c = &w->comb[i];
         int cx = c->tx * FRL_T + 5, cy = c->ty * FRL_T + 5;
+        if (c->hp <= 0 || frl_tile(w, c->mx, c->my) == FT_STONE) continue;
         if (iabs(ux - cx) >= 140 || iabs(uy - cy) >= 100) continue;
         int tag = -20 - i;
         if (++c->t >= 170 && count_owned(w, FK_MIDGE, tag) < 2) {
             c->t = 0;
-            add_minion(w, FK_MIDGE, ux < cx ? cx - 12 : cx + 6, cy - 3, tag);
+            add_minion(w, FK_MIDGE, c->mx * FRL_T + 2, c->my * FRL_T + 2, tag);
         }
     }
     /* bells: hornets, for as long as the bell hangs */

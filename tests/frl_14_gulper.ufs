@@ -23,5 +23,5 @@ expect cause == 4
 expect first_on17 == 0
 expect solid45070 == 0
 expect solid59071 == 0
-wait 60
+wait 110
 expect first_on17 == 0

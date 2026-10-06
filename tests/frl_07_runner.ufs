@@ -14,7 +14,7 @@ wait 2
 expect way == 1
 expect way_x == 400
 expect way_y == 150
-wait 60
+wait 110
 cheat class 2
 wait 2
 cheat place 450 195
@@ -22,7 +22,7 @@ cheat give_up
 wait 2
 expect way_x == 450
 expect way_y == 195
-wait 60
+wait 110
 # through it from the base
 cheat class 0
 wait 2

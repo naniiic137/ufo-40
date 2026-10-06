@@ -1,0 +1,24 @@
+# FORLORN HOPE: three gulpers close off three ways. The one in the roots is
+# over 50 tiles long, its head four screens above the passage its body
+# blocks. Feeding one a volunteer clears that one only.
+game forlorn
+cheat start 1
+wait 20
+cheat no_foes
+expect alive17 == 3
+expect solid100100 == 1
+expect solid153100 == 1
+expect solid100034 == 1
+expect solid50070 == 1
+# the sump's gulper: walk into its head
+cheat class 0
+wait 2
+cheat place 325 925
+hold RIGHT 40
+expect phase == 2
+expect cause == 4
+expect alive17 == 2
+expect solid100034 == 0
+expect solid110035 == 0
+expect solid50070 == 1
+expect solid120100 == 1

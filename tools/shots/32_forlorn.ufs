@@ -20,18 +20,18 @@ botuntil units >= 3 400
 botuntil y <= 120 900
 botplay 20
 shot forlorn_yew
-# the hunter climbing the tower, the bell's hornets about
-botuntil units >= 12 20000
+# the mason climbing the tower after its duel with the stingback
+botuntil units >= 9 20000
 botuntil y >= 700 4000
 botuntil y <= 380 6000
 shot forlorn_tower
 # a sapper dropping on the upper left heart
-botuntil units >= 21 20000
+botuntil units >= 14 20000
 botuntil y >= 300 2000
 botuntil y >= 388 400
 botplay 6
 shot forlorn_hearts
-# the ending: a statue for every volunteer lost
+# the ending: the roll is read
 botuntil state == 5 30000
-wait 400
+wait 700
 shot forlorn_ending

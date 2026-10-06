@@ -32,7 +32,7 @@ expect cause == 0
 expect stones == 1
 expect tile19035 == 9
 expect solid19035 == 1
-wait 60
+wait 110
 # the next stands on it
 cheat class 0
 wait 2

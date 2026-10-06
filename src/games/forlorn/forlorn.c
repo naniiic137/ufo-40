@@ -367,13 +367,7 @@ static void draw_hud(void) {
         /* keys carried, beside the ammo (top left, as on the original's screen) */
         draw_key_icon(x, 2, C_YELLOW);
         snprintf(b, sizeof b, "%d", w->keys);
-        x = text_draw(b, x + 8, 2, C_CREAM) + 6;
-        if (u->charge >= FRL_CHARGE) text_draw("READY", x, 2, (frame_t / 4) & 1 ? C_YELLOW : C_ORANGE);
-        else if (u->charge >= FRL_ARMED) {
-            int fill = (u->charge - FRL_ARMED) * 24 / (FRL_CHARGE - FRL_ARMED);
-            gfx_rectb(x, 3, 26, 6, C_SLATE);
-            gfx_rect(x + 1, 4, fill, 4, C_ORANGE);
-        }
+        text_draw(b, x + 8, 2, C_CREAM);
     } else if (w->phase == FWP_SELECT) {
         if (w->players == 2) {
             snprintf(b, sizeof b, "PLAYER %d, PICK A TRADE", w->units % 2 + 1);
@@ -392,13 +386,23 @@ static void draw_select(void) {
     gfx_hline(0, SCREEN_W - 1, y0, C_SLATE);
     for (int c = 0; c < FRC_COUNT; c++)
         frl_draw_class_card(c, 18 + c * 58, y0 + 5, w->sel == c, (w->allowed >> c) & 1, frame_t);
-    if (w->lives == 0) {
-        gfx_rect(80, y0 - 12, 160, 10, C_INK);
-        tiny_center("THE LAST VOLUNTEER OF HOLLOWAY", 160, y0 - 10, C_RED);
+}
+
+/* between lives: black, and only the thorn hearts still beating, in a row */
+static void draw_dark(void) {
+    gfx_cls(C_INK);
+    int n = frl_w.hearts_left, k = 0;
+    for (int i = 0; i < frl_w.nfoe; i++) {
+        const FrlFoe *f = &frl_w.foe[i];
+        if (!f->on || f->kind != FK_HEART) continue;
+        int x = 160 - n * 22 + k * 44 + 2;
+        frl_draw_heart(x, 70, frame_t + k * 9, 2);
+        k++;
     }
 }
 
 static void draw_play(void) {
+    if (frl_w.phase == FWP_DARK) { draw_dark(); return; }
     frl_draw_world(&frl_w, frame_t);
     draw_parts();
     draw_hud();
@@ -452,13 +456,10 @@ static void draw_title(void) {
         if (title_sel == k) ui_cursor(90, y, frame_t);
     }
     if (code_on) tiny_center("SLIM-PICK IS ON", 120, 153, C_LIME);
+    /* the original's two stats */
     char b[96];
-    if (sv.best_lost == 0xFFFF) snprintf(b, sizeof b, "RUNS %d  " GLYPH_DOT "  WINS %d  " GLYPH_DOT "  FEWEST LOST -", sv.runs, sv.wins);
-    else snprintf(b, sizeof b, "RUNS %d  " GLYPH_DOT "  WINS %d  " GLYPH_DOT "  FEWEST LOST %d", sv.runs, sv.wins, sv.best_lost);
-    tiny_center(b, 160, 160, C_YELLOW);
-    snprintf(b, sizeof b, "MOST DOORS UNLOCKED %d  " GLYPH_DOT "  MOST PLATES PRESSED %d  " GLYPH_DOT "  ALL LOST %lu",
-             sv.most_doors, sv.most_switches, (unsigned long)sv.total_lost);
-    tiny_center(b, 160, 168, C_LIGHT);
+    snprintf(b, sizeof b, "MOST DOORS UNLOCKED %d  " GLYPH_DOT "  MOST PLATES PRESSED %d", sv.most_doors, sv.most_switches);
+    tiny_center(b, 160, 164, C_YELLOW);
 }
 
 static void draw_code(void) {
@@ -528,17 +529,18 @@ static void draw_ending(void) {
         gfx_rect(x + 1, y, 4, 3, C_LIGHT);
         gfx_hline(x - 1, x + 6, y + 10, C_SLATE);
     }
-    static const char *const T[3] = {
-        "WITH THE THORN HEARTS BURST, THORNKEEP FELL STONE BY STONE.",
-        "HOLLOWAY CHOSE NEW STEWARDS, WHO SWORE TO GUARD ITS FOLK.",
-        "IN THE SQUARE THEY RAISED A STATUE FOR EVERY VOLUNTEER LOST.",
+    static const char *const T[4] = {
+        "THE LAST HEART STOPPED, AND THE THORNS LET GO OF THE KEEP.",
+        "BY MORNING THEY WERE DUST, AND HOLLOWAY'S BELLS RANG AGAIN.",
+        "AT THE TROOP'S DOOR THE COUNTER CAME DOWN, AND THE ROLL",
+        "WAS READ ALOUD, ONE NAME AT A TIME, UNTIL THE SUN WENT DOWN.",
     };
-    for (int k = 0; k < 3; k++) tiny_center(T[k], 160, 104 + k * 10, C_WHITE);
+    for (int k = 0; k < 4; k++) tiny_center(T[k], 160, 100 + k * 9, C_WHITE);
     char b[64];
     snprintf(b, sizeof b, "VOLUNTEERS LOST %d   LEFT %d", frl_w.lost, frl_w.lives);
     text_center(b, 160, 138, C_CREAM);
     if (run_code) tiny_center("SLIM-PICK RUN: NO GOALS OR RECORDS", 160, 150, C_LIME);
-    else if (frl_w.lost < FRL_CHERRY) tiny_center("FEWER THAN 50 LOST: EVERY STATUE HAS A NAME", 160, 150, C_YELLOW);
+    else if (frl_w.lost < FRL_CHERRY) tiny_center("FEWER THAN 50 LOST: A SHORT ROLL, AND A LONG FEAST", 160, 150, C_YELLOW);
     else tiny_center("NOW TRY IT HAVING LOST FEWER THAN 50", 160, 150, C_GREY);
     if (state_t > 120) text_center(GLYPH_A " ON", 160, 166, C_LIME);
 }
@@ -770,6 +772,7 @@ static int frl_query(const char *key, int *out) {
     if (!strcmp(key, "bot_stuck")) { *out = bot.stuck; return 1; }
     if (!strcmp(key, "bot_plans")) { *out = frl_bot_plans(); return 1; }
     if (num_key(key, "alive", &i)) { *out = count_kind(i, false); return 1; }
+    if (num_key(key, "comb_hp", &i)) { *out = i < w->ncomb ? w->comb[i].hp : -1; return 1; }
     if (num_key(key, "plate", &i)) { *out = i < FRL_PLATES ? w->plate[i].down : 0; return 1; }
     if (num_key(key, "key_taken", &i)) { *out = i < w->nkey ? w->key[i].taken : -1; return 1; }
     if (num_key(key, "foe_hp", &i)) { *out = i < w->nfoe ? w->foe[i].hp : -1; return 1; }

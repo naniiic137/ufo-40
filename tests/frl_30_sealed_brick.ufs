@@ -1,0 +1,26 @@
+# FORLORN HOPE: sealed brick (laid in square blocks, where the castle's walls
+# run thicker than they should) breaks to a blast, like the loose rock: the
+# dungeon floor gives way into the deep, and the heart chamber's east wall
+# opens onto the chimney's passage.
+game forlorn
+cheat start 1
+wait 20
+cheat no_foes
+expect tile58085 == 8
+cheat class 4
+wait 2
+cheat place 855 575
+cheat give_up
+wait 2
+expect tile58085 == 0
+expect tile59084 == 0
+wait 110
+expect tile56158 == 8
+cheat class 4
+wait 2
+cheat place 1603 575
+cheat give_up
+wait 2
+expect tile56158 == 0
+expect tile57159 == 0
+expect tile57158 == 0

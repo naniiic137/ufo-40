@@ -97,7 +97,7 @@ static const char OVER_PAD[] = "@4 v6 q8 o3 c1 o2 a1";
 static const char OVER_BASS[] = "@6 v12 q8 o2 a1 o1 a1";
 static const char OVER_DRUM[] = "@12 v5 o5 c1 r1";
 
-/* "Statues in the Square" - the ending: C major at last */
+/* "The Roll Is Read" - the ending: C major at last */
 static const char END_LEAD[] =
     "@15 v11 q7"
     "| o5 c4 e4 g4 e4 | o5 f4 a4 g2 | o5 e4 d4 c4 o4 a4 | o4 g2. r4"

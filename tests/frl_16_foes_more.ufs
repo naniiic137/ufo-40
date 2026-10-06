@@ -12,7 +12,7 @@ wait 2
 cheat place 440 45
 waituntil alive3 >= 1 220
 cheat die
-wait 60
+wait 110
 # hall 1's hornet bell (its knights sent away)
 cheat class 0
 wait 2
@@ -20,7 +20,7 @@ cheat kill_kind 12
 cheat place 905 315
 waituntil alive4 >= 1 220
 cheat die
-wait 60
+wait 110
 cheat no_foes
 # each of the others alone on the meadow, the volunteer standing off
 cheat class 0
@@ -29,35 +29,35 @@ cheat place 300 195
 cheat spawn 6 400 188
 waituntil foe_shots >= 1 140
 cheat die
-wait 60
+wait 110
 cheat class 0
 wait 2
 cheat place 300 195
 cheat spawn 12 390 186
 waituntil foe_shots >= 1 120
 cheat die
-wait 60
+wait 110
 cheat class 0
 wait 2
 cheat place 300 195
 cheat spawn 10 420 160
 waituntil foe_shots >= 3 200
 cheat die
-wait 60
+wait 110
 cheat class 0
 wait 2
 cheat place 300 195
 cheat spawn 13 380 180
 waituntil foe_shots >= 8 170
 cheat die
-wait 60
+wait 110
 cheat class 0
 wait 2
 cheat place 300 195
 cheat spawn 14 380 182
 waituntil foe_shots >= 1 60
 cheat die
-wait 60
+wait 110
 cheat class 0
 wait 2
 cheat place 300 195
@@ -65,14 +65,14 @@ cheat spawn 15 380 178
 wait 5
 waituntil last_y < 180 60
 cheat die
-wait 60
+wait 110
 cheat class 0
 wait 2
 cheat place 300 195
 cheat spawn 16 380 186
 waituntil alive2 >= 1 170
 cheat die
-wait 60
+wait 110
 cheat class 0
 wait 2
 cheat place 455 120

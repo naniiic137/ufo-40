@@ -21,6 +21,6 @@ expect keys == 0
 expect doors == 1
 expect x >= 750
 cheat die
-wait 60
+wait 110
 expect tile18074 == 11
 expect doors == 1

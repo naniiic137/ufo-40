@@ -24,8 +24,8 @@
 #include "../../shell/gamedef.h"
 #include "../../shell/ui.h"
 
-#define FRL_MW 160             /* the map: 160 x 80 tiles of 10 px */
-#define FRL_MH 80
+#define FRL_MW 190             /* the map: 190 x 170 tiles of 10 px */
+#define FRL_MH 170
 #define FRL_T 10
 #define FRL_OY 12              /* the map's top on screen (the HUD is above) */
 #define FRL_VH (SCREEN_H - FRL_OY)
@@ -51,6 +51,8 @@
 #define FRL_BLAST_DMG 15
 #define FRL_DEAD_T 50
 #define FRL_WARP_T 18
+#define FRL_DARK_T 50
+#define FRL_COMB_HP 10
 
 enum { FRC_MASON, FRC_HUNTER, FRC_RUNNER, FRC_TINKER, FRC_SAPPER, FRC_COUNT };
 extern const char *const FRL_CLASS_NAME[FRC_COUNT];
@@ -62,8 +64,8 @@ enum {
     FT_AIR, FT_ROCK, FT_BRICK, FT_WOOD, FT_LEAVES, FT_TRUNK, FT_SPIKES, FT_LOOSE, FT_SEAL,
     FT_STONE,                  /* a mason's stone */
     FT_DOOR, FT_DOOR_OPEN,
-    FT_BLOCK1, FT_BLOCK2, FT_BLOCK3, FT_BLOCK4, /* raised while plate 1-4 is held */
-    FT_COMB,                   /* a midge comb (solid) */
+    FT_BLOCK1, FT_BLOCK2, FT_BLOCK3, /* raised while plate 1-3 is held (yellow, green, blue) */
+    FT_COMB,                   /* a midge comb (solid; it can be broken) */
     FT_GULP,                   /* the gulper's body (solid) */
     FT_COUNT
 };
@@ -102,7 +104,9 @@ typedef struct FrlShot {
 } FrlShot;
 
 typedef struct FrlDrain { int16_t tx, ty; uint8_t ceiling, kids; uint16_t t; uint8_t near; } FrlDrain;
-typedef struct FrlComb { int16_t tx, ty; uint8_t kids; uint16_t t; } FrlComb;
+/* a comb sends midges out of its mouth (an open cell beside it); a stone in
+ * the mouth stops it, and it breaks after FRL_COMB_HP of damage */
+typedef struct FrlComb { int16_t tx, ty; uint8_t kids; uint16_t t; int16_t mx, my; int16_t hp; } FrlComb;
 typedef struct FrlPlate { int16_t tx, ty; uint8_t down, ever; } FrlPlate;
 typedef struct FrlKey { int16_t tx, ty; uint8_t taken; } FrlKey;
 typedef struct FrlPipe { int16_t tx, ty, len; } FrlPipe;
@@ -120,10 +124,12 @@ typedef struct FrlUnit {
     uint16_t mode_t;
     int32_t tx, ty;            /* where a chute or a waystone takes it, 1/256 px */
     uint32_t life_t;
+    uint8_t below;             /* given up on arriving through a waystone */
 } FrlUnit;
 
 /* the run's phase */
-enum { FWP_SELECT, FWP_PLAY, FWP_DEAD, FWP_WON, FWP_OVER };
+/* DARK: the black screen between lives, where only the hearts linger */
+enum { FWP_SELECT, FWP_PLAY, FWP_DEAD, FWP_WON, FWP_OVER, FWP_DARK };
 
 /* what happened this frame, for sounds and sparks */
 enum {
@@ -140,12 +146,12 @@ enum { FFX_BLAST, FFX_DIE, FFX_HIT, FFX_KILL, FFX_DUST, FFX_KEY, FFX_STONE, FFX_
 /* how a volunteer was lost */
 enum { FCAUSE_GAVE, FCAUSE_SPIKES, FCAUSE_FOE, FCAUSE_SHOT, FCAUSE_EATEN, FCAUSE_TEST };
 
-#define FRL_FOES 160
+#define FRL_FOES 256
 #define FRL_SHOTS 96
-#define FRL_DRAINS 16
-#define FRL_COMBS 4
-#define FRL_PLATES 4
-#define FRL_KEYS 8
+#define FRL_DRAINS 24
+#define FRL_COMBS 8
+#define FRL_PLATES 3
+#define FRL_KEYS 16
 #define FRL_PIPES 48
 #define FRL_POUCHES 48
 #define FRL_FX 16
@@ -219,6 +225,7 @@ bool frl_way_red(const FrlWorld *w);       /* a foe waits by the waystone */
 int frl_pipe_at(const FrlWorld *w, int px, int py, int bw, int bh);
 void frl_blast(FrlWorld *w, int cx, int cy);
 void frl_hurt_foe(FrlWorld *w, int i, int dmg);
+bool frl_hurt_comb(FrlWorld *w, int tx, int ty, int dmg);
 FrlShot *frl_shot_add(FrlWorld *w, int kind, int32_t x, int32_t y, int32_t vx, int32_t vy, int life, bool mine);
 int frl_isqrt(int v);
 void frl_aim(int32_t x, int32_t y, int32_t tx, int32_t ty, int32_t speed, int32_t *vx, int32_t *vy);
@@ -246,7 +253,7 @@ typedef struct FrlBot {
 void frl_bot_reset(FrlBot *b);
 uint32_t frl_bot(const FrlWorld *w, FrlBot *b);   /* the buttons for this frame */
 int frl_bot_plans(void);
-void frl_bot_route(int r);           /* 0 the demo route, 1 the castle way */
+void frl_bot_route(int r);           /* 0 demo, 1 castle way, 2 expert's, 3 chimney */
 extern int frl_bot_debug;
 
 /* ---- art & audio ------------------------------------------------------- */

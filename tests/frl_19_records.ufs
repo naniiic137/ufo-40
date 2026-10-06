@@ -51,7 +51,7 @@ wait 20
 cheat class 2
 wait 2
 cheat die
-wait 60
+wait 110
 expect lives == 98
 reload
 game forlorn

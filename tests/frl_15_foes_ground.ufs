@@ -17,7 +17,7 @@ waituntil phase == 2 200
 expect cause == 2
 wait 30
 expect last_x < 320
-wait 60
+wait 110
 # an idol facing left: in front of it, bubbles come; behind it, none
 cheat class 0
 wait 2
@@ -28,7 +28,7 @@ cheat place 470 195
 wait 200
 expect phase == 1
 cheat die
-wait 60
+wait 110
 # the meadow's wall-eye opens up when you come close
 cheat start 1
 wait 20
@@ -37,7 +37,7 @@ wait 2
 cheat place 400 195
 waituntil foe_shots >= 1 90
 cheat die
-wait 60
+wait 110
 # the undercroft's floor drain, and a stone over it
 cheat class 0
 wait 2
@@ -47,7 +47,7 @@ cheat place 505 365
 cheat give_up
 wait 2
 expect tile36050 == 9
-wait 60
+wait 110
 cheat class 4
 wait 2
 cheat place 540 365

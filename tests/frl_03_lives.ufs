@@ -11,7 +11,7 @@ cheat die
 wait 2
 expect phase == 2
 expect lost == 1
-wait 60
+wait 110
 expect phase == 0
 expect lives == 98
 expect lost == 1
@@ -22,7 +22,7 @@ wait 2
 expect phase == 1
 expect lives == 0
 cheat die
-wait 60
+wait 110
 expect phase == 4
 wait 5
 expect state == 4

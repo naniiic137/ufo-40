@@ -17,7 +17,8 @@ static int backdrop(int tx, int ty) {
     return BD_CAVE;
 }
 
-static const uint8_t PLATE_COL[FRL_PLATES] = {C_TEAL, C_AMBER, C_VIOLET, C_ORANGE};
+/* the blocks' colours tell which plate raises them: yellow, green, blue */
+static const uint8_t PLATE_COL[FRL_PLATES] = {C_YELLOW, C_LEAF, C_BLUE};
 
 static bool open_at(const FrlWorld *w, int tx, int ty) {
     if (tx < 0 || tx >= FRL_MW || ty < 0 || ty >= FRL_MH) return false;
@@ -123,6 +124,17 @@ static void draw_rock(const FrlWorld *w, int tx, int ty, int px, int py, int bas
 }
 
 static void draw_brick(const FrlWorld *w, int tx, int ty, int px, int py, bool seal) {
+    if (seal) {
+        /* sealed brick: square blocks, not the castle's running bond; it
+         * looks out of place to anyone who looks */
+        gfx_rect(px, py, FRL_T, FRL_T, C_SLATE);
+        gfx_hline(px, px + 9, py + 4, C_DUSK);
+        gfx_hline(px, px + 9, py + 9, C_DUSK);
+        gfx_vline(px + 4, py, py + 9, C_DUSK);
+        gfx_vline(px + 9, py, py + 9, C_DUSK);
+        if (open_at(w, tx, ty - 1)) gfx_hline(px, px + 9, py, C_GREY);
+        return;
+    }
     gfx_rect(px, py, FRL_T, FRL_T, C_SLATE);
     gfx_hline(px, px + 9, py + 4, C_DUSK);
     gfx_hline(px, px + 9, py + 9, C_DUSK);
@@ -130,7 +142,6 @@ static void draw_brick(const FrlWorld *w, int tx, int ty, int px, int py, bool s
     gfx_vline(px + off, py, py + 3, C_DUSK);
     gfx_vline(px + (off + 5) % 10, py + 5, py + 8, C_DUSK);
     if (open_at(w, tx, ty - 1)) gfx_hline(px, px + 9, py, C_GREY);
-    if (seal) gfx_pset(px + 7, py + 2, C_GREY); /* a hairline crack, if you look */
 }
 
 static void draw_tile(const FrlWorld *w, int tx, int ty, int px, int py, int t) {
@@ -203,7 +214,7 @@ static void draw_tile(const FrlWorld *w, int tx, int ty, int px, int py, int t) 
         gfx_vline(px + 9, py, py + 9, C_EARTH);
         if (frl_tile(w, tx, ty - 1) != FT_DOOR_OPEN) gfx_hline(px, px + 9, py, C_EARTH);
         break;
-    case FT_BLOCK1: case FT_BLOCK2: case FT_BLOCK3: case FT_BLOCK4: {
+    case FT_BLOCK1: case FT_BLOCK2: case FT_BLOCK3: {
         int pi = k - FT_BLOCK1, c = PLATE_COL[pi];
         if (w->plate[pi].down) {
             gfx_rect(px, py, FRL_T, FRL_T, c);
@@ -379,7 +390,7 @@ void frl_draw_world(const FrlWorld *w, int t) {
             gfx_rect(ux + 2, uy + 2, 4, 6, C_INK);
         } else {
             int frame = !u->ground ? 3 : (u->vx != 0 ? 1 + (int)(u->life_t / 6) % 2 : 0);
-            bool flash = u->charge >= FRL_CHARGE ? (t / 3) & 1 : (u->charge >= FRL_ARMED && (t / 8) % 4 == 0);
+            bool flash = u->charge >= FRL_CHARGE && (t / 3) & 1;
             frl_draw_unit_full(u->cls, ux, uy, u->face, frame, flash, w->players == 2 ? u->player : 0, u->atk_t > 4 && u->cls == FRC_MASON);
         }
     }
