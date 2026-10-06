@@ -704,7 +704,7 @@ void bhp_draw_stage(const BhpStage *s, int t, bool owl) {
         if (s->exit_open) {
             gfx_circb(x, y, 7, C_BLUE);
             gfx_circb(x, y, 6, (t / 6) & 1 ? C_SKY : C_BLUE);
-            int c = (t / 8) & 1 ? C_RED : C_PINK;
+            int c = (t / 8) & 1 ? C_RED : C_MAROON;
             gfx_hline(x - 3, x + 3, y, c);
             gfx_vline(x, y - 3, y + 3, c);
         } else {
