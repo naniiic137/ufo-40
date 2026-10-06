@@ -1,0 +1,52 @@
+# FULL PEAL, stage A's foes. A clapper comes in down its lane, holds on
+# the ship's plane for a while (only the side blaster reaches it there),
+# then flies off: one that gets away counts against the grade. Clappers
+# sent in from a side (after an arrow at that edge) cross the plane end
+# to end. A pendulum swings top to bottom as it comes. A crosshead keeps
+# its distance and, after a pause, lobs a shell that bursts into a cross
+# of four shots along the plane.
+game fullpeal
+wait 12
+press A
+cheat sandbox
+cheat god
+cheat pos -2.5 1.5
+# the clapper
+cheat foe 0 2 1 0
+expect kind_z100_0 == 100
+expect kind_state_0 == 0
+waituntil kind_state_0 == 1 200
+expect kind_z100_0 == 0
+expect kind_x100_0 == -50
+wait 200
+expect kind_state_0 == 1
+waituntil foes_0 == 0 120
+expect wave_escaped == 1
+expect wave_kills == 0
+# the crosser: a warning first, then end to end
+cheat foe 0 -1 2 0
+expect kind_t_0 < 0
+expect kind_x100_0 == -350
+waituntil kind_t_0 >= 0 60
+wait 60
+expect kind_x100_0 > -350
+expect kind_y100_0 == 50
+waituntil foes_0 == 0 300
+expect wave_escaped == 2
+# the pendulum bounces off the bottom and comes back up
+cheat foe 7 1 0 0
+expect kind_y100_7 == -150
+wait 60
+expect kind_y100_7 > 100
+waituntil kind_y100_7 == 150 30
+wait 20
+expect kind_y100_7 < 150
+waituntil foes_7 == 0 400
+# the crosshead stops far off, then lobs a cross at the ship
+cheat foe 5 2 1 0
+waituntil kind_state_5 == 1 120
+expect kind_z100_5 == 55
+expect eshots == 0
+waituntil eshots_shell == 1 120
+waituntil eshots_plane == 4 80
+expect eshots_shell == 0

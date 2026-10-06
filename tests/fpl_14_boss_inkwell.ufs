@@ -1,0 +1,52 @@
+# FULL PEAL, stage C's boss: the Inkwell. It drifts in curves and drops
+# flares down the plane from the top (in the ship's column or the next;
+# the side blaster pops them), and now and then lobs two pairs of crosses.
+# At half health it moves faster and drops nothing but flares.
+game fullpeal
+wait 12
+press A
+cheat stage 3
+cheat boss
+cheat god
+expect boss_kind == 2
+expect boss_hp == 230
+cheat pos 0.5 0.5
+waituntil foes_17 >= 1 140
+expect kind_y100_17 < -200
+waituntil kind_y100_17 > -150 120
+# the flare is on the plane: blast it from below
+cheat still
+cheat endwave
+cheat pos 0.5 1.5
+cheat foez 17 0.5 -1.0 0
+hold DOWN
+hold A
+wait 1
+release DOWN
+expect side_dy == -1
+waituntil foes_17 == 0 40
+release
+cheat still
+# the crosses: two pairs, now and then
+waituntil boss_fired >= 1 260
+expect eshots_shell >= 2
+# at half health: no more crosses
+cheat bosshp 116
+cheat still
+cheat bosspos 0.5 0.5
+cheat pos 0.5 0.5
+hold B 12
+expect boss_angry == 1
+cheat still
+cheat pos -2.5 1.5
+wait 500
+expect boss_fired == 1
+expect boss_angry == 1
+# beaten
+cheat bosshp 1
+cheat still
+cheat bosspos 0.5 0.5
+cheat pos 0.5 0.5
+hold B 15
+expect boss_dead == 1
+waituntil stage == 4 200

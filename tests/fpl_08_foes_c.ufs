@@ -1,0 +1,68 @@
+# FULL PEAL, stage C's foes. A mote appears right on the plane (harmless
+# for a moment while it shimmers in) and drifts straight at where the
+# ship was. A nibbler appears the same way, chases, and takes two hits. A
+# bourdon, a great bell, swings in from a side to a lane marked on the
+# plane, drops onto it, sits, and goes: nothing can hurt it and it doesn't
+# count in the grade. A spite is a pendulum that bursts in a cross when
+# shot. A quick sally comes in much faster than a sally.
+game fullpeal
+wait 12
+press A
+cheat sandbox
+cheat god
+cheat pos -2.5 1.5
+# the mote, in the top right lane
+cheat foe 12 5 0 0
+expect kind_z100_12 == 0
+expect kind_x100_12 == 250
+expect kind_t_12 < 0
+waituntil kind_t_12 >= 0 40
+wait 40
+expect kind_x100_12 < 250
+expect kind_y100_12 > -150
+waituntil foes_12 == 0 500
+expect wave_escaped == 1
+# the nibbler chases and takes two
+cheat foe 13 5 1 0
+expect kind_hp_13 == 2
+waituntil kind_t_13 >= 0 40
+wait 60
+expect kind_x100_13 < 250
+cheat pos -2.5 -0.5
+cheat endwave
+wait 30
+# the bourdon: from the left to column 3, row 1
+cheat foe 4 -1 1 3
+expect kind_hp_4 == 0
+waituntil kind_state_4 == 1 300
+expect kind_x100_4 == 50
+expect kind_y100_4 == -50
+expect kind_z100_4 == 0
+# nothing hurts it
+cheat pos -1.5 -0.5
+hold LEFT
+hold A
+wait 1
+release LEFT
+wait 30
+release
+expect foes_4 == 1
+waituntil foes_4 == 0 400
+expect wave_escaped == 1
+# the spite, shot down out in the distance, still sends its cross down
+cheat still
+cheat foez 8 0.5 0.5 0.4
+cheat pos 0.5 0.5
+hold B 12
+expect foes_8 == 0
+expect eshots_shell == 1
+cheat still
+waituntil eshots_plane == 4 60
+# a quick sally is quicker than a sally
+cheat endwave
+wait 120
+cheat foe 9 0 0 0
+cheat foe 10 5 3 0
+wait 30
+expect kind_z100_9 == 82
+expect kind_z100_10 == 68

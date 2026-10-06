@@ -1,0 +1,37 @@
+# FULL PEAL, stage D's boss: Shellback. It sweeps back and forth along the
+# top of the view firing fans of shots: three, then four, then three; its
+# two pods now and then fire one aimed shot each. Its weak point is the
+# ring on its dome.
+game fullpeal
+wait 12
+press A
+cheat stage 4
+cheat boss
+cheat god
+expect boss_kind == 3
+expect boss_hp == 270
+wait 5
+expect boss_y100 == -105
+cheat pos -2.5 1.5
+waituntil boss_fired == 1 200
+expect boss_last_fan == 3
+waituntil boss_fired == 2 40
+expect boss_last_fan == 4
+waituntil boss_fired == 3 40
+expect boss_last_fan == 3
+waituntil boss_fired == 4 200
+expect boss_last_fan == 3
+# the dome's ring is in the top row
+cheat still
+cheat bosspos 0.5 -1.05
+cheat pos 0.5 -1.5
+hold B 30
+expect boss_hits >= 3
+cheat pos 0.5 0.5
+hold B 30
+expect boss_blocked == 0
+cheat bosshp 1
+cheat pos 0.5 -1.5
+hold B 15
+expect boss_dead == 1
+waituntil stage == 5 200

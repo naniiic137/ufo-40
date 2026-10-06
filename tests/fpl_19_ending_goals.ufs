@@ -1,0 +1,60 @@
+# FULL PEAL: beating Queen Sordina wins the run (the second goal): a short
+# ending, then the final count: the twenty wave grades plus 100 for every
+# continue left. 1,500 or more is the third goal.
+game fullpeal
+wait 12
+press A
+# a run that ends short of 1,500
+cheat grades 60
+cheat stage 5
+cheat grades 60
+cheat boss
+cheat god
+cheat bosshp 1
+cheat bossopen
+cheat still
+cheat bosspos 0.5 0.68
+cheat pos 0.5 0.5
+hold B 12
+cheat still
+waituntil boss_clary == 1 400
+waituntil boss_phase == 2 100
+cheat bosshp 1
+waituntil boss_dead == 1 200
+waituntil state == 10 300
+expect won == 1
+expect goals.fullpeal == 2
+waituntil state == 11 1000
+expect grades == 1200
+expect continues == 2
+expect final == 1400
+expect goals.fullpeal == 2
+wait 220
+press A
+wait 5
+expect state == 0
+# a run that ends with 1,600 + 200
+press A
+cheat grades 80
+cheat stage 5
+cheat grades 80
+cheat boss
+cheat god
+cheat bosshp 1
+cheat bossopen
+cheat still
+cheat bosspos 0.5 0.68
+cheat pos 0.5 0.5
+hold B 12
+cheat still
+waituntil boss_clary == 1 400
+waituntil boss_phase == 2 100
+cheat bosshp 1
+waituntil boss_dead == 1 200
+waituntil state == 10 300
+# the ending can be hurried after a while
+wait 310
+press A
+expect state == 11
+expect final == 1800
+expect goals.fullpeal == 6

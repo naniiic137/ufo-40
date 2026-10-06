@@ -1,0 +1,56 @@
+# FULL PEAL, stage B's foes. A sally (a rope-worm) homes a little toward
+# the ship as it comes and, reaching the plane, bursts into three spinning
+# shots; shot down first, it doesn't. A forker's shell splits into two
+# shots, up and down. A tenor takes three hits. A lookout appears at an
+# end of the plane after a warning arrow and fires along its row, three
+# shots and three more, then leaves.
+game fullpeal
+wait 12
+press A
+cheat sandbox
+cheat god
+cheat pos 2.5 1.5
+# the sally drifts toward the ship on its way in
+cheat foe 9 0 0 0
+expect kind_x100_9 == -250
+wait 60
+expect kind_x100_9 > -250
+expect kind_y100_9 > -150
+waituntil foes_9 == 0 200
+expect eshots_plane == 3
+expect wave_escaped == 1
+wait 120
+# shot down on the way, no burst
+cheat pos 0.5 0.5
+cheat foe 9 3 2 0
+hold B 40
+expect foes_9 == 0
+expect wave_kills == 1
+wait 100
+expect eshots == 0
+# the forker
+cheat foe 6 1 1 0
+waituntil eshots_shell == 1 200
+waituntil eshots_plane == 2 80
+expect eshots_shell == 0
+cheat endwave
+wait 200
+# a tenor: three hits
+cheat still
+cheat foez 1 0.5 0.5 0.7
+expect kind_hp_1 == 3
+hold B
+waituntil kind_hp_1 == 1 60
+waituntil foes_1 == 0 60
+release
+cheat still
+# the lookout from the left, on row 1
+cheat pos 2.5 1.5
+cheat foe 11 -1 1 0
+expect kind_t_11 < 0
+waituntil kind_state_11 == 1 120
+expect kind_x100_11 == -290
+expect kind_y100_11 == -50
+waituntil eshots_plane >= 3 80
+waituntil kind_state_11 == 2 200
+waituntil foes_11 == 0 100

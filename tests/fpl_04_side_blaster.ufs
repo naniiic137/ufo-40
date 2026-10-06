@@ -1,0 +1,74 @@
+# FULL PEAL: A is the side blaster. It fires along the plane, up, down,
+# left or right, away from the way the ship is moving (moving left, it
+# fires right); standing still, away from the last way it moved. Held, it
+# keeps that direction whatever the ship does. It reaches only what is on
+# the plane. Both buttons at once: the side blaster wins.
+game fullpeal
+wait 12
+press A
+cheat sandbox
+cheat god
+hold LEFT
+hold A
+wait 2
+expect side_dx == 1
+expect side_dy == 0
+expect pshots_side >= 1
+expect side_vx100 == 16
+# held: steering the other way keeps it firing right
+release LEFT
+hold RIGHT
+wait 14
+expect side_dx == 1
+expect side_vx100 == 16
+release
+wait 2
+# moving right: it fires left
+hold RIGHT
+hold A
+wait 2
+expect side_dx == -1
+release
+wait 2
+# moving down: it fires up
+hold DOWN
+hold A
+wait 2
+expect side_dx == 0
+expect side_dy == -1
+expect side_vy100 == -16
+release
+wait 30
+# standing still: away from the last way it moved (down)
+hold A
+wait 2
+expect side_dy == -1
+release
+wait 30
+# both buttons: only the blaster fires
+cheat pos 0 0.5
+hold A B 30
+expect pshots_fwd == 0
+expect pshots_side >= 2
+wait 30
+# a foe on the plane in the ship's row: blasted
+cheat pos -1.5 0.5
+cheat foez 0 1.5 0.5 0
+hold LEFT
+hold A
+wait 1
+release LEFT
+wait 40
+release
+expect foes == 0
+expect wave_kills == 1
+# a foe out in the distance in that row is not on the plane: untouched
+cheat foez 0 1.5 0.5 0.5
+cheat still
+hold LEFT
+hold A
+wait 1
+release LEFT
+wait 40
+release
+expect foes == 1

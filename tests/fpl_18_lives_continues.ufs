@@ -1,0 +1,59 @@
+# FULL PEAL: three ships to a credit, and they are not given back between
+# stages. Losing the last ship of a credit spends a continue: three ships
+# again, and the stage starts over from its first wave (its grades so far
+# wiped). With no continue left, it's the end; player 1's A goes back to
+# the title.
+game fullpeal
+wait 12
+press A
+waituntil state == 3 300
+cheat kill
+waituntil alive == 1 80
+expect lives == 2
+# stage A done: the lost ship isn't given back
+cheat kills 28
+cheat endwave
+wait 2
+cheat stage 2
+waituntil state == 3 300
+expect lives == 2
+cheat kills 10
+cheat endwave
+wait 2
+expect grade_b1 > 0
+waituntil state == 3 200
+expect wave == 2
+# lose the other two: a continue goes, stage B again from wave 1
+cheat kill
+waituntil alive == 1 80
+cheat kill
+waituntil state == 13 80
+expect continues == 1
+expect credits_lost == 1
+waituntil state == 2 200
+expect stage == 2
+expect lives == 3
+expect alive == 1
+expect grade_b1 == -1
+expect grade_a1 == 100
+waituntil state == 3 300
+expect wave == 1
+# and again
+cheat kill
+waituntil alive == 1 80
+cheat kill
+waituntil alive == 1 80
+cheat kill
+waituntil state == 13 80
+expect continues == 0
+waituntil state == 3 500
+# the last credit's last ship: game over
+cheat lives 1
+cheat kill
+waituntil state == 12 80
+expect paused == 0
+wait 100
+expect state == 12
+press A
+wait 5
+expect state == 0

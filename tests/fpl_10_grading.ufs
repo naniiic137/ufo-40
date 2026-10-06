@@ -1,0 +1,70 @@
+# FULL PEAL: each wave is graded by the share of its foes shot down, 0 to
+# 100 (a foe that gets away counts against it; the bourdons and caltrops,
+# which can't be hurt, aren't counted at all). A 100 brings the owl; a
+# 100 or a 0 anywhere in the stage earns a balloon round after the boss.
+# Exactly 50 on the very first wave brings a strange message. Waves end
+# by themselves: you never have to clear them.
+game fullpeal
+wait 12
+press A
+waituntil state == 3 300
+expect wave_total == 28
+expect plan_total_a1 == 28
+cheat kills 14
+cheat endwave
+wait 2
+expect state == 4
+expect last_grade == 50
+expect grade_a1 == 50
+expect meta == 1
+expect owl == 0
+expect bonus_due == 0
+expect grades == 50
+# the next wave after the card
+waituntil state == 3 200
+expect wave == 2
+expect wave_total == 25
+cheat kills 25
+cheat endwave
+wait 2
+expect last_grade == 100
+expect owl == 1
+expect meta == 0
+expect perfect_stage == 1
+expect perfects == 1
+expect bonus_due == 1
+expect grades == 150
+waituntil state == 3 200
+expect wave == 3
+expect wave_total == 32
+cheat kills 31
+cheat endwave
+wait 2
+# 31 of 32 is 96 (rounded down)
+expect last_grade == 96
+expect owl == 0
+waituntil state == 3 200
+expect wave_total == 34
+# a real wave: let it run by itself, shooting nothing
+cheat god
+waituntil state == 4 6000
+expect last_grade == 0
+expect wave_escaped == 34
+expect grade_a4 == 0
+expect grades == 246
+# after wave 4, the boss
+waituntil state == 5 200
+expect boss_kind == 0
+# a 0 also earns the balloon round, in a stage without a 100
+cheat stage 2
+waituntil state == 3 300
+expect bonus_due == 0
+cheat kills 0
+cheat endwave
+wait 2
+expect last_grade == 0
+expect bonus_due == 1
+expect perfect_stage == 0
+expect grade_b1 == 0
+# the grades of stage A are still there
+expect grade_a2 == 100

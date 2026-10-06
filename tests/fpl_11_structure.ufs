@@ -1,0 +1,66 @@
+# FULL PEAL: the whole game at the original's scale. Five stages (A to E),
+# each of four fixed waves and a boss: twenty waves of formations, most of
+# four to seven, the longest (D3 and E4) twelve; sixteen kinds of foe;
+# five bosses in order. The waves are the same every time.
+game fullpeal
+wait 5
+expect plan_waves == 20
+expect plan_max_forms == 12
+expect plan_forms_d3 == 12
+expect plan_forms_e4 == 12
+expect plan_forms_a1 == 4
+expect plan_kinds == 16
+expect plan_total_a1 == 28
+expect plan_total_a2 == 25
+expect plan_total_a3 == 32
+expect plan_total_a4 == 34
+expect plan_total_b1 > 0
+expect plan_total_b2 > 0
+expect plan_total_b3 > 0
+expect plan_total_b4 > 0
+expect plan_total_c1 > 0
+expect plan_total_c2 > 0
+expect plan_total_c3 > 0
+expect plan_total_c4 > 0
+expect plan_total_d1 > 0
+expect plan_total_d2 > 0
+expect plan_total_d3 > 0
+expect plan_total_d4 > 0
+expect plan_total_e1 > 0
+expect plan_total_e2 > 0
+expect plan_total_e3 > 0
+expect plan_total_e4 > 0
+# D2 has twelve caltrops among its foes: not counted
+expect plan_total_d2 == 31
+press A
+# each stage's boss, in order
+cheat stage 1
+cheat boss
+expect boss_kind == 0
+expect boss_hp == 150
+cheat stage 2
+cheat boss
+expect boss_kind == 1
+cheat stage 3
+cheat boss
+expect boss_kind == 2
+cheat stage 4
+cheat boss
+expect boss_kind == 3
+cheat stage 5
+cheat boss
+expect boss_kind == 4
+expect boss_hp == 300
+# the same wave twice: the same foes in the same places at the same time
+cheat stage 1
+waituntil state == 3 300
+wait 200
+expect foes == 6
+expect kind_x100_0 == -250
+expect kind_z100_0 == 0
+cheat stage 1
+waituntil state == 3 300
+wait 200
+expect foes == 6
+expect kind_x100_0 == -250
+expect kind_z100_0 == 0

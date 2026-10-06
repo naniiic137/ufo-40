@@ -1,0 +1,41 @@
+# FULL PEAL: one touch of a shot or of a foe on the plane costs a ship.
+# The next one is there at once (in the middle of the plane) and blinks,
+# safe, for a moment; the wave goes on.
+game fullpeal
+wait 12
+press A
+cheat sandbox
+# the first ship of a run blinks for a moment too
+expect inv > 0
+waituntil inv == 0 200
+cheat pos 0 0.5
+# a shot along the plane, coming from the right
+cheat eshot 2 0.5 -0.05 0
+waituntil alive == 0 60
+expect lives == 2
+expect deaths == 1
+expect cause == 0
+waituntil alive == 1 80
+expect inv > 0
+expect x100 == 0
+expect y100 == 50
+# blinking, a shot passes harmlessly
+cheat eshot 1 0.5 -0.05 0
+wait 40
+expect alive == 1
+expect lives == 2
+waituntil inv == 0 200
+# a clapper sitting on the plane: touching it is a loss
+cheat foez 0 1.2 0.5 0
+hold RIGHT 20
+expect alive == 0
+expect lives == 1
+expect cause == 100
+waituntil alive == 1 80
+expect state == 3
+# a shell from the distance lands where the ship was aimed at
+waituntil inv == 0 200
+cheat shell 0 0.5 0
+waituntil alive == 0 40
+expect cause == 1
+expect lives == 0

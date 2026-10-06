@@ -36,6 +36,7 @@ extern const GameDef GAME_BELLHOP;
 extern const GameDef GAME_TURNIP;
 extern const GameDef GAME_SHUTTERBUG;
 extern const GameDef GAME_TUSKWIND;
+extern const GameDef GAME_FULLPEAL;
 
 const GameDef *const GAMES[GAME_SLOTS] = {
     [0] = &GAME_UNDERDELVE,  /* 01 Barbuta */
@@ -70,4 +71,5 @@ const GameDef *const GAMES[GAME_SLOTS] = {
     [40] = &GAME_RIMSHIRE,   /* 41 Lords of Diskonia */
     [46] = &GAME_WOBBLE,     /* 47 Quibble Race */
     [47] = &GAME_DRIFTLINE,  /* 48 Seaside Drive */
+    [48] = &GAME_FULLPEAL,   /* 49 Campanella 3 */
 };

@@ -319,6 +319,7 @@ static void runner_enter(void) {
 static void runner_leave(void) {
     music_duck(false);
     input_set_versus(false); /* the library always gets the whole keyboard */
+    input_set_spare_p2(false);
     shell_remap_apply(-1);   /* ... and every button as itself */
     if (unsaved_secs) progress_save();
     unsaved_secs = 0;

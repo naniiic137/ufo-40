@@ -208,6 +208,17 @@ CORE_SRC += src/games/tuskwind/tuskwind_text.c
 CORE_SRC += src/games/tuskwind/tuskwind_draw.c
 CORE_SRC += src/games/tuskwind/tuskwind_art.c
 CORE_SRC += src/games/tuskwind/tuskwind_audio.c
+CORE_SRC += src/games/fullpeal/fpl.c
+CORE_SRC += src/games/fullpeal/fpl_play.c
+CORE_SRC += src/games/fullpeal/fpl_waves.c
+CORE_SRC += src/games/fullpeal/fpl_boss.c
+CORE_SRC += src/games/fullpeal/fpl_bonus.c
+CORE_SRC += src/games/fullpeal/fpl_micro.c
+CORE_SRC += src/games/fullpeal/fpl_micro2.c
+CORE_SRC += src/games/fullpeal/fpl_bot.c
+CORE_SRC += src/games/fullpeal/fpl_draw.c
+CORE_SRC += src/games/fullpeal/fpl_art.c
+CORE_SRC += src/games/fullpeal/fpl_audio.c
 
 HEADLESS_SRC += src/platform/headless/main_headless.c
 HEADLESS_SRC += src/platform/headless/imgwrite.c
