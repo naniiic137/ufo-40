@@ -1,0 +1,47 @@
+# SHUTTERBUG: 2 PLAYERS: Sprig joins Poppy. Each ship flies, fires, throws
+# rings and takes photos on its own buttons, with its own camera meter and
+# its own armour; the lives and the score are shared, and a lost ship of
+# either sends both back to the stage's start.
+game shutterbug
+wait 5
+press DOWN
+press A
+wait 20
+press A
+wait 110
+expect state == 3
+expect players == 2
+expect on2 == 1
+expect alive2 == 1
+expect armour2 == 1
+cheat quiet
+cheat stop
+cheat clear
+cheat pos 60 40
+cheat pos2 60 120
+hold P2RIGHT 20
+expect px2 > 70
+expect px == 60
+hold P2B 20
+expect pshots_0 >= 2
+press P2A
+expect flash2 < 10
+expect flash == 600
+cheat hurt 1
+expect armour2 == 0
+expect armour == 1
+cheat addscore 300
+expect score == 300
+cheat lives 1
+wait 101
+cheat hurt 1
+expect alive2 == 0
+wait 160
+expect state == 4
+wait 200
+expect lives == 0
+expect score == 0
+wait 110
+expect alive == 1
+expect alive2 == 1
+expect armour2 == 1

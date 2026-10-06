@@ -1,0 +1,32 @@
+# SHUTTERBUG: a photographed foe that dies goes up with a bang that hurts
+# the foes round it, and takes every foe of its own kind from the same
+# photo with it. Green foes leave a parting shot when they die, but not
+# when they die photographed.
+game shutterbug
+cheat run 1
+cheat quiet
+cheat stop
+cheat clear
+cheat pos 60 80
+# two sugar cubes in the frame, and a green mint below them, out of the
+# line of fire: only a blast can reach it
+cheat dummy 6 160 76 0
+cheat dummy 6 180 96 0
+cheat dummy 2 170 104 4
+press A
+expect stunned == 3
+hold B 30
+expect foes_6 == 0
+expect foes_2 == 0
+expect retaliations == 0
+expect score == 600
+# a green foe killed without a photo answers back
+cheat clear
+cheat dummy 2 160 84 4
+hold B 40
+expect foes_2 == 0
+expect retaliations == 1
+expect eshots_5 == 1
+# the parting shot floats, then drifts after the ship
+wait 40
+expect eshots_5 == 1

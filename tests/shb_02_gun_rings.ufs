@@ -1,0 +1,39 @@
+# SHUTTERBUG: holding B fires the gun by itself, to the right, for as long
+# as it is held, and charges the rings at the same time: held long enough
+# (the two dots light), letting go throws four rings fanned out in front.
+# A short hold throws nothing. Rings bounce off rock.
+game shutterbug
+cheat run 1
+cheat quiet
+cheat stop
+cheat pos 60 60
+hold B
+wait 30
+expect firing == 1
+expect pshots_0 >= 3
+expect hold_t >= 30
+expect pshots_1 == 0
+wait 30
+expect hold_t >= 54
+expect pshots_1 == 0
+release B
+wait 1
+expect pshots_1 == 4
+expect rings_thrown == 1
+expect hold_t == 0
+wait 110
+# a short hold: the gun only
+hold B
+wait 20
+release B
+wait 1
+expect rings_thrown == 1
+expect pshots_1 == 0
+# rings bounce off rock: the bump in the prologue, straight ahead
+cheat goto 600
+cheat stop
+cheat pos 70 118
+hold B 60
+wait 16
+expect ring_back >= 1
+expect rings_thrown == 2

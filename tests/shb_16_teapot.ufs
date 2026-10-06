@@ -1,0 +1,26 @@
+# SHUTTERBUG: the Teapot can only be hurt through its lid, and only a photo
+# makes the lid pop. Shots at the closed pot do nothing. Beating it is the
+# Beacon goal. (The demo player presses the buttons.)
+game shutterbug
+cheat run 1
+cheat stage 1
+cheat lives 5
+cheat goto 4600
+expect hold == 1
+cheat god
+waituntil fstate_30 == 1 300
+# shots at the closed pot do nothing (no photo taken)
+cheat pos 60 60
+hold B DOWN 40
+hold B UP 60
+hold B 200
+expect foes_30 == 1
+expect hp_30 == 140
+expect open_30 == 0
+expect photos == 0
+botuntil open_30 == 1 1200
+expect stun_30 > 0
+botuntil hp_30 < 140 400
+botuntil state == 6 6000
+expect goals & 1
+expect stage == 1

@@ -1,0 +1,19 @@
+# SHUTTERBUG: proof the game can be completed without the letters: the
+# demo player, told to leave U, F and O alone, flies from the title to
+# King Thunderjaw and beats him: the Beacon and Saucer goals, but no
+# Alien, and the ending that says what is missing.
+game shutterbug
+cheat letterbot 0
+botuntil stage == 5 90000
+expect letters == 0
+botuntil state == 7 40000
+expect stage == 5
+expect won == 1
+expect true_won == 0
+expect goals & 1
+expect goals & 2
+expect goals !& 4
+wait 300
+botuntil state == 0 4000
+expect save_wins == 1
+expect save_trues == 0

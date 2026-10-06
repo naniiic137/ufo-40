@@ -1,0 +1,38 @@
+# SHUTTERBUG: the red foe (one on each planet) turns into a wrench when
+# photographed. Caught, a wrench puts the armour back; with the armour on,
+# it is worth 1,000 points instead. Shot, the red foe just dies.
+game shutterbug
+cheat run 1
+cheat quiet
+cheat stop
+cheat clear
+cheat pos 60 84
+cheat hurt 0
+expect armour == 0
+cheat dummy 6 167 84 1
+press A
+expect foes_6 == 0
+expect wrench_out == 1
+expect score == 0
+hold RIGHT 90
+expect wrench_out == 0
+expect wrenches == 1
+expect armour == 1
+expect score == 0
+# with the armour on: points
+wait 100
+cheat pos 60 84
+cheat flash 600
+cheat dummy 6 167 84 1
+press A
+hold RIGHT 90
+expect wrenches == 2
+expect armour == 1
+expect score == 1000
+# shot, a red foe is just a foe
+cheat pos 60 84
+cheat dummy 6 167 84 1
+hold B 40
+expect foes_6 == 0
+expect wrench_out == 0
+expect score == 1100

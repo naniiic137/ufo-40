@@ -1,0 +1,40 @@
+# SHUTTERBUG: proof the game can be completed, the true way. From the
+# title, the demo player picks 1 PLAYER, skips the story and flies the
+# prologue and all five stages pressing real buttons (no cheats): it
+# photographs the U (Teatime Planet's second tall cave), the F (the
+# ceiling of Old Croak's hall) and the O (the fronds at the start of
+# Fossil Planet), beats King Thunderjaw, then the Kaleidoscope. All three
+# goals, the true ending, the credits, the records saved, the title.
+game shutterbug
+botuntil stage == 1 8000
+expect state == 2
+expect deaths == 0
+botuntil stage == 2 30000
+expect goals & 1
+expect letters & 1
+botuntil stage == 3 12000
+botuntil stage == 4 30000
+expect letters & 2
+botuntil stage == 5 12000
+botuntil stage == 6 40000
+expect letters == 7
+expect goals & 2
+botuntil state == 7 12000
+expect true_won == 1
+expect won == 1
+expect goals == 7
+print frame
+print best
+print deaths
+print lives
+print types
+print secrets
+# a run under twenty minutes (72,000 frames), as the original's
+expect frame < 72000
+botuntil state == 0 4000
+expect save_trues == 1
+expect save_wins == 1
+expect save_runs == 1
+expect save_best > 50000
+expect save_types >= 15
+expect save_secrets >= 3

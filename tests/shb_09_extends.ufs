@@ -1,0 +1,47 @@
+# SHUTTERBUG: no spare ships to start with; they come only from points, at
+# 8,000, 20,000, 36,000, 56,000, 80,000, 108,000, 140,000 and 186,000, and
+# never again after that. A lost ship puts the shown score back to 0, but
+# what was earned still counts toward the next ship (the "to next" count).
+game shutterbug
+cheat run 1
+cheat quiet
+expect lives == 0
+expect next_extend == 8000
+cheat addscore 7999
+expect lives == 0
+cheat addscore 1
+expect lives == 1
+expect extends == 1
+expect next_extend == 20000
+# lose the ship: score back to 0, the total stays
+cheat hurt 0
+wait 101
+cheat hurt 0
+wait 160
+expect state == 4
+wait 200
+expect lives == 0
+expect score == 0
+expect total == 8000
+cheat addscore 11999
+expect lives == 0
+cheat addscore 1
+expect lives == 1
+expect score == 12000
+expect best == 12000
+cheat addscore 16000
+expect lives == 2
+cheat addscore 20000
+expect lives == 3
+cheat addscore 24000
+expect lives == 4
+cheat addscore 28000
+expect lives == 5
+cheat addscore 32000
+expect lives == 6
+cheat addscore 46000
+expect lives == 7
+expect extends == 8
+expect next_extend == 0
+cheat addscore 500000
+expect lives == 7

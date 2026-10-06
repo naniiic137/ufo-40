@@ -1,0 +1,23 @@
+# SHUTTERBUG: the true boss's shards circle its core and soak up shots; a
+# photo of the core makes them unwind and wander the screen, and the core
+# can be hurt until they come back. Beating it is the Alien goal and the
+# true ending.
+game shutterbug
+cheat run 1
+cheat letters 7
+cheat stage 6
+cheat lives 5
+cheat god
+cheat flash 0
+botplay 500
+expect foes_35 == 1
+expect foes_36 == 8
+expect hp_35 == 200
+expect kalei_phase == 0
+botuntil kalei_phase == 1 1500
+expect open_35 == 1
+botuntil hp_35 < 200 400
+botuntil state == 7 8000
+expect true_won == 1
+expect goals & 4
+expect goals & 2

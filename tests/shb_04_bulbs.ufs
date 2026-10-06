@@ -1,0 +1,25 @@
+# SHUTTERBUG: bulbs (charge crystals) drift toward the ship only slowly
+# while B is held, and fly to it from across the screen once B is let go.
+# Each is half the camera's meter: two fill it.
+game shutterbug
+cheat run 1
+cheat quiet
+cheat stop
+cheat clear
+cheat pos 40 84
+cheat flash 0
+cheat drop 0 290 84
+hold B
+wait 60
+expect crystals == 1
+expect crystal_dx > 200
+release B
+wait 90
+expect crystals == 0
+expect crystals_got == 1
+expect flash >= 300
+expect flash < 600
+cheat drop 0 290 60
+wait 100
+expect crystals_got == 2
+expect flash == 600

@@ -1,0 +1,29 @@
+# SHUTTERBUG: Fossil Planet's generators must all go before the view moves
+# on to King Thunderjaw. The king is hurt only in his open jaw; it opens by
+# itself now and then to fire, and a photo forces it open. His bone chutes
+# guard the top and bottom.
+game shutterbug
+cheat run 1
+cheat stage 5
+cheat lives 5
+cheat goto 3900
+cheat god
+waituntil hold == 2 400
+wait 200
+expect cam_x == 4000
+expect foes_23 == 4
+botuntil foes_23 == 0 3000
+waituntil hold == 1 1000
+expect cam_x == 4400
+waituntil foes_33 == 1 100
+waituntil fstate_33 == 1 600
+expect foes_34 == 2
+expect open_33 == 0
+waituntil open_33 == 1 300
+cheat flash 0
+waituntil open_33 == 0 300
+cheat flash 600
+botuntil stun_33 > 0 1500
+expect open_33 == 1
+botuntil state == 6 6000
+expect stage == 5

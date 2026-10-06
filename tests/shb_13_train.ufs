@@ -1,0 +1,17 @@
+# SHUTTERBUG: one coach of a ghost train in a photo stops the whole train;
+# shoot one and the whole stunned train goes up together.
+game shutterbug
+cheat run 1
+cheat quiet
+cheat stop
+cheat clear
+cheat foe 16 230 120 0
+cheat foe 16 248 120 0
+cheat foe 16 266 120 0
+cheat foe 16 284 120 0
+cheat pos 120 120
+press A
+expect stunned == 4
+hold B 30
+expect foes_16 == 0
+expect score == 1600

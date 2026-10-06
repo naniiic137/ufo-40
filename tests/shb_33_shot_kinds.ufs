@@ -1,0 +1,17 @@
+# SHUTTERBUG: a kitewing drops a dart when it passes over the ship; the dart
+# stabs straight back up when it lands. A toastie's crumbs bounce off rock.
+game shutterbug
+cheat run 1
+cheat quiet
+cheat stop
+cheat clear
+cheat god
+cheat eshot 3 200 100 0 1
+expect arrows_up == 0
+waituntil arrows_up >= 1 80
+cheat eshot 7 100 140 0 2
+waituntil crumbs_bounced >= 1 30
+cheat clear
+cheat pos 120 140
+cheat foe 21 150 30 0
+waituntil eshots_3 >= 1 200

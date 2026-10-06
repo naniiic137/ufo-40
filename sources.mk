@@ -167,6 +167,15 @@ CORE_SRC += src/games/hattrick/hattrick_bot.c
 CORE_SRC += src/games/hattrick/hattrick_draw.c
 CORE_SRC += src/games/hattrick/hattrick_art.c
 CORE_SRC += src/games/hattrick/hattrick_audio.c
+CORE_SRC += src/games/shutterbug/shutterbug.c
+CORE_SRC += src/games/shutterbug/shutterbug_play.c
+CORE_SRC += src/games/shutterbug/shutterbug_foes.c
+CORE_SRC += src/games/shutterbug/shutterbug_bosses.c
+CORE_SRC += src/games/shutterbug/shutterbug_stages.c
+CORE_SRC += src/games/shutterbug/shutterbug_bot.c
+CORE_SRC += src/games/shutterbug/shutterbug_draw.c
+CORE_SRC += src/games/shutterbug/shutterbug_art.c
+CORE_SRC += src/games/shutterbug/shutterbug_audio.c
 
 HEADLESS_SRC += src/platform/headless/main_headless.c
 HEADLESS_SRC += src/platform/headless/imgwrite.c

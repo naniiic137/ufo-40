@@ -1,0 +1,19 @@
+# SHUTTERBUG: beating King Thunderjaw without all three letters: the
+# Saucer goal, the ending, and a hint at what's missing; then the credits,
+# the records saved, and the title.
+game shutterbug
+cheat run 1
+cheat letters 3
+cheat win
+wait 30
+expect state == 7
+expect won == 1
+expect true_won == 0
+expect goals & 2
+expect goals !& 4
+wait 900
+expect state == 8
+wait 1610
+expect state == 0
+expect save_wins == 1
+expect save_trues == 0
