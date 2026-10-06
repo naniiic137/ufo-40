@@ -42,8 +42,10 @@ typedef struct Sfx {
     Track tr;
 } Sfx;
 
-#define MAX_SONGS 384 /* room for fifty cartridges */
-#define MAX_SFX 768
+/* Room for fifty cartridges with plenty to spare (each entry is a few dozen bytes).
+ * Hitting either limit is reported loudly: a silently dropped sound is a bug. */
+#define MAX_SONGS 1024
+#define MAX_SFX 2048
 
 static Song songs[MAX_SONGS];
 static int n_songs;
@@ -298,7 +300,7 @@ static void compile_track(const char *mml, Track *tr) {
 
 int song_define(const char *name, int bpm, bool loop, const char *p1, const char *p2,
                 const char *tri, const char *noise) {
-    if (n_songs >= MAX_SONGS) return -1;
+    if (n_songs >= MAX_SONGS) { fprintf(stderr, "audio: song table full (%d), dropped %s\n", MAX_SONGS, name); return -1; }
     Song *s = &songs[n_songs];
     memset(s, 0, sizeof *s);
     snprintf(s->name, sizeof s->name, "%s", name);
@@ -322,7 +324,7 @@ int song_channel_ticks(int id, int ch) { return (id >= 0 && id < n_songs) ? song
 int song_channel_loop_ticks(int id, int ch) { return (id >= 0 && id < n_songs) ? songs[id].tr[ch].loop_ticks : 0; }
 
 int sfx_define(const char *name, int channel, int bpm, const char *mml) {
-    if (n_sfx >= MAX_SFX) return -1;
+    if (n_sfx >= MAX_SFX) { fprintf(stderr, "audio: sfx table full (%d), dropped %s\n", MAX_SFX, name); return -1; }
     Sfx *s = &sfxs[n_sfx];
     memset(s, 0, sizeof *s);
     snprintf(s->name, sizeof s->name, "%s", name);
