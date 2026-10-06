@@ -97,6 +97,13 @@ static const struct { const char *id, *title; } TITLES[] = {
     {"tnp_title", "TURNIP TRUCK"}, {"tnp_news", "NEWS AT NINE"}, {"tnp_day", "ON THE CLOCK"},
     {"tnp_overtime", "AFTER HOURS"}, {"tnp_rain", "RAIN ON THE ROOF"}, {"tnp_clear", "CLOCKED OUT"},
     {"tnp_fail", "WRITTEN OFF"}, {"tnp_end", "SUNDAY OFF"}, {"tnp_fired", "PINK SLIP"},
+    {"clc_title", "CLARION CALL"}, {"clc_cellars", "DOWN IN THE CELLARS"}, {"clc_arbor", "UNDER THE BOUGHS"},
+    {"clc_ice", "THIN ICE"}, {"clc_gullet", "SOMETHING DIGESTING"}, {"clc_cog", "COGTOWN SHIFT"},
+    {"clc_cloister", "CANDLES OUT"}, {"clc_spire", "TOP OF THE SPIRE"}, {"clc_cave", "UNDERFOOT"},
+    {"clc_dash", "THE GOLD DOOR"}, {"clc_boss", "THE LOBBER"}, {"clc_hush", "LADY HUSH RETURNS"},
+    {"clc_tock", "GRANDSIRE TOCK"}, {"clc_escape", "NINETY-NINE SECONDS"}, {"clc_shop", "ONE PER CUSTOMER"},
+    {"clc_map", "THE STATION MAP"}, {"clc_end", "HOME WITH ANSEL"}, {"clc_true", "THE BELLS RING AGAIN"},
+    {"clc_sad", "HOME ALONE"}, {"clc_clear", "ENGINE DOWN"}, {"clc_over", "LOST IN THE BELFRY"},
 };
 
 const char *shell_song_title(int song) {
