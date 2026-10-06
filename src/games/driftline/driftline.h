@@ -240,6 +240,8 @@ typedef struct {
     DflCar car[DFL_CARS];
     /* the stage */
     int stage_t, spawn_i;
+    int hog_hint_t;   /* owner's addition: stage 1's first road car shows how to stop it */
+    bool hog_hinted;
     float scroll;
     int swell_i, swell_loop;
     DflSwell swell[DFL_MAX_SWELLS];

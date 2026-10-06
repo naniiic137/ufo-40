@@ -190,6 +190,7 @@ text [MANUAL]. **Owner's change (06/10):** DRIFTLINE swaps them, so the button m
 players reach for first (A: Z / Space / Cross) fires the roof gun, and its shots
 leave from the barrel's tip on a turret in the middle of the roof. B fires the side
 guns. The cartridge card's CONTROLS page can swap them back.
+**Owner's addition (06/10):** the first road car of stage 1 shows a 4-second hint ("HOLD B AND STEER: SIDE GUNS HIT CARS"), since the roof gun can't reach the road and nothing else says so. The game-over text sits in a solid box so it stays readable.
 
 ## Tests
 

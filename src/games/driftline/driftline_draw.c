@@ -630,6 +630,11 @@ static void draw_world(void) {
     draw_eshots();
     draw_parts();
     gfx_camera(0, 0);
+    if (dfg.hog_hint_t > 0 && dfg.state == DS_PLAY) {
+        /* the roof gun can't reach the road: say which button can, once */
+        gfx_rect(40, 122, 240, 13, C_INK);
+        text_center_shadow("HOLD " GLYPH_B " AND STEER: SIDE GUNS HIT CARS", 160, 125, C_YELLOW, C_INK);
+    }
     draw_hud();
 }
 
@@ -734,6 +739,9 @@ static void draw_bonus_end(void) {
 static void draw_over(void) {
     draw_world();
     gfx_dither(0, DFL_HUD_H, SCREEN_W, DFL_ROAD_BOT - DFL_HUD_H, C_INK, 8);
+    /* a solid box like STAGE CLEAR's: text straight on the dimmed scene breaks up */
+    gfx_rect(60, 50, 200, 60, C_INK);
+    gfx_rectb(60, 50, 200, 60, C_MAROON);
     static const uint8_t grad[] = {C_WHITE, C_LIGHT, C_GREY};
     ui_fancy_center("OUT OF CARS", 160, 60, 2, grad, 3, C_INK, C_MAROON);
     char buf[48];

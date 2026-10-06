@@ -73,6 +73,8 @@ static void place(DflFoe *e, const DflSpawn *s, int idx) {
         e->ay = s->y;
         break;
     case FK_HOG:
+        if (dfg.stage == 0 && !dfg.hog_hinted) { dfg.hog_hinted = true; dfg.hog_hint_t = 240; }
+        /* fall through */
     case FK_TUMBLER:
         e->x = side;
         e->y = road;

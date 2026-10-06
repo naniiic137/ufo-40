@@ -398,6 +398,7 @@ void dfl_new_run(int players) {
 }
 
 void dfl_start_stage(int s) {
+    if (s == 0) { dfg.hog_hinted = false; dfg.hog_hint_t = 0; }
     dfg.stage = s;
     dfg.stage_t = 0;
     dfg.spawn_i = 0;
@@ -433,6 +434,7 @@ void dfl_start_stage(int s) {
 /* one frame of a stage; the shell's state machine reads what happened */
 void dfl_play_update(uint16_t in0, uint16_t in1) {
     dfg.frame_t++;
+    if (dfg.hog_hint_t > 0) dfg.hog_hint_t--;
     dfg.stage_t++;
     dfg.scroll += DFL_SCROLL;
     if (dfg.shake > 0) dfg.shake--;
