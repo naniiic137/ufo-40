@@ -650,6 +650,7 @@ static bool try_world(ClcWorld *w, const ClcAreaSpec *sp, Rng *rng) {
     /* the enemies */
     int tier = clc_region_tier(sp->region);
     int foes = 11 + sp->area * 3 + tier * 2;
+    if (sp->region == RG_CLOISTER) foes /= 2; /* the dark is enemy enough: few of them */
     for (int k = 0; k < foes; k++) {
         int kind = pick_kind(rng, sp->region), x, y, dir = 1;
         int hab = habitat(kind);

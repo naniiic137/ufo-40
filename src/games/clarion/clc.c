@@ -563,7 +563,6 @@ static void draw_card(void) {
     snprintf(b, sizeof b, "%s %s", CLC_REGION_NAME[run.region], roman(run.area));
     ui_fancy_center(b, 160, 70, 2, GOLDG, 4, C_INK, C_WINE);
     if (run.region == RG_SPIRE && run.area == 2) tiny_center("THE CROWN", 160, 94, C_CREAM);
-    else tiny_center("FIND TEN NOTES. THE GOLD DOOR OPENS ON THE TENTH.", 160, 98, C_CREAM);
 }
 
 static void draw_play_map(void) {

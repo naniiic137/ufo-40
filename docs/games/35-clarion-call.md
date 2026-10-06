@@ -55,7 +55,7 @@ can land; the bar holds 8; the tank is one tank for the whole run.
 **How long it takes.** No run times were found [research §4]; players call
 it "actually short, the hard part is not dying" and our estimate was
 20–45 minutes. The demo player finishes in about 14 minutes of game time
-(`clc_s1`: about 49,000 frames).
+(`clc_s1`: about 50,000 frames, from the title to the ending).
 
 ## Structure
 
@@ -66,7 +66,7 @@ it "actually short, the hard part is not dying" and our estimate was
 | THE ICEHOUSE | second | long low halls: fire drones and wind drones | ice underfoot; brutes (hit hard, 60 coins); jets of fire | I: one time in two a health stall. II: a yellow door to the boon (one of three, free) instead of the cave; the trial one time in three | I the Lucky Thimble |
 | THE GULLET | third (or Cogtown or the Cloister) | lumpy and winding: leeches, eye turrets, acid pods, blobs (they come back: a farm) | ringworms, slurps in acid pits, pelters | I: a yellow door to free armour (the Tin Plate) instead of the friendly sort | I the Magnet; II Seeker Bells |
 | COGTOWN | third | square rooms on a grid: sentries the ship can't hurt (they stop while Clary is out, and she can shoot them), snakes, wall crabs | hoverbots, troopers | I: a yellow door straight to the Spire instead of the cave (skipping Cogtown II and its engine); the trial one time in three. II: the mega store; the friendly sort, the trial or a health stall | II Big Bang |
-| THE CLOISTER | third | dark (a circle of light round Clary); a labyrinth of dead ends; fake notes that wake as ghosts; jets of fire | spitters, cocoons and bees, fire wheels | I: six empty red doors, and the friendly sort's is the light switch. II: no Lobber before the engine; the friendly sort, the trial or the cursed one (its prize: the Twin Swipe) | I Spit Gun; II Bounce Beam |
+| THE CLOISTER | third | dark (a circle of light round Clary) and sparse (half the usual enemies); a labyrinth of dead ends; fake notes that wake as ghosts; jets of fire | spitters, cocoons and bees, fire wheels | I: six empty red doors, and the friendly sort's is the light switch. II: no Lobber before the engine; the friendly sort, the trial or the cursed one (its prize: the Twin Swipe) | I Spit Gun; II Bounce Beam |
 | THE SPIRE | always last | everything at once: boomers, worms, eye turrets, chasers, leeches, fire drones; magnets | the others' things, mixed | I: a yellow door to the magnet switch instead of the friendly sort. II: one time in two a health stall; the last sexton | I Spit Gun; II Feather Boots |
 | THE CROWN | the Spire's third | fixed: a long hall climbing in three terraces | | the sexton's secret door (only after the last sexton) on the lowest floor, the health stall and the shop on the middle one, the gold door to Lady Hush at the top | |
 
@@ -113,7 +113,7 @@ the records alone.
 | Doors | UP in front; behind them the view comes closer | [MM], [W] | clc_05, clc_12 |
 | Notes | 14 an area; the first eight +100 fuel, the ninth and tenth +200; HUD: five icons in halves; the remaining notes grow at nine | [W], [MM] | clc_06 |
 | The dash | the tenth: the gold door shows, an arrow by the ship points to it, all other doors lock, the spare notes turn to plum coins (25), clock rings appear (+200, the clock stops 2 s), pods hatch and shoot, the clock reads 60 and counts double | [W], [MM] | clc_06 |
-| Too late | at 0 the latecomers pour in; a touch ends the run whatever the bar | [W], [MM] | clc_06 |
+| Too late | at 0 the edges of the view darken and the latecomers pour in; a touch ends the run whatever the bar | [W], [MM] | clc_06 |
 | Red caves | left to right, a skull drifting in from the left that shoots when close, blocks (a coin each), barrels (a blast with a bonus for every enemy it takes), the chest at the end, a door back out | [W], [MM], [C2-GUIDE], [ST-NECK] | clc_10 |
 | Chests | the area's item (the wiki's table, by region); a region with none draws one: an upgrade, or toffee if hurt, else 200 coins | [W] | clc_10, clc_12 |
 | Gold caves | always fuel at the end (+500); in a second area the Lobber and a Hush Engine first | [C2-GUIDE], [W] | clc_13 |

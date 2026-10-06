@@ -457,6 +457,16 @@ void clc_draw_world(const ClcWorld *w, const ClcPlayer *p, int t) {
     }
     gfx_camera(0, 0);
     if (w->dark) darkness(pxp - cx, pyp - cy, 48 + clc_sin(t * 3) * 2 / 127);
+    if (w->late_on) {
+        /* too late: the edges of the view go dark */
+        for (int k = 0; k < 4; k++) {
+            int b = 6 + k * 6;
+            gfx_darken_rect(0, 0, SCREEN_W, b, 1);
+            gfx_darken_rect(0, SCREEN_H - b, SCREEN_W, b, 1);
+            gfx_darken_rect(0, 0, b, SCREEN_H, 1);
+            gfx_darken_rect(SCREEN_W - b, 0, b, SCREEN_H, 1);
+        }
+    }
     /* the dowser: where the doors that aren't red are */
     if (clc_has(p, G_DOWSER)) {
         for (int k = 0; k < w->nd; k++) {
