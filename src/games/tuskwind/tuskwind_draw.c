@@ -73,10 +73,7 @@ static void draw_sea(int t) {
 
 static void draw_plat(int i, int t) {
     const TkwPlat *p = &tkw_w.plat[i];
-    if (p->gone) {
-        if (p->kind == PK_FOAM && p->back > 0 && p->back < 40) gfx_dither(p->x, p->y, p->w, p->h, C_PINK, (40 - p->back) / 5);
-        return;
-    }
+    if (p->gone) return;
     bool flash = p->brawl_t > 0 && (p->brawl_t / 6) % 2;
     switch (p->kind) {
     case PK_LEDGE: {
@@ -246,9 +243,7 @@ static void draw_hero(int t) {
     const TkwBody *b = &h->b;
     if (h->ps == PS_RESCUE) {
         /* a tern lifts him out of the sea and back */
-        const TkwPlat *p = &tkw_w.plat[h->takeoff];
-        float k = h->ps_t / 80.0f;
-        float x = b->x + (h->takeoff_x - b->x) * k, y = tkw_w.sea_y + (p->y - tkw_w.sea_y) * k;
+        float x = b->x, y = b->y;
         TkwBody tmp = *b;
         tmp.x = x;
         tmp.y = y;
@@ -607,7 +602,7 @@ static void draw_ending(void) {
         gfx_rect(40, 112, 60, 8, C_ICE);
         spr_draw(&tkw_spr[SP_BURL_SLEEP], 58, 98, 0);
         if ((t / 30) % 2) text_draw("Z", 80, 92, C_LIGHT);
-        text_box(20, "BURL SLAPPED THE ICE THREE TIMES, AND THE SEA DID THE REST. THEN HE WENT BACK TO SLEEP.", C_CREAM, C_CYAN);
+        text_box(20, "SLAP. SLAP. SLAP. A WAVE AS TALL AS A BERG CAME UP UNDER THE SHIP. BURL YAWNED AND DOZED OFF AGAIN.", C_CREAM, C_CYAN);
     } else {
         /* the herd swims for it */
         for (int k = 0; k < 7; k++) {
@@ -616,7 +611,7 @@ static void draw_ending(void) {
             spr_draw_ex(&tkw_spr[SP_BURL], x, y - 8, 0, NULL, k == 3 ? -1 : -1);
             gfx_rect(x, y + 3, 20, 4, C_BLUE);
         }
-        text_box(20, "BURL WOKE, AND THE WHOLE HERD SLID INTO THE WATER AND SWAM HARD FOR THE OPEN SEA.", C_CREAM, C_SLATE);
+        text_box(20, "BURL WOKE WITH A JOLT, AND THE WHOLE HERD TUMBLED OFF THE FLOE AND PADDLED FOR OPEN WATER.", C_CREAM, C_SLATE);
     }
 }
 

@@ -59,7 +59,10 @@ static void brawler_step(TkwBrawler *p, uint16_t in, uint16_t prev) {
             if (in & BTN_UP) p->aim = fminf(TKW_AIM_MAX, p->aim + TKW_AIM_STEP);
             if (in & BTN_DOWN) p->aim = fmaxf(TKW_AIM_MIN, p->aim - TKW_AIM_STEP);
             if (p->charging) {
-                if (a_held) p->charge = imin(TKW_CHARGE_T, p->charge + 1);
+                if ((in & BTN_B) && !(prev & BTN_B)) {
+                    p->charging = false; /* B calls it off */
+                    p->charge = 0;
+                } else if (a_held) p->charge = imin(TKW_CHARGE_T, p->charge + 1);
                 else {
                     tkw_body_launch(b, &tkw_w, p->face, p->aim, p->charge);
                     p->charging = false;
@@ -72,8 +75,9 @@ static void brawler_step(TkwBrawler *p, uint16_t in, uint16_t prev) {
                 p->charging = true;
                 p->charge = 0;
             } else if (dx) {
-                walk = dx;
-                p->face = dx;
+                /* as on the journey: a press the other way turns first */
+                if (dx != p->face) p->face = dx;
+                else walk = dx;
             }
         }
         tkw_body_ground(b, &tkw_w, walk);

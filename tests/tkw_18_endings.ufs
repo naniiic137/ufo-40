@@ -32,9 +32,7 @@ wait 25
 press A
 wait 25
 press A
-wait 25
-press A
-expect talk_page == 6
+expect talk_page == 5
 expect state == 4
 wait 25
 press A
@@ -73,9 +71,7 @@ wait 25
 press A
 wait 25
 press A
-wait 25
-press A
-expect talk_page == 8
+expect talk_page == 7
 expect state == 4
 wait 25
 press A

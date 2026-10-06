@@ -2,8 +2,7 @@
 # passes up (or sideways) through it and lands on its top. A rock is solid
 # all round: hit from below or the side it bumps him away, his speed kept,
 # and he can stand on it. Pink foam holds only a short while once stood
-# on, just long enough to charge a full jump, then crumbles; it forms
-# again later. Landing stops him dead.
+# on, just long enough to charge a full jump, then crumbles for good. Landing stops him dead.
 game tuskwind
 wait 20
 cheat journey
@@ -71,14 +70,12 @@ expect plat == -1
 cheat god
 waituntil ps == 0 400
 cheat god
-# it forms again a few seconds later
+# it does not come back
 cheat blank
 cheat plat 220 200 40 2
 cheat land 1
 wait 75
 expect mode == 1
 cheat place 0 140
-wait 290
+wait 600
 expect solid_plats == 1
-wait 20
-expect solid_plats == 2

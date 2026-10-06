@@ -3,7 +3,8 @@
 # scoot along the islet, and a press the other way turns Burl on the spot
 # first. Holding A charges the meter under him (a second to fill, then it
 # holds); letting go launches him at the cursor. After that the jump is
-# all ballistic: the pad does nothing to it.
+# all ballistic: the pad does nothing to it. B during a charge calls it
+# off: A then has to be pressed afresh.
 game tuskwind
 wait 20
 cheat journey
@@ -40,6 +41,16 @@ expect mode == 0
 # no walking while charging
 hold A+LEFT 10
 expect x == 178
+expect charge == 60
+# B calls it off; the A still held does nothing
+hold A+B 2
+expect charging == 0
+hold A 20
+expect charging == 0
+expect mode == 0
+wait 1
+expect mode == 0
+hold A 100
 expect charge == 60
 cheat aim 90
 wait 1

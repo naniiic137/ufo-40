@@ -1,9 +1,9 @@
-# TUSKWIND: in the air, holding A again flaps the flippers: a push that
-# way the pad points (straight up with the pad alone), never climbing
-# faster than a slow rise. Each frame of flapping costs stamina from the
-# yellow bar (a full bar is four seconds); with the bar empty he just
-# follows his jump. Landing gives none of it back; only sprats do, a
-# quarter of the bar each, at once, in the air too.
+# TUSKWIND: in the air, holding A again flies: the flippers always lift
+# (never climbing faster than a slow rise), and LEFT/RIGHT held with it
+# trim his speed across; UP and DOWN do nothing to it. Each frame of
+# flying costs stamina from the yellow bar (a full bar is four seconds);
+# with the bar empty he just follows his jump. Landing gives none of it
+# back; only sprats do, a quarter of the bar each, at once, in the air too.
 game tuskwind
 wait 20
 cheat journey
@@ -19,19 +19,31 @@ hold A 30
 expect flapping == 1
 expect vy10 == -18
 expect stamina == 420
-# the pad steers the flap
+# LEFT/RIGHT push across and the lift goes on
+cheat pos 140 320
+cheat vel 0 0
+wait 1
 hold A+RIGHT 20
 expect vx10 > 0
+expect vy10 == -18
 expect stamina == 380
 hold A+LEFT 40
 expect vx10 < 0
+expect vy10 == -18
 expect stamina == 300
+# DOWN changes nothing: still lifting
+hold A+DOWN 10
+expect vy10 == -18
+expect stamina == 280
 # with the bar empty nothing happens
+cheat pos 140 150
+cheat vel 0 0
 cheat stamina 6
+wait 1
 hold A 10
 expect stamina == 0
 expect flapping == 0
-expect vy10 > -18
+expect vy10 > 0
 waituntil mode == 0 300
 expect stamina == 0
 # a sprat: a quarter of the bar, even in the air
@@ -43,7 +55,7 @@ expect stamina == 120
 expect count_3 == 0
 waituntil mode == 0 200
 expect stamina == 120
-# a full bar flaps for four seconds and no more
+# a full bar flies for four seconds and no more
 cheat stamina 480
 cheat aim 90
 wait 2

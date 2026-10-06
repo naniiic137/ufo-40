@@ -44,6 +44,9 @@ expect bmode0 == 0
 expect bmode1 == 0
 expect bx0 < 160
 expect bx1 > 160
+# a press the other way turns a walrus first, as on the journey
+press LEFT 1
+expect bx0 == 58
 # player 2 has his own buttons
 hold P2LEFT 20
 expect bx1 < 252

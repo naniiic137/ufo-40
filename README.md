@@ -725,8 +725,9 @@ the top.
   of floating islets towards a door at the far end. Every jump is set up on
   the ground: UP/DOWN swing a "+" cursor, holding A fills a meter under him,
   and letting go sends him that way (aimed dead flat, he lunges along the
-  ground instead). In the air the only steering is his flippers: hold A to
-  flap, on a yellow bar that only sprats fill. Plain islets let him through
+  ground instead); B calls a charge off. In the air his flippers are all
+  he has: hold A to fly, LEFT/RIGHT trimming his speed, on a yellow bar that
+  only sprats fill. Plain islets let him through
   from below; rocks bounce him off; pink foam lasts just one full charge.
 - **The way:** a new map every journey, with the same quotas every time:
   six lighthouses whose terns each pull him out of the sea once, 36 loose

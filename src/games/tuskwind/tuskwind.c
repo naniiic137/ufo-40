@@ -459,6 +459,14 @@ static int tkw_cheat(const char *cmd) {
         return tkw_cheat(buf);
     }
     if (sscanf(cmd, "near %d %f", &a, &x) == 2) return place_near(a, x) ? 1 : 0;
+    if (sscanf(cmd, "spawnpath %d %f", &a, &x) == 2) {
+        /* a thing at that fraction of the way along the tern's ride back */
+        if (h->ps != PS_RESCUE) return 0;
+        const TkwPlat *p = &tkw_w.plat[h->takeoff];
+        tkw_add_thing(&tkw_w, iclamp(a, 0, TH_KINDS - 1), h->rescue_x + (h->takeoff_x - h->rescue_x) * x,
+                      h->rescue_y + (p->y - h->rescue_y) * x, -1);
+        return 1;
+    }
     if (sscanf(cmd, "pos %f %f", &x, &y) == 2) {
         h->b.x = x;
         h->b.y = y;
@@ -598,7 +606,8 @@ const GameDef GAME_TUSKWIND = {
     GLYPH_LEFT GLYPH_RIGHT "\tSCOOT ALONG THE ISLET\n"
     GLYPH_UP GLYPH_DOWN "\tSWING THE AIM\n"
     "HOLD " GLYPH_A "\tCHARGE; LET GO TO JUMP\n"
-    "AIR: HOLD " GLYPH_A "\tFLAP; " GLYPH_DPAD " STEERS\n"
+    "AIR: HOLD " GLYPH_A "\tFLY; " GLYPH_LEFT GLYPH_RIGHT " SPEED\n"
+    "CHARGING: " GLYPH_B "\tCALL IT OFF\n"
     "HOLD " GLYPH_B "\tITEMS; LET GO TO USE\n"
     "START\tPAUSE\n"
     "\n"

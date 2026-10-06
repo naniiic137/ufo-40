@@ -157,10 +157,11 @@ void tkw_body_air(TkwBody *b, const TkwWorld *w, float fdx, float fdy, bool flap
     b->vy += b->kite ? TKW_G_KITE : TKW_G;
     b->vx += wind * TKW_WIND;
     if (flap && b->stamina > 0) {
-        float len = sqrtf(fdx * fdx + fdy * fdy);
-        if (len < 0.01f) { fdx = 0; fdy = -1; len = 1; }
-        float ax = fdx / len * TKW_FLAP, ay = fdy / len * TKW_FLAP;
-        if (ay < 0 && b->vy + ay < -TKW_FLAP_RISE) ay = fminf(0, -TKW_FLAP_RISE - b->vy);
+        /* holding the flap always lifts; LEFT/RIGHT trim the speed across
+         * (UP and DOWN do nothing to it) */
+        (void)fdy;
+        float ax = (float)isign((int)fdx) * TKW_FLAP_SIDE, ay = -TKW_FLAP;
+        if (b->vy + ay < -TKW_FLAP_RISE) ay = fminf(0, -TKW_FLAP_RISE - b->vy);
         if (ax > 0 && b->vx + ax > TKW_FLAP_MAXVX) ax = fmaxf(0, TKW_FLAP_MAXVX - b->vx);
         if (ax < 0 && b->vx + ax < -TKW_FLAP_MAXVX) ax = fminf(0, -TKW_FLAP_MAXVX - b->vx);
         b->vx += ax;
@@ -450,12 +451,14 @@ void tkw_gen_journey(uint64_t seed) {
         if (b >= a) b++;
         if (s >= 0) w->th[s].arg = a | b << 4;
     }
-    /* 22 signs, evenly along the way, in order */
+    /* 22 signs in order: the first right beside him where he wakes up in the
+     * dream, the other 21 evenly along the way */
     uint8_t signed_[TKW_MAX_PLATS];
     memset(signed_, 0, sizeof signed_);
     signed_[w->start_plat] = signed_[goal] = 1;
-    for (int k = 0; k < TKW_SIGNS; k++) {
-        int i = route_at(3 + k * 44 / 10, signed_, 20);
+    tkw_add_thing(w, TH_SIGN, w->start_x - 18.0f, (float)w->plat[w->start_plat].y, w->start_plat);
+    for (int k = 1; k < TKW_SIGNS; k++) {
+        int i = route_at(4 + (k - 1) * 91 / 20, signed_, 20);
         if (i < 0) continue;
         signed_[i] = 1;
         int s = tkw_add_thing(w, TH_SIGN, w->plat[i].x + 5.0f, (float)w->plat[i].y, i);

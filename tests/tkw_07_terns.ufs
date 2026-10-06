@@ -1,8 +1,9 @@
 # TUSKWIND: the terns are Burl's lives. Each of the six lighthouses keeps
-# one; standing on its islet beside it lets the tern go, and it follows
-# him (the bar shows it). A fall into the sea with a tern in hand: it
-# carries him back to the islet he last jumped from. With none, Burl
-# wakes up and the journey is over: back to the title, records kept.
+# one, and it flies off with him as soon as he lands anywhere on its islet
+# (the bar shows it). A fall into the sea with a tern in hand: it carries
+# him back to the islet he last jumped from, and whatever he passes on
+# that ride back he picks up. With none, Burl wakes up and the journey is
+# over: back to the title, records kept.
 game tuskwind
 wait 20
 cheat seed 5
@@ -10,33 +11,42 @@ cheat journey
 wait 2
 expect count_6 == 6
 cheat blank
-cheat spawn 6 170 200
+cheat plat 220 200 60 0
+cheat spawn 6 270 200
 wait 2
 expect terns == 0
-hold RIGHT 40
+expect thing_plat_6 == 1
+# landing at the far end of its islet will do
+cheat land 1
+cheat place 1 224
+wait 1
 expect terns == 1
 expect terns_found == 1
 expect thing_state_6 == 1
 # only once
 hold LEFT 30
-hold RIGHT 40
+hold RIGHT 60
 expect terns == 1
 # off the end into the sea
 cheat aim 30
+cheat face 1
 wait 2
 hold A 40
 wait 1
 expect mode == 1
-expect takeoff == 0
+expect takeoff == 1
 waituntil ps == 8 300
 expect terns == 1
+# a whelk half way along the ride back: it is his
+cheat spawnpath 1 0.5
+expect shells == 0
 waituntil ps == 0 120
+expect shells == 4
 expect terns == 0
 expect terns_used == 1
 expect rescues == 1
-expect plat == 0
+expect plat == 1
 expect mode == 0
-expect x == 170
 # no tern this time
 wait 2
 hold A 40

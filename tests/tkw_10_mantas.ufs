@@ -9,7 +9,13 @@ cheat seed 5
 cheat journey
 wait 2
 expect mantas == 8
-# the hidden sign
+# the hidden sign: flying up to it is not enough, it takes a ride
+cheat pos 20 30
+cheat vel 0 0
+wait 1
+expect secret == 0
+expect sign_near == -1
+cheat routepct 0
 cheat ride 0
 expect mode == 3
 waituntil secret == 1 1000

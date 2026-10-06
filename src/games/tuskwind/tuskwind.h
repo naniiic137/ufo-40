@@ -32,6 +32,7 @@
 #define TKW_WALK 0.6f         /* the scoot */
 #define TKW_LUNGE_DECEL 0.07f /* a flat jump slides along the ground */
 #define TKW_FLAP 0.22f        /* flipper thrust */
+#define TKW_FLAP_SIDE 0.12f   /* LEFT/RIGHT while flapping: a push across */
 #define TKW_FLAP_RISE 1.8f    /* flapping never climbs faster than this */
 #define TKW_FLAP_MAXVX 3.0f   /* nor pushes sideways past this */
 #define TKW_FALL_MAX 5.0f
@@ -40,7 +41,6 @@
 #define TKW_WIND 0.014f       /* the wind's push in the air */
 #define TKW_WIND_FIRST 2400   /* the first natural wind dies out after this */
 #define TKW_FOAM_T 72         /* a foam islet holds this long once stood on */
-#define TKW_FOAM_BACK 300     /* ... and forms again this long after */
 #define TKW_MAGNET 30         /* pickups drift in from this far */
 #define TKW_SPIN_FUEL 360     /* the spinner's own bar */
 #define TKW_SPIN_SPEED 1.4f
@@ -75,7 +75,6 @@ typedef struct {
     uint8_t gone;         /* a foam islet that has crumbled */
     uint8_t door;         /* the last islet: the door down to the hall */
     int16_t timer;        /* foam: frames since first stood on (-1 = not yet) */
-    int16_t back;         /* foam: frames until it forms again */
     int16_t brawl_t;      /* brawl: frames of crumbling left (0 = solid) */
 } TkwPlat;
 
@@ -188,6 +187,7 @@ typedef struct {
     bool spinner;
     int spin_fuel;
     /* the bobber */
+    float rescue_x, rescue_y; /* where the tern picked him up */
     TkwBody ball;
     int ball_charge, ball_t;
     /* the grapnel */

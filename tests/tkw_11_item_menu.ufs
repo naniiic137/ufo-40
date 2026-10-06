@@ -109,3 +109,17 @@ expect vy10 == 0
 expect stamina == 470
 wait 400
 expect spinner == 0
+# a landing spends the spinner at once
+cheat item 0 0
+cheat item 4 1
+cheat place 0 140
+wait 2
+hold B
+wait 2
+press RIGHT
+release B
+wait 1
+expect spinner == 1
+hold DOWN 20
+expect mode == 0
+expect spinner == 0

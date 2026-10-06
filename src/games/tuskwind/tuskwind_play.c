@@ -145,6 +145,7 @@ void tkw_on_land(int plat) {
         if (t->alive && t->kind == TH_RAM && t->plat == plat && t->state == RAM_IDLE) {
             t->state = RAM_ALERT;
             t->t = 0;
+            t->dir = tkg.h.b.x >= t->x ? 1 : -1;
             tkw_sfx("tkw_alert");
         }
     }
@@ -154,6 +155,8 @@ static void fall_in_sea(void) {
     TkwHero *h = &tkg.h;
     tkw_sfx("tkw_splash");
     h->ps_t = 0;
+    h->rescue_x = h->b.x;
+    h->rescue_y = (float)tkw_w.sea_y;
     h->charging = false;
     h->spinner = false;
     if (tkg.god || tkg.terns > 0) h->ps = PS_RESCUE;
@@ -267,7 +270,13 @@ static void rams_update(void) {
         bool on_it = grounded(b) && b->mode != BM_RIDE && b->plat == t->plat;
         switch (t->state) {
         case RAM_IDLE:
-            if (on_it && hero_active()) { t->state = RAM_ALERT; t->t = 0; tkw_sfx("tkw_alert"); break; }
+            if (on_it && hero_active()) {
+                t->state = RAM_ALERT;
+                t->t = 0;
+                t->dir = b->x >= t->x ? 1 : -1;
+                tkw_sfx("tkw_alert");
+                break;
+            }
             /* flown into before it notices: off it goes */
             if (near && b->mode == BM_AIR && hero_active() && fabsf(b->vx) + fabsf(b->vy) >= 1.2f) {
                 t->state = RAM_FALL;
@@ -278,11 +287,8 @@ static void rams_update(void) {
             }
             break;
         case RAM_ALERT:
-            t->dir = b->x >= t->x ? 1 : -1;
-            if (t->t >= 40) {
-                if (on_it) { t->state = RAM_CHARGE; t->t = 0; tkw_sfx("tkw_charge"); }
-                else t->state = RAM_IDLE;
-            }
+            /* it has seen where he is: it charges that way, there or not */
+            if (t->t >= 40) { t->state = RAM_CHARGE; t->t = 0; tkw_sfx("tkw_charge"); }
             break;
         case RAM_CHARGE: {
             t->x += t->dir * 2.0f;
@@ -318,14 +324,9 @@ static void foam_update(void) {
     for (int i = 0; i < tkw_w.nplat; i++) {
         TkwPlat *p = &tkw_w.plat[i];
         if (p->kind != PK_FOAM) continue;
-        if (p->gone) {
-            /* it forms again once he is clear of it */
-            if (p->back > 0 && --p->back == 0) { p->gone = 0; p->timer = -1; }
-            continue;
-        }
+        if (p->gone) continue; /* crumbled for good */
         if (p->timer >= 0 && ++p->timer >= TKW_FOAM_T) {
             p->gone = 1;
-            p->back = TKW_FOAM_BACK;
             tkw_sfx("tkw_crumble");
             if (b->plat == i) {
                 b->mode = BM_AIR;
@@ -352,7 +353,7 @@ static void things_update(void) {
                 t->y += t->vy;
                 if (t->y >= 290) { t->y = 290; t->state = 1; }
             }
-            if (!active) continue;
+            if (!active && h->ps != PS_RESCUE) continue; /* the ride back picks things up too */
             float dx = hx - t->x, dy = hy - t->y, d = sqrtf(dx * dx + dy * dy);
             if (d < 9) { collect(t); continue; }
             if (d < TKW_MAGNET && (t->kind != TH_SPIRAL || t->state)) {
@@ -373,7 +374,7 @@ static void things_update(void) {
             }
             break;
         case TH_SECRET:
-            if (fabsf(hx - t->x) < 26 && fabsf(hy - t->y) < 30) {
+            if (b->mode == BM_RIDE && fabsf(hx - t->x) < 26 && fabsf(hy - t->y) < 30) {
                 tkg.sign_near = TKW_SIGNS;
                 if (!tkg.secret_read) {
                     tkg.secret_read = true;
@@ -419,7 +420,7 @@ static void interact(void) {
         float d = fabsf(b->x - t->x);
         switch (t->kind) {
         case TH_LIGHTHOUSE:
-            if (t->state == 0 && d < 14) {
+            if (t->state == 0) { /* landing anywhere on its islet will do */
                 t->state = 1;
                 tkg.terns++;
                 tkg.terns_found++;
@@ -604,6 +605,7 @@ static void hero_air(uint16_t in, bool control) {
     if (b->landed >= 0) {
         tkw_sfx("tkw_land");
         h->hurt_t = 0;
+        h->spinner = false; /* the spinner is spent on landing */
         tkw_on_land(b->landed);
     }
 }
@@ -639,7 +641,12 @@ static void play_update(uint16_t in) {
         if (control && b->mode != BM_LUNGE) {
             if (h->charging) {
                 aim_input(in);
-                if (HELD(BTN_A)) h->charge = imin(TKW_CHARGE_T, h->charge + 1);
+                if (PRESSED(BTN_B)) {
+                    /* B calls the jump off; A has to be pressed afresh */
+                    h->charging = false;
+                    h->charge = 0;
+                    tkw_sfx("ui_back");
+                } else if (HELD(BTN_A)) h->charge = imin(TKW_CHARGE_T, h->charge + 1);
                 else { launch(); return; }
             } else if (PRESSED(BTN_A)) {
                 h->charging = true;
@@ -701,6 +708,7 @@ static void throw_update(uint16_t in) {
         hero_ground(0, false);
         return;
     }
+    if (PRESSED(BTN_B)) { h->charging = false; h->charge = 0; tkw_sfx("ui_back"); return; }
     if (HELD(BTN_A)) { h->charge = imin(TKW_CHARGE_T, h->charge + 1); return; }
     /* thrown: it flies as Burl would */
     tkg.inv[IT_BOBBER]--;
@@ -852,10 +860,18 @@ static void shop_update(uint16_t in) {
 
 static void rescue_update(void) {
     TkwHero *h = &tkg.h;
-    if (++h->ps_t < 80) return;
+    TkwBody *b = &h->b;
     int p = h->takeoff;
     TkwPlat *pl = &tkw_w.plat[p];
-    if (pl->gone) { pl->gone = 0; pl->back = 0; }
+    if (++h->ps_t < 80) {
+        /* carried back over the way he came: what he passes, he picks up */
+        float k = h->ps_t / 80.0f;
+        b->x = h->rescue_x + (h->takeoff_x - h->rescue_x) * k;
+        b->y = h->rescue_y + (pl->y - h->rescue_y) * k;
+        b->vx = b->vy = 0;
+        return;
+    }
+    pl->gone = 0; /* a tern sets him down where he jumped from, foam or not */
     pl->timer = -1;
     if (!tkg.god) {
         tkg.terns--;
