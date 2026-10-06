@@ -1,0 +1,109 @@
+# FULL PEAL: Clary's console. A second controller holding A for two
+# seconds (not on the title) swaps the cockpit monitor for a menu of fifty
+# micro-games: LEFT and RIGHT step one, UP and DOWN ten, A plays, B
+# switches the console off. It runs whatever the main game is doing, which
+# carries on meanwhile under player 1. Each game keeps its high score; the
+# menu shows their total. A game over offers A (again) or B (the menu).
+# On the main game's game-over screen the console keeps going for as long
+# as player 1 presses nothing.
+game fullpeal
+wait 12
+hold P2A 150
+expect mc_state == 0
+press A
+cheat sandbox
+cheat god
+# a short hold isn't enough
+hold P2A 100
+expect mc_state == 0
+wait 1
+expect mc_hold == 0
+hold P2A
+waituntil mc_hold >= 60 80
+expect mc_state == 0
+waituntil mc_state == 1 80
+release
+expect mc_sel == 1
+press P2RIGHT
+expect mc_sel == 2
+press P2LEFT
+press P2LEFT
+expect mc_sel == 50
+press P2DOWN
+expect mc_sel == 10
+press P2UP
+expect mc_sel == 50
+press P2RIGHT
+expect mc_sel == 1
+# player 1 flies on meanwhile
+expect x100 == 0
+hold RIGHT 10
+expect x100 == 60
+# B: off
+press P2B
+expect mc_state == 0
+# again, and play 17 HAMMER: down one row, right six
+hold P2A 125
+expect mc_state == 1
+expect mc_sel == 1
+press P2DOWN
+press P2RIGHT
+press P2RIGHT
+press P2RIGHT
+press P2RIGHT
+press P2RIGHT
+press P2RIGHT
+expect mc_sel == 17
+press P2A
+expect mc_state == 2
+expect mc_game == 17
+expect mc_score == 0
+press P2A
+press P2A
+press P2B
+press P2A
+press P2A
+expect mc_score == 5
+expect state == 3
+waituntil mc_state == 3 500
+expect mc_score == 5
+expect mc_hi17 == 5
+expect mc_total == 5
+# A: the same game again
+wait 21
+press P2A
+expect mc_state == 2
+expect mc_game == 17
+expect mc_score == 0
+press P2A
+press P2A
+waituntil mc_state == 3 500
+expect mc_score == 2
+expect mc_hi17 == 5
+# B: back to the menu, on that game
+wait 21
+press P2B
+expect mc_state == 1
+expect mc_sel == 17
+# the main game ends: the console carries on
+cheat god
+cheat lives 1
+cheat continues 0
+cheat kill
+waituntil state == 12 100
+expect mc_state == 1
+press P2A
+expect mc_state == 2
+wait 200
+expect state == 12
+expect mc_state == 2
+# player 1 presses A: the title, and the console is off
+press A
+wait 2
+expect state == 0
+expect mc_state == 0
+# the high scores are kept
+reload
+game fullpeal
+wait 5
+expect mc_hi17 == 5

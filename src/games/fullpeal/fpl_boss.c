@@ -202,7 +202,7 @@ static void knucklebell(FplBoss *b) {
     b->y = fapproach(b->y, CY[c], 0.012f);
     if (b->x == CX[c] && b->y == CY[c]) b->sub = c;
     /* the fists: they close in along the ship's height, slowly following it */
-    float in = b->angry ? 0.016f : 0.011f;
+    float in = b->angry ? 0.018f : 0.012f;
     b->fy = fapproach(b->fy, fpg.y, 0.008f);
     for (int k = 0; k < 2; k++) {
         float dir = k == 0 ? 1.0f : -1.0f;
@@ -233,7 +233,7 @@ static void knucklebell(FplBoss *b) {
     if (--b->fire_t <= 0) {
         fpl_shell_at(b->x, b->y + 0.25f, FPL_BOSS_Z, fpg.x, fpg.y, 60, BURST_NONE);
         fpl_sfx("fpl_efire", 0);
-        b->fire_t = b->angry ? 70 : 110;
+        b->fire_t = b->angry ? 60 : 95;
     }
 }
 
@@ -250,7 +250,7 @@ static void inkwell(FplBoss *b) {
         b->fire_t = b->angry ? 34 : 64;
         fpl_sfx("fpl_launch", 0);
     }
-    if (!b->angry && b->t % 230 == 200) {
+    if (!b->angry && b->t % 190 == 160) {
         /* two pairs of crosses */
         fpl_shell_at(b->x, b->y, FPL_BOSS_Z, fpg.x - 1.0f, fpg.y - 0.6f, 55, BURST_CROSS);
         fpl_shell_at(b->x, b->y, FPL_BOSS_Z, fpg.x + 1.0f, fpg.y + 0.6f, 55, BURST_CROSS);

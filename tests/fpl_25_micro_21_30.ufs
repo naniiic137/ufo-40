@@ -1,0 +1,152 @@
+# FULL PEAL: Clary's console, micro-games 21 to 30. Each is reached
+# through the menu with player 2's presses, its rule tried, and its end
+# (a mistake) reached; the score it ends on is its high score.
+#  21 HURDLE: run, jump the fences, take the gold in the air; 10 a gold
+#  22 CUE: aim and strike; roll into the prize (10) and go again; a pocket or a miss ends it
+#  23 PIKE 2: the pike again: quicker chasers, and blocks only you can break (5 each); 5 a kill
+#  24 TWINS: two of you either side of a wall, moving together; chasers on both sides; 5 a second
+#  25 HALT: stop every red block before it reaches the right; 10 a block
+#  26 PIVOT: a turret in the middle turning one way or the other; creepers from eight points in turn; 2 each
+#  27 LANES: steer by tilting; rows of rocks flash at the top, then rush down; 1 a second
+#  28 ZAP: you are the cloud: strike when you are over the umbrella (5); a miss ends it
+#  29 BOING: a ball that bounces by itself over drifting platforms; gold 5; the waves end it
+#  30 OGRE 2: a sturdier boss with straight guns and blocks nothing breaks; counts down from 700
+game fullpeal
+seed 4902
+wait 12
+press A
+cheat sandbox
+cheat god
+hold P2A 125
+wait 2
+expect mc_state == 1
+press P2DOWN
+press P2DOWN
+# 21 HURDLE
+expect mc_sel == 21
+press P2A
+expect mc_state == 2
+expect mc_game == 21
+waituntil mc_state == 3 4000
+waituntil mc_state == 3 10
+wait 21
+press P2B
+expect mc_state == 1
+press P2RIGHT
+# 22 CUE
+expect mc_sel == 22
+press P2A
+expect mc_state == 2
+expect mc_game == 22
+expect mc_i0 == 0
+press P2A
+expect mc_i0 == 1
+waituntil mc_state == 3 3000
+waituntil mc_state == 3 10
+wait 21
+press P2B
+expect mc_state == 1
+press P2RIGHT
+# 23 PIKE 2
+expect mc_sel == 23
+press P2A
+expect mc_state == 2
+expect mc_game == 23
+expect mc_i6 == 1
+waituntil mc_state == 3 6000
+waituntil mc_state == 3 10
+wait 21
+press P2B
+expect mc_state == 1
+press P2RIGHT
+# 24 TWINS
+expect mc_sel == 24
+press P2A
+expect mc_state == 2
+expect mc_game == 24
+press P2UP
+expect mc_i1 == 3
+expect mc_i3 == 2
+waituntil mc_state == 3 8000
+waituntil mc_state == 3 10
+wait 21
+press P2B
+expect mc_state == 1
+press P2RIGHT
+# 25 HALT
+expect mc_sel == 25
+press P2A
+expect mc_state == 2
+expect mc_game == 25
+waituntil mc_state == 3 4000
+waituntil mc_state == 3 10
+wait 21
+press P2B
+expect mc_state == 1
+press P2RIGHT
+# 26 PIVOT
+expect mc_sel == 26
+press P2A
+expect mc_state == 2
+expect mc_game == 26
+press P2RIGHT
+expect mc_i0 == 1
+press P2LEFT
+press P2LEFT
+expect mc_i0 == 7
+waituntil mc_state == 3 4000
+waituntil mc_state == 3 10
+wait 21
+press P2B
+expect mc_state == 1
+press P2RIGHT
+# 27 LANES
+expect mc_sel == 27
+press P2A
+expect mc_state == 2
+expect mc_game == 27
+expect mc_i1 == 1
+waituntil mc_state == 3 8000
+waituntil mc_state == 3 10
+wait 21
+press P2B
+expect mc_state == 1
+press P2RIGHT
+# 28 ZAP
+expect mc_sel == 28
+press P2A
+expect mc_state == 2
+expect mc_game == 28
+press P2A
+expect mc_state == 3
+expect mc_score == 0
+waituntil mc_state == 3 10
+wait 21
+press P2B
+expect mc_state == 1
+press P2RIGHT
+# 29 BOING
+expect mc_sel == 29
+press P2A
+expect mc_state == 2
+expect mc_game == 29
+waituntil mc_state == 3 4000
+waituntil mc_state == 3 10
+wait 21
+press P2B
+expect mc_state == 1
+press P2RIGHT
+# 30 OGRE 2
+expect mc_sel == 30
+press P2A
+expect mc_state == 2
+expect mc_game == 30
+expect mc_score == 700
+wait 60
+expect mc_score == 699
+waituntil mc_state == 3 4000
+waituntil mc_state == 3 10
+wait 21
+press P2B
+expect mc_state == 1
+expect mc_total >= 0

@@ -1,0 +1,204 @@
+# FULL PEAL: Clary's console, micro-games 41 to 50. Each is reached
+# through the menu with player 2's presses, its rule tried, and its end
+# (a mistake) reached; the score it ends on is its high score.
+#  41 SHOVE: a wall of gunners closing in; each shot pushes one back; 10 a second
+#  42 KEEPUP: one ball, then more; drop none; 10 a second
+#  43 WARP: no walking, only jumps of three or four squares, through the walls that sweep the screen; 5 a second
+#  44 THRONG: shoot holes through red walls; never touch or shoot the gold one; 5 a block
+#  45 BLAST: run and gun: jump the rolling shots, shoot rollers, hulks and bats; 10 each
+#  46 STILL: move only while the eyes are shut; take the apple (10) on the far side
+#  47 BRIAR: saucers sow a hedge that creeps toward you; shoot the sowers and the seeds; 2 a second
+#  48 OGRE 3: the hardest boss: it moves and fires lasers; counts down from 999
+#  49 WARPTOE: the minefield again, crossed only by jumps of three or four squares
+#  50 FACES: make your face match the other (UP hair, LEFT eyes, RIGHT nose, DOWN mouth, a button for a new one); 10 a match
+game fullpeal
+seed 4904
+wait 12
+press A
+cheat sandbox
+cheat god
+hold P2A 125
+wait 2
+expect mc_state == 1
+press P2DOWN
+press P2DOWN
+press P2DOWN
+press P2DOWN
+# 41 SHOVE
+expect mc_sel == 41
+press P2A
+expect mc_state == 2
+expect mc_game == 41
+wait 61
+expect mc_score == 10
+waituntil mc_state == 3 5000
+waituntil mc_state == 3 10
+wait 21
+press P2B
+expect mc_state == 1
+press P2RIGHT
+# 42 KEEPUP
+expect mc_sel == 42
+press P2A
+expect mc_state == 2
+expect mc_game == 42
+hold P2LEFT
+waituntil mc_state == 3 800
+release
+waituntil mc_state == 3 10
+wait 21
+press P2B
+expect mc_state == 1
+press P2RIGHT
+# 43 WARP
+expect mc_sel == 43
+press P2A
+expect mc_state == 2
+expect mc_game == 43
+press P2RIGHT
+expect mc_i0 >= 13
+waituntil mc_state == 3 4000
+waituntil mc_state == 3 10
+wait 21
+press P2B
+expect mc_state == 1
+press P2RIGHT
+# 44 THRONG
+expect mc_sel == 44
+press P2A
+expect mc_state == 2
+expect mc_game == 44
+waituntil mc_state == 3 4000
+waituntil mc_state == 3 10
+wait 21
+press P2B
+expect mc_state == 1
+press P2RIGHT
+# 45 BLAST
+expect mc_sel == 45
+press P2A
+expect mc_state == 2
+expect mc_game == 45
+waituntil mc_state == 3 4000
+waituntil mc_state == 3 10
+wait 21
+press P2B
+expect mc_state == 1
+press P2RIGHT
+# 46 STILL
+expect mc_sel == 46
+press P2A
+expect mc_state == 2
+expect mc_game == 46
+hold P2RIGHT
+waituntil mc_state == 3 120
+release
+waituntil mc_state == 3 10
+wait 21
+press P2B
+expect mc_state == 1
+press P2RIGHT
+# 47 BRIAR
+expect mc_sel == 47
+press P2A
+expect mc_state == 2
+expect mc_game == 47
+wait 121
+expect mc_score == 4
+waituntil mc_state == 3 5000
+waituntil mc_state == 3 10
+wait 21
+press P2B
+expect mc_state == 1
+press P2RIGHT
+# 48 OGRE 3
+expect mc_sel == 48
+press P2A
+expect mc_state == 2
+expect mc_game == 48
+expect mc_score == 999
+waituntil mc_state == 3 4000
+waituntil mc_state == 3 10
+wait 21
+press P2B
+expect mc_state == 1
+press P2RIGHT
+# 49 WARPTOE
+expect mc_sel == 49
+press P2A
+expect mc_state == 2
+expect mc_game == 49
+expect mc_i6 == 1
+expect mc_i4 == 58
+wait 60
+press P2RIGHT
+expect mc_i0 >= 3
+press P2RIGHT
+press P2DOWN
+press P2LEFT
+press P2UP
+press P2RIGHT
+press P2DOWN
+press P2LEFT
+press P2UP
+press P2RIGHT
+press P2DOWN
+press P2LEFT
+press P2UP
+press P2RIGHT
+press P2DOWN
+press P2LEFT
+press P2UP
+press P2RIGHT
+press P2DOWN
+press P2LEFT
+press P2UP
+press P2RIGHT
+press P2DOWN
+press P2LEFT
+press P2UP
+press P2RIGHT
+press P2DOWN
+press P2LEFT
+press P2UP
+press P2RIGHT
+press P2DOWN
+press P2LEFT
+press P2UP
+press P2RIGHT
+press P2DOWN
+press P2LEFT
+press P2UP
+press P2RIGHT
+press P2DOWN
+press P2LEFT
+press P2UP
+press P2RIGHT
+press P2DOWN
+press P2LEFT
+press P2UP
+press P2RIGHT
+press P2DOWN
+press P2LEFT
+press P2UP
+expect mc_state == 3
+waituntil mc_state == 3 10
+wait 21
+press P2B
+expect mc_state == 1
+press P2RIGHT
+# 50 FACES
+expect mc_sel == 50
+press P2A
+expect mc_state == 2
+expect mc_game == 50
+cheat mcvar 0 0
+cheat mcvar 4 1
+press P2UP
+expect mc_i0 == 1
+waituntil mc_state == 3 700
+waituntil mc_state == 3 10
+wait 21
+press P2B
+expect mc_state == 1
+expect mc_total >= 0

@@ -498,6 +498,26 @@ static int fpl_query(const char *key, int *out) {
         return 1;
     }
     if (!strcmp(key, "radio_len")) { *out = fpg.radio ? (int)strlen(fpg.radio) : 0; return 1; }
+    if (!strcmp(key, "text_missing")) {
+        /* characters the fonts have no glyph for, in everything the cartridge writes */
+        int n = tiny_missing("#%?!*-.,'/:");
+        for (int s = 0; s < FPL_STAGES; s++) n += tiny_missing(FPL_STAGE[s].name) + tiny_missing(FPL_STAGE[s].radio);
+        for (int k = 0; k < BOSS_COUNT; k++) n += text_missing(FPL_BOSS_NAME[k]) + tiny_missing(FPL_BOSS_NAME[k]);
+        for (int g = 0; g < FPL_MICROS; g++) n += tiny_missing(fpl_micro_def(g)->name) + text_missing(fpl_micro_def(g)->name);
+        static const char *const TINY[] = {"HUGS-ONLY: NO GUNS. RECORDS AND GOALS ARE OFF", "WAVE 1: 50%. SOMEDAY THE RINGING STOPS.",
+                                           "50 POINTS! ONE MORE CONTINUE.", "CREDIT USED. BACK TO THE FIRST WAVE.",
+                                           "CLARY: HOLD ON, ANSEL! I'M COMING IN!", "A BALLOON ROUND! 50 POINTS FOR A CONTINUE.",
+                                           "ANSEL AND THE TINKLER, OUT TO KNELL", "TOTAL 000000", "A PLAY   B OFF", "GAME OVER",
+                                           "BEST!", "SCAN", "ANSEL / TINKLER", "CREDITS 2", "SHIPS", "HUGS"};
+        for (int i = 0; i < ARRAY_LEN(TINY); i++) n += tiny_missing(TINY[i]);
+        static const char *const MAIN[] = {"THE BELLS OF KNELL RING OUT AGAIN.", "TIME TO GO DOWN AND HAVE A LOOK.",
+                                           "1,500 OR MORE: THE THIRD GOAL!", "CONTINUES LEFT 3 X 100 = 300",
+                                           "SOMEDAY THE RINGING STOPS", "RED 1  ORANGE 3  50 WINS A CONTINUE", "BALLOONS!",
+                                           "THE FINAL COUNT", "FULL PEAL", "GAME OVER", "CREDIT USED", "100%"};
+        for (int i = 0; i < ARRAY_LEN(MAIN); i++) n += text_missing(MAIN[i]);
+        *out = n;
+        return 1;
+    }
     /* the console */
     if (!strcmp(key, "mc_state")) { *out = fpm.state; return 1; }
     if (!strcmp(key, "mc_sel")) { *out = fpm.sel + 1; return 1; }

@@ -429,8 +429,8 @@ static void g37_draw(int ox, int oy) {
     if (I[1] > 0 || fpm.state == MC_OVER)
         for (int i = 0; i < 99; i++) RECT(26 + (i % 11) * 3, 2 + (i / 11) * 3, 2, 2, G[i % 11][i / 11] == 1 ? MC_Y : MC_R);
     else {
-        fpm_text(ox, oy, GLYPH_UP " GOLD", 4, 8, MC_Y);
-        fpm_text(ox, oy, GLYPH_DOWN " RED", 4, 18, MC_R);
+        text_draw(GLYPH_UP " GOLD", ox + 4, oy + 6, MC_Y);
+        text_draw(GLYPH_DOWN " RED", ox + 4, oy + 18, MC_R);
     }
 }
 
@@ -809,7 +809,7 @@ static void g46_draw(int ox, int oy) {
     RECT(F[0], 23, 3, 7, MC_Y);
 }
 
-/* 47 BRIAR: saucers sow a creeping hedge; shoot the sowers and the seeds  */
+/* 47 BRIAR: saucers sow a hedge that creeps toward you; shoot the sowers and the seeds */
 /* es 1 saucer (0..2), 2 a seed (3..29), 3 your shot (30..39); et the saucers' respawn */
 static void g47_start(void) {
     F[0] = 6; F[1] = 14;
@@ -838,8 +838,12 @@ static void g47_update(uint8_t held, uint8_t pressed) {
         if (BOX(F[0], F[1], 3, 3, fpm.fx[k], fpm.fy[k], 5, 3)) { fpm_over(); return; }
     }
     if (fpm.gt % 900 == 0 && !fpm.es[2] && fpm.et[2] == 0) fpm.et[2] = 1;
-    for (int k = 3; k < 30; k++)
-        if (fpm.es[k] && BOX(F[0], F[1], 3, 3, fpm.fx[k], fpm.fy[k], 3, 3)) { fpm_over(); return; }
+    for (int k = 3; k < 30; k++) {
+        if (!fpm.es[k]) continue;
+        fpm.fx[k] -= 0.08f; /* the hedge creeps toward you */
+        if (fpm.fx[k] < -3) { fpm.es[k] = 0; continue; }
+        if (BOX(F[0], F[1], 3, 3, fpm.fx[k], fpm.fy[k], 3, 3)) { fpm_over(); return; }
+    }
     for (int k = 30; k < 40; k++) {
         if (!fpm.es[k]) continue;
         fpm.fx[k] += 2.0f;

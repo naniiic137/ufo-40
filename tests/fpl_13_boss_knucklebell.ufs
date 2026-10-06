@@ -28,9 +28,8 @@ release
 expect fist0_x100 < -300
 # left alone they meet in the middle, clap, and fly apart
 waituntil fist1_x100 < 60 400
-waituntil fist0_x100 < -200 120
-wait 8
-expect fist1_x100 > 100
+waituntil fist1_x100 > 150 200
+expect fist0_x100 < -150
 # the nose
 cheat still
 cheat bosspos 0.5 0.29

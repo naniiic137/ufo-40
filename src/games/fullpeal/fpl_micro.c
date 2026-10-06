@@ -160,13 +160,13 @@ void fpl_micro_draw(int x, int y) {
         snprintf(b, sizeof b, "%02d %s", fpm.sel + 1, fpl_micro_def(fpm.sel)->name);
         text_center(b, x + FPL_MON_W / 2, y + 10, MC_W);
         if ((fpm.t / 15) % 2) {
-            tiny_draw(GLYPH_LEFT, x + 1, y + 11, MC_R);
-            tiny_draw(GLYPH_RIGHT, x + FPL_MON_W - 5, y + 11, MC_R);
+            text_draw(GLYPH_LEFT, x + 1, y + 10, MC_R);
+            text_draw(GLYPH_RIGHT, x + FPL_MON_W - 7, y + 10, MC_R);
         }
         score_text(s, sizeof s, fpsv.micro[fpm.sel]);
         snprintf(b, sizeof b, "HI %s", s);
         tiny_center(b, x + FPL_MON_W / 2, y + 21, MC_Y);
-        tiny_center(GLYPH_A " PLAY  " GLYPH_B " OFF", x + FPL_MON_W / 2, y + 30, MC_R);
+        tiny_center("A PLAY   B OFF", x + FPL_MON_W / 2, y + 30, MC_R);
         return;
     }
     if (fpm.state == MC_PLAY || fpm.state == MC_OVER) {
@@ -1004,18 +1004,20 @@ static void g14_update(uint8_t held, uint8_t pressed) {
     if (BOX(F[0], F[1], 3, 3, I[0], I[1], 3, 3)) {
         fpm_add(10);
         sfx_play_name("fpm_point");
-        if (fpm.n < 40) { fpm.fx[fpm.n] = (float)I[0]; fpm.fy[fpm.n] = (float)I[1]; fpm.n++; }
+        if (fpm.n < 40) { fpm.fx[fpm.n] = (float)I[0]; fpm.fy[fpm.n] = (float)I[1]; fpm.et[fpm.n] = 60; fpm.n++; }
         loopy_prize();
     }
     for (int k = 0; k < fpm.n; k++) {
         float dx = F[0] - fpm.fx[k], dy = F[1] - fpm.fy[k], d = sqrtf(dx * dx + dy * dy);
         if (d > 0.1f) { fpm.fx[k] += dx / d * 0.22f; fpm.fy[k] += dy / d * 0.22f; }
+        if (fpm.et[k] > 0) { fpm.et[k]--; continue; } /* a new chaser is harmless for a moment */
         if (BOX(F[0], F[1], 3, 3, fpm.fx[k], fpm.fy[k], 3, 3)) { fpm_over(); return; }
     }
 }
 static void g14_draw(int ox, int oy) {
     RECT(I[0], I[1], 3, 3, MC_Y);
-    for (int k = 0; k < fpm.n; k++) RECT(fpm.fx[k], fpm.fy[k], 3, 3, MC_R);
+    for (int k = 0; k < fpm.n; k++)
+        if (fpm.et[k] == 0 || (fpm.gt / 4) % 2) RECT(fpm.fx[k], fpm.fy[k], 3, 3, MC_R);
     RECT(F[0], F[1], 3, 3, MC_W);
     PX(F[0] + 1 + cosf(F[2]) * 2, F[1] + 1 + sinf(F[2]) * 2, MC_Y);
 }

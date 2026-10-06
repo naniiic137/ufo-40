@@ -585,7 +585,7 @@ static void draw_code(void) {
         text_center(ch, x + 5, 73, sel ? C_YELLOW : C_WHITE);
     }
     text_center("-", 160, 73, C_GREY);
-    tiny_center(GLYPH_UP GLYPH_DOWN " LETTER   " GLYPH_LEFT GLYPH_RIGHT " MOVE   " GLYPH_A " ENTER   " GLYPH_B " BACK", 160, 96, C_GREY);
+    text_center(GLYPH_UP GLYPH_DOWN " LETTER  " GLYPH_LEFT GLYPH_RIGHT " MOVE  " GLYPH_A " ENTER  " GLYPH_B " BACK", 160, 96, C_GREY);
     if (fpg.code_msg_t > 0 && fpg.code_msg) tiny_center(fpg.code_msg, 160, 112, C_LIME);
 }
 
@@ -638,7 +638,7 @@ static void draw_overlay(void) {
         break;
     case PS_OVER:
         banner("GAME OVER", NULL, 70, GRAD_PINK);
-        if (fpg.state_t > 60) tiny_center(GLYPH_A " TITLE", 160, 100, C_GREY);
+        if (fpg.state_t > 60) text_center(GLYPH_A " TITLE", 160, 100, C_GREY);
         break;
     default: break;
     }
@@ -699,7 +699,7 @@ static void draw_tally(void) {
     if (fpg.state_t > 90)
         text_center(fpg.final_score >= 1500 ? "1,500 OR MORE: THE THIRD GOAL!" : "1,500 OR MORE EARNS THE THIRD GOAL", 160, 144,
                     fpg.final_score >= 1500 ? C_LIME : C_GREY);
-    if (fpg.state_t > 200) tiny_center(GLYPH_A " TITLE", 160, 166, C_GREY);
+    if (fpg.state_t > 200) text_center(GLYPH_A " TITLE", 160, 166, C_GREY);
 }
 
 void fpl_draw(void) {

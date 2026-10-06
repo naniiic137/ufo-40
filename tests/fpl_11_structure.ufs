@@ -64,3 +64,5 @@ wait 200
 expect foes == 6
 expect kind_x100_0 == -250
 expect kind_z100_0 == 0
+# every word on the screen has its letters in the console's fonts
+expect text_missing == 0
