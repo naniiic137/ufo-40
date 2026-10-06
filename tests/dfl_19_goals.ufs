@@ -1,0 +1,35 @@
+# DRIFTLINE: the three goals, the original's own. Beacon: win a bonus coin
+# (dfl_17). Saucer: drive all four stages. Alien: finish the drive with
+# 300,000 points or more, checked at the ending. Then the ending, the
+# credits (hold A to hurry them) and the title; the wins are recorded.
+game driftline
+wait 12
+press A
+cheat score 299999
+cheat win
+expect state == 6
+expect won == 1
+expect goals == 2
+expect save_wins == 1
+expect save_cherries == 0
+wait 250
+press A
+expect state == 7
+hold A 400
+waituntil state == 0 400
+expect save_best == 299999
+# again, with 300,000
+wait 12
+press A
+expect state == 1
+cheat score 300000
+cheat win
+expect goals == 6
+expect save_wins == 2
+expect save_cherries == 1
+reload
+game driftline
+wait 5
+expect goals == 6
+expect save_cherries == 1
+expect save_best == 300000

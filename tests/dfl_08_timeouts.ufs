@@ -1,0 +1,40 @@
+# DRIFTLINE: stage 1's fliers punish you for leaving them alone. A buzzer
+# that hovers too long blinks and bursts into a ring of six shots (worth
+# nothing); a kite that loiters too long starts shooting at the car. A
+# rotor fires bursts of three while it hovers.
+game driftline
+wait 12
+press A
+cheat nospawn
+wait 10
+cheat god
+cheat pos 20
+cheat foe 1 200 60 1
+expect kind_state_1 == 0
+wait 2
+expect kind_state_1 == 1
+wait 195
+expect eshots == 0
+expect kind_state_1 == 1
+wait 10
+expect kind_state_1 == 2
+waituntil foes_1 == 0 60
+expect eshots == 6
+expect score == 0
+wait 120
+# the kite: quiet at first...
+cheat foe 0 200 40 1
+wait 270
+expect foes_0 == 1
+expect eshots == 0
+# ...then it shoots
+wait 20
+expect eshots >= 1
+wait 400
+# then, much later, it flies off
+waituntil foes_0 == 0 400
+expect score == 0
+expect escaped >= 2
+# the rotor
+cheat foe 4 200 50 1
+waituntil eshots >= 3 300

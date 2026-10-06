@@ -167,6 +167,14 @@ CORE_SRC += src/games/hattrick/hattrick_bot.c
 CORE_SRC += src/games/hattrick/hattrick_draw.c
 CORE_SRC += src/games/hattrick/hattrick_art.c
 CORE_SRC += src/games/hattrick/hattrick_audio.c
+CORE_SRC += src/games/driftline/driftline.c
+CORE_SRC += src/games/driftline/driftline_play.c
+CORE_SRC += src/games/driftline/driftline_foes.c
+CORE_SRC += src/games/driftline/driftline_stages.c
+CORE_SRC += src/games/driftline/driftline_bot.c
+CORE_SRC += src/games/driftline/driftline_draw.c
+CORE_SRC += src/games/driftline/driftline_art.c
+CORE_SRC += src/games/driftline/driftline_audio.c
 
 HEADLESS_SRC += src/platform/headless/main_headless.c
 HEADLESS_SRC += src/platform/headless/imgwrite.c

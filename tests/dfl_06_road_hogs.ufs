@@ -1,0 +1,39 @@
+# DRIFTLINE: a road hog is a car on the road. Shot (side guns only), it
+# becomes a burning wreck worth nothing yet; only shooting the wreck pays
+# its 500. A wreck left alone rolls back off the screen for nothing. Both
+# kill a car they touch.
+game driftline
+wait 12
+press A
+cheat nospawn
+wait 10
+cheat pos 60
+cheat meter 0
+# one coming the other way
+cheat foe 2 300 157 -1
+hold A
+waituntil foes_3 == 1 300
+release
+expect foes_2 == 0
+expect score == 0
+expect kills == 0
+hold A
+waituntil foes_3 == 0 300
+release
+expect score == 500
+expect kills == 1
+# a wreck left alone rolls back off the road (the car can't be hurt here)
+wait 30
+cheat god
+cheat foe 3 300 157 -1
+expect escaped == 0
+waituntil foes_3 == 0 600
+expect score == 500
+expect escaped == 1
+cheat god
+# a wreck or a hog that reaches the car takes it
+cheat foe 2 300 157 -1
+waituntil alive0 == 0 400
+expect cause == 102
+waituntil alive0 == 1 100
+expect spare == 2

@@ -1,0 +1,55 @@
+# DRIFTLINE: stage 4, the open sea. All through it, whales breach out at
+# sea and their waves roll in to break over a stretch of road (the first
+# at x 80, 100 frames after it starts); a car under a breaking wave is
+# lost, a car beside it is not. Dartfish zigzag down to the road and then
+# chase the car along it; squirts scoot across and fire three shots back
+# and down behind them; a shark leaps over the road and is worth 5,000.
+game driftline
+wait 12
+press A
+cheat stage 4
+cheat nospawn
+cheat pos 80
+waituntil swells == 1 400
+expect stage_t == 300
+expect alive0 == 1
+waituntil alive0 == 0 200
+expect cause == 201
+expect stage_t >= 399
+expect stage_t <= 400
+expect swell_breaking == 1
+# the next one breaks at 220: a car well clear of it is fine
+waituntil alive0 == 1 100
+cheat pos 120
+waituntil swells == 1 300
+expect stage_t == 555
+waituntil swell_breaking == 1 200
+wait 10
+expect alive0 == 1
+expect deaths == 1
+waituntil swells == 0 100
+cheat god
+# a dartfish: down to the road, then after the car
+cheat pos 60
+cheat foe 15 200 20 1
+expect kind_ground_15 == 0
+waituntil kind_ground_15 == 1 300
+wait 60
+expect kind_x_15 < 160
+cheat clear
+# a squirt: three shots back (it swims right, they go left) and down
+cheat foe 16 -10 60 1
+waituntil eshots == 3 60
+expect es0_vx10 < 0
+expect es0_vy10 > 0
+cheat clear
+# the shark, worth 5,000
+cheat pos 160
+hold UP 20
+cheat meter 700
+cheat foe 17 60 140 1
+cheat hp 1
+hold B
+waituntil foes_17 == 0 300
+release
+expect score == 5000

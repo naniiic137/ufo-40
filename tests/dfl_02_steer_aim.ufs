@@ -1,0 +1,60 @@
+# DRIFTLINE: the car only drives left and right along the road. Steering
+# also swings the gun: it tilts the way you drive, two degrees a frame, to
+# at most 45 degrees either side of straight up (a 90-degree cone). Let go
+# and the car rolls to a stop with the gun left where it was; UP brings
+# the gun back to straight up without moving the car. While you steer, the
+# gun follows the steering even with UP held (there is no aim lock).
+game driftline
+wait 12
+press A
+cheat nospawn
+wait 10
+cheat pos 160
+expect aim0 == 0
+expect x0 == 160
+hold RIGHT 10
+expect aim0 == 20
+expect x0 > 160
+hold RIGHT 20
+expect aim0 == 45
+expect vx10_0 == 20
+# let go: it stops, and the gun stays
+wait 30
+expect vx10_0 == 0
+expect aim0 == 45
+# UP: three degrees a frame back to straight up, the car stays put
+cheat pos 160
+hold UP 5
+expect aim0 == 30
+expect x0 == 160
+hold UP 20
+expect aim0 == 0
+expect x0 == 160
+# left swings it the other way
+hold LEFT 12
+expect aim0 == -24
+hold LEFT 40
+expect aim0 == -45
+wait 30
+# UP with the pad steering: the steering wins
+hold UP 20
+expect aim0 == 0
+hold LEFT UP 10
+expect aim0 == -20
+wait 30
+# the road ends at the screen's edges
+hold LEFT 200
+expect x0 == 12
+hold RIGHT 250
+expect x0 == 308
+# the main gun's shots leave at the gun's angle (red: full speed)
+cheat meter 600
+cheat pos 160
+hold UP 30
+press B
+expect pshot_vx10 == 0
+expect pshot_vy10 == -60
+wait 20
+hold RIGHT 30
+press B
+expect pshot_vx10 == 42

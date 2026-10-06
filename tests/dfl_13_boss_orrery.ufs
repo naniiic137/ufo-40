@@ -1,0 +1,45 @@
+# DRIFTLINE: stage 2's boss, the Orrery: a sphere with four orbiters. Shot
+# off its orbit, an orbiter goes dark and bounces round the road for the
+# rest of the fight, and shots only juggle it back up. The sphere goes
+# from white to yellow to red as it is hurt, and is worth 20,000.
+game driftline
+wait 12
+press A
+cheat stage 2
+cheat boss
+waituntil boss_on == 1 10
+expect boss_kind == 1
+expect orbiters == 4
+expect core_col == 0
+cheat god
+cheat orbiters 1
+waituntil boss_y >= 50 300
+cheat meter 700
+# knock orbiters off with the bot's help
+botuntil foes_18 >= 1 600
+expect orbiters <= 3
+# a dark one bounces, and a shot sends it up
+cheat bossstill
+waituntil kind_vy10_18 > 0 200
+cheat pos 160
+hold UP 20
+release
+cheat foe 18 160 100 1
+cheat clear
+cheat foe 18 160 100 1
+waituntil kind_vy10_18 > 10 100
+hold B
+waituntil kind_vy10_18 == -34 60
+release
+# the core's colour
+cheat bosshp 599
+expect core_col == 0
+cheat bosshp 399
+expect core_col == 1
+cheat bosshp 199
+expect core_col == 2
+cheat bossstill
+cheat bosshp 1
+botuntil boss_dead == 1 1200
+expect score >= 20000
+expect foes_18 == 0

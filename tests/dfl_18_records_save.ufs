@@ -1,0 +1,37 @@
+# DRIFTLINE: no run is saved (as in the original), but the records are:
+# the best score, the most cars held at once, runs, wins and coins. They
+# show on the title and survive a restart.
+game driftline
+wait 12
+expect save_runs == 0
+press A
+expect save_runs == 1
+cheat score 12345
+cheat spare 7
+expect most_cars == 7
+cheat over
+waituntil state == 5 200
+expect save_best == 12345
+expect save_most == 7
+expect save_stage == 1
+wait 300
+expect state == 0
+# a lower score doesn't replace it
+wait 12
+press A
+cheat stage 3
+cheat score 500
+cheat over
+waituntil state == 5 200
+expect save_best == 12345
+expect save_runs == 2
+expect save_stage == 3
+reload
+game driftline
+wait 5
+expect state == 0
+expect save_best == 12345
+expect save_most == 7
+expect save_runs == 2
+expect save_stage == 3
+expect save_wins == 0

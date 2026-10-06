@@ -1,0 +1,82 @@
+# DRIFTLINE: the meter's section sets how hard, how often and how fast
+# the guns shoot: grey 1 damage, a shot every 8 frames at 4.5 px a frame;
+# green 2, every 6 at 5.25; red 4, every 5 at 6. Side pairs come every 12,
+# 10 and 8 frames. A fuller red is no better than a bare red.
+game driftline
+wait 12
+press A
+cheat nospawn
+wait 10
+cheat pos 160
+hold UP 30
+# a kite that holds still at 160,60
+cheat dummy 0 160 60
+expect kind_hp_0 == 1000
+cheat meter 100
+press B
+wait 30
+expect last_hit_dmg == 1
+expect kind_hp_0 == 999
+cheat meter 300
+press B
+wait 30
+expect last_hit_dmg == 2
+expect kind_hp_0 == 997
+cheat meter 520
+press B
+wait 30
+expect last_hit_dmg == 4
+expect kind_hp_0 == 993
+cheat meter 720
+press B
+wait 30
+expect last_hit_dmg == 4
+expect kind_hp_0 == 989
+# the side guns hit by the meter too
+cheat meter 520
+cheat dummy 2 220 157
+press A
+wait 30
+expect kind_hp_2 == 996
+# the rate of fire: a second of fire in each section
+expect fired0 == 4
+cheat meter 160
+hold B 60
+expect fired0 == 12
+wait 20
+cheat meter 430
+hold B 60
+expect fired0 == 22
+wait 20
+cheat meter 720
+hold B 60
+expect fired0 == 34
+# the shots' speed
+wait 40
+cheat meter 100
+press B
+expect pshot_vy10 == -45
+wait 40
+cheat meter 300
+press B
+expect pshot_vy10 == -53
+wait 40
+cheat meter 600
+press B
+expect pshot_vy10 == -60
+wait 40
+# the side pairs' rate
+cheat clear
+cheat pos 160
+expect pairs0 == 1
+cheat meter 160
+hold A 60
+expect pairs0 == 6
+wait 30
+cheat meter 430
+hold A 60
+expect pairs0 == 12
+wait 30
+cheat meter 720
+hold A 60
+expect pairs0 == 20

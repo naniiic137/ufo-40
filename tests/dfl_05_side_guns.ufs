@@ -1,0 +1,45 @@
+# DRIFTLINE: A fires the side guns: a pair at a time, one along the road
+# and one diagonally up (a V), to the side you steer toward, or the side
+# you last drove with the pad let go. The main gun goes up into the cone
+# and never reaches anything on the road; only the side guns do.
+game driftline
+wait 12
+press A
+cheat nospawn
+wait 10
+cheat pos 160
+press A
+expect pshots_side == 2
+expect side_right == 2
+expect side_up == 1
+expect side_left == 0
+wait 60
+expect pshots_side == 0
+# drive left a moment: now they fire left, pad let go
+hold LEFT 4
+wait 30
+press A
+expect side_left == 2
+expect side_right == 0
+wait 60
+# steering decides over the last way driven
+press RIGHT A
+expect side_right == 2
+wait 60
+# held, they keep coming in pairs
+cheat meter 600
+cheat pos 160
+hold A 33
+expect pshots_side >= 8
+wait 60
+# a car on the road ahead: the main gun can't touch it...
+cheat pos 120
+cheat dummy 2 220 157
+hold RIGHT 30
+wait 30
+expect aim0 == 45
+hold B 120
+expect kind_hp_2 == 1000
+# ...the side guns can
+hold A 30
+expect kind_hp_2 < 1000
