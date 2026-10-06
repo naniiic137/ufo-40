@@ -53,7 +53,7 @@ cheat bossopen
 cheat still
 cheat bosspos 0.5 0.68
 cheat pos 0.5 0.5
-hold B 12
+hold A 12
 cheat still
 waituntil boss_clary == 1 400
 waituntil boss_phase == 2 100

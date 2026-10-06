@@ -20,7 +20,7 @@ expect fist1_x100 < 325
 expect boss_fy100 == 50
 # blast the left fist back toward its end
 hold RIGHT
-hold A
+hold B
 wait 1
 release RIGHT
 wait 30
@@ -34,7 +34,7 @@ expect fist0_x100 < -150
 cheat still
 cheat bosspos 0.5 0.29
 cheat pos 0.5 0.5
-hold B 30
+hold A 30
 expect boss_hits >= 3
 expect boss_hp < 190
 cheat still
@@ -50,6 +50,6 @@ cheat bosshp 1
 cheat still
 cheat bosspos 0.5 0.29
 cheat pos 0.5 0.5
-hold B 20
+hold A 20
 expect boss_dead == 1
 waituntil stage == 3 200

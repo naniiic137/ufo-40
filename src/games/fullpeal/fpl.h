@@ -4,8 +4,8 @@
  * Ansel flies the Tinkler into the screen, out to the bell-planet Knell,
  * with his sister Clary on the radio. A faux-3D rail shooter: the ship
  * moves freely on a flat 6 x 4 plane facing the screen, with no gravity
- * and no walls. B fires the forward gun down the lane the ship is in, at
- * whatever is still in the distance; A fires the side blaster along the
+ * and no walls. A fires the forward gun down the lane the ship is in, at
+ * whatever is still in the distance; B fires the side blaster along the
  * plane, away from the way the ship is moving (held, it keeps its
  * direction), at whatever has reached the plane. Five stages of four
  * fixed waves and a boss. Each wave is graded by the share of its foes
@@ -54,6 +54,11 @@ static inline float fpl_lane_x(int c) { return (float)c - 2.5f; }
 static inline float fpl_lane_y(int r) { return (float)r - 1.5f; }
 
 /* ---- the ship ------------------------------------------------------------ */
+/* The original fires forward on Button 1 and sideways on Button 2; UFO 40
+ * puts the main action (the forward gun) on A by the owner's choice, and
+ * the cartridge card's CONTROLS page can swap them back. */
+#define FPL_FWD_BTN BTN_A
+#define FPL_SIDE_BTN BTN_B
 #define FPL_SHIP_SPEED 0.06f  /* plane units a frame */
 #define FPL_SHIP_MX 2.75f     /* how far the ship can go from the middle */
 #define FPL_SHIP_MY 1.75f
@@ -89,7 +94,7 @@ enum {
     EK_MOTE,       /* appears on the plane and drifts straight at where you were */
     EK_NIBBLER,    /* appears on the plane and chases, two hits */
     EK_CALTROP,    /* comes down its lane and rams through the plane: can't be hurt */
-    EK_BROODER,    /* keeps its distance and spits motes */
+    EK_BROODER,    /* keeps its distance and lobs motes that land and drift at you */
     /* the bosses' company: never counted in a grade */
     EK_WISP,       /* Queen Sordina's: crosses the plane, one hit */
     EK_FLARE,      /* the Inkwell's: drops down a column of the plane, one hit */
@@ -116,7 +121,7 @@ typedef struct {
 
 /* shots: player shots, and foes' shots in depth (shells) or on the plane */
 enum { ES_PLANE, ES_SHELL };
-enum { BURST_NONE, BURST_CROSS, BURST_FORK, BURST_TRI, BURST_DIAG };
+enum { BURST_NONE, BURST_CROSS, BURST_FORK, BURST_TRI, BURST_DIAG, BURST_MOTE };
 typedef struct {
     uint8_t alive, kind, burst, big;
     float x, y, z, vx, vy, vz;

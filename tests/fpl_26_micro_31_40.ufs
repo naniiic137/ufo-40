@@ -9,7 +9,7 @@
 #  36 PICK: fruit after fruit, starting with an apple: press on the cherry (10) and only the cherry
 #  37 WHICH?: 99 dots shown for a moment: more gold (UP) or more red (DOWN)? 5 each
 #  38 DRAW: press the moment the other one reaches, not before; 5 each
-#  39 BOUNCE: a ball bouncing by itself between fences above and below; gold 10
+#  39 BOBBLE: a ball bouncing by itself between fences above and below; gold 10
 #  40 PENNY: coins pour down, some of them fakes; 2 a coin
 game fullpeal
 seed 4903
@@ -128,7 +128,7 @@ wait 21
 press P2B
 expect mc_state == 1
 press P2RIGHT
-# 39 BOUNCE
+# 39 BOBBLE
 expect mc_sel == 39
 press P2A
 expect mc_state == 2

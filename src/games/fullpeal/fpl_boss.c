@@ -1,7 +1,7 @@
 /* FULL PEAL - the five bosses, one at the end of each stage. Each hangs
  * in the distance with one weak point the forward gun must find down its
- * lane (the rest of the body stops shots), and each turns nastier once
- * it is down to half its health.
+ * lane (the rest of the body stops shots). The Gloameye and the Inkwell
+ * turn nastier once they are down to half their health.
  *
  *   A  the Gloameye: drifts in curves; three orbs circle it and take turns
  *      lobbing crosses; hit the eye; at half it goes gold and fires twice
@@ -12,8 +12,10 @@
  *   C  the Inkwell: drifts in curves, drops flares down the plane from the
  *      top and now and then lobs two pairs of crosses; at half it moves
  *      faster and drops only flares
- *   D  Shellback: sweeps along the top firing fans of 3, 4 and 3; its two
- *      pods fire one aimed shot each now and then
+ *   D  Shellback: sweeps along the top edge firing fans of 3, 4 and 3
+ *      that spread as they fall down the plane (the lower, the wider the
+ *      gaps); its two pods fire one aimed shot each now and then; hit its
+ *      beak, underneath
  *   E  Queen Sordina: her mouth is the only weak point, and only while it
  *      is open; a hit shuts it; left open too long it spits caltrops; wisps
  *      cross the plane. Emptied, she heals to full, until Clary flies in
@@ -84,7 +86,7 @@ void fpl_boss_weak(float *x, float *y, float *r) {
     case BOSS_KNUCKLEBELL: *y = b->y + 0.21f; break;
     case BOSS_GLOAMEYE: *y = b->y - 0.36f; break;
     case BOSS_INKWELL: break;
-    case BOSS_SHELLBACK: *y = b->y - 0.48f; break;
+    case BOSS_SHELLBACK: *y = b->y + 0.55f; break; /* its beak, underneath */
     case BOSS_SORDINA:
         *y = b->y - 0.18f;
         if (b->phase == 2) { *y = b->y; *r = 1.2f; }
@@ -112,7 +114,7 @@ static void hurt(int dmg) {
         b->mouth_t = imin(b->mouth_t, 12); /* a hit shuts her mouth */
         b->shut_by_hit = true;
     }
-    if (!b->angry && b->hp <= b->maxhp / 2 && b->kind != BOSS_SORDINA) {
+    if (!b->angry && b->hp <= b->maxhp / 2 && (b->kind == BOSS_GLOAMEYE || b->kind == BOSS_INKWELL)) {
         b->angry = true;
         fpl_sfx("fpl_angry", 0);
     }
@@ -202,7 +204,7 @@ static void knucklebell(FplBoss *b) {
     b->y = fapproach(b->y, CY[c], 0.012f);
     if (b->x == CX[c] && b->y == CY[c]) b->sub = c;
     /* the fists: they close in along the ship's height, slowly following it */
-    float in = b->angry ? 0.018f : 0.012f;
+    float in = 0.012f;
     b->fy = fapproach(b->fy, fpg.y, 0.008f);
     for (int k = 0; k < 2; k++) {
         float dir = k == 0 ? 1.0f : -1.0f;
@@ -233,7 +235,7 @@ static void knucklebell(FplBoss *b) {
     if (--b->fire_t <= 0) {
         fpl_shell_at(b->x, b->y + 0.25f, FPL_BOSS_Z, fpg.x, fpg.y, 60, BURST_NONE);
         fpl_sfx("fpl_efire", 0);
-        b->fire_t = b->angry ? 60 : 95;
+        b->fire_t = 95;
     }
 }
 
@@ -262,24 +264,27 @@ static void inkwell(FplBoss *b) {
 }
 
 static void shellback(FplBoss *b) {
-    b->ang += b->angry ? 0.014f : 0.01f;
+    b->ang += 0.01f;
     b->x = 2.0f * sinf(b->ang);
     b->y = -1.05f;
     if (--b->fire_t <= 0) {
-        /* a fan: 3, then 4, then 3 */
+        /* a fan from the top edge, spreading as it falls down the plane:
+         * 3 (straight down and 25 degrees either side), then 4 (12 and 36
+         * either side), then 3 */
         static const int N[3] = {3, 4, 3};
+        static const float A3[3] = {-25, 0, 25}, A4[4] = {-36, -12, 12, 36};
         int n = N[b->sub % 3];
         for (int k = 0; k < n; k++) {
-            float off = (k - (n - 1) * 0.5f) * 0.95f;
-            fpl_shell_at(b->x, b->y, FPL_BOSS_Z, b->x * 0.4f + off, 1.0f + (k % 2) * 0.4f, 64, BURST_NONE);
+            float a = (n == 3 ? A3[k] : A4[k]) * 0.0174533f;
+            fpl_add_eshot(ES_PLANE, b->x, -2.0f, 0, sinf(a) * 0.03f, cosf(a) * 0.03f, 0, BURST_NONE);
         }
         b->sub++;
         b->fired++;
         b->last_fan = n;
-        b->fire_t = b->sub % 3 == 0 ? (b->angry ? 80 : 120) : 28;
+        b->fire_t = b->sub % 3 == 0 ? 120 : 28;
         fpl_sfx("fpl_efire", 0);
     }
-    if (b->t % 100 == 50 || (b->angry && b->t % 100 == 0)) {
+    if (b->t % 100 == 50) {
         /* a pod's one aimed shot */
         float ox, oy;
         fpl_boss_option((b->t / 100) % 2, &ox, &oy);

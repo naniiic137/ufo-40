@@ -4,8 +4,8 @@
  * the crosses they burst into, foes arriving or sitting on the plane, the
  * fists, a bourdon's marked lane), tries each of the nine ways to steer,
  * and takes the safest that brings it nearest its target: a lane to fire
- * the forward gun down, or a row or column from which the side blaster
- * reaches something already on the plane. */
+ * the forward gun (A) down, or a row or column from which the side
+ * blaster (B) reaches something already on the plane. */
 #include "fpl.h"
 
 int fpl_bot_dbg[4];
@@ -36,6 +36,7 @@ static void burst_hz(float x, float y, int burst, int t) {
         break;
     case BURST_FORK: add_hz(x, y, 0, v, 0.12f, t, H); add_hz(x, y, 0, -v, 0.12f, t, H); break;
     case BURST_TRI: add_hz(x, y, 0, 0, 0.75f, t, t + 18); break;
+    case BURST_MOTE: add_hz(x, y, 0, 0, 0.4f, t, t + 30); break;
     default: break;
     }
 }
@@ -269,8 +270,8 @@ static int bot_play(void) {
     /* guns */
     if (want_side) {
         bool aligned = sdx ? fabsf(fpg.y - ty) < 0.3f : fabsf(fpg.x - tx) < 0.3f;
-        if (fpg.side_locked && (fpg.prev_in & BTN_A)) {
-            if (fpg.side_dx == sdx && fpg.side_dy == sdy) m |= BTN_A;   /* keep firing that way */
+        if (fpg.side_locked && (fpg.prev_in & FPL_SIDE_BTN)) {
+            if (fpg.side_dx == sdx && fpg.side_dy == sdy) m |= FPL_SIDE_BTN;   /* keep firing that way */
             /* else let go, and aim afresh next frame */
         } else if (aligned) {
             /* press A while moving away from the target: the blaster fires toward it */
@@ -279,10 +280,12 @@ static int bot_play(void) {
             if (sdx < 0) m |= BTN_RIGHT;
             if (sdy > 0) m |= BTN_UP;
             if (sdy < 0) m |= BTN_DOWN;
-            m |= BTN_A;
+            m |= FPL_SIDE_BTN;
         }
     } else if (want_fwd) {
-        if (fpl_col(fpg.x) == fpl_col(tx) && fpl_row(fpg.y) == fpl_row(ty)) m |= BTN_B;
+        /* the button that started the run is held back until it is let go
+         * (input_consume): let it up for a frame now and then */
+        if (fpl_col(fpg.x) == fpl_col(tx) && fpl_row(fpg.y) == fpl_row(ty) && fpg.frame_t % 24) m |= FPL_FWD_BTN;
     }
     return m;
 }

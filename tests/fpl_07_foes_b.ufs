@@ -23,7 +23,7 @@ wait 120
 # shot down on the way, no burst
 cheat pos 0.5 0.5
 cheat foe 9 3 2 0
-hold B 40
+hold A 40
 expect foes_9 == 0
 expect wave_kills == 1
 wait 100
@@ -39,7 +39,7 @@ wait 200
 cheat still
 cheat foez 1 0.5 0.5 0.7
 expect kind_hp_1 == 3
-hold B
+hold A
 waituntil kind_hp_1 == 1 60
 waituntil foes_1 == 0 60
 release

@@ -145,8 +145,10 @@ void fpm_px(int ox, int oy, int x, int y, int col) { gfx_pset(ox + x, oy + y, co
 void fpm_rect(int ox, int oy, int x, int y, int w, int h, int col) { gfx_rect(ox + x, oy + y, w, h, col); }
 void fpm_text(int ox, int oy, const char *s, int x, int y, int col) { tiny_draw(s, ox + x, oy + y, col); }
 
+/* a score as the console shows it: blank at nothing, four digits, five past 9999 */
 static void score_text(char *b, size_t n, uint32_t s) {
-    if (s > 9999) snprintf(b, n, "%05u", (unsigned)s);
+    if (s == 0) snprintf(b, n, "%s", "");
+    else if (s > 9999) snprintf(b, n, "%05u", (unsigned)s);
     else snprintf(b, n, "%04u", (unsigned)s);
 }
 
@@ -155,7 +157,7 @@ void fpl_micro_draw(int x, int y) {
     gfx_rect(x, y, FPL_MON_W, FPL_MON_H, MC_K);
     if (fpm.state == MC_MENU) {
         uint32_t tot = fpl_micro_total();
-        snprintf(b, sizeof b, "TOTAL %06u", (unsigned)tot);
+        snprintf(b, sizeof b, "TOTAL %06u", (unsigned)(tot > 999999u ? 999999u : tot)); /* the display tops out */
         tiny_center(b, x + FPL_MON_W / 2, y + 1, MC_Y);
         snprintf(b, sizeof b, "%02d %s", fpm.sel + 1, fpl_micro_def(fpm.sel)->name);
         text_center(b, x + FPL_MON_W / 2, y + 10, MC_W);
@@ -869,7 +871,7 @@ static void g09_start(void) { fpm_tilt_start(false); }
 /* 10 OGRE 1 */
 static void g10_start(void) { fpm_boss_start(0); }
 
-/* 11 SNIPE: pick off the red bird between two gold ships                 */
+/* 11 PLINK: pick off the red bird between two gold ships                 */
 /* fvar 0 you; es 1 your shot, 2 their shot; ivar 0 bird x, 1 bird y, 2,3 the ships' x */
 static void g11_start(void) { F[0] = 70; I[0] = 80; I[1] = 10; I[2] = 22; I[3] = 58; }
 static void snipe_fire(float x, float y, float vy, int kind) {
@@ -1462,7 +1464,7 @@ const FplMicroDef FPL_MICRO_A[25] = {
     {"BURROW", g08_start, g08_update, g08_draw},
     {"SLOPE", g09_start, fpm_tilt_update, fpm_tilt_draw},
     {"OGRE 1", g10_start, fpm_boss_update, fpm_boss_draw},
-    {"SNIPE", g11_start, g11_update, g11_draw},
+    {"PLINK", g11_start, g11_update, g11_draw},
     {"DRIP", g12_start, g12_update, g12_draw},
     {"SHOO 2", g13_start, g13_update, g13_draw},
     {"LOOPY", g14_start, g14_update, g14_draw},

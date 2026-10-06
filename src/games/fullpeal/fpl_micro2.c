@@ -465,7 +465,7 @@ static void g38_draw(int ox, int oy) {
     if (I[0] == 1 && (fpm.gt / 3) % 2) fpm_text(ox, oy, "!", 69, 2, MC_Y);
 }
 
-/* 39 BOUNCE: a ball that bounces by itself between fences up and down     */
+/* 39 BOBBLE: a ball that bounces by itself between fences up and down     */
 /* fvar 0 x, 1 y, 2 vy; es 1 fence from the top, 2 fence from the floor, 3 gold; ivar 0 timer, 1 gold taken */
 static void g39_start(void) { F[0] = 20; F[1] = 10; F[2] = 0; I[0] = 50; }
 static void g39_update(uint8_t held, uint8_t pressed) {
@@ -961,7 +961,7 @@ const FplMicroDef FPL_MICRO_B[25] = {
     {"PICK", g36_start, g36_update, g36_draw},
     {"WHICH?", g37_start, g37_update, g37_draw},
     {"DRAW", g38_start, g38_update, g38_draw},
-    {"BOUNCE", g39_start, g39_update, g39_draw},
+    {"BOBBLE", g39_start, g39_update, g39_draw},
     {"PENNY", g40_start, g40_update, g40_draw},
     {"SHOVE", g41_start, g41_update, g41_draw},
     {"KEEPUP", g42_start, g42_update, g42_draw},

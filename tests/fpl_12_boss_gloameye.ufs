@@ -18,18 +18,18 @@ cheat still
 # the eye at lane (3, 2)
 cheat bosspos 0.5 0.86
 cheat pos 0.5 0.5
-hold B 30
+hold A 30
 expect boss_hits >= 3
 expect boss_hp < 150
 expect boss_blocked == 0
 # into the body below the eye: stopped
 cheat pos 0.5 1.5
-hold B 30
+hold A 30
 expect boss_blocked >= 3
 expect boss_hits <= 5
 # a lane clear of it: nothing
 cheat pos -2.5 0.5
-hold B 30
+hold A 30
 expect boss_blocked <= 9
 cheat still
 # the orbs take turns: a cross every 68 frames
@@ -39,7 +39,7 @@ cheat bosshp 76
 cheat still
 cheat bosspos 0.5 0.86
 cheat pos 0.5 0.5
-hold B 15
+hold A 15
 expect boss_angry == 1
 expect boss_hp <= 75
 cheat still
@@ -54,7 +54,7 @@ cheat bosshp 1
 cheat still
 cheat bosspos 0.5 0.86
 cheat pos 0.5 0.5
-hold B 20
+hold A 20
 expect boss_dead == 1
 expect state == 6
 expect foes == 0

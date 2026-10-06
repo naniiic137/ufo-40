@@ -35,9 +35,13 @@ cheat endwave
 # the brooder spits motes (shells that don't burst)
 cheat foe 15 2 1 0
 waituntil kind_state_15 == 1 120
+expect kind_hp_15 == 1
 waituntil eshots_shell >= 1 120
 wait 80
 expect eshots_plane == 0
+# the mote it lobbed lands and becomes a foe on the plane (not counted)
+expect foes_12 >= 1
+expect wave_escaped == 0
 cheat endwave
 wait 120
 # the dodger: two hits, and the first sends it a lane sideways
@@ -45,7 +49,7 @@ cheat still
 cheat foez 3 0.5 0.5 0.6
 cheat pos 0.5 0.5
 expect kind_hp_3 == 2
-hold B 1
+hold A 1
 wait 14
 expect kind_hp_3 == 1
 cheat still
@@ -53,14 +57,14 @@ wait 20
 expect kind_x100_3 == 150
 cheat still
 cheat pos 1.5 0.5
-hold B 20
+hold A 20
 expect foes_3 == 0
 expect wave_kills == 1
 # the nibbler: two hits on the plane
 cheat foez 13 1.5 -0.5 0
 cheat pos -1.5 -0.5
 hold LEFT
-hold A
+hold B
 wait 1
 release LEFT
 waituntil kind_hp_13 == 1 40

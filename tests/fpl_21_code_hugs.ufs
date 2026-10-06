@@ -96,8 +96,8 @@ expect save_runs == 0
 expect hugs == 1
 waituntil state == 3 300
 cheat god
-hold B 60
 hold A 60
+hold B 60
 expect fired_fwd == 0
 expect fired_side == 0
 # the waves all come to 0: a balloon round after the boss

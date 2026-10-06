@@ -606,7 +606,7 @@ static void draw_overlay(void) {
         break;
     case PS_GRADE:
         snprintf(b, sizeof b, "%d%%", fpg.last_grade);
-        banner(b, fpg.meta ? "SOMEDAY THE RINGING STOPS" : fpg.last_grade == 100 ? "EVERY ONE!" : "OF THE WAVE SHOT DOWN", 64,
+        banner(b, fpg.meta ? "HALF A PEAL IS STILL A PEAL" : fpg.last_grade == 100 ? "EVERY ONE!" : "OF THE WAVE SHOT DOWN", 64,
                fpg.last_grade == 100 ? GRAD_GOLD : GRAD_PINK);
         if (fpg.owl) draw_owl(136, 104);
         break;

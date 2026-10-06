@@ -19,7 +19,7 @@ cheat bosshp 1
 cheat still
 cheat bosspos 0.5 0.86
 cheat pos 0.5 0.5
-hold B 15
+hold A 15
 cheat still
 expect boss_dead == 1
 waituntil state == 7 200
@@ -32,7 +32,7 @@ expect continues == 2
 waituntil bonus_spawned == 1 40
 cheat pos -0.75 1.5
 expect col == 2
-hold B 40
+hold A 40
 expect bonus_pts >= 1
 # fifty points: a continue, and the goal
 cheat bonuspts 49
@@ -55,7 +55,7 @@ cheat bosshp 1
 cheat still
 cheat bosspos 0.5 0.29
 cheat pos 0.5 0.5
-hold B 15
+hold A 15
 cheat still
 waituntil state == 2 300
 expect stage == 3

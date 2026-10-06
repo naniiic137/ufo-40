@@ -41,7 +41,7 @@ expect kind_z100_4 == 0
 # nothing hurts it
 cheat pos -1.5 -0.5
 hold LEFT
-hold A
+hold B
 wait 1
 release LEFT
 wait 30
@@ -53,7 +53,7 @@ expect wave_escaped == 1
 cheat still
 cheat foez 8 0.5 0.5 0.4
 cheat pos 0.5 0.5
-hold B 12
+hold A 12
 expect foes_8 == 0
 expect eshots_shell == 1
 cheat still

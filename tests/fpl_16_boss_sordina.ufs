@@ -18,7 +18,7 @@ cheat still
 cheat bosspos 0.5 0.68
 cheat pos 0.5 0.5
 # shut: shots at her mouth stop on her
-hold B 20
+hold A 20
 expect boss_hits == 0
 expect boss_blocked >= 2
 cheat still
@@ -28,7 +28,7 @@ waituntil boss_mouth == 1 120
 cheat still
 cheat bosspos 0.5 0.68
 cheat pos 0.5 0.5
-hold B 10
+hold A 10
 expect boss_hits >= 1
 cheat still
 cheat pos -2.5 1.5
@@ -46,7 +46,7 @@ cheat bosshp 1
 cheat still
 cheat bosspos 0.5 0.68
 cheat pos 0.5 0.5
-hold B 12
+hold A 12
 expect boss_dead == 0
 expect boss_phase == 1
 cheat still
@@ -64,7 +64,7 @@ expect boss_hp < 100
 cheat still
 cheat bosspos 0.5 0.5
 cheat pos 0.5 1.5
-hold B 20
+hold A 20
 expect boss_hits >= 3
 cheat still
 cheat bosshp 1

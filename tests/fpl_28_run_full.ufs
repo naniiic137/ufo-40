@@ -18,7 +18,7 @@ botuntil stage == 5 40000
 botuntil state == 5 40000
 expect boss_kind == 4
 botuntil boss_clary == 1 30000
-botuntil state == 10 30000
+botuntil state == 10 60000
 expect won == 1
 expect goals.fullpeal & 2
 botuntil state == 11 2000

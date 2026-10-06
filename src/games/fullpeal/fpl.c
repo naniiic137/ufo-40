@@ -112,7 +112,7 @@ static void grade_wave(void) {
     if (g == 100) { fpg.perfect_stage++; fpg.perfects++; }
     if (g == 100 || g == 0) fpg.bonus_due = true;
     static char line[48];
-    if (fpg.meta) snprintf(line, sizeof line, "WAVE 1: 50%%. SOMEDAY THE RINGING STOPS.");
+    if (fpg.meta) snprintf(line, sizeof line, "WAVE 1: 50%%. HALF A PEAL IS STILL A PEAL.");
     else if (g == 100) snprintf(line, sizeof line, "WAVE %d: 100%%! THE OWL APPROVES.", fpg.wave + 1);
     else snprintf(line, sizeof line, "WAVE %d: %d%%", fpg.wave + 1, g);
     fpl_radio(line);
@@ -454,6 +454,19 @@ static int fpl_query(const char *key, int *out) {
         *out = n;
         return 1;
     }
+    if (!strcmp(key, "eshots_ymin100") || !strcmp(key, "eshots_xspread100")) {
+        /* the shots on the plane: the highest one, and how wide they are spread */
+        float ymin = 9, xmin = 9, xmax = -9;
+        for (int i = 0; i < FPL_MAX_ESHOTS; i++) {
+            const FplEShot *e = &fpg.es[i];
+            if (!e->alive || e->kind != ES_PLANE) continue;
+            ymin = fminf(ymin, e->y);
+            xmin = fminf(xmin, e->x);
+            xmax = fmaxf(xmax, e->x);
+        }
+        *out = key[7] == 'y' ? (int)lroundf(ymin * 100) : xmax < xmin ? 0 : (int)lroundf((xmax - xmin) * 100);
+        return 1;
+    }
     if (!strcmp(key, "pshots") || !strcmp(key, "pshots_side") || !strcmp(key, "pshots_fwd")) {
         int n = 0, want = !key[6] ? -1 : key[7] == 's' ? 1 : 0;
         for (int i = 0; i < FPL_MAX_PSHOTS; i++) n += fpg.ps[i].alive && (want < 0 || fpg.ps[i].side == want);
@@ -505,7 +518,7 @@ static int fpl_query(const char *key, int *out) {
         for (int s = 0; s < FPL_STAGES; s++) n += tiny_missing(FPL_STAGE[s].name) + tiny_missing(FPL_STAGE[s].radio);
         for (int k = 0; k < BOSS_COUNT; k++) n += text_missing(FPL_BOSS_NAME[k]) + tiny_missing(FPL_BOSS_NAME[k]);
         for (int g = 0; g < FPL_MICROS; g++) n += tiny_missing(fpl_micro_def(g)->name) + text_missing(fpl_micro_def(g)->name);
-        static const char *const TINY[] = {"HUGS-ONLY: NO GUNS. RECORDS AND GOALS ARE OFF", "WAVE 1: 50%. SOMEDAY THE RINGING STOPS.",
+        static const char *const TINY[] = {"HUGS-ONLY: NO GUNS. RECORDS AND GOALS ARE OFF", "WAVE 1: 50%. HALF A PEAL IS STILL A PEAL.",
                                            "50 POINTS! ONE MORE CONTINUE.", "CREDIT USED. BACK TO THE FIRST WAVE.",
                                            "CLARY: HOLD ON, ANSEL! I'M COMING IN!", "A BALLOON ROUND! 50 POINTS FOR A CONTINUE.",
                                            "ANSEL AND THE TINKLER, OUT TO KNELL", "TOTAL 000000", "A PLAY   B OFF", "GAME OVER",
@@ -513,7 +526,7 @@ static int fpl_query(const char *key, int *out) {
         for (int i = 0; i < ARRAY_LEN(TINY); i++) n += tiny_missing(TINY[i]);
         static const char *const MAIN[] = {"THE BELLS OF KNELL RING OUT AGAIN.", "TIME TO GO DOWN AND HAVE A LOOK.",
                                            "1,500 OR MORE: THE THIRD GOAL!", "CONTINUES LEFT 3 X 100 = 300",
-                                           "SOMEDAY THE RINGING STOPS", "RED 1  ORANGE 3  50 WINS A CONTINUE", "BALLOONS!",
+                                           "HALF A PEAL IS STILL A PEAL", "RED 1  ORANGE 3  50 WINS A CONTINUE", "BALLOONS!",
                                            "THE FINAL COUNT", "FULL PEAL", "GAME OVER", "CREDIT USED", "100%"};
         for (int i = 0; i < ARRAY_LEN(MAIN); i++) n += text_missing(MAIN[i]);
         *out = n;
@@ -640,8 +653,8 @@ const GameDef GAME_FULLPEAL = {
     "INTO THE SCREEN, OUT TO KNELL. TWO GUNS AND A GRADE FOR EVERY WAVE.",
     {"WIN A CONTINUE IN A BALLOON ROUND", "SILENCE QUEEN SORDINA", "FINISH THE RUN WITH 1,500 POINTS"},
     GLYPH_DPAD "\tFLY ANYWHERE ON THE PLANE\n"
-    "HOLD " GLYPH_B "\tFORWARD GUN: INTO THE DISTANCE\n"
-    "HOLD " GLYPH_A "\tSIDE BLASTER, AGAINST YOUR\n"
+    "HOLD " GLYPH_A "\tFORWARD GUN: INTO THE DISTANCE\n"
+    "HOLD " GLYPH_B "\tSIDE BLASTER, AGAINST YOUR\n"
     "\tMOVE; HOLD IT TO KEEP AIM\n"
     "START\tPAUSE\n"
     "\n"

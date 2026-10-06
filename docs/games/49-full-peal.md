@@ -20,7 +20,7 @@ fixed sequences of formations that come back and get remixed [MH], [ST].
 Ours are too (`fpl_waves.c`): 37 formations of our own, named after
 methods rung on church bells, built into twenty waves of our own. Only the
 structure follows the original: five stages of four waves and a boss, most
-waves four to seven formations long and the longest (D3 and E4) twelve
+waves four to seven formations long and the longest (D3 and E4) about eleven and twelve (ours: twelve each)
 [MH], new kinds of foe arriving stage by stage [CH], and nothing random.
 
 **The series.** FULL PEAL is the third of UFO 40's Campanella tributes,
@@ -49,18 +49,18 @@ Pilot and Isabell are in the original [MH], [CH].
 | Saving | none (one sitting; the high scores kept) [STEAM-SAVES] | the same |
 
 **How long it takes.** The demo pilot (which reads every foe and shot on
-the real rules and presses the real buttons) wins from the title in 85,729
-frames, about 24 minutes, losing five ships and one credit, with a final
-count of 2,370 (`fpl_28`).
+the real rules and presses the real buttons) wins from the title in
+140,538 frames, about 39 minutes, losing seven ships and two credits (it
+plays stage E three times), with a final count of 2,261 (`fpl_28`).
 
 ## Structure
 
 | Stage | Name | New foes | Boss | Clary's call |
 |---|---|---|---|---|
-| A | OUTER BELFRY | clappers (some crossing the plane), crossheads, pendulums | the Gloameye | "CLARY HERE. EASY OUT THERE, BROTHER!" |
-| B | TIN NEBULA | sallies, forkers, tenors, lookouts | Knucklebell | "ODD SIGNALS COMING OFF KNELL. STAND BY!" |
-| C | THE MURK | motes, bourdons, quick sallies, nibblers, spites | the Inkwell | "KNELL ISN'T KNELL ANY MORE. IT'S ALL CHANGED!" |
-| D | TOLLGATE | trebles, caltrops, brooders | Shellback | "ANSEL, COME IN! TURN ROUND! TROUBLE AHEAD!" |
+| A | OUTER BELFRY | clappers (some crossing the plane), crossheads, pendulums | the Gloameye | "CLARY HERE. I'LL BE ON THIS CHANNEL ALL THE WAY TO KNELL." |
+| B | TIN NEBULA | sallies, forkers, tenors, lookouts | Knucklebell | "THE BELLS ON KNELL HAVE STARTED RINGING BY THEMSELVES." |
+| C | THE MURK | motes, bourdons, quick sallies, nibblers, spites | the Inkwell | "MY CHARTS ARE NO GOOD NOW. KNELL HAS GROWN A SHELL!" |
+| D | TOLLGATE | trebles, caltrops, brooders | Shellback | "THE RINGING IS SHAKING MY CONSOLE APART. BE QUICK, ANSEL!" |
 | E | KNELL | dodgers, and all the rest | Queen Sordina | a scrambled call spelling ANSEL |
 
 - **Title**: START or CODE over the stars and Knell, with the records (the
@@ -94,9 +94,9 @@ earns none of them and leaves the records alone.
 |---|---|---|---|
 | No gravity, no fuel, no walls | the ship moves freely in eight directions on its plane and stays where it is let go; the plane's edges stop it and nothing else | [LZ], [ST], [MM] | fpl_02 |
 | Edge markers | orange marks along an edge when the ship comes near it | [MH], [LZ], [MM] | (drawn) |
-| The forward gun | B fires into the distance down the lane the ship is in; it hits what is out there in that lane, generously | [LZ], [MM], [CH], [PD] | fpl_03 |
+| The forward gun | A (the owner's layout; see Controls) fires into the distance down the lane the ship is in; it hits what is out there in that lane, generously | [LZ], [MM], [CH], [PD] | fpl_03 |
 | Two depths | the forward gun passes over foes that have reached the plane; only the side blaster reaches them | [MH], [CH] | fpl_03, fpl_04 |
-| The side blaster | A fires along the plane, up, down, left or right, away from the way the ship is moving; held, it keeps that direction | [MM], [CH], [TIPS] | fpl_04 |
+| The side blaster | B fires along the plane, up, down, left or right, away from the way the ship is moving; held, it keeps that direction | [MM], [CH], [TIPS] | fpl_04 |
 | Both at once | the side blaster wins | [MM] | fpl_04 |
 | One hit | a shot, a shell landing or a foe on the plane costs a ship | [ST], [MM] | fpl_05 |
 | Respawn | the next ship is there at once, blinking and safe for a moment; the wave goes on | [ST], [MM] | fpl_05 |
@@ -116,14 +116,14 @@ earns none of them and leaves the records alone.
 | Mote (Poison) | appears on the plane and drifts straight at where the ship was | [MH], [CH] | fpl_08 |
 | Nibbler (Piranha) | appears on the plane and chases, two hits | [MH], [CH] | fpl_08, fpl_09 |
 | Caltrop (Spike) | comes down its lane and rams through the plane; can't be hurt | [MH], [CH] | fpl_09 |
-| Brooder (Charkas Jr.) | keeps its distance and spits motes | [MH], [CH] | fpl_09 |
+| Brooder (Charkas Jr.) | keeps its distance and lobs motes that land on the plane and drift at you (one hit each, not counted); shoot it before they land | [MH], [CH] | fpl_09 |
 | Grades | each wave 0–100 by the share of its counted foes shot down (rounded down); the ones that can't be hurt don't count; waves end by themselves | [MH], [LZ], [TIPS] | fpl_10 |
 | The owl | a 100 shows the owl | [LZ] | fpl_10 |
 | Exactly 50 on the first wave | a strange message | [MH-META] | fpl_10 |
 | The Gloameye (Galbrain) | curves; three orbs take turns lobbing crosses; the eye is the weak point; at half it turns gold and fires twice as often | [MH], [CH] | fpl_12 |
-| Knucklebell (Robopoke) | flies a square; two fists close in from both ends of the plane, knocked back by the side blaster, unhurt by anything, bouncing apart when they meet; the nose is the weak point | [MH], [CH] | fpl_13 |
+| Knucklebell (Robopoke) | flies a square; two fists close in from both ends of the plane, knocked back by the side blaster, unhurt by anything (no change at half health), bouncing apart when they meet; the nose is the weak point | [MH], [CH] | fpl_13 |
 | The Inkwell (Joe Pulp) | curves; flares down the plane from the top; now and then two pairs of crosses; at half, faster and only flares | [MH], [CH] | fpl_14 |
-| Shellback (Eggsaber) | sweeps along the top; fans of 3, 4 and 3; two pods fire one aimed shot each now and then | [MH], [CH] | fpl_15 |
+| Shellback (Eggsaber) | sweeps along the top; fans of 3, 4 and 3 from the plane's top edge, spreading as they fall, so the bottom is the safest place; two pods fire one aimed shot each now and then; no change at half health | [MH], [CH] | fpl_15 |
 | Queen Sordina (Queen Zu) | curves; only her open mouth can be hurt; a hit shuts it; left open, caltrops fly out; wisps (pink skulls) cross the plane; emptied, she heals to full; Clary comes and weakens her; then any hit counts, her two pods lob crosses, more wisps, no caltrops, and Clary fires too | [MH], [CH] | fpl_16 |
 | The balloon round | after the boss of a stage with a 100 or a 0; red 1, orange 3; more 100s, more orange; 50 points = a continue | [MH], [TIPS], [CH], [MM] | fpl_17 |
 | Ships and credits | 3 ships, not given back between stages; all lost: a continue, three ships, the stage again from wave 1; none left: game over | [ST], [CH], [MM] | fpl_18 |
@@ -133,7 +133,7 @@ earns none of them and leaves the records alone.
 | The console | a second controller holds Button II (A) for a couple of seconds; the cockpit monitor becomes a menu of 50 micro-games; it runs whatever the main game is doing | [SECRET], [P2], [MH] | fpl_22 |
 | Four colours | black, white, yellow and red | [SECRET] | (drawn) |
 | After a game over | the console keeps going as long as player 1 presses nothing | [SECRET], [P2] | fpl_22 |
-| Scores | every game keeps a high score, four digits and five past 9999 (99,999 at most); the menu shows the total of all fifty | [P2] | fpl_22 |
+| Scores | every game keeps a high score, blank until it is above 0, then four digits, five past 9999 (99,999 at most); the menu shows the total of all fifty, which stops at 999,999 | [P2] | fpl_22 |
 | The fifty games | each with its original's rule and scoring unit (below) | [MH], [SECRET], [P2] | fpl_23 … fpl_27 |
 | Fixed | nothing in the main game is random: the same inputs give the same run | [LZ], [ST] | fpl_11 |
 | Whole game | won from the title with real presses, all three goals | | fpl_28 |
@@ -155,7 +155,7 @@ the original's as the guides describe them [MH], [SECRET], [P2].
 | 08 | BURROW | a tunnel scrolling at you, narrower and faster | 2 a second |
 | 09 | SLOPE | tilt to steer downhill; the slope never slows | 10 a gold |
 | 10 | OGRE 1 | take a boss apart from below; the score counts down from 400 and only a win keeps it | what's left |
-| 11 | SNIPE | shoot the bird between two gold ships, never the ships | 5 a bird |
+| 11 | PLINK | shoot the bird between two gold ships, never the ships | 5 a bird |
 | 12 | DRIP | tap as the drop reaches the fingertip (seven stages of swelling first) | 10 a drop |
 | 13 | SHOO 2 | move freely; bouncing chasers from two corners, gold from the other two | 5 a gold |
 | 14 | LOOPY | always moving; LEFT and RIGHT turn; each prize leaves a chaser | 10 a prize |
@@ -183,7 +183,7 @@ the original's as the guides describe them [MH], [SECRET], [P2].
 | 36 | PICK | orange, pear, apple, banana, cherry, round and round from the apple, faster; press on the cherry | 10 a cherry |
 | 37 | WHICH? | 99 dots for a moment, less time each round: more gold (UP) or red (DOWN)? | 5 each |
 | 38 | DRAW | press when the other one reaches (first after a second, then one of eight waits); 60 s | 5 each |
-| 39 | BOUNCE | a bouncing ball, fences from above and below; busier after 70 gold | 10 a gold |
+| 39 | BOBBLE | a bouncing ball, fences from above and below; busier after 70 gold | 10 a gold |
 | 40 | PENNY | coins pour down, some fakes | 2 a coin |
 | 41 | SHOVE | a wall of gunners closing in; shots push them back; past the left edge they're gone | 10 a second |
 | 42 | KEEPUP | one ball, then more every few seconds; drop none | 10 a second |
@@ -207,9 +207,9 @@ the original's as the guides describe them [MH], [SECRET], [P2].
   every 7 frames.
 - **The blaster standing still** fires away from the way the ship last
   moved; moving diagonally, the side-to-side part decides.
-- **Foes' hit points** the sources leave blank: crosshead, forker, brooder
-  and lookout 2; mote, pendulum, spite, sally 1 (the piranha's 2 is the
-  cherry guide's). How long a clapper sits on the plane (4 s) and a gunner
+- **Foes' hit points:** the sources name a count only where it is more
+  than one (Off Beat 2, Heavy Beat 3, piranhas 2), so every other foe,
+  the four gunners included, falls to one hit. How long a clapper sits on the plane (4 s) and a gunner
   keeps its distance (7 s) are ours.
 - **The cannon's cross:** "fires 4 bullets in a cross" [MH] and "shoots in
   4 directions but lasts for a while" [CH]: a shell that lands where the
@@ -237,7 +237,17 @@ the original's as the guides describe them [MH], [SECRET], [P2].
   up correctly.
 - **The records:** a stage's best is the total of its four grades. The
   furthest stage, shown in the original's library [GLITCH], is on our title.
-- **The meta message** for exactly 50 on the first wave is our own line.
+- **The meta message** for exactly 50 on the first wave is our own line,
+  "HALF A PEAL IS STILL A PEAL".
+- **Shellback's weak point** is its beak, underneath, one row below the
+  top: the sources give it no weak point, and the beak keeps the fight
+  low, where the cherry guide says to be.
+- **The guns' buttons (the owner's layout):** the original has the forward
+  gun on Button 1 (our B) and the side blaster on Button 2 (our A). UFO 40
+  puts the main action on A by the owner's choice, so the forward gun,
+  which meets most foes and is the only thing that hurts a boss, is on A
+  and the side blaster on B; pressing both, the side blaster still wins.
+  The cartridge card's CONTROLS page can swap them back.
 - **The ending** is abrupt, as in the original ("they just … left it at
   that?" [LZ], [END]): our own crash and THE END.
 
@@ -275,8 +285,8 @@ pad; the Vita has one controller, so the console needs a PC or the web.
 | Input | Action |
 |---|---|
 | D-pad | fly anywhere on the plane |
-| Hold B | forward gun, into the distance down your lane |
-| Hold A | side blaster, away from the way you're moving; held, it keeps its aim |
+| Hold A | forward gun, into the distance down your lane (owner's layout: the original's Button 1) |
+| Hold B | side blaster, away from the way you're moving; held, it keeps its aim (the original's Button 2) |
 | START | pause |
 | Title | UP / DOWN, A: START or CODE; B: the library |
 | Second controller: hold A | open Clary's console |
@@ -319,7 +329,7 @@ tried and its end reached. The demo pilot (`fpl_bot.c`) lists everything
 that could hit the ship over the next 22 frames, tries the nine ways to
 steer and takes the safest that brings it nearest its target (the lane of
 a foe in the distance, the row or column of one on the plane, a boss's
-weak point, a balloon); for the blaster it presses A while moving away
+weak point, a balloon); for the blaster it presses B while moving away
 from its target. In `fpl_28` it wins the whole game from the title with
 real presses and all three goals. The shell's library-scroll test now
 tries the empty slot 50.
@@ -353,8 +363,11 @@ tries the empty slot 50.
   second controller; the fifty games, each described; four colours; playing
   on after player 1's game over. https://steamcommunity.com/sharedfiles/filedetails/?id=3430658639
 - [P2] Steam guide "The ULTIMATE Player 2 guide for Campanella 3": each
-  game's controls and scoring unit, time limits, fail limits, the total,
-  the 4-to-5-digit scores, the three boss games counting down, PACI-FIST.
+  game's controls and scoring unit, time limits, fail limits, the total
+  (and where its display stops), blank scores growing from 4 digits to 5,
+  the three boss games counting down, PACI-FIST, and that 0 % waves also
+  open the bonus round. (The missing manuals' comments add that more
+  perfect waves give better odds in it.)
   https://steamcommunity.com/sharedfiles/filedetails/?id=3659693716
 - [LZ] Lizstar, review of #49: the 6 × 4 grid, the side blaster, the cat on
   a 100, the small second-player screen, "the same every time", the ending.

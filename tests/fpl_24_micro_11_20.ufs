@@ -1,7 +1,7 @@
 # FULL PEAL: Clary's console, micro-games 11 to 20. Each is reached
 # through the menu with player 2's presses, its rule tried, and its end
 # (a mistake) reached; the score it ends on is its high score.
-#  11 SNIPE: shoot the red bird between two gold ships (never the ships); 5 a bird
+#  11 PLINK: shoot the red bird between two gold ships (never the ships); 5 a bird
 #  12 DRIP: tap as the drop reaches your fingertip; too soon or too late ends it; 10 a drop
 #  13 SHOO 2: move freely; bouncing chasers from two corners, gold from the others (5)
 #  14 LOOPY: always moving; LEFT turns one way, RIGHT the other; each prize (10) leaves a chaser behind
@@ -21,7 +21,7 @@ hold P2A 125
 wait 2
 expect mc_state == 1
 press P2DOWN
-# 11 SNIPE
+# 11 PLINK
 expect mc_sel == 11
 press P2A
 expect mc_state == 2

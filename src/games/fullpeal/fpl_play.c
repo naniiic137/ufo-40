@@ -14,17 +14,17 @@ const FplFoeDef FPL_FOE[EK_COUNT] = {
     {"TREBLE", 1, 1.0f / 62, 1, C_LIGHT},
     {"DODGER", 2, 1.0f / 230, 1, C_SKY},
     {"BOURDON", 0, 1.0f / 120, 0, C_GREY},
-    {"CROSSHEAD", 2, 1.0f / 110, 1, C_VIOLET},
-    {"FORKER", 2, 1.0f / 110, 1, C_BLUE},
+    {"CROSSHEAD", 1, 1.0f / 110, 1, C_VIOLET},
+    {"FORKER", 1, 1.0f / 110, 1, C_BLUE},
     {"PENDULUM", 1, 1.0f / 105, 1, C_YELLOW},
     {"SPITE", 1, 1.0f / 105, 1, C_AMBER},
     {"SALLY", 1, 1.0f / 170, 1, C_CYAN},
     {"QUICKSALLY", 1, 1.0f / 95, 1, C_LEAF},
-    {"LOOKOUT", 2, 0, 1, C_ORANGE},
+    {"LOOKOUT", 1, 0, 1, C_ORANGE},
     {"MOTE", 1, 0, 1, C_PINK},
     {"NIBBLER", 2, 0, 1, C_MAGENTA},
     {"CALTROP", 0, 1.0f / 90, 0, C_SLATE},
-    {"BROODER", 2, 1.0f / 110, 1, C_LIME},
+    {"BROODER", 1, 1.0f / 110, 1, C_LIME},
     {"WISP", 1, 0, 0, C_PINK},
     {"FLARE", 1, 0, 0, C_ORANGE},
 };
@@ -224,6 +224,18 @@ static void burst_at(float x, float y, int burst) {
             plane_shot(x, y, cosf(a) * 0.028f, sinf(a) * 0.028f, 0.035f);
         }
         break;
+    case BURST_MOTE: {
+        /* a brooder's mote: a small foe of its own, not counted in the grade */
+        int i = fpl_spawn_foe(EK_MOTE, 0, 0, 0);
+        if (i >= 0) {
+            FplFoe *m = &fpg.foe[i];
+            m->x = x;
+            m->y = y;
+            m->counted = 0;
+            m->t = -8;
+        }
+        break;
+    }
     default: break;
     }
 }
@@ -429,8 +441,8 @@ static void foe_update(int i) {
             f->x = f->tx + sinf(f->t * 0.03f) * 0.12f;
             if (--f->fire_t <= 0 && fpg.alive) {
                 if (k == EK_BROODER) {
-                    /* a mote spat at where the ship is */
-                    fpl_shell_at(f->x, f->y, f->z, fpg.x, fpg.y, 75, BURST_NONE);
+                    /* a mote lobbed at where the ship is: it lands and drifts at you */
+                    fpl_shell_at(f->x, f->y, f->z, fpg.x, fpg.y, 75, BURST_MOTE);
                     f->fire_t = 80;
                 } else {
                     fpl_shell_at(f->x, f->y, f->z, fpg.x, fpg.y, 60, k == EK_CROSSHEAD ? BURST_CROSS : BURST_FORK);
@@ -609,10 +621,10 @@ void fpl_ship_update(uint8_t in) {
     if (fpg.fwd_cd > 0) fpg.fwd_cd--;
     if (fpg.side_cd > 0) fpg.side_cd--;
     if (fpg.hugs) return; /* HUGS-ONLY: no guns at all */
-    if (in & BTN_A) {
-        if ((pressed & BTN_A) || !fpg.side_locked) {
+    if (in & FPL_SIDE_BTN) {
+        if ((pressed & FPL_SIDE_BTN) || !fpg.side_locked) {
             /* the side blaster points away from the way the ship is moving,
-             * and keeps that direction for as long as A stays down */
+             * and keeps that direction for as long as its button stays down */
             if (dx) { fpg.side_dx = -dx; fpg.side_dy = 0; }
             else if (dy) { fpg.side_dx = 0; fpg.side_dy = -dy; }
             else if (fpg.face_x || fpg.face_y) { fpg.side_dx = -fpg.face_x; fpg.side_dy = -fpg.face_y; }
@@ -623,8 +635,8 @@ void fpl_ship_update(uint8_t in) {
     } else {
         fpg.side_locked = false;
         /* both buttons: the side blaster wins */
-        if (in & BTN_B) {
-            if (pressed & BTN_B) fpg.fwd_cd = 0;
+        if (in & FPL_FWD_BTN) {
+            if (pressed & FPL_FWD_BTN) fpg.fwd_cd = 0;
             if (fpg.fwd_cd == 0) { fire_forward(); fpg.fwd_cd = FPL_FWD_CD; }
         }
     }
