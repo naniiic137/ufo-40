@@ -231,6 +231,7 @@ static void title_update(void) {
 static void fpl_update(void) {
     fpg.state_t++;
     fpg.frame_t++;
+    if (fpg.radio) fpg.radio_t++;
     uint32_t held = input_held();
     uint8_t in = (uint8_t)(held & 0xFF);
     uint8_t p2 = (uint8_t)((held >> BTN_P2_SHIFT) & 0xFF);

@@ -648,7 +648,7 @@ static void draw_ending(void) {
     int t = fpg.state_t;
     draw_backdrop(C_NIGHT, C_PURPLE, fpg.scroll, 0);
     if (t < 420) {
-        draw_planet(4, 30 + t * 0.15f);
+        draw_knell(160, 236 - t / 8, 70 + t / 6);
         float s = 1.0f - t / 520.0f;
         fpl_blit(&fpl_spr[SP_SHIP], 150, 120 - t * 0.12f, s, 0, NULL, -1);
         uint8_t map[PAL_COUNT];
@@ -673,7 +673,8 @@ static void draw_ending(void) {
 }
 
 static void draw_tally(void) {
-    draw_backdrop(C_NIGHT, C_NAVY, fpg.scroll, 0);
+    gfx_cls(C_INK);
+    for (int i = 0; i < 40; i++) gfx_pset(hash(i * 5) % SCREEN_W, hash(i * 9 + 1) % SCREEN_H, i % 3 ? C_DUSK : C_SLATE);
     ui_fancy_center("THE FINAL COUNT", 160, 8, 2, GRAD_GOLD, 4, C_INK, C_BROWN);
     char b[64];
     int total = 0;

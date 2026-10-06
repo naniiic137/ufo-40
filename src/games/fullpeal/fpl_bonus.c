@@ -7,7 +7,7 @@
 
 #define SPAWN_EVERY 36
 #define RISE 0.0075f
-#define APPROACH (1.0f / 420)
+#define APPROACH (1.0f / 500)
 
 void fpl_bonus_start(void) {
     fpl_clear_world();
@@ -66,7 +66,7 @@ void fpl_bonus_update(uint8_t in) {
         static const int8_t COL[12] = {2, 4, 0, 3, 5, 1, 3, 0, 4, 2, 5, 1};
         b->x = fpl_lane_x(COL[i % 12]) + ((i / 12) % 2 ? 0.25f : -0.25f);
         b->y = 1.6f;
-        b->z = 1.0f;
+        b->z = 0.75f;
         b->t = 0;
     }
     for (int i = 0; i < fpg.bonus_spawned; i++) {

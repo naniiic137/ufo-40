@@ -146,6 +146,7 @@ menu, shows the buttons as you now press them). SELECT or B closes it.
 | 41 | **RIMSHIRE** | Lords of Diskonia | a board where two banners take turns stepping along roads, trails a banner can't step back onto that pull an army back when struck, inns, tomes, seams and chests; flick battles on fields built from the four tiles round the fight: a queue of three, aim, charge and launch, knocks that hurt by the striking disk's own melee, water, the closing haze and stalemates; the original's 15 disks with their numbers, 8 skills, 10 campaign wars, the streak and 2P | Rimshire, the Brass and Plum banners, the Plum Empress, Lady Brass's letters, all 16 disks, 10 new boards |
 | 47 | **WOBBLE DERBY** | Quibble Race | three punters and three runners a race, odds from a form book of twenty unseen races, rising bet caps and an open last race, one tip a race, five dirty tricks and a minder with the same prices and fines, a lender at 15 % compounded, sponsoring from a shortlist and a coach, meteors, garbage and smog, 26 runners in the same speed and clumsiness bands, 3-player hot-seat | Crater Downs, the 26 wobblers, the sixteen punters (five of them UFO 40 cameos), the Fixer, the Lender and the Wobble Wire |
 | 48 | **DRIFTLINE** | Seaside Drive | a car locked to the road at the bottom while the world scrolls by, steering that also swings the gun through a 90-degree cone (UP straightens it), a rapid main gun on B and side pairs along the road on A, a charge meter (grey, green, red: its section sets the shots' damage, rate and speed) that fills only while you drive left and drains slowly otherwise, one hit per car and the screen swept clean as the next drives in fully charged, fliers that turn nasty if left alone, wrecks that pay only when shot again, four fixed stages from morning to the open sea, each with a boss (10,000 to 40,000) seen in the background all stage, a Breakout bonus stage after any stage with no car lost whose coin is two more cars (the only extra cars), 2P co-op in one car with a driver and a gunner | Lou and the Gull, Dee on the gun, Harbour Road, the Sundown Strip, the Moonlit Mile and Open Water, every foe, the Zephyr, the Orrery, the Man in the Moon, Old Crab (from ROOFCAT) and a Beamdown saucer, all the waves, swells and block layouts |
+| 49 | **FULL PEAL** | Campanella 3 | a faux-3D shooter flying into the screen, the ship free on a flat 6 × 4 plane with no gravity, fuel or walls; B fires into the distance down your lane, A fires the side blaster along the plane away from the way you move (held, it keeps its aim) at whatever has reached you; one hit a ship, three ships a credit, not given back between stages, a lost credit restarts the stage; five stages of four fixed waves and a boss, each wave graded 0–100 by the share shot down; a 100 or a 0 brings a balloon round after the boss (red 1, orange 3, 50 for a continue); the final count is the twenty grades plus 100 a continue; sixteen foes, five bosses (the last healing until your sister flies in), a no-guns code; and, for a second controller held on A, fifty four-colour micro-games in the cockpit monitor, each with its high score | Ansel and the Tinkler with Clary on the radio (the BELLHOP cast), the bell-planet Knell, Outer Belfry, Tin Nebula, The Murk and Tollgate, all sixteen foes, the Gloameye, Knucklebell, the Inkwell, Shellback and Queen Sordina, the owl, all twenty waves and fifty micro-games, the HUGS-ONLY code |
 | 08, 12, 17, 20–24, 27, 29, 32–38, 40, 42–43, 48–50 | *coming soon* | | | still in the saucer's cargo hold |
 
 Every cartridge has three goals, which follow the original's own three: a
@@ -1414,6 +1415,50 @@ the top.
   swells, the three block layouts, the Zephyr, the Orrery, the Man in the
   Moon and Old Crab (visiting from ROOFCAT), a Beamdown saucer, and the music.
 
+### 49 · FULL PEAL
+
+<p align="center">
+  <img src="docs/shots/fullpeal.gif" width="640" alt="Full Peal: the Tinkler flies into the screen over Outer Belfry, firing down its lane at clappers and pendulums">
+</p>
+<p align="center">
+  <img src="docs/shots/fullpeal_gloameye.png" width="320" alt="The Gloameye: three orbs circle the great eye and take turns lobbing crosses">
+  <img src="docs/shots/fullpeal_owl.png" width="320" alt="A wave graded 100: the owl approves">
+</p>
+<p align="center">
+  <img src="docs/shots/fullpeal_console.png" width="320" alt="Clary's console: a second player plays FACES in the cockpit monitor while the wave goes on below">
+  <img src="docs/shots/fullpeal_sordina.png" width="320" alt="Queen Sordina, healed, as Clary flies in to help">
+</p>
+
+*A tribute to **Campanella 3** (UFO 50 #49).*
+
+- **Plays the same:** the bell ship flies into the screen, free on a flat
+  plane of 6 × 4 lanes, with no gravity, no fuel and no walls (orange
+  marks warn of the edges). B fires into the distance down the lane you're
+  in; A fires the side blaster along the plane, away from the way you're
+  moving, and holding it keeps its aim: far off, the forward gun; here on
+  the plane, the blaster. One hit costs a ship; the next is there at once.
+- **Grades, not points:** each of the twenty waves is graded by the share
+  of its foes you shot down, 0 to 100 (an owl for a 100). A 100 or a 0 in
+  a stage brings a balloon round after its boss: red 1, orange 3, more
+  orange for every 100, and 50 points buy a continue. Three ships a credit,
+  never given back between stages; losing them sends you back to the
+  stage's first wave. The final count is the twenty grades plus 100 for
+  every continue left; 1,500 is the third goal.
+- **Structure:** five fixed stages of four waves and a boss, sixteen foes
+  (some come in from the distance and sit on the plane, some keep their
+  distance and lob crosses, some can't be hurt at all), five bosses with
+  one weak point each and a nastier second half, the last one healing until
+  your sister flies in. A code takes your guns away. A second controller
+  holding A turns the cockpit monitor into Clary's console: fifty
+  four-colour micro-games, playable whatever the main game is doing (even
+  on its game-over screen), each with a high score. The demo pilot in the
+  tests wins the whole game from the title with real presses.
+- **Ours:** Ansel and the Tinkler with his sister Clary on the radio (from
+  BELLHOP and CHIME CIRCUIT), the bell-planet Knell, Outer Belfry, Tin
+  Nebula, The Murk and Tollgate, all sixteen foes, the Gloameye,
+  Knucklebell, the Inkwell, Shellback and Queen Sordina, every wave, all
+  fifty micro-games, and the music.
+
 ## Install on PS Vita
 
 You need a Vita running HENkaku / h-encore / Ensō with **VitaShell**.
@@ -1454,6 +1499,9 @@ Download `UFO40-windows.zip` from the releases and run `ufo40.exe`.
 - **Two players:** the 2-player modes of Wet Paint, Bannerfall, Duskling and Cutlass Cup take two
   gamepads, or split the keyboard: player 1 on WASD + F/G, player 2 on the
   arrows + K/L. On the Vita (one controller) those modes are locked.
+- **Full Peal's hidden console** is for a second player while player 1
+  keeps every usual key: a second gamepad, or the numeric keypad (8 4 2 6
+  to move, 0 or Delete for A, . or End for B).
 - On phones the web page shows an on-screen D-pad with A, B, START and SELECT.
 
 ## Building

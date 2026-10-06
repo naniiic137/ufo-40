@@ -594,8 +594,8 @@ static void g03_spawn(int kind, int side) {
             fpm.es[k] = kind;
             fpm.fx[k] = side > 0 ? 88.0f : -4.0f;
             fpm.fy[k] = (float)RND(1, 27);
-            fpm.fvx[k] = (kind == 1 ? -0.7f : 0.9f * -side) * (side > 0 ? 1 : -1) * (kind == 1 ? 1 : 1);
-            if (kind == 2) fpm.fvx[k] = side > 0 ? -0.9f : 0.9f;
+            /* gold drifts in from the right; red comes from either side */
+            fpm.fvx[k] = kind == 1 ? -0.7f : side > 0 ? -0.9f : 0.9f;
             return;
         }
 }
@@ -1246,7 +1246,6 @@ static void g20_update(uint8_t held, uint8_t pressed) {
     if (--I[1] <= 0) fpm_over();
 }
 static void g20_draw(int ox, int oy) {
-    uint8_t held = 0;
     for (int s = 0; s < 3; s++) {
         int x = 10 + s * 29, y = 3;
         bool alien = s == I[0];
@@ -1256,7 +1255,6 @@ static void g20_draw(int ox, int oy) {
         else RECT(x + 1, y + 1, 6, 1, MC_W);
         RECT(x, y + 9, 8, 4, alien ? MC_Y : MC_W);
     }
-    (void)held;
     RECT(40, 28, 6, 4, MC_W);
     RECT(0, 0, I[1] * 86 / 120, 1, MC_R);
 }

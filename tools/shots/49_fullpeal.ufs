@@ -1,0 +1,60 @@
+# README media: FULL PEAL. The demo pilot presses the buttons; the later
+# stages and bosses are reached with cheats, then flown by the demo pilot.
+shotscale 2
+seed 49
+game fullpeal
+wait 60
+shot fullpeal_title
+# stage A, Outer Belfry: the first waves into the screen
+botuntil state == 3 400
+botplay 400
+gifstart fullpeal 3 2
+botplay 720
+gifstop
+# the first 100: the owl
+botuntil state == 4 8000
+botplay 40
+shot fullpeal_owl
+# the Gloameye
+botuntil state == 5 8000
+botplay 500
+shot fullpeal_gloameye
+# a balloon round
+botuntil state == 8 8000
+botplay 180
+wait 260
+shot fullpeal_bonus
+# stage C, the Murk, with Clary's console open on player 2's side
+cheat stage 3
+botuntil state == 3 400
+botplay 300
+hold P2A 125
+press P2LEFT
+press P2A
+press P2UP
+press P2UP
+press P2LEFT
+botplay 150
+shot fullpeal_console
+waituntil mc_state == 3 700
+wait 21
+press P2B
+press P2B
+# stage D's caltrops and trebles
+cheat stage 4
+botuntil state == 3 400
+botplay 1500
+shot fullpeal_tollgate
+# Knucklebell's fists
+cheat stage 2
+cheat boss
+botplay 260
+shot fullpeal_knucklebell
+# Queen Sordina, and Clary coming in
+cheat stage 5
+cheat boss
+cheat bosshp 1
+cheat bossopen
+botuntil boss_clary == 1 3000
+botplay 90
+shot fullpeal_sordina

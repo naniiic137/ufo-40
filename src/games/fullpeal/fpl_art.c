@@ -640,16 +640,13 @@ static void mirror_make(Sprite *s, int hw, int h, const char *half) {
     int w = hw * 2;
     char *full = malloc((size_t)(w * h + 1));
     if (!full) return;
-    int len = (int)strlen(half), at = 0;
-    /* rows may be shorter than hw if written so: walk the string by rows of hw */
+    int len = (int)strlen(half);
     for (int r = 0; r < h; r++)
         for (int c = 0; c < hw; c++) {
-            char ch = at < len ? half[r * hw + c] : '.';
-            if (r * hw + c >= len) ch = '.';
+            char ch = r * hw + c < len ? half[r * hw + c] : '.';
             full[r * w + c] = ch;
             full[r * w + (w - 1 - c)] = ch;
         }
-    (void)at;
     full[w * h] = 0;
     spr_make(s, w, h, full);
     free(full);

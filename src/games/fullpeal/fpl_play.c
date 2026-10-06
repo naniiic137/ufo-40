@@ -733,7 +733,6 @@ void fpl_parts_update(void) {
 
 void fpl_play_update(uint8_t in) {
     fpg.stage_t++;
-    if (fpg.radio) fpg.radio_t++;
     fpl_ship_update(in);
     run_wave();
     fpl_foes_update();
