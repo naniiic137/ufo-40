@@ -32,14 +32,14 @@ static const ClcWorld *cw;
 static uint16_t cw_ver;
 static uint8_t cw_region, cw_area, cw_kind;
 
-static bool cfree(const ClcWorld *w, int c, int r) { return clc_ship_cell_free(w, c, r); }
+static bool clc_cell_ok(const ClcWorld *w, int c, int r) { return clc_ship_cell_free(w, c, r); }
 
 static void build_clearance(const ClcWorld *w) {
     static int16_t q[FW * FH][2];
     int head = 0, tail = 0;
     for (int r = 0; r < FH; r++)
         for (int c = 0; c < FW; c++) {
-            if (r > w->h || c > w->w || !cfree(w, c, r)) {
+            if (r > w->h || c > w->w || !clc_cell_ok(w, c, r)) {
                 clear_[r][c] = 0;
                 q[tail][0] = (int16_t)c;
                 q[tail][1] = (int16_t)r;
@@ -173,8 +173,8 @@ static void dijkstra(uint16_t out[FH][FW], const ClcWorld *w, int c, int r) {
             for (int dx = -1; dx <= 1; dx++) {
                 if (!dx && !dy) continue;
                 int nx = x + dx, ny = y + dy;
-                if (nx < 0 || ny < 0 || nx >= FW || ny >= FH || !cfree(w, nx, ny)) continue;
-                if (dx && dy && (!cfree(w, x + dx, y) || !cfree(w, x, y + dy))) continue;
+                if (nx < 0 || ny < 0 || nx >= FW || ny >= FH || !clc_cell_ok(w, nx, ny)) continue;
+                if (dx && dy && (!clc_cell_ok(w, x + dx, y) || !clc_cell_ok(w, x, y + dy))) continue;
                 /* the field runs from the goal outwards, so a step here from
                  * (x, y) to (nx, ny) is flown the other way: from (nx, ny) to
                  * (x, y). Climbing costs fuel, falling is free. */
@@ -197,7 +197,7 @@ static void cell_of(const ClcWorld *w, int x, int y, int *c, int *r) {
     for (int dy = -2; dy <= 2; dy++)
         for (int dx = -2; dx <= 2; dx++) {
             int cc = bc + dx, rr = br + dy;
-            if (cc < 0 || rr < 0 || cc >= FW || rr >= FH || !cfree(w, cc, rr)) continue;
+            if (cc < 0 || rr < 0 || cc >= FW || rr >= FH || !clc_cell_ok(w, cc, rr)) continue;
             int d = iabs(cc * CLC_T - x) + iabs(rr * CLC_T - y);
             if (d < best) { best = d; *c = cc; *r = rr; }
         }

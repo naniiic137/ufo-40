@@ -13,6 +13,7 @@
 
 #include "../../shell/gamedef.h"
 #include "../../shell/ui.h"
+#include "tnp_math.h"
 
 /* ---- the city ------------------------------------------------------------------ */
 #define TNP_CELL 48            /* one map cell, px */

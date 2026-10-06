@@ -315,7 +315,7 @@ static void car_remap(int col, uint8_t *map) {
 }
 
 static void draw_beet(int sx, int sy, const TnpMob *m, int t) {
-    int hop = m->state == 1 ? (int)fabsf(sinf((float)m->t * 0.35f) * 8) : (int)fabsf(sinf((float)t * 0.1f) * 2);
+    int hop = m->state == 1 ? (int)fabsf(tnp_sin((float)m->t * 0.35f) * 8) : (int)fabsf(tnp_sin((float)t * 0.1f) * 2);
     gfx_dither_circle(sx + 3, sy + 5, 13, C_INK, 10);
     sy -= hop;
     gfx_circ(sx, sy, 14, C_MAROON);
@@ -355,7 +355,7 @@ static void draw_saucer(int sx, int sy, int kind, int t) {
 }
 
 static void draw_arrow(int sx, int sy, float ang, int col) {
-    float ca = cosf(ang), sa = sinf(ang);
+    float ca = tnp_cos(ang), sa = tnp_sin(ang);
     int tx = sx + (int)(ca * 26), ty = sy + (int)(sa * 26);
     int bx = sx + (int)(ca * 17), by = sy + (int)(sa * 17);
     int lx = bx + (int)(-sa * 6), ly = by + (int)(ca * 6), rx = bx - (int)(-sa * 6), ry = by - (int)(ca * 6);
@@ -435,8 +435,8 @@ static void draw_portrait(const TnpDay *d, int x, int y) {
     for (int k = -1; k <= 1; k += 2) {
         /* two spokes, and a hand on the rim at each */
         float ha = sa + (float)k * 0.9f;
-        gfx_line(wx, wy, wx + (int)lroundf(sinf(ha) * 13), wy - (int)lroundf(cosf(ha) * 13), C_GREY);
-        int hx = wx + (int)lroundf(sinf(ha) * 13), hy = wy - (int)lroundf(cosf(ha) * 13);
+        gfx_line(wx, wy, wx + (int)lroundf(tnp_sin(ha) * 13), wy - (int)lroundf(tnp_cos(ha) * 13), C_GREY);
+        int hx = wx + (int)lroundf(tnp_sin(ha) * 13), hy = wy - (int)lroundf(tnp_cos(ha) * 13);
         gfx_rect(hx - 2, hy - 2, 5, 4, C_INK);
         gfx_rect(hx - 1, hy - 1, 3, 2, dead ? C_NIGHT : C_VIOLET);
     }
@@ -519,7 +519,7 @@ static void draw_hud(const TnpDay *d) {
         gfx_rect(hx - 1, hy - 1, 3, 3, C_SKY);
     }
     gfx_pset(rx + rw / 2, ry + rh / 2, C_YELLOW);
-    gfx_pset(rx + rw / 2 + (int)lroundf(cosf(t->ang) * 2), ry + rh / 2 + (int)lroundf(sinf(t->ang) * 2), C_YELLOW);
+    gfx_pset(rx + rw / 2 + (int)lroundf(tnp_cos(t->ang) * 2), ry + rh / 2 + (int)lroundf(tnp_sin(t->ang) * 2), C_YELLOW);
 
     /* where to */
     int y = 146;
@@ -635,7 +635,7 @@ void tnp_draw_play(const TnpDay *d) {
     /* the truck */
     {
         int sx = scr_x(t->x), sy = scr_y(t->y);
-        int lift = t->air_t > 0 ? (int)(sinf(3.14159f * (float)(t->air_max - t->air_t) / (float)t->air_max) * 10) : 0;
+        int lift = t->air_t > 0 ? (int)(tnp_sin(3.14159f * (float)(t->air_max - t->air_t) / (float)t->air_max) * 10) : 0;
         bool flash = t->inv > 0 && (fr / 3) % 2 && t->state == TS_DRIVE;
         if (t->state == TS_SINK) {
             if (t->state_t < 24) tnp_draw_rot(&tnp_spr[SP_TRUCK], (float)sx, (float)sy, t->ang, NULL, t->state_t < 12 ? -1 : C_FOREST);
@@ -650,7 +650,7 @@ void tnp_draw_play(const TnpDay *d) {
         /* the arrow: for a moment after each new delivery, and again when close */
         float ddist = tnp_dist(t->x, t->y, dx, dy);
         if (t->state == TS_DRIVE && (d->dest_t < 150 || ddist < 230) && !on_view(dsx, dsy, -24)) {
-            float a = atan2f(tnp_wrapd(dy - t->y), tnp_wrapd(dx - t->x));
+            float a = tnp_atan2(tnp_wrapd(dy - t->y), tnp_wrapd(dx - t->x));
             draw_arrow(sx, sy, a, (fr / 6) % 2 ? C_RED : C_PINK);
         }
     }
@@ -658,7 +658,7 @@ void tnp_draw_play(const TnpDay *d) {
         if (!d->crate_ok[i]) continue;
         int sx = scr_x(tnp_cx(tnp_crate_c[i][0])), sy = scr_y(tnp_cx(tnp_crate_c[i][1]));
         if (!on_view(sx, sy, 40)) continue;
-        int bob = (int)(sinf((float)(fr + i * 20) * 0.08f) * 2);
+        int bob = (int)(tnp_sin((float)(fr + i * 20) * 0.08f) * 2);
         spr_draw(&tnp_spr[SP_BALLOON], sx - 3, sy - 33 + bob, 0);
         spr_draw(&tnp_spr[SP_CRATE], sx - 5, sy - 24 + bob, 0);
     }

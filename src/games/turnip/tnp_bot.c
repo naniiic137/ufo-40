@@ -184,7 +184,7 @@ uint16_t tnp_bot_buttons(TnpDay *d) {
             if (dd >= L || (corner[i] && dd > 12)) { ax = px[i]; ay = py[i]; break; }
         }
     }
-    float want_ang = atan2f(tnp_wrapd(ay - t->y), tnp_wrapd(ax - t->x));
+    float want_ang = tnp_atan2(tnp_wrapd(ay - t->y), tnp_wrapd(ax - t->x));
     float diff = angdiff(want_ang, t->ang);
     float f = tnp_forward(t);
 
@@ -193,9 +193,9 @@ uint16_t tnp_bot_buttons(TnpDay *d) {
     float run = tnp_dist(t->x, t->y, tnp_cx(cx), tnp_cx(cy));
     (void)run;
     for (int i = 1; i < np; i++) {
-        float ang1 = atan2f(tnp_wrapd(py[i] - py[i - 1]), tnp_wrapd(px[i] - px[i - 1]));
-        float ang0 = i >= 2 ? atan2f(tnp_wrapd(py[i - 1] - py[i - 2]), tnp_wrapd(px[i - 1] - px[i - 2]))
-                            : atan2f(tnp_wrapd(py[0] - t->y), tnp_wrapd(px[0] - t->x));
+        float ang1 = tnp_atan2(tnp_wrapd(py[i] - py[i - 1]), tnp_wrapd(px[i] - px[i - 1]));
+        float ang0 = i >= 2 ? tnp_atan2(tnp_wrapd(py[i - 1] - py[i - 2]), tnp_wrapd(px[i - 1] - px[i - 2]))
+                            : tnp_atan2(tnp_wrapd(py[0] - t->y), tnp_wrapd(px[0] - t->x));
         if (fabsf(angdiff(ang1, ang0)) > 0.6f) {
             float dc = tnp_dist(t->x, t->y, px[i - 1], py[i - 1]);
             float v = sqrtf(1.4f * 1.4f + 2 * 0.032f * fmaxf(0, dc - 10));
@@ -209,7 +209,7 @@ uint16_t tnp_bot_buttons(TnpDay *d) {
         const TnpPuddle *p = &d->pud[i];
         if (!p->alive) continue;
         float rx = tnp_wrapd(p->x - t->x), ry = tnp_wrapd(p->y - t->y);
-        float a = rx * cosf(t->ang) + ry * sinf(t->ang), s = fabsf(-rx * sinf(t->ang) + ry * cosf(t->ang));
+        float a = rx * tnp_cos(t->ang) + ry * tnp_sin(t->ang), s = fabsf(-rx * tnp_sin(t->ang) + ry * tnp_cos(t->ang));
         if (a > 0 && a < 40 && s < 14) vmax = fminf(vmax, 1.3f);
     }
     if (d->event == EV_RAIN) {
@@ -223,7 +223,7 @@ uint16_t tnp_bot_buttons(TnpDay *d) {
         const TnpCar *c = &d->car[i];
         if (!c->alive || c->wreck_t > 0) continue;
         float rx = tnp_wrapd(c->x - t->x), ry = tnp_wrapd(c->y - t->y);
-        float a = rx * cosf(t->ang) + ry * sinf(t->ang), s = -rx * sinf(t->ang) + ry * cosf(t->ang);
+        float a = rx * tnp_cos(t->ang) + ry * tnp_sin(t->ang), s = -rx * tnp_sin(t->ang) + ry * tnp_cos(t->ang);
         if (a > -4 && a < 48 && fabsf(s) < 16) {
             vmax = fminf(vmax, a < 24 ? 0.5f : 1.0f);
             dodge += s >= 0 ? -0.6f : 0.6f;
@@ -253,7 +253,7 @@ uint16_t tnp_bot_buttons(TnpDay *d) {
     bool wet = false;
     for (int k = 0; k < 4; k++)
         if (tnp_cell(cx + DX[k], cy + DY[k])->type == CT_BRINE) wet = true;
-    float pxf = t->x + t->vx * 30 + cosf(t->ang) * 6, pyf = t->y + t->vy * 30 + sinf(t->ang) * 6;
+    float pxf = t->x + t->vx * 30 + tnp_cos(t->ang) * 6, pyf = t->y + t->vy * 30 + tnp_sin(t->ang) * 6;
     bool doom = tnp_cell_at(pxf, pyf)->type == CT_BRINE;
     if (doom && f > 0.2f) return BTN_B; /* brake now */
     if (wet) vmax = fminf(vmax, 1.3f);

@@ -189,7 +189,7 @@ void tnp_art_load(void) {
 
 /* A sprite turned by ang (0 = as drawn, facing east) about its middle at cx, cy. */
 void tnp_draw_rot(const Sprite *s, float cx, float cy, float ang, const uint8_t *remap, int solid) {
-    float ca = cosf(ang), sa = sinf(ang);
+    float ca = tnp_cos(ang), sa = tnp_sin(ang);
     float hw = s->w * 0.5f, hh = s->h * 0.5f;
     int r = (int)ceilf(sqrtf(hw * hw + hh * hh)) + 1;
     int x0 = (int)floorf(cx) - r, y0 = (int)floorf(cy) - r;

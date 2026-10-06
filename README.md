@@ -18,7 +18,7 @@
 > coding assistant (Claude Code), which wrote the code, pixel art, music, levels
 > and tests from my descriptions, research notes and play-testing feedback.
 
-## What's new (v0.9.0)
+## What's new (v0.9.1)
 
 - **36 cartridges** in a 50-slot library, each checked against its UFO 50 original by an independent review, then fixed.
 - **Nine new cartridges:**

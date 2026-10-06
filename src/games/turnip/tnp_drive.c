@@ -20,7 +20,7 @@ void tnp_sfx(const char *name) {
     if (!tnp_quiet) sfx_play_name(name);
 }
 
-float tnp_forward(const TnpTruck *t) { return t->vx * cosf(t->ang) + t->vy * sinf(t->ang); }
+float tnp_forward(const TnpTruck *t) { return t->vx * tnp_cos(t->ang) + t->vy * tnp_sin(t->ang); }
 float tnp_speed(const TnpTruck *t) { return sqrtf(t->vx * t->vx + t->vy * t->vy); }
 int tnp_seconds(const TnpDay *d) { return (d->time_f + 59) / 60; }
 
@@ -46,8 +46,8 @@ void tnp_burst(TnpDay *d, float x, float y, int col, int n, float sp) {
         float a = rng_float(&d->rng) * 6.2831853f, s = sp * (0.3f + rng_float(&d->rng));
         p->x = x;
         p->y = y;
-        p->vx = cosf(a) * s;
-        p->vy = sinf(a) * s;
+        p->vx = tnp_cos(a) * s;
+        p->vy = tnp_sin(a) * s;
         p->life = (int16_t)(16 + rng_range(&d->rng, 0, 14));
         p->col = (int16_t)col;
         n--;
@@ -166,7 +166,7 @@ static void bounce_off(TnpTruck *t, float nx, float ny, float pen, float e) {
         t->vy -= (1 + e) * vn * ny;
         float impact = -vn;
         if (impact > 0.7f) {
-            float cross = cosf(t->ang) * ny - sinf(t->ang) * nx;
+            float cross = tnp_cos(t->ang) * ny - tnp_sin(t->ang) * nx;
             t->spin += (cross >= 0 ? 1.0f : -1.0f) * impact * TNP_WALL_SPIN;
             t->regen_t = 0;
             if (t->hit_wall_t <= 0) tnp_sfx("tnp_bump");
@@ -214,7 +214,7 @@ static void collide_world(TnpDay *d) {
                         tnp_burst(d, px, py, C_YELLOW, 10, 1.4f);
                         tnp_sfx("tnp_boom");
                         float dist = sqrtf(fmaxf(d2, 1e-6f));
-                        float nx = d2 > 1e-6f ? dx / dist : -cosf(t->ang), ny = d2 > 1e-6f ? dy / dist : -sinf(t->ang);
+                        float nx = d2 > 1e-6f ? dx / dist : -tnp_cos(t->ang), ny = d2 > 1e-6f ? dy / dist : -tnp_sin(t->ang);
                         t->vx = nx * 1.8f;
                         t->vy = ny * 1.8f;
                         tnp_hurt(d, 2);
@@ -320,7 +320,7 @@ static void truck_drive(TnpDay *d, uint16_t pad) {
     if (t->ang > 3.14159265f) t->ang -= 6.2831853f;
     if (t->ang < -3.14159265f) t->ang += 6.2831853f;
 
-    float ca = cosf(t->ang), sa = sinf(t->ang);
+    float ca = tnp_cos(t->ang), sa = tnp_sin(t->ang);
     float f = t->vx * ca + t->vy * sa, l = -t->vx * sa + t->vy * ca;
     float acc = TNP_ACC * (rock ? TNP_ROCK_GAS : 1.0f);
     if (drifting) {
@@ -566,7 +566,7 @@ bool tnp_spawn_spot(TnpDay *d, int *ocx, int *ocy, int *odir, float dmin, float 
     const TnpTruck *t = &d->tr;
     int tcx = (int)(t->x / TNP_CELL), tcy = (int)(t->y / TNP_CELL);
     float sp = tnp_speed(t);
-    float hx = sp > 0.5f ? t->vx / sp : cosf(t->ang), hy = sp > 0.5f ? t->vy / sp : sinf(t->ang);
+    float hx = sp > 0.5f ? t->vx / sp : tnp_cos(t->ang), hy = sp > 0.5f ? t->vy / sp : tnp_sin(t->ang);
     for (int tries = 0; tries < 16; tries++) {
         int cx = tcx + rng_range(&d->rng, -7, 7), cy = tcy + rng_range(&d->rng, -6, 6);
         if (!tnp_roadlike(cx, cy)) continue;
@@ -620,7 +620,7 @@ static void car_hit_truck(TnpDay *d, TnpCar *c) {
         return;
     }
     /* how fast the two came together */
-    float cvx = cosf(c->ang) * c->speed, cvy = sinf(c->ang) * c->speed;
+    float cvx = tnp_cos(c->ang) * c->speed, cvy = tnp_sin(c->ang) * c->speed;
     float closing = -((t->vx - cvx) * nx + (t->vy - cvy) * ny);
     t->x = tnp_wrap(t->x + nx * (rr - dist));
     t->y = tnp_wrap(t->y + ny * (rr - dist));
@@ -670,7 +670,7 @@ void tnp_traffic_update(TnpDay *d) {
         }
         float want = c->kind == CK_TRAFFIC ? 1.3f : 2.1f;
         /* a token effort: slow down and pull over if the truck is (or is about to be) just ahead */
-        float hx = cosf(c->ang), hy = sinf(c->ang);
+        float hx = tnp_cos(c->ang), hy = tnp_sin(c->ang);
         bool wary = false;
         for (int k = 0; k < 2 && c->kind == CK_TRAFFIC; k++) {
             float rx = tnp_wrapd(t->x + t->vx * (float)(k * 14) - c->x), ry = tnp_wrapd(t->y + t->vy * (float)(k * 14) - c->y);
@@ -714,7 +714,7 @@ void tnp_traffic_update(TnpDay *d) {
         } else if (dd > 0.01f) {
             c->x = tnp_wrap(c->x + vx / dd * c->speed);
             c->y = tnp_wrap(c->y + vy / dd * c->speed);
-            float want_ang = atan2f(vy, vx), da = want_ang - c->ang;
+            float want_ang = tnp_atan2(vy, vx), da = want_ang - c->ang;
             while (da > 3.14159265f) da -= 6.2831853f;
             while (da < -3.14159265f) da += 6.2831853f;
             c->ang += da * 0.25f;

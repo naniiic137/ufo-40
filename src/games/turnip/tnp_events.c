@@ -144,7 +144,7 @@ static void around(TnpDay *d, float dmin, float dmax, float *x, float *y) {
     const TnpTruck *t = &d->tr;
     for (int k = 0; k < 20; k++) {
         float a = rng_float(&d->rng) * 6.2831853f, r = dmin + rng_float(&d->rng) * (dmax - dmin);
-        float ox = cosf(a) * r, oy = sinf(a) * r;
+        float ox = tnp_cos(a) * r, oy = tnp_sin(a) * r;
         *x = tnp_wrap(t->x + ox);
         *y = tnp_wrap(t->y + oy);
         if (fabsf(ox) > 140 || fabsf(oy) > 100) return;
@@ -340,8 +340,8 @@ static void mush_update(TnpDay *d, TnpMob *m) {
         m->vy = dy / dist * sp;
     } else if (m->t % 60 == 0) {
         float a = rng_float(&d->rng) * 6.2831853f;
-        m->vx = cosf(a) * 0.2f;
-        m->vy = sinf(a) * 0.2f;
+        m->vx = tnp_cos(a) * 0.2f;
+        m->vy = tnp_sin(a) * 0.2f;
     }
     float nx = tnp_wrap(m->x + m->vx), ny = tnp_wrap(m->y + m->vy);
     if (tnp_drivable((int)(nx / TNP_CELL), (int)(ny / TNP_CELL))) {
@@ -385,8 +385,8 @@ static void saucer_update(TnpDay *d, TnpMob *m) {
     if (--m->t <= 0) {
         /* erratic: a new heading now and then, drawn back towards the truck when far */
         float a = rng_float(&d->rng) * 6.2831853f;
-        m->vx = cosf(a) * sp;
-        m->vy = sinf(a) * sp;
+        m->vx = tnp_cos(a) * sp;
+        m->vy = tnp_sin(a) * sp;
         if (dist > 180) {
             float dx = tnp_wrapd(t->x - m->x), dy = tnp_wrapd(t->y - m->y);
             m->vx = (m->vx + dx / dist * sp) * 0.6f;
@@ -433,8 +433,8 @@ static void radish_update(TnpDay *d) {
         if (c->fire_t > 0) c->fire_t--;
         if (dist < GANG_FIRE_R && c->fire_t <= 0 && t->state == TS_DRIVE) {
             /* a poor shot: anywhere in a wide cone towards the truck */
-            float a = atan2f(tnp_wrapd(t->y - c->y), tnp_wrapd(t->x - c->x)) + (rng_float(&d->rng) - 0.5f) * 1.2f;
-            shot_new(d, SK_BULLET, c->x, c->y, cosf(a) * 2.4f, sinf(a) * 2.4f, 55);
+            float a = tnp_atan2(tnp_wrapd(t->y - c->y), tnp_wrapd(t->x - c->x)) + (rng_float(&d->rng) - 0.5f) * 1.2f;
+            shot_new(d, SK_BULLET, c->x, c->y, tnp_cos(a) * 2.4f, tnp_sin(a) * 2.4f, 55);
             c->fire_t = 90;
             tnp_sfx("tnp_bang");
         }
@@ -502,7 +502,7 @@ static void rain_update(TnpDay *d) {
             float x, y;
             if (ahead) {
                 float r = (float)rng_range(&d->rng, 36, 70), sd = (float)rng_range(&d->rng, -10, 10);
-                float ca = cosf(t->ang), sa = sinf(t->ang);
+                float ca = tnp_cos(t->ang), sa = tnp_sin(t->ang);
                 x = tnp_wrap(t->x + ca * r - sa * sd);
                 y = tnp_wrap(t->y + sa * r + ca * sd);
             } else {

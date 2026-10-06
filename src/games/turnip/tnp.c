@@ -331,7 +331,7 @@ static void draw_title(void) {
     float cx = tnp_wrap((float)ui.t * 0.6f), cy = 9 * TNP_CELL - 60;
     draw_city_backdrop(cx, cy);
     gfx_darken_rect(0, 0, SCREEN_W, SCREEN_H, 1);
-    spr_draw_scaled(&tnp_spr[SP_TRUCK], 136, 106 + (int)(sinf((float)ui.t * 0.1f) * 1.5f), 3, 0);
+    spr_draw_scaled(&tnp_spr[SP_TRUCK], 136, 106 + (int)(tnp_sin((float)ui.t * 0.1f) * 1.5f), 3, 0);
     ui_fancy_center("TURNIP TRUCK", 160, 18, 3, LOGO_GRAD, ARRAY_LEN(LOGO_GRAD), C_INK, C_PURPLE);
     text_center_shadow("SEVEN DAYS. FIVE DROPS A DAY.", 160, 46, C_YELLOW, C_INK);
     spr_draw_scaled(&tnp_spr[SP_TURNIP], 22, 14, 3, 0);
@@ -743,7 +743,7 @@ static int tnp_query(const char *key, int *out) {
     if (!strcmp(key, "ang")) { *out = (int)lroundf(t->ang * 180 / 3.14159265f); return 1; }
     if (!strcmp(key, "speed100")) { *out = (int)lroundf(tnp_speed(t) * 100); return 1; }
     if (!strcmp(key, "fwd100")) { *out = (int)lroundf(tnp_forward(t) * 100); return 1; }
-    if (!strcmp(key, "side100")) { *out = (int)lroundf((-t->vx * sinf(t->ang) + t->vy * cosf(t->ang)) * 100); return 1; }
+    if (!strcmp(key, "side100")) { *out = (int)lroundf((-t->vx * tnp_sin(t->ang) + t->vy * tnp_cos(t->ang)) * 100); return 1; }
     if (!strcmp(key, "vx100")) { *out = (int)lroundf(t->vx * 100); return 1; }
     if (!strcmp(key, "vy100")) { *out = (int)lroundf(t->vy * 100); return 1; }
     if (!strcmp(key, "spin_t")) { *out = t->spin_t; return 1; }
