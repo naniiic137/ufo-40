@@ -1,6 +1,6 @@
 # DRIFTLINE: the title offers 1 PLAYER and 2 PLAYERS (UP/DOWN), A starts,
 # B goes back to the library. A run starts on stage 1, Harbour Road, with
-# the car in play and three in reserve, no score, and the stage's name
+# the car in play (its meter empty) and three in reserve, no score, and the stage's name
 # shown before the first foes come. A run is not saved: leave in the
 # middle and the cartridge opens on its title again.
 game driftline
@@ -22,7 +22,7 @@ expect players == 1
 expect stage == 1
 expect spare == 3
 expect alive0 == 1
-expect on1 == 0
+expect meter0 == 0
 expect score == 0
 expect foes == 0
 wait 200

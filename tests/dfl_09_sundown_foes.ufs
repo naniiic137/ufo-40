@@ -1,6 +1,7 @@
 # DRIFTLINE: stage 2's shapes. A shard shot down bursts into four pieces
 # of shrapnel. A tumbler rolling on the road can't be touched by the main
-# gun; a side shot pops it up, and in the air any shot hurts it. A prism
+# gun; a side shot pops it up, and in the air any shot hurts it and
+# throws it higher. A prism
 # fires a beam to the road that walks inward, and every hit bounces the
 # prism back toward its side. A hoop bounces along the road.
 game driftline
@@ -20,6 +21,15 @@ expect score == 75
 expect eshots_1 == 4
 cheat god
 wait 120
+# a shard left alone reaches the road and keeps coming along it, but only
+# a shard that is shot makes shrapnel
+cheat pos 20
+cheat foe 5 160 60 1
+waituntil kind_ground_5 == 1 200
+expect eshots_1 == 0
+waituntil foes_5 == 0 400
+expect eshots_1 == 0
+expect score == 75
 # the tumbler
 cheat pos 100
 cheat foe 8 300 155 -1
@@ -35,10 +45,12 @@ expect kind_hp_8 == 8
 wait 200
 cheat clear
 # up in the air, the main gun does hurt it
-cheat foe 8 100 90 -1
+cheat meter 700
+cheat foe 8 100 90 0
 hold B
 waituntil kind_hp_8 < 8 30
 release
+expect kind_vy10_8 <= -24
 wait 120
 cheat clear
 # the prism: knocked back by hits

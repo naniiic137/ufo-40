@@ -1,7 +1,7 @@
 # DRIFTLINE: stage 1's boss, the Zephyr, an airship seen far off all
-# stage. It comes down at the end with three turrets under it; only the
-# turrets can be hurt (the gasbag soaks up shots), one at a time, and it
-# falls when all three are gone: 10,000 points.
+# stage. It comes down at the end with three turrets under it and nothing
+# else; only the turrets can be hurt (the gasbag soaks up shots), one at a
+# time, and it falls when all three are gone: 10,000 points.
 game driftline
 wait 12
 press A
@@ -13,6 +13,9 @@ expect part_hp1 == 80
 expect part_hp2 == 80
 waituntil boss_y >= 40 200
 cheat god
+# nothing but the turrets: no drones are let go
+wait 500
+expect foes == 0
 cheat bossstill
 cheat meter 700
 # under the gasbag, between the turrets: nothing gets through
@@ -23,6 +26,7 @@ expect part_hp0 == 80
 expect part_hp1 == 80
 expect boss_hp == 240
 # under the middle turret
+cheat meter 700
 cheat pos 160
 hold B
 waituntil part_hp1 <= 0 200
@@ -32,6 +36,7 @@ expect score == 0
 cheat parthp 0 0
 expect boss_dead == 0
 # the last one
+cheat meter 700
 cheat pos 208
 hold B
 waituntil boss_dead == 1 200

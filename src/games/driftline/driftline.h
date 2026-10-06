@@ -8,7 +8,8 @@
  * slowly and only fills while you drive left. One hit loses a car. Four
  * stages, day to sunset to night to the open sea, each with a boss; a
  * stage cleared without losing a car leads to a bonus stage of blocks,
- * whose coin is worth two more cars. 1P, or 2P together. */
+ * whose coin is worth two more cars. 1P, or 2P in one car: one player
+ * drives, the other mans the gun. */
 #ifndef DRIFTLINE_H
 #define DRIFTLINE_H
 
@@ -16,7 +17,7 @@
 #include "../../shell/ui.h"
 
 /* ---- the screen ---------------------------------------------------------- */
-#define DFL_HUD_H 10          /* the score strip along the top */
+#define DFL_HUD_H 0           /* nothing above the play field: score, meter and cars sit in the strip below */
 #define DFL_CAR_TOP 150       /* the car's top edge (where its gun is) */
 #define DFL_ROAD_Y 162        /* where its wheels touch */
 #define DFL_ROAD_TOP 146      /* the road's far edge */
@@ -34,9 +35,11 @@
 #define DFL_AIM_MAX 45.0f     /* the gun swings within 45 degrees of straight up */
 #define DFL_AIM_SWING 2.0f    /* degrees a frame while steering */
 #define DFL_AIM_CENTRE 3.0f   /* degrees a frame back to straight up while UP is held */
-#define DFL_MAIN_CD 5         /* frames between main-gun shots */
-#define DFL_SIDE_CD 8         /* frames between side pairs */
-#define DFL_SHOT_SPEED 6.0f
+/* the meter's section sets the rate of fire and the shots' speed as well
+ * as their damage (grey, green, red) */
+extern const int DFL_MAIN_CD[3];    /* frames between main-gun shots: 8, 6, 5 */
+extern const int DFL_SIDE_CD[3];    /* frames between side pairs: 12, 10, 8 */
+extern const float DFL_SHOT_SPEED[3]; /* 4.5, 5.25, 6 */
 #define DFL_RESPAWN_T 70      /* frames from a loss to the next car */
 #define DFL_INV_T 120         /* the new car blinks, safe, this long */
 #define DFL_START_SPARE 3     /* cars in reserve at the start (four in all) */
@@ -135,7 +138,7 @@ extern const int DFL_SWELL_COUNT;
 extern const char *const DFL_BONUS_MAP[3][DFL_BROWS];
 
 /* ---- shots ----------------------------------------------------------------------- */
-enum { ES_PELLET, ES_SHRAPNEL, ES_BOMB, ES_BUBBLE, ES_FLARE };
+enum { ES_PELLET, ES_SHRAPNEL, ES_BUBBLE, ES_FLARE };
 typedef struct {
     float x, y, vx, vy, r, g;
     uint8_t alive, kind;
@@ -179,7 +182,8 @@ typedef struct {
     bool revealed;
 } DflBoss;
 
-/* ---- the cars ------------------------------------------------------------------------ */
+/* ---- the car ------------------------------------------------------------------------- */
+#define DFL_CARS 1       /* one car on the road, in 2P too */
 typedef struct {
     bool on;         /* this player is in the game */
     bool alive;
@@ -188,6 +192,7 @@ typedef struct {
     int meter;
     int main_cd, side_cd;
     int dead_t, inv;
+    int fired, pairs; /* main-gun shots and side pairs fired (tests) */
     int enter;       /* frames left driving in from the left edge (controls off) */
     uint16_t prev;   /* last frame's buttons */
     bool drifting;
@@ -215,7 +220,7 @@ typedef struct {
 typedef struct {
     int state, state_t, frame_t;
     int sel;                 /* title menu */
-    int players;             /* 1 or 2 */
+    int players;             /* 1, or 2: P1 drives the one car, P2 aims and fires */
     /* the run */
     int stage;               /* 0..3 */
     uint32_t score;
@@ -226,7 +231,7 @@ typedef struct {
     int coins;
     int bonus_played;
     bool won;
-    DflCar car[2];
+    DflCar car[DFL_CARS];
     /* the stage */
     int stage_t, spawn_i;
     float scroll;
@@ -325,7 +330,7 @@ void dfl_draw_label(int x, int y, int w, int h, int t);
 
 /* art and sound */
 enum {
-    SP_CAR, SP_CAR2, SP_HOG, SP_WRECK, SP_KITE1, SP_KITE2, SP_BUZZER, SP_ROTOR1, SP_ROTOR2,
+    SP_CAR, SP_HOG, SP_WRECK, SP_KITE1, SP_KITE2, SP_BUZZER, SP_ROTOR1, SP_ROTOR2,
     SP_SHARD, SP_PRISM, SP_TUMBLER1, SP_TUMBLER2,
     SP_SKULL, SP_SHEET1, SP_SHEET2, SP_SNAPPER, SP_SNAPPER2, SP_SLAB,
     SP_JELLY1, SP_JELLY2, SP_DART, SP_SQUIRT1, SP_SQUIRT2, SP_SHARK, SP_PALM, SP_COIN, SP_LAMP,

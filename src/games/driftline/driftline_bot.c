@@ -84,7 +84,7 @@ static void gather(int p) {
             for (int k = 0; k < 6; k++) {
                 int pt = b->part_t[k];
                 if (pt < 0) continue;
-                int from = DFL_LEG_WARN + 2 - pt, to = DFL_LEG_WARN + DFL_LEG_DROP + DFL_LEG_STAY + 4 - pt;
+                int from = DFL_LEG_WARN + 2 - pt, to = DFL_LEG_WARN + DFL_LEG_DROP + DFL_LEG_STAY + DFL_LEG_LIFT + 2 - pt;
                 if (to < 0) continue;
                 float lx = dfl_leg_x(k);
                 add(lx - 11, DFL_LEG_TOP_Y, lx + 11, DFL_ROAD_Y, 0, 0, 0, imax(0, from), to);
@@ -145,7 +145,7 @@ static int simulate(int p, const Plan *pl, float *x12, float *xend, float *clear
 static float aim_spot(const DflCar *c, float tx, float ty, float vx, float vy) {
     float h = DFL_CAR_TOP - ty;
     if (h < 8) h = 8;
-    float tt = h / DFL_SHOT_SPEED;          /* about how long the shot takes */
+    float tt = h / DFL_SHOT_SPEED[dfl_tier(c->meter)]; /* about how long the shot takes */
     tx += vx * tt;
     /* where the gun points now (standing still, UP brings it round to
      * straight up, and this follows it) */
@@ -155,6 +155,10 @@ static float aim_spot(const DflCar *c, float tx, float ty, float vx, float vy) {
 
 
 typedef struct { float x, y, vx, vy; bool ground; int prio; } Target;
+
+/* this frame's pick, for the gunner in 2P */
+static Target bot_tg;
+static bool bot_has;
 
 static bool pick_target(int p, Target *out) {
     const DflCar *c = &dfg.car[p];
@@ -216,6 +220,8 @@ static int play_buttons(int p) {
     gather(p);
     Target tg = {0, 0, 0, 0, false, 0};
     bool has = pick_target(p, &tg);
+    bot_tg = tg;
+    bot_has = has;
     /* charge by drifting left while there is road to drift on; at the left
      * end, go and shoot instead (the swing back right is the swerve) */
     bool charging = c->meter < DFL_TIER2 + 30 && c->x > 80 && !(has && tg.ground && fabsf(tg.x - c->x) < 80);
@@ -311,11 +317,6 @@ static int bonus_buttons(int p) {
     float tx = DFL_BLOCK_X0 + bestc * DFL_BLOCK_W + DFL_BLOCK_W / 2.0f;
     float off = fclamp((tx - x) / 200.0f, -0.6f, 0.6f);
     float want = x - off * 15;
-    /* in 2P, the second car covers the other half */
-    if (dfg.players == 2 && dfg.car[1 - p].on && dfg.car[1 - p].alive) {
-        bool mine = p == 0 ? x < 160 : x >= 160;
-        if (!mine) want = p == 0 ? 80 : 240;
-    }
     float d = want - c->x;
     /* stopping distance */
     float stop = c->vx * c->vx / (2 * DFL_FRICTION) * (c->vx > 0 ? 1 : -1);
@@ -325,9 +326,47 @@ static int bonus_buttons(int p) {
     return m;
 }
 
+/* 2P: the gunner swings the gun onto the driver's target with its own pad,
+ * keeps the main gun going, and turns the side guns on road targets */
+static int gunner_buttons(void) {
+    const DflCar *c = &dfg.car[0];
+    int m = BTN_B;
+    if (dfg.state == DS_BONUS) return m | BTN_UP;
+    if (!c->alive) return m | BTN_UP;
+    /* anything low and close: the side guns' V reaches it */
+    int low = 0;
+    float lowd = 91;
+    for (int i = 0; i < DFL_MAX_FOES; i++) {
+        const DflFoe *e = &dfg.foe[i];
+        if (!e->alive || e->t < 0 || e->y < 100 || e->kind == FK_PLANET) continue;
+        float d = fabsf(e->x - c->x);
+        if (d < lowd) { lowd = d; low = e->x < c->x ? -1 : 1; }
+    }
+    if (low) {
+        if (c->side_cd == 0) m |= (low < 0 ? BTN_LEFT : BTN_RIGHT) | BTN_A;
+        else if (c->face == low) m |= BTN_A;
+        return m;
+    }
+    if (!bot_has) return m | BTN_UP;
+    if (bot_tg.ground && fabsf(bot_tg.x - c->x) < 170) {
+        int want = bot_tg.x < c->x ? -1 : 1;
+        if (c->side_cd == 0) m |= (want < 0 ? BTN_LEFT : BTN_RIGHT) | BTN_A;
+        return m;
+    }
+    float h = fmaxf(8.0f, DFL_CAR_TOP - bot_tg.y);
+    float tx = bot_tg.x + bot_tg.vx * h / DFL_SHOT_SPEED[dfl_tier(c->meter)];
+    float want = fclamp(atan2f(tx - c->x, h) * 180.0f / 3.14159265f, -DFL_AIM_MAX, DFL_AIM_MAX);
+    if (c->aim < want - 1.5f) m |= BTN_RIGHT;
+    else if (c->aim > want + 1.5f) m |= BTN_LEFT;
+    return m;
+}
+
 int dfl_bot_buttons(int p) {
-    static int tick;
+    static int tick, gun;
     tick++;
+    /* 2P: the first call plays the driver and works out the gunner's buttons
+     * for the second */
+    if (dfg.players == 2 && p == 1) return gun;
     int m = 0;
     switch (dfg.state) {
     case DS_TITLE:
@@ -346,8 +385,12 @@ int dfl_bot_buttons(int p) {
         m = (tick / 4) % 2 ? BTN_A : 0;
         break;
     }
-    /* the foes' places this frame, kept after the last player's call */
-    int last_p = dfg.players == 2 && dfg.bot2 ? 1 : 0;
-    if (p == last_p && last_frame != dfg.frame_t) { remember_foes(); last_frame = dfg.frame_t; }
+    if (dfg.players == 2) {
+        bool driving = dfg.state == DS_PLAY || dfg.state == DS_BONUS;
+        gun = driving ? gunner_buttons() : 0;
+        if (driving) m &= BTN_LEFT | BTN_RIGHT; /* the driver only steers */
+    }
+    /* the foes' places this frame */
+    if (last_frame != dfg.frame_t) { remember_foes(); last_frame = dfg.frame_t; }
     return m;
 }

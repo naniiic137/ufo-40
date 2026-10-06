@@ -22,7 +22,7 @@ wait 200
 # the sheet, to the car's right: down and to the right, at 45 degrees
 cheat pos 260
 cheat foe 10 160 40 1
-waituntil eshots_4 >= 1 120
+waituntil eshots_3 >= 1 120
 expect es0_vx10 == 14
 expect es0_vy10 == 14
 wait 100

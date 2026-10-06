@@ -27,6 +27,7 @@ press RIGHT A
 expect side_right == 2
 wait 60
 # held, they keep coming in pairs
+cheat meter 600
 cheat pos 160
 hold A 33
 expect pshots_side >= 8

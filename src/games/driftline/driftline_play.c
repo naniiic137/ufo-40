@@ -7,6 +7,9 @@ DflGame dfg;
 DflSave dfs;
 
 const int DFL_TIER_DMG[3] = {1, 2, 4};
+const int DFL_MAIN_CD[3] = {8, 6, 5};
+const int DFL_SIDE_CD[3] = {12, 10, 8};
+const float DFL_SHOT_SPEED[3] = {4.5f, 5.25f, 6.0f};
 
 int dfl_tier(int meter) { return meter >= DFL_TIER2 ? 2 : meter >= DFL_TIER1 ? 1 : 0; }
 
@@ -44,7 +47,7 @@ void dfl_note_cars(void) {
 
 int dfl_cars_alive(void) {
     int n = 0;
-    for (int p = 0; p < 2; p++) n += dfg.car[p].on && dfg.car[p].alive;
+    for (int p = 0; p < DFL_CARS; p++) n += dfg.car[p].on && dfg.car[p].alive;
     return n;
 }
 
@@ -75,8 +78,8 @@ int dfl_add_eshot(int kind, float x, float y, float vx, float vy) {
         s->y = y;
         s->vx = vx;
         s->vy = vy;
-        s->r = kind == ES_BUBBLE ? 2.0f : kind == ES_BOMB ? 3.0f : kind == ES_FLARE ? 3.0f : 2.0f;
-        s->g = kind == ES_SHRAPNEL ? 0.06f : kind == ES_BOMB ? 0.05f : 0;
+        s->r = kind == ES_FLARE ? 3.0f : 2.0f;
+        s->g = kind == ES_SHRAPNEL ? 0.06f : 0;
         return i;
     }
     return -1;
@@ -86,7 +89,7 @@ int dfl_add_eshot(int kind, float x, float y, float vx, float vy) {
 int dfl_nearest_car(float x) {
     int best = -1;
     float bd = 1e9f;
-    for (int p = 0; p < 2; p++) {
+    for (int p = 0; p < DFL_CARS; p++) {
         DflCar *c = &dfg.car[p];
         if (!c->on || !c->alive) continue;
         float d = fabsf(c->x - x);
@@ -161,7 +164,7 @@ void dfl_kill_car(int p, int cause) {
     sfx_play_name("dfl_crash");
 }
 
-/* a car comes (back) into play */
+/* a car comes (back) into play: from the reserve it jumps in fully charged */
 void dfl_car_spawn(int p, bool from_left) {
     DflCar *c = &dfg.car[p];
     c->alive = true;
@@ -169,7 +172,7 @@ void dfl_car_spawn(int p, bool from_left) {
     c->vx = 0;
     c->aim = 0;
     c->face = 1;
-    c->meter = 0;
+    c->meter = DFL_METER_MAX;
     c->main_cd = c->side_cd = 0;
     c->drifting = false;
     if (from_left) {
@@ -177,7 +180,7 @@ void dfl_car_spawn(int p, bool from_left) {
         c->enter = 22;
         c->inv = DFL_INV_T;
     } else {
-        c->x = dfg.players == 2 ? (p ? 190.0f : 110.0f) : 120.0f;
+        c->x = 120.0f;
         c->enter = 0;
         c->inv = 0;
     }
@@ -196,7 +199,8 @@ static void car_comeback(int p) {
 
 static void fire_main(int p) {
     DflCar *c = &dfg.car[p];
-    float a = c->aim * 3.14159265f / 180.0f;
+    float a = c->aim * 3.14159265f / 180.0f, sp = DFL_SHOT_SPEED[dfl_tier(c->meter)];
+    c->fired++;
     for (int i = 0; i < DFL_MAX_PSHOTS; i++) {
         DflPShot *s = &dfg.ps[i];
         if (s->alive) continue;
@@ -205,8 +209,8 @@ static void fire_main(int p) {
         s->owner = (uint8_t)p;
         s->x = c->x + sinf(a) * 7;
         s->y = DFL_CAR_TOP - 2;
-        s->vx = sinf(a) * DFL_SHOT_SPEED;
-        s->vy = -cosf(a) * DFL_SHOT_SPEED;
+        s->vx = sinf(a) * sp;
+        s->vy = -cosf(a) * sp;
         s->dmg = DFL_TIER_DMG[dfl_tier(c->meter)];
         break;
     }
@@ -215,7 +219,9 @@ static void fire_main(int p) {
 
 static void fire_side(int p, int dir) {
     DflCar *c = &dfg.car[p];
+    float sp = DFL_SHOT_SPEED[dfl_tier(c->meter)];
     int made = 0;
+    c->pairs++;
     for (int i = 0; i < DFL_MAX_PSHOTS && made < 2; i++) {
         DflPShot *s = &dfg.ps[i];
         if (s->alive) continue;
@@ -224,18 +230,17 @@ static void fire_side(int p, int dir) {
         s->owner = (uint8_t)p;
         s->x = c->x + dir * 10;
         s->dmg = DFL_TIER_DMG[dfl_tier(c->meter)];
-        if (made == 0) { s->y = DFL_ROAD_Y - 5; s->vx = dir * DFL_SHOT_SPEED; s->vy = 0; }
-        else { s->y = DFL_ROAD_Y - 7; s->vx = dir * 4.6f; s->vy = -3.85f; } /* the V's upper arm, 40 degrees up */
+        if (made == 0) { s->y = DFL_ROAD_Y - 5; s->vx = dir * sp; s->vy = 0; }
+        else { s->y = DFL_ROAD_Y - 7; s->vx = dir * sp * 0.766f; s->vy = -sp * 0.643f; } /* the V's upper arm, 40 degrees up */
         made++;
     }
     dfl_sfx("dfl_side", 6);
 }
 
-static void car_update(int p, uint16_t in, bool bonus) {
+/* in: the driver's pad; gun: the gunner's (the same pad in 1P) */
+static void car_update(int p, uint16_t in, uint16_t gun, bool bonus) {
     DflCar *c = &dfg.car[p];
-    uint16_t pressed = (uint16_t)(in & ~c->prev);
     c->prev = in;
-    (void)pressed;
     if (!c->on) return;
     if (!c->alive) {
         if (c->dead_t > 0 && --c->dead_t == 0) car_comeback(p);
@@ -257,11 +262,13 @@ static void car_update(int p, uint16_t in, bool bonus) {
     if (c->x < DFL_MIN_X) { c->x = DFL_MIN_X; c->vx = 0; }
     if (c->x > DFL_MAX_X) { c->x = DFL_MAX_X; c->vx = 0; }
     /* the gun swings the way you steer; with the pad still it stays where it
-     * is, and UP brings it back to straight up */
-    if (dir) {
-        c->aim = fclamp(c->aim + dir * DFL_AIM_SWING, -DFL_AIM_MAX, DFL_AIM_MAX);
-        c->face = dir;
-    } else if (in & BTN_UP) {
+     * is, and UP brings it back to straight up. In 2P the gunner's pad does
+     * this, and the driver's steering leaves the gun alone. */
+    int adir = dfg.players == 2 ? ((gun & BTN_RIGHT) ? 1 : 0) - ((gun & BTN_LEFT) ? 1 : 0) : dir;
+    if (adir) {
+        c->aim = fclamp(c->aim + adir * DFL_AIM_SWING, -DFL_AIM_MAX, DFL_AIM_MAX);
+        c->face = adir;
+    } else if (gun & BTN_UP) {
         c->aim = fapproach(c->aim, 0, DFL_AIM_CENTRE);
     }
     /* the power drift: only driving left fills the meter */
@@ -284,13 +291,14 @@ static void car_update(int p, uint16_t in, bool bonus) {
     if (dfl_tier(c->meter) > tier0) sfx_play_name("dfl_tier");
     if (c->main_cd > 0) c->main_cd--;
     if (c->side_cd > 0) c->side_cd--;
-    if ((in & BTN_B) && c->main_cd == 0) {
+    int tier = dfl_tier(c->meter);
+    if ((gun & BTN_B) && c->main_cd == 0) {
         fire_main(p);
-        c->main_cd = DFL_MAIN_CD;
+        c->main_cd = DFL_MAIN_CD[tier];
     }
-    if ((in & BTN_A) && c->side_cd == 0) {
-        fire_side(p, dir ? dir : c->face);
-        c->side_cd = DFL_SIDE_CD;
+    if ((gun & BTN_A) && c->side_cd == 0) {
+        fire_side(p, adir ? adir : c->face);
+        c->side_cd = DFL_SIDE_CD[tier];
     }
 }
 
@@ -329,11 +337,10 @@ static void eshots_update(void) {
         s->x += s->vx;
         s->y += s->vy;
         if (s->x < -10 || s->x > SCREEN_W + 10 || s->y < -10 || s->y > DFL_ROAD_BOT + 2) {
-            if (s->kind == ES_BOMB && s->y > DFL_ROAD_BOT) dfl_burst(s->x, DFL_ROAD_Y, C_ORANGE, 5, 1.4f);
             s->alive = 0;
             continue;
         }
-        for (int p = 0; p < 2; p++)
+        for (int p = 0; p < DFL_CARS; p++)
             if (dfl_car_hit_circle(p, s->x, s->y, s->r)) {
                 s->alive = 0;
                 dfl_kill_car(p, CAUSE_SHOT + s->kind);
@@ -360,7 +367,7 @@ static void touches(void) {
         if (!e->alive || e->t < 0) continue;
         if (e->kind == FK_SHEET && e->state == 2) continue;
         const DflFoeDef *d = &DFL_FOE[e->kind];
-        for (int p = 0; p < 2; p++)
+        for (int p = 0; p < DFL_CARS; p++)
             if (dfl_car_hit_rect(p, e->x - d->hw + 1, e->y - d->hh + 1, e->x + d->hw - 1, e->y + d->hh - 1)) dfl_kill_car(p, CAUSE_FOE + e->kind);
     }
 }
@@ -380,11 +387,11 @@ void dfl_new_run(int players) {
     dfg.won = false;
     dfg.god = false;
     memset(dfg.car, 0, sizeof dfg.car);
-    for (int p = 0; p < players; p++) {
-        dfg.car[p].on = true;
-        dfg.car[p].col = p ? C_CYAN : C_RED;
-        dfl_car_spawn(p, false);
-    }
+    /* one car, in 2P too: one player drives, the other mans the gun */
+    dfg.car[0].on = true;
+    dfg.car[0].col = C_RED;
+    dfl_car_spawn(0, false);
+    dfg.car[0].meter = 0; /* the first car of a run starts with the meter empty */
     if (dfs.runs < 65535) dfs.runs++;
     dfl_save_now();
     dfl_start_stage(0);
@@ -407,11 +414,11 @@ void dfl_start_stage(int s) {
     dfg.foes_stage = 0;
     dfg.stage_points = 0;
     dfg.clear_t = 0;
-    for (int p = 0; p < 2; p++) {
+    for (int p = 0; p < DFL_CARS; p++) {
         DflCar *c = &dfg.car[p];
         if (!c->on) continue;
         if (c->alive) {
-            c->x = dfg.players == 2 ? (p ? 190.0f : 110.0f) : 120.0f;
+            c->x = 120.0f;
             c->vx = 0;
             c->enter = 0;
             c->inv = 0;
@@ -429,8 +436,7 @@ void dfl_play_update(uint16_t in0, uint16_t in1) {
     dfg.stage_t++;
     dfg.scroll += DFL_SCROLL;
     if (dfg.shake > 0) dfg.shake--;
-    car_update(0, in0, false);
-    car_update(1, in1, false);
+    car_update(0, in0, dfg.players == 2 ? in1 : in0, false);
     if (!dfg.boss.on) dfl_run_spawns();
     if (!dfg.boss.on && dfg.stage_t >= DFL_STAGE[dfg.stage].boss_t) dfl_boss_start(dfg.stage);
     dfl_foes_update();
@@ -476,11 +482,11 @@ void dfl_bonus_start(void) {
     memset(dfg.ps, 0, sizeof dfg.ps);
     memset(&dfg.boss, 0, sizeof dfg.boss);
     memset(dfg.swell, 0, sizeof dfg.swell);
-    for (int p = 0; p < 2; p++) {
+    for (int p = 0; p < DFL_CARS; p++) {
         DflCar *c = &dfg.car[p];
         if (!c->on) continue;
         if (!c->alive && dfg.spare > 0) { dfg.spare--; dfl_car_spawn(p, false); }
-        c->x = dfg.players == 2 ? (p ? 200.0f : 120.0f) : 160.0f;
+        c->x = 160.0f;
         c->vx = 0;
         c->enter = 0;
         c->inv = 0;
@@ -536,7 +542,7 @@ static void ball_step(float f) {
     }
     /* the cars */
     if (dfg.bvy > 0 && dfg.by + BALL_R >= DFL_CAR_TOP && dfg.by + BALL_R <= DFL_CAR_TOP + 8) {
-        for (int p = 0; p < 2; p++) {
+        for (int p = 0; p < DFL_CARS; p++) {
             DflCar *car = &dfg.car[p];
             if (!car->on || !car->alive) continue;
             float off = (dfg.bx - car->x) / 15.0f;
@@ -562,8 +568,7 @@ void dfl_bonus_update(uint16_t in0, uint16_t in1) {
     dfg.frame_t++;
     dfg.stage_t++;
     dfg.scroll += DFL_SCROLL * 0.5f;
-    car_update(0, in0, true);
-    car_update(1, in1, true);
+    car_update(0, in0, dfg.players == 2 ? in1 : in0, true);
     /* gunfire chips at the blocks; enough of it breaks one (worth 800 more) */
     for (int i = 0; i < DFL_MAX_PSHOTS; i++) {
         DflPShot *s = &dfg.ps[i];

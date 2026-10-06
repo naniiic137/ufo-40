@@ -1,5 +1,6 @@
-# DRIFTLINE: the game completed in co-op. The demo player drives both cars
-# (one switch tells it to press the second pad's buttons too) through all
+# DRIFTLINE: the game completed in co-op. The demo player is both crew of
+# the one car: on player 1's pad the driver, on player 2's the gunner (one
+# switch tells it to press the second pad's buttons too), through all
 # four stages to the ending, with real presses.
 game driftline
 wait 12

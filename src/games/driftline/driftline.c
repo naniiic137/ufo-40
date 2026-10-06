@@ -69,7 +69,7 @@ static void next_stage(void) {
 
 /* every car is gone and none is coming back */
 static bool run_lost(void) {
-    for (int p = 0; p < 2; p++) {
+    for (int p = 0; p < DFL_CARS; p++) {
         const DflCar *c = &dfg.car[p];
         if (c->on && (c->alive || c->dead_t > 0)) return false;
     }
@@ -237,12 +237,12 @@ static int dfl_query(const char *key, int *out) {
     }
     if (!strcmp(key, "cause")) { *out = dfg.cause; return 1; }
     if (!strcmp(key, "last_hit_dmg")) { *out = dfg.last_hit_dmg; return 1; }
-    /* the cars: alive0, x0, vx10_0, aim0, meter0, tier0, face0, inv0, drifting0, on1... */
+    /* the car: alive0, x0, vx10_0, aim0, meter0, tier0, face0, inv0, drifting0, on0, dead_t0, fired0, pairs0 */
     {
-        static const char *const KEYS[] = {"alive", "x", "vx10_", "aim", "meter", "tier", "face", "inv", "drifting", "on", "dead_t"};
+        static const char *const KEYS[] = {"alive", "x", "vx10_", "aim", "meter", "tier", "face", "inv", "drifting", "on", "dead_t", "fired", "pairs"};
         for (int k = 0; k < ARRAY_LEN(KEYS); k++) {
             size_t n = strlen(KEYS[k]);
-            if (!strncmp(key, KEYS[k], n) && (key[n] == '0' || key[n] == '1') && !key[n + 1]) {
+            if (!strncmp(key, KEYS[k], n) && key[n] == '0' && !key[n + 1]) {
                 const DflCar *c = &dfg.car[key[n] - '0'];
                 switch (k) {
                 case 0: *out = c->alive; break;
@@ -255,7 +255,9 @@ static int dfl_query(const char *key, int *out) {
                 case 7: *out = c->inv; break;
                 case 8: *out = c->drifting; break;
                 case 9: *out = c->on; break;
-                default: *out = c->dead_t; break;
+                case 10: *out = c->dead_t; break;
+                case 11: *out = c->fired; break;
+                default: *out = c->pairs; break;
                 }
                 return 1;
             }
@@ -453,9 +455,8 @@ static int dfl_cheat(const char *cmd) {
     if (!strcmp(cmd, "bot2")) { dfg.bot2 = !dfg.bot2; return 1; }
     if (sscanf(cmd, "score %d", &a) == 1) { dfg.score = (uint32_t)a; return 1; }
     if (sscanf(cmd, "spare %d", &a) == 1) { dfg.spare = a; dfl_note_cars(); return 1; }
-    if (sscanf(cmd, "meter %d", &a) == 1) { dfg.car[0].meter = dfg.car[1].meter = iclamp(a, 0, DFL_METER_MAX); return 1; }
+    if (sscanf(cmd, "meter %d", &a) == 1) { dfg.car[0].meter = iclamp(a, 0, DFL_METER_MAX); return 1; }
     if (sscanf(cmd, "posboss %f", &x) == 1) { dfg.car[0].x = dfg.boss.x + x; dfg.car[0].vx = 0; return 1; }
-    if (sscanf(cmd, "pos %f %d", &x, &a) == 2) { dfg.car[iclamp(a, 0, 1)].x = x; dfg.car[iclamp(a, 0, 1)].vx = 0; return 1; }
     if (sscanf(cmd, "pos %f", &x) == 1) { dfg.car[0].x = x; dfg.car[0].vx = 0; return 1; }
     if (sscanf(cmd, "aim %f", &x) == 1) { dfg.car[0].aim = x; return 1; }
     if (sscanf(cmd, "foe %d %f %f %d", &a, &x, &y, &b) == 4) {
@@ -490,7 +491,7 @@ static int dfl_cheat(const char *cmd) {
     if (sscanf(cmd, "orbiters %d", &a) == 1) { for (int k = 0; k < 4; k++) dfg.boss.part_hp[k] = a; return 1; }
     if (sscanf(cmd, "attack %d", &a) == 1) { dfg.boss.hand_state = iclamp(a, 0, 3); dfg.boss.hand_t = 0; return 1; }
     if (!strncmp(cmd, "kill", 4)) {
-        int p = sscanf(cmd, "kill %d", &a) == 1 ? iclamp(a, 0, 1) : 0;
+        int p = 0;
         bool g = dfg.god;
         dfg.god = false;
         dfg.car[p].inv = 0;
@@ -519,7 +520,7 @@ static int dfl_cheat(const char *cmd) {
     if (!strcmp(cmd, "over")) {
         dfg.spare = 0;
         dfg.god = false;
-        for (int p = 0; p < 2; p++) { dfg.car[p].inv = 0; dfl_kill_car(p, CAUSE_TEST); }
+        for (int p = 0; p < DFL_CARS; p++) { dfg.car[p].inv = 0; dfl_kill_car(p, CAUSE_TEST); }
         return 1;
     }
     return 0;
@@ -538,6 +539,7 @@ const GameDef GAME_DRIFTLINE = {
     "HOLD " GLYPH_B "\tMAIN GUN, UP\n"
     "HOLD " GLYPH_A "\tSIDE GUNS, ALONG THE ROAD\n"
     "START\tPAUSE\n"
+    "2 PLAYERS\tP1 DRIVES, P2 AIMS + FIRES\n"
     "\n"
     "GREY, GREEN, RED: THE REDDER\n"
     "THE METER, THE HARDER YOU HIT.",

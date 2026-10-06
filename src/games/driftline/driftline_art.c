@@ -467,7 +467,7 @@ static const char LAMP[] =
     ".....sss"
     "........";
 
-/* the second car: the same body in teal */
+/* the wreck: the hog's body burnt */
 static void recolour(char *s, const char *from, const char *to) {
     for (char *p = s; *p; p++) {
         const char *f = strchr(from, *p);
@@ -479,13 +479,10 @@ void dfl_art_load(void) {
     static bool done = false;
     if (done) return;
     done = true;
-    static char car2[sizeof CAR], wreck[sizeof HOG];
-    memcpy(car2, CAR, sizeof CAR);
-    recolour(car2, "rmwb", "CqIy");
+    static char wreck[sizeof HOG];
     memcpy(wreck, HOG, sizeof HOG);
     recolour(wreck, "yauw", "esdg");
     spr_make(&dfl_spr[SP_CAR], 24, 12, CAR);
-    spr_make(&dfl_spr[SP_CAR2], 24, 12, car2);
     spr_make(&dfl_spr[SP_HOG], 24, 11, HOG);
     spr_make(&dfl_spr[SP_WRECK], 24, 11, wreck);
     spr_make(&dfl_spr[SP_KITE1], 16, 10, KITE1);

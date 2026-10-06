@@ -223,13 +223,19 @@ static void draw_swells(void) {
 
 /* ---- the cars ---------------------------------------------------------------------- */
 
-static void draw_car_at(int p, float x, float aim, int t, bool drifting) {
-    const Sprite *s = &dfl_spr[p ? SP_CAR2 : SP_CAR];
+/* Lou's car; in 2P Dee rides in the back on the gun */
+static void draw_car_at(float x, float aim, int t, bool drifting, bool gunner) {
+    const Sprite *s = &dfl_spr[SP_CAR];
     int bx = (int)lroundf(x) - 12, by = DFL_ROAD_Y - 12 + (drifting && (t / 3) % 2 ? 1 : 0);
     spr_draw(s, bx, by, 0);
+    if (gunner) {
+        gfx_rect(bx + 5, by, 4, 1, C_INK);
+        gfx_rect(bx + 5, by + 1, 4, 1, C_TEAL);
+        gfx_rect(bx + 5, by + 2, 4, 1, C_CREAM);
+    }
     /* the gun, held up out of the seat */
     float a = aim * 3.14159265f / 180.0f;
-    int gx = (int)lroundf(x) + 1, gy = DFL_CAR_TOP + 1;
+    int gx = gunner ? bx + 7 : (int)lroundf(x) + 1, gy = DFL_CAR_TOP + 1;
     int ex = gx + (int)lroundf(sinf(a) * 9), ey = gy - (int)lroundf(cosf(a) * 9);
     gfx_line(gx, gy, ex, ey, C_INK);
     gfx_line(gx + 1, gy, ex + 1, ey, C_SLATE);
@@ -237,11 +243,11 @@ static void draw_car_at(int p, float x, float aim, int t, bool drifting) {
 }
 
 static void draw_cars(void) {
-    for (int p = 0; p < 2; p++) {
+    for (int p = 0; p < DFL_CARS; p++) {
         const DflCar *c = &dfg.car[p];
         if (!c->on || !c->alive) continue;
         if (c->inv > 0 && (c->inv / 3) % 2) continue;
-        draw_car_at(p, c->x, c->aim, dfg.frame_t, c->drifting);
+        draw_car_at(c->x, c->aim, dfg.frame_t, c->drifting, dfg.players == 2);
     }
 }
 
@@ -350,10 +356,6 @@ static void draw_eshots(void) {
         int x = (int)lroundf(s->x), y = (int)lroundf(s->y);
         switch (s->kind) {
         case ES_SHRAPNEL: gfx_rect(x - 1, y - 1, 3, 3, (s->t / 3) % 2 ? C_LIME : C_WHITE); break;
-        case ES_BOMB:
-            gfx_circ(x, y, 3, C_INK);
-            gfx_pset(x + 1, y - 4, (s->t / 3) % 2 ? C_YELLOW : C_RED);
-            break;
         case ES_BUBBLE:
             gfx_circb(x, y, 3, C_ICE);
             gfx_pset(x - 1, y - 1, C_WHITE);
@@ -424,9 +426,8 @@ static void draw_zephyr(const DflBoss *b, int t) {
         gfx_circ(tx, ty, 6, w ? C_WHITE : C_DUSK);
         gfx_circ(tx, ty - 1, 4, w ? C_WHITE : C_SLATE);
         gfx_pset(tx - 2, ty - 3, C_LIGHT);
-        int hpw = b->part_hp[k] * 12 / DFL_TURRET_HP;
-        gfx_rect(tx - 6, ty + 8, 12, 2, C_INK);
-        gfx_rect(tx - 6, ty + 8, hpw, 2, C_RED);
+        /* a turret past half smokes */
+        if (b->part_hp[k] * 2 < DFL_TURRET_HP) gfx_dither(tx - 4, ty - 9 - (t / 5) % 4, 8, 5, C_GREY, 5);
     }
 }
 
@@ -561,54 +562,39 @@ static void draw_boss(void) {
 
 /* ---- the HUD ------------------------------------------------------------------------ */
 
-static void draw_meter(int p, int x, int w) {
-    const DflCar *c = &dfg.car[p];
+static void draw_meter(int x, int w) {
+    const DflCar *c = &dfg.car[0];
     int y = DFL_ROAD_BOT + 3;
-    tiny_draw(p ? "2P" : "1P", x, y, p ? C_CYAN : C_RED);
-    int bx = x + 10, bw = w - 10;
-    int seg = bw / 3;
+    int seg = w / 3;
     static const uint8_t BACK[3] = {C_DUSK, C_FOREST, C_MAROON};
     static const uint8_t FILL[3] = {C_LIGHT, C_LIME, C_RED};
-    for (int k = 0; k < 3; k++) gfx_rect(bx + k * seg, y, seg - 1, 6, BACK[k]);
+    for (int k = 0; k < 3; k++) gfx_rect(x + k * seg, y, seg - 1, 6, BACK[k]);
     int fill = c->alive ? c->meter * (seg * 3) / DFL_METER_MAX : 0;
     for (int k = 0; k < 3; k++) {
         int f = iclamp(fill - k * seg, 0, seg - 1);
-        if (f > 0) gfx_rect(bx + k * seg, y, f, 6, FILL[k]);
+        if (f > 0) gfx_rect(x + k * seg, y, f, 6, FILL[k]);
     }
-    if (c->alive && dfl_tier(c->meter) == 2 && (dfg.frame_t / 6) % 2) gfx_rectb(bx - 1, y - 1, seg * 3 + 1, 8, C_YELLOW);
+    if (c->alive && dfl_tier(c->meter) == 2 && (dfg.frame_t / 6) % 2) gfx_rectb(x - 1, y - 1, seg * 3 + 1, 8, C_YELLOW);
 }
 
+/* the strip under the road, as on the original: the score on the left, the
+ * power bar in the middle, the cars in reserve on the right */
 static void draw_hud(void) {
-    gfx_rect(0, 0, SCREEN_W, DFL_HUD_H, C_INK);
     gfx_rect(0, DFL_ROAD_BOT, SCREEN_W, SCREEN_H - DFL_ROAD_BOT, C_INK);
-    text_draw(num(dfg.score), 4, 2, C_WHITE);
-    char buf[40];
-    snprintf(buf, sizeof buf, "STAGE %d", dfg.stage + 1);
-    tiny_center(buf, 160, 3, C_LIGHT);
-    /* the cars in reserve */
-    int rx = SCREEN_W - 4;
-    int show = imin(dfg.spare, 6);
+    text_draw(num(dfg.score), 4, DFL_ROAD_BOT + 3, C_WHITE);
+    draw_meter(72, 174);
+    char buf[16];
+    int rx = SCREEN_W - 3;
+    int show = imin(dfg.spare, 5);
     for (int k = 0; k < show; k++) {
         rx -= 9;
-        gfx_rect(rx, 4, 8, 3, C_RED);
-        gfx_rect(rx + 2, 2, 3, 2, C_RED);
-        gfx_pset(rx + 1, 7, C_GREY);
-        gfx_pset(rx + 6, 7, C_GREY);
+        int y = DFL_ROAD_BOT + 4;
+        gfx_rect(rx, y + 2, 8, 3, C_RED);
+        gfx_rect(rx + 2, y, 3, 2, C_RED);
+        gfx_pset(rx + 1, y + 5, C_GREY);
+        gfx_pset(rx + 6, y + 5, C_GREY);
     }
-    if (dfg.spare > 6) { snprintf(buf, sizeof buf, "%d", dfg.spare); rx -= tiny_width(buf) + 2; tiny_draw(buf, rx, 3, C_LIGHT); }
-    if (dfg.players == 2) {
-        draw_meter(0, 6, 140);
-        draw_meter(1, 174, 140);
-    } else {
-        draw_meter(0, 60, 200);
-    }
-    /* the boss's health along the top */
-    const DflBoss *b = &dfg.boss;
-    if (b->on && !b->dead && b->maxhp > 0) {
-        int w = imax(0, b->hp) * 120 / b->maxhp;
-        gfx_rect(100, DFL_HUD_H + 1, 120, 3, C_INK);
-        gfx_rect(100, DFL_HUD_H + 1, w, 3, (dfg.frame_t / 8) % 2 ? C_RED : C_ORANGE);
-    }
+    if (dfg.spare > 5) { snprintf(buf, sizeof buf, "%d", dfg.spare); rx -= tiny_width(buf) + 2; tiny_draw(buf, rx, DFL_ROAD_BOT + 5, C_LIGHT); }
 }
 
 static void draw_banner(void) {
@@ -666,15 +652,8 @@ static void draw_bonus(bool status) {
     draw_cars();
     draw_pshots();
     draw_parts();
-    gfx_rect(0, 0, SCREEN_W, DFL_HUD_H, C_INK);
-    gfx_rect(0, DFL_ROAD_BOT, SCREEN_W, SCREEN_H - DFL_ROAD_BOT, C_INK);
-    text_draw(num(dfg.score), 4, 2, C_WHITE);
-    tiny_center("BONUS STAGE", 160, 3, C_YELLOW);
-    char buf[32];
-    snprintf(buf, sizeof buf, "BLOCKS %d", dfg.blocks_left);
-    tiny_draw(buf, SCREEN_W - 4 - tiny_width(buf), 3, C_LIGHT);
-    if (dfg.players == 2) { draw_meter(0, 6, 140); draw_meter(1, 174, 140); }
-    else draw_meter(0, 60, 200);
+    draw_hud();
+    tiny_center("BONUS STAGE", 160, 2, C_YELLOW);
     if (!status) return;
     if (dfg.stage_t < 60) text_center_shadow("KEEP THE COIN UP!", 160, 104, C_WHITE, C_INK);
     if (dfg.bonus_won) text_center_shadow("THE BUBBLE BURSTS!", 160, 104, C_YELLOW, C_INK);
@@ -690,7 +669,7 @@ static void draw_title(void) {
     draw_sky(1, dfg.scroll, t);
     road(1, dfg.scroll);
     float cx = 160 + sinf(t * 0.02f) * 60;
-    draw_car_at(0, cx, sinf(t * 0.02f) * 30, t, cosf(t * 0.02f) < 0);
+    draw_car_at(cx, sinf(t * 0.02f) * 30, t, cosf(t * 0.02f) < 0, false);
     ui_fancy_center("DRIFTLINE", 160, 18, 3, LOGO, 6, C_INK, C_NIGHT);
     text_center_shadow("THE COAST ROAD, MORNING TO DAYBREAK", 160, 48, C_CREAM, C_INK);
     static const char *const ITEMS[2] = {"1 PLAYER", "2 PLAYERS"};
@@ -701,7 +680,7 @@ static void draw_title(void) {
         text_center(ITEMS[i], 160, y, off ? C_SLATE : dfg.sel == i ? C_YELLOW : C_LIGHT);
         if (dfg.sel == i) ui_cursor(126, y, t);
     }
-    gfx_rect(0, 0, SCREEN_W, DFL_HUD_H, C_INK);
+    gfx_rect(0, 0, SCREEN_W, 10, C_INK);
     char buf[64];
     snprintf(buf, sizeof buf, "BEST %s", num(dfs.best));
     tiny_draw(buf, 4, 3, C_YELLOW);
@@ -774,8 +753,7 @@ static void draw_ending(void) {
     for (int k = 0; k < 4; k++) gfx_rect(270, 78 + k * 18, 14, 6, C_RED);
     gfx_rect(266, 64, 22, 6, C_INK);
     if ((t / 30) % 2) gfx_dither(240, 58, 30, 10, C_YELLOW, 6);
-    draw_car_at(dfg.players == 2 ? 1 : 0, 220, 0, 0, false);
-    if (dfg.players == 2) draw_car_at(0, 180, 0, 0, false);
+    draw_car_at(220, 0, 0, false, dfg.players == 2);
     gfx_darken_rect(0, 14, SCREEN_W, 112, 3);
     int shown = iclamp(dfg.state_t / 40, 0, ARRAY_LEN(ENDING));
     for (int i = 0; i < shown; i++) text_center_shadow(ENDING[i], 160, 20 + i * 10, C_WHITE, C_INK);
@@ -785,13 +763,13 @@ static void draw_ending(void) {
         text_center_shadow(buf, 160, 104, C_YELLOW, C_INK);
         if (dfg.score >= 300000u) text_center_shadow("A DRIVE FOR THE RECORD BOOKS!", 160, 114, C_LIME, C_INK);
     }
-    gfx_rect(0, 0, SCREEN_W, DFL_HUD_H, C_INK);
+    gfx_rect(0, 0, SCREEN_W, 10, C_INK);
     gfx_rect(0, DFL_ROAD_BOT, SCREEN_W, SCREEN_H - DFL_ROAD_BOT, C_INK);
 }
 
 static const char *const CREDITS[] = {
     "DRIFTLINE", "", "A BEAMDOWN SOFTWORKS GAME, 1989", "", "",
-    "AT THE WHEEL", "LOU AND THE GULL", "DEE AND THE TERN", "", "",
+    "AT THE WHEEL", "LOU AND THE GULL", "", "IN THE BACK SEAT", "DEE ON THE GUN, FOR TWO PLAYERS", "", "",
     "ON HARBOUR ROAD", "KITES, BUZZERS, ROAD HOGS, ROTORS", "THE ZEPHYR", "",
     "ON THE SUNDOWN STRIP", "SHARDS, PRISMS, HOOPS, TUMBLERS", "THE ORRERY", "",
     "ON THE MOONLIT MILE", "SKULLS, SHEETS, SNAPPERS, SLABS", "A SAUCER FROM BEAMDOWN", "THE MAN IN THE MOON", "",
@@ -808,7 +786,7 @@ static void draw_credits(void) {
     for (int i = 0; i < ARRAY_LEN(CREDITS); i++) {
         int y = y0 + i * 11;
         if (y < -10 || y > SCREEN_H) continue;
-        bool head = i == 0 || !strncmp(CREDITS[i], "ON ", 3) || !strcmp(CREDITS[i], "AT THE WHEEL") || !strcmp(CREDITS[i], "SEASIDE DRIVE");
+        bool head = i == 0 || !strncmp(CREDITS[i], "ON ", 3) || !strcmp(CREDITS[i], "AT THE WHEEL") || !strcmp(CREDITS[i], "IN THE BACK SEAT") || !strcmp(CREDITS[i], "SEASIDE DRIVE");
         text_center(CREDITS[i], 160, y, head ? C_YELLOW : C_LIGHT);
     }
 }

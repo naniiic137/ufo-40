@@ -1,6 +1,6 @@
 # DRIFTLINE: one hit from any shot or foe loses the car. The next car
-# drives in from the left edge, blinking and safe for a moment, with an
-# empty meter, and every foe on screen (but a boss) is swept away as it
+# drives in from the left edge, blinking and safe for a moment and fully
+# charged, and every foe on screen (but a boss) is swept away as it
 # comes. When the last car is lost, the run is over.
 game driftline
 wait 12
@@ -24,7 +24,8 @@ expect spare == 2
 expect foes == 0
 expect x0 < 0
 expect inv0 > 0
-expect meter0 == 0
+expect meter0 == 720
+expect tier0 == 2
 wait 25
 expect x0 == 30
 # while it blinks, nothing can hurt it

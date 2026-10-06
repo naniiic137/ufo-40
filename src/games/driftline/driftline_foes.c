@@ -160,7 +160,9 @@ void dfl_hurt_foe(int i, int dmg, bool side, float svx) {
             }
             return;
         }
-        if (side) e->vy = fminf(e->vy, -2.0f);
+        /* in the air every hit throws it higher (and on, the way the shot went) */
+        e->vy = fminf(e->vy, -2.4f);
+        e->vx = fclamp(e->vx + svx * 0.1f, -2.0f, 2.0f);
         break;
     case FK_PRISM:
         /* every hit bounces it back toward its own side */
@@ -273,16 +275,17 @@ static void rotor(DflFoe *e) {
 
 static void shard(DflFoe *e) {
     float tx = aim_x(e->x);
-    e->vx = fapproach(e->vx, tx > e->x ? 0.7f : -0.7f, 0.02f);
-    e->x += e->vx;
-    e->y += 0.7f;
-    if (e->y >= DFL_ROAD_Y - 6) {
-        /* it hits the road and bursts anyway, for nothing */
-        dfl_add_eshot(ES_SHRAPNEL, e->x, e->y - 4, -1.3f, -1.8f);
-        dfl_add_eshot(ES_SHRAPNEL, e->x, e->y - 4, 1.3f, -1.8f);
-        dfl_burst(e->x, e->y, C_LIME, 8, 1.5f);
-        escape(e);
+    if (!e->ground) {
+        e->vx = fapproach(e->vx, tx > e->x ? 0.7f : -0.7f, 0.02f);
+        e->x += e->vx;
+        e->y += 0.7f;
+        if (e->y >= DFL_ROAD_Y - 6) { e->y = DFL_ROAD_Y - 6; e->ground = 1; e->dir = tx > e->x ? 1 : -1; }
+        return;
     }
+    /* down on the road it keeps coming at the car, then slides on away */
+    e->vx = fapproach(e->vx, e->dir * 0.9f, 0.04f);
+    e->x += e->vx;
+    if (offscreen(e, 16)) escape(e);
 }
 
 /* a prism's beam: on while state is 2 */
@@ -305,7 +308,7 @@ static void prism(DflFoe *e) {
     }
     /* the beam, top to road */
     if (e->state == 2)
-        for (int p = 0; p < 2; p++)
+        for (int p = 0; p < DFL_CARS; p++)
             if (dfl_car_hit_rect(p, e->x - 3, e->y + 10, e->x + 3, DFL_ROAD_Y)) dfl_kill_car(p, CAUSE_BEAM);
 }
 
@@ -579,7 +582,7 @@ void dfl_swells_update(void) {
         w->t++;
         if (w->t == DFL_SWELL_T) { sfx_play_name("dfl_wave"); dfl_burst((float)w->x, DFL_ROAD_Y - 6, C_ICE, 14, 2.0f); }
         if (dfl_swell_breaking(k))
-            for (int p = 0; p < 2; p++)
+            for (int p = 0; p < DFL_CARS; p++)
                 if (dfl_car_hit_rect(p, (float)(w->x - DFL_SWELL_HW), DFL_ROAD_TOP, (float)(w->x + DFL_SWELL_HW), DFL_ROAD_BOT)) dfl_kill_car(p, CAUSE_SWELL);
         if (w->t >= DFL_SWELL_T + DFL_SWELL_HIT) w->alive = 0;
     }
@@ -675,18 +678,10 @@ static void zephyr(DflBoss *b) {
     b->x = 160 + sinf(b->t * 0.01f) * 50;
     int dead = 0;
     for (int k = 0; k < 3; k++) dead += b->part_hp[k] <= 0;
-    int period = 130 - 30 * dead;
+    int period = 110 - 30 * dead; /* the fewer turrets left, the faster they fire */
     for (int k = 0; k < 3; k++) {
         if (b->part_hp[k] <= 0) continue;
         if ((b->t + k * 43) % period == 0) { dfl_aimed(turret_x(k), turret_y(k) + 4, 1.5f, 3, 22); dfl_sfx("dfl_efire", 4); }
-    }
-    if (b->t % 150 == 75) dfl_add_eshot(ES_BOMB, b->x, b->y + 18, 0, 0.5f);
-    if (b->t % 420 == 200) {
-        /* it lets two buzzers go */
-        int i = dfl_spawn_foe(FK_BUZZER, b->x - 30, b->y + 10, 1, DFL_ADD);
-        if (i >= 0) dfg.foe[i].ay = 90;
-        i = dfl_spawn_foe(FK_BUZZER, b->x + 30, b->y + 10, 1, DFL_ADD);
-        if (i >= 0) dfg.foe[i].ay = 96;
     }
 }
 
@@ -720,7 +715,7 @@ static void moon(DflBoss *b) {
         b->hx -= 1.6f;
         b->hy = fist_y(b->hx);
         if (b->hx < -30) { b->hand_state = 0; b->hand_t = 0; b->hx = SCREEN_W + 30; b->hy = 84; }
-        for (int p = 0; p < 2; p++)
+        for (int p = 0; p < DFL_CARS; p++)
             if (dfl_car_hit_rect(p, b->hx - FIST_HW, b->hy - FIST_HH, b->hx + FIST_HW, b->hy + FIST_HH)) dfl_kill_car(p, CAUSE_FIST);
         break;
     default: /* the hand flies over and drops four chasers */
@@ -752,9 +747,10 @@ static void crab(DflBoss *b) {
         b->part_t[k]++;
         int t = b->part_t[k] - LEG_WARN;
         if (t == LEG_DROP) { dfg.shake = 6; dfl_burst(dfl_leg_x(k), DFL_ROAD_Y, C_GREY, 8, 1.5f); dfl_sfx("dfl_slam", 4); }
-        if (t >= 0 && t < LEG_DROP + LEG_STAY) {
+        /* down, it hurts until it is all the way back up */
+        if (t >= 0 && t < LEG_DROP + LEG_STAY + LEG_LIFT) {
             float foot = dfl_leg_foot(k);
-            for (int p = 0; p < 2; p++)
+            for (int p = 0; p < DFL_CARS; p++)
                 if (dfl_car_hit_rect(p, dfl_leg_x(k) - 7, LEG_TOP_Y - 20, dfl_leg_x(k) + 7, foot)) dfl_kill_car(p, CAUSE_LEG);
         }
         if (t >= LEG_DROP + LEG_STAY + LEG_LIFT) b->part_t[k] = -1;
@@ -892,7 +888,7 @@ int dfl_boss_hazards(float *r, int max) {
             r[n * 4] = dfl_leg_x(k) - 9;
             r[n * 4 + 1] = LEG_TOP_Y;
             r[n * 4 + 2] = dfl_leg_x(k) + 9;
-            r[n * 4 + 3] = b->part_t[k] < LEG_WARN - 30 ? LEG_TOP_Y : DFL_ROAD_Y;
+            r[n * 4 + 3] = b->part_t[k] < LEG_WARN - 30 ? LEG_TOP_Y : dfl_leg_foot(k) > LEG_TOP_Y ? dfl_leg_foot(k) : DFL_ROAD_Y;
             n++;
         }
     return n;

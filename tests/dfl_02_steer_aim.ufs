@@ -47,7 +47,8 @@ hold LEFT 200
 expect x0 == 12
 hold RIGHT 250
 expect x0 == 308
-# the main gun's shots leave at the gun's angle
+# the main gun's shots leave at the gun's angle (red: full speed)
+cheat meter 600
 cheat pos 160
 hold UP 30
 press B
