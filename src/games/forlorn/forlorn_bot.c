@@ -1,0 +1,320 @@
+/* FORLORN HOPE - the demo player. It plays a route, volunteer by volunteer:
+ * each one's plan is a line of commands, and the bot turns them into the
+ * buttons for each frame, which the tests then press for real.
+ *
+ *   C<n>    at the door: pick trade n (0 mason, 1 hunter, 2 runner, 3 tinker, 4 sapper)
+ *   > < =   hold right, hold left, hold neither (kept until changed)
+ *   X<px>   walk the held way until the volunteer's middle reaches px
+ *   W<n>    wait n frames             A<n>   hold A (jump) n frames
+ *   G       wait until on the ground  Y<py> / y<py>  wait until middle y <= / >= py
+ *   B<n>    hold B n frames, then let go (50 or more: give yourself up)
+ *   H / h   start / stop holding B (a death while held sets the gift off)
+ *   T<n>    attack n times             K<i>  attack until foe i is dead
+ *   U / D   press up / down once       F<i>  wait until foe i is dead
+ *   S<n>    wait until plate n is down
+ *   f<n>    stand n frames, facing the held way, attacking whatever comes
+ *   @<px>   line up on px (walk either way, stop there)
+ *   a<n>    hold A n frames, straight up at first, then drifting the held way
+ *   k<px>   fight the way to px: walk the held way, but stop and attack
+ *           whatever deadly thing is just ahead (swing range, or shot range)
+ * Every wait gives up after a while and marks the bot stuck. */
+#include "forlorn.h"
+
+int frl_bot_debug;
+
+/* the route, one line per volunteer; filled in once the map is played through */
+static const char *const PLAN[] = {
+    /* 1 mason: walks off the camp's edge holding B, and dies in the spike
+     * pit as a stone */
+    "C0 H > X400",
+    /* 2 mason: lands on that stone, takes key 1, and stones plate 1 */
+    "C0 > X241 G = W4 > A16 G A16 G X372 G k570 = W8 H W60",
+    /* 3 runner: up the Old Yew with double jumps, along the canopy, and a
+     * waystone beside plate 2 */
+    "C2 > X169 = W10 A12 W2 > A16 W4 G = < X182 = W10 A12 W2 < A16 W4 G = > X165 = W10 A12 W2 > A16 W4 G > X215 = W10 A12 W2 > A16 W4 G > k386 A14 G k476 A12 G X560 = W8 H W50",
+    /* 4 mason: through the waystone, and a stone on plate 2 */
+    "C0 > X112 = W8 U W30 G < X546 = W8 H W50",
+    /* 5 sapper: down the pit (onto the stone), east, and the loose rock
+     * goes up with them */
+    "C4 > X241 G = W4 > A16 G A16 G X372 G X452 = W6 H W50",
+    /* 6 runner: down through the broken rock, over the bridge plate 1
+     * raised and up the steps plate 2 raised, to a waystone by the gulper */
+    "C2 > X241 G = W4 > A16 G A16 G X372 G X452 = W8 y500 G > X462 A14 G A12 G k586 X596 A14 G A14 G A14 G X693 = W8 H W50",
+    /* 7 mason: through the waystone; a stone on plate 3 */
+    "C0 > X112 = W8 U W30 G < X685 = W8 H W50",
+    /* 8 sapper: through the waystone, and into the gulper's mouth */
+    "C4 > X112 = W8 U W30 G > X720",
+    /* 9 hunter: down the gulper's shaft onto the bridge plate 3 raised,
+     * shooting all the way along the deep */
+    "C1 > X112 = W8 U W30 G > X705 y720 G k1000 H W50",
+    "C1 > X112 = W8 U W30 G > X705 y720 G k1000 H W50",
+    "C4 > X112 = W8 U W30 G H > X705 y720 G X1000",
+    /* 13 hunter: finishes the stingback, then up the tower, and shoots the
+     * hornet bell at the top */
+    "C1 > X112 = W8 U W30 G > X705 y720 G k1040 k1082 A14 G < k1091 A14 G > k1078 A14 G k1118 A14 G < k1131 A14 G k1091 A14 G > k1078 A14 G < k1091 A14 G > k1078 A14 G k1118 A14 G < k1131 A14 G k1091 A14 G > k1078 A14 G k1118 A14 G < k1131 A14 G k1091 A14 G > k1078 A14 G k1118 A14 G < k1131 A14 G k1091 A14 G > k1078 A14 G k1118 A14 G < k1131 A14 G k1091 A14 G > k1078 A14 G k1118 A14 G < k1131 A14 G k1091 A14 G > k1078 A14 G k1118 A14 G > X1132 = < W2 = T14 H W50",
+    /* 13-16 masons: up the tower, each to the next drain, which it caps
+     * with its stone (the lowest first) */
+    "C0 > X112 = W8 U W30 G > X705 y720 G k1040 k1082 A14 G < k1091 A14 G > k1078 A14 G k1118 A14 G > k1155 = W6 H W50",
+    "C0 > X112 = W8 U W30 G > X705 y720 G k1040 k1082 A14 G < k1091 A14 G > k1078 A14 G k1118 A14 G < k1131 A14 G k1091 A14 G > k1078 A14 G < k1091 A14 G > k1078 A14 G k1118 A14 G < k1131 A14 G k1091 A14 G > k1078 A14 G k1118 A14 G > k1155 = W6 H W50",
+    "C0 > X112 = W8 U W30 G > X705 y720 G k1040 k1082 A14 G < k1091 A14 G > k1078 A14 G k1118 A14 G < k1131 A14 G k1091 A14 G > k1078 A14 G < k1091 A14 G > k1078 A14 G k1118 A14 G < k1131 A14 G k1091 A14 G > k1078 A14 G k1118 A14 G < k1131 A14 G k1091 A14 G > k1078 A14 G k1118 A14 G < k1131 A14 G k1091 A14 G > k1078 A14 G k1118 A14 G > k1155 = W6 H W50",
+    "C0 > X112 = W8 U W30 G > X705 y720 G k1040 k1082 A14 G < k1091 A14 G > k1078 A14 G k1118 A14 G < k1131 A14 G k1091 A14 G > k1078 A14 G < k1091 A14 G > k1078 A14 G k1118 A14 G < k1131 A14 G k1091 A14 G > k1078 A14 G k1118 A14 G < k1131 A14 G k1091 A14 G > k1078 A14 G k1118 A14 G < k1131 A14 G k1091 A14 G > k1078 A14 G k1118 A14 G < k1131 A14 G k1091 A14 G > k1078 A14 G k1118 A14 G > k1155 = W6 H W50",
+    /* 17 runner: up the tower too, and a waystone at the top */
+    "C2 > X112 = W8 U W30 G > X705 y720 G k1040 k1082 A14 G < k1091 A14 G > k1078 A14 G k1118 A14 G < k1131 A14 G k1091 A14 G > k1078 A14 G < k1091 A14 G > k1078 A14 G k1118 A14 G < k1131 A14 G k1091 A14 G > k1078 A14 G k1118 A14 G < k1131 A14 G k1091 A14 G > k1078 A14 G k1118 A14 G < k1131 A14 G k1091 A14 G > k1078 A14 G k1118 A14 G < k1131 A14 G k1091 A14 G > k1078 A14 G k1118 A14 G < k1131 A14 G k1091 A14 G > k1078 A14 G k1118 A14 G > X1152 = W8 H W50",
+    /* 18-20 sappers: through the waystone, and the seal goes, two columns a blast */
+    "C4 > X112 = W8 U W30 G = W4 H W50",
+    "C4 > X112 = W8 U W30 G > X1175 = W6 H W50",
+    "C4 > X112 = W8 U W30 G > X1195 = W6 H W50",
+    /* 21-22 sappers: down the walkway's west hole to the upper left heart */
+    "C4 > X112 = W8 U W30 G > X1281 = y390 G H > X1340",
+    "C4 > X112 = W8 U W30 G > X1281 = y390 G H > X1340",
+    /* 23-24 sappers: over the west hole, down the east one, the upper right heart */
+    "C4 > X112 = W8 U W30 G > X1268 A14 G X1515 = y390 G H < X1460",
+    "C4 > X112 = W8 U W30 G > X1268 A14 G X1515 = y390 G H < X1460",
+    /* 25-26 sappers: the upper left platform, off it and back under, the lower left heart */
+    "C4 > X112 = W8 U W30 G > X1281 = y390 G < X1272 y410 G H > X1340",
+    "C4 > X112 = W8 U W30 G > X1281 = y390 G < X1272 y410 G H > X1340",
+    /* 27-28 sappers: the upper right platform, off it and back under, the lower right heart */
+    "C4 > X112 = W8 U W30 G > X1268 A14 G X1515 = y390 G > X1545 y410 G H < X1460",
+    "C4 > X112 = W8 U W30 G > X1268 A14 G X1515 = y390 G > X1545 y410 G H < X1460",
+    NULL,
+};
+
+/* the castle way (a route test runs it with the foes sent away, to show
+ * the map can be crossed that way too): key 1, a stone over the camp's
+ * drop, the meadow, the gate, the courtyard's key behind the idol, hall
+ * 1's key, plate 4 held by a stone, the bridge it raises, the key past the
+ * bloater, the dungeon, the tower's landing and out through door 4 to the
+ * heart chamber */
+/* over the drop on the stone, and over the meadow's outcrop and hole */
+#define TO_MEADOW "> X233 A10 G X247 A16 G X430 A16 G X512 A16 G "
+static const char *const PLAN_CASTLE[] = {
+    /* the spike pit stoned, key 1 taken (keys stay counted for everyone) */
+    "C0 H > X400",
+    "C0 > X241 G = W4 > A16 G A16 G X372 G = W4 H W50",
+    /* a mason walks off the camp's edge and turns to stone over the drop */
+    "C0 H > X243 h",
+    "C0 " TO_MEADOW "X640 A14 G X950 A14 G < X962 A14 G X922 A14 G X882 A14 G X765 > X1000 y300 G "
+    "< X884 A14 G X845 X776 y390 G @775 = W4 H W50",
+    "C4 " TO_MEADOW "X640 A14 G X1000 y300 G < X776 W4 G > A12 G X800 y430 G A14 G X939 G X995 A12 G < X1012 y560 G > "
+    "X1070 y590 G > X1118 A14 G X1250",
+    NULL,
+};
+static const char *const *plans = PLAN;
+static int nplans = ARRAY_LEN(PLAN);
+
+void frl_bot_route(int r) {
+    plans = r == 1 ? PLAN_CASTLE : PLAN;
+    nplans = r == 1 ? ARRAY_LEN(PLAN_CASTLE) : ARRAY_LEN(PLAN);
+}
+
+int frl_bot_plans(void) {
+    int n = 0;
+    while (n < nplans && plans[n]) n++;
+    return n;
+}
+
+void frl_bot_reset(FrlBot *b) {
+    memset(b, 0, sizeof *b);
+    b->unit = -1;
+}
+
+/* the n-th command of a plan (copied into buf), or false at the end */
+static bool token(const char *plan, int n, char *buf, int cap) {
+    const char *p = plan;
+    for (;;) {
+        while (*p == ' ') p++;
+        if (!*p) return false;
+        const char *e = p;
+        while (*e && *e != ' ') e++;
+        if (n == 0) {
+            int len = (int)(e - p);
+            if (len >= cap) len = cap - 1;
+            memcpy(buf, p, (size_t)len);
+            buf[len] = 0;
+            return true;
+        }
+        n--;
+        p = e;
+    }
+}
+
+/* a deadly foe ahead within reach of this trade's attack, on the same level */
+static bool foe_ahead(const FrlWorld *w, int dir) {
+    static const int REACH[FRC_COUNT] = {14, 110, 60, 46, 0};
+    int reach = REACH[w->u.cls];
+    if (!reach || !dir) return false;
+    if (FRL_AMMO[w->u.cls] && w->u.ammo <= 0) return false;
+    int cx = frl_unit_cx(w), uy = w->u.y >> 8;
+    for (int i = 0; i < w->nfoe; i++) {
+        const FrlFoe *f = &w->foe[i];
+        if (!f->on || f->kind == FK_GULPER || f->kind == FK_HEART) continue;
+        int fx0 = f->x >> 8, fx1 = fx0 + f->w, fy0 = f->y >> 8, fy1 = fy0 + f->h;
+        if (fy1 < uy - 2 || fy0 > uy + FRL_UH + 2) continue;
+        int d = dir > 0 ? fx0 - cx : cx - fx1;
+        if (d < -4 || d > reach) continue;
+        /* only what it can see: no wall between */
+        int my = uy + FRL_UH / 2, x1 = dir > 0 ? fx0 : fx1, clear = 1;
+        for (int x = cx; dir > 0 ? x < x1 : x > x1; x += dir * 3)
+            if (frl_solid(w, x / FRL_T, my / FRL_T)) { clear = 0; break; }
+        if (clear) return true;
+    }
+    return false;
+}
+
+/* anything deadly within 40 px ahead (whatever the ammo) */
+static bool foe_near(const FrlWorld *w, int dir) {
+    int cx = frl_unit_cx(w), uy = w->u.y >> 8;
+    for (int i = 0; i < w->nfoe; i++) {
+        const FrlFoe *f = &w->foe[i];
+        if (!f->on || f->kind == FK_GULPER || f->kind == FK_WALLEYE) continue;
+        int fx0 = f->x >> 8, fx1 = fx0 + f->w, fy0 = f->y >> 8, fy1 = fy0 + f->h;
+        if (fy1 < uy - 2 || fy0 > uy + FRL_UH + 2) continue;
+        int d = dir > 0 ? fx0 - cx : cx - fx1;
+        if (d >= -4 && d <= 40) return true;
+    }
+    return false;
+}
+
+static void stuck(FrlBot *b, const char *why) {
+    if (!b->stuck && frl_bot_debug) fprintf(stderr, "bot stuck: volunteer %d step %d (%s)\n", b->unit, b->step, why);
+    if (!b->stuck) { b->stuck_unit = b->unit; b->stuck_step = b->step; }
+    b->stuck = true;
+}
+
+uint32_t frl_bot(const FrlWorld *w, FrlBot *b) {
+    int n = frl_bot_plans();
+    if (w->phase == FWP_SELECT) {
+        int u = w->units;
+        if (u >= n) return 0;
+        char tk[24];
+        if (!token(plans[u], 0, tk, sizeof tk) || tk[0] != 'C') { stuck(b, "no trade"); return 0; }
+        int want = atoi(tk + 1);
+        b->unit = u;
+        b->step = 1;
+        b->t = 0;
+        b->dir = 0;
+        b->hold_b = false;
+        if (w->phase_t < 14) return 0;
+        uint32_t m = 0;
+        if (w->sel != want) m = BTN_RIGHT;
+        else m = BTN_A;
+        if (b->prev & m) m = 0; /* every press a fresh one */
+        b->prev = m;
+        return m;
+    }
+    if (w->phase != FWP_PLAY || b->unit < 0 || b->unit >= n || b->unit != w->units - 1) { b->prev = 0; return 0; }
+    const FrlUnit *u = &w->u;
+    int cx = frl_unit_cx(w), cy = frl_unit_cy(w);
+    uint32_t m = 0;
+    for (int guard = 0; guard < 4; guard++) {
+        char tk[24];
+        if (!token(plans[b->unit], b->step, tk, sizeof tk)) break; /* the plan is done: stand still */
+        int v = atoi(tk + 1);
+        bool next = false;
+        m = (uint32_t)(b->dir > 0 ? BTN_RIGHT : b->dir < 0 ? BTN_LEFT : 0);
+        if (b->hold_b) m |= BTN_B;
+        switch (tk[0]) {
+        case '>': b->dir = 1; next = true; break;
+        case '<': b->dir = -1; next = true; break;
+        case '=': b->dir = 0; next = true; break;
+        case 'H': b->hold_b = true; next = true; break;
+        case 'h': b->hold_b = false; next = true; break;
+        case 'X':
+            if ((b->dir >= 0 && cx >= v) || (b->dir < 0 && cx <= v)) next = true;
+            else if (b->t > 1500) stuck(b, tk);
+            break;
+        case 'W': if (b->t >= v) next = true; break;
+        case '@':
+            m &= ~(uint32_t)(BTN_LEFT | BTN_RIGHT);
+            if (iabs(cx - v) <= 0 && iabs(u->vx) < 40 && u->ground) next = true;
+            else if (b->t > 600) stuck(b, tk);
+            else if (cx < v && u->vx <= 64) m |= BTN_RIGHT;
+            else if (cx > v && u->vx >= -64) m |= BTN_LEFT;
+            break;
+        case 'a':
+            if (b->t >= v) next = true;
+            else {
+                m |= BTN_A;
+                if (b->t < 6) m &= ~(uint32_t)(BTN_LEFT | BTN_RIGHT);
+            }
+            break;
+        case 'f':
+            if (b->t >= v) next = true;
+            else {
+                m &= ~(uint32_t)(BTN_LEFT | BTN_RIGHT);
+                if ((u->face > 0) != (b->dir > 0) && b->dir) m |= b->dir > 0 ? BTN_RIGHT : BTN_LEFT;
+                if (u->ground && foe_ahead(w, b->dir) && !u->atk_cd && !(b->prev & BTN_B)) m |= BTN_B;
+            }
+            break;
+        case 'k':
+            if ((b->dir >= 0 && cx >= v) || (b->dir < 0 && cx <= v)) next = true;
+            else if (b->t > 3000) stuck(b, tk);
+            else if (u->ground && FRL_AMMO[u->cls] && u->ammo <= 0 && foe_near(w, b->dir)) next = true; /* out of shot */
+            else if (u->ground && foe_ahead(w, b->dir)) {
+                /* stand (still facing) and strike */
+                m &= ~(uint32_t)(BTN_LEFT | BTN_RIGHT);
+                if (u->vx == 0 && (u->face > 0) != (b->dir > 0)) m |= b->dir > 0 ? BTN_RIGHT : BTN_LEFT;
+                if (!u->atk_cd && !(b->prev & BTN_B)) m |= BTN_B;
+            }
+            break;
+        case 'A':
+            if (b->t >= v) next = true;
+            else m |= BTN_A;
+            break;
+        case 'G':
+            if (u->ground && b->t > 1) next = true;
+            else if (b->t > 600) stuck(b, tk);
+            break;
+        case 'Y':
+            if (cy <= v) next = true;
+            else if (b->t > 900) stuck(b, tk);
+            break;
+        case 'y':
+            if (cy >= v) next = true;
+            else if (b->t > 900) stuck(b, tk);
+            break;
+        case 'B':
+            if (b->t >= v) next = true; /* let go this frame */
+            else m |= BTN_B;
+            break;
+        case 'T':
+            if (b->t >= v * 12) next = true;
+            else if (b->t % 12 == 0) m |= BTN_B;
+            break;
+        case 'K':
+            if (v < 0 || v >= w->nfoe || !w->foe[v].on) next = true;
+            else if (b->t > 4000) stuck(b, tk);
+            else if (b->t % 12 == 0) m |= BTN_B;
+            break;
+        case 'F':
+            if (v < 0 || v >= w->nfoe || !w->foe[v].on) next = true;
+            else if (b->t > 6000) stuck(b, tk);
+            break;
+        case 'S':
+            if (frl_plate_down(w, v)) next = true;
+            else if (b->t > 600) stuck(b, tk);
+            break;
+        case 'U':
+            if (b->t >= 2) next = true;
+            else if (b->t == 0) m |= BTN_UP;
+            break;
+        case 'D':
+            if (b->t >= 2) next = true;
+            else if (b->t == 0) m |= BTN_DOWN;
+            break;
+        default: stuck(b, tk); next = true; break;
+        }
+        if (!next) { b->t++; break; }
+        if (frl_bot_debug > 1) fprintf(stderr, "bot %d.%d %s done at t=%d x=%d y=%d\n", b->unit, b->step, tk, (int)w->t, cx, cy);
+        b->step++;
+        b->t = 0;
+        /* commands that only set things up run on into the next in the same frame */
+        if (!strchr("><=Hh", tk[0])) {
+            m = (uint32_t)(b->dir > 0 ? BTN_RIGHT : b->dir < 0 ? BTN_LEFT : 0);
+            if (b->hold_b) m |= BTN_B;
+            break;
+        }
+    }
+    b->prev = m;
+    return m;
+}

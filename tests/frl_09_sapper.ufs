@@ -1,0 +1,46 @@
+# FORLORN HOPE: the sapper has no attack; given up, it blows up for 15 to
+# everything close, and breaks loose rock. Charging (B held), it blows up
+# as soon as a foe touches it.
+game forlorn
+cheat start 1
+wait 20
+cheat no_foes
+cheat class 4
+wait 2
+cheat place 330 195
+wait 5
+press B
+wait 2
+expect my_shots == 0
+# a bloater (30) beside it takes 15 and keeps the wound
+cheat spawn 13 345 180
+cheat give_up
+wait 2
+expect alive13 == 1
+expect last_hp == 15
+wait 60
+# the loose rock over the caves
+cheat class 4
+wait 2
+cheat place 454 365
+wait 5
+cheat give_up
+wait 2
+expect tile37045 == 0
+expect tile38045 == 0
+expect tile37044 == 0
+expect tile38046 == 0
+wait 60
+# charging, it goes up when a shellback walks into it
+cheat class 4
+wait 2
+cheat place 300 195
+wait 3
+hold B
+wait 15
+cheat spawn 5 304 192
+wait 12
+release B
+expect phase == 2
+expect cause == 2
+expect alive5 == 0

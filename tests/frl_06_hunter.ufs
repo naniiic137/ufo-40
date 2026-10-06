@@ -1,0 +1,67 @@
+# FORLORN HOPE: the hunter's musket shoots far, 1 a shot, 20 shots; given
+# up, the hunter leaves a pouch that fills the hunter's, runner's and
+# tinker's ammo back up whenever they touch it, and is never used up.
+game forlorn
+cheat start 1
+wait 20
+cheat no_foes
+cheat class 1
+wait 2
+cheat place 330 195
+wait 5
+expect ammo == 20
+press RIGHT 1
+wait 2
+# a thorn heart (30) far off: each shot takes one
+cheat spawn 18 420 180
+expect first18 >= 0
+press B
+wait 2
+expect ammo == 19
+expect my_shots == 1
+wait 30
+expect my_shots == 0
+expect last_hp == 29
+press B
+wait 20
+press B
+wait 20
+press B
+wait 20
+press B
+wait 20
+press B
+wait 30
+expect ammo == 14
+expect last_hp == 24
+# shoot it dry
+cheat ammo 1
+press B
+wait 15
+expect ammo == 0
+press B
+wait 3
+expect ammo == 0
+expect my_shots == 0
+# given up: a pouch
+hold B
+wait 50
+release B
+wait 2
+expect pouches == 1
+wait 60
+# a runner (5 knives) throws two, then fills up at the pouch
+cheat class 2
+wait 2
+cheat place 300 195
+wait 3
+expect ammo == 5
+press LEFT 1
+press B
+wait 16
+press B
+wait 16
+expect ammo == 3
+hold RIGHT 40
+expect ammo == 5
+expect pouches == 1

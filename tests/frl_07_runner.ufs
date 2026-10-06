@@ -1,0 +1,50 @@
+# FORLORN HOPE: the runner's gift is a waystone, made on the ground or in
+# mid-air. There is only ever one: a new one replaces the old. From the
+# pad beside the troop's door, UP goes to it; UP at the waystone comes back.
+# The pad turns red while a foe waits by the waystone.
+game forlorn
+cheat start 1
+wait 20
+cheat no_foes
+cheat class 2
+wait 2
+cheat place 400 150
+cheat give_up
+wait 2
+expect way == 1
+expect way_x == 400
+expect way_y == 150
+wait 60
+cheat class 2
+wait 2
+cheat place 450 195
+cheat give_up
+wait 2
+expect way_x == 450
+expect way_y == 195
+wait 60
+# through it from the base
+cheat class 0
+wait 2
+hold RIGHT
+waituntil x >= 113 120
+release RIGHT
+wait 8
+expect on_pad == 1
+press UP
+wait 2
+expect mode == 2
+wait 25
+expect mode == 0
+expect x >= 448
+expect x <= 452
+wait 10
+# and back again
+press UP
+wait 25
+expect x >= 112
+expect x <= 118
+expect way_red == 0
+cheat spawn 5 455 192
+wait 2
+expect way_red == 1

@@ -1,0 +1,51 @@
+# FORLORN HOPE: the mason swings a mallet (2 a hit, no ammo) and gives
+# themself up as a stone that stays where it is made, on the ground or in
+# mid-air (it doesn't fall), and that anyone can stand on.
+game forlorn
+cheat start 1
+wait 20
+cheat no_foes
+cheat class 0
+wait 2
+cheat place 350 195
+wait 5
+expect ammo == 0
+# a shellback (2 hit points) in front: one swing
+cheat spawn 5 362 192
+expect alive5 == 1
+press RIGHT 1
+wait 2
+press B
+wait 12
+expect alive5 == 0
+# hold B: it flashes, and letting go gives the mason up as a stone
+wait 20
+hold B
+wait 30
+expect charge >= 30
+expect phase == 1
+wait 20
+release B
+wait 2
+expect phase == 2
+expect cause == 0
+expect stones == 1
+expect tile19035 == 9
+expect solid19035 == 1
+wait 60
+# the next stands on it
+cheat class 0
+wait 2
+cheat place 352 184
+wait 10
+expect ground == 1
+expect bottom == 190
+# in mid-air: it hovers
+cheat place 420 150
+cheat give_up
+wait 2
+expect tile15042 == 9
+wait 120
+expect tile15042 == 9
+expect tile16042 == 0
+expect stones == 2

@@ -182,6 +182,14 @@ CORE_SRC += src/games/driftline/driftline_bot.c
 CORE_SRC += src/games/driftline/driftline_draw.c
 CORE_SRC += src/games/driftline/driftline_art.c
 CORE_SRC += src/games/driftline/driftline_audio.c
+CORE_SRC += src/games/forlorn/forlorn.c
+CORE_SRC += src/games/forlorn/forlorn_world.c
+CORE_SRC += src/games/forlorn/forlorn_foes.c
+CORE_SRC += src/games/forlorn/forlorn_map.c
+CORE_SRC += src/games/forlorn/forlorn_bot.c
+CORE_SRC += src/games/forlorn/forlorn_draw.c
+CORE_SRC += src/games/forlorn/forlorn_art.c
+CORE_SRC += src/games/forlorn/forlorn_audio.c
 
 HEADLESS_SRC += src/platform/headless/main_headless.c
 HEADLESS_SRC += src/platform/headless/imgwrite.c

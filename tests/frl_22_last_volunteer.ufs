@@ -1,0 +1,24 @@
+# FORLORN HOPE: when the counter reads 0 the door calls the last volunteer,
+# and a sapper sent out then says what the original's last bomber says, in
+# our own words.
+game forlorn
+cheat start 1
+wait 20
+cheat lives 0
+cheat class 0
+wait 2
+expect meta == 0
+cheat die
+waituntil state == 4 200
+cheat start 1
+wait 20
+cheat lives 0
+wait 15
+press LEFT
+expect sel == 4
+press A
+wait 2
+expect phase == 1
+expect meta > 0
+wait 200
+expect meta > 0

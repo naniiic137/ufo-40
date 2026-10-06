@@ -94,6 +94,9 @@ static const struct { const char *id, *title; } TITLES[] = {
     {"bhp_sugar", "SUGARWORKS"}, {"bhp_hush", "HUSH CITADEL"}, {"bhp_bonus", "CRYSTAL ROOM"}, {"bhp_boss", "BIG MACHINERY"},
     {"bhp_lady", "LADY HUSH"}, {"bhp_end", "THE BELLS RING"}, {"bhp_clear", "STAGE CLEAR"}, {"bhp_over", "GROUNDED"},
     {"bhp_tea", "TEA BREAK"},
+    {"frl_title", "THE FORLORN HOPE"}, {"frl_mason", "STONE AND MORTAR"}, {"frl_hunter", "POWDER AND SHOT"},
+    {"frl_runner", "LIGHT FEET"}, {"frl_tinker", "GEARS AND GRIT"}, {"frl_sapper", "SHORT FUSE"},
+    {"frl_over", "THE LAST NAME ON THE ROLL"}, {"frl_end", "STATUES IN THE SQUARE"},
 };
 
 const char *shell_song_title(int song) {

@@ -1,0 +1,49 @@
+# FORLORN HOPE: while B is held (charging), any death sets the trade's gift
+# off: a mason who falls on the spikes leaves a stone over them, a hunter
+# caught by a foe leaves a pouch. Not charging, a death leaves nothing.
+game forlorn
+cheat start 1
+wait 20
+cheat no_foes
+# walking off the camp's edge: the blind drop into the spike pit
+cheat class 0
+wait 2
+hold RIGHT
+waituntil phase == 2 400
+release RIGHT
+expect cause == 1
+expect stones == 0
+wait 60
+cheat class 0
+wait 2
+hold B RIGHT
+waituntil phase == 2 400
+release B RIGHT
+expect cause == 1
+expect stones == 1
+expect tile36029 == 9
+wait 60
+# the next walks off the same way and lands on that stone
+cheat class 0
+wait 2
+hold RIGHT
+waituntil y >= 350 400
+release RIGHT
+wait 20
+expect phase == 1
+expect ground == 1
+expect bottom == 360
+cheat die
+wait 60
+# a hunter holding B, touched by a shellback
+cheat class 1
+wait 2
+cheat place 300 195
+wait 3
+hold B
+wait 12
+cheat spawn 5 304 192
+waituntil phase == 2 60
+release B
+expect cause == 2
+expect pouches == 1

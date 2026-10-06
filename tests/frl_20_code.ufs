@@ -1,0 +1,122 @@
+# FORLORN HOPE: the code SLIM-PICK, entered on the CODE screen, sends each
+# run out with only three of the five trades, picked at random. A run begun
+# with it on earns no goals and keeps no records.
+seed 7
+game forlorn
+wait 20
+press DOWN
+press DOWN
+expect title_sel == 2
+press A
+wait 5
+expect state == 1
+# S
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press RIGHT
+# L
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press RIGHT
+# I
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press RIGHT
+# M
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press RIGHT
+# P
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press RIGHT
+# I
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press RIGHT
+# C
+press UP
+press UP
+press RIGHT
+# K
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press A
+wait 5
+expect code == 1
+press B
+wait 20
+expect state == 0
+press UP
+press UP
+expect title_sel == 0
+press A
+wait 40
+press A
+wait 20
+expect run_code == 1
+expect allowed != 31
+expect runs == 0
+# the cursor only lands on the trades on offer
+press A
+wait 2
+expect phase == 1
+cheat win
+wait 165
+expect state == 5
+expect goals == 0
+expect wins == 0

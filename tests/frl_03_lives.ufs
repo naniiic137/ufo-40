@@ -1,0 +1,33 @@
+# FORLORN HOPE: 99 volunteers in reserve on the counter over the door, no way
+# to gain more; every one lost costs one, and the counter can reach 0 with
+# one last volunteer still to send. When that one is lost the run is over.
+game forlorn
+cheat start 1
+wait 20
+expect lives == 99
+cheat class 0
+wait 2
+cheat die
+wait 2
+expect phase == 2
+expect lost == 1
+wait 60
+expect phase == 0
+expect lives == 98
+expect lost == 1
+cheat lives 0
+wait 15
+cheat class 1
+wait 2
+expect phase == 1
+expect lives == 0
+cheat die
+wait 60
+expect phase == 4
+wait 5
+expect state == 4
+expect lost == 2
+wait 130
+press A
+wait 5
+expect state == 0

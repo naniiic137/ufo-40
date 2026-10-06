@@ -1,0 +1,27 @@
+# FORLORN HOPE: the gulper fills its shaft and can't be hurt; a volunteer who
+# walks or jumps into its head is swallowed (a life spent), and the gulper is
+# gone for good, leaving the shaft open.
+game forlorn
+cheat start 1
+wait 20
+cheat no_foes
+cheat class 1
+wait 2
+cheat place 685 445
+wait 3
+expect first_on17 == 1
+expect solid45070 == 1
+press RIGHT 1
+wait 2
+press B
+wait 20
+expect first_on17 == 1
+expect my_shots == 0
+hold RIGHT 30
+expect phase == 2
+expect cause == 4
+expect first_on17 == 0
+expect solid45070 == 0
+expect solid59071 == 0
+wait 60
+expect first_on17 == 0

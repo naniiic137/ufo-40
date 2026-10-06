@@ -1,0 +1,58 @@
+# FORLORN HOPE: the tinker throws spanners in an arc (2 a hit, 15 of them)
+# and leaves a chute five cells long, built down from where the tinker was,
+# through the ground. Anyone on it presses DOWN to go down it; it has no
+# collision; two chutes that overlap act as one.
+game forlorn
+cheat start 1
+wait 20
+cheat no_foes
+cheat class 3
+wait 2
+cheat place 330 195
+wait 5
+expect ammo == 15
+press RIGHT 1
+cheat spawn 5 372 192
+press B
+wait 2
+expect ammo == 14
+wait 40
+expect alive5 == 0
+# a chute from key 1's shelf down to the undercroft floor
+cheat place 350 325
+wait 5
+cheat give_up
+wait 2
+expect pipes == 1
+wait 60
+cheat class 0
+wait 2
+cheat place 350 325
+wait 5
+expect ground == 1
+press DOWN
+wait 2
+expect mode == 1
+wait 30
+expect mode == 0
+expect bottom == 370
+# walking through a chute: it isn't solid
+cheat place 340 365
+hold RIGHT 30
+expect x >= 362
+cheat die
+wait 60
+# a second chute higher up, overlapping the first: one long chute
+cheat class 3
+wait 2
+cheat place 350 285
+cheat give_up
+wait 60
+expect pipes == 2
+cheat class 0
+wait 2
+cheat place 350 285
+press DOWN
+wait 60
+expect mode == 0
+expect bottom == 370

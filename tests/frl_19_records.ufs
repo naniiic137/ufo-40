@@ -1,0 +1,65 @@
+# FORLORN HOPE: a run is played in one sitting and is never saved; losing
+# the last volunteer ends it and A goes back to the title. What the
+# cartridge keeps are its records, shown on the title: runs, wins, the
+# fewest lost in a win, and the original's two stats, the most doors
+# unlocked and the most plates pressed in a run.
+game forlorn
+wait 20
+expect runs == 0
+expect most_doors == 0
+expect most_switches == 0
+cheat start 1
+wait 20
+expect runs == 1
+cheat no_foes
+cheat class 0
+wait 2
+cheat keys 1
+cheat place 725 195
+hold RIGHT 30
+expect doors == 1
+cheat place 575 365
+wait 3
+expect switches == 1
+expect most_doors == 1
+expect most_switches == 1
+cheat lives 0
+cheat die
+waituntil state == 4 200
+wait 130
+press A
+wait 5
+expect state == 0
+# switched off and on: the records stay, the run is gone
+reload
+game forlorn
+wait 20
+expect state == 0
+expect runs == 1
+expect most_doors == 1
+expect most_switches == 1
+expect wins == 0
+expect best_lost == 65535
+expect plate_ever == 1
+expect goals == 1
+# quitting in the middle of a run: it isn't kept
+press A
+wait 40
+press A
+wait 20
+cheat class 2
+wait 2
+cheat die
+wait 60
+expect lives == 98
+reload
+game forlorn
+wait 20
+expect state == 0
+press A
+wait 40
+press A
+wait 20
+expect lives == 99
+expect lost == 0
+expect runs == 3
