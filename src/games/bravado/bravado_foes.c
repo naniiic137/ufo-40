@@ -213,12 +213,11 @@ static void peeper(Foe *f) {
         if (--f->st <= 0) { f->state = 1; f->st = 15; brv_sfx("brv_sprout", 0); }
         break;
     case 1: /* coming up */
-        if (--f->st <= 0) { f->state = 2; f->st = 240; f->fire_t = 60; }
+        if (--f->st <= 0) { f->state = 2; f->st = 240; f->fire_t = BRV_PEEP_WINDUP; }
         break;
-    case 2: /* up: slow, telegraphed shots */
-        if (--f->fire_t <= 0 && see) {
-            aimed(f->x, f->y - 4, px, py, 1.0f, 3, 0.35f, ES_SLOW);
-            f->fire_t = 80;
+    case 2: /* up for 4 s: its eye glows for nearly 3, then one slow pair */
+        if (f->fire_t > 0 && --f->fire_t == 0 && see) {
+            aimed(f->x, f->y - 4, px, py, 1.0f, 2, 0.12f, ES_SLOW);
             brv_sfx("brv_efire", 4);
         }
         if (--f->st <= 0) { f->state = 3; f->st = 20; }

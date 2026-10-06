@@ -1,7 +1,8 @@
 # BRAVADO: BUDDY BOT is a drone that does whatever Dice did a moment ago
 # (24 frames): it walks her path, shoots when she shot, drops a bomb where
-# she dropped hers (its bombs never hurt her), and soaks up shots. Three
-# knocks break it until the next fight; the second tier doubles that.
+# she dropped hers (its bombs hurt her just as hers do, so walking back
+# in after the first blast is a mistake), and soaks up shots. Three knocks
+# break it until the next fight; the second tier doubles that.
 game bravado
 wait 5
 cheat run 1
@@ -29,6 +30,21 @@ hold LEFT 40
 expect drone_bombs == 1
 wait 200
 expect p1_hp == 6
+# back in after her own blast: the drone's, 24 frames later, catches her
+cheat run 1
+cheat gear 9 1
+cheat fight
+cheat empty
+cheat nopools
+wait 30
+press B
+hold LEFT 50
+wait 105
+expect p1_hp == 6
+hold RIGHT 40
+wait 20
+expect p1_down == 1
+expect hurt_src == 300
 # it soaks up a shot: three and it's gone
 cheat run 1
 cheat gear 9 1

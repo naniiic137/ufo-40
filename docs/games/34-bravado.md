@@ -31,7 +31,7 @@ gear is on sale or hiked are rolled each time [MM], [GUIDE], [W].
 | Group sizes | Cat Larvae and Hover Whales 9 a group; others random [GUIDE], [TVT] | mites and gasbags 9; brutes 3-6, kegs 3-6, stilters 2-5, peepers 2-4; slag 3 pools |
 | Boss | 1, round 8 only [TVT] | the Pit Boss |
 | Gear | 16 items in a 4 x 4 grid, 7,900 for everything [W], [MM] | 16 items in a 4 x 4 grid, 7,900 for everything |
-| Shop changes | one item +100 (HIKE), one -100 (SALE, never under 50) each visit [W] | the same |
+| Shop changes | one item +100 (HIKE), one -100 (SALE, never under 50) each visit [W] | the same, shown as DEAL and +100 |
 | Goals | 3 [W], [GG] | the same 3 |
 | Stats | Most Upgrades, Most Kills [W] | the same two, on the title |
 | Most cash possible | 100 + 6 x 1,600 + 3,200 = 12,900 [YMMV] | the same |
@@ -43,18 +43,18 @@ gear is on sale or hiked are rolled each time [MM], [GUIDE], [W].
 | Moving | eight ways, 1 px a frame (the same along a diagonal), a little faster than walking monsters (mites 0.8) | [W], [UNFAIR] | brv_02 |
 | Shooting | a tap shoots once the way Dice faces; held, it fires every 14 frames and the facing stays put, so she strafes; let go and the pad turns her | [W], [MM], [OB] | brv_03 |
 | The gun | weak, reaches the whole arena, a slight shove; a monster is safe for 4 frames after a hit, so a fan doesn't hit one monster twice at once | [TVT], [YMMV], [TIPS] | brv_03, brv_12 |
-| Bombs | dropped at her feet, go off after 2.5 s and kill every monster in the blast outright (gasbags without splitting); the boss takes 40; they hurt her too, head included | [W], [MM], [YMMV], [UNFAIR] | brv_04, brv_19 |
+| Bombs | dropped at her feet, go off after 2.5 s and kill every monster in the blast outright (gasbags without splitting); the boss takes 40; they hurt her too, her whole sprite, head included; a blast stays deadly for 12 frames, so walking or dashing into one still hurts (and monsters that wander in die) | [W], [MM], [YMMV], [UNFAIR], [TVT] | brv_04, brv_17, brv_19 |
 | Bomb stock | 1 to start, 3 more a BOMB BAG tier (13 at most), back to full every fight | [W], [Q] | brv_04, brv_16 |
-| Health | 6 to start; touches, shots and blasts take 6 (a powder keg's blast 8): one hit and the run is over | [MM], [UNFAIR] | brv_05 |
+| Health | 6 to start; touches, shots and blasts take 6 (a powder keg's blast 8): one hit and the run is over; her whole sprite, head included, takes shots; back to full at the start of every fight | [MM], [UNFAIR], [POT] | brv_05 |
 | Lava | a bite of 1 as she steps in and every half second after (6 health last 2.5 s); monsters walk through it; the pools can be walked round over the top, not along the bottom wall | [GUIDE], [UNFAIR] | brv_05 |
 | Death | ends the run: no lives, no continues; back to the title | [MM], [POP] | brv_21 |
 | The arena | four corner pads; monsters come mostly from the pads, peepers come up under Dice | [MM], [GUIDE] | brv_10, brv_11 |
 | On-screen cap | 12 monsters on the floor at once, the rest queue; slag is not part of it | [GUIDE] | brv_10 |
 | Spawn rate | quicker as the prize goes up: 100 frames apart at 100 down to 30 at 900, no quicker after | [TVT], [YMMV] | brv_10 |
-| HUD | prize top left, monsters left top right; fight number, health and bombs along the bottom | [MM] | (drawn) |
+| HUD | prize top left, monsters left top right; fight number, health and bombs along the bottom; the health bar is drawn whole from the start (22), the part HEART PLATE hasn't opened yet dim | [MM], [UNFAIR] | (drawn) |
 | Winning a fight | every monster in the lineup beaten; the prize goes into the purse; A to the shop | [MM] | brv_06 |
-| The shop | SPEND (into the gear grid), RAISE PRIZE (with the prize next to it) and FIGHT along the bottom; the gear window with the cash beside it, a price under each icon (white if affordable, grey if not), SALE or HIKE over an icon, the description at the very bottom; the next fight's window with each pack's icon and size | [MM] | brv_07, brv_09 |
-| Raise | +100 and one random pack, shown only once added; 16 packs and 1,600 at most; not in fight 1 or 8 | [MM], [GUIDE], [TVT] | brv_09, brv_18 |
+| The shop | the original's layout in our own words: BUY (into the rack), UP THE STAKES (with the prize next to it) and TO THE PIT along the bottom; THE RACK (the gear) with the cash beside it, a price under each icon (white if affordable, grey if not), DEAL or +100 over an icon, the description at the very bottom; ON THE CARD (FINAL CARD before the last fight) with each pack's icon and size | [MM] | brv_07, brv_09, brv_25 |
+| Upping the stakes | +100 and one random pack, shown only once added and named on the spot ("+100: 6 BRUTES"); 16 packs and 1,600 at most; not in fight 1 or 8 | [MM], [GUIDE], [TVT], [UNFAIR] | brv_09, brv_18 |
 | Sale and hike | each visit one item costs 100 more and another 100 less (never under 50), for that tier only; the first visit has no hike, and only gear the sale would bring to 100 or less can be on sale | [W], [MM] | brv_06, brv_08 |
 | The thank-you | three hiked buys in a run and the house thanks you | [META] | brv_08 |
 | Gear prices | HEART PLATE 300/300/350/350, FIRST AID 150/300, BLAST GUARD 100/100, SHOT GUARD 100/100, QUICK TRIGGER 150/250, HEAVY ROUNDS 400/400, FAN FIRE 350/350, RICOCHET 350/250, KICKBACK 200, BUDDY BOT 600/300, FIREWALKERS 150/150, ROCKET DASH 350, BOMB BAG 100/100/150/200, CLICKER 300, NAIL BOMBS 100/200, BAIT BOMBS 350 (7,900) | [W] | brv_07 |
@@ -64,35 +64,40 @@ gear is on sale or hiked are rolled each time [MM], [GUIDE], [W].
 | QUICK TRIGGER | fire every 10, then every 7 frames | [W] | brv_12 |
 | HEAVY ROUNDS | shots of 3, then 4 (a plain shot is 2) | [W] | brv_12 |
 | FAN FIRE | 2, then 3 shots at once, fanned out | [W] | brv_12 |
-| RICOCHET | shots bounce off 1, then 2 walls | [W] | brv_12 |
+| RICOCHET | shots carom off 1, then 2 walls | [W] | brv_12 |
 | KICKBACK | shots shove monsters 4 px instead of 1.5 | [W], [GUIDE] | brv_12 |
-| BUDDY BOT | a drone hovering where Dice was 24 frames ago, doing what she did then: shooting, dropping a bomb (its own, which never hurts her); it soaks up shots and breaks after 3 knocks (6 at tier 2), back next fight | [W], [TVT] | brv_15 |
+| BUDDY BOT | a drone hovering where Dice was 24 frames ago, doing what she did then: shooting, and dropping a bomb where she dropped hers (its own, free, and it hurts her just as hers does, so walking back in after the first blast is a mistake); it soaks up shots and breaks after 3 knocks (6 at tier 2), back next fight | [W], [TVT], [GUIDE] | brv_15 |
 | FIREWALKERS | the first 1 (2) pools she wades into each fight cool to rock | [W], [Q] | brv_17 |
-| ROCKET DASH | double-tap B: a dash the way she faces, safe, over lava, that flattens any monster in the way; 100 off the boss (four finish it) | [W], [TVT], [TIPS] | brv_17, brv_19 |
+| ROCKET DASH | tap fire (A) twice on the move: a dash that way, safe, over lava, flattening any monster in a wide lane; 100 off the boss (four finish it); B stays a bomb at once | [W], [TVT], [TIPS] | brv_17, brv_19 |
 | CLICKER | B sets her bombs off (once they have been down a moment) | [W] | brv_16 |
 | NAIL BOMBS | 8 nails of 4 (14 nails of 8 at tier 2) from every bomb; they never hurt her | [W], [GUIDE] | brv_16 |
 | BAIT BOMBS | every monster but the peepers goes for the nearest bomb; stilters still shoot at her | [W], [YMMV] | brv_16 |
 | Mites | one shot, chase, 9 a pack | [TVT], [GUIDE] | brv_11 |
-| Gasbags | float for a while, then follow; a shot splits one in two, the halves flying off 45 degrees either side of the shot, and the halves split again; a bomb or a dash kills it whole | [TVT], [GUIDE] | brv_04, brv_11 |
+| Gasbags | float for a while, then follow; a shot splits one in two, the halves flying off 45 degrees either side of the shot, and the halves split again (two generations, 7 bodies: a reading, below); a bomb or a dash kills it whole | [TVT], [GUIDE] | brv_04, brv_11 |
 | Brutes | slow, tough (7 plain shots), chase | [TVT], [GUIDE] | brv_11 |
 | Powder kegs | roll about along the eight ways and charge when Dice is on one of their lines; blow up when they die (8 to her, every monster near) | [TVT], [GUIDE], [OB] | brv_11 |
 | Stilters | walk about at a distance and shoot with no wind-up; 8 plain shots | [YMMV], [GUIDE], [Q] | brv_11 |
-| Peepers | a tone and a mark, and one comes up right under Dice; it fires slow shots with a flash first, sinks, and comes up under her again; tough (7 shots); a bomb dropped on the tone waits for it | [TVT], [GUIDE] | brv_11 |
+| Peepers | a tone and a mark, and one comes up right under Dice; it stays up 4 s, its eye reddening and swelling for nearly 3 s (a beat that quickens), then fires one slow pair, sinks, and comes up under her again; tough (7 shots); a bomb dropped on the tone waits for it | [TVT], [YMMV], [GUIDE], [OB] | brv_11 |
 | Slag | three more pools for the whole fight | [TVT], [GUIDE] | brv_09 |
 | The Pit Boss | last fight only, after every pack; drifts, fires fans of seven, sends out pairs of fizzers (yellow runners that blow up when they die or touch her), and charges; 400 health | [TVT], [Q], [TIPS] | brv_18, brv_19 |
 | 2P | both players in the pit at once (our reading, below) | [W], [POKY] | brv_22 |
-| Goals | Beacon: win a fight worth 500 or more. Saucer: come out of all eight fights standing. Alien: walk out with 4,500 or more | [W], [GG] | brv_20 |
+| Goals | Beacon: win a fight worth 500 or more. Saucer: come out of all eight fights standing. Alien: walk out with 4,500 or more (the guide's "Win w/ 500+ Score / Beat the Game / Win w/ 4500+ Cash") | [W], [GG] | brv_20 |
 | No mid-run save | only records are saved | [W] | brv_01, brv_21 |
 | Stats | most upgrades and most kills in a run, on the title | [W] | brv_21 |
 
 ### Readings we had to choose
 
 - **The dash's button.** The wiki's gear text says "double tap Button 2",
-  the bomb button; TV Tropes says double-tap the fire button while moving.
-  Both are built (`brv_17` plays each); the wiki's reading is the one in
-  the game, since its row reads like the in-game text. With the dash
-  owned, a single tap of B drops its bomb a moment later (15 frames), once
-  it's clear no second tap is coming, at the spot where B was pressed.
+  the bomb button. TV Tropes says the fire button, twice, in two separate
+  entries: "executed by double-tapping the fire button while moving" (Dash
+  Attack) and "performed by double-tapping the shoot button while walking
+  in a direction" (Video Game Dashing). No Steam text names the button, and
+  no player says the dash makes bombs late. Two first-hand play details
+  against one wiki icon, and a reading that needs nothing invented (the
+  first tap is just a shot): the game uses TV Tropes' reading, fire (our A)
+  tapped twice on the move, and B is a bomb at once. The wiki's reading (B
+  twice, the first tap an ordinary bomb) is kept behind a test cheat
+  (`brv_17` plays both).
 - **2P.** No source says how two players share Overbold; the wiki files it
   as co-op and the title calls it "chicken", and a code's text implies
   normal betting adds enemies in 2P too. Ours: both in the pit at once,
@@ -102,7 +107,6 @@ gear is on sale or hiked are rolled each time [MM], [GUIDE], [W].
   when both are down. Locked on the Vita (one controller).
 - **Bombs:** 1 to start (one player's "10 mines" is 1 + 3 x 3), refilled
   every fight. Fuse 2.5 s, blast radius 30 px.
-- **Health between fights:** back to full at the start of every fight.
 - **Numbers no source gives:** the on-screen cap (12), the spawn gaps (100
   frames at a prize of 100 down to 30 at 900), every monster's health (a
   plain shot 2: mite 2, gasbag 2 a piece, keg 6, brute 14, peeper 14,
@@ -115,6 +119,9 @@ gear is on sale or hiked are rolled each time [MM], [GUIDE], [W].
 - **The boss and its fizzers:** the fizzers don't count among the monsters
   left and don't keep the fight open; beating the boss pops them.
 - **The thank-you** for buying hiked gear comes after three hiked buys.
+- **How many times a gasbag splits:** twice (1, then 2, then 4: 7 bodies
+  a gasbag, so a pack of 9 is 63 kills). The sources only say "split into
+  two smaller copies"; one split would also fit.
 - **Lava walk:** the pool cools to rock for the rest of the fight (players
   describe the charges as deleting a pool).
 
@@ -136,8 +143,9 @@ gear is on sale or hiked are rolled each time [MM], [GUIDE], [W].
   (shop), "The Glass Pit" (fights 1-3), "Double or Nothing" (fights 4-7),
   "Full House" (the last fight), "The Pit Boss", "Cashing Out" (ending),
   and the jingles "Payout" and "Busted".
-- **Words:** the story, the shop's lines, the ending, the credits, the goal
-  lines and every label.
+- **Words:** the story, the shop's lines and labels (BUY, UP THE STAKES, TO
+  THE PIT, THE RACK, ON THE CARD, FINAL CARD, DEAL, +100), the ending, the
+  credits and the goal lines.
 
 ## Additions: none
 
@@ -150,7 +158,7 @@ are left out.
 **Owner's change:** the original puts the gun on Button 1 (the manual's B)
 and bombs on Button 2 (A). The owner wants the main action on A, the
 button players press first, so here A shoots and B drops bombs (and the
-dash is B twice).
+dash is A twice on the move).
 
 ## Controls
 
@@ -160,8 +168,8 @@ dash is B twice).
 | A (tap) | shoot once the way she faces |
 | A (held) | keep shooting the same way while she moves |
 | B | drop a bomb at her feet; with CLICKER, set her bombs off |
-| B, B | dash, once she owns ROCKET DASH |
-| Shop | LEFT / RIGHT along SPEND, RAISE PRIZE and FIGHT, A chooses; in the gear grid the pad picks, A buys, B (or DOWN off the bottom) goes back |
+| A, A on the move | dash that way, once she owns ROCKET DASH |
+| Shop | LEFT / RIGHT along BUY, UP THE STAKES and TO THE PIT, A chooses; in the rack the pad picks, A buys, B (or DOWN off the bottom) goes back |
 | Title | UP / DOWN 1 PLAYER or 2 PLAYERS, A starts, B to the library |
 | START | pause |
 | Player 2 | the second pad (or the keyboard's other half), the same buttons |
@@ -171,8 +179,7 @@ dash is B twice).
 | Control | Status |
 |---|---|
 | A shoots, B bombs | **owner's change**: the original has the gun on B (Button 1) and bombs on A (Button 2) [MM], [W] |
-| Dash on B, B | **reading**: the wiki says double-tap Button 2 (bombs, our B); TV Tropes says double-tap fire while moving; the second is built but off |
-| A single B tap with the dash owned | **ours**: the bomb drops 15 frames later, where B was pressed |
+| Dash on A, A while moving | **reading**: TV Tropes, twice: double-tap fire while moving; the wiki says double-tap Button 2 (bombs, our B), kept behind a test cheat |
 | CLICKER on B | the wiki: "Press Button 2 to remotely detonate bombs" (our B); when a press drops a bomb and when it detonates is ours |
 | B / DOWN out of the gear grid | **ours**: the manual only says the d-pad moves and A chooses |
 | Raising in fight 1 | **ours**: there is no shop before fight 1, so it can't be raised |
@@ -184,7 +191,10 @@ dash is B twice).
 - Every number in "Readings" above: the cap, the spawn gaps, every monster's
   health and speed, the medkit's heal and cap, the drone, the bombs' fuse
   and radius, the boss's health and patterns.
-- Whether health comes back between fights.
+- Whether CLICKER stops the fuse: one player says remote mines can be left
+  out "for several seconds"; ours keep the 2.5 s fuse and B sets them off
+  early.
+- How many times a gasbag splits (ours: twice).
 - Whether fight 1's lineup is fixed.
 - The pack sizes of the kinds that aren't nine a pack.
 
@@ -230,13 +240,17 @@ more than twenty). `brv_25` checks every shop line fits the screen.
   each, random group sizes, the on-screen cap, lava outside it and walkable
   round the top only, every enemy's behaviour, shields vs health, round 2
   at 25-30 enemies. https://steamcommunity.com/sharedfiles/filedetails/?id=3363908239
-- [GG] Steam guide "Gift, Gold & Cherry".
+- [GG] Steam guide "Gift, Gold & Cherry": "Win w/ 500+ Score / Beat the
+  Game / Win w/ 4500+ Cash".
   https://steamcommunity.com/sharedfiles/filedetails/?id=3335464605
 - [Q] Steam thread "Overbold Question".
   https://steamcommunity.com/app/1147860/discussions/0/592888028698025972/
 - [TIPS] Steam thread "overBOLD tips and tricks?".
   https://steamcommunity.com/app/1147860/discussions/0/691996377956427147/
-- [UNFAIR] Steam thread "Overbold honestly feels unfair".
+- [UNFAIR] Steam thread "Overbold honestly feels unfair" (pages 1-5): the
+  hitbox is the whole sprite, head included; the big health bar mostly
+  locked at the start; "When you raise the stakes, it tells you the names
+  of the enemy mobs" (page 3).
   https://steamcommunity.com/app/1147860/discussions/0/4700161643034794437/
 - [OB] Steam thread "Overbold".
   https://steamcommunity.com/app/1147860/discussions/0/4849903998513480673/
@@ -244,6 +258,11 @@ more than twenty). `brv_25` checks every shop line fits the screen.
   https://tvtropes.org/pmwiki/pmwiki.php/Recap/UFO50Game34Overbold
 - [YMMV] TV Tropes, YMMV page: the spawn-rate cap at 900, round 8 at 3,200,
   12,900 at most. https://tvtropes.org/pmwiki/pmwiki.php/YMMV/UFO50Game34Overbold
+- [POT] Steam thread "Overbold has such potential!": health doesn't carry
+  over between fights; hits from "a few pixels away".
+  https://steamcommunity.com/app/1147860/discussions/0/6757179594729594713/
+- [CTRL] Steam thread on the controls: bombs are always 100 on the first buy.
+  https://steamcommunity.com/app/1147860/discussions/0/4700161643034719699/
 - [LIZ] https://lizstar64.github.io/reviews/2024/10/17/UFO50-34.html
 - [POP] https://popcar.bearblog.dev/reviewing-every-ufo50-game/
 - [POKY] https://pokyfriends.com/blog/post/ufo50-games-ive-been-playin/ ("2-P chicken")

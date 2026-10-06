@@ -33,6 +33,15 @@ wait 30
 expect p1_hp == 4
 wait 40
 expect p1_down == 1
+# her whole sprite takes shots, head and all
+cheat run 1
+cheat empty
+cheat nopools
+wait 31
+cheat eshot 0 120 84 2 0
+wait 30
+expect p1_down == 1
+expect hurt_src == 200
 # lava
 cheat run 1
 cheat empty

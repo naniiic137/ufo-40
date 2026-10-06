@@ -141,12 +141,12 @@ static float danger_at(const Player *p, float x, float y, int k) {
         const EShot *s = &bv.es[i];
         if (!s->alive) continue;
         float sx = s->x + s->vx * (float)k, sy = s->y + s->vy * (float)k;
-        float dx = sx - x, dy = sy - y, dist = sqrtf(dx * dx + dy * dy);
-        if (dist < 11) d += (11 - dist) * (11 - dist) * 8;
+        float dx = sx - x, dy = sy - (y - 1), dist = sqrtf(dx * dx + dy * dy);
+        if (dist < 13) d += (13 - dist) * (13 - dist) * 8; /* her whole sprite is her hitbox */
     }
     for (int i = 0; i < BRV_MAX_BOMBS; i++) {
         const Bomb *b = &bv.bomb[i];
-        if (!b->alive || b->drone) continue;
+        if (!b->alive) continue; /* the drone's bombs hurt her too */
         float dx = b->x - x, dy = b->y - y, dist = sqrtf(dx * dx + dy * dy), R = BRV_BLAST_R + 12;
         if (dist < R) d += (R - dist) * (b->fuse - k < 40 ? 12.0f : 3.0f);
     }

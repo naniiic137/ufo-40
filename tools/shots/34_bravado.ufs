@@ -2,7 +2,7 @@
 # presses on its cherry plan: it raises hard, buys gear between fights and
 # banks 1,300 for the last fight. The GIF is a stretch of fight 4.
 shotscale 2
-seed 2
+seed 4
 game bravado
 wait 40
 shot bravado_title

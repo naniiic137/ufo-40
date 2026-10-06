@@ -126,8 +126,16 @@ static void draw_foe(const Foe *f, int t) {
         }
         if (f->state == 4) return;
         s = &brv_spr[f->state == 2 ? SP_PEEP : SP_PEEP_BUD];
-        if (f->state == 2 && f->fire_t < 24 && (f->fire_t / 3) % 2) solid = C_RED;
+        if (f->state == 2 && f->fire_t > 0 && f->fire_t < 24 && (f->fire_t / 3) % 2) solid = C_RED;
         flip = 0;
+        if (f->state == 2 && f->fire_t > 0 && f->fire_t <= BRV_PEEP_WINDUP && solid < 0) {
+            /* the wind-up: the eye reddens and swells until it fires */
+            spr_draw(s, x - s->w / 2, y - s->h / 2, 0);
+            int r = 1 + (BRV_PEEP_WINDUP - f->fire_t) / 60;
+            int beat = f->fire_t > 100 ? 16 : f->fire_t > 50 ? 8 : 4;
+            gfx_circ(x, y - 1, r, (f->fire_t / beat) % 2 ? C_RED : C_MAROON);
+            return;
+        }
         break;
     case MK_FIZZER: s = &brv_spr[SP_FIZZ]; flip = 0; break;
     case MK_BOSS: {
@@ -268,7 +276,7 @@ static void draw_hud(int t) {
     snprintf(buf, sizeof buf, "LEFT %d", brv_enemies_left());
     text_draw(buf, SCREEN_W - 4 - text_width(buf), 2, bv.boss_out && !bv.boss_dead ? C_RED : C_WHITE);
     if (bv.peeper_tone_t > 0 && (t / 4) % 2) tiny_center("SOMETHING STIRS BELOW", 160, 3, C_LIME);
-    else if (bv.round == BRV_ROUNDS - 1) tiny_center("LAST FIGHT", 160, 3, C_RED);
+    else if (bv.round == BRV_ROUNDS - 1) tiny_center("FINAL CARD", 160, 3, C_RED);
     else tiny_center("THE GLASS PIT", 160, 3, C_SLATE);
 
     gfx_rect(0, 169, SCREEN_W, 11, C_INK);
@@ -278,13 +286,18 @@ static void draw_hud(int t) {
     for (int w = 0; w < n; w++) {
         const Player *p = &bv.p[w];
         int bx = n == 1 ? 70 : 52 + w * 120, by = 172;
-        int boxes = imax(p->maxhp, p->hp);
-        int bw = boxes > 24 ? 2 : 3;
+        /* the whole bar from the start: what HEART PLATE hasn't opened yet
+         * is drawn dim, and a medkit's extra runs on past it */
+        int full = BRV_START_HP + 4 * BRV_GEAR[GR_HEART].tiers;
+        int boxes = imin(BRV_MED_CAP, imax(full, p->hp));
+        int bw = (boxes > 24 ? 2 : 3) - (n == 2 ? 1 : 0);
         tiny_draw(w ? "DOM" : "DICE", bx, by, w ? C_SKY : C_ORANGE);
         bx += w ? 14 : 18;
-        for (int k = 0; k < boxes && k < BRV_MED_CAP; k++) {
+        for (int k = 0; k < boxes; k++) {
+            int kx = bx + k * (bw + 1);
+            if (k >= p->maxhp && k >= p->hp) { gfx_rectb(kx, by, bw, 5, C_DUSK); continue; }
             int c = p->down ? C_DUSK : k < p->hp ? (k >= p->maxhp ? C_LIME : C_RED) : C_MAROON;
-            gfx_rect(bx + k * (bw + 1), by, bw, 5, c);
+            gfx_rect(kx, by, bw, 5, c);
         }
         int ex = bx + boxes * (bw + 1) + 4;
         spr_draw(&brv_spr[SP_BOMB], ex, by - 2, 0);
@@ -308,7 +321,7 @@ static void big_center(const char *s, int y, int c1, int c2) {
 
 static const char *button_hint(int b) {
     if (b == 0) return "BUY GEAR WITH YOUR CASH.";
-    if (b == 1) return bv.round == BRV_ROUNDS - 1 ? "NO RAISING: THE LAST FIGHT IS FULL." : "+100 TO THE PRIZE, AND ONE MORE PACK, SIGHT UNSEEN.";
+    if (b == 1) return bv.round == BRV_ROUNDS - 1 ? "NO MORE BETS: THE FINAL CARD IS FULL." : "+100 TO THE PRIZE, AND ONE MORE PACK, SIGHT UNSEEN.";
     return "INTO THE PIT.";
 }
 
@@ -342,7 +355,7 @@ static void draw_shop(int t) {
 
     /* the gear */
     ui_panel(4, 12, 154, 128, C_NIGHT, bv.shop_row == 1 ? C_YELLOW : C_DUSK);
-    text_draw("GEAR", 10, 15, C_WHITE);
+    text_draw("THE RACK", 10, 15, C_WHITE);
     fmt_cash(cash, sizeof cash, bv.cash);
     snprintf(buf, sizeof buf, "CASH %s", cash);
     text_draw(buf, 152 - text_width(buf), 15, C_YELLOW);
@@ -355,8 +368,8 @@ static void draw_shop(int t) {
         /* tiers owned */
         for (int k = 0; k < BRV_GEAR[i].tiers; k++)
             gfx_rect(cx + 2, cy + 5 + k * 3, 2, 2, k < bv.gear[i] ? C_LIME : C_DUSK);
-        if (i == bv.sale && !brv_maxed(i)) tiny_draw("SALE", cx + 22, cy + 1, C_LIME);
-        if (i == bv.hike && !brv_maxed(i)) tiny_draw("HIKE", cx + 22, cy + 1, C_RED);
+        if (i == bv.sale && !brv_maxed(i)) tiny_draw("DEAL", cx + 22, cy + 1, C_LIME);
+        if (i == bv.hike && !brv_maxed(i)) tiny_draw("+100", cx + 22, cy + 1, C_RED);
         if (brv_maxed(i)) snprintf(buf, sizeof buf, "SOLD");
         else snprintf(buf, sizeof buf, "%d", brv_price(i));
         int c = brv_maxed(i) ? C_SLATE : brv_price(i) <= bv.cash ? C_WHITE : C_GREY;
@@ -366,7 +379,7 @@ static void draw_shop(int t) {
     /* the next fight */
     bool last = bv.round == BRV_ROUNDS - 1;
     ui_panel(NEXT_X - 2, 12, 154, 128, C_NIGHT, last ? C_RED : C_DUSK);
-    text_draw(last ? "LAST FIGHT" : "NEXT FIGHT", NEXT_X + 4, 15, last ? C_RED : C_WHITE);
+    text_draw(last ? "FINAL CARD" : "ON THE CARD", NEXT_X + 4, 15, last ? C_RED : C_WHITE);
     snprintf(buf, sizeof buf, "%d MONSTERS", brv_lineup_monsters() + (last ? 1 : 0));
     tiny_draw(buf, NEXT_X + 148 - tiny_width(buf), 17, C_LIGHT);
     static const int ICON[MK_KINDS] = {SP_MITE1, SP_GAS0, SP_BRUTE1, SP_KEG, SP_STILT1, SP_PEEP, SP_SLAG_ICON};
@@ -391,7 +404,7 @@ static void draw_shop(int t) {
     }
 
     /* the three buttons */
-    static const char *const LABEL[3] = {"SPEND", "RAISE PRIZE", "FIGHT"};
+    static const char *const LABEL[3] = {"BUY", "UP THE STAKES", "TO THE PIT"};
     int bx[3] = {6, 82, 236}, bw[3] = {70, 148, 78};
     for (int b = 0; b < 3; b++) {
         bool on = bv.shop_row == 0 && bv.shop_btn == b;
@@ -444,7 +457,8 @@ int brv_shop_audit(void) {
     }
     bv.round = keep_round;
     static const char *const MSG[] = {"THE HOUSE THANKS YOU FOR YOUR GENEROSITY!", "THE BOOK IS FULL: 16 PACKS IS THE LIMIT.",
-                                      "THE LAST FIGHT IS ALREADY FULL.", "NOT ENOUGH CASH.", "SOLD OUT."};
+                                      "THE FINAL CARD IS ALREADY FULL.", "NOT ENOUGH CASH.", "SOLD OUT.",
+                                      "+100: 6 POWDER KEGS", "+100: 5 STILTERS", "+100: SLAG, 3 POOLS"};
     for (int i = 0; i < ARRAY_LEN(MSG); i++) {
         ui_audit_begin("BRAVADO shop message", true);
         ui_audit_area("message", 0, 166, SCREEN_W, 12);
@@ -505,7 +519,7 @@ static void draw_story(int t) {
 
 static void draw_banner(int t) {
     char buf[32], cash[16];
-    if (bv.round == BRV_ROUNDS - 1) big_center("LAST FIGHT", 58, C_RED, C_ORANGE);
+    if (bv.round == BRV_ROUNDS - 1) big_center("FINAL CARD", 58, C_RED, C_ORANGE);
     else {
         snprintf(buf, sizeof buf, "FIGHT %d", bv.round + 1);
         big_center(buf, 58, C_YELLOW, C_AMBER);

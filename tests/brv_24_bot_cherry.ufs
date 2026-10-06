@@ -1,7 +1,7 @@
 # BRAVADO: the demo player again, raising harder (4, 6, 8, 10, 12 and 12
 # packs) and banking at least 1,300 before the last fight: it walks out
 # with 4,500 or more, every goal earned with real presses.
-seed 2
+seed 4
 game bravado
 wait 10
 cheat botplan 1

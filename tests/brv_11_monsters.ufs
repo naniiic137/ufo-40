@@ -2,7 +2,8 @@
 # splits in two when shot (and the halves split again) but a bomb kills it
 # whole; a brute takes seven; a powder keg charges along the eight ways and
 # blows up when it dies, taking its neighbours with it; a stilter shoots
-# with no warning; a peeper sprouts right under Dice with a tone.
+# with no warning; a peeper sprouts right under Dice with a tone
+# and fires the occasional slow shot after a long wind-up.
 game bravado
 wait 5
 cheat run 1
@@ -77,7 +78,12 @@ press B
 hold LEFT 50
 waituntil foe0_state == 2 30
 waituntil kills == 1 120
-# the second one comes up under her new spot and fires slow shots
+# the second one comes up under her new spot; its eye glows for nearly 3 s,
+# then it fires one slow pair
 waituntil foes_5 == 1 200
 expect foe1_x < 130
-waituntil eshots >= 3 300
+waituntil foe1_state == 2 200
+hold RIGHT 60
+wait 90
+expect eshots == 0
+waituntil eshots == 2 40

@@ -112,11 +112,17 @@ static void shop_update(void) {
                 sfx_play_name("ui_ok");
             } else if (bv.shop_btn == 1) {
                 if (!last && brv_raise()) {
+                    /* the pack it added, by name */
+                    const Group *g = &bv.lineup[bv.ngroups - 1];
+                    bv.said_kind = g->kind;
+                    if (g->kind == MK_SLAG) snprintf(bv.shop_buf, sizeof bv.shop_buf, "+100: SLAG, %d POOLS", g->count);
+                    else snprintf(bv.shop_buf, sizeof bv.shop_buf, "+100: %d %s", g->count, BRV_KIND_NAME[g->kind]);
+                    shop_say(bv.shop_buf);
                     bv.raise_flash = 20;
                     sfx_play_name("brv_raise");
                 } else {
                     sfx_play_name("ui_error");
-                    shop_say(last ? "THE LAST FIGHT IS ALREADY FULL." : "THE BOOK IS FULL: 16 PACKS IS THE LIMIT.");
+                    shop_say(last ? "THE FINAL CARD IS ALREADY FULL." : "THE BOOK IS FULL: 16 PACKS IS THE LIMIT.");
                 }
             } else {
                 sfx_play_name("brv_bell");
@@ -312,6 +318,7 @@ static int brv_query(const char *key, int *out) {
         *out = n;
         return 1;
     }
+    if (!strcmp(key, "said_kind")) { *out = bv.shop_msg == bv.shop_buf && bv.shop_msg_t > 0 ? bv.said_kind : -1; return 1; }
     if (!strcmp(key, "hike_note")) { *out = bv.hike_note; return 1; }
     if (!strcmp(key, "upgrades")) { *out = bv.upgrades; return 1; }
     if (!strcmp(key, "kills")) { *out = bv.kills; return 1; }
@@ -529,16 +536,16 @@ const GameDef GAME_BRAVADO = {
     "BRAVADO",
     "1987",
     "ARENA SHOOTER",
-    "EIGHT FIGHTS, ONE PIT. EACH RAISE ADDS 100 AND A PACK OF MONSTERS.",
+    "EIGHT FIGHTS, ONE PIT. EVERY BET ADDS 100 AND A PACK OF MONSTERS.",
     {"WIN A FIGHT WORTH 500 OR MORE", "COME OUT OF ALL EIGHT FIGHTS STANDING", "WALK OUT WITH 4,500 OR MORE IN CASH"},
     "D-PAD\tMOVE, EIGHT WAYS\n"
     "TAP " GLYPH_A "\tSHOOT THE WAY YOU FACE\n"
     "HOLD " GLYPH_A "\tKEEP SHOOTING, AIM HELD\n"
     GLYPH_B "\tDROP A BOMB (IT HURTS YOU TOO)\n"
-    GLYPH_B " " GLYPH_B "\tDASH, ONCE YOU OWN IT\n"
+    "MOVE+" GLYPH_A GLYPH_A "\tDASH, ONCE YOU OWN IT\n"
     "START\tPAUSE\n"
     "\n"
-    "SHOP: " GLYPH_A " BUY, RAISE, FIGHT; " GLYPH_B " BACK",
+    "SHOP: " GLYPH_A " BUY, BET, TO THE PIT; " GLYPH_B " BACK",
     C_RED, C_AMBER,
     brv_load, brv_start, brv_update, brv_draw, brv_quit, brv_draw_label, brv_query, brv_cheat,
     "OVERBOLD", 34,

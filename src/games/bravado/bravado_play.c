@@ -307,13 +307,24 @@ static void hurt_foe(int i, int dmg, int how, float push_x, float push_y) {
     else brv_sfx("brv_tick", 3);
 }
 
+/* a blast catches the whole of her, head and all */
+static void blast_players(float x, float y, float r, int dmg) {
+    if (dmg <= 0) return;
+    for (int w = 0; w < 2; w++) {
+        Player *p = &bv.p[w];
+        if (!p->on || p->down) continue;
+        float dx = fmaxf(fabsf(p->x - x) - 4, 0), dy = fmaxf(fabsf(p->y - 1 - y) - 6, 0);
+        if (dx * dx + dy * dy <= r * r) { bv.hurt_src = 300; brv_hurt_player(w, dmg, HURT_BLAST); }
+    }
+}
+
 void brv_explode(float x, float y, float r, int dmg_player, bool hurts_player, int boss_dmg) {
     if (npend < ARRAY_LEN(pend)) pend[npend++] = (PendingBoom){x, y, r, hurts_player ? dmg_player : 0, boss_dmg};
     int guard = 0;
     while (npend > 0 && guard++ < 200) {
         PendingBoom b = pend[--npend];
         for (int k = 0; k < BRV_MAX_BLASTS; k++)
-            if (!bv.blast[k].alive) { bv.blast[k] = (Blast){b.x, b.y, b.r, 0, 1}; break; }
+            if (!bv.blast[k].alive) { bv.blast[k] = (Blast){b.x, b.y, b.r, 0, b.dmg, 1}; break; }
         brv_burst(b.x, b.y, C_AMBER, 10, 2.0f);
         bv.shake = imax(bv.shake, 8);
         brv_sfx("brv_boom", 2);
@@ -333,14 +344,7 @@ void brv_explode(float x, float y, float r, int dmg_player, bool hurts_player, i
                 brv_kill_foe(i, KILL_BLAST);
             }
         }
-        if (b.dmg > 0)
-            for (int w = 0; w < 2; w++) {
-                Player *p = &bv.p[w];
-                if (!p->on || p->down) continue;
-                /* the blast catches the whole of you, head and all */
-                float dx = fmaxf(fabsf(p->x - b.x) - 4, 0), dy = fmaxf(fabsf(p->y - 1 - b.y) - 6, 0);
-                if (dx * dx + dy * dy <= b.r * b.r) { bv.hurt_src = 300; brv_hurt_player(w, b.dmg, HURT_BLAST); }
-            }
+        blast_players(b.x, b.y, b.r, b.dmg);
     }
     npend = 0;
 }
@@ -498,25 +502,26 @@ static void player_update(int who) {
                 p->cd = bv.gear[GR_TRIGGER] >= 2 ? 7 : bv.gear[GR_TRIGGER] == 1 ? 10 : 14;
             }
         }
-        /* the dash, by either reading */
-        if (bv.gear[GR_DASH] && bv.dash_reading == 1 && (pressed & BTN_A)) {
+        /* the dash: fire tapped twice on the move (TV Tropes' reading; the
+         * first tap is an ordinary shot). The wiki's reading, the bomb
+         * button tapped twice, is kept for the tests only: there the first
+         * tap is an ordinary bomb. */
+        bool dash_b = bv.dash_reading == 1;
+        if (bv.gear[GR_DASH] && !dash_b && (pressed & BTN_A)) {
             if (p->fire_tap_t > 0 && p->moving) { p->fire_tap_t = 0; start_dash(p); }
             else p->fire_tap_t = 1;
         }
         if (pressed & BTN_B) {
-            if (bv.gear[GR_DASH] && bv.dash_reading == 0) {
-                if (p->tap_t > 0) { p->tap_t = 0; start_dash(p); }
-                else { p->tap_t = 1; p->tap_x = p->x; p->tap_y = p->y; }
+            if (bv.gear[GR_DASH] && dash_b && p->tap_t > 0) {
+                p->tap_t = 0;
+                start_dash(p);
             } else {
                 bomb_button(p, who, p->x, p->y);
+                if (bv.gear[GR_DASH] && dash_b) p->tap_t = 1;
             }
         }
     }
-    /* a single tap of B, once it's clear no second tap is coming */
-    if (p->tap_t > 0 && ++p->tap_t > BRV_TAP_WIN) {
-        p->tap_t = 0;
-        bomb_button(p, who, p->tap_x, p->tap_y);
-    }
+    if (p->tap_t > 0 && ++p->tap_t > BRV_TAP_WIN) p->tap_t = 0;
 
     /* lava */
     int pool = p->dash_t > 0 ? -1 : brv_pool_at(p->x, p->y + 4);
@@ -631,7 +636,7 @@ static void eshots_update(void) {
                 drone_hit(p);
                 break;
             }
-            if (fabsf(p->x - s->x) < 4 && fabsf(p->y - s->y) < 5) {
+            if (fabsf(p->x - s->x) < 5 && s->y - p->y > -8 && s->y - p->y < 6) {
                 if (p->dash_t > 0) continue;
                 if (p->inv > 0) continue;
                 s->alive = 0;
@@ -659,7 +664,7 @@ static void bombs_update(void) {
         b->age++;
         if (b->fuse-- > 0) continue;
         b->alive = 0;
-        brv_explode(b->x, b->y, BRV_BLAST_R, BRV_HIT, !b->drone, 40);
+        brv_explode(b->x, b->y, BRV_BLAST_R, BRV_HIT, true, 40);
         int nails = bv.gear[GR_NAILS];
         if (nails) {
             int n = nails >= 2 ? 14 : 8, dmg = nails >= 2 ? 8 : 4;
@@ -669,8 +674,22 @@ static void bombs_update(void) {
             }
         }
     }
-    for (int i = 0; i < BRV_MAX_BLASTS; i++)
-        if (bv.blast[i].alive && ++bv.blast[i].t > 18) bv.blast[i].alive = 0;
+    /* a blast stays deadly for a moment: walk (or dash) into it and it
+     * still hurts; monsters that wander in go too (the boss only takes
+     * its first hit) */
+    for (int i = 0; i < BRV_MAX_BLASTS; i++) {
+        Blast *bl = &bv.blast[i];
+        if (!bl->alive) continue;
+        if (++bl->t > 18) { bl->alive = 0; continue; }
+        if (bl->t >= BRV_BLAST_LINGER) continue;
+        blast_players(bl->x, bl->y, bl->r, bl->dmg);
+        for (int k = 0; k < BRV_MAX_FOES; k++) {
+            Foe *f = &bv.foe[k];
+            if (!foe_solid(f) || f->kind == MK_BOSS) continue;
+            float dx = f->x - bl->x, dy = f->y - bl->y, rr = bl->r + foe_radius(f);
+            if (dx * dx + dy * dy <= rr * rr) brv_kill_foe(k, KILL_BLAST);
+        }
+    }
 }
 
 /* ---- contact ---------------------------------------------------------------- */
@@ -684,6 +703,8 @@ static void contact(void) {
             if (!foe_solid(f)) continue;
             float r = foe_radius(f) + 3;
             if (p->drone_on && fabsf(f->x - p->dx) < r && fabsf(f->y - (p->dy - BRV_DRONE_UP)) < r && f->kind != MK_BOSS) drone_hit(p);
+            /* a dash sweeps a wider lane than her body */
+            if (p->dash_t > 0) r = foe_radius(f) + 9;
             if (fabsf(f->x - p->x) > r || fabsf(f->y - p->y) > r + 1) continue;
             if (p->dash_t > 0) {
                 if (f->kind == MK_BOSS) {

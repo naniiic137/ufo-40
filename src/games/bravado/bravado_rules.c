@@ -1,5 +1,5 @@
 /* BRAVADO - the rules with no drawing in them: the gear and its prices, the
- * shop's sale and hike, the next fight's lineup and the RAISE button. */
+ * shop's sale and hike, the next fight's lineup and upping the stakes. */
 #include "bravado.h"
 
 const int8_t BRV_DX[8] = {1, 1, 0, -1, -1, -1, 0, 1};
@@ -16,11 +16,11 @@ const GearDef BRV_GEAR[GR_COUNT] = {
     {"QUICK TRIGGER", 2, {150, 250}, {"SHOOT FASTER.", "SHOOT FASTER STILL."}},
     {"HEAVY ROUNDS", 2, {400, 400}, {"HARDER-HITTING SHOTS.", "HARDER-HITTING STILL."}},
     {"FAN FIRE", 2, {350, 350}, {"2 SHOTS AT A TIME.", "3 SHOTS AT A TIME."}},
-    {"RICOCHET", 2, {350, 250}, {"SHOTS BOUNCE OFF 1 WALL.", "SHOTS BOUNCE OFF 2 WALLS."}},
+    {"RICOCHET", 2, {350, 250}, {"SHOTS CAROM OFF 1 WALL.", "SHOTS CAROM OFF 2 WALLS."}},
     {"KICKBACK", 1, {200}, {"SHOTS SHOVE MONSTERS BACK HARDER."}},
     {"BUDDY BOT", 2, {600, 300}, {"A DRONE COPIES YOU, A MOMENT LATER.", "YOUR DRONE TAKES TWICE THE KNOCKS."}},
     {"FIREWALKERS", 2, {150, 150}, {"WADE THROUGH 1 LAVA POOL EACH FIGHT.", "WADE THROUGH 2 LAVA POOLS EACH FIGHT."}},
-    {"ROCKET DASH", 1, {350}, {"TAP B TWICE: A DASH THAT FLATTENS THINGS."}},
+    {"ROCKET DASH", 1, {350}, {"TAP A TWICE ON THE MOVE: A DASH THAT FLATTENS THINGS."}},
     {"BOMB BAG", 4, {100, 100, 150, 200},
      {"CARRY 3 MORE BOMBS.", "CARRY 3 MORE BOMBS.", "CARRY 3 MORE BOMBS.", "CARRY 3 MORE BOMBS."}},
     {"CLICKER", 1, {300}, {"PRESS B TO SET YOUR BOMBS OFF."}},

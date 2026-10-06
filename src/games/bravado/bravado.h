@@ -34,7 +34,7 @@
 #define BRV_START_HP 6
 #define BRV_HIT 6           /* what most things take off */
 #define BRV_KEG_HIT 8       /* a powder keg's blast */
-#define BRV_LAVA_EVERY 30   /* lava takes 1 health this often: 3 s from 6 */
+#define BRV_LAVA_EVERY 30   /* lava takes 1 health this often: 2.5 s from 6 */
 #define BRV_MED_HEAL 6
 #define BRV_MED_CAP 40      /* medkits heal past the most health, up to this */
 #define BRV_INV_T 60        /* safe frames after a hit */
@@ -49,6 +49,7 @@
 #define BRV_DRONE_LAG 24    /* the drone does what you did this many frames ago */
 #define BRV_DRONE_UP 10     /* it hovers this far over where you were */
 #define BRV_BOSS_HP 400
+#define BRV_PEEP_WINDUP 170 /* a peeper's eye glows this long before its one shot */
 #define BRV_DASH_BOSS 100   /* a dash takes this off the boss: four kill it */
 #define BRV_PLAYER_SPEED 1.0f
 
@@ -123,7 +124,8 @@ typedef struct {
 } PShot;
 
 typedef struct { float x, y; int fuse, age; uint8_t alive, owner, drone; } Bomb;
-typedef struct { float x, y, r; int t; uint8_t alive; } Blast;
+typedef struct { float x, y, r; int t; int dmg; uint8_t alive; } Blast;
+#define BRV_BLAST_LINGER 12 /* a blast keeps hurting this many frames */
 typedef struct { float x, y, rx, ry; uint8_t alive, cooled; } Pool;
 typedef struct { float x, y; int t; uint8_t alive; } Medkit;
 typedef struct { float x, y, vx, vy; int life, col; } Part;
@@ -152,7 +154,6 @@ typedef struct {
     int bombs;               /* left this fight */
     int blast_sh, shot_sh, walks;  /* charges left this fight */
     int tap_t;               /* bomb button: frames since the first tap */
-    float tap_x, tap_y;      /* where that tap was */
     int fire_tap_t;          /* the fire-button reading of the dash */
     int dash_t, dash_cd, dash_face, dash_id;
     int dashes;
@@ -209,6 +210,8 @@ typedef struct {
     int shop_sel;             /* 0..15 in the grid */
     int shop_msg_t;
     const char *shop_msg;
+    char shop_buf[48];        /* a message made up on the spot */
+    int said_kind;            /* the pack the last raise added (tests) */
     int raise_flash;
     /* the fight */
     Player p[2];
@@ -235,7 +238,7 @@ typedef struct {
     /* testing */
     bool god, no_spawn;
     int hurt_src;             /* what hit last: 100+monster, 200+shot, 300 blast, 400 lava */
-    int dash_reading;         /* 0: double tap B (the wiki); 1: double tap A while moving */
+    int dash_reading;         /* 0: fire twice on the move (TV Tropes); 1: B twice (the wiki; tests only) */
     int bot_t;
 } BrvGame;
 

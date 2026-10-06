@@ -1,7 +1,7 @@
-# BRAVADO: RAISE PRIZE puts the next prize up by 100 and adds one random
-# pack to the next fight, shown only once it's added. It stops at 16 packs
-# and 1,600. Mites and gasbags come nine to a pack; the others vary. A
-# pack of slag pours three more pools at the start of the fight.
+# BRAVADO: UP THE STAKES puts the next prize up by 100 and adds one random
+# pack to the next fight, shown (and named) only once it's added. It stops
+# at 16 packs and 1,600. Mites and gasbags come nine to a pack; the others
+# vary. A pack of slag pours three more pools at the start of the fight.
 game bravado
 wait 5
 cheat run 1
@@ -12,6 +12,9 @@ expect shop_btn == 1
 press A
 expect prize == 200
 expect groups == 2
+# the pack it added is named ("+100: 6 BRUTES")
+expect said_kind >= 0
+expect said_kind <= 6
 press A
 press A
 press A

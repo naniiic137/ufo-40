@@ -1,5 +1,5 @@
 # BRAVADO: the sixteen kinds of gear at the original's prices, tier by
-# tier; everything together costs 7,900. SPEND moves into the grid, the
+# tier; everything together costs 7,900. BUY moves into the rack, the
 # pad picks, A buys, B goes back to the buttons.
 game bravado
 wait 5
