@@ -467,7 +467,7 @@ static void draw_title(int t) {
     gfx_rect(40, 150, 240, 2, C_VIOLET);
     static const uint8_t grad[3] = {C_YELLOW, C_AMBER, C_RED};
     ui_fancy_center("BRAVADO", 160, 14, 4, grad, 3, C_INK, C_MAROON);
-    tiny_center("THE MORE YOU RISK, THE MORE THEY PAY", 160, 50, C_PINK);
+    tiny_center("BET BIG. FIGHT BIGGER. GET PAID.", 160, 50, C_PINK);
     spr_draw_scaled(&brv_spr[(t / 20) % 2 ? SP_DICE_D : SP_DICE_D2], 145, 64, 3, 0);
     for (int k = 0; k < 3; k++) {
         int mx = 60 + k * 18 + (int)(sinf((float)t * 0.05f + (float)k) * 4);
@@ -547,7 +547,7 @@ static void draw_ending(int t) {
     char buf[64], cash[16];
     gfx_rect(0, 0, SCREEN_W, SCREEN_H, C_INK);
     for (int i = 0; i < 50; i++) {
-        int x = (i * 53) % SCREEN_W, y = (i * 29 + t / 2) % SCREEN_H;
+        int x = (i * 97 + i * i * 13) % SCREEN_W, y = (i * i * 31 + i * 7 + t / 2 + (i % 3) * t / 4) % SCREEN_H;
         gfx_pset(x, y, i % 3 == 0 ? C_YELLOW : i % 3 == 1 ? C_PINK : C_CYAN);
     }
     big_center("CASHED OUT", 20, C_YELLOW, C_AMBER);

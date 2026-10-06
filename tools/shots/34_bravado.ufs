@@ -1,0 +1,33 @@
+# README media: BRAVADO. Everything in play is the demo player's real button
+# presses on its cherry plan: it raises hard, buys gear between fights and
+# banks 1,300 for the last fight. The GIF is a stretch of fight 4.
+shotscale 2
+seed 2
+game bravado
+wait 40
+shot bravado_title
+cheat botplan 1
+botuntil state == 3 600
+botuntil round == 4 100000
+botuntil state == 3 3000
+botplay 600
+gifstart bravado 3 1
+botplay 600
+gifstop
+# the back room before fight 6, the prize raised to 1,200
+botuntil round == 6 100000
+botuntil groups == 12 600
+botplay 1
+shot bravado_shop
+botuntil state == 3 3000
+botplay 1500
+shot bravado_fight
+# the Pit Boss
+botuntil boss_out == 1 100000
+botplay 420
+shot bravado_boss
+# cashed out
+botuntil state == 7 100000
+wait 420
+shot bravado_ending
+cheat botplan 0
