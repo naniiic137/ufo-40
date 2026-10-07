@@ -1,0 +1,17 @@
+# RESTLESS: the demo player's cherry plan, with real button presses from the
+# title: it walks into foes on purpose until it has four deaths, so the
+# world pays more and the Bridgekeeper comes blue (twelve gold beetles),
+# then plays the game through and lays the King to rest with more than
+# 50,000 points.
+seed 3
+game restless
+wait 10
+cheat botplan 1
+botuntil half >= 1 30000
+expect score >= 12000
+botuntil half >= 3 60000
+botuntil half >= 5 80000
+botuntil state == 9 40000
+expect won == 1
+expect save_best_won >= 50000
+expect goals == 7

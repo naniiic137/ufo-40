@@ -149,6 +149,7 @@ menu, shows the buttons as you now press them). SELECT or B closes it.
 | 32 | **FORLORN HOPE** | Mortol II | 99 lives on a counter over the door and no way to gain more, one massive fixed open map, five classes picked at the door for every life (a sword who turns into a stone that floats where it is made, a rifle who leaves an endless ammo pouch, a double-jumping star thrower whose teleporter you take from the base and back, a wrench thrower who builds a pipe down through the ground, a bomber with no attack who explodes for 15), hold B to flash and let go to sacrifice, a charge that carries through teleporters and pipes, a death while charging setting the gift off, everything persisting, the original's 17 foes with their hit points, three switches raising yellow, green and blue blocks, spawners you can block or break, bombable rock and out-of-place brick, tall worms fed one life each, four hearts of 30 lingering on the black screen between lives, keys and locked doors, 2P co-op | the volunteers of Holloway and their trades, the Old Yew, the undercroft, the caves, the deep, the sump, the roots, the chimney, the tower and Thornkeep, all 17 foes and the thorn hearts, the whole map, eight tunes |
 | 34 | **BRAVADO** | Overbold | one fixed arena with four corner pads and lava, eight fights: a fixed first fight for 100, then each bet adding 100 and a random pack at a time up to 16 packs and 1,600, and a forced last fight of twelve packs and the only boss for 3,200; six health against hits of six, held fire that keeps the aim while you strafe, bombs that kill outright and hurt you too, lava that bites, twelve monsters on the floor at most and spawns that quicken up to a 900 prize; the original's seven pack kinds (two of them nine to a pack), sixteen kinds of gear at its prices with a sale and a hike every visit, the drone, the dash, medkits past full health, 2P in one arena | Dice the fox and her brother Domino, the Glass Pit, mites, gasbags, brutes, powder kegs, stilters, peepers, slag, the Pit Boss and its fizzers, every piece of gear's name and icon, ten tunes |
 | 35 | **CLARION CALL** | Campanella 2 | the Campanella ship on one tank for the whole run (coins burn when it's dry, and then it falls), a bar of 8 for the ship and for Clary behind doors, landing slowly on level ground and getting out, one hit or a two-tile drop the end outside, doors on foot into side-on caves with a skull at your back and a chest of three to choose from, and rooms with shops (one buy each, and every door shuts behind you), stalls, trials and sextons, ten notes to open the gold door and a 30-second dash, nine areas of a generated station in four of seven regions chosen on a map, sixteen cryptic upgrades, the yellow key, the Lobber and three Hush Engines, Lady Hush, the secret Grandsire Tock behind three sextons' sheets, the escape and three endings; one sitting, no save | Clary and the Clarion (CHIME CIRCUIT's), Ansel and Lady Hush (BELLHOP's), Grandsire Tock, the Carillon and its seven regions, the generator and every cave piece, the Crown, the sextons, the dozing tortoise, the FULL-PEAL code |
+| 38 | **RESTLESS** | Rakshasa | a side-on platformer where one touch kills but there are no lives: every death (and the start: you begin dead) sends your wisp into a soul round of 1, 3, 6, 9, then 12 pieces past as many guardians, and one touch there ends the run; you rise on the spot with the plain weapon and the screen swept clean; every death makes the world harsher (more and nastier foes, torches that spit fire, a tougher first boss from four, a double-speed clock from six) and its treasure richer; one walking pace, one committed jump with no steering, a freeze on every landing, aim ahead or on the slants only, tap or charge; four weapons from torch wheels, the original's 19 foes with their hit points, pits that drop you into rooms of foes, a 150-second clock, bells that take a death back, a familiar that takes a hit and finds hidden spots, gifts every 5,000; three stages of two halves and six fights; a high-score table | Old Gaunt of Mossfold, his wisp, Blink the owlet, Grandmother Ash, the Hollow Host and all its foes, the Bridgekeeper, Old Rattle, Three-Tongue, Gust and Gash, the Rammer and the Hollow King, all 64 screens |
 | 39 | **BUZZBOLT** | Star Waspir | a fast vertical shooter over the whole wide screen where one hit is a loss, tap fire for a wide spread at full speed and hold it for focused fire and a slower ship, three ships with their own fire, options and two specials each (a charge lance, guard orbs, a shield drone, bombs on the second button), every kill dropping a letter in the fixed order B, Z, Z, words of three (BZZ puts the multiplier up with no limit, ZZZ brings an option, BBB and ZBB are the ship's specials, any other word puts it back to x1), the multiplier built up and cashed in on the bosses, losing a ship costs the multiplier and every gift, ships at 25k, 100k and 200k, five waves with a boss each (wave 1's pair flies off if left alone; wave 3 the hard one; walls, gates and a golden swarm in wave 4; a last boss of aimed fans), an unmultiplied time bonus, a high-score table | the Hive Wing (lacewing, shieldbug, firefly), the hiveship and the dragonfly, the Blight's gnats, midges, whirlers, crickets, blisters, puffballs, rot walls and goldbugs, the Ironbacks, the Bloatfly, the Queen Tick, Scythewing and Dustwing, the Sporeheart, five new waves |
 | 44 | **HOMESPUN** | Pilot Quest | a camp that keeps working in real time while the console is on, even in other cartridges; a yo-yo that knocks glints out of a crystal; plants, bars, huts, anvils, bins and research at the original's prices; jerky as two minutes of trip time a strip, and a clock that is also your health; one Wilds map whose roadblocks and caves are shuffled per save; three dungeons with a ship part each; a gun that costs a glint a shot; coins for hopstones, vendors and a gambling den; a spider that spins thread at camp; a super boss beaten six times in one trip; new-game-plus stones | Wick and the *Tumbleweed*, the moor-moon Oddmoor and its folk, the Wilds, three dungeons, all 19 foes and 6 bosses |
 | 41 | **RIMSHIRE** | Lords of Diskonia | a board where two banners take turns stepping along roads, trails a banner can't step back onto that pull an army back when struck, inns, tomes, seams and chests; flick battles on fields built from the four tiles round the fight: a queue of three, aim, charge and launch, knocks that hurt by the striking disk's own melee, water, the closing haze and stalemates; the original's 15 disks with their numbers, 8 skills, 10 campaign wars, the streak and 2P | Rimshire, the Brass and Plum banners, the Plum Empress, Lady Brass's letters, all 16 disks, 10 new boards |
@@ -1376,6 +1377,58 @@ the top.
   Carillon and its seven regions, the generator and all its cave pieces,
   the Crown, the sextons, the dozing tortoise, every enemy, the sixteen
   upgrades, the music and the FULL-PEAL code.
+
+### 38 · RESTLESS
+
+<p align="center">
+  <img src="docs/shots/restless.gif" width="640" alt="Restless: Old Gaunt walks the Greenwood Gate, shooting lackeys as they climb out of the ground">
+</p>
+<p align="center">
+  <img src="docs/shots/restless_title.png" width="320" alt="The title over burning Mossfold">
+  <img src="docs/shots/restless_glow.png" width="320" alt="The Low Glow: the wisp gathers soul pieces past their guardians">
+</p>
+<p align="center">
+  <img src="docs/shots/restless_warrens.png" width="320" alt="The Toad Warrens: toads out of their holes, a weeper's tears">
+  <img src="docs/shots/restless_falls.png" width="320" alt="A log bridge over the High Falls">
+</p>
+<p align="center">
+  <img src="docs/shots/restless_keeper.png" width="320" alt="The Bridgekeeper crouching for a jump">
+  <img src="docs/shots/restless_king.png" width="320" alt="The Hollow King's face, his third eye open">
+</p>
+
+*A tribute to **Rakshasa** (UFO 50 #38).*
+
+- **Plays the same:** one hit kills, and there are no lives. You start
+  dead: every death, that one included, sends Gaunt's wisp into the Low
+  Glow to gather 1, 3, 6, 9, then 12 pieces of his soul, each circled by
+  a guardian that lunges; a piece taken keeps the wisp safe a moment, and
+  a guardian's touch ends the run for good. Come back and you rise on the
+  spot, the screen swept clean, with the plain staff again. Every death
+  also changes the world: lackeys come thicker and more of them throw
+  spears, gnats go frantic, torches spit fire, the first boss turns blue
+  and tougher, gloomcrows fire three volleys, and from six deaths the
+  clock runs at double speed; treasure gets likelier and richer, so dying
+  on purpose early is a real plan for points. Old Gaunt walks at one slow
+  pace, jumps one fixed arc he can't steer, freezes a moment on every
+  landing and aims only ahead or on the slants. A taps a shot or, held,
+  charges one (A is the main action, as everywhere in UFO 40; the original
+  shoots with B). Torches hold treasure, hourglasses, lilies, eggs and
+  wheels of three weapons (seeker, ember, scatter); pits drop you into a
+  room of foes rather than killing you; bells call Grandmother Ash up to
+  take a death back; Blink the owlet takes a hit and points out hidden
+  spots; every 5,000 points the next foe drops a gift.
+- **The run:** three stages, each in two halves of 150 seconds, a fight at
+  the end of each half: the Bridgekeeper, Old Rattle, Three-Tongue, Gust
+  and Gash, the Rammer and the Hollow King, with the original's hit
+  points. Five high scores with initials; the goals are three comebacks in
+  a run, the King laid to rest, and that with 50,000 points. The demo
+  player in the tests plays from the title to the ending with real button
+  presses.
+- **Ours:** Old Gaunt and Mossfold, the wisp and the Low Glow, Blink,
+  Grandmother Ash, the Hollow Host and all its foes, the six bosses, the
+  Greenwood Gate, the Old Shrines, the Toad Warrens, the Sunken Court, the
+  High Falls and the Hollow Crown (64 screens and six pit rooms), and
+  seventeen tunes.
 
 ### 39 · BUZZBOLT
 
