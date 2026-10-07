@@ -1,0 +1,48 @@
+# SOUNDINGS: the log is written only at the raft. Surfacing heals everyone,
+# brings the fallen back, refills every use, banks the relics found and
+# writes the log; leaving the cartridge mid-dive loses the dive.
+game soundings
+wait 30
+press A
+wait 20
+cheat equip 0 0 1
+cheat equip 1 0 28
+press RIGHT
+press RIGHT
+press A
+wait 10
+expect scene == 4
+cheat nomobs
+hold DOWN 60
+expect depth > 20
+cheat gold 777
+cheat hp 0 100
+cheat hp 2 0
+cheat uses 0 0 3
+cheat carry 4 2
+# nothing is written yet
+expect saved_gold == 500
+hold UP 120
+expect scene == 8
+expect hp0 == 500
+expect hp2 == 500
+expect uses0 == 25
+expect relic4 == 2
+expect carry4 == 0
+expect saved_gold == 777
+expect saved_relic4 == 2
+expect dives == 1
+press A
+wait 10
+expect scene == 1
+# a dive left halfway is lost
+expect raft_sel == 2
+press A
+wait 10
+cheat gold 5000
+reload
+game soundings
+wait 30
+press A
+wait 20
+expect gold == 777

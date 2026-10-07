@@ -1,0 +1,49 @@
+# SOUNDINGS: when all three divers fall, everything since the last surfacing
+# is gone: gold, relics, pearls, chests, levers and levels. They wake on the
+# raft as they were.
+game soundings
+wait 30
+press A
+wait 20
+press RIGHT
+press RIGHT
+press A
+wait 10
+expect scene == 4
+cheat nomobs
+cheat at 58 7
+press A
+expect chests == 2
+expect carry1 == 1
+cheat at 28 10
+press A
+expect doors == 1
+cheat gold 4321
+cheat xp 200
+expect level == 3
+cheat hp 0 1
+cheat hp 1 0
+cheat hp 2 0
+cheat fight 15
+waituntil bphase == 1 200
+cheat seed 1
+press DOWN
+press DOWN
+press A
+waituntil bphase == 5 900
+waituntil bmsgs == 0 300
+press A
+waituntil scene == 7 60
+expect wins == 0
+wait 70
+press A
+wait 5
+expect scene == 1
+expect gold == 500
+expect level == 1
+expect chests == 0
+expect doors == 0
+expect carry1 == 0
+expect relic1 == 0
+expect hp0 == 500
+expect hp1 == 500

@@ -1,0 +1,46 @@
+# SOUNDINGS: in a fight an egg brings a fallen diver back (at half his HP),
+# the lamp rod's second order mends instead of defending, and a charge
+# bursts on one creature for 1,500 to 2,000.
+game soundings
+wait 30
+press A
+wait 20
+cheat level 5
+cheat equip 0 0 33
+cheat equip 1 0 27
+cheat equip 2 0 34
+cheat hp 2 0
+cheat hp 1 300
+cheat fight 0
+waituntil bphase == 1 200
+cheat foehp 0 30000
+cheat seed 9
+# Moss: the egg on Skip
+press A
+expect tsel == 2
+press A
+# Reed: the lamp rod, mend himself
+press A
+press UP
+expect tmode == 2
+expect tsel == 1
+press A
+waituntil bround == 2 900
+waituntil bphase == 1 600
+expect hp2 == 530
+expect hp1 >= 450
+expect uses0 == 0
+# Skip: the charge
+press DOWN
+press DOWN
+press A
+press A
+press DOWN
+press DOWN
+press A
+press A
+press A
+waituntil bround == 3 900
+expect foehp0 <= 28500
+expect foehp0 >= 28000
+expect uses4 == 0

@@ -1,0 +1,29 @@
+# SOUNDINGS: one XP bar for all three; each level raises HP and the blows'
+# strength. A level gained on a dive raises the most HP but heals nothing.
+# Old blood in a hand is a level more, bitters a level less; level 16 is the
+# top (2,500 HP) and old blood does nothing there.
+game soundings
+wait 30
+press A
+wait 20
+cheat xp 50
+expect level == 2
+expect hp0 == 500
+expect maxhp0 == 640
+cheat xp 80
+expect level == 3
+cheat equip 0 1 36
+expect dlevel0 == 4
+expect maxhp0 == 920
+cheat equip 1 1 32
+expect dlevel1 == 2
+cheat surface
+expect hp0 == 920
+expect hp1 == 640
+expect hp2 == 780
+cheat xp 200000
+expect level == 16
+expect dlevel0 == 16
+expect maxhp0 == 2500
+expect maxhp2 == 2500
+expect dlevel1 == 15

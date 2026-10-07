@@ -1,0 +1,60 @@
+# SOUNDINGS: the kit. Each diver has two hands. A picks an item up (from
+# storage on the left, or from a hand), A again puts it in a hand (swapping
+# with what was there); a hand item put back into itself goes to storage.
+game soundings
+wait 30
+press A
+wait 20
+cheat give 1
+cheat give 2
+cheat give 28
+press RIGHT
+expect raft_sel == 1
+press A
+wait 10
+expect scene == 3
+expect kit_col == 1
+# to the list: the reef poker is first
+press LEFT
+expect kit_col == 0
+press A
+expect kit_held == 1
+expect kit_col == 1
+expect kit_sel == 0
+press A
+expect eq0 == 1
+expect stored1 == 0
+# the zap poker into Moss's left hand swaps the reef one out to storage
+press LEFT
+press DOWN
+press A
+expect kit_held == 2
+press A
+expect eq0 == 2
+expect stored1 == 1
+# pick up Moss's poker and put it back into the same hand: storage
+press A
+expect kit_held == 2
+expect eq0 == 0
+press A
+expect kit_held == 0
+expect eq0 == 0
+expect stored2 == 1
+# a hand item moved to another hand
+press LEFT
+press DOWN
+press A
+press RIGHT
+press A
+expect eq1 == 2
+press A
+press DOWN
+press A
+expect eq1 == 0
+expect eq3 == 2
+# B leaves (and writes the log)
+press B
+wait 10
+expect scene == 1
+cheat surface
+expect eq3 == 2

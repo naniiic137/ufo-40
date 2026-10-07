@@ -1,0 +1,20 @@
+# SOUNDINGS: a clamper looks at a diver first, then on its next turn strikes
+# him heavily (nine fifths of a blow). The demo player plays the fight.
+game soundings
+wait 30
+press A
+wait 20
+cheat equip 0 0 1
+cheat equip 1 0 2
+cheat equip 2 0 3
+cheat level 10
+cheat fight 6
+waituntil bphase == 1 200
+cheat foehp 0 30000
+cheat seed 1
+cheat bot 0
+botuntil foemark0 >= 0 4000
+botuntil foemark0 == -1 4000
+botuntil bmsgs == 0 600
+expect last_heavy == 1
+expect last_dmg >= 423

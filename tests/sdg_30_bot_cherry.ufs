@@ -1,0 +1,11 @@
+# SOUNDINGS: the demo player again, this time fetching the three heads
+# before the last fight: all three goals.
+seed 2
+game soundings
+wait 10
+cheat bot 1
+botuntil wins >= 1 400000
+expect goals == 7
+expect heads == 7
+expect ending == 2
+expect cherry_wins == 1

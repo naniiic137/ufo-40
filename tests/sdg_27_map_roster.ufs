@@ -1,0 +1,69 @@
+# SOUNDINGS: the map holds everything the game needs and every place is
+# reachable (with every door open; before the Abbot the deep stays shut).
+# Eighteen kinds of creature, the Abbot and the Gloamheart, with the
+# original's numbers.
+game soundings
+wait 30
+expect map_bad == 0
+expect art_bad == 0
+expect save_bytes > 0
+press A
+wait 20
+press RIGHT
+press RIGHT
+press A
+wait 5
+expect nmob == 63
+expect mobkind0 == 5
+expect mobkind1 == 4
+expect mobkind2 == 8
+expect mobkind3 == 2
+expect mobkind5 == 5
+expect mobkind6 == 2
+expect mobkind7 == 2
+expect mobkind8 == 4
+expect mobkind9 == 2
+expect mobkind10 == 3
+expect mobkind11 == 3
+expect mobkind12 == 2
+expect mobkind13 == 3
+expect mobkind14 == 3
+expect mobkind15 == 4
+expect mobkind16 == 4
+expect mobkind17 == 2
+expect mobkind18 == 3
+expect mobkind19 == 1
+expect mobkind20 == 1
+# the regions
+cheat at 48 10
+expect region == 0
+cheat at 10 13
+expect region == 1
+cheat at 78 12
+expect region == 2
+cheat at 48 33
+expect region == 3
+cheat at 12 44
+expect region == 4
+cheat at 82 45
+expect region == 5
+cheat at 64 58
+expect region == 6
+cheat at 20 66
+expect region == 7
+# creature numbers
+cheat fight 15
+expect foehp0 == 1500
+cheat fight 3
+expect foehp0 == 450
+cheat fight 0 1 2 4
+expect nfoe == 4
+expect foehp0 == 300
+expect foehp1 == 200
+expect foehp2 == 600
+expect foehp3 == 400
+cheat fight 2 18 2
+expect boss == 1
+expect foehp1 == 5000
+cheat fight 20 19 19 20
+expect boss == 2

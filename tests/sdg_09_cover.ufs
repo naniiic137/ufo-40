@@ -1,0 +1,44 @@
+# SOUNDINGS: a diver who defends another with a shield takes every blow meant
+# for him (and his own, both halved by the bulwark).
+game soundings
+wait 30
+press A
+wait 20
+cheat equip 0 0 22
+cheat equip 1 0 2
+cheat hp 2 0
+cheat fight 6
+waituntil bphase == 1 200
+cheat foehp 0 30000
+cheat seed 1
+press A
+press UP
+press RIGHT
+expect tsel == 1
+press A
+press DOWN
+press DOWN
+press A
+waituntil bround == 2 900
+waituntil bphase == 1 600
+press A
+press UP
+press RIGHT
+press A
+press DOWN
+press DOWN
+press A
+waituntil bround == 3 900
+waituntil bphase == 1 600
+press A
+press UP
+press RIGHT
+press A
+press DOWN
+press DOWN
+press A
+waituntil bround == 4 900
+waituntil bphase == 1 600
+expect hp1 == 500
+expect covered >= 1
+expect hp0 < 500

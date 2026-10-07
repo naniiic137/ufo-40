@@ -1,0 +1,28 @@
+# SOUNDINGS: relics found on a dive are carried, banked at the raft; nine of
+# a kind at most, banked and carried together. Better gear costs gold and
+# relics.
+game soundings
+wait 30
+press A
+wait 20
+press RIGHT
+press RIGHT
+press A
+wait 5
+cheat nomobs
+cheat relic 1 7
+cheat carry 1 1
+cheat at 58 7
+press A
+expect carry1 == 2
+expect relic1 == 7
+cheat carry 1 2
+cheat surface
+expect relic1 == 9
+expect carry1 == 0
+# nine is the most: a tenth found is lost
+cheat dive
+cheat carry 1 1
+expect relic1 == 9
+cheat surface
+expect relic1 == 9

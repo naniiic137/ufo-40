@@ -1,0 +1,35 @@
+# SOUNDINGS: shields take their share off every hit while held (a bulwark
+# 25 %), defending with one doubles it, and two bulwarks and a defend take a
+# blow to nothing. A diver defending another takes the blows meant for him.
+game soundings
+wait 30
+press A
+wait 20
+cheat equip 0 0 22
+cheat equip 0 1 23
+cheat shield_def 0
+expect calc == 50
+cheat hp 1 0
+cheat hp 2 0
+cheat fight 0
+waituntil bphase == 1 200
+cheat foehp 0 20000
+cheat seed 1
+# Moss defends himself behind both bulwarks
+press A
+press UP
+expect tmode == 1
+expect tsel == 0
+press A
+waituntil bround == 2 900
+waituntil bphase == 1 600
+expect last_target == 0
+expect last_dmg == 0
+expect hp0 == 500
+# now he strikes with one: half of a fizzle's bite
+press A
+press A
+waituntil bround == 3 900
+waituntil bphase == 1 600
+expect last_dmg >= 59
+expect last_dmg <= 75

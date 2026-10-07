@@ -1,0 +1,32 @@
+# SOUNDINGS: items found in chests come as pearls and open at the raft. The
+# leech club's pearl opened at the raft is the beacon goal. Gold and relics
+# found in chests come at once (relics are banked at the raft).
+game soundings
+wait 30
+press A
+wait 20
+press RIGHT
+press RIGHT
+press A
+wait 10
+cheat nomobs
+cheat at 93 5
+press A
+expect npearl == 1
+expect owned25 == 0
+expect goals == 0
+cheat at 37 19
+press A
+expect gold == 800
+cheat at 48 5
+hold UP 40
+expect scene == 8
+expect owned25 == 1
+expect npearl == 0
+expect goals == 1
+expect gift == 1
+expect chests_open == 2
+press A
+wait 5
+# it can go into a hand
+expect stored25 == 1
