@@ -38,28 +38,30 @@ typedef struct Grp { uint8_t n, k[4]; } Grp;
 #define G3(a, b, c) {3, {a, b, c, 0}}
 #define G4(a, b, c, d) {4, {a, b, c, d}}
 
-static const Grp GR_FIZZLE[] = {G1(EN_FIZZLE), G2(EN_FIZZLE, EN_FIZZLE), G2(EN_FIZZLE, EN_PRICKLE), G3(EN_FIZZLE, EN_FIZZLE, EN_FIZZLE)};
-static const Grp GR_PRICKLE[] = {G1(EN_PRICKLE), G2(EN_PRICKLE, EN_PRICKLE), G2(EN_PRICKLE, EN_FIZZLE)};
-static const Grp GR_FROND_SHELF[] = {G1(EN_FROND), G2(EN_FROND, EN_PRICKLE)};
-static const Grp GR_FROND[] = {G1(EN_FROND), G2(EN_FROND, EN_FROND), G3(EN_FROND, EN_FROND, EN_FROND)};
-static const Grp GR_FROND_SHRINE[] = {G2(EN_FROND, EN_FROND), G3(EN_FROND, EN_WHORL, EN_FROND), G2(EN_FROND, EN_TINFIN)};
-static const Grp GR_SCHOOL[] = {G3(EN_NIPPER, EN_NIPPER, EN_NIPPER)};
-static const Grp GR_GLOB[] = {G1(EN_GLOB), G2(EN_GLOB, EN_GLOB), G2(EN_GLOB, EN_SMOG)};
-static const Grp GR_SMOG[] = {G1(EN_SMOG), G2(EN_SMOG, EN_SMOG)};
-static const Grp GR_CLAMPER[] = {G1(EN_CLAMPER), G2(EN_CLAMPER, EN_GLOB), G2(EN_CLAMPER, EN_CLAMPER)};
-static const Grp GR_TINFIN[] = {G1(EN_TINFIN), G2(EN_TINFIN, EN_TINFIN), G2(EN_TINFIN, EN_NIPPER)};
+static const Grp GR_FIZZLE[] = {G1(EN_FIZZLE), G2(EN_FIZZLE, EN_FIZZLE), G1(EN_PRICKLE)};
+static const Grp GR_PRICKLE[] = {G1(EN_PRICKLE), G2(EN_PRICKLE, EN_FIZZLE)};
+static const Grp GR_FROND_SHELF[] = {G1(EN_FROND)};
+/* the hollow's frond is a slater pack, the gift's guard */
+static const Grp GR_FROND_HOLLOW[] = {G3(EN_LOUSE, EN_LOUSE, EN_LOUSE), G4(EN_LOUSE, EN_NIPPER, EN_NIPPER, EN_LOUSE)};
+static const Grp GR_FROND_SHRINE[] = {G3(EN_FROND, EN_WHORL, EN_FROND)};
+static const Grp GR_FROND_LANTERN[] = {G4(EN_FROND, EN_JELLY, EN_GROPER, EN_FROND)};
+static const Grp GR_SCHOOL[] = {G3(EN_NIPPER, EN_NIPPER, EN_NIPPER), G3(EN_NIPPER, EN_PRICKLE, EN_NIPPER)};
+static const Grp GR_GLOB[] = {G2(EN_GLOB, EN_GLOB), G3(EN_GLOB, EN_GLOB, EN_GLOB), G2(EN_GLOB, EN_CLAMPER)};
+static const Grp GR_SMOG[] = {G3(EN_SMOG, EN_SMOG, EN_SMOG), G2(EN_SMOG, EN_CLAMPER)};
+static const Grp GR_CLAMPER[] = {G2(EN_CLAMPER, EN_GLOB), G3(EN_SMOG, EN_CLAMPER, EN_SMOG)};
+static const Grp GR_TINFIN[] = {G3(EN_FIZZLE, EN_FROND, EN_FIZZLE), G3(EN_FIZZLE, EN_TINFIN, EN_FIZZLE), G2(EN_TINFIN, EN_TINFIN)};
 static const Grp GR_WHORL[] = {G1(EN_WHORL), G3(EN_FROND, EN_WHORL, EN_FROND)};
-static const Grp GR_JELLY[] = {G1(EN_JELLY), G2(EN_JELLY, EN_JELLY), G3(EN_JELLY, EN_JELLY, EN_JELLY)};
-static const Grp GR_GROPER[] = {G1(EN_GROPER), G2(EN_GROPER, EN_JELLY)};
-static const Grp GR_GROPER_DEEP[] = {G1(EN_GROPER), G2(EN_GROPER, EN_GROPER)};
-static const Grp GR_BURRNUT[] = {G1(EN_BURRNUT), G2(EN_BURRNUT, EN_BURRNUT), G2(EN_BURRNUT, EN_JELLY)};
-static const Grp GR_STILTER[] = {G1(EN_STILTER), G2(EN_STILTER, EN_STILTER), G2(EN_STILTER, EN_LOUSE)};
-static const Grp GR_LOUSE[] = {G1(EN_LOUSE), G2(EN_LOUSE, EN_STILTER)};
-static const Grp GR_HAUNT[] = {G1(EN_HAUNT), G2(EN_HAUNT, EN_STILTER)};
-static const Grp GR_HAUNT_DEEP[] = {G1(EN_HAUNT), G2(EN_HAUNT, EN_SQUID)};
-static const Grp GR_SQUID[] = {G1(EN_SQUID), G2(EN_SQUID, EN_HAUNT), G2(EN_SQUID, EN_SQUID)};
-static const Grp GR_GRINFISH[] = {G1(EN_GRINFISH), G2(EN_GRINFISH, EN_GRINFISH), G2(EN_GRINFISH, EN_SQUID)};
-static const Grp GR_WORM[] = {G1(EN_WORM), G2(EN_WORM, EN_GRINFISH)};
+static const Grp GR_JELLY[] = {G3(EN_JELLY, EN_JELLY, EN_JELLY), G4(EN_JELLY, EN_BURRNUT, EN_JELLY, EN_BURRNUT)};
+static const Grp GR_GROPER[] = {G2(EN_GROPER, EN_GROPER), G4(EN_FROND, EN_JELLY, EN_GROPER, EN_FROND)};
+static const Grp GR_GROPER_DEEP[] = {G3(EN_GROPER, EN_GRINFISH, EN_GROPER)};
+static const Grp GR_BURRNUT[] = {G2(EN_BURRNUT, EN_BURRNUT), G4(EN_JELLY, EN_BURRNUT, EN_JELLY, EN_BURRNUT)};
+static const Grp GR_STILTER[] = {G4(EN_STILTER, EN_STILTER, EN_STILTER, EN_STILTER), G3(EN_STILTER, EN_LOUSE, EN_STILTER)};
+static const Grp GR_LOUSE[] = {G3(EN_LOUSE, EN_LOUSE, EN_LOUSE), G3(EN_STILTER, EN_LOUSE, EN_STILTER)};
+static const Grp GR_HAUNT[] = {G2(EN_HAUNT, EN_HAUNT), G4(EN_HAUNT, EN_LOUSE, EN_HAUNT, EN_LOUSE)};
+static const Grp GR_HAUNT_DEEP[] = {G2(EN_SQUID, EN_HAUNT)};
+static const Grp GR_SQUID[] = {G1(EN_SQUID), G2(EN_SQUID, EN_HAUNT)};
+static const Grp GR_GRINFISH[] = {G3(EN_GROPER, EN_GRINFISH, EN_GROPER)};
+static const Grp GR_WORM[] = {G3(EN_WORM, EN_GRINFISH, EN_GRINFISH)};
 static const Grp GR_WARDEN[] = {G3(EN_FROND, EN_WARDEN, EN_FROND)};
 static const Grp GR_GLOAM[] = {G4(EN_ARM, EN_EYE, EN_EYE, EN_ARM)};
 
@@ -72,9 +74,10 @@ void sdg_group_for(int mobkind, int region, uint8_t *kinds, int *n) {
     case MK_FIZZLE: PICK(GR_FIZZLE); break;
     case MK_PRICKLE: PICK(GR_PRICKLE); break;
     case MK_FROND:
-        if (region == RG_SHELF) PICK(GR_FROND_SHELF);
+        if (region == RG_HOLLOW) PICK(GR_FROND_HOLLOW);
         else if (region == RG_SHRINE) PICK(GR_FROND_SHRINE);
-        else PICK(GR_FROND);
+        else if (region == RG_LANTERN) PICK(GR_FROND_LANTERN);
+        else PICK(GR_FROND_SHELF);
         break;
     case MK_NEST:
     case MK_SCHOOL: PICK(GR_SCHOOL); break;
@@ -306,7 +309,15 @@ static void diver_attack(int d, int it, int t) {
     if (I->kind == K_BOMB) dmg = sdg_rand(1500, 2000);
     else dmg = sdg_attack_damage(I->power, sdg_diver_level(&P, d), I->el, f->weak, sdg_rand(90, 110));
     if (covered) dmg /= 2;
-    if (f->hidden) dmg /= 2;
+    if (f->hidden) {
+        /* in its shell a whorl shrugs off any weapon; a charge still shakes it */
+        if (I->kind != K_BOMB) {
+            say("THE %s'S SHELL TURNS THE BLOW.", fname(t));
+            sfx_play_name("sdg_miss");
+            goto spines;
+        }
+        dmg /= 2;
+    }
     if (I->kind != K_BOMB && I->el == f->weak) f->weakhit = 24;
     dmg = imax(1, dmg);
     if (I->kind == K_BOMB) say("THE CHARGE BURSTS ON THE %s: %d!", fname(t), dmg);
@@ -322,6 +333,7 @@ static void diver_attack(int d, int it, int t) {
         }
     }
     /* spines: only a shield's blow is safe from them */
+spines:;
     const SdgFoeDef *D = &SDG_FOE[f->kind];
     if (I->kind != K_SHIELD && I->kind != K_BOMB && ((D->flags & FF_THORNS) || f->hidden) && P.hp[d] > 1) {
         int c = sdg_rand(60, 120);
@@ -394,16 +406,23 @@ static void hit_diver(int fi, int x, int dmg) {
             break;
         }
     if (P.hp[who] <= 0) return;
-    int pass = sdg_shield_def(&P, who);
-    int red = pass;
-    if (B.guarding[who] >= 0) {
-        if (B.guard_kind[who] == K_SHIELD) red = pass * 2;
-        else if (redirected || B.guarding[who] == who) {
-            int gi = B.ord[who].act == ACT_ITEM ? SDG_ITEM[P.equip[who][B.ord[who].slot]].guard : 0;
-            red = pass + gi;
+    /* the shields held, then the defend: with a shield it squares what is
+     * left (two bulwarks and a defend leave nothing); a hammer defends like
+     * a shield of its cut; a pole only takes the blow. The bonus covers the
+     * defender's own blows as well as the ones he takes for another. */
+    int m = sdg_shield_mul(&P, who);
+    if (B.guarding[who] >= 0 && B.ord[who].act == ACT_ITEM) {
+        int used = P.equip[who][B.ord[who].slot];
+        if (B.guard_kind[who] == K_SHIELD) {
+            int big = 0;
+            for (int s = 0; s < 2; s++) big += P.equip[who][s] && SDG_ITEM[P.equip[who][s]].kind == K_SHIELD && SDG_ITEM[P.equip[who][s]].def >= 60;
+            m = big >= 2 ? 0 : m * m / 1000;
+        } else if (B.guard_kind[who] == K_HAMMER) {
+            int h = 100 - SDG_ITEM[used].guard;
+            m = m * h * h / 10000;
         }
     }
-    dmg = sdg_reduce(dmg, red);
+    dmg = dmg * m / 1000;
     B.last_dmg = (int16_t)dmg;
     B.last_target = (int8_t)who;
     if (redirected) B.covered++;
@@ -564,7 +583,7 @@ static void victory(void) {
     say("THE WATER GOES QUIET.");
     if (B.xp || B.gold) say("%ld XP AND %ld GOLD.", (long)B.xp, (long)B.gold);
     sdg_add_xp(&P, (int)B.xp);
-    P.gold += B.gold;
+    P.gold = sdg_cap_gold(P.gold + B.gold);
     for (int i = 0; i < B.nfoe; i++) {
         const SdgFoeDef *D = &SDG_FOE[B.foe[i].kind];
         if (D->drop < 0 || B.foe[i].nodrop) continue;
@@ -644,7 +663,7 @@ void sdg_battle_step(unsigned pr) {
         if (B.shake[d] > 0) B.shake[d]--;
     if (B.nmsg > 0) {
         B.msg_t++;
-        if (B.msg_t >= SDG_MSG_T || ((pr & BTN_A) && B.msg_t >= 8)) {
+        if (B.msg_t >= SDG_MSG_T || ((pr & BTN_A) && B.msg_t >= SDG_MSG_MIN)) {
             for (int k = 1; k < B.nmsg; k++) B.msg[k - 1] = B.msg[k];
             B.nmsg--;
             B.msg_t = 0;

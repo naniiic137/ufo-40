@@ -94,7 +94,7 @@ void sdg_draw_title(void) {
         if (sel) ui_cursor(116, y, t);
     }
     if (sdg.title_erase) tiny_center(GLYPH_A " AGAIN TO START A NEW LOG OVER THE OLD ONE", 160, 136, C_PINK);
-    else if (sdg.code_on) tiny_center("RAFT-EGGS IS ON: NOTHING IS WRITTEN, NO GOALS", 160, 136, C_LIME);
+    else if (sdg.code_on) tiny_center("MOON-WAKE IS ON: NOTHING IS WRITTEN, NO GOALS", 160, 136, C_LIME);
     char b[96];
     const SdgProg *s = &sdg.saved;
     snprintf(b, sizeof b, "LEVEL %d  " GLYPH_DOT "  DOORS OPEN %d  " GLYPH_DOT "  CHESTS OPEN %d", has ? s->level : 0,

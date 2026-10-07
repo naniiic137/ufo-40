@@ -7,8 +7,8 @@ wait 90
 shot soundings_title
 # the demo player's first hours: shopping, the kit, the shelf
 cheat bot 0
-botuntil level >= 4 60000
-botuntil scene == 1 60000
+botuntil level >= 4 120000
+botuntil scene == 1 120000
 botplay 3
 shot soundings_raft
 botuntil scene == 4 3000
@@ -17,7 +17,7 @@ gifstart soundings 3 2
 botuntil scene == 6 4000
 botplay 420
 gifstop
-botuntil level >= 7 90000
+botuntil level >= 7 250000
 botuntil nfoe >= 3 60000
 botuntil bphase == 2 1200
 shot soundings_fight

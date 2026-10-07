@@ -28,20 +28,20 @@ const SdgItem SDG_ITEM[IT_COUNT] = {
     [IT_CLUB_R] = {"CLUB", K_HAMMER, EL_REEF, 150, 15, 0, 20, 0, 150, NR, 6, 0, SHOP_HAMMER},
     [IT_CLUB_Z] = {"CLUB", K_HAMMER, EL_ZAP, 150, 15, 0, 20, 0, 150, NR, 6, 0, SHOP_HAMMER},
     [IT_CLUB_O] = {"CLUB", K_HAMMER, EL_OOZE, 150, 15, 0, 20, 0, 150, NR, 6, 0, SHOP_HAMMER},
-    [IT_MAUL_R] = {"MAUL", K_HAMMER, EL_REEF, 300, 15, 0, 30, 0, 800, R1(RL_COG, 3), 6, 0, SHOP_HAMMER},
-    [IT_MAUL_Z] = {"MAUL", K_HAMMER, EL_ZAP, 300, 15, 0, 30, 0, 800, R2(RL_COG, 1, RL_BONE, 1), 6, 0, SHOP_HAMMER},
-    [IT_MAUL_O] = {"MAUL", K_HAMMER, EL_OOZE, 300, 15, 0, 30, 0, 800, R2(RL_COG, 1, RL_GUM, 1), 6, 0, SHOP_HAMMER},
-    [IT_PLATE_R] = {"PLATE", K_SHIELD, EL_REEF, 150, 20, 15, 0, 0, 150, NR, 6, 0, SHOP_SHIELD},
-    [IT_PLATE_Z] = {"PLATE", K_SHIELD, EL_ZAP, 150, 20, 15, 0, 0, 150, NR, 6, 0, SHOP_SHIELD},
-    [IT_PLATE_O] = {"PLATE", K_SHIELD, EL_OOZE, 150, 20, 15, 0, 0, 150, NR, 6, 0, SHOP_SHIELD},
-    [IT_TARGE_R] = {"TARGE", K_SHIELD, EL_REEF, 250, 20, 20, 0, 0, 600, R2(RL_FOAM, 1, RL_SPIRAL, 2), 6, 0, SHOP_SHIELD},
-    [IT_TARGE_Z] = {"TARGE", K_SHIELD, EL_ZAP, 250, 20, 20, 0, 0, 600, R2(RL_FOAM, 1, RL_PEBBLE, 2), 6, 0, SHOP_SHIELD},
-    [IT_TARGE_O] = {"TARGE", K_SHIELD, EL_OOZE, 250, 20, 20, 0, 0, 600, R2(RL_FOAM, 1, RL_GUM, 2), 6, 0, SHOP_SHIELD},
-    [IT_BULWARK_R] = {"BULWARK", K_SHIELD, EL_REEF, 350, 20, 25, 0, 0, 1200, R1(RL_COG, 2), 6, 0, SHOP_SHIELD},
-    [IT_BULWARK_Z] = {"BULWARK", K_SHIELD, EL_ZAP, 350, 20, 25, 0, 0, 1200, R1(RL_BONE, 2), 6, 0, SHOP_SHIELD},
-    [IT_BULWARK_O] = {"BULWARK", K_SHIELD, EL_OOZE, 350, 20, 25, 0, 0, 1200, R1(RL_GUM, 4), 6, 0, SHOP_SHIELD},
-    [IT_LEECH] = {"LEECH CLUB", K_HAMMER, EL_OOZE, 250, 15, 0, 20, 0, 0, NR, 1, IF_LEECH | IF_UNIQUE, -1},
-    [IT_SPINE] = {"SPINE TARGE", K_SHIELD, EL_REEF, 250, 10, 20, 0, 0, 0, NR, 1, IF_THORNS | IF_UNIQUE, -1},
+    [IT_MAUL_R] = {"MAUL", K_HAMMER, EL_REEF, 300, 15, 0, 45, 0, 800, R1(RL_COG, 3), 6, 0, SHOP_HAMMER},
+    [IT_MAUL_Z] = {"MAUL", K_HAMMER, EL_ZAP, 300, 15, 0, 45, 0, 800, R2(RL_COG, 1, RL_BONE, 1), 6, 0, SHOP_HAMMER},
+    [IT_MAUL_O] = {"MAUL", K_HAMMER, EL_OOZE, 300, 15, 0, 45, 0, 800, R2(RL_COG, 1, RL_GUM, 1), 6, 0, SHOP_HAMMER},
+    [IT_PLATE_R] = {"PLATE", K_SHIELD, EL_REEF, 150, 20, 20, 0, 0, 150, NR, 6, 0, SHOP_SHIELD},
+    [IT_PLATE_Z] = {"PLATE", K_SHIELD, EL_ZAP, 150, 20, 20, 0, 0, 150, NR, 6, 0, SHOP_SHIELD},
+    [IT_PLATE_O] = {"PLATE", K_SHIELD, EL_OOZE, 150, 20, 20, 0, 0, 150, NR, 6, 0, SHOP_SHIELD},
+    [IT_TARGE_R] = {"TARGE", K_SHIELD, EL_REEF, 250, 20, 45, 0, 0, 600, R2(RL_FOAM, 1, RL_SPIRAL, 2), 6, 0, SHOP_SHIELD},
+    [IT_TARGE_Z] = {"TARGE", K_SHIELD, EL_ZAP, 250, 20, 45, 0, 0, 600, R2(RL_FOAM, 1, RL_PEBBLE, 2), 6, 0, SHOP_SHIELD},
+    [IT_TARGE_O] = {"TARGE", K_SHIELD, EL_OOZE, 250, 20, 45, 0, 0, 600, R2(RL_FOAM, 1, RL_GUM, 2), 6, 0, SHOP_SHIELD},
+    [IT_BULWARK_R] = {"BULWARK", K_SHIELD, EL_REEF, 350, 20, 60, 0, 0, 1200, R1(RL_COG, 2), 6, 0, SHOP_SHIELD},
+    [IT_BULWARK_Z] = {"BULWARK", K_SHIELD, EL_ZAP, 350, 20, 60, 0, 0, 1200, R1(RL_BONE, 2), 6, 0, SHOP_SHIELD},
+    [IT_BULWARK_O] = {"BULWARK", K_SHIELD, EL_OOZE, 350, 20, 60, 0, 0, 1200, R1(RL_GUM, 4), 6, 0, SHOP_SHIELD},
+    [IT_LEECH] = {"LEECH CLUB", K_HAMMER, EL_OOZE, 250, 15, 0, 45, 0, 0, NR, 1, IF_LEECH | IF_UNIQUE, -1},
+    [IT_SPINE] = {"SPINE TARGE", K_SHIELD, EL_REEF, 250, 10, 50, 0, 0, 0, NR, 1, IF_THORNS | IF_UNIQUE, -1},
     [IT_LAMP] = {"LAMP ROD", K_POLE, EL_ZAP, 350, 15, 0, 0, 350, 0, NR, 1, IF_HOLY | IF_UNIQUE, -1},
     [IT_SMALL] = {"SIP", K_POTION, EL_NONE, 0, 4, 0, 0, 500, 200, NR, 6, 0, SHOP_POTION},
     [IT_MEDIUM] = {"DRAUGHT", K_POTION, EL_NONE, 0, 8, 0, 0, 500, 1000, R1(RL_FOAM, 3), 6, 0, SHOP_POTION},
@@ -92,30 +92,30 @@ const SdgFoeDef SDG_FOE[EN_COUNT] = {
     [EN_HAUNT] = {"HAUNT", 1200, 500, 50, EL_REEF, 183, 207, RL_BONE, FF_HEAL | FF_REVIVE, 400, SP_HAUNT},
     [EN_SQUID] = {"DUSKSQUID", 1500, 1200, 600, EL_OOZE, 540, 570, RL_COG, FF_LOWEST, 0, SP_SQUID},
     [EN_GRINFISH] = {"GRINFISH", 1200, 800, 1000, EL_OOZE, 410, 440, -1, FF_GUARD, 0, SP_GRINFISH},
-    [EN_WORM] = {"MAWWORM", 1500, 1500, 1000, EL_ZAP, 380, 420, -1, FF_MAYDOUBLE | FF_LEECH, 0, SP_WORM},
+    [EN_WORM] = {"MAWWORM", 1500, 1500, 1000, EL_ZAP, 640, 665, -1, FF_MAYDOUBLE | FF_LEECH, 0, SP_WORM},
     [EN_WARDEN] = {"ABBOT", 5000, 1040, 1030, EL_OOZE, 392, 416, RL_SUN, FF_MAYDOUBLE | FF_HEAL | FF_REVIVE | FF_BOSS, 800, SP_WARDEN},
     [EN_EYE] = {"GLOAM EYE", 4000, 0, 0, EL_ZAP, 250, 300, -1, FF_HEAL | FF_BOSS, 600, SP_EYE},
-    [EN_ARM] = {"GLOAM ARM", 5000, 0, 0, EL_REEF, 300, 380, -1, FF_TELEGRAPH | FF_GUARD | FF_BOSS, 0, SP_ARM},
+    [EN_ARM] = {"GLOAM ARM", 5000, 0, 0, EL_REEF, 430, 470, -1, FF_TELEGRAPH | FF_GUARD | FF_BOSS, 0, SP_ARM},
 };
 
 /* ---- levels ---------------------------------------------------------------- */
-const int32_t SDG_XP_AT[SDG_MAX_LEVEL + 1] = {0, 0, 50, 130, 250, 430, 720, 1170, 1870, 2940, 4610, 7190, 11200, 17400, 27000, 42000, 65000};
+const int32_t SDG_XP_AT[SDG_MAX_LEVEL + 1] = {0, 0, 50, 150, 400, 900, 1800, 4600, 8800, 15500, 26000, 42000, 65000, 98000, 145000, 210000, 300000};
 const int16_t SDG_HP_AT[SDG_MAX_LEVEL + 1] = {500, 500, 640, 780, 920, 1060, 1200, 1340, 1480, 1620, 1760, 1900, 2050, 2200, 2300, 2400, 2500};
 
-int sdg_level_mul(int level) { return 100 + 10 * (iclamp(level, 1, SDG_MAX_LEVEL) - 1); }
+/* 60 % at level 1, 150 % at 10, 210 % at 16 */
+int sdg_level_mul(int level) { return 50 + 10 * iclamp(level, 1, SDG_MAX_LEVEL); }
 
 /* ---- chests, in the order the map is read (row by row) -------------------- */
 const SdgChest SDG_CHEST[SDG_CHESTS] = {
     {CH_PEARL, IT_LEECH},      /* the hollow's top corner */
     {CH_RELIC, RL_GUM},        /* the shelf, by the surface */
     {CH_PEARL, IT_SMALL},      /* gumwell's west end */
-    {CH_GOLD, 300},            /* the shelf's floor, west */
+    {CH_GOLD, 100},            /* the shelf's floor, west */
     {CH_PEARL, IT_FLIPPERS},   /* behind the soft wall on the way round */
     {CH_PEARL, IT_GAFF_Z},     /* under the shelf's cracked floor */
     {CH_PEARL, IT_GAFF_R},     /* the shrine's high nook */
-    {CH_GOLD, 800},            /* gumwell, behind cracked rock */
-    {CH_GOLD, 1000},           /* under the hollow's cracked floor */
-    {CH_PEARL, IT_EGG},        /* the stilt pit, unseen */
+    {CH_GOLD, 500},            /* gumwell, behind cracked rock */
+    {CH_GOLD, 500},            /* under the hollow's cracked floor */
     {CH_RELIC, RL_BONE},       /* the shrine's east nook */
     {CH_GOLD, 500},            /* the shrine's west hall, unseen */
     {CH_PEARL, IT_SPINE},      /* the sunk vessel's room */

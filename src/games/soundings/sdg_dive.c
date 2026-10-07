@@ -187,6 +187,7 @@ static void mob_update(SdgMob *m, int idx) {
         } else if (!hide && dist < 80) {
             aim(m->x, m->y, D.x, D.y, sp, &m->vx, &m->vy);
             m->t2 = 36;
+            sfx_play_name("sdg_dart"); /* the silence breaks */
             m->dir = m->vx < 0 ? -1 : 1;
         } else if (iabs((int)(m->x >> 8) - m->hx) + iabs((int)(m->y >> 8) - m->hy) > 4) {
             return_home(m, 96);
@@ -275,12 +276,17 @@ static void mob_update(SdgMob *m, int idx) {
         int range = m->kind == MK_GROPER ? 120 : 96;
         if (!hide && dist < range) {
             int32_t vx, vy;
+            if (!m->out) { m->out = 1; sfx_play_name("sdg_dart"); }
             aim(m->x, m->y, D.x, D.y, m->kind == MK_GROPER ? 102 : 140, &vx, &vy);
             if (!mob_move(m, vx, vy, false)) { mob_move(m, vx, 0, false); mob_move(m, 0, vy, false); }
             m->dir = vx < 0 ? -1 : 1;
         } else if (m->kind == MK_GRINFISH && iabs((int)(m->y >> 8) - m->hy) < 3) {
+            m->out = 0;
             if (!mob_move(m, m->dir * 128, 0, false) || iabs((int)(m->x >> 8) - m->hx) > 48) m->dir = (int8_t)-m->dir;
-        } else return_home(m, 96);
+        } else {
+            m->out = 0;
+            return_home(m, 96);
+        }
         break;
     }
     case MK_HAUNT:
@@ -379,7 +385,7 @@ static void open_chest(int i) {
     sfx_play_name("sdg_chest");
     switch (ch->kind) {
     case CH_GOLD:
-        P.gold += ch->n;
+        P.gold = sdg_cap_gold(P.gold + ch->n);
         snprintf(sdg.notebuf[0], sizeof sdg.notebuf[0], "%d GOLD!", ch->n);
         sdg_note(sdg.notebuf[0], NULL);
         break;
@@ -515,12 +521,7 @@ void sdg_dive_step(unsigned held, unsigned pressed) {
     haunt_spawns();
     for (int i = 0; i < D.nmob; i++) {
         SdgMob *m = &D.mob[i];
-        if (m->state == MS_GONE) {
-            if (m->kind != MK_WARDEN && m->kind != MK_GLOAM && D.t >= m->gone_at + SDG_RESPAWN_T &&
-                iabs(x - m->hx) + iabs(y - m->hy) > SDG_RESPAWN_D)
-                mob_home(m);
-            continue;
-        }
+        if (m->state == MS_GONE) continue; /* back only after surfacing */
         mob_update(m, i);
     }
     /* shots: they sting but never finish anyone */

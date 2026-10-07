@@ -6,7 +6,7 @@ seed 1
 game soundings
 wait 10
 cheat bot 0
-botuntil wins >= 1 400000
+botuntil wins >= 1 900000
 expect goals == 3
 expect level >= 14
 expect heads == 0

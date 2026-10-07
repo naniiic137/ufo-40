@@ -1,4 +1,4 @@
-# SOUNDINGS: the title's CODE. RAFT-EGGS starts a new log with three eggs
+# SOUNDINGS: the title's CODE. MOON-WAKE starts a new log with three eggs
 # on the raft; while a code is on nothing is written and no goal is earned
 # (as a code works in the original's collection), until the library.
 game soundings
@@ -23,36 +23,7 @@ press UP
 press UP
 press UP
 press UP
-press UP
-press UP
-press UP
-press UP
-press UP
-expect code_ch0 == 82
-press RIGHT
-expect code_ch1 == 65
-press RIGHT
-press UP
-press UP
-press UP
-press UP
-press UP
-expect code_ch2 == 70
-press RIGHT
-press DOWN
-press DOWN
-press DOWN
-press DOWN
-press DOWN
-press DOWN
-press DOWN
-expect code_ch3 == 84
-press RIGHT
-press UP
-press UP
-press UP
-press UP
-expect code_ch4 == 69
+expect code_ch0 == 77
 press RIGHT
 press UP
 press UP
@@ -60,7 +31,15 @@ press UP
 press UP
 press UP
 press UP
-expect code_ch5 == 71
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+expect code_ch1 == 79
 press RIGHT
 press UP
 press UP
@@ -68,17 +47,56 @@ press UP
 press UP
 press UP
 press UP
-expect code_ch6 == 71
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+expect code_ch2 == 79
+press RIGHT
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+expect code_ch3 == 78
 press RIGHT
 press DOWN
 press DOWN
 press DOWN
 press DOWN
-press DOWN
-press DOWN
-press DOWN
-press DOWN
-expect code_ch7 == 83
+expect code_ch4 == 87
+press RIGHT
+expect code_ch5 == 65
+press RIGHT
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+expect code_ch6 == 75
+press RIGHT
+press UP
+press UP
+press UP
+press UP
+expect code_ch7 == 69
 press A
 expect code_on == 1
 press B

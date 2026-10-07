@@ -120,6 +120,7 @@ void sdg_audio_load(void) {
     sfx_define("sdg_pew", CH_P2, 240, "@33 v6 o6 c32");
     sfx_define("sdg_sting", CH_P2, 220, "@37 v10 o4 e16 c16");
     sfx_define("sdg_burst", CH_NOISE, 200, "@36 v11 o6 c8");
+    sfx_define("sdg_dart", CH_P2, 220, "@32 v10 o4 c32 g32 >c16");
     sfx_define("sdg_fight", CH_P2, 200, "@32 v11 o4 l32 c e g >c e g");
     sfx_define("sdg_splash", CH_NOISE, 160, "@36 v9 o5 c8 @9 v5 o7 c16");
     sfx_define("sdg_hit", CH_NOISE, 240, "@9 v10 o6 c16");

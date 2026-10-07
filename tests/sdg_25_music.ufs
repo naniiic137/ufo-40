@@ -25,3 +25,11 @@ expect music_kind == 0
 cheat fight 0
 wait 2
 expect music_kind == 3
+# a fight in the red deep keeps the deep's music
+cheat bot_off
+cheat dive
+cheat onlymob 34 65
+cheat at 30 67
+hold RIGHT 90
+waituntil scene == 6 200
+expect music_kind == 6

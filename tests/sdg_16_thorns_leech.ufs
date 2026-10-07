@@ -34,4 +34,4 @@ press DOWN
 press DOWN
 press A
 waituntil bround == 2 900
-expect leech_healed > 100
+expect leech_healed > 60

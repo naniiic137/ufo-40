@@ -1,0 +1,21 @@
+# SOUNDINGS: a whorl in its shell shrugs off every weapon and still pricks
+# whoever strikes it (a shield's blow is safe from the spines).
+game soundings
+wait 30
+press A
+wait 20
+cheat level 6
+cheat equip 0 0 6
+cheat equip 1 0 16
+cheat hp 2 0
+cheat fight 8
+waituntil bphase == 1 200
+cheat foehide 0
+cheat seed 1
+press A
+press A
+press A
+press A
+waituntil bround == 2 900
+expect foehp0 == 1000
+expect thorns_taken == 1

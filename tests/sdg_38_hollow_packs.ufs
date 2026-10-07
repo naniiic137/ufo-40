@@ -1,0 +1,25 @@
+# SOUNDINGS: the fights a creature stands for follow the original's lists
+# (about three creatures a fight): in Frond Hollow a frond is a pack of
+# slaters, the leech club's guard; in the stilt pit a stilter is four.
+game soundings
+wait 30
+press A
+wait 20
+press RIGHT
+press RIGHT
+press A
+wait 5
+cheat onlymob 83 14
+cheat at 80 14
+hold RIGHT 60
+waituntil scene == 6 200
+expect foekind0 == 13
+expect nfoe >= 3
+cheat bot_off
+cheat dive
+cheat onlymob 80 36
+cheat at 78 36
+hold RIGHT 45
+waituntil scene == 6 300
+expect foekind0 == 12
+expect nfoe >= 3

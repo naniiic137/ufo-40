@@ -341,7 +341,8 @@ static void begin_fight(int mob) {
     if (m->kind == MK_GLOAM) boss = 2;
     sdg_battle_start(mob, kinds, n, boss);
     sdg_goto(SC_BATTLE);
-    music_play(boss == 1 ? SDG_MUS_WARDEN : boss == 2 ? SDG_MUS_GLOAM : SDG_MUS_BATTLE);
+    /* the red deep's own music carries on through its ordinary fights */
+    music_play(boss == 1 ? SDG_MUS_WARDEN : boss == 2 ? SDG_MUS_GLOAM : m->region == RG_DEEP ? SDG_MUS_DEEP : SDG_MUS_BATTLE);
     sfx_play_name("sdg_fight");
     gfx_set_flash(6);
 }
@@ -682,7 +683,7 @@ static int sdg_cheat(const char *cmd) {
         for (int k = 0; k < a; k++) calc_out += sdg_chance(SDG_ESCAPE);
         return 1;
     }
-    if (sscanf(cmd, "shield_def %d", &a) == 1) { calc_out = sdg_shield_def(&P, a % 3); return 1; }
+    if (sscanf(cmd, "shield_mul %d", &a) == 1) { calc_out = sdg_shield_mul(&P, a % 3); return 1; }
     if (sscanf(cmd, "give %d %d", &a, &b2) == 2) { if (a > 0 && a < IT_COUNT) P.owned[a] = (uint8_t)b2; return 1; }
     if (sscanf(cmd, "give %d", &a) == 1) { if (a > 0 && a < IT_COUNT) P.owned[a]++; return 1; }
     if (sscanf(cmd, "equip %d %d %d", &a, &b2, &c) == 3) {
@@ -694,7 +695,7 @@ static int sdg_cheat(const char *cmd) {
         return 1;
     }
     if (sscanf(cmd, "uses %d %d %d", &a, &b2, &c) == 3) { P.uses[a % 3][b2 & 1] = (uint8_t)c; return 1; }
-    if (sscanf(cmd, "gold %d", &a) == 1) { P.gold = a; return 1; }
+    if (sscanf(cmd, "gold %d", &a) == 1) { P.gold = sdg_cap_gold(a); return 1; }
     if (sscanf(cmd, "relic %d %d", &a, &b2) == 2) { if (a >= 0 && a < RL_COUNT) P.relic[a] = (uint8_t)b2; return 1; }
     if (sscanf(cmd, "carry %d %d", &a, &b2) == 2) { if (a >= 0 && a < RL_COUNT) P.carry[a] = (uint8_t)b2; return 1; }
     if (sscanf(cmd, "level %d", &a) == 1) {
@@ -722,6 +723,7 @@ static int sdg_cheat(const char *cmd) {
         return 1;
     }
     if (sscanf(cmd, "foehp %d %d", &a, &b2) == 2) { if (a >= 0 && a < sdg.bat.nfoe) sdg.bat.foe[a].hp = (int16_t)b2; return 1; }
+    if (sscanf(cmd, "foehide %d", &a) == 1) { if (a >= 0 && a < sdg.bat.nfoe) sdg.bat.foe[a].hidden = 1; return 1; }
     if (sscanf(cmd, "foeweak %d %d", &a, &b2) == 2) { if (a >= 0 && a < sdg.bat.nfoe) sdg.bat.foe[a].weak = (uint8_t)b2; return 1; }
     if (sscanf(cmd, "seed %d", &a) == 1) { rng_seed(&sdg.rng, (uint64_t)a); return 1; }
     if (sscanf(cmd, "door %d", &a) == 1) { sdg_open_door(a); return 1; }

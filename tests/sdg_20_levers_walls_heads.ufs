@@ -30,7 +30,7 @@ expect doors_open == 3
 # a chest nobody can see
 cheat at 28 37
 press A
-expect chests == 2048
+expect chests == 1024
 expect gold == 1000
 # a charge in Skip's right hand, beside the shelf's cracked floor
 cheat equip 2 1 34

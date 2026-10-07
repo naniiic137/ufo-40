@@ -59,7 +59,7 @@ typedef struct SdgItem {
     int16_t power;             /* weapons: attack power */
     uint8_t uses;              /* per dive; 0 = passive */
     uint8_t def;               /* shields: % taken off every hit while held */
-    uint8_t guard;             /* poles and hammers: % taken off when defending with it */
+    uint8_t guard;             /* hammers: defend like a shield of this cut (poles 0) */
     int16_t heal;              /* potions */
     int16_t price;             /* gold; 0 = never sold */
     int8_t rel[2];             /* relic costs: kind (-1 none) ... */
@@ -123,7 +123,7 @@ extern const char *const SDG_REGION_NAME[RG_COUNT];
 int sdg_region_at(int c, int r);
 
 /* what the map holds, found by scanning it once (sdg_map_index) */
-#define SDG_CHESTS 18
+#define SDG_CHESTS 17
 #define SDG_HEADS 3
 #define SDG_LORES 7
 #define SDG_WALLS 3
@@ -227,8 +227,6 @@ typedef struct SdgDive {
 #define SDG_LIGHT 54               /* the light around the diver (px) */
 #define SDG_MIST_M 3000            /* the mist orb's metres */
 #define SDG_SHOT_DMG 40
-#define SDG_RESPAWN_T 1800         /* a beaten creature comes back after this long ... */
-#define SDG_RESPAWN_D 320          /* ... once the diver is this far away (px) */
 
 /* ---- the fight ------------------------------------------------------------- */
 #define SDG_FOES 4
@@ -282,16 +280,18 @@ typedef struct SdgBattle {
     int8_t last_heavy;             /* it was a telegraphed blow */
     int16_t heals, revives;        /* creatures mending and bringing back */
 } SdgBattle;
-#define SDG_MSG_T 40               /* frames a line stays (A moves on after 8) */
+#define SDG_MSG_T 50               /* frames a line stays ... */
+#define SDG_MSG_MIN 20             /* ... and A moves on after this many */
 #define SDG_ESCAPE 25              /* % */
 #define SDG_HIT 90                 /* % */
 #define SDG_WEAK_NUM 3              /* a weak spot takes half again */
 #define SDG_WEAK_DEN 2
-#define SDG_DROP 20                /* % a relic drops */
+#define SDG_DROP 10                /* % a relic drops */
 
 /* ---- the one shared state ---------------------------------------------------- */
 enum { SC_TITLE, SC_RAFT, SC_SHOP, SC_KIT, SC_DIVE, SC_MENU, SC_BATTLE, SC_WIPE, SC_SURFACE, SC_ENDING, SC_CODE };
-#define SDG_CODE "RAFTEGGS"        /* shown as RAFT-EGGS: a new log with three eggs */
+#define SDG_CODE "MOONWAKE"        /* shown as MOON-WAKE: a new log with three eggs */
+#define SDG_GOLD_MAX 9999
 typedef struct SdgState {
     SdgProg prog, saved;
     SdgDive dive;
@@ -324,7 +324,9 @@ extern SdgState sdg;
 /* the effective level of a diver (Godblood +1, an Evil Potion -1) */
 int sdg_diver_level(const SdgProg *p, int d);
 int sdg_diver_maxhp(const SdgProg *p, int d);
-int sdg_shield_def(const SdgProg *p, int d);
+/* what is left of a blow after the shields a diver holds, in thousandths */
+int sdg_shield_mul(const SdgProg *p, int d);
+int sdg_cap_gold(int32_t g);
 bool sdg_holds(const SdgProg *p, int d, int it);
 bool sdg_party_holds(const SdgProg *p, int it);   /* anyone, alive or not */
 int sdg_alive_count(const SdgProg *p);

@@ -20,6 +20,8 @@ static int field_key = -1, field_age;
 static uint8_t field_doors, field_walls;
 static int stuck_t, stuck_x, stuck_y, wiggle;
 static int dive_t;
+static int blocked_task = -1;
+static int grind_dry;
 
 /* ---- the plan --------------------------------------------------------------- */
 
@@ -27,41 +29,42 @@ enum { TK_GRIND, TK_LEVER, TK_CHEST, TK_BOMB, TK_HEAD, TK_BOSS };
 typedef struct Task { uint8_t kind, arg, minlv, cherry; } Task;
 static const Task PLAN[] = {
     {TK_GRIND, 3, 0, 0},
-    {TK_LEVER, LV_WEST, 2, 0},
-    {TK_CHEST, 4, 2, 0},
-    {TK_CHEST, 3, 2, 0},
-    {TK_CHEST, 1, 2, 0},
+    {TK_LEVER, LV_WEST, 3, 0},
+    {TK_CHEST, 4, 3, 0},           /* the fins */
+    {TK_CHEST, 3, 3, 0},
+    {TK_CHEST, 1, 3, 0},
     {TK_CHEST, 2, 3, 0},
     {TK_GRIND, 5, 0, 0},
-    {TK_BOMB, 0, 4, 0},
-    {TK_CHEST, 5, 4, 0},
-    {TK_CHEST, 11, 5, 0},
-    {TK_LEVER, LV_SHORT, 5, 0},
-    {TK_CHEST, 6, 5, 0},
-    {TK_CHEST, 10, 5, 0},
-    {TK_BOMB, 1, 5, 0},
-    {TK_CHEST, 7, 5, 0},
+    {TK_BOMB, 0, 5, 0},
+    {TK_CHEST, 5, 5, 0},           /* the zap gaff */
     {TK_GRIND, 6, 0, 0},
-    {TK_CHEST, 0, 6, 0},
-    {TK_HEAD, 0, 6, 1},
-    {TK_HEAD, 1, 6, 1},
-    {TK_BOMB, 2, 6, 0},
-    {TK_CHEST, 8, 6, 0},
+    {TK_CHEST, 10, 6, 0},
+    {TK_LEVER, LV_SHORT, 6, 0},
+    {TK_CHEST, 6, 6, 0},           /* the reef gaff */
+    {TK_CHEST, 9, 6, 0},
+    {TK_BOMB, 1, 6, 0},
+    {TK_CHEST, 7, 6, 0},
     {TK_GRIND, 8, 0, 0},
-    {TK_BOSS, 1, 8, 0},
-    {TK_CHEST, 12, 8, 0},
-    {TK_HEAD, 2, 8, 1},
+    {TK_HEAD, 0, 8, 1},
+    {TK_GRIND, 9, 0, 0},
+    {TK_CHEST, 0, 9, 0},           /* the leech club, past the slater packs */
+    {TK_HEAD, 1, 9, 1},
+    {TK_BOMB, 2, 9, 0},
+    {TK_CHEST, 8, 9, 0},
     {TK_GRIND, 10, 0, 0},
-    {TK_LEVER, LV_FINAL_W, 10, 0},
-    {TK_CHEST, 13, 10, 0},
-    {TK_CHEST, 14, 10, 0},
+    {TK_BOSS, 1, 10, 0},
+    {TK_CHEST, 11, 10, 0},
+    {TK_HEAD, 2, 10, 1},
     {TK_GRIND, 11, 0, 0},
-    {TK_LEVER, LV_FINAL_E, 11, 0},
-    {TK_CHEST, 15, 11, 0},
-    {TK_CHEST, 9, 11, 0},
+    {TK_LEVER, LV_FINAL_W, 11, 0},
+    {TK_CHEST, 12, 11, 0},
+    {TK_CHEST, 13, 11, 0},
+    {TK_GRIND, 12, 0, 0},
+    {TK_LEVER, LV_FINAL_E, 12, 0},
+    {TK_CHEST, 14, 12, 0},
     {TK_GRIND, 14, 0, 0},
+    {TK_CHEST, 15, 14, 0},
     {TK_CHEST, 16, 14, 0},
-    {TK_CHEST, 17, 14, 0},
     {TK_BOSS, 2, 14, 0},
 };
 #define NTASK ARRAY_LEN(PLAN)
@@ -298,7 +301,7 @@ static bool should_surface(void) {
     int dead = 0;
     for (int d = 0; d < 3; d++) dead += P.hp[d] <= 0;
     if (dead && heal_slot(2) < 0) return true;
-    if (total_hp() * 100 < total_max() * 45) return true;
+    if (total_hp() * 100 < total_max() * 60) return true; /* a careful diver turns back early */
     int ratio;
     lowest_ratio_diver(&ratio);
     if (ratio < 300 && heal_slot(1 | 4) < 0) return true;
@@ -315,7 +318,7 @@ static unsigned grind_regions(int goal) {
     if (goal <= 6) return (1u << RG_GUMWELL) | (1u << RG_SHELF);
     if (goal <= 8) return (1u << RG_SHRINE) | (1u << RG_GUMWELL);
     if (goal <= 10) return (P.doors >> DOOR_WARDEN) & 1 ? (1u << RG_LANTERN) | (1u << RG_SHRINE) : (1u << RG_SHRINE);
-    if (goal <= 11) return (1u << RG_LANTERN) | (1u << RG_STILT);
+    if (goal <= 12) return (1u << RG_LANTERN) | (1u << RG_STILT);
     return 1u << RG_DEEP;
 }
 
@@ -421,12 +424,12 @@ static unsigned bot_dive(void) {
             if (es >= 0) { menu_want_slot = es; menu_want_target = d; return use_menu_for(es, d); }
         }
     int key = -1, n = 0;
-    bool home = should_surface();
+    bool home = should_surface() || grind_dry;
     bool grinding = false;
     if (home) {
         for (int c = SDG_SURF_C0; c <= SDG_SURF_C1; c++) { tcs[n] = (int16_t)c; trs[n++] = SDG_SURF_ROW; }
         key = 1;
-    } else if (can_do(task) && PLAN[task].kind != TK_GRIND) {
+    } else if (can_do(task) && PLAN[task].kind != TK_GRIND && task != blocked_task) {
         n = targets_for(task, &key);
     }
     if (n == 0 && !home) {
@@ -460,10 +463,14 @@ static unsigned bot_dive(void) {
     unsigned m = steer(&dist);
     int x = (int)(sdg.dive.x >> 8), y = (int)(sdg.dive.y >> 8);
     if (dist == 32767) {
-        /* unreachable from here: try for home */
+        /* unreachable from here: leave that task for this dive and grind */
+        if (!home && !grinding) blocked_task = task;
+        else if (grinding) grind_dry = 1; /* nothing left to fight that can be reached: home */
         field_key = -1;
-        return BTN_UP;
+        return 0;
     }
+    /* not yet away from the raft: dive a little before turning back */
+    if (home && !sdg.dive.left_surface) return BTN_DOWN;
     if (home && y / SDG_T <= SDG_SURF_ROW + 1) m = BTN_UP | (m & (BTN_LEFT | BTN_RIGHT));
     if (dist == 0 && !home && !grinding) {
         const Task *t = &PLAN[task];
@@ -519,7 +526,7 @@ static unsigned bot_raft(void) {
     if (want_buy()) goal = 0;
     else if (memcmp(want, P.equip, 6) != 0) goal = 1;
     if (sdg.raft_sel != goal) return press(BTN_RIGHT);
-    if (goal == 2) { dive_t = 0; field_key = -1; }
+    if (goal == 2) { dive_t = 0; field_key = -1; blocked_task = -1; grind_dry = 0; }
     return press(BTN_A);
 }
 
@@ -718,10 +725,10 @@ unsigned sdg_bot(void) {
         break;
     default: break;
     }
-    if (sdg_bot_debug && (sdg.frame % 600) == 0)
-        fprintf(stderr, "bot f%u scene %d task %d lv %d xp %ld gold %ld hp %d/%d/%d at %d,%d deepest %d wins %d\n",
+    if (sdg_bot_debug && (sdg.frame % 3600) == 0)
+        fprintf(stderr, "bot f%u scene %d task %d lv %d xp %ld gold %ld hp %d/%d/%d at %d,%d deepest %d wins %d dives %d\n",
                 (unsigned)sdg.frame, sdg.scene, sdg_bot_task, P.level, (long)P.xp, (long)P.gold, P.hp[0], P.hp[1], P.hp[2],
-                (int)(sdg.dive.x >> 8) / SDG_T, (int)(sdg.dive.y >> 8) / SDG_T, P.deepest, P.wins);
+                (int)(sdg.dive.x >> 8) / SDG_T, (int)(sdg.dive.y >> 8) / SDG_T, P.deepest, P.wins, P.dives);
     if (sdg_bot_debug >= 2)
         fprintf(stderr, "  f%u sc %d st %d m %02x x %d y %d menu %d/%d want %d/%d field %d\n", (unsigned)sdg.frame, sdg.scene, sdg.scene_t, m,
                 (int)(sdg.dive.x >> 8), (int)(sdg.dive.y >> 8), sdg.menu_sel, sdg.menu_pick, menu_want_slot, menu_want_target, field_key);

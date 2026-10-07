@@ -39,15 +39,18 @@ int sdg_diver_level(const SdgProg *p, int d) {
 
 int sdg_diver_maxhp(const SdgProg *p, int d) { return SDG_HP_AT[sdg_diver_level(p, d)]; }
 
-/* every shield in a diver's hands takes its share off every hit */
-int sdg_shield_def(const SdgProg *p, int d) {
-    int def = 0;
+/* every shield in a diver's hands takes its cut off every hit: two shields
+ * multiply (a bulwark leaves 400 thousandths, two leave 160) */
+int sdg_shield_mul(const SdgProg *p, int d) {
+    int m = 1000;
     for (int s = 0; s < 2; s++) {
         int it = p->equip[d][s];
-        if (it && SDG_ITEM[it].kind == K_SHIELD) def += SDG_ITEM[it].def;
+        if (it && SDG_ITEM[it].kind == K_SHIELD) m = m * (100 - SDG_ITEM[it].def) / 100;
     }
-    return def;
+    return m;
 }
+
+int sdg_cap_gold(int32_t g) { return (int)iclamp((int)g, 0, SDG_GOLD_MAX); }
 
 int sdg_alive_count(const SdgProg *p) {
     int n = 0;

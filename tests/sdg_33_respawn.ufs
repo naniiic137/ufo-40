@@ -1,6 +1,6 @@
-# SOUNDINGS: a creature beaten (or fled from) is gone from the map; it comes
-# back half a minute later once the divers are well away, and every creature
-# is back after surfacing.
+# SOUNDINGS: a creature beaten (or fled from) is gone from the map for the
+# rest of the dive, however long and wherever the divers swim; every
+# creature is back after surfacing.
 game soundings
 wait 30
 press A
@@ -19,7 +19,17 @@ botuntil scene == 4 3000
 cheat bot_off
 expect mobstate0 == 2
 wait 2000
-expect mobstate0 == 2
 cheat at 20 12
+wait 3000
+expect mobstate0 == 2
+cheat at 48 5
+hold UP 40
+expect scene == 8
+wait 30
+press A
 wait 10
+expect scene == 1
+press A
+wait 5
+expect scene == 4
 expect mobstate0 == 0

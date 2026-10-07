@@ -10,7 +10,7 @@ cheat xp 50
 expect level == 2
 expect hp0 == 500
 expect maxhp0 == 640
-cheat xp 80
+cheat xp 100
 expect level == 3
 cheat equip 0 1 36
 expect dlevel0 == 4
@@ -21,7 +21,7 @@ cheat surface
 expect hp0 == 920
 expect hp1 == 640
 expect hp2 == 780
-cheat xp 200000
+cheat xp 400000
 expect level == 16
 expect dlevel0 == 16
 expect maxhp0 == 2500
