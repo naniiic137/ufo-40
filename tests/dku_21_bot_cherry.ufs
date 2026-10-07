@@ -3,7 +3,7 @@
 # all five nights, shopping between them, through the lift and both of
 # Alderman Grist's forms without a single continue: the good ending, the
 # saucer and the alien.
-seed 3
+seed 1
 game dukesup
 wait 5
 botuntil state == 4 2000

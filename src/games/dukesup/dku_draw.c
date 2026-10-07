@@ -145,12 +145,16 @@ static void bg_ferry(int cam) {
 
 static void bg_waxworks(void) {
     gfx_rect(0, DKU_TOP, SCREEN_W, 86, C_WINE);
+    /* wax figures of other Beamdown heroes, each on its plinth */
+    static const char *const WHO[5] = {"MO", "PIM", "DICE", "KIP", "POSY"};
+    static const uint8_t BODY[5] = {C_EARTH, C_ORANGE, C_RED, C_SKY, C_PINK};
     for (int k = 0; k < 5; k++) {
         int x = 24 + k * 64;
         gfx_rect(x - 10, 50, 20, 52, C_MAROON);
-        gfx_rect(x - 6, 66, 12, 26, C_CREAM);
+        gfx_rect(x - 6, 66, 12, 26, BODY[k]);
         gfx_rect(x - 4, 58, 8, 8, C_TAN);
         gfx_rect(x - 14, 96, 28, 6, C_GREY);
+        tput("wax name", WHO[k], x - tiny_width(WHO[k]) / 2, 97, C_INK);
     }
     put("wax sign", "WAXWORKS", 128, 30, C_YELLOW);
     gfx_rect(0, 108, SCREEN_W, 72, C_RED);

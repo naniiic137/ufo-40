@@ -379,6 +379,7 @@ typedef struct {
     Part part[DKU_MAX_PARTS];
     int shake;
     Rng rng;
+    Rng fx;                   /* sparks and dust only: never touches play */
     /* the shop */
     int shop_sel, shop_who;
     const char *shop_msg;

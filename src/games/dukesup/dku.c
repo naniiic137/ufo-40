@@ -331,6 +331,7 @@ static void dku_start(void) {
     load_save();
     memset(&dku_g, 0, sizeof dku_g);
     rng_seed(&dku_g.rng, (uint64_t)rng_next(&g_rng) + 33u);
+    rng_seed(&dku_g.fx, 3333u);
     dku_g.boss = -1;
     dku_g.cam_lock = -1;
     goals_from_save();

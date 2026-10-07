@@ -177,7 +177,9 @@ chandeliers, a tusker and a rammer, the five-wave lift and Alderman Grist.
   rink, Canal Row, the night ferry, the waxworks, the old orchard, the
   graveyard, the visitors' ship, the promenade, the fishing jetty, the
   dunes, the Grand Hotel, its service lift and penthouse, and the Hornets'
-  gym (SKID KIDS's). Every layout and script.
+  gym (SKID KIDS's). Every layout and script. The waxworks' figures are
+  other Beamdown heroes (Mo, Pim, Dice, Kip and Posy), our nod to the
+  original's arcade cabinets of other UFO games.
 - **The ghouls:** shamblers, torch-bellies, crowmasks, rammers, howlers,
   tuskers, sludgers, visitors, bulwarks, gigglers, mudskippers and feelers;
   Big Ram, the Boar Baron, the Visitors, the Undertow and Alderman Grist;
@@ -265,11 +267,14 @@ spreads) and that every screen's words fit.
 
 The demo player (`dku_bot_buttons` in `dku_bot.c`) only ever answers with
 buttons. It plays the way the cherry guide teaches: it walks on a step at a
-time so ghouls come a few at once, stands a little below the one it fights,
+time so ghouls come a few at once, stands a little below the one it fights
+(on whichever side keeps the rest of them in front of it),
 punches four times and takes a breath, spins when they get round both
 sides or a cleaver is about to land, dodges out of a charge's lane, keeps
 away from holes, blasts and the thresher, breaks containers, picks up food
-and cash, carries mudskippers to the Undertow and throws them in, and in the
+and cash (and, when hurt, the food in a container mid-fight), punches the
+saucer, carries mudskippers to the Undertow and throws them in (walking them
+out from under a falling feeler), and in the
 shop buys a heal when it needs one and then POWER, TOUGH and RECOV. From the
 title it beats all five nights and both of Grist's forms with no continue
 (`dku_21`, the good ending and all three goals but the beacon) and, walking

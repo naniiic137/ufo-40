@@ -3,7 +3,7 @@
 # Market Street; the stills are the title, the fighter select, the corner
 # shop, the orchard, the penthouse and the gym.
 shotscale 2
-seed 3
+seed 1
 game dukesup
 wait 40
 shot dukesup_title

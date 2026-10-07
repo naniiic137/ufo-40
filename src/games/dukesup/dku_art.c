@@ -719,6 +719,15 @@ void dku_draw_actor(const Actor *a, int sx, int sy) {
     case AK_SAUCER: draw_saucer(a, sx, sy); return;
     default: break;
     }
+    if (a->state == AS_DORMANT && a->mode == DM_FEED) {
+        /* what it's eating: a passer-by who didn't make it */
+        int bx = sx + a->face * 10;
+        gfx_rect(bx - 9, sy - 5, 18, 5, C_INK);
+        gfx_rect(bx - 8, sy - 4, 12, 3, C_SLATE);
+        gfx_rect(bx + 4, sy - 5, 4, 4, C_TAN);
+        gfx_pset(bx - 2, sy - 3, C_RED);
+        gfx_pset(bx + 1, sy - 2, C_MAROON);
+    }
     Look l = look_of(a);
     bool lying;
     int pose = pose_for(a, &lying);

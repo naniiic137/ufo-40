@@ -293,6 +293,9 @@ static int blast_threat(int x, int y) {
     }
     for (int i = 2; i < DKU_MAX_ACTORS; i++) {
         const Actor *o = &dku_g.a[i];
+        if (o->alive && (o->kind == AK_GRIST || o->kind == AK_TUSKER) && o->state == AS_SLAM &&
+            iabs(dku_px(o->x) - x) < 40 && iabs(dku_px(o->y) - y) < 16)
+            d += 1200;
         if (o->alive && o->kind == AK_TORCH && o->exploding && o->state == AS_DEAD &&
             iabs(dku_px(o->x) - x) < 40 && iabs(dku_px(o->y) - y) < 20)
             d += 1500;
@@ -470,6 +473,24 @@ static int fight(void) {
             if (iabs(ix - me_x) <= 8 && iabs(iy - me_y) <= 5) WHY(45, press(BTN_A));
             WHY(46, step_toward(ix, iy));
         }
+        /* or a container with food in it (the penthouse's bin) */
+        if (me->hp < 55) {
+            for (int i = 0; i < DKU_MAX_PROPS; i++) {
+                const Prop *p = &dku_g.pr_[i];
+                if (!p->alive || (p->content == 0 || DKU_ITEMS[p->content].kind != IK_FOOD)) continue;
+                int px = dku_px(p->x), py = dku_px(p->y);
+                if (px < dku_view_left() + 8 || px > dku_view_right() - 8) continue;
+                int side = me_x <= px ? -1 : 1;
+                int dxp = px - me_x, dyp = py - me_y;
+                int fp = dxp > 0 ? 1 : -1;
+                if (iabs(dxp) >= (me->face == fp ? 2 : 4) && iabs(dxp) <= 19 && dyp >= -9 && dyp <= 1) {
+                    if (me->face != fp) WHY(53, fp > 0 ? BTN_RIGHT : BTN_LEFT);
+                    if (p->shake == 0) WHY(54, press(BTN_A));
+                    WHY(55, 0);
+                }
+                WHY(56, step_toward(px + side * 14, py + 4));
+            }
+        }
     }
     /* surrounded: spin */
     if (t >= 0 && me->hp > 24 && (me->state == AS_FREE || me->state == AS_ATTACK)) {
@@ -610,6 +631,13 @@ static int fight(void) {
                     int x = ox + sd * ddx, y = imin(oy + ddy, dku_floor_hi());
                     if (x < dku_view_left() + 7 || x > dku_view_right() - 7) continue;
                     int s = ground_danger(x, y) * 4 + iabs(x - me_x) + iabs(y - me_y) + (sd == -side ? 0 : 30) + iabs(ddx - 18);
+                    /* keep the rest of them in front: none at your back */
+                    for (int k = 2; k < DKU_MAX_ACTORS; k++) {
+                        const Actor *e = &dku_g.a[k];
+                        if (k == t || !awake_foe(e) || e->kind == AK_FEELER) continue;
+                        int ex = dku_px(e->x);
+                        if ((ex - x) * sd > 0 && iabs(ex - x) < 90) s += 25;
+                    }
                     if (s < bs) { bs = s; want_x = x; want_y = y; }
                 }
         tolerate = ground_danger(want_x, want_y);

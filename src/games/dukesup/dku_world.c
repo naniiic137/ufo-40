@@ -29,10 +29,10 @@ void dku_burst(int x, int y, int z, int col, int n) {
             p->x = x;
             p->y = y;
             p->z = z + dku_fx(4);
-            p->vx = rng_range(&dku_g.rng, -24, 24);
-            p->vy = rng_range(&dku_g.rng, -6, 6);
-            p->vz = rng_range(&dku_g.rng, 8, 30);
-            p->life = rng_range(&dku_g.rng, 12, 26);
+            p->vx = rng_range(&dku_g.fx, -24, 24);
+            p->vy = rng_range(&dku_g.fx, -6, 6);
+            p->vz = rng_range(&dku_g.fx, 8, 30);
+            p->life = rng_range(&dku_g.fx, 12, 26);
             p->col = col;
             break;
         }
@@ -324,9 +324,10 @@ static void place_fighters(void) {
 void dku_new_run(int players) {
     int menu = dku_g.menu, sel0 = dku_g.sel[0], sel1 = dku_g.sel[1];
     DkuPlayerRun pr0 = dku_g.pr[0], pr1 = dku_g.pr[1];
-    Rng keep = dku_g.rng;
+    Rng keep = dku_g.rng, keepfx = dku_g.fx;
     memset(&dku_g, 0, sizeof dku_g);
     dku_g.rng = keep;
+    dku_g.fx = keepfx;
     dku_g.menu = menu;
     dku_g.sel[0] = sel0;
     dku_g.sel[1] = sel1;

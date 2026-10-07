@@ -249,6 +249,8 @@ void dku_kill(int i, int dir) {
     if (t->z < 1) t->z = 1;
     if (t->team == 1) dku_g.kos++;
     if (t->carry >= 0) t->carry = -1;
+    /* the first game from Beamdown with blood in it */
+    if (t->team == 1 && t->kind != AK_SAUCER) dku_burst(t->x, t->y, dku_fx(14), C_RED, 6);
     switch (t->kind) {
     case AK_SHAMBLER: {
         int r = rng_range(&dku_g.rng, 0, 99);
