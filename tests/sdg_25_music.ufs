@@ -1,0 +1,35 @@
+# SOUNDINGS: the caves are silent; fights have music, and so do the red deep
+# and the still green room.
+game soundings
+wait 30
+press A
+wait 20
+expect music_kind == 2
+press RIGHT
+press RIGHT
+press A
+wait 30
+cheat nomobs
+hold DOWN 40
+wait 20
+expect music_kind == 0
+cheat at 20 66
+wait 20
+expect music_kind == 6
+cheat at 64 58
+wait 20
+expect music_kind == 7
+cheat at 48 8
+wait 20
+expect music_kind == 0
+cheat fight 0
+wait 2
+expect music_kind == 3
+# a fight in the red deep keeps the deep's music
+cheat bot_off
+cheat dive
+cheat onlymob 34 65
+cheat at 30 67
+hold RIGHT 90
+waituntil scene == 6 200
+expect music_kind == 6

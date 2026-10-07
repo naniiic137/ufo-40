@@ -1,0 +1,53 @@
+# SOUNDINGS: the item menu (B) shows the hands, the relics carried and the
+# heads; A uses a tonic on a diver chosen with LEFT/RIGHT. A fallen diver's
+# items can't be used. Shots on the map sting but never finish anyone.
+game soundings
+wait 30
+press A
+wait 20
+cheat equip 1 1 28
+press RIGHT
+press RIGHT
+press A
+wait 10
+cheat nomobs
+cheat hp 0 100
+press B
+wait 3
+expect scene == 5
+press DOWN
+press RIGHT
+expect imenu_sel == 3
+press A
+expect imenu_pick == 1
+press LEFT
+press A
+expect hp0 == 500
+expect uses3 == 3
+expect imenu_pick == 0
+press B
+wait 3
+expect scene == 4
+# Reed down: his sip can't be used
+cheat hp 1 0
+press B
+wait 3
+press DOWN
+press RIGHT
+press A
+expect imenu_pick == 0
+expect uses3 == 3
+press B
+wait 3
+# by a frond, as weak as can be: its shots never finish anyone
+cheat dive
+cheat onlymob 55 19
+cheat hp 0 41
+cheat hp 1 41
+cheat hp 2 41
+cheat at 52 18
+wait 1200
+expect scene == 4
+expect hp0 == 1
+expect hp1 == 1
+expect hp2 == 1

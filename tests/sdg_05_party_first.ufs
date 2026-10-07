@@ -1,0 +1,42 @@
+# SOUNDINGS: orders are given Moss, Reed, Skip in turn, then the round plays:
+# the divers act left to right, then the creatures. A creature finished by
+# the first blow never gets its turn.
+game soundings
+wait 30
+press A
+wait 20
+cheat equip 0 0 1
+cheat equip 1 0 2
+cheat equip 2 0 3
+cheat fight 0
+waituntil bphase == 1 200
+expect nfoe == 1
+expect bcur == 0
+cheat foehp 0 1
+cheat seed 1
+press A
+expect bphase == 2
+expect tmode == 0
+press A
+expect bcur == 1
+press DOWN
+press DOWN
+press A
+expect bcur == 2
+press DOWN
+press DOWN
+press A
+waituntil bphase == 4 600
+expect foes_alive == 0
+expect hp0 == 500
+expect hp1 == 500
+expect hp2 == 500
+expect uses0 == 24
+expect uses2 == 25
+expect bxp == 10
+expect xp == 10
+expect gold == 520
+waituntil bmsgs == 0 300
+press A
+wait 5
+expect scene == 4

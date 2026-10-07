@@ -1,0 +1,41 @@
+# SOUNDINGS: running is a flat 25 %. A failed run throws away the whole
+# round's orders, those given before it too, and the creatures still act; a
+# good one ends the fight and the creature is gone from the map.
+game soundings
+wait 30
+cheat run_rate 20000
+expect calc > 4700
+expect calc < 5300
+press A
+wait 20
+cheat equip 0 0 1
+cheat equip 1 0 2
+cheat equip 2 0 3
+cheat fight 0
+waituntil bphase == 1 200
+cheat foehp 0 1
+# Moss is told to strike, then Reed runs and fails
+press A
+press A
+expect bcur == 1
+cheat seed 1
+press DOWN
+press DOWN
+press DOWN
+expect bmenu == 3
+press A
+waituntil bphase == 1 900
+expect bround == 2
+expect foehp0 == 1
+expect uses0 == 25
+# next round Moss runs straight away and gets out
+cheat seed 3
+press DOWN
+press DOWN
+press DOWN
+press A
+waituntil bphase == 6 300
+waituntil bmsgs == 0 300
+press A
+wait 5
+expect scene == 4

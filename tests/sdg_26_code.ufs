@@ -1,0 +1,117 @@
+# SOUNDINGS: the title's CODE. MOON-WAKE starts a new log with three eggs
+# on the raft; while a code is on nothing is written and no goal is earned
+# (as a code works in the original's collection), until the library.
+game soundings
+wait 30
+expect title_sel == 0
+press DOWN
+press A
+wait 10
+expect scene == 10
+# a wrong word does nothing
+press A
+expect code_on == 0
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+expect code_ch0 == 77
+press RIGHT
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+expect code_ch1 == 79
+press RIGHT
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+expect code_ch2 == 79
+press RIGHT
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+expect code_ch3 == 78
+press RIGHT
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+expect code_ch4 == 87
+press RIGHT
+expect code_ch5 == 65
+press RIGHT
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+expect code_ch6 == 75
+press RIGHT
+press UP
+press UP
+press UP
+press UP
+expect code_ch7 == 69
+press A
+expect code_on == 1
+press B
+wait 20
+expect scene == 0
+expect title_sel == 1
+press UP
+press A
+wait 20
+expect scene == 1
+expect owned33 == 3
+expect gold == 500
+expect save.soundings == 0
+cheat pearl 25
+cheat surface
+expect owned25 == 1
+expect goals == 0
+expect save.soundings == 0

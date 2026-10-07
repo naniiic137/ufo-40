@@ -18,6 +18,7 @@ extern const GameDef GAME_BOOMTOWN;
 extern const GameDef GAME_TINTAIL;
 extern const GameDef GAME_OPENHOUSE;
 extern const GameDef GAME_SKIDKIDS;
+extern const GameDef GAME_SOUNDINGS;
 extern const GameDef GAME_DUSKLING;
 extern const GameDef GAME_DUNE;
 extern const GameDef GAME_DOTDASH;
@@ -66,6 +67,7 @@ const GameDef *const GAMES[GAME_SLOTS] = {
     [23] = &GAME_SHUTTERBUG, /* 24 Caramel Caramel */
     [24] = &GAME_OPENHOUSE,  /* 25 Party House */
     [25] = &GAME_SKIDKIDS,   /* 26 Hot Foot */
+    [26] = &GAME_SOUNDINGS,  /* 27 Divers */
     [27] = &GAME_DUNE,       /* 28 Rail Heist */
     [44] = &GAME_DOTDASH,    /* 45 Mini & Max */
     [45] = &GAME_MANDIBLES,  /* 46 Combatants */

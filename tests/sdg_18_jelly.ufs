@@ -1,0 +1,34 @@
+# SOUNDINGS: a glimmer changes colour, and so its weak spot, every round:
+# yellow (reef), red (ooze), green (zap), round and round.
+game soundings
+wait 30
+press A
+wait 20
+cheat level 10
+cheat fight 9
+waituntil bphase == 1 200
+cheat foehp 0 30000
+cheat foeweak 0 1
+press DOWN
+press DOWN
+press A
+press DOWN
+press DOWN
+press A
+press DOWN
+press DOWN
+press A
+waituntil bround == 2 900
+expect foeweak0 == 3
+waituntil bphase == 1 600
+press DOWN
+press DOWN
+press A
+press DOWN
+press DOWN
+press A
+press DOWN
+press DOWN
+press A
+waituntil bround == 3 900
+expect foeweak0 == 2

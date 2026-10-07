@@ -1,0 +1,22 @@
+# SOUNDINGS: creatures on the map. A nest of nippers bursts out at a diver
+# who comes close and chases him: a school of three. Touching a creature
+# starts a fight; one sprite can be several creatures.
+game soundings
+wait 30
+press A
+wait 20
+cheat level 6
+press RIGHT
+press RIGHT
+press A
+wait 5
+cheat onlymob 65 12
+cheat at 58 11
+wait 30
+expect scene == 4
+hold RIGHT 90
+waituntil scene == 6 200
+expect nfoe == 3
+expect foekind0 == 3
+expect foekind2 == 3
+expect foehp0 == 450

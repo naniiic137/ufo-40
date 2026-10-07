@@ -1,0 +1,37 @@
+# SOUNDINGS: the Gloamheart at the bottom of the red deep: two eyes (weak to
+# zap, they mend) and two arms (weak to reef, they look before they strike
+# and cover each other). Stilling it is the saucer goal; without the three
+# heads, the plain ending.
+game soundings
+wait 30
+press A
+wait 20
+cheat level 15
+cheat equip 0 0 7
+cheat equip 1 0 8
+cheat equip 2 0 9
+cheat equip 0 1 22
+cheat equip 1 1 31
+cheat equip 2 1 24
+cheat door 3
+press RIGHT
+press RIGHT
+press A
+wait 10
+cheat onlymob 48 76
+cheat at 48 73
+hold DOWN 50
+waituntil scene == 6 60
+expect boss == 2
+expect nfoe == 4
+expect foehp0 == 5000
+expect foehp1 == 4000
+expect foekind0 == 20
+expect foekind1 == 19
+cheat seed 1
+cheat bot 0
+botuntil scene == 9 30000
+expect goals == 2
+expect ending == 1
+expect wins == 1
+expect cherry_wins == 0

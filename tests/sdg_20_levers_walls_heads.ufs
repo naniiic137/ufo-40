@@ -1,0 +1,63 @@
+# SOUNDINGS: A works on what the diver is over: a lever opens its door
+# (the last door needs both levers of the deep), a chest opens (some can't
+# be seen until A finds them). A charge used from the item menu breaks
+# cracked rock nearby. The three heads are picked up by touch.
+game soundings
+wait 30
+press A
+wait 20
+press RIGHT
+press RIGHT
+press A
+wait 10
+cheat nomobs
+cheat at 28 10
+press A
+expect levers == 1
+expect doors == 1
+expect doors_open == 1
+cheat at 45 29
+press A
+expect doors == 3
+cheat at 21 58
+press A
+expect levers == 7
+expect doors == 3
+cheat at 76 61
+press A
+expect doors == 11
+expect doors_open == 3
+# a chest nobody can see
+cheat at 28 37
+press A
+expect chests == 1024
+expect gold == 1000
+# a charge in Skip's right hand, beside the shelf's cracked floor
+cheat equip 2 1 34
+cheat at 50 20
+press B
+wait 3
+press DOWN
+press DOWN
+press RIGHT
+expect imenu_sel == 5
+press A
+wait 3
+expect scene == 4
+expect walls == 1
+expect uses5 == 0
+expect doors_open == 4
+# heads
+cheat at 4 5
+wait 3
+expect heads == 1
+cheat at 94 26
+wait 3
+expect heads == 3
+cheat at 62 51
+wait 3
+expect heads == 7
+# a note on the wall
+cheat at 36 13
+press A
+expect scene == 4

@@ -1,0 +1,57 @@
+# SOUNDINGS: shields cut every blow while held (plate 20 %, targe 45 %,
+# spine targe 50 %, bulwark 60 %; two shields multiply). Defending with a
+# shield squares what is left, for the defender's own blows too; two
+# bulwarks and a defend take a blow to nothing. A hammer defends like a
+# shield of its cut (a maul like a targe); a polearm only takes the blow.
+game soundings
+wait 30
+press A
+wait 20
+cheat equip 0 0 22
+cheat equip 0 1 23
+cheat shield_mul 0
+expect calc == 160
+cheat hp 1 0
+cheat hp 2 0
+cheat fight 0
+waituntil bphase == 1 200
+cheat foehp 0 20000
+cheat seed 2
+# behind both bulwarks, defending: nothing
+press A
+press UP
+expect tmode == 1
+expect tsel == 0
+press A
+waituntil bround == 2 900
+waituntil bphase == 1 600
+expect last_target == 0
+expect last_dmg == 0
+expect hp0 == 500
+# striking, both held: 16 % of a fizzle's bite
+press A
+press A
+waituntil bround == 3 900
+waituntil bphase == 1 600
+expect last_dmg >= 18
+expect last_dmg <= 24
+# one bulwark, defending: 40 % squared
+cheat equip 0 1 0
+cheat shield_mul 0
+expect calc == 400
+press A
+press UP
+press A
+waituntil bround == 4 900
+waituntil bphase == 1 600
+expect last_dmg >= 18
+expect last_dmg <= 24
+# a maul defending, no shield: like a targe, 55 % squared
+cheat equip 0 0 13
+press A
+press UP
+press A
+waituntil bround == 5 900
+waituntil bphase == 1 600
+expect last_dmg >= 35
+expect last_dmg <= 46

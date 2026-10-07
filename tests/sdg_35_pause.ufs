@@ -1,0 +1,21 @@
+# SOUNDINGS: START pauses on the raft and in the dark, not on the title.
+game soundings
+wait 30
+press START
+expect paused == 0
+press A
+wait 20
+press START
+wait 2
+expect paused == 1
+press START
+wait 2
+expect paused == 0
+press RIGHT
+press RIGHT
+press A
+wait 5
+press START
+wait 2
+expect paused == 1
+expect pause_layout == 0

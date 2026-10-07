@@ -1,0 +1,24 @@
+# SOUNDINGS: gold stops at 9,999 (fights and chests alike).
+game soundings
+wait 30
+press A
+wait 20
+cheat gold 20000
+expect gold == 9999
+cheat gold 9950
+press RIGHT
+press RIGHT
+press A
+wait 5
+cheat nomobs
+cheat at 37 19
+press A
+expect gold == 9999
+cheat level 5
+cheat equip 0 0 1
+cheat fight 0
+waituntil bphase == 1 200
+cheat foehp 0 1
+cheat bot 0
+botuntil bphase == 4 900
+expect gold == 9999

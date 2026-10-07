@@ -1,0 +1,39 @@
+# SOUNDINGS: with all three heads found before the last fight, stilling the
+# Gloamheart is the alien goal too, and the other ending plays.
+game soundings
+wait 30
+press A
+wait 20
+cheat level 15
+cheat equip 0 0 7
+cheat equip 1 0 8
+cheat equip 2 0 9
+cheat equip 0 1 22
+cheat equip 1 1 31
+cheat equip 2 1 24
+cheat door 3
+cheat head 0
+cheat head 1
+cheat head 2
+press RIGHT
+press RIGHT
+press A
+wait 10
+cheat onlymob 48 76
+cheat at 48 73
+hold DOWN 50
+waituntil scene == 6 60
+cheat seed 1
+cheat bot 0
+botuntil scene == 9 30000
+expect goals == 6
+expect ending == 2
+expect cherry_wins == 1
+shot sdg_end_lit
+# after THE END, the raft (the log was written)
+cheat bot_off
+wait 620
+press A
+wait 10
+expect scene == 1
+expect saved_level == 15

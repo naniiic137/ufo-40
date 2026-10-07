@@ -141,6 +141,7 @@ menu, shows the buttons as you now press them). SELECT or B closes it.
 | 24 | **SHUTTERBUG** | Caramel Caramel | a side-scroller with no power-ups: hold fire for an automatic gun that also charges four rings which bounce off rock, tap the other button for a photo a third of the screen ahead that stuns, doubles damage and points, blows up the foes round it, stops green foes firing back, brings down wall foes, stops whole trains and opens boss weak points; a camera that refills slowly, or at once with two bulbs that only fly to you when you stop firing; rock that does no harm; two hits a life, no spare ships to start, eight from points, a lost ship back to the stage start with the shown score at 0; a tutorial, three planets and two open wave stages, two mid-bosses (one you can leave), three bosses, a red repair foe per planet, and U, F and O hidden one per planet for the true last boss; 2P co-op | Poppy and Sprig, Teatime, Gloom and Fossil Planets, Comet Rain, Madame Scone, the Teapot, Old Croak, the Signalman, King Thunderjaw, the Kaleidoscope, every cave and wave |
 | 25 | **OPEN HOUSE** | Party House | drawing guests from a deck into a house with limited space, the original's 46 guest abilities, costs and trouble, police, fire marshal and bans, set guest lists and a random list, win by ending a party with four stars within 25 nights, 2P hot-seat; the fame and cash caps; the owner's endless OPEN ALL NIGHT, a custom list and two guests of his own | a whitewashed house by the sea, all 48 guests' names and faces |
 | 26 | **SKID KIDS** | Hot Foot | top-down two-on-two dodgeball with beanbags that skid along the floor, one button to pick up, pass, swap kids and wind up (a tap tosses, a full wind-up knocks down, a jump calls it off), a team jump that earns half-stars over sliding bags, stars for each kid's special throw or move, juice boxes, the Coach's items, the forced throw, first to 15; the original's 12 kits one for one, a draft or a free pick of the team, six matches with the kid nobody picked coming back with a robot, co-op, versus, the codes and the demo | NOODLE, PIPPA, HOPS, MILO, SPARKY, NELL, KIKI, ROXIE, TOBY, SID, BUZZY and MOOSE, Boomer the kangaroo, Benchbot, the Coach and the Hornets' gym |
+| 27 | **SOUNDINGS** | Divers | a dark, silent sea under one raft: the only shop, the only place to change the kit and the only place the log is written; three divers with two hands each, turn-based fights (orders left to right, then the creatures), every use costs one, a flat 25 % to run that throws away the round's orders, shields that guard all the time and cover an ally, about three creatures a fight, three elements in a loop, telegraphs, spines, healers and revivers, relics and pearls, cracked rock, unseen chests, three hidden heads and two endings; a demo player beats it from the title | Moss, Reed and Skip the axolotls, the Sunlit Shelf, Gumwell, Frond Hollow, the Sunken Shrine, Lantern Cave, the Stilt Pit, the Still Room and the Red Deep, 18 creatures, the Abbot and the Gloamheart |
 | 28 | **DUNE EXPRESS** | Rail Heist | real time until a guard is alert, then 10-second turns, one-bullet lawmen who hit each other too, punches through walls and floors, carrying and throwing, hiding in barrels, levers, a crank gun, rams, three outlaws, three stars a mission with the original's time goals, 2P versus | Wade, Hush and Pearl, the Governor's tax trains, Biscuit the camel, 20 new trains |
 | 45 | **DOT & DASH** | Mini & Max | one room at four sizes, where holding down shrinks you into whatever you stand on and holding up grows you back, a generated micro world that is the same for everyone inside every speck, a tiny size for one-tile gaps, lifting things from under your feet to throw, stack and ride (and carrying one up to full size as a step), a dog who roams and sniffs out secrets, long falls that send you back to full size, 39 upgrades that level up wherever they're found, five shops, favours for tiny towns, a 500 door and a 1,000 true ending | Dot and her talking dog Dash, the lumber room, Queen Tabitha the cat, Sir Sprocket, 21 towns and landmarks |
 | 46 | **MANDIBLES** | Combatants | you are one slow ant who holds a button for a cross of nine commands (follow, hold, instinct, their soldier-only versions, the queen's workers or soldiers, surrender), shouted to ants in earshot, and spits in eight directions while followers spit with you, food carried home to queens who lay workers for 1 and soldiers for 2, free respawns while your army lives, red ants with twice the health and exploitable brains (locked aim, food first, stuck on corners, stuck on your queen), brawls in a dust cloud, giant spiders that eat both sides, a branching road of 12 fields to the capital and a pointless bonus one, 2P versus | the Bluebell Colony and the Rust Horde, General Stag, the longlegs, every command's name, all 16 fields |
@@ -1027,6 +1028,60 @@ the top.
   BUZZY and MOOSE in red and blue bibs, Boomer and his marble bag, Benchbot
   and its sweeper wall, the Coach, the Hornets' gym, every line of talk and
   the music.
+
+### 27 · SOUNDINGS
+
+<p align="center">
+  <img src="docs/shots/soundings.gif" width="640" alt="Soundings: an axolotl dives from the raft into the dark and a fight begins">
+</p>
+<p align="center">
+  <img src="docs/shots/soundings_raft.png" width="320" alt="The raft: three unlabelled pictures and the log">
+  <img src="docs/shots/soundings_fight.png" width="320" alt="A school of nippers: Moss picks a target for his gaff">
+</p>
+<p align="center">
+  <img src="docs/shots/soundings_abbot.png" width="320" alt="The Abbot wakes between two fronds">
+  <img src="docs/shots/soundings_deep.png" width="320" alt="The Red Deep: warm flesh walls and a dusksquid in the dark">
+</p>
+<p align="center">
+  <img src="docs/shots/soundings_kit.png" width="320" alt="The kit: storage on the left, two hands for each diver on the right">
+  <img src="docs/shots/soundings_gloam.png" width="320" alt="The Gloamheart: two eyes and two arms">
+</p>
+
+*A tribute to **Divers** (UFO 50 #27).*
+
+- **Plays the same:** a raft on a dark sea is the only light: its three
+  unlabelled pictures are the shop, the kit and the ladder down, and the log
+  beside them shows the level, gold, the deepest dive and eight kinds of
+  relic. Under it one hand-built cave of eight regions lies in darkness and
+  silence; the diver sees only a little way and swims eight ways, slowly
+  until the fins turn up. Creatures are visible and one sprite can be
+  several: some dart, some shoot (a sting, never a death), nippers burst
+  from their nest and chase, smog eels and clampers come out of vents,
+  haunts pass through rock. A opens chests (gold and relics at once, items
+  as pearls that open at the raft; some chests can't be seen), pulls levers
+  and reads the walls; B opens the item menu; a charge breaks cracked rock.
+- **The fights:** first person, the creatures above. Moss, Reed and Skip
+  are given their orders in turn (left hand, right hand, wait, run), then
+  the divers act left to right and the creatures after them. Every use
+  costs one use, a miss or a wasted guard too; running is a flat 25 % and a
+  failure throws the whole round's orders away. Shields take their share
+  off every hit and cover whoever their holder defends; two bulwarks and a
+  defend take a blow to nothing. Reef beats zap beats ooze beats reef.
+  Clampers look before they strike, needlers prick, fronds mend, haunts
+  bring friends back, dusksquids pick on the weakest, glimmers change
+  colour every round.
+- **The log:** written only at the raft. Surfacing heals, brings the fallen
+  back, refills every use, banks the relics and opens the pearls; a wipe
+  (or leaving mid-dive) loses everything since. One XP bar to level 16,
+  gold and relics for better gear, the Abbot and his fronds in the sunken
+  shrine, two levers in the deep for the last door, the Gloamheart at the
+  bottom and two endings, the better one with the three hidden heads. The
+  demo player beats it from the title with button presses, with and
+  without the heads; the code MOON-WAKE starts with three eggs.
+- **Ours:** Moss, Reed and Skip, the raft and its shed, the whole map and
+  its eight regions, 18 creatures, the Abbot and the Gloamheart, every item
+  and relic name, the heads (two of them nod to UFO 40's own Barbuta and
+  Mooncat tributes), the notes on the walls, both endings and the music.
 
 ### 28 · DUNE EXPRESS
 

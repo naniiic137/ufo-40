@@ -1,0 +1,13 @@
+# SOUNDINGS: the demo player plays the whole game from the title with button
+# presses: it shops, sets the kit, dives, grinds, opens chests and levers,
+# breaks rock, brings the leech club home, stills the Abbot and then the
+# Gloamheart.
+seed 1
+game soundings
+wait 10
+cheat bot 0
+botuntil wins >= 1 900000
+expect goals == 3
+expect level >= 14
+expect heads == 0
+expect ending == 1

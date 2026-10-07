@@ -1,0 +1,40 @@
+# SOUNDINGS: every use of an item costs one use, whatever comes of it: a
+# guard nobody needed costs one too. WAIT costs nothing. B goes back to the
+# diver before.
+game soundings
+wait 30
+press A
+wait 20
+cheat equip 0 0 1
+cheat equip 1 0 16
+cheat equip 2 0 3
+cheat fight 0
+waituntil bphase == 1 200
+cheat foehp 0 20000
+cheat seed 1
+# Moss waits, Reed guards Skip with the plate, Skip waits
+press DOWN
+press DOWN
+press A
+expect bcur == 1
+# (B goes back to Moss and A again)
+press B
+expect bcur == 0
+press DOWN
+press DOWN
+press A
+press A
+press UP
+expect tmode == 1
+press RIGHT
+expect tsel == 2
+press A
+expect bcur == 2
+press DOWN
+press DOWN
+press A
+waituntil bround == 2 900
+waituntil bphase == 1 600
+expect uses0 == 25
+expect uses2 == 19
+expect uses4 == 25

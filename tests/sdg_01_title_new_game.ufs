@@ -1,0 +1,30 @@
+# SOUNDINGS: the title starts a new log on A; the divers begin at level 1
+# with 500 HP each, 500 gold and nothing found, at the raft.
+game soundings
+wait 30
+expect scene == 0
+expect paused == 0
+expect map_bad == 0
+expect art_bad == 0
+press A
+wait 20
+expect scene == 1
+expect level == 1
+expect gold == 500
+expect hp0 == 500
+expect hp1 == 500
+expect hp2 == 500
+expect maxhp2 == 500
+expect deepest == 0
+expect chests == 0
+expect relic0 == 0
+expect saved_level == 1
+# the log is written: back at the title CONTINUE comes first
+press B
+wait 20
+expect scene == 0
+expect title_sel == 0
+press A
+wait 20
+expect scene == 1
+expect gold == 500

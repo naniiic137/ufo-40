@@ -1,0 +1,49 @@
+# SOUNDINGS: the shop. LEFT/RIGHT change the page, UP/DOWN the row, A buys
+# what the gold (and the relics) cover; B or RETURN go back. The starting
+# 500 gold buys one poker of each element and a sip.
+game soundings
+wait 30
+press A
+wait 20
+expect raft_sel == 0
+press A
+wait 10
+expect scene == 2
+expect shop_page == 0
+press A
+expect owned1 == 1
+expect gold == 400
+press DOWN
+press A
+press DOWN
+press A
+expect owned2 == 1
+expect owned3 == 1
+expect gold == 200
+# the tonics page: a sip
+press RIGHT
+press RIGHT
+press RIGHT
+expect shop_page == 3
+press A
+expect owned28 == 1
+expect gold == 0
+# nothing more: a second sip is too dear
+press A
+expect owned28 == 1
+# a charge needs a pebble as well as 500 gold
+cheat gold 600
+press RIGHT
+expect shop_page == 4
+press A
+expect owned34 == 0
+cheat relic 2 1
+press A
+expect owned34 == 1
+expect relic2 == 0
+expect gold == 100
+# bought things are written at once (the raft is the surface)
+expect saved_gold == 100
+press B
+wait 10
+expect scene == 1

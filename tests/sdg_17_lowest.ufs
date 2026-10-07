@@ -1,0 +1,27 @@
+# SOUNDINGS: a dusksquid always goes for the diver with the least HP.
+game soundings
+wait 30
+press A
+wait 20
+cheat level 14
+cheat hp 0 2300
+cheat hp 1 900
+cheat hp 2 2300
+cheat fight 15
+waituntil bphase == 1 200
+cheat foehp 0 30000
+cheat seed 1
+press DOWN
+press DOWN
+press A
+press DOWN
+press DOWN
+press A
+press DOWN
+press DOWN
+press A
+waituntil bround == 2 900
+expect last_target == 1
+expect hp0 == 2300
+expect hp2 == 2300
+expect hp1 < 900

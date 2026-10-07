@@ -1,0 +1,36 @@
+# SOUNDINGS: a blow is the item's power times (50 + 10 a level) %,
+# half again on a weak spot (REEF beats ZAP beats OOZE beats REEF), then
+# 90-110 %. Shields' shares come off what is left.
+game soundings
+wait 30
+cheat calc_atk 200 1 1 1 100
+expect calc == 180
+cheat calc_atk 200 1 1 2 100
+expect calc == 120
+cheat calc_atk 200 1 0 1 100
+expect calc == 120
+cheat calc_atk 400 16 3 3 100
+expect calc == 1260
+cheat calc_atk 300 8 2 2 110
+expect calc == 643
+cheat calc_reduce 400 25
+expect calc == 300
+cheat calc_reduce 400 100
+expect calc == 0
+cheat calc_reduce 400 150
+expect calc == 0
+# a reef poker on a fizzle (weak to reef) at level 1: 162 to 198
+press A
+wait 20
+cheat equip 0 0 1
+cheat hp 1 0
+cheat hp 2 0
+cheat fight 0
+waituntil bphase == 1 200
+cheat foehp 0 2000
+cheat seed 1
+press A
+press A
+waituntil bround == 2 900
+expect foehp0 <= 1838
+expect foehp0 >= 1802

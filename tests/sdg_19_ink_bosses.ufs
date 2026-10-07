@@ -1,0 +1,46 @@
+# SOUNDINGS: the ink sac gets the divers out of any fight but a guardian's;
+# nobody can run from a guardian. On the map it hides the diver for 3,000
+# metres of swimming (only moving uses it up).
+game soundings
+wait 30
+press A
+wait 20
+cheat equip 0 0 35
+cheat equip 1 0 2
+cheat fight 2 18 2
+waituntil bphase == 1 200
+expect boss == 1
+press A
+expect bphase == 1
+press DOWN
+press DOWN
+press DOWN
+press A
+expect bphase == 1
+expect bcur == 0
+cheat bot_off
+cheat fight 0
+waituntil bphase == 1 200
+expect boss == 0
+press A
+waituntil bphase == 6 100
+expect uses0 == 2
+waituntil bmsgs == 0 300
+press A
+wait 5
+cheat dive
+cheat nomobs
+wait 5
+press B
+wait 5
+expect scene == 5
+press A
+wait 5
+expect scene == 4
+expect mist == 3000
+expect uses0 == 2
+wait 60
+expect mist == 3000
+hold DOWN 60
+expect mist < 3000
+expect mist > 2900

@@ -1,0 +1,26 @@
+# SOUNDINGS: fronds mend themselves and each other; a haunt brings a fallen
+# friend back (at half its HP).
+game soundings
+wait 30
+press A
+wait 20
+cheat level 12
+cheat fight 2
+waituntil bphase == 1 200
+cheat foehp 0 100
+cheat seed 1
+cheat bot 0
+botuntil foe_heals >= 1 6000
+expect foehp0 > 100
+cheat bot_off
+cheat equip 0 0 4
+cheat equip 1 0 5
+cheat equip 2 0 6
+cheat fight 14 12
+waituntil bphase == 1 200
+cheat foehp 0 30000
+cheat foehp 1 1
+cheat bot 0
+botuntil foealive1 == 0 3000
+botuntil foe_revives >= 1 9000
+expect foealive1 == 1

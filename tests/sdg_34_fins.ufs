@@ -1,0 +1,20 @@
+# SOUNDINGS: the fins double the swimming speed from any hand, even a
+# fallen diver's.
+game soundings
+wait 30
+press A
+wait 20
+press RIGHT
+press RIGHT
+press A
+wait 5
+cheat nomobs
+cheat at 48 12
+expect x == 776
+hold RIGHT 40
+expect x == 806
+cheat equip 2 1 37
+cheat hp 2 0
+cheat at 48 12
+hold RIGHT 40
+expect x == 836
