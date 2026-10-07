@@ -122,6 +122,12 @@ static const struct { const char *id, *title; } TITLES[] = {
     {"clc_tock", "GRANDSIRE TOCK"}, {"clc_escape", "NINETY-NINE SECONDS"}, {"clc_shop", "ONE PER CUSTOMER"},
     {"clc_map", "THE STATION MAP"}, {"clc_end", "HOME WITH ANSEL"}, {"clc_true", "THE BELLS RING AGAIN"},
     {"clc_sad", "HOME ALONE"}, {"clc_clear", "ENGINE DOWN"}, {"clc_over", "LOST IN THE BELFRY"},
+    {"rsl_title", "RESTLESS"}, {"rsl_story", "MOSSFOLD BURNS"}, {"rsl_s1a", "GREENWOOD GATE"},
+    {"rsl_s1b", "THE OLD SHRINES"}, {"rsl_s2a", "TOAD WARRENS"}, {"rsl_s2b", "THE SUNKEN COURT"},
+    {"rsl_s3a", "THE HIGH FALLS"}, {"rsl_s3b", "THE HOLLOW CROWN"}, {"rsl_midboss", "SOMETHING IN THE WAY"},
+    {"rsl_boss", "THE HOLLOW HOST"}, {"rsl_special", "HIDDEN HOARD"}, {"rsl_spirit", "THE LOW GLOW"},
+    {"rsl_ending", "LAID TO REST"}, {"rsl_scores", "NAMES IN THE ASH"}, {"rsl_clear", "STAGE CLEAR"},
+    {"rsl_over", "SCATTERED"}, {"rsl_rise", "GRANDMOTHER ASH"},
 };
 
 const char *shell_song_title(int song) {
