@@ -1,0 +1,26 @@
+# HOOPLA: left alone on the title, the cartridge plays a demo match between
+# two CPU fighters; any button ends it. The twentieth demo leaves a note.
+seed 24
+game hoopla
+wait 700
+expect state == 0
+wait 30
+expect state == 14
+expect fighters == 2
+expect save_attract == 1
+wait 300
+press A
+wait 2
+expect state == 0
+cheat attract 19
+cheat idle
+wait 2
+expect state == 14
+expect save_attract == 20
+press A
+wait 2
+expect state == 15
+wait 62
+press A
+wait 2
+expect state == 0

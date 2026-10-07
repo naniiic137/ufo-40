@@ -1,0 +1,16 @@
+# HOOPLA: the first to hold five hoops at once takes the match.
+seed 6
+game hoopla
+wait 30
+cheat match 0 1 0
+cheat dummy
+cheat go
+cheat noring
+cheat rings 0 4
+expect winner == -1
+cheat ring 62 145 0
+hold RIGHT 16
+expect f0_rings == 5
+expect winner == 0
+# and the match ends (an exhibition goes back to the pick)
+waituntil state == 3 400

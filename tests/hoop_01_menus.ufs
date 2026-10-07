@@ -1,0 +1,80 @@
+# HOOPLA: the title's three choices, the 1P and 2P modes and the select,
+# all with real presses. (On the Vita 2 PLAYERS is greyed out: the select
+# needs two controllers there, as in the other 2P cartridges.)
+seed 1
+game hoopla
+wait 30
+expect state == 0
+expect title_sel == 0
+expect vita_single == 0
+press DOWN
+expect title_sel == 1
+press DOWN
+expect title_sel == 2
+press DOWN
+expect title_sel == 0
+# 1 PLAYER: TOURNAMENT or DRAFT BATTLE
+press A
+wait 5
+expect state == 1
+expect players == 1
+expect versus == 0
+press B
+wait 5
+expect state == 0
+wait 10
+press A
+wait 5
+press A
+wait 5
+expect state == 3
+expect mode == 0
+# the select: LEFT/RIGHT choose, UP/DOWN swap colours, A picks
+press RIGHT
+press RIGHT
+expect cur == 2
+press UP
+expect pal == 1
+press DOWN
+expect pal == 0
+press LEFT
+expect cur == 1
+press A
+wait 5
+expect state == 4
+expect me == 1
+expect me_pal == 0
+# 2 PLAYERS: EXHIBITION, both pick, versus input on
+game hoopla
+wait 30
+press DOWN
+press A
+wait 5
+expect players == 2
+expect versus == 1
+press A
+wait 5
+expect state == 3
+expect mode == 2
+press P2LEFT
+expect cur2 == 6
+press A
+wait 2
+expect picked == 1
+press P2A
+wait 5
+expect state == 5
+expect vs_a == 0
+expect vs_b == 6
+# UP or DOWN with B: anyone at random
+game hoopla
+wait 30
+press A
+wait 5
+press A
+wait 5
+hold UP
+press B
+release
+wait 5
+expect state == 4

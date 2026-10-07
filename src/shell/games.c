@@ -40,6 +40,7 @@ extern const GameDef GAME_FORLORN;
 extern const GameDef GAME_FULLPEAL;
 extern const GameDef GAME_BRAVADO;
 extern const GameDef GAME_CLARION;
+extern const GameDef GAME_HOOPLA;
 
 const GameDef *const GAMES[GAME_SLOTS] = {
     [0] = &GAME_UNDERDELVE,  /* 01 Barbuta */
@@ -72,6 +73,7 @@ const GameDef *const GAMES[GAME_SLOTS] = {
     [31] = &GAME_FORLORN,    /* 32 Mortol II */
     [33] = &GAME_BRAVADO,    /* 34 Overbold */
     [34] = &GAME_CLARION,    /* 35 Campanella 2 */
+    [35] = &GAME_HOOPLA,     /* 36 Hyper Contender */
     [38] = &GAME_BUZZBOLT,   /* 39 Star Waspir */
     [43] = &GAME_HOMESPUN,   /* 44 Pilot Quest */
     [40] = &GAME_RIMSHIRE,   /* 41 Lords of Diskonia */

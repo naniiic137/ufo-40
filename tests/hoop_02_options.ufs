@@ -1,0 +1,67 @@
+# HOOPLA: the options (challenge, Moss's upside-down controls and the four
+# hoop rules), STANDARD HOOPS, and that they are saved. The goals count only
+# on standard hoops: 5 to win, 1 at the start, a new one every 15 s, on fire.
+seed 2
+game hoopla
+wait 30
+press DOWN
+press DOWN
+press A
+wait 5
+expect state == 2
+expect save_challenge == 1
+expect default_rules == 1
+press RIGHT
+expect save_challenge == 2
+press LEFT
+press LEFT
+expect save_challenge == 0
+press DOWN
+press A
+expect save_antigrav == 1
+press DOWN
+press RIGHT
+press RIGHT
+expect save_to_win == 7
+expect default_rules == 0
+press DOWN
+press RIGHT
+expect save_start == 2
+press DOWN
+press LEFT
+expect save_every == 10
+press DOWN
+press A
+expect save_burn == 0
+# the start can't reach the win
+press UP
+press UP
+press UP
+press LEFT
+press LEFT
+press LEFT
+press LEFT
+expect save_to_win == 3
+expect save_start == 2
+press LEFT
+expect save_to_win == 9
+# STANDARD HOOPS puts the four back
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press A
+expect default_rules == 1
+expect save_challenge == 0
+expect save_antigrav == 1
+press DOWN
+press A
+wait 5
+expect state == 0
+reload
+game hoopla
+wait 10
+expect save_challenge == 0
+expect save_antigrav == 1
+expect save_to_win == 5
+expect save_every == 15

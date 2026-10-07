@@ -1,0 +1,55 @@
+# HOOPLA: the CPU can get round the pit as every one of the eight: each
+# one, alone against a player who doesn't move, holds five hoops in time.
+# (A CPU MOSS muddles his gravity, as the original's CPU does.) Then CPU
+# against CPU: every match ends with a winner.
+seed 27
+game hoopla
+wait 30
+cheat match 0 0 0
+cheat go
+waituntil winner == 1 6000
+cheat match 0 1 5
+cheat go
+waituntil winner == 1 6000
+cheat match 0 2 10
+cheat go
+waituntil winner == 1 6000
+cheat match 0 3 3
+cheat go
+waituntil winner == 1 6000
+cheat match 0 4 8
+cheat go
+waituntil winner == 1 6000
+cheat match 0 5 1
+cheat go
+waituntil winner == 1 6000
+cheat match 0 6 6
+cheat go
+waituntil winner == 1 6000
+cheat match 0 7 11
+cheat go
+waituntil winner == 1 6000
+cheat match 0 7 9
+cheat cpuboth
+waituntil winner >= 0 7200
+cheat match 1 6 7
+cheat cpuboth
+waituntil winner >= 0 7200
+cheat match 2 5 5
+cheat cpuboth
+waituntil winner >= 0 7200
+cheat match 3 4 3
+cheat cpuboth
+waituntil winner >= 0 7200
+cheat match 4 2 10
+cheat cpuboth
+waituntil winner >= 0 7200
+cheat match 5 1 8
+cheat cpuboth
+waituntil winner >= 0 7200
+cheat match 6 0 6
+cheat cpuboth
+waituntil winner >= 0 7200
+cheat match 7 3 4
+cheat cpuboth
+waituntil winner >= 0 7200

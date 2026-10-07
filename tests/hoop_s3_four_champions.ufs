@@ -1,0 +1,22 @@
+# HOOPLA proof: the cherry. The demo player wins the tournament four times
+# from the title, with TANSY, MOSS, PEWIT and ASTRA, on standard hoops.
+seed 103
+game hoopla
+wait 20
+cheat botplan 0
+botuntil save_tourney_wins == 1 150000
+expect goals == 2
+cheat botplan 2
+botuntil save_tourney_wins == 2 150000
+cheat botplan 4
+botuntil save_tourney_wins == 3 150000
+expect goals == 2
+cheat botplan 6
+botuntil save_tourney_wins == 4 150000
+expect save_champs == 85
+expect goals == 6
+reload
+game hoopla
+wait 10
+expect save_champs == 85
+expect goals & 4

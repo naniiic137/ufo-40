@@ -1,0 +1,31 @@
+# HOOPLA: holding DOWN blocks a lunge and leaves the attacker dizzy; it
+# does nothing against a shot.
+seed 7
+game hoopla
+wait 30
+cheat match 0 0 0
+cheat dummy
+cheat go
+cheat noring
+cheat pos 1 70 152
+hold P2DOWN
+wait 3
+expect f1_blocking == 1
+press DOWN A
+wait 14
+expect f0_dizzy > 0
+expect f1_rings == 1
+expect f1_inv == 0
+# dizzy: no moving
+hold RIGHT 20
+expect f0_dizzy > 0
+waituntil f0_dizzy == 0 120
+# a knife goes straight through the block
+cheat pos 0 30 152
+cheat face 0 1
+hold P2DOWN
+wait 2
+expect f1_blocking == 1
+press A
+waituntil f1_rings == 0 60
+release

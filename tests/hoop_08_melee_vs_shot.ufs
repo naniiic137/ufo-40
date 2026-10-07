@@ -1,0 +1,23 @@
+# HOOPLA: a lunge goes straight through a shot (melee beats shots).
+seed 8
+game hoopla
+wait 30
+cheat match 0 0 0
+cheat dummy
+cheat go
+cheat noring
+cheat pos 1 130 152
+cheat face 1 -1
+press P2A
+wait 4
+expect shots0 == 1
+press DOWN A
+wait 14
+expect shots0 == 0
+expect f0_rings == 1
+expect f0_inv == 0
+# without the lunge the knife lands
+cheat pos 0 40 152
+press P2A
+waituntil f0_inv > 0 60
+expect f0_rings == 0

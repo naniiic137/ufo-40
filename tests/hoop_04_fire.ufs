@@ -1,0 +1,20 @@
+# HOOPLA: a hoop on fire hurts like a hit (one hoop knocked out); a cool
+# one is taken by touching it, even while still flashing from a hit.
+seed 4
+game hoopla
+wait 30
+cheat match 0 1 0
+cheat dummy
+cheat go
+cheat noring
+cheat ring 62 145 1
+hold RIGHT 16
+expect f0_rings == 0
+expect loose == 1
+expect f0_inv > 0
+expect fresh == 1
+# a cool hoop, taken while still safe from the hit
+cheat ring 30 145 0
+hold LEFT 14
+expect f0_inv > 0
+expect f0_rings >= 1

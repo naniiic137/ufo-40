@@ -1,0 +1,12 @@
+# HOOPLA proof: the demo player, with real presses from the title, picks
+# TANSY and wins the tournament: all eight, the mirror match last. Gold.
+seed 101
+game hoopla
+wait 20
+expect goals == 0
+cheat botplan 0
+botuntil state == 12 120000
+expect goals & 2
+expect save_champs == 1
+expect me == 0
+botuntil state == 0 3000

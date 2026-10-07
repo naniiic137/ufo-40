@@ -1,0 +1,65 @@
+# HOOPLA: 2-player exhibition: both pick, one match, and the winner goes
+# back to the pick. Player 2's own buttons move fighter 2 (the second
+# keyboard half or pad on a PC). Draft battles work for two players too.
+seed 21
+game hoopla
+wait 30
+press DOWN
+press A
+wait 5
+expect versus == 1
+press A
+wait 5
+press RIGHT
+press A
+press P2LEFT
+press P2LEFT
+press P2A
+wait 5
+expect state == 5
+expect vs_a == 1
+expect vs_b == 5
+waituntil state == 6 200
+expect f1_kind == 5
+cheat go
+cheat noring
+hold P2LEFT 20
+expect f1_x < 270
+hold P2RIGHT 30
+expect f1_x > 270
+cheat losematch
+wait 2
+expect state == 3
+expect picked == 0
+expect versus == 1
+# the same fighter in the same colours: P2 gets the others
+press A
+press P2LEFT
+press P2LEFT
+press P2LEFT
+press P2LEFT
+press P2A
+waituntil state == 6 200
+expect f0_kind == 1
+expect f1_kind == 1
+expect f1_pal == 1
+# a draft between two players: P2 picks with P2's buttons
+game hoopla
+wait 30
+press DOWN
+press A
+wait 5
+press DOWN
+press A
+wait 5
+expect state == 10
+wait 8
+press A
+expect draft_turn == 1
+press A
+expect draft_turn == 1
+wait 8
+press P2A
+wait 8
+press P2A
+expect draft_turn == 3

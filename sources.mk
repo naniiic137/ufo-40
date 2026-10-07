@@ -244,6 +244,16 @@ CORE_SRC += src/games/clarion/clc_bot.c
 CORE_SRC += src/games/clarion/clc_draw.c
 CORE_SRC += src/games/clarion/clc_art.c
 CORE_SRC += src/games/clarion/clc_audio.c
+CORE_SRC += src/games/hoopla/hoop.c
+CORE_SRC += src/games/hoopla/hoop_math.c
+CORE_SRC += src/games/hoopla/hoop_arenas.c
+CORE_SRC += src/games/hoopla/hoop_match.c
+CORE_SRC += src/games/hoopla/hoop_fighters.c
+CORE_SRC += src/games/hoopla/hoop_cpu.c
+CORE_SRC += src/games/hoopla/hoop_bot.c
+CORE_SRC += src/games/hoopla/hoop_draw.c
+CORE_SRC += src/games/hoopla/hoop_art.c
+CORE_SRC += src/games/hoopla/hoop_audio.c
 
 HEADLESS_SRC += src/platform/headless/main_headless.c
 HEADLESS_SRC += src/platform/headless/imgwrite.c

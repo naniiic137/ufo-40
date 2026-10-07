@@ -1,0 +1,45 @@
+# HOOPLA: BRISTLE. No jump: B sets a spring trap that arms in 1 s; armed,
+# it throws her high, and hurts anyone else who treads on it. A fires three
+# quills (up on the ground, down in the air, where they stop her). Her lunge
+# is long and flat.
+seed 12
+game hoopla
+wait 30
+cheat match 3 1 0
+cheat dummy
+cheat go
+cheat noring
+cheat noledges
+cheat pos 1 300 152
+wait 2
+press B
+expect f0_vy == 0
+expect mines == 1
+expect armed == 0
+waituntil armed == 1 70
+wait 1
+expect mines == 0
+expect f0_vy < -1000
+waituntil f0_vy >= 0 120
+expect f0_y < 70
+# in the air: the quills stop her
+press A
+expect shots5 == 3
+expect f0_vy < 200
+waituntil f0_ground == 100 200
+# a trap for someone else
+cheat noring
+press B
+hold RIGHT 30
+waituntil armed == 1 70
+cheat pos 1 40 152
+wait 2
+expect f1_rings == 0
+expect mines == 0
+# the long, flat lunge
+cheat pos 0 40 152
+cheat face 0 1
+press DOWN A
+expect f0_vy == 0
+waituntil f0_melee == 0 40
+expect f0_x > 110

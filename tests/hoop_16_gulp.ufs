@@ -1,0 +1,74 @@
+# HOOPLA: GULP. B held charges a leap (higher for longer); after 1 s he
+# glows and the leap is an uppercut until its top. A held sights a dart (up
+# on the ground, down in the air); a tap throws it straight. UP+A: a fast
+# dart that sticks in a wall and locks his darts for 2 s. DOWN+A is A.
+seed 16
+game hoopla
+wait 30
+cheat match 7 1 0
+cheat dummy
+cheat go
+cheat noring
+cheat noledges
+cheat pos 1 300 152
+wait 2
+hold B 20
+expect f0_charge == 20
+expect f0_vx == 0
+wait 1
+expect f0_charge == 0
+expect f0_glow == 0
+expect f0_vy < 0
+waituntil f0_vy >= 0 60
+expect f0_y > 80
+waituntil f0_ground == 100 120
+hold B 64
+expect f0_charge >= 60
+wait 1
+expect f0_glow == 1
+expect f0_melee == 1
+waituntil f0_vy >= 0 60
+expect f0_glow == 0
+expect f0_y < 60
+waituntil f0_ground == 100 200
+# the sight: held on the ground it swings up
+cheat face 0 1
+hold A 20
+expect f0_aiming == 1
+expect f0_aim == 63
+wait 1
+expect shots9 == 1
+expect shot_vy < 0
+expect shot_vx > 0
+waituntil shots9 == 0 120
+# a tap: straight ahead
+press A
+expect shot_vy == 0
+waituntil shots9 == 0 120
+# in the air the sight swings down
+hold B 40
+wait 3
+hold A 18
+expect f0_aim == 8
+wait 1
+expect shot_vy > 0
+waituntil f0_ground == 100 200
+wait 30
+# the fast dart sticks and locks his darts
+cheat pos 0 280 152
+cheat pos 1 40 152
+cheat face 0 1
+press UP A
+expect shots10 == 1
+waituntil f0_lock > 0 30
+expect shot_stuck == 1
+press A
+wait 3
+expect shots9 == 0
+waituntil f0_lock == 0 130
+wait 2
+expect shots10 == 0
+press DOWN A
+wait 1
+expect shots9 == 1
+expect f0_melee == 0

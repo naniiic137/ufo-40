@@ -1,0 +1,11 @@
+# HOOPLA proof: the demo player, with real presses from the title, drafts a
+# team of three against the CPU and is first to five wins. The gift.
+seed 102
+game hoopla
+wait 20
+cheat botdraft 1
+botuntil state == 7 150000
+expect score0 == 5
+expect goals & 1
+expect save_draft_wins == 1
+botuntil state == 0 600

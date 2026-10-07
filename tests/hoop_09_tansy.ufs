@@ -1,0 +1,71 @@
+# HOOPLA: TANSY. B jumps (a tap jumps lower than a hold) and once more in
+# the air in a spin; the spin turns any knife away, down and across. A
+# throws a knife that bounces off two walls and can cut her on the way
+# back; UP+A a short knife that drops.
+seed 9
+game hoopla
+wait 30
+cheat match 0 1 0
+cheat dummy
+cheat go
+cheat noring
+cheat noledges
+cheat pos 1 300 152
+wait 2
+# a tap: a low hop
+press B 1
+waituntil f0_vy >= 0 60
+expect f0_y > 120
+waituntil f0_ground == 100 120
+# a hold: higher
+hold B 20
+wait 1
+expect f0_y < 110
+# and a spin jump on top
+press B
+expect f0_jumps == 0
+expect f0_spin > 0
+waituntil f0_ground == 100 200
+expect f0_jumps == 1
+# the knife: two walls, then gone; on the way back it cuts her
+cheat pos 1 160 30
+cheat ledge 140 30 40
+cheat face 0 1
+press A
+expect shots0 == 1
+waituntil shot_bounces == 1 120
+waituntil f0_inv > 0 120
+expect f0_rings == 0
+expect shots0 == 0
+# the knife past her: the second wall, then the third ends it
+cheat noring
+cheat rings 0 1
+waituntil f0_inv == 0 120
+cheat pos 0 40 152
+cheat face 0 1
+press A
+waituntil shot_bounces == 1 120
+cheat ledge 20 60 50
+cheat pos 0 40 60
+waituntil shot_bounces == 2 200
+waituntil shots0 == 0 200
+expect f0_rings == 1
+# the spin turns a knife: no harm, and it flies off down and across
+cheat noledges
+cheat pos 0 100 100
+press B 1
+cheat shot 0 1 104 86 -1024 0
+wait 1
+expect f0_rings == 1
+expect shot_owner == 0
+expect shot_vy == 760
+expect shot_vx == 760
+waituntil f0_ground == 100 200
+# UP+A: a short knife that drops and is gone at the floor
+cheat noring
+cheat pos 1 300 152
+press UP A
+expect shots1 == 1
+wait 19
+expect shot_vy > 0
+waituntil shots1 == 0 120

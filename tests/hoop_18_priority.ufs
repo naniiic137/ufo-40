@@ -1,0 +1,37 @@
+# HOOPLA: when shots meet. Most pass each other; Gulp's darts knock other
+# shots out (the fast one the most), and only Collier's charge beats a dart.
+seed 18
+game hoopla
+wait 30
+cheat match 7 0 0
+cheat dummy
+cheat go
+cheat noring
+cheat noledges
+cheat pos 0 40 152
+cheat pos 1 280 152
+cheat face 0 1
+wait 2
+# two plain shots pass
+cheat shot 5 0 100 100 1024 0
+cheat shot 5 1 120 100 -1024 0
+wait 6
+expect shots5 == 2
+waituntil shots5 == 0 120
+# a fast dart knocks a knife out and flies on
+press UP A
+press P2A
+waituntil shots0 == 0 60
+expect shots10 == 1
+waituntil f1_inv > 0 60
+# a charge beats a dart
+cheat match 7 5 0
+cheat dummy
+cheat go
+cheat noring
+cheat noledges
+cheat shot 9 0 100 100 900 0
+cheat shot 7 1 106 100 0 0
+wait 2
+expect shots9 == 0
+expect shots7 == 1

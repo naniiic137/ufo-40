@@ -122,6 +122,10 @@ static const struct { const char *id, *title; } TITLES[] = {
     {"clc_tock", "GRANDSIRE TOCK"}, {"clc_escape", "NINETY-NINE SECONDS"}, {"clc_shop", "ONE PER CUSTOMER"},
     {"clc_map", "THE STATION MAP"}, {"clc_end", "HOME WITH ANSEL"}, {"clc_true", "THE BELLS RING AGAIN"},
     {"clc_sad", "HOME ALONE"}, {"clc_clear", "ENGINE DOWN"}, {"clc_over", "LOST IN THE BELFRY"},
+    {"hoop_title", "RING NIGHT"}, {"hoop_select", "PICK YOUR CORNER"}, {"hoop_fight1", "GLASS PIT BRAWL"},
+    {"hoop_fight2", "HOOPS IN THE AIR"}, {"hoop_fight3", "LEDGE TO LEDGE"}, {"hoop_mirror", "THE MIRROR MATCH"},
+    {"hoop_draft", "SNAKE DRAFT"}, {"hoop_ending", "PURSE IN HAND"}, {"hoop_credits", "UNDER THE LAMPS"},
+    {"hoop_win", "FIVE HOOPS"}, {"hoop_lose", "KNOCKED LOOSE"}, {"hoop_champ", "LAST ONE STANDING"},
 };
 
 const char *shell_song_title(int song) {

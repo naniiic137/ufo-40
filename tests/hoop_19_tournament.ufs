@@ -1,0 +1,91 @@
+# HOOPLA: the tournament. Pick one fighter and beat all eight one at a
+# time in a random order, the last a mirror match against your own fighter
+# in the other colours. Lose and you get one rematch with that opponent;
+# lose the rematch and you're out.
+seed 19
+game hoopla
+wait 30
+press A
+wait 10
+press A
+wait 10
+press RIGHT
+press RIGHT
+press UP
+press A
+wait 5
+expect state == 4
+expect me == 2
+expect me_pal == 1
+expect order_ok == 1
+expect order7 == 2
+expect round == 0
+wait 25
+press A
+waituntil state == 6 200
+expect fighters == 2
+expect f0_kind == 2
+expect f0_pal == 1
+expect f1_pal == 0
+# lost: one rematch
+cheat losematch
+wait 2
+expect state == 8
+wait 32
+press A
+waituntil state == 6 200
+expect rematches == 1
+expect round == 0
+cheat losematch
+wait 2
+expect state == 9
+wait 62
+press A
+wait 2
+expect state == 0
+# a fresh run, won all the way: the mirror match last
+cheat tourney 4 0
+wait 25
+press A
+waituntil state == 6 200
+cheat winmatch
+wait 2
+wait 25
+press A
+waituntil state == 6 200
+cheat winmatch
+wait 2
+wait 25
+press A
+waituntil state == 6 200
+cheat winmatch
+wait 2
+wait 25
+press A
+waituntil state == 6 200
+cheat winmatch
+wait 2
+wait 25
+press A
+waituntil state == 6 200
+cheat winmatch
+wait 2
+wait 25
+press A
+waituntil state == 6 200
+cheat winmatch
+wait 2
+wait 25
+press A
+waituntil state == 6 200
+cheat winmatch
+wait 2
+expect round == 7
+wait 25
+press A
+waituntil state == 6 200
+expect f1_kind == 4
+expect f1_pal == 1
+cheat winmatch
+wait 2
+expect state == 12

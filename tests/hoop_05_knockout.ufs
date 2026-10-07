@@ -1,0 +1,28 @@
+# HOOPLA: a hit knocks one hoop out to bounce round the pit; a hit on a
+# dizzy fighter knocks out two. A fighter with none loses nothing.
+seed 5
+game hoopla
+wait 30
+cheat match 0 1 0
+cheat dummy
+cheat go
+cheat noring
+cheat rings 1 3
+press A
+waituntil f1_rings == 2 120
+expect loose == 1
+expect f1_inv > 0
+# a dizzy fighter drops two
+waituntil f1_inv == 0 120
+cheat dizzy 1 200
+press A
+waituntil f1_rings == 0 120
+expect loose >= 3
+expect f1_dizzy == 0
+# nothing left to drop
+waituntil f1_inv == 0 120
+cheat noring
+press A
+waituntil f1_inv > 0 120
+expect f1_rings == 0
+expect loose == 0

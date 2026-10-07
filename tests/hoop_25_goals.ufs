@@ -1,0 +1,243 @@
+# HOOPLA: the goals and the save. Winning a tournament on standard hoops is
+# the gold goal and makes that fighter a champion (kept in the save, with
+# the fewest rematches); champions as four different fighters is the
+# cherry. On other hoop rules nothing counts. The goals come back from the
+# save.
+seed 25
+game hoopla
+wait 30
+expect goals == 0
+cheat towin 7
+cheat tourney 0 0
+wait 25
+press A
+waituntil state == 6 200
+cheat winmatch
+wait 2
+wait 25
+press A
+waituntil state == 6 200
+cheat winmatch
+wait 2
+wait 25
+press A
+waituntil state == 6 200
+cheat winmatch
+wait 2
+wait 25
+press A
+waituntil state == 6 200
+cheat winmatch
+wait 2
+wait 25
+press A
+waituntil state == 6 200
+cheat winmatch
+wait 2
+wait 25
+press A
+waituntil state == 6 200
+cheat winmatch
+wait 2
+wait 25
+press A
+waituntil state == 6 200
+cheat winmatch
+wait 2
+wait 25
+press A
+waituntil state == 6 200
+cheat winmatch
+wait 2
+expect state == 12
+expect goals == 0
+expect save_champs == 0
+expect save_tourney_wins == 1
+cheat towin 5
+cheat tourney 0 0
+wait 25
+press A
+waituntil state == 6 200
+cheat winmatch
+wait 2
+wait 25
+press A
+waituntil state == 6 200
+cheat winmatch
+wait 2
+wait 25
+press A
+waituntil state == 6 200
+cheat winmatch
+wait 2
+wait 25
+press A
+waituntil state == 6 200
+cheat winmatch
+wait 2
+wait 25
+press A
+waituntil state == 6 200
+cheat winmatch
+wait 2
+wait 25
+press A
+waituntil state == 6 200
+cheat winmatch
+wait 2
+wait 25
+press A
+waituntil state == 6 200
+cheat winmatch
+wait 2
+wait 25
+press A
+waituntil state == 6 200
+cheat winmatch
+wait 2
+expect goals == 2
+expect save_champs == 1
+expect save_least == 0
+cheat tourney 1 1
+wait 25
+press A
+waituntil state == 6 200
+cheat losematch
+wait 2
+wait 32
+press A
+waituntil state == 6 200
+cheat winmatch
+wait 2
+wait 25
+press A
+waituntil state == 6 200
+cheat winmatch
+wait 2
+wait 25
+press A
+waituntil state == 6 200
+cheat winmatch
+wait 2
+wait 25
+press A
+waituntil state == 6 200
+cheat winmatch
+wait 2
+wait 25
+press A
+waituntil state == 6 200
+cheat winmatch
+wait 2
+wait 25
+press A
+waituntil state == 6 200
+cheat winmatch
+wait 2
+wait 25
+press A
+waituntil state == 6 200
+cheat winmatch
+wait 2
+wait 25
+press A
+waituntil state == 6 200
+cheat winmatch
+wait 2
+expect state == 12
+expect save_champs == 3
+expect save_champs_alt == 2
+expect save_least == 0
+expect goals == 2
+cheat tourney 2 0
+wait 25
+press A
+waituntil state == 6 200
+cheat winmatch
+wait 2
+wait 25
+press A
+waituntil state == 6 200
+cheat winmatch
+wait 2
+wait 25
+press A
+waituntil state == 6 200
+cheat winmatch
+wait 2
+wait 25
+press A
+waituntil state == 6 200
+cheat winmatch
+wait 2
+wait 25
+press A
+waituntil state == 6 200
+cheat winmatch
+wait 2
+wait 25
+press A
+waituntil state == 6 200
+cheat winmatch
+wait 2
+wait 25
+press A
+waituntil state == 6 200
+cheat winmatch
+wait 2
+wait 25
+press A
+waituntil state == 6 200
+cheat winmatch
+wait 2
+expect goals == 2
+cheat tourney 3 0
+wait 25
+press A
+waituntil state == 6 200
+cheat winmatch
+wait 2
+wait 25
+press A
+waituntil state == 6 200
+cheat winmatch
+wait 2
+wait 25
+press A
+waituntil state == 6 200
+cheat winmatch
+wait 2
+wait 25
+press A
+waituntil state == 6 200
+cheat winmatch
+wait 2
+wait 25
+press A
+waituntil state == 6 200
+cheat winmatch
+wait 2
+wait 25
+press A
+waituntil state == 6 200
+cheat winmatch
+wait 2
+wait 25
+press A
+waituntil state == 6 200
+cheat winmatch
+wait 2
+wait 25
+press A
+waituntil state == 6 200
+cheat winmatch
+wait 2
+expect save_champs == 15
+expect goals == 6
+reload
+set_goals hoopla 0
+game hoopla
+wait 10
+expect save_champs == 15
+expect save_tourney_wins == 5
+expect goals == 6
