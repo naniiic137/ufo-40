@@ -12,12 +12,15 @@ static const uint8_t GRAD_TEAL[] = {C_WHITE, C_ICE, C_CYAN, C_TEAL};
 static void draw_pit(const Match *m) {
     const uint8_t *P = HOOP_PAL[m->pal];
     gfx_cls(P[0]);
-    /* the far wall: glass panes catching the lamps */
-    for (int x = 0; x < SCREEN_W; x += 32)
-        for (int y = 16; y < HOOP_AB; y += 28) {
-            gfx_dither(x + 3, y, 26, 22, P[1], 6);
-            gfx_rectb(x + 3, y, 26, 22, P[1]);
-        }
+    /* the far wall: tall glass panes, a glint on each, and the crowd's
+     * lamps low down */
+    for (int x = 0; x < SCREEN_W; x += 40) {
+        gfx_rectb(x + 4, 18, 32, HOOP_AB - 30, P[1]);
+        gfx_dither(x + 5, 19, 30, HOOP_AB - 32, P[1], 2);
+        gfx_line(x + 8, 40, x + 18, 24, P[1]);
+        gfx_line(x + 8, 46, x + 22, 26, P[1]);
+    }
+    for (int x = 12; x < SCREEN_W; x += 20) gfx_pset(x, HOOP_AB - 6 + (x / 20) % 2, P[1]);
     /* lamps along the top */
     for (int x = 24; x < SCREEN_W; x += 48) {
         gfx_rect(x, HOOP_AT - 4, 4, 3, C_YELLOW);
@@ -242,7 +245,7 @@ static void hud_side(const Match *m, int i, int x, int y, bool right) {
     int nx = right ? x - w : x;
     gfx_rect(nx - 2, y - 1, w + 4, 9, C_INK);
     text_draw(name, nx, y, f->on ? C_WHITE : C_GREY);
-    gfx_rect(right ? nx + w + 3 : nx - 5, y + 1, 2, 5, col);
+    gfx_rect(right ? nx - 6 : nx + w + 3, y + 1, 3, 5, col);
     int n = m->old_rules ? HOOP_OLD_HP : m->to_win;
     int have = m->old_rules ? f->hp : f->rings;
     for (int k = 0; k < n; k++) {
@@ -364,9 +367,13 @@ static void draw_title(void) {
         if (won) hoop_draw_fighter_big(k, (hsv.champs_alt >> k) & 1, x, y, 1, t);
         else spr_draw_ex(&hoop_spr[HSP_FIGHTER(k, HSP_STAND)], x, y, 0, NULL, C_DUSK);
     }
-    char b[64];
-    if (hsv.least_rematches == 0xFFFF) snprintf(b, sizeof b, "CHAMPIONS %d/8", popcount_champs());
-    else snprintf(b, sizeof b, "CHAMPIONS %d/8   FEWEST REMATCHES %d", popcount_champs(), hsv.least_rematches);
+    char b[80];
+    int used = 0;
+    for (int k = 0; k < HOOP_FIGHTERS; k++) used += (hsv.used >> k) & 1;
+    if (hsv.least_rematches == 0xFFFF) snprintf(b, sizeof b, "FIGHTERS USED %d/8   CHAMPIONS %d/8", used, popcount_champs());
+    else
+        snprintf(b, sizeof b, "FIGHTERS USED %d/8   CHAMPIONS %d/8   FEWEST REMATCHES %d", used, popcount_champs(),
+                 hsv.least_rematches);
     tiny_center(b, 160, 148, C_LIGHT);
     if (hg.title_sel == 1 && plat_kind() == PLAT_VITA) tiny_center("NEEDS TWO CONTROLLERS", 160, 168, C_LIGHT);
     else tiny_center("1988 BEAMDOWN SOFTWORKS", 160, 168, C_SLATE);

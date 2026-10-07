@@ -304,18 +304,15 @@ static void waypoint(const Fighter *f, int *tx, int *ty) {
     }
 }
 
-static void descend(int who, Brain *b, int tx, int ty, int *out) {
-    Match *m = &hg.m;
-    Fighter *f = &m->f[who];
+/* lower down: let go, get off, or drop through the ledge (DOWN + B) */
+static void descend(int who, Brain *b, int *out) {
+    Fighter *f = &hg.m.f[who];
     if (f->kind == HF_CLAMP && f->claw == 2) { tap(b, out, HP_B); return; }
     if (f->kind == HF_COLLIER && f->lift < 0) { tap(b, out, HP_B); return; }
     if (hoop_on_ledge(f) && f->lift == 0) {
-        const Ledge *L = &m->ledge[f->ground];
-        (void)L;
         *out |= HP_D;
         tap(b, out, HP_B);
     }
-    (void)ty;
 }
 
 /* ---- fighting ----------------------------------------------------------------------- */
@@ -543,7 +540,7 @@ int hoop_brain_think(int who) {
     } else if (dy < -12) {
         climb(who, b, tx, ty, &out);
     } else if (dy > 18) {
-        descend(who, b, tx, ty, &out);
+        descend(who, b, &out);
     } else if (f->kind == HF_CLAMP && f->claw == 2) {
         tap(b, &out, HP_B);
     } else if (hoop_on_ledge(f) && f->kind != HF_COLLIER && iabs(tx - cx) > 8) {

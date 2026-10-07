@@ -1,0 +1,49 @@
+# README media: HOOPLA. Everything in play is the demo player's real button
+# presses against the CPU. The GIF is a stretch of a tournament match.
+shotscale 2
+seed 36
+game hoopla
+wait 40
+shot hoopla_title
+cheat botplan 6
+botuntil state == 3 600
+press RIGHT
+press RIGHT
+press LEFT
+press LEFT
+wait 4
+shot hoopla_select
+botuntil state == 4 600
+wait 30
+shot hoopla_ladder
+botuntil state == 6 600
+botuntil mt >= 420 2000
+gifstart hoopla 3 1
+botplay 720
+gifstop
+botuntil mt >= 1845 3000
+shot hoopla_match
+# further up the ladder
+botuntil round == 3 100000
+botuntil state == 6 3000
+botuntil mt >= 915 3000
+shot hoopla_match2
+botuntil round == 7 100000
+botuntil state == 6 3000
+botuntil mt >= 700 3000
+shot hoopla_mirror
+botuntil state == 12 100000
+wait 330
+shot hoopla_ending
+# a draft battle
+game hoopla
+wait 20
+cheat botdraft 1
+botuntil draft_turn == 4 3000
+wait 4
+shot hoopla_draft
+botuntil state == 11 3000
+botuntil score0 >= 2 30000
+botuntil state == 11 3000
+wait 20
+shot hoopla_series
