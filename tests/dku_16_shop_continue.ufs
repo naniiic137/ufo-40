@@ -1,0 +1,83 @@
+# DUKES UP: health never refills by itself between nights; after each night
+# the corner shop sells a full heal for $5 and +1 POWER, RECOV or TOUGH for
+# $20 each (3 at most). Falling offers a continue: YES restarts the night
+# with full health, the cash and stats kept, and counts a continue; NO, or
+# letting the count run out, is the end of the run.
+game dukesup
+wait 5
+cheat pick 1 0
+cheat run 1
+cheat hp 1 60
+cheat nightdone
+wait 2
+expect state == 5
+wait 64
+press A
+expect state == 6
+expect shop_sel == 0
+# no cash, no sale
+press A
+expect p1_hp == 60
+cheat cash 47
+press DOWN
+expect shop_sel == 1
+press A
+expect p1_power == 3
+expect cash == 27
+press A
+expect p1_power == 3
+expect cash == 27
+press DOWN
+press DOWN
+press A
+expect p1_tough == 3
+expect cash == 7
+press UP
+press A
+expect p1_recov == 1
+expect cash == 7
+press UP
+press UP
+expect shop_sel == 0
+# the heal goes on to the next night; without it, so would 60 health
+press A
+expect p1_hp == 100
+expect cash == 2
+press UP
+expect shop_sel == 4
+press A
+expect state == 3
+expect night == 2
+wait 120
+expect state == 4
+expect p1_hp == 100
+expect p1_power == 3
+# a fall: the continue screen; YES restarts the night
+cheat hp 1 50
+hold RIGHT 400
+cheat die
+wait 80
+expect state == 7
+expect cont_sel == 0
+wait 40
+press A
+expect state == 3
+expect continues == 1
+expect night == 2
+expect sec == 0
+expect cam == 0
+expect p1_hp == 100
+expect cash == 2
+expect p1_power == 3
+expect p1_tough == 3
+wait 120
+# the count runs out: the end of the run
+cheat die
+wait 80
+expect state == 7
+wait 620
+expect state == 8
+wait 70
+press A
+expect state == 0
+expect save_night == 2

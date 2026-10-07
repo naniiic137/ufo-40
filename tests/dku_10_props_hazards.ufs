@@ -1,0 +1,110 @@
+# DUKES UP: bins, boxes, crates, stumps, signs, vases, junk and grass
+# tufts hide food, cash and weapons (a bin leaves itself behind to throw);
+# a tied dog joins you when its leash is broken. Holes are instant: walk
+# in and the night is over. Bumps in the dirt are mines; a chandelier drops
+# on whoever steps into its shadow; fire burns anyone in it; a car crashes
+# across its lane, flattening ghouls in one go.
+game dukesup
+wait 5
+cheat pick 1 0
+cheat run 1
+cheat arena
+cheat freeze
+cheat pos 1 100 140
+cheat face 1 1
+# a bin: one blow spills it, and the bin is left to throw
+cheat prop 0 118 136 5
+wait 2
+press A 1
+wait 12
+expect props == 0
+expect items_5 == 1
+expect items_14 == 1
+# a crate takes two blows
+cheat arena
+cheat prop 2 118 136 6
+wait 2
+press A 1
+wait 14
+expect props == 1
+press A 1
+wait 14
+expect props == 0
+expect items_6 == 1
+# a grass tuft hides an apple
+cheat arena
+cheat prop 7 118 136 1
+wait 2
+press A 1
+wait 14
+expect items_1 == 1
+# a dog on a leash: a blow sets it free, and it goes for the ghouls
+cheat arena
+cheat thaw
+cheat dormant dog 0 116 140
+expect foe2_team == 2
+wait 2
+press A 1
+wait 14
+expect foe2_team == 0
+expect dogs == 1
+cheat spawn shambler 200 140
+cheat foehp 3 30
+wait 200
+expect foe3_hp < 30
+# a mine: 18, TOUGH takes off only 1 from a blast
+cheat arena
+cheat freeze
+cheat hp 1 100
+cheat pos 1 100 140
+cheat hazard 1 120 140
+wait 2
+hold RIGHT 30
+wait 30
+expect p1_hp == 83
+expect hz_1 == 0
+# a chandelier: into its shadow, and it comes down (22 less 1)
+cheat arena
+cheat hp 1 100
+cheat pos 1 100 140
+wait 40
+cheat hazard 2 130 140
+wait 2
+hold RIGHT 26
+expect hz_2 == 1
+wait 40
+expect p1_hp == 79
+expect hz_2 == 0
+# fire: 4 a time, less 1 for TOUGH 2
+cheat arena
+cheat hp 1 100
+cheat pos 1 100 140
+wait 40
+cheat hazard 3 90 132 30 16
+wait 31
+expect p1_hp == 94
+# the car: a horn, then it crosses its lane
+cheat arena
+cheat hp 1 100
+cheat pos 1 160 140
+cheat spawn shambler 200 141
+cheat foehp 2 50
+wait 2
+cheat hazard 6 0 141
+wait 50
+expect p1_hp == 100
+wait 80
+expect foe2_alive == 0
+expect p1_hp == 71
+# a hole: in you go, and the night is lost
+cheat arena
+cheat hp 1 100
+cheat pos 1 100 140
+wait 40
+cheat hazard 0 120 130 40 30
+wait 2
+hold RIGHT 30
+expect p1_hp == 0
+expect p1_state == 11
+wait 120
+expect state == 7

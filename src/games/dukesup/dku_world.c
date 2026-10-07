@@ -410,8 +410,9 @@ void dku_start_night(int night) {
             a->hp = DKU_MAX_HP;
         }
         if (a->hp <= 0 || a->state == AS_DEAD || a->state == AS_GONE || a->state == AS_FALL) {
-            /* a partner who fell comes back for the next night at half health */
-            a->hp = DKU_MAX_HP / 2;
+            /* a partner who fell comes back for the next night at half health
+               (or more, if the shop's soup was bought for them) */
+            a->hp = imax(a->hp, DKU_MAX_HP / 2);
             a->state = AS_FREE;
         }
     }
@@ -539,7 +540,7 @@ static void gym_update(void) {
         return;
     }
     if (dk.gym_spawned < dk.gym_nq) {
-        if (--dk.stream_t <= 0 && dku_enemies_alive() < 6) {
+        if (--dk.stream_t <= 0 && dku_enemies_alive() < 5) {
             int k = dk.gym_queue[dk.gym_spawned];
             int side = (dk.gym_spawned & 1) ? FROM_LEFT : FROM_RIGHT;
             dku_spawn(k, side, 0, DKU_FLOOR0 + 8 + rng_range(&dk.rng, 0, DKU_FLOOR1 - DKU_FLOOR0 - 16), 0);
@@ -565,7 +566,7 @@ static void gym_update(void) {
 void dku_gym_wave(int wave, uint8_t *kinds, int *n, int max) {
     static const uint8_t UNLOCK[] = {AK_SHAMBLER, AK_SHAMBLER, AK_GIGGLER, AK_TORCH, AK_CROW, AK_HOWLER, AK_SKIPPER,
                                      AK_BULWARK, AK_RAMMER, AK_VISITOR, AK_SLUDGER, AK_TUSKER};
-    int count = imin(max, imin(16, 2 + wave));
+    int count = imin(max, imin(16, 3 + wave * 3 / 4));
     int pool = imin(ARRAY_LEN(UNLOCK), wave + 1);
     Rng r;
     rng_seed(&r, (uint64_t)(1000 + wave * 7));
@@ -946,7 +947,7 @@ void dku_world_update(void) {
             }
             int n = 0;
             for (int i = 2; i < DKU_MAX_ACTORS; i++)
-                if (dk.a[i].alive && dk.a[i].team == 1 && !dk.a[i].boss && dk.a[i].state != AS_DEAD) n++;
+                if (dk.a[i].alive && dk.a[i].team == 1 && !dk.a[i].boss && dk.a[i].state != AS_DEAD && dk.a[i].state != AS_DORMANT) n++;
             if (n < dk.stream_max) {
                 if (kind == AK_SKIPPER) {
                     int x = dku_view_left() + rng_range(&dk.rng, 40, 200);

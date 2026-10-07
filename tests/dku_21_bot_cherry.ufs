@@ -1,0 +1,21 @@
+# DUKES UP: proof the whole game can be beaten. From the title, the demo
+# player (dku_bot_buttons: real button presses only) picks ROOK and plays
+# all five nights, shopping between them, through the lift and both of
+# Alderman Grist's forms without a single continue: the good ending, the
+# saucer and the alien.
+seed 3
+game dukesup
+wait 5
+botuntil state == 4 2000
+botuntil night == 2 30000
+expect continues == 0
+botuntil night == 3 30000
+botuntil night == 4 30000
+botuntil night == 5 30000
+expect continues == 0
+botuntil state == 9 40000
+expect won == 1
+expect continues == 0
+expect goals.dukesup == 6
+expect save_good == 1
+botuntil state == 0 3000

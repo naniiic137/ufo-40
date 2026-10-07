@@ -404,6 +404,7 @@ static int dku_query(const char *key, int *out) {
     if (!strncmp(key, "hz_", 3)) { *out = count_hz(atoi(key + 3)); return 1; }
     if (!strcmp(key, "props")) { *out = 0; for (int i = 0; i < DKU_MAX_PROPS; i++) *out += dk.pr_[i].alive; return 1; }
     if (!strcmp(key, "shots")) { *out = 0; for (int i = 0; i < DKU_MAX_SHOTS; i++) *out += dk.sh[i].alive; return 1; }
+    if (!strncmp(key, "shotkind_", 9)) { int k = atoi(key + 9); *out = 0; for (int i = 0; i < DKU_MAX_SHOTS; i++) *out += dk.sh[i].alive && dk.sh[i].kind == k; return 1; }
     if (!strcmp(key, "shot0_team")) { *out = -1; for (int i = 0; i < DKU_MAX_SHOTS; i++) if (dk.sh[i].alive) { *out = dk.sh[i].team; break; } return 1; }
     if (!strcmp(key, "shot0_vx")) { *out = 0; for (int i = 0; i < DKU_MAX_SHOTS; i++) if (dk.sh[i].alive) { *out = dk.sh[i].vx; break; } return 1; }
     if (!strcmp(key, "layout")) { *out = dku_layout_audit(); return 1; }
@@ -475,6 +476,50 @@ static int dku_query(const char *key, int *out) {
         if (!strcmp(u, "air_jump")) { *out = p->air_jump; return 1; }
         if (!strcmp(u, "down_t")) { *out = p->down_t; return 1; }
         return 0;
+    }
+    /* the structure, read from the nights' scripts */
+    if (!strcmp(key, "n_nights")) { *out = DKU_NIGHTS; return 1; }
+    if (!strncmp(key, "secs_", 5)) { int n = atoi(key + 5) - 1; *out = n >= 0 && n < DKU_NIGHTS ? DKU_NIGHT[n].nsec : 0; return 1; }
+    if (!strncmp(key, "boss_of_", 8)) {
+        int n = atoi(key + 8) - 1;
+        *out = -1;
+        if (n < 0 || n >= DKU_NIGHTS) return 1;
+        for (int si = 0; si < DKU_NIGHT[n].nsec; si++)
+            for (int k = 0; k < DKU_NIGHT[n].sec[si].nev; k++)
+                if (DKU_NIGHT[n].sec[si].ev[k].op == EV_BOSS) *out = DKU_NIGHT[n].sec[si].ev[k].a;
+        return 1;
+    }
+    if (!strcmp(key, "lift_waves")) {
+        *out = 0;
+        for (int n = 0; n < DKU_NIGHTS; n++)
+            for (int si = 0; si < DKU_NIGHT[n].nsec; si++)
+                for (int k = 0; k < DKU_NIGHT[n].sec[si].nev; k++)
+                    if (DKU_NIGHT[n].sec[si].ev[k].op == EV_WAVE) *out = imax(*out, DKU_NIGHT[n].sec[si].ev[k].a);
+        return 1;
+    }
+    if (!strcmp(key, "enemy_kinds")) {
+        /* the kinds of ghoul in the nights (not the bosses' own kinds, not dogs or passers-by) */
+        bool seen[AK_COUNT] = {0};
+        for (int n = 0; n < DKU_NIGHTS; n++)
+            for (int si = 0; si < DKU_NIGHT[n].nsec; si++)
+                for (int k = 0; k < DKU_NIGHT[n].sec[si].nev; k++) {
+                    const DkuEvt *e = &DKU_NIGHT[n].sec[si].ev[k];
+                    if (e->op == EV_SPAWN || e->op == EV_STREAM) seen[e->a] = true;
+                    if (e->op == EV_WAVE) seen[e->b] = true;
+                }
+        *out = 0;
+        for (int k = AK_SHAMBLER; k <= AK_FEELER; k++) *out += seen[k];
+        return 1;
+    }
+    if (!strcmp(key, "price_heal")) { *out = DKU_PRICE_HEAL; return 1; }
+    if (!strcmp(key, "price_stat")) { *out = DKU_PRICE_STAT; return 1; }
+    if (!strncmp(key, "fighter_", 8)) {
+        /* fighter_F_S: fighter F's stat S as it starts */
+        int f = atoi(key + 8);
+        const char *u = strchr(key + 8, '_');
+        if (f < 0 || f >= DK_NFIGHTERS || !u) return 0;
+        *out = DKU_FIGHTERS[f].stat[iclamp(atoi(u + 1), 0, 3)];
+        return 1;
     }
     if (!strcmp(key, "save_runs")) { *out = dks.runs; return 1; }
     if (!strcmp(key, "save_wins")) { *out = dks.wins; return 1; }
@@ -583,6 +628,27 @@ static int dku_cheat(const char *cmd) {
         }
         return 1;
     }
+    if (sscanf(cmd, "spawnfrom %31s %d %d %d", name, &a, &b, &c) == 4) {
+        int k = kind_by_name(name);
+        if (k < 0) return 0;
+        dku_spawn(k, a, b, c, 0);
+        return 1;
+    }
+    if (sscanf(cmd, "foeslam %d", &a) == 1) {
+        /* the body slam at the first fighter, now */
+        if (a >= 2 && a < DKU_MAX_ACTORS && dk.a[a].alive) {
+            Actor *f = &dk.a[a];
+            dku_set_state(f, AS_SLAM);
+            f->tx = dk.a[0].x;
+            f->ty = dk.a[0].y;
+            f->vz = 56;
+            f->z = 1;
+            f->vx = (dk.a[0].x - f->x) / 28;
+            f->vy = (dk.a[0].y - f->y) / 28;
+            f->timer2 = -1;
+        }
+        return 1;
+    }
     if (sscanf(cmd, "foestrike %d", &a) == 1) {
         /* its ordinary blow, at once, the way it faces */
         if (a >= 2 && a < DKU_MAX_ACTORS && dk.a[a].alive) dku_start_attack(&dk.a[a], AT_E_HIT);
@@ -638,6 +704,10 @@ static int dku_cheat(const char *cmd) {
         sscanf(cmd, "shot %*d %*d %*d %d", &vx);
         int kz = a == SH_BOTTLE || a == SH_BOMB ? 30 : 16;
         dku_add_shot(a, 1, dku_fx(b), dku_fx(c), dku_fx(kz), vx, 0, a == SH_BOTTLE || a == SH_BOMB ? 0 : 0, 10, -1);
+        return 1;
+    }
+    if (sscanf(cmd, "killfoe %d", &a) == 1) {
+        if (a >= 2 && a < DKU_MAX_ACTORS && dk.a[a].alive) { dk.a[a].hp = 1; dku_hit(a, 0, AT_NONE, 5, 1, 64 | 256); }
         return 1;
     }
     if (!strcmp(cmd, "killboss")) {

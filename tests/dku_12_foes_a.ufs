@@ -1,0 +1,122 @@
+# DUKES UP, the ghouls (1): the torch-belly lobs firebottles from a
+# distance, has no fists (up close it only backs off) and goes off a moment
+# after it falls; the crowmask throws cleavers along its row, stopped by a
+# bin or another ghoul; the rammer charges across the screen and flattens
+# ghouls in its way; the howler pounces and, knocked down, springs up and
+# over out of reach; the tusker guards while idle, is knocked down by
+# anything thrown, and its body slam can't touch you in the air.
+game dukesup
+wait 5
+cheat pick 1 0
+cheat run 1
+cheat arena
+cheat god
+cheat pos 1 60 140
+cheat face 1 1
+# the torch-belly: a lob from afar
+cheat spawn torch-belly 160 140
+cheat foecool 2 0
+waituntil shotkind_0 == 1 120
+# up close it backs off and never strikes
+cheat arena
+cheat mortal
+cheat hp 1 100
+cheat spawn torch-belly 90 140
+cheat foecool 2 0
+wait 30
+expect foe2_x > 92
+expect shotkind_0 == 0
+expect p1_hp == 100
+# it goes off a moment after it falls, hurting ghouls near it too
+cheat arena
+cheat mortal
+cheat hp 1 100
+cheat freeze
+cheat spawn torch-belly 90 140
+cheat foehp 2 1
+cheat spawn shambler 88 146
+cheat foehp 3 50
+cheat face 1 1
+wait 2
+press A 1
+wait 10
+expect foe2_state == 10
+expect p1_hp == 100
+cheat foepos 2 72 140
+wait 90
+expect p1_hp < 100
+expect foe3_hp < 50
+# the crowmask: a cleaver along its row; a bin in the way stops it
+cheat arena
+cheat thaw
+cheat god
+cheat pos 1 60 140
+cheat spawn crowmask 200 140
+cheat prop 0 120 140 0
+cheat foecool 2 0
+waituntil shotkind_1 == 1 120
+waituntil shotkind_1 == 0 60
+expect props == 1
+# the rammer: a charge across the screen that flattens ghouls on the way
+cheat arena
+cheat freeze
+cheat spawn rammer 250 140
+cheat spawn shambler 150 141
+cheat foehp 3 50
+cheat thaw
+cheat foecool 2 0
+cheat foecool 3 999
+waituntil foe2_state == 15 200
+wait 30
+expect foe3_state == 4
+# the howler: a pounce; knocked down, it springs up and over, untouchable
+cheat arena
+cheat spawn howler 130 140
+cheat foecool 2 0
+waituntil foe2_state == 15 200
+cheat arena
+cheat freeze
+cheat spawn howler 118 136
+cheat foehp 2 50
+cheat face 1 1
+cheat pos 1 100 140
+wait 2
+press A 1
+wait 12
+press A 1
+wait 12
+press A 1
+wait 12
+press A 1
+wait 12
+press A 1
+wait 10
+expect foe2_state == 4
+cheat thaw
+waituntil foe2_state == 15 120
+wait 3
+expect foe2_z > 0
+press A 1
+wait 5
+expect foe2_hp == 39
+# the tusker: idle, it guards
+cheat arena
+cheat thaw
+cheat pos 1 100 140
+cheat face 1 1
+cheat spawn tusker 122 136
+cheat foehp 2 60
+waituntil foe2_state == 17 120
+press A 1
+wait 6
+expect foe2_hp == 60
+# anything thrown knocks it down
+wait 20
+cheat freeze
+cheat item ghoul_head 100 140
+wait 2
+press A 1
+wait 12
+press B 1
+wait 10
+expect foe2_state == 4

@@ -1,0 +1,48 @@
+# DUKES UP: ghouls come on when the view scrolls past their mark, whether
+# or not the last lot are still standing; some wait (eating, sitting,
+# dancing, asleep) until you come near or hit them. At a lock-screen the
+# view stops until nobody is left, then GO. At the end of a section the way
+# on opens once the street is clear. The view never scrolls back.
+game dukesup
+wait 5
+cheat pick 1 0
+cheat run 1
+cheat god
+cheat freeze
+expect cam == 0
+expect kind_1 == 0
+hold RIGHT 220
+expect cam >= 40
+expect kind_1 >= 2
+# two shamblers on, and more come as the view moves on, the first two still up
+hold RIGHT 200
+expect cam >= 150
+expect kind_1 >= 3
+# the feeder at 470 waits, eating, until somebody comes near
+expect foe5_state == 12
+expect foe5_mode == 1
+# the view never goes back
+hold LEFT 60
+expect cam >= 150
+# the lock-screen at 330
+hold RIGHT 400
+expect cam == 330
+expect cam_lock == 330
+hold RIGHT 200
+expect cam == 330
+cheat clear
+wait 2
+expect cam_lock == -1
+hold RIGHT 60
+expect cam > 330
+# the end of the street: the way on opens once it's clear
+cheat clear
+cheat cam 1270
+cheat pos 1 1400 140
+wait 2
+cheat clear
+hold RIGHT 200
+wait 2
+cheat clear
+hold RIGHT 400
+expect sec == 1
