@@ -637,7 +637,7 @@ static void draw_title(void) {
     for (int y = 0; y < 90; y += 2) gfx_hline(0, SCREEN_W - 1, y + 90, y % 4 ? C_MAROON : C_NIGHT);
     /* the burning village */
     for (int k = 0; k < 8; k++) {
-        int x = 20 + k * 40, h = 20 + (int)(hash2(k, 1) % 20);
+        int x = 20 + k * 40, h = 14 + (int)(hash2(k, 1) % 14);
         gfx_rect(x, 150 - h, 24, h, C_NIGHT);
         gfx_line(x - 4, 150 - h, x + 12, 136 - h, C_NIGHT);
         gfx_line(x + 12, 136 - h, x + 28, 150 - h, C_NIGHT);
@@ -648,18 +648,18 @@ static void draw_title(void) {
     gfx_rect(0, 150, SCREEN_W, 30, C_INK);
     ui_fancy_center("RESTLESS", 160, 26, 3, TITLE_GRAD, 3, C_INK, C_MAROON);
     tiny_center("OLD GAUNT WILL NOT STAY DEAD", 160, 56, C_LIGHT);
-    spr_draw_scaled(&rsl_spr[SPR_GAUNT0], 30, 100, 2, 0);
-    spr_draw(&rsl_spr[SPR_WISP], 64 + (int)(rsl_sin(t) * 6 / 256), 96 + (int)(rsl_cos(t) * 4 / 256), 0);
+    spr_draw_scaled(&rsl_spr[SPR_GAUNT0], 26, 106, 2, 0);
+    spr_draw(&rsl_spr[SPR_WISP], 62 + (int)(rsl_sin(t) * 6 / 256), 100 + (int)(rsl_cos(t) * 4 / 256), 0);
     const char *items[2] = {"START", "HIGH SCORES"};
     for (int i = 0; i < 2; i++) {
-        int y = 82 + i * 14;
+        int y = 68 + i * 13;
         text_center(items[i], 160, y, rg.menu == i ? C_YELLOW : C_GREY);
         if (rg.menu == i) ui_cursor(160 - text_width(items[i]) / 2 - 12, y, t);
     }
     char buf[40];
     snprintf(buf, sizeof buf, "BEST %07u", (unsigned)rgs.top[0].score);
-    tiny_center(buf, 160, 116, C_AMBER);
-    tiny_center(GLYPH_A " START   " GLYPH_B " BACK TO THE LIBRARY", 160, 168, C_GREY);
+    tiny_center(buf, 160, 96, C_AMBER);
+    text_center(GLYPH_A " CHOOSE    " GLYPH_B " LIBRARY", 160, 166, C_GREY);
     tiny_draw("1988 BEAMDOWN", 4, 4, C_DUSK);
 }
 
@@ -680,7 +680,7 @@ static void draw_story(void) {
     gfx_cls(C_INK);
     int n = imin(ARRAY_LEN(STORY), rg.state_t / 30 + 1);
     for (int i = 0; i < n; i++) text_center(STORY[i], 160, 30 + i * 11, i < 4 ? C_LIGHT : C_CREAM);
-    if (rg.state_t > 60) tiny_center(GLYPH_A " GO", 160, 168, C_GREY);
+    if (rg.state_t > 60) text_center(GLYPH_A " GO ON", 160, 166, C_GREY);
 }
 
 static void draw_tally(void) {
@@ -707,7 +707,7 @@ static void draw_over(void) {
     char buf[48];
     snprintf(buf, sizeof buf, "SCORE %u   DEATHS %d", (unsigned)rg.score, rg.deaths);
     text_center(buf, 160, 100, C_WHITE);
-    if (rg.state_t > 100) tiny_center(GLYPH_A " ON", 160, 168, C_GREY);
+    if (rg.state_t > 100) text_center(GLYPH_A " GO ON", 160, 166, C_GREY);
 }
 
 static void draw_name(void) {
@@ -722,7 +722,7 @@ static void draw_name(void) {
         text_draw_scaled(c, x, 84, i == rg.name_pos ? C_YELLOW : C_LIGHT, 2);
         if (i == rg.name_pos && (rg.frame_t / 8) % 2) gfx_hline(x - 1, x + 10, 100, C_YELLOW);
     }
-    tiny_center(GLYPH_UP GLYPH_DOWN " LETTER   " GLYPH_A " NEXT   " GLYPH_B " BACK", 160, 130, C_GREY);
+    text_center(GLYPH_UP GLYPH_DOWN " LETTER   " GLYPH_A " NEXT   " GLYPH_B " BACK", 160, 130, C_GREY);
 }
 
 static void draw_scores(void) {
@@ -743,7 +743,7 @@ static void draw_scores(void) {
     }
     snprintf(buf, sizeof buf, "MOST DEATHS %d", rgs.most_deaths);
     tiny_center(buf, 160, 136, C_GREY);
-    tiny_center(GLYPH_A " BACK", 160, 168, C_GREY);
+    text_center(GLYPH_A " BACK", 160, 166, C_GREY);
 }
 
 static void draw_ending(void) {
@@ -828,8 +828,8 @@ int rsl_layout_audit(void) {
             for (int k = 0; k < ARRAY_LEN(STORY); k++)
                 if (STORY[k][0]) ui_audit_text("story", STORY[k], 160 - text_width(STORY[k]) / 2, 30 + k * 11);
         if (SCREENS[i] == RS_TITLE) {
-            ui_audit_text("start", "START", 160 - text_width("START") / 2, 82);
-            ui_audit_text("scores", "HIGH SCORES", 160 - text_width("HIGH SCORES") / 2, 96);
+                ui_audit_text("start", "START", 160 - text_width("START") / 2, 68);
+            ui_audit_text("scores", "HIGH SCORES", 160 - text_width("HIGH SCORES") / 2, 81);
         }
         bad += ui_audit_end();
         for (int k = 0; k < ARRAY_LEN(STORY); k++) bad += text_missing(STORY[k]) > 0;
