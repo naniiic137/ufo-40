@@ -1,0 +1,61 @@
+# README media: SOUNDINGS. The GIF and the dive and fight shots are the demo
+# player pressing real buttons; the rest are set up with cheats.
+shotscale 2
+seed 27
+game soundings
+wait 90
+shot soundings_title
+# the demo player's first hours: shopping, the kit, the shelf
+cheat bot 0
+botuntil level >= 4 60000
+botuntil scene == 1 60000
+botplay 3
+shot soundings_raft
+botuntil scene == 4 3000
+botplay 200
+gifstart soundings 3 2
+botuntil scene == 6 4000
+botplay 420
+gifstop
+botuntil level >= 7 90000
+botuntil nfoe >= 3 60000
+botuntil bphase == 2 1200
+shot soundings_fight
+cheat bot_off
+# the Abbot and his two fronds
+cheat level 9
+cheat fight 2 18 2
+waituntil bphase == 1 200
+shot soundings_abbot
+# the shop's tonics, and the kit with a lamp rod and a spine targe
+cheat scene 2
+cheat shop 0 2
+wait 2
+shot soundings_shop
+cheat give 27
+cheat give 26
+cheat give 37
+cheat scene 3
+cheat kit 0 3
+wait 2
+shot soundings_kit
+# the still green room, and the red deep
+cheat dive
+cheat nomobs
+cheat at 62 58
+wait 30
+shot soundings_still
+cheat dive
+cheat at 22 66
+hold LEFT 20
+wait 10
+shot soundings_deep
+# the Gloamheart
+cheat level 15
+cheat fight 20 19 19 20
+waituntil bphase == 1 200
+shot soundings_gloam
+# the ending with all three heads
+cheat ending 2
+wait 420
+shot soundings_ending
