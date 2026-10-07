@@ -40,7 +40,7 @@ expect boss_down == 1
 cheat night 4 2
 cheat arena
 cheat boss 13 296 128
-expect boss_hp == 60
+expect boss_hp == 48
 cheat freeze
 cheat pos 1 220 140
 cheat face 1 1
@@ -53,7 +53,7 @@ hold RIGHT 6
 expect p1_state == 6
 press RIGHT A 1
 wait 30
-expect boss_hp == 48
+expect boss_hp == 36
 # Alderman Grist: beaten once, he changes and comes back stronger
 cheat night 5 3
 expect boss_hp == 110

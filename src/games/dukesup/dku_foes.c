@@ -4,7 +4,7 @@
 
 #define GRAV 4
 
-static int rnd(int lo, int hi) { return rng_range(&dk.rng, lo, hi); }
+static int rnd(int lo, int hi) { return rng_range(&dku_g.rng, lo, hi); }
 
 static bool physics(Actor *a) {
     bool landed = false;
@@ -34,8 +34,8 @@ static void clamp_in(Actor *a) {
 static int target_of(const Actor *a) {
     int best = -1, bd = 1 << 30;
     for (int j = 0; j < DKU_MAX_ACTORS; j++) {
-        const Actor *t = &dk.a[j];
-        if (!t->alive || t->team != 0 || j == (int)(a - dk.a)) continue;
+        const Actor *t = &dku_g.a[j];
+        if (!t->alive || t->team != 0 || j == (int)(a - dku_g.a)) continue;
         if (t->state == AS_DEAD || t->state == AS_FALL || t->state == AS_GONE || t->state == AS_LEASHED) continue;
         int d = iabs(dku_px(t->x - a->x)) + iabs(dku_px(t->y - a->y)) * 2;
         if (t->kind == AK_DOG) d += 40; /* fighters first */
@@ -47,9 +47,9 @@ static int target_of(const Actor *a) {
 static int nearest_ghoul(const Actor *a) {
     int best = -1, bd = 1 << 30;
     for (int j = 2; j < DKU_MAX_ACTORS; j++) {
-        const Actor *t = &dk.a[j];
+        const Actor *t = &dku_g.a[j];
         if (!t->alive || t->team != 1 || t->state == AS_DEAD || t->state == AS_FALL || t->kind == AK_UNDERTOW) continue;
-        if (t->state == AS_ENTER) continue;
+        if (t->state == AS_ENTER || t->state == AS_GRABBED || t->state == AS_THROWN) continue; /* not one a fighter is holding */
         int d = iabs(dku_px(t->x - a->x)) + iabs(dku_px(t->y - a->y)) * 2;
         if (d < bd) { bd = d; best = j; }
     }
@@ -69,7 +69,7 @@ static void step_to(Actor *a, int tx, int ty, int sx, int sy) {
     else if (!dku_in_pit(dku_px(nx), dku_px(a->y))) a->x = nx;
     else if (!dku_in_pit(dku_px(a->x), dku_px(ny))) a->y = ny;
     a->vx = a->vy = 0;
-    if (mx || my) { a->step++; a->anim = dk.frame_t; }
+    if (mx || my) { a->step++; a->anim = dku_g.frame_t; }
 }
 
 static void face_to(Actor *a, const Actor *t) {
@@ -88,14 +88,14 @@ static void windup(Actor *a, int atk, int frames) {
 static int side_count(int ti, int side) {
     int n = 0;
     for (int j = 2; j < DKU_MAX_ACTORS; j++) {
-        const Actor *o = &dk.a[j];
+        const Actor *o = &dku_g.a[j];
         if (o->alive && o->team == 1 && o->state != AS_DORMANT && o->state != AS_DEAD && o->side == side && o->wake == ti + 1) n++;
     }
     return n;
 }
 
 static void pick_side(Actor *a, int ti) {
-    const Actor *t = &dk.a[ti];
+    const Actor *t = &dku_g.a[ti];
     int here = a->x >= t->x ? 1 : -1;
     int l = side_count(ti, -1), r = side_count(ti, 1);
     a->side = here;
@@ -115,7 +115,7 @@ static int speed_of(const Actor *a, const Actor *t) {
 
 /* walk to the fighting spot on our side of the target, then strike */
 static void melee_ai(Actor *a, int i, int ti, int gap) {
-    Actor *t = &dk.a[ti];
+    Actor *t = &dku_g.a[ti];
     if (a->wake != ti + 1) pick_side(a, ti);
     int sp = speed_of(a, t);
     int tx = t->x + a->side * dku_fx(gap);
@@ -150,7 +150,7 @@ static int lob(int kind, Actor *a, int i, const Actor *t, int T, int dmg) {
 /* ---- each kind --------------------------------------------------------------- */
 
 static void ai_torch(Actor *a, int i, int ti) {
-    Actor *t = &dk.a[ti];
+    Actor *t = &dku_g.a[ti];
     int dx = dku_px(t->x - a->x), dy = dku_px(t->y - a->y);
     face_to(a, t);
     int want = 84;
@@ -166,7 +166,7 @@ static void ai_torch(Actor *a, int i, int ti) {
 }
 
 static void ai_crow(Actor *a, int i, int ti) {
-    Actor *t = &dk.a[ti];
+    Actor *t = &dku_g.a[ti];
     int dx = dku_px(t->x - a->x), dy = dku_px(t->y - a->y);
     if (iabs(dx) < 30) { melee_ai(a, i, ti, 16); return; }
     face_to(a, t);
@@ -177,7 +177,7 @@ static void ai_crow(Actor *a, int i, int ti) {
 }
 
 static void ai_rammer(Actor *a, int i, int ti) {
-    Actor *t = &dk.a[ti];
+    Actor *t = &dku_g.a[ti];
     int dx = dku_px(t->x - a->x), dy = dku_px(t->y - a->y);
     face_to(a, t);
     int sp = speed_of(a, t);
@@ -189,7 +189,7 @@ static void ai_rammer(Actor *a, int i, int ti) {
 }
 
 static void ai_howler(Actor *a, int i, int ti) {
-    Actor *t = &dk.a[ti];
+    Actor *t = &dku_g.a[ti];
     int dx = dku_px(t->x - a->x), dy = dku_px(t->y - a->y);
     face_to(a, t);
     int sp = speed_of(a, t);
@@ -202,7 +202,7 @@ static void ai_howler(Actor *a, int i, int ti) {
 }
 
 static void ai_tusker(Actor *a, int i, int ti) {
-    Actor *t = &dk.a[ti];
+    Actor *t = &dku_g.a[ti];
     int dx = dku_px(t->x - a->x), dy = dku_px(t->y - a->y);
     face_to(a, t);
     int sp = speed_of(a, t);
@@ -228,7 +228,7 @@ static void ai_tusker(Actor *a, int i, int ti) {
 }
 
 static void ai_sludger(Actor *a, int i, int ti) {
-    Actor *t = &dk.a[ti];
+    Actor *t = &dku_g.a[ti];
     int dx = dku_px(t->x - a->x), dy = dku_px(t->y - a->y);
     face_to(a, t);
     if (iabs(dx) < 30) { melee_ai(a, i, ti, 18); return; }
@@ -247,7 +247,7 @@ static void blink_to(Actor *a, const Actor *t) {
 }
 
 static void ai_visitor(Actor *a, int i, int ti) {
-    Actor *t = &dk.a[ti];
+    Actor *t = &dku_g.a[ti];
     int dx = dku_px(t->x - a->x), dy = dku_px(t->y - a->y);
     face_to(a, t);
     int sp = speed_of(a, t);
@@ -264,7 +264,7 @@ static void ai_visitor(Actor *a, int i, int ti) {
 }
 
 static void ai_bulwark(Actor *a, int i, int ti) {
-    Actor *t = &dk.a[ti];
+    Actor *t = &dku_g.a[ti];
     face_to(a, t);
     if (a->timer2 > 0) { a->timer2--; melee_ai(a, i, ti, 18); return; }
     /* it walks in behind its guard */
@@ -280,7 +280,7 @@ static void ai_bulwark(Actor *a, int i, int ti) {
 }
 
 static void ai_feeler(Actor *a, int i, int ti) {
-    Actor *t = &dk.a[ti];
+    Actor *t = &dku_g.a[ti];
     face_to(a, t);
     if (a->cool == 0 && dku_in_reach(a, t, DKU_KINDS[AK_FEELER].reach, 0, 20)) windup(a, AT_E_HIT, DKU_KINDS[AK_FEELER].windup);
     (void)i;
@@ -290,12 +290,12 @@ static void ai_dog(Actor *a, int i) {
     int ti = nearest_ghoul(a);
     if (ti < 0) {
         /* trot along by the first fighter */
-        const Actor *f = (dk.a[0].alive && dk.a[0].state != AS_DEAD) ? &dk.a[0] : &dk.a[1];
+        const Actor *f = (dku_g.a[0].alive && dku_g.a[0].state != AS_DEAD) ? &dku_g.a[0] : &dku_g.a[1];
         step_to(a, f->x - f->face * dku_fx(24), f->y + dku_fx(6), 16, 12);
         face_to(a, f);
         return;
     }
-    Actor *t = &dk.a[ti];
+    Actor *t = &dku_g.a[ti];
     int side = a->x > t->x ? 1 : -1;
     step_to(a, t->x + side * dku_fx(14), t->y, DKU_KINDS[AK_DOG].speed, 14);
     face_to(a, t);
@@ -312,14 +312,14 @@ static void ai_undertow(Actor *a, int i) {
     if (a->cool > 0) return;
     int ti = target_of(a);
     if (ti < 0) return;
-    Actor *t = &dk.a[ti];
-    dku_add_hazard(HZ_LAMP, dku_px(t->x), dku_px(t->y), 30, 10, 50, 2);
-    a->cool = 90 + rnd(0, 40);
+    Actor *t = &dku_g.a[ti];
+    dku_add_hazard(HZ_LAMP, dku_px(t->x), dku_px(t->y), 30, 10, 60, 2);
+    a->cool = 150 + rnd(0, 60);
     (void)i;
 }
 
 static void ai_grist(Actor *a, int i, int ti) {
-    Actor *t = &dk.a[ti];
+    Actor *t = &dku_g.a[ti];
     int dx = dku_px(t->x - a->x), dy = dku_px(t->y - a->y);
     face_to(a, t);
     bool mutant = a->mode == 2;
@@ -352,7 +352,7 @@ static void strike(Actor *a, int i) {
     /* the wind-up is over */
     int atk = a->atk;
     int ti = target_of(a);
-    Actor *t = ti >= 0 ? &dk.a[ti] : NULL;
+    Actor *t = ti >= 0 ? &dku_g.a[ti] : NULL;
     switch (a->kind) {
     case AK_TORCH:
         if (t) { lob(SH_BOTTLE, a, i, t, 32, 12); dku_sfx("dku_toss"); }
@@ -435,7 +435,7 @@ static void thrown_update(Actor *a, int i) {
     bool landed = physics(a);
     /* a body in flight floors whoever it meets */
     for (int j = 2; j < DKU_MAX_ACTORS; j++) {
-        Actor *o = &dk.a[j];
+        Actor *o = &dku_g.a[j];
         if (j == i || !o->alive || o->team != 1 || o->state == AS_DEAD || o->state == AS_DOWN) continue;
         bool seen = false;
         for (int k = 0; k < a->nhits; k++) seen |= a->hits[k] == j;
@@ -463,7 +463,7 @@ static void thrown_update(Actor *a, int i) {
         dku_hit(i, a->thrown_by, AT_NONE, a->thrown_dmg, dir, AF_KNOCK | 64);
         if (charged) dku_explode(a->x, a->y, 30, 12, 0, false);
         if (a->kind == AK_TORCH && a->state == AS_DEAD) a->st = 999;
-        dk.shake = 4;
+        dku_g.shake = 4;
         dku_sfx("dku_thud");
     }
 }
@@ -476,7 +476,7 @@ static void enter_update(Actor *a) {
     else if (a->x > r) { a->x -= sp; a->face = -1; }
     else { dku_set_state(a, AS_FREE); a->cool = rnd(10, 40); }
     a->step++;
-    a->anim = dk.frame_t;
+    a->anim = dku_g.frame_t;
 }
 
 static void rise_update(Actor *a) {
@@ -485,7 +485,7 @@ static void rise_update(Actor *a) {
         if (a->st >= 40) dku_set_state(a, AS_FREE);
         break;
     case FROM_ABOVE:
-        if (physics(a) || a->z == 0) { dku_set_state(a, AS_FREE); dk.shake = 3; dku_sfx("dku_thud"); }
+        if (physics(a) || a->z == 0) { dku_set_state(a, AS_FREE); dku_g.shake = 3; dku_sfx("dku_thud"); }
         break;
     case FROM_WATER: {
         /* a leap out of the water onto the planks */
@@ -518,7 +518,7 @@ static void rise_update(Actor *a) {
 }
 
 static void foe_update(int i) {
-    Actor *a = &dk.a[i];
+    Actor *a = &dku_g.a[i];
     a->st++;
     if (a->hurt_t > 0) a->hurt_t--;
     if (a->cool > 0) a->cool--;
@@ -544,7 +544,7 @@ static void foe_update(int i) {
     case AS_FALL:
         if (a->st > 30) {
             a->alive = 0;
-            if (a->team == 1) dk.kos++;
+            if (a->team == 1) dku_g.kos++;
             if (a->boss) dku_boss_dead(i);
         }
         return;
@@ -560,6 +560,16 @@ static void foe_update(int i) {
     case AS_DOWN: {
         bool landed = physics(a);
         if (landed) { a->vx /= 2; dku_burst(a->x, a->y, 0, C_TAN, 2); }
+        /* a body knocked flying into the Undertow hurts it too */
+        if (a->z > 0 && !a->hit_boss && a->team == 1 && dku_g.boss >= 0 && dku_g.boss != i) {
+            Actor *b = &dku_g.a[dku_g.boss];
+            if (b->alive && b->kind == AK_UNDERTOW && iabs(dku_px(b->x - a->x)) <= DKU_KINDS[AK_UNDERTOW].hw + 8 &&
+                dku_px(a->y) <= dku_px(b->y) + 30) {
+                a->hit_boss = true;
+                dku_hit(dku_g.boss, a->last_hitter, AT_NONE, 6, a->vx >= 0 ? 1 : -1, AF_KNOCK | 256);
+                a->vx = -a->vx / 3;
+            }
+        }
         if (a->z == 0) {
             a->vx = a->vx * 3 / 4;
             if (a->st > a->down_t + 14) {
@@ -591,7 +601,7 @@ static void foe_update(int i) {
         return;
     case AS_DORMANT: {
         for (int f = 0; f < 2; f++) {
-            const Actor *p = &dk.a[f];
+            const Actor *p = &dku_g.a[f];
             if (!p->alive || p->state == AS_DEAD) continue;
             int dx = iabs(dku_px(p->x - a->x)), dy = iabs(dku_px(p->y - a->y));
             int r = a->mode == DM_DANCE ? 70 : a->mode == DM_SLEEP ? 40 : 52;
@@ -603,7 +613,7 @@ static void foe_update(int i) {
         rise_update(a);
         return;
     case AS_ENTER:
-        if (dk.frozen) return;
+        if (dku_g.frozen) return;
         enter_update(a);
         return;
     case AS_LEASHED:
@@ -619,7 +629,7 @@ static void foe_update(int i) {
         return;
     default: break;
     }
-    if (dk.frozen && a->team == 1 && (a->state == AS_FREE || a->state == AS_GUARD)) return;
+    if (dku_g.frozen && a->team == 1 && (a->state == AS_FREE || a->state == AS_GUARD)) return;
 
     /* the special movers */
     if (a->kind == AK_SAUCER) {
@@ -689,7 +699,7 @@ static void foe_update(int i) {
     case AS_SLAM: {
         if (a->kind == AK_GRIST && a->timer2 >= 0 && a->timer2 < DKU_MAX_ACTORS && a->vz > 0) {
             /* changed, he steers the slam after you */
-            const Actor *t = &dk.a[a->timer2];
+            const Actor *t = &dku_g.a[a->timer2];
             a->vx += (t->x > a->x ? 2 : -2);
             a->vy += (t->y > a->y ? 1 : -1);
             a->vx = iclamp(a->vx, -40, 40);
@@ -700,13 +710,13 @@ static void foe_update(int i) {
             dku_start_attack(a, AT_E_SLAM);
             a->atk_t = 0;
             for (int j = 0; j < DKU_MAX_ACTORS; j++) {
-                Actor *o = &dk.a[j];
+                Actor *o = &dku_g.a[j];
                 if (!o->alive || o->team != 0 || o->state == AS_DEAD) continue;
                 if (o->z > dku_fx(4)) continue;
                 if (iabs(dku_px(o->x - a->x)) <= 28 && iabs(dku_px(o->y - a->y)) <= 10)
                     dku_hit(j, i, AT_E_SLAM, 16, o->x >= a->x ? 1 : -1, AF_KNOCK);
             }
-            dk.shake = 8;
+            dku_g.shake = 8;
             dku_sfx("dku_slam");
             dku_set_state(a, AS_HURT);
             a->stun = 26;
@@ -716,7 +726,7 @@ static void foe_update(int i) {
     }
     case AS_BLINK: {
         int ti = target_of(a);
-        if (a->st == 8 && ti >= 0) blink_to(a, &dk.a[ti]);
+        if (a->st == 8 && ti >= 0) blink_to(a, &dku_g.a[ti]);
         if (a->st >= 16) {
             if (--a->blinks > 0) { a->st = 0; return; }
             dku_set_state(a, AS_FREE);
@@ -726,7 +736,7 @@ static void foe_update(int i) {
     }
     case AS_GUARD: {
         int ti = target_of(a);
-        if (ti >= 0) face_to(a, &dk.a[ti]);
+        if (ti >= 0) face_to(a, &dku_g.a[ti]);
         if (a->kind == AK_BULWARK) { if (ti >= 0) ai_bulwark(a, i, ti); return; }
         /* the tusker: hit its guard twice and it answers */
         if (a->guard_hits >= 2 || a->st >= a->timer2) {
@@ -761,14 +771,14 @@ static void foe_update(int i) {
 
 void dku_foes_update(void) {
     for (int i = 2; i < DKU_MAX_ACTORS; i++)
-        if (dk.a[i].alive) foe_update(i);
+        if (dku_g.a[i].alive) foe_update(i);
 }
 
 void dku_foe_think(int i) { foe_update(i); }
 
 /* a boss is down: the night ends at once and the rest go home */
 void dku_boss_dead(int i) {
-    Actor *a = &dk.a[i];
+    Actor *a = &dku_g.a[i];
     if (a->kind == AK_GRIST && a->mode != 2) {
         /* the first form only: he changes */
         a->alive = 1;
@@ -783,16 +793,16 @@ void dku_boss_dead(int i) {
     if (a->kind == AK_VISITOR) {
         /* night 3: both visitors must fall */
         for (int j = 2; j < DKU_MAX_ACTORS; j++)
-            if (j != i && dk.a[j].alive && dk.a[j].boss && dk.a[j].state != AS_DEAD && dk.a[j].state != AS_FALL) return;
+            if (j != i && dku_g.a[j].alive && dku_g.a[j].boss && dku_g.a[j].state != AS_DEAD && dku_g.a[j].state != AS_FALL) return;
     }
-    dk.boss_down = true;
+    dku_g.boss_down = true;
     for (int j = 2; j < DKU_MAX_ACTORS; j++) {
-        Actor *o = &dk.a[j];
+        Actor *o = &dku_g.a[j];
         if (j == i || !o->alive || o->team != 1) continue;
         if (o->state == AS_DEAD) continue;
         dku_burst(o->x, o->y, dku_fx(12), C_GREY, 5);
         o->alive = 0;
     }
-    for (int s = 0; s < DKU_MAX_SHOTS; s++) if (dk.sh[s].team == 1) dk.sh[s].alive = 0;
-    dk.shake = 12;
+    for (int s = 0; s < DKU_MAX_SHOTS; s++) if (dku_g.sh[s].team == 1) dku_g.sh[s].alive = 0;
+    dku_g.shake = 12;
 }

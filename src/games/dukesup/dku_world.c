@@ -7,8 +7,8 @@
 #define GRAV 4
 
 static const DkuSection *cur_sec(void) {
-    if (dk.gym) return &DKU_GYM;
-    return &DKU_NIGHT[dk.night].sec[dk.sec];
+    if (dku_g.gym) return &DKU_GYM;
+    return &DKU_NIGHT[dku_g.night].sec[dku_g.sec];
 }
 
 int dku_floor_lo(void) {
@@ -16,23 +16,23 @@ int dku_floor_lo(void) {
     return s->kind == SEC_LIFT ? 126 : DKU_FLOOR0;
 }
 int dku_floor_hi(void) { return DKU_FLOOR1; }
-int dku_view_left(void) { return dk.cam + (cur_sec()->kind == SEC_LIFT ? 70 : 0); }
-int dku_view_right(void) { return dk.cam + (cur_sec()->kind == SEC_LIFT ? 250 : SCREEN_W); }
+int dku_view_left(void) { return dku_g.cam + (cur_sec()->kind == SEC_LIFT ? 70 : 0); }
+int dku_view_right(void) { return dku_g.cam + (cur_sec()->kind == SEC_LIFT ? 250 : SCREEN_W); }
 
 /* ---- small helpers ------------------------------------------------------------- */
 
 void dku_burst(int x, int y, int z, int col, int n) {
     for (int k = 0; k < n; k++) {
         for (int i = 0; i < DKU_MAX_PARTS; i++) {
-            Part *p = &dk.part[i];
+            Part *p = &dku_g.part[i];
             if (p->life > 0) continue;
             p->x = x;
             p->y = y;
             p->z = z + dku_fx(4);
-            p->vx = rng_range(&dk.rng, -24, 24);
-            p->vy = rng_range(&dk.rng, -6, 6);
-            p->vz = rng_range(&dk.rng, 8, 30);
-            p->life = rng_range(&dk.rng, 12, 26);
+            p->vx = rng_range(&dku_g.rng, -24, 24);
+            p->vy = rng_range(&dku_g.rng, -6, 6);
+            p->vz = rng_range(&dku_g.rng, 8, 30);
+            p->life = rng_range(&dku_g.rng, 12, 26);
             p->col = col;
             break;
         }
@@ -41,7 +41,7 @@ void dku_burst(int x, int y, int z, int col, int n) {
 
 bool dku_in_pit(int x, int y) {
     for (int i = 0; i < DKU_MAX_HAZARDS; i++) {
-        const Hazard *h = &dk.hz[i];
+        const Hazard *h = &dku_g.hz[i];
         if (!h->alive || (h->kind != HZ_PIT && h->kind != HZ_WATER)) continue;
         if (x >= h->x && x < h->x + h->w && y >= h->y && y < h->y + h->h) return true;
     }
@@ -50,7 +50,7 @@ bool dku_in_pit(int x, int y) {
 
 int dku_hazard_at(int kind, int x, int y) {
     for (int i = 0; i < DKU_MAX_HAZARDS; i++) {
-        const Hazard *h = &dk.hz[i];
+        const Hazard *h = &dku_g.hz[i];
         if (!h->alive || h->kind != kind) continue;
         if (x >= h->x && x < h->x + h->w && y >= h->y && y < h->y + h->h) return i;
     }
@@ -59,7 +59,7 @@ int dku_hazard_at(int kind, int x, int y) {
 
 void dku_add_hazard(int kind, int x, int y, int w, int h, int t, int arg) {
     for (int i = 0; i < DKU_MAX_HAZARDS; i++) {
-        Hazard *z = &dk.hz[i];
+        Hazard *z = &dku_g.hz[i];
         if (z->alive) continue;
         memset(z, 0, sizeof *z);
         z->alive = 1;
@@ -76,7 +76,7 @@ void dku_add_hazard(int kind, int x, int y, int w, int h, int t, int arg) {
 
 int dku_add_shot(int kind, int team, int x, int y, int z, int vx, int vy, int vz, int dmg, int owner) {
     for (int i = 0; i < DKU_MAX_SHOTS; i++) {
-        Shot *s = &dk.sh[i];
+        Shot *s = &dku_g.sh[i];
         if (s->alive) continue;
         memset(s, 0, sizeof *s);
         s->alive = 1;
@@ -97,7 +97,7 @@ int dku_add_shot(int kind, int team, int x, int y, int z, int vx, int vy, int vz
 
 int dku_drop_item(int kind, int x, int y) {
     for (int i = 0; i < DKU_MAX_ITEMS; i++) {
-        Item *it = &dk.it[i];
+        Item *it = &dku_g.it[i];
         if (it->alive) continue;
         memset(it, 0, sizeof *it);
         it->alive = 1;
@@ -114,7 +114,7 @@ int dku_drop_item(int kind, int x, int y) {
 
 static int place_prop(int kind, int x, int y, int c1, int c2) {
     for (int i = 0; i < DKU_MAX_PROPS; i++) {
-        Prop *p = &dk.pr_[i];
+        Prop *p = &dku_g.pr_[i];
         if (p->alive) continue;
         memset(p, 0, sizeof *p);
         p->alive = 1;
@@ -134,7 +134,7 @@ static int place_prop(int kind, int x, int y, int c1, int c2) {
  * otherwise only the side that isn't src_team. */
 void dku_explode(int x, int y, int r, int dmg, int src_team, bool hurts_all) {
     for (int j = 0; j < DKU_MAX_ACTORS; j++) {
-        Actor *o = &dk.a[j];
+        Actor *o = &dku_g.a[j];
         if (!o->alive || o->state == AS_DEAD || o->state == AS_FALL || o->state == AS_GONE) continue;
         if (o->kind == AK_SAUCER || o->kind == AK_PASSER || o->state == AS_LEASHED) continue;
         if (!hurts_all && o->team == src_team) continue;
@@ -146,7 +146,7 @@ void dku_explode(int x, int y, int r, int dmg, int src_team, bool hurts_all) {
         dku_hit(j, -1, AT_NONE, dmg, dir, AF_KNOCK | 128);
     }
     for (int i = 0; i < DKU_MAX_PROPS; i++) {
-        Prop *p = &dk.pr_[i];
+        Prop *p = &dku_g.pr_[i];
         if (!p->alive || p->kind == PR_POST) continue;
         if (iabs(dku_px(p->x - x)) <= r && iabs(dku_px(p->y - y)) * 2 <= r) {
             p->alive = 0;
@@ -156,14 +156,14 @@ void dku_explode(int x, int y, int r, int dmg, int src_team, bool hurts_all) {
     }
     dku_burst(x, y, dku_fx(4), C_ORANGE, 10);
     dku_burst(x, y, dku_fx(8), C_YELLOW, 6);
-    dk.shake = imax(dk.shake, 8);
+    dku_g.shake = imax(dku_g.shake, 8);
     dku_sfx("dku_boom");
 }
 
 int dku_enemies_alive(void) {
     int n = 0;
     for (int i = 2; i < DKU_MAX_ACTORS; i++) {
-        const Actor *a = &dk.a[i];
+        const Actor *a = &dku_g.a[i];
         if (a->alive && a->team == 1 && a->state != AS_DEAD && a->state != AS_FALL && a->state != AS_GONE) n++;
     }
     return n;
@@ -172,7 +172,7 @@ int dku_enemies_alive(void) {
 int dku_enemies_awake(void) {
     int n = 0;
     for (int i = 2; i < DKU_MAX_ACTORS; i++) {
-        const Actor *a = &dk.a[i];
+        const Actor *a = &dku_g.a[i];
         if (a->alive && a->team == 1 && a->state != AS_DEAD && a->state != AS_FALL && a->state != AS_GONE &&
             a->state != AS_DORMANT)
             n++;
@@ -184,7 +184,7 @@ int dku_enemies_awake(void) {
 static int enemies_here(void) {
     int n = 0, r = dku_view_right() + 16;
     for (int i = 2; i < DKU_MAX_ACTORS; i++) {
-        const Actor *a = &dk.a[i];
+        const Actor *a = &dku_g.a[i];
         if (!a->alive || a->team != 1 || a->state == AS_DEAD || a->state == AS_FALL || a->state == AS_GONE) continue;
         if ((a->state == AS_DORMANT || a->kind == AK_FEELER) && dku_px(a->x) > r) continue;
         n++;
@@ -194,8 +194,8 @@ static int enemies_here(void) {
 
 void dku_clear_enemies(void) {
     for (int i = 2; i < DKU_MAX_ACTORS; i++)
-        if (dk.a[i].alive && dk.a[i].team == 1) dk.a[i].alive = 0;
-    for (int s = 0; s < DKU_MAX_SHOTS; s++) if (dk.sh[s].team == 1) dk.sh[s].alive = 0;
+        if (dku_g.a[i].alive && dku_g.a[i].team == 1) dku_g.a[i].alive = 0;
+    for (int s = 0; s < DKU_MAX_SHOTS; s++) if (dku_g.sh[s].team == 1) dku_g.sh[s].alive = 0;
 }
 
 /* ---- spawning ------------------------------------------------------------------- */
@@ -205,7 +205,7 @@ static int boss_hp(int kind) {
     case AK_RAMMER: return 90;
     case AK_TUSKER: return 120;
     case AK_VISITOR: return 40;
-    case AK_UNDERTOW: return 60;
+    case AK_UNDERTOW: return 48;
     case AK_GRIST: return 110;
     default: return DKU_KINDS[kind].hp;
     }
@@ -213,7 +213,7 @@ static int boss_hp(int kind) {
 
 int dku_spawn(int kind, int from, int x, int y, int mode) {
     for (int i = 2; i < DKU_MAX_ACTORS; i++) {
-        Actor *a = &dk.a[i];
+        Actor *a = &dku_g.a[i];
         if (a->alive) continue;
         memset(a, 0, sizeof *a);
         a->alive = 1;
@@ -227,16 +227,16 @@ int dku_spawn(int kind, int from, int x, int y, int mode) {
         a->from = (uint8_t)from;
         a->mode = (uint8_t)mode;
         a->y = dku_fx(iclamp(y, dku_floor_lo(), dku_floor_hi()));
-        a->cool = rng_range(&dk.rng, 20, 60);
+        a->cool = rng_range(&dku_g.rng, 20, 60);
         a->timer2 = 0;
         switch (from) {
         case FROM_LEFT:
-            a->x = dku_fx(dku_view_left() - 20 - rng_range(&dk.rng, 0, 10));
+            a->x = dku_fx(dku_view_left() - 20 - rng_range(&dku_g.rng, 0, 10));
             a->face = 1;
             a->state = AS_ENTER;
             break;
         case FROM_RIGHT:
-            a->x = dku_fx(dku_view_right() + 20 + rng_range(&dk.rng, 0, 10));
+            a->x = dku_fx(dku_view_right() + 20 + rng_range(&dku_g.rng, 0, 10));
             a->state = AS_ENTER;
             break;
         case FROM_GROUND:
@@ -288,12 +288,12 @@ int dku_spawn(int kind, int from, int x, int y, int mode) {
 static int spawn_boss(int kind, int x, int y) {
     int i = dku_spawn(kind, FROM_AT, x, y, 0);
     if (i < 0) return -1;
-    Actor *a = &dk.a[i];
+    Actor *a = &dku_g.a[i];
     a->boss = 1;
     a->hp = a->maxhp = boss_hp(kind);
     a->cool = 60;
     if (kind == AK_UNDERTOW) { a->y = dku_fx(y); a->z = 0; }
-    dk.boss = i;
+    dku_g.boss = i;
     return i;
 }
 
@@ -301,11 +301,11 @@ static int spawn_boss(int kind, int x, int y) {
 
 static void place_fighters(void) {
     for (int p = 0; p < 2; p++) {
-        Actor *a = &dk.a[p];
+        Actor *a = &dku_g.a[p];
         int hp = a->hp;
         bool was = a->alive && a->kind == AK_FIGHTER;
         memset(a, 0, sizeof *a);
-        if (p >= dk.players) continue;
+        if (p >= dku_g.players) continue;
         a->alive = 1;
         a->kind = AK_FIGHTER;
         a->team = 0;
@@ -322,57 +322,57 @@ static void place_fighters(void) {
 }
 
 void dku_new_run(int players) {
-    int menu = dk.menu, sel0 = dk.sel[0], sel1 = dk.sel[1];
-    DkuPlayerRun pr0 = dk.pr[0], pr1 = dk.pr[1];
-    Rng keep = dk.rng;
-    memset(&dk, 0, sizeof dk);
-    dk.rng = keep;
-    dk.menu = menu;
-    dk.sel[0] = sel0;
-    dk.sel[1] = sel1;
-    dk.pr[0] = pr0;
-    dk.pr[1] = pr1;
-    dk.players = players;
+    int menu = dku_g.menu, sel0 = dku_g.sel[0], sel1 = dku_g.sel[1];
+    DkuPlayerRun pr0 = dku_g.pr[0], pr1 = dku_g.pr[1];
+    Rng keep = dku_g.rng;
+    memset(&dku_g, 0, sizeof dku_g);
+    dku_g.rng = keep;
+    dku_g.menu = menu;
+    dku_g.sel[0] = sel0;
+    dku_g.sel[1] = sel1;
+    dku_g.pr[0] = pr0;
+    dku_g.pr[1] = pr1;
+    dku_g.players = players;
     for (int p = 0; p < 2; p++)
-        for (int s = 0; s < DK_NSTATS; s++) dk.pr[p].stat[s] = DKU_FIGHTERS[dk.pr[p].pick].stat[s];
-    dk.boss = -1;
-    dk.cam_lock = -1;
-    for (int p = 0; p < 2; p++) { dk.a[p].alive = 0; }
+        for (int s = 0; s < DK_NSTATS; s++) dku_g.pr[p].stat[s] = DKU_FIGHTERS[dku_g.pr[p].pick].stat[s];
+    dku_g.boss = -1;
+    dku_g.cam_lock = -1;
+    for (int p = 0; p < 2; p++) { dku_g.a[p].alive = 0; }
 }
 
 static void clear_world(bool keep_dogs) {
     for (int i = 2; i < DKU_MAX_ACTORS; i++)
-        if (!(keep_dogs && dk.a[i].alive && dk.a[i].kind == AK_DOG && dk.a[i].team == 0)) dk.a[i].alive = 0;
-    memset(dk.it, 0, sizeof dk.it);
-    memset(dk.pr_, 0, sizeof dk.pr_);
-    memset(dk.sh, 0, sizeof dk.sh);
-    memset(dk.hz, 0, sizeof dk.hz);
-    memset(dk.part, 0, sizeof dk.part);
+        if (!(keep_dogs && dku_g.a[i].alive && dku_g.a[i].kind == AK_DOG && dku_g.a[i].team == 0)) dku_g.a[i].alive = 0;
+    memset(dku_g.it, 0, sizeof dku_g.it);
+    memset(dku_g.pr_, 0, sizeof dku_g.pr_);
+    memset(dku_g.sh, 0, sizeof dku_g.sh);
+    memset(dku_g.hz, 0, sizeof dku_g.hz);
+    memset(dku_g.part, 0, sizeof dku_g.part);
 }
 
 static void fire_event(const DkuEvt *e);
 
 void dku_start_section(int s) {
-    dk.sec = s;
-    dk.cam = 0;
-    dk.cam_lock = -1;
-    dk.sec_t = 0;
-    dk.go_t = 0;
-    dk.exit_t = 0;
-    dk.boss = -1;
-    dk.boss_down = false;
-    dk.night_done = false;
-    dk.lift_wave = 0;
-    dk.lift_t = 0;
-    dk.stream_kind = -1;
-    dk.stream_t = 0;
-    dk.dog_t = 0;
-    dk.dogs_came = false;
-    dk.thresher_stop = 0;
-    memset(dk.ev_done, 0, sizeof dk.ev_done);
+    dku_g.sec = s;
+    dku_g.cam = 0;
+    dku_g.cam_lock = -1;
+    dku_g.sec_t = 0;
+    dku_g.go_t = 0;
+    dku_g.exit_t = 0;
+    dku_g.boss = -1;
+    dku_g.boss_down = false;
+    dku_g.night_done = false;
+    dku_g.lift_wave = 0;
+    dku_g.lift_t = 0;
+    dku_g.stream_kind = -1;
+    dku_g.stream_t = 0;
+    dku_g.dog_t = 0;
+    dku_g.dogs_came = false;
+    dku_g.thresher_stop = 0;
+    memset(dku_g.ev_done, 0, sizeof dku_g.ev_done);
     clear_world(true);
     for (int p = 0; p < 2; p++) {
-        Actor *a = &dk.a[p];
+        Actor *a = &dku_g.a[p];
         if (!a->alive) continue;
         a->carry = -1;
         a->partner = -1;
@@ -385,25 +385,25 @@ void dku_start_section(int s) {
         }
     }
     for (int i = 2; i < DKU_MAX_ACTORS; i++) {
-        Actor *d = &dk.a[i];
+        Actor *d = &dku_g.a[i];
         if (d->alive && d->kind == AK_DOG) { d->x = dku_fx(dku_view_left() + 20); d->y = dku_fx(DKU_FLOORMID); d->state = AS_FREE; }
     }
     const DkuSection *sec = cur_sec();
     for (int k = 0; k < sec->nev; k++) {
         if (sec->ev[k].at <= 0 && sec->ev[k].op != EV_WAVE) {
-            dk.ev_done[k] = true;
+            dku_g.ev_done[k] = true;
             fire_event(&sec->ev[k]);
         }
     }
-    if (sec->kind == SEC_LIFT) { dk.lift_wave = 0; dk.lift_t = 40; }
+    if (sec->kind == SEC_LIFT) { dku_g.lift_wave = 0; dku_g.lift_t = 40; }
 }
 
 void dku_start_night(int night) {
-    dk.night = night;
-    dk.sec = 0;
-    dk.gym = false;
-    for (int p = 0; p < dk.players; p++) {
-        Actor *a = &dk.a[p];
+    dku_g.night = night;
+    dku_g.sec = 0;
+    dku_g.gym = false;
+    for (int p = 0; p < dku_g.players; p++) {
+        Actor *a = &dku_g.a[p];
         if (!a->alive || a->kind != AK_FIGHTER) {
             a->alive = 1;
             a->kind = AK_FIGHTER;
@@ -416,25 +416,25 @@ void dku_start_night(int night) {
             a->state = AS_FREE;
         }
     }
-    dk.cam = 0;
+    dku_g.cam = 0;
     place_fighters();
-    for (int p = 0; p < dk.players; p++) dk.start_hp[p] = dk.a[p].hp;
-    for (int i = 2; i < DKU_MAX_ACTORS; i++) dk.a[i].alive = 0;
+    for (int p = 0; p < dku_g.players; p++) dku_g.start_hp[p] = dku_g.a[p].hp;
+    for (int i = 2; i < DKU_MAX_ACTORS; i++) dku_g.a[i].alive = 0;
     dku_start_section(0);
 }
 
 void dku_start_gym(void) {
-    dk.gym = true;
-    dk.gym_wave = 1;
-    dk.gym_break = 120;
-    dk.gym_nq = 0;
-    dk.gym_spawned = 0;
-    dk.cam = 0;
-    for (int p = 0; p < dk.players; p++) dk.a[p].hp = imax(dk.a[p].hp, 1);
+    dku_g.gym = true;
+    dku_g.gym_wave = 1;
+    dku_g.gym_break = 120;
+    dku_g.gym_nq = 0;
+    dku_g.gym_spawned = 0;
+    dku_g.cam = 0;
+    for (int p = 0; p < dku_g.players; p++) dku_g.a[p].hp = imax(dku_g.a[p].hp, 1);
     dku_start_section(0);
-    for (int p = 0; p < dk.players; p++) {
-        dk.a[p].x = dku_fx(150 + p * 20);
-        dk.a[p].y = dku_fx(DKU_FLOORMID + p * 10);
+    for (int p = 0; p < dku_g.players; p++) {
+        dku_g.a[p].x = dku_fx(150 + p * 20);
+        dku_g.a[p].y = dku_fx(DKU_FLOORMID + p * 10);
     }
 }
 
@@ -448,15 +448,15 @@ static void fire_event(const DkuEvt *e) {
         break;
     }
     case EV_PROP: place_prop(e->a, e->x, e->y, e->b, e->c); break;
-    case EV_ITEM: { int i = dku_drop_item(e->a, e->x, e->y); if (i >= 0) { dk.it[i].z = 0; dk.it[i].vz = 0; } break; }
-    case EV_LOCK: dk.cam_lock = e->at; break;
+    case EV_ITEM: { int i = dku_drop_item(e->a, e->x, e->y); if (i >= 0) { dku_g.it[i].z = 0; dku_g.it[i].vz = 0; } break; }
+    case EV_LOCK: dku_g.cam_lock = e->at; break;
     case EV_PIT: dku_add_hazard(HZ_PIT, e->x, e->y, e->w, e->h, 0, 0); break;
     case EV_WATER: dku_add_hazard(HZ_WATER, e->x, e->y, e->w, e->h, 0, 0); break;
     case EV_MINE: dku_add_hazard(HZ_MINE, e->x - 5, e->y - 3, 10, 6, 0, 0); break;
     case EV_LAMP: {
         dku_add_hazard(HZ_LAMP, e->x, e->y, 36, 12, 0, 1);
         for (int i = DKU_MAX_HAZARDS - 1; i >= 0; i--)
-            if (dk.hz[i].alive && dk.hz[i].kind == HZ_LAMP && dk.hz[i].x == e->x && dk.hz[i].y == e->y) { dk.hz[i].arg2 = e->b; break; }
+            if (dku_g.hz[i].alive && dku_g.hz[i].kind == HZ_LAMP && dku_g.hz[i].x == e->x && dku_g.hz[i].y == e->y) { dku_g.hz[i].arg2 = e->b; break; }
         break;
     }
     case EV_FIREWALL: dku_add_hazard(HZ_FIREWALL, e->x, e->y, e->w, e->h, 0, 0); break;
@@ -470,7 +470,7 @@ static void fire_event(const DkuEvt *e) {
     }
     case EV_PASSER: {
         int i = dku_spawn(AK_PASSER, FROM_RIGHT, 0, e->y, 1);
-        if (i >= 0) { dk.a[i].ammo = e->b; dk.a[i].mode = 1; }
+        if (i >= 0) { dku_g.a[i].ammo = e->b; dku_g.a[i].mode = 1; }
         break;
     }
     case EV_BOSS: {
@@ -485,10 +485,10 @@ static void fire_event(const DkuEvt *e) {
     case EV_BEAM: dku_add_hazard(HZ_BEAM, e->x, DKU_FLOOR0, 30, DKU_FLOOR1 - DKU_FLOOR0, 0, 0); break;
     case EV_DOOR: dku_add_hazard(HZ_DOOR, e->x, DKU_FLOOR0 - 40, 26, 40, 0, 0); break;
     case EV_STREAM:
-        dk.stream_kind = e->a;
-        dk.stream_every = e->b * 10;
-        dk.stream_max = e->c;
-        dk.stream_t = dk.stream_every;
+        dku_g.stream_kind = e->a;
+        dku_g.stream_every = e->b * 10;
+        dku_g.stream_max = e->c;
+        dku_g.stream_t = dku_g.stream_every;
         break;
     default: break;
     }
@@ -496,68 +496,68 @@ static void fire_event(const DkuEvt *e) {
 
 static void lift_update(void) {
     const DkuSection *sec = cur_sec();
-    if (dk.lift_wave > 5) return;
+    if (dku_g.lift_wave > 5) return;
     if (dku_enemies_alive() > 0) return;
-    if (dk.lift_t > 0) { dk.lift_t--; return; }
-    dk.lift_wave++;
-    if (dk.lift_wave > 5) { dk.exit_t = 1; dku_sfx("dku_ding"); return; }
+    if (dku_g.lift_t > 0) { dku_g.lift_t--; return; }
+    dku_g.lift_wave++;
+    if (dku_g.lift_wave > 5) { dku_g.exit_t = 1; dku_sfx("dku_ding"); return; }
     /* the next wave lands on the lift's roof, and they drop in turn */
     int n = 0;
     for (int k = 0; k < sec->nev; k++) {
         const DkuEvt *e = &sec->ev[k];
-        if (e->op != EV_WAVE || e->a != dk.lift_wave) continue;
+        if (e->op != EV_WAVE || e->a != dku_g.lift_wave) continue;
         for (int c = 0; c < e->c; c++) {
             int x = 96 + ((n * 37) % 130);
             int i = dku_spawn(e->b, FROM_ROOF, x, 0, 0);
-            if (i >= 0) { dk.a[i].timer2 = 50 + n * 40; dk.a[i].face = -1; }
+            if (i >= 0) { dku_g.a[i].timer2 = 50 + n * 40; dku_g.a[i].face = -1; }
             n++;
         }
     }
-    dk.lift_t = 60;
+    dku_g.lift_t = 60;
     dku_sfx("dku_ding");
 }
 
 static void gym_update(void) {
-    if (dk.gym_break > 0) {
-        dk.gym_break--;
-        if (dk.gym_break == 0) {
+    if (dku_g.gym_break > 0) {
+        dku_g.gym_break--;
+        if (dku_g.gym_break == 0) {
             uint8_t q[24];
             int n = 0;
-            dku_gym_wave(dk.gym_wave, q, &n, 24);
-            memcpy(dk.gym_queue, q, sizeof q);
-            dk.gym_nq = n;
-            dk.gym_spawned = 0;
-            dk.stream_t = 0;
+            dku_gym_wave(dku_g.gym_wave, q, &n, 24);
+            memcpy(dku_g.gym_queue, q, sizeof q);
+            dku_g.gym_nq = n;
+            dku_g.gym_spawned = 0;
+            dku_g.stream_t = 0;
             /* every third wave, frightened passers-by run through first */
-            if (dk.gym_wave % 3 == 0) {
+            if (dku_g.gym_wave % 3 == 0) {
                 for (int k = 0; k < 3; k++) {
                     int i = dku_spawn(AK_PASSER, FROM_RIGHT, 0, DKU_FLOOR0 + 12 + k * 20, 0);
-                    if (i >= 0) { dk.a[i].mode = 0; dk.a[i].x += dku_fx(k * 30); }
+                    if (i >= 0) { dku_g.a[i].mode = 0; dku_g.a[i].x += dku_fx(k * 30); }
                 }
             }
             dku_sfx("dku_whistle");
         }
         return;
     }
-    if (dk.gym_spawned < dk.gym_nq) {
-        if (--dk.stream_t <= 0 && dku_enemies_alive() < 5) {
-            int k = dk.gym_queue[dk.gym_spawned];
-            int side = (dk.gym_spawned & 1) ? FROM_LEFT : FROM_RIGHT;
-            dku_spawn(k, side, 0, DKU_FLOOR0 + 8 + rng_range(&dk.rng, 0, DKU_FLOOR1 - DKU_FLOOR0 - 16), 0);
-            dk.gym_spawned++;
-            dk.stream_t = 40;
+    if (dku_g.gym_spawned < dku_g.gym_nq) {
+        if (--dku_g.stream_t <= 0 && dku_enemies_alive() < 5) {
+            int k = dku_g.gym_queue[dku_g.gym_spawned];
+            int side = (dku_g.gym_spawned & 1) ? FROM_LEFT : FROM_RIGHT;
+            dku_spawn(k, side, 0, DKU_FLOOR0 + 8 + rng_range(&dku_g.rng, 0, DKU_FLOOR1 - DKU_FLOOR0 - 16), 0);
+            dku_g.gym_spawned++;
+            dku_g.stream_t = 40;
         }
         return;
     }
     if (dku_enemies_alive() == 0) {
         /* the wave is beaten */
-        int beaten = dk.gym_wave;
-        uint16_t *best = dk.players == 2 ? &dks.gym_best2 : &dks.gym_best1;
+        int beaten = dku_g.gym_wave;
+        uint16_t *best = dku_g.players == 2 ? &dku_sv.gym_best2 : &dku_sv.gym_best1;
         if (beaten > *best) *best = (uint16_t)beaten;
         if (beaten >= DKU_GYM_GIFT) dku_award_gym();
         dku_save_now();
-        dk.gym_wave++;
-        dk.gym_break = 150;
+        dku_g.gym_wave++;
+        dku_g.gym_break = 150;
         dku_sfx("dku_bell");
     }
 }
@@ -567,13 +567,13 @@ void dku_gym_wave(int wave, uint8_t *kinds, int *n, int max) {
     static const uint8_t UNLOCK[] = {AK_SHAMBLER, AK_SHAMBLER, AK_GIGGLER, AK_TORCH, AK_CROW, AK_HOWLER, AK_SKIPPER,
                                      AK_BULWARK, AK_RAMMER, AK_VISITOR, AK_SLUDGER, AK_TUSKER};
     int count = imin(max, imin(16, 3 + wave * 3 / 4));
-    int pool = imin(ARRAY_LEN(UNLOCK), wave + 1);
+    int pool = imin(ARRAY_LEN(UNLOCK), 2 + wave * 2 / 3);
     Rng r;
     rng_seed(&r, (uint64_t)(1000 + wave * 7));
     for (int k = 0; k < count; k++) {
         int pick = rng_range(&r, 0, pool - 1);
         /* the newest kind always shows up once */
-        if (k == 0 && wave >= 2) pick = pool - 1;
+        if (k == 0 && wave >= 3) pick = pool - 1;
         kinds[k] = UNLOCK[pick];
     }
     *n = count;
@@ -585,12 +585,12 @@ bool dku_section_cleared(void) { return dku_enemies_alive() == 0; }
 
 static void hazards_update(void) {
     for (int i = 0; i < DKU_MAX_HAZARDS; i++) {
-        Hazard *h = &dk.hz[i];
+        Hazard *h = &dku_g.hz[i];
         if (!h->alive) continue;
         switch (h->kind) {
         case HZ_MINE:
             for (int j = 0; j < DKU_MAX_ACTORS; j++) {
-                Actor *a = &dk.a[j];
+                Actor *a = &dku_g.a[j];
                 if (!a->alive || a->z > 0 || a->state == AS_DEAD || a->state == AS_DORMANT || a->state == AS_GONE) continue;
                 if (a->kind == AK_SAUCER || a->state == AS_LEASHED) continue;
                 int x = dku_px(a->x), y = dku_px(a->y);
@@ -604,7 +604,7 @@ static void hazards_update(void) {
         case HZ_LAMP:
             if (h->t == 0 && h->arg == 1) {
                 for (int p = 0; p < 2; p++) {
-                    const Actor *a = &dk.a[p];
+                    const Actor *a = &dku_g.a[p];
                     if (!a->alive || a->state == AS_DEAD) continue;
                     int dx = dku_px(a->x) - (h->x), dy = dku_px(a->y) - (h->y);
                     if (dx * dx * 36 + dy * dy * 324 <= 18 * 18 * 36) { h->t = 34; dku_sfx("dku_creak"); }
@@ -613,14 +613,14 @@ static void hazards_update(void) {
                 if (--h->t == 0) {
                     /* it comes down on whoever stands in its shadow */
                     for (int j = 0; j < DKU_MAX_ACTORS; j++) {
-                        Actor *a = &dk.a[j];
+                        Actor *a = &dku_g.a[j];
                         if (!a->alive || a->state == AS_DEAD || a->team == 2) continue;
                         if (h->arg == 2 && a->team != 0) continue;
                         int dx = dku_px(a->x) - h->x, dy = dku_px(a->y) - h->y;
                         if (iabs(dx) <= h->w / 2 + 2 && iabs(dy) <= h->h / 2 + 2 && a->z < dku_fx(30))
-                            dku_hit(j, -1, AT_NONE, h->arg == 2 ? 14 : 22, dx >= 0 ? 1 : -1, AF_KNOCK | 128);
+                            dku_hit(j, -1, AT_NONE, h->arg == 2 ? 10 : 22, dx >= 0 ? 1 : -1, AF_KNOCK | 128);
                     }
-                    dk.shake = 8;
+                    dku_g.shake = 8;
                     dku_burst(dku_fx(h->x), dku_fx(h->y), 0, h->arg == 2 ? C_TEAL : C_YELLOW, 10);
                     dku_sfx(h->arg == 2 ? "dku_slam" : "dku_crash");
                     if (h->arg2) dku_drop_item(h->arg2, h->x, h->y);
@@ -634,7 +634,7 @@ static void hazards_update(void) {
             int every = h->kind == HZ_CLOUD ? 12 : 15;
             if (h->arg2 % every) break;
             for (int j = 0; j < DKU_MAX_ACTORS; j++) {
-                Actor *a = &dk.a[j];
+                Actor *a = &dku_g.a[j];
                 if (!a->alive || a->state == AS_DEAD || a->state == AS_FALL || a->z > dku_fx(10) || a->team == 2) continue;
                 if (h->kind == HZ_CLOUD && a->team != 0) continue;
                 if (a->kind == AK_UNDERTOW) continue;
@@ -659,7 +659,7 @@ static void hazards_update(void) {
             if (h->t < 60) break; /* the horn first */
             h->x += 6;
             for (int j = 0; j < DKU_MAX_ACTORS; j++) {
-                Actor *a = &dk.a[j];
+                Actor *a = &dku_g.a[j];
                 if (!a->alive || a->state == AS_DEAD || a->state == AS_FALL || a->team == 2) continue;
                 if (a->z > dku_fx(12)) continue;
                 int x = dku_px(a->x), y = dku_px(a->y);
@@ -675,11 +675,11 @@ static void hazards_update(void) {
             break;
         case HZ_THRESHER: {
             if (h->x < h->arg - h->w) {
-                h->x += (dk.frame_t & 3) == 0 ? 0 : 1; /* three pixels in four frames */
+                h->x += (dku_g.frame_t & 3) == 0 ? 0 : 1; /* three pixels in four frames */
             }
             int front = h->x + h->w;
             for (int j = 0; j < DKU_MAX_ACTORS; j++) {
-                Actor *a = &dk.a[j];
+                Actor *a = &dku_g.a[j];
                 if (!a->alive || a->state == AS_DEAD || a->state == AS_FALL || a->team == 2) continue;
                 int x = dku_px(a->x);
                 if (x < front + 4 && x > h->x) {
@@ -701,7 +701,7 @@ static void hazards_update(void) {
 
 static bool shot_blocked_by_prop(const Shot *s) {
     for (int i = 0; i < DKU_MAX_PROPS; i++) {
-        const Prop *p = &dk.pr_[i];
+        const Prop *p = &dku_g.pr_[i];
         if (!p->alive || p->kind == PR_TUFT || p->kind == PR_POST) continue;
         if (iabs(dku_px(p->x - s->x)) <= 6 && iabs(dku_px(p->y - s->y)) <= 5 && s->z < dku_fx(18)) return true;
     }
@@ -724,7 +724,7 @@ static void land_shot(Shot *s) {
             break;
         }
         int i = dku_drop_item(s->arg, dku_px(s->x), dku_px(s->y));
-        if (i >= 0) { dk.it[i].z = 0; dk.it[i].vz = 0; dk.it[i].vx = s->vx / 4; dk.it[i].ammo = s->t; }
+        if (i >= 0) { dku_g.it[i].z = 0; dku_g.it[i].vz = 0; dku_g.it[i].vx = s->vx / 4; dku_g.it[i].ammo = s->t; }
         break;
     }
     default: break;
@@ -734,7 +734,7 @@ static void land_shot(Shot *s) {
 
 static void shots_update(void) {
     for (int i = 0; i < DKU_MAX_SHOTS; i++) {
-        Shot *s = &dk.sh[i];
+        Shot *s = &dku_g.sh[i];
         if (!s->alive) continue;
         s->x += s->vx;
         s->y += s->vy;
@@ -759,7 +759,7 @@ static void shots_update(void) {
         if (s->team == 2) continue; /* a thrown thing that has already hit: it just drops */
         /* the first one in the way takes it */
         for (int j = 0; j < DKU_MAX_ACTORS; j++) {
-            Actor *a = &dk.a[j];
+            Actor *a = &dku_g.a[j];
             if (!a->alive || j == s->owner || a->state == AS_DEAD || a->state == AS_FALL || a->state == AS_GONE) continue;
             if (a->state == AS_DORMANT && s->team == 1) continue;
             if (a->state == AS_LEASHED) continue;
@@ -805,7 +805,7 @@ static void shots_update(void) {
 
 static void items_update(void) {
     for (int i = 0; i < DKU_MAX_ITEMS; i++) {
-        Item *it = &dk.it[i];
+        Item *it = &dku_g.it[i];
         if (it->alive != 1) continue;
         it->t++;
         if (it->z > 0 || it->vz > 0) {
@@ -821,9 +821,9 @@ static void items_update(void) {
         if (dku_in_pit(dku_px(it->x), dku_px(it->y)) && it->z == 0) it->alive = 0;
     }
     for (int i = 0; i < DKU_MAX_PROPS; i++)
-        if (dk.pr_[i].alive && dk.pr_[i].shake > 0) dk.pr_[i].shake--;
+        if (dku_g.pr_[i].alive && dku_g.pr_[i].shake > 0) dku_g.pr_[i].shake--;
     for (int i = 0; i < DKU_MAX_PARTS; i++) {
-        Part *p = &dk.part[i];
+        Part *p = &dku_g.part[i];
         if (p->life <= 0) continue;
         p->life--;
         p->x += p->vx;
@@ -836,7 +836,7 @@ static void items_update(void) {
 
 static void pits_update(void) {
     for (int j = 0; j < DKU_MAX_ACTORS; j++) {
-        Actor *a = &dk.a[j];
+        Actor *a = &dku_g.a[j];
         if (!a->alive || a->z > 0) continue;
         switch (a->state) {
         case AS_DEAD: case AS_FALL: case AS_GONE: case AS_RISE: case AS_GRABBED: case AS_LEASHED: case AS_DORMANT: continue;
@@ -844,12 +844,12 @@ static void pits_update(void) {
         }
         if (a->kind == AK_UNDERTOW || a->kind == AK_SAUCER || a->kind == AK_FEELER) continue;
         if (!dku_in_pit(dku_px(a->x), dku_px(a->y))) continue;
-        if (a->state == AS_GRAB && a->partner >= 0) { dk.a[a->partner].partner = -1; dku_set_state(&dk.a[a->partner], AS_FREE); }
+        if (a->state == AS_GRAB && a->partner >= 0) { dku_g.a[a->partner].partner = -1; dku_set_state(&dku_g.a[a->partner], AS_FREE); }
         a->partner = -1;
         dku_set_state(a, AS_FALL);
         a->vx = a->vy = 0;
         dku_sfx("dku_fall");
-        if (a->kind == AK_FIGHTER) { a->hp = 0; dk.dmg_by[5] += 100; dk.dmg_by[30] = dku_px(a->x); dk.dmg_by[31] = dku_px(a->y) + 1000 * dk.sec; }
+        if (a->kind == AK_FIGHTER) { a->hp = 0; dku_g.dmg_by[5] += 100; } /* tests: a fall counts as source -5 */
     }
 }
 
@@ -860,7 +860,7 @@ static void camera_update(void) {
     if (sec->kind != SEC_WALK) return;
     int lead = -1, back = 1 << 30;
     for (int p = 0; p < 2; p++) {
-        const Actor *a = &dk.a[p];
+        const Actor *a = &dku_g.a[p];
         if (!a->alive || a->state == AS_DEAD || a->state == AS_GONE || a->state == AS_FALL) continue;
         int x = dku_px(a->x);
         if (x > lead) lead = x;
@@ -869,51 +869,51 @@ static void camera_update(void) {
     if (lead < 0) return;
     int want = lead - 150;
     int most = sec->len - SCREEN_W;
-    if (dk.cam_lock >= 0 && most > dk.cam_lock) most = dk.cam_lock;
-    if (dk.players == 2 && back < (1 << 30)) most = imin(most, back - 8);
+    if (dku_g.cam_lock >= 0 && most > dku_g.cam_lock) most = dku_g.cam_lock;
+    if (dku_g.players == 2 && back < (1 << 30)) most = imin(most, back - 8);
     /* the runaway thresher pushes the view along */
     for (int i = 0; i < DKU_MAX_HAZARDS; i++)
-        if (dk.hz[i].alive && dk.hz[i].kind == HZ_THRESHER) {
-            int forced = dk.hz[i].x + dk.hz[i].w - 30;
+        if (dku_g.hz[i].alive && dku_g.hz[i].kind == HZ_THRESHER) {
+            int forced = dku_g.hz[i].x + dku_g.hz[i].w - 30;
             if (want < forced) want = forced;
             most = imax(most, imin(forced, sec->len - SCREEN_W));
         }
     if (want > most) want = most;
-    if (want > dk.cam) dk.cam = imin(want, dk.cam + 3);
+    if (want > dku_g.cam) dku_g.cam = imin(want, dku_g.cam + 3);
 }
 
 /* ---- one frame of the world -------------------------------------------------------------- */
 
 static void next_section(void) {
-    const DkuNight *n = &DKU_NIGHT[dk.night];
-    if (dk.sec + 1 < n->nsec) {
-        dk.fade = 1;
+    const DkuNight *n = &DKU_NIGHT[dku_g.night];
+    if (dku_g.sec + 1 < n->nsec) {
+        dku_g.fade = 1;
     }
 }
 
 void dku_world_update(void) {
     const DkuSection *sec = cur_sec();
-    if (dk.fade > 0) {
-        dk.fade++;
-        if (dk.fade == 16) dku_start_section(dk.sec + 1);
-        if (dk.fade >= 30) dk.fade = 0;
+    if (dku_g.fade > 0) {
+        dku_g.fade++;
+        if (dku_g.fade == 16) dku_start_section(dku_g.sec + 1);
+        if (dku_g.fade >= 30) dku_g.fade = 0;
         return;
     }
-    dk.sec_t++;
-    if (dk.go_t > 0) dk.go_t--;
-    if (dk.shake > 0) dk.shake--;
+    dku_g.sec_t++;
+    if (dku_g.go_t > 0) dku_g.go_t--;
+    if (dku_g.shake > 0) dku_g.shake--;
 
     /* the gym is just behind you as night 1 begins */
-    if (!dk.gym && dk.night == 0 && dk.sec == 0 && dk.cam == 0) {
+    if (!dku_g.gym && dku_g.night == 0 && dku_g.sec == 0 && dku_g.cam == 0) {
         bool pushing = false;
-        for (int p = 0; p < dk.players; p++) {
-            const Actor *a = &dk.a[p];
+        for (int p = 0; p < dku_g.players; p++) {
+            const Actor *a = &dku_g.a[p];
             uint32_t h, pr, r;
             dku_fighter_input(p, &h, &pr, &r);
             if (a->alive && dku_px(a->x) <= dku_view_left() + 7 && (h & BTN_LEFT) && a->state == AS_FREE) pushing = true;
         }
-        dk.gym_push = pushing ? dk.gym_push + 1 : 0;
-        if (dk.gym_push >= 24 && dku_enemies_awake() == 0) {
+        dku_g.gym_push = pushing ? dku_g.gym_push + 1 : 0;
+        if (dku_g.gym_push >= 24 && dku_enemies_awake() == 0) {
             dku_start_gym();
             dku_sfx("dku_door");
             music_play(DKU_MUS_GYM);
@@ -924,48 +924,48 @@ void dku_world_update(void) {
     camera_update();
     /* the script: things happen as the view passes them */
     for (int k = 0; k < sec->nev; k++) {
-        if (dk.ev_done[k]) continue;
+        if (dku_g.ev_done[k]) continue;
         const DkuEvt *e = &sec->ev[k];
         if (e->op == EV_WAVE) continue;
-        if (dk.cam >= e->at) { dk.ev_done[k] = true; fire_event(e); }
+        if (dku_g.cam >= e->at) { dku_g.ev_done[k] = true; fire_event(e); }
     }
     /* a lock-screen holds until nobody is left */
-    if (dk.cam_lock >= 0 && dk.cam >= dk.cam_lock && enemies_here() == 0) {
+    if (dku_g.cam_lock >= 0 && dku_g.cam >= dku_g.cam_lock && enemies_here() == 0) {
         bool pending = false;
         for (int k = 0; k < sec->nev; k++)
-            if (!dk.ev_done[k] && sec->ev[k].op == EV_SPAWN && sec->ev[k].at <= dk.cam_lock) pending = true;
-        if (!pending) { dk.cam_lock = -1; dk.go_t = 120; dku_sfx("dku_go"); }
+            if (!dku_g.ev_done[k] && sec->ev[k].op == EV_SPAWN && sec->ev[k].at <= dku_g.cam_lock) pending = true;
+        if (!pending) { dku_g.cam_lock = -1; dku_g.go_t = 120; dku_sfx("dku_go"); }
     }
     /* a boss fight's steady stream */
-    if (dk.stream_kind >= 0 && !dk.boss_down) {
-        if (--dk.stream_t <= 0) {
-            dk.stream_t = dk.stream_every;
-            int kind = dk.stream_kind;
+    if (dku_g.stream_kind >= 0 && !dku_g.boss_down) {
+        if (--dku_g.stream_t <= 0) {
+            dku_g.stream_t = dku_g.stream_every;
+            int kind = dku_g.stream_kind;
             if (kind == 0) {
                 static const uint8_t MIX[] = {AK_SHAMBLER, AK_SHAMBLER, AK_TORCH, AK_CROW, AK_SHAMBLER, AK_GIGGLER};
-                kind = MIX[rng_range(&dk.rng, 0, ARRAY_LEN(MIX) - 1)];
+                kind = MIX[rng_range(&dku_g.rng, 0, ARRAY_LEN(MIX) - 1)];
             }
             int n = 0;
             for (int i = 2; i < DKU_MAX_ACTORS; i++)
-                if (dk.a[i].alive && dk.a[i].team == 1 && !dk.a[i].boss && dk.a[i].state != AS_DEAD && dk.a[i].state != AS_DORMANT) n++;
-            if (n < dk.stream_max) {
+                if (dku_g.a[i].alive && dku_g.a[i].team == 1 && !dku_g.a[i].boss && dku_g.a[i].state != AS_DEAD && dku_g.a[i].state != AS_DORMANT) n++;
+            if (n < dku_g.stream_max) {
                 if (kind == AK_SKIPPER) {
-                    int x = dku_view_left() + rng_range(&dk.rng, 40, 200);
+                    int x = dku_view_left() + rng_range(&dku_g.rng, 40, 200);
                     dku_spawn(AK_SKIPPER, FROM_WATER, x, DKU_FLOOR0 - 4, 0);
                 } else {
-                    dku_spawn(kind, rng_range(&dk.rng, 0, 1) ? FROM_LEFT : FROM_RIGHT, 0,
-                              DKU_FLOOR0 + 6 + rng_range(&dk.rng, 0, DKU_FLOOR1 - DKU_FLOOR0 - 12), 0);
+                    dku_spawn(kind, rng_range(&dku_g.rng, 0, 1) ? FROM_LEFT : FROM_RIGHT, 0,
+                              DKU_FLOOR0 + 6 + rng_range(&dku_g.rng, 0, DKU_FLOOR1 - DKU_FLOOR0 - 12), 0);
                 }
             }
         }
     }
     /* the final fight: if it goes on long enough, a pack of dogs comes running */
-    if (dk.boss >= 0 && dk.a[dk.boss].kind == AK_GRIST && !dk.boss_down) {
-        if (++dk.dog_t == 60 * 60 && !dk.dogs_came) {
-            dk.dogs_came = true;
+    if (dku_g.boss >= 0 && dku_g.a[dku_g.boss].kind == AK_GRIST && !dku_g.boss_down) {
+        if (++dku_g.dog_t == 60 * 60 && !dku_g.dogs_came) {
+            dku_g.dogs_came = true;
             for (int k = 0; k < 4; k++) {
                 int i = dku_spawn(AK_DOG, FROM_LEFT, 0, DKU_FLOOR0 + 10 + k * 16, 0);
-                if (i >= 0) { dk.a[i].team = 0; dk.a[i].state = AS_FREE; dk.a[i].x -= dku_fx(k * 12); }
+                if (i >= 0) { dku_g.a[i].team = 0; dku_g.a[i].state = AS_FREE; dku_g.a[i].x -= dku_fx(k * 12); }
             }
             dku_sfx("dku_bark");
         }
@@ -981,29 +981,29 @@ void dku_world_update(void) {
     pits_update();
 
     /* the way on */
-    if (sec->kind == SEC_WALK && !dk.gym) {
-        bool at_end = dk.cam >= sec->len - SCREEN_W && dk.cam_lock < 0;
+    if (sec->kind == SEC_WALK && !dku_g.gym) {
+        bool at_end = dku_g.cam >= sec->len - SCREEN_W && dku_g.cam_lock < 0;
         bool pending = false;
-        for (int k = 0; k < sec->nev; k++) if (!dk.ev_done[k]) pending = true;
+        for (int k = 0; k < sec->nev; k++) if (!dku_g.ev_done[k]) pending = true;
         if (at_end && !pending && dku_enemies_alive() == 0) {
-            if (dk.exit_t == 0) { dk.exit_t = 1; dk.go_t = 120; }
-            dk.exit_t++;
+            if (dku_g.exit_t == 0) { dku_g.exit_t = 1; dku_g.go_t = 120; }
+            dku_g.exit_t++;
             int beam = -1;
-            for (int i = 0; i < DKU_MAX_HAZARDS; i++) if (dk.hz[i].alive && dk.hz[i].kind == HZ_BEAM) beam = i;
-            for (int p = 0; p < dk.players; p++) {
-                const Actor *a = &dk.a[p];
+            for (int i = 0; i < DKU_MAX_HAZARDS; i++) if (dku_g.hz[i].alive && dku_g.hz[i].kind == HZ_BEAM) beam = i;
+            for (int p = 0; p < dku_g.players; p++) {
+                const Actor *a = &dku_g.a[p];
                 if (!a->alive || a->state == AS_DEAD || a->state == AS_GONE) continue;
                 int x = dku_px(a->x);
-                bool out = beam >= 0 ? (x >= dk.hz[beam].x && x < dk.hz[beam].x + dk.hz[beam].w)
+                bool out = beam >= 0 ? (x >= dku_g.hz[beam].x && x < dku_g.hz[beam].x + dku_g.hz[beam].w)
                                      : x >= sec->len - 14;
                 if (out) { next_section(); if (beam >= 0) dku_sfx("dku_beam"); break; }
             }
         }
     }
-    if (sec->kind == SEC_LIFT && dk.lift_wave > 5) {
-        if (++dk.exit_t > 90) next_section();
+    if (sec->kind == SEC_LIFT && dku_g.lift_wave > 5) {
+        if (++dku_g.exit_t > 90) next_section();
     }
-    if (sec->kind == SEC_BOSS && dk.boss_down) {
-        if (++dk.exit_t > 100) dk.night_done = true;
+    if (sec->kind == SEC_BOSS && dku_g.boss_down) {
+        if (++dku_g.exit_t > 100) dku_g.night_done = true;
     }
 }

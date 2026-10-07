@@ -390,13 +390,14 @@ typedef struct {
     /* testing */
     bool god, frozen;         /* frozen: enemies don't think */
     int last_dmg, last_hit_kind;
-    int dmg_by[32];           /* tests: damage taken by source (kind + 10) */
+    int dmg_by[32];           /* tests: damage taken by source (kind + 10; -1 blasts, -2 fire, -3 the car,
+                                 -4 the thresher, -5 falls, 19 the spin's own cost) */
     int kick_kills;           /* kills that came with the kick (tests) */
     int bot_t;
 } DkuGame;
 
-extern DkuGame dk;
-extern DkuSave dks;
+extern DkuGame dku_g;
+extern DkuSave dku_sv;
 
 /* dku.c */
 void dku_save_now(void);

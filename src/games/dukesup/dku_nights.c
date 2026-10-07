@@ -277,7 +277,7 @@ static const DkuEvt N4C[] = {
     WATER(0, 100, 320, 18),
     WATER(268, 118, 60, 60),
     BOSS(UNDERTOW, 296, 128),
-    STREAM(AK_SKIPPER, 24, 3),
+    STREAM(AK_SKIPPER, 18, 2),
 };
 static const DkuSection N4[] = {
     SEC("THE PROMENADE", TH_PROM, SEC_WALK, 1600, N4A),

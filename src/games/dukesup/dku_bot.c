@@ -41,7 +41,7 @@ static void landing(const Shot *s, int *lx, int *ly) {
 static int danger_at(int x, int y, bool far) {
     int d = 0;
     for (int i = 0; i < DKU_MAX_HAZARDS; i++) {
-        const Hazard *h = &dk.hz[i];
+        const Hazard *h = &dku_g.hz[i];
         if (!h->alive) continue;
         switch (h->kind) {
         case HZ_PIT: case HZ_WATER:
@@ -73,7 +73,7 @@ static int danger_at(int x, int y, bool far) {
         }
     }
     for (int i = 0; i < DKU_MAX_SHOTS; i++) {
-        const Shot *s = &dk.sh[i];
+        const Shot *s = &dku_g.sh[i];
         if (!s->alive || s->team != 1) continue;
         if (s->kind == SH_CLEAVER || s->kind == SH_RAY) {
             int sx = dku_px(s->x), sy = dku_px(s->y);
@@ -87,7 +87,7 @@ static int danger_at(int x, int y, bool far) {
         }
     }
     for (int i = 2; i < DKU_MAX_ACTORS; i++) {
-        const Actor *o = &dk.a[i];
+        const Actor *o = &dku_g.a[i];
         if (!alive_foe(o)) continue;
         int ox = dku_px(o->x), oy = dku_px(o->y);
         int dx = x - ox, dy = y - oy;
@@ -124,7 +124,7 @@ static int danger(int x, int y) { return danger_at(x, y, false); }
 static int ground_danger(int x, int y) {
     int d = 0;
     for (int i = 0; i < DKU_MAX_HAZARDS; i++) {
-        const Hazard *h = &dk.hz[i];
+        const Hazard *h = &dku_g.hz[i];
         if (!h->alive) continue;
         switch (h->kind) {
         case HZ_PIT: case HZ_WATER:
@@ -213,7 +213,7 @@ static int greedy(int tx, int ty) {
 static int pick_target(const Actor *me) {
     int best = -1, bd = 1 << 30;
     for (int i = 2; i < DKU_MAX_ACTORS; i++) {
-        const Actor *o = &dk.a[i];
+        const Actor *o = &dku_g.a[i];
         if (!awake_foe(o)) continue;
         if (o->kind == AK_SAUCER) continue;
         int ox = dku_px(o->x);
@@ -230,7 +230,7 @@ static int pick_target(const Actor *me) {
 static int nearest_dormant(void) {
     int best = -1, bd = 1 << 30;
     for (int i = 2; i < DKU_MAX_ACTORS; i++) {
-        const Actor *o = &dk.a[i];
+        const Actor *o = &dku_g.a[i];
         if (!alive_foe(o) || awake_foe(o) || o->kind == AK_UNDERTOW) continue;
         if (o->state == AS_RISE) continue;
         int d = iabs(dku_px(o->x) - me_x);
@@ -239,13 +239,13 @@ static int nearest_dormant(void) {
     return best;
 }
 
-static int press(int b) { return (dk.bot_t & 1) ? 0 : b; }
+static int press(int b) { return (dku_g.bot_t & 1) ? 0 : b; }
 
 /* something coming down my lane right now? */
 static int lane_threat(void) {
     int worst = 0;
     for (int i = 2; i < DKU_MAX_ACTORS; i++) {
-        const Actor *o = &dk.a[i];
+        const Actor *o = &dku_g.a[i];
         if (!alive_foe(o)) continue;
         int dx = me_x - dku_px(o->x), dy = me_y - dku_px(o->y);
         bool ahead = dx * o->face > -6;
@@ -255,14 +255,14 @@ static int lane_threat(void) {
         if (o->kind == AK_GRIST && o->state == AS_WINDUP && o->atk == AT_E_ELBOW && iabs(dx) < 120) worst = imax(worst, 2);
     }
     for (int i = 0; i < DKU_MAX_SHOTS; i++) {
-        const Shot *s = &dk.sh[i];
+        const Shot *s = &dku_g.sh[i];
         if (!s->alive || s->team != 1 || (s->kind != SH_CLEAVER && s->kind != SH_RAY)) continue;
         int sx = dku_px(s->x), sy = dku_px(s->y);
         bool coming = (s->vx > 0 && sx < me_x) || (s->vx < 0 && sx > me_x);
         if (coming && iabs(sy - me_y) < 9 && iabs(sx - me_x) < 70) worst = imax(worst, 1);
     }
     for (int i = 0; i < DKU_MAX_HAZARDS; i++)
-        if (dk.hz[i].alive && dk.hz[i].kind == HZ_CAR && iabs(dk.hz[i].y - me_y) < 15) worst = imax(worst, 3);
+        if (dku_g.hz[i].alive && dku_g.hz[i].kind == HZ_CAR && iabs(dku_g.hz[i].y - me_y) < 15) worst = imax(worst, 3);
     return worst;
 }
 
@@ -283,7 +283,7 @@ static int maybe_run(const Actor *me, int m, int tx) {
 static int blast_threat(int x, int y) {
     int d = 0;
     for (int i = 0; i < DKU_MAX_SHOTS; i++) {
-        const Shot *s = &dk.sh[i];
+        const Shot *s = &dku_g.sh[i];
         if (!s->alive || s->team != 1) continue;
         if (s->kind != SH_BOTTLE && s->kind != SH_BOMB && s->kind != SH_GAS && s->kind != SH_SPIT) continue;
         int lx, ly;
@@ -292,13 +292,13 @@ static int blast_threat(int x, int y) {
         if (iabs(lx - x) < r && iabs(ly - y) * 2 < r) d += 900;
     }
     for (int i = 2; i < DKU_MAX_ACTORS; i++) {
-        const Actor *o = &dk.a[i];
+        const Actor *o = &dku_g.a[i];
         if (o->alive && o->kind == AK_TORCH && o->exploding && o->state == AS_DEAD &&
             iabs(dku_px(o->x) - x) < 40 && iabs(dku_px(o->y) - y) < 20)
             d += 1500;
     }
     for (int i = 0; i < DKU_MAX_HAZARDS; i++) {
-        const Hazard *h = &dk.hz[i];
+        const Hazard *h = &dku_g.hz[i];
         if (h->alive && h->kind == HZ_LAMP && (h->t > 0 || h->arg == 2) && iabs(x - h->x) < h->w / 2 + 8 &&
             iabs(y - h->y) < h->h / 2 + 6)
             d += 1500;
@@ -327,16 +327,16 @@ static int escape(void) {
 
 /* the shop: a heal when hurt, then POWER, TOUGH, RECOV */
 static int shop_buttons(void) {
-    const Actor *a = &dk.a[dk.shop_who];
+    const Actor *a = &dku_g.a[dku_g.shop_who];
     int want = 4;
-    if (a->hp < 72 && dk.cash >= DKU_PRICE_HEAL) want = 0;
-    else if (dk.cash >= DKU_PRICE_STAT + (a->hp < 90 ? DKU_PRICE_HEAL : 0)) {
-        const uint8_t *st = dk.pr[dk.shop_who].stat;
+    if (a->hp < 72 && dku_g.cash >= DKU_PRICE_HEAL) want = 0;
+    else if (dku_g.cash >= DKU_PRICE_STAT + (a->hp < 90 ? DKU_PRICE_HEAL : 0)) {
+        const uint8_t *st = dku_g.pr[dku_g.shop_who].stat;
         if (st[DK_POWER] < 3) want = 1;
         else if (st[DK_TOUGH] < 3) want = 3;
         else if (st[DK_RECOV] < 3) want = 2;
-    } else if (a->hp < 95 && dk.cash >= DKU_PRICE_HEAL) want = 0;
-    if (dk.shop_sel != want) return press(dk.shop_sel < want ? BTN_DOWN : BTN_UP);
+    } else if (a->hp < 95 && dku_g.cash >= DKU_PRICE_HEAL) want = 0;
+    if (dku_g.shop_sel != want) return press(dku_g.shop_sel < want ? BTN_DOWN : BTN_UP);
     return press(BTN_A);
 }
 
@@ -344,20 +344,20 @@ int dku_bot_why, dku_bot_target;
 #define WHY(n, v) do { dku_bot_why = (n); return (v); } while (0)
 
 static int fight(void) {
-    Actor *me = &dk.a[0];
+    Actor *me = &dku_g.a[0];
     me_x = dku_px(me->x);
     me_y = dku_px(me->y);
     if (!me->alive || me->state == AS_DEAD) WHY(1, 0);
-    const DkuSection *sec = dk.gym ? &DKU_GYM : &DKU_NIGHT[dk.night].sec[dk.sec];
+    const DkuSection *sec = dku_g.gym ? &DKU_GYM : &DKU_NIGHT[dku_g.night].sec[dku_g.sec];
 
     /* the gym: walk left as night 1 begins */
-    if (dku_bot_plan == 1 && !dk.gym && dk.night == 0 && dk.sec == 0 && dk.cam == 0) WHY(2, BTN_LEFT);
+    if (dku_bot_plan == 1 && !dku_g.gym && dku_g.night == 0 && dku_g.sec == 0 && dku_g.cam == 0) WHY(2, BTN_LEFT);
 
     if (me->state == AS_DOWN) {
         /* roll away from the nearest ghoul */
         int t = pick_target(me);
         if (t < 0) WHY(3, 0);
-        int ox = dku_px(dk.a[t].x);
+        int ox = dku_px(dku_g.a[t].x);
         WHY(4, step_toward(me_x + (ox > me_x ? -30 : 30), me_y));
     }
     if (me->state == AS_HURT || me->state == AS_SUPLEX || me->state == AS_DODGE) { dodge_phase = 0; WHY(5, 0); }
@@ -386,7 +386,7 @@ static int fight(void) {
     if (me->carry >= 0) {
         /* whatever we picked up, throw it at somebody */
         int t = pick_target(me);
-        int dir = t >= 0 ? (dk.a[t].x > me->x ? 1 : -1) : 1;
+        int dir = t >= 0 ? (dku_g.a[t].x > me->x ? 1 : -1) : 1;
         if (me->face != dir) WHY(8, dir > 0 ? BTN_RIGHT : BTN_LEFT);
         if (me->state == AS_FREE) WHY(9, press(BTN_B));
         WHY(10, 0);
@@ -394,8 +394,18 @@ static int fight(void) {
 
     if (me->state == AS_GRAB) {
         /* the Undertow: carry it to the edge and throw it in */
-        int boss = dk.boss;
-        if (boss >= 0 && dk.a[boss].kind == AK_UNDERTOW) {
+        int boss = dku_g.boss;
+        if (boss >= 0 && dku_g.a[boss].kind == AK_UNDERTOW) {
+            for (int i = 0; i < DKU_MAX_HAZARDS; i++) {
+                const Hazard *h = &dku_g.hz[i];
+                if (!h->alive || h->kind != HZ_LAMP || iabs(me_x - h->x) >= h->w / 2 + 8 || iabs(me_y - h->y) >= h->h / 2 + 6) continue;
+                /* a feeler coming down: carry it out from under, up or down the jetty */
+                int vy = me_y >= h->y ? BTN_DOWN : BTN_UP;
+                if (vy == BTN_DOWN && me_y > dku_floor_hi() - 6) vy = BTN_UP;
+                if (vy == BTN_UP && ground_danger(me_x, me_y - 10) >= 2000) vy = BTN_DOWN;
+                if (h->t < 8 && me_x >= 150) WHY(47, press(BTN_RIGHT | BTN_A) | BTN_RIGHT);
+                WHY(52, vy | (me_x < 188 ? BTN_RIGHT : 0));
+            }
             if (me_x < 188) WHY(11, BTN_RIGHT | (me_y < 140 ? BTN_DOWN : 0));
             WHY(12, press(BTN_RIGHT | BTN_A) | BTN_RIGHT);
         }
@@ -408,28 +418,28 @@ static int fight(void) {
     /* a cleaver or a ray about to land: spin it back */
     if (me->state == AS_ATTACK || me->state == AS_FREE || me->state == AS_HURT) {
         for (int i = 0; i < DKU_MAX_SHOTS; i++) {
-            const Shot *s = &dk.sh[i];
+            const Shot *s = &dku_g.sh[i];
             if (!s->alive || s->team != 1 || (s->kind != SH_CLEAVER && s->kind != SH_RAY)) continue;
             int sx = dku_px(s->x), sy = dku_px(s->y);
             bool coming = (s->vx > 0 && sx < me_x) || (s->vx < 0 && sx > me_x);
             int lead = s->kind == SH_RAY ? 16 : 26;
             if (coming && iabs(sy - me_y) < 8 && iabs(sx - me_x) < lead && (me->state != AS_FREE || dodge_phase == 0))
-                WHY(15, (dk.bot_t & 1) ? 0 : (BTN_A | BTN_B));
+                WHY(15, (dku_g.bot_t & 1) ? 0 : (BTN_A | BTN_B));
         }
     }
     /* a pounce or a charge about to land and nowhere to go: spin into it */
     if (me->state == AS_ATTACK || me->state == AS_FREE || me->state == AS_HURT) {
         for (int i = 2; i < DKU_MAX_ACTORS; i++) {
-            const Actor *o = &dk.a[i];
+            const Actor *o = &dku_g.a[i];
             if (!alive_foe(o) || o->state != AS_RUSH || o->atk == AT_NONE) continue;
             int dx = me_x - dku_px(o->x), dy = me_y - dku_px(o->y);
             if (iabs(dy) < 12 && dx * o->face > 0 && dx * o->face < 34)
-                WHY(40, (dk.bot_t & 1) ? 0 : (BTN_A | BTN_B));
+                WHY(40, (dku_g.bot_t & 1) ? 0 : (BTN_A | BTN_B));
         }
     }
     /* the runaway thresher: keep well ahead of it */
     for (int i = 0; i < DKU_MAX_HAZARDS; i++) {
-        const Hazard *h = &dk.hz[i];
+        const Hazard *h = &dku_g.hz[i];
         if (h->alive && h->kind == HZ_THRESHER && me_x < h->x + h->w + 70 && h->x < h->arg - h->w)
             WHY(16, greedy(me_x + 30, me_y));
     }
@@ -438,27 +448,68 @@ static int fight(void) {
         if (m) WHY(17, m);
     }
     int t = pick_target(me);
+    /* hurt, and food close by with nobody near it: go and eat */
+    if (me->hp < 70 && me->state == AS_FREE) {
+        int best = -1, bd = 1 << 30;
+        for (int i = 0; i < DKU_MAX_ITEMS; i++) {
+            const Item *it = &dku_g.it[i];
+            if (it->alive != 1 || DKU_ITEMS[it->kind].kind != IK_FOOD) continue;
+            int ix = dku_px(it->x), iy = dku_px(it->y);
+            int d = iabs(ix - me_x) + iabs(iy - me_y);
+            if (d > 70 || danger(ix, iy) >= 300) continue;
+            bool crowded = false;
+            for (int k = 2; k < DKU_MAX_ACTORS; k++) {
+                const Actor *o = &dku_g.a[k];
+                if (awake_foe(o) && o->state != AS_HURT && o->state != AS_DOWN && iabs(dku_px(o->x) - ix) < 34 && iabs(dku_px(o->y) - iy) < 16) crowded = true;
+            }
+            if (!crowded && d < bd) { bd = d; best = i; }
+        }
+        if (best >= 0) {
+            const Item *it = &dku_g.it[best];
+            int ix = dku_px(it->x), iy = dku_px(it->y);
+            if (iabs(ix - me_x) <= 8 && iabs(iy - me_y) <= 5) WHY(45, press(BTN_A));
+            WHY(46, step_toward(ix, iy));
+        }
+    }
     /* surrounded: spin */
     if (t >= 0 && me->hp > 24 && (me->state == AS_FREE || me->state == AS_ATTACK)) {
         int front = 0, back = 0;
         for (int i = 2; i < DKU_MAX_ACTORS; i++) {
-            const Actor *o = &dk.a[i];
-            if (!awake_foe(o) || o->state == AS_DOWN || o->kind == AK_FEELER) continue;
+            const Actor *o = &dku_g.a[i];
+            if (!awake_foe(o) || o->state == AS_DOWN || o->state == AS_HURT || o->kind == AK_FEELER) continue;
             int dx = dku_px(o->x) - me_x, dy = dku_px(o->y) - me_y;
-            if (iabs(dx) > 26 || dy < -10 || dy > 4) continue;
+            if (iabs(dx) > 24 || dy < -10 || dy > 4) continue;
             if (dx * me->face >= 0) front++;
-            else back++;
+            /* only one about to strike from behind is worth the health */
+            else if (o->state == AS_WINDUP || o->state == AS_ATTACK || (o->state == AS_FREE && o->cool < 8)) back++;
         }
-        if (back > 0 && front > 0 && (dk.bot_t & 1) == 0) WHY(18, BTN_A | BTN_B);
+        if (back > 0 && (front > 0 || back > 1) && (dku_g.bot_t & 1) == 0) WHY(18, BTN_A | BTN_B);
     }
 
     if (t < 0) {
         /* nobody awake: the boss fight's Undertow wants bodies */
-        if (dk.boss >= 0 && dk.a[dk.boss].kind == AK_UNDERTOW && dk.a[dk.boss].alive) WHY(19, step_toward(150, 150));
+        if (dku_g.boss >= 0 && dku_g.a[dku_g.boss].kind == AK_UNDERTOW && dku_g.a[dku_g.boss].alive) WHY(19, step_toward(150, 150));
 
+        /* a saucer low over the street: $10 inside */
+        for (int i = 2; i < DKU_MAX_ACTORS; i++) {
+            const Actor *o = &dku_g.a[i];
+            if (!o->alive || o->kind != AK_SAUCER || o->state == AS_DEAD) continue;
+            int ox = dku_px(o->x), oy = dku_px(o->y);
+            if (ox < dku_view_left() + 30) continue;
+            int dx = ox - me_x;
+            if (dku_px(o->z) <= 14 && dx >= 4 && dx <= 26 && iabs(oy - me_y) <= 4) {
+                if (me->face != 1) WHY(48, BTN_RIGHT);
+                if (me->state == AS_FREE) WHY(49, press(BTN_A));
+                WHY(50, 0);
+            }
+            /* wait in its path, a little ahead of it */
+            int wx = imax(dku_view_left() + 12, imin(ox - 30, dku_view_left() + 150));
+            if (dx < 0) continue;
+            WHY(51, step_toward(wx, oy));
+        }
         /* the gym's passers-by: a punch shakes something loose */
         for (int i = 2; i < DKU_MAX_ACTORS; i++) {
-            const Actor *o = &dk.a[i];
+            const Actor *o = &dku_g.a[i];
             if (!o->alive || o->kind != AK_PASSER || o->mode != 0) continue;
             int ox = dku_px(o->x), oy = dku_px(o->y);
             if (ox < dku_view_left() + 10 || ox > dku_view_right() - 10) continue;
@@ -475,7 +526,7 @@ static int fight(void) {
         /* food and cash first */
         int best = -1, bd = 1 << 30;
         for (int i = 0; i < DKU_MAX_ITEMS; i++) {
-            const Item *it = &dk.it[i];
+            const Item *it = &dku_g.it[i];
             if (it->alive != 1) continue;
             int k = DKU_ITEMS[it->kind].kind;
             if (k != IK_FOOD && k != IK_CASH) continue;
@@ -486,7 +537,7 @@ static int fight(void) {
             if (d < bd) { bd = d; best = i; }
         }
         if (best >= 0) {
-            const Item *it = &dk.it[best];
+            const Item *it = &dku_g.it[best];
             int ix = dku_px(it->x), iy = dku_px(it->y);
             if (iabs(ix - me_x) <= 8 && iabs(iy - me_y) <= 5 && me->state == AS_FREE) WHY(20, press(BTN_A));
             WHY(21, step_toward(ix, iy));
@@ -495,7 +546,7 @@ static int fight(void) {
         int bp = -1;
         bd = 1 << 30;
         for (int i = 0; i < DKU_MAX_PROPS; i++) {
-            const Prop *p = &dk.pr_[i];
+            const Prop *p = &dku_g.pr_[i];
             if (!p->alive) continue;
             int px = dku_px(p->x);
             if (px < dku_view_left() + 8 || px > dku_view_right() - 8) continue;
@@ -504,7 +555,7 @@ static int fight(void) {
             if (d < bd) { bd = d; bp = i; }
         }
         if (bp >= 0) {
-            const Prop *p = &dk.pr_[bp];
+            const Prop *p = &dku_g.pr_[bp];
             int px = dku_px(p->x), py = dku_px(p->y);
             int side = me_x <= px ? -1 : 1;
             int sx = px + side * 14, sy = py + 4;
@@ -520,32 +571,32 @@ static int fight(void) {
         }
         /* dormant ghouls in the way: go and wake them, carefully */
         int dm = nearest_dormant();
-        if (dm >= 0 && iabs(dku_px(dk.a[dm].x) - me_x) < 200) {
-            const Actor *o = &dk.a[dm];
+        if (dm >= 0 && iabs(dku_px(dku_g.a[dm].x) - me_x) < 200) {
+            const Actor *o = &dku_g.a[dm];
             int ox = dku_px(o->x);
             WHY(26, step_toward(ox + (me_x < ox ? -36 : 36), imin(dku_px(o->y) + 7, dku_floor_hi())));
         }
         /* on we go */
         if (sec->kind == SEC_LIFT || sec->kind == SEC_BOSS || sec->kind == SEC_GYM) WHY(27, step_toward(160, 150));
         int beam = -1;
-        for (int i = 0; i < DKU_MAX_HAZARDS; i++) if (dk.hz[i].alive && dk.hz[i].kind == HZ_BEAM) beam = i;
-        if (dk.exit_t > 0 && beam >= 0) WHY(28, step_toward(dk.hz[beam].x + dk.hz[beam].w / 2, 140));
+        for (int i = 0; i < DKU_MAX_HAZARDS; i++) if (dku_g.hz[i].alive && dku_g.hz[i].kind == HZ_BEAM) beam = i;
+        if (dku_g.exit_t > 0 && beam >= 0) WHY(28, step_toward(dku_g.hz[beam].x + dku_g.hz[beam].w / 2, 140));
         /* walk on slowly: a step at a time so ghouls come a few at once */
         int lane = 146, lc = 1 << 30;
         for (int y = dku_floor_lo() + 4; y <= dku_floor_hi() - 2; y += 4) {
             int c = (ground_danger(me_x + 40, y) + ground_danger(me_x + 20, y)) * 10 + iabs(y - 146) + iabs(y - me_y) / 2;
             if (c < lc) { lc = c; lane = y; }
         }
-        if (dk.cam_lock >= 0 && dk.cam >= dk.cam_lock) WHY(29, step_toward(me_x, lane));
+        if (dku_g.cam_lock >= 0 && dku_g.cam >= dku_g.cam_lock) WHY(29, step_toward(me_x, lane));
         bool chase = false;
-        for (int i = 0; i < DKU_MAX_HAZARDS; i++) if (dk.hz[i].alive && dk.hz[i].kind == HZ_THRESHER && dk.hz[i].x < dk.hz[i].arg - dk.hz[i].w) chase = true;
-        if (!chase && (dk.bot_t % 8) >= 5 && dk.exit_t == 0) WHY(30, step_toward(me_x, lane));
+        for (int i = 0; i < DKU_MAX_HAZARDS; i++) if (dku_g.hz[i].alive && dku_g.hz[i].kind == HZ_THRESHER && dku_g.hz[i].x < dku_g.hz[i].arg - dku_g.hz[i].w) chase = true;
+        if (!chase && (dku_g.bot_t % 8) >= 5 && dku_g.exit_t == 0) WHY(30, step_toward(me_x, lane));
         WHY(31, step_toward(me_x + 40, lane));
     }
 
-    Actor *o = &dk.a[t];
+    Actor *o = &dku_g.a[t];
     dku_bot_target = t;
-    bool undertow = dk.boss >= 0 && dk.a[dk.boss].kind == AK_UNDERTOW && dk.a[dk.boss].alive;
+    bool undertow = dku_g.boss >= 0 && dku_g.a[dku_g.boss].kind == AK_UNDERTOW && dku_g.a[dku_g.boss].alive;
     int ox = dku_px(o->x), oy = dku_px(o->y);
     int side = ox >= me_x ? 1 : -1;      /* where it is */
     int want_x = ox - side * 18, want_y = imin(oy + 7, dku_floor_hi());
@@ -598,7 +649,7 @@ static int fight(void) {
 
 /* never a step toward a hole, whatever the plan says */
 static int safe_mask(int m) {
-    const Actor *me = &dk.a[0];
+    const Actor *me = &dku_g.a[0];
     if (!me->alive || me->state == AS_DEAD) return m;
     int x = dku_px(me->x), y = dku_px(me->y);
     /* the real edge, a few pixels off (a dodge covers 24) */
@@ -615,22 +666,22 @@ static int safe_mask(int m) {
 }
 
 int dku_bot_buttons(void) {
-    dk.bot_t++;
-    switch (dk.state) {
+    dku_g.bot_t++;
+    switch (dku_g.state) {
     case DS_TITLE:
-        if (dk.menu != 0) return press(BTN_DOWN);
-        return dk.state_t > 10 ? press(BTN_A) : 0;
-    case DS_STORY: return dk.state_t > 25 ? press(BTN_A) : 0;
+        if (dku_g.menu != 0) return press(BTN_DOWN);
+        return dku_g.state_t > 10 ? press(BTN_A) : 0;
+    case DS_STORY: return dku_g.state_t > 25 ? press(BTN_A) : 0;
     case DS_SELECT:
-        if (dk.sel[0] != DK_ROOK) return press(BTN_LEFT);
-        return dk.state_t > 12 ? press(BTN_A) : 0;
+        if (dku_g.sel[0] != DK_ROOK) return press(BTN_LEFT);
+        return dku_g.state_t > 12 ? press(BTN_A) : 0;
     case DS_CARD: return 0;
     case DS_PLAY: return safe_mask(fight());
-    case DS_CLEAR: return dk.state_t > 62 ? press(BTN_A) : 0;
+    case DS_CLEAR: return dku_g.state_t > 62 ? press(BTN_A) : 0;
     case DS_SHOP: return shop_buttons();
-    case DS_CONTINUE: return dk.state_t > 32 ? press(BTN_A) : 0;
-    case DS_OVER: case DS_GYMOVER: return dk.state_t > 62 ? press(BTN_A) : 0;
-    case DS_ENDING: return dk.state_t > 152 ? press(BTN_A) : 0;
+    case DS_CONTINUE: return dku_g.state_t > 32 ? press(BTN_A) : 0;
+    case DS_OVER: case DS_GYMOVER: return dku_g.state_t > 62 ? press(BTN_A) : 0;
+    case DS_ENDING: return dku_g.state_t > 152 ? press(BTN_A) : 0;
     default: return 0;
     }
 }

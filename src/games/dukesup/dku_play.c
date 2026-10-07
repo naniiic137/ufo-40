@@ -34,7 +34,7 @@ const DkuKind DKU_KINDS[AK_COUNT] = {
     {"GIGGLER", 8, 12, 6, 26, 20, 14, 14, 0},
     {"MUDSKIPPER", 6, 18, 6, 22, 20, 9, 8, 0},
     {"FEELER", 16, 0, 5, 30, 26, 8, 30, 0},
-    {"THE UNDERTOW", 60, 0, 22, 60, 0, 14, 40, 0},
+    {"THE UNDERTOW", 48, 0, 22, 60, 0, 14, 40, 0},
     {"ALDERMAN GRIST", 110, 8, 10, 32, 24, 12, 18, 0},
     {"DOG", 30, 20, 8, 14, 18, 4, 6, 0},
     {"PASSER-BY", 4, 24, 6, 26, 0, 0, 0, 0},
@@ -85,7 +85,7 @@ const DkuItemDef DKU_ITEMS[IT_COUNT] = {
 
 int dku_stat(int player, int stat) {
     if (player < 0 || player > 1) return 1;
-    return iclamp(dk.pr[player].stat[stat], 1, 3);
+    return iclamp(dku_g.pr[player].stat[stat], 1, 3);
 }
 
 static int charge_time(int player) {
@@ -98,11 +98,11 @@ int dku_fighter_dmg(const Actor *a, int atk) {
     int base = DKU_ATK[atk].dmg + p;
     if (atk == AT_CHARGED) {
         base = 4 + p * 2;
-        if (dk.pr[a->player].pick == DK_MACK) base = 6 + p * 3;
+        if (dku_g.pr[a->player].pick == DK_MACK) base = 6 + p * 3;
     }
     if (atk == AT_SWING && a->carry >= 0) {
         static const int W[IT_COUNT] = {[IT_PLANK] = 4, [IT_CHAIN] = 4, [IT_PIPE] = 5, [IT_ARM] = 3};
-        base = W[dk.it[a->carry].kind] + p;
+        base = W[dku_g.it[a->carry].kind] + p;
     }
     return base;
 }
@@ -127,8 +127,8 @@ void dku_start_attack(Actor *a, int atk) {
 int dku_fighters_alive(void) {
     int n = 0;
     for (int i = 0; i < 2; i++)
-        if (dk.a[i].alive && dk.a[i].kind == AK_FIGHTER && dk.a[i].state != AS_DEAD && dk.a[i].state != AS_FALL &&
-            dk.a[i].state != AS_GONE)
+        if (dku_g.a[i].alive && dku_g.a[i].kind == AK_FIGHTER && dku_g.a[i].state != AS_DEAD && dku_g.a[i].state != AS_FALL &&
+            dku_g.a[i].state != AS_GONE)
             n++;
     return n;
 }
@@ -177,7 +177,7 @@ static bool hostile(const Actor *a, const Actor *t) {
 void dku_reflect_in(const Actor *a, int idx) {
     const DkuAtk *d = &DKU_ATK[a->atk];
     for (int i = 0; i < DKU_MAX_SHOTS; i++) {
-        Shot *s = &dk.sh[i];
+        Shot *s = &dku_g.sh[i];
         if (!s->alive || s->team == a->team || s->kind == SH_GAS || s->kind == SH_SPIT) continue;
         int dx = dku_px(s->x - a->x) * a->face;
         int dy = dku_px(s->y - a->y);
@@ -203,6 +203,7 @@ void dku_reflect_in(const Actor *a, int idx) {
 void dku_knock(Actor *t, int dir, int power) {
     if (t->state == AS_GRABBED) t->partner = -1;
     dku_set_state(t, AS_DOWN);
+    t->hit_boss = false;
     t->vx = dir * (16 + power * 8);
     t->vz = 26 + power * 6;
     if (t->z < 1) t->z = 1;
@@ -222,13 +223,13 @@ void dku_knock(Actor *t, int dir, int power) {
 }
 
 void dku_kill(int i, int dir) {
-    Actor *t = &dk.a[i];
+    Actor *t = &dku_g.a[i];
     if (t->state == AS_GRABBED && t->partner >= 0) {
-        Actor *h = &dk.a[t->partner];
+        Actor *h = &dku_g.a[t->partner];
         if (h->state == AS_GRAB || h->state == AS_SUPLEX) { h->partner = -1; if (h->state == AS_GRAB) dku_set_state(h, AS_FREE); }
     }
     if (t->state == AS_GRAB && t->partner >= 0) {
-        Actor *p = &dk.a[t->partner];
+        Actor *p = &dku_g.a[t->partner];
         if (p->state == AS_GRABBED) dku_set_state(p, AS_FREE);
     }
     t->partner = -1;
@@ -238,7 +239,7 @@ void dku_kill(int i, int dir) {
         t->vx = dir * 16;
         t->vz = 30;
         if (t->z < 1) t->z = 1;
-        if (t->carry >= 0) { dk.it[t->carry].alive = 1; dk.it[t->carry].z = 0; dk.it[t->carry].x = t->x; dk.it[t->carry].y = t->y; t->carry = -1; }
+        if (t->carry >= 0) { dku_g.it[t->carry].alive = 1; dku_g.it[t->carry].z = 0; dku_g.it[t->carry].x = t->x; dku_g.it[t->carry].y = t->y; t->carry = -1; }
         dku_sfx("dku_ko");
         return;
     }
@@ -246,17 +247,17 @@ void dku_kill(int i, int dir) {
     t->vx = dir * 20;
     t->vz = 28;
     if (t->z < 1) t->z = 1;
-    if (t->team == 1) dk.kos++;
+    if (t->team == 1) dku_g.kos++;
     if (t->carry >= 0) t->carry = -1;
     switch (t->kind) {
     case AK_SHAMBLER: {
-        int r = rng_range(&dk.rng, 0, 99);
+        int r = rng_range(&dku_g.rng, 0, 99);
         if (r < 14) dku_drop_item(IT_HEAD, dku_px(t->x), dku_px(t->y));
         else if (r < 22) dku_drop_item(IT_ARM, dku_px(t->x), dku_px(t->y));
         break;
     }
     case AK_TORCH: t->exploding = true; break;
-    case AK_CROW: if (rng_range(&dk.rng, 0, 99) < 25) dku_drop_item(IT_CLEAVER, dku_px(t->x), dku_px(t->y)); break;
+    case AK_CROW: if (rng_range(&dku_g.rng, 0, 99) < 25) dku_drop_item(IT_CLEAVER, dku_px(t->x), dku_px(t->y)); break;
     case AK_SAUCER:
         dku_explode(t->x, t->y, 22, 10, 2, true);
         dku_drop_item(IT_RING, dku_px(t->x), dku_px(t->y));
@@ -270,16 +271,16 @@ void dku_kill(int i, int dir) {
 }
 
 void dku_hurt_fighter(int i, int dmg, bool reducible, int dir, bool knock, int src) {
-    Actor *f = &dk.a[i];
+    Actor *f = &dku_g.a[i];
     if (!f->alive || f->state == AS_DEAD || f->state == AS_FALL) return;
     int tough = dku_stat(f->player, DK_TOUGH);
     dmg -= reducible ? 3 * (tough - 1) : (tough - 1);
     if (dmg < 1) dmg = 1;
-    dk.last_dmg = dmg;
-    dk.last_hit_kind = src;
-    if (src + 10 >= 0 && src + 10 < 32 && !dk.god) dk.dmg_by[src + 10] += dmg;
+    dku_g.last_dmg = dmg;
+    dku_g.last_hit_kind = src;
+    if (src + 10 >= 0 && src + 10 < 32 && !dku_g.god) dku_g.dmg_by[src + 10] += dmg;
     f->hurt_t = 10;
-    if (dk.god) dmg = 0;
+    if (dku_g.god) dmg = 0;
     f->hp -= dmg;
     f->charge_t = 0;
     f->charged = false;
@@ -287,7 +288,7 @@ void dku_hurt_fighter(int i, int dmg, bool reducible, int dir, bool knock, int s
     dku_sfx("dku_hurt");
     if (f->state == AS_GRAB || f->state == AS_SUPLEX) {
         if (f->partner >= 0) {
-            Actor *p = &dk.a[f->partner];
+            Actor *p = &dku_g.a[f->partner];
             if (p->state == AS_GRABBED) { dku_set_state(p, AS_HURT); p->stun = 10; p->z = 0; }
         }
         f->partner = -1;
@@ -317,10 +318,10 @@ static bool guarding(const Actor *t, int dir_from) {
 
 /* A blow lands (or is guarded). dir: the way it pushes (+1 to the right). */
 bool dku_hit(int ti, int ai, int atk, int dmg, int dir, uint32_t flags) {
-    Actor *t = &dk.a[ti];
+    Actor *t = &dku_g.a[ti];
     if (!t->alive || t->state == AS_DEAD || t->state == AS_FALL || t->state == AS_GONE) return false;
     if (dir == 0) dir = 1;
-    const Actor *a = ai >= 0 ? &dk.a[ai] : NULL;
+    const Actor *a = ai >= 0 ? &dku_g.a[ai] : NULL;
     bool thrown = (flags & 64) != 0;
     if (t->kind == AK_FIGHTER) {
         bool knock = (flags & AF_KNOCK) != 0;
@@ -338,13 +339,13 @@ bool dku_hit(int ti, int ai, int atk, int dmg, int dir, uint32_t flags) {
     /* a passer-by in the gym drops something and runs on */
     if (t->kind == AK_PASSER) {
         if (t->mode == 0) {
-            static const uint8_t DROPS[] = {IT_APPLE, IT_SANDWICH, IT_DRUMSTICK, IT_ROAST, IT_PIPE, IT_PLANK,
-                                            IT_BOTTLE, IT_SCATTER, IT_CHAIN, IT_SAW, 0};
-            int r = rng_range(&dk.rng, 0, ARRAY_LEN(DROPS) - 1);
+            static const uint8_t DROPS[] = {IT_APPLE, IT_SANDWICH, IT_SANDWICH, IT_DRUMSTICK, IT_DRUMSTICK, IT_ROAST,
+                                            IT_PIPE, IT_PLANK, IT_BOTTLE, IT_SCATTER, IT_CHAIN, IT_SAW, 0};
+            int r = rng_range(&dku_g.rng, 0, ARRAY_LEN(DROPS) - 1);
             if (DROPS[r]) dku_drop_item(DROPS[r], dku_px(t->x), dku_px(t->y));
             else {
                 int d = dku_spawn(AK_DOG, FROM_AT, dku_px(t->x), dku_px(t->y), 0);
-                if (d >= 0) { dk.a[d].team = 0; dku_set_state(&dk.a[d], AS_FREE); }
+                if (d >= 0) { dku_g.a[d].team = 0; dku_set_state(&dku_g.a[d], AS_FREE); }
             }
             t->mode = 2;
             t->timer2 = 1;
@@ -388,7 +389,7 @@ bool dku_hit(int ti, int ai, int atk, int dmg, int dir, uint32_t flags) {
     dku_burst(t->x, t->y, dku_fx(16) + t->z, C_YELLOW, 2);
     if (t->hp <= 0) {
         dku_kill(ti, dir);
-        if (a && a->kind == AK_FIGHTER && atk == AT_CHARGED && dk.pr[a->player].pick == DK_MACK) {
+        if (a && a->kind == AK_FIGHTER && atk == AT_CHARGED && dku_g.pr[a->player].pick == DK_MACK) {
             /* MACK's charged punch bursts what it fells */
             dku_burst(t->x, t->y, dku_fx(14), C_RED, 14);
             t->state = AS_GONE;
@@ -459,7 +460,7 @@ static void clamp_view(Actor *a) {
 static int item_under(const Actor *a) {
     int best = -1, bd = 999;
     for (int i = 0; i < DKU_MAX_ITEMS; i++) {
-        const Item *it = &dk.it[i];
+        const Item *it = &dku_g.it[i];
         if (it->alive != 1 || it->z > 0) continue;
         int dx = iabs(dku_px(it->x - a->x)), dy = iabs(dku_px(it->y - a->y));
         if (dx <= 10 && dy <= 6 && dx + dy < bd) { bd = dx + dy; best = i; }
@@ -468,11 +469,11 @@ static int item_under(const Actor *a) {
 }
 
 static void take_item(Actor *a, int ii) {
-    Item *it = &dk.it[ii];
+    Item *it = &dku_g.it[ii];
     const DkuItemDef *d = &DKU_ITEMS[it->kind];
     if (d->kind == IK_FOOD) {
         if (a->hp >= DKU_MAX_HP) {
-            dk.cash += d->cash;
+            dku_g.cash += d->cash;
             dku_sfx("dku_cash");
         } else {
             a->hp = imin(DKU_MAX_HP, a->hp + (d->food_pct * DKU_MAX_HP) / 100);
@@ -483,7 +484,7 @@ static void take_item(Actor *a, int ii) {
         return;
     }
     if (d->kind == IK_CASH) {
-        dk.cash += d->cash;
+        dku_g.cash += d->cash;
         it->alive = 0;
         dku_sfx("dku_cash");
         return;
@@ -498,7 +499,7 @@ static void take_item(Actor *a, int ii) {
 
 static void drop_carry(Actor *a) {
     if (a->carry < 0) return;
-    Item *it = &dk.it[a->carry];
+    Item *it = &dku_g.it[a->carry];
     it->alive = 1;
     it->x = a->x;
     it->y = a->y;
@@ -520,13 +521,13 @@ static int item_throw_dmg(int kind) {
 
 static void throw_carry(Actor *a, int idx) {
     if (a->carry < 0) return;
-    Item *it = &dk.it[a->carry];
+    Item *it = &dku_g.it[a->carry];
     int sp = 64 + 16 * dku_stat(a->player, DK_THROW);
     int s = dku_add_shot(SH_ITEM, a->team, a->x + a->face * dku_fx(8), a->y, dku_fx(14), a->face * sp, 0, 6,
                          item_throw_dmg(it->kind), idx);
     if (s >= 0) {
-        dk.sh[s].arg = it->kind;
-        dk.sh[s].t = it->ammo; /* a scattergun keeps its shells if picked up again */
+        dku_g.sh[s].arg = it->kind;
+        dku_g.sh[s].t = it->ammo; /* a scattergun keeps its shells if picked up again */
     }
     it->alive = 0;
     a->carry = -1;
@@ -538,7 +539,7 @@ static void throw_carry(Actor *a, int idx) {
 }
 
 static void use_carry(Actor *a, int idx) {
-    Item *it = &dk.it[a->carry];
+    Item *it = &dku_g.it[a->carry];
     int k = DKU_ITEMS[it->kind].kind;
     if (k == IK_SWING) {
         dku_start_attack(a, AT_SWING);
@@ -573,7 +574,7 @@ static bool grabbable(const Actor *t) {
 }
 
 static void start_grab(Actor *a, int idx, int ti) {
-    Actor *t = &dk.a[ti];
+    Actor *t = &dku_g.a[ti];
     dku_set_state(a, AS_GRAB);
     a->partner = ti;
     a->grab_charge = 0;
@@ -589,9 +590,9 @@ static void start_grab(Actor *a, int idx, int ti) {
 }
 
 void dku_throw_actor(int holder, int dir, bool charged) {
-    Actor *a = &dk.a[holder];
+    Actor *a = &dku_g.a[holder];
     if (a->partner < 0) return;
-    Actor *t = &dk.a[a->partner];
+    Actor *t = &dku_g.a[a->partner];
     int th = dku_stat(a->player, DK_THROW);
     dku_set_state(t, AS_THROWN);
     t->partner = -1;
@@ -628,7 +629,7 @@ static void suplex_land(Actor *a, int idx) {
     int p = dku_stat(a->player, DK_POWER);
     bool super = a->timer2 != 0;
     if (a->partner >= 0) {
-        Actor *t = &dk.a[a->partner];
+        Actor *t = &dku_g.a[a->partner];
         t->partner = -1;
         t->z = 0;
         t->x = a->x + a->face * dku_fx(8);
@@ -641,12 +642,12 @@ static void suplex_land(Actor *a, int idx) {
     a->partner = -1;
     int r = super ? 40 : 22;
     for (int j = 2; j < DKU_MAX_ACTORS; j++) {
-        Actor *o = &dk.a[j];
+        Actor *o = &dku_g.a[j];
         if (!hostile(a, o) || o->team != 1 || o->state == AS_DOWN) continue;
         int dx = iabs(dku_px(o->x - a->x)), dy = iabs(dku_px(o->y - a->y));
         if (dx <= r && dy <= r / 2 && o->z < dku_fx(10)) dku_hit(j, idx, AT_NONE, super ? 6 : 3, dku_px(o->x - a->x) >= 0 ? 1 : -1, AF_KNOCK);
     }
-    dk.shake = super ? 10 : 6;
+    dku_g.shake = super ? 10 : 6;
     dku_burst(a->x + a->face * dku_fx(8), a->y, 0, C_TAN, super ? 14 : 8);
     dku_sfx("dku_slam");
     dku_set_state(a, AS_ATTACK);
@@ -658,7 +659,7 @@ static void suplex_land(Actor *a, int idx) {
 
 static void hit_props(Actor *a, const DkuAtk *d) {
     for (int i = 0; i < DKU_MAX_PROPS; i++) {
-        Prop *p = &dk.pr_[i];
+        Prop *p = &dku_g.pr_[i];
         if (!p->alive) continue;
         int dx = dku_px(p->x - a->x) * a->face;
         int dy = dku_px(p->y - a->y);
@@ -678,10 +679,10 @@ static void hit_props(Actor *a, const DkuAtk *d) {
             if (p->kind == PR_POST) {
                 /* the leash: the dog tied to it is free */
                 for (int j = 2; j < DKU_MAX_ACTORS; j++)
-                    if (dk.a[j].alive && dk.a[j].kind == AK_DOG && dk.a[j].state == AS_LEASHED &&
-                        iabs(dku_px(dk.a[j].x - p->x)) < 30) {
-                        dk.a[j].team = 0;
-                        dku_set_state(&dk.a[j], AS_FREE);
+                    if (dku_g.a[j].alive && dku_g.a[j].kind == AK_DOG && dku_g.a[j].state == AS_LEASHED &&
+                        iabs(dku_px(dku_g.a[j].x - p->x)) < 30) {
+                        dku_g.a[j].team = 0;
+                        dku_set_state(&dku_g.a[j], AS_FREE);
                         dku_sfx("dku_bark");
                     }
             }
@@ -690,7 +691,7 @@ static void hit_props(Actor *a, const DkuAtk *d) {
     }
     /* loose things on the floor get knocked aside */
     for (int i = 0; i < DKU_MAX_ITEMS; i++) {
-        Item *it = &dk.it[i];
+        Item *it = &dku_g.it[i];
         if (it->alive != 1 || it->z > 0) continue;
         int dx = dku_px(it->x - a->x) * a->face;
         int dy = dku_px(it->y - a->y);
@@ -718,14 +719,15 @@ void dku_attack_update(Actor *a, int idx) {
     if (d->flags & AF_REFLECT) dku_reflect_in(a, idx);
     int zhi = (d->flags & AF_AIR) ? -22 : d->zhi;
     for (int j = 0; j < DKU_MAX_ACTORS; j++) {
-        Actor *o = &dk.a[j];
+        Actor *o = &dku_g.a[j];
         if (!hostile(a, o) || hit_listed(a, j)) continue;
+        if (a->kind == AK_DOG && (o->state == AS_GRABBED || o->state == AS_THROWN)) continue;
         if (o->state == AS_GRABBED && o->partner != idx && a->kind == AK_FIGHTER) {
             /* someone else's catch: fair game */
         }
         int reach = d->reach, back = d->back;
         if (a->atk == AT_E_HIT || a->atk == AT_E_BITE) reach = DKU_KINDS[a->kind].reach;
-        if (a->atk == AT_SWING && a->carry >= 0 && dk.it[a->carry].kind == IT_CHAIN) reach = 38;
+        if (a->atk == AT_SWING && a->carry >= 0 && dku_g.it[a->carry].kind == IT_CHAIN) reach = 38;
         if (!dku_in_reach(a, o, reach, back, zhi)) continue;
         hit_list(a, j);
         int dmg;
@@ -740,7 +742,7 @@ void dku_attack_update(Actor *a, int idx) {
                 if (!a->spin_paid && o->team == 1) {
                     a->spin_paid = 1;
                     /* the spin costs health, but only when it connects */
-                    if (!dk.god) a->hp = imax(1, a->hp - DKU_SPIN_COST);
+                    if (!dku_g.god) { a->hp = imax(1, a->hp - DKU_SPIN_COST); dku_g.dmg_by[29] += DKU_SPIN_COST; }
                 }
                 if (o->team == 1 && dku_px(o->x - a->x) * a->face < 0) {
                     /* whoever was behind ends up in front */
@@ -761,12 +763,12 @@ void dku_attack_update(Actor *a, int idx) {
         if (a->atk == AT_SPIN) dir = a->face;
         bool was_alive = o->hp > 0;
         bool landed = dku_hit(j, idx, a->atk, dmg, dir, fl);
-        if (landed && a->kind == AK_FIGHTER && a->atk == AT_FLYKICK && dk.pr[a->player].pick == DK_PIP) a->air_jump = true;
+        if (landed && a->kind == AK_FIGHTER && a->atk == AT_FLYKICK && dku_g.pr[a->player].pick == DK_PIP) a->air_jump = true;
         if (landed && a->kind == AK_FIGHTER && was_alive && o->hp <= 0 && o->team == 1 &&
             (a->atk == AT_JAB || a->atk == AT_PUMMEL)) {
             /* a kill always brings the kick: it floors everyone in front */
             a->timer2 = -1;
-            dk.kick_kills++;
+            dku_g.kick_kills++;
         }
         if (a->atk == AT_E_RUSH || a->atk == AT_E_POUNCE || a->atk == AT_E_ELBOW) {
             /* the charge carries on through */
@@ -775,7 +777,7 @@ void dku_attack_update(Actor *a, int idx) {
     /* the rammer's charge flattens other ghouls too */
     if (a->atk == AT_E_RUSH) {
         for (int j = 2; j < DKU_MAX_ACTORS; j++) {
-            Actor *o = &dk.a[j];
+            Actor *o = &dku_g.a[j];
             if (j == idx || !o->alive || o->team != 1 || hit_listed(a, j) || o->state == AS_DEAD || o->boss) continue;
             if (!dku_in_reach(a, o, 18, 0, 22)) continue;
             hit_list(a, j);
@@ -820,7 +822,7 @@ static void start_jab(Actor *a) {
 
 static void start_spin(Actor *a) {
     if (a->state == AS_GRAB && a->partner >= 0) {
-        Actor *p = &dk.a[a->partner];
+        Actor *p = &dku_g.a[a->partner];
         if (p->state == AS_GRABBED) { dku_set_state(p, AS_HURT); p->stun = 8; }
         a->partner = -1;
     }
@@ -846,7 +848,7 @@ static bool grounded_any(const Actor *a) {
 }
 
 static void fighter_update(int i) {
-    Actor *a = &dk.a[i];
+    Actor *a = &dku_g.a[i];
     if (!a->alive) return;
     uint32_t held, press, rel;
     dku_fighter_input(i, &held, &press, &rel);
@@ -924,11 +926,11 @@ static void fighter_update(int i) {
         if (pdir) {
             if (pdir == a->tapdir && a->tap_t <= DKU_DBL_TAP) {
                 if (pdir <= 2) {
-                    bool heavy = a->carry >= 0 && dk.it[a->carry].kind == IT_BIN;
+                    bool heavy = a->carry >= 0 && dku_g.it[a->carry].kind == IT_BIN;
                     if (!heavy && a->charge_t < 12) {
                         a->running = true;
                         /* long things are dropped when you break into a run */
-                        if (a->carry >= 0 && (dk.it[a->carry].kind == IT_PLANK || dk.it[a->carry].kind == IT_SAW)) drop_carry(a);
+                        if (a->carry >= 0 && (dku_g.it[a->carry].kind == IT_PLANK || dku_g.it[a->carry].kind == IT_SAW)) drop_carry(a);
                     }
                 } else if (a->charge_t < 12) {
                     dku_set_state(a, AS_DODGE);
@@ -947,15 +949,15 @@ static void fighter_update(int i) {
         if (a->running && (hdir == 0 || hdir != a->face)) a->running = false;
         int sx = a->running ? 32 : 14, sy = a->running ? 12 : 10;
         if (a->charge_t >= 12) { sx = 9; sy = 7; }
-        if (a->carry >= 0 && dk.it[a->carry].kind == IT_BIN) { sx = 10; sy = 8; }
+        if (a->carry >= 0 && dku_g.it[a->carry].kind == IT_BIN) { sx = 10; sy = 8; }
         a->vx = hdir * sx;
         a->vy = vdir * sy;
         if (hdir && a->charge_t < 12) a->face = hdir;
-        if (hdir || vdir) { a->step++; a->anim = dk.frame_t; }
+        if (hdir || vdir) { a->step++; a->anim = dku_g.frame_t; }
         /* walking into a stunned ghoul grabs it */
         if (hdir && a->carry < 0) {
             for (int j = 2; j < DKU_MAX_ACTORS; j++) {
-                Actor *o = &dk.a[j];
+                Actor *o = &dku_g.a[j];
                 if (!grabbable(o)) continue;
                 int dx = dku_px(o->x - a->x) * hdir, dy = iabs(dku_px(o->y - a->y));
                 if (dx > 0 && dx <= 14 && dy <= 5) { start_grab(a, i, j); break; }
@@ -1083,7 +1085,7 @@ static void fighter_update(int i) {
         break;
     }
     case AS_GRAB: {
-        Actor *t = a->partner >= 0 ? &dk.a[a->partner] : NULL;
+        Actor *t = a->partner >= 0 ? &dku_g.a[a->partner] : NULL;
         if (!t || !t->alive || t->state != AS_GRABBED) { a->partner = -1; dku_set_state(a, AS_FREE); break; }
         int th = dku_stat(a->player, DK_THROW);
         /* walk with it */
@@ -1093,7 +1095,7 @@ static void fighter_update(int i) {
         t->x = a->x + a->face * dku_fx(13);
         t->y = a->y;
         t->face = -a->face;
-        int pick = dk.pr[a->player].pick;
+        int pick = dku_g.pr[a->player].pick;
         if (a->st > 50 + 30 * th) {
             /* it wriggles free */
             dku_set_state(t, AS_FREE);
@@ -1129,7 +1131,7 @@ static void fighter_update(int i) {
             if (was && t->hp <= 0) {
                 dku_start_attack(a, AT_KICK);
                 a->atk_t = DKU_ATK[AT_KICK].startup;
-                dk.kick_kills++;
+                dku_g.kick_kills++;
                 break;
             }
             if (t->state == AS_GRABBED) t->stun = 0;
@@ -1152,7 +1154,7 @@ static void fighter_update(int i) {
         if (hdir) a->face = hdir;
         bool landed = physics(a);
         if (a->partner >= 0) {
-            Actor *t = &dk.a[a->partner];
+            Actor *t = &dku_g.a[a->partner];
             t->x = a->x - a->face * dku_fx(2);
             t->y = a->y;
             t->z = a->z + dku_fx(20);
@@ -1169,5 +1171,5 @@ static void fighter_update(int i) {
 
 void dku_fighters_update(void) {
     for (int i = 0; i < 2; i++)
-        if (dk.a[i].alive && dk.a[i].kind == AK_FIGHTER) fighter_update(i);
+        if (dku_g.a[i].alive && dku_g.a[i].kind == AK_FIGHTER) fighter_update(i);
 }

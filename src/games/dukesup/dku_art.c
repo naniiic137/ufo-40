@@ -346,12 +346,12 @@ static Look look_of(const Actor *a) {
     Look l = {C_CREAM, C_BROWN, C_BLUE, C_SKY, C_SLATE, C_INK, 8, 7, HD_HUMAN};
     switch (a->kind) {
     case AK_FIGHTER: {
-        const DkuFighter *f = &DKU_FIGHTERS[dk.pr[a->player].pick];
+        const DkuFighter *f = &DKU_FIGHTERS[dku_g.pr[a->player].pick];
         l.skin = f->skin; l.hair = f->hair; l.top = f->top; l.top2 = f->top2; l.legs = f->legs; l.shoe = f->shoe;
         static const uint8_t HEADS[DK_NFIGHTERS] = {HD_CAP, HD_PIGTAILS, HD_HUMAN, HD_BUN};
-        l.head = HEADS[dk.pr[a->player].pick];
-        if (dk.pr[a->player].pick == DK_ROOK) { l.wide = 8; l.s = 9; }
-        if (dk.pr[a->player].pick == DK_MACK) l.wide = 8;
+        l.head = HEADS[dku_g.pr[a->player].pick];
+        if (dku_g.pr[a->player].pick == DK_ROOK) { l.wide = 8; l.s = 9; }
+        if (dku_g.pr[a->player].pick == DK_MACK) l.wide = 8;
         break;
     }
     case AK_SHAMBLER: l = (Look){C_LEAF, C_FOREST, C_GREY, C_SLATE, C_EARTH, C_INK, 8, 7, HD_SHAMBLER}; break;
@@ -379,7 +379,7 @@ static Look look_of(const Actor *a) {
 
 static void draw_head(const Look *l, int hx, int hy, int f, int pass, int sc) {
     /* hx, hy: the middle of the head; f facing; pass 0 = outline, 1 = colour */
-    int w = 3 * sc / 8 + 3, h = 4 * sc / 8 + 3;
+    int w = 3 * sc / 8, h = sc / 2;
     int o = pass == 0 ? 1 : 0;
     int c = pass == 0 ? C_INK : l->skin;
     switch (l->head) {
@@ -533,12 +533,12 @@ static void draw_figure(const Actor *a, const Look *l, int sx, int sy, int pose,
             if (a->kind == AK_FIGHTER || a->kind == AK_GRIST) gfx_vline(shx + f * (hw - 2), top + 1, bot - 2, l->top2);
         }
         /* the head */
-        int hh = 4 * sc / 8 + 3;
+        int hh = sc / 2 + 1;
         draw_head(l, shx + f * 1, top - hh, f, pass, sc);
         /* the front arm */
         int fhx = shx + f * p->fhx * sc / 8, fhy = shy + 2 + p->fhy * sc / 8;
         thick_line(shx + f * 1, shy + 2, fhx, fhy, limb + t, pass ? l->skin : ink);
-        if (pass) gfx_rect(fhx - 1, fhy - 1, 3, 3, a->kind == AK_FIGHTER && dk.pr[a->player].pick == DK_MACK ? C_RED : l->skin);
+        if (pass) gfx_rect(fhx - 1, fhy - 1, 3, 3, a->kind == AK_FIGHTER && dku_g.pr[a->player].pick == DK_MACK ? C_RED : l->skin);
     }
 }
 
@@ -610,7 +610,7 @@ static void draw_feeler(const Actor *a, int sx, int sy) {
 }
 
 static void draw_undertow(const Actor *a, int sx, int sy) {
-    int t = dk.frame_t;
+    int t = dku_g.frame_t;
     int bob = (t / 20) & 1;
     int y = sy - 34 + bob;
     for (int k = 0; k < 3; k++) {
@@ -632,14 +632,14 @@ static void draw_undertow(const Actor *a, int sx, int sy) {
 static void draw_saucer(const Actor *a, int sx, int sy) {
     int z = dku_px(a->z);
     gfx_dither(sx - 9, sy - 1, 18, 3, C_INK, 8);
-    ui_saucer(sx - 11, sy - z - 8, dk.frame_t, 1);
+    ui_saucer(sx - 11, sy - z - 8, dku_g.frame_t, 1);
 }
 
 /* ---- picking a pose ------------------------------------------------------------ */
 
 static int pose_for(const Actor *a, bool *lying) {
     *lying = false;
-    bool walking = (int)(dk.frame_t - a->anim) < 3;
+    bool walking = (int)(dku_g.frame_t - a->anim) < 3;
     int wf = (a->step / 7) & 1;
     bool zombie = a->kind == AK_SHAMBLER;
     switch (a->state) {
@@ -676,7 +676,7 @@ static int pose_for(const Actor *a, bool *lying) {
     case AS_DORMANT:
         if (a->mode == DM_FEED) return PO_CROUCH;
         if (a->mode == DM_SIT || a->mode == DM_SLEEP) return PO_SIT;
-        if (a->mode == DM_DANCE) return ((dk.frame_t / 16 + (int)(a->x >> 6)) & 1) ? PO_DANCE1 : PO_DANCE2;
+        if (a->mode == DM_DANCE) return ((dku_g.frame_t / 16 + (int)(a->x >> 6)) & 1) ? PO_DANCE1 : PO_DANCE2;
         return PO_STAND;
     case AS_DOWN:
         if (a->z > 0) return PO_HURT;
@@ -687,7 +687,7 @@ static int pose_for(const Actor *a, bool *lying) {
         if (a->state == AS_THROWN) return PO_HURT;
         *lying = a->z == 0;
         return PO_HURT;
-    case AS_CHANGE: return (dk.frame_t / 4) & 1 ? PO_ARMSUP : PO_CROUCH;
+    case AS_CHANGE: return (dku_g.frame_t / 4) & 1 ? PO_ARMSUP : PO_CROUCH;
     case AS_RISE: return a->from == FROM_GROUND ? PO_ARMSUP : PO_JUMP;
     default: return PO_STAND;
     }
@@ -724,9 +724,9 @@ void dku_draw_actor(const Actor *a, int sx, int sy) {
     int pose = pose_for(a, &lying);
     int flash = 0;
     if (a->hurt_t > 0 && (a->hurt_t & 2)) flash = C_WHITE;
-    if (a->kind == AK_FIGHTER && a->charged && (dk.frame_t & 4)) flash = C_YELLOW;
-    if (a->kind == AK_FIGHTER && a->state == AS_GRAB && dk.pr[a->player].pick == DK_DOLLY && a->grab_charge >= 20 && (dk.frame_t & 4)) flash = C_ORANGE;
-    if (a->state == AS_CHANGE && (dk.frame_t & 2)) flash = C_LIME;
+    if (a->kind == AK_FIGHTER && a->charged && (dku_g.frame_t & 4)) flash = C_YELLOW;
+    if (a->kind == AK_FIGHTER && a->state == AS_GRAB && dku_g.pr[a->player].pick == DK_DOLLY && a->grab_charge >= 20 && (dku_g.frame_t & 4)) flash = C_ORANGE;
+    if (a->state == AS_CHANGE && (dku_g.frame_t & 2)) flash = C_LIME;
     if (a->state == AS_RISE && a->from == FROM_GROUND) {
         /* clawing up out of the ground */
         int shown = 34 * a->st / 40;
@@ -738,15 +738,15 @@ void dku_draw_actor(const Actor *a, int sx, int sy) {
     }
     if (a->kind == AK_GRIST && a->mode == 2 && !lying) {
         /* the changed alderman: extra arms */
-        thick_line(sx - a->face * 4, sy - z - 26, sx - a->face * 14, sy - z - 14 + ((dk.frame_t / 8) & 1) * 3, 5, C_INK);
-        thick_line(sx - a->face * 4, sy - z - 26, sx - a->face * 14, sy - z - 14 + ((dk.frame_t / 8) & 1) * 3, 3, C_LIME);
+        thick_line(sx - a->face * 4, sy - z - 26, sx - a->face * 14, sy - z - 14 + ((dku_g.frame_t / 8) & 1) * 3, 5, C_INK);
+        thick_line(sx - a->face * 4, sy - z - 26, sx - a->face * 14, sy - z - 14 + ((dku_g.frame_t / 8) & 1) * 3, 3, C_LIME);
     }
     draw_figure(a, &l, sx, sy - z, pose, lying, flash);
     if (a->kind == AK_TORCH && !lying) {
         /* a lit bottle in hand */
         int hx = sx + a->face * 6, hy = sy - z - 22;
         gfx_rect(hx - 1, hy, 3, 5, C_JADE);
-        gfx_pset(hx, hy - 1 - ((dk.frame_t / 4) & 1), C_ORANGE);
+        gfx_pset(hx, hy - 1 - ((dku_g.frame_t / 4) & 1), C_ORANGE);
     }
     if (a->kind == AK_CROW && !lying && a->state != AS_WINDUP) {
         int hx = sx + a->face * 8, hy = sy - z - 15;
@@ -759,11 +759,11 @@ void dku_draw_actor(const Actor *a, int sx, int sy) {
     if (a->kind == AK_TUSKER && a->state == AS_GUARD) {
         gfx_rect(sx + a->face * 8 - 2, sy - z - 30, 4, 12, C_PINK);
     }
-    if (a->state == AS_DORMANT && a->mode == DM_SLEEP && ((dk.frame_t / 30) & 1)) tiny_draw("Z", sx + 4, sy - 40, C_WHITE);
+    if (a->state == AS_DORMANT && a->mode == DM_SLEEP && ((dku_g.frame_t / 30) & 1)) tiny_draw("Z", sx + 4, sy - 40, C_WHITE);
     if (a->kind == AK_VISITOR && a->state == AS_WINDUP) gfx_circ(sx + a->face * 10, sy - z - 18, 1 + (a->st / 4) % 3, C_CYAN);
     /* what a fighter carries */
     if (a->kind == AK_FIGHTER && a->carry >= 0 && !lying) {
-        int k = dk.it[a->carry].kind;
+        int k = dku_g.it[a->carry].kind;
         int hx = sx + a->face * 6 - 5, hy = sy - z - 24;
         if (a->state == AS_ATTACK) hx += a->face * 6;
         spr_draw(&dku_spr[SPR_ITEM0 + k], hx, hy, a->face < 0 ? SPR_FLIPX : 0);
@@ -771,6 +771,7 @@ void dku_draw_actor(const Actor *a, int sx, int sy) {
 }
 
 /* the select screen's big fighter: a standing figure at double size */
+/* x: the middle, y: the feet */
 void dku_draw_fighter_big(int f, int x, int y, int t) {
     static uint8_t buf[64 * 64];
     Surface s = {64, 64, buf};
@@ -781,13 +782,13 @@ void dku_draw_fighter_big(int f, int x, int y, int t) {
     memset(&a, 0, sizeof a);
     a.kind = AK_FIGHTER;
     a.player = 0;
-    a.face = 1;
+    a.face = x > SCREEN_W / 2 + 40 ? -1 : 1;
     a.state = AS_FREE;
-    int keep = dk.pr[0].pick;
-    dk.pr[0].pick = f;
+    int keep = dku_g.pr[0].pick;
+    dku_g.pr[0].pick = f;
     Look l = look_of(&a);
     draw_figure(&a, &l, 32, 60, (t / 20) & 1 ? PO_STAND : PO_GUARD, false, 0);
-    dk.pr[0].pick = keep;
+    dku_g.pr[0].pick = keep;
     gfx_set_target(old);
     Sprite sp = {64, 64, buf};
     spr_draw_scaled(&sp, x - 64, y - 128, 2, 0);
