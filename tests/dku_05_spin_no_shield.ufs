@@ -1,0 +1,73 @@
+# DUKES UP: A and B together spin, at nearly any moment on the ground (even
+# while stunned). It costs health only when it hits a ghoul, never when it
+# hits nothing or sends a cleaver back; whoever it hits ends up in front.
+# Nothing ever shields a fighter: not a dodge, not lying on the floor.
+game dukesup
+wait 5
+cheat pick 1 0
+cheat run 1
+cheat arena
+cheat pos 1 100 140
+cheat face 1 1
+wait 2
+# a spin at nothing is free
+press A B 1
+expect p1_state == 9
+wait 30
+expect p1_state == 0
+expect p1_hp == 100
+# a spin that hits costs 6, and the one behind lands in front
+cheat freeze
+cheat spawn shambler 88 136
+cheat foehp 2 50
+cheat spawn shambler 112 136
+cheat foehp 3 50
+wait 2
+press A B 1
+wait 20
+expect p1_hp == 94
+expect foe2_state == 4
+expect foe3_state == 4
+expect foe2_x > 100
+# a cleaver coming: the spin sends it back, at no cost
+wait 40
+cheat arena
+cheat thaw
+cheat hp 1 100
+cheat shot 1 150 140 -48
+wait 8
+press A B 1
+wait 4
+expect shot0_team == 0
+expect shot0_vx > 0
+expect p1_hp == 100
+# even when stunned
+wait 40
+cheat arena
+cheat spawn shambler 114 139
+cheat foeface 2 -1
+cheat foestrike 2
+wait 4
+expect p1_state == 2
+press A B 1
+expect p1_state == 9
+# no shield on the floor: knocked out of a jump, then hit again lying down
+wait 40
+cheat arena
+cheat hp 1 100
+wait 2
+press B 1
+wait 3
+cheat spawn shambler 114 139
+cheat foeface 2 -1
+cheat foestrike 2
+wait 6
+expect p1_state == 4
+expect p1_hp == 95
+wait 40
+expect p1_x == 68
+cheat foepos 2 82 139
+cheat foestrike 2
+wait 6
+expect p1_state == 4
+expect p1_hp == 90

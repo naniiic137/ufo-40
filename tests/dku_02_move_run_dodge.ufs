@@ -1,0 +1,95 @@
+# DUKES UP: walking goes eight ways (slower up and down the street than
+# along it); a double tap left or right breaks into a run, about twice as
+# fast, that you can steer diagonally; a double tap up or down is a quick
+# dodge with a little lag at the end and no shield from blows; B jumps
+# (farther when running) and lands with a moment's lag.
+game dukesup
+wait 5
+cheat pick 1 0
+cheat run 1
+cheat arena
+cheat pos 1 100 140
+wait 2
+expect p1_x == 100
+hold RIGHT 32
+expect p1_x == 128
+expect p1_running == 0
+expect p1_face == 1
+hold DOWN 32
+expect p1_y == 160
+hold UP 16
+expect p1_y == 150
+hold LEFT 2
+expect p1_face == -1
+# the double tap: a run (two taps too far apart are just walking)
+cheat pos 1 100 140
+press RIGHT 1
+wait 20
+hold RIGHT
+wait 2
+expect p1_running == 0
+release
+cheat pos 1 100 140
+wait 20
+press RIGHT 1
+hold RIGHT
+wait 2
+expect p1_running == 1
+wait 14
+expect p1_x >= 128
+release
+wait 1
+expect p1_running == 0
+# steering while running
+cheat pos 1 100 140
+wait 20
+press RIGHT 1
+hold RIGHT DOWN
+wait 16
+release
+expect p1_x >= 125
+expect p1_y >= 150
+# a dodge: 24 px in 8 frames, then a short lag
+cheat pos 1 150 130
+wait 20
+press DOWN 1
+press DOWN 1
+expect p1_state == 8
+wait 10
+expect p1_y >= 150
+expect p1_state == 8
+wait 12
+expect p1_state == 0
+# no shield in a dodge: a ghoul's blow lands mid-dodge
+cheat spawn shambler 170 156
+cheat pos 1 150 130
+cheat face 1 1
+wait 2
+press DOWN 1
+press DOWN 1
+expect p1_state == 8
+cheat foecool 2 0
+wait 40
+expect p1_hp < 100
+# a jump, farther when running
+cheat arena
+cheat hp 1 100
+cheat pos 1 100 140
+wait 10
+press B 1
+wait 6
+expect p1_state == 3
+expect p1_z > 0
+wait 40
+expect p1_state == 0
+expect p1_x == 100
+cheat pos 1 60 140
+wait 20
+press RIGHT 1
+hold RIGHT
+wait 4
+press B 1
+wait 32
+release
+# a walking jump covers about 24 px from the take-off; a running one about 50
+expect p1_x >= 120

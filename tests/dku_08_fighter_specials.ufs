@@ -1,0 +1,82 @@
+# DUKES UP: each fighter's own move. ROOK: hold B in a grab for a higher,
+# harder slam. PIP: a flying kick that lands lets her jump again in mid-air.
+# MACK: his charged punch bursts what it fells. DOLLY: hold A in a grab and
+# the ghoul she throws goes off where it lands.
+game dukesup
+wait 5
+# ROOK: an ordinary slam does 4 + 2 x POWER (8), the held one 8 + 3 x POWER (14)
+cheat pick 1 0
+cheat run 1
+cheat arena
+cheat freeze
+cheat pos 1 100 140
+cheat face 1 1
+cheat spawn shambler 118 140
+cheat foehp 2 60
+wait 2
+press A 1
+wait 10
+hold RIGHT 8
+expect p1_state == 6
+hold B 50
+wait 1
+expect p1_state == 19
+wait 50
+expect foe2_hp == 44
+# PIP: the kick lands, and B jumps again in the air
+cheat pick 1 1
+cheat run 1
+cheat arena
+cheat freeze
+cheat pos 1 100 140
+cheat face 1 1
+cheat spawn shambler 120 140
+cheat foehp 2 60
+wait 2
+press B 1
+wait 4
+press A 1
+wait 6
+expect p1_air_jump == 1
+press B 1
+wait 3
+expect p1_air_jump == 0
+expect p1_state == 3
+wait 40
+expect p1_state == 0
+# MACK: a charged punch that fells a ghoul bursts it: nothing is left
+cheat pick 1 2
+cheat run 1
+cheat arena
+cheat freeze
+cheat pos 1 100 140
+cheat face 1 1
+cheat spawn shambler 130 140
+cheat foehp 2 6
+wait 2
+hold A
+wait 60
+release A
+wait 10
+expect foe2_alive == 0
+expect kos == 1
+# DOLLY: hold A in the grab, let go: it goes off where it lands
+cheat pick 1 3
+cheat run 1
+cheat arena
+cheat freeze
+cheat pos 1 100 140
+cheat face 1 1
+cheat spawn shambler 118 140
+cheat foehp 2 60
+cheat spawn shambler 190 140
+cheat foehp 3 60
+wait 2
+press A 1
+wait 10
+hold RIGHT 8
+expect p1_state == 6
+hold A 50
+wait 40
+expect foe3_state == 4
+expect foe3_hp < 50
