@@ -1,0 +1,76 @@
+# HOOPLA: the draft battle. Seven of the eight are on the board; picks go
+# P1, CPU, CPU, P1, P1, CPU (a snake), three each. Then matches, each side
+# fielding a different one of its three each time, until a side has five
+# wins.
+seed 20
+game hoopla
+wait 30
+press A
+wait 10
+press DOWN
+press A
+wait 5
+expect state == 10
+expect npool == 7
+expect pool_ok == 1
+expect draft_turn == 0
+wait 8
+press RIGHT
+press A
+expect draft_turn == 1
+expect nteam0 == 1
+waituntil draft_turn == 3 200
+expect nteam1 == 2
+wait 8
+press A
+wait 8
+press A
+expect draft_turn == 5
+expect nteam0 == 3
+waituntil state == 11 200
+expect nteam1 == 3
+# three matches: each side fields all three of its own
+wait 32
+press A
+waituntil state == 6 200
+cheat winmatch
+wait 2
+expect score0 == 1
+expect state == 11
+wait 32
+press A
+waituntil state == 6 200
+cheat losematch
+wait 2
+expect score1 == 1
+wait 32
+press A
+waituntil state == 6 200
+cheat winmatch
+wait 2
+expect score0 == 2
+expect series_ok == 1
+expect goals == 0
+wait 32
+press A
+waituntil state == 6 200
+cheat winmatch
+wait 2
+wait 32
+press A
+waituntil state == 6 200
+cheat winmatch
+wait 2
+wait 32
+press A
+waituntil state == 6 200
+cheat winmatch
+wait 2
+expect score0 == 5
+expect state == 7
+expect goals == 1
+expect save_draft_wins == 1
+wait 62
+press A
+wait 2
+expect state == 0

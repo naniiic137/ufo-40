@@ -1,0 +1,19 @@
+# HOOPLA: on the RIOT challenge every tournament match brings a second,
+# random foe: three in the pit, and the first to five hoops wins.
+seed 22
+game hoopla
+wait 30
+cheat challenge 2
+cheat tourney 0 0
+wait 25
+press A
+wait 2
+expect extra >= 0
+waituntil state == 6 200
+expect fighters == 3
+expect f2_on == 1
+expect f2_rings == 1
+cheat go
+botplay 1200
+expect winner >= -1
+cheat challenge 1

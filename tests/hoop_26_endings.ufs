@@ -1,0 +1,100 @@
+# HOOPLA: each fighter has an ending of its own; GULP in his second colours
+# gets a note after his. Then the credits, and back to the title.
+seed 26
+game hoopla
+wait 30
+cheat tourney 0 0
+wait 25
+press A
+waituntil state == 6 200
+cheat winmatch
+wait 2
+wait 25
+press A
+waituntil state == 6 200
+cheat winmatch
+wait 2
+wait 25
+press A
+waituntil state == 6 200
+cheat winmatch
+wait 2
+wait 25
+press A
+waituntil state == 6 200
+cheat winmatch
+wait 2
+wait 25
+press A
+waituntil state == 6 200
+cheat winmatch
+wait 2
+wait 25
+press A
+waituntil state == 6 200
+cheat winmatch
+wait 2
+wait 25
+press A
+waituntil state == 6 200
+cheat winmatch
+wait 2
+wait 25
+press A
+waituntil state == 6 200
+cheat winmatch
+wait 2
+expect state == 12
+expect end_kind == 0
+expect end_note == 0
+cheat tourney 7 1
+wait 25
+press A
+waituntil state == 6 200
+cheat winmatch
+wait 2
+wait 25
+press A
+waituntil state == 6 200
+cheat winmatch
+wait 2
+wait 25
+press A
+waituntil state == 6 200
+cheat winmatch
+wait 2
+wait 25
+press A
+waituntil state == 6 200
+cheat winmatch
+wait 2
+wait 25
+press A
+waituntil state == 6 200
+cheat winmatch
+wait 2
+wait 25
+press A
+waituntil state == 6 200
+cheat winmatch
+wait 2
+wait 25
+press A
+waituntil state == 6 200
+cheat winmatch
+wait 2
+wait 25
+press A
+waituntil state == 6 200
+cheat winmatch
+wait 2
+expect state == 12
+expect end_kind == 7
+expect end_note == 1
+wait 130
+press A
+wait 2
+expect state == 13
+hold A 400
+wait 2
+expect state == 0

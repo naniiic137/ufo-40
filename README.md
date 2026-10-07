@@ -149,6 +149,7 @@ menu, shows the buttons as you now press them). SELECT or B closes it.
 | 32 | **FORLORN HOPE** | Mortol II | 99 lives on a counter over the door and no way to gain more, one massive fixed open map, five classes picked at the door for every life (a sword who turns into a stone that floats where it is made, a rifle who leaves an endless ammo pouch, a double-jumping star thrower whose teleporter you take from the base and back, a wrench thrower who builds a pipe down through the ground, a bomber with no attack who explodes for 15), hold B to flash and let go to sacrifice, a charge that carries through teleporters and pipes, a death while charging setting the gift off, everything persisting, the original's 17 foes with their hit points, three switches raising yellow, green and blue blocks, spawners you can block or break, bombable rock and out-of-place brick, tall worms fed one life each, four hearts of 30 lingering on the black screen between lives, keys and locked doors, 2P co-op | the volunteers of Holloway and their trades, the Old Yew, the undercroft, the caves, the deep, the sump, the roots, the chimney, the tower and Thornkeep, all 17 foes and the thorn hearts, the whole map, eight tunes |
 | 34 | **BRAVADO** | Overbold | one fixed arena with four corner pads and lava, eight fights: a fixed first fight for 100, then each bet adding 100 and a random pack at a time up to 16 packs and 1,600, and a forced last fight of twelve packs and the only boss for 3,200; six health against hits of six, held fire that keeps the aim while you strafe, bombs that kill outright and hurt you too, lava that bites, twelve monsters on the floor at most and spawns that quicken up to a 900 prize; the original's seven pack kinds (two of them nine to a pack), sixteen kinds of gear at its prices with a sale and a hike every visit, the drone, the dash, medkits past full health, 2P in one arena | Dice the fox and her brother Domino, the Glass Pit, mites, gasbags, brutes, powder kegs, stilters, peepers, slag, the Pit Boss and its fizzers, every piece of gear's name and icon, ten tunes |
 | 35 | **CLARION CALL** | Campanella 2 | the Campanella ship on one tank for the whole run (coins burn when it's dry, and then it falls), a bar of 8 for the ship and for Clary behind doors, landing slowly on level ground and getting out, one hit or a two-tile drop the end outside, doors on foot into side-on caves with a skull at your back and a chest of three to choose from, and rooms with shops (one buy each, and every door shuts behind you), stalls, trials and sextons, ten notes to open the gold door and a 30-second dash, nine areas of a generated station in four of seven regions chosen on a map, sixteen cryptic upgrades, the yellow key, the Lobber and three Hush Engines, Lady Hush, the secret Grandsire Tock behind three sextons' sheets, the escape and three endings; one sitting, no save | Clary and the Clarion (CHIME CIRCUIT's), Ansel and Lady Hush (BELLHOP's), Grandsire Tock, the Carillon and its seven regions, the generator and every cave piece, the Crown, the sextons, the dozing tortoise, the FULL-PEAL code |
+| 36 | **HOOPLA** | Hyper Contender | a one-screen, one-on-one platform brawl with no health: hold five hoops at once to win, one each at the start, a new one every 15 s (on fire at first), every hit knocking one out to bounce round the pit (two if you were dizzy); the block that stops a lunge and leaves the attacker dizzy, the lunge that goes through shots, shots that get past the block; eight fighters who each move their own way (double jump with a knife-turning spin, claw line, gravity turned over, spring traps, wings, a cage lift, a rocket pack, a charged leap) with their weapon, alt shot and the button exceptions; twelve fixed pits in a random order and colours, some with moving ledges; the tournament of eight with the mirror match last and one rematch each, a second foe on the hardest challenge, the snake draft of three each to five wins, 2P exhibition, the ring options, the old-rules code, the demo and its twentieth-time note | TANSY, CLAMP, MOSS, BRISTLE, PEWIT, COLLIER, ASTRA and GULP, their endings, the twelve pits of the Glass Pit, twelve tunes |
 | 39 | **BUZZBOLT** | Star Waspir | a fast vertical shooter over the whole wide screen where one hit is a loss, tap fire for a wide spread at full speed and hold it for focused fire and a slower ship, three ships with their own fire, options and two specials each (a charge lance, guard orbs, a shield drone, bombs on the second button), every kill dropping a letter in the fixed order B, Z, Z, words of three (BZZ puts the multiplier up with no limit, ZZZ brings an option, BBB and ZBB are the ship's specials, any other word puts it back to x1), the multiplier built up and cashed in on the bosses, losing a ship costs the multiplier and every gift, ships at 25k, 100k and 200k, five waves with a boss each (wave 1's pair flies off if left alone; wave 3 the hard one; walls, gates and a golden swarm in wave 4; a last boss of aimed fans), an unmultiplied time bonus, a high-score table | the Hive Wing (lacewing, shieldbug, firefly), the hiveship and the dragonfly, the Blight's gnats, midges, whirlers, crickets, blisters, puffballs, rot walls and goldbugs, the Ironbacks, the Bloatfly, the Queen Tick, Scythewing and Dustwing, the Sporeheart, five new waves |
 | 44 | **HOMESPUN** | Pilot Quest | a camp that keeps working in real time while the console is on, even in other cartridges; a yo-yo that knocks glints out of a crystal; plants, bars, huts, anvils, bins and research at the original's prices; jerky as two minutes of trip time a strip, and a clock that is also your health; one Wilds map whose roadblocks and caves are shuffled per save; three dungeons with a ship part each; a gun that costs a glint a shot; coins for hopstones, vendors and a gambling den; a spider that spins thread at camp; a super boss beaten six times in one trip; new-game-plus stones | Wick and the *Tumbleweed*, the moor-moon Oddmoor and its folk, the Wilds, three dungeons, all 19 foes and 6 bosses |
 | 41 | **RIMSHIRE** | Lords of Diskonia | a board where two banners take turns stepping along roads, trails a banner can't step back onto that pull an army back when struck, inns, tomes, seams and chests; flick battles on fields built from the four tiles round the fight: a queue of three, aim, charge and launch, knocks that hurt by the striking disk's own melee, water, the closing haze and stalemates; the original's 15 disks with their numbers, 8 skills, 10 campaign wars, the streak and 2P | Rimshire, the Brass and Plum banners, the Plum Empress, Lady Brass's letters, all 16 disks, 10 new boards |
@@ -1377,6 +1378,59 @@ the top.
   the Crown, the sextons, the dozing tortoise, every enemy, the sixteen
   upgrades, the music and the FULL-PEAL code.
 
+### 36 · HOOPLA
+
+<p align="center">
+  <img src="docs/shots/hoopla.gif" width="640" alt="Hoopla: Astra rains rays from the top of the pit while Clamp swings in on his claw line">
+</p>
+<p align="center">
+  <img src="docs/shots/hoopla_select.png" width="320" alt="The fighter select: eight fighters, each with its way to move and its weapon">
+  <img src="docs/shots/hoopla_match.png" width="320" alt="A match: Astra on her rocket pack, Clamp on a high ledge, his cog in flight and a new hoop burning">
+</p>
+<p align="center">
+  <img src="docs/shots/hoopla_ladder.png" width="320" alt="The tournament ladder: eight matches, the mirror match last">
+  <img src="docs/shots/hoopla_draft.png" width="320" alt="The draft battle: picks by turns, three each">
+</p>
+<p align="center">
+  <img src="docs/shots/hoopla_mirror.png" width="320" alt="The mirror match: Astra against Astra in her other colours">
+  <img src="docs/shots/hoopla_ending.png" width="320" alt="Astra's ending">
+</p>
+
+*A tribute to **Hyper Contender** (UFO 50 #36).*
+
+- **Plays the same:** one screen, two fighters and no health. Everyone
+  starts with one hoop; one drops in at GO and every 15 seconds after (the
+  count is bottom centre), on fire for a moment, so touching it is a hit.
+  Hold five at once and the match is yours. A hit stuns you briefly and
+  knocks a hoop out to bounce round the pit for whoever touches it first;
+  if you were dizzy, two. Hold DOWN to block: a lunge into a block leaves
+  the attacker dizzy, but shots go straight through it, and a lunge
+  (DOWN + A) goes straight through shots. A is each fighter's weapon and
+  UP + A its alt shot; B is their own way of moving: TANSY's double jump
+  (the spin turns knives, her own bounce off two walls and can cut her),
+  CLAMP's claw line (its first swing hits, it takes hoops), MOSS turning
+  his gravity over, BRISTLE's spring traps, PEWIT's wings, COLLIER's cage
+  lift (it stops level with ledges; his charge held is a shield), ASTRA's
+  rocket pack and GULP's charged leap (a glowing uppercut after a second;
+  his dart is aimed while held). A is the main attack, as everywhere in
+  UFO 40 (the original has the move on A); the card's CONTROLS page can
+  swap them back.
+- **Structure:** the tournament: pick a fighter and beat all eight in a
+  random order, the last your own double in the other colours; lose and
+  you get one rematch with that opponent. On the RIOT challenge each match
+  brings a second foe. The draft battle: seven on the board, a snake draft
+  of three each, then matches, each side fielding a different one of its
+  three, to five wins, against the CPU or a friend. Exhibition: two
+  players, one match, back to the pick. Options for the challenge, MOSS's
+  upside-down controls and the hoop rules. Twelve fixed pits come in a
+  random order and colours. The goals (on standard hoops): win a draft
+  battle, win the tournament, and win it with four different fighters. The
+  demo player in the tests does all three from the title with button
+  presses.
+- **Ours:** TANSY, CLAMP, MOSS, BRISTLE, PEWIT, COLLIER, ASTRA and GULP,
+  their weapons, colours and endings, the Glass Pit's twelve pits (BRAVADO's
+  pit on ring nights), the night porter's note, the old-rules code and
+  twelve tunes.
 ### 39 · BUZZBOLT
 
 <p align="center">

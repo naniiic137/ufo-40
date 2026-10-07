@@ -1,0 +1,57 @@
+# HOOPLA: MOSS. B turns his gravity over: he falls up to the ceiling and
+# walks there; B again brings him down. A fires a rocket that curves with
+# his gravity and bursts; UP+A one that doesn't burst. With the option on,
+# LEFT and RIGHT turn over with him.
+seed 11
+game hoopla
+wait 30
+cheat match 2 1 0
+cheat dummy
+cheat go
+cheat noring
+cheat noledges
+cheat pos 1 300 152
+wait 2
+press B
+expect f0_g == -1
+waituntil f0_ground == 101 120
+expect f0_y == 10
+hold RIGHT 20
+expect f0_x > 40
+press B
+expect f0_g == 1
+waituntil f0_ground == 100 120
+# the rocket bursts on the dummy, and curves down with his gravity
+cheat pos 1 200 152
+cheat face 0 1
+press A
+expect shots3 == 1
+wait 24
+expect shot_vy > 0
+waituntil blasts > 0 120
+expect f1_rings == 0
+# upside down it curves up
+waituntil blasts == 0 60
+press B
+waituntil f0_ground == 101 120
+press A
+wait 26
+expect shot_vy < 0
+waituntil shots3 == 0 120
+# UP+A: no burst
+press B
+waituntil f0_ground == 100 120
+waituntil f1_inv == 0 120
+cheat noring
+cheat rings 1 1
+press UP A
+expect shots4 == 1
+waituntil f1_rings == 0 120
+expect blasts == 0
+# the option: upside down, RIGHT walks him left
+cheat antigrav 1
+press B
+waituntil f0_ground == 101 120
+cheat pos 0 160 10
+hold RIGHT 20
+expect f0_x < 160

@@ -1,0 +1,25 @@
+# HOOPLA: everyone starts with one hoop; a hoop drops in at GO and every
+# 15 s after, on fire for 2.5 s; the count to the next one runs down.
+seed 3
+game hoopla
+wait 30
+cheat match 0 1 0
+cheat dummy
+expect ready > 0
+expect f0_rings == 1
+expect f1_rings == 1
+expect to_win == 5
+expect fresh == 0
+waituntil ready == 0 120
+wait 1
+expect fresh == 1
+expect burning == 1
+expect spawn_t >= 890
+wait 151
+expect burning == 0
+expect fresh == 1
+waituntil spawn_t <= 1 1000
+wait 2
+expect fresh == 2
+expect burning == 1
+expect spawn_t >= 890

@@ -1,0 +1,69 @@
+# HOOPLA: CLAMP. B shoots the claw line straight up (or up and ahead with
+# LEFT/RIGHT held); it bites a ledge or the ceiling and reels him up; B lets
+# go with a hop. The claw takes a hoop it passes. A diagonal line's first
+# swing is a melee. A throws a cog that comes back; DOWN+A is the cog too.
+seed 10
+game hoopla
+wait 30
+cheat match 1 0 0
+cheat dummy
+cheat go
+cheat noring
+cheat noledges
+cheat pos 1 300 152
+cheat ledge 20 100 60
+cheat ring 40 125 0
+wait 2
+press B
+waituntil f0_claw == 2 30
+expect f0_rings == 2
+expect f0_swing == 0
+waituntil f0_y < 106 120
+press B
+waituntil f0_ground == 0 120
+expect f0_y == 86
+expect f0_claw == 0
+# a diagonal line: the first swing is a melee
+cheat noledges
+cheat ledge 90 70 60
+cheat pos 0 60 152
+hold RIGHT B 2
+waituntil f0_claw == 2 40
+expect f0_swing > 0
+expect f0_melee == 1
+press B
+waituntil f0_ground == 100 200
+# the cog goes out and comes back
+cheat noledges
+cheat pos 0 40 152
+cheat face 0 1
+press A
+expect shots2 == 1
+expect shot_vx > 0
+wait 40
+expect shot_vx < 0
+waituntil shots2 == 0 200
+# DOWN+A: no lunge, the cog
+press DOWN A
+expect shots2 == 1
+expect f0_melee == 0
+# mid-swing he blocks for free: a lunge into him leaves the lunger dizzy,
+# and his swing then catches the dizzy one for two hoops
+cheat match 0 1 0
+cheat dummy
+cheat go
+cheat noring
+cheat noledges
+cheat ledge 90 70 60
+cheat pos 1 60 152
+cheat pos 0 20 152
+cheat rings 0 3
+wait 2
+hold P2RIGHT P2B 2
+waituntil f1_claw == 2 40
+expect f1_swing > 0
+cheat beside 0 1
+press DOWN A 1
+expect f1_rings == 1
+expect f1_inv == 0
+expect f0_rings == 1

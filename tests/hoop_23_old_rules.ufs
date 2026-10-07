@@ -1,0 +1,78 @@
+# HOOPLA: the old rules (our code on the title: DOWN UP DOWN UP LEFT LEFT
+# RIGHT RIGHT): no hoops, four health each, a hit takes one (two if dizzy),
+# and the last one standing wins. The goals don't count under them.
+seed 23
+game hoopla
+wait 30
+press DOWN
+press UP
+press DOWN
+press UP
+press LEFT
+press LEFT
+press RIGHT
+press RIGHT
+expect old_rules == 1
+cheat match 0 1 0
+cheat dummy
+cheat go
+wait 5
+expect f0_hp == 4
+expect f1_hp == 4
+expect rings_out == 0
+press A
+waituntil f1_hp == 3 120
+expect loose == 0
+waituntil f1_inv == 0 120
+cheat dizzy 1 200
+press A
+waituntil f1_hp == 1 120
+waituntil f1_inv == 0 120
+press A
+waituntil f1_hp == 0 120
+expect winner == 0
+# a tournament won under them earns nothing
+cheat tourney 0 0
+wait 25
+press A
+waituntil state == 6 200
+cheat winmatch
+wait 2
+wait 25
+press A
+waituntil state == 6 200
+cheat winmatch
+wait 2
+wait 25
+press A
+waituntil state == 6 200
+cheat winmatch
+wait 2
+wait 25
+press A
+waituntil state == 6 200
+cheat winmatch
+wait 2
+wait 25
+press A
+waituntil state == 6 200
+cheat winmatch
+wait 2
+wait 25
+press A
+waituntil state == 6 200
+cheat winmatch
+wait 2
+wait 25
+press A
+waituntil state == 6 200
+cheat winmatch
+wait 2
+wait 25
+press A
+waituntil state == 6 200
+cheat winmatch
+wait 2
+expect state == 12
+expect goals == 0
+expect save_champs == 0

@@ -1,0 +1,30 @@
+# HOOPLA: ledges are one-way: you jump up through them and land on top;
+# DOWN+B drops through. Moving ledges carry whoever stands on them.
+seed 17
+game hoopla
+wait 30
+cheat match 0 1 0
+cheat dummy
+cheat go
+cheat noring
+cheat noledges
+cheat pos 1 300 152
+cheat ledge 20 120 60
+wait 2
+hold B 16
+waituntil f0_ground == 0 120
+expect f0_y == 106
+press DOWN B
+waituntil f0_ground == 100 120
+# THE FERRY: the ledge moves and takes her along
+cheat match 0 1 5
+cheat dummy
+cheat go
+cheat noring
+cheat pos 0 60 100
+wait 4
+expect f0_ground == 0
+expect f0_x < 60
+wait 30
+expect f0_ground == 0
+expect f0_x > 66

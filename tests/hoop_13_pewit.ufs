@@ -1,0 +1,56 @@
+# HOOPLA: PEWIT. B jumps, then every press in the air is a flap: tap it and
+# she climbs as high as she likes. A throws a horseshoe in an arc, UP+A a
+# higher one. A lunge in the air leaves her hovering.
+seed 13
+game hoopla
+wait 30
+cheat match 4 1 0
+cheat dummy
+cheat go
+cheat noring
+cheat noledges
+cheat pos 1 300 152
+wait 2
+press B
+expect f0_vy < 0
+wait 6
+press B
+wait 3
+press B
+wait 3
+press B
+wait 3
+press B
+wait 3
+press B
+wait 3
+press B
+wait 3
+press B
+wait 3
+press B
+wait 3
+press B
+wait 3
+expect f0_y < 60
+waituntil f0_ground == 100 300
+# the horseshoe arcs up and down
+press A
+expect shots6 == 1
+expect shot_vy < 0
+wait 30
+expect shot_vy > 0
+waituntil shots6 == 0 120
+press UP A
+expect shot_vy < -900
+waituntil shots6 == 0 200
+# a lunge in the air: then she hovers
+press B
+wait 4
+press DOWN A
+expect f0_melee == 1
+expect f0_hover > 0
+waituntil f0_melee == 0 30
+wait 4
+expect f0_vy <= 100
+expect f0_ground == -1

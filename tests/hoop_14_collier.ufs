@@ -1,0 +1,59 @@
+# HOOPLA: COLLIER. B calls the cage lift: it goes straight up and stops
+# level with the first ledge; DOWN+B takes it down; B on the way gets off
+# with some of its speed. A: a charge on a 2 s fuse; held, the fuse burns
+# twice as fast and the charge shields him from shots in front.
+seed 14
+game hoopla
+wait 30
+cheat match 5 1 0
+cheat dummy
+cheat go
+cheat noring
+cheat noledges
+cheat pos 1 300 152
+cheat ledge 20 100 60
+wait 2
+press B
+expect f0_lift == -1
+waituntil f0_lift == 0 60
+expect f0_ground == 0
+expect f0_y == 86
+# down again
+press DOWN B
+expect f0_lift == 1
+waituntil f0_ground == 100 80
+expect f0_lift == 0
+# off half way, still going up
+press B
+wait 6
+press B
+expect f0_lift == 0
+expect f0_vy < 0
+waituntil f0_ground == 100 80
+# a charge: thrown, it goes off after its fuse
+cheat face 0 1
+press A
+expect shots7 == 1
+waituntil blasts > 0 130
+expect shots7 == 0
+# held: the fuse burns twice as fast, and it shields him
+waituntil blasts == 0 60
+hold A
+wait 2
+expect f0_held_bomb >= 0
+expect shot_held == 1
+expect shot_fuse <= 117
+cheat shot 0 1 70 143 -1024 0
+wait 4
+expect shots0 == 0
+expect f0_rings == 1
+release
+wait 1
+expect shot_held == 0
+expect shot_vx > 0
+waituntil blasts > 0 120
+# UP+A: thrown high
+waituntil blasts == 0 60
+press UP A
+wait 1
+expect shot_vy < -900

@@ -1,0 +1,46 @@
+# HOOPLA: ASTRA. B held fires her rocket pack, harder the longer it burns;
+# she keeps rising a little when it stops. A fires a ray down and ahead that
+# bounces once; UP+A up and ahead. Her kick in the air goes down and ahead.
+seed 15
+game hoopla
+wait 30
+cheat match 6 1 0
+cheat dummy
+cheat go
+cheat noring
+cheat noledges
+cheat pos 1 300 152
+wait 2
+hold B 12
+expect f0_vy < -300
+expect f0_y < 136
+hold B 20
+expect f0_vy < -800
+wait 1
+expect f0_vy < 0
+expect f0_thrust == 0
+waituntil f0_ground == 100 200
+# the ray: down and ahead, one bounce off the floor, gone at the next
+cheat face 0 1
+cheat ledge 20 100 60
+cheat noledges
+cheat ledge 20 100 60
+cheat pos 0 40 100
+wait 2
+press A 1
+expect shots8 == 1
+expect shot_vx > 0
+expect shot_vy > 0
+waituntil shot_bounces == 1 30
+expect shot_vy < 0
+expect shot_vx > 0
+waituntil shots8 == 0 120
+press UP A
+expect shot_vy < 0
+waituntil shots8 == 0 120
+# the kick, in the air: down and ahead
+hold B 16
+press DOWN A
+expect f0_melee == 1
+expect f0_vy > 0
+expect f0_vx > 0

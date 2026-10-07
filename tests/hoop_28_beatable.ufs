@@ -1,0 +1,33 @@
+# HOOPLA: the CPU is beatable and can win. The demo player (the CPU's own
+# brain on its sharpest setting) beats the standard CPU with each of the
+# eight, and the standard CPU takes a match off it too.
+seed 28
+game hoopla
+wait 30
+cheat match 0 3 0
+botuntil winner >= 0 7200
+expect winner == 0
+cheat match 1 2 7
+botuntil winner >= 0 7200
+expect winner == 0
+cheat match 2 3 2
+botuntil winner >= 0 7200
+expect winner == 0
+cheat match 3 6 9
+botuntil winner >= 0 7200
+expect winner == 0
+cheat match 4 7 4
+botuntil winner >= 0 7200
+expect winner == 0
+cheat match 5 0 11
+botuntil winner >= 0 7200
+expect winner == 0
+cheat match 6 1 6
+botuntil winner >= 0 7200
+expect winner == 0
+cheat match 7 2 1
+botuntil winner >= 0 7200
+expect winner == 0
+cheat match 0 1 1
+botuntil winner >= 0 7200
+expect winner == 1
