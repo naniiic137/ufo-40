@@ -47,3 +47,23 @@ waituntil shots2 == 0 200
 press DOWN A
 expect shots2 == 1
 expect f0_melee == 0
+# mid-swing he blocks for free: a lunge into him leaves the lunger dizzy,
+# and his swing then catches the dizzy one for two hoops
+cheat match 0 1 0
+cheat dummy
+cheat go
+cheat noring
+cheat noledges
+cheat ledge 90 70 60
+cheat pos 1 60 152
+cheat pos 0 20 152
+cheat rings 0 3
+wait 2
+hold P2RIGHT P2B 2
+waituntil f1_claw == 2 40
+expect f1_swing > 0
+cheat beside 0 1
+press DOWN A 1
+expect f1_rings == 1
+expect f1_inv == 0
+expect f0_rings == 1

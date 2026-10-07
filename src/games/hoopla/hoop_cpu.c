@@ -185,7 +185,7 @@ static void climb(int who, Brain *b, int tx, int ty, int *out) {
         if (on_ground(f) && b->hold_b == 0 && f->charge_t == 0 && !(b->last & HP_B)) {
             int h = -dy + 10;
             int v = hoop_isqrt((int64_t)2 * HOOP_GRAV * h * HQ);
-            b->hold_b = iclamp((v - 560) / 18 + 4, 2, HOOP_GLOW_T - 2);
+            b->hold_b = iclamp((v - 560) / 23 + 4, 2, HOOP_GLOW_T - 2);
         }
         break;
     case HF_BRISTLE:
@@ -233,16 +233,12 @@ static void climb(int who, Brain *b, int tx, int ty, int *out) {
 }
 
 /* Moss: turn over to rise, walk off the end of any ledge he's stuck under,
- * turn back once above. A CPU Moss muddles it now and then. */
+ * turn back once above. (A CPU Moss's muddles are in hoop_brain_think.) */
 static void moss_nav(int who, Brain *b, int tx, int ty, int *out) {
     Match *m = &hg.m;
     Fighter *f = &m->f[who];
     int cx = fcx(f), cy = fcy(f), dy = ty - cy;
     bool sloppy = b->skill != SK_ACE;
-    if (sloppy && b->mistake_t > 0) {
-        if (b->mistake_t % 24 == 0) tap(b, out, HP_B);
-        return;
-    }
     if (f->g > 0) {
         if (dy < -12) {
             if ((on_ground(f) || f->vy >= 0) && (!sloppy || chance(35))) tap(b, out, HP_B);
@@ -276,7 +272,7 @@ static void moss_nav(int who, Brain *b, int tx, int ty, int *out) {
 static int reach_of(int kind) {
     switch (kind) {
     case HF_TANSY: return 68;
-    case HF_GULP: return 80;
+    case HF_GULP: return 120;
     case HF_BRISTLE: return 80;
     case HF_CLAMP: return 86;
     default: return 999;
@@ -455,11 +451,28 @@ int hoop_brain_think(int who) {
     if (f->kind == HF_MOSS && b->skill != SK_ACE) react = react * 3 / 2;
     if (b->think_t > 0) b->think_t--;
     else b->think_t = react;
+    /* a CPU Moss now and then turns his gravity over for no reason and then
+     * just stays where he ends up for 1 to 2.5 s, shooting if he can */
+    bool muddled = f->kind == HF_MOSS && b->skill != SK_ACE;
     if (b->mistake_t > 0) b->mistake_t--;
-    else if (f->kind == HF_MOSS && b->skill != SK_ACE && chance(2)) b->mistake_t = 50;
+    else if (muddled && b->think_t == 0 && chance(8)) {
+        b->mistake_t = rng_range(&m->rng, 60, 150);
+        b->mistake_flip = 1;
+    }
 
     b->foe = pick_foe(who);
     const Fighter *o = &m->f[b->foe];
+    if (muddled && b->mistake_t > 0) {
+        if (b->mistake_flip && !(b->last & HP_B)) {
+            out |= HP_B;
+            b->mistake_flip = 0;
+        }
+        fight(who, b, o, &out);
+        out &= ~(HP_L | HP_R | HP_D);
+        b->hold_b = 0;
+        b->last = out;
+        return out;
+    }
     int cx = fcx(f), cy = fcy(f);
 
     /* ---- what to do: every fresh look */

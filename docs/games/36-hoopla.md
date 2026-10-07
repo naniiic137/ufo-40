@@ -30,7 +30,7 @@ order and colours are drawn at random each match [W]; so are ours
 | Endings | one per fighter, a note after the second-colour Donkus's [W], [MH-META] | one per fighter (ours), a note after GULP's in his second colours |
 | Goals | 3 [W], [GGC] | the same 3 |
 | Stats | Characters Used, Least Rematches Used to Win [W] | FIGHTERS USED, CHAMPIONS and FEWEST REMATCHES on the title |
-| Tunes | not documented | 9 loops and 3 jingles, all ours |
+| Tunes | the select theme rearranges Kick Club's boss music [TVT] | 9 loops and 3 jingles, all ours; the select and ladder theme rearranges HAT TRICK's boss tune "Cup Final" (cartridge 11, our Kick Club tribute) |
 
 ## Mechanics checklist
 
@@ -48,11 +48,11 @@ order and colours are drawn at random each match [W]; so are ours
 | Dizzy | a lunge into a block leaves the attacker dizzy; a hit on a dizzy fighter knocks out two | [W] | hoop_05, hoop_07 |
 | Safe after a hit | a fighter can't be hit again for a moment, but can still take hoops | [GUIDE] | hoop_04 |
 | The triangle | the lunge beats shots (it goes through them), shots beat the block, the block beats the lunge | [W], [TVT] | hoop_07, hoop_08 |
-| When shots meet | most pass; GULP's darts knock other shots out, the fast dart most of all; only COLLIER's charge beats a dart, and a charge in hand shields him | [W] | hoop_14, hoop_18 |
+| When shots meet | most pass (GULP's aimed dart too); GULP's fast dart knocks every other shot out except COLLIER's charge ("Donkus's alt-fire darts outprioritize all projectiles except Gilroy's bombs"), and a charge in hand shields him | [W] | hoop_14, hoop_18 |
 | TANSY | double jump of variable height; the second is a spin that turns any knife (hers too) away diagonally; the knife bounces off two walls and can cut her on the way back; the alt flies a little and drops, and can't cut her | [W] | hoop_09 |
-| CLAMP | a claw line that bites ledges and the ceiling, reels in and swings; a diagonal line's first swing is a melee; the claw takes hoops it passes; B again lets go with a hop; a cog out straight and back below (the alt: back above), hitting both ways | [W], [STEAM-ALL] | hoop_10 |
+| CLAMP | a claw line that bites ledges and the ceiling, reels in and swings; a diagonal line's first swing is a melee; the claw takes hoops it passes; B again lets go with a hop; mid-swing he blocks for free (a lunge into him leaves the lunger dizzy), and DOWN blocks while hanging; a cog out straight and back below (the alt: back above), hitting both ways | [W], [STEAM-ALL], [GUIDE] | hoop_10 |
 | MOSS | turns his own gravity over at will and walks on the ceiling and under ledges; left and right stay as they are unless the option turns them over too; a rocket that curves a little with his gravity and bursts on anything but a ledge; the alt doesn't burst | [W], [MM] | hoop_11 |
-| BRISTLE | spring traps that arm in 1 s; armed, her own throws her high and anyone else's foot (another BRISTLE's too) sets it off on them; three quills, short, up on the ground and down in the air, stopping her in the air; a long lunge that ignores gravity | [W] | hoop_12 |
+| BRISTLE | spring traps that arm in 1 s; armed, her own throws her high and anyone else's foot (another BRISTLE's too) sets it off on them; three quills, short, up on the ground and down in the air, stopping her in the air; a long lunge that ignores gravity; no jump (the traps are her only Button 2 move [W]; TV Tropes' Rocket Jump) | [W], [TVT] | hoop_12 |
 | PEWIT | jumps of variable height on the ground, flaps in the air for as long as you like; a horseshoe in an arc, the alt higher; a lunge in the air leaves her hovering | [W], [GUIDE] | hoop_13 |
 | COLLIER | a lift straight up or down that stops level with ledges; getting off keeps some speed; a charge in an arc that goes off on a fighter or after 2 s; held, the fuse burns faster and the charge shields him in front; the alt thrown up | [W] | hoop_14 |
 | ASTRA | a rocket pack that pushes harder the longer it burns and leaves some speed when it stops; a ray down and ahead that bounces once and is gone at the next surface, the alt up and ahead; a kick down and ahead in the air | [W], [GUIDE] | hoop_15 |
@@ -65,7 +65,7 @@ order and colours are drawn at random each match [W]; so are ours
 | The old rules | the hidden code for the scrapped design: no hoops, four health each | [MH-CHEATS], [LZ] | hoop_23 |
 | The demo | the title plays a CPU match when left alone; the twentieth time it shows a note | [MH-META] | hoop_24 |
 | Endings | one per fighter, and a note after GULP's in his second colours | [W], [MH-META] | hoop_26 |
-| The CPU | plays every fighter's way of moving and fights; it is muddled by MOSS's gravity | [STEAM-ALL] | hoop_27, hoop_28 |
+| The CPU | plays every fighter's way of moving and fights; as MOSS it now and then turns his gravity over and then just stays where it ends up for a while ("It'd invert gravity and just live where it ended up for a while") | [STEAM-ALL] | hoop_27, hoop_28 |
 | Goals | gift: win a Draft Battle; gold: win the tournament; cherry: win it with 4 different fighters, kept across sessions; all on standard hoops | [W], [GGC], [STEAM-SAVES] | hoop_25, hoop_s1 … s3 |
 | Save | the options, the champions (and in which colours), the fewest rematches and the counts; no run is saved mid-way | [STEAM-SAVES] | hoop_02, hoop_25 |
 
@@ -77,10 +77,15 @@ order and colours are drawn at random each match [W]; so are ours
   frame; ASTRA's pack pushes from 0.27 to 0.63 px a frame² over half a
   second, top speed 3.5 px a frame; COLLIER's lift moves 2 px a frame and
   he keeps 60 % of it when he steps off; GULP's leap runs from about 10 px
-  (a tap) to about 90 px (a full second); BRISTLE's spring throws her about
+  (a tap) to about 130 px (a full second), floor to ceiling, as TV Tropes
+  says Donkus's does ("from the bottom of the stage straight to the top"
+  [TVT]); BRISTLE's spring throws her about
   90 px; CLAMP's claw flies 110 px at 6 px a frame and reels in at 0.8 px
   a frame.
-- **Times:** a hit stuns for 0.3 s and keeps you safe for 1.2 s; dizzy lasts
+- **Times:** a hit stuns for 0.6 s and keeps you safe for 0.73 s, only just
+  longer, so a hit timed to the end of the safe time catches a fighter who
+  has barely got going again: the cherry guide's stun lock ("Get used to the
+  time it takes enemies to lose iframes to stun lock them" [GUIDE]); dizzy lasts
   1.3 s; a new hoop burns for 2.5 s; a knocked-out hoop can't be caught for
   the first 0.23 s (so the one who dropped it can't just stand there); the
   lunge lasts 0.23 s (BRISTLE's 0.37 s) and can be used every 0.57 s.
@@ -104,19 +109,29 @@ order and colours are drawn at random each match [W]; so are ours
   doesn't. DOWN + B is the lift going down (from a ledge, through it).
 - **GULP's sight** swings at 2.5° a frame; a quick tap throws straight
   ahead. While he charges a leap he can't walk.
-- **When shots meet** the darts and charges win as the wiki's priority tip
-  says; equal ranks knock each other out.
+- **When shots meet** the fast dart and the charge win as the wiki's
+  priority tip says; equal ranks knock each other out.
+- **How many shots at once, and how often** (our numbers): TANSY 2 knives
+  (a throw every 0.37 s), CLAMP 1 cog (0.33 s), MOSS 1 rocket (0.5 s),
+  PEWIT 2 horseshoes (0.47 s), ASTRA 2 rays (0.5 s), COLLIER 2 charges
+  (0.4 s), BRISTLE's quills every 0.43 s and at most 3 traps (setting a
+  fourth removes the oldest), GULP's darts every 0.43 s (the fast dart
+  0.5 s).
 - **Blocking** works from either side.
 - **The draft pool** is TV Tropes' seven; the CPU drafts by a list of its own
   (carelessly on CALM).
-- **Exhibition's random pick** keeps the colours chosen.
+- **The select's colours:** UP or DOWN swaps a fighter's colours when it is
+  let go; if B was pressed while it was held, that was the random pick
+  instead and the colours stay as they were.
 - **The old rules code** is our own button code on the title (DOWN UP DOWN
   UP LEFT LEFT RIGHT RIGHT), since UFO 40 has no terminal; under it the
   goals don't count, as with UFO 50's cheats.
 - **The demo** starts after 12 s alone on the title.
-- **The CPU's MOSS weakness:** a CPU MOSS thinks half again as slowly, turns
-  over late and now and then at random. Whether the CPU gets harder over a
-  tournament isn't known; ours doesn't.
+- **The CPU's MOSS weakness:** a CPU MOSS thinks half again as slowly and
+  turns over late; now and then (about one look in twelve) it turns his
+  gravity over for no reason and then stands where it ends up for 1 to 2.5
+  s, still shooting if it can [STEAM-ALL]. Whether the CPU gets harder over
+  a tournament isn't known; ours doesn't.
 
 ## Not confirmed
 
@@ -128,7 +143,6 @@ order and colours are drawn at random each match [W]; so are ours
 | The rematch prompt | REMATCH or GIVE UP, both on A | the manual names both, not the buttons |
 | DOWN + B for MOSS | turns him over (no drop) | not described |
 | DOWN + A for CLAMP and GULP | their weapon | the wiki only says their melee is on Button 2 |
-| BRISTLE has no jump | B is only her traps | not stated, but the wiki lists no other maneuver |
 | The old rules code | DOWN UP DOWN UP LEFT LEFT RIGHT RIGHT on the title | the original's is a terminal code |
 
 ## What is ours
@@ -136,7 +150,7 @@ order and colours are drawn at random each match [W]; so are ours
 - **Name:** HOOPLA (1988, Beamdown Softworks), ring nights in the Glass Pit
   (BRAVADO's pit, as Hyper Contender shares Overbold's pits).
 - **Fighters:** TANSY the knife juggler, CLAMP the dock crane, MOSS the cave
-  hermit, BRISTLE the badger mother, PEWIT the lapwing girl, COLLIER the pit
+  hermit, BRISTLE the badger trapper, PEWIT the lapwing girl, COLLIER the pit
   miner, ASTRA the star champion and GULP the bullfrog; their looks, both
   colours, their weapons (knife, cog, rocket, quills, horseshoe, charge,
   ray, dart) and their endings.
@@ -149,7 +163,9 @@ order and colours are drawn at random each match [W]; so are ours
   (credits), and the jingles "Five Hoops", "Knocked Loose" and "Last One
   Standing".
 - **Words:** every label, the endings, the night porter's note and the goal
-  lines.
+  lines. The endings share no plot with the originals': they are new
+  stories (a swimming hole in an old seam, a fighting school, a chapel
+  bell, a stage on a lily pad, traps for the valley's henhouses...).
 
 ## Additions: none
 

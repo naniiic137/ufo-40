@@ -100,7 +100,7 @@ static const char *const TOPS[HOOP_FIGHTERS][2] = {
      "kPkpPPPPpkk."
      "kk.kPPPPk..."
      "...kpppPk..."},
-    { /* BRISTLE, a badger mother */
+    { /* BRISTLE, a badger who sets traps */
      "...k....k..."
      "..kPk..kPk.."
      "..kPkkkkPk.."

@@ -18,7 +18,7 @@ const HoopFighterDef HOOP_DEF[HOOP_FIGHTERS] = {
     {"TANSY", "KNIFE JUGGLER", "JUMP, AND A SPIN JUMP", "KNIFE: OFF TWO WALLS", C_RED, C_CREAM, C_BLUE, C_ICE, 3},
     {"CLAMP", "DOCK CRANE", "CLAW LINE AND SWING", "COG THAT COMES BACK", C_AMBER, C_SLATE, C_LIME, C_SLATE, 5},
     {"MOSS", "CAVE HERMIT", "TURN GRAVITY OVER", "ROCKET THAT BURSTS", C_LEAF, C_TAN, C_PURPLE, C_TAN, 6},
-    {"BRISTLE", "BADGER MOTHER", "SPRING TRAPS", "THREE QUILLS", C_GREY, C_WHITE, C_BROWN, C_CREAM, 2},
+    {"BRISTLE", "BADGER TRAPPER", "SPRING TRAPS", "THREE QUILLS", C_GREY, C_WHITE, C_BROWN, C_CREAM, 2},
     {"PEWIT", "LAPWING GIRL", "JUMP, THEN FLAP", "HORSESHOE IN AN ARC", C_TEAL, C_WHITE, C_PINK, C_WHITE, 1},
     {"COLLIER", "PIT MINER", "CAGE LIFT", "CHARGE ON A FUSE", C_DUSK, C_YELLOW, C_MAROON, C_YELLOW, 4},
     {"ASTRA", "STAR CHAMPION", "ROCKET PACK", "RAY THAT BOUNCES", C_VIOLET, C_CYAN, C_ORANGE, C_CYAN, 0},
@@ -29,11 +29,11 @@ static const char *const ENDINGS[HOOP_FIGHTERS] = {
     "THE PURSE PAYS FOR A TENT OF HER OWN. TANSY JUGGLES FOR NOBODY'S DEBTS NOW, AND THE CROWDS FOLLOW HER FROM TOWN TO TOWN.",
     "CLAMP BUYS BACK HIS OLD DOCK AND HANGS THE BELT FROM HIS JIB. THE GULLS HAVE NEVER SEEN A CRANE SO PLEASED WITH ITSELF.",
     "MOSS SPENDS THE WHOLE PURSE ON SOFT BOOTS, SO HE CAN WALK ON THE CAVE ROOF WITHOUT WAKING THE BATS. MONEY WELL SPENT.",
-    "BRISTLE WALKS HOME WITH THE PURSE IN HER TEETH. HER FIVE CUBS WILL HAVE A WINTER SETT WITH A REAL DOOR, AND A STORY.",
-    "PEWIT PAYS OFF THE MARSH FARM AND THE LAPWINGS STAY. TONIGHT THE WHOLE FLOCK DANCES IN THE REED BEDS TILL DAWN.",
-    "COLLIER PAYS THE PIT BOSSES EVERY COIN HE OWES, AND HIS BROTHER WALKS OUT OF THE DEEP SEAM INTO DAYLIGHT AT LAST.",
-    "ASTRA TAKES THE BELT BACK TO HER STAR. SHE WONDERS, ON THE WAY, WHETHER ANY PIT ANYWHERE CAN STILL SURPRISE HER.",
-    "GULP CARRIES THE PURSE HOME TO THE POND. ALL NINE OF HIS COUSINS AGREE IT WAS THE LOUDEST NIGHT OF THEIR LIVES.",
+    "BRISTLE SPENDS THE PURSE ON A FORGE AND MAKES SPRING TRAPS FOR EVERY HENHOUSE IN THE VALLEY. THE FOXES HAVE TAKEN UP GARDENING.",
+    "PEWIT BUYS A BRASS BELL FOR THE OLD MARSH CHAPEL AND RINGS IT HERSELF, FLAPPING ROUND THE TOWER TILL EVERY HERON IN THE REEDS IS AWAKE.",
+    "COLLIER BUYS THE SEAM HE DUG FOR TWENTY YEARS, FLOODS IT AND OPENS IT AS A SWIMMING HOLE. THE FIRST DIVE IS HIS, LAMP HELMET AND ALL.",
+    "ASTRA OPENS A FIGHTING SCHOOL ON A MOON NEARBY. LESSON ONE IS THE ROCKET PACK; LESSON TWO IS LANDING. MOST PUPILS LEAVE AFTER LESSON ONE.",
+    "GULP HAS A STAGE BUILT ON HIS LILY PAD, WITH LAMPS AND A RED CURTAIN. EVERY NIGHT HE SINGS TO THE POND, AND THE POND CLAPS, MOSTLY SO HE'LL STOP.",
 };
 
 const char *hoop_ending_text(int kind) { return ENDINGS[iclamp(kind, 0, HOOP_FIGHTERS - 1)]; }
@@ -448,9 +448,15 @@ static void select_side(int s, bool (*p)(int), bool (*h)(int), bool (*rep)(int))
     }
     if (rep(BTN_LEFT)) { hg.cur[s] = (hg.cur[s] + HOOP_FIGHTERS - 1) % HOOP_FIGHTERS; sfx_play_name("ui_move"); }
     if (rep(BTN_RIGHT)) { hg.cur[s] = (hg.cur[s] + 1) % HOOP_FIGHTERS; sfx_play_name("ui_move"); }
-    if (p(BTN_UP) || p(BTN_DOWN)) { hg.pal[s] ^= 1; sfx_play_name("ui_move"); }
-    if (p(BTN_B) && (h(BTN_UP) || h(BTN_DOWN))) {
+    /* UP or DOWN swaps the colours when let go; with B pressed meanwhile it
+     * was the random pick instead, and the colours stay */
+    bool ud = h(BTN_UP) || h(BTN_DOWN);
+    if (ud && !hg.ud_held[s]) hg.ud_clean[s] = true;
+    if (!ud && hg.ud_held[s] && hg.ud_clean[s]) { hg.pal[s] ^= 1; sfx_play_name("ui_move"); }
+    hg.ud_held[s] = ud;
+    if (p(BTN_B) && ud) {
         /* UP or DOWN with B: anyone at random */
+        hg.ud_clean[s] = false;
         hg.cur[s] = rng_range(&hoop_rng, 0, HOOP_FIGHTERS - 1);
         hg.pick[s] = hg.cur[s];
         hg.picked[s] = true;
@@ -911,6 +917,16 @@ static int hoop_cheat(const char *cmd) {
         f->x = (b - HOOP_FW / 2) * HQ;
         f->y = (c - HOOP_FH) * HQ;
         f->vx = f->vy = 0;
+        f->ground = GND_AIR;
+        return 1;
+    }
+    if (sscanf(cmd, "beside %d %d", &a, &b) == 2) {
+        /* fighter a just to the left of fighter b, facing it */
+        Fighter *f = &m->f[iclamp(a, 0, 2)], *g = &m->f[iclamp(b, 0, 2)];
+        f->x = g->x - (HOOP_FW + 2) * HQ;
+        f->y = g->y;
+        f->vx = f->vy = 0;
+        f->face = 1;
         f->ground = GND_AIR;
         return 1;
     }

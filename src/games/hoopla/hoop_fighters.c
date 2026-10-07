@@ -35,7 +35,7 @@
 /* each shot's box (w, h) and how it ranks when two meet */
 static const uint8_t SHOT_W[SH_KINDS] = {8, 6, 8, 8, 8, 4, 7, 6, 6, 7, 8};
 static const uint8_t SHOT_H[SH_KINDS] = {3, 3, 8, 4, 4, 4, 6, 6, 6, 3, 3};
-static const uint8_t SHOT_PRIO[SH_KINDS] = {0, 0, 0, 0, 0, 0, 0, 3, 0, 1, 2};
+static const uint8_t SHOT_PRIO[SH_KINDS] = {0, 0, 0, 0, 0, 0, 0, 3, 0, 0, 2};
 
 static bool grounded(const Fighter *f) { return f->ground != GND_AIR; }
 
@@ -247,7 +247,7 @@ static void moves(int i) {
         } else if (!HELD(f, HP_B) && f->charge_t > 0) {
             /* the leap: higher for a longer hold, leaned by the pad */
             int c = imin(f->charge_t, HOOP_GLOW_T);
-            int v = 560 + c * 18;
+            int v = 560 + c * 23; /* a full second's leap: floor to ceiling */
             int lean = (HELD(f, HP_R) ? 1 : 0) - (HELD(f, HP_L) ? 1 : 0);
             f->glow_jump = f->charge_t >= HOOP_GLOW_T;
             f->charge_t = 0;

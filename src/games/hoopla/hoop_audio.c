@@ -31,19 +31,23 @@ static const char TITLE_BASS[] =
     Q4("o2 f", "o3 c", "o2 f", "o3 c") Q4("o2 a", "o3 e", "o2 a", "o3 e");
 static const char TITLE_DRUM[] = "[" DR2 DR2 "]8";
 
-/* "Pick Your Corner" - the select and the ladder, C major */
+/* "Pick Your Corner" - the select and the ladder: HAT TRICK's boss tune
+ * "Cup Final" (cartridge 11) taken down to a strut, in brass over a
+ * walking bass, A minor. (Hyper Contender's select theme rearranges Kick
+ * Club's boss music; this is the same nod between our two tributes.) */
 static const char SEL_LEAD[] =
-    "@14 v11 q7"
-    "| o5 e4 g4 c4 g4 | o5 f4 a4 g2 | o5 e8 f8 g8 a8 g4 e4 | o5 d2 g2"
-    "| o5 e4 g4 o6 c4 o5 b4 | o5 a4 f4 d4 f4 | o5 g8 a8 g8 f8 e4 d4 | o5 c2 r2";
+    "@23 v11 q7"
+    "| o5 a4 o6 c8 o5 a8 e4 g+8 a8 | o5 a4 o6 d8 c8 o5 b4 a8 e8 | o5 f4 a8 f8 o6 c4 o5 e8 f8 | o5 e8 g+8 b8 o6 e8 d4 o5 b4"
+    "| o5 a4 o6 c8 o5 a8 e8 a8 g+8 a8 | o6 c8 d8 e4 o5 a8 o6 c8 o5 b4 | o5 f8 a8 o6 c8 d8 e4 d8 c8 | o5 b4 g+4 a2";
 static const char SEL_COMP[] =
-    "v6 q3 " OFFB("@16 o4", "c") OFFB("@16 o4", "f") OFFB("@16 o4", "c") OFFB("@16 o3", "g")
-    OFFB("@16 o4", "c") OFFB("@16 o4", "f") OFFB("@16 o3", "g") OFFB("@16 o4", "c");
+    "@2 v5 q5 " ARP("o4 a", "o5 c", "e", "c") ARP("o4 a", "o5 d", "f", "d") ARP("o4 f", "a", "o5 c", "o4 a")
+    ARP("o4 e", "g+", "b", "g+") ARP("o4 a", "o5 c", "e", "c") ARP("o4 a", "o5 c", "e", "c")
+    ARP("o4 f", "a", "o5 d", "o4 a") ARP("o4 e", "g+", "b", "g+");
 static const char SEL_BASS[] =
-    "@6 v12 q6 " Q4("o2 c", "e", "g", "e") Q4("o2 f", "a", "o3 c", "o2 a") Q4("o2 c", "e", "g", "e")
-    Q4("o2 g", "b", "o3 d", "o2 b") Q4("o2 c", "e", "g", "e") Q4("o2 f", "a", "o3 c", "o2 a")
-    Q4("o2 g", "b", "o3 d", "o2 b") Q4("o2 c", "e", "g", "e");
-static const char SEL_DRUM[] = "[@9 v4 o8 c8 @9 v3 o8 c8 @11 v6 o6 c8 @9 v3 o8 c8]16";
+    "@6 v12 q6 " Q4("o2 a", "o3 c", "e", "c") Q4("o2 d", "f", "a", "f") Q4("o2 f", "a", "o3 c", "o2 a")
+    Q4("o2 e", "g+", "b", "g+") Q4("o2 a", "o3 c", "e", "c") Q4("o2 a", "g", "f", "e")
+    Q4("o2 d", "f", "a", "f") Q4("o2 e", "g+", "b", "e");
+static const char SEL_DRUM[] = "[@13 v9 o2 c8 @9 v4 o8 c16 c16 @11 v7 o6 c8 @9 v4 o8 c16 c16]16";
 
 /* "Glass Pit Brawl" - a match, E minor */
 static const char F1_LEAD[] =

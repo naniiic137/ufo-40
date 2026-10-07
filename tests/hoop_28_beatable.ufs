@@ -10,7 +10,7 @@ expect winner == 0
 cheat match 1 2 7
 botuntil winner >= 0 7200
 expect winner == 0
-cheat match 2 5 2
+cheat match 2 3 2
 botuntil winner >= 0 7200
 expect winner == 0
 cheat match 3 6 9
@@ -28,6 +28,6 @@ expect winner == 0
 cheat match 7 2 1
 botuntil winner >= 0 7200
 expect winner == 0
-cheat match 1 4 5
+cheat match 0 1 1
 botuntil winner >= 0 7200
 expect winner == 1

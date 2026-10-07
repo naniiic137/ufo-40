@@ -36,8 +36,9 @@
 #define HOOP_GRAV 56            /* 0.22 px per frame per frame */
 #define HOOP_MAXFALL 1024
 #define HOOP_WALK 320
-#define HOOP_HURT_T 18          /* knocked back, no control */
-#define HOOP_INV_T 70           /* safe after a hit (hoops can still be grabbed) */
+#define HOOP_HURT_T 36          /* knocked back, no control */
+#define HOOP_INV_T 44           /* safe after a hit (hoops can still be grabbed): only just
+                                 * longer than the stun, so a hit timed to its end stun-locks */
 #define HOOP_DIZZY_T 80         /* a melee that hit a block: dizzy this long */
 #define HOOP_MELEE_T 14         /* the lunge's active frames */
 #define HOOP_MELEE_CD 34
@@ -189,7 +190,7 @@ typedef struct {
     int stuck_t, last_x, last_y;
     int detour;
     int last;                   /* what it held last frame */
-    int plan_mine;
+    int mistake_flip;           /* the muddled turn-over still to press */
     int wp, wpx, wpy;           /* a stepping stone on the way up */
 } Brain;
 
@@ -248,6 +249,7 @@ typedef struct {
     int mode;
     /* select */
     int cur[2], pal[2];
+    bool ud_held[2], ud_clean[2]; /* UP/DOWN: colours swap on letting go, unless B came too */
     bool picked[2];
     int pick[2];
     /* tournament */

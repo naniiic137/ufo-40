@@ -1385,7 +1385,7 @@ the top.
 </p>
 <p align="center">
   <img src="docs/shots/hoopla_select.png" width="320" alt="The fighter select: eight fighters, each with its way to move and its weapon">
-  <img src="docs/shots/hoopla_match.png" width="320" alt="A match: Clamp swings in on his claw line at Astra, a hoop knocked loose and a new one burning">
+  <img src="docs/shots/hoopla_match.png" width="320" alt="A match: Astra on her rocket pack, Clamp on a high ledge, his cog in flight and a new hoop burning">
 </p>
 <p align="center">
   <img src="docs/shots/hoopla_ladder.png" width="320" alt="The tournament ladder: eight matches, the mirror match last">

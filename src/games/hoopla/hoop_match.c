@@ -314,7 +314,9 @@ static void melee_update(void) {
             if (v == a) continue;
             Fighter *t = &m->f[v];
             if (!t->on || !hoop_touch(t, x, y, w, h) || t->inv_t > 0) continue;
-            if (t->blocking) {
+            /* CLAMP mid-swing on his line blocks for free */
+            bool swinging = t->kind == HF_CLAMP && t->claw == 2 && (t->swing_t > 0 || iabs(t->vx) > 160);
+            if (t->blocking || swinging) {
                 /* the block holds and the attacker reels */
                 f->melee_t = 0;
                 f->swing_t = 0;
