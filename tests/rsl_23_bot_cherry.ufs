@@ -1,0 +1,19 @@
+# RESTLESS: the demo player's cherry plan, with real button presses from the
+# title: early in the first half it walks into foes on purpose until it has
+# three deaths, so treasure is richer (any more and the soul rounds turn
+# deadly), then plays the game through, rings the bells it finds to take
+# deaths back, and lays the King to rest with more than 50,000 points.
+seed 7
+game restless
+wait 10
+cheat botplan 1
+botuntil revivals >= 3 30000
+expect half == 0
+expect goals & 1
+botuntil half >= 1 30000
+botuntil half >= 3 60000
+botuntil half >= 5 80000
+botuntil state == 9 40000
+expect won == 1
+expect save_best_won >= 50000
+expect goals == 7

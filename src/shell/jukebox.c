@@ -136,6 +136,12 @@ static const struct { const char *id, *title; } TITLES[] = {
     {"hoop_fight2", "HOOPS IN THE AIR"}, {"hoop_fight3", "LEDGE TO LEDGE"}, {"hoop_mirror", "THE MIRROR MATCH"},
     {"hoop_draft", "SNAKE DRAFT"}, {"hoop_ending", "PURSE IN HAND"}, {"hoop_credits", "UNDER THE LAMPS"},
     {"hoop_win", "FIVE HOOPS"}, {"hoop_lose", "KNOCKED LOOSE"}, {"hoop_champ", "LAST ONE STANDING"},
+    {"rsl_title", "RESTLESS"}, {"rsl_story", "MOSSFOLD BURNS"}, {"rsl_s1a", "GREENWOOD GATE"},
+    {"rsl_s1b", "THE OLD SHRINES"}, {"rsl_s2a", "TOAD WARRENS"}, {"rsl_s2b", "THE SUNKEN COURT"},
+    {"rsl_s3a", "THE HIGH FALLS"}, {"rsl_s3b", "THE HOLLOW CROWN"}, {"rsl_midboss", "SOMETHING IN THE WAY"},
+    {"rsl_boss", "THE HOLLOW HOST"}, {"rsl_special", "HIDDEN HOARD"}, {"rsl_spirit", "THE LOW GLOW"},
+    {"rsl_ending", "LAID TO REST"}, {"rsl_scores", "NAMES IN THE ASH"}, {"rsl_clear", "STAGE CLEAR"},
+    {"rsl_over", "SCATTERED"}, {"rsl_rise", "GRANDMOTHER ASH"},
 };
 
 const char *shell_song_title(int song) {

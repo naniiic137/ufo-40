@@ -1,0 +1,33 @@
+# RESTLESS: traps. A button on the floor fires every spear launcher on its
+# screen, and the spears run foes through as well; rocks shake loose from
+# the ceiling over him and drop; carved faces breathe fire on one clock;
+# lifts carry him over chasms.
+game restless
+wait 5
+cheat half 2
+cheat nospawn
+cheat notimer
+cheat god
+expect launchers == 8
+cheat pos 1100 144
+cheat foe 1 1010 134
+wait 2
+hold RIGHT 26
+release
+waituntil eshots_10 >= 2 20
+waituntil foes_1 == 0 60
+# a rock over his head
+cheat pos 792 144
+waituntil eshots_5 == 1 60
+expect rockfalls == 5
+# the fire faces of the falls
+cheat half 4
+cheat god
+cheat nospawn
+cheat notimer
+expect firewalls == 2
+cheat pos 900 336
+waituntil eshots_7 >= 1 300
+# the lifts of the old shrines
+cheat half 1
+expect lifts == 2

@@ -1,0 +1,79 @@
+# RESTLESS: treasure (pot 100, urn 200, gold jar 500, coin 100, gold hand
+# 1,000, gold beetle 1,000), the moon lily (every foe on screen gone, no
+# drops), the storm charm (a stormcloud worth a gold hand), the egg (Blink
+# the owlet: one hit taken for him; a second egg is 500), and the bell,
+# which calls Grandmother Ash up from below: touch her, one death fewer (at
+# none, 1,000 points).
+game restless
+wait 5
+cheat half 0
+cheat nospawn
+cheat notimer
+cheat pos 100 144
+cheat score 0
+cheat item 1 100 130
+wait 12
+expect score == 100
+cheat item 2 100 130
+wait 12
+expect score == 300
+cheat item 3 100 130
+wait 12
+expect score == 800
+cheat item 4 100 130
+wait 12
+expect score == 900
+cheat item 5 100 130
+wait 12
+expect score == 1900
+cheat item 6 100 130
+wait 12
+expect score == 2900
+# the lily: foes gone, nothing dropped
+cheat foe 1 180 134
+cheat foe 2 220 134
+cheat foe 1 250 134
+wait 2
+expect foes == 3
+cheat item 8 100 130
+wait 12
+expect foes == 0
+expect items == 0
+expect kills == 3
+# the charm: a stormcloud comes; beaten, a gold hand
+cheat item 9 100 130
+wait 12
+expect foes_19 == 1
+cheat killfoe 0
+expect foes_19 == 0
+expect items_5 == 1
+cheat clearitems
+# the egg: Blink hatches; a second one is 500
+cheat item 10 100 130
+wait 12
+expect owl == 1
+cheat score 0
+cheat item 10 100 130
+wait 12
+expect score == 500
+# Blink takes a hit and leaves, waving a white flag
+cheat hurt
+expect owl == 0
+expect owl_flag > 0
+expect state == 2
+expect deaths == 1
+expect inv > 0
+# the bell: Grandmother Ash rises; one death fewer
+cheat deaths 3
+cheat item 11 100 130
+wait 12
+expect items_14 == 1
+waituntil deaths == 2 400
+expect items_14 == 0
+# at no deaths she is worth 1,000
+cheat deaths 0
+cheat score 0
+cheat item 11 100 130
+wait 12
+waituntil score == 1000 400
+expect deaths == 0

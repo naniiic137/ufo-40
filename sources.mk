@@ -273,6 +273,17 @@ CORE_SRC += src/games/hoopla/hoop_bot.c
 CORE_SRC += src/games/hoopla/hoop_draw.c
 CORE_SRC += src/games/hoopla/hoop_art.c
 CORE_SRC += src/games/hoopla/hoop_audio.c
+CORE_SRC += src/games/restless/rsl.c
+CORE_SRC += src/games/restless/rsl_world.c
+CORE_SRC += src/games/restless/rsl_foes.c
+CORE_SRC += src/games/restless/rsl_boss.c
+CORE_SRC += src/games/restless/rsl_items.c
+CORE_SRC += src/games/restless/rsl_spirit.c
+CORE_SRC += src/games/restless/rsl_levels.c
+CORE_SRC += src/games/restless/rsl_bot.c
+CORE_SRC += src/games/restless/rsl_draw.c
+CORE_SRC += src/games/restless/rsl_art.c
+CORE_SRC += src/games/restless/rsl_audio.c
 
 HEADLESS_SRC += src/platform/headless/main_headless.c
 HEADLESS_SRC += src/platform/headless/imgwrite.c

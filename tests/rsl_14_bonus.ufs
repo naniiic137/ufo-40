@@ -1,0 +1,42 @@
+# RESTLESS: every 5,000 points, the next foe beaten drops a gift; which gift
+# depends on the foe, the mark and the deaths (a lackey at the 5,000 mark
+# with one death leaves an egg; with two deaths, something else).
+game restless
+wait 5
+cheat half 0
+cheat nospawn
+cheat notimer
+cheat god
+cheat score 4900
+cheat addscore 200
+expect bonus_pending == 1
+expect bonus_next == 10000
+cheat foe 1 120 134
+wait 2
+press A
+wait 20
+expect kills == 1
+expect bonus_pending == 0
+expect items_10 == 1
+# the same again with two deaths: a different gift
+cheat clearitems
+cheat deaths 2
+cheat score 4900
+cheat addscore 200
+cheat foe 1 120 134
+wait 30
+press A
+wait 20
+expect bonus_pending == 0
+expect items_10 == 0
+expect items > 0
+# a recorded cell: a tumbler at the 5,000 mark with one death leaves an
+# hourglass
+cheat clearitems
+cheat clear
+cheat deaths 1
+cheat score 4900
+cheat addscore 200
+cheat foe 7 200 60
+cheat killfoe 0
+expect items_7 == 1

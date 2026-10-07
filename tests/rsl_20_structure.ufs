@@ -1,0 +1,33 @@
+# RESTLESS: three stages in two halves, a fight at the end of each half:
+# the Greenwood Gate (11 screens, the Bridgekeeper), the Old Shrines (11,
+# Old Rattle), the Toad Warrens (11, Three-Tongue), the Sunken Court (10,
+# Gust and Gash), the High Falls (10 screens wide and two high, the
+# Rammer), the Hollow Crown (10, the Hollow King). Torches, pits and hidden
+# spots in every stage; all sprites well formed.
+game restless
+wait 5
+expect art_bad == 0
+cheat half 0
+expect map_w == 3520
+expect main_h == 192
+expect boss_kind == 1
+expect torches == 9
+cheat half 1
+expect map_w == 3520
+expect boss_kind == 2
+expect lifts == 2
+cheat half 3
+expect lifts == 1
+cheat half 2
+expect map_w == 3520
+expect boss_kind == 3
+cheat half 3
+expect map_w == 3200
+expect boss_kind == 4
+cheat half 4
+expect map_w == 3200
+expect main_h == 384
+expect boss_kind == 5
+cheat half 5
+expect map_w == 3200
+expect boss_kind == 6

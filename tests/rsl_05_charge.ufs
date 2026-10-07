@@ -1,0 +1,21 @@
+# RESTLESS: a tap shoots at once; holding the button charges, and letting
+# go after 40 frames looses the charged shot (staff: faster and a little
+# farther).
+game restless
+wait 5
+cheat half 0
+cheat nospawn
+cheat notimer
+cheat god
+hold A 30
+release
+wait 1
+expect shots == 0
+expect fired == 1
+hold A 45
+expect charge >= 40
+release
+wait 1
+expect shot0_charged == 1
+expect shot0_vx == 1408
+expect fired == 3

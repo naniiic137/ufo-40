@@ -1,0 +1,44 @@
+# README media: RESTLESS. Everything in play is the demo player's real
+# button presses. The GIF is the start of the Greenwood Gate, just after
+# the opening soul round.
+shotscale 2
+seed 38
+game restless
+wait 60
+shot restless_title
+press A
+wait 40
+press A
+botuntil state == 2 3000
+botplay 60
+gifstart restless 3 1
+botplay 660
+gifstop
+# the Bridgekeeper crouching for a jump
+cheat half 0
+cheat boss
+botplay 33
+shot restless_keeper
+# the toads' holes in the Warrens (the demo player made safe for the picture)
+cheat half 2
+cheat god
+cheat pos 470 144
+botplay 160
+shot restless_warrens
+cheat mortal
+# a log bridge over the High Falls
+cheat half 4
+cheat pos 470 336
+botplay 150
+shot restless_falls
+# the Hollow King, his third eye open
+cheat half 5
+cheat boss
+botplay 240
+shot restless_king
+# the Low Glow after a fifth death: nine pieces, blue flames
+cheat deaths 3
+cheat die
+botuntil state == 4 200
+botplay 260
+shot restless_glow

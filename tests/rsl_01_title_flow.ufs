@@ -1,0 +1,53 @@
+# RESTLESS: the title offers START and HIGH SCORES (UP and DOWN move
+# between them) and B goes back to the library. START opens the story (any
+# button skips it), and the run opens with Old Gaunt already dead: the
+# first soul round has one piece and one guardian. Gathering it raises him
+# on the spot in the first half with 150 on the clock, the staff, no
+# points, and one death on the skulls.
+game restless
+wait 5
+expect state == 0
+expect paused == 0
+expect menu == 0
+press DOWN
+expect menu == 1
+press A
+expect state == 10
+wait 30
+press A
+expect state == 0
+press UP
+expect menu == 0
+press A
+expect state == 1
+wait 30
+press A
+expect state == 4
+expect deaths == 1
+expect pieces == 1
+expect guards == 1
+expect flames == 0
+expect half == 0
+expect score == 0
+expect time == 150
+expect weapon == 0
+expect revivals == 0
+# the pause menu works in the Low Glow too
+press START
+expect paused == 1
+press START
+expect paused == 0
+cheat winspirit
+wait 60
+expect state == 5
+wait 40
+expect state == 2
+expect revivals == 1
+expect inv > 0
+expect px == 72
+expect py == 144
+expect time == 150
+# no saving a run: out to the library and back is the title
+press START
+expect paused == 1
+test_pause 0

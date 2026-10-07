@@ -1,0 +1,8 @@
+# RESTLESS: the title, story, game over, name and score screens' words fit
+# and every character has a glyph; the cartridge's seventeen tunes loop
+# together, channel by channel, and all are in the jukebox under titles.
+game restless
+wait 5
+expect layout == 0
+check_songs
+expect jukebox_missing == 0
