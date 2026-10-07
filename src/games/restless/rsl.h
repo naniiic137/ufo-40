@@ -80,7 +80,7 @@ extern const RslHalf RSL_HALF[RSL_HALVES];
 #define RSL_PW 10                     /* Gaunt's body */
 #define RSL_PH 22
 #define RSL_PH_DUCK 13
-#define RSL_SPIRIT_PICK_INV 40        /* safe frames after each soul piece */
+int rsl_pick_inv(int deaths);        /* safe frames after each soul piece: 40, 25 from 5 deaths */
 #define RSL_HIGH_SCORES 5
 
 /* soul pieces (and guardians) by deaths: 1, 3, 6, 9, 12 */
@@ -201,7 +201,7 @@ typedef struct {
     int t, active, child;             /* active: in view; child: the foe it made */
     int a, b;                         /* a lift's travel, a wall's facing, a torch's contents */
 } RslSpawn;
-enum { TORCH_RANDOM, TORCH_WHEEL, TORCH_EGG };
+enum { TORCH_RANDOM, TORCH_WHEEL, TORCH_EGG, TORCH_JAR, TORCH_URN, TORCH_CLOCK, TORCH_BELL };
 
 typedef struct {
     int x, y, px, py;                 /* fixed point, top-left; previous */
@@ -218,7 +218,7 @@ typedef struct {
 #define RSL_MAX_SPAWNS 256
 #define RSL_MAX_LIFTS 12
 #define RSL_MAX_PIECES 12
-#define RSL_MAX_GUARDS 16
+#define RSL_MAX_GUARDS 40
 
 /* ---- the game's states ------------------------------------------------------ */
 enum {
@@ -253,6 +253,7 @@ typedef struct {
     int x, y, vx, vy;                 /* fixed point */
     int piece;                        /* the piece it guards (-1: a blue flame) */
     int ang, r, speed, t, lunge;
+    int hx, hy;                       /* how far it has roamed from its piece, toward the wisp */
 } RslGuard;
 typedef struct {
     int x, y;                         /* the wisp, fixed point */
@@ -260,6 +261,7 @@ typedef struct {
     RslPiece piece[RSL_MAX_PIECES];
     RslGuard guard[RSL_MAX_GUARDS];
     int nguards;
+    int tx[4], ty[4], tt[4], ntorch;  /* blue torches on the edges (4+ deaths) */
     int inv, t, done_t;
     bool failed;
 } RslSpirit;
@@ -326,6 +328,8 @@ typedef struct {
     int scores_from;                  /* RS_SCORES returns to the title */
     /* testing */
     bool god, no_spawn, no_timer;
+    bool tally_hits;                  /* tests: a hit is counted, not taken */
+    int hits;
     int last_hurt;                    /* what killed him last (foe kind, 100+ shot kind) */
     int bot_t;
     /* small bookkeeping that belongs to the run (so a copy of rg is the whole game) */
@@ -408,6 +412,7 @@ void rsl_kill_drop(int foe_kind, int x, int y, int flags);
 void rsl_spirit_start(void);
 void rsl_spirit_update(void);
 void rsl_guard_step(RslGuard *g, const RslSpirit *s, int deaths);
+void rsl_spirit_torches(RslSpirit *s, int deaths);
 
 /* rsl_bot.c: the demo player, for the tests */
 int rsl_bot_buttons(void);

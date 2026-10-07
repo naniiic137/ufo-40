@@ -276,7 +276,10 @@ static void draw_foe(const RslFoe *f) {
         break;
     case FO_WISP: spr = SPR_WISPFOE; break;
     case FO_TUMBLER: spr = SPR_TUMBLER; break;
-    case FO_TOAD: spr = SPR_TOAD; break;
+    case FO_TOAD:
+        spr = SPR_TOAD;
+        if (f->state == 2 && f->st < 12 && !remap) { pal_swap(map, C_JADE, C_LIME); remap = true; } /* swelling */
+        break;
     case FO_BOULDER: spr = SPR_BOULDER; break;
     case FO_CRAB: spr = f->state == 2 ? SPR_CRAB_FLIP : SPR_CRAB; break;
     case FO_LEAPER: spr = SPR_LEAPER; fl = f->vx < 0 ? SPR_FLIPX : 0; break;
@@ -606,6 +609,11 @@ static void draw_spirit(void) {
         int x = RSL_PX(p->x), y = RSL_PX(p->y);
         gfx_dither_circle(x, y, 6, C_YELLOW, 3 + (t / 6) % 3);
         spr_draw(&rsl_spr[SPR_PIECE], x - 3, y - 3, 0);
+    }
+    for (int k = 0; k < s->ntorch; k++) {
+        int x = RSL_PX(s->tx[k]), y = RSL_PX(s->ty[k]);
+        gfx_rect(x - 3, y, 6, 10, C_SLATE);
+        spr_draw(&rsl_spr[SPR_FLAME], x - 4, y - 10, (t / 6) % 2 ? SPR_FLIPX : 0);
     }
     for (int i = 0; i < s->nguards; i++) {
         const RslGuard *g = &s->guard[i];

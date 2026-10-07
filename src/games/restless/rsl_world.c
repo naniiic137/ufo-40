@@ -189,9 +189,13 @@ static void parse_tiles(int x0, int y0, int x1, int y1, bool pit_room) {
                 s = add_spawn(SP_START, tx, ty);
                 rg.map[ty][tx] = '.';
                 break;
-            case 'T': case 'W': case 'E':
+            case 'T': case 'W': case 'E': case 'J': case 'U': case 'H': case 'N':
+                /* torches: random, weapon wheel, egg; the hoard's fixed ones:
+                 * a gold jar, an urn, an hourglass, a bell */
                 s = add_spawn(SP_TORCH, tx, ty);
-                if (s >= 0) rg.spawn[s].a = c == 'T' ? TORCH_RANDOM : c == 'W' ? TORCH_WHEEL : TORCH_EGG;
+                if (s >= 0)
+                    rg.spawn[s].a = c == 'T' ? TORCH_RANDOM : c == 'W' ? TORCH_WHEEL : c == 'E' ? TORCH_EGG :
+                                    c == 'J' ? TORCH_JAR : c == 'U' ? TORCH_URN : c == 'H' ? TORCH_CLOCK : TORCH_BELL;
                 rg.map[ty][tx] = '.';
                 break;
             case 'x':
@@ -422,6 +426,7 @@ static bool standing_on(int x, int y, bool allow_oneway) {
 void rsl_player_hurt(int src) {
     RslPlayer *p = &rg.pl;
     if (rg.state != RS_PLAY || p->inv > 0 || rg.god) return;
+    if (rg.tally_hits) { rg.hits++; p->inv = 60; return; }
     if (rg.owl.on) {
         rg.owl.on = false;
         rg.owl.flag_t = 70;
@@ -765,7 +770,7 @@ void rsl_fire(bool charged) {
     switch (k) {
     case WP_STAFF:
         if (!charged && rsl_shots_alive(WP_STAFF) >= 3) return;
-        new_shot(WP_STAFF, ox, oy, ang, charged ? 1536 : 1024, charged ? 24 : 18, 8, charged);
+        new_shot(WP_STAFF, ox, oy, ang, charged ? 1408 : 1024, charged ? 17 : 18, 8, charged);
         break;
     case WP_EMBER:
         if (!charged && rsl_shots_alive(WP_EMBER) >= 3) return;

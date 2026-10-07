@@ -1,7 +1,7 @@
 # RESTLESS: 150 seconds on the clock for each half; a clock adds 30; at
 # nothing, clockfires (5 HP) keep coming from the edges. From six deaths
 # the clock runs twice as fast. At the end of a half, the seconds left to
-# the nearest five, times 50, are the bonus.
+# a multiple of five, rounded up, times 50, are the bonus.
 game restless
 wait 5
 cheat half 0
@@ -23,7 +23,7 @@ expect time == 0
 cheat spawn
 waituntil foes_18 >= 1 120
 expect foes_18 >= 1
-cheat timeframes 3780
+cheat timeframes 3660
 cheat score 0
 cheat tally
 wait 2

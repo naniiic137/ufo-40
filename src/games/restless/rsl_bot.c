@@ -15,7 +15,6 @@ static int bot_dir = 1;
 static int fire_t;      /* frames until the next tap */
 static int charge_t;    /* holding the attack for a charged shot */
 static int stuck_t, last_x, back_t;
-static int fight_spot = -1;
 
 static int px(void) { return RSL_PX(rg.pl.x); }
 static int py(void) { return RSL_PX(rg.pl.y); }
@@ -88,12 +87,13 @@ static int spirit_buttons(void) {
                 sim.x = iclamp(sim.x + dx * sp, 14 * RSL_FX, 306 * RSL_FX);
                 sim.y = iclamp(sim.y + dy * sp, 24 * RSL_FX, 170 * RSL_FX);
                 for (int g = 0; g < sim.nguards; g++) rsl_guard_step(&sim.guard[g], &sim, rg.deaths);
+                rsl_spirit_torches(&sim, rg.deaths);
                 if (sim.inv > 0) sim.inv--;
                 for (int i = 0; i < sim.n; i++)
                     if (!sim.piece[i].taken && rsl_dist((sim.piece[i].x - sim.x) / RSL_FX, (sim.piece[i].y - sim.y) / RSL_FX) < 9) {
                         sim.piece[i].taken = true;
                         sim.got++;
-                        sim.inv = RSL_SPIRIT_PICK_INV;
+                        sim.inv = rsl_pick_inv(rg.deaths);
                         score += 6000 - f * 50;
                     }
                 if (sim.inv == 0) {
@@ -231,7 +231,9 @@ static bool boxes_meet(int ax0, int ax1, int ay0, int ay1, int bx, int by, int h
 
 static bool shooting;
 static int tap(int hold);
-static int plan_walk(int heur, int dir);
+static int rh_plan(int heur, int walk_dir);
+static int rh_t;
+static void rh_reset(void);
 static int duck_t;
 
 static int sim_clear(int act, int dir, int frames) {
@@ -361,7 +363,7 @@ static SimOut sim_real(Plan pl, int n, int dir) {
         rg.state_t++;
         rg.frame_t++;
         rsl_play_step();
-        if (rg.state == RS_DYING) { o.survived = f; break; }
+        if (rg.state == RS_DYING || rg.hits != sim_keep.hits) { o.survived = f; break; }
         if (rg.state != RS_PLAY) break;
         if (owl && !rg.owl.on) o.hurt = 1;
         if (rg.pit != pit0 && pit0 < 0) o.pit = 1;
@@ -659,8 +661,8 @@ static int walk_buttons(void) {
         /* a turn is a single step: let it through unless it walks into something */
         if (sim_clear(ACT_GO, dir, 16) >= 16) return m;
     }
-    if (p->ground && !quiet_around(110)) m = plan_walk(m, dir);
-    else m = safe_choice(m, dir);
+    if (!quiet_around(110) && (p->ground || rh_t > 0)) m = rh_plan(m, dir);
+    else { rh_reset(); m = safe_choice(m, dir); }
     duck_t = (m & BTN_DOWN) ? duck_t + 1 : 0;
     /* stuck: back off a little and try again */
     if ((m & (BTN_LEFT | BTN_RIGHT)) && p->ground && px() == last_x) {
@@ -726,57 +728,6 @@ static int ax0(void) { return rg.lock_x; }
 
 /* ---- a fight planner: try each plan in the real game, keep the best ---- */
 
-typedef struct { int m1, k, m2, tap; } FPlan;
-
-static int walk_dir_goal; /* 0 in a fight; +1/-1 when walking: progress that way counts */
-
-static int fight_eval(FPlan pl, int n, int *dmg_out) {
-    memcpy(&sim_keep, &rg, sizeof rg);
-    sim_keep_save = rgs;
-    rsl_simulating = true;
-    rsl_sim_cur = last_out;
-    int hp0 = rsl_boss_hp_total(), k0 = rg.kills;
-    bool owl = rg.owl.on;
-    int x0 = rg.pl.x, pit0 = rg.pit, half0 = rg.half;
-    int pitted = 0;
-    int survived = n, hurt = 0;
-    for (int f = 0; f < n; f++) {
-        uint32_t m = (uint32_t)(f < pl.k ? pl.m1 : pl.m2);
-        if (pl.tap && (m & BTN_A) && (f % 6) != 0) m &= ~(uint32_t)BTN_A;
-        rsl_sim_prev = rsl_sim_cur;
-        rsl_sim_cur = m;
-        rg.state_t++;
-        rg.frame_t++;
-        rsl_play_step();
-        if (rg.state == RS_DYING) { survived = f; break; }
-        if (rg.state != RS_PLAY || rg.boss_dead) break;
-        if (owl && !rg.owl.on) hurt = 1;
-        if (rg.pit != pit0 && pit0 < 0) { pitted = 1; break; }
-    }
-    int prog = rg.half == half0 ? (rg.pl.x - x0) / RSL_FX : 0;
-    int dmg = hp0 - (rg.boss_dead ? 0 : rsl_boss_hp_total());
-    int kills = rg.kills - k0;
-    int edge = imin(RSL_PX(rg.pl.x) - rg.lock_x, rg.lock_x + SCREEN_W - RSL_PX(rg.pl.x));
-    int end_x = RSL_PX(rg.pl.x);
-    rsl_simulating = false;
-    memcpy(&rg, &sim_keep, sizeof rg);
-    rgs = sim_keep_save;
-    *dmg_out = dmg;
-    int sc = survived * 1000 + (survived >= n ? 200000 : 0) - hurt * 80000 + dmg * 300 + kills * (walk_dir_goal ? 4000 : 200);
-    if (edge < 40) sc -= (40 - edge) * 20; /* corners are traps */
-    if (walk_dir_goal) {
-        sc += prog * walk_dir_goal * 60;
-        if (pitted) sc -= 150000;
-        if (rg.lock_x < 0) sc += (edge < 40 ? (40 - edge) * 20 : 0); /* no corners when walking */
-    } else if (fight_spot >= 0) {
-        sc -= iabs(end_x - fight_spot) * 25;
-    }
-    return sc;
-}
-
-static int fight_choice;
-static int fight_hold;
-
 /* where to stand to hit the nearest boss part: up the slant, or level with it */
 static int fight_spot_x(void) {
     int best = -1, bd = 1 << 30;
@@ -801,68 +752,150 @@ static int fight_spot_x(void) {
     return best;
 }
 
-static int plan_fight(void) {
-    const RslPlayer *p = &rg.pl;
-    if (fight_hold > 0) { fight_hold--; return fight_choice; }
-    static const int L = BTN_LEFT, R = BTN_RIGHT, U = BTN_UP, D = BTN_DOWN, A = BTN_A, B = BTN_B;
-    FPlan plans[] = {
-        {A, 48, A, 1}, {U | A, 48, U | A, 1}, {D | A, 48, D | A, 1},
-        {L, 1, A, 1}, {R, 1, A, 1}, {L, 1, U | A, 1}, {R, 1, U | A, 1},
-        {L | A, 48, L | A, 1}, {R | A, 48, R | A, 1}, {L | U | A, 48, L | U | A, 1}, {R | U | A, 48, R | U | A, 1},
-        {B | L, 2, L | A, 1}, {B | R, 2, R | A, 1}, {B, 2, U | A, 1}, {B | L, 2, D | A, 1}, {B | R, 2, D | A, 1},
-        {A, 46, 0, 0}, {U | A, 46, U, 0}, {L | A, 20, A, 0}, {R | A, 20, A, 0},
-    };
-    int n = ARRAY_LEN(plans);
-    int best = 0, bs = -(1 << 30);
-    fight_spot = fight_spot_x();
-    for (int i = 0; i < n; i++) {
-        if (!p->ground && (plans[i].m1 & B)) continue;
-        int dmg = 0;
-        int sc = fight_eval(plans[i], 48, &dmg);
-        if (sc > bs) { bs = sc; best = i; }
-    }
-    int out = plans[best].m1;
-    fight_choice = plans[best].k > 3 ? out : out;
-    fight_hold = plans[best].k >= 3 ? 2 : 0;
-    if (plans[best].tap && (out & A)) {
-        /* tap: press now, the held frames let go */
-        fight_choice = out & ~A;
-    }
-    return out;
+/* ---- the look-ahead planner -------------------------------------------
+ * Every few frames it tries some two dozen button plans 72 frames long in a
+ * copy of the game (the real rules), keeps the best, and plays its first
+ * frames. A plan is three moves one after another; the candidates are last
+ * time's best (moved on), the walker's own idea, each move on its own, and
+ * a few mixed at random. */
+
+#define RH_LEN 72
+#define RH_STEP 6
+enum { RH_FIRE, RH_UPFIRE, RH_DUCKFIRE, RH_LFIRE, RH_RFIRE, RH_LUP, RH_RUP, RH_JL, RH_JR, RH_JUP, RH_L, RH_R,
+       RH_DUCK, RH_HEUR, RH_ACTS };
+
+typedef struct { uint8_t act[RH_LEN], first[RH_LEN]; } RhPlan;
+
+static RhPlan rh_best;
+static int rh_valid, rh_heur;
+static uint32_t rh_seed = 12345u;
+
+static uint32_t rh_rand(void) {
+    rh_seed = rh_seed * 1103515245u + 12345u;
+    return rh_seed >> 8;
 }
 
-/* walking with trouble near: the heuristic's own move against the same plans */
-static int plan_walk(int heur, int dir) {
+static int rh_mask(int act, int first, int frame) {
+    int a = (frame % 6) == 0 ? BTN_A : 0;
+    switch (act) {
+    case RH_FIRE: return a;
+    case RH_UPFIRE: return BTN_UP | a;
+    case RH_DUCKFIRE: return BTN_DOWN | a;
+    case RH_LFIRE: return BTN_LEFT | a;
+    case RH_RFIRE: return BTN_RIGHT | a;
+    case RH_LUP: return BTN_LEFT | BTN_UP | a;
+    case RH_RUP: return BTN_RIGHT | BTN_UP | a;
+    case RH_JL: return first ? (BTN_B | BTN_LEFT) : (BTN_LEFT | a);
+    case RH_JR: return first ? (BTN_B | BTN_RIGHT) : (BTN_RIGHT | a);
+    case RH_JUP: return first ? BTN_B : (BTN_UP | a);
+    case RH_L: return BTN_LEFT;
+    case RH_R: return BTN_RIGHT;
+    case RH_DUCK: return BTN_DOWN;
+    case RH_HEUR: {
+        int m = rh_heur & ~BTN_A;
+        if (!first) m &= ~BTN_B;
+        return m | ((rh_heur & BTN_A) ? a : 0);
+    }
+    default: return 0;
+    }
+}
+
+static void rh_fill(RhPlan *p, int from, int act) {
+    for (int i = from; i < RH_LEN; i++) { p->act[i] = (uint8_t)act; p->first[i] = i == from; }
+}
+
+/* run a plan in a copy of the game and score it */
+static int rh_eval(const RhPlan *pl, int walk_dir, int spot) {
+    memcpy(&sim_keep, &rg, sizeof rg);
+    sim_keep_save = rgs;
+    rsl_simulating = true;
+    rsl_sim_cur = last_out;
+    int hp0 = rsl_boss_hp_total(), k0 = rg.kills;
+    bool owl = rg.owl.on;
+    int x0 = rg.pl.x, pit0 = rg.pit, half0 = rg.half;
+    int survived = RH_LEN, hurt = 0, pitted = 0;
+    for (int f = 0; f < RH_LEN; f++) {
+        rsl_sim_prev = rsl_sim_cur;
+        rsl_sim_cur = (uint32_t)rh_mask(pl->act[f], pl->first[f], f);
+        rg.state_t++;
+        rg.frame_t++;
+        rsl_play_step();
+        if (rg.state == RS_DYING || rg.hits != sim_keep.hits) { survived = f; break; }
+        if (rg.state != RS_PLAY || rg.boss_dead) break;
+        if (owl && !rg.owl.on) hurt = 1;
+        if (rg.pit != pit0 && pit0 < 0) { pitted = 1; break; }
+    }
+    int prog = rg.half == half0 ? (rg.pl.x - x0) / RSL_FX : 0;
+    int dmg = hp0 - (rg.boss_dead ? 0 : rsl_boss_hp_total());
+    int kills = rg.kills - k0;
+    int end_x = RSL_PX(rg.pl.x);
+    int edge = rg.lock_x >= 0 ? imin(end_x - rg.lock_x, rg.lock_x + SCREEN_W - end_x) : 99;
+    rsl_simulating = false;
+    memcpy(&rg, &sim_keep, sizeof rg);
+    rgs = sim_keep_save;
+    int sc = survived * 2000 + (survived >= RH_LEN ? 300000 : 0) - hurt * 120000 - pitted * 150000 + dmg * 300;
+    if (walk_dir) sc += prog * walk_dir * (sim_keep.time < 50 * 60 ? 120 : 60) + kills * 1500;
+    else {
+        sc += kills * 200;
+        if (spot >= 0) sc -= iabs(end_x - spot) * 25;
+    }
+    if (edge < 40) sc -= (40 - edge) * 20;
+    return sc;
+}
+
+static void rh_reset(void) { rh_valid = 0; rh_t = 0; }
+
+/* walk_dir: +1/-1 walking (progress counts), 0 in a fight */
+static int rh_plan(int heur, int walk_dir) {
     const RslPlayer *p = &rg.pl;
-    if (fight_hold > 0) { fight_hold--; return fight_choice; }
-    static const int U = BTN_UP, D = BTN_DOWN, A = BTN_A, B = BTN_B;
-    int F = dir > 0 ? BTN_RIGHT : BTN_LEFT, K = dir > 0 ? BTN_LEFT : BTN_RIGHT;
-    FPlan plans[] = {
-        {heur, 48, heur & ~BTN_B, 1},
-        {F | A, 48, F | A, 1}, {A, 48, A, 1}, {U | A, 48, U | A, 1}, {D | A, 48, D | A, 1},
-        {K, 1, A, 1}, {K, 1, U | A, 1}, {K, 1, D | A, 1}, {K | A, 48, K | A, 1},
-        {F | U | A, 48, F | U | A, 1}, {B | F, 2, F | A, 1}, {B | K, 2, K | A, 1}, {B, 2, U | A, 1},
-        {B | F, 2, D | A, 1}, {D | A, 20, F | A, 1}, {A, 20, F | A, 1},
-    };
-    int n = ARRAY_LEN(plans);
+    rh_heur = heur;
+    if (rh_valid && rh_t > 0) {
+        /* play on the chosen plan */
+        int i = RH_STEP - rh_t;
+        rh_t--;
+        return rh_mask(rh_best.act[i], rh_best.first[i], i);
+    }
+    int spot = walk_dir ? -1 : fight_spot_x();
+    static RhPlan cand[32];
+    int n = 0;
+    /* last time's best, moved on */
+    if (rh_valid) {
+        RhPlan *c = &cand[n++];
+        for (int i = 0; i < RH_LEN; i++) {
+            int j = i + RH_STEP < RH_LEN ? i + RH_STEP : RH_LEN - 1;
+            c->act[i] = rh_best.act[j];
+            c->first[i] = i + RH_STEP < RH_LEN ? rh_best.first[j] : 0;
+        }
+    }
+    /* the walker's idea, and each move held throughout */
+    if (walk_dir) rh_fill(&cand[n++], 0, RH_HEUR);
+    for (int a = 0; a < RH_HEUR; a++) {
+        if ((a == RH_JL || a == RH_JR || a == RH_JUP) && (!p->ground || p->lag > 0)) continue;
+        rh_fill(&cand[n++], 0, a);
+    }
+    /* mixes of three */
+    while (n < 26) {
+        RhPlan *c = &cand[n++];
+        int s1 = 6 + (int)(rh_rand() % 24), s2 = s1 + 8 + (int)(rh_rand() % 24);
+        int a1 = (int)(rh_rand() % RH_HEUR), a2 = (int)(rh_rand() % RH_HEUR), a3 = (int)(rh_rand() % RH_HEUR);
+        if (walk_dir && rh_rand() % 3 == 0) a1 = RH_HEUR;
+        rh_fill(c, 0, a1);
+        rh_fill(c, s1, a2);
+        if (s2 < RH_LEN) rh_fill(c, s2, a3);
+    }
     int best = 0, bs = -(1 << 30);
-    walk_dir_goal = dir;
     for (int i = 0; i < n; i++) {
-        if ((plans[i].m1 & B) && (!p->ground || p->lag > 0)) continue;
-        int dmg = 0;
-        int sc = fight_eval(plans[i], 40, &dmg);
+        int sc = rh_eval(&cand[i], walk_dir, spot);
         if (sc > bs) { bs = sc; best = i; }
     }
-    walk_dir_goal = 0;
-    int out = plans[best].m1;
-    fight_choice = (plans[best].tap && (out & A)) ? (out & ~A) : out;
-    if (out & B) fight_choice = plans[best].m2 & ~A;
-    fight_hold = 2;
-    return out;
+    rh_best = cand[best];
+    rh_valid = 1;
+    rh_t = RH_STEP - 1;
+    return rh_mask(rh_best.act[0], rh_best.first[0], 0);
 }
 
 static int boss_buttons(void) {
-    if (rsl_bot_plan >= 0) return plan_fight();
+    if (rsl_bot_plan >= 0) return rh_plan(0, 0);
     int m = 0;
     RslPlayer *p = &rg.pl;
     int i;
@@ -1085,7 +1118,7 @@ static int bot_core(void) {
         if (want_item(&tx) >= 0) return go_to(tx, 2);
         return 0;
     }
-    if (rsl_bot_plan == 1 && rg.deaths < 4 && rg.half == 0 && rg.pl.inv == 0 && rg.state_t > 60) {
+    if (rsl_bot_plan == 1 && rg.deaths < 3 && rg.half == 0 && rg.pl.inv == 0 && rg.state_t > 60) {
         /* the cherry plan: die early on purpose, for the richer world */
         int fdx = 0, fdy = 0;
         int fi = nearest_foe(&fdx, &fdy, false, 200);

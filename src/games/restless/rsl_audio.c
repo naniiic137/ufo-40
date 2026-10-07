@@ -42,19 +42,12 @@ static const char STORY_PAD[] =
 static const char STORY_BASS[] = "@6 v11 q8 o2 d1 d1 g1 d1 d1 f1 a1 d1";
 static const char STORY_SOFT[] = "[@9 v2 o8 c2]16";
 
-/* "Greenwood Gate" - stage 1A, A with a raised sixth, birdsong */
+/* "Greenwood Gate" - stage 1A: no tune yet, only birds and leaves over a
+ * low hum; the music proper starts at the first fight */
 static const char S1A_LEAD[] =
-    "@2 v9 q5"
-    "| o5 a8 r8 e8 r8 a8 b8 o6 c8 r8 | o5 b8 r8 g8 r8 e4 r4 | o5 a8 r8 e8 r8 f+8 g8 a8 r8 | o5 g8 f+8 e8 d8 e4 r4"
-    "| o5 a8 r8 o6 c8 r8 e8 d8 c8 r8 | o5 b8 r8 g8 r8 b4 a4 | o5 g8 a8 b8 g8 f+8 e8 d8 r8 | o5 e2 r2";
-static const char S1A_ECHO[] =
-    "@5 v5 q6 r8"
-    "| o5 a8 r8 e8 r8 a8 b8 o6 c8 | r8 o5 b8 r8 g8 r8 e4 r8 | r8 o5 a8 r8 e8 r8 f+8 g8 a8 | o5 r8 g8 f+8 e8 d8 e4 r8"
-    "| r8 o5 a8 r8 o6 c8 r8 e8 d8 c8 | r8 o5 b8 r8 g8 r8 b4 a8 | r8 o5 g8 a8 b8 g8 f+8 e8 d8 | o5 r8 e2 r4.";
-static const char S1A_BASS[] =
-    "@7 v12 q5 " Q4("o2 a", "o3 e", "o2 a", "o3 e") Q4("o2 g", "o3 d", "o2 g", "o3 d") Q4("o2 f+", "o3 c+", "o2 f+", "o3 c+")
-    Q4("o2 e", "b", "e", "b") Q4("o2 a", "o3 e", "o2 a", "o3 e") Q4("o2 g", "o3 d", "o2 g", "o3 d")
-    Q4("o2 e", "b", "d", "a") Q4("o2 e", "b", "e", "b");
+    "@20 v3 [r2 o7 e32 g32 e32 g32 r8 r4 | r1 | r4 o7 c32 r32 e32 r32 r8 r2 | r1]2";
+static const char S1A_ECHO[] = "@4 v2 q8 [o3 a1 o3 e1]4";
+static const char S1A_BASS[] = "";
 static const char S1A_DRUM[] = "[" BIRD "]8";
 
 /* "The Old Shrines" - stage 1B, E with a flat second */

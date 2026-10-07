@@ -11,11 +11,13 @@ cheat half 0
 expect map_w == 3520
 expect main_h == 192
 expect boss_kind == 1
-expect torches == 10
+expect torches == 9
 cheat half 1
 expect map_w == 3520
 expect boss_kind == 2
 expect lifts == 2
+cheat half 3
+expect lifts == 1
 cheat half 2
 expect map_w == 3520
 expect boss_kind == 3

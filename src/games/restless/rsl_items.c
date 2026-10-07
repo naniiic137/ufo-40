@@ -85,6 +85,10 @@ void rsl_light_torch(int s) {
     rsl_sfx("rsl_torch");
     if (sp->a == TORCH_WHEEL) { drop_wheel(x, y); return; }
     if (sp->a == TORCH_EGG) { rsl_drop_item(IT_EGG, x, y, 0); return; }
+    if (sp->a == TORCH_JAR) { rsl_drop_item(IT_JAR, x, y, 0); return; }
+    if (sp->a == TORCH_URN) { rsl_drop_item(IT_URN, x, y, 0); return; }
+    if (sp->a == TORCH_CLOCK) { rsl_drop_item(IT_CLOCK, x, y, 0); return; }
+    if (sp->a == TORCH_BELL) { rsl_drop_item(IT_BELL, x, y, 0); return; }
     int r = rng_range(&rg.rng, 0, 99);
     if (r < 12) drop_wheel(x, y);
     else if (r < 22) rsl_drop_item(IT_CLOCK, x, y, 0);
@@ -130,13 +134,24 @@ void rsl_kill_drop(int foe_kind, int x, int y, int flags) {
     drop_treasure(x, y, upgraded || RSL_FOE_HP[foe_kind] >= 40 ? 3 : 1);
 }
 
-/* every 5,000: the next kill's gift, fixed by the foe, the mark and the deaths */
+/* every 5,000: the next kill's gift, fixed by the foe, the mark and the
+ * deaths. The cells players have recorded are set by hand; the rest come
+ * from a hash of the three. */
+static int recorded_gift(int foe_kind, int mark, int deaths) {
+    if (foe_kind == FO_TUMBLER && mark == 1 && deaths == 1) return IT_CLOCK;
+    if (foe_kind == FO_GNAT && mark == 1 && deaths == 1) return IT_BEETLE;
+    if (foe_kind == FO_BLOOM && mark == 2 && deaths <= 1) return deaths ? IT_EGG : IT_BELL;
+    if (foe_kind == FO_TOAD && mark == 3 && deaths <= 1) return deaths ? IT_BELL : IT_CLOCK;
+    if (foe_kind == FO_TOAD && mark == 4 && deaths <= 1) return deaths ? IT_EGG : IT_BELL;
+    return IT_NONE;
+}
+
 void rsl_bonus_drop(int foe_kind, int x, int y) {
     static const uint8_t GIFT[8] = {IT_BEETLE, IT_CLOCK, IT_EGG, IT_BELL, IT_JAR, IT_LILY, IT_BEETLE, IT_CHARM};
     int mark = rg.bonus_next / RSL_BONUS_EVERY - 1 - rg.bonus_pending; /* 1 = 5,000 ... */
-    int g = GIFT[(foe_kind * 5 + mark * 3 + rg.deaths * 2) & 7];
+    int g = recorded_gift(foe_kind, mark, rg.deaths);
+    if (g == IT_NONE) g = GIFT[(foe_kind * 5 + mark * 3 + rg.deaths * 2) & 7];
     if (g == IT_EGG && rg.owl.on) g = IT_JAR;
-    if (g == IT_BELL && rg.deaths == 0) g = IT_IDOL;
     if (g == IT_BEETLE) drop_many(IT_BEETLE, 3, x, y);
     else rsl_drop_item(g, x, y, 0);
     rsl_sfx("rsl_gift");
@@ -248,6 +263,16 @@ void rsl_items_update(void) {
                 if (RSL_PX(it->y) > rg.mh * RSL_TILE + 20 || (RSL_PX(it->y) < mh * RSL_TILE && RSL_PX(it->y) + 6 >= mh * RSL_TILE)) { it->alive = 0; continue; }
             }
             if (it->t > 900 || !rsl_in_view(RSL_PX(it->x), RSL_PX(it->y), 260)) { it->alive = 0; continue; }
+            /* a gold beetle runs from him, hop by hop, until a wall boxes it in */
+            if (it->kind == IT_BEETLE && it->landed) {
+                int dx = RSL_PX(it->x) - RSL_PX(rg.pl.x), dy = RSL_PX(it->y) - (RSL_PX(rg.pl.y) - 8);
+                int away = dx >= 0 ? 1 : -1;
+                if (iabs(dx) < 60 && iabs(dy) < 30 && !rsl_solid_px(RSL_PX(it->x) + away * 10, RSL_PX(it->y))) {
+                    it->landed = 0;
+                    it->vy = -520;
+                    it->vx = away * 260;
+                }
+            }
         }
         x = RSL_PX(it->x);
         y = RSL_PX(it->y);

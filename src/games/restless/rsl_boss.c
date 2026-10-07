@@ -364,10 +364,11 @@ void rsl_boss_dead(int i) {
     switch (f->kind) {
     case FO_KEEPER:
         if (f->flags & FF_BLUE) {
-            /* twelve gold beetles, scattered to the right */
+            /* twelve gold beetles, scattered away from him (they keep running) */
+            int away = rg.pl.x < f->x ? 1 : -1;
             for (int k = 0; k < 12; k++) {
                 int it = rsl_drop_item(IT_BEETLE, f->x, f->y, 0);
-                if (it >= 0) { rg.item[it].vx = 120 + k * 60; rg.item[it].vy = -900 - (k % 3) * 150; }
+                if (it >= 0) { rg.item[it].vx = away * (120 + k * 60); rg.item[it].vy = -900 - (k % 3) * 150; }
             }
         } else {
             for (int k = 0; k < 3; k++) rsl_drop_item(IT_JAR, f->x, f->y, 0);

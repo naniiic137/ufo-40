@@ -143,8 +143,8 @@ void rsl_hurt_foe(int i, int dmg, int push) {
         if (f->state == 0) { f->flash = 2; rsl_sfx("rsl_tink"); return; } /* eye shut */
         break;
     case FO_SHIELD:
-        /* the shield faces him: only a shot from behind, or with it down */
-        if (f->state == 0 && push == f->dir * -1) { rsl_sfx("rsl_tink"); return; }
+        /* only with its shield down */
+        if (f->state == 0) { rsl_sfx("rsl_tink"); return; }
         break;
     case FO_CRAB:
         f->state = 2;
@@ -259,7 +259,7 @@ static void lackey(RslFoe *f) {
                 rsl_sfx("rsl_throw");
             }
             if (f->st > 0) { f->st--; return; }
-            if (iabs(dx) > 90) walk(f, 150, true);
+            if (iabs(dx) > 90) walk(f, 250, true);
             return;
         }
     } else if (iabs(dx) < 26 && iabs(RSL_PX(rg.pl.y) - feet(f)) < 6) {
@@ -277,7 +277,7 @@ static void lackey(RslFoe *f) {
         f->x += f->dir * 256;
         return;
     }
-    walk(f, 154, RSL_PX(rg.pl.y) <= feet(f) + 4);
+    walk(f, 250, RSL_PX(rg.pl.y) <= feet(f) + 4); /* as quick as Gaunt or a little more */
 }
 
 static void bloom(RslFoe *f) {
@@ -358,7 +358,14 @@ static void toad(RslFoe *f) {
     bool g = fall(f, 40);
     int dx = dxp(f), dy = dyp(f);
     if (f->state == 2) {
-        if (++f->st > 26) { f->state = 1; f->st = 0; }
+        /* the gulp: it swells for 12 frames, then the tongue shoots out */
+        f->st++;
+        if (f->st == 12) {
+            int e = rsl_add_eshot(ES_TONGUE, f->x, f->y - 2 * RSL_FX, f->dir, 0);
+            if (e >= 0) { rg.es[e].owner = (int)(f - rg.foe); rg.es[e].life = 26; }
+            rsl_sfx("rsl_tongue");
+        }
+        if (f->st > 38) { f->state = 1; f->st = 0; }
         return;
     }
     if (g) {
@@ -368,9 +375,6 @@ static void toad(RslFoe *f) {
             f->state = 2;
             f->st = 0;
             f->b = 70;
-            int e = rsl_add_eshot(ES_TONGUE, f->x, f->y - 2 * RSL_FX, f->dir, 0);
-            if (e >= 0) { rg.es[e].owner = (int)(f - rg.foe); rg.es[e].life = 26; }
-            rsl_sfx("rsl_tongue");
             return;
         }
         if (f->b > 0) f->b--;
@@ -397,7 +401,7 @@ static void crab(RslFoe *f) {
         if (--f->st <= 0) { f->state = 1; f->flags &= (uint8_t)~FF_HARMLESS; }
         return;
     }
-    walk(f, 128, true);
+    walk(f, 160, true);
 }
 
 static void leaper(RslFoe *f) {
@@ -798,12 +802,12 @@ void rsl_spawners_update(void) {
             if (s->t > 0) { s->t--; break; }
             int n = 0;
             for (int f = 0; f < RSL_MAX_FOES; f++) n += rg.foe[f].alive && rg.foe[f].spawn == i;
-            if (n < 2) {
+            if (n < 1) { /* one toad out of each hole at a time */
                 int gy = ground_y_for(kind, s->tx, s->ty);
                 int f = rsl_spawn_foe(FO_TOAD, x, gy + 12 * RSL_FX, 0);
                 if (f >= 0) { rg.foe[f].spawn = i; rg.foe[f].c = gy; }
             }
-            s->t = imax(70, 160 - dl * 15);
+            s->t = imax(90, 200 - dl * 15);
             break;
         }
         case FO_GNAT:

@@ -237,9 +237,9 @@ void rsl_play_step(void) {
         rg.boss_done_t++;
         if (rg.boss_done_t == 60) rsl_music(RSL_MUS_CLEAR);
         if (rg.boss_done_t > 240) {
-            /* the time bonus: seconds left, to the nearest five, times 50 */
+            /* the time bonus: seconds left, rounded up to a multiple of five, times 50 */
             int secs = (rg.time + 59) / 60;
-            rg.tally_secs = (secs + 2) / 5 * 5;
+            rg.tally_secs = (secs + 4) / 5 * 5; /* rounded up to the next 5 */
             rg.tally_bonus = rg.tally_secs * 50;
             rsl_add_score(rg.tally_bonus);
             set_state(RS_TALLY);
@@ -411,6 +411,7 @@ static int rsl_query(const char *key, int *out) {
     if (!strcmp(key, "score")) { *out = (int)rg.score; return 1; }
     if (!strcmp(key, "deaths")) { *out = rg.deaths; return 1; }
     if (!strcmp(key, "revivals")) { *out = rg.revivals; return 1; }
+    if (!strcmp(key, "hits")) { *out = rg.hits; return 1; }
     if (!strcmp(key, "kills")) { *out = rg.kills; return 1; }
     if (!strcmp(key, "time")) { *out = (rg.time + 59) / 60; return 1; }
     if (!strcmp(key, "time_frames")) { *out = rg.time; return 1; }
@@ -531,6 +532,7 @@ static int rsl_query(const char *key, int *out) {
     if (!strcmp(key, "guards")) { *out = rg.sp.nguards; return 1; }
     if (!strcmp(key, "flames")) { int n = 0; for (int i = 0; i < rg.sp.nguards; i++) n += rg.sp.guard[i].piece < 0; *out = n; return 1; }
     if (!strcmp(key, "spirit_failed")) { *out = rg.sp.failed; return 1; }
+    if (!strcmp(key, "glow_torches")) { *out = rg.sp.ntorch; return 1; }
     if (!strcmp(key, "spirit_inv")) { *out = rg.sp.inv; return 1; }
     if (!strcmp(key, "wisp_x")) { *out = RSL_PX(rg.sp.x); return 1; }
     if (!strcmp(key, "wisp_y")) { *out = RSL_PX(rg.sp.y); return 1; }
@@ -637,6 +639,7 @@ static int rsl_cheat(const char *cmd) {
         return 1;
     }
     if (!strcmp(cmd, "god")) { rg.god = true; return 1; }
+    if (!strcmp(cmd, "tallyhits")) { rg.tally_hits = true; rg.hits = 0; return 1; }
     if (!strcmp(cmd, "mortal")) { rg.god = false; return 1; }
     if (!strcmp(cmd, "nospawn")) { rg.no_spawn = true; return 1; }
     if (!strcmp(cmd, "spawn")) { rg.no_spawn = false; return 1; }
@@ -649,6 +652,14 @@ static int rsl_cheat(const char *cmd) {
                 rg.foe[i].alive = 0;
             }
         memset(rg.es, 0, sizeof rg.es);
+        return 1;
+    }
+    if (!strcmp(cmd, "lightall")) {
+        /* every torch in view, lit */
+        for (int i = 0; i < rg.nspawn; i++)
+            if (rg.spawn[i].type == SP_TORCH && !rg.spawn[i].used &&
+                rsl_in_view(rg.spawn[i].tx * RSL_TILE + 8, rg.spawn[i].ty * RSL_TILE + 8, 0))
+                rsl_light_torch(i);
         return 1;
     }
     if (!strcmp(cmd, "clearitems")) { memset(rg.item, 0, sizeof rg.item); return 1; }

@@ -30,3 +30,13 @@ wait 20
 expect bonus_pending == 0
 expect items_10 == 0
 expect items > 0
+# a recorded cell: a tumbler at the 5,000 mark with one death leaves an
+# hourglass
+cheat clearitems
+cheat clear
+cheat deaths 1
+cheat score 4900
+cheat addscore 200
+cheat foe 7 200 60
+cheat killfoe 0
+expect items_7 == 1

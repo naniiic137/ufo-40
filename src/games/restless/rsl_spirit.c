@@ -1,8 +1,11 @@
 /* RESTLESS - the Low Glow. After every death Gaunt's wisp must gather the
  * pieces of his soul, each guarded by a spirit that circles it and lunges.
  * One touch and it is over for good. Each piece taken keeps the wisp safe
- * for a moment, so a brave player threads from piece to piece. From four
- * deaths, blue flames bounce about as well. */
+ * for a moment, so a brave player threads from piece to piece. With every
+ * death the guardians roam further from their pieces toward the wisp and
+ * lunge farther, faster and sooner; from four deaths blue torches burn on
+ * the edges and keep letting out flames, so the round tightens as it goes.
+ * By the fifth death it is a storm. */
 #include "rsl.h"
 
 #define ARENA_X0 14
@@ -16,6 +19,8 @@ int rsl_pieces_for(int deaths) {
 }
 
 static int dl_cap(int deaths) { return iclamp(deaths, 1, 5); }
+
+int rsl_pick_inv(int deaths) { return deaths >= 5 ? 25 : 40; }
 
 void rsl_spirit_start(void) {
     RslSpirit *s = &rg.sp;
@@ -47,18 +52,36 @@ void rsl_spirit_start(void) {
         g->y = s->piece[i].y + rsl_sin(g->ang >> 4) * g->r;
         g->lunge = -rng_range(&rg.rng, 30, 90);
     }
-    /* blue flames from four deaths */
-    int flames = rg.deaths >= 4 ? imin(4, rg.deaths - 2) : 0;
-    for (int k = 0; k < flames && s->nguards < RSL_MAX_GUARDS; k++) {
+    /* blue torches on the edges from four deaths: 2, then 3, then 4 */
+    static const int TX[4] = {ARENA_X0, ARENA_X1, ARENA_X1, ARENA_X0};
+    static const int TY[4] = {ARENA_Y0 + 30, ARENA_Y1 - 30, ARENA_Y0 + 30, ARENA_Y1 - 30};
+    s->ntorch = rg.deaths >= 4 ? imin(4, rg.deaths - 2) : 0;
+    for (int k = 0; k < s->ntorch; k++) {
+        s->tx[k] = TX[k] * RSL_FX;
+        s->ty[k] = TY[k] * RSL_FX;
+        s->tt[k] = k * 40; /* they don't all flare at once */
+    }
+    rsl_music(RSL_MUS_SPIRIT);
+}
+
+/* the blue torches: each lets out a flame every so often, bouncing about
+ * the arena for the rest of the round */
+void rsl_spirit_torches(RslSpirit *s, int deaths) {
+    int dl = iclamp(deaths, 1, 8);
+    int every = imax(80, 250 - dl * 25);
+    for (int k = 0; k < s->ntorch; k++) {
+        if (++s->tt[k] < every) continue;
+        s->tt[k] = 0;
+        if (s->nguards >= RSL_MAX_GUARDS) continue;
         RslGuard *g = &s->guard[s->nguards++];
         memset(g, 0, sizeof *g);
         g->piece = -1;
-        g->x = (k % 2 ? ARENA_X1 - 10 : ARENA_X0 + 10) * RSL_FX;
-        g->y = (k < 2 ? ARENA_Y0 + 10 : ARENA_Y1 - 10) * RSL_FX;
-        g->vx = (k % 2 ? -1 : 1) * (200 + dl * 20);
-        g->vy = (k < 2 ? 1 : -1) * (150 + dl * 15);
+        g->x = s->tx[k] + (s->tx[k] < 160 * RSL_FX ? 8 : -8) * RSL_FX;
+        g->y = s->ty[k];
+        int sp = 190 + imin(dl, 6) * 20;
+        g->vx = (s->tx[k] < 160 * RSL_FX ? 1 : -1) * sp;
+        g->vy = (s->ty[k] < 100 * RSL_FX ? 1 : -1) * (sp * 3 / 4);
     }
-    rsl_music(RSL_MUS_SPIRIT);
 }
 
 /* one frame of one guardian: a pure function of the wisp's place, so the
@@ -78,13 +101,30 @@ void rsl_guard_step(RslGuard *g, const RslSpirit *s, int deaths) {
         g->x += g->vx;
         g->y += g->vy;
         g->lunge--;
-        if (g->lunge == 0) g->lunge = -imax(40, 100 - dl * 10);
+        if (g->lunge == 0) g->lunge = -imax(25, 100 - dl * 15);
         return;
     }
     if (g->lunge < 0) g->lunge++;
+    /* between lunges it drifts off its piece toward the wisp, on a leash
+     * that lengthens with every death (none at one, 60 px at five) */
+    {
+        int leash = (dl - 1) * 15 * RSL_FX;
+        int drift = 32 + dl * 12;
+        int wx = s->x - p->x - g->hx, wy = s->y - p->y - g->hy;
+        int wd = rsl_dist(wx / 16, wy / 16) * 16;
+        if (wd > drift) {
+            g->hx += (int)((long long)wx * drift / wd);
+            g->hy += (int)((long long)wy * drift / wd);
+        }
+        int hd = rsl_dist(g->hx / 16, g->hy / 16) * 16;
+        if (hd > leash) {
+            g->hx = hd ? (int)((long long)g->hx * leash / hd) : 0;
+            g->hy = hd ? (int)((long long)g->hy * leash / hd) : 0;
+        }
+    }
     g->ang += g->speed;
     int a = (g->ang >> 4) & 63;
-    int tx = p->x + rsl_cos(a) * g->r, ty = p->y + rsl_sin(a) * g->r;
+    int tx = p->x + g->hx + rsl_cos(a) * g->r, ty = p->y + g->hy + rsl_sin(a) * g->r;
     int dx = tx - g->x, dy = ty - g->y;
     int d = rsl_dist(dx / 16, dy / 16) * 16; /* fixed point */
     int maxs = 2 * RSL_FX;
@@ -96,10 +136,10 @@ void rsl_guard_step(RslGuard *g, const RslSpirit *s, int deaths) {
         g->y = ty;
     }
     if (g->lunge == 0) {
-        int range = 34 + dl * 4;
+        int range = 30 + dl * 8;
         int ex = s->x - g->x, ey = s->y - g->y;
         if (rsl_dist(ex / RSL_FX, ey / RSL_FX) < range) {
-            int sp = 230 + dl * 34;
+            int sp = 230 + dl * 50;
             int b = rsl_dir_to(ex, ey);
             g->vx = rsl_cos(b) * sp / 256;
             g->vy = rsl_sin(b) * sp / 256;
@@ -128,6 +168,7 @@ void rsl_spirit_update(void) {
         s->x = iclamp(s->x + dx * sp, ARENA_X0 * RSL_FX, ARENA_X1 * RSL_FX);
         s->y = iclamp(s->y + dy * sp, ARENA_Y0 * RSL_FX, ARENA_Y1 * RSL_FX);
         for (int i = 0; i < s->nguards; i++) rsl_guard_step(&s->guard[i], s, rg.deaths);
+        rsl_spirit_torches(s, rg.deaths);
     }
     for (int i = 0; i < s->n; i++) {
         RslPiece *p = &s->piece[i];
@@ -135,7 +176,7 @@ void rsl_spirit_update(void) {
         if (rsl_dist((p->x - s->x) / RSL_FX, (p->y - s->y) / RSL_FX) < 9) {
             p->taken = true;
             s->got++;
-            s->inv = RSL_SPIRIT_PICK_INV;
+            s->inv = rsl_pick_inv(rg.deaths);
             rsl_sfx(s->got == s->n ? "rsl_whole" : "rsl_piece");
         }
     }

@@ -1,7 +1,8 @@
 # RESTLESS: every death sends his wisp into the Low Glow: 1, 3, 6, 9, then
-# 12 soul pieces, each with a guardian; from four deaths blue flames bounce
-# about too. The wisp flies eight ways; each piece taken keeps it safe a
-# moment; a guardian's touch is the end of the run.
+# 12 soul pieces, each with a guardian; from four deaths blue torches burn on
+# the edges (2, 3, then 4) and keep letting out flames. The wisp flies eight
+# ways; each piece taken keeps it safe a moment (40 frames, 25 from five
+# deaths); a guardian's touch is the end of the run.
 game restless
 wait 5
 cheat half 0
@@ -26,21 +27,25 @@ cheat die
 waituntil state == 4 200
 expect deaths == 4
 expect pieces == 9
-expect guards == 11
-expect flames == 2
+expect guards == 9
+expect glow_torches == 2
+expect flames == 0
+cheat god
+wait 300
+expect flames >= 2
 cheat winspirit
 waituntil state == 2 200
 cheat die
 waituntil state == 4 200
 expect pieces == 12
-expect flames == 3
+expect glow_torches == 3
 cheat winspirit
 waituntil state == 2 200
 cheat deaths 8
 cheat die
 waituntil state == 4 200
 expect pieces == 12
-expect flames == 4
+expect glow_torches == 4
 # the wisp: still for half a second, then eight ways at 1.5 px a frame
 expect wisp_x == 160
 wait 40
@@ -53,7 +58,7 @@ expect wisp_y == 91
 cheat piece 0 166 91
 wait 1
 expect pieces_got == 1
-expect spirit_inv == 40
+expect spirit_inv == 25
 cheat winspirit
 waituntil state == 2 200
 # a guardian's touch ends it all
