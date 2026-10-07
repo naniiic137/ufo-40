@@ -147,6 +147,7 @@ menu, shows the buttons as you now press them). SELECT or B closes it.
 | 30 | **FLINTHOLD** | Rock On! Island | waves down fixed roads to a cave with 30 hearts, a build phase as long as you like and a horn to start the wave, a pay-out between waves, a heroine who walks and throws eight ways, ten hunters in three upgrade trees, hens cooked by fire pits for meat (99 at most), fire pits that boost hunters, the original's beasts and bosses, 10 stages and 3 villages (two hidden), the Four Lords together in the last wave | Pim of the Hearth Clan, Flint Isle and its 13 layouts, the Four Lords of the Scale, every beast, hunter and villager |
 | 31 | **TILTSHOT** | Pingolf | side-on golf on pinball courses: aim, hold A to fill a meter that stays full until the golfer blows up, a slam in mid-air once a stroke (slammed onto a falling slope the ball catches fire), bumpers, spring pads, orange movers and purple junk, water and pits that send you back, eighteen fixed holes at the original's pars (61), eight golfers on the board against weak, random CPU rivals, 2P versus, a code for two cameo golfers | the Comet Classic, Nova, Digby, Peaches, Tuck and Moss, twelve CPU regulars, Wick and Kip by the code, all 18 holes |
 | 32 | **FORLORN HOPE** | Mortol II | 99 lives on a counter over the door and no way to gain more, one massive fixed open map, five classes picked at the door for every life (a sword who turns into a stone that floats where it is made, a rifle who leaves an endless ammo pouch, a double-jumping star thrower whose teleporter you take from the base and back, a wrench thrower who builds a pipe down through the ground, a bomber with no attack who explodes for 15), hold B to flash and let go to sacrifice, a charge that carries through teleporters and pipes, a death while charging setting the gift off, everything persisting, the original's 17 foes with their hit points, three switches raising yellow, green and blue blocks, spawners you can block or break, bombable rock and out-of-place brick, tall worms fed one life each, four hearts of 30 lingering on the black screen between lives, keys and locked doors, 2P co-op | the volunteers of Holloway and their trades, the Old Yew, the undercroft, the caves, the deep, the sump, the roots, the chimney, the tower and Thornkeep, all 17 foes and the thorn hearts, the whole map, eight tunes |
+| 33 | **DUKES UP** | Fist Hell | a belt-scroll brawler with four fighters whose POWER, RECOV, TOUGH and THROW run 1 to 3 (the original's four spreads, each with its own move), five fixed nights with a boss each, one health bar that never refills by itself, a shop between nights (a full heal for $5, +1 to a stat for $20), unlimited continues that restart the night and cost the good ending; every blow stuns, four punches and a breath keep anything helpless, the fifth is a kick, a kill always kicks, blows reach further up the street than down it, nothing ever shields you, the spin costs health only when it connects; grabs, throws, slams, charged punches, dash attacks and flying kicks; ghouls that come on by scroll position whoever is still standing, lock-screens, holes, mines, a runaway thresher, chandeliers, the original's twelve kinds and five bosses, a hotel lift that opens early once its gigglers are down, a five-wave lift before a two-form final boss; the gym behind you at the start, with passers-by every third wave; 2P at once | ROOK, PIP, MACK and DOLLY, Gran Bess, the town of Lampwick and its fifteen places, every ghoul (shamblers, torch-bellies, crowmasks, rammers, howlers, tuskers, sludgers, visitors, bulwarks, gigglers, mudskippers, feelers), Big Ram, the Boar Baron, the Visitors, the Undertow, Alderman Grist, sixteen tunes |
 | 34 | **BRAVADO** | Overbold | one fixed arena with four corner pads and lava, eight fights: a fixed first fight for 100, then each bet adding 100 and a random pack at a time up to 16 packs and 1,600, and a forced last fight of twelve packs and the only boss for 3,200; six health against hits of six, held fire that keeps the aim while you strafe, bombs that kill outright and hurt you too, lava that bites, twelve monsters on the floor at most and spawns that quicken up to a 900 prize; the original's seven pack kinds (two of them nine to a pack), sixteen kinds of gear at its prices with a sale and a hike every visit, the drone, the dash, medkits past full health, 2P in one arena | Dice the fox and her brother Domino, the Glass Pit, mites, gasbags, brutes, powder kegs, stilters, peepers, slag, the Pit Boss and its fizzers, every piece of gear's name and icon, ten tunes |
 | 35 | **CLARION CALL** | Campanella 2 | the Campanella ship on one tank for the whole run (coins burn when it's dry, and then it falls), a bar of 8 for the ship and for Clary behind doors, landing slowly on level ground and getting out, one hit or a two-tile drop the end outside, doors on foot into side-on caves with a skull at your back and a chest of three to choose from, and rooms with shops (one buy each, and every door shuts behind you), stalls, trials and sextons, ten notes to open the gold door and a 30-second dash, nine areas of a generated station in four of seven regions chosen on a map, sixteen cryptic upgrades, the yellow key, the Lobber and three Hush Engines, Lady Hush, the secret Grandsire Tock behind three sextons' sheets, the escape and three endings; one sitting, no save | Clary and the Clarion (CHIME CIRCUIT's), Ansel and Lady Hush (BELLHOP's), Grandsire Tock, the Carillon and its seven regions, the generator and every cave piece, the Crown, the sextons, the dozing tortoise, the FULL-PEAL code |
 | 36 | **HOOPLA** | Hyper Contender | a one-screen, one-on-one platform brawl with no health: hold five hoops at once to win, one each at the start, a new one every 15 s (on fire at first), every hit knocking one out to bounce round the pit (two if you were dizzy); the block that stops a lunge and leaves the attacker dizzy, the lunge that goes through shots, shots that get past the block; eight fighters who each move their own way (double jump with a knife-turning spin, claw line, gravity turned over, spring traps, wings, a cage lift, a rocket pack, a charged leap) with their weapon, alt shot and the button exceptions; twelve fixed pits in a random order and colours, some with moving ledges; the tournament of eight with the mirror match last and one rematch each, a second foe on the hardest challenge, the snake draft of three each to five wins, 2P exhibition, the ring options, the old-rules code, the demo and its twentieth-time note | TANSY, CLAMP, MOSS, BRISTLE, PEWIT, COLLIER, ASTRA and GULP, their endings, the twelve pits of the Glass Pit, twelve tunes |
@@ -1272,6 +1273,67 @@ the top.
   shellbacks, hatcheteers, squawkers, tuskers, idols, drakes, hornet bells,
   rust knights, bloaters, broodhens, hornheads, stingbacks, gulpers) and the
   thorn hearts, the words, and eight tunes, one for each trade.
+
+### 33 · DUKES UP
+
+<p align="center">
+  <img src="docs/shots/dukesup.gif" width="640" alt="Dukes Up: Rook works his way along Market Street on night 1, four punches and a breath at a time, while shamblers and a torch-belly come on as the street scrolls">
+</p>
+<p align="center">
+  <img src="docs/shots/dukesup_select.png" width="320" alt="The fighter select: Rook, Pip, Mack and Dolly, with Pip's stats and her own move">
+  <img src="docs/shots/dukesup_orchard.png" width="320" alt="Night 3, the old orchard: a sludger, a crowmask and the hole by the trees">
+</p>
+<p align="center">
+  <img src="docs/shots/dukesup_shop.png" width="320" alt="The corner shop after night 1: hot soup for $5, a stat for $20">
+  <img src="docs/shots/dukesup_grist.png" width="320" alt="Night 5, the penthouse: Alderman Grist">
+</p>
+<p align="center">
+  <img src="docs/shots/dukesup_title.png" width="320" alt="The title: the four fighters, 1 PLAYER and 2 PLAYERS, and the records">
+  <img src="docs/shots/dukesup_gym.png" width="320" alt="The Hornets' gym: wave 4 on the scoreboard under HOME, the best under GUEST">
+</p>
+<p align="center">
+  <img src="docs/shots/dukesup_ending.png" width="320" alt="The good ending: no continues, and Gran comes home">
+</p>
+
+*A tribute to **Fist Hell** (UFO 50 #33).*
+
+- **Plays the same:** pick one of four fighters (POWER, RECOV, TOUGH and
+  THROW from 1 to 3, the original's four spreads) and walk the street left
+  to right. A punches: four jabs, then a kick that knocks down; take a
+  breath after the fourth and the string starts over, so four, a breath,
+  four more keeps anything stunned, bosses too, and a kill always brings
+  the kick. A blow reaches further up the street than down it, so a little
+  below a ghoul you hit it and it can't hit you. Nothing ever shields you:
+  not a dodge, not the floor, and a jab on anyone lying there stands them
+  back up, stunned. Hold A for a charged punch, A on the run for a
+  dash attack, A in the air for a flying kick; A and B together spin, which
+  costs health only if it hits a ghoul. Walk into a stunned ghoul to grab
+  it: hit it, throw it (into others, or into a hole), or jump with it for a
+  slam. Each fighter has a move of their own. Ghouls come on as the view
+  scrolls past their mark, whoever is still standing, so walking on slowly
+  splits them up.
+- **The town:** five fixed nights with a boss each (Big Ram, the Boar
+  Baron, the two Visitors, the Undertow, which you can only hurt by
+  throwing ghouls into it, and Alderman Grist in two forms after a
+  five-wave lift),
+  the original's twelve kinds of ghoul, food that heals or pays at full
+  health, coins, weapons that are mostly a trap, a car, mines, holes, a
+  runaway thresher, chandeliers. One health bar for the whole run: it never
+  refills by itself, and the corner shop between nights sells a heal for
+  $5 or a stat for $20.
+- **Structure:** continues are unlimited and restart the night with your
+  cash and stats, but only a run with none brings Gran home. Walk left as
+  night 1 begins and you find the gym: endless waves, passers-by every third
+  one who drop food, weapons or a dog. The goals: hold out for nine waves in
+  the gym, beat the game, beat it without a continue. Two players at once.
+  The demo player in the tests beats all five nights and the gym with real
+  presses and no continue.
+- **Ours:** ROOK, PIP, MACK and DOLLY, Gran Bess, Lampwick (Market Street,
+  the roller rink, Canal Row, the night ferry, the waxworks, the old
+  orchard, the graveyard, the visitors' ship, the promenade, the fishing
+  jetty, the dunes, the Grand Hotel, its lift and penthouse, and SKID
+  KIDS's gym), every ghoul and boss, every layout, the story, the words and
+  sixteen tunes.
 
 ### 34 · BRAVADO
 

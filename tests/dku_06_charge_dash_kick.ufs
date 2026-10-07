@@ -1,0 +1,92 @@
+# DUKES UP: holding A charges (you can walk, not jump, while it builds; a
+# higher RECOV charges faster); letting go lunges forward with a punch that
+# knocks down. A while running is a dash attack; A in the air a flying kick
+# (POWER + 3), which knocks down and sends cleavers back.
+game dukesup
+wait 5
+cheat pick 1 0
+cheat run 1
+cheat arena
+cheat freeze
+cheat pos 1 100 140
+cheat face 1 1
+cheat spawn shambler 140 136
+cheat foehp 2 50
+wait 2
+hold A
+wait 50
+expect p1_charged == 0
+wait 8
+expect p1_charged == 1
+release A
+wait 4
+expect p1_atk == 3
+wait 14
+expect p1_x > 108
+expect foe2_state == 4
+expect foe2_hp == 42
+# RECOV 3 charges in 32 frames
+wait 40
+cheat arena
+cheat stat 1 1 3
+cheat pos 1 100 140
+wait 2
+hold A
+wait 31
+expect p1_charged == 0
+wait 3
+expect p1_charged == 1
+release A
+wait 40
+# no jumping while charging: B then is the spin (both buttons)
+hold A
+wait 20
+press B 1
+expect p1_state == 9
+release A
+wait 30
+# the dash attack: A while running
+cheat spawn shambler 160 140
+cheat foehp 2 50
+cheat pos 1 100 140
+wait 2
+press RIGHT 1
+hold RIGHT
+wait 6
+press A 1
+release
+wait 1
+expect p1_atk == 4
+wait 20
+expect foe2_state == 4
+# the flying kick: POWER + 3 (Rook's 2: 5) and a knock-down
+wait 40
+cheat arena
+cheat spawn shambler 122 140
+cheat foehp 2 50
+cheat pos 1 100 140
+cheat face 1 1
+wait 2
+press B 1
+wait 6
+press A 1
+wait 1
+expect p1_atk == 5
+wait 16
+expect foe2_hp == 45
+expect foe2_state == 4
+# and it sends a cleaver back
+wait 40
+cheat arena
+cheat thaw
+cheat pos 1 100 140
+cheat face 1 1
+wait 2
+press B 1
+wait 4
+press A 1
+cheat shot 1 126 140 -48
+wait 4
+expect shot0_team == 0
+expect shot0_vx > 0
+expect p1_hp == 100

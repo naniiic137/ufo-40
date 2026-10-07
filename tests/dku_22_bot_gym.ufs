@@ -1,0 +1,12 @@
+# DUKES UP: proof the gym's nine waves can be held. The demo player walks
+# left as night 1 begins, into the gym, and beats nine waves with real
+# presses, punching the passers-by for food: the beacon.
+seed 3
+game dukesup
+wait 5
+cheat botplan 1
+botuntil state == 4 2000
+botuntil gym == 1 600
+botuntil gym_wave == 10 40000
+expect save_gym1 >= 9
+expect goals.dukesup & 1

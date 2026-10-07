@@ -1,0 +1,52 @@
+# DUKES UP: the gym. Walk left as night 1 begins and you find it: endless
+# waves, the current one on the scoreboard under HOME and your best under
+# GUEST; each wave's first four come in together. Every third wave, frightened passers-by run through first: a punch
+# makes them drop food, a weapon or a dog. A fall ends it (no continue);
+# the best wave is kept, for one player and for two apart.
+game dukesup
+wait 5
+cheat pick 1 0
+cheat run 1
+expect gym == 0
+hold LEFT 90
+expect gym == 1
+expect gym_wave == 1
+# a wave's first ghouls come in together (wave 1: three)
+wait 130
+expect enemies == 3
+# a wave is beaten when all its ghouls are down
+cheat god
+cheat clear
+wait 45
+cheat clear
+wait 45
+cheat clear
+wait 10
+expect gym_wave == 2
+expect save_gym1 == 1
+# the third wave brings passers-by first
+cheat gymwave 3
+wait 150
+expect kind_16 == 3
+cheat freeze
+cheat pos 1 220 140
+cheat face 1 1
+waituntil foe2_x <= 240 200
+cheat foepos 2 236 136
+press A 1
+wait 6
+expect items >= 1
+# a fall ends the gym: the final whistle
+cheat mortal
+cheat thaw
+cheat die
+wait 80
+expect state == 11
+wait 70
+press A
+expect state == 0
+# the walk left only works at the very start
+cheat run 1
+hold RIGHT 300
+hold LEFT 300
+expect gym == 0

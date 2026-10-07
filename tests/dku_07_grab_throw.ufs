@@ -1,0 +1,106 @@
+# DUKES UP: walk into a stunned ghoul and you hold it: A hits it, a
+# direction and A throws it (anyone it meets in the air is floored, and a
+# throw into a hole is the end of it), B jumps with it for a slam. It
+# wriggles free after a while; the higher THROW, the longer you hold on.
+game dukesup
+wait 5
+cheat pick 1 0
+cheat run 1
+cheat arena
+cheat freeze
+cheat pos 1 100 140
+cheat face 1 1
+cheat spawn shambler 118 140
+cheat foehp 2 60
+wait 2
+press A 1
+wait 10
+expect foe2_state == 2
+hold RIGHT 8
+expect p1_state == 6
+expect p1_partner == 2
+expect foe2_state == 5
+# a hit while holding it
+wait 12
+press A 1
+wait 2
+expect foe2_hp == 56
+# a throw: it flies, floors the one it meets and lands hurt
+cheat spawn shambler 175 140
+cheat foehp 3 60
+wait 12
+press RIGHT A 1
+wait 2
+expect foe2_state == 7
+wait 30
+expect foe3_state == 4
+expect foe3_hp == 54
+expect foe2_hp == 50
+# a slam: B jumps with it, the landing hurts it and floors those round
+wait 60
+cheat arena
+cheat spawn shambler 118 140
+cheat foehp 2 60
+cheat spawn shambler 122 148
+cheat foehp 3 60
+cheat pos 1 100 140
+cheat face 1 1
+wait 2
+press A 1
+wait 10
+hold RIGHT 8
+expect p1_state == 6
+press B 1
+expect p1_state == 19
+wait 40
+expect foe2_hp == 50
+expect foe2_state == 4
+expect foe3_state == 4
+# held too long: it wriggles free after 50 + 30 x THROW frames (110 for Rook)
+wait 60
+cheat arena
+cheat spawn shambler 118 140
+cheat foehp 2 60
+cheat pos 1 100 140
+cheat face 1 1
+wait 2
+press A 1
+wait 10
+hold RIGHT 8
+expect p1_state == 6
+wait 100
+expect p1_state == 6
+wait 12
+expect p1_state != 6
+expect foe2_state == 0
+# THROW 3 holds on longer
+wait 60
+cheat arena
+cheat stat 1 3 3
+cheat spawn shambler 118 140
+cheat foehp 2 60
+cheat pos 1 100 140
+cheat face 1 1
+wait 2
+press A 1
+wait 10
+hold RIGHT 8
+wait 125
+expect p1_state == 6
+wait 20
+expect p1_state != 6
+# thrown into a hole
+wait 60
+cheat arena
+cheat hazard 0 150 120 120 52
+cheat spawn shambler 118 140
+cheat foehp 2 60
+cheat pos 1 100 140
+cheat face 1 1
+wait 2
+press A 1
+wait 10
+hold RIGHT 8
+press RIGHT A 1
+wait 40
+expect foe2_alive == 0

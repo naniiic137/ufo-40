@@ -1,0 +1,78 @@
+# DUKES UP: one boss a night. Beating it ends the night at once: everyone
+# else goes home. Big Ram (the rink) among dancing shamblers; the Boar
+# Baron (the waxworks); the two Visitors (both must fall); the Undertow,
+# which fists can't hurt, only bodies thrown into it; Alderman Grist, who
+# changes when beaten once and keeps coming, while ghouls stream in, until
+# a pack of dogs turns up if the fight drags on.
+game dukesup
+wait 5
+cheat pick 1 0
+cheat run 1
+cheat god
+cheat night 1 1
+expect sec == 1
+expect boss_alive == 1
+expect boss_hp == 90
+wait 1200
+# the dancers, and nobody else comes in
+expect kind_1 <= 4
+cheat killboss
+wait 2
+expect boss_down == 1
+expect enemies == 0
+wait 110
+expect state == 5
+# the Boar Baron
+cheat night 2 2
+expect boss_hp == 120
+expect kind_6 == 1
+# the Visitors: two, and both must fall
+cheat night 3 2
+expect kind_8 == 2
+expect foe2_kind == 8
+cheat killboss
+wait 2
+expect boss_down == 0
+expect kind_8 == 1
+cheat killfoe 2
+wait 2
+expect boss_down == 1
+# the Undertow: fists bounce off, a thrown mudskipper hurts it
+cheat night 4 2
+cheat arena
+cheat boss 13 296 128
+expect boss_hp == 48
+cheat freeze
+cheat pos 1 220 140
+cheat face 1 1
+cheat spawn mudskipper 238 140
+cheat foehp 3 30
+wait 2
+press A 1
+wait 10
+hold RIGHT 6
+expect p1_state == 6
+press RIGHT A 1
+wait 30
+expect boss_hp == 36
+# Alderman Grist: beaten once, he changes and comes back stronger
+cheat night 5 3
+expect boss_hp == 110
+expect boss_mode == 0
+# the dogs' clock only starts with his second form
+wait 3700
+expect dogs == 0
+cheat killboss
+wait 2
+expect boss_down == 0
+expect boss_state == 21
+wait 100
+expect boss_mode == 2
+expect boss_hp == 140
+# ghouls keep streaming in; after a minute the dogs come
+expect dogs == 0
+wait 3600
+expect dogs == 4
+cheat killboss
+wait 110
+expect state == 5

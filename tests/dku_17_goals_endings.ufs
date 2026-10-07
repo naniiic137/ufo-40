@@ -1,0 +1,91 @@
+# DUKES UP: the three goals. The beacon: hold out for nine waves in the gym.
+# The saucer: beat Alderman Grist. The alien: beat him without a single
+# continue, which is also the only way Gran comes home (the good ending);
+# with a continue the ending is the sad one. Records are saved, and the
+# goals come back from them.
+game dukesup
+wait 5
+expect goals.dukesup == 0
+cheat pick 1 0
+cheat run 1
+cheat god
+cheat night 5 3
+cheat killboss
+wait 100
+cheat killboss
+wait 110
+expect state == 5
+wait 64
+press A
+expect state == 9
+expect won == 1
+expect continues == 0
+expect goals.dukesup == 6
+expect save_wins == 1
+expect save_good == 1
+wait 160
+press A
+expect state == 10
+hold A 450
+wait 2
+expect state == 0
+# with a continue: the sad ending, no alien
+reload
+wipe_saves
+reload
+game dukesup
+wait 5
+expect goals.dukesup == 0
+cheat pick 1 0
+cheat run 1
+cheat god
+cheat continues 1
+cheat night 5 3
+cheat killboss
+wait 100
+cheat killboss
+wait 110
+wait 64
+press A
+expect state == 9
+expect continues == 1
+expect goals.dukesup == 2
+expect save_wins == 1
+expect save_good == 0
+# the gym: the ninth wave beaten is the beacon
+cheat gym
+cheat gymwave 9
+wait 130
+cheat clear
+wait 45
+cheat clear
+wait 45
+cheat clear
+wait 45
+cheat clear
+wait 45
+cheat clear
+wait 45
+cheat clear
+wait 45
+cheat clear
+wait 45
+cheat clear
+wait 45
+cheat clear
+wait 45
+cheat clear
+wait 45
+cheat clear
+wait 45
+cheat clear
+wait 10
+expect gym_wave == 10
+expect goals.dukesup == 3
+expect save_gym1 == 9
+# the goals come back from the records
+set_goals dukesup 0
+reload
+game dukesup
+wait 5
+expect goals.dukesup == 3

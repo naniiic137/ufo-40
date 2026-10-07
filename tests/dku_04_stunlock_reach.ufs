@@ -1,0 +1,164 @@
+# DUKES UP: every blow stuns, so four punches, a breath and four more keep
+# a ghoul (a boss too) helpless for as long as you like. A blow reaches
+# further up the street than down it: stand a little below a ghoul and you
+# hit it while it can't hit you. A kill always brings the kick, which
+# floors everyone in front. A plain blow on a ghoul lying on the floor
+# stands it back up, stunned, so a combo or a grab follows at once; a
+# knock-down blow keeps it down.
+game dukesup
+wait 5
+cheat pick 1 0
+cheat run 1
+cheat arena
+cheat pos 1 100 140
+cheat face 1 1
+cheat spawn shambler 118 134
+cheat foehp 2 200
+wait 2
+press A 1
+wait 12
+press A 1
+wait 12
+press A 1
+wait 12
+press A 1
+wait 12
+wait 19
+press A 1
+wait 12
+press A 1
+wait 12
+press A 1
+wait 12
+press A 1
+wait 12
+wait 19
+press A 1
+wait 12
+press A 1
+wait 12
+press A 1
+wait 12
+press A 1
+wait 12
+wait 19
+press A 1
+wait 12
+press A 1
+wait 12
+press A 1
+wait 12
+press A 1
+wait 5
+expect foe2_state == 2
+expect foe2_hp == 168
+expect p1_hp == 100
+# a boss too: the rink's Big Ram
+wait 40
+cheat arena
+cheat boss rammer 118 134
+wait 2
+press A 1
+wait 12
+press A 1
+wait 12
+press A 1
+wait 12
+press A 1
+wait 12
+wait 19
+press A 1
+wait 12
+press A 1
+wait 12
+press A 1
+wait 12
+press A 1
+wait 12
+wait 19
+press A 1
+wait 12
+press A 1
+wait 12
+press A 1
+wait 12
+press A 1
+wait 5
+expect foe2_state == 2
+expect foe2_hp == 66
+expect p1_hp == 100
+# reach: up the street yes, down it no
+wait 40
+cheat arena
+cheat freeze
+cheat spawn shambler 118 146
+cheat foehp 2 50
+wait 2
+press A 1
+wait 12
+expect foe2_hp == 50
+wait 30
+cheat foepos 2 118 131
+press A 1
+wait 12
+expect foe2_hp == 48
+# its blow from above can't reach a fighter 6 px below it ...
+wait 40
+cheat arena
+cheat spawn shambler 116 134
+cheat foeface 2 -1
+cheat foestrike 2
+wait 10
+expect p1_hp == 100
+# ... but level with it, it lands (8, less TOUGH: 5)
+cheat foepos 2 116 139
+cheat foestrike 2
+wait 10
+expect p1_hp == 95
+# the kill-kick: the jab that fells the first floors the one behind it
+wait 40
+cheat arena
+cheat hp 1 100
+cheat spawn shambler 116 136
+cheat foehp 2 2
+cheat spawn shambler 128 138
+cheat foehp 3 50
+wait 2
+expect kick_kills == 0
+press A 1
+wait 4
+expect foe2_state == 10
+expect p1_atk == 2
+expect kick_kills == 1
+wait 6
+expect foe3_state == 4
+# off the ground: a jab on a fallen ghoul stands it up into a stun, and a grab follows
+wait 40
+cheat arena
+cheat freeze
+cheat hp 1 100
+cheat pos 1 100 140
+cheat face 1 1
+cheat spawn shambler 116 138
+cheat foehp 2 80
+wait 2
+press A 1
+wait 12
+press A 1
+wait 12
+press A 1
+wait 12
+press A 1
+wait 12
+press A 1
+wait 30
+expect foe2_state == 4
+expect foe2_z == 0
+cheat foepos 2 120 138
+wait 30
+press A 1
+wait 6
+expect foe2_state == 2
+wait 6
+hold RIGHT 8
+expect p1_state == 6

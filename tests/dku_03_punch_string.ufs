@@ -1,0 +1,74 @@
+# DUKES UP: A punches. Four punches in a row are jabs; the fifth is a kick
+# that knocks the ghoul down. A breath after the fourth (18 frames) starts
+# the string over, and so do a few frames walking up or down the street.
+# Every blow stuns.
+game dukesup
+wait 5
+cheat pick 1 0
+cheat run 1
+cheat arena
+cheat freeze
+cheat pos 1 100 140
+cheat face 1 1
+cheat spawn shambler 118 134
+cheat foehp 2 99
+wait 2
+press A 1
+wait 12
+expect p1_combo == 1
+expect foe2_state == 2
+expect foe2_hp == 97
+press A 1
+wait 12
+expect p1_combo == 2
+press A 1
+wait 12
+press A 1
+wait 1
+expect p1_atk == 1
+wait 11
+expect p1_combo == 4
+expect foe2_state == 2
+expect foe2_hp == 91
+# the fifth: a kick that knocks it down
+press A 1
+wait 2
+expect p1_atk == 2
+wait 6
+expect foe2_state == 4
+expect foe2_hp == 88
+expect p1_combo == 0
+# four, a breath, and the string starts over: no knock-down
+wait 30
+cheat arena
+cheat spawn shambler 118 134
+cheat foehp 2 99
+wait 2
+press A 1
+wait 12
+press A 1
+wait 12
+press A 1
+wait 12
+press A 1
+wait 12
+expect p1_combo == 4
+wait 20
+expect p1_combo == 0
+press A 1
+wait 6
+expect p1_atk == 1
+expect p1_combo == 1
+expect foe2_state == 2
+# a few frames walking down the street resets it too
+wait 30
+cheat arena
+cheat spawn shambler 118 134
+wait 2
+press A 1
+wait 12
+press A 1
+wait 12
+expect p1_combo == 2
+hold DOWN 5
+expect p1_combo == 0

@@ -1,0 +1,67 @@
+# DUKES UP: the title offers 1 PLAYER and 2 PLAYERS and B goes back to the
+# library. A opens the story, A again the fighter select: LEFT and RIGHT
+# move between ROOK, PIP, MACK and DOLLY (their stats shown below) and A
+# picks one. Then the card for night 1 and the street: one health bar,
+# full, no cash, and the stats of the fighter picked.
+game dukesup
+wait 5
+expect state == 0
+expect menu == 0
+press DOWN
+expect menu == 1
+press UP
+expect menu == 0
+press A
+expect state == 1
+wait 30
+press A
+expect state == 2
+expect sel1 == 0
+press RIGHT
+expect sel1 == 1
+press RIGHT
+press RIGHT
+expect sel1 == 3
+press RIGHT
+expect sel1 == 0
+press LEFT
+expect sel1 == 3
+press LEFT
+press LEFT
+expect sel1 == 1
+# B on the select goes back to the title
+press B
+expect state == 0
+wait 10
+press A
+wait 30
+press A
+wait 15
+press RIGHT
+expect sel1 == 2
+press A
+expect state == 3
+expect night == 1
+expect players == 1
+expect p1_pick == 2
+expect p1_power == 3
+expect p1_recov == 1
+expect p1_tough == 1
+expect p1_throw == 1
+expect p1_hp == 100
+expect cash == 0
+expect continues == 0
+wait 120
+expect state == 4
+expect sec == 0
+expect cam == 0
+# the game doesn't save mid-run: out to the library and back is the title
+press START
+wait 5
+press DOWN
+press DOWN
+press A
+wait 60
+game dukesup
+wait 5
+expect state == 0

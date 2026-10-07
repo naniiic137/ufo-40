@@ -1,0 +1,56 @@
+# DUKES UP: the service lift. Five waves (4 shamblers; 2 bulwarks; 4
+# shamblers; 2 gigglers; 2 bulwarks and 2 howlers), each waiting on the
+# roof of the car and dropping in one at a time. The next wave lands on the
+# roof while the last of the current one is still up, and its first may
+# drop in early; after the fifth, nobody may be left. Then the doors open on
+# the penthouse.
+game dukesup
+wait 5
+cheat pick 1 0
+cheat run 1
+cheat god
+cheat night 5 2
+expect sec == 2
+expect lift_wave == 0
+wait 45
+expect lift_wave == 1
+expect kind_1 == 4
+expect foe2_state == 13
+expect foe2_z > 40
+wait 300
+expect lift_wave == 1
+expect foe2_z == 0
+# three of the four beaten: wave 2 lands on the roof
+cheat killfoe 2
+cheat killfoe 3
+cheat killfoe 4
+wait 70
+expect lift_wave == 2
+expect kind_9 == 2
+expect kind_1 == 1
+cheat clear
+wait 70
+expect lift_wave == 3
+expect kind_1 == 4
+cheat clear
+wait 70
+expect lift_wave == 4
+expect kind_10 == 2
+cheat clear
+wait 70
+expect lift_wave == 5
+expect kind_9 == 2
+expect kind_5 == 2
+# after the fifth, the last one keeps the doors shut
+wait 400
+cheat killfoe 2
+cheat killfoe 3
+cheat killfoe 4
+wait 70
+expect lift_wave == 5
+cheat clear
+wait 70
+expect lift_wave == 6
+wait 140
+expect sec == 3
+expect boss_alive == 1

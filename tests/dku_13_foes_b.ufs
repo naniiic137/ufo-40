@@ -1,0 +1,199 @@
+# DUKES UP, the ghouls (2): the tusker's body slam floors anyone on the
+# ground where it lands, but not someone in the air; the sludger spits a
+# poison cloud that hurts while you stand in it; the visitor fires a slow
+# ray, hits hard (12) with long arms that reach well up the floor, keeps a
+# combo going while you reel, and, knocked down, blinks up behind you; the bulwark's guard turns
+# blows aside until four have landed on it; the giggler is straight back
+# up; mudskippers leap out of the water; a feeler never moves; the saucer
+# that flies over drops a gold ring, and can be grabbed and slammed.
+game dukesup
+wait 5
+cheat pick 1 0
+cheat run 1
+cheat arena
+cheat freeze
+cheat pos 1 100 140
+cheat face 1 1
+# the slam: on the ground it lands (16 less 3), in the air it doesn't
+cheat spawn tusker 180 140
+cheat foeslam 2
+wait 40
+expect p1_hp == 87
+wait 60
+cheat hp 1 100
+cheat foepos 2 180 140
+cheat foeslam 2
+wait 20
+press B 1
+wait 20
+expect p1_hp == 100
+# the sludger's spit leaves a cloud that hurts while you stand in it
+cheat arena
+cheat thaw
+cheat hp 1 100
+cheat pos 1 100 140
+cheat spawn sludger 170 140
+cheat foecool 2 0
+waituntil shotkind_7 == 1 200
+waituntil hz_5 == 1 60
+cheat freeze
+wait 60
+expect p1_hp < 100
+# the visitor: a slow ray along its row
+cheat arena
+cheat thaw
+cheat hp 1 100
+cheat pos 1 100 140
+cheat spawn visitor 200 140
+cheat foecool 2 0
+waituntil shotkind_2 == 1 300
+# its blow: 12 (TOUGH 2: 9), and it reaches 14 px up the floor, where a shambler's doesn't
+cheat arena
+cheat freeze
+cheat mortal
+cheat hp 1 100
+cheat pos 1 100 140
+cheat spawn visitor 116 140
+cheat foeface 2 -1
+cheat foestrike 2
+wait 6
+expect p1_hp == 91
+wait 60
+cheat hp 1 100
+cheat foepos 2 116 154
+cheat foestrike 2
+wait 6
+expect p1_hp == 91
+cheat arena
+cheat hp 1 100
+cheat spawn shambler 116 154
+cheat foeface 2 -1
+cheat foestrike 2
+wait 6
+expect p1_hp == 100
+# the combo runs on while you reel: more than three blows
+cheat arena
+cheat thaw
+cheat hp 1 100
+cheat pos 1 100 140
+cheat spawn visitor 116 140
+cheat foeface 2 -1
+cheat freeze
+cheat foestrike 2
+wait 160
+expect p1_hp < 64
+cheat god
+# knocked down, it blinks up behind you
+cheat arena
+cheat freeze
+cheat god
+cheat pos 1 100 140
+cheat face 1 1
+cheat spawn visitor 118 136
+cheat foehp 2 60
+wait 2
+press A 1
+wait 12
+press A 1
+wait 12
+press A 1
+wait 12
+press A 1
+wait 12
+press A 1
+wait 12
+expect foe2_state == 4
+cheat thaw
+waituntil foe2_state == 16 120
+waituntil foe2_state != 16 60
+expect foe2_x < 100
+# the bulwark: its guard turns blows aside until the fourth
+cheat arena
+cheat freeze
+cheat pos 1 100 140
+cheat face 1 1
+cheat spawn bulwark 118 136
+cheat foehp 2 30
+cheat foeface 2 -1
+cheat thaw
+waituntil foe2_state == 17 60
+cheat freeze
+press A 1
+wait 12
+press A 1
+wait 12
+press A 1
+wait 12
+expect foe2_hp == 30
+press A 1
+wait 12
+expect foe2_state == 2
+press A 1
+wait 6
+expect foe2_hp == 27
+# the giggler is straight back up
+cheat arena
+cheat thaw
+cheat spawn giggler 118 136
+cheat foehp 2 60
+wait 2
+press A 1
+wait 12
+press A 1
+wait 12
+press A 1
+wait 12
+press A 1
+wait 12
+press A 1
+wait 8
+expect foe2_state == 4
+waituntil foe2_state != 4 60
+# mudskippers leap out of the water onto the planks
+cheat arena
+cheat spawnfrom mudskipper 5 160 106
+expect foe2_state == 13
+waituntil foe2_state != 13 60
+expect foe2_y >= 108
+# a feeler stays where it is
+cheat arena
+cheat spawn feeler 200 140
+wait 120
+expect foe2_x == 200
+# the saucer: low enough to punch on its way over; a ring falls out
+cheat arena
+cheat freeze
+cheat god
+cheat pos 1 100 140
+cheat face 1 1
+cheat spawn saucer 0 0
+waituntil foe2_x <= 126 300
+expect foe2_z <= 12
+cheat stat 1 0 3
+press A 1
+wait 7
+press A 1
+wait 10
+press A 1
+wait 20
+expect foe2_alive == 0
+expect items_7 == 1
+# grabbed when it's down low and stunned, and slammed: it bursts, ring and all
+cheat arena
+cheat stat 1 0 1
+cheat mortal
+cheat hp 1 100
+cheat pos 1 100 140
+cheat face 1 1
+cheat spawn saucer 0 0
+waituntil foe2_x <= 120 300
+press A 1
+wait 10
+expect foe2_state == 2
+hold RIGHT 6
+expect p1_state == 6
+press B 1
+wait 40
+expect foe2_alive == 0
+expect items_7 == 1
+expect p1_hp < 100
