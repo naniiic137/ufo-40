@@ -1,0 +1,54 @@
+# DUKES UP: things the original's nights have that ours keep. Night 3 has
+# almost no healing: a sandwich in a stump, an apple hidden under the grass,
+# $5 in two stumps by the thresher's run, a firebottle, and a scattergun
+# hidden near the end. In the Grand Hotel, the service lift opens as soon
+# as the gigglers are beaten: walk on past it and a rammer and a tusker
+# come, and the lift stays shut until they're down too.
+game dukesup
+wait 5
+cheat pick 1 0
+cheat run 1
+cheat god
+cheat night 3 0
+expect props_with_2 == 1
+expect props_with_13 == 1
+expect props_with_1 == 1
+expect props_with_17 == 1
+expect props_with_12 == 1
+expect props_with_6 == 3
+# the hotel
+cheat night 5 1
+cheat freeze
+cheat cam 1260
+cheat pos 1 1300 150
+wait 2
+expect cam_lock == 1260
+expect exit == 0
+cheat clear
+wait 2
+expect exit > 0
+cheat pos 1 1500 150
+wait 30
+expect sec == 2
+# walk on past the lift instead: the pair comes, and the lift waits for them
+cheat night 5 1
+cheat cam 1260
+cheat pos 1 1300 150
+wait 2
+cheat clear
+wait 2
+expect exit > 0
+cheat pos 1 1560 150
+hold RIGHT 60
+expect kind_4 == 1
+expect kind_6 == 1
+expect exit == 0
+cheat pos 1 1500 150
+wait 30
+expect sec == 1
+cheat clear
+wait 2
+expect exit > 0
+cheat pos 1 1500 150
+wait 30
+expect sec == 2

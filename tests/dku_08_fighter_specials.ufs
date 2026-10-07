@@ -44,6 +44,18 @@ expect p1_air_jump == 0
 expect p1_state == 3
 wait 40
 expect p1_state == 0
+# a kick that lands on a crate counts too
+cheat arena
+cheat pos 1 100 140
+cheat face 1 1
+cheat prop 2 118 138 0
+wait 2
+press B 1
+wait 4
+press A 1
+wait 6
+expect p1_air_jump == 1
+wait 40
 # MACK: a charged punch that fells a ghoul bursts it: nothing is left
 cheat pick 1 2
 cheat run 1

@@ -412,6 +412,7 @@ static int dku_query(const char *key, int *out) {
         *out = -1;
         return 1;
     }
+    if (!strncmp(key, "props_with_", 11)) { int k = atoi(key + 11); *out = 0; for (int i = 0; i < DKU_MAX_PROPS; i++) *out += dku_g.pr_[i].alive && (dku_g.pr_[i].content == k || dku_g.pr_[i].content2 == k); return 1; }
     if (!strcmp(key, "props")) { *out = 0; for (int i = 0; i < DKU_MAX_PROPS; i++) *out += dku_g.pr_[i].alive; return 1; }
     if (!strcmp(key, "shots")) { *out = 0; for (int i = 0; i < DKU_MAX_SHOTS; i++) *out += dku_g.sh[i].alive; return 1; }
     if (!strncmp(key, "shotkind_", 9)) { int k = atoi(key + 9); *out = 0; for (int i = 0; i < DKU_MAX_SHOTS; i++) *out += dku_g.sh[i].alive && dku_g.sh[i].kind == k; return 1; }

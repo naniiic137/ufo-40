@@ -350,7 +350,7 @@ static int fight(void) {
     Actor *me = &dku_g.a[0];
     me_x = dku_px(me->x);
     me_y = dku_px(me->y);
-    if (!me->alive || me->state == AS_DEAD) WHY(1, 0);
+    if (!me->alive || me->state == AS_DEAD || me->state == AS_GONE) WHY(1, 0);
     const DkuSection *sec = dku_g.gym ? &DKU_GYM : &DKU_NIGHT[dku_g.night].sec[dku_g.sec];
 
     /* the gym: walk left as night 1 begins */
@@ -428,6 +428,16 @@ static int fight(void) {
             int lead = s->kind == SH_RAY ? 16 : 26;
             if (coming && iabs(sy - me_y) < 8 && iabs(sx - me_x) < lead && (me->state != AS_FREE || dodge_phase == 0))
                 WHY(15, (dku_g.bot_t & 1) ? 0 : (BTN_A | BTN_B));
+        }
+        /* a firebottle or a bomb about to come down on me: spin it away (free) */
+        for (int i = 0; i < DKU_MAX_SHOTS; i++) {
+            const Shot *s = &dku_g.sh[i];
+            if (!s->alive || s->team != 1 || (s->kind != SH_BOTTLE && s->kind != SH_BOMB)) continue;
+            int lx, ly;
+            landing(s, &lx, &ly);
+            int sx = dku_px(s->x), sz = dku_px(s->z);
+            if (iabs(lx - me_x) < 22 && iabs(ly - me_y) < 10 && iabs(sx - me_x) < 24 && sz < 26 && s->vz < 0)
+                WHY(58, (dku_g.bot_t & 1) ? 0 : (BTN_A | BTN_B));
         }
     }
     /* a pounce or a charge about to land and nowhere to go: spin into it */
@@ -602,6 +612,10 @@ static int fight(void) {
         int beam = -1;
         for (int i = 0; i < DKU_MAX_HAZARDS; i++) if (dku_g.hz[i].alive && dku_g.hz[i].kind == HZ_BEAM) beam = i;
         if (dku_g.exit_t > 0 && beam >= 0) WHY(28, step_toward(dku_g.hz[beam].x + dku_g.hz[beam].w / 2, 140));
+        /* the hotel's lift opens early: take it, don't go looking for the pair beyond */
+        for (int i = 0; i < DKU_MAX_HAZARDS; i++)
+            if (dku_g.exit_t > 0 && dku_g.hz[i].alive && dku_g.hz[i].kind == HZ_DOOR && dku_g.hz[i].arg == 1)
+                WHY(57, step_toward(dku_g.hz[i].x + dku_g.hz[i].w / 2, 140));
         /* walk on slowly: a step at a time so ghouls come a few at once */
         int lane = 146, lc = 1 << 30;
         for (int y = dku_floor_lo() + 4; y <= dku_floor_hi() - 2; y += 4) {

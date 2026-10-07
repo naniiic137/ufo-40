@@ -23,13 +23,13 @@ streets, rooms and scripts). Only the structure follows the original:
 | Areas | streets → club; street → train → arcade; woods → graveyard → ship; boardwalk → pier; beach → mansion → elevator → suite [GUIDE], [TVT] | Market Street → the roller rink; Canal Row → the night ferry → the waxworks; the old orchard → the graveyard → the visitors' ship; the promenade → the fishing jetty → its end; the dunes → the Grand Hotel → the service lift → the penthouse (15 sections) |
 | Bosses | Charger, Pigman, two Aliens, giant squid, the Mayor in two phases [GUIDE], [TVT] | Big Ram (a rammer), the Boar Baron (a tusker), the two Visitors, the Undertow, Alderman Grist (two forms) |
 | Enemy kinds | 12: zombie, boomer, chick, charger, werewolf, pigman, snail, alien, oni, clown, fishman, tentacle [MH], [GUIDE] | 12: shambler, torch-belly, crowmask, rammer, howler, tusker, sludger, visitor, bulwark, giggler, mudskipper, feeler |
-| Elevator | 5 waves, a new one only after the last is beaten, then the final boss [GUIDE] | the service lift: 5 waves the same way, then Grist |
+| Elevator | 5 waves (4 zombies; 2 beefy boys; 4 zombies; 2 clowns; 2 beefy boys and 2 wolves), waiting on the roof and dropping in turn, the next wave's first sometimes early; then the final boss [GUIDE] | the service lift: the same make-up (4 shamblers; 2 bulwarks; 4 shamblers; 2 gigglers; 2 bulwarks and 2 howlers), then Grist |
 | Health | one bar, never refilled between stages, no lives [MANUALS], [LIZ] | the same: 100, carried from night to night |
 | Continues | unlimited; restart the stage; cash and upgrades kept [MH], [STEAM-5H] | the same |
 | Shop | after each stage: a full heal or +1 POWER, RECOV or TOUGH [MH], [MANUALS] | the corner shop, the same four, $5 and $20 (see Readings) |
 | Food | fries, pizza, hot dog, burger: ~20 %, ~33 %, ~50 %, full; $2, $4, $6, $10 at full health [GUIDE] | apple, sandwich, drumstick, roast chicken: 20 %, 33 %, 50 %, full; $2, $4, $6, $10 |
 | Cash | coins $1, dollars $5, gold belt $10 (from the UFO) [MH] | coins $1, a five $5, a gold ring $10 (from the saucer) |
-| Weapons | board, chain, pipe, zombie leg; shotgun (6 shots); chainsaw; trash can, zombie head, axe, molotov thrown [MH] | plank, chain, pipe, ghoul arm; scattergun (6 shots); chainsaw; bin, ghoul head, cleaver, firebottle |
+| Weapons | board, chain, zombie leg; shotgun (6 shots); chainsaw; trash can, zombie head, axe, molotov thrown [MH]; pipes too [GUIDE] | plank, chain, pipe, ghoul arm; scattergun (6 shots); chainsaw; bin, ghoul head, cleaver, firebottle |
 | Survival | a hidden gym (walk left at the start), endless waves, HOME and AWAY on the scoreboard, civilians every third wave [TVT], [GUIDE] | the Hornets' gym (the gym of SKID KIDS), the same; HOME and GUEST |
 | Endings | 2: a continue → the bad one; none → the good one [TVT] | 2, split the same way |
 | Goals | 3 [MH], [GGC] | the same 3 |
@@ -37,17 +37,21 @@ streets, rooms and scripts). Only the structure follows the original:
 
 What each night brings: 1 the punch loop and spawn pacing, shamblers,
 torch-bellies and crowmasks, a car that crashes across the street, the
-first saucer, a burning barricade near the end, Big Ram among dancing
-ghouls; 2 a rammer as an ordinary ghoul, a passer-by cut down by a cleaver
+first saucer, a burning barricade near the end, Big Ram among four
+dancing ghouls; 2 a rammer as an ordinary ghoul, a passer-by cut down by a cleaver
 (his scattergun falls), sleeping crowmasks and ghouls on the ferry's
 benches, howlers, the Boar Baron; 3 the hard one: mines, holes, a runaway
 thresher that pushes the view along, ghouls clawing out of graves, rammers
-in pairs, sludgers dropping from the trees, one hidden apple and two more
-things under the grass tufts at the bottom of the orchard, a beam up into
+in pairs, sludgers dropping from the trees, almost no healing (a sandwich
+in a stump; an apple hidden under the grass, with a chainsaw, and a
+scattergun hidden near the end), $5 in a stump and two more by the
+thresher's run, a firebottle in another, a beam up into
 the visitors' ship and the two Visitors; 4 bulwarks, gigglers, a tusker
 again, a cache of crates, mudskippers out of the water, a narrow jetty,
 feelers in the planks, the Undertow; 5 three visitors outside the hotel,
-chandeliers, a tusker and a rammer, the five-wave lift and Alderman Grist.
+chandeliers, three gigglers whose beating opens the service lift early
+(walk on past it and a rammer and a tusker come), the five-wave lift and
+Alderman Grist.
 
 ## Mechanics checklist
 
@@ -63,19 +67,20 @@ chandeliers, a tusker and a rammer, the five-wave lift and Alderman Grist.
 | Kill-kick | a jab (or a hit in a grab) that fells a ghoul always brings the kick, which floors everyone in front | [GUIDE] | dku_04 |
 | Reach | a blow reaches 10 px up the street and only 3 px down it, for everyone: a little below a ghoul you hit it and it can't hit you | [MH], [GUIDE], [LIZ] | dku_04 |
 | No shield | none on a dodge, the floor, the spin or getting up; standing blows hit the fallen, both ways | [GUIDE], [STEAM-NOTFUN], [GUIDE-COMMENTS] | dku_02, dku_05 |
-| Spin | A + B at nearly any moment on the ground (even stunned, landing or mid-move); hits all round, throws whoever was behind out in front, sends shots back; costs 6 health only if it hits a ghoul | [MH], [GUIDE] | dku_05 |
-| Charged punch | hold A (you can walk, not jump): charged after 56 / 44 / 32 frames held, by RECOV; let go to lunge and hit (4 + 2 x POWER), knocking down, sending shots back | [MH], [MANUALS], [GUIDE-COMMENTS] | dku_06 |
+| Off the ground | a plain blow on anyone lying on the floor stands them back up, stunned, so a combo or a grab follows (a knock-down blow keeps them down); it works on a fallen fighter too, and catches a falling visitor before it blinks | [STEAM-ALMOST], [GUIDE-COMMENTS], [MH] | dku_04, dku_05 |
+| Spin | A + B at nearly any moment on the ground (even stunned, landing, mid-move or flat on your back); hits all round, throws whoever was behind out in front, sends shots back; costs 6 health only if it hits a ghoul | [MH], [GUIDE] | dku_05 |
+| Charged punch | hold A (you can walk, not jump): charged after 56 / 44 / 32 frames held, by RECOV; let go to lunge and hit (4 + 2 x POWER), knocking down, sending shots back (the wiki says it reflects axes and molotovs; the guide says it can't: we follow the wiki) | [MH], [MANUALS], [GUIDE], [GUIDE-COMMENTS] | dku_06 |
 | Dash attack | A while running: POWER + 2, knocks down, long recovery (shorter with RECOV), sends shots back | [MH], [GUIDE] | dku_06 |
 | Flying kick | A in the air: POWER + 3, knocks down, sends shots back | [MH], [GUIDE] | dku_06 |
 | Grab | walking into a stunned ghoul grabs it; you can walk with it; it wriggles free after 50 + 30 x THROW frames | [MH], [MANUALS], [GUIDE] | dku_07 |
 | In a grab | A hits (POWER), a direction and A throws (farther and quicker with THROW; the body floors whoever it meets; into a hole is the end of it), B jumps with it for a slam you can steer (4 + 2 x POWER, and floors those round) | [MH], [MANUALS], [GUIDE] | dku_07 |
 | ROOK | hold B in a grab: a higher slam, 8 + 3 x POWER over a wider ring | [MH], [LIZ] | dku_08 |
-| PIP | a flying kick that lands lets her jump again in mid-air, any way, and again | [MH], [TVT] | dku_08 |
+| PIP | a flying kick that lands on a ghoul, a thing on the floor or a container lets her jump again in mid-air, any way, and again | [MH], [TVT] | dku_08 |
 | MACK | his charged punch (6 + 3 x POWER) bursts what it fells | [MH] | dku_08 |
 | DOLLY | hold A in a grab: the ghoul she throws floors everything in its path and goes off where it lands | [MH], [GUIDE-COMMENTS] | dku_08 |
 | Stats | POWER: every blow; RECOV: getting up (50 / 38 / 26 frames), charges, recovery after charged and dash attacks, weapon swings; TOUGH: 3 off every blow a level (1 off fire and blasts); THROW: throws, holds, readying a picked-up weapon | [MH], [GUIDE-COMMENTS] | dku_06, dku_07, dku_10 |
 | Health | one bar of 100, yellow turning red; never refilled between nights | [MANUALS], [LIZ], [GUIDE] | dku_16 |
-| Picking up | A on something underfoot picks it up (the punch button) | [MANUALS] | dku_09 |
+| Picking up | A on something underfoot picks it up (the punch button); bending down for anything, food and cash too, leaves you open for 12 frames (only the spin gets you out) | [MANUALS], [GUIDE], [STEAM-NOTFUN] | dku_09 |
 | Food | apple 20 %, sandwich 33 %, drumstick 50 %, roast chicken all; at full health $2, $4, $6, $10 | [GUIDE], [MH] | dku_09 |
 | Cash | coins $1, a five $5, a gold ring $10; no score anywhere | [MH], [STEAM-ALMOST] | dku_09 |
 | Weapons | plank, chain (longer), pipe, ghoul arm: swung for 3-5 + POWER, knocking down; scattergun: 6 shots; chainsaw: fells a shambler at once, slow; bin, ghoul head, cleaver, firebottle thrown (the firebottle bursts into fire); A uses, B throws; ready after 26 - 8 x THROW frames | [MH], [GUIDE] | dku_09 |
@@ -90,27 +95,28 @@ chandeliers, a tusker and a rammer, the five-wave lift and Alderman Grist.
 | Shambler | flanks to both sides, backs off a flying kick, may drop its head or an arm | [GUIDE], [MH] | dku_04, dku_11 |
 | Torch-belly | lobs firebottles (a blast and fire); no fists, so up close it only backs off; goes off a moment after it falls | [MH], [TVT], [GUIDE] | dku_12 |
 | Crowmask | throws cleavers along its row; a bin or another ghoul stops them; a little tougher than a shambler | [MH], [GUIDE] | dku_12 |
-| Rammer | charges across the screen (a warning first), flattening ghouls on the way; dizzy after; lots of health | [MH], [GUIDE] | dku_12 |
+| Rammer | charges across the screen (a warning first), flattening ghouls on the way; lots of health; dizzy for a moment after a charge (ours) | [MH], [GUIDE] | dku_12 |
 | Howler | keeps its distance and pounces; knocked down, springs up and over, untouchable for a moment | [MH], [GUIDE] | dku_12 |
-| Tusker | guards while idle (answers two blows on the guard with its own), a thrown thing knocks it down, its body slam can't touch anyone in the air | [MH], [TVT], [GUIDE] | dku_12, dku_13 |
+| Tusker | guards while idle, a thrown thing knocks it down, its body slam can't touch anyone in the air; it answers two blows on its guard with its own (ours: the source only says it "becomes vulnerable occasionally") | [MH], [TVT], [GUIDE] | dku_12, dku_13 |
 | Sludger | spits a poison cloud; slow, tough, smaller than it looks | [MH], [GUIDE] | dku_13 |
-| Visitor | a slow visible ray, a three-blow combo, blinks behind you (often twice after a knock-down), not past a screen edge | [MH], [TVT], [GUIDE] | dku_13 |
+| Visitor | a slow visible ray; hits hard (12); a combo that runs on while you're still reeling (up to five blows: about half your health); long arms that reach 16 px up the floor (never come at one from above); blinks behind you (often twice after a knock-down), not past a screen edge | [MH], [TVT], [GUIDE], [STEAM-NOTFUN], [STEAM-5H] | dku_13 |
 | Bulwark | guards as it walks; four plain blows on the guard break it (not flying kicks or charged punches), so does anything thrown | [MH], [GUIDE] | dku_13 |
 | Giggler | hits hard, little health, straight back up | [MH], [GUIDE] | dku_13 |
 | Mudskipper | leaps out of the water; fast, frail, a quick jab | [MH], [GUIDE-COMMENTS] | dku_13 |
 | Feeler | stays where it is in the planks; slaps whoever comes near | [GUIDE] | dku_13 |
-| Saucer | flies over low enough to punch; $10 inside; goes off when beaten | [MH], [GUIDE] | dku_13 |
+| Saucer | flies over low enough to punch; $10 inside; goes off when beaten; stunned low, it can be grabbed and slammed (and goes off in your face) | [MH], [GUIDE], [GUIDE-COMMENTS] | dku_13 |
 | Dogs | a tied dog joins you when its leash (or the dog) is hit; bites ghouls, soaks up blows | [GUIDE], [STEAM-5H] | dku_10 |
-| Big Ram | night 1, shamblers dancing and streaming in | [GUIDE], [TVT] | dku_14 |
+| Big Ram | night 1, among four dancing shamblers who keep dancing until you come near | [GUIDE], [TVT] | dku_14 |
 | The Boar Baron | night 2, a tusker with more health | [GUIDE], [TVT] | dku_14 |
 | The Visitors | night 3, two of them; both must fall | [GUIDE], [TVT] | dku_14 |
 | The Undertow | night 4, out in the water; fists bounce off, only bodies thrown or knocked into it hurt it; mudskippers keep leaping out; its feelers come down where you stand, after a warning shadow | [GUIDE], [TVT], [STEAM-ALMOST] | dku_14 |
-| Alderman Grist | night 5: bombs and flying elbows while ghouls stream in; beaten once, he changes: gas clouds and a body slam that steers after you; a roast chicken in a bin; after a minute a pack of dogs joins in | [GUIDE], [TVT], [STEAM-NOTFUN], [STEAM-5H] | dku_14 |
-| The lift | five waves wait on the roof and drop in one at a time; the next only after the last is beaten | [GUIDE] | dku_15 |
+| Alderman Grist | night 5: bombs and flying elbows while ghouls stream in; beaten once, he changes: gas clouds and a body slam that steers after you; a roast chicken in a bin; a minute into his second form a pack of dogs joins in | [GUIDE], [TVT], [STEAM-NOTFUN], [STEAM-5H] | dku_14 |
+| The lift | five waves (4 shamblers; 2 bulwarks; 4 shamblers; 2 gigglers; 2 bulwarks and 2 howlers) wait on the roof and drop in one at a time; the next lands while the last of the current one is still up, so its first can drop in early; after the fifth, nobody may be left | [GUIDE] | dku_15 |
+| The hotel's way out | the service lift opens once the three gigglers are beaten; walk on past it and a rammer and a tusker come, and the lift waits for them | [GUIDE], [STEAM-5H] | dku_23 |
 | Shop | after each night: soup (full health) $5, +1 POWER, RECOV or TOUGH $20 (3 at most); THROW is fixed | [MH], [GUIDE], [GUIDE-COMMENTS] | dku_16 |
 | Continue | unlimited; YES restarts the night at its start with full health, cash and stats kept; NO or a count of ten ends the run; tips on the screen, one about the gym | [MH], [MANUALS], [STEAM-5H], [STEAM-NOTFUN] | dku_16 |
 | Endings | no continue: Gran comes home; any continue: too late | [TVT], [TVT-YMMV] | dku_17 |
-| The gym | walk left as night 1 begins; endless waves; HOME (the wave) and GUEST (your best) on the scoreboard; every third wave passers-by run through first and a punch shakes loose food, a weapon or a dog; a fall ends it | [TVT], [GUIDE], [MH] | dku_18 |
+| The gym | walk left as night 1 begins; endless waves; HOME (the wave) and GUEST (your best) on the scoreboard; each wave's first four ghouls come in together, from both sides; every third wave passers-by run through first and a punch shakes loose food, a weapon or a dog; a fall ends it | [TVT], [GUIDE], [MH] | dku_18 |
 | 2P | both at once (our reading, below) | [MH], [MH-CHEATS] | dku_19 |
 | Records | the gym's best wave for one player and for two, nights reached, wins, good endings; no saving mid-run | [MH], [STEAM-5H] | dku_01, dku_17 |
 | Goals | Beacon: hold out for nine waves in the gym. Saucer: punch your way up to the penthouse. Alien: make it to the top without a continue | [MH], [GGC], [GUIDE] | dku_17 |
@@ -121,13 +127,14 @@ chandeliers, a tusker and a rammer, the five-wave lift and Alderman Grist.
   says $5 for a full heal and $10 a stat, and a later comment on that guide
   corrects it: "the stat upgrades cost $20 not $10". Two sources against one
   (and the guide's own advice that "ending above $25 is ideal" fits a $5
-  heal plus a $20 stat), so a stat is **$20** and the heal **$5**. The heal
-  price rests on the guide alone. Possibly a patch changed them.
+  heal plus a $20 stat), so a stat is **$20**. The heal is **$5** by three
+  sources: the guide's table and two posts in [STEAM-ALMOST] ("the $5 heal
+  which is only important in a 1cc"; "at least $5 per player").
 - **Numbers no source gives:** a fighter's 100 health; every ghoul's health
   and hit (shambler 10 and 8, torch-belly 14, crowmask 13 and 6 or a cleaver
   of 10, rammer 40 and a charge of 14, howler 12 and a pounce of 10, tusker
-  60 and 12 or a slam of 16, sludger 30, visitor 28 and 7 a blow or a ray of
-  10, bulwark 30 and 12, giggler 8 and 14, mudskipper 6 and 9, feeler 16 and
+  60 and 12 or a slam of 16, sludger 30, visitor 28 and 12 a blow or a ray
+  of 10, bulwark 30 and 12, giggler 8 and 14, mudskipper 6 and 9, feeler 16 and
   8; bosses: Big Ram 90, the Boar Baron 120, each Visitor 40, the Undertow
   48 (a thrown body 12, a knocked one 6; its feelers 10), Grist 110 and then
   140); the stun (28 frames), the string's breath (18),
@@ -144,22 +151,33 @@ chandeliers, a tusker and a rammer, the five-wave lift and Alderman Grist.
   the street at once, each with their own fighter (the same one is allowed),
   health and stats; one purse; the shop takes turns, player 1 then player 2;
   fists never hurt a partner; the view waits for whoever is behind; a
-  fighter who falls sits out the rest of the night and comes back for the
-  next with half health (more if the shop's soup was bought for them); only
-  when both are down is it the continue screen. Locked on the Vita (one
-  controller).
+  fighter who falls is out until the shop's $5 soup is bought for them,
+  which brings them back at full health (one source, [STEAM-ALMOST]: "your
+  buddy can come back to life by buying a burger", confirmed in a reply);
+  only when both are down is it the continue screen, and a partner's fall
+  isn't a continue ("the cherry is for no continues rather than no
+  deaths"). One purse fits that thread's "$5 per player". Locked on the
+  Vita (one controller).
 - **Which carried things drop when you run:** the manual says "some"; ours
   are the plank and the chainsaw; the bin can't be run with at all.
-- **The gym's waves:** their make-up isn't documented. Ours grow from 3
-  ghouls (3 + 3/4 of the wave number) and add a kind every wave and a half
-  (shamblers, then gigglers, torch-bellies, crowmasks, howlers, mudskippers,
-  bulwarks; rammers, visitors, sludgers and tuskers only after wave 9), at
-  most five on the floor at once; each new kind shows up at least once.
+- **The gym's waves:** their make-up isn't documented. A round's enemies
+  appear together, ranged ones and fishmen among them ([GUIDE-COMMENTS]),
+  and "Boomers spawn often" ([GUIDE]). Ours grow from 3 ghouls (3 + 3/4 of
+  the wave number); the first four of a wave come in together from both
+  sides, the rest one by one with at most five on the floor; torch-bellies
+  from wave 1 and mudskippers from wave 2, then gigglers, crowmasks,
+  howlers and bulwarks (rammers, visitors, sludgers and tuskers only after
+  wave 9); each new kind shows up at least once.
   Passers-by on every third wave (the guide's "at the start of every third
   wave"). A fall ends the gym and goes back to the title; the gym is its own
   run and doesn't touch the no-continue story (the guide's author wasn't
   sure, so we keep them apart).
-- **When the dogs come in the last fight:** after 60 s of it.
+- **When the dogs come in the last fight:** the guide puts them in the
+  second phase, so ours come a minute into Grist's second form.
+- **DOLLY's charged throw is really a THROW-3 ability:** with a code that
+  maxes every stat, any fighter can do it ([GUIDE-COMMENTS], zankurous).
+  Without codes only DOLLY has THROW 3, so ours ties it to her; it plays
+  the same.
 - **The Undertow's own attack:** feelers that come down on a marked spot.
 - **The spin and the charge share A:** pressing B while charging is the
   spin, not a jump (the original's complaint that the spin "comes out when
@@ -248,10 +266,11 @@ swap them back.
 - When the final fight's dogs come.
 - Whether visiting the gym affects the no-continue ending.
 - Whether a continue gives back full health.
+- The charged punch's reflect (the sources disagree).
 
 ## Tests
 
-`tests/dku_01` … `dku_22` drive every rule with button presses, or set up a
+`tests/dku_01` … `dku_23` drive every rule with button presses, or set up a
 moment with cheats and then play it with presses: the title, the select
 and the card (01), walking, running, dodging and jumping (02), the punch
 string and its resets (03), the stun-lock, the reach window and the
@@ -261,7 +280,8 @@ punch, dash attack and flying kick (06), grabs, throws, slams and holds
 hazards (10), spawning by scroll position and lock-screens (11), every
 ghoul (12, 13), every boss (14), the lift (15), the shop and continues
 (16), the goals, both endings and the records (17), the gym (18) and two
-players (19). `dku_20` checks the full scale against the original's (five
+players (19), and the original's night-3 healing and the hotel's early
+lift (23). `dku_20` checks the full scale against the original's (five
 nights, the bosses, twelve kinds, five lift waves, the prices, the four stat
 spreads) and that every screen's words fit.
 
@@ -295,13 +315,18 @@ arithmetic only, so both play the same on every platform.
   continues. https://steamcommunity.com/sharedfiles/filedetails/?id=3350227767
 - [GUIDE] Steam guide "Fist Hell Guide [Gold+Cherry]" by Baszie: every
   move, every enemy, the punch loop, the reach, spawning by scroll, the
-  shop table, food values, each stage, the elevator's waves, the final
-  boss, survival. https://steamcommunity.com/sharedfiles/filedetails/?id=3352616154
+  shop table, food values, each stage (stage 3's stumps and hidden items;
+  stage 5's manor skip, the lift's wave list and the dogs in the second
+  phase), the final boss, survival. https://steamcommunity.com/sharedfiles/filedetails/?id=3352616154
 - [GUIDE-COMMENTS] the comments on [GUIDE]: $20 upgrades, what RECOV does,
-  Amy's thrown enemies, no wake-up punish, cancelling the string by moving.
+  Amy's thrown enemies, the charged throw for anyone with maxed stats and
+  the piledriven UFO that goes off (zankurous), no wake-up punish and
+  attacking enemies on the floor, cancelling the string by moving, the
+  survival opening (Triplefox).
 - [GGC] Steam guide "Gift, Gold & Cherry".
   https://steamcommunity.com/sharedfiles/filedetails/?id=3335464605
-- [STEAM-ALMOST] Steam thread "Fist Hell is almost really good".
+- [STEAM-ALMOST] Steam thread "Fist Hell is almost really good": the
+  off-the-ground window; 2P revive by buying a burger, $5 per player.
   https://steamcommunity.com/app/1147860/discussions/0/4852155556170004326/
 - [STEAM-NOTFUN] Steam thread "Fist Hell isnt fun".
   https://steamcommunity.com/app/1147860/discussions/0/4700161643034762292/

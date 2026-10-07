@@ -26,6 +26,8 @@
 #define BEAM(x) {0, EV_BEAM, 0, 0, 0, x, 0, 0, 0}
 #define STREAM(k, every10, most) {0, EV_STREAM, k, every10, most, 0, 0, 0, 0}
 #define DOOR(x) {0, EV_DOOR, 0, 0, 0, x, 0, 0, 0}
+/* a way on that opens before the end of the street, once nobody is left */
+#define LIFTDOOR(at, x) {at, EV_DOOR, 0, 1, 0, x, 0, 0, 0}
 #define TUFT(x, y, c) P(TUFT, x, y, c, 0)
 
 #define SEC(name, th, kind, len, ev) {name, th, kind, len, ev, ARRAY_LEN(ev)}
@@ -72,7 +74,6 @@ static const DkuEvt N1B[] = {
     AT(0, SHAMBLER, DM_DANCE, 150, 162),
     AT(0, SHAMBLER, DM_DANCE, 205, 116),
     AT(0, SHAMBLER, DM_DANCE, 70, 150),
-    STREAM(AK_SHAMBLER, 36, 3),
     P(BOX, 30, 162, IT_SANDWICH, 0),
 };
 static const DkuSection N1[] = {
@@ -101,7 +102,7 @@ static const DkuEvt N2A[] = {
     P(BIN, 950, 160, IT_COIN, 0),
     P(SIGN, 1050, 118, IT_NOTE, 0),
     R(820, SHAMBLER, 130),
-    R(840, GIGGLER, 156),
+    R(840, CROW, 156),
     DOOR(1240),
 };
 static const DkuEvt N2B[] = {
@@ -162,7 +163,7 @@ static const DkuEvt N3A[] = {
     LOCK(600),
     PIT(900, 108, 60, 26),
     P(STUMP, 1000, 162, IT_NOTE, 0),
-    P(STUMP, 1040, 126, IT_COIN, 0),
+    P(STUMP, 1040, 126, IT_SANDWICH, 0),
     P(STUMP, 1080, 150, IT_BOTTLE, 0),
     THRESHER(820, 1660),
     R(860, SHAMBLER, 124),
@@ -173,11 +174,12 @@ static const DkuEvt N3A[] = {
     R(1160, SHAMBLER, 140),
     TUFT(1200, 168, IT_SAW),
     P(STUMP, 1300, 120, IT_NOTE, 0),
+    P(STUMP, 1250, 160, IT_NOTE, 0),
     MINE(1400, 140),
-    R(1350, CROW, 160),
+    R(1350, SHAMBLER, 160),
     TUFT(1500, 168, IT_APPLE),
     TUFT(1560, 166, 0),
-    TUFT(1700, 168, IT_NOTE),
+    TUFT(1700, 168, IT_SCATTER),
     DOOR(1840),
 };
 static const DkuEvt N3B[] = {
@@ -247,7 +249,7 @@ static const DkuEvt N4A[] = {
     P(CRATE, 1360, 165, IT_NOTE, 0),
     P(CRATE, 1390, 120, IT_SANDWICH, 0),
     P(CRATE, 1420, 145, IT_NOTE, 0),
-    P(CRATE, 1450, 165, IT_RING, 0),
+    P(CRATE, 1450, 165, IT_NOTE, 0),
     DOOR(1540),
 };
 static const DkuEvt N4B[] = {
@@ -343,21 +345,18 @@ static const DkuEvt N5B[] = {
     R(1220, GIGGLER, 160),
     L(1240, GIGGLER, 140),
     LOCK(1260),
+    LIFTDOOR(1260, 1490),
     R(1380, RAMMER, 130),
     R(1380, TUSKER, 155),
     LOCK(1460),
-    DOOR(1740),
 };
 static const DkuEvt N5C[] = {
-    WAVE(1, SHAMBLER, 3),
-    WAVE(2, CROW, 2),
-    WAVE(2, SHAMBLER, 1),
-    WAVE(3, BULWARK, 2),
+    WAVE(1, SHAMBLER, 4),
+    WAVE(2, BULWARK, 2),
+    WAVE(3, SHAMBLER, 4),
     WAVE(4, GIGGLER, 2),
-    WAVE(4, SHAMBLER, 2),
+    WAVE(5, BULWARK, 2),
     WAVE(5, HOWLER, 2),
-    WAVE(5, BULWARK, 1),
-    WAVE(5, GIGGLER, 1),
 };
 static const DkuEvt N5D[] = {
     BOSS(GRIST, 240, 140),

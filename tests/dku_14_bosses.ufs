@@ -1,5 +1,5 @@
 # DUKES UP: one boss a night. Beating it ends the night at once: everyone
-# else goes home. Big Ram (the rink) with shamblers streaming in; the Boar
+# else goes home. Big Ram (the rink) among dancing shamblers; the Boar
 # Baron (the waxworks); the two Visitors (both must fall); the Undertow,
 # which fists can't hurt, only bodies thrown into it; Alderman Grist, who
 # changes when beaten once and keeps coming, while ghouls stream in, until
@@ -14,7 +14,8 @@ expect sec == 1
 expect boss_alive == 1
 expect boss_hp == 90
 wait 1200
-expect kind_1 >= 4
+# the dancers, and nobody else comes in
+expect kind_1 <= 4
 cheat killboss
 wait 2
 expect boss_down == 1
@@ -58,6 +59,9 @@ expect boss_hp == 36
 cheat night 5 3
 expect boss_hp == 110
 expect boss_mode == 0
+# the dogs' clock only starts with his second form
+wait 3700
+expect dogs == 0
 cheat killboss
 wait 2
 expect boss_down == 0

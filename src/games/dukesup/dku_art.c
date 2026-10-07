@@ -695,6 +695,7 @@ static int pose_for(const Actor *a, bool *lying) {
 
 /* sx, sy: the feet on the screen (the floor point under the actor) */
 void dku_draw_actor(const Actor *a, int sx, int sy) {
+    if (a->state == AS_GONE) return;
     int z = dku_px(a->z);
     if (a->state == AS_FALL) {
         if (a->st > 24) return;

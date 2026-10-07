@@ -428,6 +428,7 @@ static void strike(Actor *a, int i) {
         return;
     }
     dku_start_attack(a, atk == AT_NONE ? AT_E_HIT : atk);
+    a->guard_hits = 0; /* the visitor counts its combo here */
     dku_sfx("dku_swipe");
 }
 
@@ -549,7 +550,11 @@ static void foe_update(int i) {
         }
         return;
     case AS_HURT:
-        if (a->kind == AK_SAUCER) { a->state = AS_FREE; break; }
+        if (a->kind == AK_SAUCER) {
+            /* stunned, it hangs where it is a moment */
+            if (--a->stun <= 0) dku_set_state(a, AS_FREE);
+            return;
+        }
         a->vx = a->vx * 3 / 4;
         physics(a);
         if (--a->stun <= 0) {
@@ -662,14 +667,21 @@ static void foe_update(int i) {
     case AS_ATTACK: {
         dku_attack_update(a, i);
         const DkuAtk *d = &DKU_ATK[a->atk];
-        if (a->atk_t >= d->startup + d->active + d->recover) {
-            if (a->kind == AK_VISITOR && a->blinks == 0 && a->timer2 < 2 && a->atk == AT_E_HIT) {
-                /* a three-blow combo */
-                a->timer2++;
+        if (a->kind == AK_VISITOR && a->atk == AT_E_HIT && a->atk_t == d->startup + d->active && a->guard_hits < 4) {
+            /* a combo that runs on while its victim is still reeling (5 blows at most) */
+            bool caught = false;
+            for (int k = 0; k < a->nhits; k++) {
+                const Actor *h = &dku_g.a[a->hits[k]];
+                if (h->alive && h->team == 0 && h->state == AS_HURT) caught = true;
+            }
+            if (caught) {
+                a->guard_hits++;
                 dku_start_attack(a, AT_E_HIT);
-                a->atk_t = 12;
+                a->atk_t = -6; /* the next blow, a beat later */
                 return;
             }
+        }
+        if (a->atk_t >= d->startup + d->active + d->recover) {
             a->timer2 = 0;
             dku_set_state(a, AS_FREE);
             a->cool = a->kind == AK_SKIPPER ? rnd(16, 40) : a->kind == AK_DOG ? 20 : rnd(40, 80);

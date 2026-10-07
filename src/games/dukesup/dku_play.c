@@ -29,7 +29,7 @@ const DkuKind DKU_KINDS[AK_COUNT] = {
     {"HOWLER", 12, 14, 8, 20, 20, 10, 24, 0},
     {"TUSKER", 60, 7, 10, 30, 24, 12, 22, 0},
     {"SLUDGER", 30, 4, 7, 18, 22, 8, 24, 0},
-    {"VISITOR", 28, 9, 6, 30, 22, 7, 14, 0},
+    {"VISITOR", 28, 9, 6, 30, 22, 12, 14, 0},
     {"BULWARK", 30, 6, 8, 28, 22, 12, 22, 0},
     {"GIGGLER", 8, 12, 6, 26, 20, 14, 14, 0},
     {"MUDSKIPPER", 6, 18, 6, 22, 20, 9, 8, 0},
@@ -144,7 +144,8 @@ bool dku_in_reach(const Actor *a, const Actor *t, int reach, int back, int zhi) 
     if (t->kind == AK_SLUDGER) hw -= 2; /* smaller than it looks */
     if (dx - hw > reach || dx + hw < -back) return false;
     int dy = dku_px(t->y - a->y);
-    if (dy < -DKU_REACH_UP || dy > DKU_REACH_DOWN) return false;
+    int up = a->kind == AK_VISITOR ? 16 : DKU_REACH_UP; /* the visitor's long arms reach well up the floor */
+    if (dy < -up || dy > DKU_REACH_DOWN) return false;
     int tz = dku_px(t->z), az = dku_px(a->z);
     if (t->kind == AK_SAUCER) return tz <= az + zhi + 6;
     if (zhi < 0) return tz < az - zhi; /* an air blow: anything near its own height */
@@ -304,7 +305,10 @@ void dku_hurt_fighter(int i, int dmg, bool reducible, int dir, bool knock, int s
         if (f->state == AS_DOWN) { f->vz = 10; return; }
         dku_knock(f, dir, 1);
     } else if (f->state == AS_DOWN) {
-        /* no getting-up shield: you can be hit while you lie there */
+        /* no getting-up shield: a blow on the floor stands you up, stunned */
+        dku_set_state(f, AS_HURT);
+        f->stun = DKU_PSTUN;
+        f->vx = dir * 8;
     } else {
         dku_set_state(f, AS_HURT);
         f->stun = DKU_PSTUN;
@@ -400,7 +404,14 @@ bool dku_hit(int ti, int ai, int atk, int dmg, int dir, uint32_t flags) {
         }
         return true;
     }
-    if (t->kind == AK_SAUCER || t->kind == AK_UNDERTOW || t->kind == AK_FEELER) {
+    if (t->kind == AK_SAUCER) {
+        /* stunned in the air: low enough, it can be grabbed */
+        t->state = AS_HURT;
+        t->st = 0;
+        t->stun = 24;
+        return true;
+    }
+    if (t->kind == AK_UNDERTOW || t->kind == AK_FEELER) {
         t->stun = 0;
         if (t->kind == AK_FEELER) { t->state = AS_HURT; t->stun = 16; t->st = 0; }
         return true;
@@ -408,7 +419,15 @@ bool dku_hit(int ti, int ai, int atk, int dmg, int dir, uint32_t flags) {
     if (t->kind == AK_GRIST && t->state == AS_SLAM) return true; /* mid-slam: no stagger */
     if (t->state == AS_GRABBED) return true;
     if (t->state == AS_DOWN) {
-        if (t->z == 0) t->vz = 8; /* a little bounce; it stays down */
+        if (t->z == 0 && !(flags & AF_KNOCK)) {
+            /* a jab on the floor stands it back up, stunned: a combo or a grab follows */
+            dku_set_state(t, AS_HURT);
+            t->stun = DKU_STUN;
+            t->vx = dir * 4;
+            t->vz = 0;
+            return true;
+        }
+        if (t->z == 0) t->vz = 8; /* a knock-down blow: a little bounce; it stays down */
         return true;
     }
     if (flags & AF_KNOCK) {
@@ -473,6 +492,12 @@ static int item_under(const Actor *a) {
 static void take_item(Actor *a, int ii) {
     Item *it = &dku_g.it[ii];
     const DkuItemDef *d = &DKU_ITEMS[it->kind];
+    /* bending down for it leaves you open a moment, whatever it is */
+    dku_set_state(a, AS_ATTACK);
+    a->atk = AT_NONE;
+    a->timer2 = 12;
+    a->vx = a->vy = 0;
+    a->running = false;
     if (d->kind == IK_FOOD) {
         if (a->hp >= DKU_MAX_HP) {
             dku_g.cash += d->cash;
@@ -568,7 +593,9 @@ static void use_carry(Actor *a, int idx) {
 /* ---- grabs and throws --------------------------------------------------------------- */
 
 static bool grabbable(const Actor *t) {
-    if (!t->alive || t->team != 1 || t->state != AS_HURT) return false;
+    if (!t->alive || t->state != AS_HURT) return false;
+    if (t->kind == AK_SAUCER) return t->z <= dku_fx(14); /* the saucer, when it's down low */
+    if (t->team != 1) return false;
     switch (t->kind) {
     case AK_FEELER: case AK_UNDERTOW: case AK_SAUCER: return false;
     default: return true;
@@ -670,6 +697,7 @@ static void hit_props(Actor *a, const DkuAtk *d) {
         if (a->z > dku_fx(24)) continue;
         if (p->shake > 0) continue; /* one knock a blow */
         p->shake = 10;
+        if (a->atk == AT_FLYKICK && dku_g.pr[a->player].pick == DK_PIP) a->air_jump = true;
         p->hp--;
         dku_sfx("dku_thud");
         if (p->hp <= 0) {
@@ -699,6 +727,7 @@ static void hit_props(Actor *a, const DkuAtk *d) {
         int dy = dku_px(it->y - a->y);
         if (dx < 0 || dx > d->reach + 2 || dy < -DKU_REACH_UP || dy > DKU_REACH_DOWN + 2) continue;
         if (a->atk == AT_FLYKICK || a->atk == AT_KICK || a->atk == AT_DASH || a->atk == AT_SPIN) {
+            if (a->atk == AT_FLYKICK && dku_g.pr[a->player].pick == DK_PIP) a->air_jump = true;
             it->vx = a->face * 40;
             it->vz = 16;
             it->z = 1;
@@ -759,7 +788,6 @@ void dku_attack_update(Actor *a, int idx) {
             if (a->atk == AT_E_POUNCE) dmg = 10;
             if (a->atk == AT_E_ELBOW) dmg = 14;
             if (a->atk == AT_E_SLAM) dmg = 16;
-            if (a->boss && a->kind == AK_VISITOR) dmg = 8;
         }
         int dir = a->face;
         if (a->atk == AT_SPIN) dir = a->face;
@@ -845,6 +873,7 @@ static bool grounded_any(const Actor *a) {
     switch (a->state) {
     case AS_FREE: case AS_ATTACK: case AS_HURT: case AS_DODGE: case AS_GRAB: return true;
     case AS_AIR: return a->st < 3; /* still crouched to jump */
+    case AS_DOWN: return true;        /* even flat on your back */
     default: return false;
     }
 }

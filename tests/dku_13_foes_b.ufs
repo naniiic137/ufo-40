@@ -1,10 +1,11 @@
 # DUKES UP, the ghouls (2): the tusker's body slam floors anyone on the
 # ground where it lands, but not someone in the air; the sludger spits a
 # poison cloud that hurts while you stand in it; the visitor fires a slow
-# ray and, knocked down, blinks up behind you; the bulwark's guard turns
+# ray, hits hard (12) with long arms that reach well up the floor, keeps a
+# combo going while you reel, and, knocked down, blinks up behind you; the bulwark's guard turns
 # blows aside until four have landed on it; the giggler is straight back
 # up; mudskippers leap out of the water; a feeler never moves; the saucer
-# that flies over drops a gold ring.
+# that flies over drops a gold ring, and can be grabbed and slammed.
 game dukesup
 wait 5
 cheat pick 1 0
@@ -46,6 +47,42 @@ cheat pos 1 100 140
 cheat spawn visitor 200 140
 cheat foecool 2 0
 waituntil shotkind_2 == 1 300
+# its blow: 12 (TOUGH 2: 9), and it reaches 14 px up the floor, where a shambler's doesn't
+cheat arena
+cheat freeze
+cheat mortal
+cheat hp 1 100
+cheat pos 1 100 140
+cheat spawn visitor 116 140
+cheat foeface 2 -1
+cheat foestrike 2
+wait 6
+expect p1_hp == 91
+wait 60
+cheat hp 1 100
+cheat foepos 2 116 154
+cheat foestrike 2
+wait 6
+expect p1_hp == 91
+cheat arena
+cheat hp 1 100
+cheat spawn shambler 116 154
+cheat foeface 2 -1
+cheat foestrike 2
+wait 6
+expect p1_hp == 100
+# the combo runs on while you reel: more than three blows
+cheat arena
+cheat thaw
+cheat hp 1 100
+cheat pos 1 100 140
+cheat spawn visitor 116 140
+cheat foeface 2 -1
+cheat freeze
+cheat foestrike 2
+wait 160
+expect p1_hp < 64
+cheat god
 # knocked down, it blinks up behind you
 cheat arena
 cheat freeze
@@ -141,3 +178,22 @@ press A 1
 wait 20
 expect foe2_alive == 0
 expect items_7 == 1
+# grabbed when it's down low and stunned, and slammed: it bursts, ring and all
+cheat arena
+cheat stat 1 0 1
+cheat mortal
+cheat hp 1 100
+cheat pos 1 100 140
+cheat face 1 1
+cheat spawn saucer 0 0
+waituntil foe2_x <= 120 300
+press A 1
+wait 10
+expect foe2_state == 2
+hold RIGHT 6
+expect p1_state == 6
+press B 1
+wait 40
+expect foe2_alive == 0
+expect items_7 == 1
+expect p1_hp < 100

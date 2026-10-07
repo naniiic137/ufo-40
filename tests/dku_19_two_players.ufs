@@ -3,8 +3,9 @@
 # allowed) and has a health bar and stats of their own; the purse is shared
 # and the shop takes turns, player 1 then player 2; fists don't hurt your
 # partner; the view only moves on when nobody is left behind. A partner who
-# falls sits out the rest of the night and comes back for the next with
-# half health; only when both are down is it the continue screen.
+# falls is out until the shop's $5 soup is bought for them, which brings
+# them back at full health; only when both are down is it the continue
+# screen.
 game dukesup
 wait 5
 press DOWN
@@ -81,9 +82,29 @@ expect cash == 0
 press P2DOWN
 press P2A
 expect state == 3
-# the partner who fell is back for night 2 with half health
-expect p1_hp == 50
+# no soup for the one who fell: still out on night 2
+expect p1_hp == 0
+expect p1_alive == 0
+wait 120
+expect p1_alive == 0
+# night 2 done: this time the soup is bought for player 1, who is back at full health
+cheat clear
+cheat cash 10
+cheat nightdone
+wait 70
+press A
+expect shop_who == 0
+press A
+expect p1_hp == 100
+expect cash == 5
+press UP
+press A
+expect shop_who == 1
+press P2UP
+press P2A
+expect state == 3
 expect p1_alive == 1
+expect p1_hp == 100
 wait 120
 # both down: the continue screen
 cheat die

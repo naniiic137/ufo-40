@@ -4,6 +4,7 @@
 # Coins are $1, a five $5, a gold ring $10. Carried things: A uses them
 # (swing, shoot, saw or throw), B throws them; a bin is too heavy to run
 # with, and a plank or chainsaw is dropped when you break into a run.
+# Bending down to pick anything up leaves you open for a moment.
 game dukesup
 wait 5
 cheat pick 1 0
@@ -15,47 +16,61 @@ cheat hp 1 50
 cheat item apple 100 140
 wait 2
 press A 1
+wait 12
 expect p1_hp == 70
 cheat item sandwich 100 140
 wait 2
 press A 1
+wait 12
 expect p1_hp == 100
 cheat hp 1 10
 cheat item drumstick 100 140
 wait 2
 press A 1
+# bending down for it leaves you open a moment
+expect p1_state == 1
+wait 12
+expect p1_state == 0
 expect p1_hp == 60
 cheat item roast_chicken 100 140
 wait 2
 press A 1
+wait 12
 expect p1_hp == 100
 expect cash == 0
 # at full health it's cash
 cheat item apple 100 140
 wait 2
 press A 1
+wait 12
 expect cash == 2
 cheat item sandwich 100 140
 wait 2
 press A 1
+wait 12
 expect cash == 6
 cheat item drumstick 100 140
 wait 2
 press A 1
+wait 12
 expect cash == 12
 cheat item roast_chicken 100 140
 wait 2
 press A 1
+wait 12
 expect cash == 22
 cheat item coins 100 140
 wait 2
 press A 1
+wait 12
 cheat item a_five 100 140
 wait 2
 press A 1
+wait 12
 cheat item gold_ring 100 140
 wait 2
 press A 1
+wait 12
 expect cash == 38
 expect items == 0
 # a plank: picked up, ready after a moment, swung (POWER + 4) with a knock-down
@@ -66,6 +81,7 @@ cheat foehp 2 50
 wait 2
 press A 1
 expect p1_carry == 8
+wait 2
 press A 1
 wait 20
 expect foe2_hp == 50

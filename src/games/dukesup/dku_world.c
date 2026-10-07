@@ -304,6 +304,7 @@ static void place_fighters(void) {
         Actor *a = &dku_g.a[p];
         int hp = a->hp;
         bool was = a->alive && a->kind == AK_FIGHTER;
+        bool out = was && a->state == AS_GONE;
         memset(a, 0, sizeof *a);
         if (p >= dku_g.players) continue;
         a->alive = 1;
@@ -317,7 +318,7 @@ static void place_fighters(void) {
         a->face = 1;
         a->x = dku_fx(dku_view_left() + 44 + p * 22);
         a->y = dku_fx(DKU_FLOORMID - 8 + p * 18);
-        a->state = AS_FREE;
+        a->state = out ? AS_GONE : AS_FREE;
     }
 }
 
@@ -377,6 +378,7 @@ void dku_start_section(int s) {
         if (!a->alive) continue;
         a->carry = -1;
         a->partner = -1;
+        if (a->state == AS_DEAD || a->state == AS_FALL) a->state = AS_GONE; /* out for the rest of the night */
         if (a->state != AS_DEAD && a->state != AS_GONE && a->state != AS_FALL) {
             a->state = AS_FREE;
             a->z = a->vz = a->vx = a->vy = 0;
@@ -411,10 +413,10 @@ void dku_start_night(int night) {
             a->hp = DKU_MAX_HP;
         }
         if (a->hp <= 0 || a->state == AS_DEAD || a->state == AS_GONE || a->state == AS_FALL) {
-            /* a partner who fell comes back for the next night at half health
-               (or more, if the shop's soup was bought for them) */
-            a->hp = imax(a->hp, DKU_MAX_HP / 2);
-            a->state = AS_FREE;
+            /* a partner who fell only comes back if the shop's soup was bought
+               for them (it brings them back at full health); otherwise still out */
+            if (a->hp > 0) a->state = AS_FREE;
+            else { a->hp = 0; a->state = AS_GONE; }
         }
     }
     dku_g.cam = 0;
@@ -484,7 +486,7 @@ static void fire_event(const DkuEvt *e) {
         break;
     }
     case EV_BEAM: dku_add_hazard(HZ_BEAM, e->x, DKU_FLOOR0, 30, DKU_FLOOR1 - DKU_FLOOR0, 0, 0); break;
-    case EV_DOOR: dku_add_hazard(HZ_DOOR, e->x, DKU_FLOOR0 - 40, 26, 40, 0, 0); break;
+    case EV_DOOR: dku_add_hazard(HZ_DOOR, e->x, DKU_FLOOR0 - 40, 26, 40, 0, e->b); break;
     case EV_STREAM:
         dku_g.stream_kind = e->a;
         dku_g.stream_every = e->b * 10;
@@ -498,7 +500,17 @@ static void fire_event(const DkuEvt *e) {
 static void lift_update(void) {
     const DkuSection *sec = cur_sec();
     if (dku_g.lift_wave > 5) return;
-    if (dku_enemies_alive() > 0) return;
+    /* the next wave lands on the roof while the last of this one is still
+       fighting (the first of them may drop in early); after the fifth,
+       nobody may be left */
+    int roof = 0, down = 0;
+    for (int i = 2; i < DKU_MAX_ACTORS; i++) {
+        const Actor *o = &dku_g.a[i];
+        if (!o->alive || o->team != 1 || o->state == AS_DEAD || o->state == AS_FALL || o->state == AS_GONE) continue;
+        if (o->state == AS_RISE && o->from == FROM_ROOF) roof++;
+        else down++;
+    }
+    if (roof > 0 || down > (dku_g.lift_wave >= 1 && dku_g.lift_wave < 5 ? 1 : 0)) return;
     if (dku_g.lift_t > 0) { dku_g.lift_t--; return; }
     dku_g.lift_wave++;
     if (dku_g.lift_wave > 5) { dku_g.exit_t = 1; dku_sfx("dku_ding"); return; }
@@ -541,6 +553,17 @@ static void gym_update(void) {
         return;
     }
     if (dku_g.gym_spawned < dku_g.gym_nq) {
+        if (dku_g.gym_spawned == 0) {
+            /* a wave's first four come in together, from both sides */
+            int first = imin(4, dku_g.gym_nq);
+            for (int k = 0; k < first; k++) {
+                int side = (k & 1) ? FROM_LEFT : FROM_RIGHT;
+                dku_spawn(dku_g.gym_queue[k], side, 0, DKU_FLOOR0 + 8 + rng_range(&dku_g.rng, 0, DKU_FLOOR1 - DKU_FLOOR0 - 16), 0);
+            }
+            dku_g.gym_spawned = first;
+            dku_g.stream_t = 60;
+            return;
+        }
         if (--dku_g.stream_t <= 0 && dku_enemies_alive() < 5) {
             int k = dku_g.gym_queue[dku_g.gym_spawned];
             int side = (dku_g.gym_spawned & 1) ? FROM_LEFT : FROM_RIGHT;
@@ -565,10 +588,10 @@ static void gym_update(void) {
 
 /* survival: wave n's line-up (ours: more and tougher as it goes) */
 void dku_gym_wave(int wave, uint8_t *kinds, int *n, int max) {
-    static const uint8_t UNLOCK[] = {AK_SHAMBLER, AK_SHAMBLER, AK_GIGGLER, AK_TORCH, AK_CROW, AK_HOWLER, AK_SKIPPER,
-                                     AK_BULWARK, AK_RAMMER, AK_VISITOR, AK_SLUDGER, AK_TUSKER};
+    static const uint8_t UNLOCK[] = {AK_SHAMBLER, AK_TORCH, AK_SKIPPER, AK_GIGGLER, AK_CROW, AK_HOWLER, AK_BULWARK,
+                                     AK_RAMMER, AK_VISITOR, AK_SLUDGER, AK_TUSKER};
     int count = imin(max, imin(16, 3 + wave * 3 / 4));
-    int pool = imin(ARRAY_LEN(UNLOCK), 2 + wave * 2 / 3);
+    int pool = imin(ARRAY_LEN(UNLOCK), 2 + (wave - 1) * 2 / 3);
     Rng r;
     rng_seed(&r, (uint64_t)(1000 + wave * 7));
     for (int k = 0; k < count; k++) {
@@ -962,7 +985,7 @@ void dku_world_update(void) {
     }
     /* the final fight: if it goes on long enough, a pack of dogs comes running */
     if (dku_g.boss >= 0 && dku_g.a[dku_g.boss].kind == AK_GRIST && !dku_g.boss_down) {
-        if (++dku_g.dog_t == 60 * 60 && !dku_g.dogs_came) {
+        if (dku_g.a[dku_g.boss].mode == 2 && ++dku_g.dog_t == 60 * 60 && !dku_g.dogs_came) {
             dku_g.dogs_came = true;
             for (int k = 0; k < 4; k++) {
                 int i = dku_spawn(AK_DOG, FROM_LEFT, 0, DKU_FLOOR0 + 10 + k * 16, 0);
@@ -981,8 +1004,26 @@ void dku_world_update(void) {
     items_update();
     pits_update();
 
-    /* the way on */
-    if (sec->kind == SEC_WALK && !dku_g.gym) {
+    /* the way on: a door that opens before the end of the street (the hotel's
+       service lift) opens as soon as nobody is left; walk past it and more come */
+    int early = -1;
+    for (int i = 0; i < DKU_MAX_HAZARDS; i++)
+        if (dku_g.hz[i].alive && dku_g.hz[i].kind == HZ_DOOR && dku_g.hz[i].arg == 1) early = i;
+    if (sec->kind == SEC_WALK && !dku_g.gym && early >= 0) {
+        if (dku_g.cam_lock < 0 && enemies_here() == 0) {
+            if (dku_g.exit_t == 0) { dku_g.exit_t = 1; dku_g.go_t = 120; dku_sfx("dku_ding"); }
+            dku_g.exit_t++;
+            const Hazard *h = &dku_g.hz[early];
+            for (int p = 0; p < dku_g.players; p++) {
+                const Actor *a = &dku_g.a[p];
+                if (!a->alive || a->state == AS_DEAD || a->state == AS_GONE || a->state == AS_FALL) continue;
+                int x = dku_px(a->x);
+                if (x >= h->x && x < h->x + h->w) { next_section(); break; }
+            }
+        } else {
+            dku_g.exit_t = 0;
+        }
+    } else if (sec->kind == SEC_WALK && !dku_g.gym) {
         bool at_end = dku_g.cam >= sec->len - SCREEN_W && dku_g.cam_lock < 0;
         bool pending = false;
         for (int k = 0; k < sec->nev; k++) if (!dku_g.ev_done[k]) pending = true;
