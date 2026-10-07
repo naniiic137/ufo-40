@@ -1,0 +1,73 @@
+# RESTLESS: the six fights. The Bridgekeeper 80 (blue and 120 from four
+# deaths, with bombs; beaten, twelve gold beetles), Old Rattle 150,
+# Three-Tongue's three heads of 60 (lackeys join from two deaths), Gust 180
+# and Gash 220 with Gaunt between them, the Rammer 150 (enough harm in one
+# dash turns it back), the Hollow King 300, hurt only in his eyes.
+game restless
+wait 5
+cheat half 0
+cheat notimer
+cheat god
+cheat boss
+expect boss_on == 1
+expect boss_kind == 1
+expect boss_hp == 80
+expect boss_blue == 0
+cheat half 0
+cheat god
+cheat notimer
+cheat deaths 4
+cheat boss
+expect boss_hp == 120
+expect boss_blue == 1
+cheat clearitems
+cheat killboss
+expect boss_dead == 1
+expect items_6 == 12
+# the tally after a won fight
+waituntil state == 6 300
+cheat half 1
+cheat god
+cheat notimer
+cheat boss
+expect boss_kind == 2
+expect boss_hp == 150
+cheat half 2
+cheat god
+cheat notimer
+cheat deaths 2
+cheat boss
+expect boss_kind == 3
+expect foes_22 == 3
+expect boss_hp == 180
+waituntil foes_1 >= 1 300
+cheat half 3
+cheat god
+cheat notimer
+cheat boss
+expect boss_kind == 4
+expect foes_23 == 1
+expect foes_24 == 1
+expect boss_hp == 400
+cheat half 4
+cheat god
+cheat notimer
+cheat boss
+expect boss_kind == 5
+expect boss_hp == 150
+waituntil boss_state == 1 200
+cheat hurtfoe 0 24
+wait 1
+expect boss_state == 2
+cheat half 5
+cheat god
+cheat notimer
+cheat boss
+expect boss_kind == 6
+expect boss_hp == 300
+# straight at his chin: nothing
+cheat pos 3030 144
+hold RIGHT 2
+press A 1
+wait 40
+expect boss_hp == 300

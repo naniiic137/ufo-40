@@ -1,0 +1,77 @@
+# RESTLESS: the goals. Beacon: come back from the dead three times in one
+# run (the opening one counts). Saucer: lay the Hollow King to rest.
+# Alien: do it with 50,000 points or more. A run is never saved; the save
+# keeps a table of five high scores with initials, the most deaths, runs
+# and wins, and the goals come back from it.
+game restless
+wait 5
+press A
+wait 30
+press A
+expect state == 4
+cheat winspirit
+waituntil state == 2 200
+expect revivals == 1
+expect goals == 0
+cheat die
+waituntil state == 4 200
+cheat winspirit
+waituntil state == 2 200
+cheat die
+waituntil state == 4 200
+cheat winspirit
+waituntil state == 2 200
+expect revivals == 3
+expect goals == 1
+# the last fight won with fewer than 50,000
+cheat score 31000
+cheat win
+waituntil state == 6 10
+waituntil state == 9 300
+expect goals & 2
+expect goals !& 4
+hold A 600
+waituntil state == 8 400
+# initials: OLD to start
+press UP
+press A
+press A
+press A
+expect state == 10
+expect save_top0 > 31000
+expect save_name0 == 80
+expect save_wins == 1
+wait 30
+press A
+waituntil state == 0 60
+# a second run, won with 50,000 or more
+wait 10
+press A
+wait 30
+press A
+waituntil state == 4 100
+cheat winspirit
+waituntil state == 2 200
+cheat score 52000
+cheat win
+waituntil state == 6 10
+waituntil state == 9 300
+expect goals == 7
+hold A 600
+waituntil state == 8 400
+wait 2
+press A
+press A
+press A
+expect save_top0 > 52000
+expect save_top1 > 31000
+expect save_wins == 2
+expect save_best_won > 52000
+expect save_most_revivals == 3
+# goals lost, records kept: they come back
+set_goals restless 0
+reload
+game restless
+wait 5
+expect goals == 7
+expect save_runs == 2

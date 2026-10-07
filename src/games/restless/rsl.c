@@ -601,6 +601,7 @@ static int rsl_cheat(const char *cmd) {
     if (sscanf(cmd, "foestate %d %d", &a, &b) == 2) { if (a >= 0 && a < RSL_MAX_FOES) rg.foe[a].state = b; return 1; }
     if (sscanf(cmd, "foet %d %d", &a, &b) == 2) { if (a >= 0 && a < RSL_MAX_FOES) rg.foe[a].t = b; return 1; }
     if (sscanf(cmd, "green %d", &a) == 1) { if (a >= 0 && a < RSL_MAX_FOES) rg.foe[a].flags |= FF_GREEN; return 1; }
+    if (sscanf(cmd, "hurtfoe %d %d", &a, &b) == 2) { if (a >= 0 && a < RSL_MAX_FOES) rsl_hurt_foe(a, b, 0); return 1; }
     if (sscanf(cmd, "killfoe %d", &a) == 1) { if (a >= 0 && a < RSL_MAX_FOES) rsl_kill_foe(a, true); return 1; }
     if (sscanf(cmd, "foehp %d %d", &a, &b) == 2) { if (a >= 0 && a < RSL_MAX_FOES) rg.foe[a].hp = (int16_t)b; return 1; }
     if (sscanf(cmd, "item %d %d %d", &a, &b, &c) == 3) {
