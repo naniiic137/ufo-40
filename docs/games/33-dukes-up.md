@@ -64,7 +64,7 @@ chandeliers, a tusker and a rammer, the five-wave lift and Alderman Grist.
 | Reach | a blow reaches 10 px up the street and only 3 px down it, for everyone: a little below a ghoul you hit it and it can't hit you | [MH], [GUIDE], [LIZ] | dku_04 |
 | No shield | none on a dodge, the floor, the spin or getting up; standing blows hit the fallen, both ways | [GUIDE], [STEAM-NOTFUN], [GUIDE-COMMENTS] | dku_02, dku_05 |
 | Spin | A + B at nearly any moment on the ground (even stunned, landing or mid-move); hits all round, throws whoever was behind out in front, sends shots back; costs 6 health only if it hits a ghoul | [MH], [GUIDE] | dku_05 |
-| Charged punch | hold A (you can walk, not jump): charged after 44 / 32 / 20 frames by RECOV; let go to lunge and hit (4 + 2 x POWER), knocking down, sending shots back | [MH], [MANUALS], [GUIDE-COMMENTS] | dku_06 |
+| Charged punch | hold A (you can walk, not jump): charged after 56 / 44 / 32 frames held, by RECOV; let go to lunge and hit (4 + 2 x POWER), knocking down, sending shots back | [MH], [MANUALS], [GUIDE-COMMENTS] | dku_06 |
 | Dash attack | A while running: POWER + 2, knocks down, long recovery (shorter with RECOV), sends shots back | [MH], [GUIDE] | dku_06 |
 | Flying kick | A in the air: POWER + 3, knocks down, sends shots back | [MH], [GUIDE] | dku_06 |
 | Grab | walking into a stunned ghoul grabs it; you can walk with it; it wriggles free after 50 + 30 x THROW frames | [MH], [MANUALS], [GUIDE] | dku_07 |
