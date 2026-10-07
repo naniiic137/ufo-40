@@ -278,6 +278,7 @@ void rsl_load_half(int h) {
     rg.pit_done_t = 0;
     rg.secrets_found = 0;
     rg.lackey_t = 240;
+    rg.lackeys_made = rg.greens_made = 0;
     rg.wisp_t = 900;
     rg.demon_t = 0;
     rg.quiet_t = 0;
@@ -961,10 +962,11 @@ static void traps_update(void) {
             break;
         }
         case SP_FIREWALL: {
-            if (!spawn_on_screen(s, 16)) { s->b = 0; break; }
-            s->b = (s->b + 1) % 200;
-            if (s->b == 70) rsl_sfx("rsl_roar");
-            if (s->b >= 70 && s->b < 130 && s->b % 6 == 0) {
+            /* every face breathes on one clock: smoke, then 60 frames of fire, every 4 s */
+            s->b = rg.frame_t % 240;
+            if (!spawn_on_screen(s, 16)) break;
+            if (s->b == 80) rsl_sfx("rsl_roar");
+            if (s->b >= 80 && s->b < 140 && s->b % 6 == 0) {
                 int x = (s->tx * RSL_TILE + 8 + s->a * 14) * RSL_FX;
                 int e = rsl_add_eshot(ES_FLAME, x, (s->ty * RSL_TILE + 8) * RSL_FX, s->a * 640, 0);
                 if (e >= 0) rg.es[e].life = 18;

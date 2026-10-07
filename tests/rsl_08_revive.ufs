@@ -1,0 +1,41 @@
+# RESTLESS: coming back. He rises where he last stood, safe for a moment,
+# with the plain staff again; every foe and loose item on screen is gone.
+# With 20 seconds or less left (or none), the clock goes back to 20.
+game restless
+wait 5
+cheat half 0
+cheat notimer
+cheat nospawn
+cheat weapon 2
+cheat pos 200 144
+cheat foe 1 260 134
+cheat item 4 230 130
+wait 2
+expect foes_1 == 1
+expect items_4 == 1
+cheat die
+waituntil state == 4 200
+cheat winspirit
+waituntil state == 2 200
+expect px == 200
+expect py == 144
+expect weapon == 0
+expect foes_1 == 0
+expect items_4 == 0
+expect inv > 100
+expect revivals == 1
+# late in the clock: back to 20
+cheat timer
+cheat time 12
+cheat die
+waituntil state == 4 200
+cheat winspirit
+waituntil state == 2 200
+expect time == 20
+cheat time 60
+cheat die
+waituntil state == 4 200
+cheat winspirit
+waituntil state == 2 200
+expect time == 60
+expect revivals == 3

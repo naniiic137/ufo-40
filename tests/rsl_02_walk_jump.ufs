@@ -1,0 +1,55 @@
+# RESTLESS: one walking pace, 7/8 of a pixel a frame, no running and no
+# momentum. One fixed jump: a tap and a held button go exactly as high, and
+# once off the ground the pad only turns him, it never steers. Every
+# landing freezes him for 14 frames.
+game restless
+wait 5
+cheat half 0
+cheat nospawn
+cheat notimer
+cheat god
+expect px256 == 18432
+hold RIGHT 32
+expect px256 == 25600
+expect face == 1
+expect ground == 1
+# a tap of the jump: up 40 pixels at most
+press B 1
+waituntil ground == 1 80
+expect lag > 0
+expect py == 144
+# straight up, then RIGHT and LEFT in the air: he only turns
+wait 20
+expect lag == 0
+press B 1
+expect ground == 0
+hold LEFT 10
+expect px256 == 25600
+expect face == -1
+hold RIGHT 10
+expect px256 == 25600
+expect face == 1
+waituntil ground == 1 80
+# the landing freeze: walking does nothing for 14 frames
+expect lag == 14
+hold RIGHT 13
+expect px256 == 25600
+hold RIGHT 4
+expect px256 > 25600
+# a held jump goes no higher than a tap: measure both at the top
+wait 20
+press B 1
+wait 17
+expect py == 105
+waituntil ground == 1 80
+wait 20
+hold B 20
+expect py == 105
+waituntil ground == 1 80
+release B
+# a running jump carries the walking pace and no more
+wait 20
+hold RIGHT 2
+hold RIGHT B 2
+hold RIGHT 36
+expect ground == 0

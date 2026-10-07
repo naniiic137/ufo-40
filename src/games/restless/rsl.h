@@ -330,6 +330,7 @@ typedef struct {
     int bot_t;
     /* small bookkeeping that belongs to the run (so a copy of rg is the whole game) */
     int flock_kills[16], flock_n;
+    int lackeys_made, greens_made;    /* the ground's lackeys this half (tests) */
     int wheel_id;
     int boss_floor_y;
 } RslGame;

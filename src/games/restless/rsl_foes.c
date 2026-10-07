@@ -705,7 +705,8 @@ static void ambient(void) {
                 int f = rsl_spawn_foe(FO_LACKEY, (tx * RSL_TILE + 8) * RSL_FX, (g - 10) * RSL_FX, 0);
                 if (f >= 0) {
                     int odds = dl >= 4 ? 3 : 8; /* green spear throwers: 1 in 8, 1 in 3 from 4 deaths */
-                    if (rng_range(&rg.rng, 1, odds) == 1) rg.foe[f].flags |= FF_GREEN;
+                    rg.lackeys_made++;
+                    if (rng_range(&rg.rng, 1, odds) == 1) { rg.foe[f].flags |= FF_GREEN; rg.greens_made++; }
                     rg.foe[f].flags |= FF_HARMLESS;
                 }
                 break;

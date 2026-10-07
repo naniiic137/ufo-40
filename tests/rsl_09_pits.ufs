@@ -1,0 +1,57 @@
+# RESTLESS: a pit is no death. Falling in drops him into a closed room of
+# foes; when they're all beaten he is back at the start of the section.
+# Dying in there and coming back does the same. The last pit of the game
+# (in the Hollow Crown) is a hoard:
+# six torches, a bell and a clock, and a way out. With five deaths or more
+# the first pit of the falls has words on its wall.
+game restless
+wait 5
+cheat half 1
+cheat notimer
+cheat god
+cheat pos 1735 144
+wait 2
+expect section_x == 1320
+hold RIGHT 60
+waituntil pit == 1 120
+expect pit == 1
+wait 30
+expect foes >= 3
+expect pit_left == 4
+# a lily clears the room
+cheat pos 488 336
+wait 2
+cheat item 8 488 330
+wait 12
+expect foes == 0
+expect pit_left == 0
+waituntil pit == -1 120
+expect px == 1320
+# back down; die there; up at the section start
+cheat pos 1735 144
+hold RIGHT 60
+waituntil pit == 1 120
+wait 30
+cheat mortal
+cheat die
+waituntil state == 4 200
+cheat winspirit
+waituntil state == 2 200
+expect pit == -1
+expect px == 1320
+# the hoard at the end
+cheat half 5
+cheat god
+cheat pit 1
+wait 40
+expect pit == 1
+expect torches_lit == 0
+expect items_11 == 1
+expect items_7 == 1
+# the words, only for the often-dead
+cheat half 4
+cheat pit 0
+wait 2
+expect writing == 0
+cheat deaths 5
+expect writing == 1

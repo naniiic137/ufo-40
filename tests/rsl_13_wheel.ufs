@@ -1,0 +1,22 @@
+# RESTLESS: a weapon torch lets out a wheel of three, seeker, ember and
+# scatter, turning slowly. Touch one to take it and the rest go. The one
+# he already holds is a gold jar instead.
+game restless
+wait 5
+cheat half 0
+cheat nospawn
+cheat notimer
+cheat god
+cheat wheel 200 132
+wait 20
+expect items_13 == 3
+expect items_3 == 0
+cheat clearitems
+cheat weapon 2
+cheat wheel 200 132
+wait 20
+expect items_13 == 2
+expect items_3 == 1
+hold RIGHT 160
+waituntil items == 0 200
+expect weapon != 2

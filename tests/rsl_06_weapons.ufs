@@ -1,0 +1,51 @@
+# RESTLESS: the four weapons. The staff 8; the seeker ring 6 and turns
+# toward foes, only the first two track far; the ember 10, its charge two
+# fireballs in a helix; the scatter five pellets of 3 (4 charged), the
+# charged ones hanging in the air a second and stopping foe shots.
+game restless
+wait 5
+cheat half 0
+cheat nospawn
+cheat notimer
+cheat god
+cheat weapon 2
+press A
+expect shot0_dmg == 10
+expect shot0_vx == 1280
+expect shot0_life >= 30
+wait 40
+hold A 45
+release
+wait 1
+expect shots == 2
+expect shot0_dmg == 10
+expect shot0_charged == 1
+wait 60
+cheat weapon 1
+press A 1
+press A 1
+press A 1
+expect shots == 3
+expect shot0_dmg == 6
+wait 30
+expect shots == 2
+wait 60
+cheat weapon 3
+press A
+expect shots == 5
+expect shot0_dmg == 3
+wait 30
+expect shots == 0
+hold A 45
+release
+wait 1
+expect shots == 5
+expect shot0_dmg == 4
+wait 18
+expect hovering >= 4
+# a foe shot into the hanging pellets is stopped
+cheat eshot 0 160 127 -400 0
+wait 20
+expect eshots == 0
+wait 60
+expect hovering == 0

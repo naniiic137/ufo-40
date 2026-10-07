@@ -1,0 +1,49 @@
+# RESTLESS: the staff fires the way he faces, up the slant with UP, down
+# the slant with DOWN only in the air; never straight up or down.
+game restless
+wait 5
+cheat half 0
+cheat nospawn
+cheat notimer
+cheat god
+press A
+expect shots == 1
+expect shot0_vx == 1024
+expect shot0_vy == 0
+expect shot0_dmg == 8
+wait 30
+hold UP A 2
+release
+expect shot0_vx == 724
+expect shot0_vy == -724
+wait 30
+# DOWN on the ground: a crouched shot, still straight ahead
+hold DOWN A 2
+release
+expect shot0_vx == 1024
+expect shot0_vy == 0
+wait 30
+# in the air, DOWN fires down the slant
+press B 1
+wait 6
+hold DOWN A 2
+release
+expect shot0_vx == 724
+expect shot0_vy == 724
+waituntil ground == 1 80
+wait 30
+# facing left
+hold LEFT 2
+wait 14
+hold UP A 2
+release
+expect shot0_vx == -724
+expect shot0_vy == -724
+wait 30
+# no more than three staff shots at once
+press A 1
+press A 1
+press A 1
+press A 1
+press A 1
+expect shots == 3

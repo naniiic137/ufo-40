@@ -185,11 +185,14 @@ static bool hazard_ahead(int dir) {
         int sx = s->tx * RSL_TILE + 8, sy = s->ty * RSL_TILE + 8;
         int dx = sx - px();
         if (s->type == SP_FIREWALL) {
-            int reach = sx + s->a * 70;
-            bool covers = (s->a > 0 && px() + 8 >= sx && px() - 8 <= reach) ||
-                          (s->a < 0 && px() - 8 <= sx && px() + 8 >= reach);
-            bool soon = dir * dx > -40 && dir * dx < 90;
-            if (iabs(sy - (py() - 8)) < 16 && (covers || soon) && s->b >= 40 && s->b < 160) return true;
+            /* wait for the window: from the end of the fire, 160 frames to cross */
+            bool near = dir * dx > -70 && dir * dx < 120;
+            if (iabs(sy - (py() - 8)) < 24 && near && s->b >= 40 && s->b < 150) {
+                /* wait only short of its flames; inside them or past, hurry on */
+                int z0 = s->a > 0 ? sx : sx - 64, z1 = s->a > 0 ? sx + 64 : sx;
+                bool before = dir > 0 ? px() < z0 - 4 : px() > z1 + 4;
+                if (before) return true;
+            }
         }
         if (s->type == SP_ROCKFALL && (s->b > 0) && dir * dx > -20 && dir * dx < 44) return true;
     }

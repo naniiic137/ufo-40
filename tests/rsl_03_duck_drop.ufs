@@ -1,0 +1,37 @@
+# RESTLESS: DOWN crouches (he can't walk crouched), which ducks a shot at
+# head height; DOWN + jump on a plank drops through it (here onto the step below).
+game restless
+wait 5
+cheat half 0
+cheat nospawn
+cheat notimer
+cheat clear
+# a spear at head height: crouched, it passes over him
+hold DOWN 2
+expect duck == 1
+hold DOWN RIGHT 10
+expect px == 72
+cheat eshot 1 140 128 -600 0
+hold DOWN 40
+expect state == 2
+expect deaths == 1
+# standing, the same spear kills
+cheat eshot 1 140 128 -600 0
+wait 40
+expect state == 3
+expect deaths == 2
+expect last_hurt == 101
+# on the plank of the second screen; DOWN + jump drops through it
+waituntil state == 4 200
+cheat winspirit
+waituntil state == 2 200
+cheat god
+cheat pos 540 80
+wait 2
+expect ground == 1
+expect py == 80
+hold DOWN B 2
+release
+wait 20
+expect py == 128
+expect ground == 1

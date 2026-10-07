@@ -449,10 +449,25 @@ static int rsl_query(const char *key, int *out) {
         return 1;
     }
     if (!strcmp(key, "pit_done_t")) { *out = rg.pit_done_t; return 1; }
+    if (!strcmp(key, "writing")) {
+        /* the words on the first pit's wall of the falls show from 5 deaths */
+        extern char rsl_hint(int tx, int ty);
+        int n = 0;
+        if (rg.pit >= 0 && rg.deaths >= 5)
+            for (int ty = rsl_main_h(); ty < rg.mh; ty++)
+                for (int tx = rg.pit * RSL_SW; tx < rg.pit * RSL_SW + RSL_SW; tx++) n += rsl_hint(tx, ty) == 'Y';
+        *out = n;
+        return 1;
+    }
     if (!strcmp(key, "section_x")) { *out = RSL_PX(rg.section_x); return 1; }
     if (!strcmp(key, "map_w")) { *out = rg.mw * RSL_TILE; return 1; }
     if (!strcmp(key, "main_h")) { *out = rsl_main_h() * RSL_TILE; return 1; }
     if (!strcmp(key, "boss_on")) { *out = rg.boss_on; return 1; }
+    if (!strcmp(key, "boss_kind")) { *out = rg.boss_kind; return 1; }
+    if (!strcmp(key, "lackeys_made")) { *out = rg.lackeys_made; return 1; }
+    if (!strcmp(key, "greens_made")) { *out = rg.greens_made; return 1; }
+    if (!strcmp(key, "art_bad")) { extern int rsl_art_check(void); *out = rsl_art_check(); return 1; }
+    if (!strncmp(key, "hp_of_", 6)) { *out = RSL_FOE_HP[iclamp(atoi(key + 6), 0, FO_KINDS - 1)]; return 1; }
     if (!strcmp(key, "boss_dead")) { *out = rg.boss_dead; return 1; }
     if (!strcmp(key, "boss_hp")) { *out = rsl_boss_hp_total(); return 1; }
     if (!strcmp(key, "boss_blue")) { int b = first_foe(FO_KEEPER); *out = b >= 0 ? (rg.foe[b].flags & FF_BLUE) != 0 : -1; return 1; }
@@ -477,6 +492,8 @@ static int rsl_query(const char *key, int *out) {
         if (!strcmp(u, "_state")) { *out = f->state; return 1; }
         if (!strcmp(u, "_green")) { *out = (f->flags & FF_GREEN) != 0; return 1; }
         if (!strcmp(u, "_harmless")) { *out = (f->flags & FF_HARMLESS) != 0; return 1; }
+        if (!strcmp(u, "_var")) { *out = f->var; return 1; }
+        if (!strcmp(u, "_blue")) { *out = (f->flags & FF_BLUE) != 0; return 1; }
         return 0;
     }
     if (!strcmp(key, "eshots")) { int n = 0; for (int i = 0; i < RSL_MAX_ESHOTS; i++) n += rg.es[i].alive; *out = n; return 1; }
@@ -494,6 +511,12 @@ static int rsl_query(const char *key, int *out) {
     if (!strcmp(key, "shot0_life")) { *out = -1; for (int i = 0; i < RSL_MAX_SHOTS; i++) if (rg.shot[i].alive) { *out = rg.shot[i].life; break; } return 1; }
     if (!strcmp(key, "hovering")) { int n = 0; for (int i = 0; i < RSL_MAX_SHOTS; i++) n += rg.shot[i].alive && rg.shot[i].hover > 0; *out = n; return 1; }
     if (!strcmp(key, "items")) { *out = count_items(-1); return 1; }
+    if (!strncmp(key, "item_y_", 7)) {
+        int k = atoi(key + 7);
+        *out = -999;
+        for (int i = 0; i < RSL_MAX_ITEMS; i++) if (rg.item[i].alive && rg.item[i].kind == k) { *out = RSL_PX(rg.item[i].y); break; }
+        return 1;
+    }
     if (!strncmp(key, "items_", 6)) { *out = count_items(atoi(key + 6)); return 1; }
     if (!strcmp(key, "torches")) { *out = count_spawns(SP_TORCH, -1, false); return 1; }
     if (!strcmp(key, "torches_lit")) { *out = count_spawns(SP_TORCH, -1, true); return 1; }
@@ -567,7 +590,18 @@ static int rsl_cheat(const char *cmd) {
         if (f >= 0 && a == FO_WISP) { rg.foe[f].b = c * RSL_FX; rg.foe[f].a = 15; rg.foe[f].dir = -1; }
         return 1;
     }
+    {
+        int k, x, y, vx, vy;
+        if (sscanf(cmd, "eshot %d %d %d %d %d", &k, &x, &y, &vx, &vy) == 5) {
+            /* a foe shot at (x, y) pixels moving (vx, vy) in 1/256 px a frame */
+            rsl_add_eshot(k, x * RSL_FX, y * RSL_FX, vx, vy);
+            return 1;
+        }
+    }
+    if (sscanf(cmd, "foestate %d %d", &a, &b) == 2) { if (a >= 0 && a < RSL_MAX_FOES) rg.foe[a].state = b; return 1; }
+    if (sscanf(cmd, "foet %d %d", &a, &b) == 2) { if (a >= 0 && a < RSL_MAX_FOES) rg.foe[a].t = b; return 1; }
     if (sscanf(cmd, "green %d", &a) == 1) { if (a >= 0 && a < RSL_MAX_FOES) rg.foe[a].flags |= FF_GREEN; return 1; }
+    if (sscanf(cmd, "killfoe %d", &a) == 1) { if (a >= 0 && a < RSL_MAX_FOES) rsl_kill_foe(a, true); return 1; }
     if (sscanf(cmd, "foehp %d %d", &a, &b) == 2) { if (a >= 0 && a < RSL_MAX_FOES) rg.foe[a].hp = (int16_t)b; return 1; }
     if (sscanf(cmd, "item %d %d %d", &a, &b, &c) == 3) {
         int i = rsl_drop_item(iclamp(a, 1, IT_KINDS - 1), b * RSL_FX, c * RSL_FX, 0);

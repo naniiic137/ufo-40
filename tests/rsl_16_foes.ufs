@@ -1,0 +1,196 @@
+# RESTLESS: the nineteen foes and their hit points (the original's): lackey
+# 6, spitbloom 42, starspitter 20, hive 24, gnat 1, wisp 6, tumbler 6, bog
+# toad 10, boulderkin 24, shellcrab 1, leaper 1, weeper 20, shade 6,
+# gloomcrow 42, firemaw 42, shieldling 1, hulk 80, clockfire 5, stormcloud
+# 42. A shellcrab hit only rolls over and gets up again; a weeper takes no
+# harm with its eye shut; a shieldling's shield stops shots from the front;
+# a hive lets out gnats; four wisps beaten drop a gold jar.
+game restless
+wait 5
+cheat half 0
+cheat nospawn
+cheat notimer
+cheat god
+cheat clear
+cheat foe 1 260 60
+expect foe0_kind == 1
+expect foe0_hp == 6
+expect hp_of_1 == 6
+cheat clear
+cheat foe 2 260 60
+expect foe0_kind == 2
+expect foe0_hp == 42
+expect hp_of_2 == 42
+cheat clear
+cheat foe 3 260 60
+expect foe0_kind == 3
+expect foe0_hp == 20
+expect hp_of_3 == 20
+cheat clear
+cheat foe 4 260 60
+expect foe0_kind == 4
+expect foe0_hp == 24
+expect hp_of_4 == 24
+cheat clear
+cheat foe 5 260 60
+expect foe0_kind == 5
+expect foe0_hp == 1
+expect hp_of_5 == 1
+cheat clear
+cheat foe 6 260 60
+expect foe0_kind == 6
+expect foe0_hp == 6
+expect hp_of_6 == 6
+cheat clear
+cheat foe 7 260 60
+expect foe0_kind == 7
+expect foe0_hp == 6
+expect hp_of_7 == 6
+cheat clear
+cheat foe 8 260 60
+expect foe0_kind == 8
+expect foe0_hp == 10
+expect hp_of_8 == 10
+cheat clear
+cheat foe 9 260 60
+expect foe0_kind == 9
+expect foe0_hp == 24
+expect hp_of_9 == 24
+cheat clear
+cheat foe 10 260 60
+expect foe0_kind == 10
+expect foe0_hp == 1
+expect hp_of_10 == 1
+cheat clear
+cheat foe 11 260 60
+expect foe0_kind == 11
+expect foe0_hp == 1
+expect hp_of_11 == 1
+cheat clear
+cheat foe 12 260 60
+expect foe0_kind == 12
+expect foe0_hp == 20
+expect hp_of_12 == 20
+cheat clear
+cheat foe 13 260 60
+expect foe0_kind == 13
+expect foe0_hp == 6
+expect hp_of_13 == 6
+cheat clear
+cheat foe 14 260 60
+expect foe0_kind == 14
+expect foe0_hp == 42
+expect hp_of_14 == 42
+cheat clear
+cheat foe 15 260 60
+expect foe0_kind == 15
+expect foe0_hp == 42
+expect hp_of_15 == 42
+cheat clear
+cheat foe 16 260 60
+expect foe0_kind == 16
+expect foe0_hp == 1
+expect hp_of_16 == 1
+cheat clear
+cheat foe 17 260 60
+expect foe0_kind == 17
+expect foe0_hp == 80
+expect hp_of_17 == 80
+cheat clear
+cheat foe 18 260 60
+expect foe0_kind == 18
+expect foe0_hp == 5
+expect hp_of_18 == 5
+cheat clear
+cheat foe 19 260 60
+expect foe0_kind == 19
+expect foe0_hp == 42
+expect hp_of_19 == 42
+# the shellcrab
+cheat clear
+cheat foe 10 120 139
+wait 2
+hold DOWN A 2
+release
+wait 10
+expect foe0_alive == 1
+expect foe0_state == 2
+expect foe0_harmless == 1
+wait 240
+expect foe0_state == 1
+# the weeper, eye shut then open
+cheat clear
+cheat pos 100 144
+cheat foe 12 140 127
+cheat foet 0 0
+wait 1
+press A
+wait 10
+expect foe0_hp == 20
+cheat foet 0 95
+wait 1
+press A
+wait 10
+expect foe0_hp == 12
+# the shieldling, shield up toward him
+cheat clear
+cheat foe 16 140 137
+cheat foet 0 0
+wait 1
+hold DOWN A 2
+release
+wait 10
+expect foe0_alive == 1
+cheat foet 0 125
+wait 1
+hold DOWN A 2
+release
+wait 10
+expect foe0_alive == 0
+# the hive
+cheat clear
+cheat foe 4 200 70
+wait 120
+expect foes_5 >= 1
+# a flock of four wisps, all beaten: a gold jar
+cheat clear
+cheat clearitems
+cheat weapon 2
+cheat foe 6 230 127
+cheat foe 6 250 127
+cheat foe 6 270 127
+cheat foe 6 290 127
+press A 1
+wait 4
+press A 1
+wait 4
+press A 1
+wait 4
+press A 1
+wait 4
+press A 1
+wait 4
+press A 1
+wait 4
+press A 1
+wait 4
+press A 1
+wait 4
+press A 1
+wait 4
+press A 1
+wait 4
+press A 1
+wait 4
+press A 1
+wait 4
+press A 1
+wait 4
+press A 1
+wait 4
+press A 1
+wait 4
+press A 1
+wait 4
+expect foes_6 == 0
+waituntil items_3 >= 1 60

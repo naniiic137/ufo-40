@@ -200,7 +200,7 @@ static void draw_spawns(void) {
             gfx_hline(x + 3, x + 12, y + 6, C_EARTH);
             break;
         case SP_FIREWALL:
-            if (s->b >= 40 && s->b < 70 && t % 4 < 2) gfx_rect(x + (s->a > 0 ? 12 : 0), y + 9, 4, 4, C_ORANGE);
+            if (s->b >= 50 && s->b < 80 && t % 4 < 2) gfx_rect(x + (s->a > 0 ? 12 : 0), y + 9, 4, 4, C_ORANGE);
             break;
         case SP_FOE:
             if (s->foe == FO_TOAD) {
