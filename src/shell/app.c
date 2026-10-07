@@ -16,7 +16,7 @@ int g_library_cursor;
 int g_jukebox_song = -1;
 
 /* which cartridge defined each song, recorded while the cartridges load */
-#define OWNER_MAX 384
+#define OWNER_MAX 1024 /* one per song: keep in step with MAX_SONGS in engine/audio.c */
 static int8_t song_owner[OWNER_MAX];
 static bool owners_ready;
 
