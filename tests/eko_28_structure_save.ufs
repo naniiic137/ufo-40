@@ -1,0 +1,46 @@
+# STRUCTURE: four bats, four city missions and the Caldera. Marseille is
+# two stretches of eight screens and the lift; the lab climbs six; the
+# listening post has 18 rooms and the Caldera 10; the pass is a script of
+# about two minutes before its two bosses; the ring road 26,200 px.
+# SAVING: no run is ever saved (as the original); the records are: the
+# best scores in Marseille, the Andes and Cairo, and the rescues.
+seed 1
+game echounit
+wait 5
+cheat mission 0
+wait 3
+expect b_mw == 2560
+cheat section 1
+wait 3
+expect b_mw == 2560
+cheat section 2
+wait 3
+expect b_mw == 320
+cheat mission 4
+cheat section 1
+wait 3
+expect b_mh == 960
+cheat mission 3
+wait 3
+expect s_rooms == 18
+expect s_guards == 17
+cheat mission 4
+wait 3
+expect s_rooms == 10
+cheat mission 2
+wait 3
+expect k_length == 26200
+check_songs
+# a record is kept; a run is not
+cheat mission 2
+cheat knospawn
+cheat score 900
+cheat done
+waituntil state == 7 100
+expect save_best2 == 900
+reload
+game echounit
+wait 5
+expect state == 0
+expect save_best2 == 900
+expect save_runs >= 1

@@ -1,0 +1,10 @@
+# The cherry run: the demo player, playing it safe, gets through the whole
+# game without emptying one health bar.
+seed 8
+game echounit
+wait 10
+cheat botcherry 1
+botuntil state == 12 200000
+expect lives_lost == 0
+expect goals & 4
+expect save_cherries == 1

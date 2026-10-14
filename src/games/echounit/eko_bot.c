@@ -133,8 +133,9 @@ static int brawl_score(void) {
     }
     if (b->boss_on && b->boss_i >= 0 && b->foe[b->boss_i].alive) s -= b->foe[b->boss_i].hp * 600;
     if (b->boss_dead) s += 50000;
-    if (b->p.key) s += 30000;
-    if (b->wall_open_t) s += 30000;
+    /* the key and the blown wall are worth any walk they lead to */
+    if (b->p.key) s += 400000;
+    if (b->wall_open_t) s += 800000;
     /* falling is the worst thing */
     if (b->p.dead_t) s -= 3000000;
     return s;
@@ -381,10 +382,11 @@ static void sneak_target(int *tx, int *ty) {
     const EkoSneak *s = &eg.sn;
     int px = EKO_PX(s->x) >> 4, py = (EKO_PX(s->y) - SN_TOP) >> 4;
     int rx0 = s->room_x * SN_RW, ry0 = s->room_y * SN_RH;
-    /* anything lying in this room */
+    /* anything lying in this room that can be reached */
     int best = -1, bd = 1 << 30;
+    sneak_field(px, py);
     for (int i = 0; i < s->nitem; i++) {
-        if (s->item[i].taken) continue;
+        if (s->item[i].taken || sdist[s->item[i].ty][s->item[i].tx] >= 30000) continue;
         int ix = s->item[i].tx, iy = s->item[i].ty;
         if (ix < rx0 || iy < ry0 || ix >= rx0 + SN_RW || iy >= ry0 + SN_RH) continue;
         int d = iabs(ix - px) + iabs(iy - py);

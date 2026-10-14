@@ -1,0 +1,88 @@
+# THE JAILBREAK: each bat's own two moves.
+#   DART   A shoots down the line (no limit, loud); B dashes up to three tiles, felling a guard in the way
+#   FLINT  A punches the guard in front; B braces against the next blow
+#   VESPER A shoots (three shots, loud); B rolls two tiles
+#   SABLE  A darts a guard asleep for six turns (silent); B whistles: guards near come to look
+seed 1
+game echounit
+wait 5
+# DART
+cheat rescue 1 2 5
+cheat rblank
+cheat rguard 0 10 4 0
+cheat rguard 0 5 6 2
+press A 1
+wait 1
+expect r_guards == 1
+expect r_kos == 1
+expect r_seeking == 1
+cheat rblank
+cheat rguard 0 4 4 1
+press B 1
+wait 1
+expect r_guards == 0
+expect r_x == 3
+cheat rblank
+press B 1
+wait 1
+expect r_x == 5
+# FLINT
+cheat rescue 2 0 5
+cheat rblank
+cheat rguard 0 3 4 1
+press A 1
+wait 1
+expect r_guards == 0
+cheat rblank
+cheat rguard 0 3 3 2
+cheat rguard 0 3 5 0
+expect r_hp == 3
+press B 1
+wait 1
+press B 1
+wait 1
+expect r_hp == 3
+# VESPER
+cheat rescue 0 1 5
+cheat rblank
+expect r_ammo == 3
+cheat rguard 0 9 4 0
+press A 1
+wait 1
+expect r_guards == 0
+expect r_ammo == 2
+cheat rblank
+press B 1
+wait 1
+expect r_x == 4
+expect r_turns == 1
+# SABLE
+cheat rescue 0 3 5
+cheat rblank
+expect r_hp == 2
+cheat rguard 0 9 4 0
+press A 1
+wait 1
+expect r_asleep == 1
+expect r_ammo == 2
+expect r_seeking == 0
+press DOWN 1
+wait 1
+press UP 1
+wait 1
+press DOWN 1
+wait 1
+press UP 1
+wait 1
+press DOWN 1
+wait 1
+press UP 1
+wait 1
+expect r_asleep == 0
+cheat rblank
+cheat rguard 0 7 4 0
+cheat rguard 0 2 8 0
+press B 1
+wait 1
+# they come to look, and find her
+expect r_alert == 2

@@ -1,0 +1,15 @@
+# The whole game, played by the demo player with real button presses from
+# the title: the board, every briefing, all four cities and the Caldera,
+# through to the ending (about 18 minutes of play).
+seed 3
+game echounit
+wait 10
+botuntil cleared0 == 1 30000
+botuntil cleared1 == 1 30000
+botuntil cleared2 == 1 30000
+botuntil cleared3 == 1 40000
+botuntil finale == 1 3000
+botuntil state == 12 40000
+expect won == 1
+expect goals & 2
+botuntil state == 0 3000

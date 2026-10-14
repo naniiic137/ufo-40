@@ -737,6 +737,13 @@ static int eko_query(const char *key, int *out) {
     if (!strcmp(key, "r_won")) { *out = r->won; return 1; }
     if (!strcmp(key, "r_lost")) { *out = r->lost; return 1; }
     if (!strcmp(key, "r_turns")) { *out = r->turns; return 1; }
+    if (!strncmp(key, "r_tile_", 7)) {
+        int tx = atoi(key + 7);
+        const char *u = strchr(key + 7, '_');
+        int ty = u ? atoi(u + 1) : 0;
+        *out = tx >= 0 && ty >= 0 && tx < RS_W && ty < RS_H ? r->tile[ty][tx] : 0;
+        return 1;
+    }
     if (!strcmp(key, "r_kos")) { *out = r->kos; return 1; }
     if (!strcmp(key, "r_owl")) { *out = r->owl; return 1; }
     if (!strcmp(key, "r_guards")) { int n = 0; for (int i = 0; i < r->ng; i++) n += r->g[i].alive; *out = n; return 1; }
@@ -787,7 +794,16 @@ static int eko_cheat(const char *cmd) {
     if (!strcmp(cmd, "hq")) { to_hq(); return 1; }
     if (!strcmp(cmd, "god")) { eg.god = true; return 1; }
     if (!strcmp(cmd, "mortal")) { eg.god = false; return 1; }
-    if (!strcmp(cmd, "die")) { eg.god = false; eko_hurt(99); return 1; }
+    if (!strcmp(cmd, "die")) {
+        /* the current bat's health bar emptied, as by a blow */
+        eg.god = false;
+        eko_hurt(99);
+        if (eg.mode == MODE_BRAWL) eg.br.p.dead_t = 1;
+        if (eg.mode == MODE_GALLERY) eg.ga.dead_t = 1;
+        if (eg.mode == MODE_BIKE) eg.bk.dead_t = 1;
+        if (eg.mode == MODE_SNEAK) eg.sn.dead_t = 1;
+        return 1;
+    }
     if (!strcmp(cmd, "done")) { eko_section_done(); return 1; }
     /* brawler */
     if (sscanf(cmd, "bpos %d %d", &a, &b) == 2) {

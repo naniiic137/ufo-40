@@ -1,0 +1,35 @@
+# THE CALDERA: every bat starts it with two lives, but there are no second
+# chances: losing a bat's last life there ends the game. Sable's part of
+# the halls hands over to Flint (the red card), then Dart (the blue card),
+# then Vesper at the launch pad.
+seed 1
+game echounit
+wait 5
+cheat run
+cheat mission 4
+wait 5
+expect finale == 1
+expect owl == 3
+expect olives0 == 2
+expect olives3 == 2
+expect s_cards == 0
+cheat section 1
+wait 3
+expect owl == 0
+cheat done
+waituntil state == 6 200
+expect owl == 3
+expect s_cards & 2
+cheat section 3
+wait 3
+expect owl == 2
+cheat done
+waituntil state == 6 200
+expect s_cards & 4
+cheat section 5
+wait 3
+expect owl == 1
+cheat die
+waituntil lives == 1 200
+cheat die
+waituntil state == 11 200

@@ -256,6 +256,9 @@ static void hurt_foe(int i, int dmg, int dir, bool launch, int chain) {
     if (!boss) {
         f->kb = launch ? 20 : 6;
         f->vx = dir * (launch ? 640 : 128); /* a jab barely moves them: the combo stays in reach */
+        /* a blow breaks off whatever it was winding up */
+        if (f->kind != BF_JETPACK) { f->state = 0; f->t = 0; }
+        f->cd = imax(f->cd, 24);
         if (launch) f->vy = -640;
         f->chain = chain;
     }
@@ -632,7 +635,7 @@ static void objs_update(void) {
             int r = move_body(&o->x, &o->y, &vx, &vy, 3, 6, false);
             o->vx = vx;
             o->vy = vy;
-            if (r || o->t > 150) { explode(EKO_PX(o->x), EKO_PX(o->y) - 4, 18, 2, true); o->alive = 0; }
+            if (r || o->t > 150) { explode(EKO_PX(o->x), EKO_PX(o->y) - 4, 18, 1, true); o->alive = 0; }
             break;
         }
         case BO_FBULLET: case BO_FLAME:

@@ -1,0 +1,51 @@
+# LIVES AND CAPTURE: every mission starts with two lives (two health
+# bars); an extra life comes every 800 points of a mission. Lose both and
+# that bat is captured: its mission is locked until another bat breaks it
+# out. A failed jailbreak locks the rescuer up too; with all four caught,
+# the game is over.
+seed 1
+game echounit
+wait 5
+cheat run
+wait 5
+cheat mission 0
+wait 5
+expect lives == 2
+cheat addscore 799
+expect lives == 2
+cheat addscore 1
+expect lives == 3
+cheat lives 2
+cheat die
+waituntil lives == 1 200
+expect state == 6
+expect hp == 8
+cheat die
+waituntil state == 8 200
+expect captured0 == 1
+expect lives_lost == 2
+wait 70
+press A 1
+wait 5
+expect state == 2
+# Flint's mission is locked: picking him means a jailbreak
+cheat hqsel 0
+wait 15
+press A 1
+wait 5
+expect state == 3
+press B 1
+wait 5
+expect state == 2
+# everyone caught: game over
+cheat capture 1
+cheat capture 2
+cheat mission 3
+cheat die
+waituntil lives == 1 200
+cheat die
+waituntil state == 8 200
+wait 70
+press A 1
+wait 5
+expect state == 11

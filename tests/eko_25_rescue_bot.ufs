@@ -1,0 +1,20 @@
+# THE JAILBREAK, played for real by the demo player across rolled jails:
+# each bat can win one.
+seed 1
+game echounit
+wait 5
+cheat rescue 1 2 11
+botuntil state != 6 3000
+expect r_won == 1
+cheat rescue 2 0 22
+botuntil state != 6 3000
+expect r_won == 1
+cheat rescue 3 1 35
+botuntil state != 6 3000
+expect r_won == 1
+cheat rescue 0 3 45
+botuntil state != 6 3000
+expect r_won == 1
+cheat rescue 1 2 66
+botuntil state != 6 3000
+expect r_won == 1
