@@ -21,76 +21,72 @@ typedef struct { uint8_t op; uint8_t a; int16_t b; } Step;
 
 /* the car: the fewest things it takes */
 static const Step PLAN_GOLD[] = {
-    CLICK(S_CELL_STRAW), USE(I_SHOEHORN, S_CELL_VENT), CLICK(S_CELL_VENT), USE(I_WIRE, S_CELL_DOOR),
-    GO(R_HALL), CLICK(S_HALL_UMBRELLA),
-    GO(R_GUEST), CLICK(S_GUE_SEW),
-    GO(R_GLASSHOUSE), CLICK(S_GLA_TRELLIS),
-    GO(R_GARAGE), CLICK(S_GAR_TWINE), CLICK(S_GAR_SPANNER),
-    COMB(I_CANE, I_CUPHOOK),
-    GO(R_POND), USE(I_LONGHOOK, S_POND_BODY),
-    GO(R_GARDEN), USE(I_SHEDKEY, S_GDN_SHEDDOOR),
-    GO(R_SHED), CLICK(S_SHE_SPADE), USE(I_SPANNER, S_SHE_GRINDER),
-    GO(R_GARDEN), USE(I_SPADE, S_GDN_GRAVE),
-    GO(R_GARAGE), USE(I_MOTOR, S_GAR_OPENER), USE(I_OIL, S_GAR_OPENER), CLICK(S_GAR_BUTTON),
-    USE(I_CARKEYS, S_GAR_CAR),
+    CLICK(S_CELL_WALL), CLICK(S_CELL_BARREL), USE(I_NAIL, S_CELL_DOOR), USE(I_STONE, S_CELL_DOOR),
+    GO(R_HALL), CLICK(S_HALL_TABLE),
+    GO(R_KITCHEN), CLICK(S_KIT_KNIVES),
+    GO(R_SCULLERY), CLICK(S_SCU_DRAWER),
+    GO(R_GARDEN), USE(I_KNIFE, S_GDN_HIVES), USE(I_PHOTO, S_GDN_SHEDDOOR),
+    GO(R_SHED), CLICK(S_SHE_CUTTERS),
+    GO(R_YARD), USE(I_TAPKEY, S_YRD_BUTT), COMB(I_KNIFE, I_TIN),
+    GO(R_GARAGE), USE(I_ROTOR, S_GAR_CAR), USE(I_CUTTERS, S_GAR_DOOR), CLICK(S_GAR_DOOR),
+    USE(I_CARKEY, S_GAR_CAR),
     {OP_END, 0, 0},
 };
 
 /* the cellar: everything, every page */
 #define CHERRY_STEPS                                                                                            \
-    CLICK(S_CELL_STRAW), CLICK(S_CELL_TRAY), USE(I_SHOEHORN, S_CELL_VENT), CLICK(S_CELL_VENT), CLICK(S_CELL_VENT), \
-    USE(I_WIRE, S_CELL_DOOR),                                                                                   \
-    GO(R_PASSAGE), CLICK(S_PAS_COAT), CLICK(S_PAS_RUG),                                                         \
+    CLICK(S_CELL_WALL), CLICK(S_CELL_BARREL), USE(I_NAIL, S_CELL_DOOR), USE(I_STONE, S_CELL_DOOR),              \
+    GO(R_PASSAGE), CLICK(S_PAS_RUG),                                                                            \
     GO(R_SICKROOM), CLICK(S_SICK_BED), CLICK(S_SICK_STAND),                                                     \
-    GO(R_KITCHEN), CLICK(S_KIT_STOVE), CLICK(S_KIT_KNIVES), CLICK(S_KIT_BOOK),                                  \
-    GO(R_SCULLERY), CLICK(S_SCU_TUB), CLICK(S_SCU_SODA), CLICK(S_SCU_DIARY),                                    \
-    GO(R_DINING), CLICK(S_DIN_SIDE), CLICK(S_DIN_TABLE), USE(I_PENNIES, S_DIN_ORCH),                            \
-    GO(R_HALL), CLICK(S_HALL_UMBRELLA),                                                                         \
-    GO(R_PARLOUR), CLICK(S_PAR_PIG), CLICK(S_PAR_SOFA),                                                         \
-    GO(R_SMOKING), CLICK(S_SMO_HUMIDOR), CLICK(S_SMO_DESK), CLICK(S_SMO_CHAIR),                                 \
-    COMB(I_TORCH, I_BATTERIES),                                                                                 \
-    GO(R_WASHROOM), CLICK(S_WAS_CAB), USE(I_SODA, S_WAS_BATH), USE(I_TONGS, S_WAS_BATH),                        \
-    GO(R_GUEST), CLICK(S_GUE_SEW), USE(I_TINKEY, S_GUE_BOX),                                                    \
-    GO(R_HALL), USE(I_COPPERKEY, S_HALL_CLOCK), {OP_FLOOR, I_GEAR, 0},                                          \
-    GO(R_GLASSHOUSE), CLICK(S_GLA_TRELLIS),                                                                     \
-    GO(R_GARAGE), CLICK(S_GAR_TWINE), CLICK(S_GAR_SPANNER), CLICK(S_GAR_SHELF), CLICK(S_GAR_CAR),               \
-    COMB(I_CANE, I_CUPHOOK),                                                                                    \
-    GO(R_PARLOUR), USE(I_PARAFFIN, S_PAR_FIRE), USE(I_MATCHES, S_PAR_FIRE), CLICK(S_PAR_FIRE),                 \
-    GO(R_POND), USE(I_LONGHOOK, S_POND_BODY),                                                                   \
-    GO(R_GARDEN), USE(I_SHEDKEY, S_GDN_SHEDDOOR),                                                               \
-    GO(R_SHED), CLICK(S_SHE_SPADE), CLICK(S_SHE_SCREW), CLICK(S_SHE_SHEARS), CLICK(S_SHE_SAW),                  \
-    CLICK(S_SHE_SACK), CLICK(S_SHE_DIARY), USE(I_SPANNER, S_SHE_GRINDER), USE(I_PIG, S_SHE_VISE),               \
-    GO(R_GARDEN), USE(I_SHEARS, S_GDN_IVY),                                                                     \
-    GO(R_HALL), USE(I_TORCH, S_HALL_STAIRS_DARK),                                                               \
-    GO(R_LANDING), USE(I_BRASSKEY, S_LAN_MASTER_SHUT),                                                          \
-    GO(R_MASTER), CLICK(S_MAS_DRESSER), CLICK(S_MAS_BED),                                                       \
-    GO(R_BALCONY), USE(I_SAW, S_BAL_ROPE),                                                                      \
-    GO(R_STUDY), CLICK(S_STU_DIARY), USE(I_BAR, S_STU_CASE),                                                    \
-    GO(R_BATH), CLICK(S_BAT_SHELF), CLICK(S_BAT_DIARY), USE(I_BAR, S_BAT_MIRROR),                               \
-    GO(R_MASTER), USE(I_COMBO, S_MAS_SAFE),                                                                     \
-    GO(R_CHILDREN), CLICK(S_CHI_DIARY), CLICK(S_CHI_DOLL), COMB(I_KNIFE, I_DOLL), USE(I_LENS, S_CHI_HOUSE),     \
-    GO(R_STUDY), USE(I_PASSWORD, S_STU_COMPUTER),                                                               \
-    COMB(I_MUG, I_SNUFF), COMB(I_MUG, I_CLOVE), COMB(I_MUG, I_BORAX),                                           \
-    GO(R_NURSERY), CLICK(S_NUR_DIARY), USE(I_SILVERKEY, S_NUR_BOX), USE(I_GLASSES, S_NUR_WALL),                 \
-    GO(R_LANDING), USE(I_LONGHOOK, S_LAN_HATCH),                                                                \
-    GO(R_ATTIC), CLICK(S_ATT_DIARY), USE(I_PEWTERKEY, S_ATT_TRUNK), USE(I_HYMN, S_ATT_HARM),                    \
-    GO(R_GARDEN), CLICK(S_GDN_FALLEN),                                                                          \
-    GO(R_DRIVE), USE(I_RING, S_DRV_STATUE), CLICK(S_DRV_FOUNTAIN),                                              \
-    GO(R_COURTYARD), USE(I_AMBER, S_CRT_HARE0), USE(I_JADE, S_CRT_HARE1), USE(I_GARNET, S_CRT_HARE2),           \
-    USE(I_OPAL, S_CRT_HARE3),                                                                                   \
-    GO(R_MAZE), {OP_MAZE, 0, 0}, CLICK(S_HRT_GIRL),                                                             \
+    GO(R_HALL), CLICK(S_HALL_TABLE), CLICK(S_HALL_UMBRELLA),                                                    \
+    GO(R_PARLOUR), CLICK(S_PAR_IRONS), CLICK(S_PAR_SOFA),                                                       \
+    GO(R_SMOKING), CLICK(S_SMO_PIPES), CLICK(S_SMO_CHAIR), USE(I_POKER, S_SMO_CABINET),                         \
+    GO(R_WASHROOM), CLICK(S_WAS_CISTERN),                                                                       \
+    GO(R_GUEST), CLICK(S_GUE_SEW), CLICK(S_GUE_DRESSER),                                                        \
+    COMB(I_FUSE, I_FUSEWIRE),                                                                                   \
+    GO(R_DINING), CLICK(S_DIN_SIDE), CLICK(S_DIN_DIARY),                                                        \
+    GO(R_KITCHEN), CLICK(S_KIT_KNIVES), CLICK(S_KIT_SALT), CLICK(S_KIT_BOOK),                                   \
+    GO(R_SCULLERY), CLICK(S_SCU_DRAWER), CLICK(S_SCU_BUCKET), CLICK(S_SCU_DIARY), USE(I_SALT, S_SCU_ICEBOX),    \
+    USE(I_GOODFUSE, S_SCU_FUSEBOX), USE(I_BUCKET, S_SCU_SINK),                                                  \
+    GO(R_GARAGE), CLICK(S_GAR_SCREW), CLICK(S_GAR_GREASE), CLICK(S_GAR_SHELF), CLICK(S_GAR_CAR),                \
+    GO(R_PARLOUR), USE(I_SCREWDRIVER, S_PAR_RADIO),                                                             \
+    GO(R_GLASSHOUSE), CLICK(S_GLA_LAMP), CLICK(S_GLA_SULPHATE), CLICK(S_GLA_TROWEL),                            \
+    COMB(I_LAMP, I_PARAFFIN), COMB(I_MATCHES, I_LAMP),                                                          \
+    GO(R_GARDEN), USE(I_KNIFE, S_GDN_HOSE), USE(I_PHOTO, S_GDN_SHEDDOOR),                                       \
+    GO(R_SHED), CLICK(S_SHE_PLIERS), CLICK(S_SHE_CUTTERS), CLICK(S_SHE_SMOKER), CLICK(S_SHE_SPRAYER),           \
+    CLICK(S_SHE_GLOVES), CLICK(S_SHE_DIARY),                                                                    \
+    GO(R_GARDEN), USE(I_CUTTERS, S_GDN_WELL),                                                                   \
+    GO(R_POND), CLICK(S_POND_BOAT), COMB(I_KNIFE, I_TACKLE), COMB(I_MAGNET, I_LINE),                            \
+    GO(R_GARDEN), USE(I_MAGNETLINE, S_GDN_WELL),                                                                \
+    GO(R_YARD), CLICK(S_YRD_KENNEL), CLICK(S_YRD_PINE), COMB(I_SMOKER, I_CONES), COMB(I_MATCHES, I_SMOKER),     \
+    GO(R_GARAGE), USE(I_TROWEL, S_GAR_SACK),                                                                    \
+    GO(R_HALL), USE(I_LAMP, S_HALL_STAIRS_DARK),                                                                \
+    GO(R_LANDING), USE(I_SCREWDRIVER, S_LAN_MASTER_SHUT),                                                       \
+    GO(R_MASTER), CLICK(S_MAS_BED), CLICK(S_MAS_POST),                                                          \
+    GO(R_BATH), CLICK(S_BAT_CABINET), CLICK(S_BAT_DIARY), COMB(I_RAZOR, I_BELT),                                \
+    GO(R_STUDY), CLICK(S_STU_DIARY), USE(I_BUREAUKEY, S_STU_BUREAU),                                            \
+    GO(R_BALCONY), USE(I_BINOCULARS, S_BAL_VIEW),                                                               \
+    GO(R_NURSERY), CLICK(S_NUR_DIARY), USE(I_SCREWDRIVER, S_NUR_HORSE),                                         \
+    GO(R_CHILDREN), CLICK(S_CHI_DIARY), CLICK(S_CHI_POLE),                                                      \
+    GO(R_LANDING), USE(I_POLE, S_LAN_HATCH),                                                                    \
+    GO(R_ATTIC), CLICK(S_ATT_DIARY), CLICK(S_ATT_BOXES), USE(I_SMOKER, S_ATT_NEST),                             \
+    GO(R_STUDY), USE(I_REEL, S_STU_RECORDER), USE(I_TAPE, S_STU_RECORDER), CLICK(S_STU_RECORDER),               \
+    COMB(I_SPRAYER, I_SULPHATE), COMB(I_SPRAYER, I_LIME), COMB(I_SPRAYER, I_WATER),                             \
+    GO(R_COURTYARD), USE(I_BEE_BRASS, S_CRT_HIVE), USE(I_BEE_COPPER, S_CRT_HIVE), USE(I_BEE_SILVER, S_CRT_HIVE), \
+    USE(I_BEE_IRON, S_CRT_HIVE),                                                                                \
+    GO(R_MAZE), {OP_MAZE, 0, 0}, USE(I_PLIERS, S_HRT_OAK),                                                      \
     COMB(I_CROSSBOW, I_BOLT),                                                                                   \
-    GO(R_WASHROOM), {OP_KILL, 0, S_WAS_TOILET}, {OP_FLOOR, I_KEEPERKEY, 0},                                     \
-    GO(R_DRIVE), USE(I_KEEPERKEY, S_DRV_STORM),                                                                 \
-    GO(R_CELLAR), CLICK(S_CEL_DIARY), USE(I_GEAR, S_CEL_MECH), USE(I_STEELWIRE, S_CEL_MECH),                    \
-    USE(I_SCREWDRIVER, S_CEL_MECH), USE(I_OIL, S_CEL_MECH),                                                     \
-    GO(R_SPORE), USE(I_BREW, S_SPO_FACE), {OP_END, 0, 0}
+    GO(R_WASHROOM), {OP_KILL, 0, S_WAS_TOILET}, {OP_FLOOR, I_BLACKKEY, 0},                                      \
+    GO(R_DRIVE), USE(I_BLACKKEY, S_DRV_HATCH),                                                                  \
+    GO(R_CELLAR), CLICK(S_CEL_DIARY), USE(I_PUMPHANDLE, S_CEL_PUMP), USE(I_WASHER, S_CEL_PUMP),                 \
+    USE(I_HOSE, S_CEL_PUMP), USE(I_GREASE, S_CEL_PUMP),                                                         \
+    GO(R_SPORE), USE(I_MIXTURE, S_SPO_FACE), {OP_END, 0, 0}
 
 static const Step PLAN_CHERRY[] = {CHERRY_STEPS};
 /* the same, but it lets him catch it once, early */
 static const Step PLAN_CHERRY_CAUGHT[] = {
-    CLICK(S_CELL_STRAW), USE(I_SHOEHORN, S_CELL_VENT), CLICK(S_CELL_VENT), USE(I_WIRE, S_CELL_DOOR),
-    GO(R_PARLOUR), {OP_CAUGHT, 0, S_PAR_RADIO},
+    CLICK(S_CELL_WALL), CLICK(S_CELL_BARREL), USE(I_NAIL, S_CELL_DOOR), USE(I_STONE, S_CELL_DOOR),
+    GO(R_DINING), {OP_CAUGHT, 0, S_DIN_PIANOLA},
     GO(R_CELL), CHERRY_STEPS,
 };
 

@@ -1,5 +1,5 @@
 /* WITHERLEA - clicks: looking, taking, using things on the house and on
- * each other, the exits and the maze, noise. Every item has one job (a few
+ * each other, the exits and the maze, noise. Every thing has one job (a few
  * have two) and leaves the bag when its last job is done, leaving a hole
  * that the next thing picked up fills. */
 #include "wth.h"
@@ -100,33 +100,30 @@ bool wth_spot_live(int s) {
     case S_GAR_OUT: return wth_flag(F_GARAGE_OPEN);
     case S_DRV_GARAGE: return !wth_flag(F_GARAGE_OPEN);
     case S_DRV_GARAGE_IN: return wth_flag(F_GARAGE_OPEN);
-    case S_GDN_IVY: return !wth_flag(F_IVY_CUT);
-    case S_GDN_ARCH: return wth_flag(F_IVY_CUT);
     case S_GDN_SHEDDOOR: return !wth_flag(F_SHED_OPEN);
     case S_GDN_SHED: return wth_flag(F_SHED_OPEN);
-    case S_GDN_HANG: return !wth_flag(F_ROPE_CUT);
-    case S_GDN_FALLEN: return wth_flag(F_ROPE_CUT);
-    case S_DRV_STORM: return !wth_flag(F_STORM_OPEN);
-    case S_DRV_CELLAR: return wth_flag(F_STORM_OPEN);
+    case S_DRV_HATCH: return !wth_flag(F_HATCH_OPEN);
+    case S_DRV_CELLAR: return wth_flag(F_HATCH_OPEN);
     case S_CRT_GATE: return !wth_flag(F_GATE_OPEN);
     case S_CRT_MAZE: return wth_flag(F_GATE_OPEN);
     case S_LAN_MASTER_SHUT: return !wth_flag(F_MASTER_OPEN);
     case S_LAN_MASTER: return wth_flag(F_MASTER_OPEN);
     case S_LAN_HATCH: return !wth_flag(F_HATCH_DOWN);
     case S_LAN_ATTIC: return wth_flag(F_HATCH_DOWN);
-    case S_CEL_DOOR: return !wth_flag(F_IRONDOOR_OPEN);
-    case S_CEL_SPORE: return wth_flag(F_IRONDOOR_OPEN);
-    case S_PAR_PIG: return !wth_flag(F_PIG_TAKEN);
-    case S_SCU_SODA: return !wth_flag(F_SODA_TAKEN);
-    case S_GAR_SPANNER: return !wth_flag(F_SPANNER_TAKEN);
-    case S_GAR_TWINE: return !wth_flag(F_TWINE_TAKEN);
-    case S_SHE_SCREW: return !wth_flag(F_SCREW_TAKEN);
-    case S_SHE_SHEARS: return !wth_flag(F_SHEARS_TAKEN);
-    case S_SHE_SAW: return !wth_flag(F_SAW_TAKEN);
-    case S_SHE_SPADE: return !wth_flag(F_SPADE_TAKEN);
-    case S_CHI_DOLL: return !wth_flag(F_DOLL_TAKEN);
+    case S_CEL_DOOR: return !wth_flag(F_CELLAR_DRAINED);
+    case S_CEL_SPORE: return wth_flag(F_CELLAR_DRAINED);
+    case S_SCU_BUCKET: return !wth_flag(F_BUCKET_TAKEN);
+    case S_GAR_SCREW: return !wth_flag(F_SCREW_TAKEN);
+    case S_GAR_GREASE: return !wth_flag(F_GREASE_TAKEN);
+    case S_SHE_PLIERS: return !wth_flag(F_PLIERS_TAKEN);
+    case S_SHE_CUTTERS: return !wth_flag(F_CUTTERS_TAKEN);
+    case S_SHE_SMOKER: return !wth_flag(F_SMOKER_TAKEN);
+    case S_SHE_SPRAYER: return !wth_flag(F_SPRAYER_TAKEN);
+    case S_SHE_GLOVES: return !wth_flag(F_GLOVES_TAKEN);
+    case S_CHI_POLE: return !wth_flag(F_POLE_TAKEN);
+    case S_GLA_LAMP: return !wth_flag(F_LAMP_TAKEN);
     case S_SCU_DIARY: case S_SHE_DIARY: case S_STU_DIARY: case S_BAT_DIARY: case S_NUR_DIARY: case S_CHI_DIARY:
-    case S_ATT_DIARY: case S_CEL_DIARY:
+    case S_ATT_DIARY: case S_CEL_DIARY: case S_DIN_DIARY:
         return !page_found_at(s);
     default: return true;
     }
@@ -185,133 +182,133 @@ static bool take_page(int spot) {
 
 static void nothing(void) { wth_say("THAT DOESN'T DO ANYTHING."); }
 
-/* the long hook and the machine oil each have two jobs */
-static void hook_job_done(void) {
-    if (wth_flag(F_POND_DONE) && wth_flag(F_HATCH_DOWN)) wth_take_away(I_LONGHOOK);
+/* things with two jobs leave the bag after the second */
+static void cutters_job(void) {
+    if (wth_flag(F_CUTTERS_USED1)) wth_take_away(I_CUTTERS);
+    else wth_set(F_CUTTERS_USED1);
 }
-static void oil_job_done(void) {
-    if (wth_flag(F_OIL_USED1)) wth_take_away(I_OIL);
-    else wth_set(F_OIL_USED1);
+static void screw_job(void) {
+    if (wth_flag(F_MAGNET_TAKEN) && wth_flag(F_BEE_HORSE)) wth_take_away(I_SCREWDRIVER);
 }
-
-static void floor_put(int room, int it) {
-    for (int i = 0; i < WTH_FLOOR; i++)
-        if (!wth.s.floor[room][i]) { wth.s.floor[room][i] = (uint8_t)it; return; }
+static void matches_job(void) {
+    if (wth_flag(F_MATCHES_USED1)) wth_take_away(I_MATCHES);
+    else wth_set(F_MATCHES_USED1);
 }
 
 static const char *hide_look(int s, bool gone) {
     switch (s) {
-    case S_PAR_SCREEN: return gone ? "THE FOLDING SCREEN LIES SLASHED TO RIBBONS. NO ONE CAN HIDE BEHIND IT NOW."
-                                   : "A TALL FOLDING SCREEN PAINTED WITH HERONS. YOU COULD HIDE BEHIND IT, IF YOU HAD TO.";
-    case S_SMO_ALCOVE: return gone ? "THE ALCOVE CURTAIN HAS BEEN TORN DOWN AND HACKED APART."
-                                   : "A CURTAINED ALCOVE, DEEP ENOUGH TO STAND IN. A GOOD PLACE TO HIDE.";
-    case S_GUE_BED: return gone ? "THE BED HAS BEEN TIPPED ON ITS SIDE AND THE SPACE UNDER IT CHOPPED FULL OF HOLES."
-                                : "A HIGH OLD BED WITH A LONG VALANCE. THERE'S ROOM UNDERNEATH FOR SOMEONE TO HIDE.";
-    case S_NUR_CHEST: return gone ? "THE TOY CHEST IS SMASHED OPEN. TOYS EVERYWHERE, BEHEADED."
-                                  : "A BIG TOY CHEST. YOU COULD CURL UP INSIDE IT AND PULL THE LID DOWN.";
-    case S_GDN_LAUREL: return "A THICK LAUREL HEDGE AGAINST THE GLASSHOUSE. THERE'S A HOLLOW INSIDE IT, ROOM FOR ONE.";
-    case S_ATT_DUMMIES: return "DRESSMAKER'S DUMMIES IN A HUDDLE, DRAPED IN SHEETS. ONE MORE SHAPE WOULDN'T SHOW.";
+    case S_KIT_PANTRY: return gone ? "THE PANTRY DOOR HANGS OFF ONE HINGE, HACKED THROUGH. NOBODY COULD HIDE IN THERE NOW."
+                                   : "A WALK-IN PANTRY WITH A SLATTED DOOR. ROOM FOR ONE, BEHIND THE FLOUR SACKS.";
+    case S_DIN_TABLE: return gone ? "THE TABLECLOTH HAS BEEN DRAGGED OFF AND SLASHED, AND THE TABLE TIPPED ON ITS SIDE."
+                                  : "A LONG TABLE UNDER A CLOTH THAT REACHES THE FLOOR. YOU COULD CRAWL UNDERNEATH.";
+    case S_MAS_WARDROBE: return gone ? "THE WARDROBE DOORS ARE SPLIT DOWN THE MIDDLE. THE COATS LIE CUT TO RIBBONS."
+                                     : "A TALL WARDROBE FULL OF HEAVY COATS. YOU COULD STAND AT THE BACK BEHIND THEM.";
+    case S_BAT_AIRING: return gone ? "THE AIRING CUPBOARD HAS BEEN EMPTIED ONTO THE FLOOR, SHELF BY SHELF, AND THE DOOR SMASHED."
+                                   : "AN AIRING CUPBOARD, WARM FROM THE TANK. ROOM BELOW THE SHELVES TO CURL UP.";
+    case S_GAR_PIT: return "THE INSPECTION PIT UNDER THE GARAGE FLOOR. DARK, OILY, AND OUT OF SIGHT.";
+    case S_YRD_BUNKER: return "A COAL BUNKER WITH A LID. A FEW SACKS OF COAL, AND ROOM FOR YOU.";
     default: return "";
     }
 }
 
 int wth_hide_one_use_flag(int spot) {
     switch (spot) {
-    case S_PAR_SCREEN: return F_HIDE_SCREEN_GONE;
-    case S_SMO_ALCOVE: return F_HIDE_ALCOVE_GONE;
-    case S_GUE_BED: return F_HIDE_BED_GONE;
-    case S_NUR_CHEST: return F_HIDE_CHEST_GONE;
+    case S_KIT_PANTRY: return F_HIDE_PANTRY_GONE;
+    case S_DIN_TABLE: return F_HIDE_TABLE_GONE;
+    case S_MAS_WARDROBE: return F_HIDE_WARDROBE_GONE;
+    case S_BAT_AIRING: return F_HIDE_AIRING_GONE;
     default: return -1;
     }
 }
 
 /* ------------------------------------------------------------------ */
-/* putting the gems in the hares' eyes                                  */
+/* the stone hive by the hedge gate                                     */
 
-static bool is_gem(int it) { return it == I_GARNET || it == I_JADE || it == I_AMBER || it == I_OPAL; }
+int wth_hive_count(void) {
+    int n = 0;
+    for (int k = 0; k < 4; k++) n += (wth.s.hive >> k) & 1;
+    return n;
+}
 
-static void hare(int i, int held) {
-    if (wth_flag(F_GATE_OPEN)) {
-        wth_say("THE HARE STARES AT THE OPEN GATE WITH ITS STONE EYE.");
-        return;
-    }
+static void stone_hive(int held) {
+    if (wth_flag(F_GATE_OPEN)) { wth_say("FOUR METAL BEES SIT IN THE STONE HIVE. THE GATE STANDS OPEN."); return; }
+    int b = -1;
+    for (int k = 0; k < 4; k++)
+        if (held && held == WTH_BEES[k]) b = k;
+    if (held && b < 0) { nothing(); return; }
     if (!held) {
-        if (wth.s.hare[i]) {
-            wth_give(wth.s.hare[i]);
-            wth_sayf("YOU PRISE THE %s BACK OUT OF THE HARE'S EYE.", WTH_ITEM[wth.s.hare[i]].name);
-            wth.s.hare[i] = 0;
-        } else wth_say("A STONE HARE IN A NICHE, SITTING UP. ITS EYE IS AN EMPTY ROUND SOCKET.");
+        wth_sayf("A STONE HIVE SET INTO THE WALL BY THE GATE, WITH FOUR LITTLE CELLS SHAPED LIKE BEES. %d OF THEM "
+                 "%s FILLED.",
+                 wth_hive_count(), wth_hive_count() == 1 ? "IS" : "ARE");
         return;
     }
-    if (!is_gem(held)) { nothing(); return; }
-    if (wth.s.hare[i]) { wth_say("THIS HARE ALREADY HAS AN EYE."); return; }
-    wth.s.hare[i] = (uint8_t)held;
+    wth.s.hive |= (uint8_t)(1 << b);
     wth_take_away(held);
     sfx_play_name("wth_click");
-    for (int k = 0; k < 4; k++)
-        if (!wth.s.hare[k]) {
-            wth_sayf("THE %s FITS THE SOCKET EXACTLY.", WTH_ITEM[held].name);
-            return;
-        }
-    bool right = true;
-    for (int k = 0; k < 4; k++) right = right && wth.s.hare[k] == WTH_HARE_GEM[k];
-    if (right) {
-        wth_set(F_GATE_OPEN);
-        sfx_play_name("wth_grind");
-        wth_say("THE LAST STONE CLICKS HOME. FOUR HARES LOOK AT YOU WITH COLOURED EYES, AND IN THE CORNER THE IRON "
-                "GATE GRINDS OPEN.");
-    } else {
-        for (int k = 0; k < 4; k++) {
-            wth_give(wth.s.hare[k]);
-            wth.s.hare[k] = 0;
-        }
-        wth_say("THE LAST STONE CLICKS HOME... AND ALL FOUR EYES DROP OUT INTO THE GRAVEL. NOT IN THAT ORDER, THEN. "
-                "YOU PICK THEM UP.");
+    if (wth_hive_count() < 4) {
+        wth_sayf("THE %s CLICKS INTO A CELL OF THE STONE HIVE AND STAYS.", WTH_ITEM[held].name);
+        return;
     }
+    wth_set(F_GATE_OPEN);
+    sfx_play_name("wth_grind");
+    wth_say("THE LAST BEE CLICKS HOME. SOMEWHERE IN THE WALL A WEIGHT DROPS, AND THE IRON GATE INTO THE HEDGES "
+            "SWINGS OPEN ON ITS OWN.");
 }
 
 /* ------------------------------------------------------------------ */
-/* the cellar winch                                                     */
+/* the cellar pump                                                      */
 
-static void winch(int held) {
-    if (wth_flag(F_IRONDOOR_OPEN)) { wth_say("THE WINCH HOLDS THE DOOR UP. IT CREAKS."); return; }
-    if (held == I_GEAR && !wth_flag(F_MECH_GEAR)) {
-        wth_set(F_MECH_GEAR);
-        wth_take_away(I_GEAR);
-        wth_say("THE COG SLIDES ONTO THE SQUARE SPINDLE. IT FITS.");
-    } else if (held == I_STEELWIRE && !wth_flag(F_MECH_WIRE)) {
-        wth_set(F_MECH_WIRE);
-        wth_take_away(I_STEELWIRE);
-        wth_say("YOU THREAD THE STEEL WIRE ROUND THE DRUM WHERE THE OLD CABLE SNAPPED.");
-    } else if (held == I_SCREWDRIVER && !wth_flag(F_MECH_SCREW)) {
-        wth_set(F_MECH_SCREW);
-        wth_take_away(I_SCREWDRIVER);
-        wth_say("YOU SCREW THE COVER BACK ON, TIGHT, SO THE DRUM SITS STRAIGHT.");
-    } else if (held == I_OIL && !wth_flag(F_MECH_OIL)) {
-        wth_set(F_MECH_OIL);
-        oil_job_done();
-        wth_say("YOU OIL EVERY JOINT OF THE WINCH. THE RUST WEEPS BROWN.");
+static void pump(int held) {
+    if (wth_flag(F_CELLAR_DRAINED)) { wth_say("THE PUMP STANDS IN A PUDDLE. THE INNER DOORWAY IS CLEAR."); return; }
+    if (held == I_PUMPHANDLE && !wth_flag(F_PUMP_HANDLE)) {
+        wth_set(F_PUMP_HANDLE);
+        wth_take_away(I_PUMPHANDLE);
+        wth_say("THE HANDLE DROPS INTO ITS SOCKET AND YOU PIN IT THERE.");
+    } else if (held == I_WASHER && !wth_flag(F_PUMP_WASHER)) {
+        wth_set(F_PUMP_WASHER);
+        wth_take_away(I_WASHER);
+        wth_say("YOU UNSCREW THE PUMP'S BARREL AND FIT THE LEATHER WASHER WHERE THE OLD ONE HAS ROTTED AWAY.");
+    } else if (held == I_HOSE && !wth_flag(F_PUMP_HOSE)) {
+        wth_set(F_PUMP_HOSE);
+        wth_take_away(I_HOSE);
+        wth_say("YOU PUSH THE HOSE ONTO THE SPOUT AND RUN IT TO THE DRAIN IN THE FLOOR.");
+    } else if (held == I_GREASE && !wth_flag(F_PUMP_GREASE)) {
+        wth_set(F_PUMP_GREASE);
+        wth_take_away(I_GREASE);
+        wth_say("YOU WORK BLACK GREASE INTO THE PISTON AND THE PIVOT UNTIL THEY MOVE.");
     } else if (held) {
         nothing();
         return;
     } else {
         char buf[300];
-        snprintf(buf, sizeof buf, "THE IRON DOOR'S WINCH.%s%s%s%s", wth_flag(F_MECH_GEAR) ? "" : " A COG IS MISSING.",
-                 wth_flag(F_MECH_WIRE) ? "" : " THE CABLE HAS SNAPPED.",
-                 wth_flag(F_MECH_SCREW) ? "" : " THE COVER HANGS OFF BY ONE SCREW.",
-                 wth_flag(F_MECH_OIL) ? "" : " IT'S ALL RUSTED STIFF.");
+        snprintf(buf, sizeof buf, "AN OLD HAND PUMP BESIDE THE FLOODED DOORWAY.%s%s%s%s",
+                 wth_flag(F_PUMP_HANDLE) ? "" : " IT HAS NO HANDLE.",
+                 wth_flag(F_PUMP_WASHER) ? "" : " ITS WASHER HAS ROTTED TO NOTHING.",
+                 wth_flag(F_PUMP_HOSE) ? "" : " THERE'S NO HOSE ON THE SPOUT.",
+                 wth_flag(F_PUMP_GREASE) ? "" : " THE PISTON IS SEIZED.");
         wth_say(buf);
         return;
     }
-    if (wth_flag(F_MECH_GEAR) && wth_flag(F_MECH_WIRE) && wth_flag(F_MECH_SCREW) && wth_flag(F_MECH_OIL)) {
-        wth_set(F_IRONDOOR_OPEN);
-        sfx_play_name("wth_grind");
-        wth_say("THE WINCH TURNS OVER. CHAIN RUNS, AND THE IRON DOOR GRINDS UP INTO THE WALL. WARM AIR. SWEET AIR.");
+    if (wth_flag(F_PUMP_HANDLE) && wth_flag(F_PUMP_WASHER) && wth_flag(F_PUMP_HOSE) && wth_flag(F_PUMP_GREASE)) {
+        wth_set(F_CELLAR_DRAINED);
+        sfx_play_name("wth_drain");
+        wth_say("YOU PUMP UNTIL YOUR ARMS BURN. THE BLACK WATER IN THE DOORWAY DROPS, AND DROPS, AND GURGLES AWAY "
+                "DOWN THE DRAIN. THE WAY IN IS CLEAR. WARM AIR. SWEET AIR.");
     }
 }
 
 /* ------------------------------------------------------------------ */
 /* A on a spot                                                          */
+
+static void take_or(int flag, int it, const char *got, const char *after, int held) {
+    if (held) { nothing(); return; }
+    if (!take(flag, it, got)) wth_say(after);
+}
+
+static void page_or(int s, const char *after, int held) {
+    if (held) { nothing(); return; }
+    if (!take_page(s) && after) wth_say(after);
+}
 
 void wth_click(int s, int held) {
     const WthSpot *sp = &WTH_SPOT[s];
@@ -331,121 +328,77 @@ void wth_click(int s, int held) {
         return;
     }
     switch (s) {
-    /* the cold store */
+    /* the cold store: hinges on the wrong side */
     case S_CELL_DOOR:
-        if (held == I_WIRE) {
-            wth_take_away(I_WIRE);
-            wth_set(F_CELL_OPEN);
-            sfx_play_name("wth_door");
-            wth_say("YOU FEED THE HOOKED WIRE UNDER THE DOOR AND FEEL UP THE OTHER SIDE FOR THE BOLT. IT CATCHES. IT "
-                    "SLIDES. THE DOOR SWINGS OPEN ON A DARK PASSAGE.");
+        if (held == I_NAIL && !wth_flag(F_NAIL_SET)) {
+            wth_set(F_NAIL_SET);
+            wth_take_away(I_NAIL);
+            wth_say("YOU SET THE POINT OF THE NAIL UNDER THE TOP HINGE PIN. IT NEEDS DRIVING HOME.");
+        } else if (held == I_STONE) {
+            if (!wth_flag(F_NAIL_SET)) {
+                wth_say("YOU BANG AT THE HINGES WITH THE STONE. THE PINS ARE TOO DEEP; YOU NEED SOMETHING TO DRIVE "
+                        "THEM UP FROM BELOW.");
+            } else {
+                wth_set(F_CELL_OPEN);
+                wth_take_away(I_STONE);
+                sfx_play_name("wth_door");
+                wth_say("YOU HAMMER THE NAIL WITH THE STONE. THE TOP PIN JUMPS OUT, THEN THE BOTTOM ONE, AND THE DOOR "
+                        "SAGS OFF ITS HINGES INTO THE DARK PASSAGE.");
+            }
         } else if (held) wth_say("THAT WON'T GET THE DOOR OPEN.");
-        else wth_say("A HEAVY DOOR, BOLTED ON THE OUTSIDE. THERE'S A FINGER'S GAP UNDERNEATH IT.");
+        else if (wth_flag(F_NAIL_SET)) wth_say("THE NAIL IS WEDGED UNDER THE HINGE PIN, WAITING TO BE DRIVEN.");
+        else wth_say("A HEAVY DOOR, LOCKED ON THE OUTSIDE. BUT WHOEVER HUNG IT PUT THE HINGES ON THIS SIDE.");
         break;
-    case S_CELL_VENT:
-        if (!wth_flag(F_VENT_OPEN)) {
-            if (held == I_SHOEHORN) {
-                wth_set(F_VENT_OPEN);
-                wth_take_away(I_SHOEHORN);
-                sfx_play_name("wth_clank");
-                wth_say("YOU WORK THE LIP OF THE SHOEHORN UNDER THE GRILLE AND LEVER. THE RUSTED SCREWS GIVE ALL AT "
-                        "ONCE AND THE GRILLE CLATTERS DOWN.");
-            } else if (held) nothing();
-            else wth_say("A GRILLE OVER AN AIR VENT, HIGH IN THE WALL. THE SCREW HEADS HAVE RUSTED AWAY. THERE'S A "
-                         "THIN GAP UNDER ITS EDGE.");
-        } else if (held) nothing();
-        else if (!take(F_VENT_WIRE, I_WIRE, "YOU REACH INTO THE VENT. A STIFF BENT WIRE, HOOKED AT THE END."))
-            if (!take(F_VENT_PAPER, I_NEWSPAPER, "FURTHER IN, A FOLDED SCRAP OF NEWSPAPER."))
-                wth_say("NOTHING ELSE IN THE VENT BUT DUST, AND A DRAUGHT FROM SOMEWHERE FAR AWAY.");
+    case S_CELL_WALL:
+        take_or(F_STONE_TAKEN, I_STONE, "ONE STONE IN THE WALL IS LOOSE IN ITS MORTAR. YOU WORK IT OUT.",
+                "A HOLE WHERE THE LOOSE STONE WAS. COLD AIR BREATHES THROUGH IT.", held);
         break;
-    case S_CELL_STRAW:
-        if (held) nothing();
-        else if (!take(F_STRAW, I_SHOEHORN, "YOU DIG THROUGH THE STRAW. UNDER IT, PRESSED INTO THE DIRT: A SHOEHORN."))
-            wth_say("DAMP STRAW. YOU WOKE UP ON IT.");
+    case S_CELL_BARREL:
+        take_or(F_NAIL_TAKEN, I_NAIL, "THE BARREL LID IS HELD BY ONE LONG NAIL, HALF OUT ALREADY. YOU WORK IT FREE.",
+                "AN EMPTY SALT BARREL. IT STILL SMELLS OF EELS.", held);
         break;
-    case S_CELL_TRAY:
-        if (held) nothing();
-        else if (!take(F_MUG_TAKEN, I_MUG, "A TRAY ON THE FLOOR, AND ON IT A TIN MUG. SOMEONE MEANT YOU TO STAY A WHILE."))
-            wth_say("AN EMPTY TRAY.");
-        break;
-    /* the back passage */
-    case S_PAS_COAT:
-        if (held) nothing();
-        else if (!take(F_COAT, I_PENNIES, "A MAN'S COAT ON A PEG. IN THE POCKET, A FISTFUL OF PENNIES."))
-            wth_say("A MAN'S COAT, TOO GOOD FOR THIS HOUSE. THE LABEL INSIDE SAYS FEN WATER BOARD.");
-        break;
+    /* the passage, the sickroom, the hall */
     case S_PAS_RUG:
-        if (held) nothing();
-        else if (!take_page(s)) wth_say("A LONG RUNNER RUG. THE PILE IS WORN DOWN TO THE THREADS IN A PATH TO THE COLD STORE.");
+        page_or(s, "A LONG RUNNER RUG, WORN TO THE THREADS IN A PATH TO THE COLD STORE.", held);
         break;
-    /* the sickroom */
-    case S_SICK_BED:
-        if (held) nothing();
-        else if (!take_page(s)) wth_say("A NARROW IRON BED. THE SHEETS ARE GREY AND SMELL OF HONEY.");
-        break;
+    case S_SICK_BED: page_or(s, "A NARROW IRON BED. THE SHEETS ARE GREY AND SMELL OF HONEY.", held); break;
     case S_SICK_STAND:
-        if (held) nothing();
-        else if (!take(F_TORCH_TAKEN, I_TORCH, "IN THE NIGHTSTAND DRAWER: A HAND TORCH. YOU CLICK IT. NOTHING. NO BATTERIES."))
-            wth_say("AN EMPTY NIGHTSTAND.");
+        take_or(F_FUSE_TAKEN, I_FUSE,
+                "IN THE NIGHTSTAND DRAWER, AMONG PILL BOTTLES: A BLOWN FUSE, PUT AWAY AS IF TO STOP ANYONE MENDING IT.",
+                "AN EMPTY NIGHTSTAND.", held);
         break;
-    /* the hall */
-    case S_HALL_CLOCK:
-        if (held == I_COPPERKEY && !wth_flag(F_CLOCK_WOUND)) {
-            wth_set(F_CLOCK_WOUND);
-            wth_take_away(I_COPPERKEY);
-            floor_put(R_HALL, I_GEAR);
-            wth_noise(false);
-            sfx_play_name("wth_chime");
-            wth_say("YOU WIND THE CLOCK. IT STRIKES. AND STRIKES, AND WON'T STOP, ON AND ON THROUGH THE WHOLE HOUSE. "
-                    "SOMETHING INSIDE SPRINGS LOOSE AND A COG ROLLS OUT ACROSS THE FLOOR.");
-        } else if (held) nothing();
-        else if (wth_flag(F_CLOCK_WOUND)) wth_say("THE CLOCK HAS STOPPED STRIKING AT LAST. ITS HANDS HANG STRAIGHT DOWN.");
-        else wth_say("A LONGCASE CLOCK, STOPPED AT TEN TO THREE. THERE'S A SQUARE HOLE IN THE DIAL FOR A WINDING KEY.");
+    case S_HALL_TABLE:
+        take_or(F_PHOTO_TAKEN, I_PHOTO, "ON THE HALL TABLE, FACE DOWN: A WEDDING PHOTOGRAPH IN A CARD FRAME. YOU TAKE IT.",
+                "A HALL TABLE. A CLEAN SQUARE IN THE DUST WHERE THE PHOTOGRAPH STOOD.", held);
         break;
     case S_HALL_UMBRELLA:
-        if (held) nothing();
-        else if (!take(F_CANE_TAKEN, I_CANE, "AN UMBRELLA STAND WITH NO UMBRELLAS. YOU TAKE THE WALKING CANE."))
-            wth_say("AN EMPTY UMBRELLA STAND.");
+        take_or(F_HANDLE_TAKEN, I_PUMPHANDLE,
+                "AMONG THE WALKING STICKS IN THE STAND, ONE IS NOT A STICK: AN IRON PUMP HANDLE. YOU TAKE IT.",
+                "WALKING STICKS. NONE OF THEM IS ANY USE.", held);
         break;
     case S_HALL_STAIRS_DARK:
-        if (held == I_TORCH && wth_flag(F_TORCH_LOADED)) {
+        if (held == I_LAMP && wth_flag(F_LAMP_LIT)) {
             wth_set(F_STAIRS_LIT);
-            wth_take_away(I_TORCH);
+            wth_take_away(I_LAMP);
             sfx_play_name("wth_click");
-            wth_say("YOU SWITCH ON THE TORCH AND POINT IT UP THE STAIRS. A SMALL CIRCLE OF LIGHT. IT WILL HAVE TO DO.");
-        } else if (held == I_TORCH) wth_say("THE TORCH HAS NO BATTERIES IN IT.");
+            wth_say("YOU HOLD THE LAMP UP THE STAIRWELL. A SMALL CIRCLE OF LIGHT. IT WILL HAVE TO DO.");
+        } else if (held == I_LAMP) wth_say(wth_flag(F_LAMP_FILLED) ? "THE LAMP ISN'T LIT." : "THE LAMP'S TANK IS DRY.");
         else if (held) nothing();
         else wth_say("THE STAIRS GO UP INTO A DARK SO THICK IT FEELS WET. NOT WITHOUT A LIGHT.");
         break;
     /* the parlour */
-    case S_PAR_PIG:
-        if (held) nothing();
-        else take(F_PIG_TAKEN, I_PIG, "A CHINA MONEY PIG ON THE MANTELPIECE. IT'S HEAVY, AND SOMETHING INSIDE RATTLES.");
-        break;
-    case S_PAR_FIRE:
-        if (held == I_PARAFFIN && !wth_flag(F_FIRE_SOAKED)) {
-            wth_set(F_FIRE_SOAKED);
-            wth_take_away(I_PARAFFIN);
-            wth_say("YOU SLOSH PARAFFIN OVER THE WAX FIGURE AND THE KINDLING UNDER IT.");
-        } else if (held == I_MATCHES && !wth_flag(F_FIRE_LIT)) {
-            if (!wth_flag(F_FIRE_SOAKED)) {
-                wth_say("THE MATCH BURNS DOWN TO YOUR FINGERS. THE WAX WON'T CATCH ON ITS OWN.");
-            } else {
-                wth_set(F_FIRE_LIT);
-                wth_take_away(I_MATCHES);
-                sfx_play_name("wth_fire");
-                wth_say("THE FIRE ROARS UP THE CHIMNEY. THE WAX MAN SAGS, AND RUNS, AND SOMETHING DARK RED DROPS OUT "
-                        "OF HIS CHEST INTO THE ASHES.");
-            }
-        } else if (held) nothing();
-        else if (wth_flag(F_FIRE_LIT) && !wth_flag(F_GARNET_TAKEN)) {
-            take(F_GARNET_TAKEN, I_GARNET, "YOU RAKE A GARNET OUT OF THE HOT ASHES.");
-        } else if (wth_flag(F_FIRE_LIT)) wth_say("THE FIRE BURNS LOW. THE WAX HAS GONE.");
-        else wth_say("A WAX FIGURE OF A MAN SITS IN THE COLD GRATE WITH ITS HANDS FOLDED. SOMETHING IN ITS CHEST "
-                     "CATCHES THE LIGHT.");
+    case S_PAR_IRONS:
+        take_or(F_POKER_TAKEN, I_POKER, "A STAND OF FIRE IRONS. YOU TAKE THE POKER, THE HEAVIEST.",
+                "A SHOVEL AND TONGS. NOTHING HEAVY ENOUGH.", held);
         break;
     case S_PAR_RADIO:
-        if (held) nothing();
+        if (held == I_SCREWDRIVER && !wth_flag(F_MAGNET_TAKEN)) {
+            wth_set(F_MAGNET_TAKEN);
+            wth_give(I_MAGNET);
+            screw_job();
+            wth_say("YOU UNSCREW THE BACK OF THE RADIOGRAM. THE LOUDSPEAKER'S HEAVY MAGNET COMES AWAY IN YOUR HAND.");
+        } else if (held) nothing();
+        else if (!wth_flag(F_POWER)) wth_say("A RADIOGRAM, SCREWED UP AT THE BACK. IT'S DEAD: NO POWER IN THE HOUSE.");
         else {
             wth_noise(false);
             sfx_play_name("wth_static");
@@ -453,106 +406,102 @@ void wth_click(int s, int held) {
                     "SNAP IT OFF. TOO LATE.");
         }
         break;
-    case S_PAR_SOFA:
-        if (held) nothing();
-        else if (!take_page(s)) wth_say("A SAGGING SOFA. THE ANTIMACASSARS ARE STIFF WITH SOMETHING THAT DRIED.");
-        break;
+    case S_PAR_SOFA: page_or(s, "A SAGGING SOFA. THE CUSHIONS ARE STIFF WITH SOMETHING THAT DRIED.", held); break;
     /* the dining room */
-    case S_DIN_ORCH:
-        if (held == I_PENNIES && !wth_flag(F_HYMN_OUT)) {
-            wth_set(F_HYMN_OUT);
-            wth_take_away(I_PENNIES);
-            wth_give(I_HYMN);
+    case S_DIN_PIANOLA:
+        if (held) nothing();
+        else {
             wth_noise(false);
             sfx_play_name("wth_orch");
-            wth_say("THE ORCHESTRELLE WAKES WITH A CRASH OF DRUMS AND PIPES, LOUD ENOUGH TO RAISE THE DEAD. WHEN IT "
-                    "RUNS DOWN, A DRAWER HAS SLID OPEN. YOU TAKE THE SHEET OF MUSIC INSIDE.");
-        } else if (held) nothing();
-        else if (wth_flag(F_HYMN_OUT)) wth_say("IT HAS PLAYED ITS TUNE. IT WON'T PLAY ANOTHER.");
-        else wth_say("A PENNY-IN-THE-SLOT ORCHESTRELLE: DRUMS, PIPES AND CYMBALS IN A GLASS CABINET. THE SLOT IS "
-                     "EMPTY AND WAITING.");
+            wth_say("YOU PUMP THE PEDALS. THE PIANOLA HAMMERS OUT A MUSIC-HALL SONG AT FULL TILT, THE KEYS GOING DOWN "
+                    "ON THEIR OWN. YOU STOP. THE HOUSE HAS HEARD.");
+        }
         break;
     case S_DIN_SIDE:
-        if (held) nothing();
-        else if (!take(F_TONGS_TAKEN, I_TONGS, "IN THE SIDEBOARD DRAWER, ROLLED IN A NAPKIN: SILVER SUGAR TONGS."))
-            wth_say("THE SIDEBOARD HOLDS NOTHING BUT NAPKINS.");
-        break;
-    case S_DIN_TABLE:
-        if (held) nothing();
-        else if (!take_page(s)) wth_say("THE TABLE IS LAID FOR FOUR. EVERY PLATE HOLDS A SPOONFUL OF HONEY, DRIED HARD.");
+        take_or(F_HONEY_TAKEN, I_HONEY,
+                "ON THE SIDEBOARD, A JAR OF PALE HONEY LABELLED FOR OUR GUEST. YOU TAKE IT, AND YOU DON'T EAT IT.",
+                "A SIDEBOARD. THE SILVER HAS GONE.", held);
         break;
     /* the kitchen */
-    case S_KIT_STOVE:
-        if (held) nothing();
-        else if (!take(F_MATCHES_TAKEN, I_MATCHES, "A BOX OF MATCHES ON THE STOVE. YOU POCKET IT."))
-            wth_say("A COLD BLACK STOVE.");
+    case S_KIT_SALT:
+        take_or(F_SALT_TAKEN, I_SALT, "A SALT BOX ON THE WALL, HALF FULL OF ROCK SALT. YOU TAKE A FISTFUL.",
+                "THE SALT BOX.", held);
         break;
     case S_KIT_KNIVES:
-        if (held) nothing();
-        else if (!take(F_KNIFE_TAKEN, I_KNIFE, "A KNIFE BLOCK. YOU DRAW OUT THE LONGEST ONE."))
-            wth_say("THE OTHER SLOTS IN THE BLOCK ARE EMPTY. SOMEONE ELSE HAS THE REST.");
+        take_or(F_KNIFE_TAKEN, I_KNIFE, "A KNIFE BLOCK. YOU DRAW OUT THE LONGEST ONE.",
+                "THE OTHER SLOTS IN THE BLOCK ARE EMPTY. SOMEONE ELSE HAS THE REST.", held);
         break;
-    case S_KIT_BOOK:
-        if (held) nothing();
-        else if (!take_page(s)) wth_say("COOKERY BOOKS. EVERY RECIPE HAS HAD HONEY WRITTEN INTO IT IN PENCIL.");
-        break;
+    case S_KIT_BOOK: page_or(s, "COOKERY BOOKS. EVERY RECIPE HAS HAD HONEY WRITTEN INTO IT IN PENCIL.", held); break;
     /* the scullery */
-    case S_SCU_TUB:
-        if (held) nothing();
-        else if (!take(F_BAR_TAKEN, I_BAR, "YOU TIP THE COPPER WASH TUB. UNDERNEATH IT: A WRECKING BAR."))
-            wth_say("A COPPER WASH TUB, GREEN WITH AGE.");
+    case S_SCU_ICEBOX:
+        if (held == I_SALT && !wth_flag(F_BEE_ICE)) {
+            wth_set(F_BEE_ICE);
+            wth_take_away(I_SALT);
+            wth_give(I_BEE_BRASS);
+            wth_say("YOU RUB THE ROCK SALT INTO THE BLOCK OF ICE. IT SWEATS, AND PITS, AND SOMETHING SMALL AND BRASS "
+                    "DROPS OUT INTO YOUR HAND: A BEE.");
+        } else if (held) nothing();
+        else if (wth_flag(F_BEE_ICE)) wth_say("AN ICE CHEST WITH A HOLLOWED-OUT BLOCK IN IT.");
+        else wth_say("AN ICE CHEST. ONE BIG BLOCK OF ICE, AND FROZEN IN THE MIDDLE OF IT SOMETHING THAT GLINTS. IT "
+                     "WON'T MELT ON ITS OWN, NOT TONIGHT.");
         break;
-    case S_SCU_SODA:
-        if (held) nothing();
-        else take(F_SODA_TAKEN, I_SODA, "A TIN OF DRAIN SODA ON THE SHELF. YOU TAKE IT.");
+    case S_SCU_SINK:
+        if (held == I_BUCKET) {
+            wth_take_away(I_BUCKET);
+            wth_give(I_WATER);
+            wth_say("YOU WORK THE SCULLERY PUMP AND FILL THE BUCKET TO THE BRIM.");
+        } else if (held) nothing();
+        else wth_say("A STONE SINK WITH A HAND PUMP OVER IT. THE WATER COMES UP COLD AND CLEAR.");
+        break;
+    case S_SCU_BUCKET:
+        take_or(F_BUCKET_TAKEN, I_BUCKET, "UNDER THE SINK, A GALVANISED BUCKET. YOU TAKE IT.", "", held);
+        break;
+    case S_SCU_DRAWER:
+        take_or(F_TAPKEY_TAKEN, I_TAPKEY, "IN THE DRESSER DRAWER, AMONG STRING AND CANDLE ENDS: A LITTLE TAP KEY.",
+                "STRING AND CANDLE ENDS.", held);
+        break;
+    case S_SCU_FUSEBOX:
+        if (held == I_GOODFUSE) {
+            wth_set(F_POWER);
+            wth_take_away(I_GOODFUSE);
+            sfx_play_name("wth_click");
+            wth_say("YOU PUSH THE MENDED FUSE HOME. SOMEWHERE A FRIDGE SHUDDERS AND HUMS. THE HOUSE HAS POWER AGAIN.");
+        } else if (held == I_FUSE) wth_say("IT'S BLOWN. IT WOULD NEED NEW WIRE.");
+        else if (held) nothing();
+        else if (wth_flag(F_POWER)) wth_say("THE FUSE BOX HUMS.");
+        else wth_say("A FUSE BOX. ONE CARRIER IS MISSING: THE ONE MARKED STUDY AND PARLOUR.");
         break;
     case S_SCU_DIARY: case S_SHE_DIARY: case S_STU_DIARY: case S_BAT_DIARY: case S_NUR_DIARY: case S_CHI_DIARY:
-    case S_ATT_DIARY: case S_CEL_DIARY:
-        if (held) nothing();
-        else take_page(s);
+    case S_ATT_DIARY: case S_CEL_DIARY: case S_DIN_DIARY:
+        page_or(s, NULL, held);
         break;
     /* the smoking room */
-    case S_SMO_HUMIDOR:
-        if (held) nothing();
-        else if (!take(F_SNUFF_TAKEN, I_SNUFF, "THE HUMIDOR HOLDS NO CIGARS, ONLY A TIN OF BLACK SNUFF."))
-            wth_say("AN EMPTY HUMIDOR. IT SMELLS OF CEDAR AND SOMETHING SWEETER.");
+    case S_SMO_CABINET:
+        if (held == I_POKER && !wth_flag(F_CABINET_BROKEN)) {
+            wth_set(F_CABINET_BROKEN);
+            wth_give(I_CROSSBOW);
+            wth_noise(false);
+            sfx_play_name("wth_glass");
+            wth_say("YOU PUT THE POKER THROUGH THE GLASS FRONT. THE CRASH GOES ON AND ON. YOU LIFT THE CROSSBOW OFF "
+                    "ITS PEGS.");
+        } else if (held == I_KNIFE && !wth_flag(F_CABINET_BROKEN)) {
+            wth_say("THE GLASS IS THICK. YOU'D NEED SOMETHING HEAVY.");
+        } else if (held) nothing();
+        else if (wth_flag(F_CABINET_BROKEN)) wth_say("A GUN CABINET WITH NO GLASS AND NOTHING ON ITS PEGS.");
+        else wth_say("A GUN CABINET WITH A GLASS FRONT, LOCKED. INSIDE, AN OLD CROSSBOW ON TWO PEGS. THE KEY IS NOWHERE.");
         break;
-    case S_SMO_DESK:
-        if (held) nothing();
-        else if (!take(F_BATT_TAKEN, I_BATTERIES, "IN THE DESK DRAWER, AMONG BILLS NOBODY PAID: TWO BIG BATTERIES."))
-            wth_say("A WRITING DESK. UNPAID BILLS, A BLOTTER, A PEN DRIED SOLID.");
+    case S_SMO_PIPES:
+        take_or(F_MATCHES_TAKEN, I_MATCHES, "A PIPE RACK, AND BESIDE IT A BOX OF MATCHES. YOU POCKET THEM.",
+                "PIPES THAT SMELL OF SOMETHING SWEETER THAN TOBACCO.", held);
         break;
     case S_SMO_CHAIR:
-        if (held) nothing();
-        else if (!take_page(s)) wth_say("A WING CHAIR. THE SEAT IS DENTED IN THE SHAPE OF SOMEONE WHO SAT A VERY LONG TIME.");
+        page_or(s, "A WING CHAIR. THE SEAT IS DENTED IN THE SHAPE OF SOMEONE WHO SAT A VERY LONG TIME.", held);
         break;
     /* the washroom */
-    case S_WAS_BATH:
-        if (!wth_flag(F_BATH_DRAINED)) {
-            if (held == I_SODA) {
-                wth_set(F_BATH_DRAINED);
-                wth_take_away(I_SODA);
-                sfx_play_name("wth_drain");
-                wth_say("YOU POUR IN THE SODA. THE BLACK WATER FIZZES, THEN GURGLES AWAY, AND DOWN IN THE PLUGHOLE "
-                        "GRATE SOMETHING GLINTS.");
-            } else if (held) nothing();
-            else wth_say("THE BATH IS FULL OF BLACK, STILL WATER, THICK AS SYRUP. THE DRAIN IS STOPPED UP. YOU WON'T "
-                         "PUT YOUR HAND IN.");
-        } else if (!wth_flag(F_TINKEY_TAKEN)) {
-            if (held == I_TONGS) {
-                wth_set(F_TINKEY_TAKEN);
-                wth_take_away(I_TONGS);
-                wth_give(I_TINKEY);
-                wth_say("YOU FEED THE TONGS DOWN THROUGH THE GRATE, AND CATCH, AND DRAW OUT A LITTLE TIN KEY.");
-            } else if (held) nothing();
-            else wth_say("SOMETHING IS CAUGHT DOWN IN THE PLUGHOLE GRATE. YOUR FINGERS ARE FAR TOO THICK.");
-        } else if (held) nothing();
-        else wth_say("AN EMPTY BATH WITH A GREY TIDEMARK.");
-        break;
-    case S_WAS_CAB:
-        if (held) nothing();
-        else if (!take(F_BORAX_TAKEN, I_BORAX, "IN THE CABINET, BEHIND THE CARBOLIC: A PACKET OF BORAX."))
-            wth_say("A CABINET OF SOAPS GONE SOFT AND WHITE.");
+    case S_WAS_CISTERN:
+        take_or(F_TAPE_TAKEN, I_TAPE,
+                "YOU LIFT THE LID OF THE HIGH CISTERN. TAPED UNDER IT, IN A BREAD BAG: A SPOOL OF RECORDING TAPE.",
+                "A HIGH IRON CISTERN ON BRACKETS.", held);
         break;
     case S_WAS_TOILET: case S_BAT_TOILET:
         if (held) nothing();
@@ -563,414 +512,334 @@ void wth_click(int s, int held) {
         }
         break;
     /* the guest room */
-    case S_GUE_BOX:
-        if (held == I_TINKEY && !wth_flag(F_BOX_OPEN)) {
-            wth_set(F_BOX_OPEN);
-            wth_take_away(I_TINKEY);
-            wth_give(I_COPPERKEY);
-            wth_say("THE TIN KEY TURNS. IN THE WRITING BOX: A COPPER WINDING KEY.");
-            take_page(s);
-        } else if (held) nothing();
-        else if (wth_flag(F_BOX_OPEN)) wth_say("THE WRITING BOX IS EMPTY.");
-        else wth_say("A WRITING BOX ON THE TABLE, WITH A LITTLE TIN LOCK.");
-        break;
+    case S_GUE_DRESSER: page_or(s, "A DRESSER WITH ITS MIRROR TURNED TO THE WALL.", held); break;
     case S_GUE_SEW:
-        if (held) nothing();
-        else if (!take(F_OIL_TAKEN, I_OIL, "A SEWING MACHINE. BESIDE IT, A CAN OF MACHINE OIL."))
-            wth_say("A SEWING MACHINE WITH A HALF-SEWN SHROUD UNDER ITS NEEDLE.");
+        take_or(F_FUSEWIRE_TAKEN, I_FUSEWIRE, "A SEWING BOX. AMONG THE BUTTONS, A CARD OF FUSE WIRE.",
+                "BUTTONS, AND A SHROUD HALF SEWN.", held);
         break;
     /* the glasshouse */
-    case S_GLA_TRELLIS:
-        if (held) nothing();
-        else if (!take(F_HOOK_TAKEN, I_CUPHOOK, "A BRASS CUP HOOK HOLDS A DEAD VINE TO THE TRELLIS. YOU WORK IT OUT OF THE WOOD."))
-            wth_say("A TRELLIS AND A DEAD VINE.");
+    case S_GLA_LAMP:
+        take_or(F_LAMP_TAKEN, I_LAMP, "A HURRICANE LAMP HANGS FROM A HOOK. ITS TANK IS DRY. YOU TAKE IT DOWN.", "", held);
+        break;
+    case S_GLA_SULPHATE:
+        take_or(F_SULPHATE_TAKEN, I_SULPHATE,
+                "A SACK OF BLUE CRYSTALS: COPPER SULPHATE, FOR THE VINES. YOU TWIST SOME UP IN A PAPER.",
+                "THE SACK OF BLUE CRYSTALS.", held);
+        break;
+    case S_GLA_TROWEL:
+        take_or(F_TROWEL_TAKEN, I_TROWEL, "A POTTING TRAY, AND IN IT A TROWEL.", "A POTTING TRAY.", held);
         break;
     case S_GLA_PANE:
-        if (held == I_BAR) {
+        if (held == I_POKER) {
             wth_noise(false);
             sfx_play_name("wth_glass");
-            wth_say("YOU JAB THE BAR THROUGH THE CRACKED PANE. GLASS RAINS DOWN WITH A CRASH LIKE A GUNSHOT.");
+            wth_say("YOU JAB THE POKER THROUGH THE CRACKED PANE. GLASS RAINS DOWN WITH A CRASH LIKE A GUNSHOT.");
         } else if (held) nothing();
         else wth_say("A CRACKED PANE IN THE ROOF. ONE GOOD KNOCK WOULD BRING IT DOWN.");
         break;
     /* the garage */
-    case S_GAR_OPENER:
-        if (held == I_MOTOR && !wth_flag(F_MOTOR_FITTED)) {
-            wth_set(F_MOTOR_FITTED);
-            wth_take_away(I_MOTOR);
-            wth_say("YOU BOLT THE MOTOR INTO THE EMPTY CRADLE OF THE DOOR OPENER.");
-        } else if (held == I_OIL && !wth_flag(F_RAILS_OILED)) {
-            wth_set(F_RAILS_OILED);
-            oil_job_done();
-            wth_say("YOU OIL THE DOOR RAILS ALL THE WAY ALONG. THE RUST LOOSENS.");
+    case S_GAR_SACK:
+        if (held == I_TROWEL && !wth_flag(F_LIME_TAKEN)) {
+            if (!wth_has(I_GLOVES)) wth_say("THE QUICKLIME BITES YOUR FINGERS AS SOON AS YOU GET NEAR. YOU'D NEED GLOVES.");
+            else {
+                wth_set(F_LIME_TAKEN);
+                wth_take_away(I_TROWEL);
+                wth_take_away(I_GLOVES);
+                wth_give(I_LIME);
+                wth_say("WITH THE GLOVES ON, YOU DIG A TROWELFUL OF QUICKLIME OUT OF THE SACK AND FOLD IT IN NEWSPAPER.");
+            }
         } else if (held) nothing();
-        else if (!wth_flag(F_MOTOR_FITTED))
-            wth_say(wth_flag(F_RAILS_OILED) ? "THE DOOR OPENER ON THE CEILING. THE RAILS ARE OILED, BUT ITS MOTOR HAS BEEN TAKEN OUT."
-                                            : "THE DOOR OPENER ON THE CEILING. ITS MOTOR HAS BEEN TAKEN OUT, AND THE RAILS ARE RUSTED STIFF.");
-        else if (!wth_flag(F_RAILS_OILED)) wth_say("THE MOTOR IS IN. THE RAILS ARE STILL RUSTED STIFF.");
-        else wth_say("THE OPENER IS MENDED. IT RUNS FROM THE BUTTON ON THE WALL.");
+        else wth_say("A SACK OF BUILDER'S QUICKLIME, SPLIT AT THE SEAM. IT BURNS SKIN.");
         break;
-    case S_GAR_BUTTON:
-        if (held) nothing();
-        else if (wth_flag(F_GARAGE_OPEN)) wth_say("THE DOOR IS ALREADY UP.");
-        else if (wth_flag(F_MOTOR_FITTED) && wth_flag(F_RAILS_OILED)) {
-            wth_set(F_GARAGE_OPEN);
-            wth_noise(false);
-            sfx_play_name("wth_rumble");
-            wth_say("THE MOTOR WHINES AND THE GARAGE DOOR RATTLES UP ITS RAILS, LOUD AS A GOODS TRAIN. COLD AIR. THE DRIVE.");
-        } else wth_say("YOU PRESS THE BUTTON. A CLICK, AND NOTHING ELSE.");
-        break;
-    case S_GAR_SPANNER:
-        if (held) nothing();
-        else take(F_SPANNER_TAKEN, I_SPANNER, "A SPANNER ON THE TOOL BOARD. YOU TAKE IT DOWN.");
-        break;
-    case S_GAR_TWINE:
-        if (held) nothing();
-        else take(F_TWINE_TAKEN, I_TWINE, "A BALL OF TARRED TWINE ON A NAIL. YOU TAKE IT.");
-        break;
+    case S_GAR_SCREW: take_or(F_SCREW_TAKEN, I_SCREWDRIVER, "A SCREWDRIVER ON THE TOOL BOARD. YOU TAKE IT.", "", held); break;
+    case S_GAR_GREASE: take_or(F_GREASE_TAKEN, I_GREASE, "A FLAT TIN OF AXLE GREASE. YOU TAKE IT.", "", held); break;
     case S_GAR_SHELF:
-        if (held) nothing();
-        else if (!take(F_PARAFFIN_TAKEN, I_PARAFFIN, "ON THE SHELF, AMONG EMPTY HONEY JARS: A CAN OF PARAFFIN."))
-            wth_say("EMPTY HONEY JARS, WASHED AND WAITING.");
+        take_or(F_PARAFFIN_TAKEN, I_PARAFFIN, "ON THE SHELF, AMONG EMPTY HONEY JARS: A CAN OF PARAFFIN.",
+                "EMPTY HONEY JARS, WASHED AND WAITING.", held);
         break;
     case S_GAR_CAR:
-        if (held == I_CARKEYS) {
-            if (wth_flag(F_GARAGE_OPEN)) wth_end_game(END_CAR);
+        if (held == I_ROTOR) {
+            wth_set(F_ROTOR_FITTED);
+            wth_take_away(I_ROTOR);
+            sfx_play_name("wth_click");
+            wth_say("YOU LIFT THE BONNET, PRISE OFF THE DISTRIBUTOR CAP AND PRESS THE ROTOR ARM ONTO ITS SPINDLE.");
+        } else if (held == I_CARKEY) {
+            if (wth_flag(F_ROTOR_FITTED) && wth_flag(F_GARAGE_OPEN)) wth_end_game(END_CAR);
             else {
                 wth_noise(false);
                 sfx_play_name("wth_engine");
-                wth_say("THE ENGINE ROARS INTO LIFE, DEAFENING IN THE SHUT GARAGE. THE DOOR IS DOWN. YOU KILL THE "
-                        "ENGINE, SHAKING.");
+                wth_say(!wth_flag(F_ROTOR_FITTED)
+                            ? "THE STARTER WHINES AND WHINES, LOUD IN THE SHUT GARAGE, AND THE ENGINE WON'T CATCH. "
+                              "SOMETHING IS MISSING UNDER THE BONNET."
+                            : "THE ENGINE ROARS INTO LIFE, DEAFENING IN THE SHUT GARAGE. THE DOOR IS DOWN. YOU KILL "
+                              "THE ENGINE, SHAKING.");
             }
         } else if (held) nothing();
-        else if (!take_page(s))
-            wth_say("A BIG GREEN ROVER. THE DOORS AREN'T LOCKED, BUT THERE ARE NO KEYS IN IT.");
+        else page_or(s, "A BIG GREEN ROVER. THE DOORS AREN'T LOCKED, BUT THERE ARE NO KEYS IN IT.", 0);
         break;
     case S_GAR_DOOR:
-        if (held) nothing();
-        else wth_say("THE GARAGE DOOR, PULLED DOWN. FAR TOO HEAVY TO LIFT BY HAND.");
+        if (held == I_CUTTERS && !wth_flag(F_CHAIN_CUT)) {
+            wth_set(F_CHAIN_CUT);
+            cutters_job();
+            sfx_play_name("wth_clank");
+            wth_say("YOU BITE THROUGH THE CHAIN THAT HOLDS THE GARAGE DOOR DOWN TO ITS RING. IT FALLS WITH A CLATTER.");
+        } else if (held) nothing();
+        else if (wth_flag(F_CHAIN_CUT)) {
+            wth_set(F_GARAGE_OPEN);
+            wth_noise(false);
+            sfx_play_name("wth_rumble");
+            wth_say("YOU HEAVE THE DOOR UP. IT THUNDERS UP ITS RAILS, LOUD AS A GOODS TRAIN. COLD AIR. THE DRIVE.");
+        } else wth_say("THE GARAGE DOOR IS CHAINED DOWN TO A RING IN THE FLOOR, AND THE CHAIN IS PADLOCKED.");
         break;
     /* the pond */
-    case S_POND_BODY:
-        if (held == I_LONGHOOK && !wth_flag(F_POND_DONE)) {
-            wth_set(F_POND_DONE);
-            wth_give(I_SHEDKEY);
-            hook_job_done();
-            wth_say("YOU REACH OUT WITH THE LONG HOOK, CATCH THE BODY BY ITS COLLAR AND DRAW IT TO THE BANK. A MAN IN A "
-                    "WATER BOARD JACKET. IN HIS POCKET, A KEY ON A WOODEN TAG.");
-        } else if ((held == I_CANE || held == I_CUPHOOK) && !wth_flag(F_POND_DONE)) {
-            wth_say("IT REACHES HIM, BUT IT CAN'T GET A GRIP.");
-        } else if (held) nothing();
-        else if (wth_flag(F_POND_DONE)) wth_say("THE MAN LIES ON THE BANK NOW. YOU DON'T LOOK AT HIS FACE.");
-        else wth_say("A MAN FLOATS FACE DOWN IN THE MIDDLE OF THE POND, FAR OUT OF REACH.");
+    case S_POND_BOAT:
+        take_or(F_TACKLE_TAKEN, I_TACKLE, "A ROWING BOAT, SUNK TO ITS GUNWALES AT THE BANK. UNDER THE SEAT: A TACKLE BOX.",
+                "THE SUNKEN BOAT. THE OARS ARE GONE.", held);
         break;
     /* the shed */
-    case S_SHE_GRINDER:
-        if (held == I_SPANNER && !wth_flag(F_MOTOR_TAKEN)) {
-            wth_set(F_MOTOR_TAKEN);
-            wth_take_away(I_SPANNER);
-            wth_give(I_MOTOR);
-            wth_say("YOU UNBOLT THE BENCH GRINDER AND PULL ITS ELECTRIC MOTOR FREE.");
+    case S_SHE_PLIERS: take_or(F_PLIERS_TAKEN, I_PLIERS, "PLIERS ON THE PEGBOARD. YOU TAKE THEM.", "", held); break;
+    case S_SHE_CUTTERS: take_or(F_CUTTERS_TAKEN, I_CUTTERS, "BOLT CUTTERS ON THE PEGBOARD. YOU TAKE THEM.", "", held); break;
+    case S_SHE_SMOKER: take_or(F_SMOKER_TAKEN, I_SMOKER, "A BEE SMOKER ON THE SHELF. YOU TAKE IT.", "", held); break;
+    case S_SHE_SPRAYER:
+        take_or(F_SPRAYER_TAKEN, I_SPRAYER, "A KNAPSACK SPRAYER FOR THE ROSES. YOU SHRUG IT ON.", "", held);
+        break;
+    case S_SHE_GLOVES: take_or(F_GLOVES_TAKEN, I_GLOVES, "LEATHER GLOVES ON A SACK. YOU TAKE THEM.", "", held); break;
+    /* the back garden */
+    case S_GDN_WELL:
+        if (held == I_CUTTERS && !wth_flag(F_GRATE_CUT)) {
+            wth_set(F_GRATE_CUT);
+            cutters_job();
+            sfx_play_name("wth_clank");
+            wth_say("YOU CUT THE PADLOCK OFF THE WELL GRATE AND HEAVE IT ASIDE. COLD AIR COMES UP, AND A SMELL OF "
+                    "MUSHROOMS.");
+        } else if (held == I_MAGNETLINE && !wth_flag(F_BEE_WELL)) {
+            if (!wth_flag(F_GRATE_CUT)) wth_say("THE GRATE IS IN THE WAY.");
+            else {
+                wth_set(F_BEE_WELL);
+                wth_take_away(I_MAGNETLINE);
+                wth_give(I_BEE_COPPER);
+                wth_say("YOU LOWER THE MAGNET DOWN THE WELL, A LONG WAY, AND TROLL IT ABOUT IN THE DARK. A CLICK. YOU "
+                        "REEL IN A COPPER BEE WITH AN IRON PIN THROUGH IT.");
+            }
+        } else if (held == I_MAGNET) wth_say("IT'S A LONG WAY DOWN. THE MAGNET WOULD NEED A LINE.");
+        else if (held) nothing();
+        else if (!wth_flag(F_GRATE_CUT)) wth_say("AN OLD WELL WITH AN IRON GRATE PADLOCKED OVER IT. FAR DOWN, SOMETHING GLINTS.");
+        else if (!wth_flag(F_BEE_WELL)) wth_say("THE OPEN WELL. A LONG WAY DOWN, SOMETHING GLINTS IN THE WATER.");
+        else wth_say("THE OPEN WELL. COLD AIR, AND A SMELL OF MUSHROOMS.");
+        break;
+    case S_GDN_HOSE:
+        if (held == I_KNIFE && !wth_flag(F_HOSE_TAKEN)) {
+            wth_set(F_HOSE_TAKEN);
+            wth_give(I_HOSE);
+            wth_say("YOU CUT A GOOD LENGTH OF HOSE OFF THE REEL.");
         } else if (held) nothing();
-        else if (wth_flag(F_MOTOR_TAKEN)) wth_say("WHAT'S LEFT OF THE GRINDER.");
-        else wth_say("A BENCH GRINDER, BOLTED DOWN TIGHT. ITS LITTLE MOTOR COULD RUN SOMETHING ELSE.");
+        else if (wth_flag(F_HOSE_TAKEN)) wth_say("A HOSE REEL WITH A SHORT CUT END.");
+        else wth_say("A GARDEN HOSE ON A REEL, PERISHED BUT WHOLE. YOU COULD CUT A LENGTH OFF.");
         break;
-    case S_SHE_VISE:
-        if (held == I_PIG) {
-            wth_take_away(I_PIG);
-            wth_give(I_BRASSKEY);
-            wth_say("YOU CLAMP THE PIG IN THE VISE AND TURN THE HANDLE. IT CRACKS QUIETLY IN TWO. A BRASS KEY DROPS OUT.");
+    case S_GDN_HIVES:
+        if (held == I_KNIFE && !wth_flag(F_HIVE_CUT)) {
+            wth_set(F_HIVE_CUT);
+            wth_give(I_CARKEY);
+            wth_say("YOU SLICE THROUGH THE WAX SEALING THE NEAREST HIVE AND LIFT A FRAME. DEAD BEES, PALE COMB, AND "
+                    "PRESSED INTO THE COMB: A CAR KEY.");
         } else if (held) nothing();
-        else wth_say("A BENCH VISE. IT GRIPS, SLOWLY AND HARD.");
-        break;
-    case S_SHE_SCREW:
-        if (held) nothing();
-        else take(F_SCREW_TAKEN, I_SCREWDRIVER, "A LONG SCREWDRIVER HANGS ON THE PEGBOARD. YOU TAKE IT.");
-        break;
-    case S_SHE_SHEARS:
-        if (held) nothing();
-        else take(F_SHEARS_TAKEN, I_SHEARS, "GARDEN SHEARS, NEWLY SHARPENED. YOU TAKE THEM.");
-        break;
-    case S_SHE_SAW:
-        if (held) nothing();
-        else take(F_SAW_TAKEN, I_SAW, "A PRUNING SAW. YOU LIFT IT OFF ITS PEGS.");
-        break;
-    case S_SHE_SPADE:
-        if (held) nothing();
-        else take(F_SPADE_TAKEN, I_SPADE, "A SPADE LEANS IN THE CORNER. YOU TAKE IT.");
-        break;
-    case S_SHE_SACK:
-        if (held) nothing();
-        else if (!take(F_PEWTER_TAKEN, I_PEWTERKEY, "A SACK OF DAFFODIL BULBS, ALL ROTTEN. AT THE BOTTOM: A PEWTER KEY."))
-            wth_say("A SACK OF ROTTEN BULBS.");
-        break;
-    /* the garden */
-    case S_GDN_FALLEN:
-        if (held) nothing();
-        else if (!take(F_AMBER_TAKEN, I_AMBER, "THE BODY FROM THE BALCONY LIES CRUMPLED ON THE GRASS. ITS FIST HAS BURST OPEN ON A LUMP OF AMBER."))
-            wth_say("YOU DON'T LOOK AT IT AGAIN.");
-        break;
-    case S_GDN_GRAVE:
-        if (held == I_SPADE && !wth_flag(F_GRAVE_DUG)) {
-            wth_set(F_GRAVE_DUG);
-            wth_take_away(I_SPADE);
-            wth_give(I_CARKEYS);
-            sfx_play_name("wth_dig");
-            wth_say("YOU DIG UNDER THE YEW. A DOG'S COLLAR, A LEAD, A CHEWED BALL, AND A TOBACCO TIN. IN THE TIN: A "
-                    "RING OF CAR KEYS.");
-        } else if (held) nothing();
-        else if (wth_flag(F_GRAVE_DUG)) wth_say("THE GRAVE STANDS OPEN. YOU SHOULD FILL IT IN. YOU DON'T.");
-        else wth_say("A LOW MOUND UNDER THE YEW. A CROSS OF TWO STICKS SAYS SORREL.");
-        break;
-    case S_GDN_IVY:
-        if (held == I_SHEARS) {
-            wth_set(F_IVY_CUT);
-            wth_take_away(I_SHEARS);
-            wth_say("YOU HACK THROUGH THE IVY. BEHIND IT, AN ARCH IN THE WALL, AND A COURTYARD.");
-        } else if (held) nothing();
-        else wth_say("AN ARCH IN THE GARDEN WALL, CHOKED WITH IVY AS THICK AS YOUR ARM.");
+        else if (wth_flag(F_HIVE_CUT)) wth_say("THE OPENED HIVE. YOU DON'T LOOK IN AGAIN.");
+        else wth_say("THREE BEEHIVES. NOT ONE HUMS. EVERY ENTRANCE AND EVERY LID IS SEALED WITH WHITE WAX.");
         break;
     case S_GDN_SHEDDOOR:
-        if (held == I_SHEDKEY) {
+        if (held == I_PHOTO) {
             wth_set(F_SHED_OPEN);
-            wth_take_away(I_SHEDKEY);
+            wth_take_away(I_PHOTO);
             sfx_play_name("wth_door");
-            wth_say("THE SHED KEY OPENS THE PADLOCK.");
+            wth_say("THE PADLOCK HAS FOUR NUMBER WHEELS. YOU TURN THEM TO THE DATE ON THE PHOTOGRAPH: 4, 6, 7, 1. "
+                    "IT OPENS.");
         } else if (held) nothing();
-        else wth_say("THE POTTING SHED. A PADLOCK ON THE DOOR.");
+        else wth_say("THE POTTING SHED. A PADLOCK WITH FOUR LITTLE NUMBER WHEELS.");
+        break;
+    /* the side yard */
+    case S_YRD_BUTT:
+        if (held == I_TAPKEY && !wth_flag(F_BUTT_DRAINED)) {
+            wth_set(F_BUTT_DRAINED);
+            wth_set(F_TIN_TAKEN);
+            wth_take_away(I_TAPKEY);
+            wth_give(I_TIN);
+            sfx_play_name("wth_drain");
+            wth_say("YOU FIT THE TAP KEY AND TURN. THE WATER BUTT EMPTIES ACROSS THE YARD, AND SOMETHING CLANKS IN THE "
+                    "BOTTOM. YOU FISH OUT A TOBACCO TIN.");
+        } else if (held) nothing();
+        else if (wth_flag(F_BUTT_DRAINED)) wth_say("AN EMPTY WATER BUTT.");
+        else wth_say("A WATER BUTT, FULL TO THE BRIM. THE TAP AT THE BOTTOM HAS NO HANDLE, ONLY A SQUARE SPINDLE.");
+        break;
+    case S_YRD_KENNEL:
+        take_or(F_COLLAR_TAKEN, I_BUREAUKEY,
+                "AN EMPTY KENNEL. ON THE CHAIN, A COLLAR, AND ON THE COLLAR A SMALL BRASS KEY. YOU TAKE THE KEY.",
+                "AN EMPTY KENNEL AND A COLLAR ON A CHAIN. THE NAME ON THE TAG IS SCRATCHED OUT.", held);
+        break;
+    case S_YRD_PINE:
+        take_or(F_CONES_TAKEN, I_CONES, "UNDER THE PINE, DRY CONES. YOU GATHER AN ARMFUL.", "A BLACK PINE. IT CREAKS.", held);
         break;
     /* the drive */
     case S_DRV_GARAGE:
         if (held) nothing();
-        else wth_say("THE GARAGE DOOR. SHUT FROM THE INSIDE.");
+        else wth_say("THE GARAGE DOOR. SHUT, AND HELD FROM THE INSIDE.");
         break;
-    case S_DRV_STATUE:
-        if (held == I_RING && !wth_flag(F_FOUNTAIN_DRAINED)) {
-            wth_set(F_FOUNTAIN_DRAINED);
-            wth_take_away(I_RING);
-            sfx_play_name("wth_drain");
-            wth_say("YOU PRESS THE RING INTO THE HARE ON THE PLINTH. A CLUNK DEEP UNDERGROUND, AND THE FOUNTAIN "
-                    "BEGINS TO DRAIN.");
-        } else if (held) nothing();
-        else wth_say("A STONE WOMAN POURING WATER FROM A JAR. SUNK INTO THE PLINTH, LIKE A SEAL IN WAX: A HARE IN A "
-                     "RING OF THORNS.");
-        break;
-    case S_DRV_FOUNTAIN:
-        if (held) nothing();
-        else if (!wth_flag(F_FOUNTAIN_DRAINED))
-            wth_say("THE BASIN IS FULL OF DARK WATER. SOMETHING GREEN GLINTS ON THE BOTTOM, TOO DEEP TO REACH.");
-        else if (!take(F_JADE_TAKEN, I_JADE, "IN THE MUD AT THE BOTTOM OF THE EMPTY BASIN: A GREEN STONE. JADE."))
-            wth_say("AN EMPTY BASIN AND A SMELL OF MUD.");
-        break;
-    case S_DRV_STORM:
-        if (held == I_KEEPERKEY) {
-            wth_set(F_STORM_OPEN);
-            wth_take_away(I_KEEPERKEY);
+    case S_DRV_HATCH:
+        if (held == I_BLACKKEY) {
+            wth_set(F_HATCH_OPEN);
+            wth_take_away(I_BLACKKEY);
             sfx_play_name("wth_door");
             wth_say("THE BLACK KEY FITS. THE CELLAR DOORS LIFT ON A BREATH OF WARM, SWEET AIR.");
         } else if (held) nothing();
         else wth_say("TWO SLOPING CELLAR DOORS IN THE GRAVEL, CHAINED, WITH A BIG BLACK PADLOCK.");
         break;
-    /* the courtyard */
-    case S_CRT_HARE0: hare(0, held); break;
-    case S_CRT_HARE1: hare(1, held); break;
-    case S_CRT_HARE2: hare(2, held); break;
-    case S_CRT_HARE3: hare(3, held); break;
+    /* the hedge court */
+    case S_CRT_HIVE: stone_hive(held); break;
     case S_CRT_GATE:
         if (held) nothing();
-        else wth_say("AN IRON GATE IN THE CORNER, HELD BY NOTHING YOU CAN SEE. BEHIND IT, HIGH BLACK HEDGES.");
+        else wth_say("AN IRON GATE INTO THE HEDGES. IT WON'T MOVE AN INCH. BESIDE IT, THE STONE HIVE.");
         break;
     /* the heart of the hedges */
-    case S_HRT_GIRL:
-        if (held) nothing();
-        else if (!take(F_BOLT_TAKEN, I_BOLT, "A STONE GIRL HOLDS OUT HER CUPPED HANDS. IN THEM LIES A CROSSBOW BOLT. YOU TAKE IT."))
-            wth_say("HER HANDS ARE EMPTY NOW. SHE LOOKS DISAPPOINTED IN YOU.");
+    case S_HRT_OAK:
+        if (held == I_PLIERS && !wth_flag(F_BOLT_TAKEN)) {
+            wth_set(F_BOLT_TAKEN);
+            wth_take_away(I_PLIERS);
+            wth_give(I_BOLT);
+            wth_say("WITH THE PLIERS YOU WORK THE BOLT BACK AND FORTH IN THE OAK UNTIL IT COMES OUT.");
+        } else if (held == I_KNIFE && !wth_flag(F_BOLT_TAKEN)) {
+            wth_say("THE BOLT IS IN TOO DEEP TO DIG OUT WITH A KNIFE.");
+        } else if (held) nothing();
+        else if (wth_flag(F_BOLT_TAKEN)) wth_say("AN OLD OAK STUCK FULL OF HOLES, AND ONE NEW ONE.");
+        else wth_say("AN OLD OAK IN THE MIDDLE OF THE HEDGES, STUCK FULL OF OLD HOLES, AS IF SOMEONE PRACTISED ON IT "
+                     "FOR YEARS. ONE CROSSBOW BOLT IS STILL DRIVEN DEEP IN THE TRUNK.");
         break;
-    /* the landing */
+    /* upstairs */
     case S_LAN_HATCH:
-        if (held == I_LONGHOOK) {
+        if (held == I_POLE) {
             wth_set(F_HATCH_DOWN);
-            hook_job_done();
+            wth_take_away(I_POLE);
             sfx_play_name("wth_creak");
-            wth_say("YOU CATCH THE RING ON THE HATCH WITH THE LONG HOOK AND PULL. A LADDER SLIDES DOWN WITH A SHRIEK.");
+            wth_say("YOU HOOK THE RING ON THE HATCH WITH THE WINDOW POLE AND PULL. A LADDER SLIDES DOWN WITH A SHRIEK.");
         } else if (held) nothing();
         else wth_say("A HATCH IN THE CEILING WITH A RING ON IT. FAR TOO HIGH TO REACH.");
         break;
     case S_LAN_MASTER_SHUT:
-        if (held == I_BRASSKEY) {
+        if (held == I_POKER) {
             wth_set(F_MASTER_OPEN);
-            wth_take_away(I_BRASSKEY);
-            sfx_play_name("wth_door");
-            wth_say("THE BRASS KEY TURNS. THE BIG BEDROOM DOOR SWINGS IN.");
-        } else if (held) nothing();
-        else wth_say("A LOCKED DOOR WITH A BRASS KEYHOLE.");
-        break;
-    /* the big bedroom */
-    case S_MAS_BED:
-        if (held) nothing();
-        else if (!take_page(s)) wth_say("A FOUR-POSTER BED. ONE SIDE IS NEATLY MADE. THE OTHER IS A NEST OF WHITE THREADS.");
-        break;
-    case S_MAS_DRESSER:
-        if (held) nothing();
-        else if (!take(F_LENS_TAKEN, I_LENS, "ON THE DRESSING TABLE, AMONG HAIRPINS: A MAGNIFYING GLASS."))
-            wth_say("A DRESSING TABLE. THE MIRROR HAS BEEN TURNED TO THE WALL.");
-        break;
-    case S_MAS_SAFE:
-        if (held == I_COMBO && !wth_flag(F_SAFE_OPEN)) {
-            wth_set(F_SAFE_OPEN);
-            wth_take_away(I_COMBO);
-            wth_set(F_OPAL_TAKEN);
-            wth_give(I_OPAL);
-            sfx_play_name("wth_click");
-            wth_say("RIGHT 14, LEFT 3, RIGHT 27. THE SAFE SWINGS OPEN. INSIDE, ON A PAD OF VELVET: AN OPAL. YOU TAKE IT.");
-        } else if (held) nothing();
-        else if (wth_flag(F_SAFE_OPEN)) wth_say("THE SAFE IS EMPTY.");
-        else wth_say("A WALL SAFE WITH A NUMBERED DIAL. YOU DON'T KNOW THE NUMBERS.");
-        break;
-    /* the balcony */
-    case S_BAL_ROPE:
-        if (held == I_SAW && !wth_flag(F_ROPE_CUT)) {
-            wth_set(F_ROPE_CUT);
-            wth_take_away(I_SAW);
-            sfx_play_name("wth_thud");
-            wth_say("YOU SAW THROUGH THE ROPE. IT PARTS, AND THE WEIGHT ON THE END DROPS INTO THE GARDEN WITH A SOFT, "
-                    "AWFUL SOUND.");
-        } else if (held == I_KNIFE && !wth_flag(F_ROPE_CUT)) {
-            wth_say("THE ROPE IS TARRED AND AS THICK AS YOUR WRIST. THE KNIFE ONLY SLIDES OFF IT.");
-        } else if (held) nothing();
-        else if (wth_flag(F_ROPE_CUT)) wth_say("A FRAYED END OF ROPE ON THE RAIL.");
-        else wth_say("A ROPE TIED TO THE RAIL, RUNNING DOWN OVER THE EDGE, PULLED TIGHT BY SOMETHING HEAVY. THE KNOT "
-                     "HAS SWOLLEN SHUT.");
-        break;
-    /* the study */
-    case S_STU_COMPUTER:
-        if (held == I_PASSWORD && !wth_flag(F_RECIPE)) {
-            wth_set(F_RECIPE);
-            wth_take_away(I_PASSWORD);
-            sfx_play_name("wth_click");
-            wth_say("YOU TYPE QUEENLESS. THE SCREEN FILLS WITH GREEN LETTERS: TO KILL IT, MIX IN ONE CUP BLACK "
-                    "SNUFF, OIL OF CLOVES AND BORAX. POUR IT ON THE FACE. NOTHING ELSE WILL DO.");
-        } else if (held) nothing();
-        else if (wth_flag(F_RECIPE))
-            wth_say("THE SCREEN STILL SAYS: MIX IN ONE CUP BLACK SNUFF, OIL OF CLOVES AND BORAX. POUR IT ON THE FACE.");
-        else wth_say("A HOME COMPUTER, STILL SWITCHED ON. GREEN LETTERS: PASSWORD?");
-        break;
-    case S_STU_CASE:
-        if (held == I_BAR && !wth_flag(F_CASE_BROKEN)) {
-            wth_set(F_CASE_BROKEN);
-            wth_set(F_RING_TAKEN);
-            wth_give(I_RING);
-            wth_noise(false);
-            sfx_play_name("wth_glass");
-            wth_say("YOU SMASH THE CASE. GLASS FLIES, LOUD AS A DROPPED TRAY OF BELLS. A SIGNET RING IS CAUGHT ON THE "
-                    "STUFFED PIKE'S TEETH. YOU WORK IT OFF.");
-        } else if (held == I_KNIFE && !wth_flag(F_CASE_BROKEN)) {
-            wth_say("THE GLASS IS THICK. YOU'D NEED SOMETHING HEAVY.");
-        } else if (held) nothing();
-        else if (wth_flag(F_CASE_BROKEN)) wth_say("A BROKEN CASE AND A PIKE WITH ITS MOUTH OPEN.");
-        else wth_say("A GLASS CASE WITH A STUFFED PIKE IN IT. A RING HAS CAUGHT ON ITS TEETH. THE CASE IS SCREWED SHUT.");
-        break;
-    /* the bathroom */
-    case S_BAT_TUB:
-        if (held) nothing();
-        else wth_say("SOMEONE LIES IN THE BATH WITH THEIR MOUTH WIDE OPEN IN A SCREAM, AND WHITE THREADS GROW OUT OF IT "
-                     "LIKE BREATH ON A COLD DAY.");
-        break;
-    case S_BAT_MIRROR:
-        if (held == I_BAR && !wth_flag(F_MIRROR_BROKEN)) {
-            wth_set(F_MIRROR_BROKEN);
-            wth_set(F_COMBO_TAKEN);
-            wth_give(I_COMBO);
-            wth_noise(false);
-            sfx_play_name("wth_glass");
-            wth_say("YOU PUT THE BAR THROUGH THE MIRROR. THE CRASH GOES ON AND ON. TAPED TO THE WALL BEHIND IT: A "
-                    "CARD OF NUMBERS.");
-        } else if (held) nothing();
-        else if (wth_flag(F_MIRROR_BROKEN)) wth_say("A SMASHED MIRROR. SEVEN YEARS, AT LEAST.");
-        else wth_say("A MIRROR. YOU LOOK AWFUL. THE GLASS STANDS A LITTLE OUT FROM THE WALL, AS IF SOMETHING IS "
-                     "BEHIND IT.");
-        break;
-    case S_BAT_SHELF:
-        if (held) nothing();
-        else if (!take(F_CLOVE_TAKEN, I_CLOVE, "ON THE SHELF, A BROWN BOTTLE: OIL OF CLOVES."))
-            wth_say("A SHELF OF EMPTY MEDICINE BOTTLES.");
-        break;
-    /* the nursery */
-    case S_NUR_BOX:
-        if (held == I_SILVERKEY && !wth_flag(F_BOXMUSIC)) {
-            wth_set(F_BOXMUSIC);
-            wth_take_away(I_SILVERKEY);
-            wth_set(F_GLASSES_TAKEN);
-            wth_give(I_GLASSES);
-            wth_noise(false);
-            sfx_play_name("wth_musicbox");
-            wth_say("THE SILVER KEY WINDS IT. THE LID SPRINGS UP AND A TUNE PLAYS, TINNY AND FAR TOO LOUD, ROUND AND "
-                    "ROUND. IN THE TRAY UNDER THE DANCER: A PAIR OF RED SPECTACLES.");
-        } else if (held) nothing();
-        else if (wth_flag(F_BOXMUSIC)) wth_say("THE MUSIC BOX HAS STOPPED PLAYING, THANK GOD.");
-        else wth_say("A MUSIC BOX WITH A DANCER ON THE LID AND A LITTLE SILVER LOCK.");
-        break;
-    case S_NUR_WALL:
-        if (held == I_GLASSES && !wth_flag(F_WALL_READ)) {
-            wth_set(F_WALL_READ);
-            wth_take_away(I_GLASSES);
-            wth_give(I_DIRECTIONS);
-            wth_say("THROUGH THE RED GLASS THE SCRIBBLE VANISHES, AND WORDS STAND OUT THAT WERE WRITTEN UNDER IT: "
-                    "THE WAY IN. RIGHT, LEFT, LEFT, STRAIGHT ON, RIGHT, LEFT.");
-        } else if (held) nothing();
-        else if (wth_flag(F_WALL_READ)) wth_say("RED CRAYON SCRIBBLE. YOU KNOW WHAT IS WRITTEN UNDER IT NOW.");
-        else wth_say("THE WALLPAPER IS COVERED IN RED CRAYON, ROUND AND ROUND AND ROUND, AS HIGH AS A CHILD CAN REACH.");
-        break;
-    /* the children's room */
-    case S_CHI_HOUSE:
-        if (held == I_LENS && !wth_flag(F_DOLLHOUSE_READ)) {
-            wth_set(F_DOLLHOUSE_READ);
-            wth_take_away(I_LENS);
-            wth_give(I_PASSWORD);
-            wth_say("THROUGH THE MAGNIFIER, IN THE DOLLHOUSE STUDY, A TINY NOTE ON A TINY DESK: THE WORD FOR THE "
-                    "MACHINE IS QUEENLESS.");
-        } else if (held) nothing();
-        else wth_say("A DOLLHOUSE OF THIS HOUSE, ROOM FOR ROOM. THERE'S WRITING ON THE DESK IN THE LITTLE STUDY, FAR "
-                     "TOO SMALL TO READ.");
-        break;
-    case S_CHI_DOLL:
-        if (held) nothing();
-        else take(F_DOLL_TAKEN, I_DOLL, "A RAG DOLL ON THE FLOOR, SEWN SHUT ALL DOWN ITS BACK. SOMETHING HARD INSIDE. YOU TAKE IT.");
-        break;
-    /* the attic */
-    case S_ATT_TRUNK:
-        if (held == I_PEWTERKEY && !wth_flag(F_TRUNK_OPEN)) {
-            wth_set(F_TRUNK_OPEN);
-            wth_take_away(I_PEWTERKEY);
-            wth_give(I_CROSSBOW);
             sfx_play_name("wth_creak");
-            wth_say("THE PEWTER KEY TURNS. IN THE TRUNK, WRAPPED IN OILCLOTH: A HUNTING CROSSBOW. NO BOLTS.");
+            wth_say("YOU JAM THE POKER INTO THE JAMB AND LEAN ON IT. THE SWOLLEN DOOR GIVES WITH A CRACK.");
+        } else if (held == I_SCREWDRIVER) {
+            wth_set(F_MASTER_OPEN);
+            wth_say("YOU UNSCREW THE HINGES, ALL TWELVE SCREWS, AND LIFT THE DOOR OUT OF ITS FRAME.");
         } else if (held) nothing();
-        else if (wth_flag(F_TRUNK_OPEN)) wth_say("AN EMPTY TRUNK THAT SMELLS OF GUN OIL.");
-        else wth_say("A STEAMER TRUNK WITH A PEWTER LOCK.");
+        else wth_say("THE BIG BEDROOM DOOR. IT ISN'T LOCKED: THE DAMP HAS SWOLLEN IT SOLID IN ITS FRAME. YOU COULD "
+                     "LEVER IT, OR TAKE IT OFF ITS HINGES.");
         break;
-    case S_ATT_HARM:
-        if (held == I_HYMN && !wth_flag(F_HARMONIUM_PLAYED)) {
-            wth_set(F_HARMONIUM_PLAYED);
-            wth_take_away(I_HYMN);
-            wth_give(I_STEELWIRE);
+    case S_MAS_BED:
+        page_or(s, "A FOUR-POSTER BED. ONE SIDE IS NEATLY MADE. THE OTHER IS A NEST OF WHITE THREADS.", held);
+        break;
+    case S_MAS_POST: take_or(F_BELT_TAKEN, I_BELT, "A MAN'S BELT HANGS ON THE BEDPOST. YOU TAKE IT.", "A CARVED BEDPOST.", held); break;
+    case S_MAS_GRAMOPHONE:
+        if (held) nothing();
+        else {
             wth_noise(false);
             sfx_play_name("wth_organ");
-            wth_say("YOU SET THE HYMN ON THE STAND AND PUMP THE PEDALS. THE ORGAN BELLOWS THROUGH THE ROOF. A STOP "
-                    "JAMS, SOMETHING TWANGS, AND A COIL OF STEEL WIRE SPRINGS OUT FROM INSIDE.");
+            wth_say("YOU WIND THE GRAMOPHONE AND DROP THE NEEDLE. A BRASS BAND BLARES OUT OF THE HORN. YOU SNATCH THE "
+                    "NEEDLE OFF. TOO LATE.");
+        }
+        break;
+    case S_BAL_VIEW:
+        if (held == I_BINOCULARS && !wth_flag(F_SKETCH_TAKEN)) {
+            wth_set(F_SKETCH_TAKEN);
+            wth_take_away(I_BINOCULARS);
+            wth_give(I_SKETCH);
+            wth_say("THROUGH THE BINOCULARS THE HEDGES ARE A PUZZLE ON A PLATE. YOU TRACE THE WAY IN AND SKETCH IT ON "
+                    "THE BACK OF YOUR HAND: LEFT, LEFT, RIGHT, STRAIGHT ON, LEFT, RIGHT.");
         } else if (held) nothing();
-        else if (wth_flag(F_HARMONIUM_PLAYED)) wth_say("THE ORGAN WHEEZES. IT WON'T PLAY AGAIN.");
-        else wth_say("A PUMP ORGAN UNDER A DUST SHEET. NOTHING ON ITS MUSIC STAND.");
+        else wth_say("THE HEDGES LIE BELOW IN THE DARK, A KNOT OF PATHS TOO FAR OFF TO MAKE OUT.");
+        break;
+    case S_STU_BUREAU:
+        if (held == I_BUREAUKEY) {
+            wth_set(F_BINOCULARS_TAKEN);
+            wth_take_away(I_BUREAUKEY);
+            wth_give(I_BINOCULARS);
+            wth_say("THE KEY FITS THE BUREAU. INSIDE THE ROLL-TOP, IN A LEATHER CASE: ARMY BINOCULARS.");
+        } else if (held) nothing();
+        else if (wth_flag(F_BINOCULARS_TAKEN)) wth_say("AN EMPTY BUREAU.");
+        else wth_say("A ROLL-TOP BUREAU, LOCKED.");
+        break;
+    case S_STU_RECORDER:
+        if (held == I_REEL && !wth_flag(F_REEL_FITTED)) {
+            wth_set(F_REEL_FITTED);
+            wth_take_away(I_REEL);
+            wth_say("YOU PUT THE EMPTY SPOOL ON THE RIGHT-HAND SPINDLE.");
+        } else if (held == I_TAPE && !wth_flag(F_TAPE_FITTED)) {
+            wth_set(F_TAPE_FITTED);
+            wth_take_away(I_TAPE);
+            wth_say("YOU PUT THE TAPE ON THE LEFT-HAND SPINDLE AND THREAD IT PAST THE HEADS.");
+        } else if (held) nothing();
+        else if (!wth_flag(F_POWER)) wth_say("A REEL-TO-REEL TAPE RECORDER. THE LIGHT IS OUT: NO POWER IN THE HOUSE.");
+        else if (!wth_flag(F_TAPE_FITTED)) wth_say("THE TAPE RECORDER HUMS. IT HAS NOTHING TO PLAY.");
+        else if (!wth_flag(F_REEL_FITTED)) wth_say("THE TAPE HAS NOWHERE TO WIND: THE RIGHT-HAND SPINDLE IS EMPTY.");
+        else {
+            wth_set(F_RECIPE);
+            wth_say("YOU PRESS PLAY. TOM'S VOICE, VERY CALM: TO KILL IT, MIX BLUE COPPER CRYSTALS AND QUICKLIME IN "
+                    "WATER, IN THE ROSE SPRAYER, AND SPRAY IT IN ITS FACE. FIRE WON'T DO IT ALONE. THEN HE LAUGHS FOR "
+                    "A LONG TIME, AND THE TAPE RUNS OUT.");
+        }
+        break;
+    case S_BAT_CURTAIN:
+        if (held) nothing();
+        else {
+            gfx_set_flash(2);
+            wth_say("YOU PULL THE SHOWER CURTAIN BACK. BEHIND IT, WHITE THREADS HAVE GROWN UP OUT OF THE PLUGHOLE INTO "
+                    "THE SHAPE OF A MAN, STANDING, ARMS AT HIS SIDES. ITS HEAD TURNS TOWARD YOU.");
+        }
+        break;
+    case S_BAT_CABINET:
+        take_or(F_RAZOR_TAKEN, I_RAZOR, "IN THE BATHROOM CABINET: A CUT-THROAT RAZOR.", "SHAVING SOAP, DRIED TO CHALK.", held);
+        break;
+    case S_NUR_HORSE:
+        if (held == I_SCREWDRIVER && !wth_flag(F_BEE_HORSE)) {
+            wth_set(F_BEE_HORSE);
+            wth_give(I_BEE_SILVER);
+            screw_job();
+            wth_say("YOU UNSCREW THE LITTLE HATCH IN THE ROCKING HORSE'S BELLY. A SILVER BEE FALLS INTO YOUR PALM.");
+        } else if (held) nothing();
+        else wth_say("A ROCKING HORSE WITH A SCREWED-ON HATCH IN ITS BELLY. IT ROCKS, VERY GENTLY, WHEN NOTHING IS "
+                     "TOUCHING IT.");
+        break;
+    case S_CHI_POLE:
+        take_or(F_POLE_TAKEN, I_POLE, "A WINDOW POLE LEANS BY THE HIGH SASH WINDOW. YOU TAKE IT.", "", held);
+        break;
+    case S_ATT_NEST:
+        if (held == I_SMOKER && !wth_flag(F_BEE_NEST)) {
+            if (wth_flag(F_SMOKER_LIT)) {
+                wth_set(F_BEE_NEST);
+                wth_take_away(I_SMOKER);
+                wth_give(I_BEE_IRON);
+                wth_say("YOU PUFF SMOKE INTO THE NEST UNTIL THE WASPS DROP, DOZY, TO THE BOARDS. YOU REACH INTO THE "
+                        "PAPER AND FIND AN IRON BEE.");
+            } else wth_say(wth_flag(F_SMOKER_LOADED) ? "THE SMOKER ISN'T LIT." : "THE SMOKER IS EMPTY.");
+        } else if (held == I_KNIFE && !wth_flag(F_BEE_NEST)) {
+            wth_say("THE WASPS POUR OUT AT THE FIRST TOUCH. YOU BACK AWAY FAST.");
+        } else if (held) nothing();
+        else if (wth_flag(F_BEE_NEST)) wth_say("A TORN WASPS' NEST. THE WASPS ARE STILL ASLEEP.");
+        else wth_say("A WASPS' NEST AS BIG AS A HEAD, HANGING FROM A RAFTER. THEY'RE ALIVE AND ANGRY. SOMETHING IRON "
+                     "GLINTS INSIDE THE PAPER.");
+        break;
+    case S_ATT_BOXES:
+        take_or(F_REEL_TAKEN, I_REEL, "A BOX OF HOME MOVIES. AMONG THE FILM CANS, AN EMPTY TAPE SPOOL. YOU TAKE IT.",
+                "FILM CANS LABELLED SUMMER 1986, BEFORE THE HOUSE.", held);
         break;
     /* the cellar */
-    case S_CEL_MECH: winch(held); break;
+    case S_CEL_PUMP: pump(held); break;
     case S_CEL_DOOR:
         if (held) nothing();
-        else wth_say("AN IRON DOOR, WOUND DOWN SHUT. ITS WINCH IS BROKEN.");
+        else wth_say("THE INNER DOORWAY IS FULL OF BLACK WATER UP TO THE LINTEL. A HAND PUMP STANDS BESIDE IT.");
         break;
     /* the white room */
     case S_SPO_FACE:
-        if (held == I_BREW) wth_end_game(END_CELLAR);
+        if (held == I_MIXTURE) wth_end_game(END_CELLAR);
         else if (held) wth_say("IT TAKES IT. IT SEEMS TO LIKE IT.");
         else wth_say("A FACE IN THE WALL, AS BIG AS A DOOR, MADE OF WHITE THREADS. IT IS BREATHING. IT KNOWS YOU.");
         break;
@@ -987,26 +856,65 @@ void wth_click(int s, int held) {
 static bool pair(int a, int b, int x, int y) { return (a == x && b == y) || (a == y && b == x); }
 
 void wth_combine(int a, int b) {
-    /* the cane, the cup hook and the twine: all three make the long hook */
-    bool pole_part_a = a == I_CANE || a == I_CUPHOOK || a == I_TWINE;
-    bool pole_part_b = b == I_CANE || b == I_CUPHOOK || b == I_TWINE;
-    if (pole_part_a && pole_part_b && a != b) {
-        if (wth_has(I_CANE) && wth_has(I_CUPHOOK) && wth_has(I_TWINE)) {
-            wth_take_away(I_CANE);
-            wth_take_away(I_CUPHOOK);
-            wth_take_away(I_TWINE);
-            wth_give(I_LONGHOOK);
-            wth_say("YOU SET THE CUP HOOK AGAINST THE TIP OF THE CANE AND BIND IT ON TIGHT WITH TWINE. A LONG HOOK.");
-        } else if (!wth_has(I_TWINE)) wth_say("THE HOOK WON'T STAY ON THE CANE. YOU'D NEED SOMETHING TO BIND IT.");
-        else if (!wth_has(I_CANE)) wth_say("SOMETHING TO TIE THE HOOK ONTO, THEN. SOMETHING LONG.");
-        else wth_say("A CANE AND TWINE. SOMETHING TO TIE ON THE END WOULD HELP.");
+    if (pair(a, b, I_FUSE, I_FUSEWIRE)) {
+        wth_take_away(I_FUSE);
+        wth_take_away(I_FUSEWIRE);
+        wth_give(I_GOODFUSE);
+        wth_say("YOU PICK OUT THE BURNT WIRE AND WIND A NEW LENGTH ROUND THE TERMINALS. A MENDED FUSE.");
         return;
     }
-    if (pair(a, b, I_TORCH, I_BATTERIES)) {
-        wth_set(F_TORCH_LOADED);
-        wth_take_away(I_BATTERIES);
-        sfx_play_name("wth_click");
-        wth_say("YOU LOAD THE BATTERIES. THE TORCH FLICKERS, AND HOLDS.");
+    if (pair(a, b, I_KNIFE, I_TIN)) {
+        wth_take_away(I_TIN);
+        wth_give(I_ROTOR);
+        wth_say("YOU PRISE THE RUSTED TIN OPEN WITH THE KNIFE. INSIDE, WRAPPED IN A HANDKERCHIEF: A CAR'S ROTOR ARM.");
+        return;
+    }
+    if (pair(a, b, I_KNIFE, I_TACKLE)) {
+        wth_take_away(I_TACKLE);
+        wth_give(I_LINE);
+        wth_say("YOU FORCE THE TACKLE BOX'S CATCH WITH THE KNIFE. HOOKS, FLOATS, AND A GOOD SPOOL OF FISHING LINE.");
+        return;
+    }
+    if (pair(a, b, I_MAGNET, I_LINE)) {
+        wth_take_away(I_MAGNET);
+        wth_take_away(I_LINE);
+        wth_give(I_MAGNETLINE);
+        wth_say("YOU TIE THE MAGNET ON THE END OF THE FISHING LINE.");
+        return;
+    }
+    if (pair(a, b, I_RAZOR, I_BELT)) {
+        wth_take_away(I_RAZOR);
+        wth_take_away(I_BELT);
+        wth_give(I_WASHER);
+        wth_say("YOU CUT A ROUND OF THICK LEATHER OUT OF THE BELT WITH THE RAZOR AND BORE A HOLE IN THE MIDDLE.");
+        return;
+    }
+    if (pair(a, b, I_LAMP, I_PARAFFIN)) {
+        wth_set(F_LAMP_FILLED);
+        wth_take_away(I_PARAFFIN);
+        wth_say("YOU FILL THE LAMP'S TANK WITH PARAFFIN.");
+        return;
+    }
+    if (pair(a, b, I_SMOKER, I_CONES)) {
+        wth_set(F_SMOKER_LOADED);
+        wth_take_away(I_CONES);
+        wth_say("YOU PACK THE SMOKER WITH DRY PINE CONES.");
+        return;
+    }
+    if (pair(a, b, I_MATCHES, I_LAMP)) {
+        if (!wth_flag(F_LAMP_FILLED)) { wth_say("THE LAMP'S TANK IS DRY. THE WICK WON'T TAKE."); return; }
+        if (wth_flag(F_LAMP_LIT)) { wth_say("THE LAMP IS ALREADY LIT."); return; }
+        wth_set(F_LAMP_LIT);
+        matches_job();
+        wth_say("A MATCH TO THE WICK. THE LAMP CATCHES AND BURNS STEADY BEHIND ITS GLASS.");
+        return;
+    }
+    if (pair(a, b, I_MATCHES, I_SMOKER)) {
+        if (!wth_flag(F_SMOKER_LOADED)) { wth_say("THE SMOKER IS EMPTY. THERE'S NOTHING TO LIGHT."); return; }
+        if (wth_flag(F_SMOKER_LIT)) { wth_say("THE SMOKER IS ALREADY SMOULDERING."); return; }
+        wth_set(F_SMOKER_LIT);
+        matches_job();
+        wth_say("YOU DROP A LIT MATCH ON THE CONES AND PUMP THE BELLOWS. THICK WHITE SMOKE.");
         return;
     }
     if (pair(a, b, I_CROSSBOW, I_BOLT)) {
@@ -1016,33 +924,20 @@ void wth_combine(int a, int b) {
         wth_say("YOU CRANK THE CROSSBOW BACK AND DROP THE BOLT INTO ITS GROOVE. ONE SHOT.");
         return;
     }
-    if (pair(a, b, I_KNIFE, I_DOLL)) {
-        wth_take_away(I_DOLL);
-        wth_give(I_SILVERKEY);
-        wth_say("YOU SLIT OPEN THE DOLL'S BACK. IN THE STUFFING: A TINY SILVER KEY.");
-        return;
-    }
-    if (pair(a, b, I_BAR, I_PIG)) {
-        wth_take_away(I_PIG);
-        wth_give(I_BRASSKEY);
-        sfx_play_name("wth_smash");
-        wth_say("YOU BRING THE BAR DOWN ON THE PIG. IT BURSTS. AMONG THE PIECES: A BRASS KEY.");
-        return;
-    }
-    int other = a == I_MUG ? b : b == I_MUG ? a : 0;
-    if (other == I_SNUFF || other == I_CLOVE || other == I_BORAX) {
+    int other = a == I_SPRAYER ? b : b == I_SPRAYER ? a : 0;
+    if (other == I_SULPHATE || other == I_LIME || other == I_WATER) {
         if (!wth_flag(F_RECIPE)) {
             wth_say("YOU DON'T KNOW WHAT THAT WOULD DO. NOT YET.");
             return;
         }
-        wth.s.mug |= (uint8_t)(other == I_SNUFF ? 1 : other == I_CLOVE ? 2 : 4);
+        wth.s.mix |= (uint8_t)(other == I_SULPHATE ? 1 : other == I_LIME ? 2 : 4);
         wth_take_away(other);
-        if (wth.s.mug == 7) {
-            wth_take_away(I_MUG);
-            wth_give(I_BREW);
+        if (wth.s.mix == 7) {
+            wth_take_away(I_SPRAYER);
+            wth_give(I_MIXTURE);
             sfx_play_name("wth_fizz");
-            wth_say("THE LAST OF IT GOES IN. THE MUG FIZZES AND GIVES OFF A BROWN SMOKE THAT MAKES YOUR EYES STREAM.");
-        } else wth_sayf("YOU TIP THE %s INTO THE MUG AND STIR IT WITH A FINGER.", WTH_ITEM[other].name);
+            wth_say("THE LAST OF IT GOES IN. THE SPRAYER FIZZES AND TURNS A BRIGHT, SICK BLUE, AND STINKS.");
+        } else wth_sayf("YOU TIP THE %s INTO THE SPRAYER AND SHAKE IT.", WTH_ITEM[other].name);
         return;
     }
     wth_say("THOSE DON'T GO TOGETHER.");
@@ -1064,7 +959,7 @@ void wth_goto_room(int room) {
     if (from == R_CELL && room != R_CELL) wth_set(F_LEFT_CELL);
     if (room == R_HEART && !wth_flag(F_HEART_SEEN)) {
         wth_set(F_HEART_SEEN);
-        wth_take_away(I_DIRECTIONS);
+        wth_take_away(I_SKETCH);
     }
     wth_keeper_room_changed(from, room);
     wth_room_music();

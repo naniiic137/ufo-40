@@ -213,6 +213,7 @@ void wth_combine(int a, int b);                /* one item on another in the bag
 void wth_goto_room(int room);                  /* the exit's far side (after the fade) */
 void wth_start_exit(int dest);                 /* the fade */
 void wth_noise(bool maze);                     /* a loud thing: the Keeper comes */
+int wth_hive_count(void);                      /* bees set in the stone hive */
 /* the Keeper (wth_keeper.c) */
 void wth_keeper_reset(void);
 void wth_keeper_step(bool in_transition);

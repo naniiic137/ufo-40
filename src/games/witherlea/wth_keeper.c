@@ -4,8 +4,8 @@
  * you hold something. In your room he walks up to you; leave and he follows
  * a room behind; four rooms in a row and he loses you. Hide (the breathing
  * game: eight marks, three misses and he finds you), or strike him with the
- * knife or the bar (each works once; strike twice with the same and he
- * blocks it). Caught, you wake in the cold store with everything kept. */
+ * knife or the poker (each works twice; the third blow with the same one he
+ * blocks). Caught, you wake in the cold store with everything kept. */
 #include "wth.h"
 
 int wth_rand(int lo, int hi) { return rng_range(&wth.rng, lo, hi); }
@@ -185,7 +185,7 @@ void wth_keeper_click(int held) {
         wth_set(F_KEEPER_DEAD);
         wth_clear(F_BOW_LOADED);
         wth_take_away(I_CROSSBOW);
-        floor_drop(wth.s.room, I_KEEPERKEY);
+        floor_drop(wth.s.room, I_BLACKKEY);
         wth.s.body_room = wth.s.room;
         k->state = E_NONE;
         sfx_play_name("wth_shot");
@@ -196,23 +196,23 @@ void wth_keeper_click(int held) {
         wth_save_now();
         return;
     }
-    if (held == I_KNIFE || held == I_BAR) {
+    if (held == I_KNIFE || held == I_POKER) {
         if (k->state == E_STUN) { wth_say("HE'S DOWN. DON'T WAIT FOR HIM TO GET UP. GO!"); return; }
-        int f = held == I_KNIFE ? F_STUN_KNIFE : F_STUN_BAR;
-        if (wth_flag(f)) {
+        uint8_t *n = held == I_KNIFE ? &wth.s.stun_knife : &wth.s.stun_poker;
+        if (*n >= WTH_STUNS) {
             sfx_play_name("wth_block");
             wth_say("HE'S READY FOR IT THIS TIME. THE BILLHOOK'S HAFT CATCHES YOUR BLOW, AND THE BLADE COMES ROUND.");
             wth_caught_now();
             return;
         }
-        wth_set(f);
+        (*n)++;
         if (wth.s.stuns < 65535) wth.s.stuns++;
         k->state = E_STUN;
         k->t = WTH_STUN_T;
         sfx_play_name("wth_hit");
         gfx_set_flash(2);
         wth_say(held == I_KNIFE ? "YOU STAB AT HIM. HE STAGGERS BACK AND DROPS TO ONE KNEE, HUGGING HIS ARM. GO, NOW!"
-                                : "YOU SWING THE BAR INTO HIS KNEE. HE GOES DOWN WITH A ROAR. GO, NOW!");
+                                : "YOU SWING THE POKER INTO HIS KNEE. HE GOES DOWN WITH A ROAR. GO, NOW!");
         return;
     }
     if (held) { wth_say("THAT WON'T STOP HIM!"); return; }
@@ -284,7 +284,7 @@ void wth_mini_step(bool press) {
         mini_next();
         return;
     }
-    if (m->passes >= 3) {
+    if (m->passes >= 2) { /* across and back with no press */
         m->miss++;
         m->flash = 20;
         m->flash_ok = 0;

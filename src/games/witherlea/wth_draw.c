@@ -127,44 +127,37 @@ static void room_cell(void) {
     interior(C_SLATE, C_DUSK, C_EARTH, C_INK);
     bricks(73, 27, 247, 99, C_DUSK);
     for (int y = 10; y < 120; y += 7) gfx_hline(9, 60, y, C_NIGHT);
-    /* the vent */
-    const WthSpot *v = SP(S_CELL_VENT);
-    gfx_rect(v->x, v->y, v->w, v->h, C_INK);
-    if (!wth_flag(F_VENT_OPEN)) {
-        for (int x = v->x + 2; x < v->x + v->w - 1; x += 3) gfx_vline(x, v->y + 1, v->y + v->h - 2, C_GREY);
-        frame(v->x, v->y, v->w, v->h, C_LIGHT);
-    } else {
-        frame(v->x, v->y, v->w, v->h, C_GREY);
-        if (!wth_flag(F_VENT_WIRE)) gfx_line(v->x + 6, v->y + 12, v->x + 14, v->y + 9, C_LIGHT);
-        if (!wth_flag(F_VENT_PAPER)) gfx_rect(v->x + 18, v->y + 9, 7, 5, C_CREAM);
-        /* the grille on the floor */
-        for (int x = 30; x < 56; x += 3) gfx_vline(x, 92, 97, C_GREY);
-    }
+    /* the loose stone */
+    const WthSpot *w = SP(S_CELL_WALL);
+    if (!wth_flag(F_STONE_TAKEN)) {
+        gfx_rect(w->x + 8, w->y + 5, 16, 11, C_GREY);
+        frame(w->x + 8, w->y + 5, 16, 11, C_INK);
+    } else gfx_rect(w->x + 8, w->y + 5, 16, 11, C_INK);
+    /* the door, its hinges on this side */
     door_back(SP(S_CELL_DOOR)->x, 42, 48, 58, C_BROWN, wth_flag(F_CELL_OPEN));
-    if (!wth_flag(F_CELL_OPEN)) gfx_hline(136, 183, 99, C_INK);
-    /* the ring */
-    gfx_circb(104, 54, 5, C_GREY);
-    gfx_rect(102, 47, 4, 3, C_GREY);
+    if (!wth_flag(F_CELL_OPEN)) {
+        gfx_rect(136, 50, 4, 8, C_GREY);
+        gfx_rect(136, 84, 4, 8, C_GREY);
+        if (wth_flag(F_NAIL_SET)) gfx_vline(138, 58, 64, C_LIGHT);
+    } else gfx_rect(140, 60, 6, 38, C_BROWN);
+    /* the calendar */
+    const WthSpot *c = SP(S_CELL_CALENDAR);
+    gfx_rect(c->x, c->y, c->w, c->h, C_CREAM);
+    gfx_rect(c->x, c->y, c->w, 8, C_RED);
+    for (int k = 0; k < 4; k++) gfx_line(c->x + 3, c->y + 11 + k * 4, c->x + c->w - 3, c->y + 13 + k * 4, C_INK);
     /* straw */
     const WthSpot *st = SP(S_CELL_STRAW);
     for (int i = 0; i < 70; i++) {
         int x = st->x + (i * 37) % st->w, y = st->y + 4 + (i * 13) % (st->h - 6);
         gfx_line(x, y, x + 5, y - 2, i & 1 ? C_AMBER : C_TAN);
     }
-    if (!wth_flag(F_STRAW)) gfx_rect(st->x + 40, st->y + 12, 8, 3, C_GREY);
-    /* the tray and the mug */
-    const WthSpot *tr = SP(S_CELL_TRAY);
-    trap(tr->x + 4, tr->x + tr->w - 4, tr->x, tr->x + tr->w, tr->y + 6, tr->y + 12, C_GREY);
-    if (!wth_flag(F_MUG_TAKEN)) {
-        gfx_rect(tr->x + 16, tr->y, 9, 8, C_LIGHT);
-        gfx_circb(tr->x + 27, tr->y + 4, 2, C_LIGHT);
-    }
-    /* the barrel */
+    /* the barrel and its nail */
     const WthSpot *b = SP(S_CELL_BARREL);
     gfx_rect(b->x, b->y, b->w, b->h, C_BROWN);
     gfx_hline(b->x, b->x + b->w - 1, b->y + 8, C_GREY);
     gfx_hline(b->x, b->x + b->w - 1, b->y + b->h - 9, C_GREY);
     gfx_rect(b->x + 2, b->y - 3, b->w - 4, 4, C_EARTH);
+    if (!wth_flag(F_NAIL_TAKEN)) gfx_vline(b->x + 16, b->y - 9, b->y - 3, C_LIGHT);
 }
 
 static void room_passage(void) {
@@ -174,17 +167,14 @@ static void room_passage(void) {
     door_back(142, 42, 36, 58, C_EARTH, false);
     door_side(true, C_EARTH, false);
     door_side(false, C_EARTH, false);
-    /* the coat */
     const WthSpot *c = SP(S_PAS_COAT);
     gfx_rect(c->x + 9, c->y, 4, 3, C_GREY);
-    trap(c->x + 6, c->x + 16, c->x, c->x + c->w, c->y + 3, c->y + c->h - 1, C_NAVY);
+    trap(c->x + 6, c->x + 16, c->x, c->x + c->w, c->y + 3, c->y + c->h - 1, C_FOREST);
     gfx_vline(c->x + 11, c->y + 6, c->y + c->h - 2, C_NIGHT);
-    /* the rug */
     const WthSpot *r = SP(S_PAS_RUG);
     trap(r->x + 12, r->x + r->w - 12, r->x, r->x + r->w, r->y, r->y + r->h - 1, C_RED);
     trap(r->x + 16, r->x + r->w - 16, r->x + 6, r->x + r->w - 6, r->y + 3, r->y + r->h - 4, C_MAROON);
     page_on(S_PAS_RUG, r->x + 52, r->y + 5);
-    /* the barometer */
     const WthSpot *b = SP(S_PAS_BAROMETER);
     gfx_rect(b->x + 3, b->y, 8, b->h, C_BROWN);
     gfx_circ(b->x + 7, b->y + 9, 5, C_CREAM);
@@ -195,8 +185,7 @@ static void room_sickroom(void) {
     interior(C_LIGHT, C_GREY, C_BROWN, C_SLATE);
     floorboards(C_EARTH);
     window_back(96, 32, 46, 34, C_NIGHT);
-    for (int k = 0; k < 3; k++) gfx_line(94, 40 + k * 10, 144, 38 + k * 10, C_BROWN); /* nailed boards */
-    /* the bed */
+    for (int k = 0; k < 3; k++) gfx_line(94, 40 + k * 10, 144, 38 + k * 10, C_BROWN);
     const WthSpot *b = SP(S_SICK_BED);
     gfx_rect(b->x, b->y + 10, b->w, b->h - 18, C_LIGHT);
     gfx_rect(b->x, b->y + 24, b->w, 8, C_GREY);
@@ -205,17 +194,15 @@ static void room_sickroom(void) {
     gfx_vline(b->x, b->y + 6, b->y + b->h - 1, C_SLATE);
     gfx_hline(b->x, b->x + b->w - 1, b->y + 6, C_SLATE);
     page_on(S_SICK_BED, b->x + b->w - 22, b->y + 13);
-    /* the nightstand */
     const WthSpot *n = SP(S_SICK_STAND);
     gfx_rect(n->x, n->y, n->w, n->h, C_BROWN);
     frame(n->x + 3, n->y + 4, n->w - 6, 8, C_EARTH);
     gfx_pset(n->x + n->w / 2, n->y + 8, C_AMBER);
-    /* the washstand */
+    for (int k = 0; k < 3; k++) gfx_rect(n->x + 5 + k * 7, n->y - 6, 4, 6, k == 1 ? C_AMBER : C_WHITE);
     const WthSpot *w = SP(S_SICK_WASH);
     gfx_rect(w->x + 4, w->y + 16, w->w - 8, w->h - 16, C_BROWN);
     gfx_rect(w->x, w->y + 12, w->w, 5, C_LIGHT);
     gfx_rect(w->x + 14, w->y, 12, 13, C_WHITE);
-    gfx_hline(w->x + 15, w->x + 24, w->y + 2, C_CREAM);
 }
 
 static void room_hall(void) {
@@ -223,32 +210,35 @@ static void room_hall(void) {
     for (int y = 101; y < 134; y += 4)
         for (int x = 8; x < 312; x += 8) gfx_rect(x + ((y / 4) & 1) * 4, y, 4, 4, C_LIGHT);
     trap(72, 248, 8, 311, 100, 101, C_INK);
-    /* the front door, barred */
     door_back(138, 38, 44, 62, C_EARTH, false);
     gfx_rect(132, 66, 56, 4, C_GREY);
     for (int x = 140; x < 180; x += 5) gfx_circb(x, 68, 2, C_LIGHT);
     gfx_rect(156, 72, 8, 8, C_SLATE);
-    /* the clock */
+    /* the stopped clock, white threads in its case */
     const WthSpot *c = SP(S_HALL_CLOCK);
     gfx_rect(c->x, c->y, c->w, c->h, C_BROWN);
     gfx_rect(c->x - 2, c->y, c->w + 4, 4, C_EARTH);
     gfx_circ(c->x + c->w / 2, c->y + 14, 8, C_CREAM);
-    if (wth_flag(F_CLOCK_WOUND)) gfx_vline(c->x + c->w / 2, c->y + 14, c->y + 21, C_INK);
-    else {
-        gfx_line(c->x + c->w / 2, c->y + 14, c->x + c->w / 2 + 4, c->y + 18, C_INK);
-        gfx_line(c->x + c->w / 2, c->y + 14, c->x + c->w / 2 - 3, c->y + 9, C_INK);
-    }
+    gfx_vline(c->x + c->w / 2, c->y + 14, c->y + 21, C_INK);
     gfx_rect(c->x + 6, c->y + 30, c->w - 12, 30, C_EARTH);
-    int sw = wth_flag(F_CLOCK_WOUND) ? 0 : 0;
-    gfx_circ(c->x + c->w / 2 + sw, c->y + 52, 3, C_AMBER);
-    /* the umbrella stand */
+    gfx_dither(c->x + 6, c->y + 30, c->w - 12, 30, C_WHITE, 5);
+    /* the hall table and the photograph */
+    const WthSpot *t = SP(S_HALL_TABLE);
+    gfx_rect(t->x, t->y + 6, t->w, 3, C_BROWN);
+    gfx_rect(t->x + 2, t->y + 9, 2, 7, C_BROWN);
+    gfx_rect(t->x + t->w - 4, t->y + 9, 2, 7, C_BROWN);
+    if (!wth_flag(F_PHOTO_TAKEN)) gfx_rect(t->x + 9, t->y + 3, 10, 3, C_CREAM);
+    /* the umbrella stand, a pump handle among the sticks */
     const WthSpot *u = SP(S_HALL_UMBRELLA);
-    gfx_rect(u->x + 3, u->y + 8, 12, 14, C_GREY);
-    if (!wth_flag(F_CANE_TAKEN)) gfx_line(u->x + 8, u->y + 9, u->x + 12, u->y - 10, C_TAN);
-    /* the dining room door */
+    gfx_rect(u->x + 2, u->y + 12, 12, 14, C_GREY);
+    gfx_line(u->x + 4, u->y + 13, u->x + 2, u->y, C_TAN);
+    gfx_line(u->x + 9, u->y + 13, u->x + 10, u->y + 1, C_BROWN);
+    if (!wth_flag(F_HANDLE_TAKEN)) {
+        gfx_line(u->x + 12, u->y + 13, u->x + 14, u->y + 2, C_SLATE);
+        gfx_rect(u->x + 12, u->y + 1, 4, 2, C_SLATE);
+    }
     door_back(198, 42, 30, 58, C_EARTH, false);
     door_side(true, C_EARTH, false);
-    /* the stairs, up the right */
     for (int k = 0; k < 9; k++) {
         int y = 118 - k * 10, x = 254 + k * 3;
         gfx_rect(x, y, 56 - k * 3, 4, C_BROWN);
@@ -256,7 +246,6 @@ static void room_hall(void) {
     }
     if (!wth_flag(F_STAIRS_LIT)) gfx_dither(254, 26, 54, 50, C_INK, 14);
     gfx_line(254, 118, 290, 26, C_BROWN);
-    /* the cog, once it rolled out */
 }
 
 static void room_parlour(void) {
@@ -264,57 +253,27 @@ static void room_parlour(void) {
     wallpaper_stripes(C_MAROON);
     floorboards(C_EARTH);
     trap(80, 240, 40, 280, 104, 128, C_RED);
-    /* the fireplace */
     const WthSpot *f = SP(S_PAR_FIRE);
     gfx_rect(f->x - 6, 50, f->w + 12, 6, C_LIGHT);
     gfx_rect(f->x, 56, f->w, 44, C_GREY);
     gfx_rect(f->x + 12, 66, f->w - 24, 34, C_INK);
-    if (wth_flag(F_FIRE_LIT)) {
-        for (int k = 0; k < 5; k++) {
-            int fx = f->x + 16 + k * 8, fh = 8 + ((wth.frame / 4 + k * 3) % 7);
-            trap(fx + 2, fx + 3, fx - 1, fx + 6, 99 - fh, 99, k & 1 ? C_ORANGE : C_YELLOW);
-        }
-        if (!wth_flag(F_GARNET_TAKEN)) gfx_rect(f->x + 30, 96, 4, 3, C_RED);
-    } else {
-        /* the wax man */
-        int cx = f->x + f->w / 2;
-        gfx_circ(cx, 76, 5, C_CREAM);
-        gfx_rect(cx - 7, 81, 14, 16, C_CREAM);
-        gfx_rect(cx - 2, 86, 4, 3, wth_flag(F_FIRE_SOAKED) ? C_MAROON : C_RED);
-        gfx_pset(cx - 2, 75, C_INK);
-        gfx_pset(cx + 2, 75, C_INK);
-        if (wth_flag(F_FIRE_SOAKED)) gfx_dither(f->x + 12, 90, f->w - 24, 10, C_TAN, 6);
-    }
-    /* the pig on the mantel */
-    if (!wth_flag(F_PIG_TAKEN)) {
-        const WthSpot *p = SP(S_PAR_PIG);
-        gfx_circ(p->x + 10, p->y + 7, 5, C_PINK);
-        gfx_rect(p->x + 5, p->y + 10, 2, 2, C_PINK);
-        gfx_rect(p->x + 13, p->y + 10, 2, 2, C_PINK);
-        gfx_pset(p->x + 15, p->y + 5, C_INK);
-        gfx_rect(p->x + 9, p->y + 2, 3, 1, C_INK);
+    gfx_hline(f->x + 14, f->x + f->w - 15, 96, C_SLATE);
+    /* the fire irons */
+    const WthSpot *ir = SP(S_PAR_IRONS);
+    gfx_rect(ir->x + 2, ir->y + ir->h - 4, 10, 4, C_INK);
+    gfx_vline(ir->x + 4, ir->y + 4, ir->y + ir->h - 4, C_SLATE);
+    gfx_rect(ir->x + 2, ir->y + 2, 5, 4, C_SLATE);
+    if (!wth_flag(F_POKER_TAKEN)) {
+        gfx_vline(ir->x + 9, ir->y, ir->y + ir->h - 4, C_SLATE);
+        gfx_pset(ir->x + 10, ir->y + 1, C_SLATE);
     }
     /* the radiogram */
     const WthSpot *r = SP(S_PAR_RADIO);
     gfx_rect(r->x, r->y, r->w, r->h, C_BROWN);
     gfx_rect(r->x + 3, r->y + 4, r->w - 6, 14, C_TAN);
     for (int x = r->x + 5; x < r->x + r->w - 5; x += 3) gfx_vline(x, r->y + 6, r->y + 15, C_EARTH);
-    gfx_circ(r->x + 8, r->y + 26, 3, C_AMBER);
+    gfx_circ(r->x + 8, r->y + 26, 3, wth_flag(F_POWER) ? C_YELLOW : C_AMBER);
     gfx_circ(r->x + r->w - 9, r->y + 26, 3, C_AMBER);
-    /* the folding screen */
-    const WthSpot *s = SP(S_PAR_SCREEN);
-    bool gone = wth_flag(F_HIDE_SCREEN_GONE);
-    for (int k = 0; k < 3; k++) {
-        int x = s->x + k * 13;
-        gfx_rect(x, s->y, 12, s->h, gone ? C_TAN : C_CREAM);
-        frame(x, s->y, 12, s->h, C_BROWN);
-        if (!gone) {
-            gfx_line(x + 3, s->y + 30, x + 8, s->y + 18, C_SLATE);
-            gfx_pset(x + 8, s->y + 17, C_INK);
-        } else
-            for (int j = 0; j < 4; j++) gfx_line(x + 1, s->y + 6 + j * 12, x + 10, s->y + 12 + j * 12, C_INK);
-    }
-    /* the sofa */
     const WthSpot *so = SP(S_PAR_SOFA);
     gfx_rect(so->x, so->y + 6, so->w, so->h - 6, C_PURPLE);
     gfx_rect(so->x - 4, so->y + 2, 8, so->h - 2, C_VIOLET);
@@ -330,41 +289,45 @@ static void room_dining(void) {
     for (int x = 78; x < 248; x += 16) gfx_vline(x, 70, 99, C_NIGHT);
     gfx_hline(72, 248, 70, C_BROWN);
     floorboards(C_EARTH);
-    /* the orchestrelle */
-    const WthSpot *o = SP(S_DIN_ORCH);
-    gfx_rect(o->x, o->y, o->w, o->h, C_BROWN);
-    gfx_rect(o->x + 4, o->y + 6, o->w - 8, 26, C_NIGHT);
-    for (int k = 0; k < 5; k++) gfx_rect(o->x + 6 + k * 5, o->y + 10 + (k & 1) * 4, 3, 18 - (k & 1) * 4, C_AMBER);
-    gfx_circ(o->x + o->w / 2, o->y + 44, 6, C_RED);
-    gfx_rect(o->x + o->w / 2 - 3, o->y + 56, 6, 2, C_INK);
-    /* the portrait */
+    /* the pianola */
+    const WthSpot *o = SP(S_DIN_PIANOLA);
+    gfx_rect(o->x, o->y + 10, o->w, o->h - 10, C_BROWN);
+    gfx_rect(o->x + 4, o->y + 16, o->w - 8, 14, C_CREAM);
+    for (int y = o->y + 18; y < o->y + 29; y += 3) gfx_hline(o->x + 6, o->x + o->w - 7, y, C_SLATE);
+    gfx_rect(o->x + 2, o->y + 40, o->w - 4, 5, C_WHITE);
+    for (int x = o->x + 4; x < o->x + o->w - 4; x += 3) gfx_rect(x, o->y + 40, 2, 3, C_INK);
+    /* the portrait: the old man and his four bees */
     const WthSpot *p = SP(S_DIN_PORTRAIT);
     picture_frame(p->x, p->y, p->w, p->h, C_DUSK);
-    for (int k = 0; k < 4; k++) {
-        int fx = p->x + 9 + k * 11, fy = p->y + 9 + (k >= 2 ? 4 : 0);
-        gfx_circ(fx, fy, 3, k == 0 ? C_GREY : C_TAN);
-        gfx_rect(fx - 3, fy + 4, 7, 12, k == 0 ? C_NIGHT : k == 1 ? C_WINE : C_SKY);
-    }
-    for (int k = 0; k < 4; k++) gfx_line(p->x + 6, p->y + 6 + k, p->x + 12, p->y + 8 + k, C_LIGHT);
+    gfx_circ(p->x + 25, p->y + 11, 5, C_TAN);
+    gfx_rect(p->x + 18, p->y + 17, 14, 13, C_INK);
+    gfx_rect(p->x + 21, p->y + 16, 8, 3, C_WHITE);
+    for (int k = 0; k < 4; k++) gfx_pset(p->x + 8 + k * 11, p->y + 22 - (k & 1) * 3, C_YELLOW);
     /* the sideboard */
     const WthSpot *s = SP(S_DIN_SIDE);
     gfx_rect(s->x, s->y, s->w, s->h, C_BROWN);
     gfx_hline(s->x, s->x + s->w - 1, s->y + 10, C_EARTH);
     gfx_pset(s->x + s->w / 2, s->y + 5, C_AMBER);
-    gfx_rect(s->x + 6, s->y - 8, 6, 8, C_LIGHT);
-    gfx_rect(s->x + 30, s->y - 10, 8, 10, C_AMBER);
-    /* the table, laid */
-    const WthSpot *t = SP(S_DIN_TABLE);
-    trap(t->x + 20, t->x + t->w - 20, t->x, t->x + t->w, t->y, t->y + 12, C_CREAM);
-    gfx_rect(t->x + 4, t->y + 13, t->w - 8, 3, C_BROWN);
-    gfx_rect(t->x + 10, t->y + 16, 4, t->h - 16, C_BROWN);
-    gfx_rect(t->x + t->w - 14, t->y + 16, 4, t->h - 16, C_BROWN);
-    for (int k = 0; k < 4; k++) {
-        int px = t->x + 30 + k * 34;
-        gfx_circb(px, t->y + 6, 5, C_LIGHT);
-        gfx_circ(px, t->y + 6, 2, C_AMBER);
+    if (!wth_flag(F_HONEY_TAKEN)) {
+        gfx_rect(s->x + 6, s->y - 9, 8, 9, C_CREAM);
+        gfx_rect(s->x + 6, s->y - 10, 8, 2, C_AMBER);
     }
-    page_on(S_DIN_TABLE, t->x + 84, t->y + 2);
+    diary_page(S_DIN_DIARY);
+    /* the long table under its cloth */
+    const WthSpot *t = SP(S_DIN_TABLE);
+    if (wth_flag(F_HIDE_TABLE_GONE)) {
+        gfx_rect(t->x + 40, t->y + 4, 100, 18, C_BROWN);
+        for (int k = 0; k < 6; k++) gfx_line(t->x + 10 + k * 26, t->y + 18, t->x + 20 + k * 26, t->y + 23, C_CREAM);
+    } else {
+        trap(t->x + 20, t->x + t->w - 20, t->x, t->x + t->w, t->y, t->y + 12, C_CREAM);
+        gfx_rect(t->x, t->y + 12, t->w, t->h - 12, C_CREAM);
+        for (int x = t->x + 6; x < t->x + t->w; x += 12) gfx_vline(x, t->y + 13, t->y + t->h - 1, C_LIGHT);
+        for (int k = 0; k < 4; k++) {
+            int px = t->x + 30 + k * 34;
+            gfx_circb(px, t->y + 6, 5, C_LIGHT);
+            gfx_circ(px, t->y + 6, 2, C_AMBER);
+        }
+    }
     door_side(false, C_EARTH, false);
 }
 
@@ -372,14 +335,25 @@ static void room_kitchen(void) {
     interior(C_CREAM, C_TAN, C_GREY, C_BROWN);
     for (int y = 30; y < 70; y += 6) gfx_hline(73, 247, y, C_TAN);
     for (int y = 104; y < 134; y += 8) gfx_hline(8, 311, y, C_SLATE);
-    door_back(82, 42, 30, 58, C_BROWN, false);
+    /* the pantry door, slatted */
+    const WthSpot *pn = SP(S_KIT_PANTRY);
+    if (wth_flag(F_HIDE_PANTRY_GONE)) {
+        gfx_rect(pn->x, pn->y, pn->w, pn->h, C_INK);
+        gfx_line(pn->x + 2, pn->y + 4, pn->x + 10, pn->y + pn->h - 2, C_BROWN);
+    } else {
+        gfx_rect(pn->x, pn->y, pn->w, pn->h, C_BROWN);
+        for (int y = pn->y + 4; y < pn->y + pn->h - 2; y += 4) gfx_hline(pn->x + 3, pn->x + pn->w - 4, y, C_EARTH);
+    }
+    door_back(204, 42, 30, 58, C_BROWN, false);
     door_side(true, C_BROWN, false);
-    /* the shelf of books */
+    /* the salt box */
+    const WthSpot *sb = SP(S_KIT_SALT);
+    gfx_rect(sb->x, sb->y, sb->w, sb->h, C_WHITE);
+    gfx_rect(sb->x, sb->y, sb->w, 4, C_SKY);
     const WthSpot *b = SP(S_KIT_BOOK);
     gfx_rect(b->x - 4, b->y + b->h, b->w + 8, 2, C_BROWN);
     for (int k = 0; k < 8; k++) gfx_rect(b->x + k * 6, b->y + 2 + (k % 3), 5, b->h - 2 - (k % 3), k & 1 ? C_RED : C_FOREST);
     page_on(S_KIT_BOOK, b->x + 40, b->y + 4);
-    /* the sink, full of jars */
     const WthSpot *s = SP(S_KIT_SINK);
     gfx_rect(s->x, s->y + 10, s->w, s->h - 10, C_LIGHT);
     gfx_rect(s->x + 4, s->y + 12, s->w - 8, 8, C_GREY);
@@ -387,23 +361,12 @@ static void room_kitchen(void) {
         gfx_rect(s->x + 6 + k * 9, s->y + 2 + (k & 1) * 2, 7, 10, C_AMBER);
         gfx_rect(s->x + 6 + k * 9, s->y + 1 + (k & 1) * 2, 7, 2, C_CREAM);
     }
-    /* the stove */
-    const WthSpot *st = SP(S_KIT_STOVE);
-    gfx_rect(st->x, st->y + 6, st->w, st->h - 6, C_INK);
-    gfx_rect(st->x + 4, st->y + 18, st->w - 8, 16, C_SLATE);
-    gfx_rect(st->x + 18, st->y - 26, 10, 32, C_INK);
-    if (!wth_flag(F_MATCHES_TAKEN)) {
-        gfx_rect(st->x + 6, st->y + 2, 10, 5, C_YELLOW);
-        gfx_hline(st->x + 6, st->x + 15, st->y + 4, C_RED);
-    }
-    /* the counter and the knife block */
     trap(250, 311, 256, 311, 74, 100, C_BROWN);
     const WthSpot *k = SP(S_KIT_KNIVES);
     gfx_rect(k->x + 4, k->y + 4, 14, 12, C_EARTH);
     for (int i = 0; i < 4; i++)
-        if (i > 0 || !wth_flag(F_KNIFE_TAKEN)) gfx_rect(k->x + 6 + i * 3, k->y - 2 + (i == 0 ? -3 : 0), 2, 6 + (i == 0 ? 3 : 0), C_INK);
-    if (wth_flag(F_KNIFE_TAKEN))
-        for (int i = 1; i < 4; i++) gfx_rect(k->x + 6 + i * 3, k->y - 2, 2, 6, C_EARTH);
+        gfx_rect(k->x + 6 + i * 3, k->y - 2 + (i == 0 && !wth_flag(F_KNIFE_TAKEN) ? -3 : 0), 2,
+                 6 + (i == 0 && !wth_flag(F_KNIFE_TAKEN) ? 3 : 0), i == 0 && !wth_flag(F_KNIFE_TAKEN) ? C_INK : C_EARTH);
 }
 
 static void room_scullery(void) {
@@ -411,28 +374,35 @@ static void room_scullery(void) {
     bricks(73, 27, 247, 99, C_GREY);
     door_back(90, 42, 30, 58, C_FOREST, false);
     door_side(false, C_SLATE, false);
-    /* the shelf */
-    gfx_rect(136, 52, 64, 3, C_BROWN);
-    if (!wth_flag(F_SODA_TAKEN)) {
-        const WthSpot *s = SP(S_SCU_SODA);
-        gfx_rect(s->x + 3, s->y + 2, 10, 14, C_RED);
-        gfx_rect(s->x + 3, s->y + 6, 10, 4, C_CREAM);
-    }
-    gfx_rect(138, 40, 8, 12, C_BLUE);
+    /* the fuse box */
+    const WthSpot *f = SP(S_SCU_FUSEBOX);
+    gfx_rect(f->x, f->y, f->w, f->h, C_INK);
+    for (int k = 0; k < 4; k++) gfx_rect(f->x + 3 + k * 5, f->y + 6, 3, 8, k == 2 && !wth_flag(F_POWER) ? C_INK : C_WHITE);
+    frame(f->x, f->y, f->w, f->h, C_SLATE);
     diary_page(S_SCU_DIARY);
-    /* the mangle */
-    const WthSpot *m = SP(S_SCU_MANGLE);
-    gfx_rect(m->x + 6, m->y + 4, m->w - 12, 8, C_LIGHT);
-    gfx_rect(m->x + 6, m->y + 14, m->w - 12, 8, C_LIGHT);
-    gfx_rect(m->x + 2, m->y, 4, m->h, C_INK);
-    gfx_rect(m->x + m->w - 6, m->y, 4, m->h, C_INK);
-    gfx_circb(m->x + m->w + 2, m->y + 6, 6, C_INK);
-    /* the copper tub */
-    const WthSpot *t = SP(S_SCU_TUB);
-    trap(t->x, t->x + t->w, t->x + 6, t->x + t->w - 6, t->y + 4, t->y + t->h - 1, C_ORANGE);
-    gfx_dither(t->x + 4, t->y + 8, t->w - 8, t->h - 10, C_JADE, 5);
-    gfx_hline(t->x, t->x + t->w, t->y + 4, C_AMBER);
-    if (!wth_flag(F_BAR_TAKEN)) gfx_rect(t->x + t->w - 2, t->y + t->h - 4, 10, 2, C_SLATE);
+    /* the ice chest */
+    const WthSpot *ib = SP(S_SCU_ICEBOX);
+    gfx_rect(ib->x, ib->y + 8, ib->w, ib->h - 8, C_BROWN);
+    gfx_rect(ib->x + 4, ib->y + 2, ib->w - 8, 10, C_ICE);
+    gfx_rect(ib->x - 2, ib->y + 6, ib->w + 4, 4, C_EARTH);
+    if (!wth_flag(F_BEE_ICE)) gfx_rect(ib->x + ib->w / 2 - 2, ib->y + 5, 4, 3, C_YELLOW);
+    gfx_rect(ib->x + ib->w - 8, ib->y + 20, 4, 6, C_GREY);
+    /* the stone sink and its pump */
+    const WthSpot *s = SP(S_SCU_SINK);
+    gfx_rect(s->x, s->y + 12, s->w, s->h - 12, C_LIGHT);
+    gfx_rect(s->x + 4, s->y + 14, s->w - 8, 6, C_SLATE);
+    gfx_rect(s->x + s->w / 2 - 2, s->y - 6, 4, 18, C_INK);
+    gfx_line(s->x + s->w / 2, s->y - 6, s->x + s->w / 2 + 14, s->y - 14, C_INK);
+    if (!wth_flag(F_BUCKET_TAKEN)) {
+        const WthSpot *bu = SP(S_SCU_BUCKET);
+        trap(bu->x + 2, bu->x + bu->w - 2, bu->x + 4, bu->x + bu->w - 4, bu->y + 2, bu->y + bu->h - 1, C_LIGHT);
+        gfx_hline(bu->x + 2, bu->x + bu->w - 3, bu->y + 2, C_GREY);
+    }
+    /* the dresser drawer */
+    const WthSpot *d = SP(S_SCU_DRAWER);
+    gfx_rect(d->x, d->y - 14, d->w, d->h + 26, C_BROWN);
+    frame(d->x + 2, d->y, d->w - 4, d->h, C_EARTH);
+    gfx_pset(d->x + d->w / 2, d->y + d->h / 2, C_AMBER);
 }
 
 static void room_smoking(void) {
@@ -443,32 +413,38 @@ static void room_smoking(void) {
     trap(84, 236, 44, 276, 104, 130, C_FOREST);
     door_side(true, C_BROWN, false);
     door_side(false, C_BROWN, false);
-    /* the alcove */
-    const WthSpot *a = SP(S_SMO_ALCOVE);
-    gfx_rect(a->x, a->y, a->w, a->h, C_INK);
-    if (wth_flag(F_HIDE_ALCOVE_GONE)) {
-        for (int k = 0; k < 5; k++) gfx_line(a->x + k * 7, a->y + a->h - 4, a->x + k * 7 + 5, a->y + a->h - 1, C_RED);
+    /* the gun cabinet */
+    const WthSpot *a = SP(S_SMO_CABINET);
+    gfx_rect(a->x, a->y, a->w, a->h, C_BROWN);
+    gfx_rect(a->x + 4, a->y + 4, a->w - 8, a->h - 16, C_NIGHT);
+    if (!wth_flag(F_CABINET_BROKEN)) {
+        gfx_line(a->x + 8, a->y + 20, a->x + a->w - 8, a->y + 20, C_BROWN);
+        gfx_line(a->x + a->w - 12, a->y + 12, a->x + a->w - 9, a->y + 30, C_EARTH);
+        gfx_dither(a->x + 4, a->y + 4, a->w - 8, a->h - 16, C_ICE, 2);
+        frame(a->x + 4, a->y + 4, a->w - 8, a->h - 16, C_ICE);
     } else {
-        for (int x = a->x; x < a->x + a->w; x += 4) gfx_rect(x, a->y, 3, a->h, C_RED);
-        for (int x = a->x + 2; x < a->x + a->w; x += 4) gfx_vline(x, a->y, a->y + a->h - 1, C_MAROON);
+        gfx_line(a->x + 5, a->y + 6, a->x + 14, a->y + 18, C_WHITE);
+        gfx_line(a->x + 26, a->y + 8, a->x + 18, a->y + 24, C_WHITE);
     }
-    gfx_rect(a->x - 2, a->y - 2, a->w + 4, 3, C_AMBER);
-    /* the desk */
+    gfx_pset(a->x + 10, a->y + 24, C_SLATE);
+    gfx_pset(a->x + a->w - 10, a->y + 24, C_SLATE);
     const WthSpot *d = SP(S_SMO_DESK);
     gfx_rect(d->x, d->y, d->w, 6, C_TAN);
     gfx_rect(d->x + 2, d->y + 6, d->w - 4, d->h - 6, C_BROWN);
     frame(d->x + 8, d->y + 9, d->w - 16, 8, C_EARTH);
     gfx_rect(d->x + 10, d->y - 4, 12, 4, C_CREAM);
-    /* the humidor on a side table */
-    const WthSpot *h = SP(S_SMO_HUMIDOR);
-    gfx_rect(h->x, h->y + 4, h->w, 10, C_EARTH);
-    gfx_rect(h->x + 2, h->y + 2, h->w - 4, 3, C_BROWN);
-    gfx_rect(h->x + 6, h->y + 14, 12, 14, C_BROWN);
-    /* the chess */
+    /* the pipe rack */
+    const WthSpot *h = SP(S_SMO_PIPES);
+    gfx_rect(h->x, h->y + 6, h->w, 4, C_BROWN);
+    for (int k = 0; k < 4; k++) gfx_vline(h->x + 3 + k * 6, h->y, h->y + 6, C_EARTH);
+    if (!wth_flag(F_MATCHES_TAKEN)) {
+        gfx_rect(h->x + 6, h->y + 11, 10, 5, C_YELLOW);
+        gfx_hline(h->x + 6, h->x + 15, h->y + 13, C_RED);
+    }
+    gfx_rect(h->x + 6, h->y + 16, 12, 14, C_BROWN);
     const WthSpot *c = SP(S_SMO_CHESS);
     trap(c->x + 6, c->x + c->w - 6, c->x, c->x + c->w, c->y, c->y + 8, C_CREAM);
     for (int k = 0; k < 6; k++) gfx_rect(c->x + 6 + k * 6, c->y + 2 + (k & 1), 3, 4, k < 4 ? C_WHITE : C_INK);
-    /* the chair */
     const WthSpot *ch = SP(S_SMO_CHAIR);
     gfx_rect(ch->x + 6, ch->y, ch->w - 12, ch->h - 6, C_VIOLET);
     gfx_rect(ch->x, ch->y + 10, 10, ch->h - 10, C_PURPLE);
@@ -480,16 +456,6 @@ static void room_smoking(void) {
 static void tiles(int x0, int y0, int x1, int y1, int col) {
     for (int y = y0; y < y1; y += 8) gfx_hline(x0, x1, y, col);
     for (int x = x0; x < x1; x += 8) gfx_vline(x, y0, y1, col);
-}
-
-static void bathtub(int s, bool black) {
-    const WthSpot *b = SP(s);
-    gfx_rect(b->x, b->y + 8, b->w, b->h - 12, C_WHITE);
-    gfx_rect(b->x + 4, b->y + 8, b->w - 8, 6, black ? C_INK : C_LIGHT);
-    gfx_hline(b->x, b->x + b->w - 1, b->y + 8, C_LIGHT);
-    gfx_rect(b->x + 6, b->y + b->h - 4, 6, 4, C_AMBER);
-    gfx_rect(b->x + b->w - 12, b->y + b->h - 4, 6, 4, C_AMBER);
-    gfx_rect(b->x + b->w - 20, b->y, 4, 9, C_GREY);
 }
 
 static void toilet(int s) {
@@ -506,13 +472,20 @@ static void room_washroom(void) {
     tiles(73, 50, 247, 99, C_FOREST);
     for (int y = 101; y < 134; y += 4)
         for (int x = 8; x < 312; x += 8) gfx_rect(x + ((y / 4) & 1) * 4, y, 4, 4, C_SLATE);
-    bathtub(S_WAS_BATH, !wth_flag(F_BATH_DRAINED));
-    if (wth_flag(F_BATH_DRAINED) && !wth_flag(F_TINKEY_TAKEN)) gfx_pset(184, 81, C_YELLOW);
+    /* a hip bath of grey water */
+    const WthSpot *b = SP(S_WAS_BATH);
+    gfx_circ(b->x + b->w / 2, b->y + 20, 22, C_WHITE);
+    gfx_rect(b->x + b->w / 2 - 22, b->y + 20, 44, 14, C_WHITE);
+    gfx_circ(b->x + b->w / 2, b->y + 16, 16, C_GREY);
+    gfx_rect(b->x + b->w / 2 - 6, b->y + 12, 12, 4, C_LIGHT);
     const WthSpot *c = SP(S_WAS_CAB);
     gfx_rect(c->x, c->y, c->w, c->h, C_WHITE);
     frame(c->x, c->y, c->w, c->h, C_GREY);
     gfx_vline(c->x + c->w / 2, c->y, c->y + c->h - 1, C_GREY);
     toilet(S_WAS_TOILET);
+    const WthSpot *ci = SP(S_WAS_CISTERN);
+    gfx_rect(ci->x, ci->y, ci->w, ci->h, C_SLATE);
+    gfx_rect(ci->x - 2, ci->y - 2, ci->w + 4, 3, wth_flag(F_TAPE_TAKEN) ? C_GREY : C_SLATE);
 }
 
 static void room_guest(void) {
@@ -521,36 +494,26 @@ static void room_guest(void) {
         for (int y = 32; y < 98; y += 14) gfx_pset(x, y, C_VIOLET);
     floorboards(C_EARTH);
     window_back(SP(S_GUE_WINDOW)->x, SP(S_GUE_WINDOW)->y, 40, 30, C_NIGHT);
-    /* the bed */
     const WthSpot *b = SP(S_GUE_BED);
-    bool gone = wth_flag(F_HIDE_BED_GONE);
-    if (gone) {
-        gfx_rect(b->x + 10, b->y, b->w - 20, b->h, C_BROWN);
-        for (int k = 0; k < 6; k++) gfx_rect(b->x + 16 + k * 12, b->y + 8 + (k & 1) * 10, 4, 6, C_INK);
-    } else {
-        gfx_rect(b->x, b->y + 8, b->w, 16, C_CREAM);
-        gfx_rect(b->x, b->y + 24, b->w, b->h - 28, C_PINK);
-        for (int x = b->x + 4; x < b->x + b->w; x += 6) gfx_vline(x, b->y + 26, b->y + b->h - 6, C_MAGENTA);
-        gfx_rect(b->x + 6, b->y + 2, 24, 10, C_WHITE);
-        gfx_rect(b->x - 2, b->y - 8, 4, b->h + 4, C_BROWN);
-    }
-    /* the writing box on its table */
-    const WthSpot *w = SP(S_GUE_BOX);
-    gfx_rect(w->x - 4, w->y + w->h, w->w + 8, 3, C_BROWN);
-    gfx_rect(w->x, w->y + w->h + 3, 3, 22, C_BROWN);
-    gfx_rect(w->x + w->w - 3, w->y + w->h + 3, 3, 22, C_BROWN);
-    gfx_rect(w->x + 4, w->y + 4, w->w - 8, w->h - 4, C_EARTH);
-    if (wth_flag(F_BOX_OPEN)) gfx_rect(w->x + 4, w->y - 4, w->w - 8, 6, C_EARTH);
-    gfx_pset(w->x + w->w / 2, w->y + 8, C_LIGHT);
-    page_on(S_GUE_BOX, w->x + 14, w->y + 6);
-    /* the sewing table */
+    gfx_rect(b->x, b->y + 8, b->w, 16, C_CREAM);
+    gfx_rect(b->x, b->y + 24, b->w, b->h - 28, C_PINK);
+    for (int x = b->x + 4; x < b->x + b->w; x += 6) gfx_vline(x, b->y + 26, b->y + b->h - 6, C_MAGENTA);
+    gfx_rect(b->x + 6, b->y + 2, 24, 10, C_WHITE);
+    gfx_rect(b->x - 2, b->y - 8, 4, b->h + 4, C_BROWN);
+    /* the dresser */
+    const WthSpot *w = SP(S_GUE_DRESSER);
+    gfx_rect(w->x, w->y + 4, w->w, w->h + 20, C_BROWN);
+    frame(w->x + 3, w->y + 8, w->w - 6, 8, C_EARTH);
+    gfx_rect(w->x + 8, w->y - 18, w->w - 16, 20, C_EARTH);
+    page_on(S_GUE_DRESSER, w->x + 14, w->y);
+    /* the sewing box on a stool */
     const WthSpot *s = SP(S_GUE_SEW);
-    gfx_rect(s->x, s->y + 14, s->w, 4, C_BROWN);
-    gfx_rect(s->x + 4, s->y + 18, 3, s->h - 18, C_INK);
-    gfx_rect(s->x + s->w - 7, s->y + 18, 3, s->h - 18, C_INK);
-    gfx_rect(s->x + 6, s->y + 2, 22, 12, C_INK);
-    gfx_rect(s->x + 6, s->y + 2, 22, 3, C_AMBER);
-    if (!wth_flag(F_OIL_TAKEN)) gfx_rect(s->x + 34, s->y + 6, 5, 8, C_GREY);
+    gfx_rect(s->x + 6, s->y + 22, s->w - 12, 4, C_BROWN);
+    gfx_rect(s->x + 8, s->y + 26, 3, s->h - 26, C_BROWN);
+    gfx_rect(s->x + s->w - 11, s->y + 26, 3, s->h - 26, C_BROWN);
+    gfx_rect(s->x + 8, s->y + 10, s->w - 16, 12, C_RED);
+    gfx_rect(s->x + 8, s->y + 8, s->w - 16, 3, C_MAROON);
+    for (int k = 0; k < 4; k++) gfx_pset(s->x + 12 + k * 6, s->y + 14, C_WHITE);
 }
 
 static void room_glasshouse(void) {
@@ -561,25 +524,24 @@ static void room_glasshouse(void) {
     for (int y = 30; y < 100; y += 24) gfx_hline(8, 311, y, C_LIGHT);
     gfx_line(8, 30, 160, 6, C_LIGHT);
     gfx_line(311, 30, 160, 6, C_LIGHT);
-    /* the cracked pane */
     const WthSpot *p = SP(S_GLA_PANE);
     gfx_line(p->x + 4, p->y + 4, p->x + 20, p->y + 22, C_WHITE);
     gfx_line(p->x + 20, p->y + 22, p->x + 38, p->y + 14, C_WHITE);
     gfx_line(p->x + 20, p->y + 22, p->x + 24, p->y + 38, C_WHITE);
-    /* the door into the garden */
     const WthSpot *d = SP(S_GLA_GARDEN);
     frame(d->x, d->y, d->w, d->h, C_WHITE);
     gfx_vline(d->x + d->w / 2, d->y, d->y + d->h - 1, C_WHITE);
     gfx_dither(d->x + 1, d->y + 30, d->w - 2, d->h - 31, C_FOREST, 8);
-    /* the trellis and its vine */
-    const WthSpot *t = SP(S_GLA_TRELLIS);
-    for (int k = 0; k < 6; k++) {
-        gfx_line(t->x, t->y + k * 12, t->x + t->w, t->y + k * 12 + 12, C_TAN);
-        gfx_line(t->x + t->w, t->y + k * 12, t->x, t->y + k * 12 + 12, C_TAN);
+    /* the lamp on its hook */
+    const WthSpot *l = SP(S_GLA_LAMP);
+    gfx_vline(l->x + 11, l->y, l->y + 4, C_SLATE);
+    if (!wth_flag(F_LAMP_TAKEN)) {
+        gfx_circb(l->x + 11, l->y + 7, 3, C_SLATE);
+        gfx_rect(l->x + 6, l->y + 10, 11, 12, C_ICE);
+        frame(l->x + 6, l->y + 10, 11, 12, C_RED);
+        gfx_rect(l->x + 5, l->y + 22, 13, 5, C_RED);
     }
-    for (int k = 0; k < 10; k++) gfx_pset(t->x + 10 + (k * 7) % 30, t->y + 6 + k * 6, C_EARTH);
-    if (!wth_flag(F_HOOK_TAKEN)) gfx_circb(t->x + 26, t->y + 20, 2, C_AMBER);
-    /* the dead plants, white-furred */
+    /* the dead plants */
     const WthSpot *pl = SP(S_GLA_PLANTS);
     gfx_rect(pl->x, pl->y + 20, pl->w, pl->h - 20, C_BROWN);
     for (int k = 0; k < 6; k++) {
@@ -587,13 +549,23 @@ static void room_glasshouse(void) {
         gfx_vline(x, pl->y - 10, pl->y + 20, C_TAN);
         gfx_dither(x - 4, pl->y - 6, 9, 24, C_WHITE, 4);
     }
+    /* the sack of blue crystals */
+    const WthSpot *su = SP(S_GLA_SULPHATE);
+    gfx_circ(su->x + su->w / 2, su->y + su->h - 12, 14, C_TAN);
+    gfx_rect(su->x + 10, su->y + 2, su->w - 20, 10, C_TAN);
+    gfx_dither(su->x + 12, su->y + 2, su->w - 24, 6, C_BLUE, 10);
+    /* the potting tray */
+    const WthSpot *t = SP(S_GLA_TROWEL);
+    gfx_rect(t->x, t->y + 6, t->w, t->h - 6, C_BROWN);
+    if (!wth_flag(F_TROWEL_TAKEN)) {
+        gfx_rect(t->x + 6, t->y + 2, 10, 4, C_LIGHT);
+        gfx_rect(t->x + 16, t->y + 3, 8, 2, C_BROWN);
+    }
 }
 
 static void room_garage(void) {
     interior(C_GREY, C_SLATE, C_SLATE, C_DUSK);
     for (int y = 104; y < 134; y += 10) gfx_hline(8, 311, y, C_DUSK);
-    /* the door */
-    const WthSpot *d = SP(S_GAR_DOOR);
     if (wth_flag(F_GARAGE_OPEN)) {
         gfx_rect(76, 28, 168, 72, C_NIGHT);
         gfx_dither(76, 70, 168, 30, C_DUSK, 8);
@@ -601,37 +573,34 @@ static void room_garage(void) {
     } else {
         gfx_rect(76, 28, 168, 72, C_LIGHT);
         for (int y = 34; y < 100; y += 8) gfx_hline(76, 243, y, C_GREY);
+        if (!wth_flag(F_CHAIN_CUT)) {
+            for (int y = 60; y < 100; y += 4) gfx_circb(160, y, 2, C_INK);
+            gfx_rect(157, 96, 6, 5, C_SLATE);
+        }
     }
-    (void)d;
-    /* the opener on the ceiling, and its rails */
-    const WthSpot *o = SP(S_GAR_OPENER);
-    gfx_line(o->x + o->w / 2 - 4, o->y + 12, 120, 26, C_GREY);
-    gfx_line(o->x + o->w / 2 + 4, o->y + 12, 200, 26, C_GREY);
-    gfx_rect(o->x, o->y, o->w, o->h, C_SLATE);
-    frame(o->x, o->y, o->w, o->h, C_INK);
-    if (wth_flag(F_MOTOR_FITTED)) gfx_rect(o->x + 14, o->y + 3, 16, 8, C_RED);
-    else gfx_rect(o->x + 14, o->y + 3, 16, 8, C_INK);
-    if (!wth_flag(F_RAILS_OILED)) gfx_dither(110, 18, 100, 8, C_ORANGE, 5);
-    /* the button */
-    const WthSpot *b = SP(S_GAR_BUTTON);
-    gfx_rect(b->x, b->y, b->w, b->h, C_CREAM);
-    gfx_circ(b->x + b->w / 2, b->y + b->h / 2, 3, C_RED);
-    gfx_line(b->x + b->w / 2, b->y + b->h, b->x + b->w / 2, 26, C_INK);
+    /* the inspection pit */
+    const WthSpot *pit = SP(S_GAR_PIT);
+    trap(pit->x + 10, pit->x + pit->w - 6, pit->x, pit->x + pit->w, pit->y, pit->y + pit->h - 1, C_INK);
+    gfx_hline(pit->x + 10, pit->x + pit->w - 6, pit->y, C_GREY);
+    /* the sack of quicklime */
+    const WthSpot *sk = SP(S_GAR_SACK);
+    gfx_circ(sk->x + 16, sk->y + 22, 14, C_CREAM);
+    gfx_rect(sk->x + 8, sk->y + 2, 16, 10, C_CREAM);
+    gfx_dither(sk->x + 6, sk->y + 20, 20, 10, C_WHITE, 8);
     /* the tool board */
     gfx_rect(250, 34, 50, 30, C_TAN);
     for (int x = 252; x < 300; x += 4)
         for (int y = 36; y < 62; y += 4) gfx_pset(x, y, C_BROWN);
-    if (!wth_flag(F_SPANNER_TAKEN)) {
-        gfx_rect(256, 44, 14, 3, C_LIGHT);
-        gfx_circb(257, 45, 3, C_LIGHT);
+    if (!wth_flag(F_SCREW_TAKEN)) {
+        gfx_rect(256, 44, 6, 3, C_RED);
+        gfx_hline(262, 271, 45, C_LIGHT);
     }
-    if (!wth_flag(F_TWINE_TAKEN)) gfx_circ(287, 51, 5, C_INK);
-    /* the shelf */
+    if (!wth_flag(F_GREASE_TAKEN)) gfx_rect(280, 48, 12, 6, C_INK);
     const WthSpot *s = SP(S_GAR_SHELF);
     gfx_rect(s->x, s->y + s->h - 2, s->w, 3, C_BROWN);
     for (int k = 0; k < 3; k++) gfx_rect(s->x + 2 + k * 6, s->y + 6, 5, 12, C_AMBER);
     if (!wth_flag(F_PARAFFIN_TAKEN)) gfx_rect(s->x + 22, s->y + 2, 10, 16, C_RED);
-    /* the car */
+    /* the car, its bonnet up if the rotor is in */
     const WthSpot *c = SP(S_GAR_CAR);
     gfx_rect(c->x + 20, c->y + 4, c->w - 40, 20, C_FOREST);
     gfx_rect(c->x + 26, c->y + 8, c->w - 52, 12, C_NIGHT);
@@ -642,6 +611,7 @@ static void room_garage(void) {
     gfx_rect(c->x + 40, c->y + 34, c->w - 80, 8, C_LIGHT);
     gfx_rect(c->x + 8, c->y + 44, 18, 10, C_INK);
     gfx_rect(c->x + c->w - 26, c->y + 44, 18, 10, C_INK);
+    if (wth_flag(F_ROTOR_FITTED)) gfx_rect(c->x + 30, c->y + 14, c->w - 60, 10, C_JADE);
 }
 
 static void room_pond(void) {
@@ -652,83 +622,64 @@ static void room_pond(void) {
     gfx_rect(8, 112, 304, 22, C_FOREST);
     gfx_circ(160, 92, 62, C_NIGHT);
     for (int k = 0; k < 6; k++) gfx_hline(110 + k * 7, 140 + k * 9, 70 + k * 6, C_NAVY);
-    /* the body */
-    const WthSpot *b = SP(S_POND_BODY);
-    if (!wth_flag(F_POND_DONE)) {
-        gfx_rect(b->x + 12, b->y + 6, b->w - 24, 8, C_NAVY);
-        gfx_rect(b->x + 14, b->y + 7, 16, 6, C_ORANGE);
-        gfx_circ(b->x + b->w - 14, b->y + 9, 4, C_TAN);
-        gfx_rect(b->x + 4, b->y + 8, 10, 3, C_TAN);
-    } else {
-        gfx_rect(40, 116, 50, 8, C_NAVY);
-        gfx_circ(92, 119, 4, C_TAN);
-        gfx_rect(44, 117, 12, 6, C_ORANGE);
-    }
-    /* lilies and reeds */
+    /* the sunken boat */
+    const WthSpot *b = SP(S_POND_BOAT);
+    trap(b->x, b->x + b->w, b->x + 10, b->x + b->w - 8, b->y + 6, b->y + b->h - 4, C_BROWN);
+    gfx_rect(b->x + 30, b->y + 8, 24, 3, C_TAN);
+    gfx_dither(b->x + 6, b->y + 12, b->w - 12, b->h - 14, C_NAVY, 10);
+    if (!wth_flag(F_TACKLE_TAKEN)) gfx_rect(b->x + 36, b->y + 3, 12, 5, C_JADE);
     const WthSpot *l = SP(S_POND_LILIES);
     for (int k = 0; k < 5; k++) {
         gfx_circ(l->x + 8 + k * 13, l->y + 8 + (k & 1) * 5, 5, C_FOREST);
         gfx_circ(l->x + 8 + k * 13, l->y + 6 + (k & 1) * 5, 2, C_WHITE);
     }
     const WthSpot *r = SP(S_POND_REEDS);
-    for (int k = 0; k < 14; k++) {
-        int x = r->x + k * 4;
-        int lean = (k >= 6 && k <= 8) ? 10 : 0;
-        gfx_line(x, r->y + r->h, x + lean, r->y + (k * 7) % 14 + lean, C_LEAF);
-    }
+    for (int k = 0; k < 14; k++) gfx_line(r->x + k * 4, r->y + r->h, r->x + k * 4 + 2, r->y + (k * 7) % 14, C_LEAF);
+    gfx_rect(r->x + 30, r->y + 10, 4, 12, C_GREY);
+    gfx_line(r->x + 32, r->y + 10, r->x + 36, r->y + 4, C_GREY);
 }
 
 static void room_shed(void) {
     interior(C_BROWN, C_EARTH, C_EARTH, C_INK);
     for (int x = 72; x < 248; x += 8) gfx_vline(x, 27, 99, C_EARTH);
     for (int x = 12; x < 66; x += 9) gfx_line(x, 10, x, 122, C_BROWN);
-    /* the bench */
     gfx_rect(20, 92, 120, 6, C_TAN);
     gfx_rect(24, 98, 4, 26, C_TAN);
     gfx_rect(132, 98, 4, 26, C_TAN);
-    /* the grinder */
     const WthSpot *g = SP(S_SHE_GRINDER);
-    gfx_rect(g->x + 12, g->y + 10, 20, 12, wth_flag(F_MOTOR_TAKEN) ? C_INK : C_RED);
-    gfx_circb(g->x + 6, g->y + 12, 6, C_GREY);
-    gfx_circb(g->x + 38, g->y + 12, 6, C_GREY);
+    gfx_circb(g->x + 14, g->y + 12, 8, C_GREY);
     gfx_rect(g->x + 10, g->y + 22, 24, 4, C_SLATE);
-    /* the vise */
-    const WthSpot *v = SP(S_SHE_VISE);
-    gfx_rect(v->x + 4, v->y + 6, 18, 8, C_SLATE);
-    gfx_rect(v->x + 2, v->y + 2, 4, 14, C_GREY);
-    gfx_rect(v->x + 18, v->y + 2, 4, 14, C_GREY);
-    gfx_hline(v->x, v->x + 25, v->y + 18, C_GREY);
     diary_page(S_SHE_DIARY);
-    /* the pegboard */
     gfx_rect(140, 30, 90, 36, C_TAN);
     for (int x = 142; x < 228; x += 5)
         for (int y = 32; y < 64; y += 5) gfx_pset(x, y, C_BROWN);
-    if (!wth_flag(F_SCREW_TAKEN)) {
-        gfx_rect(150, 36, 4, 8, C_RED);
-        gfx_vline(152, 44, 56, C_LIGHT);
+    if (!wth_flag(F_PLIERS_TAKEN)) {
+        gfx_line(149, 36, 152, 56, C_SLATE);
+        gfx_line(155, 36, 152, 56, C_SLATE);
     }
-    if (!wth_flag(F_SHEARS_TAKEN)) {
-        gfx_line(168, 38, 178, 58, C_LIGHT);
-        gfx_line(180, 38, 170, 58, C_LIGHT);
-        gfx_circb(168, 38, 2, C_FOREST);
+    if (!wth_flag(F_CUTTERS_TAKEN)) {
+        gfx_line(168, 36, 178, 58, C_RED);
+        gfx_line(180, 36, 170, 58, C_RED);
+        gfx_rect(172, 34, 4, 4, C_LIGHT);
     }
-    if (!wth_flag(F_SAW_TAKEN)) {
-        gfx_rect(192, 40, 8, 6, C_BROWN);
-        for (int x = 200; x < 222; x++) gfx_pset(x, 44 - (x - 200) / 6 + ((x & 1) ? 1 : 0), C_LIGHT);
-        gfx_line(200, 42, 221, 39, C_LIGHT);
+    if (!wth_flag(F_SMOKER_TAKEN)) {
+        const WthSpot *sm = SP(S_SHE_SMOKER);
+        gfx_rect(sm->x + 4, sm->y + 4, 10, 12, C_LIGHT);
+        gfx_rect(sm->x + 6, sm->y, 6, 4, C_LIGHT);
+        gfx_rect(sm->x + 15, sm->y + 6, 10, 8, C_BROWN);
     }
-    /* the spade */
-    if (!wth_flag(F_SPADE_TAKEN)) {
-        const WthSpot *s = SP(S_SHE_SPADE);
-        gfx_vline(s->x + 9, s->y, s->y + 50, C_TAN);
-        gfx_rect(s->x + 6, s->y, 7, 3, C_TAN);
-        gfx_rect(s->x + 3, s->y + 50, 13, 22, C_GREY);
+    if (!wth_flag(F_SPRAYER_TAKEN)) {
+        const WthSpot *sp = SP(S_SHE_SPRAYER);
+        gfx_rect(sp->x + 3, sp->y + 20, 16, 34, C_JADE);
+        gfx_vline(sp->x + 11, sp->y + 4, sp->y + 20, C_SLATE);
+        gfx_line(sp->x + 11, sp->y + 4, sp->x + 2, sp->y, C_SLATE);
     }
-    /* the sack */
-    const WthSpot *k = SP(S_SHE_SACK);
+    const WthSpot *k = SP(S_SHE_GLOVES);
     gfx_circ(k->x + k->w / 2, k->y + k->h - 12, 14, C_TAN);
-    gfx_rect(k->x + k->w / 2 - 4, k->y, 8, 8, C_TAN);
-    gfx_hline(k->x + k->w / 2 - 5, k->x + k->w / 2 + 4, k->y + 7, C_BROWN);
+    if (!wth_flag(F_GLOVES_TAKEN)) {
+        gfx_rect(k->x + 10, k->y + 4, 8, 8, C_BROWN);
+        gfx_rect(k->x + 20, k->y + 6, 8, 8, C_BROWN);
+    }
 }
 
 static void house_wall(int x0, int x1, int y0) {
@@ -740,11 +691,7 @@ static void room_garden(void) {
     night_sky(60);
     gfx_rect(8, 60, 304, 74, C_FOREST);
     gfx_dither(8, 60, 304, 30, C_INK, 7);
-    /* the back of the house on the left, the balcony above */
     house_wall(8, 100, 6);
-    gfx_rect(8, 4 + 6, 96, 4, C_SLATE);
-    for (int x = 10; x < 100; x += 6) gfx_vline(x, 2 + 6, 9 + 6, C_SLATE);
-    /* the scullery door and the glasshouse corner */
     const WthSpot *sd = SP(S_GDN_SCULLERY);
     gfx_rect(sd->x, sd->y, sd->w, sd->h, C_FOREST);
     frame(sd->x, sd->y, sd->w, sd->h, C_INK);
@@ -753,83 +700,99 @@ static void room_garden(void) {
     for (int x = g->x; x < g->x + g->w; x += 9) gfx_vline(x, g->y, g->y + g->h - 1, C_LIGHT);
     gfx_hline(g->x, g->x + g->w - 1, g->y, C_LIGHT);
     gfx_dither(g->x + 1, g->y + 20, g->w - 2, g->h - 21, C_WHITE, 3);
-    /* the hanged man, or the fallen one */
-    if (!wth_flag(F_ROPE_CUT)) {
-        const WthSpot *h = SP(S_GDN_HANG);
-        gfx_vline(h->x + 9, 14, h->y + 12, C_TAN);
-        gfx_circ(h->x + 9, h->y + 14, 3, C_LIGHT);
-        gfx_rect(h->x + 6, h->y + 18, 7, 14, C_INK);
-        gfx_rect(h->x + 7, h->y + 32, 2, 7, C_INK);
-        gfx_rect(h->x + 10, h->y + 32, 2, 7, C_INK);
-    } else {
-        const WthSpot *f = SP(S_GDN_FALLEN);
-        gfx_rect(f->x + 6, f->y + 5, f->w - 16, 6, C_INK);
-        gfx_circ(f->x + f->w - 8, f->y + 8, 3, C_LIGHT);
-        if (!wth_flag(F_AMBER_TAKEN)) gfx_pset(f->x + 4, f->y + 8, C_AMBER);
-    }
-    /* the laurel */
-    const WthSpot *l = SP(S_GDN_LAUREL);
-    for (int k = 0; k < 7; k++) gfx_circ(l->x + 6 + (k * 7) % 34, l->y + 8 + (k % 3) * 7, 8, k & 1 ? C_FOREST : C_JADE);
-    /* the yew and the grave */
-    const WthSpot *y = SP(S_GDN_YEW);
-    gfx_rect(y->x + 26, y->y + 40, 10, 34, C_EARTH);
-    gfx_circ(y->x + 31, y->y + 24, 26, C_INK);
-    gfx_circ(y->x + 20, y->y + 34, 16, C_NIGHT);
-    gfx_circ(y->x + 44, y->y + 30, 16, C_NIGHT);
-    const WthSpot *gr = SP(S_GDN_GRAVE);
-    if (wth_flag(F_GRAVE_DUG)) {
-        gfx_rect(gr->x + 6, gr->y + 4, gr->w - 12, 10, C_INK);
-        gfx_rect(gr->x, gr->y + 10, 8, 4, C_EARTH);
-    } else trap(gr->x + 8, gr->x + gr->w - 8, gr->x, gr->x + gr->w, gr->y + 6, gr->y + 14, C_EARTH);
-    gfx_vline(gr->x + gr->w / 2, gr->y - 4, gr->y + 6, C_TAN);
-    gfx_hline(gr->x + gr->w / 2 - 3, gr->x + gr->w / 2 + 3, gr->y - 1, C_TAN);
+    /* the well */
+    const WthSpot *w = SP(S_GDN_WELL);
+    gfx_rect(w->x + 4, w->y + 10, w->w - 8, w->h - 10, C_GREY);
+    bricks(w->x + 4, w->y + 10, w->x + w->w - 4, w->y + w->h, C_SLATE);
+    gfx_rect(w->x, w->y + 6, w->w, 5, C_LIGHT);
+    if (!wth_flag(F_GRATE_CUT)) {
+        for (int x = w->x + 3; x < w->x + w->w - 2; x += 5) gfx_vline(x, w->y + 2, w->y + 6, C_INK);
+        gfx_hline(w->x + 2, w->x + w->w - 3, w->y + 2, C_INK);
+        gfx_rect(w->x + w->w / 2 - 2, w->y + 3, 5, 5, C_SLATE);
+    } else gfx_rect(w->x + w->w - 6, w->y + w->h - 6, 12, 3, C_INK);
+    /* the hose reel */
+    const WthSpot *h = SP(S_GDN_HOSE);
+    gfx_circb(h->x + 15, h->y + 11, 9, C_JADE);
+    gfx_circb(h->x + 15, h->y + 11, 6, C_JADE);
+    gfx_circ(h->x + 15, h->y + 11, 2, C_INK);
+    if (!wth_flag(F_HOSE_TAKEN)) gfx_line(h->x + 22, h->y + 16, h->x + 30, h->y + 21, C_JADE);
     /* the hives */
     const WthSpot *hv = SP(S_GDN_HIVES);
     for (int k = 0; k < 3; k++) {
-        gfx_rect(hv->x + k * 14, hv->y + 2, 12, 14, C_CREAM);
-        gfx_rect(hv->x + k * 14 - 1, hv->y, 14, 3, C_LIGHT);
-        gfx_hline(hv->x + k * 14 + 3, hv->x + k * 14 + 8, hv->y + 14, C_WHITE);
+        gfx_rect(hv->x + k * 15, hv->y + 4, 12, 14, C_CREAM);
+        gfx_rect(hv->x + k * 15 - 1, hv->y + 2, 14, 3, C_LIGHT);
+        gfx_hline(hv->x + k * 15 + 3, hv->x + k * 15 + 8, hv->y + 16, C_WHITE);
     }
-    /* the far path to the pond */
+    if (wth_flag(F_HIVE_CUT)) gfx_rect(hv->x - 1, hv->y, 14, 3, C_AMBER);
     const WthSpot *p = SP(S_GDN_POND);
     trap(p->x + 8, p->x + p->w - 8, p->x, p->x + p->w, p->y, p->y + p->h - 1, C_EARTH);
-    /* the garden wall and its ivy arch */
+    /* the wall and its arch to the hedge court */
     gfx_rect(226, 40, 46, 60, C_SLATE);
     bricks(226, 40, 272, 100, C_DUSK);
-    const WthSpot *a = SP(S_GDN_IVY);
-    if (wth_flag(F_IVY_CUT)) {
-        gfx_rect(a->x + 2, a->y + 6, a->w - 4, a->h - 6, C_INK);
-        gfx_circ(a->x + a->w / 2, a->y + 8, a->w / 2 - 2, C_INK);
-        gfx_dither(a->x + 2, a->y + 30, a->w - 4, 26, C_SLATE, 5);
-    } else
-        for (int k = 0; k < 24; k++) gfx_circ(a->x + 4 + (k * 11) % 24, a->y + 4 + (k * 7) % 52, 4, k & 1 ? C_FOREST : C_LEAF);
-    /* the shed */
+    const WthSpot *a = SP(S_GDN_ARCH);
+    gfx_rect(a->x + 2, a->y + 6, a->w - 4, a->h - 6, C_INK);
+    gfx_circ(a->x + a->w / 2, a->y + 8, a->w / 2 - 2, C_INK);
+    gfx_dither(a->x + 2, a->y + 30, a->w - 4, 26, C_FOREST, 6);
     const WthSpot *s = SP(S_GDN_SHEDDOOR);
     trap(s->x + s->w / 2, s->x + s->w / 2, s->x - 4, s->x + s->w + 4, s->y - 12, s->y, C_EARTH);
     gfx_rect(s->x, s->y, s->w, s->h, C_BROWN);
     for (int x = s->x; x < s->x + s->w; x += 5) gfx_vline(x, s->y, s->y + s->h - 1, C_EARTH);
     if (wth_flag(F_SHED_OPEN)) gfx_rect(s->x + 8, s->y + 10, s->w - 16, s->h - 10, C_INK);
-    else gfx_rect(s->x + s->w - 9, s->y + 24, 4, 5, C_GREY);
+    else gfx_rect(s->x + s->w - 9, s->y + 24, 4, 6, C_GREY);
+}
+
+static void room_yard(void) {
+    night_sky(40);
+    gfx_rect(8, 40, 304, 94, C_DUSK);
+    gfx_rect(8, 96, 304, 38, C_SLATE);
+    for (int y = 98; y < 134; y += 6)
+        for (int x = 8 + ((y / 6) & 1) * 5; x < 312; x += 10) gfx_pset(x, y, C_GREY);
+    house_wall(8, 90, 20);
+    /* the water butt */
+    const WthSpot *b = SP(S_YRD_BUTT);
+    gfx_rect(b->x + 2, b->y + 4, b->w - 4, b->h - 8, C_FOREST);
+    gfx_rect(b->x, b->y, b->w, 5, C_JADE);
+    gfx_hline(b->x + 2, b->x + b->w - 3, b->y + 20, C_JADE);
+    gfx_rect(b->x + b->w / 2 - 2, b->y + b->h - 10, 5, 4, C_SLATE);
+    if (wth_flag(F_BUTT_DRAINED)) gfx_dither(b->x - 6, b->y + b->h - 4, b->w + 30, 6, C_NAVY, 6);
+    /* the kennel */
+    const WthSpot *k = SP(S_YRD_KENNEL);
+    gfx_rect(k->x + 4, k->y + 14, k->w - 8, k->h - 14, C_BROWN);
+    trap(k->x + k->w / 2, k->x + k->w / 2, k->x, k->x + k->w, k->y, k->y + 14, C_EARTH);
+    gfx_rect(k->x + k->w / 2 - 8, k->y + 20, 16, k->h - 20, C_INK);
+    gfx_line(k->x + k->w - 6, k->y + k->h - 4, k->x + k->w + 6, k->y + k->h, C_GREY);
+    if (!wth_flag(F_COLLAR_TAKEN)) gfx_pset(k->x + k->w + 6, k->y + k->h - 1, C_YELLOW);
+    /* the pine */
+    const WthSpot *p = SP(S_YRD_PINE);
+    gfx_rect(p->x + 22, p->y + 50, 6, 30, C_EARTH);
+    for (int i = 0; i < 4; i++) trap(p->x + 25, p->x + 25, p->x + 4 + i * 2, p->x + 46 - i * 2, p->y + i * 12, p->y + 20 + i * 12, C_INK);
+    if (!wth_flag(F_CONES_TAKEN))
+        for (int i = 0; i < 4; i++) gfx_rect(p->x + 10 + i * 9, p->y + 76, 3, 4, C_BROWN);
+    /* the coal bunker */
+    const WthSpot *c = SP(S_YRD_BUNKER);
+    gfx_rect(c->x, c->y + 6, c->w, c->h - 6, C_GREY);
+    bricks(c->x, c->y + 6, c->x + c->w, c->y + c->h, C_SLATE);
+    trap(c->x + 2, c->x + c->w - 2, c->x - 2, c->x + c->w + 2, c->y, c->y + 6, C_INK);
+    /* the path round to the drive */
+    const WthSpot *d = SP(S_YRD_DRIVE);
+    trap(d->x + 6, d->x + d->w, d->x, d->x + d->w, d->y + 10, d->y + d->h, C_GREY);
 }
 
 static void room_drive(void) {
     night_sky(40);
     gfx_rect(8, 90, 304, 44, C_GREY);
     gfx_dither(8, 90, 304, 44, C_SLATE, 8);
-    /* the front of the house */
     gfx_rect(8, 20, 304, 80, C_DUSK);
     trap(60, 260, 8, 311, 8, 20, C_SLATE);
     bricks(8, 20, 311, 100, C_NIGHT);
-    for (int k = 0; k < 4; k++) {
-        int x = 86 + k * 34 + (k >= 2 ? 40 : 0);
-        if (k == 1 || k == 2) continue;
+    for (int k = 0; k < 2; k++) {
+        int x = 86 + k * 102;
         gfx_rect(x, 50, 18, 24, C_BROWN);
         gfx_line(x, 52, x + 17, 70, C_EARTH);
     }
     const WthSpot *fd = SP(S_DRV_FRONT);
     door_back(fd->x, fd->y, fd->w, fd->h, C_EARTH, false);
     gfx_rect(fd->x + 2, fd->y + 26, fd->w - 4, 6, C_BROWN);
-    /* the garage door */
     const WthSpot *g = SP(S_DRV_GARAGE);
     if (wth_flag(F_GARAGE_OPEN)) {
         gfx_rect(g->x, g->y, g->w, g->h, C_INK);
@@ -838,26 +801,11 @@ static void room_drive(void) {
         gfx_rect(g->x, g->y, g->w, g->h, C_LIGHT);
         for (int y = g->y + 6; y < g->y + g->h; y += 8) gfx_hline(g->x, g->x + g->w - 1, y, C_GREY);
     }
-    /* the fountain and its statue */
-    const WthSpot *st = SP(S_DRV_STATUE);
-    gfx_rect(st->x + 6, st->y + 30, st->w - 12, 14, C_LIGHT);
-    gfx_circ(st->x + st->w / 2, st->y + 5, 4, C_WHITE);
-    trap(st->x + 10, st->x + 18, st->x + 6, st->x + 22, st->y + 9, st->y + 30, C_WHITE);
-    gfx_rect(st->x + 16, st->y + 12, 6, 6, C_LIGHT);
-    gfx_circb(st->x + st->w / 2, st->y + 37, 3, wth_flag(F_FOUNTAIN_DRAINED) ? C_AMBER : C_GREY);
-    const WthSpot *f = SP(S_DRV_FOUNTAIN);
-    trap(f->x + 8, f->x + f->w - 8, f->x, f->x + f->w, f->y, f->y + f->h - 1, C_LIGHT);
-    if (!wth_flag(F_FOUNTAIN_DRAINED)) {
-        trap(f->x + 12, f->x + f->w - 12, f->x + 6, f->x + f->w - 6, f->y + 2, f->y + 10, C_NAVY);
-        gfx_vline(st->x + 22, st->y + 16, f->y + 4, C_SKY);
-        if (!wth_flag(F_JADE_TAKEN)) gfx_pset(f->x + 40, f->y + 7, C_JADE);
-    } else {
-        trap(f->x + 12, f->x + f->w - 12, f->x + 6, f->x + f->w - 6, f->y + 2, f->y + 10, C_EARTH);
-        if (!wth_flag(F_JADE_TAKEN)) gfx_rect(f->x + 40, f->y + 6, 3, 2, C_JADE);
-    }
-    /* the cellar doors */
-    const WthSpot *c = SP(S_DRV_STORM);
-    if (wth_flag(F_STORM_OPEN)) {
+    const WthSpot *t = SP(S_DRV_TRACKS);
+    gfx_line(t->x, t->y + t->h, t->x + 30, t->y, C_EARTH);
+    gfx_line(t->x + 20, t->y + t->h, t->x + 50, t->y, C_EARTH);
+    const WthSpot *c = SP(S_DRV_HATCH);
+    if (wth_flag(F_HATCH_OPEN)) {
         gfx_rect(c->x, c->y, c->w, c->h, C_INK);
         gfx_rect(c->x - 6, c->y - 6, 6, c->h + 6, C_BROWN);
         gfx_rect(c->x + c->w, c->y - 6, 6, c->h + 6, C_BROWN);
@@ -866,26 +814,16 @@ static void room_drive(void) {
         gfx_vline(c->x + c->w / 2, c->y, c->y + c->h - 1, C_EARTH);
         gfx_rect(c->x + c->w / 2 - 3, c->y + 5, 6, 6, C_INK);
     }
-    /* the gates, down the drive */
     const WthSpot *ga = SP(S_DRV_GATES);
     for (int x = ga->x + 4; x < ga->x + ga->w; x += 6) gfx_vline(x, ga->y, ga->y + ga->h - 1, C_INK);
     gfx_hline(ga->x, ga->x + ga->w - 1, ga->y + 3, C_INK);
 }
 
-static void hare_draw(int i) {
-    const WthSpot *h = SP(S_CRT_HARE0 + i);
-    gfx_rect(h->x, h->y, h->w, h->h, C_NIGHT);
-    gfx_circ(h->x + h->w / 2, h->y + 26, 10, C_LIGHT);
-    gfx_circ(h->x + h->w / 2 + 2, h->y + 14, 6, C_LIGHT);
-    gfx_rect(h->x + h->w / 2, h->y + 2, 3, 9, C_LIGHT);
-    gfx_rect(h->x + h->w / 2 + 4, h->y + 3, 3, 8, C_LIGHT);
-    int gem = wth.s.hare[i];
-    int col = gem == I_GARNET ? C_RED : gem == I_JADE ? C_JADE : gem == I_AMBER ? C_AMBER : gem == I_OPAL ? C_ICE : C_INK;
-    gfx_rect(h->x + h->w / 2 + 3, h->y + 12, 3, 3, col);
-    gfx_rect(h->x + 2, h->y + h->h - 4, h->w - 4, 4, C_GREY);
-    /* the plaque's pictures above each niche */
-    static const uint8_t SIGN[4] = {C_AMBER, C_JADE, C_RED, C_ICE};
-    (void)SIGN;
+static void bee_shape(int x, int y, int col) {
+    gfx_rect(x, y, 6, 4, col);
+    gfx_pset(x + 1, y - 1, C_LIGHT);
+    gfx_pset(x + 4, y - 1, C_LIGHT);
+    gfx_vline(x + 2, y, y + 3, C_INK);
 }
 
 static void room_courtyard(void) {
@@ -895,30 +833,39 @@ static void room_courtyard(void) {
     gfx_rect(8, 104, 304, 30, C_GREY);
     for (int y = 106; y < 134; y += 6)
         for (int x = 8 + ((y / 6) & 1) * 6; x < 312; x += 12) gfx_rect(x, y, 10, 4, C_LIGHT);
-    for (int i = 0; i < 4; i++) hare_draw(i);
-    /* the plaque: four little pictures (sun, leaf, a drop, a moon) */
-    const WthSpot *p = SP(S_CRT_PLAQUE);
-    gfx_rect(p->x, p->y, p->w, p->h, C_AMBER);
-    frame(p->x, p->y, p->w, p->h, C_BROWN);
-    for (int k = 0; k < 6; k++) gfx_hline(p->x + 4 + k * 12, p->x + 12 + k * 12, p->y + 7, C_BROWN);
+    /* the stone hive with its four bee-shaped cells */
+    const WthSpot *h = SP(S_CRT_HIVE);
+    int cx = h->x + h->w / 2;
+    for (int i = 0; i < 5; i++) gfx_rect(cx - 14 - i * 4 + 4, h->y + 4 + i * 10, 28 + i * 8 - 8, 10, C_LIGHT);
+    for (int i = 0; i < 5; i++) gfx_hline(cx - 14 - i * 4 + 4, cx + 14 + i * 4 - 5, h->y + 4 + i * 10, C_GREY);
+    gfx_rect(cx - 4, h->y + h->h - 12, 8, 8, C_INK);
+    static const uint8_t COL[4] = {C_YELLOW, C_ORANGE, C_WHITE, C_SLATE};
+    for (int k = 0; k < 4; k++) {
+        int bx = cx - 18 + k * 10, by = h->y + 26;
+        gfx_rect(bx - 1, by - 2, 8, 7, C_NIGHT);
+        if ((wth.s.hive >> k) & 1) bee_shape(bx, by, COL[k]);
+    }
+    /* the sundial */
+    const WthSpot *s = SP(S_CRT_SUNDIAL);
+    gfx_rect(s->x + 16, s->y + 10, 12, s->h - 10, C_LIGHT);
+    gfx_rect(s->x + 6, s->y + 6, 32, 5, C_LIGHT);
+    gfx_line(s->x + 20, s->y + 6, s->x + 28, s->y, C_AMBER);
     /* the gate */
     const WthSpot *g = SP(S_CRT_GATE);
     gfx_rect(g->x, g->y, g->w, g->h, C_INK);
     gfx_dither(g->x, g->y, g->w, g->h, C_FOREST, 7);
     if (!wth_flag(F_GATE_OPEN)) {
-        for (int x = g->x + 3; x < g->x + g->w; x += 6) gfx_vline(x, g->y, g->y + g->h - 1, C_DUSK);
-        gfx_hline(g->x, g->x + g->w - 1, g->y + 20, C_DUSK);
-        gfx_hline(g->x, g->x + g->w - 1, g->y + 56, C_DUSK);
+        for (int x = g->x + 3; x < g->x + g->w; x += 6) gfx_vline(x, g->y, g->y + g->h - 1, C_LIGHT);
+        gfx_hline(g->x, g->x + g->w - 1, g->y + 20, C_LIGHT);
+        gfx_hline(g->x, g->x + g->w - 1, g->y + 56, C_LIGHT);
     } else
-        for (int x = g->x + 3; x < g->x + 14; x += 6) gfx_vline(x, g->y, g->y + g->h - 1, C_DUSK);
+        for (int x = g->x + 3; x < g->x + 14; x += 6) gfx_vline(x, g->y, g->y + g->h - 1, C_LIGHT);
 }
 
-/* the hedges: each junction is drawn a little differently, so you can tell them apart */
 static void room_maze(void) {
     night_sky(24);
     gfx_rect(8, 24, 304, 110, C_FOREST);
     int v = wth.s.maze;
-    /* openings left, ahead, right */
     gfx_rect(18, 40, 54, 80, C_INK);
     gfx_rect(248, 40, 54, 80, C_INK);
     gfx_rect(134, 40, 52, 60, C_INK);
@@ -932,7 +879,6 @@ static void room_maze(void) {
         gfx_pset(x, y, C_JADE);
         gfx_pset(x + 1, y, C_LEAF);
     }
-    /* a stone marker: as many notches as the junction */
     for (int k = 0; k <= v; k++) gfx_rect(96 + k * 5, 106, 3, 8, C_LIGHT);
     gfx_rect(94, 114, 6 + v * 5 + 4, 4, C_GREY);
 }
@@ -943,15 +889,18 @@ static void room_heart(void) {
     gfx_dither(8, 40, 304, 40, C_INK, 6);
     gfx_circ(160, 120, 90, C_EARTH);
     gfx_rect(8, 126, 304, 8, C_FOREST);
-    const WthSpot *g = SP(S_HRT_GIRL);
-    int cx = g->x + g->w / 2;
-    gfx_rect(cx - 16, g->y + 66, 32, 18, C_GREY);
-    trap(cx - 6, cx + 6, cx - 12, cx + 12, g->y + 22, g->y + 66, C_LIGHT);
-    gfx_circ(cx, g->y + 14, 8, C_LIGHT);
-    gfx_rect(cx - 16, g->y + 34, 32, 5, C_LIGHT);
-    if (!wth_flag(F_BOLT_TAKEN)) gfx_line(cx - 12, g->y + 33, cx + 12, g->y + 31, C_TAN);
-    gfx_pset(cx - 3, g->y + 13, C_SLATE);
-    gfx_pset(cx + 3, g->y + 13, C_SLATE);
+    /* the old oak, stuck full of holes */
+    const WthSpot *o = SP(S_HRT_OAK);
+    int cx = o->x + o->w / 2;
+    gfx_rect(cx - 10, o->y + 30, 20, o->h - 30, C_BROWN);
+    gfx_circ(cx, o->y + 18, 26, C_INK);
+    gfx_circ(cx - 16, o->y + 26, 14, C_NIGHT);
+    gfx_circ(cx + 16, o->y + 24, 14, C_NIGHT);
+    for (int k = 0; k < 9; k++) gfx_pset(cx - 7 + (k * 5) % 14, o->y + 40 + (k * 9) % 40, C_INK);
+    if (!wth_flag(F_BOLT_TAKEN)) {
+        gfx_line(cx + 4, o->y + 56, cx + 16, o->y + 52, C_TAN);
+        gfx_rect(cx + 15, o->y + 51, 3, 3, C_RED);
+    }
     const WthSpot *b = SP(S_HRT_BENCH);
     gfx_rect(b->x, b->y + 4, b->w, 8, C_GREY);
     gfx_rect(b->x + 6, b->y + 12, 8, 10, C_SLATE);
@@ -978,7 +927,6 @@ static void room_landing(void) {
         frame(h->x, h->y, h->w, h->h, C_EARTH);
         gfx_circb(h->x + h->w / 2, h->y + h->h - 2, 2, C_GREY);
     }
-    /* the stairwell's banister */
     gfx_hline(60, 260, 120, C_BROWN);
     for (int x = 64; x < 260; x += 10) gfx_vline(x, 120, 133, C_BROWN);
 }
@@ -987,76 +935,74 @@ static void room_master(void) {
     interior(C_VIOLET, C_PURPLE, C_BROWN, C_INK);
     floorboards(C_EARTH);
     door_side(false, C_CREAM, false);
-    /* the safe */
-    const WthSpot *s = SP(S_MAS_SAFE);
-    gfx_rect(s->x, s->y, s->w, s->h, wth_flag(F_SAFE_OPEN) ? C_INK : C_SLATE);
-    frame(s->x, s->y, s->w, s->h, C_GREY);
-    gfx_circb(s->x + s->w / 2, s->y + s->h / 2, 5, C_LIGHT);
-    if (wth_flag(F_SAFE_OPEN)) gfx_rect(s->x + s->w, s->y, 4, s->h, C_GREY);
-    /* the bed: one side made, the other a nest */
+    /* the wardrobe */
+    const WthSpot *w = SP(S_MAS_WARDROBE);
+    gfx_rect(w->x, w->y, w->w, w->h, C_BROWN);
+    if (wth_flag(F_HIDE_WARDROBE_GONE)) {
+        gfx_line(w->x + w->w / 2, w->y + 2, w->x + w->w / 2 - 4, w->y + w->h - 2, C_INK);
+        gfx_line(w->x + w->w / 2 + 2, w->y + 2, w->x + w->w / 2 + 6, w->y + w->h - 2, C_INK);
+    } else {
+        gfx_vline(w->x + w->w / 2, w->y + 2, w->y + w->h - 3, C_EARTH);
+        gfx_pset(w->x + w->w / 2 - 3, w->y + 30, C_AMBER);
+        gfx_pset(w->x + w->w / 2 + 3, w->y + 30, C_AMBER);
+    }
+    /* the bed */
     const WthSpot *b = SP(S_MAS_BED);
     gfx_rect(b->x - 4, b->y - 30, 4, b->h + 30, C_BROWN);
-    gfx_rect(b->x + b->w, b->y - 30, 4, b->h + 30, C_BROWN);
-    gfx_rect(b->x - 4, b->y - 32, b->w + 8, 4, C_BROWN);
+    gfx_rect(b->x - 4, b->y - 32, b->w + 16, 4, C_BROWN);
     gfx_rect(b->x, b->y + 8, b->w, b->h - 12, C_CREAM);
     gfx_rect(b->x + b->w / 2, b->y + 8, b->w / 2, b->h - 12, C_WHITE);
     gfx_dither(b->x + b->w / 2, b->y + 8, b->w / 2, b->h - 12, C_LIGHT, 8);
-    for (int k = 0; k < 8; k++) gfx_line(b->x + b->w / 2 + k * 6, b->y + 10, b->x + b->w / 2 + k * 6 + 8, b->y + 30, C_LIGHT);
     page_on(S_MAS_BED, b->x + 16, b->y + 14);
-    /* the dresser */
-    const WthSpot *d = SP(S_MAS_DRESSER);
-    gfx_rect(d->x, d->y + 18, d->w, d->h - 18, C_BROWN);
-    gfx_rect(d->x + 8, d->y, d->w - 16, 18, C_EARTH);
-    frame(d->x + 4, d->y + 24, d->w - 8, 8, C_EARTH);
-    if (!wth_flag(F_LENS_TAKEN)) {
-        gfx_circb(d->x + 30, d->y + 15, 3, C_LIGHT);
-        gfx_line(d->x + 27, d->y + 18, d->x + 24, d->y + 21, C_TAN);
+    /* the bedpost and the belt */
+    const WthSpot *p = SP(S_MAS_POST);
+    gfx_rect(p->x + 3, p->y, 5, p->h + 34, C_BROWN);
+    if (!wth_flag(F_BELT_TAKEN)) {
+        gfx_vline(p->x + 2, p->y + 6, p->y + 30, C_INK);
+        gfx_vline(p->x + 9, p->y + 6, p->y + 26, C_INK);
+        gfx_rect(p->x + 1, p->y + 4, 10, 3, C_AMBER);
     }
+    /* the gramophone */
+    const WthSpot *gr = SP(S_MAS_GRAMOPHONE);
+    gfx_rect(gr->x + 4, gr->y + 20, gr->w - 8, 14, C_BROWN);
+    trap(gr->x + 12, gr->x + 16, gr->x, gr->x + gr->w, gr->y + 18, gr->y, C_AMBER);
 }
 
 static void room_balcony(void) {
     night_sky(100);
-    gfx_rect(8, 70, 304, 30, C_INK);
-    gfx_dither(8, 64, 304, 12, C_FOREST, 3);
+    gfx_rect(8, 60, 304, 40, C_INK);
+    /* the hedges below, a tangle of paths */
+    const WthSpot *v = SP(S_BAL_VIEW);
+    for (int k = 0; k < 7; k++) gfx_rect(v->x + 20 + k * 22, v->y + 40, 14, 20, C_FOREST);
+    for (int k = 0; k < 6; k++) gfx_hline(v->x + 20, v->x + 170, v->y + 42 + k * 3, C_JADE);
     gfx_pset(260, 66, (wth.frame / 90) % 3 ? C_AMBER : C_INK);
     gfx_rect(8, 100, 304, 34, C_SLATE);
     gfx_rect(8, 96, 304, 4, C_GREY);
     for (int x = 12; x < 312; x += 10) gfx_rect(x, 100, 3, 24, C_GREY);
-    const WthSpot *r = SP(S_BAL_ROPE);
-    if (!wth_flag(F_ROPE_CUT)) {
-        gfx_circ(r->x + 12, 98, 4, C_TAN);
-        gfx_line(r->x + 12, 98, r->x + 14, 133, C_TAN);
-        gfx_line(r->x + 13, 98, r->x + 15, 133, C_TAN);
-    } else gfx_line(r->x + 12, 98, r->x + 8, 106, C_TAN);
 }
 
 static void room_study(void) {
     interior(C_FOREST, C_JADE, C_BROWN, C_INK);
     floorboards(C_EARTH);
-    /* the desk with the computer */
     gfx_rect(110, 90, 110, 6, C_TAN);
     gfx_rect(112, 96, 6, 30, C_BROWN);
     gfx_rect(212, 96, 6, 30, C_BROWN);
-    const WthSpot *c = SP(S_STU_COMPUTER);
-    gfx_rect(c->x + 6, c->y, c->w - 12, 32, C_CREAM);
-    gfx_rect(c->x + 10, c->y + 4, c->w - 20, 22, C_INK);
-    if (wth_flag(F_RECIPE)) for (int k = 0; k < 4; k++) gfx_hline(c->x + 12, c->x + 20 + k * 5, c->y + 7 + k * 4, C_LIME);
-    else gfx_rect(c->x + 12, c->y + 7, 4 + ((wth.frame / 30) & 1) * 3, 2, C_LIME);
-    gfx_rect(c->x, c->y + 34, c->w, 6, C_CREAM);
+    /* the tape recorder */
+    const WthSpot *c = SP(S_STU_RECORDER);
+    gfx_rect(c->x + 2, c->y + 12, c->w - 4, 26, C_SLATE);
+    gfx_circb(c->x + 14, c->y + 22, 8, C_INK);
+    gfx_circb(c->x + c->w - 14, c->y + 22, 8, C_INK);
+    if (wth_flag(F_TAPE_FITTED)) gfx_circ(c->x + 14, c->y + 22, 6, C_BROWN);
+    if (wth_flag(F_REEL_FITTED)) gfx_circb(c->x + c->w - 14, c->y + 22, 6, C_LIGHT);
+    gfx_rect(c->x + 22, c->y + 32, 10, 3, wth_flag(F_POWER) ? C_RED : C_INK);
     diary_page(S_STU_DIARY);
-    /* the case and its pike */
-    const WthSpot *k = SP(S_STU_CASE);
-    gfx_rect(k->x, k->y + k->h - 4, k->w, 4, C_BROWN);
-    gfx_rect(k->x + 2, k->y, k->w - 4, k->h - 4, C_NIGHT);
-    gfx_rect(k->x + 6, k->y + 14, k->w - 14, 8, C_FOREST);
-    gfx_rect(k->x + k->w - 10, k->y + 12, 6, 12, C_FOREST);
-    gfx_pset(k->x + 9, k->y + 16, C_YELLOW);
-    if (!wth_flag(F_RING_TAKEN)) gfx_circb(k->x + 6, k->y + 20, 2, C_AMBER);
-    if (wth_flag(F_CASE_BROKEN)) {
-        gfx_line(k->x + 4, k->y + 2, k->x + 16, k->y + 12, C_WHITE);
-        gfx_line(k->x + 30, k->y + 4, k->x + 20, k->y + 20, C_WHITE);
-    } else frame(k->x + 2, k->y, k->w - 4, k->h - 4, C_ICE);
-    /* the books */
+    /* the bureau */
+    const WthSpot *k = SP(S_STU_BUREAU);
+    gfx_rect(k->x, k->y + 10, k->w, k->h - 10, C_BROWN);
+    trap(k->x + 4, k->x + k->w - 4, k->x, k->x + k->w, k->y, k->y + 10, C_EARTH);
+    for (int y = k->y + 2; y < k->y + 10; y += 2) gfx_hline(k->x + 6, k->x + k->w - 7, y, C_BROWN);
+    frame(k->x + 4, k->y + 16, k->w - 8, 10, C_EARTH);
+    gfx_pset(k->x + k->w / 2, k->y + 5, C_AMBER);
     const WthSpot *s = SP(S_STU_SHELF);
     gfx_rect(s->x, s->y, s->w, s->h, C_BROWN);
     for (int row = 0; row < 4; row++) {
@@ -1072,28 +1018,27 @@ static void room_bath(void) {
     tiles(73, 26, 247, 99, C_SKY);
     for (int y = 101; y < 134; y += 4)
         for (int x = 8; x < 312; x += 8) gfx_rect(x + ((y / 4) & 1) * 4, y, 4, 4, C_GREY);
-    bathtub(S_BAT_TUB, false);
-    /* the one in the bath */
-    const WthSpot *t = SP(S_BAT_TUB);
-    gfx_circ(t->x + 24, t->y + 2, 7, C_GREY);
-    gfx_circ(t->x + 24, t->y + 4, 3, C_INK);
-    for (int k = 0; k < 6; k++) gfx_line(t->x + 24, t->y + 2, t->x + 14 + k * 4, t->y - 14 - (k & 1) * 6, C_WHITE);
-    gfx_rect(t->x + 30, t->y + 4, 50, 5, C_GREY);
-    /* the mirror */
-    const WthSpot *m = SP(S_BAT_MIRROR);
-    gfx_rect(m->x, m->y, m->w, m->h, wth_flag(F_MIRROR_BROKEN) ? C_SLATE : C_ICE);
-    frame(m->x, m->y, m->w, m->h, C_AMBER);
-    if (wth_flag(F_MIRROR_BROKEN)) {
-        gfx_line(m->x + 2, m->y + 4, m->x + 20, m->y + 28, C_WHITE);
-        gfx_line(m->x + 26, m->y + 2, m->x + 10, m->y + 18, C_WHITE);
+    /* the bath and its shower curtain */
+    const WthSpot *t = SP(S_BAT_CURTAIN);
+    gfx_rect(t->x, t->y + 52, t->w, t->h - 56, C_WHITE);
+    gfx_hline(t->x, t->x + t->w - 1, t->y + 2, C_GREY);
+    for (int x = t->x + 4; x < t->x + t->w - 30; x += 6) gfx_rect(x, t->y + 3, 5, 52, (x / 6) & 1 ? C_CREAM : C_PINK);
+    gfx_rect(t->x + t->w - 26, t->y + 10, 3, 42, C_WHITE);
+    gfx_dither(t->x + t->w - 30, t->y + 8, 12, 46, C_WHITE, 9);
+    /* the airing cupboard */
+    const WthSpot *a = SP(S_BAT_AIRING);
+    if (wth_flag(F_HIDE_AIRING_GONE)) {
+        gfx_rect(a->x, a->y, a->w, a->h, C_INK);
+        for (int k = 0; k < 4; k++) gfx_rect(a->x + 2 + k * 7, a->y + a->h - 4, 6, 4, k & 1 ? C_WHITE : C_PINK);
     } else {
-        gfx_dither(m->x + 1, m->y + 1, m->w - 2, m->h - 2, C_WHITE, 3);
-        gfx_circ(m->x + 15, m->y + 15, 5, C_TAN);
+        gfx_rect(a->x, a->y, a->w, a->h, C_CREAM);
+        frame(a->x + 3, a->y + 3, a->w - 6, a->h - 6, C_TAN);
+        gfx_pset(a->x + a->w - 6, a->y + a->h / 2, C_AMBER);
     }
-    /* the shelf */
-    const WthSpot *s = SP(S_BAT_SHELF);
-    gfx_rect(s->x, s->y + s->h - 3, s->w, 3, C_WHITE);
-    for (int k = 0; k < 3; k++) gfx_rect(s->x + 2 + k * 8, s->y + 6, 5, s->h - 9, k == 1 && !wth_flag(F_CLOVE_TAKEN) ? C_BROWN : C_LIGHT);
+    const WthSpot *s = SP(S_BAT_CABINET);
+    gfx_rect(s->x, s->y, s->w, s->h, C_WHITE);
+    frame(s->x, s->y, s->w, s->h, C_GREY);
+    if (!wth_flag(F_RAZOR_TAKEN)) gfx_rect(s->x + 6, s->y + 10, 12, 2, C_LIGHT);
     toilet(S_BAT_TOILET);
     diary_page(S_BAT_DIARY);
 }
@@ -1102,31 +1047,16 @@ static void room_nursery(void) {
     interior(C_CREAM, C_TAN, C_BROWN, C_LIGHT);
     for (int x = 80; x < 248; x += 12) gfx_circb(x, 40, 3, C_PINK);
     floorboards(C_EARTH);
-    /* the scribble */
+    /* crayon bees and a man in a hat */
     const WthSpot *w = SP(S_NUR_WALL);
-    for (int k = 0; k < 30; k++) {
-        int x = w->x + 4 + (k * 23) % (w->w - 10), y = w->y + 4 + (k * 13) % (w->h - 10);
-        gfx_circb(x, y, 3 + k % 4, C_RED);
-    }
-    /* the music box on a little table */
-    const WthSpot *b = SP(S_NUR_BOX);
-    gfx_rect(b->x - 4, b->y + b->h, b->w + 8, 3, C_BROWN);
-    gfx_rect(b->x, b->y + b->h + 3, 3, 16, C_BROWN);
-    gfx_rect(b->x + b->w - 3, b->y + b->h + 3, 3, 16, C_BROWN);
-    gfx_rect(b->x + 2, b->y + 6, b->w - 4, b->h - 6, C_PINK);
-    if (wth_flag(F_BOXMUSIC)) gfx_rect(b->x + 2, b->y - 4, b->w - 4, 6, C_PINK);
-    gfx_rect(b->x + b->w / 2 - 1, b->y, 2, 6, C_WHITE);
-    /* the toy chest */
-    const WthSpot *c = SP(S_NUR_CHEST);
-    if (wth_flag(F_HIDE_CHEST_GONE)) {
-        gfx_rect(c->x, c->y + 12, c->w, c->h - 12, C_BROWN);
-        for (int k = 0; k < 5; k++) gfx_line(c->x + k * 12, c->y + 12, c->x + k * 12 + 8, c->y + c->h - 1, C_INK);
-        gfx_circ(c->x + c->w + 6, c->y + c->h - 4, 3, C_TAN);
-    } else {
-        gfx_rect(c->x, c->y + 6, c->w, c->h - 6, C_SKY);
-        gfx_rect(c->x - 2, c->y, c->w + 4, 7, C_BLUE);
-        gfx_rect(c->x + c->w / 2 - 3, c->y + 6, 6, 5, C_AMBER);
-    }
+    for (int k = 0; k < 4; k++) bee_shape(w->x + 8 + k * 14, w->y + 10 + (k & 1) * 8, C_YELLOW);
+    gfx_rect(w->x + w->w - 14, w->y + 6, 6, 26, C_INK);
+    gfx_rect(w->x + w->w - 18, w->y + 6, 14, 2, C_INK);
+    /* the cot */
+    const WthSpot *c = SP(S_NUR_COT);
+    for (int x = c->x; x < c->x + c->w; x += 5) gfx_vline(x, c->y, c->y + c->h - 10, C_WHITE);
+    gfx_hline(c->x, c->x + c->w - 1, c->y, C_WHITE);
+    gfx_rect(c->x, c->y + c->h - 12, c->w, 4, C_WHITE);
     /* the rocking horse */
     const WthSpot *h = SP(S_NUR_HORSE);
     int rock = (wth.frame / 20) % 4 == 1 ? 1 : (wth.frame / 20) % 4 == 3 ? -1 : 0;
@@ -1136,32 +1066,24 @@ static void room_nursery(void) {
     gfx_rect(h->x + 14, h->y + 30, 3, 12, C_WHITE);
     gfx_rect(h->x + 34, h->y + 30, 3, 12, C_WHITE);
     gfx_pset(h->x + 40, h->y + 9, C_INK);
+    frame(h->x + 20, h->y + 24, 10, 5, wth_flag(F_BEE_HORSE) ? C_INK : C_GREY);
     diary_page(S_NUR_DIARY);
 }
 
 static void room_children(void) {
     interior(C_SKY, C_BLUE, C_BROWN, C_ICE);
     floorboards(C_EARTH);
+    window_back(124, 30, 40, 30, C_NIGHT);
     diary_page(S_CHI_DIARY);
-    /* the dollhouse */
-    const WthSpot *d = SP(S_CHI_HOUSE);
-    gfx_rect(d->x, d->y + 14, d->w, d->h - 14, C_DUSK);
-    trap(d->x + d->w / 2, d->x + d->w / 2, d->x - 4, d->x + d->w + 4, d->y, d->y + 14, C_SLATE);
-    for (int r = 0; r < 2; r++)
-        for (int k = 0; k < 3; k++) gfx_rect(d->x + 4 + k * 23, d->y + 18 + r * 16, 18, 13, (r + k) & 1 ? C_WINE : C_FOREST);
-    gfx_rect(d->x + 50, d->y + 22, 4, 2, C_CREAM);
-    /* the doll */
-    if (!wth_flag(F_DOLL_TAKEN)) {
-        const WthSpot *o = SP(S_CHI_DOLL);
-        gfx_circ(o->x + 11, o->y + 6, 5, C_CREAM);
-        gfx_rect(o->x + 6, o->y + 11, 10, 9, C_RED);
-        gfx_rect(o->x + 3, o->y + 12, 3, 6, C_CREAM);
-        gfx_rect(o->x + 16, o->y + 12, 3, 6, C_CREAM);
-        gfx_pset(o->x + 9, o->y + 5, C_INK);
-        gfx_pset(o->x + 13, o->y + 5, C_INK);
-        for (int y = o->y + 1; y < o->y + 6; y++) gfx_pset(o->x + 7 + (y & 1), y, C_AMBER);
+    if (!wth_flag(F_POLE_TAKEN)) {
+        const WthSpot *p = SP(S_CHI_POLE);
+        gfx_vline(p->x + 5, p->y, p->y + p->h - 1, C_TAN);
+        gfx_line(p->x + 5, p->y, p->x + 8, p->y - 3, C_AMBER);
     }
-    /* the bunks */
+    const WthSpot *t = SP(S_CHI_TOYS);
+    gfx_rect(t->x, t->y + 6, t->w, t->h - 6, C_RED);
+    gfx_rect(t->x - 2, t->y, t->w + 4, 7, C_MAROON);
+    gfx_rect(t->x + 10, t->y - 6, 8, 6, C_ICE);
     const WthSpot *b = SP(S_CHI_BUNK);
     gfx_rect(b->x, b->y, 4, b->h, C_BROWN);
     gfx_rect(b->x + b->w - 4, b->y, 4, b->h, C_BROWN);
@@ -1177,30 +1099,23 @@ static void room_attic(void) {
     for (int k = 0; k < 8; k++) gfx_line(160, 6, 8 + k * 43, 70, C_BROWN);
     gfx_rect(8, 100, 304, 34, C_EARTH);
     floorboards(C_BROWN);
-    gfx_rect(146, 40, 28, 20, C_NIGHT);
-    gfx_pset(152, 46, C_LIGHT);
-    /* the trunk */
-    const WthSpot *t = SP(S_ATT_TRUNK);
-    gfx_rect(t->x, t->y + 6, t->w, t->h - 6, C_NAVY);
-    if (wth_flag(F_TRUNK_OPEN)) gfx_rect(t->x, t->y - 6, t->w, 8, C_NAVY);
-    else gfx_rect(t->x - 1, t->y, t->w + 2, 8, C_BLUE);
-    gfx_hline(t->x, t->x + t->w - 1, t->y + 16, C_AMBER);
-    gfx_rect(t->x + t->w / 2 - 3, t->y + 6, 6, 6, C_GREY);
-    /* the organ */
-    const WthSpot *o = SP(S_ATT_HARM);
-    gfx_rect(o->x, o->y, o->w, o->h, C_EARTH);
-    gfx_rect(o->x + 4, o->y + 18, o->w - 8, 6, C_WHITE);
-    for (int x = o->x + 6; x < o->x + o->w - 6; x += 4) gfx_rect(x, o->y + 18, 2, 3, C_INK);
-    for (int k = 0; k < 6; k++) gfx_rect(o->x + 6 + k * 9, o->y + 4, 6, 10, C_TAN);
-    if (!wth_flag(F_HARMONIUM_PLAYED)) gfx_dither(o->x, o->y, o->w, 16, C_LIGHT, 4);
-    /* the dummies */
-    const WthSpot *d = SP(S_ATT_DUMMIES);
-    for (int k = 0; k < 3; k++) {
-        int x = d->x + 8 + k * 20;
-        gfx_vline(x + 6, d->y + 40, d->y + d->h - 1, C_INK);
-        trap(x + 2, x + 10, x - 4, x + 16, d->y + 6 + (k & 1) * 4, d->y + 52, C_LIGHT);
-        gfx_circ(x + 6, d->y + 4 + (k & 1) * 4, 4, C_LIGHT);
-    }
+    /* the wasps' nest */
+    const WthSpot *n = SP(S_ATT_NEST);
+    gfx_vline(n->x + n->w / 2, n->y, n->y + 6, C_BROWN);
+    gfx_circ(n->x + n->w / 2, n->y + 24, 16, C_LIGHT);
+    for (int k = 0; k < 5; k++) gfx_hline(n->x + 10, n->x + n->w - 11, n->y + 14 + k * 5, C_GREY);
+    gfx_circ(n->x + n->w / 2, n->y + 36, 3, C_INK);
+    if (!wth_flag(F_BEE_NEST))
+        for (int k = 0; k < 6; k++)
+            gfx_pset(n->x + 6 + (k * 11 + (int)wth.frame / 3) % 36, n->y + 10 + (k * 7 + (int)wth.frame / 5) % 30, C_YELLOW);
+    /* the box of home movies */
+    const WthSpot *t = SP(S_ATT_BOXES);
+    gfx_rect(t->x, t->y + 6, t->w, t->h - 6, C_TAN);
+    gfx_rect(t->x - 1, t->y + 4, t->w + 2, 4, C_BROWN);
+    for (int k = 0; k < 4; k++) gfx_circb(t->x + 10 + k * 14, t->y + 2, 5, C_SLATE);
+    /* the rolled carpets */
+    const WthSpot *c = SP(S_ATT_CARPETS);
+    for (int k = 0; k < 4; k++) gfx_rect(c->x + 4 + k * 16, c->y + (k & 1) * 6, 12, c->h - (k & 1) * 6, k & 1 ? C_RED : C_PURPLE);
     diary_page(S_ATT_DIARY);
 }
 
@@ -1208,32 +1123,27 @@ static void room_cellar(void) {
     interior(C_DUSK, C_NIGHT, C_EARTH, C_INK);
     bricks(73, 27, 247, 99, C_NIGHT);
     for (int k = 0; k < 6; k++) gfx_dither(76 + k * 28, 26, 10, 20 + k * 3 % 7, C_WHITE, 3);
-    /* the iron door */
+    /* the flooded inner doorway */
     const WthSpot *d = SP(S_CEL_DOOR);
-    if (wth_flag(F_IRONDOOR_OPEN)) {
-        gfx_rect(d->x, d->y, d->w, d->h, C_INK);
-        gfx_dither(d->x, d->y, d->w, d->h, C_WHITE, 2);
-        gfx_rect(d->x, d->y, d->w, 4, C_GREY);
-    } else {
-        gfx_rect(d->x, d->y, d->w, d->h, C_SLATE);
-        for (int y = d->y + 4; y < d->y + d->h; y += 10) gfx_hline(d->x, d->x + d->w - 1, y, C_GREY);
-        for (int x = d->x + 4; x < d->x + d->w; x += 10) gfx_pset(x, d->y + 2, C_LIGHT);
-    }
-    /* the winch */
-    const WthSpot *m = SP(S_CEL_MECH);
-    gfx_rect(m->x, m->y, m->w, m->h, C_SLATE);
-    gfx_circb(m->x + m->w / 2, m->y + 14, 8, wth_flag(F_MECH_GEAR) ? C_AMBER : C_INK);
-    if (wth_flag(F_MECH_WIRE)) gfx_line(m->x + m->w / 2, m->y + 22, m->x + m->w + 12, d->y + 2, C_LIGHT);
-    if (!wth_flag(F_MECH_SCREW)) gfx_rect(m->x - 6, m->y + 26, 10, 12, C_GREY);
-    if (!wth_flag(F_MECH_OIL)) gfx_dither(m->x, m->y, m->w, m->h, C_ORANGE, 4);
-    /* the shelves */
+    gfx_rect(d->x, d->y, d->w, d->h, C_INK);
+    if (!wth_flag(F_CELLAR_DRAINED)) {
+        gfx_rect(d->x, d->y + 4, d->w, d->h - 4, C_NAVY);
+        for (int y = d->y + 8; y < d->y + d->h; y += 6) gfx_hline(d->x + 2, d->x + d->w - 3, y, C_NIGHT);
+    } else gfx_dither(d->x, d->y, d->w, d->h, C_WHITE, 2);
+    frame(d->x - 2, d->y - 2, d->w + 4, d->h + 2, C_SLATE);
+    /* the hand pump */
+    const WthSpot *m = SP(S_CEL_PUMP);
+    gfx_rect(m->x + 10, m->y + 6, 10, m->h - 6, C_SLATE);
+    gfx_rect(m->x + 6, m->y + m->h - 4, 18, 4, C_SLATE);
+    if (wth_flag(F_PUMP_HANDLE)) gfx_line(m->x + 15, m->y + 6, m->x + 2, m->y - 4, C_GREY);
+    if (wth_flag(F_PUMP_HOSE)) gfx_line(m->x + 20, m->y + 14, m->x + 40, m->y + 60, C_JADE);
+    if (!wth_flag(F_PUMP_GREASE)) gfx_dither(m->x + 10, m->y + 6, 10, m->h - 6, C_ORANGE, 5);
     const WthSpot *s = SP(S_CEL_SHELF);
     for (int r = 0; r < 3; r++) {
         gfx_rect(s->x, s->y + 16 + r * 20, s->w, 3, C_BROWN);
         for (int k = 0; k < 9; k++) gfx_rect(s->x + 2 + k * 7, s->y + 6 + r * 20, 5, 10, r == 2 ? C_WHITE : C_AMBER);
     }
     diary_page(S_CEL_DIARY);
-    /* the steps up */
     for (int k = 0; k < 3; k++) gfx_rect(110 + k * 6, 124 - k * 4, 100 - k * 12, 4, C_SLATE);
 }
 
@@ -1275,6 +1185,7 @@ void wth_draw_room(int room) {
     case R_POND: room_pond(); break;
     case R_SHED: room_shed(); break;
     case R_GARDEN: room_garden(); break;
+    case R_YARD: room_yard(); break;
     case R_DRIVE: room_drive(); break;
     case R_COURTYARD: room_courtyard(); break;
     case R_MAZE: room_maze(); break;
@@ -1291,12 +1202,10 @@ void wth_draw_room(int room) {
     case R_SPORE: room_spore(); break;
     default: gfx_rect(WTH_PX, WTH_PY, WTH_PW, WTH_PH, C_INK); break;
     }
-    /* things lying on the floor */
     for (int i = 0; i < WTH_FLOOR; i++) {
         int it = wth.s.floor[room][i];
         if (it) wth_draw_item(it, 70 + i * 60 + 2, 112);
     }
-    /* the Keeper where he fell */
     if (wth_flag(F_KEEPER_DEAD) && wth.s.body_room == room) wth_draw_keeper(130, 96, 1, 0, 3);
     gfx_noclip();
 }
@@ -1581,74 +1490,74 @@ void wth_draw_diary(void) {
 /* ------------------------------------------------------------------ */
 /* the item pictures: 12 x 12 each                                       */
 
+static void key_shape(int x, int y, int c) {
+    gfx_circb(x + 3, y + 4, 2, c);
+    gfx_hline(x + 5, x + 11, y + 4, c);
+    gfx_vline(x + 9, y + 4, y + 7, c);
+    gfx_vline(x + 11, y + 4, y + 6, c);
+}
+
+static void bee_icon(int x, int y, int c) {
+    gfx_rect(x + 3, y + 5, 7, 4, c);
+    gfx_vline(x + 5, y + 5, y + 8, C_INK);
+    gfx_vline(x + 8, y + 5, y + 8, C_INK);
+    gfx_rect(x + 3, y + 2, 3, 3, C_LIGHT);
+    gfx_rect(x + 7, y + 2, 3, 3, C_LIGHT);
+    gfx_pset(x + 2, y + 6, c);
+}
+
 void wth_draw_item(int it, int x, int y) {
     switch (it) {
-    case I_SHOEHORN: gfx_rect(x + 5, x * 0 + y + 1, 3, 10, C_LIGHT); gfx_rect(x + 4, y + 9, 5, 2, C_LIGHT); gfx_pset(x + 6, y + 2, C_INK); break;
-    case I_MUG: case I_BREW:
-        gfx_rect(x + 2, y + 3, 7, 8, C_LIGHT); gfx_circb(x + 9, y + 6, 2, C_LIGHT);
-        if (it == I_BREW) { gfx_rect(x + 3, y + 3, 5, 2, C_BROWN); gfx_pset(x + 4, y + 1, C_GREY); gfx_pset(x + 6, y, C_GREY); }
-        else if (wth.s.mug) gfx_rect(x + 3, y + 4, 5, 2, C_EARTH);
-        break;
-    case I_WIRE: gfx_line(x + 1, y + 10, x + 9, y + 2, C_LIGHT); gfx_line(x + 9, y + 2, x + 10, y + 4, C_LIGHT); break;
-    case I_NEWSPAPER: gfx_rect(x + 1, y + 2, 10, 8, C_CREAM); for (int k = 0; k < 3; k++) gfx_hline(x + 2, x + 9, y + 4 + k * 2, C_GREY); break;
     case I_DIARY: gfx_rect(x + 2, y + 1, 8, 10, C_CREAM); gfx_rect(x + 3, y + 2, 8, 10, C_CREAM); for (int k = 0; k < 4; k++) gfx_hline(x + 4, x + 9, y + 4 + k * 2, C_TAN); break;
-    case I_PENNIES: gfx_circ(x + 4, y + 7, 3, C_ORANGE); gfx_circ(x + 8, y + 5, 3, C_AMBER); break;
-    case I_MATCHES: gfx_rect(x + 1, y + 4, 10, 6, C_YELLOW); gfx_hline(x + 1, x + 10, y + 6, C_RED); break;
     case I_KNIFE: gfx_rect(x + 1, y + 8, 4, 2, C_BROWN); gfx_line(x + 5, y + 8, x + 11, y + 2, C_LIGHT); gfx_line(x + 5, y + 9, x + 11, y + 3, C_WHITE); break;
-    case I_SODA: gfx_rect(x + 3, y + 1, 7, 10, C_RED); gfx_rect(x + 3, y + 4, 7, 3, C_CREAM); break;
-    case I_TONGS: gfx_line(x + 2, y + 1, x + 5, y + 11, C_LIGHT); gfx_line(x + 9, y + 1, x + 6, y + 11, C_LIGHT); gfx_hline(x + 2, x + 9, y + 1, C_LIGHT); break;
-    case I_TINKEY: case I_COPPERKEY: case I_BRASSKEY: case I_PEWTERKEY: case I_SILVERKEY: case I_SHEDKEY: case I_KEEPERKEY: {
-        int c = it == I_TINKEY ? C_GREY : it == I_COPPERKEY ? C_ORANGE : it == I_BRASSKEY ? C_YELLOW
-              : it == I_PEWTERKEY ? C_SLATE : it == I_SILVERKEY ? C_WHITE : it == I_SHEDKEY ? C_TAN : C_INK;
-        if (it == I_KEEPERKEY) { gfx_rect(x, y, 12, 12, C_DUSK); }
-        gfx_circb(x + 3, y + 4, 2, c);
-        gfx_hline(x + 5, x + 11, y + 4, c);
-        gfx_vline(x + 9, y + 4, y + 7, c);
-        gfx_vline(x + 11, y + 4, y + 6, c);
-        if (it == I_SHEDKEY) gfx_rect(x + 1, y + 8, 5, 3, C_BROWN);
-        if (it == I_COPPERKEY) gfx_rect(x + 2, y + 3, 3, 3, c);
-        break;
-    }
-    case I_CUPHOOK: gfx_vline(x + 6, y + 1, y + 7, C_AMBER); gfx_circb(x + 4, y + 8, 2, C_AMBER); break;
-    case I_GEAR: gfx_circ(x + 6, y + 6, 4, C_AMBER); for (int k = 0; k < 4; k++) gfx_rect(x + 5 + (k == 0 ? -5 : k == 1 ? 5 : 0), y + 5 + (k == 2 ? -5 : k == 3 ? 5 : 0), 2, 2, C_AMBER); gfx_rect(x + 5, y + 5, 2, 2, C_INK); break;
-    case I_TWINE: gfx_circ(x + 6, y + 6, 4, C_BROWN); gfx_line(x + 3, y + 4, x + 9, y + 8, C_EARTH); gfx_line(x + 10, y + 6, x + 11, y + 11, C_BROWN); break;
-    case I_OIL: gfx_rect(x + 2, y + 5, 6, 6, C_GREY); gfx_line(x + 7, y + 5, x + 11, y + 1, C_GREY); break;
-    case I_TORCH: gfx_rect(x + 1, y + 5, 7, 3, C_RED); gfx_rect(x + 8, y + 3, 3, 7, C_LIGHT); if (wth_flag(F_TORCH_LOADED)) gfx_pset(x + 11, y + 6, C_YELLOW); break;
-    case I_PARAFFIN: gfx_rect(x + 2, y + 3, 8, 8, C_RED); gfx_rect(x + 7, y + 1, 2, 2, C_GREY); break;
-    case I_BAR: gfx_line(x + 1, y + 11, x + 10, y + 2, C_SLATE); gfx_line(x + 2, y + 11, x + 11, y + 2, C_GREY); gfx_line(x + 10, y + 2, x + 8, y, C_GREY); break;
-    case I_BATTERIES: gfx_rect(x + 2, y + 2, 3, 9, C_ORANGE); gfx_rect(x + 7, y + 2, 3, 9, C_ORANGE); gfx_pset(x + 3, y + 1, C_LIGHT); gfx_pset(x + 8, y + 1, C_LIGHT); break;
-    case I_CANE: gfx_line(x + 1, y + 11, x + 10, y + 1, C_TAN); break;
-    case I_LONGHOOK: gfx_line(x + 1, y + 11, x + 9, y + 3, C_TAN); gfx_circb(x + 9, y + 2, 1, C_AMBER); gfx_rect(x + 6, y + 5, 2, 2, C_BROWN); break;
-    case I_HYMN: gfx_rect(x + 2, y + 1, 8, 10, C_WHITE); for (int k = 0; k < 4; k++) gfx_hline(x + 2, x + 9, y + 3 + k * 2, C_GREY); gfx_pset(x + 5, y + 5, C_INK); gfx_pset(x + 7, y + 7, C_INK); break;
-    case I_SPANNER: gfx_line(x + 2, y + 10, x + 9, y + 3, C_LIGHT); gfx_circb(x + 9, y + 2, 2, C_LIGHT); break;
-    case I_SCREWDRIVER: gfx_rect(x + 1, y + 8, 4, 3, C_RED); gfx_line(x + 5, y + 8, x + 11, y + 2, C_LIGHT); break;
-    case I_SHEARS: gfx_line(x + 2, y + 10, x + 10, y + 1, C_LIGHT); gfx_line(x + 10, y + 10, x + 2, y + 1, C_LIGHT); gfx_rect(x + 1, y + 9, 3, 3, C_FOREST); gfx_rect(x + 9, y + 9, 3, 3, C_FOREST); break;
-    case I_SPADE: gfx_vline(x + 6, y, y + 7, C_TAN); gfx_rect(x + 3, y + 7, 7, 5, C_GREY); break;
-    case I_MOTOR: gfx_rect(x + 1, y + 3, 8, 7, C_RED); gfx_rect(x + 9, y + 5, 3, 2, C_LIGHT); gfx_hline(x + 1, x + 8, y + 6, C_MAROON); break;
-    case I_CARKEYS: gfx_circb(x + 3, y + 3, 2, C_LIGHT); gfx_line(x + 5, y + 5, x + 10, y + 10, C_LIGHT); gfx_rect(x + 1, y + 7, 4, 4, C_BROWN); break;
-    case I_PIG: gfx_circ(x + 6, y + 6, 4, C_PINK); gfx_rect(x + 9, y + 5, 2, 2, C_PINK); gfx_pset(x + 8, y + 4, C_INK); break;
-    case I_SAW: gfx_rect(x + 1, y + 6, 3, 4, C_BROWN); gfx_line(x + 4, y + 7, x + 11, y + 4, C_LIGHT); gfx_line(x + 4, y + 9, x + 11, y + 6, C_LIGHT); break;
-    case I_GARNET: case I_JADE: case I_AMBER: case I_OPAL: {
-        int c = it == I_GARNET ? C_RED : it == I_JADE ? C_JADE : it == I_AMBER ? C_AMBER : C_ICE;
-        gfx_circ(x + 6, y + 6, 4, c);
-        gfx_pset(x + 4, y + 4, C_WHITE);
-        if (it == I_AMBER) gfx_pset(x + 7, y + 7, C_INK);
-        if (it == I_OPAL) { gfx_pset(x + 7, y + 6, C_PINK); gfx_pset(x + 5, y + 8, C_LIME); }
-        break;
-    }
-    case I_RING: gfx_circb(x + 6, y + 7, 3, C_YELLOW); gfx_rect(x + 4, y + 2, 5, 3, C_YELLOW); break;
-    case I_SNUFF: gfx_rect(x + 2, y + 4, 8, 6, C_INK); gfx_rect(x + 2, y + 3, 8, 2, C_GREY); break;
-    case I_CLOVE: gfx_rect(x + 4, y + 3, 5, 8, C_BROWN); gfx_rect(x + 5, y + 1, 3, 2, C_INK); break;
-    case I_BORAX: gfx_rect(x + 2, y + 2, 8, 9, C_WHITE); gfx_rect(x + 2, y + 5, 8, 3, C_BLUE); break;
-    case I_LENS: gfx_circb(x + 5, y + 5, 3, C_LIGHT); gfx_pset(x + 4, y + 4, C_ICE); gfx_line(x + 7, y + 7, x + 10, y + 10, C_TAN); break;
-    case I_COMBO: gfx_rect(x + 1, y + 3, 10, 7, C_WHITE); gfx_hline(x + 2, x + 9, y + 5, C_INK); gfx_hline(x + 2, x + 6, y + 7, C_INK); break;
-    case I_DOLL: gfx_circ(x + 6, y + 3, 2, C_CREAM); gfx_rect(x + 4, y + 5, 5, 6, C_RED); gfx_rect(x + 2, y + 6, 2, 3, C_CREAM); gfx_rect(x + 9, y + 6, 2, 3, C_CREAM); break;
-    case I_PASSWORD: gfx_rect(x + 3, y + 3, 6, 6, C_CREAM); gfx_pset(x + 5, y + 5, C_INK); gfx_pset(x + 6, y + 6, C_INK); break;
-    case I_GLASSES: gfx_circb(x + 3, y + 6, 2, C_INK); gfx_circb(x + 8, y + 6, 2, C_INK); gfx_pset(x + 3, y + 6, C_RED); gfx_pset(x + 8, y + 6, C_RED); gfx_hline(x + 5, x + 6, y + 6, C_INK); gfx_circ(x + 3, y + 6, 1, C_RED); gfx_circ(x + 8, y + 6, 1, C_RED); break;
-    case I_DIRECTIONS: gfx_rect(x + 1, y + 2, 10, 8, C_CREAM); gfx_line(x + 3, y + 8, x + 5, y + 4, C_RED); gfx_line(x + 5, y + 4, x + 9, y + 6, C_RED); break;
+    case I_POKER: gfx_line(x + 1, y + 11, x + 10, y + 2, C_SLATE); gfx_line(x + 10, y + 2, x + 11, y + 4, C_SLATE); gfx_rect(x, y + 10, 3, 2, C_AMBER); break;
+    case I_STONE: gfx_circ(x + 6, y + 7, 4, C_GREY); gfx_pset(x + 4, y + 5, C_LIGHT); break;
+    case I_NAIL: gfx_vline(x + 6, y + 2, y + 11, C_LIGHT); gfx_hline(x + 4, x + 8, y + 2, C_LIGHT); break;
+    case I_PHOTO: gfx_rect(x + 1, y + 2, 10, 8, C_WHITE); gfx_rect(x + 2, y + 3, 8, 6, C_TAN); gfx_pset(x + 4, y + 5, C_INK); gfx_pset(x + 7, y + 5, C_INK); break;
+    case I_PUMPHANDLE: gfx_line(x + 1, y + 10, x + 9, y + 2, C_SLATE); gfx_rect(x + 9, y + 1, 3, 3, C_SLATE); break;
+    case I_SALT: gfx_circ(x + 6, y + 8, 3, C_WHITE); gfx_pset(x + 3, y + 5, C_WHITE); gfx_pset(x + 9, y + 6, C_WHITE); gfx_pset(x + 7, y + 4, C_LIGHT); break;
+    case I_TAPKEY: gfx_rect(x + 2, y + 2, 4, 4, C_SLATE); gfx_rect(x + 3, y + 3, 2, 2, C_INK); gfx_line(x + 5, y + 5, x + 10, y + 10, C_SLATE); break;
+    case I_BUCKET: case I_WATER: trap(x + 1, x + 10, x + 3, x + 8, y + 3, y + 11, C_LIGHT); gfx_circb(x + 6, y + 3, 4, C_GREY); if (it == I_WATER) gfx_hline(x + 2, x + 9, y + 4, C_SKY); break;
+    case I_FUSE: case I_GOODFUSE: gfx_rect(x + 2, y + 4, 8, 5, C_WHITE); gfx_rect(x + 1, y + 5, 1, 3, C_LIGHT); gfx_rect(x + 10, y + 5, 1, 3, C_LIGHT); gfx_hline(x + 3, x + 8, y + 3, it == I_FUSE ? C_INK : C_AMBER); break;
+    case I_FUSEWIRE: gfx_rect(x + 2, y + 2, 8, 9, C_CREAM); for (int k = 0; k < 3; k++) gfx_hline(x + 3, x + 8, y + 4 + k * 2, C_AMBER); break;
+    case I_HONEY: gfx_rect(x + 3, y + 3, 7, 8, C_CREAM); gfx_rect(x + 3, y + 2, 7, 2, C_AMBER); break;
+    case I_MATCHES: gfx_rect(x + 1, y + 4, 10, 6, C_YELLOW); gfx_hline(x + 1, x + 10, y + 6, C_RED); break;
     case I_CROSSBOW: gfx_line(x + 1, y + 6, x + 11, y + 6, C_BROWN); gfx_line(x + 8, y + 1, x + 10, y + 11, C_EARTH); if (wth_flag(F_BOW_LOADED)) gfx_line(x + 2, y + 5, x + 11, y + 5, C_LIGHT); break;
-    case I_STEELWIRE: gfx_circb(x + 6, y + 6, 4, C_LIGHT); gfx_circb(x + 6, y + 6, 2, C_LIGHT); break;
+    case I_TAPE: gfx_circ(x + 6, y + 6, 4, C_BROWN); gfx_circ(x + 6, y + 6, 1, C_LIGHT); break;
+    case I_SCREWDRIVER: gfx_rect(x + 1, y + 8, 4, 3, C_RED); gfx_line(x + 5, y + 8, x + 11, y + 2, C_LIGHT); break;
+    case I_LAMP: gfx_rect(x + 3, y + 3, 6, 6, C_ICE); frame(x + 3, y + 3, 6, 6, C_RED); gfx_rect(x + 2, y + 9, 8, 3, C_RED); gfx_circb(x + 6, y + 1, 1, C_SLATE); if (wth_flag(F_LAMP_LIT)) gfx_rect(x + 5, y + 5, 2, 3, C_YELLOW); break;
+    case I_SULPHATE: gfx_rect(x + 3, y + 2, 6, 9, C_CREAM); gfx_dither(x + 3, y + 5, 6, 5, C_BLUE, 12); break;
+    case I_TROWEL: gfx_rect(x + 6, y + 1, 4, 6, C_LIGHT); gfx_line(x + 7, y + 7, x + 3, y + 11, C_BROWN); break;
+    case I_PARAFFIN: gfx_rect(x + 2, y + 3, 8, 8, C_RED); gfx_rect(x + 7, y + 1, 2, 2, C_GREY); break;
+    case I_GREASE: gfx_rect(x + 1, y + 5, 10, 4, C_INK); gfx_hline(x + 1, x + 10, y + 5, C_GREY); break;
+    case I_LIME: gfx_rect(x + 2, y + 4, 8, 6, C_WHITE); gfx_dither(x + 2, y + 4, 8, 6, C_LIGHT, 6); break;
+    case I_CUTTERS: gfx_line(x + 2, y + 10, x + 7, y + 4, C_RED); gfx_line(x + 6, y + 11, x + 8, y + 4, C_RED); gfx_rect(x + 7, y + 1, 3, 3, C_LIGHT); break;
+    case I_PLIERS: gfx_line(x + 3, y + 11, x + 6, y + 4, C_SLATE); gfx_line(x + 9, y + 11, x + 6, y + 4, C_SLATE); gfx_vline(x + 6, y + 1, y + 4, C_LIGHT); break;
+    case I_SPRAYER: case I_MIXTURE: gfx_rect(x + 3, y + 3, 6, 8, it == I_MIXTURE ? C_BLUE : C_JADE); gfx_line(x + 8, y + 3, x + 11, y + 1, C_SLATE); if (wth.s.mix && it == I_SPRAYER) gfx_pset(x + 5, y + 6, C_BLUE); break;
+    case I_GLOVES: gfx_rect(x + 2, y + 4, 4, 7, C_BROWN); gfx_rect(x + 7, y + 3, 4, 7, C_BROWN); gfx_pset(x + 1, y + 6, C_BROWN); break;
+    case I_SMOKER: gfx_rect(x + 2, y + 3, 5, 8, C_LIGHT); gfx_rect(x + 7, y + 5, 4, 5, C_BROWN); if (wth_flag(F_SMOKER_LIT)) gfx_pset(x + 4, y + 1, C_GREY); break;
+    case I_CARKEY: key_shape(x, y, C_LIGHT); gfx_rect(x + 1, y + 7, 4, 4, C_AMBER); break;
+    case I_HOSE: gfx_circb(x + 6, y + 6, 4, C_JADE); gfx_circb(x + 6, y + 6, 2, C_JADE); break;
+    case I_TIN: gfx_rect(x + 1, y + 4, 10, 5, C_ORANGE); gfx_hline(x + 1, x + 10, y + 5, C_BROWN); break;
+    case I_ROTOR: gfx_circ(x + 6, y + 7, 3, C_INK); gfx_rect(x + 5, y + 2, 2, 6, C_SLATE); gfx_rect(x + 5, y + 2, 5, 2, C_LIGHT); break;
+    case I_BUREAUKEY: key_shape(x, y, C_YELLOW); break;
+    case I_CONES: gfx_circ(x + 4, y + 7, 3, C_BROWN); gfx_circ(x + 8, y + 5, 3, C_EARTH); gfx_pset(x + 4, y + 6, C_TAN); break;
+    case I_TACKLE: gfx_rect(x + 1, y + 4, 10, 6, C_JADE); gfx_rect(x + 5, y + 3, 2, 2, C_SLATE); break;
+    case I_LINE: gfx_circ(x + 6, y + 6, 4, C_WHITE); gfx_circ(x + 6, y + 6, 1, C_INK); break;
+    case I_MAGNET: case I_MAGNETLINE: gfx_circ(x + 6, y + 7, 4, C_SLATE); gfx_circ(x + 6, y + 7, 1, C_INK); if (it == I_MAGNETLINE) gfx_vline(x + 6, y, y + 3, C_WHITE); break;
+    case I_BEE_BRASS: bee_icon(x, y, C_YELLOW); break;
+    case I_BEE_COPPER: bee_icon(x, y, C_ORANGE); break;
+    case I_BEE_SILVER: bee_icon(x, y, C_WHITE); break;
+    case I_BEE_IRON: bee_icon(x, y, C_SLATE); break;
+    case I_BELT: gfx_circb(x + 6, y + 6, 4, C_BROWN); gfx_rect(x + 8, y + 5, 3, 3, C_AMBER); break;
+    case I_RAZOR: gfx_rect(x + 1, y + 6, 6, 2, C_CREAM); gfx_line(x + 6, y + 6, x + 11, y + 3, C_LIGHT); break;
+    case I_WASHER: gfx_circ(x + 6, y + 6, 4, C_BROWN); gfx_circ(x + 6, y + 6, 1, C_NAVY); break;
+    case I_POLE: gfx_line(x + 1, y + 11, x + 10, y + 2, C_TAN); gfx_pset(x + 11, y + 1, C_AMBER); break;
+    case I_BINOCULARS: gfx_rect(x + 1, y + 4, 4, 7, C_INK); gfx_rect(x + 7, y + 4, 4, 7, C_INK); gfx_hline(x + 5, x + 6, y + 6, C_INK); gfx_pset(x + 2, y + 5, C_SKY); break;
+    case I_SKETCH: gfx_rect(x + 1, y + 2, 10, 8, C_CREAM); gfx_line(x + 3, y + 8, x + 5, y + 4, C_INK); gfx_line(x + 5, y + 4, x + 9, y + 6, C_INK); break;
     case I_BOLT: gfx_line(x + 1, y + 10, x + 10, y + 1, C_TAN); gfx_rect(x + 9, y + 1, 2, 2, C_GREY); gfx_rect(x + 1, y + 9, 2, 2, C_RED); break;
+    case I_BLACKKEY: gfx_rect(x, y, 12, 12, C_DUSK); key_shape(x, y, C_INK); break;
+    case I_REEL: gfx_circb(x + 6, y + 6, 4, C_LIGHT); gfx_circ(x + 6, y + 6, 1, C_LIGHT); break;
     default: gfx_rect(x + 3, y + 3, 6, 6, C_PINK); break;
     }
 }
@@ -1674,6 +1583,7 @@ static void house_silhouette(int t, int lit_room) {
     trap(160, 160, 60, 260, 40, 72, C_INK);
     gfx_rect(200, 34, 12, 30, C_INK);
     for (int k = 0; k < 5; k++) gfx_rect(86 + k * 32, 84, 12, 16, k == lit_room && (t / 50) % 7 ? C_AMBER : C_NIGHT);
+    if (lit_room < 0) return;
     for (int k = 0; k < 5; k++) gfx_rect(86 + k * 32, 110, 12, 16, C_NIGHT);
     gfx_rect(0, 140, 320, 40, C_INK);
 }
@@ -1694,12 +1604,12 @@ static const char *const TXT_END_CAR[3] = {
     "YOU DON'T STOP UNTIL THE SKY GOES GREY. YOU GOT OUT. WHATEVER IS STILL IN THAT HOUSE CAN STAY THERE.",
 };
 static const char *const TXT_END_CELLAR[3] = {
-    "YOU THROW THE BREW INTO THE FACE. IT HISSES LIKE FAT IN A PAN. THE WHITE THREADS CURL, AND BROWN, AND GO GREY, "
-    "AND THE FACE OPENS ITS MOUTH WIDE WITHOUT A SOUND.",
-    "ALL THROUGH THE HOUSE ABOVE YOU SOMETHING LETS GO. THE HONEY STOPS WEEPING OUT OF THE WALLS. FAR UNDER THE FEN "
-    "A VERY BIG THING DIES, SLOWLY, AND THE WELL GOES QUIET.",
-    "YOU CLIMB OUT INTO A GREY DAWN AND WALK DOWN THE LANE. YOUR OWN CAR IS STILL NOSE DOWN IN THE DYKE. IT STARTS "
-    "FIRST TIME. BEHIND YOU, WITHERLEA IS ONLY A HOUSE.",
+    "YOU SPRAY THE MIXTURE INTO THE FACE. IT HISSES LIKE FAT IN A PAN. THE WHITE THREADS CURL, AND GO BLUE, AND "
+    "GREY, AND THE FACE OPENS ITS MOUTH WIDE WITHOUT A SOUND.",
+    "ALL THROUGH THE HOUSE THE THREADS DIE AND DRY TO TINDER. A SPARK FROM THE CELLAR'S OLD BOILER, AND THE FIRE "
+    "RUNS UP THEM, ROOM BY ROOM, FASTER THAN YOU CAN CLIMB. YOU RUN.",
+    "FROM THE END OF THE LANE YOU WATCH WITHERLEA BURN, EVERY WINDOW LIT, UNTIL THE ROOF GOES IN. YOUR OWN CAR IS "
+    "STILL NOSE DOWN IN THE DYKE. IT STARTS FIRST TIME.",
 };
 
 static void draw_road(int t) {
@@ -1713,10 +1623,26 @@ static void draw_road(int t) {
     gfx_dither(0, 60, 320, 20, C_NIGHT, 6);
 }
 
+/* the house on fire, seen from the lane */
+static void draw_fire(int t) {
+    gfx_rect(0, 0, 320, 120, C_NIGHT);
+    gfx_dither(0, 40, 320, 80, C_MAROON, 6 + (t / 6) % 3);
+    house_silhouette(t, -1);
+    for (int k = 0; k < 5; k++) {
+        gfx_rect(86 + k * 32, 84, 12, 16, (t / 4 + k) % 3 ? C_ORANGE : C_YELLOW);
+        gfx_rect(86 + k * 32, 110, 12, 16, (t / 5 + k) % 3 ? C_YELLOW : C_RED);
+    }
+    for (int k = 0; k < 12; k++) {
+        int fx = 70 + k * 15, fh = 10 + ((t / 3 + k * 7) % 14);
+        trap(fx + 3, fx + 4, fx - 2, fx + 9, 64 - fh, 72, k & 1 ? C_ORANGE : C_RED);
+        trap(fx + 3, fx + 4, fx + 1, fx + 6, 70 - fh / 2, 72, C_YELLOW);
+    }
+}
+
 static void draw_end_picture(int page) {
     int t = (int)wth.frame;
-    if (wth.ending == END_CAR || page == 2) {
-        if (page == 0 && wth.ending == END_CAR) {
+    if (wth.ending == END_CAR) {
+        if (page == 0) {
             gfx_cls(C_INK);
             room_drive();
             gfx_rect(226, 84, 74, 20, C_FOREST);
@@ -1728,10 +1654,11 @@ static void draw_end_picture(int page) {
         }
         return;
     }
-    gfx_cls(C_INK);
-    room_spore();
-    if (page == 1) gfx_dither(WTH_PX, WTH_PY, WTH_PW, WTH_PH, C_SLATE, 10);
-    else gfx_dither(WTH_PX, WTH_PY, WTH_PW, WTH_PH, C_BROWN, imin(12, wth.scene_t / 8));
+    if (page == 0) {
+        gfx_cls(C_INK);
+        room_spore();
+        gfx_dither(WTH_PX, WTH_PY, WTH_PW, WTH_PH, C_BLUE, imin(12, wth.scene_t / 8));
+    } else draw_fire(t);
 }
 
 static const char *const CREDITS[] = {

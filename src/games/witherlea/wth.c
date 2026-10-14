@@ -219,6 +219,8 @@ static void click_exit(int s) {
     wth_start_exit(d);
 }
 
+#define TOO_SCARED "YOUR HANDS ARE SHAKING TOO HARD. THERE'S NO TIME FOR THAT: GET OUT, OR HIDE."
+
 static void press_a(void) {
     int x = point_x(), y = point_y();
     if (wth_keeper_visible() && wth.k.state != E_CAUGHT) {
@@ -230,6 +232,12 @@ static void press_a(void) {
         }
     }
     int f = floor_at(x, y);
+    int s0 = wth_spot_at(x, y);
+    bool busy = f >= 0 || (s0 >= 0 && WTH_SPOT[s0].kind == HS_THING);
+    if (busy && wth_scared()) {
+        wth_say(TOO_SCARED);
+        return;
+    }
     if (f >= 0) {
         int it = wth.s.floor[wth.s.room][f];
         wth.s.floor[wth.s.room][f] = 0;
@@ -332,8 +340,11 @@ static void update_bag(void) {
         } else if (it) {
             int a = wth.held;
             wth.held = 0;
-            wth_combine(a, it);
-            wth_save_now();
+            if (wth_scared()) wth_say(TOO_SCARED);
+            else {
+                wth_combine(a, it);
+                wth_save_now();
+            }
         }
     }
 }
@@ -493,16 +504,17 @@ static void draw(void) {
 /* test hooks                                                           */
 
 static const char *const ITEM_ID[I_COUNT] = {
-    "none", "shoehorn", "mug", "wire", "newspaper", "diary", "pennies", "matches", "knife", "soda", "tongs",
-    "tinkey", "cuphook", "copperkey", "gear", "twine", "oil", "torch", "paraffin", "bar", "batteries", "cane",
-    "longhook", "hymn", "shedkey", "spanner", "screwdriver", "shears", "spade", "pewterkey", "motor", "carkeys",
-    "pig", "brasskey", "saw", "garnet", "ring", "jade", "snuff", "clove", "borax", "lens", "combo", "opal", "doll",
-    "silverkey", "password", "glasses", "directions", "crossbow", "steelwire", "amber", "bolt", "keeperkey", "brew",
+    "none", "diary", "knife", "poker", "stone", "nail", "photo", "pumphandle", "salt", "tapkey", "bucket", "water",
+    "fuse", "fusewire", "goodfuse", "honey", "matches", "crossbow", "tape", "screwdriver", "lamp", "sulphate",
+    "trowel", "paraffin", "grease", "lime", "cutters", "pliers", "sprayer", "gloves", "smoker", "carkey", "hose",
+    "tin", "rotor", "bureaukey", "cones", "tackle", "line", "magnet", "magnetline", "brassbee", "copperbee",
+    "silverbee", "ironbee", "belt", "razor", "washer", "pole", "binoculars", "sketch", "bolt", "blackkey", "reel",
+    "mixture",
 };
 static const char *const ROOM_ID[R_COUNT] = {
     "cell", "passage", "sickroom", "hall", "parlour", "dining", "kitchen", "scullery", "smoking", "washroom",
-    "guest", "glasshouse", "garage", "pond", "shed", "garden", "drive", "courtyard", "maze", "heart", "landing",
-    "master", "balcony", "study", "bath", "nursery", "children", "attic", "cellar", "spore",
+    "guest", "glasshouse", "garage", "pond", "shed", "garden", "yard", "drive", "courtyard", "maze", "heart",
+    "landing", "master", "balcony", "study", "bath", "nursery", "children", "attic", "cellar", "spore",
 };
 #define X(id, ...) #id,
 static const char *const SPOT_ID[S_COUNT] = {WTH_SPOT_LIST(X)};
@@ -582,7 +594,10 @@ static int wth_query(const char *key, int *out) {
     if (!strcmp(key, "talking")) { *out = wth_talking(); return 1; }
     if (!strcmp(key, "trans")) { *out = wth.trans_t; return 1; }
     if (!strcmp(key, "maze")) { *out = wth.s.maze; return 1; }
-    if (!strcmp(key, "mug")) { *out = wth.s.mug; return 1; }
+    if (!strcmp(key, "mix")) { *out = wth.s.mix; return 1; }
+    if (!strcmp(key, "hive")) { *out = wth_hive_count(); return 1; }
+    if (!strcmp(key, "stun_knife")) { *out = wth.s.stun_knife; return 1; }
+    if (!strcmp(key, "stun_poker")) { *out = wth.s.stun_poker; return 1; }
     if (!strcmp(key, "noises")) { *out = wth.noise_count; return 1; }
     if (!strcmp(key, "title_sel")) { *out = wth.title_sel; return 1; }
     if (!strcmp(key, "spot_under")) { *out = wth_spot_at((int)(wth.cx >> 8) + wth.shake_x, (int)(wth.cy >> 8) + wth.shake_y); return 1; }
@@ -640,7 +655,6 @@ static int wth_query(const char *key, int *out) {
         *out = n < WTH_BAG ? wth.s.bag[n] : -1;
         return 1;
     }
-    if (!strncmp(key, "hare", 4) && key[4] >= '0' && key[4] <= '3' && !key[5]) { *out = wth.s.hare[key[4] - '0']; return 1; }
     if (!strncmp(key, "floor", 5) && key[5] >= '0' && key[5] <= '2' && !key[6]) {
         *out = wth.s.floor[wth.s.room][key[5] - '0'];
         return 1;
@@ -719,7 +733,7 @@ static int wth_cheat(const char *cmd) {
     if (sscanf(cmd, "scene %d", &a) == 1) { wth_goto(a); return 1; }
     if (sscanf(cmd, "maze %d", &a) == 1) { wth.s.maze = (uint8_t)a; return 1; }
     if (sscanf(cmd, "pages %d", &a) == 1) { wth.s.pages = (uint32_t)a; if (a) wth_give(I_DIARY); return 1; }
-    if (sscanf(cmd, "mug %d", &a) == 1) { wth.s.mug = (uint8_t)a; return 1; }
+    if (sscanf(cmd, "mix %d", &a) == 1) { wth.s.mix = (uint8_t)a; return 1; }
     if (sscanf(cmd, "minizone %d %d", &a, &b) == 2) { wth.k.mini.zone = (int16_t)a; wth.k.mini.zw = (int16_t)b; return 1; }
     if (sscanf(cmd, "ending %d", &a) == 1) { wth_end_game(a); return 1; }
     if (sscanf(cmd, "seed %d", &a) == 1) { rng_seed(&wth.rng, (uint64_t)a); return 1; }
