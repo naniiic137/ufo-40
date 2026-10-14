@@ -1,8 +1,8 @@
 # SHOWSTOPPER: five stages in the original's order and shape: I a
-# scrolling snow village (159 rows) with a mini-boss and a boss; II one
+# scrolling snow village (200 rows) with a mini-boss and a boss; II one
 # screen on a train's roof, fourteen waves and no boss; III a longer town
-# in two halves (166 rows), a chase up a winding road and a boss; IV the
-# longest, a palace in two halves (176 rows) with two mini-bosses and the
+# in two halves (242 rows), a chase up a winding road and a boss; IV the
+# longest, a palace in two halves (280 rows) with two mini-bosses and the
 # magician; V a lift through twelve waves, then the last form (and on a
 # clean run, the one behind it). Nine star passes: three each in I, III
 # and IV. Every row is 20 tiles; every sprite well formed.
@@ -11,10 +11,10 @@ wait 5
 expect n_stages == 5
 expect map_bad == 0
 expect art_bad == 0
-expect rows_1 == 159
+expect rows_1 == 200
 expect rows_2 == 11
-expect rows_3 == 166
-expect rows_4 == 176
+expect rows_3 == 242
+expect rows_4 == 280
 expect rows_5 == 11
 expect passdef_1 == 3
 expect passdef_2 == 0
@@ -48,7 +48,7 @@ expect spawns_4_25 >= 6
 # the stages' bosses, in order, as she reaches them
 cheat run
 cheat god
-cheat cam 900
+cheat cam 1300
 wait 2
 expect boss_kind == 1
 cheat killboss
@@ -58,16 +58,16 @@ wait 2
 expect boss_kind == 2
 cheat stage 4
 cheat god
-cheat cam 1150
+cheat cam 2020
 wait 2
 expect boss_kind == 5
 expect half == 0
 cheat killboss
 wait 100
-cheat cam 1000
+cheat cam 1900
 wait 2
 expect half == 1
-cheat cam 590
+cheat cam 1040
 wait 2
 expect boss_kind == 6
 cheat killboss

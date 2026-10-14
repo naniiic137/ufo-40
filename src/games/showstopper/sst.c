@@ -139,7 +139,6 @@ static void update_play(void) {
     if (sst_g.pl.state == PS_GONE && sst_g.pl.st++ > 50) {
         set_state(SS_CONTINUE);
         sst_g.cont_sel = 0;
-        sst_g.cont_t = 10 * 60;
         game_set_pausable(false);
         music_play(SST_MUS_OVER);
         return;
@@ -158,6 +157,11 @@ static void update_play(void) {
 
 static void update_hop(void) {
     uint32_t held = input_held() & 0xFF;
+    /* the free ride never runs out of tries: B leaves it */
+    if (sst_g.hop.practice && fresh(BTN_B) && sst_g.hop.state != HB_DONE) {
+        sst_g.hop.state = HB_DONE;
+        sst_g.hop.st = 30;
+    }
     int won_before = sst_g.hop.lives_won;
     sst_hop_step(held);
     if (sst_g.hop.lives_won > won_before && !sst_g.hop.practice) {
@@ -259,8 +263,8 @@ static void sst_update(void) {
         sst_g.frame_t++;
         if (sst_g.state_t < 30) break;
         if (fresh(BTN_LEFT) || fresh(BTN_RIGHT)) { sst_g.cont_sel ^= 1; sfx_play_name("ui_move"); }
-        if (--sst_g.cont_t <= 0) sst_g.cont_sel = 1;
-        if (fresh(BTN_A) || fresh(BTN_START) || sst_g.cont_t <= 0) {
+        /* no clock: it waits for an answer */
+        if (fresh(BTN_A) || fresh(BTN_START)) {
             input_consume();
             if (sst_g.cont_sel == 0) {
                 /* back to the start of this stage with a fresh credit; the
@@ -364,6 +368,7 @@ static int sst_query(const char *key, int *out) {
     if (!strcmp(key, "stage")) { *out = sst_g.stage + 1; return 1; }
     if (!strcmp(key, "half")) { *out = sst_g.half; return 1; }
     if (!strcmp(key, "lives")) { *out = sst_g.lives; return 1; }
+    if (!strcmp(key, "spares")) { *out = imax(0, sst_g.lives - 1); return 1; }
     if (!strcmp(key, "continues")) { *out = sst_g.continues; return 1; }
     if (!strcmp(key, "passes")) { *out = sst_g.passes; return 1; }
     if (!strcmp(key, "passes_run")) { *out = sst_g.passes_run; return 1; }

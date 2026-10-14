@@ -50,12 +50,12 @@ wait 60
 # the shield stops a shot (the ball loses strength)
 cheat pow 5 1
 expect shield0 == 3
-cheat pos 168 2504
+cheat pos 168 3160
 cheat mortal
-cheat bullet 0 186 2504 0 0
-cheat bullet 0 168 2486 0 0
-cheat bullet 0 150 2504 0 0
-cheat bullet 0 168 2522 0 0
+cheat bullet 0 186 3160 0 0
+cheat bullet 0 168 3142 0 0
+cheat bullet 0 150 3160 0 0
+cheat bullet 0 168 3178 0 0
 wait 40
 expect hits == 0
 expect shield0 < 3

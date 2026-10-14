@@ -46,8 +46,8 @@ int sst_dir8_of(uint32_t held);  /* -1 when the pad is still */
 #define SST_STAGES 5
 #define SST_START_HP 3
 #define SST_MAX_HP 4
-#define SST_START_LIVES 3                  /* a credit: three lives */
-#define SST_MAX_LIVES 9
+#define SST_START_LIVES 3                  /* a credit: three lives, the one in play counted (2 spares) */
+#define SST_MAX_LIVES 10                   /* nine spares at most */
 #define SST_WALK 320                       /* 1.25 px a frame */
 #define SST_WALK_DIAG 226
 #define SST_DASH_T 14                      /* the dash: 14 frames ... */
@@ -301,7 +301,7 @@ typedef struct {
 typedef struct {
     int state, state_t, frame_t;
     int menu;                  /* the title's row */
-    int offer_sel, cont_sel, cont_t;
+    int offer_sel, cont_sel;
     /* the run */
     int stage;                 /* 0..4 */
     int lives, continues;

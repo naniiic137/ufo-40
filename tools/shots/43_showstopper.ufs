@@ -27,7 +27,7 @@ botplay 700
 shot showstopper_train
 # the Boiler backs up the winding road
 cheat stage 3
-cheat cam 1450
+cheat cam 2058
 botplay 300
 shot showstopper_boiler
 # Morrow splits in two

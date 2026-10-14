@@ -7,37 +7,37 @@ wait 5
 cheat run
 cheat arena
 cheat god
-cheat spawn gumdrop 168 2420
+cheat spawn gumdrop 168 3076
 wait 120
-expect foe0_y > 2440
+expect foe0_y > 3096
 cheat clear
-cheat spawn lantern 168 2420
+cheat spawn lantern 168 3076
 cheat foet 0 149
 wait 2
 expect eb_9 == 1
 cheat clear
-cheat spawn jester 168 2420
+cheat spawn jester 168 3076
 cheat foet 0 49
 wait 2
 expect eb_0 == 3
 cheat clear
-cheat spawn wall_gun 100 2420
+cheat spawn wall_gun 100 3076
 cheat foet 0 109
 wait 2
 expect eb_0 == 1
 cheat clear
-cheat spawn snowball 168 2420
+cheat spawn snowball 168 3076
 wait 60
-expect foe0_y > 2430
+expect foe0_y > 3086
 cheat clear
-cheat spawn bat 100 2420
+cheat spawn bat 100 3076
 wait 30
-expect foe0_y > 2430
+expect foe0_y > 3086
 cheat clear
 # the bats behind stage I's windows: one comes out when she nears
 cheat stage 1
 cheat god
-cheat cam 1840
-cheat pos 160 1920
+cheat cam 2496
+cheat pos 160 2576
 wait 2
 expect kind_7 >= 1

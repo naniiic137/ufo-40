@@ -11,10 +11,10 @@ wait 5
 cheat run
 cheat stage 4
 cheat god
-cheat cam 1120
+cheat cam 1952
 cheat arena
-cheat pos 152 1240
-cheat boss 5 152 1160
+cheat pos 152 2072
+cheat boss 5 152 1992
 expect boss_hp == 180
 wait 90
 waituntil kind_28 == 2 200
@@ -25,10 +25,10 @@ cheat killboss
 wait 100
 expect kind_27 == 0
 # the Ribbon
-cheat cam 560
+cheat cam 976
 cheat arena
-cheat pos 152 690
-cheat boss 6 152 600
+cheat pos 152 1106
+cheat boss 6 152 1016
 expect boss_hp == 170
 wait 100
 waituntil hz_1 >= 1 60

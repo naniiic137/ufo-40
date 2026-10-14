@@ -7,22 +7,22 @@ cheat run
 cheat arena
 cheat god
 expect px == 168
-expect py == 2504
+expect py == 3160
 hold RIGHT 16
 expect px == 188
-expect py == 2504
+expect py == 3160
 hold LEFT 16
 expect px == 168
 hold UP 16
-expect py == 2484
+expect py == 3140
 hold UP RIGHT 16
 expect px == 182
-expect py == 2469
+expect py == 3125
 hold DOWN LEFT 16
 expect px == 168
-expect py == 2484
+expect py == 3140
 # a wall: the trees on the left edge
-cheat pos 40 2504
+cheat pos 40 3160
 hold LEFT 60
 expect px >= 21
 expect px <= 22

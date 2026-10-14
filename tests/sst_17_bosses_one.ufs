@@ -10,10 +10,10 @@ game showstopper
 wait 5
 cheat run
 cheat god
-cheat cam 912
+cheat cam 1232
 cheat arena
-cheat pos 152 1040
-cheat boss 1 152 952
+cheat pos 152 1360
+cheat boss 1 152 1272
 expect boss_kind == 1
 expect boss_hp == 150
 expect boss_maxhp == 150
@@ -52,13 +52,13 @@ wait 100
 # the Boiler: the chase up the road
 cheat stage 3
 cheat god
-cheat cam 1440
+cheat cam 2048
 wait 2
 expect boss_kind == 3
 expect chasing == 1
 expect boss_hp == 170
 wait 200
-expect cam < 1430
+expect cam < 2038
 cheat killboss
 wait 2
 expect chasing == 0

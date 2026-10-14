@@ -166,10 +166,9 @@ void sst_hop_step(uint32_t held) {
         }
         fill_ahead();
         if (!H.practice && H.row >= HOP_LENGTH) {
-            /* the far end: the round is over, and the tries not used are
-             * passes again */
+            /* the far end: the round is over (any tries left are simply
+             * over too: the passes were spent when it began) */
             H.made_it = 1;
-            sst_g.passes += H.tries;
             H.tries = 0;
             H.state = HB_DONE;
             H.st = 0;
@@ -188,7 +187,7 @@ void sst_hop_step(uint32_t held) {
     case HB_FALL:
     case HB_BITTEN:
         if (H.st >= 50) {
-            H.tries--;
+            if (!H.practice) H.tries--; /* the free ride never runs out */
             if (H.tries <= 0) {
                 H.state = HB_DONE;
                 H.st = 0;

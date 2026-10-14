@@ -3,8 +3,9 @@
 # one try a pass. Jelly hops on by itself the way the pad last pointed;
 # a hole, a raised spike or an open mouth costs a try. Coins fill a meter
 # and every mark on it (10, 25, 45, 70, 100, 135, 175, 220, 270 coins) is
-# a life, up to nine; the first one wins the Beacon. Reaching the far end
-# (150 rows) ends it and gives back the tries left as passes.
+# a spare life, up to nine spares; the first one wins the Beacon. The
+# passes are spent when the round begins: reaching the far end (150 rows)
+# ends it, and any tries left there are over too.
 game showstopper
 wait 5
 expect hop_markat0 == 10
@@ -55,17 +56,18 @@ cheat hopcoins 9
 expect goals == 0
 botuntil hop_lives >= 1 3000
 expect lives == 4
+expect spares == 3
 expect goals & 1
 expect save_lives_won == 1
-# nine at most
-cheat lives 9
+# nine spares at most
+cheat lives 10
 botuntil hop_mark >= 3 4000
-expect lives == 9
-# the far end: the round ends, the tries left are passes again
+expect spares == 9
+# the far end: the round ends; the tries left don't come back
 botuntil hop_state == 4 9000
 expect hop_row == 150
 expect hop_tries == 0
-expect passes >= 1
+expect passes == 0
 wait 40
 expect state == 7
 wait 70

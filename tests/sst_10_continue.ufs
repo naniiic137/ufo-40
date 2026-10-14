@@ -1,7 +1,8 @@
-# SHOWSTOPPER: three lives a credit. With the last one gone: CONTINUE?
-# with a ten-second count. YES starts the stage again from its start with
-# three new lives (and shuts the true ending away for this run); NO, or
-# the count running out, is GAME OVER and back to the title.
+# SHOWSTOPPER: three lives a credit (two spares on the counter). With the
+# last one gone: CONTINUE? It waits for an answer, with no clock. YES
+# starts the stage again from its start with three new lives (and shuts
+# the true ending away for this run); NO is GAME OVER and back to the
+# title.
 game showstopper
 wait 5
 cheat run
@@ -25,9 +26,10 @@ press A
 expect state == 3
 expect continues == 1
 expect lives == 3
+expect spares == 2
 expect hp == 3
 expect stage == 1
-expect py == 2504
+expect py == 3160
 # again, and this time NO
 cheat lives 1
 cheat die
@@ -40,11 +42,13 @@ expect state == 9
 wait 70
 press A
 expect state == 0
-# the count running out says NO
+# no clock: it waits as long as it takes
 cheat run
 cheat lives 1
 cheat die
 wait 120
 expect state == 8
-wait 640
-expect state == 9
+wait 1800
+expect state == 8
+press A
+expect state == 3

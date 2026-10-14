@@ -219,7 +219,7 @@ void sst_kill_foe(int i) {
             if (j < 0) continue;
             SstFoe *c = &sst_g.foe[j];
             c->size = (uint8_t)size;
-            c->hp = c->size;
+            c->hp = 1;
             int a = rng_range(&sst_g.rng, 0, 63);
             c->vx = 400 * sst_cos(a) / 256;
             c->vy = 400 * sst_sin(a) / 256;

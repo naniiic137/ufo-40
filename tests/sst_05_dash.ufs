@@ -21,9 +21,9 @@ expect dashes == 1
 wait 12
 # safe while dashing: a shot through her does no harm
 cheat mortal
-cheat pos 100 2504
+cheat pos 100 3160
 hold LEFT 1
-cheat bullet 0 80 2504 0 0
+cheat bullet 0 80 3160 0 0
 press B 1
 wait 20
 expect hits == 0

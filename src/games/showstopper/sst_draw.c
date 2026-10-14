@@ -83,8 +83,7 @@ static void draw_title(void) {
         if (s) ui_cursor(160 - text_width(ITEMS[i]) / 2 - 10, yy, t);
     }
     char b[80];
-    snprintf(b, sizeof b, "PASSES FOUND %d/%d   WINS %d   TRUE ENDINGS %d", sst_sv.most_passes, SST_PASSES, sst_sv.wins,
-             sst_sv.good_wins);
+    snprintf(b, sizeof b, "PASSES FOUND %d/%d", sst_sv.most_passes, SST_PASSES);
     tsay_c(b, 160, 150, C_LIGHT);
     if (sst_g.menu == 1) tsay_c("2 PLAYERS " GLYPH_DOT " NEXT UPDATE", 160, 168, C_LIGHT);
     else tsay_c("1988 BEAMDOWN SOFTWORKS", 160, 168, C_SLATE);
@@ -133,7 +132,7 @@ static void draw_map(void) {
     ui_panel(96, 136, 128, 34, C_NIGHT, C_YELLOW);
     say_c(b, 160, 140, C_YELLOW);
     say_c(SST_STAGE[s].name, 160, 152, C_WHITE);
-    snprintf(b, sizeof b, "LIVES %d   PASSES %d", sst_g.lives, sst_g.passes);
+    snprintf(b, sizeof b, "LIVES %d   PASSES %d", imax(0, sst_g.lives - 1), sst_g.passes);
     tsay(b, 4, 4, C_WHITE);
 }
 
@@ -735,7 +734,7 @@ static void draw_hud(void) {
     }
     char b[24];
     spr_draw(&sst_spr[SP_LIFE], 132, 2, 0);
-    snprintf(b, sizeof b, "%d", sst_g.lives);
+    snprintf(b, sizeof b, "%d", imax(0, sst_g.lives - 1)); /* the spare lives */
     tiny_draw(b, 141, 3, C_WHITE);
     spr_draw(&sst_spr[SP_PASS], 152, 1, 0);
     snprintf(b, sizeof b, "%d", sst_g.passes);
@@ -875,13 +874,14 @@ static void draw_hop(void) {
     char b[48];
     snprintf(b, sizeof b, "COINS %d", h->coins);
     tiny_draw(b, 4, 3, C_YELLOW);
-    snprintf(b, sizeof b, "TRIES %d", h->tries);
+    if (h->practice) snprintf(b, sizeof b, "TRIES: ENDLESS");
+    else snprintf(b, sizeof b, "TRIES %d", h->tries);
     tiny_draw(b, 64, 3, C_WHITE);
     if (!h->practice) {
-        snprintf(b, sizeof b, "LIVES %d  WON %d", sst_g.lives, h->lives_won);
+        snprintf(b, sizeof b, "LIVES %d  WON %d", imax(0, sst_g.lives - 1), h->lives_won);
         tiny_draw(b, 112, 3, C_PINK);
     } else {
-        tiny_draw("FREE RIDE", 112, 3, C_PINK);
+        tiny_draw("B: LEAVE", 128, 3, C_PINK);
     }
     int prev = h->next_mark > 0 ? SST_HOP_MARK[h->next_mark - 1] : 0;
     int next = h->next_mark < HOP_MARKS ? SST_HOP_MARK[h->next_mark] : prev + 1;
@@ -923,7 +923,7 @@ static void draw_hopend(void) {
     else snprintf(b, sizeof b, "LIVES WON %d", h->lives_won);
     say_c(b, 160, 84, C_WHITE);
     if (!h->practice) {
-        snprintf(b, sizeof b, "LIVES NOW %d", sst_g.lives);
+        snprintf(b, sizeof b, "LIVES NOW %d", imax(0, sst_g.lives - 1));
         say_c(b, 160, 98, C_WHITE);
     }
     spr_draw(&sst_spr[SP_BLOB], 154, 112, 0);
@@ -933,8 +933,7 @@ static void draw_continue(void) {
     gfx_cls(C_INK);
     say_cs("CONTINUE?", 160, 50, C_WHITE, C_MAROON);
     char b[32];
-    snprintf(b, sizeof b, "%d", imax(0, sst_g.cont_t / 60));
-    ui_fancy_center(b, 160, 70, 3, GRAD_SHOW, 4, C_INK, C_MAROON);
+    draw_clover_at(153, 70, 2, (sst_g.frame_t / 30) % 2, 0);
     ui_choices(160, 112, "YES", "NO", sst_g.cont_sel, sst_g.frame_t, C_WHITE, C_GREY);
     snprintf(b, sizeof b, "STAGE %s FROM THE START", STAGE_NUM[iclamp(sst_g.stage, 0, 4)]);
     tsay_c(b, 160, 136, C_LIGHT);
@@ -1064,7 +1063,6 @@ int sst_layout_audit(void) {
             sst_g.hop.practice = v;
             sst_g.passes = v ? 1 : 3;
             sst_g.stage = v ? 4 : 0;
-            sst_g.cont_t = 540;
             ui_audit_begin("showstopper", true);
             ui_audit_area("screen", 0, 0, SCREEN_W, SCREEN_H);
             sst_draw();

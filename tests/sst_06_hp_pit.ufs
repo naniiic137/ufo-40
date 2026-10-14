@@ -11,21 +11,21 @@ cheat arena
 wait 61
 cheat pow 2 2
 expect pow2 == 2
-cheat bullet 0 168 2504 0 0
+cheat bullet 0 168 3160 0 0
 wait 2
 expect hp == 2
 expect hits == 1
 expect inv > 0
 # safe for a while: a second shot does nothing
-cheat bullet 0 168 2504 0 0
+cheat bullet 0 168 3160 0 0
 wait 2
 expect hp == 2
 wait 95
-cheat bullet 0 168 2504 0 0
+cheat bullet 0 168 3160 0 0
 wait 2
 expect hp == 1
 wait 95
-cheat bullet 0 168 2504 0 0
+cheat bullet 0 168 3160 0 0
 wait 2
 expect hp == 0
 expect pstate == 3

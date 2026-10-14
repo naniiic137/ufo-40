@@ -10,29 +10,29 @@ cheat run
 cheat stage 3
 cheat arena
 cheat god
-cheat spawn gourd_cloak 40 2560
+cheat spawn gourd_cloak 40 3776
 waituntil eb_7 >= 2 400
 cheat foet 0 409
 waituntil eb_4 >= 1 100
 cheat clear
 # a bomb shot defused by a shot
 cheat face 6
-cheat bullet 4 168 2560 0 0
+cheat bullet 4 168 3776 0 0
 press A 1
 wait 20
 expect eb_4 == 0
 cheat clear
-cheat spawn puffer 168 2470
+cheat spawn puffer 168 3686
 wait 1
 print foe0_y
 wait 10
-expect foe0_y > 2490
+expect foe0_y > 3706
 cheat clear
-cheat spawn toy_train 20 2560
+cheat spawn toy_train 20 3776
 wait 10
 expect foe0_x >= 38
 cheat clear
-cheat spawn bomber 168 2500
+cheat spawn bomber 168 3716
 cheat foet 0 129
 wait 2
 expect eb_5 == 1
@@ -40,7 +40,7 @@ wait 52
 expect eb_5 == 0
 expect hz_2 >= 1
 cheat clear
-cheat spawn rocketeer 100 2520
+cheat spawn rocketeer 100 3736
 cheat foet 0 149
 wait 2
 expect eb_6 == 1
@@ -48,11 +48,11 @@ expect hz_3 == 1
 wait 62
 expect hz_2 >= 1
 cheat clear
-cheat spawn snowman 168 2540
+cheat spawn snowman 168 3756
 cheat foet 0 60
 waituntil eb_1 >= 5 120
 cheat clear
-cheat spawn wall_gun 100 2540
+cheat spawn wall_gun 100 3756
 expect kind_17 == 1
 cheat foet 0 119
 wait 2
@@ -60,5 +60,5 @@ expect eb_0 == 3
 cheat clear
 # the copter's arms hurt; the middle is what to shoot
 cheat mortal
-cheat spawn copter 168 2595
+cheat spawn copter 168 3811
 waituntil hits >= 1 60

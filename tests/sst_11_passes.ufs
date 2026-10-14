@@ -14,7 +14,7 @@ cheat run
 cheat arena
 cheat god
 cheat face 6
-cheat spawn spot 168 2440
+cheat spawn spot 168 3096
 expect foe0_hp == 5
 press A 1
 wait 8
@@ -37,8 +37,8 @@ expect passes_run == 1
 expect pass_items == 0
 # one left to scroll away is lost
 cheat face 0
-cheat pos 60 2520
-cheat spawn spot 100 2520
+cheat pos 60 3176
+cheat spawn spot 100 3176
 press A 1
 wait 8
 press A 1
@@ -50,7 +50,7 @@ wait 8
 press A 1
 wait 8
 expect pass_items == 1
-cheat cam 2300
+cheat cam 2956
 cheat arena
 wait 2
 expect pass_items == 0
@@ -58,11 +58,14 @@ expect passes == 1
 # found stays found: stage I again, its first spot doesn't come back
 cheat stage 1
 cheat god
-cheat cam 1900
+cheat cam 2556
 wait 2
 expect kind_3 == 0
 expect found == 1
-# ... but the next one up does
-cheat cam 760
+# ... while on a new run it is there again
+cheat run
+cheat god
+cheat cam 2556
 wait 2
 expect kind_3 == 1
+expect found == 0

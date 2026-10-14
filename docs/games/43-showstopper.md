@@ -22,16 +22,16 @@ follows the original:
 | Full scale | Elfazar's Hat | SHOWSTOPPER |
 |---|---|---|
 | Players | 1, or 2 in co-op [MH] | 1 now; 2 in the menu, greyed out until the next update (see the last section) |
-| Stages | 5: a scrolling snow village; one screen on a train; a longer town in two halves; the longest, a palace in two halves; a short tower (lift, then the final boss) [MH], [TVT] | the same 5: Frostbell Lane (159 rows); the Night Freight (one screen); Lanternbury and the Canal Side (166 rows); the Glass Palace and the Upper Halls (176 rows); Morrow's Tower (the lift, then the crown room) |
+| Stages | 5: a scrolling snow village; one screen on a train; a longer town in two halves; the longest, a palace in two halves; a short tower (lift, then the final boss) [MH], [TVT] | the same 5: Frostbell Lane (200 rows); the Night Freight (one screen); Lanternbury and the Canal Side (242 rows, longer than I); the Glass Palace and the Upper Halls (280 rows, the longest); Morrow's Tower (the lift, then the crown room) |
 | Fights | I: a mini-boss and a boss; II: waves only; III: a tank that scrolls the road, then a boss; IV: two mini-bosses and the magician; V: the demon form, and on a no-continue run a last one [MH], [TVT] | I: the Snow Engine, Granny Goggle; II: fourteen waves; III: the Boiler (the chase), the Doppels; IV: Old Wicks, the Ribbon, Morrow the Marvellous; V: twelve waves, the Morrowmaw, and on a clean run the Heartstack |
 | Foes | the stage lists in the bible (blobs, lanterns, clowns, window bats, turrets, snowballs; cloaked pumpkin heads, divers, toy trains; roof bombers, snowmen, rocket launchers, copter blobs, wall guns; turtles, a harder clown, skull flame jets, splitting flames, book trains, bomb books, racecars, torches) [MH], [TVT] | the same 22 kinds, plus the bosses' minions (a clockwork mouse, eggs and hopping skulls, roaming fire, bats, spike blocks) |
 | Cards | 5 colours, A (pair) and B (three of a kind) [MH], [MANUALS] | the same 10 powers |
 | Hidden tickets | 9: three each in stages I, III and IV [GUIDE] | 9 star passes, three each in I, III and IV |
-| Lives | a counter, 9 at most [MH-DEBUG], [GUIDE]; "another 3 lives" a continue [POPCAR] | 3 a credit, 9 at most |
+| Lives | a counter of extra lives, 9 at most [MANUALS], [MH-DEBUG], [GUIDE]; "another 3 lives" a continue [POPCAR] | 3 a credit (the counter shows the 2 spares), 9 spares at most |
 | Endings | 2 [TVT] | 2 |
 | Goals | 3 [MH], [GGC] | the same 3 |
-| Stat | Tickets Found [MH] | Passes found (the most in one run), shown on the title |
-| Length | ~30 min; a speedrun ~13 min [POPCAR], [SR] | the demo player (perfect aim, never hit more than once) finishes in about 10 minutes |
+| Stat | Tickets Found [MH] | Passes found (the most in one run), the only record on the title |
+| Length | ~30 min; a speedrun ~13 min [POPCAR], [SR] | the demo player (perfect aim, hit a handful of times, few powers) finishes in about 12.7 minutes, 11.5 of them in the stages |
 
 What each stage brings: I snow streets with houses whose eaves drop snow,
 two icy stretches, a frozen pond, pits, crates and barrels, gumdrops,
@@ -58,7 +58,7 @@ lift, open on every side, and the crown room.
 | Hearts | 3, 4 at most with Extend; a hit costs one, then a moment's safety | [MH], [TVT] | sst_06 |
 | Pits | a fall costs a life at once, whatever the hearts | [MH], [MANUALS] | sst_06 |
 | The bubble | a lost life brings her back on the spot in a bubble that floats anywhere (over pits too); a button pops it on firm ground; its time runs out and it pops anyway; a moment's safety after; all card powers gone | [MANUALS], [MH] | sst_06 |
-| Lives and continues | 3 a credit, 9 at most; all gone: CONTINUE? (ten seconds): yes starts the stage again with 3, as often as wanted, and closes the true ending; no is game over | [MH], [MH-DEBUG], [POPCAR], [MANUALS] | sst_10 |
+| Lives and continues | 3 a credit; the counter shows the extra lives (2 to start), 9 at most; all gone: CONTINUE?, waiting for an answer: yes starts the stage again with 3, as often as wanted, and closes the true ending; no is game over | [MH], [MH-DEBUG], [POPCAR], [MANUALS] | sst_10, sst_12 |
 | Cards | dropped by foes (about half the time) and always by crates and barrels; three slots; the third card makes a hand and empties them; order doesn't matter: a pair and one other gives the pair's A, three of a kind its B, three different nothing | [MH], [MANUALS], [TVT] | sst_07, sst_09 |
 | Purple | A heals a heart; B (Extend) raises the hearts to 4 and heals one (with 4 already, it heals) | [MH], [TVT] | sst_08 |
 | Green | A: the first shot of each volley flares two more out on the diagonals; B: the same, and every shot bigger (2 harm) | [MH], [GUIDE] | sst_08 |
@@ -67,11 +67,11 @@ lift, open on every side, and the crown room.
 | Blue | A: one spiked ball circles her and stops shots until it breaks; B: five | [MH], [TVT] | sst_08 |
 | Powers last | through stages, until a life is lost; colours stack | [MH], [GUIDE], [POPCAR] | sst_06, sst_08 |
 | Hidden spots | an odd-looking spot or object; it rings when shot and gives up a pass after five shots; a pass scrolled off is lost (the view never goes back) | [GUIDE], [TVT], [STEAM-DEMO] | sst_11 |
-| The bonus round | after a stage, holding passes: the Hop, or later (passes kept); each pass a try; Jelly hops square to square on a board seen at an angle, on by itself the way the pad last set; holes, spikes and mouths cost a try; coins fill a meter whose marks are lives | [MH], [GUIDE], [STEAM-WHAT], [LIZ] | sst_12 |
-| The secret hand | red, then blue, then green as one hand flashes a code and opens the bonus round for practice on the title | [MH-CHEATS], [GUIDE] | sst_13 |
+| The bonus round | after a stage, holding passes: the Hop, or later (passes kept); playing it spends them all, each pass a try; Jelly hops square to square on a board seen at an angle, on by itself the way the pad last set; holes, spikes and mouths cost a try; coins fill a meter whose marks are lives | [MH], [GUIDE], [STEAM-WHAT], [LIZ] | sst_12 |
+| The secret hand | red, then blue, then green as one hand flashes a code and opens the bonus round for endless practice on the title (falls cost nothing; B leaves) | [MH-CHEATS], [GUIDE] | sst_13 |
 | Stage I foes | gumdrops creep at her; lanterns let out fireballs; jesters fire fans; bats wait behind windows; wall guns; snowballs hop; snow drops from eaves | [MH], [TVT] | sst_14 |
 | Train and town foes | gourd cloaks from both sides with wavy pairs, sometimes circling the car leaving bomb shots that can be shot; puffers dive over; toy trains run along; roof bombers; snowmen rush then fire stars from the nose; rocketeers' rockets land on a red X and blow up a 3 x 3 area; copter blobs with long arms (shoot the middle); wall guns | [MH], [TVT] | sst_15 |
-| Palace foes | turtles fire rings; harlequins drop many bombs; skulls breathe long blue flames one way; emberlings split into smaller ones that fly off; book trains of separate books; page imps toss bombs; racecars leave a slick that hurts; torches spit fire | [MH], [TVT] | sst_16 |
+| Palace foes | turtles fire rings; harlequins drop many bombs; skulls breathe long blue flames one way; emberlings split into two smaller ones at every hit, and these fly off; book trains of separate books; page imps toss bombs; racecars leave a slick that hurts; torches spit fire | [MH], [TVT] | sst_16 |
 | The Snow Engine | strafes on a big yard; homing critter; the crows on top stream shots; snowballs hop in; hit anywhere | [MH], [TVT] | sst_17 |
 | Granny Goggle | stays put; only the eye takes harm; the gloves throw fire, fire volleys, turn into spiked balls that hunt; she coughs up bombs | [MH], [TVT] | sst_17 |
 | The Boiler | backs up the winding road with the view scrolling after it; only its head; missiles land on marks; rings of shots | [MH], [TVT] | sst_17 |
@@ -89,8 +89,10 @@ lift, open on every side, and the crown room.
 
 ### Readings we had to choose
 
-- **Lives:** 3 a credit, counting the one in play; a continue gives 3 again
-  (reviewers say a continue grants "another 3 lives").
+- **Lives:** 3 a credit, counting the one in play, so the counter (which
+  shows the extra lives, as the original's does) starts at 2 and goes up
+  to 9; a continue gives 3 again (reviewers say a continue grants "another
+  3 lives").
 - **Card drops:** foes 1 in 2 (the big ones always: copters, turtles,
   harlequins, racecars), crates and barrels always; a random colour. A
   card lies for 9 s. A small hand never takes a big power away; the blue
@@ -108,8 +110,12 @@ lift, open on every side, and the crown room.
 - **Hops:** the Hop's marks at 10, 25, 45, 70, 100, 135, 175, 220 and 270
   coins; a hop takes 20 frames; spikes are up 40 frames in 120, mouths
   open 45 in 150; the board is made as Jelly goes (from a seed), harder the
-  further on, with one lane always safe; it ends 150 rows on, and the
-  tries left there are passes again. The practice board has no end.
+  further on, with one lane always safe (a way on that never needs a
+  diagonal hop); it ends 150 rows on, and any tries left there are over
+  (the passes were spent when the round began). The practice board has no
+  end and no limit of tries.
+- **Emberlings:** each size takes one hit: a big one splits into two
+  middle ones, each of those into two small ones, which go out.
 - **Every boss** shows itself for 1.5 s before it fights. Boss health (in
   shots of 1): the Snow Engine 150, Granny Goggle 220, the Boiler 170, the
   Doppels 300, Old Wicks 180, the Ribbon 170, Morrow 340, the Morrowmaw
@@ -190,7 +196,7 @@ on the title (the same trigger, the same reward).
 | The dash button | Button 2 / A in the original; B here |
 | The bubble: which buttons pop it | A or B (the manual: "any button") |
 | The Hop's directions | the four pad ways as on, across, back; set during a hop for the next one (players' advice [GUIDE], [STEAM-WHAT]) |
-| Starting lives | 3, the one in play counted |
+| Starting lives | 3, the one in play counted (2 on the counter) |
 | Whether the hand survives a lost life | it does |
 | Every number in "Readings we had to choose" | as listed |
 

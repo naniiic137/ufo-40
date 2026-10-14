@@ -41,7 +41,7 @@ cheat card 1
 cheat card 4
 expect pow4 == 2
 # cards on the ground: walk over one to take it
-cheat dropcard 188 2504
+cheat dropcard 188 3160
 expect cards == 1
 hold RIGHT 16
 expect cards == 0

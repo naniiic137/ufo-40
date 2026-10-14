@@ -25,7 +25,7 @@ const SstFoeDef SST_FOE[FK_COUNT] = {
     [FK_TURTLE] = {"TURTLE", 6, 7, 6, FF_STUN | FF_ALWAYS},
     [FK_HARLEQUIN] = {"HARLEQUIN", 6, 6, 8, FF_STUN | FF_ALWAYS},
     [FK_SKULLJET] = {"SKULL JET", 6, 7, 7, FF_WALL},
-    [FK_EMBER] = {"EMBERLING", 3, 6, 6, FF_FLY},
+    [FK_EMBER] = {"EMBERLING", 1, 6, 6, FF_FLY},
     [FK_BOOK] = {"BOOK", 2, 5, 4, FF_FLY},
     [FK_IMP] = {"PAGE IMP", 2, 5, 5, FF_FLY | FF_STUN},
     [FK_RACECAR] = {"RACECAR", 6, 8, 6, FF_ALWAYS},
@@ -50,8 +50,9 @@ void sst_foe_init(SstFoe *f) {
     f->t = (px_x(f) * 7 + px_y(f) * 3) % 50;
     switch (f->kind) {
     case FK_EMBER:
+        /* every hit splits it (a size-1 one just goes out) */
         f->size = 3;
-        f->hp = 3;
+        f->hp = 1;
         break;
     case FK_SKULLJET: {
         /* it faces away from its wall */
@@ -301,7 +302,6 @@ static void think(SstFoe *f, int idx) {
         }
         f->x += f->vx;
         f->y += f->vy;
-        f->hp = imin(f->hp, f->size);
         break;
     }
     case FK_BOOK:
