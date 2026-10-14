@@ -1,0 +1,39 @@
+# README media: FOSSIL FEUD. Everything in play is the demo player's real
+# button presses. The GIF is one of its battles.
+shotscale 2
+seed 12
+game fossilfeud
+wait 40
+shot fossilfeud_title
+press A
+wait 20
+shot fossilfeud_campaign
+# the demo player starts the first moult and plays on
+botuntil turn >= 9 40000
+botuntil mp == 1 4000
+wait 20
+shot fossilfeud_pray
+botuntil mp == 3 4000
+botuntil au == 3 4000
+wait 4
+shot fossilfeud_march
+botuntil state == 5 60000
+gifstart fossilfeud 3 1
+botplay 540
+gifstop
+botuntil state == 4 20000
+botuntil mp == 4 20000
+botplay 90
+shot fossilfeud_board
+# an attack on a walled eyrie
+cheat match 2
+wait 2
+cheat clearboard
+cheat own 6 0
+cheat own 7 1
+cheat terr 7 6
+cheat units 7 8 4 7 3 2
+cheat blds 7 1 1 1 0
+cheat battle 0 6 7 14 6 6 4 4 0
+botplay 330
+shot fossilfeud_eyrie
