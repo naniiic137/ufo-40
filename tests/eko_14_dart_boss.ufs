@@ -1,0 +1,20 @@
+# DART: the ring road ends with Hog Wild riding alongside: shotgun blasts,
+# mines rolled back at the bike, and a ram along the bike's lane. Beat him
+# and Cairo is done.
+seed 1
+game echounit
+wait 5
+cheat mission 2
+cheat knospawn
+cheat kclear
+wait 10
+expect k_length == 26200
+cheat kdist 26300
+wait 5
+expect k_boss == 1
+expect k_kind14 == 1
+cheat kbosshp 3
+cheat god
+botuntil k_boss_dead == 1 1200
+botuntil state == 7 600
+expect cleared2 == 1

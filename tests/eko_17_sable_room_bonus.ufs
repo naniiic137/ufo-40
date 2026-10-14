@@ -1,0 +1,31 @@
+# SABLE: a room left without being seen is worth 100 (once); a noise heard
+# in it takes 50 of that; seen, nothing.
+seed 1
+game echounit
+wait 5
+cheat mission 3
+wait 10
+cheat score 0
+# out of the start room unseen: 100
+cheat spos 35 8
+wait 2
+expect score == 100
+expect s_clean == 1
+# room B with a noise in it: 50
+cheat snoise 500 100
+cheat spos 47 4
+wait 2
+expect score == 150
+# room C, seen: nothing
+cheat sguard 5 53 4 2
+wait 5
+expect s_room_spotted == 1
+cheat spos 35 8
+wait 2
+expect score == 150
+# a room's bonus comes only once
+cheat spos 45 8
+wait 2
+cheat spos 35 8
+wait 2
+expect score == 150

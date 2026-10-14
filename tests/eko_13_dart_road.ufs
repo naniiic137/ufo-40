@@ -1,0 +1,51 @@
+# DART: the bike moves four ways on the road; B jumps over cones,
+# hurdles and mines (and anything low); shots fly straight ahead in the
+# bike's lane. Cones give no points; a green truck leaves a mango; the
+# semi truck is worth 500.
+seed 1
+game echounit
+wait 5
+cheat mission 2
+cheat knospawn
+cheat kclear
+wait 10
+expect k_x == 60
+expect k_y == 130
+hold RIGHT 20
+expect k_x == 90
+hold UP 20
+expect k_y == 100
+hold DOWN 20
+# a cone straight ahead: run into it, a knock
+cheat kpos 60 130
+cheat kobj 1 100 130
+wait 30
+expect hp == 5
+# another: jump it
+wait 70
+cheat kobj 1 140 130
+wait 14
+press B 1
+expect k_z > 0
+wait 40
+expect hp == 5
+# a hurdle can't be shot down
+cheat kobj 2 200 130
+cheat score 0
+press A 1
+wait 3
+press A 1
+wait 20
+expect k_kind2 == 1
+cheat kclear
+# the semi truck, 20 rounds, 500 points
+cheat god
+cheat kobj 7 200 130
+cheat score 0
+botuntil k_kind7 == 0 900
+expect score >= 500
+# the green truck's mango
+cheat kclear
+cheat kobj 6 150 130
+botuntil k_kind6 == 0 600
+expect k_kind11 == 1

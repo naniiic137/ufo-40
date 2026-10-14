@@ -1,0 +1,27 @@
+# SABLE: a guard sees along the way it faces; seen, it hunts her and
+# shoots. A camera (or a searchlight) that sees her sets off every guard
+# in the room. Leaving the room makes them forget: back there, they are on
+# their beats again.
+seed 1
+game echounit
+wait 5
+cheat mission 3
+wait 10
+cheat sguard 0 8 8 2
+cheat spos 4 8
+wait 3
+expect s_g0_state == 4
+expect s_spotted == 1
+expect s_room_spotted == 1
+# out of the room and back: forgotten
+cheat spos 25 8
+wait 3
+cheat spos 15 1
+wait 1
+expect s_g0_state == 0
+# the camera over room B's door looks down into the room
+cheat spos 29 2
+cheat sguard 1 22 2 3
+wait 30
+expect s_alarm > 0
+expect s_g1_state == 4

@@ -700,6 +700,16 @@ static int eko_query(const char *key, int *out) {
     if (!strcmp(key, "s_stunned")) { *out = count_guards(GD_STUN); return 1; }
     if (!strcmp(key, "s_looking")) { *out = count_guards(GD_INVESTIGATE) + count_guards(GD_LOOK); return 1; }
     if (!strcmp(key, "s_guards")) { *out = count_guards(-1); return 1; }
+    if (!strcmp(key, "s_boss_hp")) { *out = s->boss_g >= 0 ? s->g[s->boss_g].hp : -1; return 1; }
+    if (!strcmp(key, "s_boss_state")) { *out = s->boss_g >= 0 ? s->g[s->boss_g].state : -1; return 1; }
+    if (!strncmp(key, "s_tile_", 7)) {
+        int tx = atoi(key + 7);
+        const char *u = strchr(key + 7, '_');
+        int ty = u ? atoi(u + 1) : 0;
+        *out = tx >= 0 && ty >= 0 && tx < s->mw && ty < s->mh ? s->tile[ty][tx] : 0;
+        return 1;
+    }
+    if (!strcmp(key, "s_items_left")) { int n = 0; for (int i = 0; i < s->nitem; i++) n += !s->item[i].taken; *out = n; return 1; }
     if (!strcmp(key, "s_rooms")) {
         int n = 0;
         for (int y = 0; y < SN_MAX_RY; y++) for (int x = 0; x < SN_MAX_RX; x++) n += s->tile[y * SN_RH + 1][x * SN_RW + 1] != ' ' && x * SN_RW < s->mw && y * SN_RH < s->mh;

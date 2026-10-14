@@ -283,7 +283,8 @@ int eko_sneak_guard_sees(int gi) {
         int d = eko_dist(dx, dy);
         if (d > 100 || d < 4) return 0;
         if (eko_angdiff(eko_dir_to(dx, dy), g->dir) > 4) return 0;
-        return eko_sneak_los(gx, gy, sx, sy) || d < 20;
+        /* it looks out from the face of its wall */
+        return eko_sneak_los(gx + eko_cos(g->dir) * 10 / 256, gy + eko_sin(g->dir) * 10 / 256, sx, sy) || d < 20;
     }
     case GK_LIGHT:
         return eko_dist(dx, dy) < 15;
