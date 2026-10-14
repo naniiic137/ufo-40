@@ -225,6 +225,7 @@ static void laser_update(LmpFoe *f) {
 }
 
 int lmp_flame_reach(const LmpFoe *f) {
+    /* the vent's own cell burns too (k = 0), then up to four cells out */
     int cyc = f->t % (FLAME_OFF + FLAME_WARN + FLAME_ON);
     if (cyc < FLAME_OFF + FLAME_WARN) return 0;
     int n = 0;
@@ -242,7 +243,8 @@ static void flame_update(LmpFoe *f, int tx, int ty) {
     f->state = cyc < FLAME_OFF ? 0 : cyc < FLAME_OFF + FLAME_WARN ? 1 : 2;
     if (cyc == FLAME_OFF + FLAME_WARN) lmp_sfx("lmp_flame");
     int r = lmp_flame_reach(f);
-    for (int k = 1; k <= r; k++) {
+    if (r == 0 && f->state != 2) return;
+    for (int k = 0; k <= r; k++) {
         int cx = (f->cx + k * LMP_DX[f->n]) * LMP_T + 5, cy = (f->cy + k * LMP_DY[f->n]) * LMP_T + 5;
         if (iabs(tx - cx) <= 6 && iabs(ty - cy) <= 6) { lmp_kill_tank(FO_FLAME); return; }
     }
@@ -324,6 +326,14 @@ static void worm_update(LmpFoe *f) {
 }
 
 static void ball_update(LmpFoe *f) {
+    if (f->b > 0) {
+        /* a ball the Dreadnought dropped: it lands, rolls away and breaks up */
+        if (--f->b == 0) { f->alive = 0; lmp_burst(f->x / LMP_FX, f->y / LMP_FX, C_GREY, 6, 2); return; }
+        if (f->vy > 0 && lmp_shot_blocked(f->x / LMP_FX / LMP_T, (f->y / LMP_FX + 6) / LMP_T)) {
+            f->vy = 0;
+            f->vx = (f->x / LMP_FX < lg.mw * LMP_T / 2) ? -LMP_FX : LMP_FX;
+        }
+    }
     int nx = f->x + f->vx, ny = f->y + f->vy;
     int fx = (nx / LMP_FX + isign(f->vx) * 5) / LMP_T, fy = (ny / LMP_FX + isign(f->vy) * 5) / LMP_T;
     if (f->vx && (lmp_shot_blocked(fx, f->y / LMP_FX / LMP_T))) f->vx = -f->vx;
@@ -337,7 +347,7 @@ static void crawler_update(LmpFoe *f) {
         if (f->t > 0) { f->t--; return; }
         grid_go(f);
     }
-    if (grid_walk(f, CRAWL_T)) f->t = 0;
+    if (grid_walk(f, CRAWL_T)) f->t = 10; /* a rest after every step */
     f->a++;
 }
 
@@ -356,6 +366,8 @@ static void turncoat_update(LmpFoe *f, int tx, int ty) {
     f->x = (f->cx * LMP_T + 5) * LMP_FX;
     f->y = (f->cy * LMP_T + 5) * LMP_FX;
     if (f->b > 0) f->b--;
+    if (f->a > 0) f->a--;
+    f->state = f->t <= 30 ? 1 : 0; /* it glows before it warps */
     if (f->st > 0) {
         /* a burst of three, like Limpet's */
         f->st--;
@@ -370,6 +382,7 @@ static void turncoat_update(LmpFoe *f, int tx, int ty) {
     bool on_line = LMP_DX[f->n] != 0 ? (iabs(ty - fy) <= 4 && isign(tx - fx) == LMP_DX[f->n])
                                       : (iabs(tx - fx) <= 4 && isign(ty - fy) == LMP_DY[f->n]);
     if (on_line && f->b == 0) { f->st = 17; f->b = fast ? 40 : 60; return; }
+    if (f->a > 0) return; /* a rest between steps */
     if (--f->t <= 0) {
         /* warp to the opposite surface, flares and all */
         f->t = fast ? 110 : 170;
@@ -379,7 +392,7 @@ static void turncoat_update(LmpFoe *f, int tx, int ty) {
             f->cx = f->ox = ox; f->cy = f->oy = oy; f->n = f->on = on;
             f->x = (ox * LMP_T + 5) * LMP_FX;
             f->y = (oy * LMP_T + 5) * LMP_FX;
-            f->a = LMP_BLAST_T;
+            f->a = 20;
             lmp_sfx("lmp_warp");
             int tdir = (on + 2) & 7;
             for (int k = -2; k <= 2; k++) {
@@ -400,6 +413,7 @@ static void turncoat_update(LmpFoe *f, int tx, int ty) {
     f->dir = along == want ? 1 : -1;
     (void)tk;
     grid_go(f);
+    f->a = fast ? 6 : 12;
     if (f->cx == f->ox && f->cy == f->oy) f->t -= 4;
 }
 
@@ -428,9 +442,9 @@ static void dread_update(LmpFoe *f, int tx, int ty) {
         if (f->st >= 150) boss_dead(f);
         return;
     }
-    /* crawl along the ceiling */
-    int speed = phase == 2 ? 16 : phase == 1 ? 22 : 28;
-    if (f->state != DN_CHARGE && ++f->a >= speed) {
+    /* crawl along the ceiling; it braces, still, while it charges and while its core is open */
+    int speed = phase == 2 ? 14 : phase == 1 ? 18 : 22;
+    if (f->state == DN_CLOSED && ++f->a >= speed) {
         f->a = 0;
         int nx = f->cx + f->dir;
         if (nx - DREAD_W / 2 < 1 || nx + DREAD_W / 2 > lg.mw - 2) f->dir = -f->dir;
@@ -439,31 +453,23 @@ static void dread_update(LmpFoe *f, int tx, int ty) {
     f->t++;
     switch (f->state) {
     case DN_CLOSED:
-        if (f->t >= (phase == 2 ? 80 : 110)) { f->state = DN_CHARGE; f->t = 0; lmp_sfx("lmp_charge"); }
+        if (f->t >= (phase == 2 ? 90 : phase == 1 ? 100 : 110)) { f->state = DN_CHARGE; f->t = 0; lmp_sfx("lmp_charge"); }
         break;
     case DN_CHARGE:
         if (f->t >= 36) {
             int mx = dread_col(f) * LMP_T + 5;
-            lmp_add_eshot(ES_SHELL, mx * LMP_FX, dread_mouth_y(f) * LMP_FX, 0, 4 * LMP_FX);
+            int sh = lmp_add_eshot(ES_SHELL, mx * LMP_FX, dread_mouth_y(f) * LMP_FX, 0, 4 * LMP_FX);
+            if (sh >= 0) lg.es[sh].bounces = phase >= 1;
             lmp_sfx("lmp_shell");
             lg.shake = 4;
             f->state = DN_OPEN;
             f->t = 0;
-            if (phase >= 1) {
-                /* it lets go of a spiked ball as well */
-                int b = lmp_spawn_foe(FO_BALL, f->cx + (f->dir > 0 ? -4 : 4), f->cy + DREAD_H, DR_D);
-                if (b >= 0) { lg.foe[b].spawn = -3; lg.foe[b].vy = LMP_FX * 3 / 2; }
-            }
         }
         break;
     case DN_OPEN:
-        if (f->t >= (phase == 2 ? 70 : 90)) {
+        if (f->t >= (phase == 2 ? 160 : phase == 1 ? 180 : 150)) {
             f->state = DN_CLOSED;
             f->t = 0;
-            if (phase == 2 && lmp_count_foes(FO_SPECK) < 3) {
-                int s = lmp_spawn_foe(FO_SPECK, f->cx, f->cy + DREAD_H, DR_U);
-                if (s >= 0) lg.foe[s].spawn = -3;
-            }
         }
         break;
     }
@@ -510,7 +516,7 @@ void lmp_boss_start(void) {
         if (lg.foe[i].alive && (lg.foe[i].kind == FO_TURNCOAT || lg.foe[i].kind == FO_DREAD)) return;
     if (lg.kind == LK_TURNCOAT) {
         /* it waits on the far ceiling */
-        int x = lg.mw - 4, y = 2;
+        int x = lg.mw - 4, y = 1;
         while (y < lg.mh - 1 && !lmp_state_ok(x, y, DR_D)) y++;
         int f = lmp_spawn_foe(FO_TURNCOAT, x, y, DR_D);
         if (f >= 0) lg.foe[f].spawn = -4;
@@ -639,12 +645,15 @@ void lmp_eshots_update(void) {
                 lmp_sfx("lmp_tink");
                 continue;
             }
-            if (e->kind == ES_SHELL) {
+            if (e->kind == ES_SHELL && e->bounces) {
+                /* once it is hurt, its shells burst into sparks along the floor */
                 lmp_burst(nx / LMP_FX, ny / LMP_FX, C_ORANGE, 10, 2);
                 lmp_sfx("lmp_boom");
                 /* two sparks run off along the floor */
-                lmp_add_eshot(ES_BOLT, e->x - 3 * LMP_FX, e->y, -2 * LMP_FX, 0);
-                lmp_add_eshot(ES_BOLT, e->x + 3 * LMP_FX, e->y, 2 * LMP_FX, 0);
+                int b1 = lmp_add_eshot(ES_BOLT, e->x - 3 * LMP_FX, e->y, -2 * LMP_FX, 0);
+                int b2 = lmp_add_eshot(ES_BOLT, e->x + 3 * LMP_FX, e->y, 2 * LMP_FX, 0);
+                if (b1 >= 0) lg.es[b1].life = 30; /* they fizzle out six cells on */
+                if (b2 >= 0) lg.es[b2].life = 30;
             }
             e->alive = 0;
             continue;

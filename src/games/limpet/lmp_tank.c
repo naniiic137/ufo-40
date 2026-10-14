@@ -242,6 +242,16 @@ static void arrive(void) {
     if (lg.bulb_out && t->x == lg.exit_x && t->y == lg.exit_y && lg.level != LV_HUB) lmp_level_cleared();
 }
 
+/* a tank carried by a platform still picks up the honey and finds the pod */
+void lmp_tank_touch(void) {
+    LmpTank *t = &lg.tk;
+    if (lg.honey_shown && !lg.honey_held && t->x == lg.honey_x && t->y == lg.honey_y) {
+        lg.honey_held = true;
+        lmp_sfx("lmp_honey");
+    }
+    if (lg.bulb_out && t->x == lg.exit_x && t->y == lg.exit_y && lg.level != LV_HUB) lmp_level_cleared();
+}
+
 /* ---- warping ------------------------------------------------------------- */
 
 static void blast_hits(void) {
@@ -368,6 +378,8 @@ static bool try_push(int sense) {
     int cx = bx + LMP_DX[d], cy = by + LMP_DY[d];
     if (lmp_tile(cx, cy) != ' ' && lmp_tile(cx, cy) != '.') return false;
     if (cx < 0 || cy < 0 || cx >= lg.mw || cy >= lg.mh) return false;
+    /* only if the tank has something to roll on where the block was */
+    if (!lmp_face_solid(bx - LMP_DX[t->n], by - LMP_DY[t->n], t->n)) return false;
     lg.map[cy][cx] = 'P';
     lg.map[by][bx] = ' ';
     lmp_sfx("lmp_push");
@@ -432,6 +444,8 @@ void lmp_tank_update(void) {
         }
         if (t->pn > 0 || lg.state != GS_PLAY) return;
     }
+    if (lg.state != GS_PLAY) return;
+    lmp_tank_touch(); /* a jar dropped right where it waits */
     if (lg.state != GS_PLAY) return;
     if (t->hop_t > 0) {
         if (--t->hop_t == 0) { lmp_sfx("lmp_hop"); do_warp(); }

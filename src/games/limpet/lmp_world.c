@@ -193,7 +193,7 @@ static void mover_step(int i) {
     m->pos += m->sign;
     if (m->pos <= 0 || m->pos >= m->dist) { m->sign = -m->sign; m->wait = 30; }
     if (riding) {
-        if (lmp_open(t->x + dx, t->y + dy)) { t->x += dx; t->y += dy; }
+        if (lmp_open(t->x + dx, t->y + dy)) { t->x += dx; t->y += dy; lmp_tank_touch(); }
         else lmp_kill_tank(101);
     }
     if (lg.state == GS_PLAY && lmp_mover_at(t->x, t->y) == i) lmp_kill_tank(101);
@@ -256,13 +256,18 @@ void lmp_restore_checkpoint(void) {
 /* ---- loading ------------------------------------------------------------ */
 
 static int attach_normal(int x, int y) {
-    /* a fixture faces away from the hull it is fixed to */
+    /* a fixture faces away from the hull it is fixed to: of the sides with
+     * hull behind, the one with the longest open run in front */
     static const int ORDER[4] = {DR_U, DR_D, DR_R, DR_L};
+    int best = DR_U, best_run = -1;
     for (int k = 0; k < 4; k++) {
         int n = ORDER[k];
-        if (lmp_solid(x - LMP_DX[n], y - LMP_DY[n])) return n;
+        if (!lmp_solid(x - LMP_DX[n], y - LMP_DY[n])) continue;
+        int run = 0;
+        while (run < 60 && lmp_open(x + (run + 1) * LMP_DX[n], y + (run + 1) * LMP_DY[n])) run++;
+        if (run > best_run) { best_run = run; best = n; }
     }
-    return DR_U;
+    return best;
 }
 
 static int foe_of(char c) {
@@ -357,7 +362,7 @@ void lmp_load_level(int level) {
             if (!hub_gate_open(g)) continue;
             for (int y = g->y; y < g->y + g->h; y++)
                 for (int x = g->x; x < g->x + g->w; x++)
-                    if (lmp_tile(x, y) == 'G') lg.map[y][x] = ' ';
+                    if (lmp_tile(x, y) == 'G') lg.map[y][x] = '.';
         }
     }
     for (int i = 0; i < L->nthings; i++) {
@@ -371,7 +376,7 @@ void lmp_load_level(int level) {
         mover_paint(m, 'm');
     }
     /* the boss arenas and survival decks have no bulb: their pods open when it's over */
-    lmp_tank_place(sx, sy, attach_normal(sx, sy));
+    lmp_tank_place(sx, sy, lmp_state_ok(sx, sy, DR_U) ? DR_U : attach_normal(sx, sy));
     for (int i = 0; i < lg.nspawn; i++) {
         int f = lmp_spawn_foe(lg.spawn[i].kind, lg.spawn[i].x, lg.spawn[i].y, lg.spawn[i].n);
         if (f >= 0) lg.foe[f].spawn = i;

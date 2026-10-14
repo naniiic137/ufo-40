@@ -9,13 +9,15 @@
  *
  * Plan tokens (spaces between):
  *   1U 2D 3L 4R 5*   go to mark 1 (cannon up / down / left / right / any way)
- *   F                fire a burst      W   warp      wN  wait N frames
+ *   F                fire a burst      f   one shot     W   warp      wN  wait N frames
  *   Tc               shoot (once) the nearest tile c in a line: Td a door switch,
  *                    TS a swap switch, TO an outline block, TB a breakable
  *   B                shoot the red bulb
  *   E                go into the exit pod
  *   !  H             stand on the ! block, take the honey (honey runs only)
  *   ( ... )          only on honey runs
+ *   m                wait for a moving platform under the warp line, then warp onto it
+ *   V                shoot the switch worm until the swap blocks change over
  *   K                hunt: shoot every foe until the pod opens (survival, Turncoat)
  *   D                fight the Dreadnought */
 #include "lmp.h"
@@ -88,6 +90,25 @@ static bool edge(int x, int y, int n, int act, int *ox, int *oy, int *on) {
 
 typedef bool (*Goal)(int x, int y, int n, const void *arg);
 
+/* cells a foe sits in: the search goes round them */
+static uint8_t b_foe_cell[LMP_MH][LMP_MW];
+static void mark_foes(void) {
+    memset(b_foe_cell, 0, sizeof b_foe_cell);
+    for (int i = 0; i < LMP_MAX_FOES; i++) {
+        const LmpFoe *f = &lg.foe[i];
+        if (!f->alive || f->kind == FO_FLAME) continue;
+        if (f->kind == FO_DREAD) {
+            /* its whole body and barrel, and a cell round them */
+            for (int y = f->cy; y <= f->cy + 8 && y < LMP_MH; y++)
+                for (int x = f->cx - 7; x <= f->cx + 7; x++)
+                    if (x >= 0 && x < LMP_MW && (y <= f->cy + 5 || iabs(x - f->cx) <= 1)) b_foe_cell[y][x] = 1;
+            continue;
+        }
+        int cx = f->x / LMP_FX / LMP_T, cy = f->y / LMP_FX / LMP_T;
+        if (cx >= 0 && cy >= 0 && cx < LMP_MW && cy < LMP_MH) b_foe_cell[cy][cx] = 1;
+    }
+}
+
 /* breadth-first over the tank's states; returns the first move, ACT_NONE when
  * already there, -1 when there is no way */
 static int bfs(Goal goal, const void *arg, int *dist) {
@@ -96,6 +117,7 @@ static int bfs(Goal goal, const void *arg, int *dist) {
     if (b_stamp >= 250) { memset(b_seen, 0, sizeof b_seen); b_stamp = 1; }
     if (goal(t->x, t->y, t->n, arg)) { if (dist) *dist = 0; return ACT_NONE; }
     int head = 0, tail = 0;
+    mark_foes();
     int s = key(t->x, t->y, t->n);
     b_seen[s] = (uint8_t)b_stamp;
     b_prev_x[s] = -1;
@@ -107,6 +129,7 @@ static int bfs(Goal goal, const void *arg, int *dist) {
             int ox, oy, on;
             if (!edge(x, y, n, a, &ox, &oy, &on)) continue;
             if (!lmp_axis(on)) continue;
+            if (b_foe_cell[oy][ox]) continue;
             int k2 = key(ox, oy, on);
             if (b_seen[k2] == b_stamp) continue;
             b_seen[k2] = (uint8_t)b_stamp;
@@ -143,7 +166,7 @@ static bool goal_support(int x, int y, int n, const void *arg) {
 
 /* the first thing a shot from this state would hit */
 static char line_hit(int x, int y, int n, int *hx, int *hy) {
-    for (int k = 1; k < 40; k++) {
+    for (int k = 1; k < LMP_MW; k++) {
         int cx = x + k * LMP_DX[n], cy = y + k * LMP_DY[n];
         if (cx < 0 || cy < 0 || cx >= lg.mw || cy >= lg.mh) return 0;
         char c = lmp_tile(cx, cy);
@@ -162,7 +185,21 @@ static bool goal_hit(int x, int y, int n, const void *arg) {
     return line_hit(x, y, n, &hx, &hy) == *(const char *)arg;
 }
 
-static bool foe_in_line(int x, int y, int n, int range) {
+/* each foe's speed, measured frame to frame (pixels x 16 a frame), for aiming ahead */
+static int f_lx[LMP_MAX_FOES], f_ly[LMP_MAX_FOES], f_vx[LMP_MAX_FOES], f_vy[LMP_MAX_FOES];
+static void track_foes(void) {
+    for (int i = 0; i < LMP_MAX_FOES; i++) {
+        const LmpFoe *f = &lg.foe[i];
+        int x = f->x / LMP_FX * 16, y = f->y / LMP_FX * 16;
+        if (!f->alive) { f_vx[i] = f_vy[i] = 0; f_lx[i] = x; f_ly[i] = y; continue; }
+        f_vx[i] = (f_vx[i] * 3 + (x - f_lx[i])) / 4;
+        f_vy[i] = (f_vy[i] * 3 + (y - f_ly[i])) / 4;
+        f_lx[i] = x;
+        f_ly[i] = y;
+    }
+}
+
+static bool foe_in_line_ex(int x, int y, int n, int range, bool lead) {
     int px = x * LMP_T + 5, py = y * LMP_T + 5;
     int hx = -1, hy = -1;
     line_hit(x, y, n, &hx, &hy);
@@ -173,23 +210,36 @@ static bool foe_in_line(int x, int y, int n, int range) {
         if (!f->alive || f->kind == FO_BALL || f->kind == FO_FLAME || f->kind == FO_SWITCHWORM || f->kind == FO_DREAD) continue;
         int fx = f->x / LMP_FX, fy = f->y / LMP_FX;
         int along = (fx - px) * LMP_DX[n] + (fy - py) * LMP_DY[n];
+        if (lead && along > 0 && f->kind != FO_TURNCOAT) {
+            /* where it will be when a shot gets there */
+            int t = along / 4;
+            fx += f_vx[i] * t / 16;
+            fy += f_vy[i] * t / 16;
+            along = (fx - px) * LMP_DX[n] + (fy - py) * LMP_DY[n];
+        }
         int across = LMP_DX[n] ? iabs(fy - py) : iabs(fx - px);
         if (along > 0 && along <= lim && across <= f->h / 2 + 1) return true;
     }
     return false;
 }
+
 static bool goal_hunt(int x, int y, int n, const void *arg) {
+    /* where a foe will be in the line of fire by the time a shot gets there */
     (void)arg;
-    return foe_in_line(x, y, n, 14);
+    return foe_in_line_ex(x, y, n, 14, true);
 }
 
 /* ---- looking ahead ----------------------------------------------------------- */
 
 static LmpGame b_save;
 
+static bool threat_at(int tx, int ty);
 static bool threat_near(void) {
     int tx, ty;
     lmp_tank_centre(&tx, &ty);
+    return threat_at(tx, ty);
+}
+static bool threat_at(int tx, int ty) {
     for (int i = 0; i < LMP_MAX_FOES; i++) {
         const LmpFoe *f = &lg.foe[i];
         if (!f->alive) continue;
@@ -199,7 +249,7 @@ static bool threat_near(void) {
     for (int i = 0; i < LMP_MAX_ESHOTS; i++)
         if (lg.es[i].alive && iabs(lg.es[i].x / LMP_FX - tx) < 120 && iabs(lg.es[i].y / LMP_FX - ty) < 120) return true;
     for (int i = 0; i < lg.nmover; i++)
-        if (iabs(lg.mover[i].x - lg.tk.x) < 6 && iabs(lg.mover[i].y - lg.tk.y) < 6) return true;
+        if (iabs(lg.mover[i].x - tx / LMP_T) < 6 && iabs(lg.mover[i].y - ty / LMP_T) < 6) return true;
     if (lg.timed_t > 0) return true;
     return false;
 }
@@ -214,29 +264,66 @@ static int act_buttons(int act) {
     return 0;
 }
 
-/* run the game ahead: the buttons for `hold` frames, then nothing; true if the tank lives */
-static bool survives(int buttons, int hold, int frames) {
-    memcpy(&b_save, &lg, sizeof lg);
-    bool keep_sim = lmp_simulating;
-    lmp_simulating = true;
+/* run the game ahead from where it is now: `buttons` for `hold` frames, then
+ * nothing, for `frames` in all; returns the frames the tank lived (all of them
+ * if it lives) */
+static int run_ahead(int buttons, int hold, int frames) {
     lmp_sim_prev = 0;
-    bool alive = true;
     for (int f = 0; f < frames; f++) {
         lmp_sim_cur = f < hold ? (uint32_t)buttons : 0;
         lmp_play_step();
         lmp_sim_prev = lmp_sim_cur;
-        if (lg.state == GS_DEAD) { alive = false; break; }
-        if (lg.state != GS_PLAY) break;
+        if (lg.state == GS_DEAD) return f;
+        if (lg.state != GS_PLAY) return frames;
+    }
+    return frames;
+}
+
+static LmpGame b_mid;
+
+/* how long the tank lives after a move and then the best second move (or
+ * waiting): a look two moves deep. The full answer is first + frames + 20. */
+static int survive_t(int buttons, int hold, int frames, int *full) {
+    memcpy(&b_save, &lg, sizeof lg);
+    bool keep_sim = lmp_simulating;
+    lmp_simulating = true;
+    int first = hold > 1 ? hold + 2 : (buttons & BTN_B) ? LMP_WARP_COOL + 1 : LMP_STEP_T + 2;
+    *full = first + frames + 20;
+    int best = run_ahead(buttons, hold, first);
+    if (best >= first && lg.state == GS_PLAY) {
+        memcpy(&b_mid, &lg, sizeof lg);
+        static const int SECOND[4] = {0, BTN_B, -1, -2};
+        int top = 0;
+        for (int k = 0; k < 4 && top < frames + 20; k++) {
+            if (k > 0) memcpy(&lg, &b_mid, sizeof lg);
+            int b = SECOND[k], h = 2;
+            if (b < 0) {
+                /* roll either way along the surface it is on */
+                int d = (lg.tk.n + (b == -1 ? 2 : 6)) & 7;
+                b = d == DR_U ? BTN_UP : d == DR_D ? BTN_DOWN : d == DR_L ? BTN_LEFT : BTN_RIGHT;
+                h = LMP_STEP_T;
+            }
+            top = imax(top, run_ahead(b, h, frames + 20));
+        }
+        best = first + top;
+    } else if (best >= first) {
+        best = *full;
     }
     memcpy(&lg, &b_save, sizeof lg);
     lmp_simulating = keep_sim;
-    return alive;
+    return best;
+}
+
+static bool survives(int buttons, int hold, int frames) {
+    int full;
+    return survive_t(buttons, hold, frames, &full) >= full;
 }
 
 /* ---- the plan ------------------------------------------------------------------ */
 
 static int r_level = -1, r_pos, r_wait, r_fire_t, r_level_t, r_depth;
 static int r_check_pos, r_cx = -1, r_cy, r_cn;
+static int r_v_pos = -1, r_v_par, r_v_t, r_stall;
 static bool r_restore;
 static uint32_t r_prev_mask;
 static bool r_skipping;
@@ -281,20 +368,33 @@ static int go(Goal goal, const void *arg, bool *arrived) {
     }
     int want = act_buttons(act);
     if (act == ACT_WARP && t->warp_cool > 0) return 0;
-    if (!danger) return want;
-    if (survives(want, act == ACT_WARP ? 1 : LMP_STEP_T, 50)) return want;
-    if (survives(0, 0, 50)) return 0;
-    static const int ALT[3] = {ACT_WARP, ACT_CW, ACT_CCW};
-    for (int k = 0; k < 3; k++) {
-        int b = act_buttons(ALT[k]);
-        if (b && survives(b, 2, 50)) return b;
+    if (!danger) {
+        /* where the move ends can be dangerous too */
+        int ox, oy, on;
+        if (edge(t->x, t->y, t->n, act, &ox, &oy, &on)) danger = threat_at(ox * LMP_T + 5, oy * LMP_T + 5);
     }
-    return want;
+    if (!danger) return want;
+    int full;
+    int wt = survive_t(want, act == ACT_WARP ? 1 : LMP_STEP_T, 50, &full);
+    if (wt >= full) { r_stall = 0; return want; }
+    /* waiting is only better if it is safe; after a long wait, take a fair chance */
+    if (++r_stall > 120 && wt >= 40) { r_stall = 0; return want; }
+    int best = 0, best_t = survive_t(0, 0, 50, &full);
+    static const int ALT[3] = {ACT_WARP, ACT_CW, ACT_CCW};
+    for (int k = 0; k < 3 && best_t < full; k++) {
+        int b = act_buttons(ALT[k]);
+        if (!b || b == want) continue;
+        if (ALT[k] == ACT_WARP && t->warp_cool > 0) continue;
+        int bt = survive_t(b, ALT[k] == ACT_WARP ? 1 : LMP_STEP_T, 50, &full);
+        if (bt > best_t) { best_t = bt; best = b; }
+    }
+    if (wt >= best_t) return want;
+    return best;
 }
 
 static int fire_if_foe(void) {
     const LmpTank *t = &lg.tk;
-    if (t->pn == 0 && lmp_axis(t->n) && foe_in_line(t->x, t->y, t->n, 14) && t->fire_gap == 0) return BTN_A;
+    if (t->pn == 0 && lmp_axis(t->n) && foe_in_line_ex(t->x, t->y, t->n, 16, true) && t->fire_gap == 0) return BTN_A;
     return 0;
 }
 
@@ -307,15 +407,26 @@ static int dread_plan(void) {
     /* under the barrel while the core is open; two cells aside otherwise */
     int col = d->cx;
     int want_x;
+    /* it holds still while its core is open */
     if (d->state == 2) want_x = col;
-    else want_x = col + (t->x <= col ? -3 : 3);
+    else {
+        /* wait nine cells off on the side it is on; cross under only while the
+         * barrel is quiet, and only toward the side with room */
+        int side = t->x >= col ? 1 : -1;
+        int off = d->hp > 16 ? 4 : 7; /* its shells only throw sparks once it is hurt */
+        want_x = col + side * off;
+        if (want_x < 2 || want_x > lg.mw - 3) {
+            if (d->state == 0 && d->t < 40) want_x = col - side * off;
+            else want_x = side > 0 ? lg.mw - 3 : 2;
+        }
+    }
     want_x = iclamp(want_x, 1, lg.mw - 2);
     int fy = lg.mh - 2;
     while (fy > 0 && !lmp_state_ok(want_x, fy, DR_U)) fy--;
     Spot s = {want_x, fy, DR_U};
     bool arrived;
     int b = go(goal_spot, &s, &arrived);
-    if (t->pn == 0 && t->n == DR_U && t->x == col && d->state == 2 && t->fire_gap == 0) {
+    if (t->pn == 0 && t->n == DR_U && t->x == d->cx && d->state == 2 && d->t < (d->hp > 16 ? 135 : d->hp > 8 ? 165 : 145) && t->fire_gap == 0) {
         if (survives(BTN_A, 1, 40)) return b | BTN_A;
     }
     return b;
@@ -381,8 +492,14 @@ static int level_plan(void) {
         r_fire_t = 24;
         r_pos = np;
         return 0;
+    case 'f':
+        /* one shot only (a swap switch flips with every hit) */
+        if (t->pn > 0 || t->fire_gap > 0 || (r_prev_mask & BTN_A)) return 0;
+        r_pos = np;
+        r_wait = 24;
+        return BTN_A;
     case 'W':
-        if (t->pn > 0 || t->lag > 0 || t->warp_cool > 0) return shoot;
+        if (t->pn > 0 || t->lag > 0 || t->warp_cool > 0 || (r_prev_mask & BTN_B)) return shoot;
         r_pos = np;
         return BTN_B;
     case 'w':
@@ -395,6 +512,22 @@ static int level_plan(void) {
         if (arrived && t->fire_gap == 0) return BTN_A;
         return b | (b ? 0 : shoot);
     case 'E': {
+        /* a honey run that lost its jar to a death goes back for it if it can */
+        if (lmp_bot_honey && lg.honey_x >= 0 && !lg.honey_held && lg.kind == LK_NORMAL) {
+            Spot hs = {lg.honey_x, lg.honey_y, -1};
+            if (!lg.honey_shown)
+                for (int y = 0; y < lg.mh && hs.n == -1; y++)
+                    for (int x = 0; x < lg.mw; x++)
+                        if (lg.map[y][x] == '!') { hs.x = x; hs.y = y; hs.n = -2; break; }
+            int d;
+            if (hs.n == -2) {
+                hs.n = -1;
+                if (bfs(goal_support, &hs, &d) >= 0) { b = go(goal_support, &hs, &arrived); return b | (b ? 0 : shoot); }
+            } else if (bfs(goal_spot, &hs, &d) >= 0) {
+                b = go(goal_spot, &hs, &arrived);
+                return b | (b ? 0 : shoot);
+            }
+        }
         Spot s = {lg.exit_x, lg.exit_y, -1};
         b = go(goal_spot, &s, &arrived);
         return b | (b ? 0 : shoot);
@@ -419,12 +552,42 @@ static int level_plan(void) {
     case 'T': {
         char want = tok[1];
         b = go(goal_hit, &want, &arrived);
-        if (arrived && t->fire_gap == 0) { r_pos = np; r_wait = 24; return BTN_A; }
+        if (arrived && t->fire_gap == 0 && !(r_prev_mask & BTN_A)) { r_pos = np; r_wait = 24; return BTN_A; }
         return b | (b ? 0 : shoot);
+    }
+    case 'm': {
+        /* wait for a moving platform, then warp onto it */
+        int ox, oy, on;
+        if (t->pn > 0 || t->lag > 0 || t->warp_cool > 0 || (r_prev_mask & BTN_B)) return shoot;
+        if (lmp_warp_target(t->x, t->y, t->n, &ox, &oy, &on) >= 0 && lmp_tile(ox - LMP_DX[on], oy - LMP_DY[on]) == 'm') {
+            r_pos = np;
+            return BTN_B;
+        }
+        return shoot;
+    }
+    case 'V': {
+        /* shoot the switch worm until the swap blocks change over */
+        if (r_v_pos != r_pos) { r_v_pos = r_pos; r_v_par = lg.parity; r_v_t = 0; }
+        if (lg.parity != r_v_par) { r_pos = np; r_v_pos = -1; r_wait = 10; return 0; }
+        if (++r_v_t > 1200) { r_pos = np; r_v_pos = -1; return 0; }
+        if (t->pn > 0 || t->fire_gap > 0 || (r_prev_mask & BTN_A)) return 0;
+        for (int i = 0; i < LMP_MAX_FOES; i++) {
+            const LmpFoe *f = &lg.foe[i];
+            if (!f->alive || f->kind != FO_SWITCHWORM || f->flash > 0) continue;
+            int px = t->x * LMP_T + 5, py = t->y * LMP_T + 5;
+            int fx = f->x / LMP_FX, fy = f->y / LMP_FX;
+            int along = (fx - px) * LMP_DX[t->n] + (fy - py) * LMP_DY[t->n];
+            if (along <= 0) continue;
+            fx += f_vx[i] * (along / 4) / 16;
+            fy += f_vy[i] * (along / 4) / 16;
+            int across = LMP_DX[t->n] ? iabs(fy - py) : iabs(fx - px);
+            if (across <= 3) return BTN_A;
+        }
+        return 0;
     }
     case 'K':
         if (lg.bulb_out) { r_pos = np; return 0; }
-        if (shoot) return shoot;
+        if (shoot && (!threat_near() || survives(BTN_A, 1, 50))) return shoot;
         b = go(goal_hunt, NULL, &arrived);
         return b;
     case 'D':
@@ -486,8 +649,33 @@ static int hub_plan(void) {
 
 int lmp_bot_last;
 
+/* whatever the plan wants, it must not walk into death: check it against the
+ * game run ahead, and if it dies, find something that doesn't */
+static int safety(int m) {
+    const LmpTank *t = &lg.tk;
+    if (t->pn > 0 || t->hop_t > 0) return m;
+    if (!threat_near()) return m;
+    int hold = (m & (BTN_UP | BTN_DOWN | BTN_LEFT | BTN_RIGHT)) ? LMP_STEP_T : 1;
+    int full;
+    int mt = survive_t(m, hold, 60, &full);
+    if (mt >= full || t->lag > 0) return m;
+    int alt[4] = {0, BTN_B, 0, 0};
+    int d1 = (t->n + 2) & 7, d2 = (t->n + 6) & 7;
+    alt[2] = d1 == DR_U ? BTN_UP : d1 == DR_D ? BTN_DOWN : d1 == DR_L ? BTN_LEFT : BTN_RIGHT;
+    alt[3] = d2 == DR_U ? BTN_UP : d2 == DR_D ? BTN_DOWN : d2 == DR_L ? BTN_LEFT : BTN_RIGHT;
+    int best = m, best_t = mt;
+    for (int k = 0; k < 4 && best_t < full; k++) {
+        if (alt[k] == m) continue;
+        if (alt[k] == BTN_B && (t->warp_cool > 0 || (r_prev_mask & BTN_B))) continue;
+        int at = survive_t(alt[k], k >= 2 ? LMP_STEP_T : 1, 60, &full);
+        if (at > best_t) { best_t = at; best = alt[k]; }
+    }
+    return best;
+}
+
 int lmp_bot_buttons(void) {
     int m = 0;
+    track_foes();
     switch (lg.state) {
     case GS_TITLE:
         if (lg.talk_t > 0) m = (lg.frame_t & 1) ? (lg.talk_npc == 1 ? BTN_A : BTN_RIGHT) : 0;
@@ -503,7 +691,12 @@ int lmp_bot_buttons(void) {
     case GS_ENDING: case GS_CHERRY: m = BTN_A; break;
     case GS_PLAY:
         if (lg.level == LV_HUB) { r_level = -1; m = hub_plan(); }
-        else m = level_plan();
+        else {
+            int keep_pos = r_pos, keep_wait = r_wait, keep_fire = r_fire_t;
+            int want = press(level_plan());
+            m = safety(want);
+            if (m != want) { r_pos = keep_pos; r_wait = keep_wait; r_fire_t = keep_fire; }
+        }
         break;
     default: break;
     }
@@ -518,4 +711,20 @@ int lmp_bfs_reach(int tx, int ty, int tn) {
     int d = -1;
     if (bfs(goal_spot, &s, &d) < 0) return -1;
     return d;
+}
+
+int lmp_bot_rpos(void) { return r_pos; }
+
+int lmp_bot_debug(int what) {
+    /* tests: 1 = a warp now survives, 2 = waiting survives, 3 = the plan's first move */
+    if (what == 1) return survives(BTN_B, 1, 60);
+    if (what == 2) return survives(0, 0, 60);
+    if (what == 3) { int d; return bfs(goal_bulb, NULL, &d); }
+    if (what == 4) return threat_near();
+    if (what == 5) return r_wait * 1000 + r_fire_t;
+    if (what == 8) return dread_plan();
+    if (what == 9) return r_prev_mask;
+    if (what == 6) { bool a; Spot sp = {50, 12, 4}; return go(goal_spot, &sp, &a); }
+    if (what == 7) { int d; Spot sp = {50, 12, 4}; return bfs(goal_spot, &sp, &d); }
+    return 0;
 }

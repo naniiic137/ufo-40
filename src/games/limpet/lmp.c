@@ -473,6 +473,9 @@ static int lmp_query(const char *key, int *out) {
     const LmpTank *t = &lg.tk;
     if (!strcmp(key, "bot")) { *out = lmp_bot_buttons(); return 1; }
     if (!strcmp(key, "state")) { *out = lg.state; return 1; }
+    if (!strcmp(key, "bot_last")) { extern int lmp_bot_last; *out = lmp_bot_last; return 1; }
+    if (!strncmp(key, "botdbg", 6)) { extern int lmp_bot_debug(int); *out = lmp_bot_debug(atoi(key + 6)); return 1; }
+    if (!strcmp(key, "rpos")) { extern int lmp_bot_rpos(void); *out = lmp_bot_rpos(); return 1; }
     if (!strcmp(key, "menu")) { *out = lg.menu; return 1; }
     if (!strcmp(key, "level")) { *out = lg.level; return 1; }
     if (!strcmp(key, "kind")) { *out = lg.kind; return 1; }

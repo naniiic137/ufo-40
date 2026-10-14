@@ -246,7 +246,11 @@ static void draw_tile(int tx, int ty, char c, int t) {
             gfx_pset(x + 3, y + 3, C_WHITE);
         }
         break;
+    case ' ':
+        break;
     default:
+        /* marks, spawn points and the like: back wall */
+        gfx_rect(x, y, LMP_T, LMP_T, C_NIGHT);
         break;
     }
 }
@@ -354,7 +358,7 @@ static void draw_world(void) {
             spr_draw(&lmp_rot[SPR_NOZZLE][r], fx - 5, fy - 5, 0);
             int reach = lmp_flame_reach(f);
             if (f->state == 1 && (t & 4)) gfx_circ(fx + LMP_DX[f->n] * 6, fy + LMP_DY[f->n] * 6, 2, C_ORANGE);
-            for (int k = 1; k <= reach; k++) {
+            for (int k = f->state == 2 ? 0 : 1; k <= reach; k++) {
                 int cx = fx + LMP_DX[f->n] * k * LMP_T, cy = fy + LMP_DY[f->n] * k * LMP_T;
                 int rr = 3 + ((t / 3 + k) % 2);
                 gfx_circ(cx, cy, rr + 1, C_RED);
@@ -392,6 +396,7 @@ static void draw_world(void) {
         case FO_TURNCOAT: {
             const Sprite *s = &lmp_tank_spr[4][f->n & 7];
             spr_draw_ex(s, fx - 5, fy - 5, 0, map, -1);
+            if (f->state == 1 && (t & 4)) gfx_circb(fx, fy, 7, C_RED);
             break;
         }
         case FO_DREAD: {

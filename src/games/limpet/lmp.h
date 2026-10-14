@@ -297,6 +297,7 @@ int lmp_roll_path(int x, int y, int n, int sense, int *px, int *py, int *pn, int
 int lmp_warp_target(int x, int y, int n, int *ox, int *oy, int *on);
 void lmp_tank_update(void);
 void lmp_tank_place(int x, int y, int n);
+void lmp_tank_touch(void);
 void lmp_tank_centre(int *x, int *y);       /* pixels */
 void lmp_shots_update(void);
 bool lmp_tank_moving(void);
