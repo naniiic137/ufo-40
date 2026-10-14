@@ -1,0 +1,60 @@
+# WITHERLEA: three missed breaths and he finds you. A miss is a press
+# outside the box, or no press while the mark crosses the bar and back.
+# Misses still count toward the eight, so two can be missed and the hiding
+# holds.
+game witherlea
+wait 5
+cheat new
+cheat spawn 99999
+cheat room smoking
+cheat keeper
+wait 2
+cheat aim S_SMO_ALCOVE
+press A
+expect enc == 5
+waituntil mini_pause == 0 100
+press A
+expect mini_miss == 1
+expect mini_n == 1
+# no press at all: a miss once the mark has gone across and back
+waituntil mini_pause == 0 100
+wait 100
+expect mini_miss == 1
+waituntil mini_miss == 2 400
+expect mini_n == 2
+# two misses, then six good ones: safe
+waituntil mini_ready == 1 400
+press A
+waituntil mini_ready == 1 400
+press A
+waituntil mini_ready == 1 400
+press A
+waituntil mini_ready == 1 400
+press A
+waituntil mini_ready == 1 400
+press A
+waituntil mini_ready == 1 400
+press A
+expect enc == 0
+expect mini_miss == 2
+expect escapes == 1
+expect flag_F_HIDE_ALCOVE_GONE == 1
+cheat hush
+# three misses: found
+cheat room guest
+cheat keeper
+wait 2
+cheat aim S_GUE_BED
+press A
+expect enc == 5
+waituntil mini_pause == 0 100
+press A
+waituntil mini_pause == 0 100
+press A
+waituntil mini_pause == 0 100
+press A
+expect enc == 6
+expect caught == 1
+expect flag_F_EVER_CAUGHT == 1
+expect flag_F_HIDE_BED_GONE == 1
+waituntil scene == 6 200

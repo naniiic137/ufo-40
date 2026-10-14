@@ -1,0 +1,53 @@
+# WITHERLEA: the house saves itself as you go (every room, every change).
+# CONTINUE on the title puts you back in the same room with the same bag;
+# NEW GAME over a save asks for A twice and starts again, keeping only the
+# goals' record.
+game witherlea
+wait 5
+cheat new
+cheat spawn 99999
+cheat give knife
+cheat set F_CELL_OPEN
+cheat aim S_CELL_EXIT
+press A
+wait 24
+expect room == 1
+cheat aim S_PAS_COAT
+press A
+expect has_pennies == 1
+expect save_bytes < 4096
+reload
+game witherlea
+wait 40
+press A
+wait 20
+expect scene == 1
+expect save_exists == 1
+expect title_sel == 0
+press A
+expect scene == 3
+expect room == 1
+expect has_knife == 1
+expect has_pennies == 1
+expect flag_F_COAT == 1
+expect flag_F_CELL_OPEN == 1
+# goals come back from the save
+cheat set F_GIFT
+cheat save
+reload
+game witherlea
+wait 5
+expect goals & 1
+wait 40
+press A
+wait 20
+# NEW GAME over a save: A twice
+press DOWN
+expect title_sel == 1
+press A
+expect scene == 1
+press A
+expect scene == 2
+expect flag_F_GIFT == 1
+expect has_knife == 0
+expect room == 0

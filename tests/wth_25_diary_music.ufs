@@ -1,0 +1,44 @@
+# WITHERLEA: diary pages go into one bundle in the bag; A on it opens the
+# pages found, in date order, LEFT and RIGHT to turn, A or B to close. The
+# house is near silent, outside has its own tune, the dark floor another,
+# and the chase and hiding theirs.
+game witherlea
+wait 5
+cheat new
+cheat spawn 99999
+cheat room passage
+cheat aim S_PAS_RUG
+press A
+expect pages == 1
+expect has_diary == 1
+cheat hush
+cheat room sickroom
+cheat aim S_SICK_BED
+press A
+expect pages == 2
+expect slotof_diary == 0
+cheat hush
+press B
+press A
+expect scene == 5
+expect diary_sel == 0
+press RIGHT
+expect diary_sel == 7
+press RIGHT
+expect diary_sel == 7
+press LEFT
+expect diary_sel == 0
+shot wth_diary
+press B
+expect scene == 4
+press B
+expect scene == 3
+expect music_kind == 2
+cheat room garden
+expect music_kind == 4
+cheat set F_STAIRS_LIT
+cheat room landing
+expect music_kind == 3
+cheat keeper
+wait 2
+expect music_kind == 5

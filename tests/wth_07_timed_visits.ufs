@@ -1,0 +1,56 @@
+# WITHERLEA: left long enough, the Keeper comes by himself: first after 90 s
+# of play out of the cold store, and every time you get away from him he
+# waits 30 s longer, up to 180 s. The wait runs out, the 2.5 s warning
+# follows, then he's in the room.
+game witherlea
+wait 5
+cheat new
+expect spawn_left == 5400
+wait 600
+expect spawn_left == 4800
+cheat room dining
+cheat spawn 5
+wait 5
+expect enc == 1
+expect enc_t == 150
+wait 151
+expect enc == 2
+expect kroom == 5
+# out through four rooms: away, and the next wait is longer
+cheat aim S_DIN_KITCHEN
+press A
+wait 24
+expect enc == 3
+cheat aim S_KIT_SCULLERY
+press A
+wait 24
+cheat aim S_SCU_GARDEN
+press A
+wait 24
+cheat aim S_GDN_DRIVE
+press A
+wait 24
+expect enc == 0
+expect escapes == 1
+expect interval == 7200
+expect spawn_left >= 7190
+cheat hush
+# the wait stops growing at 180 s
+cheat interval 10500
+cheat spawn 3
+wait 160
+expect enc == 2
+cheat aim S_DRV_GARDEN
+press A
+wait 24
+cheat aim S_GDN_GLASS
+press A
+wait 24
+cheat aim S_GLA_BACK
+press A
+wait 24
+cheat aim S_PAR_BACK
+press A
+wait 24
+expect escapes == 2
+expect interval == 10800

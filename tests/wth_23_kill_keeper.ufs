@@ -1,0 +1,65 @@
+# WITHERLEA: only the loaded crossbow kills the Keeper. The bolt goes in
+# from the bag; unloaded it does nothing. He drops the black key where he
+# falls, and after that nothing comes: no visits, no noises answered. The
+# black key opens the cellar doors on the drive.
+game witherlea
+wait 5
+cheat new
+cheat spawn 99999
+cheat give crossbow
+cheat give bolt
+cheat room washroom
+# the toilet is loud
+cheat aim S_WAS_TOILET
+press A
+expect enc == 1
+cheat hush
+waituntil enc == 2 200
+# unloaded
+cheat hold crossbow
+cheat cursor 160 108
+press A
+expect flag_F_KEEPER_DEAD == 0
+cheat hush
+# load it in the bag and shoot
+press B
+press RIGHT
+press A
+expect flag_F_BOW_LOADED == 1
+expect has_bolt == 0
+cheat hush
+press B
+cheat hold crossbow
+cheat cursor 160 108
+press A
+expect flag_F_KEEPER_DEAD == 1
+expect has_crossbow == 0
+expect enc == 0
+expect floor0 == 53
+expect music_kind == 2
+cheat hush
+# the key off the floor
+cheat cursor 80 118
+press A
+expect has_keeperkey == 1
+expect floor0 == 0
+cheat hush
+# nothing comes any more
+cheat spawn 3
+wait 400
+expect enc == 0
+cheat noise
+wait 400
+expect enc == 0
+# the cellar doors
+cheat set F_STAIRS_LIT
+cheat room drive
+cheat hold keeperkey
+cheat aim S_DRV_STORM
+press A
+expect flag_F_STORM_OPEN == 1
+expect has_keeperkey == 0
+cheat hush
+press A
+wait 24
+expect room == 28

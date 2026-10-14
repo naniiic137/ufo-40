@@ -1,0 +1,37 @@
+# WITHERLEA: the hand moves eight ways on the pad, 1.25 px a frame, and
+# stays in the picture. When the Keeper is after you it moves at little
+# more than half that and trembles.
+game witherlea
+wait 5
+cheat new
+cheat cursor 100 70
+hold RIGHT 60
+expect cx == 175
+expect cy == 70
+cheat cursor 100 70
+hold DOWN RIGHT 20
+expect cx == 125
+expect cy == 95
+cheat cursor 100 70
+hold UP LEFT 8
+expect cx == 90
+expect cy == 60
+# it can't leave the picture
+hold LEFT 200
+expect cx == 8
+hold UP 200
+expect cy == 6
+hold RIGHT 400
+expect cx == 311
+hold DOWN 200
+expect cy == 133
+# scared: slower, and shaking
+cheat room hall
+cheat keeper
+wait 2
+expect enc == 2
+expect scared == 1
+cheat cursor 100 70
+hold RIGHT 60
+expect cx >= 134
+expect cx <= 148

@@ -1,0 +1,64 @@
+# WITHERLEA: upstairs and the cellar are dark. The stairs won't take you up
+# without a light; the torch needs its batteries; lit, every dark room is a
+# ring of light round the hand and black beyond it.
+game witherlea
+wait 5
+cheat new
+cheat spawn 99999
+cheat room hall
+expect live_S_HALL_STAIRS == 0
+cheat aim S_HALL_STAIRS_DARK
+press A
+expect talking == 1
+expect room == 3
+cheat hush
+cheat give torch
+cheat give batteries
+# the torch alone: no batteries
+cheat hold torch
+press A
+expect flag_F_STAIRS_LIT == 0
+cheat hush
+cheat hold none
+# batteries in, from the bag
+press B
+press A
+expect held == 17
+press B
+press RIGHT
+press A
+expect flag_F_TORCH_LOADED == 1
+expect has_batteries == 0
+cheat hush
+press B
+expect scene == 3
+cheat hold torch
+cheat aim S_HALL_STAIRS_DARK
+press A
+expect flag_F_STAIRS_LIT == 1
+expect has_torch == 0
+cheat hush
+expect live_S_HALL_STAIRS == 1
+press A
+wait 24
+expect room == 20
+expect dark == 1
+cheat cursor 160 70
+wait 2
+shot wth_dark_landing
+# the cellar needs the light as well
+cheat new
+cheat spawn 99999
+cheat room drive
+cheat set F_STORM_OPEN
+cheat aim S_DRV_CELLAR
+press A
+wait 30
+expect room == 16
+expect talking == 1
+cheat hush
+cheat set F_STAIRS_LIT
+press A
+wait 24
+expect room == 28
+expect dark == 1

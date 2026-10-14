@@ -1,0 +1,51 @@
+# WITHERLEA: the warning first, then the title (no CONTINUE on a fresh
+# save), NEW GAME, three pages of the opening, and you wake in the cold
+# store with its door shut. The Keeper's clock doesn't start until you are
+# out of it.
+game witherlea
+wait 10
+expect scene == 0
+expect paused == 0
+# the warning waits for A
+wait 40
+press A
+wait 5
+expect scene == 1
+expect save_exists == 0
+wait 20
+press A
+wait 5
+expect scene == 2
+expect save_exists == 1
+wait 25
+press A
+wait 25
+press A
+wait 25
+press A
+wait 5
+expect scene == 3
+expect room == 0
+expect talking == 1
+expect flag_F_CELL_OPEN == 0
+expect flag_F_LEFT_CELL == 0
+expect spawn_left == 5400
+expect interval == 5400
+expect bag == 0
+press A
+expect talking == 0
+# the clock stands still in the cold store
+wait 300
+expect spawn_left == 5400
+expect enc == 0
+# B on the title goes back to the library
+reload
+game witherlea
+wait 40
+press A
+wait 20
+expect scene == 1
+expect title_sel == 0
+press B
+wait 30
+expect_scene library

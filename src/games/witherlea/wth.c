@@ -561,6 +561,16 @@ static int wth_query(const char *key, int *out) {
         return 1;
     }
     if (!strcmp(key, "mini_pause")) { *out = wth.k.mini.pause; return 1; }
+    if (!strcmp(key, "mini_ready")) {
+        /* a press on the next frame lands in the box */
+        const WthMini *m = &wth.k.mini;
+        int32_t p = m->pos + m->vel, lim = WTH_BAR_W * 256;
+        if (p >= lim) p = 2 * lim - p;
+        if (p < 0) p = -p;
+        int x = (int)(p >> 8);
+        *out = wth.k.state == E_HIDING && m->pause == 0 && x >= m->zone + 1 && x <= m->zone + m->zw - 2;
+        return 1;
+    }
     if (!strcmp(key, "spawn_left")) { *out = (int)wth.s.spawn_left; return 1; }
     if (!strcmp(key, "interval")) { *out = (int)wth.s.interval; return 1; }
     if (!strcmp(key, "caught")) { *out = wth.s.caught; return 1; }
@@ -589,10 +599,17 @@ static int wth_query(const char *key, int *out) {
     if (!strcmp(key, "layout_bad")) { *out = wth_layout_audit(); return 1; }
     if (!strcmp(key, "dark")) { *out = wth_room_dark(wth.s.room); return 1; }
     if (!strcmp(key, "music")) { *out = music_playing(); return 1; }
-    if (!strcmp(key, "mus_chase")) { *out = WTH_MUS_CHASE; return 1; }
-    if (!strcmp(key, "mus_hide")) { *out = WTH_MUS_HIDE; return 1; }
-    if (!strcmp(key, "mus_house")) { *out = WTH_MUS_HOUSE; return 1; }
-    if (!strcmp(key, "mus_dawn")) { *out = WTH_MUS_DAWN; return 1; }
+    if (!strcmp(key, "music_kind")) {
+        /* 1 title, 2 house, 3 upstairs, 4 garden, 5 chase, 6 hide, 7 cellar, 8 hedges, 9 ending, 10 dawn,
+         * 11 caught, 12 mirror */
+        const int ids[12] = {WTH_MUS_TITLE, WTH_MUS_HOUSE, WTH_MUS_UPSTAIRS, WTH_MUS_GARDEN, WTH_MUS_CHASE, WTH_MUS_HIDE,
+                             WTH_MUS_CELLAR, WTH_MUS_MAZE, WTH_MUS_ENDING, WTH_MUS_DAWN, WTH_MUS_CAUGHT, WTH_MUS_STING};
+        int m = music_playing();
+        *out = 0;
+        for (int k = 0; k < 12; k++)
+            if (m >= 0 && m == ids[k]) *out = k + 1;
+        return 1;
+    }
     if (!strcmp(key, "item_kinds")) { *out = WTH_ITEM_KINDS; return 1; }
     if (!strcmp(key, "room_count")) { *out = R_COUNT; return 1; }
     if (!strcmp(key, "page_count")) { *out = WTH_PAGES; return 1; }

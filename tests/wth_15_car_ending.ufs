@@ -1,0 +1,47 @@
+# WITHERLEA: the Saucer (escape the manor) is the car: the keys from the
+# dog's grave, and the garage door open. With the door down the engine only
+# roars and brings him. After the ending and the credits it's back to the
+# title, and CONTINUE puts you back where you were.
+game witherlea
+wait 5
+cheat new
+cheat spawn 99999
+cheat give carkeys
+cheat room garage
+cheat hold carkeys
+cheat aim S_GAR_CAR
+press A
+expect scene == 3
+expect enc == 1
+expect noises == 1
+cheat hush
+cheat new
+cheat spawn 99999
+cheat give carkeys
+cheat set F_GARAGE_OPEN
+cheat room garage
+cheat hold carkeys
+cheat aim S_GAR_CAR
+press A
+expect scene == 7
+expect ending == 1
+expect goals & 2
+expect golds == 1
+expect flag_F_GOLD_DONE == 1
+expect ending_caught == 0
+wait 31
+press A
+wait 31
+press A
+wait 31
+press A
+expect scene == 8
+wait 91
+press A
+expect scene == 1
+expect title_sel == 0
+wait 20
+press A
+expect scene == 3
+expect room == 12
+expect has_carkeys == 1

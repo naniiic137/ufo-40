@@ -1,0 +1,72 @@
+# WITHERLEA: the Alien (end the nightmare) is the brew poured on the face
+# in the white room. Never caught: a fourth page, THE NIGHTMARE IS OVER,
+# and the daybreak tune. Caught even once: the same ending, the Alien all
+# the same, and after the credits a look in the mirror.
+game witherlea
+wait 5
+cheat new
+cheat spawn 99999
+cheat give brew
+cheat room spore
+cheat hold knife
+cheat aim S_SPO_FACE
+press A
+expect scene == 3
+cheat hush
+cheat hold brew
+press A
+expect scene == 7
+expect ending == 2
+expect ending_best == 1
+expect goals & 4
+expect flag_F_CHERRY_DONE == 1
+expect flag_F_BEST_DONE == 1
+expect bests == 1
+wait 31
+press A
+wait 31
+press A
+wait 31
+press A
+expect scene == 7
+wait 31
+press A
+expect scene == 8
+expect music_kind == 10
+wait 91
+press A
+expect scene == 1
+# caught once: the mirror after the credits
+reload
+game witherlea
+wait 40
+press A
+wait 20
+cheat new
+cheat spawn 99999
+cheat set F_EVER_CAUGHT
+cheat give brew
+cheat room spore
+cheat hold brew
+cheat aim S_SPO_FACE
+press A
+expect ending == 2
+expect ending_best == 0
+expect ending_caught == 1
+expect goals & 4
+expect cherries == 2
+wait 31
+press A
+wait 31
+press A
+wait 31
+press A
+expect scene == 8
+wait 91
+press A
+expect scene == 9
+wait 100
+shot wth_mirror
+wait 101
+press A
+expect scene == 1

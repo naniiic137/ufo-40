@@ -1,0 +1,61 @@
+# WITHERLEA: he follows a room behind you. Four rooms in a row and he loses
+# you, which earns the Beacon (escape the Keeper). Turn back into the room
+# he's in and you walk straight into him.
+game witherlea
+wait 5
+cheat new
+cheat spawn 99999
+cheat room hall
+cheat keeper
+wait 2
+expect enc == 2
+expect enc_t >= 238
+expect goals == 0
+cheat aim S_HALL_DINING
+press A
+wait 24
+expect room == 5
+expect enc == 3
+expect chain == 1
+expect kroom == 3
+expect visible == 0
+expect scared == 1
+cheat aim S_DIN_KITCHEN
+press A
+wait 24
+expect chain == 2
+expect kroom == 5
+cheat aim S_KIT_SCULLERY
+press A
+wait 24
+expect chain == 3
+cheat aim S_SCU_GARDEN
+press A
+wait 24
+expect enc == 0
+expect escapes == 1
+expect goals & 1
+expect flag_F_GIFT == 1
+cheat hush
+# doubling back
+cheat room hall
+cheat keeper
+wait 2
+cheat aim S_HALL_PARLOUR
+press A
+wait 24
+expect enc == 3
+cheat aim S_PAR_BACK
+press A
+wait 24
+expect room == 3
+expect enc == 2
+expect enc_t <= 120
+# too slow: he reaches the next room first (210 frames)
+cheat aim S_HALL_DINING
+press A
+wait 24
+expect enc == 3
+wait 211
+expect enc == 2
+expect kroom == 5

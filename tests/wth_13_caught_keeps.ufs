@@ -1,0 +1,53 @@
+# WITHERLEA: caught, the billhook comes down and the screen goes black;
+# you wake on the straw in the cold store with everything you had and the
+# house as you left it. Nothing else is lost (but the ending remembers).
+game witherlea
+wait 5
+cheat new
+cheat spawn 99999
+cheat set F_CELL_OPEN
+cheat set F_STAIRS_LIT
+cheat set F_GARAGE_OPEN
+cheat give knife
+cheat give spade
+cheat give cane
+cheat pages 7
+cheat room kitchen
+cheat keeper
+wait 2
+expect enc == 2
+cheat hold knife
+# he walks up to you for 4 s
+wait 236
+expect enc == 2
+wait 4
+expect enc == 6
+expect caught == 1
+expect held == 0
+expect flag_F_EVER_CAUGHT == 1
+waituntil scene == 6 120
+# A only after a moment
+press A
+expect scene == 6
+wait 60
+press A
+expect scene == 3
+expect room == 0
+expect enc == 0
+expect has_knife == 1
+expect has_spade == 1
+expect has_cane == 1
+expect pages == 3
+expect flag_F_CELL_OPEN == 1
+expect flag_F_STAIRS_LIT == 1
+expect flag_F_GARAGE_OPEN == 1
+expect spawn_left >= 5397
+expect live_S_CELL_EXIT == 1
+# a second time: the count goes on
+cheat keeper
+wait 245
+waituntil scene == 6 120
+wait 61
+press A
+expect caught == 2
+expect room == 0

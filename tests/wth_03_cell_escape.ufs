@@ -1,0 +1,67 @@
+# WITHERLEA: out of the cold store with button presses. A on the straw
+# finds the shoehorn; B opens the bag, A holds it; A on the vent grille
+# levers it off; A in the vent twice: the wire and the newspaper; the wire
+# under the door lifts the bolt. Each thing leaves the bag when its job is
+# done, and the next thing found fills the hole.
+game witherlea
+wait 5
+cheat new
+cheat aim S_CELL_STRAW
+press A
+expect has_shoehorn == 1
+expect slotof_shoehorn == 0
+expect talking == 1
+press A
+expect talking == 0
+# the vent won't open by hand
+cheat aim S_CELL_VENT
+press A
+expect flag_F_VENT_OPEN == 0
+expect talking == 1
+press A
+expect talking == 0
+# hold the shoehorn from the bag
+press B
+expect scene == 4
+expect bag_sel == 0
+press A
+expect scene == 3
+expect held == 1
+press A
+expect flag_F_VENT_OPEN == 1
+expect has_shoehorn == 0
+expect held == 0
+cheat hush
+# the wire fills the hole the shoehorn left
+press A
+expect has_wire == 1
+expect slotof_wire == 0
+cheat hush
+press A
+expect has_newspaper == 1
+expect slotof_newspaper == 1
+cheat hush
+press A
+expect talking == 1
+cheat hush
+# the mug on the tray
+cheat aim S_CELL_TRAY
+press A
+expect has_mug == 1
+cheat hush
+# wire under the door
+press B
+press A
+expect held == 3
+cheat aim S_CELL_DOOR
+press A
+expect flag_F_CELL_OPEN == 1
+expect live_S_CELL_EXIT == 1
+expect has_wire == 0
+cheat hush
+# through the door: the passage
+press A
+wait 24
+expect room == 1
+expect flag_F_LEFT_CELL == 1
+expect spawn_left < 5400

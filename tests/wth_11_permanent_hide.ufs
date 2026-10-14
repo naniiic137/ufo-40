@@ -1,0 +1,51 @@
+# WITHERLEA: four hiding places last for one use; the laurel by the
+# glasshouse and the dummies in the attic last for ever.
+game witherlea
+wait 5
+cheat new
+cheat spawn 99999
+cheat room garden
+cheat keeper
+wait 2
+cheat aim S_GDN_LAUREL
+press A
+expect enc == 5
+waituntil mini_ready == 1 400
+press A
+waituntil mini_ready == 1 400
+press A
+waituntil mini_ready == 1 400
+press A
+waituntil mini_ready == 1 400
+press A
+waituntil mini_ready == 1 400
+press A
+waituntil mini_ready == 1 400
+press A
+waituntil mini_ready == 1 400
+press A
+waituntil mini_ready == 1 400
+press A
+expect enc == 0
+cheat hush
+cheat keeper
+wait 2
+cheat aim S_GDN_LAUREL
+press A
+expect enc == 5
+cheat new
+cheat spawn 99999
+cheat set F_STAIRS_LIT
+cheat room attic
+cheat keeper
+wait 2
+cheat aim S_ATT_DUMMIES
+press A
+expect enc == 5
+# without him about, it's only a place to hide
+cheat new
+cheat room nursery
+cheat aim S_NUR_CHEST
+press A
+expect enc == 0
+expect talking == 1

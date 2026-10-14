@@ -1,0 +1,54 @@
+# WITHERLEA: hiding. A on a hiding place with him near and the breathing
+# game starts: a mark sweeps the bar, press A while it is in the box, eight
+# times, each faster with a smaller box. Get through and he goes; the
+# parlour's screen is slashed afterwards and can't be used again.
+game witherlea
+wait 5
+cheat new
+cheat spawn 99999
+cheat room parlour
+cheat keeper
+wait 2
+expect enc == 2
+cheat aim S_PAR_SCREEN
+press A
+expect enc == 5
+expect music_kind == 6
+expect mini_zw == 28
+expect mini_vel == 256
+waituntil mini_ready == 1 400
+press A
+expect mini_hit == 1
+expect mini_n == 1
+expect mini_zw == 24
+expect mini_vel == 300
+waituntil mini_ready == 1 400
+press A
+waituntil mini_ready == 1 400
+press A
+waituntil mini_ready == 1 400
+press A
+waituntil mini_ready == 1 400
+press A
+waituntil mini_ready == 1 400
+press A
+expect mini_zw == 10
+waituntil mini_ready == 1 400
+press A
+expect mini_zw == 8
+expect mini_vel == 736
+waituntil mini_ready == 1 400
+press A
+expect enc == 0
+expect escapes == 1
+expect caught == 0
+expect flag_F_HIDE_SCREEN_GONE == 1
+expect goals & 1
+cheat hush
+# the screen is gone
+cheat keeper
+wait 2
+cheat aim S_PAR_SCREEN
+press A
+expect enc == 2
+expect talking == 1

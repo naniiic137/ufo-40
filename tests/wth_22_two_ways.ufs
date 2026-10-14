@@ -1,0 +1,65 @@
+# WITHERLEA: the china pig opens two ways: quietly in the shed's vise, or
+# smashed with the wrecking bar in the bag. Either gives the brass key for
+# the big bedroom. And the brew can't be mixed until the study's screen has
+# said what goes in it: snuff, oil of cloves and borax, in the tin mug.
+game witherlea
+wait 5
+cheat new
+cheat spawn 99999
+cheat give pig
+cheat room shed
+cheat hold pig
+cheat aim S_SHE_VISE
+press A
+expect has_brasskey == 1
+expect has_pig == 0
+expect noises == 0
+cheat hush
+cheat drop brasskey
+cheat give bar
+cheat give pig
+expect slotof_bar == 0
+expect slotof_pig == 1
+cheat hold bar
+press B
+expect bag_sel == 0
+press RIGHT
+press A
+expect has_brasskey == 1
+expect slotof_brasskey == 1
+expect has_pig == 0
+expect has_bar == 1
+expect noises == 0
+cheat hush
+# the brew
+cheat give mug
+cheat give snuff
+cheat give clove
+cheat give borax
+expect slotof_mug == 2
+expect slotof_borax == 5
+cheat hold mug
+press RIGHT
+press RIGHT
+expect bag_sel == 3
+press A
+expect mug == 0
+expect has_snuff == 1
+cheat hush
+cheat set F_RECIPE
+cheat hold mug
+press A
+expect mug == 1
+expect has_snuff == 0
+cheat hush
+cheat hold mug
+press RIGHT
+press A
+expect mug == 3
+cheat hush
+cheat hold mug
+press RIGHT
+press A
+expect has_brew == 1
+expect has_mug == 0
+expect slotof_brew == 2
