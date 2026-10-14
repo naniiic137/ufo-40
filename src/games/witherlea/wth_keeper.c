@@ -238,7 +238,7 @@ static void mini_prompt(void) {
 void wth_hide_begin(int spot) {
     WthKeeper *k = &wth.k;
     k->state = E_HIDING;
-    k->hide_spot = (int8_t)spot;
+    k->hide_spot = (int16_t)spot;
     k->room = wth.s.room;
     memset(&k->mini, 0, sizeof k->mini);
     k->mini.pause = 60;

@@ -6,10 +6,10 @@ game witherlea
 wait 5
 cheat new
 cheat spawn 99999
-cheat room smoking
+cheat room dining
 cheat keeper
 wait 2
-cheat aim S_SMO_ALCOVE
+cheat cursor 90 108
 press A
 expect enc == 5
 waituntil mini_pause == 0 100
@@ -38,13 +38,14 @@ press A
 expect enc == 0
 expect mini_miss == 2
 expect escapes == 1
-expect flag_F_HIDE_ALCOVE_GONE == 1
+expect flag_F_HIDE_TABLE_GONE == 1
 cheat hush
 # three misses: found
-cheat room guest
+cheat set F_STAIRS_LIT
+cheat room master
 cheat keeper
 wait 2
-cheat aim S_GUE_BED
+cheat aim S_MAS_WARDROBE
 press A
 expect enc == 5
 waituntil mini_pause == 0 100
@@ -56,5 +57,5 @@ press A
 expect enc == 6
 expect caught == 1
 expect flag_F_EVER_CAUGHT == 1
-expect flag_F_HIDE_BED_GONE == 1
+expect flag_F_HIDE_WARDROBE_GONE == 1
 waituntil scene == 6 200

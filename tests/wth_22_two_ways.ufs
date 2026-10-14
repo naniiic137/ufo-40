@@ -1,65 +1,79 @@
-# WITHERLEA: the china pig opens two ways: quietly in the shed's vise, or
-# smashed with the wrecking bar in the bag. Either gives the brass key for
-# the big bedroom. And the brew can't be mixed until the study's screen has
-# said what goes in it: snuff, oil of cloves and borax, in the tin mug.
+# WITHERLEA: the big bedroom door, swollen in its frame, opens two ways:
+# levered with the poker, or lifted off its hinges with the screwdriver. And
+# the mixture can't be made until Tom's tape has said what goes in it:
+# blue crystals, quicklime and water, in the rose sprayer.
 game witherlea
 wait 5
 cheat new
 cheat spawn 99999
-cheat give pig
-cheat room shed
-cheat hold pig
-cheat aim S_SHE_VISE
+cheat set F_STAIRS_LIT
+cheat room landing
+cheat aim S_LAN_MASTER_SHUT
 press A
-expect has_brasskey == 1
-expect has_pig == 0
+expect flag_F_MASTER_OPEN == 0
+cheat hush
+cheat hold poker
+press A
+expect flag_F_MASTER_OPEN == 1
 expect noises == 0
 cheat hush
-cheat drop brasskey
-cheat give bar
-cheat give pig
-expect slotof_bar == 0
-expect slotof_pig == 1
-cheat hold bar
+cheat unset F_MASTER_OPEN
+cheat hold screwdriver
+cheat aim S_LAN_MASTER_SHUT
+press A
+expect flag_F_MASTER_OPEN == 1
+cheat hush
+# the tape: power, the empty spool and the tape itself
+cheat new
+cheat spawn 99999
+cheat set F_STAIRS_LIT
+cheat room study
+cheat give reel
+cheat give tape
+cheat aim S_STU_RECORDER
+cheat hold reel
+press A
+cheat hush
+cheat hold tape
+press A
+cheat hush
+press A
+expect flag_F_RECIPE == 0
+cheat hush
+cheat set F_POWER
+press A
+expect flag_F_RECIPE == 1
+cheat hush
+# the mixture
+cheat new
+cheat spawn 99999
+cheat give sprayer
+cheat give sulphate
+cheat give lime
+cheat give water
+expect slotof_sprayer == 0
+cheat hold sprayer
 press B
-expect bag_sel == 0
 press RIGHT
 press A
-expect has_brasskey == 1
-expect slotof_brasskey == 1
-expect has_pig == 0
-expect has_bar == 1
-expect noises == 0
-cheat hush
-# the brew
-cheat give mug
-cheat give snuff
-cheat give clove
-cheat give borax
-expect slotof_mug == 2
-expect slotof_borax == 5
-cheat hold mug
-press RIGHT
-press RIGHT
-expect bag_sel == 3
-press A
-expect mug == 0
-expect has_snuff == 1
+expect mix == 0
+expect has_sulphate == 1
 cheat hush
 cheat set F_RECIPE
-cheat hold mug
+cheat hold sprayer
 press A
-expect mug == 1
-expect has_snuff == 0
+expect mix == 1
+expect has_sulphate == 0
 cheat hush
-cheat hold mug
+cheat hold sprayer
 press RIGHT
 press A
-expect mug == 3
+expect mix == 3
 cheat hush
-cheat hold mug
+cheat hold sprayer
 press RIGHT
 press A
-expect has_brew == 1
-expect has_mug == 0
-expect slotof_brew == 2
+expect has_mixture == 1
+expect has_sprayer == 0
+expect has_water == 0
+expect slotof_mixture == 0

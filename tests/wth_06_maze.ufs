@@ -1,6 +1,6 @@
-# WITHERLEA: the hedges. Six junctions; the way in is RIGHT, LEFT, LEFT,
-# STRAIGHT ON, RIGHT, LEFT. A wrong turn rings a bell, puts you back at the
-# start, and the Keeper comes 6.5 s (390 frames) later.
+# WITHERLEA: the hedges. Six junctions; the way in, seen from the balcony,
+# is LEFT, LEFT, RIGHT, STRAIGHT ON, LEFT, RIGHT. A wrong turn rings a bell,
+# puts you back at the start, and the Keeper comes 6.5 s (390 frames) later.
 game witherlea
 wait 5
 cheat new
@@ -10,19 +10,16 @@ cheat room courtyard
 cheat aim S_CRT_MAZE
 press A
 wait 24
-expect room == 18
+expect room == 19
 expect maze == 0
-# right, left: two junctions on
-cheat aim S_MAZ_RIGHT
-press A
-wait 24
-expect maze == 1
 cheat aim S_MAZ_LEFT
 press A
 wait 24
+expect maze == 1
+press A
+wait 24
 expect maze == 2
-# a wrong turn (right instead of left)
-cheat aim S_MAZ_RIGHT
+# a wrong turn (left instead of right)
 press A
 expect maze == 0
 expect enc == 1
@@ -38,29 +35,34 @@ cheat spawn 99999
 cheat set F_GATE_OPEN
 cheat room maze
 cheat maze 0
-cheat aim S_MAZ_RIGHT
-press A
-wait 24
 cheat aim S_MAZ_LEFT
 press A
 wait 24
+press A
+wait 24
+cheat aim S_MAZ_RIGHT
 press A
 wait 24
 cheat aim S_MAZ_AHEAD
 press A
 wait 24
-cheat aim S_MAZ_RIGHT
-press A
-wait 24
-expect maze == 5
 cheat aim S_MAZ_LEFT
 press A
 wait 24
-expect room == 19
+expect maze == 5
+cheat aim S_MAZ_RIGHT
+press A
+wait 24
+expect room == 20
 expect maze == 0
 expect noises == 1
 expect enc == 0
-# the stone girl's bolt
-cheat aim S_HRT_GIRL
+# the bolt in the old oak: too deep for fingers, out with the pliers
+cheat aim S_HRT_OAK
+press A
+expect has_bolt == 0
+cheat hush
+cheat hold pliers
 press A
 expect has_bolt == 1
+expect has_pliers == 0

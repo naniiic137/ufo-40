@@ -12,9 +12,9 @@ cheat aim S_CELL_EXIT
 press A
 wait 24
 expect room == 1
-cheat aim S_PAS_COAT
+cheat aim S_PAS_RUG
 press A
-expect has_pennies == 1
+expect pages == 1
 expect save_bytes < 4096
 reload
 game witherlea
@@ -28,8 +28,8 @@ press A
 expect scene == 3
 expect room == 1
 expect has_knife == 1
-expect has_pennies == 1
-expect flag_F_COAT == 1
+expect pages == 1
+expect has_diary == 1
 expect flag_F_CELL_OPEN == 1
 # goals come back from the save
 cheat set F_GIFT

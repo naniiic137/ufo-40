@@ -1,30 +1,27 @@
 # WITHERLEA: the bag. Hold one thing and A on another puts them together;
-# A on the held thing itself puts it back. The cane, the cup hook and the
-# twine only make the long hook when all three are there. Things fill the
-# first empty slot.
+# A on the held thing itself puts it back. Things fill the first empty slot.
 game witherlea
 wait 5
 cheat new
-cheat give cane
-cheat give cuphook
+cheat give fuse
 cheat give knife
-expect slotof_cane == 0
-expect slotof_cuphook == 1
-expect slotof_knife == 2
-# hold the cane: B opens the bag, A holds and closes it
+cheat give fusewire
+expect slotof_fuse == 0
+expect slotof_knife == 1
+expect slotof_fusewire == 2
+# hold the fuse: B opens the bag, A holds and closes it
 press B
 expect scene == 4
 press A
-expect held == 21
+expect held == 12
 expect scene == 3
 # B with something held opens the bag on it; A on another thing combines
 press B
 expect bag_sel == 0
 press RIGHT
 press A
-expect has_cane == 1
-expect has_cuphook == 1
-expect has_longhook == 0
+expect has_fuse == 1
+expect has_knife == 1
 expect held == 0
 expect talking == 1
 # the message pages on with A
@@ -34,45 +31,42 @@ expect scene == 4
 # A on the held thing itself: back in the bag
 press LEFT
 press A
-expect held == 21
+expect held == 12
 expect scene == 3
 press B
 press A
 expect held == 0
 expect scene == 4
-# with twine it works, and the long hook takes the cane's place
-cheat give twine
-expect slotof_twine == 3
+# the fuse and its wire make a mended fuse, in the fuse's slot
 press A
-expect held == 21
+expect held == 12
 press B
 press RIGHT
+press RIGHT
 press A
-expect has_longhook == 1
-expect has_cane == 0
-expect has_cuphook == 0
-expect has_twine == 0
-expect slotof_longhook == 0
-expect slotof_knife == 2
+expect has_goodfuse == 1
+expect has_fuse == 0
+expect has_fusewire == 0
+expect slotof_goodfuse == 0
+expect slotof_knife == 1
 cheat hush
 press B
 expect scene == 3
-# a new thing fills slot 1, the first hole
-cheat give spade
-expect slotof_spade == 1
-# things that don't go together
-cheat give pig
-expect slotof_pig == 3
-cheat hold knife
+# a new thing fills slot 2, the first hole
+cheat give salt
+expect slotof_salt == 2
+# the magnet on the fishing line
+cheat give magnet
+cheat give line
+cheat hold magnet
 press B
-expect bag_sel == 2
 press RIGHT
 press A
-expect has_pig == 1
-expect has_knife == 1
-expect talking == 1
-# the cursor wraps round the rows
+expect has_magnetline == 1
+expect has_magnet == 0
 cheat hush
+# the cursor wraps round the rows
+press LEFT
 press LEFT
 press LEFT
 press LEFT

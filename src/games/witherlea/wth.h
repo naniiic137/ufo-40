@@ -154,7 +154,7 @@ typedef struct WthKeeper {
     int32_t t;                      /* the countdown of the state */
     uint8_t chain;                  /* rooms put behind you */
     uint8_t room;                   /* where he is (E_HERE, E_STUN) */
-    int8_t hide_spot;
+    int16_t hide_spot;
     uint8_t noise_maze;
     int16_t arrive;                 /* frames since he came into the room (drawing) */
     WthMini mini;

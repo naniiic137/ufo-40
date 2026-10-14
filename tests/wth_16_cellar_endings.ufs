@@ -1,19 +1,19 @@
-# WITHERLEA: the Alien (end the nightmare) is the brew poured on the face
-# in the white room. Never caught: a fourth page, THE NIGHTMARE IS OVER,
-# and the daybreak tune. Caught even once: the same ending, the Alien all
+# WITHERLEA: the Alien (end the nightmare) is the mixture sprayed on the face
+# in the white room, and the house burns. Never caught: a fourth page,
+# THE NIGHTMARE IS OVER, and the daybreak tune. Caught even once: the Alien all
 # the same, and after the credits a look in the mirror.
 game witherlea
 wait 5
 cheat new
 cheat spawn 99999
-cheat give brew
+cheat give mixture
 cheat room spore
 cheat hold knife
 cheat aim S_SPO_FACE
 press A
 expect scene == 3
 cheat hush
-cheat hold brew
+cheat hold mixture
 press A
 expect scene == 7
 expect ending == 2
@@ -45,9 +45,9 @@ wait 20
 cheat new
 cheat spawn 99999
 cheat set F_EVER_CAUGHT
-cheat give brew
+cheat give mixture
 cheat room spore
-cheat hold brew
+cheat hold mixture
 cheat aim S_SPO_FACE
 press A
 expect ending == 2

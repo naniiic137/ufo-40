@@ -27,9 +27,10 @@ wait 24
 cheat aim S_SCU_GARDEN
 press A
 wait 24
-cheat aim S_GDN_DRIVE
+cheat aim S_GDN_YARD
 press A
 wait 24
+expect room == 16
 expect enc == 0
 expect escapes == 1
 expect interval == 7200
@@ -40,7 +41,7 @@ cheat interval 10500
 cheat spawn 3
 wait 160
 expect enc == 2
-cheat aim S_DRV_GARDEN
+cheat cursor 112 129
 press A
 wait 24
 cheat aim S_GDN_GLASS

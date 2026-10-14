@@ -1,14 +1,15 @@
-# WITHERLEA: the Saucer (escape the manor) is the car: the keys from the
-# dog's grave, and the garage door open. With the door down the engine only
-# roars and brings him. After the ending and the credits it's back to the
-# title, and CONTINUE puts you back where you were.
+# WITHERLEA: the Saucer (escape the manor) is the car: the rotor arm back
+# under the bonnet, the key from the sealed hive, and the garage door up.
+# Without the rotor the starter only whines; with the door down the engine
+# roars. Either way it brings him. After the ending and the credits it's
+# back to the title, and CONTINUE puts you back where you were.
 game witherlea
 wait 5
 cheat new
 cheat spawn 99999
-cheat give carkeys
+cheat give carkey
 cheat room garage
-cheat hold carkeys
+cheat hold carkey
 cheat aim S_GAR_CAR
 press A
 expect scene == 3
@@ -17,10 +18,42 @@ expect noises == 1
 cheat hush
 cheat new
 cheat spawn 99999
-cheat give carkeys
-cheat set F_GARAGE_OPEN
+cheat give carkey
+cheat give rotor
 cheat room garage
-cheat hold carkeys
+cheat hold rotor
+cheat aim S_GAR_CAR
+press A
+expect flag_F_ROTOR_FITTED == 1
+expect has_rotor == 0
+cheat hush
+cheat hold carkey
+press A
+expect scene == 3
+expect enc == 1
+cheat hush
+# the chain, then the door: loud
+cheat new
+cheat spawn 99999
+cheat give carkey
+cheat give cutters
+cheat set F_ROTOR_FITTED
+cheat room garage
+cheat aim S_GAR_DOOR
+press A
+expect flag_F_GARAGE_OPEN == 0
+cheat hush
+cheat hold cutters
+press A
+expect flag_F_CHAIN_CUT == 1
+cheat hush
+cheat hold none
+press A
+expect flag_F_GARAGE_OPEN == 1
+expect enc == 1
+cheat hush
+cheat spawn 99999
+cheat hold carkey
 cheat aim S_GAR_CAR
 press A
 expect scene == 7
@@ -44,4 +77,4 @@ wait 20
 press A
 expect scene == 3
 expect room == 12
-expect has_carkeys == 1
+expect has_carkey == 1

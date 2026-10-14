@@ -9,8 +9,8 @@ cheat set F_CELL_OPEN
 cheat set F_STAIRS_LIT
 cheat set F_GARAGE_OPEN
 cheat give knife
-cheat give spade
-cheat give cane
+cheat give poker
+cheat give salt
 cheat pages 7
 cheat room kitchen
 cheat keeper
@@ -35,8 +35,8 @@ expect scene == 3
 expect room == 0
 expect enc == 0
 expect has_knife == 1
-expect has_spade == 1
-expect has_cane == 1
+expect has_poker == 1
+expect has_salt == 1
 expect pages == 3
 expect flag_F_CELL_OPEN == 1
 expect flag_F_STAIRS_LIT == 1

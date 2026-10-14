@@ -21,13 +21,13 @@ cheat hush
 press B
 press A
 expect scene == 5
-expect diary_sel == 0
+expect diary_sel == 2
 press RIGHT
-expect diary_sel == 7
+expect diary_sel == 8
 press RIGHT
-expect diary_sel == 7
+expect diary_sel == 8
 press LEFT
-expect diary_sel == 0
+expect diary_sel == 2
 shot wth_diary
 press B
 expect scene == 4

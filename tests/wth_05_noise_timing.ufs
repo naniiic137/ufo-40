@@ -4,10 +4,10 @@
 game witherlea
 wait 5
 cheat new
-cheat room parlour
+cheat room dining
 cheat spawn 99999
-# the radiogram is loud
-cheat aim S_PAR_RADIO
+# the pianola is loud
+cheat aim S_DIN_PIANOLA
 press A
 expect noises == 1
 expect enc == 1
@@ -17,13 +17,13 @@ press A
 wait 130
 expect enc == 1
 waituntil enc == 2 30
-expect kroom == 4
+expect kroom == 5
 expect visible == 1
 expect scared == 1
 expect music_kind == 5
 # back to quiet
 cheat new
-cheat room parlour
+cheat room dining
 cheat spawn 99999
 cheat noise
 expect enc_t == 150
@@ -36,19 +36,30 @@ cheat hold none
 wait 10
 expect enc_t == 140
 # a second noise doesn't start it again
-cheat aim S_PAR_RADIO
+cheat aim S_DIN_PIANOLA
 press A
 expect noises == 3
 expect enc_t <= 140
 press A
 # changing rooms stops it: one frame counts, the 23 of the fade don't
 cheat new
-cheat room parlour
+cheat room dining
 cheat spawn 99999
 cheat noise
-cheat aim S_PAR_GLASS
+cheat aim S_DIN_KITCHEN
 press A
 wait 21
-expect room == 11
+expect room == 6
 expect trans == 0
 expect enc_t == 149
+# the radiogram is only loud once the house has power
+cheat new
+cheat spawn 99999
+cheat room parlour
+cheat aim S_PAR_RADIO
+press A
+expect enc == 0
+cheat hush
+cheat set F_POWER
+press A
+expect enc == 1
