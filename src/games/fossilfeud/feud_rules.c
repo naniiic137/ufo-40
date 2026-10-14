@@ -656,6 +656,12 @@ void feud_end_turn(FeudMatch *m) {
 
 /* ---- words ------------------------------------------------------------------- */
 
+/* "1 TOILER", "3 TOILERS" (grain is grain) */
+static const char *res_word(int r, int n) {
+    static const char *const ONE[FR_KINDS] = {"GRAIN", "TOILER", "RELIC"};
+    return n == 1 ? ONE[r] : FEUD_RES_NAME[r];
+}
+
 static void cat(char *buf, int n, const char *s) {
     int l = (int)strlen(buf);
     if (l < n - 1) snprintf(buf + l, (size_t)(n - l), "%s", s);
@@ -663,11 +669,11 @@ static void cat(char *buf, int n, const char *s) {
 
 int feud_offer_text(const FeudMatch *m, int act, const FeudOffer *o, char *buf, int n) {
     switch (FEUD_ACT[act].kind) {
-    case AK_ENLIST: return snprintf(buf, (size_t)n, "%s %d %s", FEUD_UNIT[o->what].name, o->cost, FEUD_RES_NAME[o->res]);
-    case AK_BUILD: return snprintf(buf, (size_t)n, "%s %d %s", FEUD_BLD_NAME[o->what], o->cost, FEUD_RES_NAME[o->res]);
+    case AK_ENLIST: return snprintf(buf, (size_t)n, "%s %d %s", FEUD_UNIT[o->what].name, o->cost, res_word(o->res, o->cost));
+    case AK_BUILD: return snprintf(buf, (size_t)n, "%s %d %s", FEUD_BLD_NAME[o->what], o->cost, res_word(o->res, o->cost));
     case AK_BARTER:
-        return snprintf(buf, (size_t)n, "%d %s FOR %d %s", o->cost, FEUD_RES_NAME[o->what], o->gain, FEUD_RES_NAME[o->res]);
-    case AK_OMEN: return snprintf(buf, (size_t)n, "%s %d RELICS", FEUD_OMEN_NAME[o->what], o->cost);
+        return snprintf(buf, (size_t)n, "%d %s FOR %d %s", o->cost, res_word(o->what, o->cost), o->gain, res_word(o->res, o->gain));
+    case AK_OMEN: return snprintf(buf, (size_t)n, "%s %d %s", FEUD_OMEN_NAME[o->what], o->cost, res_word(FR_RELICS, o->cost));
     default: break;
     }
     (void)m;
@@ -683,10 +689,13 @@ int feud_level_text(const FeudMatch *m, int side, int act, int lvl, char *buf, i
     buf[0] = 0;
     switch (d->kind) {
     case AK_GATHER: {
-        static const char *const W[5] = {"GRAIN", "GRAIN A GRANARY", "TOILERS A DUSTBATH", "RELICS", "RELICS A SHRINE"};
+        static const char *const W[5] = {"GRAIN", "GRAIN A GRANARY", "%s A DUSTBATH", "%s", "%s A SHRINE"};
+        static const int R[5] = {FR_GRAIN, FR_GRAIN, FR_TOILERS, FR_RELICS, FR_RELICS};
         for (int i = 0; i < 5; i++) {
             if (!l->g[i]) continue;
-            snprintf(part, sizeof part, "%s+%d %s", buf[0] ? ", " : "", l->g[i], W[i]);
+            char w[40];
+            snprintf(w, sizeof w, W[i], res_word(R[i], l->g[i]));
+            snprintf(part, sizeof part, "%s+%d %s", buf[0] ? ", " : "", l->g[i], w);
             cat(buf, n, part);
         }
         break;
@@ -714,12 +723,12 @@ int feud_level_text(const FeudMatch *m, int side, int act, int lvl, char *buf, i
         for (int i = 0; i < k; i++) {
             if (d->kind == AK_OMEN) snprintf(part, sizeof part, "%s%s %d", i ? ", " : "", FEUD_OMEN_NAME[o[i].what], o[i].cost);
             else if (d->kind == AK_BARTER)
-                snprintf(part, sizeof part, "%s%d %s FOR %d %s", i ? "; " : "", o[i].cost, FEUD_RES_NAME[o[i].what], o[i].gain,
-                         FEUD_RES_NAME[o[i].res]);
+                snprintf(part, sizeof part, "%s%d %s FOR %d %s", i ? "; " : "", o[i].cost, res_word(o[i].what, o[i].cost), o[i].gain,
+                         res_word(o[i].res, o[i].gain));
             else
                 snprintf(part, sizeof part, "%s%s %d %s", i ? ", " : "",
                          d->kind == AK_ENLIST ? FEUD_UNIT[o[i].what].name : FEUD_BLD_NAME[o[i].what], o[i].cost,
-                         FEUD_RES_NAME[o[i].res]);
+                         res_word(o[i].res, o[i].cost));
             cat(buf, n, part);
         }
         if (d->kind == AK_OMEN) cat(buf, n, " RELICS");
