@@ -142,6 +142,10 @@ static const struct { const char *id, *title; } TITLES[] = {
     {"rsl_boss", "THE HOLLOW HOST"}, {"rsl_special", "HIDDEN HOARD"}, {"rsl_spirit", "THE LOW GLOW"},
     {"rsl_ending", "LAID TO REST"}, {"rsl_scores", "NAMES IN THE ASH"}, {"rsl_clear", "STAGE CLEAR"},
     {"rsl_over", "SCATTERED"}, {"rsl_rise", "GRANDMOTHER ASH"},
+    {"apd_title", "ANTIPODE"}, {"apd_intro", "WAKE IN THE CRADLE"}, {"apd_gantry", "GANTRY SHIFT"},
+    {"apd_brine", "BRINE"}, {"apd_coil", "THE COIL"}, {"apd_crown", "THE CROWN"}, {"apd_pod", "CRADLE"},
+    {"apd_boss", "HOSTILE UNIT"}, {"apd_final", "HALLORAN"}, {"apd_ending", "VISOR UP"},
+    {"apd_credits", "TALLOW STATION"}, {"apd_item", "UPGRADE"}, {"apd_over", "SIGNAL LOST"},
 };
 
 const char *shell_song_title(int song) {
@@ -158,7 +162,7 @@ const char *shell_song_title(int song) {
     return buf;
 }
 
-#define MAX_ROWS 448 /* every song plus a heading per cartridge */
+#define MAX_ROWS 512 /* every song plus a heading per cartridge */
 #define LIST_Y 69 /* the scroll marks fit between the panels */
 #define ROW_H 10
 #define VISIBLE 9
