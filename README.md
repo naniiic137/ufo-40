@@ -150,6 +150,7 @@ menu, shows the buttons as you now press them). SELECT or B closes it.
 | 39 | **BUZZBOLT** | Star Waspir | a fast vertical shooter over the whole wide screen where one hit is a loss, tap fire for a wide spread at full speed and hold it for focused fire and a slower ship, three ships with their own fire, options and two specials each (a charge lance, guard orbs, a shield drone, bombs on the second button), every kill dropping a letter in the fixed order B, Z, Z, words of three (BZZ puts the multiplier up with no limit, ZZZ brings an option, BBB and ZBB are the ship's specials, any other word puts it back to x1), the multiplier built up and cashed in on the bosses, losing a ship costs the multiplier and every gift, ships at 25k, 100k and 200k, five waves with a boss each (wave 1's pair flies off if left alone; wave 3 the hard one; walls, gates and a golden swarm in wave 4; a last boss of aimed fans), an unmultiplied time bonus, a high-score table | the Hive Wing (lacewing, shieldbug, firefly), the hiveship and the dragonfly, the Blight's gnats, midges, whirlers, crickets, blisters, puffballs, rot walls and goldbugs, the Ironbacks, the Bloatfly, the Queen Tick, Scythewing and Dustwing, the Sporeheart, five new waves |
 | 44 | **HOMESPUN** | Pilot Quest | a camp that keeps working in real time while the console is on, even in other cartridges; a yo-yo that knocks glints out of a crystal; plants, bars, huts, anvils, bins and research at the original's prices; jerky as two minutes of trip time a strip, and a clock that is also your health; one Wilds map whose roadblocks and caves are shuffled per save; three dungeons with a ship part each; a gun that costs a glint a shot; coins for hopstones, vendors and a gambling den; a spider that spins thread at camp; a super boss beaten six times in one trip; new-game-plus stones | Wick and the *Tumbleweed*, the moor-moon Oddmoor and its folk, the Wilds, three dungeons, all 19 foes and 6 bosses |
 | 41 | **RIMSHIRE** | Lords of Diskonia | a board where two banners take turns stepping along roads, trails a banner can't step back onto that pull an army back when struck, inns, tomes, seams and chests; flick battles on fields built from the four tiles round the fight: a queue of three, aim, charge and launch, knocks that hurt by the striking disk's own melee, water, the closing haze and stalemates; the original's 15 disks with their numbers, 8 skills, 10 campaign wars, the streak and 2P | Rimshire, the Brass and Plum banners, the Plum Empress, Lady Brass's letters, all 16 disks, 10 new boards |
+| 42 | **WITHERLEA** | Night Manor | a first-person house of 30 still pictures (28 rooms and the two parts of a hedge maze) explored with a slow eight-way cursor that turns into an arrow over a way out; 54 kinds of thing to take, use and put together, each with its job; 17 diary pages found out of order; upstairs and the cellar dark but for a ring of torchlight round the hand; a stalker who comes when too long goes by or 2.5 s after a noise (6.5 s after a wrong turn in the hedges), the countdown stopping between rooms and while you hold something; a cursor that slows and shakes when he's near; hiding in a breathing game of eight marks where three misses lose, in four places he wrecks after one use and two that last; running four rooms in a row; a knife and a bar that each knock him down once; caught, you wake in the cell with everything; the car ending, the cellar ending, the never-caught ending and the face in the mirror | the Morrows of Witherlea and their diary, the Keeper in his bee veil, the cold store, the stone hares, the hedges and the white room, every puzzle and all 54 things, twelve tunes |
 | 47 | **WOBBLE DERBY** | Quibble Race | three punters and three runners a race, odds from a form book of twenty unseen races, rising bet caps and an open last race, one tip a race, five dirty tricks and a minder with the same prices and fines, a lender at 15 % compounded, sponsoring from a shortlist and a coach, meteors, garbage and smog, 26 runners in the same speed and clumsiness bands, 3-player hot-seat | Crater Downs, the 26 wobblers, the sixteen punters (five of them UFO 40 cameos), the Fixer, the Lender and the Wobble Wire |
 | 48 | **DRIFTLINE** | Seaside Drive | a car locked to the road at the bottom while the world scrolls by, steering that also swings the gun through a 90-degree cone (UP straightens it), a rapid roof gun on A and side pairs along the road on B, a charge meter (grey, green, red: its section sets the shots' damage, rate and speed) that fills only while you drive left and drains slowly otherwise, one hit per car and the screen swept clean as the next drives in fully charged, fliers that turn nasty if left alone, wrecks that pay only when shot again, four fixed stages from morning to the open sea, each with a boss (10,000 to 40,000) seen in the background all stage, a Breakout bonus stage after any stage with no car lost whose coin is two more cars (the only extra cars), 2P co-op in one car with a driver and a gunner | Lou and the Gull, Dee on the gun, Harbour Road, the Sundown Strip, the Moonlit Mile and Open Water, every foe, the Zephyr, the Orrery, the Man in the Moon, Old Crab (from ROOFCAT) and a Beamdown saucer, all the waves, swells and block layouts |
 | 49 | **FULL PEAL** | Campanella 3 | a faux-3D shooter flying into the screen, the ship free on a flat 6 × 4 plane with no gravity, fuel or walls; A fires into the distance down your lane, B fires the side blaster along the plane away from the way you move (held, it keeps its aim) at whatever has reached you; one hit a ship, three ships a credit, not given back between stages, a lost credit restarts the stage; five stages of four fixed waves and a boss, each wave graded 0–100 by the share shot down; a 100 or a 0 brings a balloon round after the boss (red 1, orange 3, 50 for a continue); the final count is the twenty grades plus 100 a continue; sixteen foes, five bosses (the last healing until your sister flies in), a no-guns code; and, for a second controller held on A, fifty four-colour micro-games in the cockpit monitor, each with its high score | Ansel and the Tinkler with Clary on the radio (the BELLHOP cast), the bell-planet Knell, Outer Belfry, Tin Nebula, The Murk and Tollgate, all sixteen foes, the Gloameye, Knucklebell, the Inkwell, Shellback and Queen Sordina, the owl, all twenty waves and fifty micro-games, the HUGS-ONLY code |
@@ -1722,6 +1723,54 @@ the top.
 - **Ours:** Rimshire, the Brass and Plum banners, the Plum Empress and Lady
   Brass's letters, all sixteen disks and eight skills, the ten boards, the
   streak's board maker and the music.
+### 42 · WITHERLEA
+
+<p align="center">
+  <img src="docs/shots/witherlea.gif" width="640" alt="Witherlea: out of the cold store with a shoehorn and a bent wire, and into the house">
+</p>
+<p align="center">
+  <img src="docs/shots/witherlea_title.png" width="320" alt="The title: the house on the fens under a thin moon">
+  <img src="docs/shots/witherlea_keeper.png" width="320" alt="The Keeper in his bee veil walks up to you in the parlour">
+</p>
+<p align="center">
+  <img src="docs/shots/witherlea_hide.png" width="320" alt="Hiding behind the curtain: press A while the mark is in the green box">
+  <img src="docs/shots/witherlea_landing.png" width="320" alt="The dark landing, seen only in the ring of torchlight round the hand">
+</p>
+<p align="center">
+  <img src="docs/shots/witherlea_garden.png" width="320" alt="The side garden: the yew and the dog's grave, the hives, the ivy arch and the shed">
+  <img src="docs/shots/witherlea_bag.png" width="320" alt="The bag: the cane held over the cup hook">
+</p>
+
+*A tribute to **Night Manor** (UFO 50 #42).*
+
+- **Plays the same:** one still picture a room, seen through your own eyes,
+  and a hand you steer slowly with the pad in eight directions; it turns
+  into an arrow over a way out. A looks at things, takes them, and with a
+  thing held uses it; in the bag (B) a held thing goes onto another to put
+  them together, and every thing leaves once its job is done. Upstairs and
+  the cellar are pitch black until the torch is lit, and then you see only
+  a ring of light round the hand. The Keeper comes when enough time goes by
+  (later after every escape) or 2.5 s after any noise: the radiogram, the
+  toilets, the clock, breaking glass, the music machines, the garage door,
+  a wrong turn in the hedges (6.5 s). That countdown stops between rooms and
+  while you hold a thing. Near him the hand slows and shakes. Hide (eight
+  breaths on a sweeping bar, three misses and he finds you; four places are
+  wrecked after one use, two last), run four rooms in a row, or knock him
+  down once each with the knife and the wrecking bar. Caught, you wake on
+  the straw in the cold store with everything you had.
+- **Structure:** 30 places, 54 kinds of thing, 17 diary pages; the car
+  ending, the cellar ending after the loaded crossbow and the brew, the
+  never-caught ending, and a face in the mirror after the credits for anyone
+  who was ever caught. The goals: escape the Keeper, drive away, kill what
+  grows under the house. A (Z / Space / Cross) does every action, as
+  everywhere in UFO 40. The demo player in the tests plays from the warning
+  screen to each ending with real button presses, and to the best one
+  without ever being caught.
+- **Ours:** Witherlea and the Morrows (Ada's diary, Tom, Pip, Barnaby and
+  Sorrel), the Keeper in his bee veil, the cold store, all 30 pictures, all
+  the puzzles (the wax man in the grate, the drowned man in the pond, the
+  stone hares, the dollhouse, the music box, the hedges, the winch, the
+  brew), and twelve tunes.
 ### 47 · WOBBLE DERBY
 
 <p align="center">

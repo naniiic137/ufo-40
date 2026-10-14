@@ -1374,14 +1374,31 @@ static void draw_keeper_in_room(void) {
     if (!wth_keeper_visible()) return;
     int x, y, w, h;
     wth_keeper_rect(&x, &y, &w, &h);
-    gfx_clip(WTH_PX, WTH_PY, WTH_PW, WTH_PH);
-    /* drawn at a whole-number scale and then shifted to fit his box */
+    /* drawn once at full size into a small buffer, then scaled to his box,
+     * so he grows smoothly as he walks up to you */
+    enum { KW = 34, KH = 74, OX = 2, OY = 16 };
+    static uint8_t kbuf[KW * KH];
+    static Surface ks = {KW, KH, kbuf};
     int pose = wth.k.state == E_STUN ? 2 : wth.k.state == E_CAUGHT ? 1 : 0;
-    int sc = h >= 100 ? 2 : 1;
-    int kw = 24 * sc, kh = 56 * sc;
-    int kx = x + w / 2 - kw / 2, ky = (wth.k.state == E_STUN ? y - h / 2 : y) + h - kh;
-    if (sc == 1 && h > 60) ky = y + h - kh;
-    wth_draw_keeper(kx, ky, sc, wth.k.arrive, pose);
+    memset(kbuf, TRANSPARENT, sizeof kbuf);
+    gfx_set_target(&ks);
+    wth_draw_keeper(OX, OY, 1, wth.k.arrive, pose);
+    gfx_set_target(NULL);
+    int full = wth.k.state == E_STUN ? h * 3 / 2 : h; /* knelt, his box is the lower part */
+    int scale256 = full * 256 / 56;                   /* 56 px tall at full size */
+    int dw = KW * scale256 / 256, dh = KH * scale256 / 256;
+    int dx0 = x + w / 2 - (OX + 12) * scale256 / 256, dy0 = y + h - (OY + 56) * scale256 / 256;
+    gfx_clip(WTH_PX, WTH_PY, WTH_PW, WTH_PH);
+    for (int j = 0; j < dh; j++) {
+        int sy = j * 256 / scale256;
+        if (sy >= KH) break;
+        for (int i = 0; i < dw; i++) {
+            int sx = i * 256 / scale256;
+            if (sx >= KW) break;
+            uint8_t c = kbuf[sy * KW + sx];
+            if (c != TRANSPARENT) gfx_pset(dx0 + i, dy0 + j, c);
+        }
+    }
     gfx_noclip();
 }
 
