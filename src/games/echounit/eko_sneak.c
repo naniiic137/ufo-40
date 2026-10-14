@@ -466,7 +466,7 @@ static void cipher_update(EkoSGuard *g) {
         return;
     }
     if (g->state == GD_PATROL) {          /* showing */
-        if (g->t % 40 == 20) {
+        if (g->t % 50 == 25) {
             int sx = EKO_PX(S->x), sy = EKO_PX(S->y);
             int a = eko_dir_to(sx - EKO_PX(g->x), sy - EKO_PX(g->y));
             for (int k = -1; k <= 1; k++)
@@ -517,7 +517,7 @@ static void guards_update(void) {
             if (g->kind == GK_TURNER) {
                 if (g->t % 120 == 0) g->dir = (g->dir + 1) & 3;
             } else {
-                int sp = g->b ? 320 : 176; /* a spider robot scuttles */
+                int sp = g->b ? 256 : 176; /* a spider robot scuttles */
                 int nx = g->x + DX4[g->dir] * sp, ny = g->y + DY4[g->dir] * sp;
                 int ax = EKO_PX(g->x) + DX4[g->dir] * 9, ay = EKO_PX(g->y) + DY4[g->dir] * 9;
                 if (!guard_free(g, nx, ny) || eko_sneak_solid_px(ax, ay)) { g->dir = (g->dir + 2) & 3; g->t = 0; }

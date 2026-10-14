@@ -8,8 +8,8 @@
 
 #define K (&eg.bk)
 
-const int EKO_OB_HP[OB_KINDS] = {0, 1, 0, 1, 4, 3, 8, 20, 1, 0, 0, 0, 0, 0, 45};
-const int EKO_OB_POINTS[OB_KINDS] = {0, 0, 0, 10, 50, 40, 100, 500, 0, 0, 0, 0, 0, 0, 500};
+const int EKO_OB_HP[OB_KINDS] = {0, 1, 0, 1, 4, 3, 8, 20, 1, 0, 0, 0, 0, 0, 90};
+const int EKO_OB_POINTS[OB_KINDS] = {0, 0, 0, 10, 20, 20, 50, 500, 0, 0, 0, 0, 0, 0, 500};
 
 /* half lengths, half depths (on the road) and heights */
 static const int8_t OB_HW[OB_KINDS] = {0, 5, 6, 5, 16, 10, 22, 34, 5, 8, 8, 5, 5, 5, 14};

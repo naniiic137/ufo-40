@@ -983,7 +983,7 @@ void eko_brawl_update(void) {
     if (!B->boss_on && EKO_BMAP[B->map].boss && !B->lift_on) {
         int px = EKO_PX(B->p.x) >> 4, py = (EKO_PX(B->p.y) - 8) >> 4;
         for (int ty = py - 3; ty <= py + 3; ty++)
-            for (int tx = px - 1; tx <= px + 1; tx++)
+            for (int tx = (px / BR_SW) * BR_SW; tx < (px / BR_SW + 1) * BR_SW; tx++) /* anywhere in the arena's chunk */
                 if (tile_at(tx, ty) == 'B') {
                     /* the arena: the chunk he is in */
                     B->cam_x = (EKO_PX(B->p.x) / (BR_SW * 16)) * BR_SW * 16;

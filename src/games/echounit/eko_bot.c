@@ -10,6 +10,7 @@ int eko_bot_cherry;
 bool eko_sim_done;
 
 static EkoGame bak;
+static bool bot_bold; /* stuck a long while: a knock is a fair price for headway */
 #define TAPA 0x100
 
 /* ---- running a policy in a copy of the game ---------------------------------------------- */
@@ -24,14 +25,14 @@ static int frame_buttons(int b, int f) {
     return out;
 }
 
-static int run_policy(Policy pol, int param, int frames) {
+static int run_policy_from(Policy pol, int param, int frames, int off) {
     memcpy(&bak, &eg, sizeof eg);
     eko_simulating = true;
     eko_sim_done = false;
     int lost0 = eg.lives_lost, hits0 = eg.hits_taken, hp0 = eko_hp();
     int f = 0;
     for (; f < frames; f++) {
-        int b = frame_buttons(pol(param, f), f);
+        int b = frame_buttons(pol(param, f + off), f + off);
         eg.prev = eg.in;
         eg.in = (uint16_t)b;
         eko_step_play();
@@ -41,15 +42,17 @@ static int run_policy(Policy pol, int param, int frames) {
     int s = sim_score_mode();
     if (eko_sim_done) s += 1000000;
     s -= (eg.lives_lost - lost0) * 2000000;
-    s -= (eg.hits_taken - hits0) * (eko_bot_cherry ? 9000 : 6000);
+    s -= (eg.hits_taken - hits0) * (bot_bold && eko_hp() > 1 ? 1200 : eko_bot_cherry ? 9000 : 6000);
     s += (eko_hp() - hp0) * 1500;
     /* nearly out of health: keep well clear */
-    if (eko_hp() <= 2 && eko_hp() < hp0) s -= 200000;
+    if (eko_hp() <= 1 && eko_hp() < hp0 && eg.owl[eg.cur_owl].lives <= 1 && eko_bot_cherry) s -= 200000;
     memcpy(&eg, &bak, sizeof eg);
     eko_simulating = false;
     eko_sim_done = false;
     return s;
 }
+
+static int run_policy(Policy pol, int param, int frames) { return run_policy_from(pol, param, frames, 0); }
 
 /* the chosen policy, played for real for a while */
 static Policy cur_pol;
@@ -58,11 +61,17 @@ static int cur_param, cur_f, cur_left;
 int eko_bot_debug;
 static int choose(Policy *pols, const int *params, int n, int horizon, int keep) {
     int best = 0, bs = -2147483647;
+    /* carrying on with the plan in hand is a candidate too (a plan that
+     * walks first and jumps later would never get to its jump otherwise) */
+    int cont = -2147483647;
+    for (int i = 0; i < n && cur_pol; i++)
+        if (pols[i] == cur_pol && params[i] == cur_param && cur_f > 0) { cont = run_policy_from(cur_pol, cur_param, horizon, cur_f) + 300; break; }
     for (int i = 0; i < n; i++) {
         int s = run_policy(pols[i], params[i], horizon);
         if (eko_bot_debug) printf("    plan %d (%d): %d\n", i, params[i], s);
         if (s > bs) { bs = s; best = i; }
     }
+    if (cont >= bs) { cur_left = keep; return -1; }
     cur_pol = pols[best];
     cur_param = params[best];
     cur_f = 0;
@@ -104,8 +113,10 @@ static int brawl_score(void) {
     const EkoBrawl *b = &eg.br;
     int s = 0;
     int w = stuck_t > 240 ? 120 : 40;
-    if (b->map == BM_LAB && !b->boss_on) s -= EKO_PX(b->p.y) * w;
-    else if (b->lift_on && !b->boss_on) s -= iabs(EKO_PX(b->p.x) - 160) * 4;
+    /* the lab: up, from under the middle where the ledges overlap */
+    if (b->boss_on) s += 60000; /* the arena reached: the fight terms below take over */
+    else if (b->map == BM_LAB) s -= EKO_PX(b->p.y) * w + iabs(EKO_PX(b->p.x) - 152) * 12;
+    else if (b->lift_on) s -= iabs(EKO_PX(b->p.x) - 160) * 4;
     else {
         int tx = brawl_target_x();
         s -= iabs(tx - EKO_PX(b->p.x)) * w;
@@ -148,6 +159,8 @@ static int pol_brawl(int p, int f) {
     case 11: return f < 2 ? (BTN_LEFT | EKO_ALT) : BTN_LEFT;
     case 12: return f < 3 ? (BTN_DOWN | EKO_MAIN) : f < 10 ? 0 : (f < 12 ? EKO_MAIN : BTN_RIGHT); /* lift a barrel, throw it */
     case 13: return f < 2 ? EKO_ALT : 0;
+    case 14: return f < 2 ? (BTN_LEFT | EKO_ALT) : (BTN_LEFT | TAPA);   /* jump left, kicking */
+    case 15: return f < 2 ? EKO_ALT : (f > 10 ? TAPA : 0);              /* jump up, kick at the top */
     default: return 0;
     }
 }
@@ -160,14 +173,18 @@ static int bot_brawl(void) {
         if (best_map != b->map || best_sec != eg.sec) { best_map = b->map; best_sec = eg.sec; best_prog = prog; stuck_t = 0; }
         if (prog > best_prog + 8 || b->boss_on) { best_prog = prog; stuck_t = 0; }
         else stuck_t++;
+        bot_bold = stuck_t > 600;
     }
     if (cur_left > 0 && cur_pol == pol_brawl) return play_current();
-    static Policy P[32];
-    static int A[32];
+    static Policy P[48];
+    static int A[48];
     int n = 0;
     static const int plans[] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 2 | (3 << 4), 8 | (3 << 4), 5 | (3 << 4), 6 | (1 << 4), 13 | (4 << 4),
                                  0 | (3 << 4) | (4 << 8), 0 | (3 << 4) | (8 << 8), 0 | (3 << 4) | (12 << 8), 0 | (3 << 4) | (20 << 8),
-                                 0 | (3 << 4) | (28 << 8), 0 | (4 << 4) | (10 << 8), 1 | (3 << 4) | (10 << 8)};
+                                 0 | (3 << 4) | (28 << 8), 0 | (4 << 4) | (10 << 8), 1 | (3 << 4) | (10 << 8),
+                                 5 | (11 << 4) | (8 << 8), 5 | (11 << 4) | (20 << 8), 5 | (13 << 4) | (8 << 8), 5 | (13 << 4) | (20 << 8),
+                                 0 | (13 << 4) | (8 << 8), 0 | (13 << 4) | (20 << 8), 5 | (13 << 4) | (32 << 8), 0 | (13 << 4) | (32 << 8),
+                                 14, 15, 5 | (14 << 4) | (8 << 8), 5 | (14 << 4) | (20 << 8), 0 | (15 << 4) | (10 << 8), 5 | (15 << 4) | (10 << 8)};
     for (int i = 0; i < ARRAY_LEN(plans); i++) { P[n] = pol_brawl; A[n++] = plans[i]; }
     choose(P, A, n, 56, 8);
     return play_current();
@@ -372,6 +389,19 @@ static void sneak_target(int *tx, int *ty) {
     /* the green card first */
     for (int i = 0; i < s->nitem; i++)
         if (!s->item[i].taken && s->item[i].kind == 6) { *tx = s->item[i].tx; *ty = s->item[i].ty; return; }
+    if (s->map == SM_ISTANBUL) {
+        /* before Cipher: everything worth having that can be reached */
+        sneak_field(px, py);
+        int bi = -1;
+        bd = 1 << 30;
+        for (int i = 0; i < s->nitem; i++) {
+            if (s->item[i].taken || s->item[i].kind == 0) continue;
+            if (s->item[i].kind == 4 && eko_hp() >= EKO_OWL_HP[OWL_SABLE]) continue;
+            int d = sdist[s->item[i].ty][s->item[i].tx];
+            if (d < bd) { bd = d; bi = i; }
+        }
+        if (bi >= 0 && bd < 30000) { *tx = s->item[bi].tx; *ty = s->item[bi].ty; return; }
+    }
     if (s->map == SM_ISTANBUL && s->boss_g >= 0) {
         const EkoSGuard *c = &s->g[s->boss_g];
         *tx = (c->hx >> 8) >> 4;
@@ -456,6 +486,25 @@ static int pol_sneak(int p, int f) {
         if (b & BTN_DOWN) return BTN_UP;
         return 0;
     }
+    case 7: {
+        /* hunt: line up with the nearest guard on its feet, then shoot it */
+        if (d >= 0) { p = 3; break; }
+        int room = s->room_y * SN_MAX_RX + s->room_x, best = -1, bd = 1 << 30;
+        for (int i = 0; i < s->ng; i++) {
+            const EkoSGuard *g = &s->g[i];
+            if (!g->alive || g->room != room || (g->kind != GK_WALKER && g->kind != GK_TURNER)) continue;
+            if (g->state == GD_SLEEP || g->state == GD_STUN) continue;
+            int dd = iabs(EKO_PX(g->x) - EKO_PX(s->x)) + iabs(EKO_PX(g->y) - EKO_PX(s->y));
+            if (dd < bd) { bd = dd; best = i; }
+        }
+        if (best < 0) return 0;
+        int dx = EKO_PX(s->g[best].x) - EKO_PX(s->x), dy = EKO_PX(s->g[best].y) - EKO_PX(s->y);
+        if (iabs(dx) < iabs(dy)) return dx > 0 ? BTN_RIGHT : BTN_LEFT;
+        return dy > 0 ? BTN_DOWN : BTN_UP;
+    }
+    default: break;
+    }
+    switch (p) {
     case 3: case 4: case 5: case 6: {
         if (d < 0) return p == 4 ? sneak_step_dir() : 0;
         int want = p == 5 ? WP_PISTOL : p == 6 ? WP_GRENADE : (s->g[gi].b || s->g[gi].kind == GK_CIPHER) ? WP_PISTOL : WP_DART;
@@ -468,12 +517,21 @@ static int pol_sneak(int p, int f) {
     }
 }
 
+static int sn_stuck, sn_best = 1 << 30, sn_gx = -1, sn_gy = -1;
+
 static int sneak_score(void) {
     const EkoSneak *s = &eg.sn;
     int x = EKO_PX(s->x) >> 4, y = (EKO_PX(s->y) - SN_TOP) >> 4;
     int d = sdist[iclamp(y, 0, SN_MH - 1)][iclamp(x, 0, SN_MW - 1)];
-    int sc = -d * 200;
-    sc -= s->spotted_total * 50000;
+    int sc = -d * (sn_stuck > 600 ? 1500 : 200);
+    /* in Cipher's room: keep a fair distance and work him down */
+    if (s->boss_g >= 0 && s->g[s->boss_g].alive && s->g[s->boss_g].room == s->room_y * SN_MAX_RX + s->room_x) {
+        const EkoSGuard *c = &s->g[s->boss_g];
+        int cd = eko_dist(EKO_PX(c->x) - EKO_PX(s->x), EKO_PX(c->y) - EKO_PX(s->y));
+        sc = 20000 - iabs(cd - 70) * 30 + (26 - c->hp) * 6000;
+    }
+    bool bold = sn_stuck > 300; /* waited long enough: get on with it */
+    sc -= s->spotted_total * (bold ? 0 : 50000);
     sc -= s->noise_total * 2000;
     if (s->boss_g >= 0 && s->g[s->boss_g].alive) sc -= s->g[s->boss_g].hp * 3000;
     if (s->boss_dead) sc += 200000;
@@ -484,10 +542,10 @@ static int sneak_score(void) {
     int room = s->room_y * SN_MAX_RX + s->room_x;
     for (int i = 0; i < s->ng; i++) {
         const EkoSGuard *g = &s->g[i];
-        if (g->alive && g->room == room && g->state == GD_ALERT) sc -= 8000;
+        if (g->alive && g->room == room && g->state == GD_ALERT && !bold) sc -= 8000;
     }
     for (int i = 0; i < SN_MAX_SHOTS; i++)
-        if (s->shot[i].alive && s->shot[i].foe && eko_dist(EKO_PX(s->shot[i].x) - EKO_PX(s->x), EKO_PX(s->shot[i].y) - EKO_PX(s->y)) < 20) sc -= 5000;
+        if (!bold && s->shot[i].alive && s->shot[i].foe && eko_dist(EKO_PX(s->shot[i].x) - EKO_PX(s->x), EKO_PX(s->shot[i].y) - EKO_PX(s->y)) < 20) sc -= 5000;
     return sc;
 }
 
@@ -498,11 +556,21 @@ static int bot_sneak(void) {
         (void)s;
         sneak_field(s_goal_x, s_goal_y);
     }
+    {
+        const EkoSneak *s = &eg.sn;
+        int x = EKO_PX(s->x) >> 4, y = (EKO_PX(s->y) - SN_TOP) >> 4;
+        int d = sdist[iclamp(y, 0, SN_MH - 1)][iclamp(x, 0, SN_MW - 1)];
+        if (s_goal_x != sn_gx || s_goal_y != sn_gy) { sn_gx = s_goal_x; sn_gy = s_goal_y; sn_best = d; sn_stuck = 0; }
+        if (d < sn_best) { sn_best = d; sn_stuck = 0; }
+        else sn_stuck++;
+        if (s->boss_g >= 0 && s->g[s->boss_g].alive && s->g[s->boss_g].room == s->room_y * SN_MAX_RX + s->room_x) sn_stuck = 0;
+        bot_bold = sn_stuck > 600;
+    }
     if (cur_left > 0 && cur_pol == pol_sneak) return play_current();
-    static Policy P[7];
-    static int A[7];
-    for (int i = 0; i < 7; i++) { P[i] = pol_sneak; A[i] = i; }
-    choose(P, A, 7, 70, 6);
+    static Policy P[8];
+    static int A[8];
+    for (int i = 0; i < 8; i++) { P[i] = pol_sneak; A[i] = i; }
+    choose(P, A, 8, 70, 6);
     return play_current();
 }
 
