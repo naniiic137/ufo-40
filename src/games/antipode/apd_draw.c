@@ -599,9 +599,10 @@ static void draw_world(void) {
 /* ---- the cradle ------------------------------------------------------------------------------ */
 
 static void draw_pod_mods(void) {
+    gfx_cls(C_INK);
     ui_panel(4, 4, 312, 172, C_INK, C_VIOLET);
     text_draw("CRADLE", 12, 9, C_PINK);
-    tiny_draw(GLYPH_RIGHT " MAP", 280, 11, C_GREY);
+    text_draw(GLYPH_RIGHT " MAP", 270, 9, C_GREY);
     /* the suit, with its numbers beside it */
     spr_draw_scaled(&apd_spr[SPR_SUIT0], 18, 28, 3, 0);
     char b[48];
@@ -649,16 +650,17 @@ static void draw_pod_mods(void) {
     tiny_draw(b, 100, 140, C_LIGHT);
     bool any = apd_overload(SYS_FLIP) || apd_overload(SYS_FRAME) || apd_overload(SYS_GUN);
     if (any) tiny_draw("OVERLOAD!", 200, 140, (ag.frame_t / 10) % 2 ? C_RED : C_ORANGE);
-    tiny_draw(GLYPH_LEFT GLYPH_RIGHT " MOD   " GLYPH_UP GLYPH_DOWN " SYSTEM   " GLYPH_B " LEAVE", 100, 162, C_GREY);
+    text_draw(GLYPH_LEFT GLYPH_RIGHT " MOD  " GLYPH_UP GLYPH_DOWN " SYSTEM  " GLYPH_B " LEAVE", 100, 160, C_GREY);
 }
 
 static void draw_pod_map(void) {
+    gfx_cls(C_INK);
     ui_panel(4, 4, 312, 172, C_INK, C_VIOLET);
     int s = ag.pod_sector;
     char b[48];
     snprintf(b, sizeof b, GLYPH_UP " %s " GLYPH_DOWN, APD_SECTOR_NAME[s]);
     text_center(b, 160, 9, C_PINK);
-    tiny_draw(GLYPH_LEFT " MODS", 12, 11, C_GREY);
+    text_draw(GLYPH_LEFT " MODS", 12, 9, C_GREY);
     const int CW = 30, CH = 18;
     int gw = 0, gh = 0;
     for (int i = 0; i < apd_nrooms; i++)
@@ -760,7 +762,7 @@ static void draw_code(void) {
         text_draw(s, x + 3, 80, k == ag.code_pos ? C_WHITE : C_GREY);
         if (k == ag.code_pos && (ag.frame_t / 8) % 2) gfx_hline(x + 1, x + 9, 90, C_PINK);
     }
-    tiny_center(GLYPH_UP GLYPH_DOWN " LETTER   " GLYPH_LEFT GLYPH_RIGHT " MOVE   " GLYPH_A " ENTER   " GLYPH_B " BACK", 160, 120, C_GREY);
+    text_center(GLYPH_UP GLYPH_DOWN " LETTER  " GLYPH_LEFT GLYPH_RIGHT " MOVE  " GLYPH_A " ENTER  " GLYPH_B " BACK", 160, 120, C_GREY);
 }
 
 static void draw_lines(const char *const *lines, int n, int y0, int step, int col) {

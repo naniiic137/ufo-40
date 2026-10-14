@@ -927,9 +927,14 @@ static uint32_t play_frame(void) {
                 if (!dd->vertical) {
                     int x = is_a ? lx + APD_CPW - 8 : lx + 8;
                     set_goal(x - 8, ly + 4 * APD_TILE + 4, x + 8, ly + 6 * APD_TILE - 4);
+                    /* in the doorway: on through it */
+                    if (field_at(APD_PX(p->x), APD_PX(p->y)) == 0) act = is_a ? BTN_RIGHT : BTN_LEFT;
                 } else {
                     int y = is_a ? ly + APD_CPH - 8 : ly + 8;
                     set_goal(lx + 9 * APD_TILE + 2, y - 8, lx + 11 * APD_TILE - 2, y + 8);
+                    int want_g = is_a ? 1 : -1;
+                    if (field_at(APD_PX(p->x), APD_PX(p->y)) == 0 && p->grav != want_g)
+                        act = (last_mask & BTN_B) ? 0 : BTN_B; /* jump or flip toward it */
                 }
             }
         } else {
