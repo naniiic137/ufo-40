@@ -154,7 +154,7 @@ const ApdSpec APD_SPECS[] = {
     {SEC_GANTRY, 'h', "B", 0, "spitter tread", NULL},
     {SEC_GANTRY, 'i', "I", 0, "armor@0c tread", NULL},
     {SEC_GANTRY, 'j', "VV", RF_HEAT, "skimmer*2", "THE FLUE"},
-    {SEC_GANTRY, 'l', "VOV", 0, "eye@1 armor@1e skimmer@2", NULL},
+    {SEC_GANTRY, 'l', "VPV", 0, "eye@1 armor@1e skimmer@2", NULL},
     {SEC_GANTRY, 'm', "A", 0, "log1 tread", NULL},
     {SEC_GANTRY, 'P', "A", 0, "pod", NULL},
     {SEC_GANTRY, 'S', "sA", RF_START, "start@0 log0@0 armor@0h", "THE CRADLE BAY"},
@@ -649,7 +649,11 @@ void apd_build_room(int room) {
                     }
                     ag.tile[ty][tx] = (uint8_t)t;
                 }
-            /* joins to the same room */
+        }
+    /* joins to the same room (after every cell is drawn) */
+    for (int cy = 0; cy < r->h; cy++)
+        for (int cx = 0; cx < r->w; cx++) {
+            int x0 = cx * APD_CW, y0 = cy * APD_CH;
             if (cx + 1 < r->w) {
                 for (int row = 1; row <= 8; row++) { set_t(x0 + 19, y0 + row, T_AIR); set_t(x0 + 20, y0 + row, T_AIR); }
             }
@@ -660,6 +664,8 @@ void apd_build_room(int room) {
                 for (int col = arena ? 1 : 6; col <= (arena ? 18 : 13); col++) {
                     set_t(x0 + col, y0 + 9, T_AIR);
                     set_t(x0 + col, y0 + 10, T_AIR);
+                    /* nothing seals the hole from either side */
+                    if (!arena) { set_t(x0 + col, y0 + 8, T_AIR); set_t(x0 + col, y0 + 11, T_AIR); }
                 }
                 if (cx + 1 < r->w && arena) {
                     set_t(x0 + 19, y0 + 9, T_AIR); set_t(x0 + 20, y0 + 9, T_AIR);

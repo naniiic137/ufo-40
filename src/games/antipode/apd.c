@@ -594,6 +594,11 @@ static int apd_query(const char *key, int *out) {
     if (!strcmp(key, "shot0_vy")) { *out = -9999; for (int i = 0; i < APD_MAX_SHOTS; i++) if (ag.shot[i].alive) { *out = ag.shot[i].vy; break; } return 1; }
     if (!strcmp(key, "eshots")) { int n = 0; for (int i = 0; i < APD_MAX_ESHOTS; i++) n += ag.es[i].alive; *out = n; return 1; }
     if (!strcmp(key, "shadow")) { *out = ag.shadow.on; return 1; }
+    if (!strcmp(key, "shadow_x")) { *out = APD_PX(ag.shadow.x); return 1; }
+    if (!strcmp(key, "shadow_y")) { *out = APD_PX(ag.shadow.y); return 1; }
+    if (!strcmp(key, "shadow_aim")) { *out = ag.shadow.aim; return 1; }
+    if (!strcmp(key, "button0")) { *out = ag.button_t[0]; return 1; }
+    if (!strcmp(key, "button1")) { *out = ag.button_t[1]; return 1; }
     if (!strcmp(key, "drone")) { *out = ag.drone.on; return 1; }
     if (!strcmp(key, "drone_latch")) { *out = ag.drone.latch; return 1; }
     if (!strcmp(key, "pod_zone")) { *out = ag.pod_zone; return 1; }
@@ -742,6 +747,7 @@ static int apd_cheat(const char *cmd) {
         return 1;
     }
     if (sscanf(cmd, "botplan %d", &a) == 1) { apd_bot_plan = a; return 1; }
+    if (sscanf(cmd, "botlog %d", &a) == 1) { extern int apd_bot_log; apd_bot_log = a; return 1; }
     if (sscanf(cmd, "menu %d", &a) == 1) { ag.menu = a; return 1; }
     if (!strcmp(cmd, "win")) { apd_final_defeated(); return 1; }
     if (!strcmp(cmd, "cherrywin")) {

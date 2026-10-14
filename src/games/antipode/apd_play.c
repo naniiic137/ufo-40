@@ -387,6 +387,8 @@ static void move_y(int vy) {
     while (left > 0) {
         int d = left >= APD_FX ? step : isign(vy) * left;
         if (solid_at(p->x, p->y + d, d)) {
+            touch_doors_v(isign(vy)); /* a hatch he has the pass for opens, floor or ceiling */
+            if (!solid_at(p->x, p->y + d, d)) { p->y += d; left -= APD_FX; continue; }
             if (isign(vy) == p->grav) {
                 if (p->stomp) stomp_break();
                 if (!solid_at(p->x, p->y + d, d)) { p->y += d; left -= APD_FX; continue; }
@@ -397,11 +399,7 @@ static void move_y(int vy) {
                 p->ground = true;
                 p->stomp = false;
                 p->air_flips = 0;
-                p->thunder_t = 0;
-            } else {
-                touch_doors_v(isign(vy));
-                p->jumping = false;
-            }
+            } else p->jumping = false;
             p->vy = 0;
             return;
         }
@@ -459,7 +457,6 @@ void apd_player_update(void) {
     if (!p->ground && solid_at(p->x, p->y + p->grav * APD_FX, p->grav) && p->vy * p->grav >= 0) {
         p->ground = true;
         p->air_flips = 0;
-        p->thunder_t = 0;
         p->stomp = false;
     }
     /* the gun */

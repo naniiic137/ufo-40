@@ -48,7 +48,9 @@ void apd_boss_spawn(int boss) {
     int w, h;
     extern void apd_foe_size(int kind, int *w, int *h);
     apd_foe_size(kind, &w, &h);
-    int x = (W() / 2) * APD_FX, y = floor_y(h);
+    /* walkers start on the far side from him */
+    int far = APD_PX(ag.pl.x) < W() / 2 ? W() - 60 : 60;
+    int x = (kind == FO_SCRAPPER || kind == FO_WARDEN ? far : W() / 2) * APD_FX, y = floor_y(h);
     if (kind == FO_COILHEART) y = (H() / 2) * APD_FX;
     if (kind == FO_BRACKISH) y = (H() - 20) * APD_FX;
     if (kind == FO_LAMPREY) y = (H() / 2) * APD_FX;

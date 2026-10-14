@@ -135,7 +135,7 @@ extern const char *const APD_EFFECT_NAME[APD_MODS][APD_SYS];
 #define APD_FLIP_DMG 50           /* STORMBALL and ANVIL */
 #define APD_BOSS_REGAIN 250
 #define APD_THUNDER_FLIPS 3
-#define APD_SHADOW_LIFE 150
+#define APD_SHADOW_LIFE 240
 
 /* ---- foes ------------------------------------------------------------------------ */
 enum {
