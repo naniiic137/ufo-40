@@ -1,0 +1,23 @@
+# FLINT: one fixed jump. A tap and a long hold of B reach the same height
+# (40 px); there is no variable jump.
+seed 1
+game echounit
+wait 5
+cheat mission 0
+cheat bclear
+cheat god
+wait 30
+expect b_ground == 1
+expect b_py == 128
+press B 1
+waituntil b_vy >= 0 30
+expect b_py == 89
+waituntil b_ground == 1 60
+wait 10
+hold B
+wait 3
+waituntil b_vy >= 0 30
+expect b_py == 89
+release B
+waituntil b_ground == 1 60
+expect b_py == 128

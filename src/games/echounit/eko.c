@@ -615,6 +615,16 @@ static int eko_query(const char *key, int *out) {
         *out = n;
         return 1;
     }
+    if (!strcmp(key, "b_key_x")) {
+        *out = -1;
+        for (int i = 0; i < BR_MAX_OBJS; i++) if (b->obj[i].alive && b->obj[i].kind == BO_KEY) { *out = EKO_PX(b->obj[i].x); break; }
+        return 1;
+    }
+    if (!strcmp(key, "b_key_y")) {
+        *out = -1;
+        for (int i = 0; i < BR_MAX_OBJS; i++) if (b->obj[i].alive && b->obj[i].kind == BO_KEY) { *out = EKO_PX(b->obj[i].y); break; }
+        return 1;
+    }
     if (!strcmp(key, "b_barrel_state")) {
         *out = -1;
         for (int i = 0; i < BR_MAX_OBJS; i++) if (b->obj[i].alive && b->obj[i].kind == BO_BARREL) { *out = b->obj[i].state; break; }
@@ -805,6 +815,7 @@ static int eko_cheat(const char *cmd) {
     if (!strcmp(cmd, "gnospawn")) { eg.ga.spawn_i = EKO_GSCRIPT[eg.ga.script].n; return 1; }
     if (sscanf(cmd, "gt %d", &a) == 1) { eg.ga.t = a; return 1; }
     if (!strcmp(cmd, "gboss")) { eko_gallery_boss_start(); return 1; }
+    if (sscanf(cmd, "gaim %d %d", &a, &b) == 2) { eg.ga.px = a * EKO_FX; eg.ga.cx = a * EKO_FX; eg.ga.cy = b * EKO_FX; return 1; }
     if (sscanf(cmd, "gpos %d", &a) == 1) { eg.ga.px = a * EKO_FX; eg.ga.cx = a * EKO_FX; return 1; }
     if (sscanf(cmd, "gshot %d %d", &a, &b) == 2) { /* a bullet landing at x = a in b frames */
         for (int i = 0; i < GA_MAX_SHOTS; i++) if (!eg.ga.shot[i].alive) { eg.ga.shot[i] = (EkoGShot){1, 0, a, 60, a, GA_PY - 10, 0, b}; break; }

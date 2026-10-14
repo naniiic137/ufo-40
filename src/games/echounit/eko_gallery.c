@@ -12,7 +12,7 @@
 const int GA_ROW_Y[GA_ROWS] = {70, 102, 140};
 const int GA_ROW_SCALE[GA_ROWS] = {2, 3, 4};
 const int EKO_GE_HP[GE_KINDS] = {0, 1, 1, 2, 6, 8, 1, 50, 50, 20, 30, 60, 1};
-const int EKO_GE_POINTS[GE_KINDS] = {0, 20, 30, 40, 100, 150, 10, 500, 500, 200, 200, 1000, 10};
+const int EKO_GE_POINTS[GE_KINDS] = {0, 10, 10, 20, 50, 50, 0, 200, 200, 100, 100, 500, 0};
 
 static bool is_sky(int kind) {
     return kind == GE_CHOPPER || kind == GE_VULTRA || kind == GE_POD || kind == GE_CANNON || kind == GE_COIL || kind == GE_MISSILE;
@@ -110,7 +110,8 @@ static void kill_foe(int i) {
         G->best_combo = imax(G->best_combo, G->combo);
         G->meter = GA_COMBO_T;
     }
-    eko_add_score(EKO_GE_POINTS[f->kind] * imax(1, G->combo));
+    /* the meter multiplies: x1, then one more for every three kills in a row */
+    eko_add_score(EKO_GE_POINTS[f->kind] * (1 + G->combo / 3));
     G->kills++;
     f->alive = 0;
     if (f->kind == GE_JEEP) {
@@ -182,6 +183,7 @@ static void foes_update(void) {
         f->t++;
         if (f->flash) f->flash--;
         if (f->cd) f->cd--;
+        if (f->t < -50000) continue; /* held still for a test */
         int s = GA_ROW_SCALE[f->row];
         switch (f->kind) {
         case GE_RIFLE:

@@ -1,0 +1,36 @@
+# FLINT: hold A standing still and let go: the charged lunge (only while
+# standing still; walking or crouching throws the charge away). It goes
+# through foes, scores more for each extra foe it takes, and can carry him
+# straight into a pit.
+seed 1
+game echounit
+wait 5
+cheat mission 0
+cheat bclear
+wait 30
+hold A 60
+wait 1
+expect b_act == 6
+wait 30
+# walking while holding A never charges
+hold A RIGHT 60
+expect b_charge == 0
+wait 10
+# a lunge into three troopers in a row: x1, x2, x3 for 20 each = 120
+cheat bpos 120 128
+cheat score 0
+cheat bfoe 1 150 128
+cheat bfoe 1 162 128
+cheat bfoe 1 174 128
+hold A 60
+wait 60
+expect b_kills == 3
+expect score == 120
+# the docks' first pit (x 96-127 of the second screen): a lunge at its edge goes in
+cheat bpos 400 128
+wait 5
+expect lives == 2
+hold A 60
+waituntil b_dead > 0 60
+waituntil lives == 1 200
+expect lives_lost == 1

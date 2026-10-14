@@ -1,0 +1,50 @@
+# FLINT: the docks end at a locked wall. The trooper with the key (red
+# beret) drops it when beaten; with the key the wall's charge is set and it
+# blows. The yards hide a mango in a wall near their end, and one in the
+# crates before the lift.
+seed 1
+game echounit
+wait 5
+cheat mission 0
+cheat bclear
+cheat god
+cheat bpos 2440 128
+wait 30
+# no key: the wall holds
+hold RIGHT 60
+expect b_px < 2496
+expect b_wall == 0
+cheat bfoe 4 2462 128
+wait 2
+hold LEFT 2
+press A 1
+wait 8
+press A 1
+wait 8
+press A 1
+wait 40
+expect b_objs_3 == 1
+hold LEFT 60
+hold RIGHT 4
+waituntil b_key == 1 120
+hold RIGHT 80
+expect b_wall > 0
+wait 80
+hold RIGHT 60
+waituntil sec == 1 200
+waituntil state == 6 200
+# the yards: the hidden mango in the wall by the last stack (chunk O, x 2416)
+cheat bclear
+cheat bpos 2160 128
+wait 20
+expect b_objs_1 == 0
+press A 1
+wait 20
+press A 1
+wait 20
+press A 1
+wait 20
+press A 1
+wait 20
+expect b_secrets == 1
+expect b_objs_1 == 1

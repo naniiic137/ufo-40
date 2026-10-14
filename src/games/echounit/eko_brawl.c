@@ -254,8 +254,8 @@ static void hurt_foe(int i, int dmg, int dir, bool launch, int chain) {
     eko_sfx("eko_hit");
     bool boss = f->kind == BF_SCRAPJAW || f->kind == BF_TALPA;
     if (!boss) {
-        f->kb = launch ? 20 : 8;
-        f->vx = dir * (launch ? 640 : 384);
+        f->kb = launch ? 20 : 6;
+        f->vx = dir * (launch ? 640 : 128); /* a jab barely moves them: the combo stays in reach */
         if (launch) f->vy = -640;
         f->chain = chain;
     }
@@ -453,9 +453,9 @@ static void player_update(void) {
                 EkoBObj *o = &B->obj[p->carry - 1];
                 o->state = 2;
                 o->vx = p->face * 1024;
-                o->vy = -384;
+                o->vy = -256;
                 o->x = p->x + p->face * 8 * EKO_FX;
-                o->y = p->y - 14 * EKO_FX;
+                o->y = p->y - 4 * EKO_FX; /* thrown low, at a trooper's chest */
                 o->chain = ++B->chain_next;
                 B->chain_kills[o->chain & 15] = 0;
                 o->hits = -1;

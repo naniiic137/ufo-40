@@ -1,0 +1,32 @@
+# FLINT: DOWN + A beside a barrel lifts it, A throws it. A thrown barrel
+# floors a trooper and bounces back up; a jump kick sends it on into the
+# next; every extra foe one barrel takes is worth one more times the points.
+seed 1
+game echounit
+wait 5
+cheat mission 0
+cheat bclear
+cheat god
+wait 20
+cheat bpos 60 128
+cheat bobj 0 70 128
+wait 10
+hold DOWN 3
+hold DOWN A 2
+expect b_carry > 0
+expect b_barrel_state == 1
+wait 5
+cheat score 0
+cheat bfoe 1 120 128
+cheat bfoe 1 160 128
+press A 1
+expect b_carry == 0
+waituntil b_kills >= 1 60
+# it bounced up off the first: kick it on
+expect b_barrel_state == 3
+hold RIGHT B 2
+hold RIGHT A 2
+hold RIGHT 20
+wait 40
+expect b_kills == 2
+expect score == 60

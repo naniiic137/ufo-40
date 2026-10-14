@@ -1,0 +1,25 @@
+# VESPER: foe fire comes in at where she stood when it was fired: stepping
+# aside dodges it. B rolls (she can't be hit while rolling).
+seed 1
+game echounit
+wait 5
+cheat mission 1
+cheat gnospawn
+cheat gclear
+wait 10
+expect hp == 6
+cheat gshot 160 30
+wait 31
+expect hp == 5
+wait 80
+cheat gshot 160 30
+hold RIGHT 25
+wait 10
+expect hp == 5
+wait 80
+cheat gshot 200 20
+wait 8
+press B 1
+expect g_roll > 0
+wait 20
+expect hp == 5

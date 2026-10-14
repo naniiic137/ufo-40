@@ -47,7 +47,7 @@ static void hud(void) {
         if (eg.br.p.charge >= BR_CHARGE_T) tiny_draw("CHARGED", 150, 6, (eg.frame_t / 4) % 2 ? C_YELLOW : C_ORANGE);
         break;
     case MODE_GALLERY:
-        snprintf(b, sizeof b, "COMBO x%d", imax(1, eg.ga.combo));
+        snprintf(b, sizeof b, "COMBO %d  x%d", eg.ga.combo, 1 + eg.ga.combo / 3);
         tiny_draw(b, 120, 3, eg.ga.combo > 1 ? C_YELLOW : C_GREY);
         gfx_rect(120, 10, 60, 3, C_NIGHT);
         gfx_rect(120, 10, eg.ga.meter * 60 / GA_COMBO_T, 3, C_YELLOW);
