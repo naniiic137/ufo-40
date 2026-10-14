@@ -212,11 +212,12 @@ void sst_kill_foe(int i) {
     sst_sfx(kind == FK_CRATE || kind == FK_BARREL ? "sst_crate" : "sst_pop");
     if (kind == FK_EMBER && f->size > 1) {
         /* the living flame splits in two smaller ones that fly off */
+        int size = f->size - 1, x = f->x, y = f->y;
         for (int k = 0; k < 2; k++) {
-            int j = sst_spawn_foe(FK_EMBER, f->x, f->y);
+            int j = sst_spawn_foe(FK_EMBER, x, y);
             if (j < 0) continue;
             SstFoe *c = &sst_g.foe[j];
-            c->size = (uint8_t)(f->size - 1);
+            c->size = (uint8_t)size;
             c->hp = c->size;
             int a = rng_range(&sst_g.rng, 0, 63);
             c->vx = 400 * sst_cos(a) / 256;
@@ -699,7 +700,9 @@ static void spawn_from_list(void) {
     while (sst_g.next_spawn < n) {
         const SstSpawn *sp = &list[sst_g.next_spawn];
         bool marker = sp->kind < 0;
-        int trigger = marker && sp->kind != -5 && sp->kind != -6 ? sp->y - 40 : sp->y + 24;
+        /* a boss wakes while it is still above the view; the view then
+         * climbs on to frame its arena and stops there */
+        int trigger = marker && sp->kind != -5 && sp->kind != -6 ? sp->y + 40 : sp->y + 24;
         if (sp->kind == -8) trigger = 1 << 20; /* the chase's stop is read by the chase */
         if (sst_g.cam_y > trigger) break;
         sst_g.next_spawn++;
@@ -1021,12 +1024,14 @@ static void spawn_wave_foe(int kind, int k, int n) {
     default:
         x = left ? -10 * SST_FX : (SCREEN_W + 10) * SST_FX;
         y = (40 + (k * 41 + sst_g.wave * 17) % 90) * SST_FX;
-        if (kind == FK_BAT || kind == FK_IMP || kind == FK_BOOK) { x = (30 + (k * 71) % 260) * SST_FX; y = -12 * SST_FX; }
+        if (kind == FK_BAT || kind == FK_IMP) { x = (40 + (k * 71) % 240) * SST_FX; y = -12 * SST_FX; }
+        if (kind == FK_BOOK) y = (50 + (k * 30) % 80) * SST_FX;
         break;
     }
     int j = sst_spawn_foe(kind, x, y);
     if (j >= 0) {
         SstFoe *f = &sst_g.foe[j];
+        if (kind == FK_IMP) { f->b = x; f->d = (44 + (k * 23) % 70) * SST_FX; }
         f->dir = left ? 1 : -1;
         f->c = k * 20; /* staggered */
         if (kind == FK_BAT) f->a = 1; /* already out */

@@ -48,8 +48,8 @@ void sst_boss_start(int kind, int x, int y) {
         add_part(PK_BODY, x, y, 26, 14, 0);
         break;
     case BK_GOGGLE:
-        add_part(PK_BODY, x, y, 28, 22, 0);
-        add_part(PK_WEAK, x, y + 4 * FX, 7, 6, 0);
+        add_part(PK_BODY, x, y - 12 * FX, 28, 12, 0);
+        add_part(PK_WEAK, x, y + 6 * FX, 9, 7, 0);
         add_part(PK_HAND, x - 46 * FX, y + 18 * FX, 8, 8, 0);
         add_part(PK_HAND, x + 46 * FX, y + 18 * FX, 8, 8, 0);
         break;
@@ -157,8 +157,8 @@ static void goggle(void) {
     if (B.pt > dur[B.phase] + 30) { B.phase = (uint8_t)((B.phase + 1) % 4); B.pt = 0; }
     int ph = B.phase, t = B.pt;
     int bob = sst_sin(B.t * 2) * 3;
-    B.part[0].y = B.y + bob;
-    eye->y = B.y + 4 * FX + bob;
+    B.part[0].y = B.y - 12 * FX + bob;
+    eye->y = B.y + 6 * FX + bob;
     for (int h = 0; h < 2; h++) {
         SstPart *hd = h ? h1 : h0;
         int hx = B.x + (h ? 46 : -46) * FX, hy = B.y + 18 * FX + sst_sin(B.t * 3 + h * 20) * 4;
@@ -547,16 +547,22 @@ bool sst_boss_shot(int x, int y, int hw, int dmg) {
             return true;
         }
     }
+    /* the soft spots first ... */
     for (int k = 0; k < B.nparts; k++) {
         SstPart *p = &B.part[k];
         if (!p->alive || p->kind == PK_TORCH || p->kind == PK_SNAKE) continue;
         if (!part_box(p, x, y, hw)) continue;
-        if (weak_part(p)) { hurt_boss(p, dmg); return true; }
-        if (B.kind == BK_ENGINE && p->kind == PK_BODY) { hurt_boss(p, dmg); return true; }
-        if (p->kind == PK_BODY || p->kind == PK_SEG || p->kind == PK_RED || p->kind == PK_MOUTH ||
+        if (weak_part(p) || (B.kind == BK_ENGINE && p->kind == PK_BODY)) { hurt_boss(p, dmg); return true; }
+    }
+    /* ... then armour, which stops the shot (the Boiler's low hull doesn't:
+     * shots fly over it at the turret) */
+    for (int k = 0; k < B.nparts; k++) {
+        SstPart *p = &B.part[k];
+        if (!p->alive || !part_box(p, x, y, hw)) continue;
+        if (B.kind == BK_BOILER && p->kind == PK_BODY) continue;
+        if (p->kind == PK_BODY || p->kind == PK_SEG || p->kind == PK_RED || p->kind == PK_MOUTH || p->kind == PK_HAND ||
             (p->kind == PK_EYE && p->shut)) {
-            /* armour: the shot stops */
-            if (k == 0 && B.kind == BK_GOGGLE && part_box(&B.part[1], x, y, hw)) { hurt_boss(&B.part[1], dmg); return true; }
+            sst_sfx("sst_hit");
             return true;
         }
     }
@@ -564,7 +570,7 @@ bool sst_boss_shot(int x, int y, int hw, int dmg) {
 }
 
 bool sst_boss_touch(int x, int y, int hw) {
-    if (!B.alive || B.dying) return false;
+    if (!B.alive || B.dying || B.t < SST_BOSS_INTRO) return false;
     for (int k = 0; k < B.nparts; k++) {
         const SstPart *p = &B.part[k];
         if (!p->alive || p->kind == PK_TORCH || p->kind == PK_MOUTH) continue;
@@ -610,6 +616,8 @@ void sst_boss_update(void) {
         return;
     }
     B.t++;
+    /* a moment to come on before it fights */
+    if (B.t < SST_BOSS_INTRO && B.kind != BK_BOILER) return;
     switch (B.kind) {
     case BK_ENGINE: engine(); break;
     case BK_GOGGLE: goggle(); break;

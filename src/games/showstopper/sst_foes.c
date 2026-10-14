@@ -289,7 +289,7 @@ static void think(SstFoe *f, int idx) {
         break;
     }
     case FK_EMBER: {
-        int sp = f->size == 3 ? 200 : f->size == 2 ? 300 : 400;
+        int sp = f->size == 3 ? 150 : f->size == 2 ? 220 : 300;
         if (f->a > 0) {
             f->a--;
         } else {
@@ -326,9 +326,11 @@ static void think(SstFoe *f, int idx) {
         if ((f->dir > 0 && SST_PX(f->x) > SCREEN_W + 30) || (f->dir < 0 && SST_PX(f->x) < -30)) f->alive = 0;
         break;
     case FK_IMP:
+        /* hovers about its spot (flying in to it first) */
         if (!f->b) { f->b = f->x; f->d = f->y; }
         f->x = f->b + sst_sin(f->t) * 20 * SST_FX / 256;
-        f->y = f->d + sst_sin(f->t * 3) * 6 * SST_FX / 256;
+        if (iabs(f->d - f->y) > 2 * SST_FX) f->y += (f->d - f->y) / 12;
+        else f->y = f->d + sst_sin(f->t * 3) * 6 * SST_FX / 256;
         if (f->t % 110 == 55 && can_fire(f)) lob_at_player(f, 40);
         break;
     case FK_RACECAR:

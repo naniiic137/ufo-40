@@ -484,6 +484,12 @@ static int sst_query(const char *key, int *out) {
             for (int r = 0; r < SST_STAGE[s].nrows; r++) *out += (int)strlen(SST_STAGE[s].rows[r]) != SST_COLS;
         return 1;
     }
+    if (!strncmp(key, "guideat_", 8)) {
+        int gx = atoi(key + 8);
+        const char *u = strchr(key + 8, '_');
+        *out = u ? sst_guide(gx, atoi(u + 1)) : -1;
+        return 1;
+    }
     if (!strcmp(key, "guide")) { *out = sst_guide(SST_PX(p->x) >> 4, SST_PX(p->y) >> 4); return 1; }
     if (!strcmp(key, "layout")) { *out = sst_layout_audit(); return 1; }
     if (!strcmp(key, "art_bad")) { *out = sst_art_check(); return 1; }
@@ -615,6 +621,7 @@ static int sst_cheat(const char *cmd) {
     if (sscanf(cmd, "hopat %d %d", &a, &b) == 2) { sst_g.hop.row = a; sst_g.hop.lane = b; return 1; }
     if (sscanf(cmd, "wave %d", &a) == 1) { sst_g.wave = a; return 1; }
     if (!strcmp(cmd, "freeride")) { sst_sv.free_ride = 1; return 1; }
+    if (sscanf(cmd, "botdebug %d", &a) == 1) { extern int sst_bot_debug; sst_bot_debug = a; return 1; }
     if (sscanf(cmd, "menu %d", &a) == 1) { sst_g.menu = a; return 1; }
     return 0;
 }

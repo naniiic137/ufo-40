@@ -528,7 +528,7 @@ static void draw_boss(void) {
         break;
     }
     case BK_GOGGLE: {
-        int y = view_y(SST_PX(b->part[0].y));
+        int y = view_y(SST_PX(b->part[0].y)) + 12;
         gfx_circ(bx, y - 6, 30, C_GREY);
         gfx_circ(bx, y, 26, flash ? C_WHITE : C_TAN);
         gfx_circb(bx, y, 26, C_INK);
@@ -749,10 +749,11 @@ static void draw_hud(void) {
 static void draw_boss_bar(void) {
     const SstBoss *b = &sst_g.boss;
     if (!b->alive || b->dying || b->maxhp <= 0) return;
-    int w = 120 * imax(0, b->hp) / b->maxhp;
-    gfx_rect(98, 170, 124, 7, C_INK);
-    gfx_rect(100, 172, w, 3, C_RED);
-    tiny_center(SST_BOSS_NAME[b->kind], 160, 163, C_WHITE);
+    int w = 140 * imax(0, b->hp) / b->maxhp;
+    gfx_rect(0, 171, SCREEN_W, 9, C_INK);
+    tiny_draw(SST_BOSS_NAME[b->kind], 4, 173, C_WHITE);
+    gfx_rect(172, 173, 144, 5, C_MAROON);
+    gfx_rect(174, 174, w, 3, C_RED);
 }
 
 static void draw_world(void) {

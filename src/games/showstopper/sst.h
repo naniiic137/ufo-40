@@ -67,6 +67,7 @@ int sst_dir8_of(uint32_t held);  /* -1 when the pad is still */
 #define SST_PASSES 9                       /* in the whole game */
 #define SST_CARD_LIFE 540
 #define SST_SHIELD_HP 3
+#define SST_BOSS_INTRO 90                 /* frames a boss shows itself before it fights */
 
 /* card colours (and the powers they make) */
 enum { CC_NONE, CC_LIFE, CC_SHOT, CC_OPTION, CC_BOMB, CC_SHIELD, CC_COUNT };

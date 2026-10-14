@@ -8,6 +8,7 @@
 #include "sst.h"
 
 int sst_bot_why;
+int sst_bot_debug;
 
 static int tog;
 static SstGame keep;
@@ -121,6 +122,22 @@ static uint32_t fire_buttons(int frame, uint32_t move, int aim) {
 /* ---- trying moves -------------------------------------------------------------------- */
 
 typedef struct { int dir, dash, follow; } Plan;
+static bool has_target;
+static int tgt_x, tgt_y;
+
+/* how far (px) the target lies off the nearest of the eight shooting lines */
+static int aim_miss(int dx, int dy) {
+    int best = 1 << 30;
+    for (int d = 0; d < 8; d++) {
+        int ex = SST_DX8[d], ey = SST_DY8[d];
+        int dot = dx * ex + dy * ey;
+        if (dot <= 0) continue;
+        int cross = iabs(dx * ey - dy * ex);
+        if (ex && ey) cross = cross * 181 / 256;
+        if (cross < best) best = cross;
+    }
+    return best == 1 << 30 ? 200 : best;
+}
 
 static long long score_now(int lives0, int hits0, int bosshp0, int cards0, int passes0) {
     const SstPlayer *p = &sst_g.pl;
@@ -134,7 +151,7 @@ static long long score_now(int lives0, int hits0, int bosshp0, int cards0, int p
     if (fighting() || bosshp0 > 0) s += (long long)(bosshp0 - (sst_g.boss.alive ? sst_g.boss.hp : 0)) * 3000;
     if (SST_STAGE[sst_g.stage].kind == SK_SCROLL && !fighting()) {
         int g = sst_guide(px >> 4, py >> 4);
-        s -= (long long)g * 600 + (py & 15) * 20;
+        s -= (long long)g * 4000 + (py & 15) * 150;
     }
     /* keep clear of what is flying about */
     for (int i = 0; i < SST_MAX_BULLETS; i++) {
@@ -156,9 +173,16 @@ static long long score_now(int lives0, int hits0, int bosshp0, int cards0, int p
         if (fighting() && sst_boss_weak(&bx, &by)) {
             wx = SST_PX(bx);
             wy = imin(SST_PX(by) + 80, sst_g.cam_y + SST_VIEW_H - 24);
+            /* lined up with the soft spot on one of the eight ways */
+            s -= (long long)aim_miss(SST_PX(bx) - px, SST_PX(by) - py) * 900;
         }
         if (SST_STAGE[sst_g.stage].kind == SK_TRAIN) { wy = 88; if (!fighting()) wx = 160; }
         s -= (long long)sst_dist(px - wx, py - wy) * 60;
+    }
+    /* lined up with the thing being shot at */
+    if (has_target && !fighting()) {
+        int miss = aim_miss(SST_PX(tgt_x) - px, SST_PX(tgt_y) - py);
+        s -= (long long)imin(miss, 40) * 350;
     }
     /* not hard against the bottom of the view while it climbs */
     if (sst_g.chasing && py > sst_g.cam_y + SST_VIEW_H - 30) s -= (py - (sst_g.cam_y + SST_VIEW_H - 30)) * 2000;
@@ -172,7 +196,7 @@ static long long try_plan(Plan pl, int aim, int H) {
     int bosshp0 = sst_g.boss.alive ? sst_g.boss.hp : 0;
     long long worst = 0;
     for (int f = 0; f < H; f++) {
-        int d = f < 10 || !pl.follow ? pl.dir : follow_dir();
+        int d = pl.dir == -2 ? follow_dir() : f < 10 || !pl.follow ? pl.dir : follow_dir();
         uint32_t m = dir_mask(d);
         if (pl.dash && f == 0) m |= BTN_B;
         m = fire_buttons(f + tog, m, aim);
@@ -238,7 +262,12 @@ static uint32_t play_buttons(void) {
     if (p->state != PS_WALK && p->state != PS_DASH) return 0;
     int aim = -1;
     int tx, ty;
-    if (pick_target(&tx, &ty)) aim = aim_dir8(sst_dir_to(tx - p->x, ty - p->y));
+    has_target = pick_target(&tx, &ty);
+    if (has_target) {
+        aim = aim_dir8(sst_dir_to(tx - p->x, ty - p->y));
+        tgt_x = tx;
+        tgt_y = ty;
+    }
     fire_dir = aim;
     if (!danger_near()) {
         sst_bot_why = 1;
@@ -251,11 +280,14 @@ static uint32_t play_buttons(void) {
         static const int H = 30;
         long long best = -((long long)1 << 62);
         Plan bp = cur;
-        for (int d = -1; d < 8; d++)
+        for (int d = -2; d < 8; d++)
             for (int fol = 0; fol < 2; fol++) {
+                if (d == -2 && fol) continue;
                 Plan pl = {d, 0, fol};
                 long long s = try_plan(pl, aim, H);
                 if (d == cur.dir && fol == cur.follow && !cur.dash) s += 3000; /* steady */
+                if (d == -2) s += 1500;
+                if (sst_bot_debug) fprintf(stderr, "plan d%d f%d: %lld\n", d, fol, s);
                 if (s > best) { best = s; bp = pl; }
             }
         if (p->dash_cd == 0)
@@ -266,14 +298,14 @@ static uint32_t play_buttons(void) {
             }
         cur = bp;
         plan_t = 5;
-        uint32_t m = dir_mask(cur.dir);
+        uint32_t m = dir_mask(cur.dir == -2 ? follow_dir() : cur.dir);
         if (cur.dash) m |= BTN_B;
         cur.dash = 0;
         plan_t--;
         return fire_buttons(tog, m, aim);
     }
     plan_t--;
-    int d = cur.dir;
+    int d = cur.dir == -2 ? follow_dir() : cur.dir;
     return fire_buttons(tog, dir_mask(d), aim);
 }
 
