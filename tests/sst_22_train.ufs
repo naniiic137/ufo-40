@@ -1,0 +1,34 @@
+# SHOWSTOPPER: stage II, the Night Freight: one screen on the roof of a
+# moving train, fourteen waves to outlast and no boss. Off the roof (or
+# down a gap between the cars, but for the walkway in the middle) is a
+# fall. The last wave beaten, the stage is clear.
+game showstopper
+wait 5
+cheat run
+cheat stage 2
+cheat god
+expect cam == 0
+expect wave == 0
+waituntil wave == 1 100
+expect foes == 2
+expect kind_10 == 2
+cheat clear
+waituntil wave == 2 100
+expect kind_11 == 3
+cheat clear
+waituntil wave == 3 100
+expect kind_12 == 1
+cheat clear
+# the walkway between the cars holds, the gap beside it doesn't
+cheat mortal
+cheat pos 90 88
+hold RIGHT 20
+expect pstate == 0
+cheat pos 104 72
+hold RIGHT 6
+expect pstate == 2
+wait 40
+cheat god
+cheat clear
+cheat wave 14
+waituntil state == 4 300

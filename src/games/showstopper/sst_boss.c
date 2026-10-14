@@ -143,7 +143,7 @@ static void engine(void) {
         sst_sfx("sst_mouse");
     }
     if (B.t % 220 == 200) {
-        int j = sst_spawn_foe(FK_SNOWBALL, ((B.t / 220) % 2 ? 300 : 20) * FX, B.y + 70 * FX);
+        int j = sst_spawn_foe(FK_SNOWBALL, ((B.t / 220) % 2 ? 264 : 56) * FX, B.y + 70 * FX);
         (void)j;
     }
 }
@@ -426,7 +426,7 @@ static void maw(void) {
         s->b--;
         s->a = imax(0, s->a - 512);
     } else {
-        s->a = imin(s->a + 150, 150 * FX);
+        s->a = imin(s->a + 150, 112 * FX);
     }
     int ang = s->t ? s->t : 16;
     int want = pang(mo->x, mo->y);

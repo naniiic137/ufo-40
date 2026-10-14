@@ -1,0 +1,81 @@
+# SHOWSTOPPER: the first bosses. The Snow Engine strafes its yard, takes
+# hits anywhere, lets out a clockwork mouse and brings snowballs in. Granny
+# Goggle is only hurt in the eye (her head stops shots), her gloves throw
+# fire and volleys and turn into spiked balls that hunt. The Boiler backs
+# up the winding road with the view going after it; only its turret takes
+# hits, and with it gone the view is free. The Doppels share one bar and
+# change shape together: urchins, devil faces, aliens laying spike blocks.
+# Every boss shows itself for a moment before it fights.
+game showstopper
+wait 5
+cheat run
+cheat god
+cheat cam 912
+cheat arena
+cheat pos 152 1040
+cheat boss 1 152 952
+expect boss_kind == 1
+expect boss_hp == 150
+expect boss_maxhp == 150
+cheat face 6
+hold A 60
+release A
+expect boss_hp < 150
+waituntil kind_26 >= 1 200
+waituntil kind_9 >= 1 200
+cheat killboss
+wait 2
+expect boss == 0
+# Granny Goggle
+cheat cam 0
+cheat arena
+cheat nobullets
+cheat pos 152 140
+cheat boss 2 152 40
+expect boss_hp == 220
+wait 100
+cheat face 6
+press A 1
+wait 30
+expect boss_hp == 219
+# from the side, at her head: stopped
+cheat pos 30 22
+cheat face 0
+press A 1
+wait 40
+expect boss_hp == 219
+cheat bossphase 2 10
+wait 20
+expect part2_a == 1
+cheat killboss
+wait 100
+# the Boiler: the chase up the road
+cheat stage 3
+cheat god
+cheat cam 1440
+wait 2
+expect boss_kind == 3
+expect chasing == 1
+expect boss_hp == 170
+wait 200
+expect cam < 1430
+cheat killboss
+wait 2
+expect chasing == 0
+expect cam_lock == -1
+wait 100
+# the Doppels: two, one bar
+cheat cam 0
+cheat arena
+cheat nobullets
+cheat boss 4 120 40
+expect part0_alive == 1
+expect part1_alive == 1
+expect boss_hp == 300
+wait 92
+cheat bossphase 2 0
+wait 30
+expect kind_31 >= 4
+cheat bossphase 0 419
+wait 2
+expect boss_phase == 1

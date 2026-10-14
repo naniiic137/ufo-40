@@ -1,0 +1,19 @@
+# SHOWSTOPPER: 2 PLAYERS (the original's co-op, with the pigeon) is in
+# the menu but greyed out on every platform until the next update: it can
+# be highlighted, shows its hint line, and A on it does nothing.
+game showstopper
+wait 5
+press DOWN
+expect menu == 1
+wait 10
+press A
+wait 5
+expect state == 0
+press START
+wait 5
+expect state == 0
+expect layout == 0
+press UP
+expect menu == 0
+press A
+expect state == 1

@@ -1,0 +1,57 @@
+# SHOWSTOPPER: the palace's foes. Turtles fire rings; harlequins drop
+# bombs that burst; skulls in the walls breathe a long flame one way;
+# emberlings split in two smaller ones when beaten, twice; book trains
+# are six books, each its own target; page imps lob bombs; racecars leave
+# a slick that hurts; torches spit fire.
+game showstopper
+wait 5
+cheat run
+cheat stage 4
+cheat arena
+cheat god
+cheat spawn turtle 168 2700
+cheat foet 0 64
+wait 2
+expect eb_0 == 12
+cheat clear
+cheat spawn harlequin 168 2700
+cheat foet 0 84
+wait 2
+expect eb_4 == 4
+wait 105
+expect eb_4 == 0
+expect eb_0 >= 30
+cheat clear
+cheat spawn skull_jet 100 2700
+cheat foet 0 169
+wait 2
+expect eb_8 == 6
+cheat clear
+cheat spawn emberling 168 2700
+expect foe0_size == 3
+cheat freeze
+cheat foehp 0 1
+cheat face 6
+press A 1
+wait 20
+expect kind_21 == 2
+expect foe0_size == 2
+cheat thaw
+cheat clear
+cheat spawn book 168 2700
+wait 2
+expect kind_22 == 6
+cheat clear
+cheat spawn page_imp 168 2700
+cheat foet 0 54
+wait 2
+expect eb_5 == 1
+cheat clear
+cheat spawn racecar 100 2740
+wait 13
+expect hz_0 >= 2
+cheat clear
+cheat spawn torch 100 2700
+cheat foet 0 59
+wait 2
+expect eb_2 == 1

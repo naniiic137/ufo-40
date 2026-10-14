@@ -1,0 +1,9 @@
+# SHOWSTOPPER: the title, story, map, offer, Hop's end, continue, game
+# over and ending screens' words fit and every character has a glyph; the
+# cartridge's nineteen tunes loop together channel by channel, and all
+# are in the jukebox under titles.
+game showstopper
+wait 5
+expect layout == 0
+check_songs
+expect jukebox_missing == 0

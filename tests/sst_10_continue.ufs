@@ -1,0 +1,50 @@
+# SHOWSTOPPER: three lives a credit. With the last one gone: CONTINUE?
+# with a ten-second count. YES starts the stage again from its start with
+# three new lives (and shuts the true ending away for this run); NO, or
+# the count running out, is GAME OVER and back to the title.
+game showstopper
+wait 5
+cheat run
+cheat arena
+cheat die
+wait 50
+expect lives == 2
+wait 400
+cheat die
+wait 50
+expect lives == 1
+wait 400
+cheat die
+wait 50
+expect lives == 0
+expect pstate == 5
+wait 60
+expect state == 8
+wait 40
+press A
+expect state == 3
+expect continues == 1
+expect lives == 3
+expect hp == 3
+expect stage == 1
+expect py == 2504
+# again, and this time NO
+cheat lives 1
+cheat die
+wait 120
+expect state == 8
+wait 30
+press RIGHT
+press A
+expect state == 9
+wait 70
+press A
+expect state == 0
+# the count running out says NO
+cheat run
+cheat lives 1
+cheat die
+wait 120
+expect state == 8
+wait 640
+expect state == 9

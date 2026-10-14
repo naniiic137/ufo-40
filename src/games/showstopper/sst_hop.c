@@ -29,11 +29,13 @@ static void gen_row(void) {
     }
     /* one lane always safe, wandering a little, so there is a way on */
     static const int8_t wander[3] = {-1, 0, 1};
-    int safe = g == 0 ? 3 : H.safe;
-    safe = iclamp(safe + wander[rng_range(&H.rng, 0, 2)], 1, HOP_LANES - 2);
+    int prev = g == 0 ? 3 : H.safe;
+    int safe = iclamp(prev + wander[rng_range(&H.rng, 0, 2)], 1, HOP_LANES - 2);
     for (int l = 0; l < HOP_LANES; l++) {
         int t = HT_TILE;
-        if (g >= 4 && l != safe) {
+        /* the safe lane, and where it came from in the last row, so the way
+         * on never needs a diagonal hop */
+        if (g >= 4 && l != safe && l != prev) {
             int roll = rng_range(&H.rng, 0, 99);
             if (roll < 8 + d * 3) t = HT_HOLE;
             else if (roll < 8 + d * 3 + 6 + d * 2) t = HT_SPIKE;

@@ -1,0 +1,60 @@
+# SHOWSTOPPER: three hearts; a hit costs one and leaves her safe for a
+# moment; with none left a life goes. A pit takes a life at once, however
+# many hearts. A lost life brings her back on the spot in a bubble she can
+# float about (over pits too) and pop with A or B on firm ground; it pops
+# by itself when its time runs out. Out of the bubble: three hearts, a
+# moment's safety, and every card power gone.
+game showstopper
+wait 5
+cheat run
+cheat arena
+wait 61
+cheat pow 2 2
+expect pow2 == 2
+cheat bullet 0 168 2504 0 0
+wait 2
+expect hp == 2
+expect hits == 1
+expect inv > 0
+# safe for a while: a second shot does nothing
+cheat bullet 0 168 2504 0 0
+wait 2
+expect hp == 2
+wait 95
+cheat bullet 0 168 2504 0 0
+wait 2
+expect hp == 1
+wait 95
+cheat bullet 0 168 2504 0 0
+wait 2
+expect hp == 0
+expect pstate == 3
+wait 45
+expect lives == 2
+expect pstate == 4
+expect pow2 == 0
+# float the bubble, then pop it
+wait 25
+hold RIGHT 20
+expect px == 188
+press A
+expect pstate == 0
+expect hp == 3
+expect inv > 100
+# a pit: a life at once
+cheat cam 180
+cheat arena
+cheat pos 104 264
+wait 120
+hold DOWN 30
+expect pstate == 2
+wait 32
+expect lives == 1
+expect falls == 1
+expect pstate == 4
+# over the pit the bubble won't pop; its time runs out and it pops on firm ground
+press B
+expect pstate == 4
+wait 320
+expect pstate == 0
+expect lives == 1

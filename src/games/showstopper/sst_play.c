@@ -171,6 +171,7 @@ void sst_drop_card(int x, int y) {
         SstCard *c = &sst_g.card[i];
         if (c->alive) continue;
         c->alive = 1;
+        sst_g.cards_dropped++;
         c->col = (uint8_t)rng_range(&sst_g.rng, CC_LIFE, CC_SHIELD);
         c->x = x;
         c->y = y;
@@ -629,6 +630,9 @@ static void player_update(uint32_t held, uint32_t press) {
         }
         if (--p->dash_t <= 0) {
             p->state = PS_WALK;
+            /* out of the dash at walking pace (on ice she slides on from there) */
+            p->vx = p->vx * SST_WALK / SST_DASH_V;
+            p->vy = p->vy * SST_WALK / SST_DASH_V;
             p->dash_cd = SST_DASH_CD;
             p->inv = imax(p->inv, 3);
         }

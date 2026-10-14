@@ -339,7 +339,7 @@ typedef struct {
     /* tests */
     bool god, frozen;
     int hits_taken, falls, kills, cards_got, hands_a, hands_b, hands_none;
-    int shots_fired, dashes, stuns;
+    int shots_fired, dashes, stuns, cards_dropped;
 } SstGame;
 
 extern SstGame sst_g;

@@ -1,0 +1,59 @@
+# SHOWSTOPPER: B dashes: 14 frames at 3.5 px a frame the way she last
+# moved (or the pad points), nothing can hurt her meanwhile, and she
+# crosses pits; she can't dash again for 10 frames; a foe she dashes
+# through is stunned; the dash doesn't change her locked aim.
+game showstopper
+wait 5
+cheat run
+cheat arena
+cheat god
+hold RIGHT 1
+expect px == 169
+press B 1
+wait 14
+expect pstate == 0
+expect dashes == 1
+expect px >= 216
+expect px <= 218
+# a fresh press inside the cooldown does nothing
+press B 1
+expect dashes == 1
+wait 12
+# safe while dashing: a shot through her does no harm
+cheat mortal
+cheat pos 100 2504
+hold LEFT 1
+cheat bullet 0 80 2504 0 0
+press B 1
+wait 20
+expect hits == 0
+expect hp == 3
+# over a pit: stage I's square has two pits (columns 6-7, rows 17-18)
+cheat god
+cheat cam 180
+cheat arena
+cheat pos 120 264
+hold DOWN 1
+expect pstate == 0
+press B 1
+wait 20
+expect pstate == 0
+expect falls == 0
+expect py > 296
+# a gumdrop dashed through is stunned
+cheat arena
+cheat pos 100 344
+cheat spawn gumdrop 140 344
+hold RIGHT 1
+press B 1
+wait 2
+expect stuns == 1
+expect foe0_stun > 0
+# the locked aim stays through a dash
+cheat clear
+hold UP A 1
+hold A LEFT 1
+hold A B 1
+hold A 16
+expect face == 6
+release A

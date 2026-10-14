@@ -1,0 +1,24 @@
+# SHOWSTOPPER: the demo player, pressing real buttons from the title,
+# plays the whole game: the five stages, all eight bosses, the train and
+# the lift, the Hop when it has passes; it uses no continue, so it meets
+# the Heartstack, beats it and sees the true ending.
+seed 4
+game showstopper
+wait 10
+botuntil state == 3 2000
+botuntil stage >= 2 20000
+expect boss_seen == 5
+botuntil stage >= 3 20000
+botuntil stage >= 4 20000
+expect boss_seen == 12
+botuntil stage >= 5 20000
+expect boss_seen == 7
+botuntil boss_kind == 8 20000
+botuntil boss_kind == 9 20000
+botuntil state == 10 20000
+expect won == 1
+expect good == 1
+expect continues == 0
+expect goals & 2
+expect goals & 4
+expect save_wins == 1

@@ -1,0 +1,15 @@
+# SHOWSTOPPER: a run that has used a continue: the demo player plays the
+# last stage, beats the Morrowmaw, and that is the end: no Heartstack, the
+# sad ending, the Saucer but not the Alien.
+seed 7
+game showstopper
+wait 10
+cheat run
+cheat continues 1
+cheat stage 5
+botuntil boss_kind == 8 20000
+botuntil state == 10 20000
+expect won == 1
+expect good == 0
+expect goals & 2
+expect goals !& 4

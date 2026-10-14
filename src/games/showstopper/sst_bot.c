@@ -356,6 +356,7 @@ static bool hop_bad(int row, int lane, int frames_ahead) {
 /* the best a path of hops from (row, lane), landing `when` frames from now,
  * can do in `depth` more hops: how far on it gets and the coins on the way */
 static int hop_search(int row, int lane, int when, int depth) {
+    if (!sst_g.hop.practice && row >= HOP_LENGTH) return 100000; /* the far end */
     if (depth == 0) return row * 8;
     int best = -100000;
     for (int d = 0; d < 4; d++) {

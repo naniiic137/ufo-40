@@ -1,0 +1,56 @@
+# SHOWSTOPPER: A fires the wand. A press fires at once, the way the pad
+# points (or she faces); held, it fires bursts of three and the facing
+# stays put while she walks any way (strafing); tapped fast, it fires more
+# shots than holding does, but the facing follows the pad between taps.
+game showstopper
+wait 5
+cheat run
+cheat arena
+cheat god
+cheat face 6
+press A 1
+expect shots == 1
+expect shot0_vx == 0
+expect shot0_vy == -1280
+expect shots_fired == 1
+wait 60
+# held: a shot, then bursts of three every 40 frames
+hold UP A 1
+hold A 59
+expect shots_fired == 7
+release A
+wait 30
+# walking right with A held keeps the aim up
+hold UP A 1
+hold A RIGHT 30
+expect face == 6
+expect firing == 1
+release A
+wait 2
+expect firing == 0
+hold RIGHT 2
+expect face == 0
+wait 60
+# tapping: a press every 6 frames, ten shots in 60 frames (holding gave 6)
+cheat face 6
+press A 1
+wait 4
+press A 1
+wait 4
+press A 1
+wait 4
+press A 1
+wait 4
+press A 1
+wait 4
+press A 1
+wait 4
+press A 1
+wait 4
+press A 1
+wait 4
+press A 1
+wait 4
+press A 1
+wait 4
+expect shots_fired == 21

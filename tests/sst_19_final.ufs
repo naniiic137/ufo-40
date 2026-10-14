@@ -1,0 +1,107 @@
+# SHOWSTOPPER: Morrow's Tower. The lift rises through twelve waves; at
+# the top waits the Morrowmaw: its two great eyes hold all its life, the
+# four eyes on its arms fire rounds and can be shot shut for a while, and
+# its mouth lets out a snake that only shooting drives back. Beaten after
+# a continue: the sad ending. Beaten on a run with no continue, it breaks
+# open into the Heartstack: 23 blocks circling clockwise, red ones firing
+# across the room, green ones breaking; with twelve left the red ones
+# gather into a heart that sprays rings until it breaks. Then the true
+# ending.
+game showstopper
+wait 5
+cheat run
+cheat stage 5
+cheat god
+expect lift_waves == 12
+cheat clear
+cheat wave 12
+waituntil half == 1 200
+expect boss_kind == 8
+expect boss_hp == 400
+expect part0_hp == 200
+expect part1_hp == 200
+wait 100
+# the snake comes out and shooting drives it back
+cheat pos 160 160
+waituntil part7_a > 12000 400
+cheat face 6
+press A 1
+wait 4
+press A 1
+wait 4
+press A 1
+wait 4
+press A 1
+wait 4
+press A 1
+wait 4
+press A 1
+wait 4
+press A 1
+wait 4
+press A 1
+wait 4
+press A 1
+wait 4
+press A 1
+wait 4
+press A 1
+wait 4
+press A 1
+wait 4
+expect part7_a < 12000
+# an arm's eye, shut by six hits, opens again later
+cheat pos 36 120
+cheat face 6
+press A 1
+wait 8
+press A 1
+wait 8
+press A 1
+wait 8
+press A 1
+wait 8
+press A 1
+wait 8
+press A 1
+wait 30
+expect part2_shut == 1
+expect boss_hp == 400
+waituntil part2_shut == 0 400
+# no continues: the Heartstack
+cheat killboss
+waituntil boss_kind == 9 200
+expect continues == 0
+expect boss_hp == 486
+cheat nobullets
+expect part0_alive == 1
+expect part22_alive == 1
+expect boss_phase == 0
+# the green ones broken: the red ones gather into the heart
+wait 95
+cheat breakgreens
+wait 2
+expect boss_phase == 1
+expect boss_hp == 288
+waituntil eb_0 >= 16 200
+cheat killboss
+waituntil state == 10 400
+expect good == 1
+expect won == 1
+expect goals & 2
+expect goals & 4
+# with a continue used: the Morrowmaw is the end, and the sad one
+cheat run
+cheat stage 5
+cheat god
+cheat continues 1
+cheat clear
+cheat wave 12
+waituntil boss_kind == 8 300
+wait 95
+cheat killboss
+waituntil state == 10 400
+expect good == 0
+expect won == 1
+expect save_wins == 2
+expect save_good == 1

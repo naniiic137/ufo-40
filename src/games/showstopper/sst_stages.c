@@ -142,7 +142,7 @@ static const char *const S1[] = {
     "T...~~~~~,,~~~~~...T",
     "T...~~g~~,,~~g~~...T",
     "T...~~~~~,,~~~~~...T",
-    "T........,,........T",
+    "T........,,....$...T",
     "TT..c....,,....b..TT",
     "T........,,........T",
     "T..j.....,,.....j..T",
@@ -184,7 +184,7 @@ static const char *const S2[] = {
     "oooooooooooooooooooo",
     "oooooooooooooooooooo",
     "oooooooooooooooooooo",
-    "..$...o......o......",
+    "......o......o......",
     "......o......o......",
     ".........P..........",
     "......o......o......",
@@ -590,8 +590,8 @@ static const char *const S5_CROWN[] = {
 };
 
 const SstStage SST_STAGE[SST_STAGES] = {
-    {"FROSTBELL LANE", NULL, SK_SCROLL, TH_SNOW, S1, ARRAY_LEN(S1), BK_ENGINE, BK_NONE, BK_GOGGLE, BK_NONE, 2},
-    {"THE NIGHT FREIGHT", NULL, SK_TRAIN, TH_TRAIN, S2, ARRAY_LEN(S2), BK_NONE, BK_NONE, BK_NONE, BK_NONE, 1},
+    {"FROSTBELL LANE", NULL, SK_SCROLL, TH_SNOW, S1, ARRAY_LEN(S1), BK_ENGINE, BK_NONE, BK_GOGGLE, BK_NONE, 3},
+    {"THE NIGHT FREIGHT", NULL, SK_TRAIN, TH_TRAIN, S2, ARRAY_LEN(S2), BK_NONE, BK_NONE, BK_NONE, BK_NONE, 0},
     {"LANTERNBURY", "THE CANAL SIDE", SK_SCROLL, TH_TOWN, S3, ARRAY_LEN(S3), BK_NONE, BK_NONE, BK_DOPPELS, BK_BOILER, 3},
     {"THE GLASS PALACE", "THE UPPER HALLS", SK_SCROLL, TH_PALACE, S4, ARRAY_LEN(S4), BK_WICKS, BK_RIBBON, BK_MORROW, BK_NONE, 3},
     {"MORROW'S TOWER", NULL, SK_LIFT, TH_TOWER, S5, ARRAY_LEN(S5), BK_NONE, BK_NONE, BK_MAW, BK_NONE, 0},

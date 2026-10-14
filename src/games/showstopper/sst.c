@@ -390,6 +390,7 @@ static int sst_query(const char *key, int *out) {
     if (!strcmp(key, "hands_a")) { *out = sst_g.hands_a; return 1; }
     if (!strcmp(key, "hands_b")) { *out = sst_g.hands_b; return 1; }
     if (!strcmp(key, "hands_none")) { *out = sst_g.hands_none; return 1; }
+    if (!strcmp(key, "cards_dropped")) { *out = sst_g.cards_dropped; return 1; }
     if (!strcmp(key, "cards_got")) { *out = sst_g.cards_got; return 1; }
     if (!strcmp(key, "code_t")) { *out = sst_g.code_t; return 1; }
     if (!strcmp(key, "shots")) { *out = 0; for (int i = 0; i < SST_MAX_SHOTS; i++) *out += sst_g.ps[i].alive; return 1; }
@@ -600,6 +601,12 @@ static int sst_cheat(const char *cmd) {
         } else sst_g.boss.hp = a;
         return 1;
     }
+    if (!strcmp(cmd, "breakgreens")) {
+        /* the Heartstack's green blocks broken */
+        for (int k = 0; k < SST_MAX_PARTS; k++)
+            if (sst_g.boss.part[k].alive && sst_g.boss.part[k].kind == 9) sst_g.boss.part[k].alive = 0;
+        return 1;
+    }
     if (sscanf(cmd, "bosst %d", &a) == 1) { sst_g.boss.t = a; return 1; }
     if (sscanf(cmd, "bossphase %d %d", &a, &b) == 2) { sst_g.boss.phase = (uint8_t)a; sst_g.boss.pt = b; return 1; }
     if (!strcmp(cmd, "killboss")) {
@@ -634,7 +641,7 @@ const GameDef GAME_SHOWSTOPPER = {
     "SHOWSTOPPER",
     "1988",
     "RUN AND GUN",
-    "THE SHOW RABBIT GOES AFTER THE MAGICIAN. HOLD FIRE TO AIM, DASH THROUGH TROUBLE, PLAY YOUR CARDS.",
+    "A SHOW RABBIT, A STOLEN WAND. HOLD TO AIM, DASH, PLAY YOUR CARDS.",
     {"WIN A LIFE IN THE HOP", "BRING DOWN MORROW'S TRUE FACE", "DO IT WITHOUT A CONTINUE"},
     "D-PAD\tWALK (8 WAYS)\n"
     GLYPH_A "\tSHOOT; HOLD: KEEP AIM, FIRE\n"

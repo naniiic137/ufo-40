@@ -65,6 +65,10 @@ void sst_foe_init(SstFoe *f) {
     case FK_RACECAR:
         f->dir = 1;
         break;
+    case FK_TOYTRAIN:
+    case FK_GOURD:
+        f->dir = px_x(f) < 160 ? 1 : -1;
+        break;
     case FK_EGG:
         f->t = 0;
         break;
@@ -181,7 +185,7 @@ static void think(SstFoe *f, int idx) {
         } else {
             /* round the car */
             int a = (cycle - 400) * 64 / 200 + (f->dir > 0 ? 32 : 0);
-            int cx = 160 * SST_FX, cy = 88 * SST_FX;
+            int cx = 160 * SST_FX, cy = (sst_g.cam_y + 88) * SST_FX;
             int tx = cx + 110 * sst_cos(a) * SST_FX / 256, ty = cy + 64 * sst_sin(a) * SST_FX / 256;
             f->x += (tx - f->x) / 8;
             f->y += (ty - f->y) / 8;
