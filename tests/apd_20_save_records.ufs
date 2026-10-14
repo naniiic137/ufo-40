@@ -1,0 +1,32 @@
+# ANTIPODE: a cradle saves the run (the start counts as one); CONTINUE goes
+# back to it with what was found. The title keeps the records: the most
+# upgrades and exploration, and the times died.
+seed 1
+game antipode
+wait 5
+cheat newgame
+cheat nofoes
+expect save_items == 0
+cheat pickup 0
+cheat pickup 1
+cheat room 0 P
+wait 2
+expect save_items == 2
+expect rec_upgrades == 2
+expect rec_explore >= 1
+cheat die
+waituntil state == 3 100
+expect rec_died == 1
+cheat pickup 2
+reload
+game antipode
+wait 10
+expect menu == 1
+expect rec_died == 1
+press A
+wait 5
+expect state == 3
+expect room_id == 80
+expect items_got == 2
+expect spares == 2
+expect armor == 85

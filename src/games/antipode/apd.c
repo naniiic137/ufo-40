@@ -239,6 +239,7 @@ static void dying_update(void) {
 void apd_final_defeated(void);
 void apd_final_defeated(void) {
     ag.run.won = 1;
+    ag.run.boss_dead[BS_HALLORAN] = 1;
     ag.run.visited[crown_arena()] = 1;
     ag.cherry_run = apd_explore_pct() >= 100 && apd_items_got() >= apd_nitems;
     if (!ag.run.code_on && !apd_simulating) {
@@ -568,6 +569,7 @@ static int apd_query(const char *key, int *out) {
     if (!strcmp(key, "boss_max")) { *out = apd_boss_maxhp(); return 1; }
     if (!strcmp(key, "boss_phase")) { *out = ag.boss_phase; return 1; }
     if (!strcmp(key, "boss_flags")) { *out = ag.boss_foe >= 0 ? ag.foe[ag.boss_foe].flags : -1; return 1; }
+    if (!strcmp(key, "boss_up")) { *out = ag.boss_foe >= 0 ? ag.foe[ag.boss_foe].up : -1; return 1; }
     if (!strcmp(key, "boss_state")) { *out = ag.boss_foe >= 0 ? ag.foe[ag.boss_foe].state : -1; return 1; }
     if (!strncmp(key, "boss_dead", 9)) { *out = ag.run.boss_dead[iclamp(atoi(key + 9), 0, APD_BOSSES - 1)]; return 1; }
     if (!strcmp(key, "lightning")) { *out = ag.lightning_t; return 1; }
@@ -720,6 +722,12 @@ static int apd_cheat(const char *cmd) {
         int up = 0;
         sscanf(cmd, "foe %d %d %d %d", &a, &b, &c, &up);
         apd_spawn_foe(iclamp(a, 1, FO_KINDS - 1), b * APD_FX, c * APD_FX, up != 0);
+        return 1;
+    }
+    if (sscanf(cmd, "killkind %d", &a) == 1) {
+        extern void apd_kill_foe(int i);
+        for (int i = 0; i < APD_MAX_FOES; i++)
+            if (ag.foe[i].alive && ag.foe[i].kind == a) apd_kill_foe(i);
         return 1;
     }
     if (sscanf(cmd, "killfoe %d", &a) == 1) { extern void apd_kill_foe(int i); apd_kill_foe(a); return 1; }

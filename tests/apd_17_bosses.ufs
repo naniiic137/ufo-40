@@ -1,0 +1,125 @@
+# ANTIPODE: each fight. The Scrapper crosses to the other surface between
+# volleys; the Warden raises columns of the floor; Brackish can't be hurt
+# under the acid; the Lamprey's body turns shots aside; the Coilheart is
+# shut behind four nodes; Obverse fires sword beams, up to five in a row
+# once she is low; Halloran: legs, three volleys then a ram, a spell of
+# turning shots back, then the heart, then the head with its three joints,
+# and lightning that deletes shots.
+seed 1
+game antipode
+wait 5
+cheat newgame
+cheat god
+# the Crown's lightning deletes shots that cross it (here on its own)
+cheat nofoes
+cheat room 0 F
+cheat pos 60 134
+wait 5
+hold RIGHT 2
+cheat eshot 7 120 80 0 0
+wait 42
+expect lightning == 1
+hold A 1
+release ALL
+wait 12
+expect shots == 0
+wait 40
+expect lightning == 0
+hold A 1
+release ALL
+wait 12
+expect shots == 1
+cheat foes
+# the Scrapper
+cheat room 0 M
+hold RIGHT 20
+expect boss_on == 1
+expect boss_up == 0
+cheat bossstate 1
+wait 110
+expect boss_up == 1
+# the Warden: columns of the floor rise (not under the suit)
+cheat room 0 W
+hold RIGHT 10
+expect boss_on == 1
+cheat pos 60 134
+cheat bossstate 2
+wait 32
+expect tileat_104_120 == 1
+expect tileat_216_120 == 1
+wait 150
+expect tileat_104_120 == 0
+# Brackish: out of reach under the acid
+cheat room 1 B
+hold RIGHT 10
+expect boss_on == 1
+expect boss_max == 700
+wait 2
+expect boss_flags & 2
+cheat bossstate 1
+wait 3
+expect boss_flags !& 2
+# the Lamprey: six segments that only clink
+cheat room 2 y
+hold RIGHT 10
+expect boss_on == 1
+expect foes_15 == 6
+expect boss_hp == 400
+# the Coilheart: shut while its nodes live
+cheat room 2 k
+hold RIGHT 10
+expect boss_on == 1
+wait 3
+expect foes_17 == 4
+expect boss_flags & 1
+cheat killkind 17
+wait 15
+expect boss_flags !& 1
+# Obverse: five beams in a row once low
+cheat room 1 Y
+hold RIGHT 10
+expect boss_on == 1
+expect boss_max == 800
+cheat bosshp 200
+waituntil eshots_4 >= 4 300
+# Halloran
+cheat room 3 F
+hold RIGHT 10
+expect boss_on == 1
+expect boss == 6
+expect boss_max == 700
+expect foes_20 == 2
+waituntil boss_state == 1 200
+cheat bosst 399
+wait 2
+expect boss_flags & 4
+cheat bosst 1
+wait 2
+cheat killboss
+expect boss_phase == 1
+expect boss_max == 600
+expect foes_20 == 0
+cheat killboss
+expect boss_phase == 2
+expect boss_max == 800
+wait 3
+expect foes_21 == 3
+expect boss_flags & 2
+cheat killkind 21
+wait 10
+expect boss_state == 1
+expect boss_flags !& 2
+# the storm: 20 seconds shut away
+cheat bosst 599
+wait 2
+expect boss_flags & 2
+expect lightning >= 0
+cheat bosst 1
+wait 2
+cheat bossstate 1
+wait 2
+cheat killboss
+wait 110
+expect state == 9
+expect won == 1
+expect goals & 2

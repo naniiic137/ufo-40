@@ -1,0 +1,20 @@
+# ANTIPODE: the demo player, with real presses from the title: every room
+# and every upgrade, the four ciphers, Halloran, the ending with the pilot
+# shown, and the credits to the end: all three goals.
+seed 1
+game antipode
+wait 5
+botuntil state == 3 600
+botuntil items_got >= 34 200000
+expect goals & 1
+expect explore >= 97
+expect ciphers == 15
+botuntil won == 1 100000
+expect explore == 100
+expect items == 100
+expect cherry_run == 1
+expect goals & 2
+botuntil state == 0 6000
+expect goals & 4
+expect rec_upgrades == 34
+expect rec_explore == 100
