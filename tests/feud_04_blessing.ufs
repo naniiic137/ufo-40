@@ -1,0 +1,64 @@
+# FOSSIL FEUD: every second prayer to an Ancestor is a blessing: you pick
+# one of its three actions to raise a step (two steps each). The screen
+# previews the blessed action, except a MARCH's (shown only in the ordeal
+# where the actions are dealt afresh). Maxing all three actions of one
+# Ancestor in a match is the Beacon goal.
+seed 3
+game fossilfeud
+wait 10
+cheat match 0
+wait 20
+press A
+wait 2
+cheat offer 0 1 2
+cheat favour 0 0 1
+wait 10
+press A
+wait 2
+expect favour0_0 == 2
+expect mp == 2
+expect bless_sel == 0
+press DOWN
+press DOWN
+expect bless_sel == 2
+press DOWN
+expect bless_sel == 0
+press DOWN
+wait 10
+press A
+wait 2
+expect star0_1 == 1
+expect mp == 3
+expect act_id == 0
+# a maxed action can't be blessed again
+cheat endturn
+cheat endturn
+wait 20
+press A
+wait 2
+cheat offer 0 1 2
+cheat star 0 0 2
+cheat star 0 1 2
+cheat star 0 2 1
+cheat favour 0 0 3
+wait 10
+press A
+wait 2
+expect mp == 2
+expect bless_sel == 0
+wait 10
+press A
+wait 2
+expect mp == 2
+press DOWN
+press A
+wait 2
+expect mp == 2
+expect goals == 0
+press DOWN
+press A
+wait 2
+expect star0_2 == 2
+expect mp == 3
+expect goals & 1
+expect save_gift == 1

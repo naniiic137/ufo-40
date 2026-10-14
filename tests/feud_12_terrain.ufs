@@ -1,0 +1,68 @@
+# FOSSIL FEUD: the ground shapes the battlefield. An eyrie: walls and
+# battlements, with one gate in the middle when it is the Rust Roost's and
+# two near the ends when it is the Slate Flock's. A gorge: a chasm with two
+# bridges. A peak: the defenders' side is a slope. A thicket and a
+# boneyard: cover that takes shots. Scree: rocks that stop walkers and
+# shots, and high spots. A meadow: nothing. Defenders charge, the default
+# order, wherever they fight. (0 open, 1 cover, 2 wall or chasm, 3 high,
+# 4 rock)
+seed 3
+game fossilfeud
+wait 10
+cheat match 0
+wait 2
+cheat clearboard
+cheat own 6 0
+cheat own 7 1
+cheat units 7 1 0 0 0 0
+cheat units 6 1 0 0 0 0
+cheat terr 7 0
+cheat battle 0 6 7 1 0 0 0 0 0
+wait 1
+expect b_cells1 == 0
+expect b_cells2 == 0
+expect b_cells3 == 0
+expect b_cells4 == 0
+cheat terr 7 6
+cheat battle 0 6 7 1 0 0 0 0 0
+wait 1
+expect b_cells2 == 9
+expect b_cells3 == 88
+expect b_order1 == 0
+# the Rust Roost's own eyrie: one gate
+cheat terr 6 6
+cheat battle 1 7 6 1 0 0 0 0 0
+wait 1
+expect b_cells2 == 10
+expect b_cells3 == 88
+cheat terr 7 4
+cheat battle 0 6 7 1 0 0 0 0 0
+wait 1
+expect b_cells2 == 18
+expect b_order1 == 0
+cheat terr 7 5
+cheat battle 0 6 7 1 0 0 0 0 0
+wait 1
+expect b_cells3 == 110
+expect b_cells4 == 2
+cheat terr 7 1
+cheat battle 0 6 7 1 0 0 0 0 0
+wait 1
+expect b_cells1 > 8
+cheat terr 7 2
+cheat battle 0 6 7 1 0 0 0 0 0
+wait 1
+expect b_cells1 > 4
+expect b_cells4 >= 1
+cheat terr 7 3
+cheat battle 0 6 7 1 0 0 0 0 0
+wait 1
+expect b_cells4 > 3
+expect b_cells3 > 3
+# a peak moved onto an eyrie: still a totem, but the walls are gone
+cheat terr 7 5
+cheat eyrie 7 1
+cheat battle 0 6 7 1 0 0 0 0 0
+wait 1
+expect b_cells2 == 0
+expect b_cells3 == 110

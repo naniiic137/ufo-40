@@ -1,0 +1,151 @@
+# FOSSIL FEUD: the omens, paid in relics. Longneck: TITHE (+1 favour with
+# any Ancestor; a blessing if it makes an even count), SHIFT PEAK (a peak
+# moves; scree is left), HAILSTORM (their birds on a tile freeze through
+# your next turn; you are told how many even in the fog). Threehorn: FAR
+# SIGHT (see into their tile), UPDRAFT (birds fly up to two tiles, over or
+# onto anything), THUNDERBOLT (up to 2 of each kind die); with the fog off
+# HATCHING (a bird at random) instead of far sight.
+seed 3
+game fossilfeud
+wait 10
+cheat match 0
+cheat clearboard
+cheat terr 0 5
+cheat own 7 1
+cheat units 7 5 3 1 0 0
+cheat units 5 3 0 0 0 0
+wait 20
+press A
+wait 2
+cheat offer 2 0 1
+wait 10
+press A
+wait 10
+press A
+press B
+expect act_id == 8
+expect au == 2
+cheat res 0 0 0 9
+cheat favour 0 3 1
+# TITHE to Skycrest: its second favour, a blessing
+press A
+expect au == 5
+press RIGHT
+press RIGHT
+press RIGHT
+expect anc_sel == 3
+press A
+wait 2
+expect res0_2 == 6
+expect favour0_3 == 2
+expect mp == 2
+wait 10
+press A
+wait 2
+expect star0_9 == 1
+expect mp == 3
+expect au == 2
+# SHIFT PEAK: tile 0 to tile 6
+cheat res 0 0 0 9
+press DOWN
+press A
+expect au == 6
+expect valid == 1
+cheat cursor 0
+press A
+expect tgt_stage == 1
+press RIGHT
+press DOWN
+expect cur == 6
+press A
+expect t6_terr == 5
+expect t0_terr == 3
+expect res0_2 == 6
+# HAILSTORM on their birds at tile 7
+press DOWN
+press A
+expect valid == 128
+cheat cursor 7
+press A
+expect t7_frozen == 3
+expect last_frozen == 9
+expect res0_2 == 0
+press B
+expect side == 1
+expect t7_frozen == 2
+cheat endturn
+expect t7_frozen == 1
+cheat endturn
+expect t7_frozen == 0
+cheat endturn
+expect side == 0
+# Threehorn: FAR SIGHT, UPDRAFT, THUNDERBOLT
+cheat res 0 0 0 9
+cheat star 0 14 2
+wait 20
+press A
+wait 2
+cheat offer 4 0 1
+wait 10
+press A
+wait 10
+press A
+press B
+expect act_id == 14
+cheat res 0 0 0 9
+press A
+cheat cursor 7
+press A
+expect t7_seen == 1
+expect res0_2 == 8
+press DOWN
+press DOWN
+press A
+cheat cursor 7
+press A
+expect last_bolt == 5
+expect t7_u0 == 3
+expect t7_u1 == 1
+expect t7_u2 == 0
+expect res0_2 == 4
+# UPDRAFT: three stompers from the eyrie to ground two tiles off
+press UP
+press A
+expect au == 6
+cheat cursor 5
+press A
+expect au == 3
+press A
+expect au == 4
+expect valid & 64
+expect valid & 1
+expect valid & 4
+expect valid !& 8
+cheat cursor 2
+press A
+expect t2_owner == 0
+expect t2_u0 == 3
+expect res0_2 == 1
+press B
+expect side == 1
+expect t7_seen == 0
+# with the fog off, HATCHING
+cheat endturn
+cheat fog 0
+cheat favour 0 4 2
+cheat res 0 0 0 9
+wait 20
+press A
+wait 2
+cheat offer 4 0 1
+wait 10
+press A
+wait 10
+press A
+press B
+press A
+expect au == 6
+cheat cursor 5
+press A
+expect army0 == 4
+expect res0_2 == 8

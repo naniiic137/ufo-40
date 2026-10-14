@@ -1,0 +1,87 @@
+# FOSSIL FEUD: the title's four choices with real presses. 2 PLAYERS is
+# greyed out on every platform (the next update): A does nothing there.
+# RECORDS (prayers to each Ancestor), the custom match's options (kept in the save) and the campaign,
+# whose later rows stay locked until the one before is won.
+seed 1
+game fossilfeud
+wait 20
+expect state == 0
+expect title_sel == 0
+press DOWN
+press DOWN
+expect title_sel == 2
+press A
+wait 2
+expect state == 0
+press DOWN
+expect title_sel == 3
+press A
+wait 5
+expect state == 8
+wait 15
+press B
+wait 3
+expect state == 0
+press UP
+press UP
+expect title_sel == 1
+wait 10
+press A
+wait 5
+expect state == 2
+# the custom match: eyries 2-6, peaks 0-8, fog on or off (always against
+# the full plume)
+press LEFT
+press LEFT
+press LEFT
+press LEFT
+press LEFT
+expect save_eyries == 2
+press DOWN
+press RIGHT
+press RIGHT
+press RIGHT
+press RIGHT
+press RIGHT
+expect save_peaks == 8
+press DOWN
+press RIGHT
+expect save_fog == 0
+press DOWN
+expect cust_sel == 3
+wait 10
+press A
+wait 5
+expect state == 4
+expect scenario == -1
+expect fog == 0
+expect eyries == 2
+expect totems == 6
+expect bare_totems == 4
+expect peaks >= 6
+expect ai_level == 2
+# the campaign: only the first moult is open
+game fossilfeud
+wait 20
+press A
+wait 5
+expect state == 1
+expect camp_sel == 0
+press DOWN
+expect camp_sel == 1
+wait 10
+press A
+wait 2
+expect state == 1
+press UP
+press A
+wait 5
+expect state == 3
+wait 25
+press A
+wait 3
+expect state == 4
+expect scenario == 0
+expect ai_level == 0
+expect ordeal == 0
+expect fog == 1

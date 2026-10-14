@@ -1,0 +1,16 @@
+# FOSSIL FEUD: the demo player, pressing real buttons from the title, wins
+# a custom match against the full plume with the fog off.
+seed 11
+game fossilfeud
+wait 10
+press DOWN
+wait 10
+press A
+wait 5
+press DOWN
+press DOWN
+press LEFT
+expect save_fog == 0
+botuntil state == 6 400000
+expect won == 1
+expect scenario == -1

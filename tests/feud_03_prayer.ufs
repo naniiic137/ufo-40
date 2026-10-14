@@ -1,0 +1,52 @@
+# FOSSIL FEUD: each turn you pray to one of three Ancestors on offer; its
+# three actions then run top to bottom. The one prayed to rests for the
+# next two turns (theirs and your next), so the five cycle and taking one
+# keeps it from the other side.
+seed 3
+game fossilfeud
+wait 10
+cheat match 0
+wait 20
+expect mp == 0
+press A
+wait 2
+expect mp == 1
+expect noffer == 3
+cheat offer 0 2 4
+press RIGHT
+expect pray_sel == 1
+press RIGHT
+press RIGHT
+expect pray_sel == 0
+press RIGHT
+wait 10
+press A
+wait 2
+expect anc == 2
+expect favour0_2 == 1
+expect recent0 == 2
+expect save_picks2 == 1
+expect mp == 3
+# Longneck: GATHER, BUILD, OMEN
+expect act_i == 0
+expect act_id == 6
+expect au == 0
+wait 8
+press A
+expect act_i == 1
+expect act_id == 7
+press B
+expect act_i == 2
+expect act_id == 8
+press B
+# their turn now
+expect side == 1
+expect mp == 0
+waituntil side == 0 6000
+expect recent1 == 2
+waituntil mp == 1 200
+# the two prayed to lately are not on offer
+expect noffer == 3
+expect offer0 != 2
+expect offer1 != 2
+expect offer2 != 2

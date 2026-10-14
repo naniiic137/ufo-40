@@ -124,6 +124,7 @@ menu, shows the buttons as you now press them). SELECT or B closes it.
 | 13 | **DUSKLING** | Mooncat | every way on the D-pad is left and both buttons are right (or the other way round); a jump goes toward the side held (higher the longer you press), low hops, rolls and sprints, somersaults, and a slam that pauses with a "!" and drops straight down; spiked foes flipped by a slam beside them and kicked away; one touch and back to the room's start, as often as it takes; flowers that mean a warp, stone faces that show hidden ledges, warps within warps to three eggs and three bosses, 42 rooms, 2P co-op | the duskling and the dayling, the Hush Wood, the Sunken Mere, the Old Steps and the Humming Works, the Ember Caves and the Windy Heights, the Brass Warden, the Ember Hermit and the Old Badger, 42 new rooms |
 | 10 | **BOOMTOWN** | Devilition | a 10 × 8 board, pieces dealt three at a time from bags of six, nine piece patterns (rockets land on their own pad), one detonation a night whose chain sets off every piece it reaches, demons that take one or two hits or heal, a hole a night, the original's round table, a 10-hit boss in the middle four tiles, the win score and clock bonus | Hazel the fireworks maker, Mossbury's folk, the bogles and the Bog King, eight fireworks |
 | 11 | **HAT TRICK** | Kick Club | one-screen pitches that wrap wherever there is no wall, every one the same on both sides; one ball, the only thing that hurts the creatures, picked up by walking into it, tapped, aimed with the pad (lobs, drives, volleys) or held for a driven shot, and with no ball a running slide that floats over gaps or a header; a jump that goes higher while A is held and stiff but real air control; the lit ball whose chain drops 100, 200, 500 and then 1,000 food, which only appears where the body lands; hidden desserts; a 20-count clock at 2.5 s a count and 100 a count left; an invincible hunter in extra time who stays; three lives, extends at 10k to 100k, no continues; 4 worlds of 9 screens and a boss (a pair in world 3); co-op with one ball, and versus by two codes | Teddy and Mae, Sandy Court, Lucky Lanes, the Lido and the Big Stadium, all 12 creatures, King Spiker, the Kingpin, the Lifeguard and his Chair, the Captain, the Timekeeper, 40 new screens, a Morse secret of our own |
+| 12 | **FOSSIL FEUD** | Avianos | a 5 × 4 board dealt fresh each match with six totem eyries and four peaks; each turn you pray to one of three Ancestors on offer (of five), and its three fixed actions run in order, while the one you took rests for two turns; every second prayer blesses an action, twice each; grain, toilers and relics with their caps; enlisting, calling up, building, marching, bartering and seven omens (hailstorm, updraft, thunderbolt, shifting a peak...); five birds with the original's numbers fighting real-time battles on fields shaped by the ground, where you only give orders (charge, stand, wreck, flee), forty a side on the field; fog of war; win by holding four totems through a round; three moults, five ordeals and a custom match | the Rust Roost and the Slate Flock, Grandjaw, Plateback, Longneck, Skycrest and Threehorn, stompers, lancers, slingers, mystics and swifts, every building, ground and omen name |
 | 14 | **CUTLASS CUP** | Bushido Ball | first to 8 points, a ball that gets faster with every return, aimed, lobbed and curved strikes, secondary weapons and charged super shots, the fouls and penalty points, six fighters, a five-match tournament, 2P versus and co-op doubles | six corsairs, the galley *Merry Mackerel*, old Bosun Crabbe |
 | 15 | **FENNEC FOUNTAIN** | Block Koala | pushing numbered blocks (never into a heavier one, a 1 that can't move is taken in), grey at five, blue and black blocks, mimics, arrows, stone patches and doors, unlimited undo and a room menu, fifty rooms behind gates, a room editor | Fen the fennec, a dry spring garden, 50 new rooms |
 | 16 | **TINTAIL** | Camouflage | sneaking on a grid past watchers by taking the colour of the ground you stand on, hollow logs, sun and rain pads, hatchlings with their own colour, a danger view you can't move in, undo, a branching map | Twig the chameleon, Salt Island, toads and storks, 15 new levels |
@@ -542,6 +543,51 @@ the top.
   bulldogs, King Spiker, the Kingpin, the Lifeguard and his Chair, the
   Captain, the Timekeeper, the food, the codes, a secret of our own and the
   music.
+
+### 12 · FOSSIL FEUD
+
+<p align="center">
+  <img src="docs/shots/fossilfeud.gif" width="640" alt="Fossil Feud: the Rust Roost's birds charge across a battlefield while the Slate Flock holds">
+</p>
+<p align="center">
+  <img src="docs/shots/fossilfeud_title.png" width="320" alt="The title: two birds and the totem fields">
+  <img src="docs/shots/fossilfeud_pray.png" width="320" alt="Praying: three Ancestors on offer, each with its three actions">
+</p>
+<p align="center">
+  <img src="docs/shots/fossilfeud_board.png" width="320" alt="The board of twenty tiles, the Slate Flock's hidden in the fog">
+  <img src="docs/shots/fossilfeud_march.png" width="320" alt="Choosing how many birds march">
+</p>
+<p align="center">
+  <img src="docs/shots/fossilfeud_eyrie.png" width="320" alt="An attack on a walled eyrie with one gate">
+  <img src="docs/shots/fossilfeud_campaign.png" width="320" alt="The campaign: three moults and five ordeals">
+</p>
+
+*A tribute to **Avianos** (UFO 50 #12).*
+
+- **Plays the same:** a war over a 5 × 4 board between two bird nations.
+  You never pick actions yourself: each turn you pray to one of three
+  Ancestors on offer, and its three fixed actions run top to bottom
+  (GATHER, ENLIST, CALL UP, BUILD, MARCH, BARTER or an OMEN). The one you
+  took rests for the next two turns, so every pick is also a denial. Pray
+  to one twice and it blesses one of its actions; each action can be
+  blessed twice. Claim open ground for its grain, toilers or relics, build
+  granaries, roosts, shrines and dustbaths, and march on the Slate Flock.
+  When armies meet, the battle plays itself out on a field shaped by the
+  ground (eyrie walls with one gate, a gorge's bridges, cover, slopes),
+  and you only switch the whole army between CHARGE, STAND, WRECK and FLEE.
+  Five birds with the original's numbers: shielded lancers that shrug off
+  slings, slingers that can't shoot up close, swifts that only shooters
+  can reach. The fog hides their birds. Hold four totems through a whole
+  round to win.
+- **The campaign:** three moults against a sharper Slate Flock each time
+  (the ending comes after the full plume), then five ordeals: extra grain,
+  a second eyrie, a blessing, the Ancestors' actions dealt out afresh, and
+  all of it at once. A custom match sets eyries, peaks and the fog. **2 PLAYERS** is on the title, greyed out until the next
+  update. The demo player in the tests wins every scenario with real
+  button presses.
+- **Ours:** the Rust Roost and the Slate Flock, Grandjaw, Plateback,
+  Longneck, Skycrest and Threehorn, the five birds, the buildings, the
+  ground and the omens, the story and the ending, and nine tunes.
 
 ### 14 · CUTLASS CUP
 

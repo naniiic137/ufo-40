@@ -1,0 +1,153 @@
+# FOSSIL FEUD: MARCH. One MARCH is one move: pick a tile of yours, choose
+# how many of each kind go (all to start), then a tile next door, and the
+# action is over (B first skips it). Open ground is claimed with what it
+# holds (12 grain, 3 toilers or 4 relics; a peak two of those); an empty
+# enemy tile is taken, buildings and all. Peaks bar the way unless the
+# march is blessed through them; diagonals only when blessed.
+seed 3
+game fossilfeud
+wait 10
+cheat match 0
+cheat clearboard
+cheat units 5 4 0 2 0 0
+cheat terr 6 0
+cheat drop 6 1 0
+cheat terr 0 5
+cheat drop 0 2 2
+cheat terr 1 0
+cheat terr 10 0
+cheat own 11 1
+cheat terr 11 0
+cheat blds 11 1 0 1 0
+cheat res 0 0 0 0
+wait 20
+press A
+wait 2
+cheat offer 0 3 4
+wait 10
+press A
+wait 10
+press A
+cheat res 0 0 0 0
+press B
+expect act_id == 2
+expect au == 1
+expect cur == 5
+press A
+expect au == 3
+expect split_sel == 0
+expect split0 == 4
+expect split2 == 2
+press LEFT
+press LEFT
+press LEFT
+expect split0 == 1
+press DOWN
+expect split_sel == 2
+press LEFT
+press LEFT
+expect split2 == 0
+press A
+expect au == 4
+# no diagonals, no peaks
+expect valid & 64
+expect valid & 1024
+expect valid !& 1
+expect valid !& 2
+press RIGHT
+press A
+expect t6_owner == 0
+expect t6_u0 == 1
+expect res0_0 == 12
+expect t6_ndrop == 0
+expect t5_u0 == 3
+# one move and the march is over (here the last action: their turn)
+expect side == 1
+cheat endturn
+cheat favour 0 0 2
+wait 20
+press A
+wait 2
+cheat offer 0 3 4
+wait 10
+press A
+wait 10
+press A
+press B
+cheat cursor 5
+press A
+press A
+press DOWN
+press A
+expect t10_owner == 0
+expect t5_units == 0
+expect t10_u0 == 3
+expect t10_u2 == 2
+expect side == 1
+# blessed once: diagonals too; an empty enemy tile taken with its buildings
+cheat endturn
+cheat star 0 2 1
+cheat favour 0 0 2
+wait 20
+press A
+wait 2
+cheat offer 0 3 4
+wait 10
+press A
+wait 10
+press A
+press B
+expect act_id == 2
+cheat cursor 10
+press A
+press A
+expect au == 4
+expect valid & 2048
+expect valid & 64
+expect valid & 32
+cheat cursor 11
+press A
+expect t11_owner == 0
+expect t11_b0 == 1
+expect t11_b2 == 1
+expect tiles1 == 1
+# B before moving skips the march
+cheat endturn
+cheat favour 0 0 2
+wait 20
+press A
+wait 2
+cheat offer 0 3 4
+wait 10
+press A
+wait 10
+press A
+press B
+expect act_id == 2
+press B
+expect side == 1
+# Skycrest's march, blessed: onto a peak, which holds two things
+cheat endturn
+cheat star 0 10 1
+cheat terr 1 5
+cheat drop 1 2 2
+cheat res 0 0 0 0
+wait 20
+press A
+wait 2
+cheat offer 3 0 1
+wait 10
+press A
+wait 10
+press A
+expect act_id == 10
+cheat cursor 6
+press A
+press A
+expect valid & 2
+press UP
+expect cur == 1
+press A
+expect t1_owner == 0
+expect res0_2 == 8
+expect act_id == 11

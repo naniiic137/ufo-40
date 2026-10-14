@@ -1,0 +1,138 @@
+# FOSSIL FEUD: battles play out by themselves. At most 40 birds a side on
+# the field, the rest waiting. Stompers and lancers can't reach a swift. A
+# lancer's shield stops slingers' shots outright until it is in a melee.
+# If nobody is hurt and nobody moves for a while, the attackers go home.
+# FLEE takes attackers back where they came from; fleeing defenders lose
+# the tile and go to a tile of theirs next door. WRECK pulls buildings
+# down. A surprise attack catches the defenders napping until the first
+# blow; frozen defenders can do nothing.
+seed 3
+game fossilfeud
+wait 10
+cheat match 0
+wait 2
+cheat clearboard
+cheat own 6 0
+cheat own 7 1
+# 60 against 4: forty on the field, twenty waiting
+cheat units 7 4 0 0 0 0
+cheat battle 0 6 7 60 0 0 0 0 0
+cheat order 1 0
+expect b_field0 == 40
+expect b_reserve0 == 20
+expect b_count1 == 4
+waituntil b_result != 0 6000
+expect b_result == 1
+expect b_lost1 == 4
+wait 30
+press A
+wait 2
+expect state == 4
+expect t7_owner == 0
+expect t7_units > 30
+# swifts can't be reached by stompers
+cheat own 7 1
+cheat units 7 0 0 0 0 3
+cheat battle 0 6 7 5 0 0 0 0 0
+waituntil b_result != 0 8000
+expect b_lost1 == 0
+expect b_result == 2
+wait 30
+press A
+wait 2
+# the shield: six slingers against one lancer who stands still
+cheat units 7 0 1 0 0 0
+cheat battle 0 6 7 0 0 6 0 0 0
+cheat order 1 1
+waituntil b_shield_saves > 0 3000
+expect b_shield0 == 5
+waituntil b_result != 0 6000
+expect b_result == 3
+expect b_shield0 == 5
+expect b_still >= 180
+wait 30
+press A
+wait 2
+expect t6_u2 == 6
+expect t7_u1 == 1
+# attackers who flee go home
+cheat units 6 0 0 0 0 0
+cheat units 7 6 0 0 0 0
+cheat battle 0 6 7 6 0 0 0 0 0
+wait 40
+press RIGHT
+press RIGHT
+press RIGHT
+expect b_order0 == 3
+waituntil b_result != 0 3000
+expect b_result == 3
+wait 30
+press A
+wait 2
+expect t6_u0 == 6
+expect t7_owner == 1
+# defenders who flee lose the tile, and go next door
+cheat units 6 0 0 0 0 0
+cheat own 8 1
+cheat terr 8 0
+cheat units 7 6 0 0 0 0
+cheat units 8 0 0 0 0 0
+cheat battle 0 6 7 6 0 0 0 0 0
+cheat order 1 3
+waituntil b_result != 0 3000
+expect b_result == 4
+wait 30
+press A
+wait 2
+expect t7_owner == 0
+expect t8_u0 == 6
+# WRECK: the attackers pull the buildings down
+cheat own 7 1
+cheat units 7 0 0 0 0 0
+cheat units 7 1 0 0 0 0
+cheat blds 7 1 1 1 0
+cheat battle 0 6 7 8 0 0 0 0 0
+cheat order 1 1
+press RIGHT
+press RIGHT
+expect b_order0 == 2
+waituntil b_nbld == 0 6000
+press LEFT
+press LEFT
+waituntil b_result != 0 6000
+wait 30
+press A
+wait 2
+expect t7_blds == 0
+# a surprise attack: the defenders don't stir; standing off, we can look and go
+cheat own 7 1
+cheat units 7 4 0 0 0 0
+cheat battle 0 6 7 2 0 0 0 0 1
+press RIGHT
+expect b_order0 == 1
+expect b_surprise == 1
+waituntil b_result != 0 3000
+expect b_woke == 0
+expect b_result == 3
+expect b_lost0 == 0
+expect b_lost1 == 0
+wait 30
+press A
+wait 2
+# ... but the first blow wakes them
+cheat units 7 4 0 0 0 0
+cheat battle 0 6 7 6 0 0 0 0 1
+waituntil b_woke == 1 3000
+waituntil b_result != 0 6000
+wait 30
+press A
+wait 2
+# frozen defenders stand and take it
+cheat own 7 1
+cheat units 7 6 0 0 0 0
+cheat frozen 7 3
+cheat battle 0 6 7 6 0 0 0 0 0
+expect b_frozen == 6
+waituntil b_result != 0 6000
+expect b_result == 1
+expect b_lost0 == 0

@@ -1,0 +1,46 @@
+# FOSSIL FEUD: the Slate Flock's turn plays out step by step on the same
+# rules: it prays (its Ancestor rests too), takes its blessings, and works
+# through the three actions; its music while it thinks, the battle tune
+# when it attacks. The three moults are three planners, each sharper.
+seed 3
+game fossilfeud
+wait 10
+# when it marches on our birds, a battle, and the battle music
+cheat match 0
+wait 2
+cheat clearboard
+cheat own 6 1
+cheat units 6 30 0 0 0 0
+cheat units 5 1 0 0 0 0
+cheat own 10 0
+cheat ai 2
+cheat endturn
+cheat offer 0 1 3
+waituntil state == 5 3000
+expect b_atk == 1
+expect playing_battle == 1
+waituntil state == 4 6000
+expect t5_owner == 1
+
+# a new match against the full plume
+cheat match 2
+wait 20
+expect ai_level == 2
+press A
+cheat offer 2 0 1
+wait 12
+press A
+wait 10
+press A
+press B
+press B
+expect side == 1
+expect playing_rival == 1
+waituntil mp == 4 200
+waituntil side == 0 6000
+expect recent1 == 2
+# a few rounds on: the Slate Flock has spread out and prayed every turn
+cheat ai 2
+botuntil turn >= 12 60000
+expect tiles1 >= 3
+expect army1 >= 4

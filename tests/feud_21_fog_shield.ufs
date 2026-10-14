@@ -1,0 +1,81 @@
+# FOSSIL FEUD: the fog hides the Slate Flock's birds and buildings until far
+# sight looks in. The Slate Flock plans on what it can see too: our birds as
+# it last saw them in a battle, or a guess. Blows from stompers and lancers
+# go round a lancer's shield; slings do nothing to it while it is up, and a
+# mystic's bolts wear it down. Rocks on scree stop shots outright.
+seed 3
+game fossilfeud
+wait 10
+cheat match 0
+wait 2
+cheat clearboard
+cheat own 6 0
+cheat own 7 1
+cheat units 7 3 0 0 0 0
+cheat blds 7 1 1 0 0
+cheat blds 6 1 0 0 0
+expect shown_blds7 == 0
+expect shown_blds6 == 1
+cheat fog 0
+expect shown_blds7 == 2
+cheat fog 1
+# they guess: 1 bird on open ground of ours, 3 on our eyrie
+cheat units 6 20 0 0 0 0
+expect cpu_sees6 == 1
+expect cpu_sees5 == 3
+# a battle there shows them the truth
+cheat units 7 1 0 0 0 0
+cheat battle 1 7 6 1 0 0 0 0 0
+waituntil b_result != 0 4000
+wait 30
+press A
+wait 2
+expect t6_owner == 0
+expect cpu_sees6 >= 19
+# far sight shows their buildings
+cheat own 7 1
+cheat units 7 3 0 0 0 0
+cheat blds 7 1 1 0 0
+wait 20
+press A
+wait 2
+cheat offer 4 0 1
+cheat res 0 0 0 9
+wait 10
+press A
+wait 10
+press A
+press B
+press A
+cheat cursor 7
+press A
+expect t7_seen == 1
+expect shown_blds7 == 2
+# stompers' blows go round the shield
+cheat units 7 0 1 0 0 0
+cheat battle 0 6 7 4 0 0 0 0 0
+cheat order 1 1
+waituntil b_lancer_hp < 5 4000
+expect b_shield0 == 5
+waituntil b_result != 0 4000
+wait 30
+press A
+wait 2
+# a mystic's bolts wear the shield down first
+cheat own 7 1
+cheat units 7 0 1 0 0 0
+cheat units 6 0 0 0 0 0
+cheat battle 0 6 7 0 0 0 2 0 0
+cheat order 1 1
+waituntil b_shield0 < 5 4000
+expect b_lancer_hp == 5
+waituntil b_result != 0 6000
+wait 30
+press A
+wait 2
+# rocks on scree stop shots
+cheat own 7 1
+cheat terr 7 3
+cheat units 7 0 0 6 0 0
+cheat battle 0 6 7 0 0 8 0 0 0
+waituntil b_blocked > 0 3000

@@ -1,0 +1,70 @@
+# FOSSIL FEUD: BUILD puts up buildings on tiles you hold, at most three a
+# tile. Plateback's list (toilers): granary 2, roost 3, shrine 3. Longneck's:
+# dustbath 4 grain, granary 2 toilers, shrine 3 toilers.
+seed 3
+game fossilfeud
+wait 10
+cheat match 0
+cheat own 6 0
+wait 20
+press A
+wait 2
+cheat offer 1 0 2
+wait 10
+press A
+wait 10
+# 1 MARCH: done at once
+expect act_id == 3
+press B
+expect act_id == 4
+cheat res 0 0 9 0
+cheat cursor 5
+press A
+expect au == 2
+press A
+expect t5_b0 == 2
+expect t5_blds == 3
+expect res0_1 == 7
+# the eyrie is full: back to the board, and it can't be chosen
+expect au == 1
+expect valid !& 32
+expect cur == 6
+press LEFT
+press A
+expect au == 1
+press RIGHT
+press A
+press DOWN
+press A
+expect t6_b1 == 1
+expect res0_1 == 4
+press DOWN
+press A
+expect t6_b2 == 1
+expect res0_1 == 1
+press A
+expect t6_b2 == 1
+expect res0_1 == 1
+press B
+press B
+expect act_i == 2
+# Longneck: a dustbath for grain
+press B
+cheat endturn
+cheat res 0 10 0 0
+wait 20
+press A
+wait 2
+cheat offer 2 0 1
+wait 10
+press A
+wait 10
+press A
+cheat res 0 10 0 0
+expect act_id == 7
+cheat cursor 6
+press A
+press A
+expect t6_b3 == 1
+expect res0_0 == 6
+expect bldc0_3 == 1

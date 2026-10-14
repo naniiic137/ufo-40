@@ -1,0 +1,65 @@
+# FOSSIL FEUD: GATHER and CALL UP need only a confirm. Grandjaw's gather:
+# +10 grain and +3 a granary (blessed: a toiler a dustbath; twice: +18).
+# Skycrest's call up: 2 free stompers at every roost (blessed: a lancer
+# there and a mystic at every shrine; twice: a swift at every dustbath).
+seed 3
+game fossilfeud
+wait 10
+cheat match 0
+cheat own 6 0
+cheat blds 6 2 0 0 1
+cheat res 0 0 0 0
+wait 20
+press A
+wait 2
+cheat offer 0 3 4
+wait 10
+press A
+wait 10
+expect act_id == 0
+expect au == 0
+press A
+# 10 + 3 x 3 granaries; no toilers yet
+expect res0_0 == 19
+expect res0_1 == 0
+press B
+press B
+expect side == 1
+# twice blessed: +18, +3 a granary, +1 toiler a dustbath
+cheat endturn
+cheat star 0 0 2
+cheat favour 0 0 2
+cheat res 0 0 0 0
+wait 20
+press A
+wait 2
+cheat offer 0 3 4
+wait 10
+press A
+wait 10
+press A
+expect res0_0 == 27
+expect res0_1 == 1
+press B
+press B
+# Skycrest's call up, twice blessed
+cheat endturn
+cheat blds 6 1 1 1 0
+cheat star 0 9 2
+cheat units 5 0 0 0 0 0
+wait 20
+press A
+wait 2
+cheat offer 3 0 1
+wait 10
+press A
+wait 10
+expect act_id == 9
+press A
+expect t5_u0 == 2
+expect t5_u1 == 1
+expect t6_u0 == 2
+expect t6_u1 == 1
+expect t6_u3 == 1
+expect t6_u4 == 0
+expect army0 == 7

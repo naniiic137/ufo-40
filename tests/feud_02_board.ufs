@@ -1,0 +1,62 @@
+# FOSSIL FEUD: a new board. 5 x 4 tiles; each side starts on opposite
+# sides with one eyrie holding 2 stompers, a granary and a roost, and 10
+# grain, 3 toilers and 3 relics. Six eyries, four peaks, six totems (one
+# on every eyrie). Both halves mirror each other through the middle. Open
+# ground holds one thing for its first claimer, a peak two, an eyrie none.
+seed 3
+game fossilfeud
+wait 10
+cheat match 0
+wait 2
+expect turn == 1
+expect side == 0
+expect winner == -1
+expect t5_owner == 0
+expect t14_owner == 1
+expect t5_eyrie == 1
+expect t14_eyrie == 1
+expect t5_u0 == 2
+expect t5_units == 2
+expect t5_b0 == 1
+expect t5_b1 == 1
+expect t5_blds == 2
+expect t14_u0 == 2
+expect t14_b0 == 1
+expect t14_b1 == 1
+expect res0_0 == 10
+expect res0_1 == 3
+expect res0_2 == 3
+expect res1_0 == 10
+expect res1_1 == 3
+expect res1_2 == 3
+expect eyries == 6
+expect peaks == 4
+expect totems == 6
+expect bare_totems == 0
+expect tiles0 == 1
+expect tiles1 == 1
+expect flags0 == 1
+expect flags1 == 1
+expect army0 == 2
+expect army1 == 2
+# the mirror: tile i and tile 19 - i are the same ground
+expect t0_terr == 5
+expect t19_terr == 5
+expect t8_terr == 5
+expect t11_terr == 5
+expect t2_terr == 6
+expect t17_terr == 6
+expect t4_terr == 1
+expect t15_terr == 1
+expect t6_terr == 3
+expect t13_terr == 3
+# what the tiles give
+expect t0_ndrop == 2
+expect t7_ndrop == 1
+expect t2_ndrop == 0
+expect t5_ndrop == 0
+# the first turn's three Ancestors on offer, nobody resting yet
+expect noffer == 3
+expect recent0 == -1
+expect recent1 == -1
+expect fog == 1
