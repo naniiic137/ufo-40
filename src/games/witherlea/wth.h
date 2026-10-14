@@ -31,10 +31,10 @@
 #define WTH_TY 138         /* the text panel */
 #define WTH_TLINES 4
 
-/* ---- rooms: 28 rooms and the two parts of the maze --------------------- */
+/* ---- rooms: 29 rooms and the two parts of the maze (31 places) --------- */
 enum {
     R_CELL, R_PASSAGE, R_SICKROOM, R_HALL, R_PARLOUR, R_DINING, R_KITCHEN, R_SCULLERY, R_SMOKING,
-    R_WASHROOM, R_GUEST, R_GLASSHOUSE, R_GARAGE, R_POND, R_SHED, R_GARDEN, R_DRIVE, R_COURTYARD,
+    R_WASHROOM, R_GUEST, R_GLASSHOUSE, R_GARAGE, R_POND, R_SHED, R_GARDEN, R_YARD, R_DRIVE, R_COURTYARD,
     R_MAZE, R_HEART, R_LANDING, R_MASTER, R_BALCONY, R_STUDY, R_BATH, R_NURSERY, R_CHILDREN,
     R_ATTIC, R_CELLAR, R_SPORE, R_COUNT
 };
@@ -42,15 +42,15 @@ extern const char *const WTH_ROOM_NAME[R_COUNT];
 bool wth_room_dark(int r);          /* upstairs and the cellar */
 bool wth_room_outside(int r);
 
-/* ---- items: 54 kinds ----------------------------------------------------- */
+/* ---- things: 54 kinds ----------------------------------------------------- */
 enum {
     I_NONE,
-    I_SHOEHORN, I_MUG, I_WIRE, I_NEWSPAPER, I_DIARY, I_PENNIES, I_MATCHES, I_KNIFE, I_SODA, I_TONGS,
-    I_TINKEY, I_CUPHOOK, I_COPPERKEY, I_GEAR, I_TWINE, I_OIL, I_TORCH, I_PARAFFIN, I_BAR, I_BATTERIES,
-    I_CANE, I_LONGHOOK, I_HYMN, I_SHEDKEY, I_SPANNER, I_SCREWDRIVER, I_SHEARS, I_SPADE, I_PEWTERKEY,
-    I_MOTOR, I_CARKEYS, I_PIG, I_BRASSKEY, I_SAW, I_GARNET, I_RING, I_JADE, I_SNUFF, I_CLOVE, I_BORAX,
-    I_LENS, I_COMBO, I_OPAL, I_DOLL, I_SILVERKEY, I_PASSWORD, I_GLASSES, I_DIRECTIONS, I_CROSSBOW,
-    I_STEELWIRE, I_AMBER, I_BOLT, I_KEEPERKEY, I_BREW,
+    I_DIARY, I_KNIFE, I_POKER, I_STONE, I_NAIL, I_PHOTO, I_PUMPHANDLE, I_SALT, I_TAPKEY, I_BUCKET, I_WATER,
+    I_FUSE, I_FUSEWIRE, I_GOODFUSE, I_HONEY, I_MATCHES, I_CROSSBOW, I_TAPE, I_SCREWDRIVER, I_LAMP,
+    I_SULPHATE, I_TROWEL, I_PARAFFIN, I_GREASE, I_LIME, I_CUTTERS, I_PLIERS, I_SPRAYER, I_GLOVES,
+    I_SMOKER, I_CARKEY, I_HOSE, I_TIN, I_ROTOR, I_BUREAUKEY, I_CONES, I_TACKLE, I_LINE, I_MAGNET,
+    I_MAGNETLINE, I_BEE_BRASS, I_BEE_COPPER, I_BEE_SILVER, I_BEE_IRON, I_BELT, I_RAZOR, I_WASHER, I_POLE,
+    I_BINOCULARS, I_SKETCH, I_BOLT, I_BLACKKEY, I_REEL, I_MIXTURE,
     I_COUNT
 };
 #define WTH_ITEM_KINDS (I_COUNT - 1) /* 54 */
@@ -62,23 +62,7 @@ extern const WthItem WTH_ITEM[I_COUNT];
 const char *wth_item_name(int it);  /* with its state (a loaded crossbow) */
 
 /* ---- flags: the house as you have changed it -------------------------------- */
-#define WTH_FLAG_LIST(X) \
-    X(F_STRAW) X(F_VENT_OPEN) X(F_VENT_WIRE) X(F_VENT_PAPER) X(F_CELL_OPEN) X(F_LEFT_CELL) X(F_MUG_TAKEN) \
-    X(F_COAT) X(F_TORCH_TAKEN) X(F_CANE_TAKEN) X(F_CLOCK_WOUND) X(F_PIG_TAKEN) X(F_FIRE_SOAKED) \
-    X(F_FIRE_LIT) X(F_GARNET_TAKEN) X(F_HYMN_OUT) X(F_TONGS_TAKEN) X(F_KNIFE_TAKEN) X(F_MATCHES_TAKEN) \
-    X(F_BAR_TAKEN) X(F_SODA_TAKEN) X(F_SNUFF_TAKEN) X(F_BATT_TAKEN) X(F_BATH_DRAINED) X(F_TINKEY_TAKEN) \
-    X(F_BORAX_TAKEN) X(F_BOX_OPEN) X(F_OIL_TAKEN) X(F_HOOK_TAKEN) X(F_SPANNER_TAKEN) X(F_TWINE_TAKEN) \
-    X(F_PARAFFIN_TAKEN) X(F_MOTOR_FITTED) X(F_RAILS_OILED) X(F_GARAGE_OPEN) X(F_POND_DONE) X(F_SHED_OPEN) \
-    X(F_MOTOR_TAKEN) X(F_SCREW_TAKEN) X(F_SHEARS_TAKEN) X(F_SAW_TAKEN) X(F_SPADE_TAKEN) X(F_PEWTER_TAKEN) \
-    X(F_GRAVE_DUG) X(F_IVY_CUT) X(F_ROPE_CUT) X(F_AMBER_TAKEN) X(F_FOUNTAIN_DRAINED) X(F_JADE_TAKEN) \
-    X(F_GATE_OPEN) X(F_TORCH_LOADED) X(F_STAIRS_LIT) X(F_MASTER_OPEN) X(F_LENS_TAKEN) X(F_SAFE_OPEN) \
-    X(F_OPAL_TAKEN) X(F_CASE_BROKEN) X(F_RING_TAKEN) X(F_RECIPE) X(F_MIRROR_BROKEN) X(F_COMBO_TAKEN) \
-    X(F_CLOVE_TAKEN) X(F_BOXMUSIC) X(F_GLASSES_TAKEN) X(F_WALL_READ) X(F_DOLL_TAKEN) X(F_DOLLHOUSE_READ) \
-    X(F_HATCH_DOWN) X(F_TRUNK_OPEN) X(F_HARMONIUM_PLAYED) X(F_WIRE2_TAKEN) X(F_BOW_LOADED) X(F_KEEPER_DEAD) \
-    X(F_STORM_OPEN) X(F_MECH_GEAR) X(F_MECH_WIRE) X(F_MECH_SCREW) X(F_MECH_OIL) X(F_IRONDOOR_OPEN) \
-    X(F_BOLT_TAKEN) X(F_HIDE_SCREEN_GONE) X(F_HIDE_ALCOVE_GONE) X(F_HIDE_BED_GONE) X(F_HIDE_CHEST_GONE) \
-    X(F_STUN_KNIFE) X(F_STUN_BAR) X(F_EVER_CAUGHT) X(F_GIFT) X(F_GOLD_DONE) X(F_CHERRY_DONE) X(F_BEST_DONE) \
-    X(F_OIL_USED1) X(F_HEART_SEEN) X(F_WARNED)
+#define WTH_FLAG_LIST(X)     X(F_LEFT_CELL) X(F_STONE_TAKEN) X(F_NAIL_TAKEN) X(F_NAIL_SET) X(F_CELL_OPEN) X(F_PHOTO_TAKEN)     X(F_HANDLE_TAKEN) X(F_KNIFE_TAKEN) X(F_SALT_TAKEN) X(F_BEE_ICE) X(F_TAPKEY_TAKEN) X(F_BUCKET_TAKEN)     X(F_FUSE_TAKEN) X(F_FUSEWIRE_TAKEN) X(F_POWER) X(F_POKER_TAKEN) X(F_MAGNET_TAKEN) X(F_HONEY_TAKEN)     X(F_MATCHES_TAKEN) X(F_CABINET_BROKEN) X(F_TAPE_TAKEN) X(F_SCREW_TAKEN) X(F_LAMP_TAKEN)     X(F_SULPHATE_TAKEN) X(F_TROWEL_TAKEN) X(F_PARAFFIN_TAKEN) X(F_GREASE_TAKEN) X(F_LIME_TAKEN)     X(F_CHAIN_CUT) X(F_GARAGE_OPEN) X(F_ROTOR_FITTED) X(F_SHED_OPEN) X(F_CUTTERS_TAKEN) X(F_PLIERS_TAKEN)     X(F_SPRAYER_TAKEN) X(F_GLOVES_TAKEN) X(F_SMOKER_TAKEN) X(F_HIVE_CUT) X(F_HOSE_TAKEN) X(F_GRATE_CUT)     X(F_BEE_WELL) X(F_BUTT_DRAINED) X(F_TIN_TAKEN) X(F_COLLAR_TAKEN) X(F_CONES_TAKEN) X(F_TACKLE_TAKEN)     X(F_LAMP_FILLED) X(F_LAMP_LIT) X(F_SMOKER_LOADED) X(F_SMOKER_LIT) X(F_MATCHES_USED1) X(F_STAIRS_LIT)     X(F_MASTER_OPEN) X(F_BELT_TAKEN) X(F_RAZOR_TAKEN) X(F_BINOCULARS_TAKEN) X(F_SKETCH_TAKEN) X(F_BEE_HORSE)     X(F_POLE_TAKEN) X(F_HATCH_DOWN) X(F_BEE_NEST) X(F_REEL_TAKEN) X(F_REEL_FITTED) X(F_TAPE_FITTED)     X(F_RECIPE) X(F_GATE_OPEN) X(F_BOLT_TAKEN) X(F_BOW_LOADED) X(F_KEEPER_DEAD) X(F_HATCH_OPEN)     X(F_PUMP_HANDLE) X(F_PUMP_WASHER) X(F_PUMP_HOSE) X(F_PUMP_GREASE) X(F_CELLAR_DRAINED)     X(F_HIDE_PANTRY_GONE) X(F_HIDE_TABLE_GONE) X(F_HIDE_WARDROBE_GONE) X(F_HIDE_AIRING_GONE)     X(F_CUTTERS_USED1) X(F_SCREW_USED1) X(F_EVER_CAUGHT) X(F_GIFT) X(F_GOLD_DONE) X(F_CHERRY_DONE)     X(F_BEST_DONE) X(F_HEART_SEEN)
 #define X(f) f,
 enum { WTH_FLAG_LIST(X) F_COUNT };
 #undef X
@@ -110,8 +94,8 @@ extern const uint8_t WTH_PAGE_SPOT[WTH_PAGES]; /* the spot each page lies at */
 /* ---- the maze ----------------------------------------------------------------- */
 #define WTH_MAZE_STEPS 6
 extern const uint8_t WTH_MAZE_WAY[WTH_MAZE_STEPS]; /* DIR_LEFT, DIR_UP (straight on), DIR_RIGHT */
-/* the hares' eyes, left to right */
-extern const uint8_t WTH_HARE_GEM[4];
+/* the four brass bees for the stone hive on the hedge gate */
+extern const uint8_t WTH_BEES[4];
 
 /* ---- the save: everything about the house ------------------------------------- */
 #define WTH_BAG 30
@@ -124,11 +108,12 @@ typedef struct WthSave {
     uint8_t flag[WTH_FLAG_BYTES];
     uint32_t pages;                     /* bit n: page n (date order) found */
     uint8_t floor[R_COUNT][WTH_FLOOR];  /* things lying on a room's floor */
-    uint8_t hare[4];                    /* gems set in the hares' eyes */
-    uint8_t mug;                        /* bits: snuff, clove oil, borax */
+    uint8_t hive;                       /* bits: the bees set in the gate's stone hive */
+    uint8_t mix;                        /* bits: blue crystals, quicklime, water in the sprayer */
+    uint8_t stun_knife, stun_poker;     /* times each has knocked him down */
     uint8_t maze;                       /* junctions passed */
     uint8_t body_room;                  /* where the Keeper lies (once he's dead) */
-    uint8_t pad[3];
+    uint8_t pad;
     int16_t cx, cy;                  /* the cursor, px */
     int32_t spawn_left;                 /* frames until the Keeper comes by himself */
     int32_t interval;                   /* ... and the wait after each escape */
@@ -137,7 +122,7 @@ typedef struct WthSave {
     uint32_t frames;                    /* time played in the house */
 } WthSave;
 #define WTH_MAGIC 0x57544801u
-#define WTH_VERSION 1
+#define WTH_VERSION 2
 
 /* ---- the Keeper ------------------------------------------------------------------- */
 enum { E_NONE, E_COMING, E_HERE, E_FOLLOW, E_STUN, E_HIDING, E_CAUGHT };
@@ -146,6 +131,7 @@ enum { E_NONE, E_COMING, E_HERE, E_FOLLOW, E_STUN, E_HIDING, E_CAUGHT };
 #define WTH_CATCH_T 240          /* in your room: this long to get out */
 #define WTH_FOLLOW_T 210         /* he reaches the next room */
 #define WTH_STUN_T 240
+#define WTH_STUNS 2              /* each weapon knocks him down twice; the third is blocked */
 #define WTH_OUTRUN 4             /* rooms in a row */
 #define WTH_FIRST_WAIT (90 * 60) /* the first timed visit */
 #define WTH_WAIT_STEP (30 * 60)  /* added after each escape */
@@ -159,7 +145,7 @@ typedef struct WthMini {
     uint8_t n, miss, hit;           /* prompts done, missed, hit */
     int32_t pos, vel;               /* the marker, 1/256 px across the bar */
     int16_t zone, zw;               /* the safe square */
-    int16_t passes;                 /* edge bounces this prompt (two full sweeps = a miss) */
+    int16_t passes;                 /* edge bounces this prompt (across and back = a miss) */
     int16_t flash, flash_ok;        /* the last result, for drawing */
     int16_t pause;                  /* between prompts */
 } WthMini;
