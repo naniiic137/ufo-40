@@ -18,8 +18,6 @@ WthState wth;
 /* ------------------------------------------------------------------ */
 /* saving                                                               */
 
-static bool cheat_used; /* tests only: nothing */
-
 void wth_save_now(void) {
     if (!wth.s.started) return;
     wth.s.magic = WTH_MAGIC;
@@ -464,7 +462,6 @@ static void wth_start(void) {
     WthSave s;
     if (load_save(&s)) rebuild_goals(&s);
     wth_keeper_reset();
-    cheat_used = false;
     wth_goto(SC_WARNING);
 }
 
@@ -660,7 +657,6 @@ static void aim_at(int s) {
 static int wth_cheat(const char *cmd) {
     char name[64];
     int a, b;
-    cheat_used = true;
     if (sscanf(cmd, "room %63s", name) == 1) {
         int r = find_name(name, ROOM_ID, R_COUNT);
         if (r < 0) return 0;

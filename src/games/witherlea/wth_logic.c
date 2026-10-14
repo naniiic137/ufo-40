@@ -58,7 +58,8 @@ void wth_say(const char *text) {
         if (page >= WTH_MSG_PAGES) break;
         if (i % WTH_TLINES == 0)
             for (int l = 0; l < WTH_TLINES; l++) wth.msg[page][l][0] = 0;
-        snprintf(wth.msg[page][i % WTH_TLINES], UI_WRAP_LEN, "%s", lines[i]);
+        memcpy(wth.msg[page][i % WTH_TLINES], lines[i], UI_WRAP_LEN); /* both UI_WRAP_LEN long */
+        wth.msg[page][i % WTH_TLINES][UI_WRAP_LEN - 1] = 0;
     }
     wth.msg_n = imin(WTH_MSG_PAGES, wth.msg_n + (n + WTH_TLINES - 1) / WTH_TLINES);
 }
@@ -1060,9 +1061,6 @@ void wth_start_exit(int dest) {
 void wth_goto_room(int room) {
     int from = wth.s.room;
     wth.s.room = (uint8_t)room;
-    if (room == R_CELL || from == R_CELL) {
-        /* nothing else */
-    }
     if (from == R_CELL && room != R_CELL) wth_set(F_LEFT_CELL);
     if (room == R_HEART && !wth_flag(F_HEART_SEEN)) {
         wth_set(F_HEART_SEEN);
