@@ -280,6 +280,7 @@ bool lmp_face_solid(int x, int y, int dir);/* cell (x,y)'s face toward dir is a 
 bool lmp_open(int x, int y);               /* a tank can be in the cell */
 bool lmp_shot_blocked(int x, int y);
 bool lmp_is_spikes(int x, int y);
+bool lmp_is_crusher(int x, int y);
 int lmp_tri_normal(char c);                /* the open side of a ramp tile, -1 not one */
 bool lmp_warp_pass(int x, int y, int dir); /* a warp travelling dir goes through */
 void lmp_shoot_tile(int x, int y);

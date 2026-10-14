@@ -221,6 +221,7 @@ static void arrive(void) {
     int sx = t->x - LMP_DX[t->n], sy = t->y - LMP_DY[t->n];
     char sup = lmp_tile(sx, sy);
     if (sup == '^') { lmp_kill_tank(1); return; }
+    if (lmp_is_crusher(sx, sy)) { lmp_kill_tank(101); return; }
     if (sup == 'C' && lg.level != LV_HUB) {
         if (!lg.check.set || lg.check.x != t->x || lg.check.y != t->y || lg.check.n != t->n) {
             bool was = lg.check.set && (lg.check.x / 3 == t->x / 3) && (lg.check.y / 3 == t->y / 3);

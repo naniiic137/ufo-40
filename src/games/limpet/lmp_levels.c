@@ -319,9 +319,9 @@ static const LmpLevel D10 = {
 };
 
 static const LmpThing D11_THINGS[] = {
-    {TH_MOVER, 20, 6, 2, 5, DR_D, 5, 7, 1},
-    {TH_MOVER, 29, 6, 2, 5, DR_D, 5, 7, 1},
-    {TH_MOVER, 38, 6, 2, 5, DR_D, 5, 7, 1},
+    {TH_MOVER, 20, 6, 2, 5, DR_D, 5, 8, 1},
+    {TH_MOVER, 29, 6, 2, 5, DR_D, 5, 8, 1},
+    {TH_MOVER, 38, 6, 2, 5, DR_D, 5, 8, 1},
     {TH_MOVER, 50, 15, 3, 1, DR_U, 10, 9, 0},
 };
 static const LmpLevel D11 = {

@@ -652,8 +652,8 @@ void lmp_eshots_update(void) {
                 /* two sparks run off along the floor */
                 int b1 = lmp_add_eshot(ES_BOLT, e->x - 3 * LMP_FX, e->y, -2 * LMP_FX, 0);
                 int b2 = lmp_add_eshot(ES_BOLT, e->x + 3 * LMP_FX, e->y, 2 * LMP_FX, 0);
-                if (b1 >= 0) lg.es[b1].life = 30; /* they fizzle out six cells on */
-                if (b2 >= 0) lg.es[b2].life = 30;
+                if (b1 >= 0) lg.es[b1].life = 24; /* they fizzle out five cells on */
+                if (b2 >= 0) lg.es[b2].life = 24;
             }
             e->alive = 0;
             continue;

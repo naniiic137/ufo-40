@@ -78,6 +78,13 @@ bool lmp_face_solid(int x, int y, int dir) {
 
 bool lmp_is_spikes(int x, int y) { return lmp_tile(x, y) == '^'; }
 
+/* a crusher's face: clinging to it is as bad as spikes */
+bool lmp_is_crusher(int x, int y) {
+    if (lmp_tile(x, y) != 'm') return false;
+    int i = lmp_mover_at(x, y);
+    return i >= 0 && lg.mover[i].lethal;
+}
+
 bool lmp_warp_pass(int x, int y, int dir) {
     if (x < 0 || y < 0 || x >= lg.mw || y >= lg.mh) return false;
     char c = lmp_tile(x, y);
@@ -191,7 +198,7 @@ static void mover_step(int i) {
     m->y += dy;
     mover_paint(m, 'm');
     m->pos += m->sign;
-    if (m->pos <= 0 || m->pos >= m->dist) { m->sign = -m->sign; m->wait = 30; }
+    if (m->pos <= 0 || m->pos >= m->dist) { m->sign = -m->sign; m->wait = m->lethal ? 40 : 30; }
     if (riding) {
         if (lmp_open(t->x + dx, t->y + dy)) { t->x += dx; t->y += dy; lmp_tank_touch(); }
         else lmp_kill_tank(101);
