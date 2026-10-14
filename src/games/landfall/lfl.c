@@ -342,7 +342,7 @@ bool lfl_gate_open(int g) {
     const LflGate *gt = &lp.gate[g];
     switch (gt->kind) {
     case GK_SNAIL: return gt->snail == 1;
-    case GK_PIT: return gt->prize_thing == 255 || !lp.thing[gt->prize_thing].alive;
+    case GK_PIT: return gt->used;
     case GK_SWAMP: case GK_HOLE: return false;
     default:
         for (int y = gt->ty; y < gt->ty + gt->h; y++)
@@ -379,6 +379,19 @@ static int lfl_query(const char *key, int *out) {
     const LflPlayer *p = &lg.pl;
     if (!strcmp(key, "bot")) { *out = lfl_bot_buttons(); return 1; }
     if (!strcmp(key, "bot_task")) { *out = lfl_bot_task; return 1; }
+    if (!strncmp(key, "here", 4)) {
+        /* the k-th live thing in this room: kind*1000 + x/16*10 + y/16 */
+        int k = atoi(key + 4), n = 0;
+        *out = -1;
+        for (int i = 0; i < lp.nthing; i++)
+            if (lp.thing[i].alive && lp.thing[i].room == lg.cur && n++ == k) *out = lp.thing[i].kind * 1000 + lp.thing[i].x / 16 * 10 + lp.thing[i].y / 16 + lp.thing[i].cd * 100000;
+        return 1;
+    }
+    if (!strncmp(key, "death_by", 8)) { *out = lfl_death_cause[iclamp(atoi(key + 8), 0, 7)]; return 1; }
+    if (!strcmp(key, "bot_tx")) { *out = lfl_bot_tx; return 1; }
+    if (!strcmp(key, "bot_ty")) { *out = lfl_bot_ty; return 1; }
+    if (!strcmp(key, "wx")) { *out = lp.room[lg.cur].gx * LFL_RW + (LFL_PX(lg.pl.x) + 5) / LFL_TILE; return 1; }
+    if (!strcmp(key, "wy")) { *out = lp.room[lg.cur].gy * LFL_RH + (LFL_PX(lg.pl.y) + 5) / LFL_TILE; return 1; }
     if (!strcmp(key, "state")) { *out = lg.state; return 1; }
     if (!strcmp(key, "room")) { *out = lg.cur; return 1; }
     if (!strcmp(key, "room_kind")) { *out = lg.cur >= 0 ? lp.room[lg.cur].kind : -1; return 1; }

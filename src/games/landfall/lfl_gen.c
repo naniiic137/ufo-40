@@ -488,7 +488,7 @@ static int lane0(int side) { return side == DIR_LEFT || side == DIR_RIGHT ? 4 : 
  * and three deep, walled at the flanks, with the obstacle in it */
 static int carve_gate(int room, int side, int kind, int role) {
     int l0 = lane0(side);
-    for (int d = 1; d <= 3; d++) {
+    for (int d = 1; d <= 3 && kind != GK_SNAIL; d++) {
         side_set(room, side, d, l0 - 1, lp.room[room].area == AREA_DUN ? T_ROCK : T_STONE);
         side_set(room, side, d, l0 + 2, lp.room[room].area == AREA_DUN ? T_ROCK : T_STONE);
         side_set(room, side, d, l0, T_FLOOR);
@@ -530,7 +530,11 @@ static int carve_gate(int room, int side, int kind, int role) {
         side_xy(side, 1, l0, &x0, &y0);
         side_xy(side, 3, l0, &x1, &y1);
         break;
-    default: /* the snail, two tiles square, in the passage */
+    default: /* the snail, two tiles square, in the mouth of the passage */
+        for (int d = 1; d <= 2; d++) {
+            side_set(room, side, d, l0, T_FLOOR);
+            side_set(room, side, d, l0 + 1, T_FLOOR);
+        }
         side_xy(side, 1, l0, &x0, &y0);
         side_xy(side, 2, l0 + 1, &x1, &y1);
         break;
@@ -544,6 +548,7 @@ static int carve_gate(int room, int side, int kind, int role) {
         g->sy = (g->ty * LFL_TILE + 2) * LFL_FX;
         g->snail = 0;
         g->snail_face = (uint8_t)side;
+        g->snail_room = (uint8_t)room;
     }
     return lp.ngate++;
 }
@@ -654,7 +659,7 @@ static void roll_species(void) {
         int d = rng_range(&gr, 0, 3);
         s->death = d < 2 ? DE_NONE : d == 2 ? DE_EXPLODE : DE_SWAMP;
         s->drop = (int8_t)drops[i - 2];
-        s->fire_every = (uint8_t)rng_range(&gr, 15, 30); /* x4 frames */
+        s->fire_every = (uint8_t)rng_range(&gr, 23, 38); /* x4 frames: 1.5 to 2.5 s */
         s->speed = (uint8_t)(s->move == MV_CHASE ? rng_range(&gr, 64, 96) : rng_range(&gr, 80, 112));
     }
     LflSpecies *sn = &lp.sp[SP_SNAIL];
@@ -987,7 +992,9 @@ static void build_side(int g) {
         r->open |= (uint8_t)(1 << side);
         r->op_lo[side] = (uint8_t)l0;
         r->op_hi[side] = (uint8_t)(l0 + 1);
-        /* the obstacle, re-using the corridor carver */
+        /* the obstacle, re-using the corridor carver (a snail waits in the
+         * grid room instead, where a chop can draw it aside) */
+        if (gt->kind == GK_SNAIL) goto placed;
         LflGate keep = *gt;
         int saved = lp.ngate;
         lp.ngate = g;
@@ -998,6 +1005,7 @@ static void build_side(int g) {
         keep.sx = made.sx; keep.sy = made.sy; keep.snail = 0; keep.snail_face = made.snail_face;
         *gt = keep;
     }
+placed:;
     /* the matching gap in the grid room's stone wall */
     int out = (side + 2) & 3;
     int nb = lfl_room_index(AREA_OVER, r->gx + DX[side], r->gy + DY[side]);
@@ -1158,6 +1166,29 @@ static bool gen_rooms(void) {
             }
             build_field(room, room == lp.secret_room ? sec_t : -1);
         }
+    /* the snails that guard a side room stand in the grid room's mouth */
+    for (int g = 0; g < lp.ngate; g++) {
+        LflGate *gt = &lp.gate[g];
+        if (gt->kind != GK_SNAIL || gt->role == GR_DUN) continue;
+        const LflRoom *sr = &lp.room[gt->room];
+        int nb = lfl_room_index(AREA_OVER, sr->gx + DX[gt->side], sr->gy + DY[gt->side]);
+        int out = (gt->side + 2) & 3, l0 = lane0(out);
+        int x0, y0, x1, y1;
+        for (int d = 1; d <= 2; d++) {
+            side_set(nb, out, d, l0, T_FLOOR);
+            side_set(nb, out, d, l0 + 1, T_FLOOR);
+        }
+        side_xy(out, 1, l0, &x0, &y0);
+        side_xy(out, 2, l0 + 1, &x1, &y1);
+        gt->tx = (int8_t)imin(x0, x1);
+        gt->ty = (int8_t)imin(y0, y1);
+        gt->w = gt->h = 2;
+        gt->sx = (gt->tx * LFL_TILE + 2) * LFL_FX;
+        gt->sy = (gt->ty * LFL_TILE + 2) * LFL_FX;
+        gt->snail = 0;
+        gt->snail_face = (uint8_t)out;
+        gt->snail_room = (uint8_t)nb;
+    }
     /* the hidden wall: the generator chose the look, now the key */
     {
         LflRoom *r = &lp.room[lp.secret_room];

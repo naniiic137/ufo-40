@@ -19,6 +19,8 @@
 
 static const int DX[4] = {0, 1, 0, -1}, DY[4] = {-1, 0, 1, 0};
 
+int lfl_death_cause[8];
+
 void lfl_sfx(const char *name) { sfx_play_name(name); }
 
 void lfl_say(const char *m) {
@@ -107,6 +109,7 @@ void lfl_hurt_player(int dmg, int why) {
     lfl_sfx("lfl_hurt");
     if (p->hp <= 0) {
         p->hp = 0;
+        lfl_death_cause[iclamp(why, 0, 7)]++;
         lg.state = LS_DYING;
         lg.state_t = 0;
         lfl_sfx("lfl_die");
@@ -193,6 +196,8 @@ void lfl_take_map(int from) {
 static void take_thing(int i, bool by_disc) {
     LflThing *t = &lp.thing[i];
     LflPlayer *p = &lg.pl;
+    for (int g = 0; g < lp.ngate; g++)
+        if (lp.gate[g].prize_thing == i) lp.gate[g].used = 1; /* the prize is out */
     switch (t->kind) {
     case TH_TOOL: {
         int tool = t->sub;
@@ -510,7 +515,7 @@ static void mob_update(int i) {
         if (--m->fire_t <= 0) {
             m->fire_t = s->fire_every * 4;
             int dx = px - cx, dy = py - cy;
-            int v = 320;
+            int v = 256; /* a little slower than her walk */
             if (s->attack == AT_FOUR) {
                 int d = dir_toward(dx, dy);
                 add_foe_shot(SH_FOE, cx - 3, cy - 3, DX[d] * v, DY[d] * v, s->dmg);
@@ -636,7 +641,7 @@ void lfl_room_reset(int room) {
     r->dirty = 0;
     /* a snail passed as a shell comes back */
     for (int g = 0; g < lp.ngate; g++)
-        if (lp.gate[g].room == room && lp.gate[g].kind == GK_SNAIL && lp.gate[g].snail == 2) {
+        if (lp.gate[g].snail_room == room && lp.gate[g].kind == GK_SNAIL && lp.gate[g].snail == 2) {
             lp.gate[g].snail = 0;
             lp.gate[g].sx = (lp.gate[g].tx * LFL_TILE + 2) * LFL_FX;
             lp.gate[g].sy = (lp.gate[g].ty * LFL_TILE + 2) * LFL_FX;
@@ -717,7 +722,7 @@ void lfl_enter_room(int room, bool reset_far) {
     }
     for (int g = 0; g < lp.ngate; g++) {
         LflGate *gt = &lp.gate[g];
-        if (gt->room != room || gt->kind != GK_SNAIL) continue;
+        if (gt->snail_room != room || gt->kind != GK_SNAIL) continue;
         int m = lfl_spawn_mob(SP_SNAIL, 0, 0, -1);
         if (m < 0) continue;
         lg.mob[m].x = gt->sx;
@@ -1061,6 +1066,7 @@ static void update_chops(void) {
             if (t == T_SWAMP || t == T_WARP) d->cooked = 1;
             continue;
         }
+        if (d->cooked == 2) continue;
         d->t++;
         if (d->t >= GNAT_WAIT && !gnat && !lg.no_mobs) {
             /* in from the nearest edge */

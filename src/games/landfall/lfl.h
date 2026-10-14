@@ -136,6 +136,7 @@ typedef struct LflGate {
     uint8_t snail;          /* 0 at home, 1 lured away for good, 2 a shell */
     uint8_t snail_face;
     uint8_t prize_thing;    /* thing index behind it, 255 = none */
+    uint8_t snail_room;     /* the room the snail stands in, at the mouth of the way */
 } LflGate;
 
 typedef struct LflTrade {
@@ -265,7 +266,7 @@ typedef struct LflGame {
     /* the screen scroll between rooms */
     int scroll_dir, scroll_t, scroll_to;
     /* talking */
-    char talk[3][48];
+    char talk[3][64];
     int talk_lines, talk_trade, talk_glyph, talk_t, talk_kind;
     int nope_t;
     char msg[48];
@@ -314,6 +315,7 @@ void lfl_scroll_update(void);
 bool lfl_solid_for_player(int tile, bool shrunk);
 bool lfl_tile_solid_at(int px, int py, bool shrunk);
 void lfl_hurt_player(int dmg, int why);
+extern int lfl_death_cause[8]; /* tests: what each death was */
 void lfl_heal(int n);
 int lfl_add_res(int r, int n);
 void lfl_give_tool_drop(int tool, int x, int y);
@@ -363,6 +365,6 @@ void lfl_audio_load(void);
 /* lfl_bot.c */
 int lfl_bot_buttons(void);
 void lfl_bot_reset(void);
-extern int lfl_bot_task;
+extern int lfl_bot_task, lfl_bot_tx, lfl_bot_ty;
 
 #endif
