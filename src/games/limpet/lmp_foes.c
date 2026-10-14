@@ -379,6 +379,7 @@ static void turncoat_update(LmpFoe *f, int tx, int ty) {
     f->y = (f->cy * LMP_T + 5) * LMP_FX;
     if (f->b > 0) f->b--;
     if (f->a > 0) f->a--;
+    if (!lmp_axis(f->n)) { grid_go(f); return; } /* never stops on a ramp */
     f->state = f->t <= 30 ? 1 : 0; /* it glows before it warps */
     if (f->st > 0) {
         /* a burst of three, like Limpet's */
@@ -416,6 +417,7 @@ static void turncoat_update(LmpFoe *f, int tx, int ty) {
             f->x = (ox * LMP_T + 5) * LMP_FX;
             f->y = (oy * LMP_T + 5) * LMP_FX;
             f->a = 20;
+            f->c = 0;
             lmp_sfx("lmp_warp");
             int tdir = (on + 2) & 7;
             for (int k = -2; k <= 2; k++) {
@@ -425,6 +427,7 @@ static void turncoat_update(LmpFoe *f, int tx, int ty) {
             }
             return;
         }
+        f->t = 40; /* nowhere to land: try again a little later */
     }
     /* roll toward the tank's line */
     int want;

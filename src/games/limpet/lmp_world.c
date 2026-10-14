@@ -198,7 +198,7 @@ static void mover_step(int i) {
     m->y += dy;
     mover_paint(m, 'm');
     m->pos += m->sign;
-    if (m->pos <= 0 || m->pos >= m->dist) { m->sign = -m->sign; m->wait = m->lethal ? 40 : 30; }
+    if (m->pos <= 0 || m->pos >= m->dist) { m->sign = -m->sign; m->wait = m->lethal ? (m->pos <= 0 ? 70 : 30) : 30; }
     if (riding) {
         if (lmp_open(t->x + dx, t->y + dy)) { t->x += dx; t->y += dy; lmp_tank_touch(); }
         else lmp_kill_tank(101);
