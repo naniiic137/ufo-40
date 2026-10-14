@@ -284,6 +284,14 @@ CORE_SRC += src/games/restless/rsl_bot.c
 CORE_SRC += src/games/restless/rsl_draw.c
 CORE_SRC += src/games/restless/rsl_art.c
 CORE_SRC += src/games/restless/rsl_audio.c
+CORE_SRC += src/games/witherlea/wth.c
+CORE_SRC += src/games/witherlea/wth_data.c
+CORE_SRC += src/games/witherlea/wth_logic.c
+CORE_SRC += src/games/witherlea/wth_keeper.c
+CORE_SRC += src/games/witherlea/wth_bot.c
+CORE_SRC += src/games/witherlea/wth_draw.c
+CORE_SRC += src/games/witherlea/wth_art.c
+CORE_SRC += src/games/witherlea/wth_audio.c
 
 HEADLESS_SRC += src/platform/headless/main_headless.c
 HEADLESS_SRC += src/platform/headless/imgwrite.c

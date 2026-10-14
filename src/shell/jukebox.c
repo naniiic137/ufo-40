@@ -142,6 +142,10 @@ static const struct { const char *id, *title; } TITLES[] = {
     {"rsl_boss", "THE HOLLOW HOST"}, {"rsl_special", "HIDDEN HOARD"}, {"rsl_spirit", "THE LOW GLOW"},
     {"rsl_ending", "LAID TO REST"}, {"rsl_scores", "NAMES IN THE ASH"}, {"rsl_clear", "STAGE CLEAR"},
     {"rsl_over", "SCATTERED"}, {"rsl_rise", "GRANDMOTHER ASH"},
+    {"wth_title", "WITHERLEA"}, {"wth_house", "THE QUIET HOUSE"}, {"wth_upstairs", "LIGHTS OUT"},
+    {"wth_garden", "THE YEW AND THE WELL"}, {"wth_chase", "THE KEEPER"}, {"wth_hide", "HOLD YOUR BREATH"},
+    {"wth_cellar", "UNDER THE HOUSE"}, {"wth_maze", "THE HEDGES"}, {"wth_ending", "THE LANE HOME"},
+    {"wth_dawn", "DAYBREAK"}, {"wth_caught", "BAD DREAM"}, {"wth_sting", "IN THE MIRROR"},
 };
 
 const char *shell_song_title(int song) {
