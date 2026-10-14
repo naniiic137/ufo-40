@@ -533,13 +533,14 @@ static void spread(FeudBattle *b) {
 }
 
 void feud_battle_ai_order(FeudBattle *b, int side) {
-    if (b->result != BR_NONE || b->t < 90) return;
+    if (b->result != BR_NONE) return;
     int mine = feud_battle_power(b, side), theirs = feud_battle_power(b, 1 - side);
+    bool settled = b->t >= 90; /* no running off before the first clash */
     if (side == b->atk) {
-        b->order[side] = mine * 100 < theirs * 45 ? FO_FLEE : FO_CHARGE;
+        b->order[side] = settled && mine * 100 < theirs * 45 ? FO_FLEE : FO_CHARGE;
         return;
     }
-    if (mine * 100 < theirs * 25) { b->order[side] = FO_FLEE; return; }
+    if (settled && !b->frozen_def && mine * 100 < theirs * 25) { b->order[side] = FO_FLEE; return; } /* the frozen can't run */
     /* defenders behind walls, over a chasm or up a slope hold their ground */
     if (b->terr == FT_EYRIE || b->terr == FT_GORGE || b->terr == FT_PEAK || b->terr == FT_SCREE) {
         b->order[side] = FO_STAND;
@@ -576,8 +577,6 @@ void feud_battle_step(FeudBattle *b) {
     }
     if (b->t % 2 == 0) spread(b);
     if (b->hits != hits0) moving = true;
-    for (int i = 0; i < FB_MAX_SHOTS; i++)
-        if (b->sh[i].alive) moving = true; /* something still in the air */
     b->still_t = moving ? 0 : b->still_t + 1;
 
     int na = feud_battle_count(b, b->atk), nd = feud_battle_count(b, b->def);

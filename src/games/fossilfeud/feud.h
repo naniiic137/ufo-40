@@ -258,6 +258,7 @@ typedef struct {
     Rng ai_rng;
     /* a battle */
     int battle_return;       /* 0 your action, 1 the Slate Flock's */
+    int lock_orders;         /* tests: the Slate Flock's battle orders stay as set */
     FeudStep pend;           /* the move that started it */
     int battle_counts_src[FU_KINDS];
     int result_t, won;

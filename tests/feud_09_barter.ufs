@@ -1,0 +1,60 @@
+# FOSSIL FEUD: Skycrest's BARTER trades as often as you can pay: 1 relic
+# for 4 grain and 4 grain for a toiler (blessed: 6 and 3; twice: 9 and 2).
+# Toilers and relics stop at 9, grain at 99; anything past that is lost.
+seed 3
+game fossilfeud
+wait 10
+cheat match 0
+wait 20
+press A
+wait 2
+cheat offer 3 0 1
+wait 10
+press A
+wait 10
+press A
+press B
+expect act_id == 11
+expect au == 2
+cheat res 0 0 0 2
+press A
+expect res0_0 == 4
+expect res0_2 == 1
+press A
+press A
+expect res0_0 == 8
+expect res0_2 == 0
+press DOWN
+press A
+expect res0_0 == 4
+expect res0_1 == 1
+press A
+press A
+expect res0_0 == 0
+expect res0_1 == 2
+# at the cap the toiler is lost but the grain still paid
+cheat res 0 8 9 0
+press A
+expect res0_0 == 4
+expect res0_1 == 9
+press B
+# twice blessed
+cheat endturn
+cheat star 0 11 2
+cheat favour 0 3 2
+wait 20
+press A
+wait 2
+cheat offer 3 0 1
+wait 10
+press A
+wait 10
+press A
+press B
+cheat res 0 2 0 1
+press A
+expect res0_0 == 11
+press DOWN
+press A
+expect res0_0 == 9
+expect res0_1 == 1

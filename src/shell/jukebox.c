@@ -161,7 +161,7 @@ const char *shell_song_title(int song) {
     return buf;
 }
 
-#define MAX_ROWS 448 /* every song plus a heading per cartridge */
+#define MAX_ROWS 512 /* every song plus a heading per cartridge */
 #define LIST_Y 69 /* the scroll marks fit between the panels */
 #define ROW_H 10
 #define VISIBLE 9

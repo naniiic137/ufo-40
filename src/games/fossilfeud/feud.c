@@ -381,6 +381,35 @@ static int feud_query(const char *key, int *out) {
     if (!strcmp(key, "layout")) { *out = feud_layout_audit(); return 1; }
     if (!strcmp(key, "art_bad")) { *out = feud_art_check(); return 1; }
     if (!strcmp(key, "eval0")) { *out = feud_eval(m, 0); return 1; }
+    if (!strncmp(key, "stars", 5) && isdigit((unsigned char)key[5])) {
+        int n = 0;
+        for (int a = 0; a < FD_ACTS; a++) n += m->star[iclamp(key[5] - '0', 0, 1)][a];
+        *out = n;
+        return 1;
+    }
+    if (!strcmp(key, "deck_ok")) {
+        /* every one of the fifteen actions dealt exactly once */
+        int seen = 0;
+        for (int a = 0; a < FD_ANC; a++)
+            for (int i = 0; i < 3; i++) seen |= 1 << m->deck[a][i];
+        *out = seen == (1 << FD_ACTS) - 1;
+        return 1;
+    }
+    if (!strcmp(key, "deck_moved")) {
+        int n = 0;
+        for (int a = 0; a < FD_ANC; a++)
+            for (int i = 0; i < 3; i++) n += m->deck[a][i] != a * 3 + i;
+        *out = n;
+        return 1;
+    }
+    if (!strncmp(key, "playing_", 8)) {
+        /* playing_title, _map, _rival, _battle, _ordeal, _ending, _story */
+        static const char *const N[] = {"title", "map", "rival", "battle", "ordeal", "ending", "story"};
+        const int ids[] = {FEUD_MUS_TITLE, FEUD_MUS_MAP, FEUD_MUS_RIVAL, FEUD_MUS_BATTLE, FEUD_MUS_ORDEAL, FEUD_MUS_ENDING, FEUD_MUS_STORY};
+        for (int i = 0; i < 7; i++)
+            if (!strcmp(key + 8, N[i])) { *out = music_playing() == ids[i]; return 1; }
+        return 0;
+    }
     return 0;
 }
 
@@ -452,6 +481,12 @@ static int feud_cheat(const char *cmd) {
         fg.mp = MP_PRAY; fg.pray_sel = 0; fg.mp_t = 20;
         return 1;
     }
+    if (sscanf(cmd, "wipe %d", &a) == 1) {
+        /* every tile of a side, gone */
+        for (int t = 0; t < FD_TILES; t++)
+            if (m->t[t].owner == a) { m->t[t].owner = -1; memset(m->t[t].u, 0, sizeof m->t[t].u); }
+        return 1;
+    }
     if (!strcmp(cmd, "skipbanner")) { fg.mp_t = 999; return 1; }
     if (!strcmp(cmd, "endturn")) { feud_end_turn(m); fg.mp = MP_BANNER; fg.mp_t = 0; return 1; }
     if (sscanf(cmd, "winner %d", &a) == 1) { m->winner = (int8_t)a; return 1; }
@@ -463,13 +498,15 @@ static int feud_cheat(const char *cmd) {
         for (int k = 0; k < FU_KINDS && 3 + k < n; k++) cnt[k] = (uint8_t)v[3 + k];
         bool surprise = n >= 9 && v[8];
         feud_battle_begin(&fg.b, m, iclamp(v[0], 0, 1), v[1], iclamp(v[2], 0, FD_TILES - 1), cnt, surprise);
+        fg.lock_orders = 0;
+        feud_battle_ai_order(&fg.b, 1);
         fg.battle_return = 0;
         fg.state = FS_BATTLE;
         fg.state_t = 0;
         music_play(FEUD_MUS_BATTLE);
         return 1;
     }
-    if (sscanf(cmd, "order %d %d", &a, &b) == 2) { fg.b.order[iclamp(a, 0, 1)] = iclamp(b, 0, FO_KINDS - 1); return 1; }
+    if (sscanf(cmd, "order %d %d", &a, &b) == 2) { fg.b.order[iclamp(a, 0, 1)] = iclamp(b, 0, FO_KINDS - 1); fg.lock_orders = 1; return 1; }
     if (!strcmp(cmd, "battlestep")) { feud_battle_step(&fg.b); return 1; }
     return 0;
 }
@@ -480,7 +517,7 @@ const GameDef GAME_FOSSILFEUD = {
     "1985",
     "STRATEGY",
     "TWO BIRD NATIONS, FIVE OLD GODS OF BONE. PRAY, MARCH, HOLD FOUR TOTEMS.",
-    {"MAX ALL THREE ACTIONS OF ONE ANCESTOR IN A MATCH", "WIN THE FIRST MOULT, SECOND MOULT AND FULL PLUME",
+    {"MAX ALL THREE ACTIONS OF ONE ANCESTOR IN A MATCH", "WIN ALL THREE MOULTS",
      "PASS ALL FIVE ORDEALS"},
     GLYPH_DPAD "\tMOVE THE CURSOR, CHOOSE\n"
     GLYPH_A "\tPRAY, PICK, CONFIRM\n"

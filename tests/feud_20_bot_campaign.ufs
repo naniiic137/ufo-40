@@ -1,0 +1,12 @@
+# FOSSIL FEUD: proof the game can be completed. The demo player plays from
+# the title with real button presses: the story, all three moults (the
+# ending after the full plume) and all five ordeals, starting a match
+# again after any it loses, until every scenario is won.
+seed 5
+game fossilfeud
+wait 10
+botuntil save_beaten >= 7 2000000
+expect goals & 2
+botuntil save_beaten == 255 3000000
+expect goals & 4
+expect save_wins >= 8

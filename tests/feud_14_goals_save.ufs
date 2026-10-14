@@ -1,0 +1,68 @@
+# FOSSIL FEUD: the goals. Beacon: all three actions of one Ancestor fully
+# blessed in a match. Saucer: win the first moult, the second and full
+# plume (the ending follows). Alien: pass all five ordeals. The save keeps
+# what was won, the prayers to each Ancestor, the custom match and the
+# records, and the goals come back from it.
+seed 4
+game fossilfeud
+wait 10
+cheat beaten 3
+cheat match 2
+wait 2
+cheat winner 0
+cheat endturn
+wait 2
+expect state == 6
+expect save_beaten == 7
+expect goals & 2
+expect goals !& 4
+wait 100
+press A
+wait 5
+expect state == 7
+expect playing_ending == 1
+hold A 600
+waituntil state == 1 1000
+expect camp_sel == 3
+# the five ordeals, the last one won now
+cheat beaten 127
+cheat match 7
+wait 2
+expect ordeal == 5
+cheat winner 0
+cheat endturn
+wait 2
+expect save_beaten == 255
+expect goals & 4
+wait 100
+press A
+wait 5
+expect state == 1
+# the gift, from the save
+cheat match 0
+wait 20
+press A
+wait 2
+cheat offer 4 0 1
+cheat star 0 12 2
+cheat star 0 13 2
+cheat star 0 14 1
+cheat favour 0 4 1
+wait 10
+press A
+wait 12
+press DOWN
+press DOWN
+press A
+expect goals == 7
+expect save_gift == 1
+expect save_picks4 == 1
+# goals gone, the save brings them back
+set_goals fossilfeud 0
+reload
+game fossilfeud
+wait 10
+expect goals == 7
+expect save_beaten == 255
+expect save_picks4 == 1
+expect save_matches >= 3

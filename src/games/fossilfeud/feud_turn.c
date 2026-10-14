@@ -176,6 +176,8 @@ static void start_split(int src) {
 
 static void begin_battle(int atk, int src, int dst, const uint8_t counts[FU_KINDS], bool surprise, int ret) {
     feud_battle_begin(&fg.b, &fg.m, atk, src, dst, counts, surprise);
+    fg.lock_orders = 0;
+    feud_battle_ai_order(&fg.b, 1);
     fg.battle_return = ret;
     fg.state = FS_BATTLE;
     fg.state_t = 0;
@@ -710,7 +712,7 @@ void feud_battle_update(void) {
         int me = 0;
         if (btn_repeat(BTN_LEFT) && b->order[me] > 0) { b->order[me]--; feud_sfx("ui_move"); }
         if (btn_repeat(BTN_RIGHT) && b->order[me] < FO_KINDS - 1) { b->order[me]++; feud_sfx("ui_move"); }
-        if (b->t % 15 == 0) feud_battle_ai_order(b, 1);
+        if (b->t % 15 == 0 && !fg.lock_orders) feud_battle_ai_order(b, 1);
     }
     feud_battle_step(b);
     if (b->result != BR_NONE && (b->end_t > 100 || (b->end_t > 20 && btnp(BTN_A)))) {

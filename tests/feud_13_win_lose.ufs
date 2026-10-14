@@ -1,0 +1,79 @@
+# FOSSIL FEUD: hold four totems when your turn ends and still hold them
+# when your next one starts, and you win. Lose them all, or let the Slate
+# Flock do the same, and you lose. A side with no tiles left has lost.
+seed 3
+game fossilfeud
+wait 10
+press A
+wait 10
+press A
+wait 25
+press A
+wait 5
+expect state == 4
+# hand ourselves four totems; leave them with nothing to fight back with
+cheat own 2 0
+cheat own 3 0
+cheat own 16 0
+cheat flag 2 1
+cheat flag 3 1
+cheat flag 16 1
+cheat units 14 0 0 0 0 0
+cheat res 1 0 0 0
+cheat own 17 -1
+expect flags0 == 4
+expect hold0 == 0
+wait 20
+press A
+cheat offer 2 0 1
+wait 12
+press A
+wait 10
+press A
+press B
+press B
+expect side == 1
+expect hold0 == 1
+waituntil state == 6 8000
+expect won == 1
+expect winner == 0
+expect save_wins == 1
+expect save_beaten == 1
+wait 100
+press A
+wait 5
+expect state == 1
+expect camp_sel == 1
+# the second moult is open now; they hold four through our turn: we lose
+wait 10
+press A
+wait 5
+expect scenario == 1
+expect ai_level == 1
+cheat own 0 1
+cheat own 1 1
+cheat own 2 1
+cheat own 3 1
+cheat flag 0 1
+cheat flag 1 1
+cheat flag 2 1
+cheat flag 3 1
+cheat hold 1 1
+cheat endturn
+waituntil state == 6 200
+expect won == 0
+expect save_losses == 1
+expect save_beaten == 1
+wait 100
+press A
+wait 5
+expect state == 1
+# losing every tile ends it at once
+wait 10
+press A
+wait 5
+cheat wipe 0
+cheat endturn
+waituntil state == 6 200
+expect won == 0
+expect save_losses == 2

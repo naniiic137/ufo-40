@@ -1,0 +1,81 @@
+# FOSSIL FEUD: ENLIST buys birds at your eyries and roosts only, as many as
+# you can pay for. Grandjaw's list: stomper 4 grain, slinger 6 (blessed
+# twice: stomper 2, slinger 3, lancer 1 toiler).
+seed 3
+game fossilfeud
+wait 10
+cheat match 0
+wait 20
+press A
+wait 2
+cheat offer 0 3 4
+wait 10
+press A
+wait 10
+press A
+cheat res 0 20 3 3
+expect act_id == 1
+expect au == 1
+expect cur == 5
+expect valid == 32
+press A
+expect au == 2
+expect msel == 0
+press A
+expect res0_0 == 16
+expect t5_u0 == 3
+press DOWN
+expect msel == 1
+press A
+expect res0_0 == 10
+expect t5_u2 == 1
+press A
+expect res0_0 == 4
+expect t5_u2 == 2
+# not enough grain: nothing happens
+press A
+expect res0_0 == 4
+expect t5_u2 == 2
+press B
+expect au == 1
+# open ground of ours without a roost is no place to enlist
+cheat own 6 0
+press RIGHT
+expect cur == 6
+press A
+expect au == 1
+cheat blds 6 0 1 0 0
+press A
+expect au == 2
+press B
+press B
+expect act_i == 2
+# twice blessed, a lancer for a toiler
+press B
+cheat endturn
+cheat star 0 1 2
+cheat favour 0 0 2
+cheat res 0 5 2 0
+wait 20
+press A
+wait 2
+cheat offer 0 3 4
+wait 10
+press A
+wait 10
+press A
+cheat res 0 5 2 0
+cheat cursor 5
+press A
+press A
+expect res0_0 == 3
+press DOWN
+press DOWN
+expect msel == 2
+press A
+expect res0_1 == 1
+expect t5_u1 == 1
+press A
+press A
+expect res0_1 == 0
+expect t5_u1 == 2

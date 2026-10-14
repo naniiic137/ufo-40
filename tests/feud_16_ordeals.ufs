@@ -1,0 +1,46 @@
+# FOSSIL FEUD: the five ordeals, each against the full plume. I: they
+# start with extra grain. II: they start with a second eyrie. III: they
+# start with a blessing. IV: the Ancestors' actions are dealt out afresh
+# (and only here a MARCH's blessing is shown). V: all of that, and two of
+# the six totems stand on open ground, with four eyries.
+seed 6
+game fossilfeud
+wait 10
+cheat match 3
+wait 2
+expect ordeal == 1
+expect ai_level == 2
+expect res1_0 == 30
+expect res0_0 == 10
+expect tiles1 == 1
+expect stars1 == 0
+expect shuffled == 0
+expect playing_ordeal == 1
+cheat match 4
+wait 2
+expect ordeal == 2
+expect res1_0 == 10
+expect tiles1 == 2
+expect flags1 == 2
+cheat match 5
+wait 2
+expect ordeal == 3
+expect stars1 == 1
+expect stars0 == 0
+cheat match 6
+wait 2
+expect ordeal == 4
+expect shuffled == 1
+expect deck_ok == 1
+expect deck_moved > 5
+cheat match 7
+wait 2
+expect ordeal == 5
+expect res1_0 == 30
+expect tiles1 == 2
+expect stars1 == 1
+expect shuffled == 1
+expect deck_ok == 1
+expect eyries == 4
+expect totems == 6
+expect bare_totems == 2

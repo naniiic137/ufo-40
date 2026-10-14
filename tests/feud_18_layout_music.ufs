@@ -1,0 +1,10 @@
+# FOSSIL FEUD: the menus' words fit and every character has a glyph; the
+# sprites are whole; the nine tunes loop together channel by channel and
+# all are in the jukebox under titles.
+game fossilfeud
+wait 5
+expect layout == 0
+expect art_bad == 0
+check_songs
+expect jukebox_missing == 0
+expect playing_title == 1
