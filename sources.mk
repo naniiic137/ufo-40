@@ -285,6 +285,16 @@ CORE_SRC += src/games/restless/rsl_draw.c
 CORE_SRC += src/games/restless/rsl_art.c
 CORE_SRC += src/games/restless/rsl_audio.c
 
+CORE_SRC += src/games/fossilfeud/feud.c
+CORE_SRC += src/games/fossilfeud/feud_rules.c
+CORE_SRC += src/games/fossilfeud/feud_battle.c
+CORE_SRC += src/games/fossilfeud/feud_ai.c
+CORE_SRC += src/games/fossilfeud/feud_turn.c
+CORE_SRC += src/games/fossilfeud/feud_bot.c
+CORE_SRC += src/games/fossilfeud/feud_draw.c
+CORE_SRC += src/games/fossilfeud/feud_art.c
+CORE_SRC += src/games/fossilfeud/feud_audio.c
+
 HEADLESS_SRC += src/platform/headless/main_headless.c
 HEADLESS_SRC += src/platform/headless/imgwrite.c
 HEADLESS_SRC += src/platform/headless/vita_assets.c
