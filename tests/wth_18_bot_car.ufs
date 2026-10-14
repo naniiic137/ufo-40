@@ -1,0 +1,14 @@
+# WITHERLEA: proof the car ending can be reached. The demo player starts at
+# the warning screen and plays to the car with button presses only: out of
+# the cold store, the cane, the oil, the cup hook and the twine, the long
+# hook, the man in the pond, the shed, the motor, the dog's grave, the
+# opener and the door, the keys in the ignition.
+seed 42
+game witherlea
+wait 5
+cheat bot 0
+botuntil scene == 7 30000
+expect ending == 1
+expect goals & 2
+botuntil scene == 1 4000
+expect golds == 1

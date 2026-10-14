@@ -1,0 +1,51 @@
+# WITHERLEA: four hiding places last for one use; the coal bunker in the
+# side yard and the inspection pit in the garage last for ever.
+game witherlea
+wait 5
+cheat new
+cheat spawn 99999
+cheat room yard
+cheat keeper
+wait 2
+cheat aim S_YRD_BUNKER
+press A
+expect enc == 5
+waituntil mini_ready == 1 400
+press A
+waituntil mini_ready == 1 400
+press A
+waituntil mini_ready == 1 400
+press A
+waituntil mini_ready == 1 400
+press A
+waituntil mini_ready == 1 400
+press A
+waituntil mini_ready == 1 400
+press A
+waituntil mini_ready == 1 400
+press A
+waituntil mini_ready == 1 400
+press A
+expect enc == 0
+cheat hush
+cheat keeper
+wait 2
+cheat aim S_YRD_BUNKER
+press A
+expect enc == 5
+cheat new
+cheat spawn 99999
+cheat set F_STAIRS_LIT
+cheat room garage
+cheat keeper
+wait 2
+cheat aim S_GAR_PIT
+press A
+expect enc == 5
+# without him about, it's only a place to hide
+cheat new
+cheat room bath
+cheat aim S_BAT_AIRING
+press A
+expect enc == 0
+expect talking == 1

@@ -1,0 +1,88 @@
+# WITHERLEA: the gate into the hedges opens when the four metal bees are
+# back in the stone hive beside it, in any order: the brass one from the
+# ice, the copper one from the well, the silver one from the rocking horse
+# and the iron one from the wasps' nest. Nothing else fits.
+game witherlea
+wait 5
+cheat new
+cheat spawn 99999
+cheat give brassbee
+cheat give copperbee
+cheat give silverbee
+cheat give ironbee
+cheat give knife
+cheat room courtyard
+cheat aim S_CRT_HIVE
+press A
+expect talking == 1
+cheat hush
+cheat hold knife
+press A
+expect hive == 0
+cheat hush
+cheat hold ironbee
+press A
+expect hive == 1
+expect has_ironbee == 0
+cheat hush
+cheat hold copperbee
+press A
+cheat hush
+cheat hold brassbee
+press A
+expect hive == 3
+expect flag_F_GATE_OPEN == 0
+expect live_S_CRT_MAZE == 0
+cheat hush
+cheat hold silverbee
+press A
+expect hive == 4
+expect flag_F_GATE_OPEN == 1
+expect live_S_CRT_MAZE == 1
+cheat hush
+# where they come from
+cheat new
+cheat spawn 99999
+cheat give salt
+cheat room scullery
+cheat hold salt
+cheat aim S_SCU_ICEBOX
+press A
+expect has_brassbee == 1
+cheat hush
+cheat give cutters
+cheat give magnetline
+cheat room garden
+cheat hold magnetline
+cheat aim S_GDN_WELL
+press A
+expect has_copperbee == 0
+cheat hush
+cheat hold cutters
+press A
+expect flag_F_GRATE_CUT == 1
+cheat hush
+cheat hold magnetline
+press A
+expect has_copperbee == 1
+cheat hush
+cheat give screwdriver
+cheat room nursery
+cheat hold screwdriver
+cheat aim S_NUR_HORSE
+press A
+expect has_silverbee == 1
+cheat hush
+cheat give smoker
+cheat room attic
+cheat hold smoker
+cheat aim S_ATT_NEST
+press A
+expect has_ironbee == 0
+cheat hush
+cheat set F_SMOKER_LOADED
+cheat set F_SMOKER_LIT
+cheat hold smoker
+press A
+expect has_ironbee == 1
+expect has_smoker == 0

@@ -1,0 +1,72 @@
+# WITHERLEA: while he is after you (in the room, a room behind, or down
+# for a moment) your hands shake too hard to take or use anything, pick a
+# thing off the floor, or put two things together. Ways out, hiding places,
+# the bag and a weapon on him all still work.
+game witherlea
+wait 5
+cheat new
+cheat spawn 99999
+cheat room kitchen
+cheat keeper
+wait 2
+expect scared == 1
+# the knife block: nothing
+cheat aim S_KIT_KNIVES
+press A
+expect has_knife == 0
+expect talking == 1
+cheat hush
+# nor a thing held on a spot
+cheat give salt
+cheat hold salt
+cheat aim S_KIT_BOOK
+press A
+expect pages == 0
+cheat hush
+cheat hold none
+# nor putting two things together
+cheat give fuse
+cheat give fusewire
+press B
+expect scene == 4
+press RIGHT
+press A
+expect held == 12
+expect scene == 3
+press B
+press RIGHT
+press A
+expect has_goodfuse == 0
+expect has_fuse == 1
+cheat hush
+press B
+# a weapon on him still works
+cheat give knife
+cheat hold knife
+cheat cursor 160 108
+press A
+expect enc == 4
+cheat hush
+# and a way out
+cheat hold none
+cheat aim S_KIT_SCULLERY
+press A
+wait 24
+expect room == 7
+expect enc == 0
+# calm again: the drawer gives up its tap key
+cheat aim S_SCU_DRAWER
+cheat hush
+press A
+expect has_tapkey == 1
+cheat hush
+# a room behind him is still scared
+cheat keeper
+wait 2
+cheat aim S_SCU_GARAGE
+press A
+wait 24
+expect enc == 3
+cheat aim S_GAR_SHELF
+press A
+expect has_paraffin == 0

@@ -1,0 +1,16 @@
+# WITHERLEA: the cellar ending after being caught. The demo player lets him
+# catch it once early (the radiogram, then it stands still), wakes in the
+# cold store with everything, and plays on to the white room; after the
+# credits comes the face in the mirror.
+seed 7
+game witherlea
+wait 5
+cheat bot 2
+botuntil caught == 1 6000
+expect flag_F_EVER_CAUGHT == 1
+botuntil scene == 7 60000
+expect ending == 2
+expect ending_best == 0
+expect goals & 4
+botuntil scene == 9 4000
+botuntil scene == 1 1000

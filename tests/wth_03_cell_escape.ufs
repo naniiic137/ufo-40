@@ -1,0 +1,66 @@
+# WITHERLEA: out of the cold store with button presses. A on the wall finds
+# a loose stone, A on the barrel a long nail. The door is locked on the far
+# side but its hinges are on this one: the nail goes under a hinge pin, the
+# stone drives it out. Each thing leaves the bag when its job is done, and
+# the next thing found fills the hole.
+game witherlea
+wait 5
+cheat new
+cheat aim S_CELL_WALL
+press A
+expect has_stone == 1
+expect slotof_stone == 0
+expect talking == 1
+press A
+expect talking == 0
+cheat aim S_CELL_BARREL
+press A
+expect has_nail == 1
+expect slotof_nail == 1
+cheat hush
+# the door won't open by hand
+cheat aim S_CELL_DOOR
+press A
+expect flag_F_CELL_OPEN == 0
+expect talking == 1
+press A
+expect talking == 0
+# the stone alone only scars the hinges
+press B
+expect scene == 4
+expect bag_sel == 0
+press A
+expect scene == 3
+expect held == 4
+press A
+expect flag_F_CELL_OPEN == 0
+expect has_stone == 1
+cheat hush
+# the nail first: it goes under the pin and leaves a hole in the bag
+cheat hold none
+press B
+press RIGHT
+press A
+expect held == 5
+press A
+expect flag_F_NAIL_SET == 1
+expect has_nail == 0
+expect held == 0
+cheat hush
+cheat give honey
+expect slotof_honey == 1
+# then the stone drives it out
+press B
+press A
+expect held == 4
+press A
+expect flag_F_CELL_OPEN == 1
+expect live_S_CELL_EXIT == 1
+expect has_stone == 0
+cheat hush
+# through the door: the passage
+press A
+wait 24
+expect room == 1
+expect flag_F_LEFT_CELL == 1
+expect spawn_left < 5400

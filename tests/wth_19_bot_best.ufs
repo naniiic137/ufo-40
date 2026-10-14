@@ -1,0 +1,18 @@
+# WITHERLEA: proof the best ending can be reached. The demo player plays the
+# whole house from the warning screen with button presses: all 17 diary
+# pages, the four gems in the hares, the hedges, the crossbow and the bolt,
+# the Keeper shot, the cellar and the brew. Every time he comes it hides or
+# runs, and it is never caught.
+seed 42
+game witherlea
+wait 5
+cheat bot 1
+botuntil scene == 7 60000
+expect ending == 2
+expect ending_best == 1
+expect caught == 0
+expect escapes >= 1
+expect pages == 17
+expect goals == 5
+expect flag_F_KEEPER_DEAD == 1
+botuntil scene == 1 4000

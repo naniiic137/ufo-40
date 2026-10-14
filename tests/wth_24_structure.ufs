@@ -1,0 +1,17 @@
+# WITHERLEA: the size of the house matches the original's: 31 places (29
+# rooms and the two parts of the hedges), 54 kinds of thing, 17 diary
+# pages. Every room has a way out, every hotspot lies in the picture, each
+# page lies in its own place, every thing has its own picture, every screen's
+# words fit, and every tune's channels loop together.
+game witherlea
+wait 5
+expect room_count == 31
+expect item_kinds == 54
+expect page_count == 17
+expect rooms_bad == 0
+expect art_bad == 0
+expect layout_bad == 0
+expect spot_count > 150
+check_songs
+expect jukebox_missing == 0
+expect spot_count < 256

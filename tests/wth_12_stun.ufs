@@ -1,0 +1,72 @@
+# WITHERLEA: the knife or the poker used on him knocks him down; leave the
+# room while he's down and he loses you. Each weapon works twice: the third
+# blow with the same one he blocks, and has you.
+game witherlea
+wait 5
+cheat new
+cheat spawn 99999
+cheat room hall
+cheat keeper
+wait 2
+expect visible == 1
+cheat hold knife
+cheat cursor 160 108
+press A
+expect enc == 4
+expect stuns == 1
+expect stun_knife == 1
+expect visible == 1
+cheat hush
+# out through the door while he's down
+cheat aim S_HALL_PARLOUR
+press A
+wait 24
+expect room == 4
+expect enc == 0
+expect escapes == 1
+expect goals & 1
+cheat hush
+# the knife again: down a second time; left there, he gets up after 4 s
+cheat hold none
+cheat keeper
+wait 2
+cheat hold knife
+cheat cursor 160 108
+press A
+expect enc == 4
+expect stun_knife == 2
+wait 241
+expect enc == 2
+cheat hush
+# a third time: blocked, caught
+cheat cursor 160 108
+press A
+expect enc == 6
+expect caught == 1
+waituntil scene == 6 200
+wait 61
+press A
+expect scene == 3
+expect room == 0
+# the poker: twice, then blocked
+cheat hold none
+cheat keeper
+wait 2
+cheat hold poker
+cheat cursor 160 108
+press A
+expect enc == 4
+expect stun_poker == 1
+wait 241
+cheat hush
+cheat cursor 160 108
+press A
+expect enc == 4
+expect stun_poker == 2
+wait 241
+cheat hush
+cheat cursor 160 108
+press A
+expect enc == 6
+expect caught == 2
+expect stuns == 4
