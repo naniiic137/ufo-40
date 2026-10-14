@@ -163,7 +163,7 @@ static int want(void) {
         int b = list_to(fg.camp_sel, next_scenario(), BTN_UP, BTN_DOWN);
         return b ? b : fg.state_t > 10 ? BTN_A : 0;
     }
-    case FS_CUSTOM: return fg.cust_sel != 4 ? BTN_DOWN : BTN_A;
+    case FS_CUSTOM: return fg.cust_sel != 3 ? BTN_DOWN : BTN_A;
     case FS_RECORDS: return BTN_B;
     case FS_STORY: return fg.state_t > 22 ? BTN_A : 0;
     case FS_RESULT: return fg.state_t > 92 ? BTN_A : 0;

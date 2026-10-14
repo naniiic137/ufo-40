@@ -1,6 +1,6 @@
 # FOSSIL FEUD: the title's four choices with real presses. 2 PLAYERS is
 # greyed out on every platform (the next update): A does nothing there.
-# RECORDS, the custom match's options (kept in the save) and the campaign,
+# RECORDS (prayers to each Ancestor), the custom match's options (kept in the save) and the campaign,
 # whose later rows stay locked until the one before is won.
 seed 1
 game fossilfeud
@@ -29,11 +29,8 @@ wait 10
 press A
 wait 5
 expect state == 2
-# the custom match: opponent, eyries 2-6, peaks 0-8, fog on or off
-expect save_opp == 1
-press RIGHT
-expect save_opp == 2
-press DOWN
+# the custom match: eyries 2-6, peaks 0-8, fog on or off (always against
+# the full plume)
 press LEFT
 press LEFT
 press LEFT
@@ -51,7 +48,7 @@ press DOWN
 press RIGHT
 expect save_fog == 0
 press DOWN
-expect cust_sel == 4
+expect cust_sel == 3
 wait 10
 press A
 wait 5

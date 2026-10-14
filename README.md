@@ -582,8 +582,7 @@ the top.
 - **The campaign:** three moults against a sharper Slate Flock each time
   (the ending comes after the full plume), then five ordeals: extra grain,
   a second eyrie, a blessing, the Ancestors' actions dealt out afresh, and
-  all of it at once. A custom match sets eyries, peaks, the fog and the
-  opponent. **2 PLAYERS** is on the title, greyed out until the next
+  all of it at once. A custom match sets eyries, peaks and the fog. **2 PLAYERS** is on the title, greyed out until the next
   update. The demo player in the tests wins every scenario with real
   button presses.
 - **Ours:** the Rust Roost and the Slate Flock, Grandjaw, Plateback,

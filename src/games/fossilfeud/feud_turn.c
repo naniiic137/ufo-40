@@ -25,7 +25,7 @@ void feud_match_begin(int scenario) {
         su.eyries = fsv.eyries;
         su.peaks = fsv.peaks;
         su.fog = fsv.fog;
-        fg.ai_level = iclamp(fsv.opp, 0, FD_LEVELS - 1);
+        fg.ai_level = FD_LEVELS - 1; /* a custom match is against the full plume */
     } else {
         su.eyries = scenario == 7 ? 4 : 6; /* ordeal 5: two totems stand on open ground */
         su.peaks = 4;
@@ -213,7 +213,8 @@ static void do_move(void) {
     feud_sfx("fd_step");
     if (owner_before < 0) say_claim(dst);
     else if (owner_before == 1) feud_say("THEIR EMPTY TILE IS OURS");
-    if (!check_over() && !flight) first_valid();
+    /* one MARCH is one move (only the updraft can be cast again and again) */
+    if (!check_over() && !flight) next_action();
 }
 
 static void apply_target(void) {
@@ -493,13 +494,21 @@ static void bless_update(void) {
 
 static int cpu_skill(void) { return fg.ai_level; }
 
+/* the Slate Flock plans on what it can see: in the fog, our birds as it
+ * last saw them, or a guess */
+static const FeudMatch *cpu_view(void) {
+    static FeudMatch v;
+    feud_view(&fg.m, 1, &v);
+    return &v;
+}
+
 static void cpu_note(const char *s) { feud_say(s); }
 
 static void cpu_step(void) {
     FeudMatch *m = &fg.m;
     char b[96];
     if (fg.cpu_stage == 0) {
-        fg.cpu_anc = feud_ai_pick_anc(m, 1, cpu_skill(), &fg.ai_rng);
+        fg.cpu_anc = feud_ai_pick_anc(cpu_view(), 1, cpu_skill(), &fg.ai_rng);
         bool due = feud_pray(m, fg.cpu_anc);
         snprintf(b, sizeof b, "THE SLATE FLOCK PRAYS TO %s", FEUD_ANC[fg.cpu_anc].name);
         cpu_note(b);
@@ -537,7 +546,7 @@ static void cpu_step(void) {
         return;
     }
     FeudStep st;
-    if (fg.cpu_moves >= 30 || !feud_ai_next(m, 1, act, cpu_skill(), &st)) {
+    if (fg.cpu_moves >= 30 || !feud_ai_next(cpu_view(), 1, act, cpu_skill(), &st)) {
         fg.cpu_act++;
         fg.cpu_moves = 0;
         fg.cpu_wait = 10;
@@ -573,6 +582,8 @@ static void cpu_step(void) {
         feud_sfx("fd_buy");
         break;
     case ST_MOVE: {
+        fg.cpu_act++; /* one MARCH, one move */
+        fg.cpu_moves = 0;
         int owner_before = m->t[st.tile2].owner;
         bool surprise = (feud_lv(m, 1, act)->mflags & MF_SURPRISE) != 0;
         fg.hl_tile = st.tile2;
@@ -696,7 +707,7 @@ void feud_battle_done(void) {
     if (check_over()) return;
     if (fg.battle_return == 0) {
         music_play(fg.m.ordeal ? FEUD_MUS_ORDEAL : FEUD_MUS_MAP);
-        if (fg.au == AU_MAP) first_valid();
+        if (fg.au == AU_MAP) next_action(); /* the march's one move is done */
     } else {
         music_play(FEUD_MUS_RIVAL);
         fg.cpu_wait = 30;

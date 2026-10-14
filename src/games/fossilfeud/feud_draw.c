@@ -134,7 +134,8 @@ static void draw_tile(int t) {
     if (x->flag) spr_draw(&feud_spr[FSP_TOTEM], tx + 41, ty + 2, 0);
     for (int i = 0; i < x->ndrop; i++) spr_draw(&feud_spr[FSP_RES0 + x->drop[i]], tx + 41, ty + 13 + i * 6, 0);
     int bi = 0;
-    for (int k = 0; k < FB_KINDS; k++)
+    /* the fog hides their buildings as well as their birds */
+    for (int k = 0; k < FB_KINDS && !hidden(x); k++)
         for (int n = 0; n < x->b[k] && bi < 3; n++, bi++) spr_draw(&feud_spr[FSP_BLD0 + k], tx + 21 + bi * 8, ty + 28, 0);
     if (hidden(x)) {
         gfx_dither(tx + 2, ty + 2, 17, 30, C_INK, 8);
@@ -441,6 +442,9 @@ static void field_ground(const FeudBattle *b) {
                     gfx_circ(x + 5, y + 5, 5, C_JADE);
                     gfx_circ(x + 4, y + 4, 2, C_LEAF);
                 }
+            } else if (c == BC_ROCK) {
+                gfx_circ(x + 5, y + 5, 5, C_GREY);
+                gfx_circ(x + 4, y + 4, 2, C_LIGHT);
             } else if (c == BC_BLOCK) {
                 if (b->terr == FT_GORGE) gfx_rect(x, y, FB_CELL, FB_CELL, C_INK);
                 else if (b->terr == FT_EYRIE) {
@@ -605,19 +609,17 @@ static void draw_campaign(void) {
 }
 
 static void draw_custom(void) {
-    static const char *const OPP[FD_LEVELS] = {"FIRST MOULT", "SECOND MOULT", "FULL PLUME"};
     backdrop(fg.frame_t);
     ui_fancy_center("CUSTOM MATCH", 160, 4, 2, GRAD_BONE, 4, C_INK, C_EARTH);
     ui_audit_fancy("head", "CUSTOM MATCH", 160 - ui_fancy_width("CUSTOM MATCH", 2) / 2, 4, 2, true);
-    ui_panel(50, 30, 220, 76, C_NIGHT, C_AMBER);
-    char v[5][32];
-    snprintf(v[0], 32, "%s", OPP[fsv.opp]);
-    snprintf(v[1], 32, "%d", fsv.eyries);
-    snprintf(v[2], 32, "%d", fsv.peaks);
-    snprintf(v[3], 32, "%s", fsv.fog ? "ON" : "OFF");
-    v[4][0] = 0;
-    static const char *const ROW[5] = {"OPPONENT", "EYRIES", "PEAKS", "FOG OF WAR", "BEGIN"};
-    for (int i = 0; i < 5; i++) {
+    ui_panel(50, 30, 220, 62, C_NIGHT, C_AMBER);
+    char v[4][32];
+    snprintf(v[0], 32, "%d", fsv.eyries);
+    snprintf(v[1], 32, "%d", fsv.peaks);
+    snprintf(v[2], 32, "%s", fsv.fog ? "ON" : "OFF");
+    v[3][0] = 0;
+    static const char *const ROW[4] = {"EYRIES", "PEAKS", "FOG OF WAR", "BEGIN"};
+    for (int i = 0; i < 4; i++) {
         int y = 36 + i * 13;
         bool s = i == fg.cust_sel;
         if (s) ui_cursor(56, y, fg.frame_t);
@@ -628,36 +630,26 @@ static void draw_custom(void) {
             txt(b, 262 - text_width(b), y, s ? C_YELLOW : C_LIGHT);
         }
     }
-    const char *say = fg.cust_sel == 3 ? "WITH THE FOG OFF YOU SEE EVERY BIRD, AND THREEHORN'S OMENS CHANGE."
-                      : fg.cust_sel == 1 ? "EVERY EYRIE BEARS A TOTEM. FEWER EYRIES, MORE TOTEMS ON OPEN GROUND."
-                                         : "ONE MATCH AGAINST THE SLATE FLOCK, YOUR WAY.";
-    wrap_ctr(say, 160, 114, 280, C_CREAM, 10, 3);
+    const char *say = fg.cust_sel == 2 ? "WITH THE FOG OFF YOU SEE EVERY BIRD, AND THREEHORN'S OMENS CHANGE."
+                      : fg.cust_sel == 0 ? "EVERY EYRIE BEARS A TOTEM. FEWER EYRIES, MORE TOTEMS ON OPEN GROUND."
+                                         : "ONE MATCH AGAINST THE SLATE FLOCK'S ELDERS, YOUR WAY.";
+    wrap_ctr(say, 160, 104, 280, C_CREAM, 10, 3);
 }
 
 static void draw_records(void) {
     backdrop(fg.frame_t);
     ui_fancy_center("RECORDS", 160, 4, 2, GRAD_BONE, 4, C_INK, C_EARTH);
     ui_audit_fancy("head", "RECORDS", 160 - ui_fancy_width("RECORDS", 2) / 2, 4, 2, true);
-    ui_panel(40, 26, 240, 120, C_NIGHT, C_AMBER);
-    txt("PRAYERS", 52, 31, C_AMBER);
+    ui_panel(40, 30, 240, 76, C_NIGHT, C_AMBER);
+    txt("PRAYERS TO EACH ANCESTOR", 52, 35, C_AMBER);
     char b[64];
     for (int a = 0; a < FD_ANC; a++) {
-        int y = 43 + a * 11;
+        int y = 48 + a * 11;
         spr_draw(&feud_spr[FSP_DINO0 + a], 52, y - 4, 0);
         txt(FEUD_ANC[a].name, 78, y, FEUD_ANC[a].col);
         snprintf(b, sizeof b, "%d", fsv.picks[a]);
         txt(b, 268 - text_width(b), y, C_WHITE);
     }
-    snprintf(b, sizeof b, "MATCHES %d   WON %d   LOST %d", fsv.matches, fsv.wins, fsv.losses);
-    ctr(b, 160, 102, C_LIGHT);
-    if (fsv.best_turns) snprintf(b, sizeof b, "FASTEST WIN: %d TURNS", fsv.best_turns);
-    else snprintf(b, sizeof b, "FASTEST WIN: NONE YET");
-    ctr(b, 160, 114, C_LIGHT);
-    int moults = 0, ordeals = 0;
-    for (int s = 0; s < 3; s++) moults += fsv.beaten >> s & 1;
-    for (int s = 3; s < 8; s++) ordeals += fsv.beaten >> s & 1;
-    snprintf(b, sizeof b, "MOULTS %d/3   ORDEALS %d/5", moults, ordeals);
-    ctr(b, 160, 126, C_YELLOW);
 }
 
 static void draw_story(void) {
@@ -728,7 +720,7 @@ int feud_layout_audit(void) {
         fg.state_t = 2000;
         fg.title_sel = i == 1 ? 2 : 0;
         fg.won = i == 6;
-        for (int c = 0; c < (SCREENS[i] == FS_CAMPAIGN ? FD_SCEN : SCREENS[i] == FS_CUSTOM ? 5 : 1); c++) {
+        for (int c = 0; c < (SCREENS[i] == FS_CAMPAIGN ? FD_SCEN : SCREENS[i] == FS_CUSTOM ? 4 : 1); c++) {
             fg.camp_sel = c;
             fg.cust_sel = c;
             ui_audit_begin("fossilfeud", true);

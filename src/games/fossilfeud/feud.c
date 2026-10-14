@@ -147,7 +147,7 @@ static void campaign_update(void) {
     }
 }
 
-#define CUST_ROWS 5
+#define CUST_ROWS 4
 static void custom_update(void) {
     game_set_pausable(false);
     if (btn_repeat(BTN_UP)) { fg.cust_sel = (fg.cust_sel + CUST_ROWS - 1) % CUST_ROWS; sfx_play_name("ui_move"); }
@@ -155,10 +155,9 @@ static void custom_update(void) {
     int d = btn_repeat(BTN_RIGHT) ? 1 : btn_repeat(BTN_LEFT) ? -1 : 0;
     if (d) {
         switch (fg.cust_sel) {
-        case 0: fsv.opp = (uint8_t)((fsv.opp + FD_LEVELS + d) % FD_LEVELS); break;
-        case 1: fsv.eyries = (uint8_t)iclamp(fsv.eyries + d, 2, 6); break;
-        case 2: fsv.peaks = (uint8_t)iclamp(fsv.peaks + d, 0, 8); break;
-        case 3: fsv.fog ^= 1; break;
+        case 0: fsv.eyries = (uint8_t)iclamp(fsv.eyries + d, 2, 6); break;
+        case 1: fsv.peaks = (uint8_t)iclamp(fsv.peaks + d, 0, 8); break;
+        case 2: fsv.fog ^= 1; break;
         default: break;
         }
         sfx_play_name("ui_move");
@@ -359,6 +358,24 @@ static int feud_query(const char *key, int *out) {
         int mx = 0;
         for (int i = 0; i < FB_MAX; i++) if (b->s[i].alive && b->s[i].side == b->def) mx = imax(mx, b->s[i].x >> 8);
         *out = mx;
+        return 1;
+    }
+    if (!strcmp(key, "b_lancer_hp")) {
+        *out = -1;
+        for (int i = 0; i < FB_MAX; i++) if (b->s[i].alive && b->s[i].kind == FU_LANCER) { *out = b->s[i].hp; break; }
+        return 1;
+    }
+    if (!strncmp(key, "cpu_sees", 8)) {
+        /* the birds the Slate Flock's planner thinks are on tile n */
+        static FeudMatch v;
+        feud_view(m, 1, &v);
+        *out = feud_units_on(&v, iclamp(atoi(key + 8), 0, FD_TILES - 1));
+        return 1;
+    }
+    if (!strncmp(key, "shown_blds", 10)) {
+        /* the buildings drawn on tile n (none on their fogged tiles) */
+        const FeudTile *x = &m->t[iclamp(atoi(key + 10), 0, FD_TILES - 1)];
+        *out = x->owner == 1 && m->fog && !x->seen ? 0 : feud_tile_blds(x);
         return 1;
     }
     if (!strcmp(key, "b_shield0")) {

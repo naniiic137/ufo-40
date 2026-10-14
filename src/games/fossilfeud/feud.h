@@ -121,6 +121,9 @@ typedef struct {
     uint8_t ordeal;            /* 0, or 1-5 */
     int8_t winner;             /* -1 still on */
     uint8_t shuffled;          /* ordeal 4: Move previews shown */
+    /* what each side last saw of the other's birds on each tile (in the fog) */
+    uint8_t memk[2][FD_TILES];
+    uint8_t mem[2][FD_TILES][FU_KINDS];
     Rng rng;
 } FeudMatch;
 
@@ -140,11 +143,11 @@ typedef struct {
 #define FB_MAX (FB_ON_FIELD * 2)
 #define FB_MAX_SHOTS 64
 #define FB_STILL_END 180     /* nobody hurt and nobody moving this long: the attacker withdraws */
-#define FB_TIME_MAX 7200     /* two minutes: the attacker withdraws */
+#define FB_TIME_MAX 36000    /* a safety net only (10 min); the stall rule ends real fights */
 #define FB_BLD_HP 24
 
 enum { FO_CHARGE, FO_STAND, FO_WRECK, FO_FLEE, FO_KINDS };
-enum { BC_OPEN, BC_COVER, BC_BLOCK, BC_HIGH };
+enum { BC_OPEN, BC_COVER, BC_BLOCK, BC_HIGH, BC_ROCK }; /* rock: no walking, no shots */
 enum { BR_NONE, BR_ATK_WIN, BR_DEF_WIN, BR_ATK_BACK, BR_DEF_FLED };
 
 typedef struct {
@@ -164,7 +167,6 @@ typedef struct {
     int x, y, tx, ty, vx, vy, t;
     int tgt;                 /* soldier index, or -2 - building */
     uint8_t blocked;         /* stops at a cover cell */
-    uint8_t high;            /* loosed from high ground */
     int stop_x, stop_y;
 } FeudShot;
 
@@ -321,6 +323,8 @@ int feud_dist(int a, int b);
 void feud_add_res(FeudMatch *m, int side, int r, int n);
 bool feud_gift_check(const FeudMatch *m, int side);
 void feud_check_elimination(FeudMatch *m);
+void feud_note_seen(FeudMatch *m, int side, int t);
+void feud_view(const FeudMatch *m, int side, FeudMatch *out);
 int feud_level_text(const FeudMatch *m, int side, int act, int lvl, char *buf, int n);
 int feud_offer_text(const FeudMatch *m, int act, const FeudOffer *o, char *buf, int n);
 

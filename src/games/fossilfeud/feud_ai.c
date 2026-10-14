@@ -579,7 +579,8 @@ static int try_anc(const FeudMatch *m, int side, int anc, int skill) {
         if (kind == AK_CALLUP) { feud_callup(&c, side, act, NULL); continue; }
         if (kind == AK_MARCH) feud_reset_moved(&c);
         FeudStep st;
-        for (int n = 0; n < 24 && feud_ai_next(&c, side, act, skill, &st); n++) feud_ai_apply_est(&c, side, act, &st);
+        int most = kind == AK_MARCH ? 1 : 24; /* a march is one move */
+        for (int n = 0; n < most && feud_ai_next(&c, side, act, skill, &st); n++) feud_ai_apply_est(&c, side, act, &st);
     }
     return feud_eval(&c, side);
 }

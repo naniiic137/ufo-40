@@ -7,13 +7,10 @@ press DOWN
 wait 10
 press A
 wait 5
-press RIGHT
-press DOWN
 press DOWN
 press DOWN
 press LEFT
 expect save_fog == 0
-expect save_opp == 2
 botuntil state == 6 400000
 expect won == 1
 expect scenario == -1

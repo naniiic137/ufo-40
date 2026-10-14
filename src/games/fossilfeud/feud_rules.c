@@ -541,6 +541,7 @@ int feud_move(FeudMatch *m, int side, int src, int dst, const uint8_t counts[FU_
         d->frozen = 0;
         d->seen = 0;
         d->owner = (int8_t)side;
+        m->memk[1 - side][dst] = 0; /* the other side didn't see how many came */
     }
     for (int k = 0; k < FU_KINDS; k++) {
         int before = d->u[k];
@@ -626,6 +627,28 @@ int feud_hatch(FeudMatch *m, int side, int t) {
 }
 
 /* ---- turns and totems -------------------------------------------------------- */
+
+/* side sees the other side's birds on tile t (after a battle there) */
+void feud_note_seen(FeudMatch *m, int side, int t) {
+    m->memk[side][t] = 1;
+    memcpy(m->mem[side][t], m->t[t].u, FU_KINDS);
+}
+
+/* the board as side sees it: with the fog on, the other side's birds are
+ * what it last saw on that tile, or else a guess (3 stompers on an eyrie
+ * or a roost, 2 on a totem, 1 elsewhere) */
+void feud_view(const FeudMatch *m, int side, FeudMatch *out) {
+    *out = *m;
+    if (!m->fog) return;
+    for (int t = 0; t < FD_TILES; t++) {
+        FeudTile *x = &out->t[t];
+        if (x->owner != 1 - side) continue;
+        memset(x->moved, 0, sizeof x->moved);
+        if (m->memk[side][t]) { memcpy(x->u, m->mem[side][t], FU_KINDS); continue; }
+        memset(x->u, 0, sizeof x->u);
+        x->u[FU_STOMPER] = (uint8_t)(x->eyrie || x->b[FB_ROOST] ? 3 : x->flag ? 2 : 1);
+    }
+}
 
 void feud_check_elimination(FeudMatch *m) {
     if (m->winner >= 0) return;

@@ -15,6 +15,9 @@ bool feud_quiet;
 
 static int is_left(const FeudBattle *b, int side) { (void)b; return side == 0; }
 
+/* walls, chasms and rocks: no walking through */
+static bool solid(int c) { return c == BC_BLOCK || c == BC_ROCK; }
+
 static int cell_at(const FeudBattle *b, int px, int py) {
     int cx = px / FB_CELL, cy = py / FB_CELL;
     if (cx < 0 || cy < 0 || cx >= FB_GW || cy >= FB_GH) return BC_BLOCK;
@@ -48,13 +51,13 @@ static void lay_field(FeudBattle *b, int terr, int tile) {
             int cx = rng_range(&r, 7, 22), cy = rng_range(&r, 0, FB_GH - 1);
             put(b, cx, cy, BC_COVER, mir); put(b, cx + 1, cy, BC_COVER, mir);
         }
-        for (int i = 0; i < 2; i++) put(b, rng_range(&r, 9, 20), rng_range(&r, 1, FB_GH - 2), BC_BLOCK, mir);
+        for (int i = 0; i < 2; i++) put(b, rng_range(&r, 9, 20), rng_range(&r, 1, FB_GH - 2), BC_ROCK, mir);
         break;
     case FT_SCREE:
         for (int i = 0; i < 6; i++) {
             int cx = rng_range(&r, 7, 23), cy = rng_range(&r, 0, FB_GH - 1);
-            put(b, cx, cy, BC_BLOCK, mir);
-            if (i & 1) put(b, cx + 1, cy, BC_BLOCK, mir);
+            put(b, cx, cy, BC_ROCK, mir);
+            if (i & 1) put(b, cx + 1, cy, BC_ROCK, mir);
         }
         for (int i = 0; i < 4; i++) {
             int cx = rng_range(&r, 4, 25), cy = rng_range(&r, 0, FB_GH - 2);
@@ -71,13 +74,16 @@ static void lay_field(FeudBattle *b, int terr, int tile) {
     case FT_PEAK:
         for (int cx = 20; cx < FB_GW; cx++)
             for (int cy = 0; cy < FB_GH; cy++) put(b, cx, cy, BC_HIGH, mir);
-        put(b, 19, 3, BC_BLOCK, mir);
-        put(b, 19, 7, BC_BLOCK, mir);
+        put(b, 19, 3, BC_ROCK, mir);
+        put(b, 19, 7, BC_ROCK, mir);
         break;
     case FT_EYRIE:
-        /* walls with one gate, battlements behind */
-        for (int cy = 0; cy < FB_GH; cy++)
-            if (cy != 5) put(b, 21, cy, BC_BLOCK, mir);
+        /* walls and battlements; the Rust Roost builds one gate in the
+         * middle, the Slate Flock two near the ends */
+        for (int cy = 0; cy < FB_GH; cy++) {
+            bool gate = b->def == 0 ? cy == 5 : (cy == 1 || cy == 9);
+            if (!gate) put(b, 21, cy, BC_BLOCK, mir);
+        }
         for (int cx = 22; cx < FB_GW; cx++)
             for (int cy = 0; cy < FB_GH; cy++) put(b, cx, cy, BC_HIGH, mir);
         break;
@@ -91,7 +97,7 @@ static int free_y(FeudBattle *b, int px, int pref) {
     for (int d = 0; d < FB_FH; d += 3) {
         int ys[2] = {pref + d, pref - d};
         for (int i = 0; i < 2; i++)
-            if (ys[i] > 4 && ys[i] < FB_FH - 4 && cell_at(b, px, ys[i]) != BC_BLOCK) return ys[i];
+            if (ys[i] > 4 && ys[i] < FB_FH - 4 && !solid(cell_at(b, px, ys[i]))) return ys[i];
     }
     return pref;
 }
@@ -217,7 +223,7 @@ static int next_cell(const FeudBattle *b, int fx, int fy, int tx, int ty) {
             int nx = cx + D[d][0], ny = cy + D[d][1];
             if (nx < 0 || ny < 0 || nx >= FB_GW || ny >= FB_GH) continue;
             int n = ny * FB_GW + nx;
-            if (dist[n] >= 0 || (b->grid[ny][nx] == BC_BLOCK && n != from)) continue;
+            if (dist[n] >= 0 || (solid(b->grid[ny][nx]) && n != from)) continue;
             dist[n] = (int16_t)(dist[c] + 1);
             q[qt++] = (int16_t)n;
         }
@@ -227,8 +233,8 @@ static int next_cell(const FeudBattle *b, int fx, int fy, int tx, int ty) {
     for (int d = 0; d < 8; d++) {
         int nx = fx + D8[d][0], ny = fy + D8[d][1];
         if (nx < 0 || ny < 0 || nx >= FB_GW || ny >= FB_GH) continue;
-        if (b->grid[ny][nx] == BC_BLOCK) continue;
-        if (d >= 4 && (b->grid[fy][nx] == BC_BLOCK || b->grid[ny][fx] == BC_BLOCK)) continue;
+        if (solid(b->grid[ny][nx])) continue;
+        if (d >= 4 && (solid(b->grid[fy][nx]) || solid(b->grid[ny][fx]))) continue;
         int n = ny * FB_GW + nx;
         if (dist[n] >= 0 && dist[n] < bd) { bd = dist[n]; best = n; }
     }
@@ -239,7 +245,7 @@ static bool line_clear(const FeudBattle *b, int x0, int y0, int x1, int y1) {
     int steps = imax(iabs(x1 - x0), iabs(y1 - y0)) / 4 + 1;
     for (int i = 1; i < steps; i++) {
         int x = x0 + (x1 - x0) * i / steps, y = y0 + (y1 - y0) * i / steps;
-        if (cell_at(b, x, y) == BC_BLOCK) return false;
+        if (solid(cell_at(b, x, y))) return false;
     }
     return true;
 }
@@ -261,27 +267,27 @@ static void kill(FeudBattle *b, int i) {
     sfx("fd_die");
 }
 
-/* hurt soldier i; from_high: the attacker stands on high ground */
-static void hurt_ex(FeudBattle *b, int attacker_kind, int i, bool arrow, bool from_high) {
+/* hurt soldier i. A lancer's shield: blows from stompers and lancers go
+ * round it; a sling does nothing to it while it is up (it is lowered in a
+ * melee, and then slings hit the bird); bolts and bombs wear it down first. */
+static void hurt(FeudBattle *b, int attacker_kind, int i, bool arrow) {
     FeudSoldier *s = &b->s[i];
     if (!s->alive) return;
     const FeudUnitDef *u = &FEUD_UNIT[attacker_kind];
     int lo = u->dmg_lo[s->kind], hi = u->dmg_hi[s->kind];
     if (lo < 0) return;
     int dmg = rng_range(&b->rng, lo, hi);
-    int cell = s->kind == FU_SWIFT ? BC_OPEN : cell_at(b, PX(s->x), PX(s->y));
-    bool ranged = attacker_kind == FU_SLINGER || attacker_kind == FU_MYSTIC;
-    /* the ground: in cover half the shots miss; up high, shots do half and
-     * blows from below one less */
-    if (ranged && cell == BC_COVER && rng_chance(&b->rng, 50)) { b->blocked_shots++; return; }
-    if (cell == BC_HIGH && !from_high) dmg = ranged ? dmg / 2 : dmg - 1;
-    if (s->shield > 0) {
-        if (arrow && s->engaged_t <= 0) { b->shield_saves++; sfx("fd_tink"); return; } /* the shield stops arrows outright */
-        int a = imin(s->shield, dmg);
-        s->shield = (int16_t)(s->shield - a);
-        dmg -= a;
-        b->still_t = 0;
-        b->hits++;
+    bool melee = attacker_kind == FU_STOMPER || attacker_kind == FU_LANCER;
+    if (s->shield > 0 && !melee) {
+        if (arrow) {
+            if (s->engaged_t <= 0) { b->shield_saves++; sfx("fd_tink"); return; }
+        } else {
+            int a = imin(s->shield, dmg);
+            s->shield = (int16_t)(s->shield - a);
+            dmg -= a;
+            b->still_t = 0;
+            b->hits++;
+        }
     }
     if (dmg <= 0) return;
     s->hp = (int16_t)(s->hp - dmg);
@@ -291,8 +297,6 @@ static void hurt_ex(FeudBattle *b, int attacker_kind, int i, bool arrow, bool fr
     if (s->hp <= 0) kill(b, i);
 }
 
-static void hurt(FeudBattle *b, int attacker_kind, int i, bool arrow) { hurt_ex(b, attacker_kind, i, arrow, false); }
-
 static void hurt_bld(FeudBattle *b, int bi, int dmg) {
     if (bi < 0 || bi >= b->nbld || b->bld[bi].hp <= 0) return;
     b->bld[bi].hp -= imax(1, dmg);
@@ -300,14 +304,15 @@ static void hurt_bld(FeudBattle *b, int bi, int dmg) {
     if (b->bld[bi].hp <= 0) { b->bld[bi].hp = 0; sfx("fd_wreck"); }
 }
 
-static bool cover_between(const FeudBattle *b, int x0, int y0, int x1, int y1, int *sx, int *sy) {
+static bool cover_between(const FeudBattle *b, int x0, int y0, int x1, int y1, int *sx, int *sy, int *kind) {
     int steps = imax(iabs(x1 - x0), iabs(y1 - y0)) / 4 + 1;
     int c0 = (y0 / FB_CELL) * FB_GW + x0 / FB_CELL, c1 = (y1 / FB_CELL) * FB_GW + x1 / FB_CELL;
     for (int i = 1; i < steps; i++) {
         int x = x0 + (x1 - x0) * i / steps, y = y0 + (y1 - y0) * i / steps;
         int c = (y / FB_CELL) * FB_GW + x / FB_CELL;
         if (c == c0 || c == c1) continue;
-        if (cell_at(b, x, y) == BC_COVER) { *sx = x; *sy = y; return true; }
+        int k = cell_at(b, x, y);
+        if (k == BC_COVER || k == BC_ROCK) { *sx = x; *sy = y; *kind = k; return true; }
     }
     return false;
 }
@@ -330,10 +335,10 @@ static void shoot(FeudBattle *b, FeudSoldier *s, int tgt) {
     h->tx = tx;
     h->ty = ty;
     h->tgt = tgt;
-    h->high = cell_at(b, PX(s->x), PX(s->y)) == BC_HIGH;
-    int sx, sy;
-    /* a thicket or a heap of bones takes most shots that pass through it */
-    if (s->kind != FU_SWIFT && cover_between(b, PX(s->x), PX(s->y), tx, ty, &sx, &sy) && rng_chance(&b->rng, 60)) {
+    int sx, sy, kind = BC_OPEN;
+    /* a thicket or a heap of bones takes most shots that pass through it; a rock all of them */
+    if (s->kind != FU_SWIFT && cover_between(b, PX(s->x), PX(s->y), tx, ty, &sx, &sy, &kind) &&
+        (kind == BC_ROCK || rng_chance(&b->rng, 60))) {
         h->blocked = 1;
         h->stop_x = sx;
         h->stop_y = sy;
@@ -362,7 +367,7 @@ static void land(FeudBattle *b, FeudShot *h) {
     }
     if (h->tgt >= 0) {
         FeudSoldier *s = &b->s[h->tgt];
-        if (s->alive && s->side != h->side) hurt_ex(b, h->kind, h->tgt, h->kind == FU_SLINGER, h->high);
+        if (s->alive && s->side != h->side) hurt(b, h->kind, h->tgt, h->kind == FU_SLINGER);
     } else if (h->tgt <= -2) {
         const FeudUnitDef *u = &FEUD_UNIT[h->kind];
         hurt_bld(b, -2 - h->tgt, rng_range(&b->rng, imax(1, u->dmg_lo[0]), imax(1, u->dmg_hi[0])));
@@ -428,9 +433,9 @@ static bool step_toward(FeudBattle *b, FeudSoldier *s, int tx, int ty, int speed
     int vx = (int)((long long)dx * speed / len), vy = (int)((long long)dy * speed / len);
     int nx = s->x + vx, ny = s->y + vy;
     if (walker(s->kind)) {
-        if (cell_at(b, PX(nx), PX(ny)) == BC_BLOCK) {
-            if (cell_at(b, PX(nx), PX(s->y)) != BC_BLOCK) ny = s->y;
-            else if (cell_at(b, PX(s->x), PX(ny)) != BC_BLOCK) nx = s->x;
+        if (solid(cell_at(b, PX(nx), PX(ny)))) {
+            if (!solid(cell_at(b, PX(nx), PX(s->y)))) ny = s->y;
+            else if (!solid(cell_at(b, PX(s->x), PX(ny)))) nx = s->x;
             else return false;
         }
     }
@@ -499,7 +504,7 @@ static bool bird_step(FeudBattle *b, int i) {
             b->s[s->tgt].engaged_t = 90;
             s->engaged_t = 90;
             sfx("fd_peck");
-            hurt_ex(b, s->kind, s->tgt, false, cell_at(b, PX(s->x), PX(s->y)) == BC_HIGH);
+            hurt(b, s->kind, s->tgt, false);
         } else {
             shoot(b, s, s->tgt);
         }
@@ -525,8 +530,8 @@ static void spread(FeudBattle *b) {
             int dx = o->x - s->x, dy = o->y - s->y;
             if (iabs(dx) < 4 * FX && iabs(dy) < 4 * FX) {
                 int push = dy >= 0 ? 48 : -48;
-                if (cell_at(b, PX(o->x), PX(o->y + push)) != BC_BLOCK) o->y = iclamp(o->y + push, 4 * FX, (FB_FH - 2) * FX);
-                if (cell_at(b, PX(s->x), PX(s->y - push)) != BC_BLOCK) s->y = iclamp(s->y - push, 4 * FX, (FB_FH - 2) * FX);
+                if (!solid(cell_at(b, PX(o->x), PX(o->y + push)))) o->y = iclamp(o->y + push, 4 * FX, (FB_FH - 2) * FX);
+                if (!solid(cell_at(b, PX(s->x), PX(s->y - push)))) s->y = iclamp(s->y - push, 4 * FX, (FB_FH - 2) * FX);
             }
         }
     }
@@ -541,12 +546,7 @@ void feud_battle_ai_order(FeudBattle *b, int side) {
         return;
     }
     if (settled && !b->frozen_def && mine * 100 < theirs * 25) { b->order[side] = FO_FLEE; return; } /* the frozen can't run */
-    /* defenders behind walls, over a chasm or up a slope hold their ground */
-    if (b->terr == FT_EYRIE || b->terr == FT_GORGE || b->terr == FT_PEAK || b->terr == FT_SCREE) {
-        b->order[side] = FO_STAND;
-        return;
-    }
-    b->order[side] = FO_CHARGE;
+    b->order[side] = FO_CHARGE; /* the default order, wherever it fights */
 }
 
 void feud_battle_step(FeudBattle *b) {
@@ -654,5 +654,7 @@ void feud_battle_apply(FeudMatch *m, const FeudBattle *b, int got[FR_KINDS]) {
     if (d->owner == b->def) {
         for (int k = 0; k < FU_KINDS; k++) d->moved[k] = (uint8_t)imin(d->moved[k], d->u[k]);
     }
+    /* both sides saw who was left standing there */
+    feud_note_seen(m, 1 - d->owner, b->dst);
     feud_check_elimination(m);
 }

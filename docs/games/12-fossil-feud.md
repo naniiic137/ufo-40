@@ -32,9 +32,9 @@ Nothing is copied: only the structure follows the original.
 | Resources | seeds (99), workers (9), bones (9) [MH] | grain (99), toilers (9), relics (9) |
 | Miracles | 7 (one only with the fog off) [MH], [GUIDE] | 7 omens: tithe, shift peak, hailstorm, far sight, updraft, thunderbolt, hatching |
 | Campaign | Hatchling, Fledgling, Adult, then 5 Trials [MH] | First Moult, Second Moult, Full Plume, then Ordeals I-V |
-| Custom | castles, mountains, fog [MH], [GUIDE] | eyries, peaks, fog, and the opponent's skill |
+| Custom | castles, mountains, fog [MH], [GUIDE] | eyries, peaks, fog (against the full plume) |
 | Goals | 3 [MH], [GGC] | the same 3 |
-| Stats | picks per Ancestor [MH] | the same, with matches, wins, losses and the fastest win |
+| Stats | picks per Ancestor [MH] | the same |
 
 ## Mechanics checklist
 
@@ -54,25 +54,25 @@ Nothing is copied: only the structure follows the original.
 | Threehorn | GATHER +3 relics, +2 a shrine / + 8 grain / + 16 grain; ENLIST mystic 8 / 5, swift 8, slinger 1 toiler / 4, 6, mystic 1 toiler; OMEN fog on: far sight 3, updraft 6, thunderbolt 9 / 2, 4, 7 / 1, 3, 4; fog off: hatching 3, updraft 6 / 2, 5, thunderbolt 9 / 1, 4, 6 | [MH], [GUIDE] | feud_10 |
 | Enlist | at your eyries and roosts only, as many as you can pay for | [MH], [GUIDE] | feud_06 |
 | Build | on any tile you hold, three buildings a tile; the roost only through Plateback, the dustbath only through Longneck | [MH], [GUIDE] | feud_07 |
-| March | from a tile, choose how many of each kind go, then a tile next door; mountains bar the way unless blessed; diagonals when blessed; onto their birds is a battle, onto open or empty enemy ground claims it, buildings and all | [MANUALS], [MH] | feud_08 |
+| March | one move: from a tile, choose how many of each kind go, then a tile next door, and the action is over (B first skips it); mountains bar the way unless blessed; diagonals when blessed; onto their birds is a battle, onto open or empty enemy ground claims it, buildings and all; only the updraft can be cast again and again | [MANUALS], [GUIDE] | feud_08 |
 | Surprise attack | the defenders don't stir until the attackers strike; if you never strike you can look and leave | [GUIDE] | feud_11 |
 | The omens | tithe: +1 favour with any Ancestor; shift peak: a peak moves (only the ground, never birds, buildings or totems), scree is left; hailstorm: their birds on a tile freeze and you are told how many even in the fog, never an empty tile; far sight: see into their tile; updraft: birds fly up to two tiles, onto eyries or peaks, again and again while relics last; thunderbolt: up to 2 of each kind die (10 at most); hatching (fog off): a bird at random, the costly ones likelier as the war drags on | [MH], [GUIDE] | feud_10 |
 | A peak on an eyrie | the walls are gone for good; still a totem | [GUIDE] | feud_12 |
-| Battles | real time, by themselves; the Rust Roost always on the left; the ground lays out the field: eyrie walls with one gate and battlements, a gorge's two bridges, thicket and boneyard cover, scree's rocks and rises, a peak's slope | [MANUALS], [MH] | feud_11, feud_12 |
-| Orders | CHARGE, STAND (still shoots what's in reach), WRECK (pull the buildings down, your own too), FLEE (attackers go home; defenders lose the tile and go to a tile of theirs next door); changed at any time with LEFT / RIGHT | [MANUALS], [GUIDE] | feud_11 |
+| Battles | real time, by themselves; the Rust Roost always on the left; the ground lays out the field: eyrie walls and battlements (the Rust Roost's with one gate in the middle, the Slate Flock's with two near the ends: the layout depends on the owner), a gorge's two bridges, thicket and boneyard cover, scree's rocks and rises, a peak's slope | [MANUALS], [MH], [GUIDE] | feud_11, feud_12 |
+| Orders | CHARGE (the default, for both sides), STAND (still shoots what's in reach), WRECK (pull the buildings down, your own too), FLEE (attackers go home; defenders lose the tile and go to a tile of theirs next door); changed at any time with LEFT / RIGHT | [MANUALS], [GUIDE] | feud_11 |
 | Forty a side | at most 40 a side on the field, the rest wait and come on as others fall | [MH], [GUIDE] | feud_11 |
-| Nothing happening | nobody hurt and nobody moving for 3 s: the attackers go home (20 slingers against one shielded lancer standing still) | [GUIDE] | feud_11 |
-| The birds | stomper 6 HP, 1-3 (1 against lancers and mystics), can't reach swifts; lancer 5 HP + 5 shield that stops slings until it is in a melee, 2-5 (2 against mystics), can't reach swifts; slinger 4 HP, 0-3, reach 32-160, backs off when too close; mystic 3 HP, 3-5 (2-3 against mystics, 3 against swifts), reach 88; swift 4 HP, flies, 4-6 (5-7 against stompers, 2 against mystics, 1-2 against swifts) in a splash; speeds 0.4 / 0.4 / 0.2 / 0.2 / 0.6 px a frame, strikes every 80 / 80 / 100 / 110 / 110 frames | [MH], [TVT], [GUIDE] | feud_11 |
+| Nothing happening | nobody hurt and nobody moving for 3 s: the attackers go home (20 slingers against one shielded lancer standing still); no other time limit | [GUIDE] | feud_11 |
+| The birds | stomper 6 HP, 1-3 (1 against lancers and mystics), can't reach swifts; lancer 5 HP + 5 shield (slings do nothing to it until it is in a melee, stompers' and lancers' blows go round it, mystics and swifts wear it down), 2-5 (2 against mystics), can't reach swifts; slinger 4 HP, 0-3, reach 32-160, backs off when too close; mystic 3 HP, 3-5 (2-3 against mystics, 3 against swifts), reach 88; swift 4 HP, flies, 4-6 (5-7 against stompers, 2 against mystics, 1-2 against swifts) in a splash; speeds 0.4 / 0.4 / 0.2 / 0.2 / 0.6 px a frame, strikes every 80 / 80 / 100 / 110 / 110 frames | [MH], [TVT], [GUIDE] | feud_11 |
 | Battle habits | slingers go for lancers first; shooters leave swifts till last; swifts fly past the front to hit what is behind | [TVT], [GUIDE] | feud_11 (play) |
-| Defence | favoured, eyries most: up high, shots do half and blows from below one less; in cover half the shots miss; the Slate Flock holds its walls, chasm and slopes | [GUIDE] | feud_12 |
-| Fog of war | their tiles show the ground and buildings, not the birds ("?"), nor their stock; off in a custom match | [MANUALS], [GUIDE] | feud_01, feud_10 |
+| Ground in battle | only the field's shape and reach: shooters up high reach 24 px farther; thickets and boneyards stop most shots that pass through them; rocks (scree, boneyard, a peak's) stop walkers and every shot; walls and chasms stop walkers only. Defence is favoured by the layouts and the 40-a-side cap | [GUIDE], [MH] | feud_12, feud_21 |
+| Fog of war | their tiles show the ground, not their birds ("?") or buildings, nor their stock, until far sight looks in; the Slate Flock is fogged the same way; off in a custom match | [MANUALS], [GUIDE] | feud_01, feud_10, feud_21 |
 | Winning | hold four totems when your turn ends and still when your next starts; a side with no tiles left loses | [MH], [MANUALS] | feud_13 |
 | The campaign | three moults against sharper planners, the ending after the full plume, then five ordeals, each opened by the one before | [MH] | feud_01, feud_13, feud_20 |
 | The ordeals | I extra grain; II a second eyrie; III a blessing; IV the Ancestors' actions dealt out afresh (only here is a MARCH's blessing previewed); V all of those, and two totems on open ground | [MH] | feud_16 |
-| Custom match | eyries 2-6, peaks 0-8, fog on or off, and which planner | [MH], [GUIDE] | feud_01 |
+| Custom match | eyries 2-6, peaks 0-8, fog on or off; against the full plume | [MH], [GUIDE] | feud_01 |
 | The secret | LEFT RIGHT RIGHT LEFT LEFT LEFT while choosing whom to pray to: a line of our own | [MH-META] | feud_17 |
 | Goals | Beacon: max all three actions of one Ancestor in a match; Saucer: win the three moults; Alien: pass all five ordeals | [MH], [STEAM-GIFT], [GGC] | feud_04, feud_14 |
-| Saving | the scenarios won, the gift, prayers to each Ancestor, matches, wins, losses, the fastest win and the custom match; a match in progress is not kept | [MH], [STEAM-SAVES] | feud_14 |
+| Saving | the scenarios won, the gift, prayers to each Ancestor (the one stat shown, under RECORDS) and the custom match; a match in progress is not kept | [MH], [STEAM-SAVES] | feud_14 |
 | Playable start to end | the demo player, with real button presses from the title, wins all eight scenarios | | feud_19, feud_20 |
 
 ### Readings we had to choose
@@ -88,7 +88,9 @@ Nothing is copied: only the structure follows the original.
   Ancestor at random; ordeal IV deals the fifteen actions out at random,
   the same deal for both sides.
 - **Turn order:** you move first.
-- **A MARCH** moves as many groups as you like, but each bird only once;
+- **A MARCH** is one move: one group from one tile to one tile next door
+  ("move units from one tile to an adjacent tile" [MANUALS]; the guide
+  singles out Magic Flight as the omen that can be cast again and again);
   birds that win a battle stay on the tile they took.
 - **Peaks** can't be entered at all without "through peaks" (or an
   updraft), and buildings may go on any tile you hold.
@@ -103,15 +105,18 @@ Nothing is copied: only the structure follows the original.
 - **Battle numbers:** a 300 × 110 px field; reach is the upper end of the
   wiki's range (the lower end is how close a slinger will still shoot);
   the shield drops for 1.5 s after a melee; a swift's splash is 12 px; the
-  stall ends after 3 s with nobody hurt and nobody moving, and every
-  battle after two minutes; high ground adds 24 px of reach; cover takes
-  60 % of shots that pass through it and half of those aimed at a bird in
-  it.
-- **The Slate Flock in battle** flees as attacker below 45 % of the
-  defenders' strength and as defender below 25 %; as defender it stands on
-  eyries, gorges, peaks and scree.
-- **The Slate Flock sees through the fog** (no source says either way).
-  First Moult prays at random most of the time, buys the cheapest birds,
+  stall ends after 3 s with nobody hurt and nobody moving (moving counts,
+  or every fight would end while the armies still walk to each other); a
+  hidden 10-minute safety net no real fight reaches; high ground adds 24
+  px of reach; cover takes 60 % of the shots that pass through it, a rock
+  all of them. The Slate Flock's eyrie has two gates near the ends, the
+  Rust Roost's one in the middle.
+- **The Slate Flock in battle** keeps the default CHARGE, fleeing as
+  attacker below 45 % of the defenders' strength and as defender below
+  25 %.
+- **The Slate Flock is fogged like you.** It plans on your birds as it
+  last saw them (after a battle on that tile) or on a guess: 3 stompers on
+  an eyrie or a roost, 2 on a totem, 1 elsewhere. First Moult prays at random most of the time, buys the cheapest birds,
   leaves its eyries bare and uses no omen but the tithe; Second Moult
   weighs its prayers with a lot of noise; Full Plume weighs everything
   but still keeps a little too few at home (the "leaves key castles thin"
@@ -145,7 +150,8 @@ Only what every UFO 40 cartridge has: the START pause menu and the three
 goals, which are Avianos's own (gift, gold, cherry). The custom match's
 choice of planner is how a one-player custom game picks its opponent. The
 Terminal code that opens every trial (BLUE-BEAK) is a UFO 50 collection
-feature; UFO 40 has no terminal, so it is left out.
+feature; UFO 40 has no terminal, so it is left out. The custom match has
+no opponent choice (no source mentions one): it is always the full plume.
 
 ## Owner's changes
 
@@ -172,13 +178,13 @@ feature; UFO 40 has no terminal, so it is left out.
 | Control or rule | Our reading |
 |---|---|
 | Button 1 (B) | back, and finish an action (sources only name the confirm button) |
-| How many groups one MARCH moves | any number, each bird once |
+| How many groups one MARCH moves | one |
 | Where ENLIST puts birds | your eyries and roosts |
 | Buildings a tile | three |
 | The flag-hold timing | held at your turn's end and at your next turn's start |
 | Starting stock | 10 / 3 / 3 |
 | The hailstorm's length, hatching's odds | as in the readings |
-| Whether the CPU sees through the fog | it does |
+| Whether the CPU sees through the fog | it doesn't; it remembers and guesses |
 | Whether a match in progress is saved | it isn't |
 
 ## Next update (Phase 2): 2-player versus
@@ -203,10 +209,10 @@ Shown greyed out now; not built. What it will need, from the research:
 
 ## Tests
 
-`tests/feud_01` … `feud_18` drive each rule with button presses, setting
+`tests/feud_01` … `feud_18` and `feud_21` drive each rule with button presses, setting
 up a moment with cheats and then pressing through it. The demo player
 (`feud_bot.c`) thinks with the Slate Flock's planner at its best (and
-peeks through the fog, which a person can't), growing bolder the longer a
+peeks through the fog, which a person can't, and the Slate Flock now can't either), growing bolder the longer a
 match runs, and works the menus with real presses, letting go of every
 button the next frame. `feud_19` wins a custom match against the full
 plume from the title; `feud_20` plays the whole campaign from the title,
