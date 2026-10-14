@@ -387,6 +387,24 @@ static int feud_query(const char *key, int *out) {
         *out = n;
         return 1;
     }
+    if (!strcmp(key, "texts_over")) {
+        /* the prayer screen's action lines ("2 CALL UP: ...") that would run off the screen */
+        int bad = 0;
+        uint8_t keep = m->fog;
+        for (int f = 0; f < 2; f++) {
+            m->fog = (uint8_t)f;
+            for (int a = 0; a < FD_ACTS; a++)
+                for (int l = 0; l < 3; l++) {
+                    char t[160], b[256];
+                    feud_level_text(m, 0, a, l, t, sizeof t);
+                    snprintf(b, sizeof b, "3 %s: %s", FEUD_ACT[a].name, t);
+                    if (tiny_width(b) > SCREEN_W - 4 || tiny_missing(b)) { bad++; fprintf(stderr, "  too long: %s\n", b); }
+                }
+        }
+        m->fog = keep;
+        *out = bad;
+        return 1;
+    }
     if (!strcmp(key, "deck_ok")) {
         /* every one of the fifteen actions dealt exactly once */
         int seen = 0;

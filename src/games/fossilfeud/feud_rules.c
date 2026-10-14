@@ -701,13 +701,12 @@ int feud_level_text(const FeudMatch *m, int side, int act, int lvl, char *buf, i
         break;
     }
     case AK_CALLUP: {
-        static const char *const W[4] = {"STOMPERS A ROOST", "LANCER A ROOST", "MYSTIC A SHRINE", "SWIFT A DUSTBATH"};
-        cat(buf, n, "FREE: ");
-        for (int i = 0; i < 4; i++) {
-            if (!l->g[i]) continue;
-            snprintf(part, sizeof part, "%s%d %s", i ? ", " : "", l->g[i], W[i]);
-            cat(buf, n, part);
-        }
+        /* free birds, grouped by building: "ROOST 2 STOMPERS, 1 LANCER, SHRINE 1 MYSTIC" */
+        snprintf(part, sizeof part, "ROOST %d STOMPERS", l->g[0]);
+        cat(buf, n, part);
+        if (l->g[1]) { snprintf(part, sizeof part, ", %d LANCER", l->g[1]); cat(buf, n, part); }
+        if (l->g[2]) { snprintf(part, sizeof part, ", SHRINE %d MYSTIC", l->g[2]); cat(buf, n, part); }
+        if (l->g[3]) { snprintf(part, sizeof part, ", BATH %d SWIFT", l->g[3]); cat(buf, n, part); }
         break;
     }
     case AK_MARCH:

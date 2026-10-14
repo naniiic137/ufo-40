@@ -5,6 +5,7 @@ game fossilfeud
 wait 5
 expect layout == 0
 expect art_bad == 0
+expect texts_over == 0
 check_songs
 expect jukebox_missing == 0
 expect playing_title == 1
