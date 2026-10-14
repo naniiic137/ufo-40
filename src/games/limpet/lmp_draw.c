@@ -95,12 +95,35 @@ static void draw_tile(int tx, int ty, char c, int t) {
         if ((tx + ty * 3) % 7 == 0) gfx_pset(x + 2, y + 2, C_DUSK);
         if (ty % 4 == 0) gfx_hline(x, x + LMP_T - 1, y, C_INK);
         break;
-    case '#': case 'G':
+    case '#':
         plate(x, y, hc, PAL_LIGHTER[hc]);
         if ((tx + ty) % 3 == 0) gfx_pset(x + 2, y + 2, PAL_LIGHTER[PAL_LIGHTER[hc]]);
-        if (c == 'G')
-            for (int k = 0; k < LMP_T; k += 4) gfx_line(x + k, y + LMP_T - 1, x + k + 3, y, C_AMBER);
         break;
+    case 'G': {
+        /* the hub's obstacles: Gus's crate, stuck doors, the hatch, the Dreadnought's wall */
+        int g = 0;
+        for (int i = 0; i < LMP_HUB_NGATES; i++) {
+            const LmpGate *gt = &LMP_HUB_GATE[i];
+            if (tx >= gt->x && tx < gt->x + gt->w && ty >= gt->y && ty < gt->y + gt->h) { g = i; break; }
+        }
+        const char *what = LMP_HUB_GATE[g].what;
+        if (what[0] == 'C') {
+            plate(x, y, C_BROWN, C_TAN);
+            gfx_hline(x + 1, x + 8, y + 3, C_EARTH);
+            gfx_hline(x + 1, x + 8, y + 7, C_EARTH);
+        } else if (what[0] == 'S') {
+            plate(x, y, C_GREY, C_LIGHT);
+            gfx_line(x, y, x + 9, y + 9, C_SLATE);
+        } else if (what[0] == 'D' && what[1] == 'R') {
+            gfx_rect(x, y, LMP_T, LMP_T, C_WINE);
+            gfx_circ(x + 3 + (ty % 3), y + 5, 3, C_MAGENTA);
+            gfx_pset(x + 6, y + 2, C_PINK);
+        } else {
+            gfx_rect(x, y, LMP_T, LMP_T, C_DUSK);
+            for (int k = 0; k < LMP_T; k += 4) gfx_line(x + k, y + LMP_T - 1, x + k + 3, y, C_AMBER);
+        }
+        break;
+    }
     case 'X':
         plate(x, y, C_TAN, C_CREAM);
         if ((tx * 5 + ty) % 4 == 0) gfx_hline(x + 2, x + 7, y + 5, C_HIDE);
@@ -320,6 +343,25 @@ static void draw_world(void) {
                     np++;
                 }
             }
+    }
+    if (lg.level == LV_HUB) {
+        /* Rolo's loop line: eight sides and one little engine */
+        int cx = 110 * LMP_T, cy = 41 * LMP_T;
+        static const int OX[8] = {-10, 10, 22, 22, 10, -10, -22, -22};
+        static const int OY[8] = {-12, -12, -5, 5, 12, 12, 5, -5};
+        for (int k = 0; k < 8; k++) gfx_line(cx + OX[k], cy + OY[k], cx + OX[(k + 1) % 8], cy + OY[(k + 1) % 8], C_TAN);
+        int seg = (t / 10) % 8, f = t % 10;
+        int ex = cx + OX[seg] + (OX[(seg + 1) % 8] - OX[seg]) * f / 10;
+        int ey = cy + OY[seg] + (OY[(seg + 1) % 8] - OY[seg]) * f / 10;
+        gfx_rect(ex - 2, ey - 2, 5, 4, C_RED);
+        gfx_pset(ex, ey - 3, C_GREY);
+        /* Gus's crane: a trolley on the ceiling, its cable down to the crate */
+        int kx = 80 * LMP_T, ky = 25 * LMP_T;
+        gfx_rect(kx - 30, ky, 60, 3, C_AMBER);
+        gfx_rect(kx - 4, ky + 3, 8, 4, C_ORANGE);
+        bool lifted = lmp_cleared_count() >= 4;
+        gfx_vline(kx, ky + 7, lifted ? ky + 20 : 41 * LMP_T - 1, C_GREY);
+        if (lifted) gfx_rect(kx - 6, ky + 20, 12, 3, C_GREY);
     }
     /* the hidden honey, and the bee that shows where it is once the Dreadnought is gone */
     if (lg.honey_x >= 0 && lg.honey_shown && !lg.honey_held)
