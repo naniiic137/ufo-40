@@ -1,0 +1,51 @@
+# ANTIPODE: harm and what follows it. After a hit the suit is safe for 60
+# frames. Acid takes 5 every 20 frames; an electric field 30 and a push
+# back, unless the STORMBALL is around the suit, which carries it through.
+seed 1
+game antipode
+wait 5
+cheat newgame
+cheat nofoes
+cheat room 0 F
+cheat pos 60 134
+wait 5
+# mercy: a second shot at once does nothing
+cheat eshot 0 60 134 0 0
+wait 1
+expect armor == 65
+expect inv >= 58
+cheat eshot 0 60 134 0 0
+wait 1
+expect armor == 65
+wait 60
+cheat eshot 0 60 134 0 0
+wait 1
+expect armor == 55
+# acid, in the Brine
+cheat room 1 w
+cheat armor 75
+cheat pos 120 134
+wait 61
+expect armor == 60
+# an electric field in the east doorway of the Brine's room c
+cheat room 1 c
+cheat armor 75
+cheat pos 296 86
+wait 5
+hold RIGHT 12
+expect armor == 45
+expect room_id == 99
+release ALL
+wait 70
+# with the STORMBALL: jump, flip, and walk through
+cheat mod 2 1
+cheat armor 75
+cheat grav 1
+cheat pos 290 86
+wait 10
+press B
+press B
+expect thunder > 30
+hold RIGHT 24
+expect room_id == 100
+expect armor == 75

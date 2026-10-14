@@ -218,7 +218,7 @@ void apd_shots_update(void) {
                 apd_burst(tx, ty, C_CYAN, 8, 2);
                 s->alive = 0;
             } else if (th->kind == TH_BUTTON && iabs(px - tx) < 8 && iabs(py - ty) < 10) {
-                ag.button_t[th->var & 1] = 12;
+                ag.button_t[th->var & 1] = 30; /* half a second for the other */
                 th->t = 12;
                 apd_sfx("apd_click");
                 s->alive = 0;
@@ -508,11 +508,17 @@ void apd_player_update(void) {
 
 static bool box_touches(int t) {
     ApdPlayer *p = &ag.pl;
-    int x0 = APD_PX(p->x) - APD_PW / 2 - 1, x1 = x0 + APD_PW + 1;
-    int y0 = APD_PX(p->y) - APD_PH / 2 - 1, y1 = y0 + APD_PH + 1;
-    for (int y = y0; y <= y1; y += (y1 - y0) / 4)
-        for (int x = x0; x <= x1; x += (x1 - x0) / 2)
-            if (apd_tile_at(x, y) == t) return true;
+    /* the box, one pixel bigger all round: its edges, corners included */
+    int x0 = APD_PX(p->x) - APD_PW / 2 - 1, x1 = APD_PX(p->x) - APD_PW / 2 + APD_PW;
+    int y0 = APD_PX(p->y) - APD_PH / 2 - 1, y1 = APD_PX(p->y) - APD_PH / 2 + APD_PH;
+    for (int k = 0; k <= 4; k++) {
+        int y = y0 + (y1 - y0) * k / 4;
+        if (apd_tile_at(x0, y) == t || apd_tile_at(x1, y) == t) return true;
+    }
+    for (int k = 1; k < 4; k++) {
+        int x = x0 + (x1 - x0) * k / 4;
+        if (apd_tile_at(x, y0) == t || apd_tile_at(x, y1) == t) return true;
+    }
     return false;
 }
 

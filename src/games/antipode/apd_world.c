@@ -744,7 +744,9 @@ void apd_build_room(int room) {
                 add_thing(TH_TELE, 0, tx, ty, atoi(tok + 4));
             }
         } else if (!strncmp(tok, "start", 5)) {
-            if (find_spot(cx, cy, 'f', 5, &tx, &ty)) {
+            /* to the right of the first terminal: its scratched code shows only
+             * to someone who comes at it from the left */
+            if (find_spot(cx, cy, 'f', 13, &tx, &ty)) {
                 ag.pl.entry_x = (tx * APD_TILE + 8) * APD_FX;
                 ag.pl.entry_y = ((ty + 1) * APD_TILE - APD_PH / 2) * APD_FX;
                 ag.pl.entry_grav = 1;

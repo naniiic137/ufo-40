@@ -84,7 +84,7 @@ void apd_boss_spawn(int boss) {
 void apd_boss_check_trigger(void) {
     if (ag.boss < 0 || ag.boss_on || ag.run.boss_dead[ag.boss] || ag.boss_dead_t > 0) return;
     int px = APD_PX(ag.pl.x), py = APD_PX(ag.pl.y);
-    if (px > 44 && px < W() - 44 && py > 36 && py < H() - 36) apd_boss_spawn(ag.boss);
+    if (px > 44 && px < W() - 44 && py > 24 && py < H() - 4) apd_boss_spawn(ag.boss);
 }
 
 /* a spare body takes over: the boss gets only 250 back */

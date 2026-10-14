@@ -1,0 +1,59 @@
+# ANTIPODE: pass doors open only with their pass level, given by terminals
+# (UP to use one). Teleporters (UP on the pad) link the sectors; the uplink
+# to the Crown needs all four ciphers.
+seed 1
+game antipode
+wait 5
+cheat newgame
+cheat nofoes
+# the pass-1 door from the Brine's room j into f
+cheat room 1 j
+cheat pos 296 86
+wait 5
+hold RIGHT 30
+expect room_id == 106
+expect msg_t > 0
+release ALL
+# pass 1, at the terminal in the south corridor
+cheat room 1 v
+cheat pos 472 134
+wait 5
+press UP
+wait 2
+expect state == 5
+expect pass == 1
+expect text_id == 101
+wait 15
+press A
+wait 2
+expect state == 3
+cheat room 1 j
+cheat pos 296 86
+wait 5
+hold RIGHT 30
+expect room_id == 102
+release ALL
+# a teleporter: the Gantry's west pad lands in the Brine
+cheat room 0 L
+wait 5
+press UP
+expect state == 6
+wait 70
+expect state == 3
+expect sector == 1
+expect room_id == 84
+# the uplink: three ciphers aren't enough
+cheat room 0 F
+cheat ciphers 7
+wait 5
+press UP
+wait 5
+expect state == 3
+expect sector == 0
+expect msg_t > 0
+cheat ciphers 15
+wait 5
+press UP
+wait 70
+expect sector == 3
+expect room_id == 84

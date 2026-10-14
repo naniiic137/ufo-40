@@ -1,0 +1,83 @@
+# ANTIPODE: the four mods in the FLIP work on each flip. FLARE (EMBER): a
+# heat wave each way. AFTERIMAGE (TWIN): a copy stays where you flipped and
+# fires when you fire. STORMBALL (VOLT): a ball of 50 around the suit, for
+# up to three flips a jump, that passes electric fields. ANVIL (MASS): the
+# flip is a heavy drop, 50 to what it lands on, and it breaks cracked
+# concrete.
+seed 1
+game antipode
+wait 5
+cheat newgame
+cheat nofoes
+cheat room 0 F
+cheat pos 60 134
+wait 5
+# FLARE
+cheat mod 0 1
+press B
+press B
+expect shots_1 == 2
+waituntil ground == 1 60
+cheat mod 0 -1
+press B
+press B
+waituntil ground == 1 60
+# AFTERIMAGE
+cheat mod 1 1
+press B
+press B
+expect shadow == 1
+hold A 1
+expect shots_3 == 1
+expect shots_0 == 1
+release ALL
+waituntil ground == 1 60
+cheat mod 1 -1
+press B
+press B
+waituntil ground == 1 60
+cheat grav 1
+cheat pos 60 134
+wait 40
+# STORMBALL: three flips a jump
+cheat mod 2 1
+press B
+press B
+expect thunder == 38
+press B
+press B
+expect thunder == 38
+press B
+expect thunder == 35
+cheat mod 2 -1
+waituntil ground == 1 90
+cheat grav 1
+cheat pos 60 134
+wait 40
+# ... 50 to a gold treadle (80) next to it
+cheat mod 2 1
+cheat foe 6 72 137
+wait 1
+expect foe0_hp == 80
+press B
+press B
+wait 2
+expect foe0_hp == 30
+cheat clear
+cheat mod 2 -1
+waituntil ground == 1 90
+# ANVIL: a heavy drop, and cracked concrete gives way under it
+cheat mod 3 1
+cheat room 0 S
+cheat pos 480 26
+cheat grav -1
+wait 5
+expect ground == 1
+expect tileat_480_150 == 6
+press B
+press B
+expect stomp == 1
+expect vy == 2048
+waituntil room_id == 117 60
+cheat room 0 S
+expect tileat_480_150 == 0

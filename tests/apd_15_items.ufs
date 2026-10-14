@@ -1,0 +1,39 @@
+# ANTIPODE: 34 upgrades: 25 armor cells (+5 each, 75 to 200), 3 spare bodies
+# (2 to 5), 2 dampers (one more mod a system each) and 4 mods. A new mod
+# goes into the first system with room (GUN, FRAME, FLIP), else OFF. The
+# first mod is the gift.
+seed 1
+game antipode
+wait 5
+expect nitems == 34
+expect nitems_0 == 25
+expect nitems_1 == 3
+expect nitems_2 == 2
+expect nitems_3 == 4
+cheat newgame
+cheat nofoes
+# the first armor cell
+cheat pickup 0
+expect cells == 1
+expect armor_max == 80
+expect armor == 80
+expect goals == 0
+# EMBER, four rooms east of the start: into the GUN, and the gift
+cheat room 0 H
+expect items_here == 1
+cheat pos 168 100
+wait 30
+expect mod0 == 3
+expect goals & 1
+cheat allitems
+expect items_got == 34
+expect items == 100
+expect armor_max == 200
+expect spares_max == 5
+expect spares == 5
+expect dampers == 2
+expect safe == 3
+expect mod0 != 255
+expect mod1 != 255
+expect mod2 != 255
+expect mod3 != 255

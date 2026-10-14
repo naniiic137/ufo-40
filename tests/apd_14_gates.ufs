@@ -1,0 +1,63 @@
+# ANTIPODE: the gates. A nano-wall opens when every sentry orb of its room
+# is gone. A shutter opens when its target, inside the wall, is shot: only
+# PHASER shots get through to it. The hidden walls by the west teleporter
+# burn like barrels (SCORCH). In the hidden room a grey wall slides away
+# when both buttons in the floor are hit at once: a shadow (AFTERIMAGE)
+# over one, the suit over the other.
+seed 1
+game antipode
+wait 5
+cheat newgame
+cheat room 2 p
+expect foes_10 == 3
+expect gate_107 == 0
+cheat killfoe 0
+cheat killfoe 1
+expect gate_107 == 0
+cheat killfoe 2
+expect gate_107 == 1
+cheat nofoes
+# the shutter between the Gantry's rooms f and N
+cheat room 0 f
+cheat pos 24 86
+wait 5
+hold UP A 30
+release ALL
+expect tileat_8_70 == 10
+cheat mod 2 3
+hold UP A 30
+release ALL
+expect tileat_8_70 == 0
+cheat mod 2 -1
+# the hidden wall east of the west teleporter
+cheat room 0 L
+cheat pos 296 86
+wait 5
+hold A 20
+release ALL
+expect tileat_310_70 == 12
+cheat mod 0 3
+hold A 20
+release ALL
+expect tileat_310_70 == 0
+# the hidden room's buttons
+cheat mod 0 -1
+cheat mod 1 1
+cheat room 0 X
+expect secret == 0
+expect tileat_150_56 == 14
+cheat pos 56 26
+cheat grav -1
+wait 10
+expect ground == 1
+hold UP B 2
+hold UP 4
+hold UP B 2
+expect shadow == 1
+expect grav == 1
+cheat pos 264 100
+hold DOWN A 4
+release ALL
+wait 20
+expect secret == 1
+expect tileat_150_56 == 0

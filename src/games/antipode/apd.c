@@ -407,7 +407,7 @@ static void code_update(void) {
     if (btn_repeat(BTN_DOWN)) { *c = *c <= 'A' ? 'Z' : (char)(*c - 1); sfx_play_name("ui_move"); }
     if (btnp(BTN_RIGHT) && ag.code_pos < 8) { ag.code_pos += ag.code_pos == 3 ? 2 : 1; sfx_play_name("ui_move"); }
     if (btnp(BTN_LEFT) && ag.code_pos > 0) { ag.code_pos -= ag.code_pos == 5 ? 2 : 1; sfx_play_name("ui_move"); }
-    if (btnp(BTN_B)) { input_consume(); to_title(); return; }
+    if (btnp(BTN_B)) { input_consume(); to_title(); ag.menu = 2; return; }
     if (btnp(BTN_A)) {
         input_consume();
         char want[10];
@@ -592,6 +592,23 @@ static int apd_query(const char *key, int *out) {
     if (!strcmp(key, "shot0_life")) { *out = -1; for (int i = 0; i < APD_MAX_SHOTS; i++) if (ag.shot[i].alive) { *out = ag.shot[i].life; break; } return 1; }
     if (!strcmp(key, "shot0_vx")) { *out = -9999; for (int i = 0; i < APD_MAX_SHOTS; i++) if (ag.shot[i].alive) { *out = ag.shot[i].vx; break; } return 1; }
     if (!strcmp(key, "shot0_vy")) { *out = -9999; for (int i = 0; i < APD_MAX_SHOTS; i++) if (ag.shot[i].alive) { *out = ag.shot[i].vy; break; } return 1; }
+    if (!strncmp(key, "eshots_", 7)) { int k = atoi(key + 7), n = 0; for (int i = 0; i < APD_MAX_ESHOTS; i++) n += ag.es[i].alive && ag.es[i].kind == k; *out = n; return 1; }
+    if (!strncmp(key, "tileat_", 7)) {
+        int x = atoi(key + 7);
+        const char *u = strchr(key + 7, '_');
+        *out = u ? apd_tile_at(x, atoi(u + 1)) : -1;
+        return 1;
+    }
+    if (!strncmp(key, "gate_", 5)) { int d = atoi(key + 5); *out = d >= 0 && d < apd_ndoors ? ag.run.gate_open[d] : -1; return 1; }
+    if (!strncmp(key, "door_", 5) && strlen(key) == 8) {
+        /* door_SAB: the door between rooms A and B of sector S */
+        int s = key[5] - '0', a = apd_room_find(s, key[6]), b = apd_room_find(s, key[7]);
+        *out = -1;
+        for (int d = 0; d < apd_ndoors; d++)
+            if ((apd_doors[d].ra == a && apd_doors[d].rb == b) || (apd_doors[d].ra == b && apd_doors[d].rb == a)) *out = d;
+        return 1;
+    }
+    if (!strcmp(key, "air_flips")) { *out = p->air_flips; return 1; }
     if (!strcmp(key, "eshots")) { int n = 0; for (int i = 0; i < APD_MAX_ESHOTS; i++) n += ag.es[i].alive; *out = n; return 1; }
     if (!strcmp(key, "shadow")) { *out = ag.shadow.on; return 1; }
     if (!strcmp(key, "shadow_x")) { *out = APD_PX(ag.shadow.x); return 1; }
@@ -705,6 +722,8 @@ static int apd_cheat(const char *cmd) {
         apd_spawn_foe(iclamp(a, 1, FO_KINDS - 1), b * APD_FX, c * APD_FX, up != 0);
         return 1;
     }
+    if (sscanf(cmd, "killfoe %d", &a) == 1) { extern void apd_kill_foe(int i); apd_kill_foe(a); return 1; }
+    if (sscanf(cmd, "hurtfoe %d %d", &a, &b) == 2) { apd_hurt_foe(a, b, true); return 1; }
     if (sscanf(cmd, "foehp %d %d", &a, &b) == 2) { if (a >= 0 && a < APD_MAX_FOES) ag.foe[a].hp = (int16_t)b; return 1; }
     if (sscanf(cmd, "eshot %d %d %d %d %d", &a, &b, &c, &(int){0}, &(int){0}) >= 3) {
         int k, x, y, vx = 0, vy = 0;
@@ -767,8 +786,8 @@ const GameDef GAME_ANTIPODE = {
     "ANTIPODE",
     "1987",
     "ACTION ADVENTURE",
-    "A BATTLE SUIT WAKES ON A STATION TURNED AGAINST IT. JUMP AGAIN IN THE AIR TO FLIP GRAVITY.",
-    {"GET A MOD", "BEAT HALLORAN IN THE CROWN", "BEAT HIM HAVING SEEN EVERY ROOM AND FOUND EVERY UPGRADE"},
+    "A SUIT ON A STATION GONE WRONG. JUMP AGAIN IN THE AIR TO FLIP GRAVITY.",
+    {"GET A MOD", "BEAT HALLORAN IN THE CROWN", "BEAT HIM WITH EVERY ROOM AND UPGRADE"},
     GLYPH_LEFT GLYPH_RIGHT "\tWALK\n"
     GLYPH_DOWN "\tCROUCH\n"
     GLYPH_A " (HOLD)\tFIRE (FACING LOCKS)\n"

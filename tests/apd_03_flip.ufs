@@ -1,0 +1,50 @@
+# ANTIPODE: B on the ground jumps; B again in the air flips gravity. The suit
+# falls up to the ceiling, which is a real floor: it walks, crouches and
+# jumps there (a jump now goes down). Flips are only in the air and as many
+# as you like.
+seed 1
+game antipode
+wait 5
+cheat newgame
+cheat nofoes
+cheat room 0 F
+cheat pos 60 134
+wait 5
+expect grav == 1
+# on the ground B jumps, gravity stays
+press B
+expect grav == 1
+expect ground == 0
+# in the air B flips
+press B
+expect grav == -1
+expect flips == 1
+waituntil ground == 1 60
+expect grav == -1
+expect py == 26
+# walking on the ceiling
+hold RIGHT 20
+expect px == 90
+expect ground == 1
+hold DOWN 4
+expect crouch == 1
+release ALL
+wait 2
+# a jump from the ceiling goes down, then back up
+press B
+expect vy > 0
+expect grav == -1
+waituntil ground == 1 60
+expect py == 26
+# as many flips as you like in one jump
+press B
+press B
+wait 3
+press B
+wait 3
+press B
+wait 3
+press B
+expect flips == 5
+expect air_flips == 4
+waituntil ground == 1 90
