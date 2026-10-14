@@ -822,7 +822,7 @@ static void boss_update(int i) {
             if (f->t < 12) {
                 int hx = f->face > 0 ? fx + 8 : fx - 38;
                 if (rects_overlap(hx, EKO_PX(f->y) - 26, 30, 20, px - 5, EKO_PX(p->y) - (p->duck ? BR_PH_DUCK : BR_PH), 10, p->duck ? BR_PH_DUCK : BR_PH))
-                    hurt_player(2, f->face);
+                    hurt_player(1, f->face);
             }
             if (f->t > 30) { f->state = 0; f->cd = 50 + rng_range(&eg.rng, 0, 40); }
             break;

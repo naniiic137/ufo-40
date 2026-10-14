@@ -71,6 +71,7 @@ static int choose(Policy *pols, const int *params, int n, int horizon, int keep)
         if (eko_bot_debug) printf("    plan %d (%d): %d\n", i, params[i], s);
         if (s > bs) { bs = s; best = i; }
     }
+    if (eko_bot_debug) printf("    cont %d best %d (%d) cur_f %d\n", cont, bs, best, cur_f);
     if (cont >= bs) { cur_left = keep; return -1; }
     cur_pol = pols[best];
     cur_param = params[best];
@@ -186,7 +187,11 @@ static int bot_brawl(void) {
                                  0 | (13 << 4) | (8 << 8), 0 | (13 << 4) | (20 << 8), 5 | (13 << 4) | (32 << 8), 0 | (13 << 4) | (32 << 8),
                                  14, 15, 5 | (14 << 4) | (8 << 8), 5 | (14 << 4) | (20 << 8), 0 | (15 << 4) | (10 << 8), 5 | (15 << 4) | (10 << 8)};
     for (int i = 0; i < ARRAY_LEN(plans); i++) { P[n] = pol_brawl; A[n++] = plans[i]; }
-    choose(P, A, n, 56, 8);
+    if (choose(P, A, n, eg.br.boss_on ? 80 : 56, 8) >= 0) {
+        /* a plan that changes course later is played up to its change, at least */
+        int then = (cur_param >> 4) & 15, at = cur_param >> 8;
+        if (then) cur_left = imax(cur_left, (at ? at : 16) + 6);
+    }
     return play_current();
 }
 
@@ -486,6 +491,10 @@ static int pol_sneak(int p, int f) {
         if (b & BTN_DOWN) return BTN_UP;
         return 0;
     }
+    case 8: return BTN_RIGHT;
+    case 9: return BTN_DOWN;
+    case 10: return BTN_LEFT;
+    case 11: return BTN_UP;
     case 7: {
         /* hunt: line up with the nearest guard on its feet, then shoot it */
         if (d >= 0) { p = 3; break; }
@@ -567,10 +576,12 @@ static int bot_sneak(void) {
         bot_bold = sn_stuck > 600;
     }
     if (cur_left > 0 && cur_pol == pol_sneak) return play_current();
-    static Policy P[8];
-    static int A[8];
-    for (int i = 0; i < 8; i++) { P[i] = pol_sneak; A[i] = i; }
-    choose(P, A, 8, 70, 6);
+    static Policy P[12];
+    static int A[12];
+    for (int i = 0; i < 12; i++) { P[i] = pol_sneak; A[i] = i; }
+    const EkoSneak *sn = &eg.sn;
+    bool boss = sn->boss_g >= 0 && sn->g[sn->boss_g].alive && sn->g[sn->boss_g].room == sn->room_y * SN_MAX_RX + sn->room_x;
+    choose(P, A, 12, boss ? 90 : 70, 6);
     return play_current();
 }
 
