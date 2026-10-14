@@ -145,6 +145,13 @@ static const struct { const char *id, *title; } TITLES[] = {
     {"fd_title", "OLD BONES"}, {"fd_story", "UNDER THE GROUND"}, {"fd_map", "THE TOTEM FIELDS"},
     {"fd_rival", "SLATE ON THE WIND"}, {"fd_battle", "TALON AND BEAK"}, {"fd_ordeal", "THE ORDEALS"},
     {"fd_ending", "WHAT THE BONES REMEMBER"}, {"fd_win", "TOTEMS HELD"}, {"fd_lose", "FEATHERS IN THE DUST"},
+    {"sst_title", "SHOWSTOPPER"}, {"sst_story", "THE CAGE DOOR"}, {"sst_map", "THE ROUTE"},
+    {"sst_s1", "FROSTBELL LANE"}, {"sst_s2", "THE NIGHT FREIGHT"}, {"sst_s3a", "LANTERNBURY"},
+    {"sst_s3b", "THE CANAL SIDE"}, {"sst_s4a", "THE GLASS PALACE"}, {"sst_s4b", "THE UPPER HALLS"},
+    {"sst_s5", "GOING UP"}, {"sst_boss", "BIG TOP BRAWL"}, {"sst_maw", "THE MORROWMAW"},
+    {"sst_heart", "THE HEARTSTACK"}, {"sst_hop", "JELLY'S HOP"}, {"sst_clear", "CURTAIN"},
+    {"sst_over", "LIGHTS DOWN"}, {"sst_bad", "AN EMPTY CAGE"}, {"sst_good", "ENCORE"},
+    {"sst_credits", "TAKE A BOW"},
 };
 
 const char *shell_song_title(int song) {
@@ -161,7 +168,7 @@ const char *shell_song_title(int song) {
     return buf;
 }
 
-#define MAX_ROWS 512 /* every song plus a heading per cartridge */
+#define MAX_ROWS 1088 /* every song (1024 at most) plus a heading per cartridge */
 #define LIST_Y 69 /* the scroll marks fit between the panels */
 #define ROW_H 10
 #define VISIBLE 9

@@ -1,0 +1,76 @@
+# SHOWSTOPPER: what each power does. Shot A: the first shot of each volley
+# flares two more out on the diagonals; Shot B: the same, and every shot
+# bigger and stronger. Helper A: a one-eyed blob that fires when she does;
+# Helper B: a stubby one that also keeps firing while A is held. Bomb A:
+# a bomb where each dash starts; Bomb B: a trail of three. Shield A: one
+# spiked ball circles her and stops shots until it breaks; Shield B: five.
+# Life A: a heart back. Life B (Extend): four hearts, and a heart back.
+game showstopper
+wait 5
+cheat run
+cheat arena
+cheat god
+cheat face 6
+cheat pow 2 1
+press A 1
+expect shots == 3
+expect bigshots == 0
+wait 60
+cheat pow 2 2
+press A 1
+expect shots == 3
+expect bigshots == 3
+wait 60
+# the helpers
+cheat pow 3 1
+press A 1
+expect optshots == 1
+wait 60
+hold A 30
+expect optshots >= 1
+release A
+wait 60
+cheat pow 3 2
+hold UP A 1
+hold A 30
+expect optshots >= 4
+release A
+wait 60
+# bombs
+cheat pow 4 1
+press B 1
+expect bombs == 1
+wait 60
+expect bombs == 0
+cheat pow 4 2
+press B 1
+wait 12
+expect bombs == 3
+wait 60
+# the shield stops a shot (the ball loses strength)
+cheat pow 5 1
+expect shield0 == 3
+cheat pos 168 3160
+cheat mortal
+cheat bullet 0 186 3160 0 0
+cheat bullet 0 168 3142 0 0
+cheat bullet 0 150 3160 0 0
+cheat bullet 0 168 3178 0 0
+wait 40
+expect hits == 0
+expect shield0 < 3
+cheat god
+cheat pow 5 2
+expect shield4 == 3
+expect pow5 == 2
+# hearts
+cheat hp 1
+cheat pow 1 1
+expect hp == 2
+expect max_hp == 3
+cheat pow 1 2
+expect max_hp == 4
+expect hp == 3
+cheat pow 1 2
+expect max_hp == 4
+expect hp == 4

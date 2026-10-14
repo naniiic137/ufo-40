@@ -1,0 +1,71 @@
+# SHOWSTOPPER: star passes hide in odd-looking spots, three in each of
+# stages I, III and IV (nine in all, none on the train). A spot takes five
+# shots, ringing as it is hit, then gives up its pass; walking over the
+# pass takes it. A pass left to scroll off the bottom is lost. A spot
+# found stays found if the stage is played again after a continue.
+game showstopper
+wait 5
+expect spots_1 == 3
+expect spots_2 == 0
+expect spots_3 == 3
+expect spots_4 == 3
+expect spots_5 == 0
+cheat run
+cheat arena
+cheat god
+cheat face 6
+cheat spawn spot 168 3096
+expect foe0_hp == 5
+press A 1
+wait 8
+press A 1
+wait 8
+press A 1
+wait 8
+press A 1
+wait 8
+expect foe0_alive == 1
+expect foe0_hp == 1
+press A 1
+wait 8
+expect foe0_alive == 0
+expect pass_items == 1
+expect found & 1
+hold UP 52
+expect passes == 1
+expect passes_run == 1
+expect pass_items == 0
+# one left to scroll away is lost
+cheat face 0
+cheat pos 60 3176
+cheat spawn spot 100 3176
+press A 1
+wait 8
+press A 1
+wait 8
+press A 1
+wait 8
+press A 1
+wait 8
+press A 1
+wait 8
+expect pass_items == 1
+cheat cam 2956
+cheat arena
+wait 2
+expect pass_items == 0
+expect passes == 1
+# found stays found: stage I again, its first spot doesn't come back
+cheat stage 1
+cheat god
+cheat cam 2556
+wait 2
+expect kind_3 == 0
+expect found == 1
+# ... while on a new run it is there again
+cheat run
+cheat god
+cheat cam 2556
+wait 2
+expect kind_3 == 1
+expect found == 0

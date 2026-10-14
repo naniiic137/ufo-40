@@ -1,0 +1,77 @@
+# SHOWSTOPPER: five stages in the original's order and shape: I a
+# scrolling snow village (200 rows) with a mini-boss and a boss; II one
+# screen on a train's roof, fourteen waves and no boss; III a longer town
+# in two halves (242 rows), a chase up a winding road and a boss; IV the
+# longest, a palace in two halves (280 rows) with two mini-bosses and the
+# magician; V a lift through twelve waves, then the last form (and on a
+# clean run, the one behind it). Nine star passes: three each in I, III
+# and IV. Every row is 20 tiles; every sprite well formed.
+game showstopper
+wait 5
+expect n_stages == 5
+expect map_bad == 0
+expect art_bad == 0
+expect rows_1 == 200
+expect rows_2 == 11
+expect rows_3 == 242
+expect rows_4 == 280
+expect rows_5 == 11
+expect passdef_1 == 3
+expect passdef_2 == 0
+expect passdef_3 == 3
+expect passdef_4 == 3
+expect passdef_5 == 0
+expect train_waves == 14
+expect lift_waves == 12
+# the foes each stage places (crates 1, gumdrops 4, lanterns 5, jesters 6,
+# bats 7, guns 8, snowballs 9, bombers 13, snowmen 14, rocketeers 15,
+# copters 16, turtles 18, harlequins 19, skull jets 20, emberlings 21,
+# book trains 22, page imps 23, racecars 24, torches 25)
+expect spawns_1_4 >= 10
+expect spawns_1_5 >= 6
+expect spawns_1_6 >= 10
+expect spawns_1_7 >= 6
+expect spawns_1_8 >= 4
+expect spawns_1_9 >= 8
+expect spawns_3_13 >= 6
+expect spawns_3_14 >= 6
+expect spawns_3_15 >= 4
+expect spawns_3_16 >= 4
+expect spawns_4_18 >= 8
+expect spawns_4_19 >= 6
+expect spawns_4_20 >= 6
+expect spawns_4_21 >= 8
+expect spawns_4_22 >= 4
+expect spawns_4_23 >= 6
+expect spawns_4_24 >= 4
+expect spawns_4_25 >= 6
+# the stages' bosses, in order, as she reaches them
+cheat run
+cheat god
+cheat cam 1300
+wait 2
+expect boss_kind == 1
+cheat killboss
+wait 100
+cheat cam 0
+wait 2
+expect boss_kind == 2
+cheat stage 4
+cheat god
+cheat cam 2020
+wait 2
+expect boss_kind == 5
+expect half == 0
+cheat killboss
+wait 100
+cheat cam 1900
+wait 2
+expect half == 1
+cheat cam 1040
+wait 2
+expect boss_kind == 6
+cheat killboss
+wait 100
+cheat cam 0
+wait 2
+expect boss_kind == 7

@@ -1,0 +1,45 @@
+# SHOWSTOPPER: the goals. Beacon: win a life in the Hop. Saucer: bring
+# down the Morrowmaw (either ending). Alien: do it with no continue, which
+# means beating the Heartstack too. No run is saved (one sitting, as in
+# the original); the save keeps runs, wins, true endings, the furthest
+# stage, the most passes found in a run, the best Hop, lives won and the
+# free ride, and the goals come back from it.
+game showstopper
+wait 5
+expect goals == 0
+cheat run
+cheat hop 1
+cheat hopcoins 9
+botuntil hop_lives >= 1 3000
+expect goals == 1
+cheat stage 5
+cheat god
+cheat clear
+cheat wave 12
+waituntil boss_kind == 8 300
+wait 95
+cheat killboss
+waituntil boss_kind == 9 300
+wait 95
+cheat killboss
+waituntil state == 10 400
+expect goals == 7
+expect save_wins == 1
+expect save_good == 1
+expect save_stage == 5
+expect save_runs == 1
+# goals lost, records kept: they come back
+set_goals showstopper 0
+reload
+game showstopper
+wait 5
+expect goals == 7
+expect save_lives_won >= 1
+# a run in progress is not kept: out to the library and back, the title
+cheat run
+wait 10
+reload
+game showstopper
+wait 5
+expect state == 0
+expect save_runs == 2

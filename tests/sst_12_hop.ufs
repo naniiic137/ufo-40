@@ -1,0 +1,75 @@
+# SHOWSTOPPER: the Hop. After a stage, holding star passes, she is offered
+# the Hop: LATER keeps the passes for another break, PLAY spends them all,
+# one try a pass. Jelly hops on by itself the way the pad last pointed;
+# a hole, a raised spike or an open mouth costs a try. Coins fill a meter
+# and every mark on it (10, 25, 45, 70, 100, 135, 175, 220, 270 coins) is
+# a spare life, up to nine spares; the first one wins the Beacon. The
+# passes are spent when the round begins: reaching the far end (150 rows)
+# ends it, and any tries left there are over too.
+game showstopper
+wait 5
+expect hop_markat0 == 10
+expect hop_markat1 == 25
+expect hop_markat8 == 270
+cheat run
+cheat passes 3
+cheat done
+wait 2
+expect state == 4
+wait 160
+expect state == 5
+expect stage == 2
+# LATER keeps them
+wait 25
+press RIGHT
+press A
+expect state == 2
+expect passes == 3
+# the next break offers it again
+wait 45
+press A
+wait 5
+expect state == 3
+cheat done
+wait 162
+expect state == 5
+expect stage == 3
+wait 25
+press A
+expect state == 6
+expect passes == 0
+expect hop_tries == 3
+expect hop_state == 0
+expect hop_practice == 0
+# it starts hopping on by itself
+wait 41
+expect hop_state == 1
+wait 20
+expect hop_row >= 2
+# off the edge: a try gone
+press RIGHT
+wait 200
+expect hop_tries == 2
+# coins and lives
+cheat lives 3
+cheat hopcoins 9
+expect goals == 0
+botuntil hop_lives >= 1 3000
+expect lives == 4
+expect spares == 3
+expect goals & 1
+expect save_lives_won == 1
+# nine spares at most
+cheat lives 10
+botuntil hop_mark >= 3 4000
+expect spares == 9
+# the far end: the round ends; the tries left don't come back
+botuntil hop_state == 4 9000
+expect hop_row == 150
+expect hop_tries == 0
+expect passes == 0
+wait 40
+expect state == 7
+wait 70
+press A
+expect state == 2

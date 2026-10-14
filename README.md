@@ -149,6 +149,7 @@ menu, shows the buttons as you now press them). SELECT or B closes it.
 | 36 | **HOOPLA** | Hyper Contender | a one-screen, one-on-one platform brawl with no health: hold five hoops at once to win, one each at the start, a new one every 15 s (on fire at first), every hit knocking one out to bounce round the pit (two if you were dizzy); the block that stops a lunge and leaves the attacker dizzy, the lunge that goes through shots, shots that get past the block; eight fighters who each move their own way (double jump with a knife-turning spin, claw line, gravity turned over, spring traps, wings, a cage lift, a rocket pack, a charged leap) with their weapon, alt shot and the button exceptions; twelve fixed pits in a random order and colours, some with moving ledges; the tournament of eight with the mirror match last and one rematch each, a second foe on the hardest challenge, the snake draft of three each to five wins, 2P exhibition, the ring options, the old-rules code, the demo and its twentieth-time note | TANSY, CLAMP, MOSS, BRISTLE, PEWIT, COLLIER, ASTRA and GULP, their endings, the twelve pits of the Glass Pit, twelve tunes |
 | 38 | **RESTLESS** | Rakshasa | a side-on platformer where one touch kills but there are no lives: every death (and the start: you begin dead) sends your wisp into a soul round of 1, 3, 6, 9, then 12 pieces past as many guardians, and one touch there ends the run; you rise on the spot with the plain weapon and the screen swept clean; every death makes the world harsher (more and nastier foes, torches that spit fire, a tougher first boss from four, a double-speed clock from six) and its treasure richer; one walking pace, one committed jump with no steering, a freeze on every landing, aim ahead or on the slants only, tap or charge; four weapons from torch wheels, the original's 19 foes with their hit points, pits that drop you into rooms of foes, a 150-second clock, bells that take a death back, a familiar that takes a hit and finds hidden spots, gifts every 5,000; three stages of two halves and six fights; a high-score table | Old Gaunt of Mossfold, his wisp, Blink the owlet, Grandmother Ash, the Hollow Host and all its foes, the Bridgekeeper, Old Rattle, Three-Tongue, Gust and Gash, the Rammer and the Hollow King, all 64 screens |
 | 39 | **BUZZBOLT** | Star Waspir | a fast vertical shooter over the whole wide screen where one hit is a loss, tap fire for a wide spread at full speed and hold it for focused fire and a slower ship, three ships with their own fire, options and two specials each (a charge lance, guard orbs, a shield drone, bombs on the second button), every kill dropping a letter in the fixed order B, Z, Z, words of three (BZZ puts the multiplier up with no limit, ZZZ brings an option, BBB and ZBB are the ship's specials, any other word puts it back to x1), the multiplier built up and cashed in on the bosses, losing a ship costs the multiplier and every gift, ships at 25k, 100k and 200k, five waves with a boss each (wave 1's pair flies off if left alone; wave 3 the hard one; walls, gates and a golden swarm in wave 4; a last boss of aimed fans), an unmultiplied time bonus, a high-score table | the Hive Wing (lacewing, shieldbug, firefly), the hiveship and the dragonfly, the Blight's gnats, midges, whirlers, crickets, blisters, puffballs, rot walls and goldbugs, the Ironbacks, the Bloatfly, the Queen Tick, Scythewing and Dustwing, the Sporeheart, five new waves |
+| 43 | **SHOWSTOPPER** | Elfazar's Hat | a top-down run-and-gun: eight-way walking, a wand that fires at once on a press and, held, keeps firing in bursts with the aim locked while you walk any way (tapping fires faster but doesn't lock), and a dash that is safe while it lasts, crosses pits and stuns; foes and crates drop cards of five colours, every third card is a hand (a pair: the colour's small power, three of a kind: its big one, three different: nothing) and the powers (hearts and Extend, spread shots, a helper, bombs from the dash, spiked balls) last until a life is lost; three hearts, three lives a credit (two spares on the counter, up to nine spares), a lost life brings you back on the spot in a bubble, a pit takes a life at once, unlimited continues restart the stage; five stages in the original's shape (a snow village with a mini-boss and a boss, one screen on a train's roof, a town in two halves with a chase up a winding road, the longest stage, a palace with two mini-boss fights and the magician, a lift and the last form), nine hidden star passes that pay for the Hop, a bonus round of hops on a board seen at an angle whose coins win lives, and on a run with no continue the true last boss and the true ending; 2 PLAYERS is in the menu, greyed out until the next update | Clover the show rabbit, her helpers, Jelly, Morrow the Marvellous, the Morrowmaw and the Heartstack, 22 kinds of foe, the Snow Engine, Granny Goggle, the Boiler, the Doppels, Old Wicks and the Ribbon, every row of the five stages, the cards' faces and nineteen tunes |
 | 44 | **HOMESPUN** | Pilot Quest | a camp that keeps working in real time while the console is on, even in other cartridges; a yo-yo that knocks glints out of a crystal; plants, bars, huts, anvils, bins and research at the original's prices; jerky as two minutes of trip time a strip, and a clock that is also your health; one Wilds map whose roadblocks and caves are shuffled per save; three dungeons with a ship part each; a gun that costs a glint a shot; coins for hopstones, vendors and a gambling den; a spider that spins thread at camp; a super boss beaten six times in one trip; new-game-plus stones | Wick and the *Tumbleweed*, the moor-moon Oddmoor and its folk, the Wilds, three dungeons, all 19 foes and 6 bosses |
 | 41 | **RIMSHIRE** | Lords of Diskonia | a board where two banners take turns stepping along roads, trails a banner can't step back onto that pull an army back when struck, inns, tomes, seams and chests; flick battles on fields built from the four tiles round the fight: a queue of three, aim, charge and launch, knocks that hurt by the striking disk's own melee, water, the closing haze and stalemates; the original's 15 disks with their numbers, 8 skills, 10 campaign wars, the streak and 2P | Rimshire, the Brass and Plum banners, the Plum Empress, Lady Brass's letters, all 16 disks, 10 new boards |
 | 47 | **WOBBLE DERBY** | Quibble Race | three punters and three runners a race, odds from a form book of twenty unseen races, rising bet caps and an open last race, one tip a race, five dirty tricks and a minder with the same prices and fines, a lender at 15 % compounded, sponsoring from a shortlist and a coach, meteors, garbage and smog, 26 runners in the same speed and clumsiness bands, 3-player hot-seat | Crater Downs, the 26 wobblers, the sixteen punters (five of them UFO 40 cameos), the Fixer, the Lender and the Wobble Wire |
@@ -1686,6 +1687,64 @@ the top.
 - **Ours:** the Hive Wing, the B and Z letters, the Blight and its bosses
   (the Ironbacks, the Bloatfly, the Queen Tick, Scythewing and Dustwing,
   the Sporeheart), every wave, the opening, the table's names and the music.
+
+### 43 · SHOWSTOPPER
+
+<p align="center">
+  <img src="docs/shots/showstopper.gif" width="640" alt="Showstopper: Clover walks up Frostbell Lane, firing her wand at gumdrops and jesters">
+</p>
+<p align="center">
+  <img src="docs/shots/showstopper_title.png" width="320" alt="The title in the big top">
+  <img src="docs/shots/showstopper_goggle.png" width="320" alt="Granny Goggle: only her eye can be hurt">
+</p>
+<p align="center">
+  <img src="docs/shots/showstopper_train.png" width="320" alt="The Night Freight: waves on a moving train's roof">
+  <img src="docs/shots/showstopper_boiler.png" width="320" alt="The Boiler backs up the winding road">
+</p>
+<p align="center">
+  <img src="docs/shots/showstopper_hop.png" width="320" alt="The Hop: Jelly hops for coins on a board seen at an angle">
+  <img src="docs/shots/showstopper_maw.png" width="320" alt="The Morrowmaw: two great eyes, four on its arms, a snake from the mouth">
+</p>
+<p align="center">
+  <img src="docs/shots/showstopper_lane.png" width="320" alt="Frostbell Lane: houses with lit windows, a lantern, cards on the snow">
+  <img src="docs/shots/showstopper_morrow.png" width="320" alt="Morrow the Marvellous splits in two">
+</p>
+
+*A tribute to **Elfazar's Hat** (UFO 50 #43).*
+
+- **Plays the same:** a top-down run-and-gun. Clover walks eight ways; A
+  fires her wand at once, and held it keeps firing in bursts with the aim
+  locked while she walks any way (tapping fires faster but lets the aim
+  follow the pad); B dashes, safe while it lasts, over pits, stunning what
+  she passes through (A is the main action, as everywhere in UFO 40; the
+  original fires with B). Foes, crates and barrels drop cards; every third
+  card is a hand: a pair gives that colour's small power, three of a kind
+  its big one, three different nothing. Purple heals or raises her to
+  four hearts, green spreads and then enlarges her shots, orange brings a
+  helper that fires with her, red drops bombs from each dash, blue sets
+  spiked balls circling her. Powers last until a life is lost. Three
+  hearts; a pit takes a life at once; a lost life brings her back on the
+  spot in a bubble. Three lives a credit (two spares on the counter, nine
+  at most), and continues as
+  often as wanted, each starting the stage again.
+- **The run:** five stages in the original's shape: Frostbell Lane (the
+  Snow Engine and Granny Goggle), the Night Freight (fourteen waves on a
+  train's roof), Lanternbury in two halves (the Boiler's chase up a
+  winding road, then the Doppels), the Glass Palace in two halves (Old
+  Wicks, the Ribbon and Morrow the Marvellous), and Morrow's Tower (twelve
+  waves on a lift, then the Morrowmaw). Nine star passes hide in odd
+  spots, three in each of stages I, III and IV; after a stage they pay
+  for the Hop, where Jelly hops a board for coins and each mark on the
+  meter is a life. On a run with no continue the Morrowmaw breaks open
+  into the Heartstack, and beating it is the true ending. The goals: a
+  life won in the Hop, the Morrowmaw beaten, and that with no continue.
+  The demo player in the tests plays from the title to the true ending
+  with real button presses. **2 PLAYERS** (the original's co-op) is in the
+  menu, greyed out until the next update.
+- **Ours:** Clover, her helpers, Jelly, Morrow, his true face and the
+  Heartstack, all 22 kinds of foe and the six other bosses, every row of
+  the five stages, the cards' faces and the powers' names, and nineteen
+  tunes.
 
 ### 44 · HOMESPUN
 

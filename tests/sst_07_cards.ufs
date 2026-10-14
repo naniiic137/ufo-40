@@ -1,0 +1,49 @@
+# SHOWSTOPPER: cards go into three slots; the third makes a hand and the
+# slots empty. A pair and an odd one: the pair's small power (A). Three of
+# a kind: the big power (B). Three different: nothing. The order doesn't
+# matter. Colours: 1 life (purple), 2 shot (green), 3 helper (orange),
+# 4 bomb (red), 5 shield (blue).
+game showstopper
+wait 5
+cheat run
+cheat arena
+cheat god
+cheat card 2
+expect nhand == 1
+expect hand0 == 2
+cheat card 5
+expect nhand == 2
+cheat card 2
+expect nhand == 0
+expect hand0 == 0
+expect hand_res == 1
+expect hand_col == 2
+expect pow2 == 1
+expect hands_a == 1
+# three different: nothing
+cheat card 1
+cheat card 3
+cheat card 4
+expect hand_res == 0
+expect hands_none == 1
+expect pow3 == 0
+expect pow4 == 0
+# three of a kind: the big one
+cheat card 4
+cheat card 4
+cheat card 4
+expect hand_res == 2
+expect pow4 == 2
+expect hands_b == 1
+# a small hand never takes a big power away
+cheat card 4
+cheat card 1
+cheat card 4
+expect pow4 == 2
+# cards on the ground: walk over one to take it
+cheat dropcard 188 3160
+expect cards == 1
+hold RIGHT 16
+expect cards == 0
+expect nhand == 1
+expect cards_got == 13

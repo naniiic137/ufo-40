@@ -1,0 +1,60 @@
+# SHOWSTOPPER: the palace's bosses. Old Wicks blinks from place to place
+# (shots pass through him as he fades), lays eggs that hatch into hopping
+# skulls, and his crypt's four torches keep sending out roaming fire. The
+# Ribbon slithers about: only its head is hurt, its body stops shots, its
+# tail leaves slime that hurts, and its head fires rings. Morrow the
+# Marvellous streams shots from his hat, fires a ring of stars with no
+# gaps (dash through it), lets out bats, and splits into two that fire
+# together from the sides.
+game showstopper
+wait 5
+cheat run
+cheat stage 4
+cheat god
+cheat cam 1952
+cheat arena
+cheat pos 152 2072
+cheat boss 5 152 1992
+expect boss_hp == 180
+wait 90
+waituntil kind_28 == 2 200
+waituntil kind_27 >= 1 200
+waituntil kind_29 >= 1 200
+waituntil part0_a != 0 200
+cheat killboss
+wait 100
+expect kind_27 == 0
+# the Ribbon
+cheat cam 976
+cheat arena
+cheat pos 152 1106
+cheat boss 6 152 1016
+expect boss_hp == 170
+wait 100
+waituntil hz_1 >= 1 60
+cheat bosst 224
+wait 2
+expect eb_0 == 8
+cheat killboss
+wait 100
+# Morrow
+cheat cam 0
+cheat arena
+cheat nobullets
+cheat pos 152 140
+cheat boss 7 152 40
+expect boss_hp == 340
+wait 90
+cheat bossphase 1 39
+wait 2
+expect eb_1 == 56
+cheat nobullets
+cheat bossphase 2 0
+wait 40
+expect kind_30 >= 3
+cheat clear
+cheat bossphase 3 0
+wait 80
+expect part1_alive == 1
+expect part0_x < 70
+expect part1_x > 250

@@ -1,0 +1,54 @@
+# SHOWSTOPPER: the secret hand. Taking a red card, then a blue, then a
+# green as one hand flashes the code FREE-RIDE and opens FREE RIDE on the
+# title: the Hop for practice, endless (falls cost nothing; B leaves),
+# no lives won, the best coins kept. The hand itself is still three different cards: nothing.
+game showstopper
+wait 5
+expect free_ride == 0
+expect menu_rows == 2
+cheat run
+cheat arena
+cheat card 4
+cheat card 5
+cheat card 2
+expect code_t > 0
+expect hand_res == 0
+expect free_ride == 1
+reload
+game showstopper
+wait 5
+expect menu_rows == 3
+press DOWN
+press DOWN
+expect menu == 2
+press A
+expect state == 6
+expect hop_practice == 1
+botuntil hop_mark >= 1 3000
+expect lives == 0
+expect hop_lives == 0
+expect goals == 0
+# off the edge again and again: still hopping
+press RIGHT
+wait 300
+expect state == 6
+press LEFT
+wait 300
+expect state == 6
+expect hop_state != 4
+press B
+wait 2
+expect hop_state == 4
+waituntil state == 7 60
+wait 70
+press A
+expect state == 0
+# another order is no secret
+reload
+game showstopper
+wait 5
+cheat run
+cheat card 2
+cheat card 5
+cheat card 4
+expect code_t == 0

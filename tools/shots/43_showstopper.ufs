@@ -1,0 +1,54 @@
+# README media: SHOWSTOPPER. Everything in play is the demo player's real
+# button presses; later stages are reached with cheats, then played by the
+# demo player. The GIF is Frostbell Lane, a little way up.
+shotscale 2
+seed 43
+game showstopper
+wait 60
+shot showstopper_title
+press A
+wait 30
+press A
+wait 50
+press A
+botuntil state == 3 400
+botplay 500
+gifstart showstopper 3 1
+botplay 600
+gifstop
+shot showstopper_lane
+# Granny Goggle, her gloves at work
+botuntil boss_kind == 2 6000
+botplay 300
+shot showstopper_goggle
+# the Night Freight
+cheat stage 2
+botplay 700
+shot showstopper_train
+# the Boiler backs up the winding road
+cheat stage 3
+cheat cam 2058
+botplay 300
+shot showstopper_boiler
+# Morrow splits in two
+cheat stage 4
+cheat cam 0
+cheat arena
+cheat pos 152 140
+cheat boss 7 152 40
+botplay 100
+cheat bossphase 3 0
+botplay 120
+shot showstopper_morrow
+# the Hop
+cheat hop 3
+botplay 420
+shot showstopper_hop
+# the Morrowmaw
+cheat stage 5
+cheat god
+cheat clear
+cheat wave 12
+botuntil boss_kind == 8 300
+botplay 400
+shot showstopper_maw

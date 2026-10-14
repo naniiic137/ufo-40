@@ -1,0 +1,153 @@
+# SHOWSTOPPER: crates and barrels take three shots and always leave a
+# card; a beaten foe leaves one about half the time (the colour is
+# random). Crates stand in the way.
+game showstopper
+wait 5
+cheat run
+cheat arena
+cheat god
+cheat spawn crate 168 3096
+expect foe0_kind == 1
+hold UP 40
+expect py >= 3108
+cheat face 6
+press A 1
+wait 10
+press A 1
+wait 10
+expect foe0_alive == 1
+press A 1
+wait 10
+expect foe0_alive == 0
+expect cards == 1
+# twenty gumdrops: some cards, not twenty
+cheat nocards
+print cards_dropped
+cheat freeze
+cheat spawn gumdrop 24 3066
+cheat spawn gumdrop 52 3066
+cheat spawn gumdrop 80 3066
+cheat spawn gumdrop 108 3066
+cheat spawn gumdrop 136 3066
+cheat spawn gumdrop 164 3066
+cheat spawn gumdrop 192 3066
+cheat spawn gumdrop 220 3066
+cheat spawn gumdrop 248 3066
+cheat spawn gumdrop 276 3066
+cheat spawn gumdrop 24 3086
+cheat spawn gumdrop 52 3086
+cheat spawn gumdrop 80 3086
+cheat spawn gumdrop 108 3086
+cheat spawn gumdrop 136 3086
+cheat spawn gumdrop 164 3086
+cheat spawn gumdrop 192 3086
+cheat spawn gumdrop 220 3086
+cheat spawn gumdrop 248 3086
+cheat spawn gumdrop 276 3086
+expect foes == 20
+cheat foehp 0 1
+cheat foehp 1 1
+cheat foehp 2 1
+cheat foehp 3 1
+cheat foehp 4 1
+cheat foehp 5 1
+cheat foehp 6 1
+cheat foehp 7 1
+cheat foehp 8 1
+cheat foehp 9 1
+cheat foehp 10 1
+cheat foehp 11 1
+cheat foehp 12 1
+cheat foehp 13 1
+cheat foehp 14 1
+cheat foehp 15 1
+cheat foehp 16 1
+cheat foehp 17 1
+cheat foehp 18 1
+cheat foehp 19 1
+cheat pow 4 2
+cheat pos 24 3096
+wait 12
+press B 1
+wait 45
+cheat pos 52 3096
+wait 12
+press B 1
+wait 45
+cheat pos 80 3096
+wait 12
+press B 1
+wait 45
+cheat pos 108 3096
+wait 12
+press B 1
+wait 45
+cheat pos 136 3096
+wait 12
+press B 1
+wait 45
+cheat pos 164 3096
+wait 12
+press B 1
+wait 45
+cheat pos 192 3096
+wait 12
+press B 1
+wait 45
+cheat pos 220 3096
+wait 12
+press B 1
+wait 45
+cheat pos 248 3096
+wait 12
+press B 1
+wait 45
+cheat pos 276 3096
+wait 12
+press B 1
+wait 45
+cheat pos 24 3116
+wait 12
+press B 1
+wait 45
+cheat pos 52 3116
+wait 12
+press B 1
+wait 45
+cheat pos 80 3116
+wait 12
+press B 1
+wait 45
+cheat pos 108 3116
+wait 12
+press B 1
+wait 45
+cheat pos 136 3116
+wait 12
+press B 1
+wait 45
+cheat pos 164 3116
+wait 12
+press B 1
+wait 45
+cheat pos 192 3116
+wait 12
+press B 1
+wait 45
+cheat pos 220 3116
+wait 12
+press B 1
+wait 45
+cheat pos 248 3116
+wait 12
+press B 1
+wait 45
+cheat pos 276 3116
+wait 12
+press B 1
+wait 45
+expect foes == 0
+expect kills >= 20
+print cards_dropped
+expect cards_dropped >= 5
+expect cards_dropped <= 17

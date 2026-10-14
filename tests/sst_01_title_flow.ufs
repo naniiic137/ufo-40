@@ -1,0 +1,44 @@
+# SHOWSTOPPER: the title offers 1 PLAYER and 2 PLAYERS (FREE RIDE only
+# once the secret hand has been played). A on 1 PLAYER opens the story,
+# A again the map of the five stages, and A there starts stage I with
+# three lives, three hearts, no powers and an empty hand. B on the title
+# goes back to the library.
+game showstopper
+wait 5
+expect state == 0
+expect paused == 0
+expect menu == 0
+expect menu_rows == 2
+press DOWN
+expect menu == 1
+press DOWN
+expect menu == 0
+press A
+expect state == 1
+wait 30
+press A
+expect state == 2
+expect stage == 1
+wait 50
+press A
+expect state == 3
+expect stage == 1
+expect lives == 3
+expect hp == 3
+expect max_hp == 3
+expect nhand == 0
+expect pow2 == 0
+expect continues == 0
+expect passes == 0
+# the pause menu works in a stage
+press START
+expect paused == 1
+press START
+expect paused == 0
+# a fresh start: B on the title leaves for the library
+reload
+game showstopper
+wait 5
+press B
+wait 30
+expect_scene library
