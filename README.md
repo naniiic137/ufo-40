@@ -5,7 +5,7 @@
 <h1 align="center">UFO 40</h1>
 
 <p align="center">
-  <b>A pretend 1980s console with fifty cartridges (well, forty so far), built from scratch<br>
+  <b>A pretend 1980s console with fifty cartridges (well, forty-four so far), built from scratch<br>
   for the PlayStation Vita, Windows and the web.</b><br><br>
   <a href="https://naniiic137.github.io/ufo-40/"><b>▶ Play it in your browser</b></a> ·
   <a href="https://github.com/naniiic137/ufo-40/releases">Download for Vita / Windows</a>
@@ -18,17 +18,18 @@
 > coding assistant (Claude Code), which wrote the code, pixel art, music, levels
 > and tests from my descriptions, research notes and play-testing feedback.
 
-## What's new (v0.10.0)
+## What's new (v0.11.0)
 
-- **40 cartridges** in a 50-slot library, each checked against its UFO 50 original by an independent review, then fixed.
+- **44 cartridges** in a 50-slot library, each checked against its UFO 50 original by an independent review, then fixed.
 - **Four new cartridges:**
-  - **27 SOUNDINGS** (tribute to Divers): three axolotl divers, a dark and silent cave, turn-based fights where every use wears your gear down, and saving only when you surface.
-  - **33 DUKES UP** (tribute to Fist Hell): a brawler through five nights with four fighters, stun-lock combos, a shop, and a hidden gym (walk left at the start).
-  - **36 HOOPLA** (tribute to Hyper Contender): 1-vs-1 fights won by holding five hoops, eight fighters who all move differently, a Tournament and a Draft Battle.
-  - **38 RESTLESS** (tribute to Rakshasa): one touch kills and there are no lives; every death is a soul round that gets harder, and makes the world harder and the treasure richer.
+  - **12 FOSSIL FEUD** (tribute to Avianos): a tiny war on a 5 × 4 board; each turn you pray to one of three Ancestors, then fight real-time bird battles. A 3-level campaign, five ordeals and a custom match.
+  - **20 LIMPET** (tribute to Warptank): a tank that clings to floors, walls and ceilings and warps across to the opposite surface; 27 decks, hidden honey and two bosses.
+  - **42 WITHERLEA** (tribute to Night Manor): a first-person house on the fens, a slow cursor, a keeper who comes when you make noise, our own puzzles and three endings.
+  - **43 SHOWSTOPPER** (tribute to Elfazar's Hat): a top-down wand shooter with a dodge-dash, a three-card power system, five stages and a secret true final.
+- **2 players: next update.** FOSSIL FEUD's versus and SHOWSTOPPER's co-op show greyed out for now; they come in a later update.
 - The main attack is on **A** (Z / Space / Cross) in the new cartridges; each card's CONTROLS page can swap it back.
 
-Earlier in v0.9.1: BELLHOP, TUSKWIND, TURNIP TRUCK, SHUTTERBUG, FORLORN HOPE, BRAVADO, CLARION CALL, DRIFTLINE and FULL PEAL.
+Earlier in v0.10.0: SOUNDINGS, DUKES UP, HOOPLA and RESTLESS.
 
 ---
 
@@ -84,7 +85,7 @@ and the music and sound volumes are in every game's pause menu too.
   <img src="docs/shots/savedata.png" width="320" alt="The save data screen">
 </p>
 
-## The library (40 of 50 loaded)
+## The library (44 of 50 loaded)
 
 <p align="center"><img src="docs/shots/library.png" width="640" alt="The UFO 40 game library with 50 cartridge slots"></p>
 
@@ -157,7 +158,7 @@ menu, shows the buttons as you now press them). SELECT or B closes it.
 | 47 | **WOBBLE DERBY** | Quibble Race | three punters and three runners a race, odds from a form book of twenty unseen races, rising bet caps and an open last race, one tip a race, five dirty tricks and a minder with the same prices and fines, a lender at 15 % compounded, sponsoring from a shortlist and a coach, meteors, garbage and smog, 26 runners in the same speed and clumsiness bands, 3-player hot-seat | Crater Downs, the 26 wobblers, the sixteen punters (five of them UFO 40 cameos), the Fixer, the Lender and the Wobble Wire |
 | 48 | **DRIFTLINE** | Seaside Drive | a car locked to the road at the bottom while the world scrolls by, steering that also swings the gun through a 90-degree cone (UP straightens it), a rapid roof gun on A and side pairs along the road on B, a charge meter (grey, green, red: its section sets the shots' damage, rate and speed) that fills only while you drive left and drains slowly otherwise, one hit per car and the screen swept clean as the next drives in fully charged, fliers that turn nasty if left alone, wrecks that pay only when shot again, four fixed stages from morning to the open sea, each with a boss (10,000 to 40,000) seen in the background all stage, a Breakout bonus stage after any stage with no car lost whose coin is two more cars (the only extra cars), 2P co-op in one car with a driver and a gunner | Lou and the Gull, Dee on the gun, Harbour Road, the Sundown Strip, the Moonlit Mile and Open Water, every foe, the Zephyr, the Orrery, the Man in the Moon, Old Crab (from ROOFCAT) and a Beamdown saucer, all the waves, swells and block layouts |
 | 49 | **FULL PEAL** | Campanella 3 | a faux-3D shooter flying into the screen, the ship free on a flat 6 × 4 plane with no gravity, fuel or walls; A fires into the distance down your lane, B fires the side blaster along the plane away from the way you move (held, it keeps its aim) at whatever has reached you; one hit a ship, three ships a credit, not given back between stages, a lost credit restarts the stage; five stages of four fixed waves and a boss, each wave graded 0–100 by the share shot down; a 100 or a 0 brings a balloon round after the boss (red 1, orange 3, 50 for a continue); the final count is the twenty grades plus 100 a continue; sixteen foes, five bosses (the last healing until your sister flies in), a no-guns code; and, for a second controller held on A, fifty four-colour micro-games in the cockpit monitor, each with its high score | Ansel and the Tinkler with Clary on the radio (the BELLHOP cast), the bell-planet Knell, Outer Belfry, Tin Nebula, The Murk and Tollgate, all sixteen foes, the Gloameye, Knucklebell, the Inkwell, Shellback and Queen Sordina, the owl, all twenty waves and fifty micro-games, the HUGS-ONLY code |
-| 08, 12, 20, 22, 29, 37, 40, 42–43, 50 | *coming soon* | | | still in the saucer's cargo hold |
+| 08, 22, 29, 37, 40, 50 | *coming soon* | | | still in the saucer's cargo hold |
 
 Every cartridge has three goals, which follow the original's own three: a
 **Beacon** (a side challenge), the **Saucer** (beating the game) and the
@@ -2182,8 +2183,8 @@ src/platform/headless/ scripted test runner, PNG / GIF / WAV writers, Vita LiveA
     plays notes with lengths, ties and repeat blocks.
   - Sound effects use the same notation and take over one channel for a
     moment, just like old hardware.
-  - Every track and jingle is original: 399 compositions across the console and
-    the forty cartridges.
+  - Every track and jingle is original: 457 compositions across the console and
+    the forty-four cartridges.
 - **Art.** Sprites are written as strings of palette letters in the C source
   (`k` ink, `y` yellow, `C` cyan and so on), so there are no binary assets at
   all. The Vita LiveArea images are drawn by the engine itself
