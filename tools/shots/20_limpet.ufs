@@ -1,0 +1,43 @@
+# README media: LIMPET. Everything in play is the demo player's real button
+# presses. The GIF is Rampway, the second deck: rolling up walls, round the
+# ends of ledges, warping across, the bulb and the pod.
+shotscale 2
+seed 20
+game limpet
+wait 60
+shot limpet_title
+press A
+wait 40
+press A
+botuntil state == 2 600
+botplay 30
+shot limpet_hub
+cheat level 1
+gifstart limpet 3 1
+botuntil state == 5 2000
+botplay 40
+gifstop
+# Pantry: outline blocks shot solid to bridge a spike pit
+cheat botplan 1
+cheat level 6
+botplay 520
+shot limpet_pantry
+# the Ribcage's bones and crawlers
+cheat level 13
+botplay 330
+shot limpet_ribcage
+# the Turncoat
+cheat level 27
+botplay 150
+shot limpet_turncoat
+# the Dreadnought, its core open
+cheat level 28
+botplay 300
+shot limpet_dread
+# the canteen, with Rolo's loop line and the bridge of honey
+cheat setcleared 9
+cheat sethoney 24
+cheat level 29
+cheat pos 108 44 0
+wait 30
+shot limpet_canteen

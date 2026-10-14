@@ -130,6 +130,7 @@ menu, shows the buttons as you now press them). SELECT or B closes it.
 | 17 | **BELLHOP** | Campanella | side-on flight where gravity always pulls, a held thrust that burns fuel and a tap that hovers, steering that drifts, and any touch of a wall, an enemy or a shot a crash; a slash to the side you last steered that breaks blocks, glass and bubbles, puts fuel back and slows the fall a little; a start bubble with no time limit; three spare ships and one every 1,000 points; 50 one-screen stages in five worlds with a crystal room at X-5 and a boss at X-10; a cup behind an unmarked spot on all 40 regular stages; circlers, timed coins, levers that can lock a cup away, bombs, plates, fire wheels and cannons; four warp sparkles that show for five seconds (one chained on from another); a hidden face after a minute; one sitting, no save | Ansel and the Tinkler (the chime ship of CHIME CIRCUIT), Lady Hush, tea, the five worlds and all 50 stages, the Millwheel, the Cider Press, the Twin Cogs and the Gumball Machine, the owl, the BREW-ROOM code |
 | 18 | **LOST LINKS** | Golfaria | a top-down open world where every roll is a stroke and strokes are your health, twenty to start and three more for each of twenty irons found underground, pins and safe zones, sand you can only chip out of, water and pits that send you back, jumping flowers, holes down to a whole layer underneath, parbot-style scorecrows, two kinds of bug, four abilities in the four corners, the four-piece star relic, a plate puzzle and a burrowing boss | Dimple the golf ball, the Brass Badger, slicers, sippers, larks, strays, twenty ball folk and a hidden village of Keepers, both layers of the world |
 | 19 | **CHIME CIRCUIT** | The Big Bell Race | side-view flight with gravity, thrust and drift, six ships on one screen, eight laps on each of eight courses in a fixed order, three hit points that walls, floors and weapons take, a slash that only knocks, a relaunch from under the start line to fly the lap again, a hit point back every lap, pickup stations with a "!!" warning (bullets, mines, fireballs, the big slash, the payload), boost arrows and side routes, 9/7/5/3/2/1 points, the winner starting last, CPUs that turn on you, 2P at once | the chime ship, Ansel and Clary and four visitors from other UFO 40 cartridges, the eight tracks and their skies, the LOOT-GALE code |
+| 20 | **LIMPET** | Warptank | a tank that clings to any surface and can't jump or fall: it rolls tile by tile along floors, walls and ceilings, ramps carry it round corners, it fires straight out from its surface (a tap one shot, a hold a burst of three) and warps straight across to the opposite surface, with flares where it lands; one hit and it's scrapped, then try again from the last C plate or go back to the station, as often as it takes; a camera that snaps along; 26 decks and a secret 27th, entered from pods in a station hub that opens up at 4 and 9 decks, by a hidden side way and by the mid-game boss, with three survival decks of waves; a hidden jar in 23 decks that only counts if you leave alive, gold pods, hint bees after the end; outline, swap, breakable and push blocks, one-way plates, magnet floors, doors, timed doors, portals, hoppers, platforms and crushers; turrets, lasers, drones, oglers, crawlers, sacs, worms and a switch worm; the Turncoat and the Dreadnought (hit only up its barrel); every deck's best time | Limpet and Spindle Station (the Concourse, the Canteen, the Gristle Wing, the Upper Ring), all 27 decks, the Gristle and its creatures, the Turncoat and the Dreadnought, honey and bees, Wren, Gus, Mother Brindle, Rolo and the night clerk, eighteen tunes |
 | 21 | **TUSKWIND** | Waldorf's Journey | a new random map every run, a chain of floating islets to a door at the far end; every jump aimed with a cursor and charged before launch (aimed flat, a lunge with no air), then nothing in the air but flapping on a bar only fish refill; one-way islets, solid bouncy rocks and foam that lasts one full charge; six terns from six lighthouses as lives; 36 loose shells that are money and score, two chests and two keys and a hidden third; winds at 40 % and 80 % and bells that toggle them once; charging rams; mantas to dodge, ride or burst for keys; stalls of two random wares from six items, one visit each; 22 signs and a hidden one; an end room with spiral shells for unused terns, a shaft and the hidden chest; two endings split at 50 shells; a 2P brawl on a wrapping screen whose islets crumble | Burl the walrus in his nightcap, Skerry the old one, the Duchess Auk, terns, rams and mantas, the bobber, spyglass, grapnel, kite, spinner and sprat tin, every sign, both talks and the hall |
 | 23 | **TURNIP TRUCK** | Onion Delivery | one wrapping city under a fixed camera, steering that turns the truck to its own left and right, a tapped turn that sidesteps, a weak brake that becomes reverse, A+B powerslides and the spin-out's spin attack, walls that only spin you, three hearts that come back at top speed and refill on every delivery, seven workdays of five timed deliveries (+8 s, +30 s for the fifth, +12 s for a crate hanging over a hazard past a ramp) and back to the depot before 00, overtime, three spare tries for the whole week, six chaos events in a shuffled order from Tuesday, ramps, brine pools and drop zones, gas canisters, rocks and right-hand traffic, a practice code and a reverse code | Zib, Granny Root, Glenda Glorp of Channel 9, Blipton and its 33 places, the brine burst, the big beet, the mush mob, the radish ring, the downpour and the moon raid |
 | 24 | **SHUTTERBUG** | Caramel Caramel | a side-scroller with no power-ups: hold fire for an automatic gun that also charges four rings which bounce off rock, tap the other button for a photo a third of the screen ahead that stuns, doubles damage and points, blows up the foes round it, stops green foes firing back, brings down wall foes, stops whole trains and opens boss weak points; a camera that refills slowly, or at once with two bulbs that only fly to you when you stop firing; rock that does no harm; two hits a life, no spare ships to start, eight from points, a lost ship back to the stage start with the shown score at 0; a tutorial, three planets and two open wave stages, two mid-bosses (one you can leave), three bosses, a red repair foe per planet, and U, F and O hidden one per planet for the true last boss; 2P co-op | Poppy and Sprig, Teatime, Gloom and Fossil Planets, Comet Rain, Madame Scone, the Teapot, Old Croak, the Signalman, King Thunderjaw, the Kaleidoscope, every cave and wave |
@@ -755,6 +756,55 @@ the top.
 - **Ours:** the chime ship, Ansel and his sister Clary, visitors from
   HOMESPUN, SKYWELL and WOBBLE DERBY, all eight tracks and their skies,
   the LOOT-GALE code and the LAST-LAMP page, and the music.
+
+### 20 · LIMPET
+
+<p align="center">
+  <img src="docs/shots/limpet.gif" width="640" alt="Limpet rolls up a wall, round the end of a ledge and warps across in Rampway">
+</p>
+<p align="center">
+  <img src="docs/shots/limpet_hub.png" width="320" alt="The Concourse of Spindle Station, with its first six pods">
+  <img src="docs/shots/limpet_canteen.png" width="320" alt="The Canteen's back room: Rolo's loop line and the bridge of honey to the secret deck">
+</p>
+<p align="center">
+  <img src="docs/shots/limpet_ribcage.png" width="320" alt="Ribcage: crawlers on a giant's bones">
+  <img src="docs/shots/limpet_dread.png" width="320" alt="The Dreadnought, its core open after a shell">
+</p>
+
+*A tribute to **Warptank** (UFO 50 #20).*
+
+- **Plays the same:** Limpet sticks to whatever hull it is on. It can't
+  jump and can't fall; it rolls one tile at a time along floors, walls and
+  ceilings, and only ramps take it round a corner: a sheer wall stops it,
+  and it can't drive off a ledge. Its gun fires straight out from the
+  surface (a tap is one shot, holding fires a burst of three, pressing
+  again and again is quicker), and the warp jumps straight along that same
+  line to the opposite surface, throwing flares where it lands. One hit and
+  it is scrapped, but there are no lives to lose: try again from the last C
+  plate, or go back to the station. The camera snaps along in steps.
+- **The decks:** each ends at a pod choked with gristle until a red bulb is
+  shot. Outline blocks turn solid when shot, teal and pink blocks swap,
+  thin plates let a warp through one way, magnet floors hold the tank down,
+  hopper pads fling it across, portals, doors, timed doors, push blocks,
+  platforms and crushers. Turrets fire down their line, lasers on a beat,
+  drones throw bouncing beams, oglers send rings, crawlers roll along the
+  walls like the tank does, sacs let out specks, and a switch worm flips the
+  swap blocks when its head is hit. Three decks are survival rooms of waves.
+- **Structure:** 26 decks and a secret 27th, entered from pods in Spindle
+  Station, a hub that is a puzzle of its own: a crate swings away at 4
+  decks, two doors at 9, the mid-game boss (the Turncoat, a tank like you)
+  is up a side way you have to find, and beating it opens a shaft in the
+  first room to the upper ring, where the Dreadnought waits behind a wall
+  until 22 decks. Twenty-three decks hide a jar of honey that only shows
+  from its ! block and only counts if you leave the deck alive; the
+  Dreadnought, hit only straight up its barrel, drops the 24th. With all 24
+  a bridge of honey leads to the Comb. Every deck keeps its best time.
+- **Ours:** Limpet, Spindle Station and its four parts, all 27 decks and
+  both arenas, the Gristle, every foe, the Turncoat and the Dreadnought,
+  honey and bees, the station's people (Wren, Gus, Mother Brindle, Rolo and
+  the night clerk) and eighteen tunes. A demo player in the tests plays the
+  whole game from the title with real button presses, to the gold ending
+  and, on a honey run, through the Comb.
 
 ### 21 · TUSKWIND
 
