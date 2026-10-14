@@ -14,8 +14,7 @@ botplay 30
 shot limpet_hub
 cheat level 1
 gifstart limpet 3 1
-botuntil state == 5 2000
-botplay 40
+botplay 660
 gifstop
 # Pantry: outline blocks shot solid to bridge a spike pit
 cheat botplan 1
@@ -34,10 +33,17 @@ shot limpet_turncoat
 cheat level 28
 botplay 300
 shot limpet_dread
+# the station opening up: the crane lifting its crate, seen in a scene
+cheat setcleared 3
+cheat level 6
+cheat finish
+waituntil state == 9 300
+wait 80
+shot limpet_scene
 # the canteen, with Rolo's loop line and the bridge of honey
 cheat setcleared 9
 cheat sethoney 24
 cheat level 29
-cheat pos 108 44 0
+cheat pos 140 66 0
 wait 30
 shot limpet_canteen
