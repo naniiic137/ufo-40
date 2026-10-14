@@ -582,6 +582,9 @@ static int wth_query(const char *key, int *out) {
     if (!strcmp(key, "save_bytes")) { *out = (int)sizeof(WthSave); return 1; }
     if (!strcmp(key, "save_exists")) { *out = save_exists(); return 1; }
     if (!strcmp(key, "bot_step")) { *out = wth_bot_step; return 1; }
+    if (!strcmp(key, "bot_op")) { *out = wth_bot_cur(0); return 1; }
+    if (!strcmp(key, "bot_a")) { *out = wth_bot_cur(1); return 1; }
+    if (!strcmp(key, "bot_b")) { *out = wth_bot_cur(2); return 1; }
     if (!strcmp(key, "art_bad")) { *out = wth_art_bad(); return 1; }
     if (!strcmp(key, "layout_bad")) { *out = wth_layout_audit(); return 1; }
     if (!strcmp(key, "dark")) { *out = wth_room_dark(wth.s.room); return 1; }

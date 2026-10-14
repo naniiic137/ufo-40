@@ -249,6 +249,7 @@ enum { BOT_GOLD, BOT_CHERRY, BOT_CHERRY_CAUGHT };
 void wth_bot_reset(int plan);
 unsigned wth_bot(void);
 extern int wth_bot_step;
+int wth_bot_cur(int what); /* the step now: 0 op, 1 a, 2 b (tests) */
 extern int wth_bot_debug;
 /* drawing */
 void wth_draw_room(int room);

@@ -111,6 +111,13 @@ void wth_bot_reset(int which) {
     caught_at_start = 0;
 }
 
+/* the step the demo player is on (tests): 0 op, 1 a, 2 b */
+int wth_bot_cur(int what) {
+    if (!plan || wth_bot_step >= plan_n) return -1;
+    const Step *st = &plan[wth_bot_step];
+    return what == 0 ? st->op : what == 1 ? st->a : st->b;
+}
+
 /* ------------------------------------------------------------------ */
 /* the hand                                                             */
 
@@ -272,9 +279,45 @@ static int hide_spot_here(void) {
 /* ------------------------------------------------------------------ */
 /* the plan                                                             */
 
+/* walking to a room (a chase can carry the player off between steps) */
+static unsigned go_room(int r, bool *there) {
+    bool ready;
+    *there = wth.s.room == r;
+    if (*there) return 0;
+    unsigned m = hold(0, &ready);
+    if (!ready) return m;
+    int s = way_to(r);
+    return s < 0 ? 0 : aim_spot(s, NULL);
+}
+
 static unsigned do_step(const Step *st) {
-    bool ready = false, clicked = false;
+    bool ready = false, clicked = false, there = false;
     unsigned m;
+    if (st->op == OP_CLICK || st->op == OP_USE || st->op == OP_KILL || st->op == OP_CAUGHT) {
+        int r = WTH_SPOT[st->b].room;
+        bool need = st->op != OP_USE || wth_has(st->a);
+        if (st->op == OP_CLICK && !wth_spot_live(st->b)) need = false;
+        if (st->op == OP_KILL && wth.k.state != E_NONE) need = false;
+        if (st->op == OP_CAUGHT && wth.k.state != E_NONE) need = false;
+        if (need) {
+            m = go_room(r, &there);
+            if (!there) return m;
+        }
+    }
+    if (st->op == OP_FLOOR) {
+        int fr = -1;
+        for (int r = 0; r < R_COUNT && fr < 0; r++)
+            for (int i = 0; i < WTH_FLOOR; i++)
+                if (wth.s.floor[r][i] == st->a) fr = r;
+        if (fr >= 0) {
+            m = go_room(fr, &there);
+            if (!there) return m;
+        }
+    }
+    if (st->op == OP_MAZE && wth.s.room != R_MAZE && wth.s.room != R_HEART) {
+        m = go_room(R_MAZE, &there);
+        if (!there) return m;
+    }
     switch (st->op) {
     case OP_GO: {
         if (wth.s.room == st->a) return wth_bot_step++, 0;
@@ -319,7 +362,6 @@ static unsigned do_step(const Step *st) {
         return wth_bot_step++, 0;
     case OP_MAZE:
         if (wth.s.room == R_HEART) return wth_bot_step++, 0;
-        if (wth.s.room != R_MAZE) return 0;
         m = hold(0, &ready);
         if (!ready) return m;
         for (int s = 0; s < S_COUNT; s++)
