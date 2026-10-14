@@ -1,0 +1,19 @@
+# LIMPET: moving platforms carry a tank clinging to them; crushers kill
+# whatever they come down on, and clinging to one is as bad as spikes.
+game limpet
+wait 5
+cheat level 18
+cheat nofoes
+cheat pos 6 7 0
+wait 2
+expect mover0_x == 5
+wait 40
+expect mover0_x > 5
+expect tx > 6
+expect ty == 7
+expect state == 2
+cheat level 10
+cheat pos 10 15 0
+wait 2
+waituntil state == 3 200
+expect last_hurt == 101

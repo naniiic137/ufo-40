@@ -1,0 +1,39 @@
+# LIMPET: every part of the station has its own tune (the concourse, the
+# canteen's swing, the Gristle wing, the upper ring), the decks share four,
+# and the survival decks, the bosses and the secret deck have their own. The
+# eighteen tunes loop channel by channel and all have jukebox titles.
+game limpet
+wait 5
+expect playing_lmp_title == 1
+expect layout == 0
+check_songs
+expect jukebox_missing == 0
+cheat setcleared 9
+cheat turncoat 1
+cheat level 29
+wait 2
+expect playing_lmp_concourse == 1
+cheat pos 100 66 0
+wait 2
+expect playing_lmp_canteen == 1
+cheat pos 20 66 0
+wait 2
+expect playing_lmp_gristle == 1
+cheat pos 80 32 0
+wait 2
+expect playing_lmp_upper == 1
+cheat level 0
+wait 2
+expect playing_lmp_deck_a == 1
+cheat level 7
+wait 2
+expect playing_lmp_survival == 1
+cheat level 27
+wait 2
+expect playing_lmp_turncoat == 1
+cheat level 28
+wait 2
+expect playing_lmp_dread == 1
+cheat level 26
+wait 2
+expect playing_lmp_comb == 1

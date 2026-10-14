@@ -156,6 +156,12 @@ static const struct { const char *id, *title; } TITLES[] = {
     {"wth_garden", "THE GRATED WELL"}, {"wth_chase", "THE KEEPER"}, {"wth_hide", "HOLD YOUR BREATH"},
     {"wth_cellar", "UNDER THE HOUSE"}, {"wth_maze", "THE HEDGES"}, {"wth_ending", "THE LANE HOME"},
     {"wth_dawn", "DAYBREAK"}, {"wth_caught", "BAD DREAM"}, {"wth_sting", "IN THE MIRROR"},
+    {"lmp_title", "LIMPET"}, {"lmp_story", "THE CREW FLED"}, {"lmp_concourse", "CONCOURSE"},
+    {"lmp_canteen", "CANTEEN SWING"}, {"lmp_gristle", "THE GRISTLE WING"}, {"lmp_upper", "UPPER RING"},
+    {"lmp_deck_a", "HULL CRAWL"}, {"lmp_deck_b", "PRESSURE"}, {"lmp_deck_c", "COLD IRON"},
+    {"lmp_deck_d", "DEEP DECKS"}, {"lmp_survival", "HOLD THE LINE"}, {"lmp_turncoat", "TURNCOAT"},
+    {"lmp_dread", "DREADNOUGHT"}, {"lmp_comb", "THE COMB"}, {"lmp_ending", "QUIET ORBIT"},
+    {"lmp_clear", "POD SHUT"}, {"lmp_death", "SCRAPPED"}, {"lmp_honey", "HONEY BANKED"},
 };
 
 const char *shell_song_title(int song) {

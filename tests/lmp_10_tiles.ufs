@@ -1,0 +1,84 @@
+# LIMPET: what the tiles do. Breakable blocks break, door switches open every
+# door, swap switches change which of the teal and pink blocks are solid,
+# timed switches open their doors for six seconds, push blocks slide ahead
+# of the tank, outline blocks turn solid when shot, portals send it to their
+# twin, hopper pads fling it across.
+game limpet
+wait 5
+cheat level 2
+cheat nofoes
+cheat pos 10 15 0
+wait 2
+expect tile_10_6 == 66
+press A 1
+wait 30
+expect tile_10_6 == 46
+expect tile_18_10 == 68
+press A 1
+wait 40
+expect tile_18_10 == 46
+expect tile_10_0 == 117
+# swap blocks
+cheat level 9
+cheat nofoes
+wait 2
+expect parity == 0
+cheat pos 7 15 0
+wait 2
+press A 1
+wait 45
+expect parity == 1
+expect reach_13_15_0 > 0
+cheat pos 15 1 4
+wait 2
+press A 1
+wait 45
+expect parity == 0
+# timed doors
+cheat level 22
+cheat nofoes
+cheat pos 6 15 0
+wait 2
+expect tile_19_5 == 89
+press A 1
+wait 45
+expect timed > 0
+expect reach_21_15_0 > 0
+wait 400
+expect timed == 0
+# a push block
+cheat level 21
+cheat nofoes
+cheat pos 7 15 0
+wait 2
+press RIGHT 1
+wait 8
+expect tile_9_15 == 80
+expect tx == 8
+# an outline block
+cheat level 6
+cheat nofoes
+cheat pos 13 1 4
+wait 2
+press A 1
+wait 45
+expect tile_13_16 == 111
+# a portal
+cheat level 17
+cheat nofoes
+cheat pos 11 15 0
+wait 2
+press RIGHT 1
+wait 10
+expect tx == 20
+expect ty == 1
+expect tn == 4
+# a hopper pad
+cheat level 11
+cheat nofoes
+cheat pos 9 15 0
+wait 2
+press RIGHT 1
+wait 20
+expect tx == 10
+expect ty == 1

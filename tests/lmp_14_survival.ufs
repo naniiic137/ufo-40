@@ -1,0 +1,32 @@
+# LIMPET: a survival deck (three of the 26) has no bulb and no honey: its pod
+# opens once five waves of foes are all beaten.
+game limpet
+wait 5
+cheat level 7
+wait 2
+expect kind == 1
+expect honey_x == -1
+expect count_R == 0
+expect bulb == 0
+waituntil wave == 1 100
+expect foes >= 2
+cheat killall
+waituntil wave == 2 200
+cheat killall
+waituntil wave == 3 200
+cheat killall
+waituntil wave == 4 200
+cheat killall
+waituntil wave == 5 200
+expect bulb == 0
+cheat killall
+waituntil bulb == 1 100
+cheat god
+cheat pos 14 15 0
+wait 2
+press RIGHT 1
+wait 10
+expect state == 5
+expect cleared == 1
+expect cleared_bits == 128
+expect honey == 0

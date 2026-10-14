@@ -1,0 +1,54 @@
+# LIMPET: one hit is the end of the tank, but there are no lives to lose:
+# every time, a choice between trying again from the last C plate and going
+# back to the station. A plate is taken by rolling over it.
+game limpet
+wait 5
+cheat level 0
+wait 2
+cheat foe 7 2 13 0
+waituntil state == 3 90
+expect last_hurt == 7
+waituntil state == 4 80
+expect menu == 0
+press A
+wait 2
+expect state == 2
+expect tx == 2
+expect ty == 15
+expect deaths_here == 1
+# take the plate
+cheat pos 33 15 0
+wait 2
+hold RIGHT 20
+wait 8
+expect check_x == 35
+cheat die
+waituntil state == 4 80
+press A
+wait 2
+expect tx == 35
+# as often as it takes
+cheat die
+waituntil state == 4 80
+press A
+wait 2
+cheat die
+waituntil state == 4 80
+press A
+wait 2
+cheat die
+waituntil state == 4 80
+press A
+wait 2
+expect deaths_here == 5
+expect state == 2
+# or back to the station
+cheat die
+waituntil state == 4 80
+press DOWN
+expect menu == 1
+press A
+wait 2
+expect level == 29
+expect state == 2
+expect save_deaths == 6

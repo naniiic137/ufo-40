@@ -1,0 +1,60 @@
+# LIMPET: the foes. A turret fires down its line when the tank is on it,
+# then cools; wall lasers fire on a beat; drones throw beams that bounce;
+# oglers send rings; crawlers roll along surfaces like the tank; sacs let out
+# specks that drift after it; cable worms run their corridors; the switch
+# worm flips the swap blocks when its head is hit; spiked balls and flame
+# vents can't be hurt. (Hits are counted here, not taken.)
+game limpet
+wait 5
+cheat level 0
+cheat nofoes
+cheat tallyhits
+cheat pos 5 15 0
+wait 2
+cheat foe 1 5 1 4
+waituntil eshots_0 == 1 80
+wait 200
+expect hits >= 2
+expect hits <= 3
+cheat nofoes
+# a wall laser on the right wall, along row 5
+cheat foe 2 30 5 6
+waituntil eshots_1 == 1 140
+cheat nofoes
+# a drone's beam bounces off the walls
+cheat foe 3 16 8 0
+waituntil eshots_2 == 1 200
+cheat nofoes
+# an ogler's rings
+cheat foe 4 16 8 0
+waituntil eshots_3 >= 1 200
+cheat nofoes
+# a crawler rolls along the floor and round the shelf
+cheat foe 5 16 15 0
+expect foe0_cx == 16
+wait 80
+expect foe0_cx != 16
+expect foe0_n == 0
+cheat nofoes
+# a sac lets out specks
+cheat foe 6 27 15 0
+waituntil foes_7 >= 1 200
+cheat nofoes
+# a worm moves; a spiked ball and a vent can't be hurt
+cheat foe 8 16 10 2
+wait 30
+expect foe0_x != 165
+cheat nofoes
+cheat foe 10 5 8 4
+cheat pos 5 15 0
+wait 2
+press A 1
+wait 40
+expect foe0_alive == 1
+expect foe0_hp == 999
+cheat nofoes
+cheat notally
+cheat pos 16 15 0
+cheat foe 11 16 15 0
+waituntil state == 3 400
+expect last_hurt == 11

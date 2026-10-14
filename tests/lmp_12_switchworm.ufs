@@ -1,0 +1,255 @@
+# LIMPET: the switch worm in Wormway's glass channel can't be killed; a shot
+# up through the channel's plates into its head flips the teal and pink
+# walls, as the deck needs twice.
+game limpet
+wait 5
+cheat level 15
+cheat pos 42 15 0
+wait 2
+expect parity == 0
+expect foes_9 >= 1
+expect tile_46_12 == 84
+expect reach_49_15_0 == -1
+press A 1
+wait 4
+press A 1
+wait 4
+press A 1
+wait 4
+press A 1
+wait 4
+press A 1
+wait 4
+press A 1
+wait 4
+press A 1
+wait 4
+press A 1
+wait 4
+press A 1
+wait 4
+press A 1
+wait 4
+press A 1
+wait 4
+press A 1
+wait 4
+press A 1
+wait 4
+press A 1
+wait 4
+press A 1
+wait 4
+press A 1
+wait 4
+press A 1
+wait 4
+press A 1
+wait 4
+press A 1
+wait 4
+press A 1
+wait 4
+press A 1
+wait 4
+press A 1
+wait 4
+press A 1
+wait 4
+press A 1
+wait 4
+press A 1
+wait 4
+press A 1
+wait 4
+press A 1
+wait 4
+press A 1
+wait 4
+press A 1
+wait 4
+press A 1
+wait 4
+press A 1
+wait 4
+press A 1
+wait 4
+press A 1
+wait 4
+press A 1
+wait 4
+press A 1
+wait 4
+press A 1
+wait 4
+press A 1
+wait 4
+press A 1
+wait 4
+press A 1
+wait 4
+press A 1
+wait 4
+press A 1
+wait 4
+press A 1
+wait 4
+press A 1
+wait 4
+press A 1
+wait 4
+press A 1
+wait 4
+press A 1
+wait 4
+press A 1
+wait 4
+press A 1
+wait 4
+press A 1
+wait 4
+press A 1
+wait 4
+press A 1
+wait 4
+press A 1
+wait 4
+press A 1
+wait 4
+press A 1
+wait 4
+press A 1
+wait 4
+press A 1
+wait 4
+press A 1
+wait 4
+press A 1
+wait 4
+press A 1
+wait 4
+press A 1
+wait 4
+press A 1
+wait 4
+press A 1
+wait 4
+press A 1
+wait 4
+press A 1
+wait 4
+press A 1
+wait 4
+press A 1
+wait 4
+press A 1
+wait 4
+press A 1
+wait 4
+press A 1
+wait 4
+press A 1
+wait 4
+press A 1
+wait 4
+press A 1
+wait 4
+press A 1
+wait 4
+press A 1
+wait 4
+press A 1
+wait 4
+press A 1
+wait 4
+press A 1
+wait 4
+press A 1
+wait 4
+press A 1
+wait 4
+press A 1
+wait 4
+press A 1
+wait 4
+press A 1
+wait 4
+press A 1
+wait 4
+press A 1
+wait 4
+press A 1
+wait 4
+press A 1
+wait 4
+press A 1
+wait 4
+press A 1
+wait 4
+press A 1
+wait 4
+press A 1
+wait 4
+press A 1
+wait 4
+press A 1
+wait 4
+press A 1
+wait 4
+press A 1
+wait 4
+press A 1
+wait 4
+press A 1
+wait 4
+press A 1
+wait 4
+press A 1
+wait 4
+press A 1
+wait 4
+press A 1
+wait 4
+press A 1
+wait 4
+press A 1
+wait 4
+press A 1
+wait 4
+press A 1
+wait 4
+press A 1
+wait 4
+press A 1
+wait 4
+press A 1
+wait 4
+press A 1
+wait 4
+press A 1
+wait 4
+press A 1
+wait 4
+press A 1
+wait 4
+press A 1
+wait 4
+press A 1
+wait 4
+press A 1
+wait 4
+press A 1
+wait 4
+press A 1
+wait 4
+press A 1
+wait 4
+press A 1
+wait 4
+press A 1
+wait 4
+press A 1
+wait 4
+expect parity == 1
+expect foes_9 >= 1
+expect reach_49_15_0 > 0

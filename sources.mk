@@ -312,6 +312,15 @@ CORE_SRC += src/games/witherlea/wth_bot.c
 CORE_SRC += src/games/witherlea/wth_draw.c
 CORE_SRC += src/games/witherlea/wth_art.c
 CORE_SRC += src/games/witherlea/wth_audio.c
+CORE_SRC += src/games/limpet/lmp.c
+CORE_SRC += src/games/limpet/lmp_world.c
+CORE_SRC += src/games/limpet/lmp_tank.c
+CORE_SRC += src/games/limpet/lmp_foes.c
+CORE_SRC += src/games/limpet/lmp_levels.c
+CORE_SRC += src/games/limpet/lmp_bot.c
+CORE_SRC += src/games/limpet/lmp_draw.c
+CORE_SRC += src/games/limpet/lmp_art.c
+CORE_SRC += src/games/limpet/lmp_audio.c
 
 HEADLESS_SRC += src/platform/headless/main_headless.c
 HEADLESS_SRC += src/platform/headless/imgwrite.c
