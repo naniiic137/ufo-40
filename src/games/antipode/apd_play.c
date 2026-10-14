@@ -207,7 +207,7 @@ void apd_shots_update(void) {
             burn_tile(px / APD_TILE, py / APD_TILE);
         }
         if (s->kind == PS_WAVE && (t == T_WALL || t == T_GREY)) { s->alive = 0; continue; }
-        /* targets in walls, buttons in the floor */
+        /* targets in walls */
         for (int k = 0; k < ag.nth && s->alive; k++) {
             ApdThing *th = &ag.th[k];
             if (!th->alive) continue;
@@ -216,11 +216,6 @@ void apd_shots_update(void) {
                 apd_open_gate(th->id);
                 apd_sfx("apd_unlock");
                 apd_burst(tx, ty, C_CYAN, 8, 2);
-                s->alive = 0;
-            } else if (th->kind == TH_BUTTON && iabs(px - tx) < 8 && iabs(py - ty) < 10) {
-                ag.button_t[th->var & 1] = 30; /* half a second for the other */
-                th->t = 12;
-                apd_sfx("apd_click");
                 s->alive = 0;
             }
         }
@@ -244,10 +239,37 @@ void apd_shots_update(void) {
             break;
         }
     }
-    /* both buttons at once: the grey wall slides away */
-    for (int k = 0; k < 2; k++)
-        if (ag.button_t[k] > 0) ag.button_t[k]--;
-    if (ag.button_t[0] > 0 && ag.button_t[1] > 0 && !ag.run.secret_open) {
+}
+
+/* The quiet vault's two pads, one in the floor and one in the ceiling right
+ * above it: each is pressed by the suit or by its shadow touching it. Both
+ * at once, and the grey wall slides away. */
+static bool box_on_pad(int x, int y, const ApdThing *t, int reach) {
+    int px = APD_PX(x), py = APD_PX(y);
+    int tx = t->tx * APD_TILE + 8;
+    if (iabs(px - tx) > 10) return false;
+    if (t->var == 0) { /* floor pad: the box's bottom at the tile's bottom, or a little over it */
+        int floor = (t->ty + 1) * APD_TILE, bottom = py + APD_PH / 2;
+        return bottom <= floor + 1 && bottom >= floor - reach;
+    }
+    int ceil = t->ty * APD_TILE, top = py - APD_PH / 2;
+    return top >= ceil - 1 && top <= ceil + reach;
+}
+
+static void pads_update(void) {
+    int on = 0, n = 0;
+    for (int i = 0; i < ag.nth; i++) {
+        ApdThing *t = &ag.th[i];
+        if (t->kind != TH_BUTTON) continue;
+        n++;
+        bool pressed = box_on_pad(ag.pl.x, ag.pl.y, t, 3) || (ag.shadow.on && box_on_pad(ag.shadow.x, ag.shadow.y, t, 24));
+        if (pressed && !t->flag) apd_sfx("apd_click");
+        t->flag = pressed;
+        t->t = pressed ? 12 : 0;
+        on += pressed;
+    }
+    ag.button_t[0] = on;
+    if (n == 2 && on == 2 && !ag.run.secret_open) {
         ag.run.secret_open = 1;
         for (int y = 0; y < ag.rh; y++)
             for (int x = 0; x < ag.rw; x++)
@@ -284,7 +306,9 @@ static void flip(void) {
         ag.shadow.grav = -p->grav; /* it stays as he was */
         ag.shadow.t = APD_SHADOW_LIFE;
     }
-    if (apd_has(MOD_VOLT, SYS_FLIP) && p->air_flips <= APD_THUNDER_FLIPS) p->thunder_t = 40;
+    /* STORMBALL: the ball holds from the first flip of a jump to the landing,
+     * through up to three flips; a fourth puts it out */
+    if (apd_has(MOD_VOLT, SYS_FLIP)) p->thunder_t = p->air_flips <= APD_THUNDER_FLIPS ? 1 : 0;
     if (apd_has(MOD_MASS, SYS_FLIP)) {
         p->stomp = true;
         p->vy = p->grav * APD_STOMP;
@@ -399,6 +423,7 @@ static void move_y(int vy) {
                 p->ground = true;
                 p->stomp = false;
                 p->air_flips = 0;
+                p->thunder_t = 0;
             } else p->jumping = false;
             p->vy = 0;
             return;
@@ -413,7 +438,7 @@ void apd_player_update(void) {
     bool left = apd_btn(BTN_LEFT), right = apd_btn(BTN_RIGHT), down = apd_btn(BTN_DOWN);
     bool fire_held = apd_btn(BTN_A);
     if (p->inv > 0) p->inv--;
-    if (p->thunder_t > 0) p->thunder_t--;
+    if (!apd_has(MOD_VOLT, SYS_FLIP)) p->thunder_t = 0;
     /* the facing locks while the gun fires */
     if (!fire_held) {
         if (left && !right) p->face = -1;
@@ -457,6 +482,7 @@ void apd_player_update(void) {
     if (!p->ground && solid_at(p->x, p->y + p->grav * APD_FX, p->grav) && p->vy * p->grav >= 0) {
         p->ground = true;
         p->air_flips = 0;
+        p->thunder_t = 0;
         p->stomp = false;
     }
     /* the gun */
@@ -566,6 +592,7 @@ void apd_hazards_update(void) {
 
 void apd_things_update(void) {
     ApdPlayer *p = &ag.pl;
+    pads_update();
     int px = APD_PX(p->x), py = APD_PX(p->y);
     int zone = -1;
     for (int i = 0; i < ag.nth; i++) {
@@ -722,11 +749,12 @@ void apd_pickup(int item) {
         break;
     default: {
         int mod = it->var;
-        /* a new mod goes into a system with room for it, if any */
-        int sys = SYS_OFF;
+        /* a new mod goes into the first empty system (GUN, FRAME, FLIP); with
+         * none empty, into the GUN */
+        int sys = SYS_GUN;
         static const int ORDER[3] = {SYS_GUN, SYS_FRAME, SYS_FLIP};
-        for (int k = 0; k < 3 && sys == SYS_OFF; k++)
-            if (apd_sys_count(ORDER[k]) < apd_safe_slots()) sys = ORDER[k];
+        for (int k = 2; k >= 0; k--)
+            if (apd_sys_count(ORDER[k]) == 0) sys = ORDER[k];
         ag.run.mod_sys[mod] = (uint8_t)sys;
         snprintf(m, sizeof m, "%s MOD", APD_MOD_NAME[mod]);
         if (!apd_simulating && !ag.run.code_on) {

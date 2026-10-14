@@ -286,6 +286,7 @@ CORE_SRC += src/games/restless/rsl_art.c
 CORE_SRC += src/games/restless/rsl_audio.c
 CORE_SRC += src/games/antipode/apd.c
 CORE_SRC += src/games/antipode/apd_world.c
+CORE_SRC += src/games/antipode/apd_rooms.c
 CORE_SRC += src/games/antipode/apd_play.c
 CORE_SRC += src/games/antipode/apd_foes.c
 CORE_SRC += src/games/antipode/apd_boss.c

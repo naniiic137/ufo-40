@@ -12,7 +12,7 @@ ApdSave ags;
 #define SAVE_MAGIC 0x41504401u
 
 const char *const APD_MOD_NAME[APD_MODS] = {"EMBER", "TWIN", "VOLT", "MASS"};
-const char *const APD_SYS_NAME[APD_SYS] = {"OFF", "FLIP", "FRAME", "GUN"};
+const char *const APD_SYS_NAME[APD_SYS] = {"", "FLIP", "FRAME", "GUN"};
 const char *const APD_EFFECT_NAME[APD_MODS][APD_SYS] = {
     {"", "FLARE", "KILNSKIN", "SCORCH"},
     {"", "AFTERIMAGE", "SATELLITE", "FANSHOT"},
@@ -187,7 +187,7 @@ static void new_run(bool code) {
         ag.run.mod_sys[MOD_EMBER] = SYS_GUN;
         ag.run.mod_sys[MOD_MASS] = SYS_FLIP;
         ag.run.mod_sys[MOD_VOLT] = SYS_FRAME;
-        ag.run.mod_sys[MOD_TWIN] = SYS_OFF;
+        ag.run.mod_sys[MOD_TWIN] = SYS_FRAME;
     }
     ag.boss_dead_t = 0;
     begin_room(ag.run.room, -1);
@@ -281,17 +281,17 @@ static void pod_update(void) {
         }
         int m = ag.pod_mod;
         if (ag.run.mod_sys[m] != MOD_NONE) {
-            /* rows from the top: FLIP, FRAME, GUN, OFF */
-            static const int ROW_OF[APD_SYS] = {3, 0, 1, 2};
-            static const int SYS_AT[4] = {SYS_FLIP, SYS_FRAME, SYS_GUN, SYS_OFF};
-            int row = ROW_OF[ag.run.mod_sys[m]];
-            if (btnp(BTN_UP) && row > 0) { ag.run.mod_sys[m] = (uint8_t)SYS_AT[row - 1]; sfx_play_name("apd_slot"); }
-            else if (btnp(BTN_DOWN) && row < 3) { ag.run.mod_sys[m] = (uint8_t)SYS_AT[row + 1]; sfx_play_name("apd_slot"); }
+            /* rows from the top: FLIP, FRAME, GUN; a mod is always in one of them */
+            int row = iclamp(ag.run.mod_sys[m] - SYS_FLIP, 0, 2);
+            if (btnp(BTN_UP) && row > 0) { ag.run.mod_sys[m] = (uint8_t)(SYS_FLIP + row - 1); sfx_play_name("apd_slot"); }
+            else if (btnp(BTN_DOWN) && row < 2) { ag.run.mod_sys[m] = (uint8_t)(SYS_FLIP + row + 1); sfx_play_name("apd_slot"); }
         }
     } else {
+        /* the three sectors (the Crown's page only while standing in it) */
+        int n = apd_rooms[ag.room].sector == SEC_CROWN ? APD_SECTORS : 3;
         if (btnp(BTN_LEFT)) { ag.pod_page = 0; ag.pod_mod = APD_MODS - 1; sfx_play_name("ui_move"); }
-        if (btnp(BTN_UP)) { ag.pod_sector = (ag.pod_sector + APD_SECTORS - 1) % APD_SECTORS; sfx_play_name("ui_move"); }
-        if (btnp(BTN_DOWN)) { ag.pod_sector = (ag.pod_sector + 1) % APD_SECTORS; sfx_play_name("ui_move"); }
+        if (btnp(BTN_UP)) { ag.pod_sector = (ag.pod_sector + n - 1) % n; sfx_play_name("ui_move"); }
+        if (btnp(BTN_DOWN)) { ag.pod_sector = (ag.pod_sector + 1) % n; sfx_play_name("ui_move"); }
     }
 }
 
@@ -573,6 +573,8 @@ static int apd_query(const char *key, int *out) {
     if (!strcmp(key, "boss_state")) { *out = ag.boss_foe >= 0 ? ag.foe[ag.boss_foe].state : -1; return 1; }
     if (!strncmp(key, "boss_dead", 9)) { *out = ag.run.boss_dead[iclamp(atoi(key + 9), 0, APD_BOSSES - 1)]; return 1; }
     if (!strcmp(key, "lightning")) { *out = ag.lightning_t; return 1; }
+    if (!strcmp(key, "storm")) { *out = ag.storm_on; return 1; }
+    if (!strcmp(key, "storm_t")) { *out = ag.storm_t; return 1; }
     if (!strcmp(key, "foes")) { *out = apd_foes_alive(); return 1; }
     if (!strncmp(key, "foes_", 5)) { *out = apd_count_foes(atoi(key + 5)); return 1; }
     if (!strncmp(key, "foe", 3) && isdigit((unsigned char)key[3])) {
@@ -739,6 +741,7 @@ static int apd_cheat(const char *cmd) {
         apd_add_eshot(k, x * APD_FX, y * APD_FX, vx, vy, 10);
         return 1;
     }
+    if (sscanf(cmd, "storm %d", &a) == 1) { ag.storm_on = a != 0; ag.storm_t = a ? 1200 : 400; return 1; }
     if (!strcmp(cmd, "god")) { ag.god = true; return 1; }
     if (!strcmp(cmd, "mortal")) { ag.god = false; return 1; }
     if (!strcmp(cmd, "nofoes")) { ag.no_foes = true; return 1; }

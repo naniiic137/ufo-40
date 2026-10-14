@@ -239,10 +239,13 @@ static void draw_things(bool front) {
             gfx_circ(x, y, 3, C_RED);
             gfx_circ(x, y, 1, C_WHITE);
             break;
-        case TH_BUTTON:
-            gfx_rect(x - 6, y + 4, 12, 4, t->t > 0 ? C_LIME : C_FOREST);
-            gfx_rectb(x - 6, y + 4, 12, 4, C_INK);
+        case TH_BUTTON: {
+            /* a pad set in the floor (or in the ceiling) */
+            int py = t->var ? y - 8 : y + 4;
+            gfx_rect(x - 7, py, 14, 4, t->t > 0 ? C_LIME : C_FOREST);
+            gfx_rectb(x - 7, py, 14, 4, C_INK);
             break;
+        }
         case TH_EMITTER:
             gfx_rect(x - 5, y - 5, 10, 10, C_SLATE);
             gfx_rectb(x - 5, y - 5, 10, 10, C_INK);
@@ -491,6 +494,9 @@ static void draw_shots(void) {
             break;
         }
         case ES_SHELL: gfx_circ(x, y, 3, C_GREY); gfx_circb(x, y, 3, C_INK); break;
+        case ES_WAVE:
+            for (int k = 0; k < 4; k++) gfx_vline(x - 6 + k * 4, y - 7 + ((k + ag.frame_t / 2) % 2) * 3, y + 7, k % 2 ? C_LIGHT : C_WHITE);
+            break;
         case ES_SPARK: gfx_pset(x, y, C_WHITE); gfx_pset(x - 1, y, C_CYAN); gfx_pset(x + 1, y, C_CYAN); gfx_pset(x, y - 1, C_CYAN); gfx_pset(x, y + 1, C_CYAN); break;
         default: gfx_circ(x, y, 3, C_RED); gfx_pset(x, y, C_YELLOW); break;
         }
@@ -617,12 +623,12 @@ static void draw_pod_mods(void) {
     snprintf(b, sizeof b, "DAMPERS %d", ag.run.dampers);
     tiny_draw(b, 12, 128, C_LIGHT);
     /* the grid: a column a mod, a row a system */
-    static const char *const ROWS[4] = {"FLIP", "FRAME", "GUN", "OFF"};
-    static const int SYS_AT[4] = {SYS_FLIP, SYS_FRAME, SYS_GUN, SYS_OFF};
-    int gx = 100, gy = 34;
-    for (int r = 0; r < 4; r++) {
-        int y = gy + r * 22;
-        bool over = r < 3 && apd_overload(SYS_AT[r]);
+    static const char *const ROWS[3] = {"FLIP", "FRAME", "GUN"};
+    static const int SYS_AT[3] = {SYS_FLIP, SYS_FRAME, SYS_GUN};
+    int gx = 100, gy = 38;
+    for (int r = 0; r < 3; r++) {
+        int y = gy + r * 26;
+        bool over = apd_overload(SYS_AT[r]);
         tiny_draw(ROWS[r], gx, y + 6, over ? C_RED : C_GREY);
         gfx_hline(gx + 28, gx + 208, y + 18, C_DUSK);
     }
@@ -630,20 +636,19 @@ static void draw_pod_mods(void) {
     for (int m = 0; m < APD_MODS; m++) {
         int x = gx + 40 + m * 44;
         tiny_center(ag.run.mod_sys[m] == MOD_NONE ? "?" : APD_MOD_NAME[m], x + 6, gy - 8, m == ag.pod_mod ? C_WHITE : C_GREY);
-        if (m == ag.pod_mod) gfx_rectb(x - 6, gy - 2, 24, 4 * 22, (ag.frame_t / 8) % 2 ? C_PINK : C_VIOLET);
+        if (m == ag.pod_mod) gfx_rectb(x - 6, gy - 2, 24, 3 * 26, (ag.frame_t / 8) % 2 ? C_PINK : C_VIOLET);
         if (ag.run.mod_sys[m] == MOD_NONE) continue;
         int r = 0;
-        for (int k = 0; k < 4; k++)
+        for (int k = 0; k < 3; k++)
             if (SYS_AT[k] == ag.run.mod_sys[m]) r = k;
         mod_remap(map, m);
-        spr_draw_ex(&apd_spr[SPR_MOD], x, gy + r * 22 + 3, 0, map, -1);
+        spr_draw_ex(&apd_spr[SPR_MOD], x, gy + r * 26 + 5, 0, map, -1);
     }
     /* what the chosen mod does where it is */
     int m = ag.pod_mod;
     if (ag.run.mod_sys[m] != MOD_NONE) {
         int s = ag.run.mod_sys[m];
-        if (s == SYS_OFF) snprintf(b, sizeof b, "%s: NOT FITTED", APD_MOD_NAME[m]);
-        else snprintf(b, sizeof b, "%s IN THE %s: %s", APD_MOD_NAME[m], APD_SYS_NAME[s], APD_EFFECT_NAME[m][s]);
+        snprintf(b, sizeof b, "%s IN THE %s: %s", APD_MOD_NAME[m], APD_SYS_NAME[s], APD_EFFECT_NAME[m][s]);
         text_draw(b, 100, 126, MOD_COL[m]);
     } else text_draw("NOT FOUND YET", 100, 126, C_GREY);
     snprintf(b, sizeof b, "SAFE: %d A SYSTEM", apd_safe_slots());

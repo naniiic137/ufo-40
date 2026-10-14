@@ -29,13 +29,17 @@ static Lo cur_lo(void) {
 static bool lo_eq(const Lo *a, const Lo *b) { return !memcmp(a->s, b->s, APD_MODS); }
 static bool lo_has(const Lo *L, int m, int s) { return L->s[m] == s; }
 
-static bool lo_valid(const Lo *L) {
+/* what an overloaded system costs in the planning (a mod can't be left out:
+ * with four mods and no damper, something overloads) */
+static int lo_over_cost(const Lo *L) {
     int n[APD_SYS] = {0, 0, 0, 0};
     for (int m = 0; m < APD_MODS; m++)
         if (L->s[m] != MOD_NONE) n[L->s[m]]++;
+    static const int COST[APD_SYS] = {0, 45, 12, 25};
+    int c = 0;
     for (int s = SYS_FLIP; s < APD_SYS; s++)
-        if (n[s] > apd_safe_slots()) return false;
-    return true;
+        if (n[s] > apd_safe_slots()) c += COST[s] * (n[s] - apd_safe_slots());
+    return c;
 }
 
 /* how good a loadout is for a fight, to break ties */
@@ -169,7 +173,34 @@ static bool ob_done(const Obj *o) {
 }
 
 static int crown_f(void) { return apd_room_find(SEC_CROWN, 'F'); }
-static int x_room(void) { return apd_room_find(SEC_GANTRY, 'X'); }
+static int x_room(void) { return apd_room_find(SEC_BRINE, 'r'); } /* the quiet vault */
+
+/* an upgrade sealed in cracked concrete: the ANVIL gets it out */
+static bool item_in_crack(int item) {
+    int r = apd_items[item].room;
+    const ApdSpec *sp = &APD_SPECS[apd_rooms[r].spec];
+    const char *p = sp->things;
+    int k = item - apd_rooms[r].first_item, n = 0;
+    char m = 0;
+    while (*p) {
+        while (*p == ' ') p++;
+        const char *t = p;
+        while (*p && *p != ' ') p++;
+        bool it = !strncmp(t, "armor", 5) || !strncmp(t, "spare", 5) || !strncmp(t, "damper", 6) || (!strncmp(t, "mod", 3) && isdigit((unsigned char)t[3]));
+        if (!it) continue;
+        if (n++ == k) {
+            const char *at = memchr(t, '@', (size_t)(p - t));
+            if (at) m = at[1];
+            break;
+        }
+    }
+    if (!m) return false;
+    int W = apd_rooms[r].w * APD_CW, H = apd_rooms[r].h * APD_CH;
+    for (int y = 1; y < H - 1; y++)
+        for (int x = 1; x < W - 1; x++)
+            if (sp->rows[y][x] == m) return sp->rows[y][x - 1] == 'X' || sp->rows[y][x + 1] == 'X' || sp->rows[y - 1][x] == 'X' || sp->rows[y + 1][x] == 'X';
+    return false;
+}
 
 /* the objectives still open, and what each needs fitted */
 typedef struct { int kind, room, arg, need_mod, need_sys; } Cand;
@@ -180,6 +211,7 @@ static int candidates(Cand *c, int max) {
         if (!ag.run.item_got[i]) {
             Cand k = {OB_ITEM, apd_items[i].room, i, -1, -1};
             if (apd_items[i].room == x_room() && !ag.run.secret_open) { k.need_mod = MOD_TWIN; k.need_sys = SYS_FLIP; }
+            if (item_in_crack(i)) { k.need_mod = MOD_MASS; k.need_sys = SYS_FLIP; }
             c[n++] = k;
         }
     for (int r = 0; r < apd_nrooms && n < max; r++) {
@@ -207,20 +239,20 @@ static void list_pods(void) {
         if (apd_room_pod(r) >= 0 && npodrooms < APD_MAX_PODS) pod_rooms[npodrooms++] = r;
 }
 
-/* every way of fitting the mods held, with no system overloaded */
+/* every way of fitting the mods held (each in FLIP, FRAME or GUN) */
 static int all_loadouts(Lo *out, int max) {
     int n = 0;
     int owned[APD_MODS], no = 0;
     for (int m = 0; m < APD_MODS; m++)
         if (ag.run.mod_sys[m] != MOD_NONE) owned[no++] = m;
     int combos = 1;
-    for (int k = 0; k < no; k++) combos *= 4;
+    for (int k = 0; k < no; k++) combos *= 3;
     for (int c = 0; c < combos && n < max; c++) {
         Lo L;
         memset(L.s, MOD_NONE, sizeof L.s);
         int x = c;
-        for (int k = 0; k < no; k++) { L.s[owned[k]] = (uint8_t)(x % 4); x /= 4; }
-        if (lo_valid(&L)) out[n++] = L;
+        for (int k = 0; k < no; k++) { L.s[owned[k]] = (uint8_t)(SYS_FLIP + x % 3); x /= 3; }
+        out[n++] = L;
     }
     return n;
 }
@@ -229,9 +261,9 @@ static int all_loadouts(Lo *out, int max) {
  * best fit for a fight */
 static int kind_rank(int k) { return k == OB_ROOM ? 1 : k == OB_BOSS ? 20 : 0; }
 static int boss_fit(int k, const Lo *L) {
-    if (k == OB_BOSS || k == OB_FINAL) return (14 - lo_combat(L)) * 6;
+    if (k == OB_BOSS || k == OB_FINAL) return (14 - lo_combat(L)) * 6 + lo_over_cost(L);
     /* the ANVIL makes every flip a drop: no hovering. Only for the cracks. */
-    return lo_has(L, MOD_MASS, SYS_FLIP) ? 60 : 0;
+    return (lo_has(L, MOD_MASS, SYS_FLIP) ? 60 : 0) + lo_over_cost(L);
 }
 
 static void decide(void) {
@@ -362,6 +394,7 @@ static int cell_cost(int cx, int cy) {
 
 /* goals: a rectangle of pixels the middle of the suit should get into */
 static int gx0, gy0, gx1, gy1;
+static bool goal_overlap; /* the goal is any spot where the suit touches the rectangle */
 
 static void field_build(void) {
     int fw = ag.rw * APD_TILE / FC, fh = ag.rh * APD_TILE / FC;
@@ -378,7 +411,9 @@ static void field_build(void) {
     for (int y = 0; y < fh; y++)
         for (int x = 0; x < fw; x++) {
             int px = x * FC + FC / 2, py = y * FC + FC / 2;
-            if (px >= gx0 && px <= gx1 && py >= gy0 && py <= gy1 && ffree[y][x]) {
+            bool in = goal_overlap ? rects_overlap(px - APD_PW / 2, py - APD_PH / 2, APD_PW, APD_PH, gx0, gy0, gx1 - gx0, gy1 - gy0)
+                                   : (px >= gx0 && px <= gx1 && py >= gy0 && py <= gy1);
+            if (in && ffree[y][x]) {
                 fld[y][x] = 0;
                 qx[0][qn[0]] = (int16_t)x;
                 qy[0][qn[0]++] = (int16_t)y;
@@ -421,8 +456,9 @@ static void field_build(void) {
     }
 }
 
-static void set_goal(int x0, int y0, int x1, int y1) {
-    uint32_t key = (uint32_t)(x0 * 7 + y0 * 131 + x1 * 1031 + y1 * 7919) ^ (uint32_t)ag.room * 2654435761u;
+static void set_goal_mode(int x0, int y0, int x1, int y1, bool overlap) {
+    uint32_t key = (uint32_t)(x0 * 7 + y0 * 131 + x1 * 1031 + y1 * 7919 + overlap) ^ (uint32_t)ag.room * 2654435761u;
+    goal_overlap = overlap;
     /* rebuild when the goal or the room changes, or now and then (doors open, gates burn) */
     static int age;
     if (key != fld_key || fld_room != ag.room || ++age > 30) {
@@ -433,6 +469,7 @@ static void set_goal(int x0, int y0, int x1, int y1) {
         field_build();
     }
 }
+static void set_goal(int x0, int y0, int x1, int y1) { set_goal_mode(x0, y0, x1, y1, false); }
 
 static int field_at(int px, int py) {
     int fw = ag.rw * APD_TILE / FC, fh = ag.rh * APD_TILE / FC;
@@ -510,6 +547,8 @@ static long evaluate(int room0, int armor0, int items0, int spares0) {
 }
 
 static uint32_t fire_bits;   /* A and aim, the same for every plan */
+static int dbg_src;
+static bool fire_set;        /* a scripted move chose them */
 
 static uint32_t look_ahead(void) {
     ApdGame keep = ag;
@@ -530,7 +569,8 @@ static uint32_t look_ahead(void) {
             ag.frame_t++;
             apd_play_step();
             apd_sim_prev = apd_sim_cur;
-            if (ag.room == room0) path += field_at(APD_PX(ag.pl.x), APD_PX(ag.pl.y));
+            if (ag.room != room0) break; /* judged by the room it reached */
+            path += field_at(APD_PX(ag.pl.x), APD_PX(ag.pl.y));
         }
         /* sooner is better: what the way there passed through counts a little */
         long s = evaluate(room0, armor0, items0, spares0) - path * 4;
@@ -691,95 +731,142 @@ static uint32_t go_to(int x, int y, int r) {
 }
 
 /* the gate of door d, seen from this room: where to stand and what to do */
+int apd_door_pos(int door);
+
 static uint32_t gate_work(int d) {
     const ApdDoor *dd = &apd_doors[d];
     const ApdRoom *r = &apd_rooms[ag.room];
     bool is_a = dd->ra == ag.room;
     int gx = dd->ax + (!is_a && !dd->vertical ? 1 : 0), gy = dd->ay + (!is_a && dd->vertical ? 1 : 0);
     int lx = (gx - r->gx) * APD_CW, ly = (gy - r->gy) * APD_CH;
+    int pos = apd_door_pos(d);
     const ApdPlayer *p = &ag.pl;
-    script_t++;
-    if (!dd->vertical) {
-        int bx = is_a ? lx + APD_CW - 1 : lx;
-        int dir = is_a ? 1 : -1;
-        int sx = (bx - dir * 1) * APD_TILE + 8;      /* on the stub */
-        int sy = (ly + 6) * APD_TILE - APD_PH / 2;
-        if (dd->type == E_TARGET) {
-            if (!near_pt(sx, sy, 10) || !p->ground) return go_to(sx, sy, 4);
-            if (p->grav < 0) return script_t % 16 < 2 || (script_t % 16 >= 6 && script_t % 16 < 8) ? BTN_B : 0;
-            return (script_t % 40 < 36) ? (BTN_UP | BTN_A) : 0;
-        }
-        /* barrels and the hidden wall: face them and fire */
-        if (!near_pt(sx, sy, 10) || !p->ground) return go_to(sx, sy, 4);
-        if (p->face != dir) return dir > 0 ? BTN_RIGHT : BTN_LEFT;
-        return (script_t % 40 < 36) ? BTN_A : 0;
-    }
-    int sy = is_a ? ly + APD_CH - 1 : ly; /* the slab row */
-    int x = (lx + 10) * APD_TILE;
-    bool below_me = is_a; /* the plug is in my floor */
-    if (dd->type == E_CRACK) {
-        /* stand on the far surface, square to the plug: jump toward it, then flip */
-        int ty = below_me ? (ly + 1) * APD_TILE + APD_PH / 2 : (ly + APD_CH - 1) * APD_TILE - APD_PH / 2;
-        int want_grav = below_me ? -1 : 1;
-        if (!near_pt(x, ty, 6) || !p->ground || p->grav != want_grav) {
-            if (p->ground && p->grav != want_grav && near_pt(x, ty, 40)) return script_t % 12 < 2 || (script_t % 12 >= 4 && script_t % 12 < 6) ? BTN_B : 0;
-            return go_to(x, ty, 4);
-        }
-        int k = script_t % 30;
-        return k < 2 || (k >= 6 && k < 8) ? BTN_B : 0;
-    }
-    /* barrels in a shaft: stand on them, hop and fire at your feet */
-    int ty = below_me ? sy * APD_TILE - APD_PH / 2 : (sy + 1) * APD_TILE + APD_PH / 2;
-    if (!near_pt(x, ty, 8) && !( !p->ground && iabs(APD_PX(p->x) - x) < 8)) return go_to(x, ty, 4);
-    if (p->ground) return script_t % 20 < 2 ? BTN_B : 0;
-    return BTN_A | BTN_DOWN;
-}
-
-/* the hidden room: a shadow over one button, the suit over the other.
- * Every flip makes a new shadow, so once it is placed: no more flips. From
- * the ceiling over the first button, drop and flip (UP held: the shadow
- * fires down); then walk the floor (hops are jumps, not flips) to the other
- * button, jump and fire down at it. */
-static uint32_t secret_work(void) {
-    int b0x = -1, b1x = -1;
-    for (int i = 0; i < ag.nth; i++)
-        if (ag.th[i].kind == TH_BUTTON) {
-            if (b0x < 0) b0x = ag.th[i].tx * APD_TILE + 8;
-            else b1x = ag.th[i].tx * APD_TILE + 8;
-
-        }
-    const ApdPlayer *p = &ag.pl;
-    int px = APD_PX(p->x);
+    int px = APD_PX(p->x), py = APD_PX(p->y);
     bool b_held = (last_mask & BTN_B) != 0;
     script_t++;
-    static int placed_t = -1000;
-    bool fresh = ag.shadow.on && ag.shadow.aim == 1 && iabs(APD_PX(ag.shadow.x) - b0x) < 8;
-    if (!fresh) {
-        if (p->grav < 0 && p->ground && iabs(px - b0x) <= 6) {
-            placed_t = script_t;
-            return b_held ? BTN_UP : (BTN_B | BTN_UP); /* drop from the ceiling */
+    if (!dd->vertical) {
+        /* barrels, or the target in the wall beside a shutter: level with it, a
+         * little way in, facing it, firing */
+        int bx = is_a ? lx + APD_CW - 1 : lx;
+        int dir = is_a ? 1 : -1;
+        int ty = (ly + pos + 1) * APD_TILE;
+        if (dd->type == E_TARGET)
+            for (int i = 0; i < ag.nth; i++)
+                if (ag.th[i].kind == TH_TARGET && ag.th[i].id == d) ty = ag.th[i].ty * APD_TILE + 8 + 2;
+        int sx = bx * APD_TILE + 8 - dir * 30;
+        if (iabs(px - sx) > 12 || iabs(py - ty) > 5) {
+            set_goal(sx - 6, ty - 3, sx + 6, ty + 3);
+            fire_bits = iabs(py - ty) <= 5 && p->face == dir ? BTN_A : 0;
+            fire_set = true;
+            return 0xffffffffu;
         }
-        if (p->grav < 0 && !p->ground && script_t - placed_t < 40 && p->vy > 0) {
-            /* falling away from the ceiling: flip here, UP held */
-            return BTN_UP | (b_held ? 0 : BTN_B);
-        }
-        if (p->grav < 0 && !p->ground && script_t - placed_t < 40) return BTN_UP | (p->vy < 0 ? 0 : 0);
-        set_goal(b0x - 5, 18, b0x + 5, 34);
+        if (p->face != dir) return dir > 0 ? BTN_RIGHT : BTN_LEFT;
+        set_goal(sx - 6, ty - 3, sx + 6, ty + 3);
+        fire_bits = BTN_A;
+        fire_set = true;
         return 0xffffffffu;
     }
-    /* walk to the other one on the floor */
-    if (p->grav < 0 && !p->ground) return 0; /* still settling */
-    if (iabs(px - b1x) > 2) {
-        uint32_t m = px < b1x ? BTN_RIGHT : BTN_LEFT;
-        /* hop the bumps: a jump from the ground only */
-        int ahead = px + (px < b1x ? 8 : -8);
-        bool bump = apd_tile_at(ahead, APD_PX(p->y)) == T_WALL || apd_tile_at(ahead, APD_PX(p->y) + 6) == T_WALL;
-        if (p->ground && bump) m |= b_held ? 0 : BTN_B;
-        else if (!p->ground && b_held && p->vy < 0) m |= BTN_B;
-        return m;
+    int sy = is_a ? ly + APD_CH - 1 : ly; /* the slab row */
+    int x = (lx + pos + 1) * APD_TILE;
+    bool below_me = is_a; /* the plug is in my floor */
+    if (dd->type == E_CRACK) {
+        if (below_me) {
+            /* stand on it, jump and flip up (a drop up), then from up there jump
+             * and flip down onto it */
+            if (p->grav > 0) {
+                if (iabs(px - x) > 7 || !p->ground) {
+                    if (!p->ground && iabs(px - x) <= 7 && p->vy < 0 && !p->stomp) return b_held ? 0 : BTN_B;
+                    set_goal(x - 5, sy * APD_TILE - APD_PH / 2 - 3, x + 5, sy * APD_TILE - APD_PH / 2 + 1);
+                    return 0xffffffffu;
+                }
+                return b_held ? 0 : BTN_B;
+            }
+            if (iabs(px - x) > 7) { /* up the wrong side, away from it: steer back first */
+                set_goal(x - 5, sy * APD_TILE - APD_PH / 2 - 3, x + 5, sy * APD_TILE - APD_PH / 2 + 1);
+                return 0xffffffffu;
+            }
+            if (p->ground) return b_held ? 0 : BTN_B;
+            if (p->vy > 0 && !p->stomp) return b_held ? 0 : BTN_B;
+            return 0;
+        }
+        /* in my ceiling: from the floor under it, jump and flip up into it */
+        if (p->grav < 0) {
+            if (iabs(px - x) > 7) {
+                set_goal(x - 5, (sy + 1) * APD_TILE + 30, x + 5, ag.rh * APD_TILE);
+                return 0xffffffffu;
+            }
+            if (p->ground) return b_held ? 0 : BTN_B;
+            return p->vy > 0 && !b_held ? BTN_B : 0;
+        }
+        if (iabs(px - x) > 7 || !p->ground) {
+            if (!p->ground && iabs(px - x) <= 7 && p->vy < 0 && !p->stomp) return b_held ? 0 : BTN_B;
+            set_goal(x - 5, (sy + 1) * APD_TILE + 30, x + 5, ag.rh * APD_TILE);
+            return 0xffffffffu;
+        }
+        return b_held ? 0 : BTN_B;
+    }
+    /* barrels in a shaft: fire straight at them */
+    if (below_me) {
+        int ty = sy * APD_TILE - APD_PH / 2;
+        if (iabs(px - x) > 6) { set_goal(x - 4, ty - 3, x + 4, ty + 1); return 0xffffffffu; }
+        if (p->ground) return p->grav > 0 ? (b_held ? 0 : BTN_B) : 0;
+        return p->grav > 0 ? (BTN_A | BTN_DOWN) : (BTN_A | BTN_UP);
+    }
+    if (iabs(px - x) > 6 || py > (sy + 1) * APD_TILE + 90) {
+        set_goal(x - 4, (sy + 1) * APD_TILE + 20, x + 4, (sy + 1) * APD_TILE + 80);
+        return 0xffffffffu;
+    }
+    return p->grav > 0 ? (BTN_A | BTN_UP) : (p->ground ? (b_held ? 0 : BTN_B) : (BTN_A | BTN_DOWN));
+}
+
+/* The quiet vault: a pad in the floor and one in the ceiling right over it.
+ * Stand on the floor pad, jump and flip at once: the shadow stays on the
+ * floor pad while the suit falls up onto the ceiling pad. */
+static uint32_t secret_work(void) {
+    int fx = -1, fy = 0;
+    for (int i = 0; i < ag.nth; i++)
+        if (ag.th[i].kind == TH_BUTTON && ag.th[i].var == 0) { fx = ag.th[i].tx * APD_TILE + 8; fy = (ag.th[i].ty + 1) * APD_TILE; }
+    if (fx < 0) return 0xffffffffu;
+    const ApdPlayer *p = &ag.pl;
+    int px = APD_PX(p->x), py = APD_PX(p->y);
+    bool b_held = (last_mask & BTN_B) != 0;
+    script_t++;
+    if (p->grav < 0) {
+        /* up on the ceiling (or falling up): come back down */
+        if (p->ground) return b_held ? 0 : BTN_B;
+        if (p->vy > 0 && !b_held) return BTN_B;
+        return 0;
+    }
+    if (iabs(px - fx) > 6 || (!p->ground && py < fy - 40)) {
+        set_goal(fx - 4, fy - APD_PH / 2 - 4, fx + 4, fy - APD_PH / 2 + 2);
+        return 0xffffffffu;
+    }
+    if (p->ground) return b_held ? 0 : BTN_B;      /* jump */
+    if (p->vy < 0 && py > fy - APD_PH / 2 - 20) return b_held ? 0 : BTN_B; /* and flip at once */
+    return 0;
+}
+
+/* an upgrade sealed in cracked concrete: from the floor under it, jump and
+ * flip, and the ANVIL drives the suit up through the concrete */
+static uint32_t anvil_up_work(int ix, int iy) {
+    const ApdPlayer *p = &ag.pl;
+    int tx = ix / APD_TILE, ty = iy / APD_TILE + 1;
+    while (ty < ag.rh && apd_tile_at(ix, ty * APD_TILE) == T_CRACK) ty++;
+    while (ty < ag.rh && apd_tile_at(ix, ty * APD_TILE) != T_WALL && apd_tile_at(ix, ty * APD_TILE) != T_SPUP) ty++;
+    (void)tx;
+    int sy = ty * APD_TILE - APD_PH / 2;
+    bool b_held = (last_mask & BTN_B) != 0;
+    if (p->grav < 0) {
+        if (p->ground) return b_held ? 0 : BTN_B;
+        return p->vy > 0 && !b_held ? BTN_B : 0;
+    }
+    if (iabs(APD_PX(p->x) - ix) > 6 || APD_PX(p->y) < sy - 70) {
+        set_goal(ix - 4, sy - 4, ix + 4, sy + 2);
+        return 0xffffffffu;
     }
     if (p->ground) return b_held ? 0 : BTN_B;
-    return BTN_DOWN | BTN_A | (b_held && p->vy < 0 ? BTN_B : 0);
+    if (p->vy < 0 && !p->stomp) return b_held ? 0 : BTN_B;
+    return 0;
 }
 
 /* ---- the cradle's menu ------------------------------------------------------------------- */
@@ -858,6 +945,7 @@ static uint32_t play_frame(void) {
     fight_mode = ag.boss_on;
     want_room = -1;
     fire_bits = 0;
+    fire_set = false;
     if (ag.boss_on && (!have_ob || ob.room != ag.room || (ob.kind != OB_BOSS && ob.kind != OB_FINAL))) {
         /* shut in with a boss: that is the job now */
         ob = (Obj){ag.boss == BS_HALLORAN ? OB_FINAL : OB_BOSS, ag.room, ag.boss, cur_lo(), -1};
@@ -887,8 +975,14 @@ static uint32_t play_frame(void) {
             case OB_ITEM: {
                 if (ob.room == x_room() && !ag.run.secret_open) { act = secret_work(); break; }
                 for (int i = 0; i < ag.nth; i++)
-                    if (ag.th[i].kind == TH_ITEM && ag.th[i].id == ob.arg && ag.th[i].alive)
-                        act = go_to(ag.th[i].tx * APD_TILE + 8, ag.th[i].ty * APD_TILE + 8, 5);
+                    if (ag.th[i].kind == TH_ITEM && ag.th[i].id == ob.arg && ag.th[i].alive) {
+                        int ix = ag.th[i].tx * APD_TILE + 8, iy = ag.th[i].ty * APD_TILE + 8;
+                        bool sealed = false;
+                        for (int dy = -1; dy <= 1; dy++)
+                            for (int dx = -1; dx <= 1; dx++)
+                                if ((dx || dy) && apd_tile_at(ix + dx * APD_TILE, iy + dy * APD_TILE) == T_CRACK) sealed = true;
+                        act = sealed ? anvil_up_work(ix, iy) : go_to(ix, iy, 5);
+                    }
                 break;
             }
             case OB_PASS:
@@ -924,17 +1018,21 @@ static uint32_t play_frame(void) {
                 bool is_a = dd->ra == ag.room;
                 int gx = dd->ax + (!is_a && !dd->vertical ? 1 : 0), gy = dd->ay + (!is_a && dd->vertical ? 1 : 0);
                 int lx = (gx - r->gx) * APD_CPW, ly = (gy - r->gy) * APD_CPH;
+                int dp = apd_door_pos(via);
                 if (!dd->vertical) {
-                    int x = is_a ? lx + APD_CPW - 8 : lx + 8;
-                    set_goal(x - 8, ly + 4 * APD_TILE + 4, x + 8, ly + 6 * APD_TILE - 4);
+                    int x = is_a ? lx + APD_CPW - 16 : lx;
+                    set_goal_mode(x, ly + dp * APD_TILE, x + 16, ly + (dp + 2) * APD_TILE, true);
                     /* in the doorway: on through it */
                     if (field_at(APD_PX(p->x), APD_PX(p->y)) == 0) act = is_a ? BTN_RIGHT : BTN_LEFT;
                 } else {
-                    int y = is_a ? ly + APD_CPH - 8 : ly + 8;
-                    set_goal(lx + 9 * APD_TILE + 2, y - 8, lx + 11 * APD_TILE - 2, y + 8);
+                    int y = is_a ? ly + APD_CPH - 16 : ly;
+                    set_goal_mode(lx + dp * APD_TILE, y, lx + (dp + 2) * APD_TILE, y + 16, true);
                     int want_g = is_a ? 1 : -1;
                     if (field_at(APD_PX(p->x), APD_PX(p->y)) == 0 && p->grav != want_g)
                         act = (last_mask & BTN_B) ? 0 : BTN_B; /* jump or flip toward it */
+                    else if (p->grav == want_g && !p->ground && APD_PX(p->x) >= lx + dp * APD_TILE &&
+                             APD_PX(p->x) < lx + (dp + 2) * APD_TILE && APD_PX(p->y) >= y - 12 && APD_PX(p->y) < y + 28)
+                        act = 0; /* falling through the doorway: let it */
                 }
             }
         } else {
@@ -951,6 +1049,7 @@ static uint32_t play_frame(void) {
     if (act != 0xffffffffu) {
         plan_left = 0;
         have_prev = false;
+        dbg_src = 1;
         return act;
     }
     /* no aiming up next to a cradle, a terminal or a pad (that would step in) */
@@ -958,8 +1057,7 @@ static uint32_t play_frame(void) {
         if ((ag.th[i].kind == TH_POD || ag.th[i].kind == TH_TERM || ag.th[i].kind == TH_TELE) &&
             iabs(ag.th[i].tx * APD_TILE + 8 - APD_PX(p->x)) < 40 && iabs(ag.th[i].ty * APD_TILE + 8 - APD_PX(p->y)) < 40)
             allow_up = false;
-    if (!fight_mode) choose_fire(allow_up);
-    else if (!fire_bits) choose_fire(allow_up);
+    if (!fire_set && (!fight_mode || !fire_bits)) choose_fire(allow_up);
     /* steer, checked on a copy now and then; the look-ahead takes over for a
      * while when the steering would come to harm or makes no headway */
     static int plan_mode_t, check_t, best_f, stall_t, last_room = -1;
@@ -975,6 +1073,7 @@ static uint32_t play_frame(void) {
         if (plan_mode_t <= 0) {
             plan_left = 0;
             have_prev = false;
+            dbg_src = 2;
             return steer(last_mask) | fire_bits;
         }
     }
@@ -983,8 +1082,10 @@ static uint32_t play_frame(void) {
         plan_left--;
         memmove(cur_plan_masks, cur_plan_masks + 1, sizeof cur_plan_masks - sizeof cur_plan_masks[0]);
         cur_plan_masks[HORIZON - 1] = 0;
+        dbg_src = 3;
         return cur_plan_masks[0] | fire_bits;
     }
+    dbg_src = 4;
     return look_ahead() | fire_bits;
 }
 
@@ -1009,9 +1110,9 @@ int apd_bot_buttons(void) {
     if (ag.state == AS_PLAY) {
         const ApdPlayer *p = &ag.pl;
     if (apd_bot_log >= 2 && (apd_bot_log >= 4 || ag.run.frames % 30 == 0))
-        fprintf(stderr, "  [%u] room %c p %d,%d g %d gr %d field %d goal %d..%d,%d..%d want %d act %x fire %x\n", (unsigned)ag.run.frames,
+        fprintf(stderr, "  [%u] room %c p %d,%d g %d gr %d field %d goal %d..%d,%d..%d want %d act %x fire %x wp %d,%d src %d\n", (unsigned)ag.run.frames,
                 apd_rooms[ag.room].id, APD_PX(p->x), APD_PX(p->y), p->grav, p->ground, field_at(APD_PX(p->x), APD_PX(p->y)),
-                gx0, gx1, gy0, gy1, want_room, m, fire_bits);
+                gx0, gx1, gy0, gy1, want_room, m, fire_bits, wp_x * FC + 4, wp_y * FC + 4, dbg_src);
     }
     last_mask = m;
     return (int)m;
@@ -1028,7 +1129,7 @@ int apd_reach_check(void) {
     ag.run.pass = 3;
     ag.run.ciphers = 15;
     ag.run.dampers = 2;
-    for (int m = 0; m < APD_MODS; m++) ag.run.mod_sys[m] = SYS_OFF;
+    for (int m = 0; m < APD_MODS; m++) ag.run.mod_sys[m] = SYS_GUN;
     for (int b = 0; b < APD_BOSSES; b++) ag.run.boss_dead[b] = 1;
     for (int d = 0; d < apd_ndoors; d++)
         if (apd_doors[d].type == E_NANO) ag.run.gate_open[d] = 1; /* the orbs can always be shot */

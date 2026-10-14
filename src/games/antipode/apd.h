@@ -72,15 +72,19 @@ typedef struct {
     int16_t ra, rb;               /* rooms */
 } ApdDoor;
 
-/* the room table: one line a room */
+/* the room table (apd_rooms.c, written from tools/antipode/station.txt) */
 typedef struct {
     uint8_t sector;
     char id;
-    const char *tpl;              /* a template letter per cell, row by row */
+    const char *const *rows;      /* the room's own layout, (w*20) x (h*10) */
     uint16_t flags;
-    const char *things;           /* what's in it (see apd_world.c) */
+    const char *things;           /* what's in it, each on a mark of the layout */
     const char *name;
 } ApdSpec;
+typedef struct { uint8_t sector, ax, ay, vertical, pos; } ApdDoorPos;
+extern const char *const *const APD_MAPS[];
+extern const ApdDoorPos APD_DOORPOS[];
+extern const int APD_NDOORPOS;
 enum { RF_HEAT = 1, RF_SPIKES = 2, RF_ACID = 4, RF_DARK = 8, RF_ARENA = 16, RF_START = 32 };
 
 /* items */
@@ -185,7 +189,7 @@ typedef struct {
 } ApdFoe;
 enum { FF_SHIELD = 1, FF_NOHIT = 2, FF_REFLECT = 4, FF_HIDDEN = 8 };
 
-enum { ES_BALL, ES_STAR, ES_BOLT, ES_BUBBLE, ES_BEAM, ES_ORB, ES_RING, ES_LIGHTNING, ES_SHELL, ES_SPARK };
+enum { ES_BALL, ES_STAR, ES_BOLT, ES_BUBBLE, ES_BEAM, ES_ORB, ES_RING, ES_LIGHTNING, ES_SHELL, ES_SPARK, ES_WAVE };
 typedef struct {
     uint8_t kind, alive;
     int16_t dmg;
@@ -293,6 +297,9 @@ typedef struct {
     bool boss_on, boss_lock;
     int boss_dead_t;
     int lightning_t;                  /* the Crown's last phase: shots are deleted */
+    bool storm_on;                    /* ... and its storm, on its own seeded timer */
+    int storm_t;
+    uint32_t storm_seed;
     /* buttons of the secret room */
     int button_t[2];
     /* the cradle menu */

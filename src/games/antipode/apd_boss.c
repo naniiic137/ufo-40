@@ -214,24 +214,13 @@ static void scrapper(ApdFoe *f) {
     }
 }
 
-/* ---- the Warden: a big walker that moves the floor ---------------------------- */
-static const int PISTON_COL[4] = {6, 13, 26, 33};
-
-static void pistons(ApdFoe *f, bool up) {
-    int px = APD_PX(ag.pl.x) / APD_TILE;
-    for (int k = 0; k < 4; k++) {
-        int c = PISTON_COL[k];
-        if (c + 1 >= ag.rw) continue;
-        bool under_pl = px >= c - 1 && px <= c + 2;
-        bool under_me = iabs(APD_PX(f->x) / APD_TILE - c) <= 3;
-        for (int col = c; col <= c + 1; col++)
-            for (int row = 1; row <= 8; row++) {
-                bool from_floor = !f->up; /* the side he stands on rises */
-                bool part_of = from_floor ? row >= 5 : row <= 4;
-                if (!part_of) continue;
-                if (up && !under_pl && !under_me) ag.tile[row][col] = T_WALL;
-                else if (!up) ag.tile[row][col] = T_AIR;
-            }
+/* ---- the Warden: a walker that crosses floor to ceiling and back; where
+ * it lands, a shock runs both ways along that surface ------------------------- */
+static void shockwaves(ApdFoe *f) {
+    int y = f->up ? (APD_TILE + 7) * APD_FX : (H() - APD_TILE - 7) * APD_FX;
+    for (int d = -1; d <= 1; d += 2) {
+        int e = apd_add_eshot(ES_WAVE, f->x + d * 22 * APD_FX, y, d * 640, 0, 12);
+        if (e >= 0) { ag.es[e].w = 12; ag.es[e].h = 14; ag.es[e].life = 200; }
     }
 }
 
@@ -241,7 +230,7 @@ static void warden(ApdFoe *f) {
     case 0: /* walk */
         f->dir = APD_PX(ag.pl.x) < APD_PX(f->x) ? -1 : 1;
         f->x = iclamp(f->x + f->dir * 200, 28 * APD_FX, (W() - 28) * APD_FX);
-        if (f->t > 90) { f->state = f->c % 2 ? 2 : 1; f->t = 0; f->c++; }
+        if (f->t > 90) { f->state = f->c % 2 ? 2 : 1; f->t = 0; f->c++; if (f->state == 2) f->up = !f->up; }
         break;
     case 1: /* bolts */
         if (f->t % 24 == 0 && f->t <= 48) {
@@ -251,24 +240,38 @@ static void warden(ApdFoe *f) {
         }
         if (f->t > 70) { f->state = 0; f->t = 0; }
         break;
-    case 2: /* slam: the floor rises in columns */
-        if (f->t == 1) { ag.shake = 30; apd_sfx("apd_rumble"); }
-        if (f->t == 30) pistons(f, true);
-        if (f->t == 180) pistons(f, false);
-        if (f->t > 190) { f->state = 3; f->t = 0; f->up = !f->up; }
-        break;
-    case 3: { /* cross to the other side */
+    case 2: { /* crosses to the other surface; the landing sends the shocks */
+        if (f->t < 24) { ag.shake = 2; break; }
         int ty = f->up ? ceil_y(f->h) : floor_y(f->h);
-        int step = 5 * APD_FX;
+        int step = 6 * APD_FX;
         if (iabs(ty - f->y) <= step) {
             f->y = ty;
             f->state = 0;
             f->t = 0;
-            ag.shake = 10;
+            ag.shake = 14;
             apd_sfx("apd_stomp");
+            shockwaves(f);
         } else f->y += ty > f->y ? step : -step;
         break;
     }
+    }
+}
+
+/* ---- Halloran's walker raises columns of the floor -------------------------- */
+static const int PISTON_COL[4] = {6, 13, 26, 33};
+
+static void pistons(const ApdFoe *f, bool up) {
+    int px = APD_PX(ag.pl.x) / APD_TILE;
+    for (int k = 0; k < 4; k++) {
+        int c = PISTON_COL[k];
+        if (c + 1 >= ag.rw) continue;
+        bool under_pl = px >= c - 1 && px <= c + 2;
+        bool under_me = iabs(APD_PX(f->x) / APD_TILE - c) <= 4;
+        for (int col = c; col <= c + 1; col++)
+            for (int row = ag.rh - 5; row <= ag.rh - 2; row++) {
+                if (up && !under_pl && !under_me) ag.tile[row][col] = T_WALL;
+                else if (!up) ag.tile[row][col] = T_AIR;
+            }
     }
 }
 
@@ -414,6 +417,11 @@ static void obverse(ApdFoe *f) {
 }
 
 /* ---- Halloran: the walker, the heart, the head --------------------------------- */
+static int storm_rand(int n) {
+    ag.storm_seed = ag.storm_seed * 1103515245u + 12345u;
+    return (int)((ag.storm_seed >> 16) % (uint32_t)n);
+}
+
 static void hal_phase(int ph) {
     ApdFoe *f = main_foe();
     if (!f) return;
@@ -423,6 +431,10 @@ static void hal_phase(int ph) {
     for (int i = 0; i < APD_MAX_FOES; i++)
         if (ag.foe[i].alive && ag.foe[i].owner == ag.boss_foe) ag.foe[i].alive = 0;
     memset(ag.es, 0, sizeof ag.es);
+    if (ph > 0) pistons(f, false);
+    ag.storm_on = false;
+    ag.storm_t = 420;
+    ag.storm_seed = ag.run.frames * 2654435761u + 7u;
     f->hp = f->maxhp = (int16_t)APD_HAL_HP[ph];
     f->state = 0;
     f->t = 0;
@@ -485,6 +497,11 @@ static void halloran(ApdFoe *f, int i) {
                 }
             }
         }
+        /* it stamps, and columns of the floor rise for three seconds */
+        int pc = ag.boss_t % 480;
+        if (pc == 1) { ag.shake = 30; apd_sfx("apd_rumble"); }
+        if (pc == 40) pistons(f, true);
+        if (pc == 220) pistons(f, false);
         /* now and then it turns its shots back, then drops it */
         int cyc = ag.boss_t % 600;
         if (cyc == 400) { f->flags |= FF_REFLECT; apd_sfx("apd_shield"); }
@@ -514,9 +531,14 @@ static void halloran(ApdFoe *f, int i) {
          * it shuts itself away and calls down lightning */
         int joints = 0;
         for (int k = 0; k < APD_MAX_FOES; k++) joints += ag.foe[k].alive && ag.foe[k].kind == FO_HAL_JOINT;
-        int cyc = ag.boss_t % 1800;
-        bool storm = cyc >= 600; /* 20 s of lightning, then 10 s */
-        if (cyc == 600) { apd_say("THE CROWN CALLS THE STORM"); apd_sfx("apd_alarm"); }
+        /* the storm comes and goes on no clock you can read: 20 to 30 s of
+         * lightning, then a calm of 6 to 14 s */
+        if (--ag.storm_t <= 0) {
+            ag.storm_on = !ag.storm_on;
+            ag.storm_t = ag.storm_on ? 1200 + storm_rand(601) : 360 + storm_rand(481);
+            if (ag.storm_on) { apd_say("THE CROWN CALLS THE STORM"); apd_sfx("apd_alarm"); }
+        }
+        bool storm = ag.storm_on;
         if (f->state == 0) {
             f->y += (70 * APD_FX - f->y) / 10;
             f->flags |= FF_NOHIT;
@@ -535,9 +557,8 @@ static void halloran(ApdFoe *f, int i) {
         }
         if (storm) {
             f->flags |= FF_NOHIT;
-            if (cyc % 50 == 0) {
-                static const int OFF[5] = {0, 48, -64, 24, -32};
-                int x = iclamp(APD_PX(ag.pl.x) + OFF[(cyc / 50) % 5], 24, W() - 24);
+            if (ag.storm_t % 50 == 0) {
+                int x = iclamp(APD_PX(ag.pl.x) + storm_rand(161) - 80, 24, W() - 24);
                 int e = apd_add_eshot(ES_LIGHTNING, x * APD_FX, (H() / 2) * APD_FX, 0, 0, 20);
                 if (e >= 0) ag.es[e].life = 80;
                 apd_sfx("apd_zap");
