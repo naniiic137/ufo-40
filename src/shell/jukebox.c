@@ -143,7 +143,7 @@ static const struct { const char *id, *title; } TITLES[] = {
     {"rsl_ending", "LAID TO REST"}, {"rsl_scores", "NAMES IN THE ASH"}, {"rsl_clear", "STAGE CLEAR"},
     {"rsl_over", "SCATTERED"}, {"rsl_rise", "GRANDMOTHER ASH"},
     {"wth_title", "WITHERLEA"}, {"wth_house", "THE QUIET HOUSE"}, {"wth_upstairs", "LIGHTS OUT"},
-    {"wth_garden", "THE YEW AND THE WELL"}, {"wth_chase", "THE KEEPER"}, {"wth_hide", "HOLD YOUR BREATH"},
+    {"wth_garden", "THE GRATED WELL"}, {"wth_chase", "THE KEEPER"}, {"wth_hide", "HOLD YOUR BREATH"},
     {"wth_cellar", "UNDER THE HOUSE"}, {"wth_maze", "THE HEDGES"}, {"wth_ending", "THE LANE HOME"},
     {"wth_dawn", "DAYBREAK"}, {"wth_caught", "BAD DREAM"}, {"wth_sting", "IN THE MIRROR"},
 };

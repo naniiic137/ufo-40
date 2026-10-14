@@ -1670,7 +1670,7 @@ static const char *const CREDITS[] = {
     "",
     "THE MORROWS OF WITHERLEA",
     "ADA, TOM, PIP AND BARNABY",
-    "AND SORREL THE DOG",
+    "AND THEIR DOG, WHEREVER HE WENT",
     "",
     "THE KEEPER",
     "",

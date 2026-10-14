@@ -1,5 +1,5 @@
 # README media: WITHERLEA. The GIF is the demo player's real button presses:
-# out of the cold store and into the house. The stills set up a moment with
+# out of the cold store (a nail under the hinge pins) and into the house. The stills set up a moment with
 # cheats and show it.
 shotscale 2
 seed 42
@@ -24,18 +24,18 @@ wait 170
 cheat cursor 100 110
 wait 2
 shot witherlea_keeper
-# the breathing game behind the smoking-room curtain
+# the breathing game in the kitchen pantry
 cheat new
 cheat spawn 99999
-cheat room smoking
+cheat room kitchen
 cheat keeper
 wait 2
-cheat aim S_SMO_ALCOVE
+cheat aim S_KIT_PANTRY
 press A
 waituntil mini_pause == 0 100
 wait 40
 shot witherlea_hide
-# the landing by torchlight
+# the landing by lamplight
 cheat new
 cheat spawn 99999
 cheat set F_STAIRS_LIT
@@ -43,20 +43,20 @@ cheat room landing
 cheat cursor 128 62
 wait 2
 shot witherlea_landing
-# the side garden, and the bag with the hook made
+# the back garden, and the bag with the magnet held over the fishing line
 cheat new
 cheat spawn 99999
 cheat room garden
-cheat give cane
-cheat give cuphook
-cheat give twine
+cheat give magnet
+cheat give line
 cheat give knife
 cheat pages 1027
-cheat give torch
+cheat give lamp
+cheat give brassbee
 cheat cursor 160 104
 wait 2
 shot witherlea_garden
-cheat hold cane
+cheat hold magnet
 press B
 press RIGHT
 wait 2
@@ -65,7 +65,6 @@ shot witherlea_bag
 press B
 cheat hold none
 press B
-press RIGHT
 press RIGHT
 press RIGHT
 press RIGHT

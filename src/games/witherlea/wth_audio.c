@@ -25,7 +25,7 @@ static const char UP_PAD[] = "@4 v4 q8 o4 [b1]2 [g1]2 [b1]2 [f+1]2";
 static const char UP_BASS[] = "@6 v9 q7 o2 [b2 f+2]2 [g2 d2]2 [b2 f+2]2 [f+2 c+2]2";
 static const char UP_BEAT[] = "[@13 v6 o2 c8 r8 @13 v4 o2 c8 r8 r2]8";
 
-/* "The Yew and the Well" - outside, an owl over the wind */
+/* "The Grated Well" - outside, an owl over the wind */
 static const char GDN_OWL[] = "@19 v6 q6 o5 r1 r2 d4 r4 o4 a2 r2 r1 r1 r2 o5 d4 r4 o4 a2 r2 r1";
 static const char GDN_PAD[] = "@4 v3 q8 o4 [d1 c1]4";
 static const char GDN_BASS[] = "@6 v7 q8 o2 [d1 c1]4";
