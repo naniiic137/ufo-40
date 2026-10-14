@@ -774,7 +774,7 @@ static uint32_t gate_work(int d) {
             /* stand on it, jump and flip up (a drop up), then from up there jump
              * and flip down onto it */
             if (p->grav > 0) {
-                if (iabs(px - x) > 7 || !p->ground) {
+                if (iabs(px - x) > 7 || !p->ground || iabs(py - (sy * APD_TILE - APD_PH / 2)) > 6) {
                     if (!p->ground && iabs(px - x) <= 7 && p->vy < 0 && !p->stomp) return b_held ? 0 : BTN_B;
                     set_goal(x - 5, sy * APD_TILE - APD_PH / 2 - 3, x + 5, sy * APD_TILE - APD_PH / 2 + 1);
                     return 0xffffffffu;
@@ -1110,8 +1110,8 @@ int apd_bot_buttons(void) {
     if (ag.state == AS_PLAY) {
         const ApdPlayer *p = &ag.pl;
     if (apd_bot_log >= 2 && (apd_bot_log >= 4 || ag.run.frames % 30 == 0))
-        fprintf(stderr, "  [%u] room %c p %d,%d g %d gr %d field %d goal %d..%d,%d..%d want %d act %x fire %x wp %d,%d src %d\n", (unsigned)ag.run.frames,
-                apd_rooms[ag.room].id, APD_PX(p->x), APD_PX(p->y), p->grav, p->ground, field_at(APD_PX(p->x), APD_PX(p->y)),
+        fprintf(stderr, "  [%u] room %c%c p %d,%d g %d gr %d field %d goal %d..%d,%d..%d want %d act %x fire %x wp %d,%d src %d\n", (unsigned)ag.run.frames,
+                "GBCK"[apd_rooms[ag.room].sector], apd_rooms[ag.room].id,APD_PX(p->x), APD_PX(p->y), p->grav, p->ground, field_at(APD_PX(p->x), APD_PX(p->y)),
                 gx0, gx1, gy0, gy1, want_room, m, fire_bits, wp_x * FC + 4, wp_y * FC + 4, dbg_src);
     }
     last_mask = m;
