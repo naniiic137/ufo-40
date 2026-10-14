@@ -284,6 +284,16 @@ CORE_SRC += src/games/restless/rsl_bot.c
 CORE_SRC += src/games/restless/rsl_draw.c
 CORE_SRC += src/games/restless/rsl_art.c
 CORE_SRC += src/games/restless/rsl_audio.c
+CORE_SRC += src/games/showstopper/sst.c
+CORE_SRC += src/games/showstopper/sst_play.c
+CORE_SRC += src/games/showstopper/sst_foes.c
+CORE_SRC += src/games/showstopper/sst_boss.c
+CORE_SRC += src/games/showstopper/sst_stages.c
+CORE_SRC += src/games/showstopper/sst_hop.c
+CORE_SRC += src/games/showstopper/sst_bot.c
+CORE_SRC += src/games/showstopper/sst_draw.c
+CORE_SRC += src/games/showstopper/sst_art.c
+CORE_SRC += src/games/showstopper/sst_audio.c
 
 HEADLESS_SRC += src/platform/headless/main_headless.c
 HEADLESS_SRC += src/platform/headless/imgwrite.c
