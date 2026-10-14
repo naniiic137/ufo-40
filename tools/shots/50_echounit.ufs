@@ -1,0 +1,47 @@
+# README media: ECHO UNIT. Everything in play is the demo player's real
+# button presses; each mission is reached with a cheat, then played by the
+# demo player. The GIF is Flint on the Marseille docks.
+shotscale 2
+seed 50
+game echounit
+wait 60
+shot echounit_title
+press A
+wait 30
+press A
+wait 30
+shot echounit_board
+# Marseille
+cheat mission 0
+botplay 300
+gifstart echounit 3 1
+botplay 600
+gifstop
+shot echounit_docks
+# the Andes
+cheat mission 1
+botplay 1500
+shot echounit_andes
+# Cairo
+cheat mission 2
+botplay 1800
+shot echounit_cairo
+# Istanbul
+cheat mission 3
+botplay 1400
+shot echounit_istanbul
+# a jailbreak
+cheat rescue 1 2 11
+botplay 6
+shot echounit_jailbreak
+# the Caldera's lab, and Madame Coil's gunship
+cheat mission 4
+cheat section 1
+botplay 900
+shot echounit_lab
+cheat section 5
+cheat gnospawn
+cheat gboss
+cheat god
+botplay 400
+shot echounit_coil
