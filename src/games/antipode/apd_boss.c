@@ -76,6 +76,11 @@ void apd_boss_spawn(int boss) {
     if (kind == FO_COILHEART) f->flags |= FF_SHIELD;
     if (kind == FO_HALLORAN) hal_phase(0);
     apd_lock_boss_doors(true);
+    /* a spare body now wakes here, inside, not in the shut doorway */
+    ag.pl.entry_x = ag.pl.x;
+    ag.pl.entry_y = ag.pl.y;
+    ag.pl.entry_grav = ag.pl.grav;
+    ag.pl.entry_face = ag.pl.face;
     apd_sfx("apd_alarm");
     apd_music(boss == BS_HALLORAN ? APD_MUS_FINAL : APD_MUS_BOSS);
 }

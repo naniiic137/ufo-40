@@ -20,6 +20,7 @@ expect tileat_8_70 == 10
 cheat bosshp 100
 cheat die
 waituntil state == 3 100
+expect px > 44
 expect boss_hp == 350
 expect boss_on == 1
 expect spares == 1
