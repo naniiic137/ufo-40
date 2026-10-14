@@ -89,7 +89,6 @@ extern const LmpZone LMP_HUB_ZONE[];
 extern const int LMP_HUB_NZONES;
 enum { ZN_CONCOURSE, ZN_CANTEEN, ZN_GRISTLE, ZN_UPPER, ZN_COUNT };
 extern const char *const LMP_ZONE_NAME[ZN_COUNT];
-extern const char *const LMP_SPEAK_NAME;
 
 /* ---- foes -------------------------------------------------------------------- */
 enum {
