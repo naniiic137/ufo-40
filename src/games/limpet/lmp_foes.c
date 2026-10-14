@@ -147,7 +147,19 @@ void lmp_hurt_foe(int i, int dmg) {
         }
         return;
     }
-    if (f->kind == FO_DREAD) return; /* only through the barrel: see dread_hit */
+    if (f->kind == FO_DREAD) return; /* only through the barrel: see dread_shots */
+    if (f->kind == FO_TURNCOAT) {
+        /* hit, it can't be hurt for a moment and scuttles away out of the line */
+        if (f->flash > 0) { lmp_sfx("lmp_tink"); return; }
+        f->hp = (int16_t)(f->hp - dmg);
+        f->flash = 45;
+        f->st = 0;
+        f->a = 0;
+        f->c = 6;
+        if (f->hp <= 0) boss_dead(f);
+        else lmp_sfx("lmp_hit");
+        return;
+    }
     f->hp = (int16_t)(f->hp - dmg);
     f->flash = 8;
     if (f->hp > 0) { lmp_sfx("lmp_hit"); return; }
@@ -356,7 +368,7 @@ static void crawler_update(LmpFoe *f) {
 static void turncoat_update(LmpFoe *f, int tx, int ty) {
     LmpTank *tk = &lg.tk;
     int fast = f->hp <= LMP_FOE_HP[FO_TURNCOAT] / 2;
-    int dur = fast ? TURNCOAT_T - 3 : TURNCOAT_T;
+    int dur = f->c > 0 ? 4 : fast ? TURNCOAT_T - 3 : TURNCOAT_T; /* fleeing after a hit: quick */
     if (f->flash > 0) f->flash--;
     if (f->mt < dur && !(f->cx == f->ox && f->cy == f->oy && f->on == f->n)) {
         grid_walk(f, dur);
@@ -379,6 +391,17 @@ static void turncoat_update(LmpFoe *f, int tx, int ty) {
         return;
     }
     int fx = f->x / LMP_FX, fy = f->y / LMP_FX;
+    if (f->c > 0) {
+        /* hit: it scuttles off along its surface, away from the tank's line */
+        f->c--;
+        int away = LMP_DX[f->n] != 0 ? isign(fy - ty) : isign(fx - tx);
+        if (away == 0) away = f->dir;
+        int t1 = (f->n + 2) & 7;
+        int along = LMP_DX[f->n] != 0 ? LMP_DY[t1] : LMP_DX[t1];
+        f->dir = along == away ? 1 : -1;
+        grid_go(f);
+        return;
+    }
     bool on_line = LMP_DX[f->n] != 0 ? (iabs(ty - fy) <= 4 && isign(tx - fx) == LMP_DX[f->n])
                                       : (iabs(tx - fx) <= 4 && isign(ty - fy) == LMP_DY[f->n]);
     if (on_line && f->b == 0) { f->st = 17; f->b = fast ? 40 : 60; return; }
@@ -464,6 +487,7 @@ static void dread_update(LmpFoe *f, int tx, int ty) {
             lg.shake = 4;
             f->state = DN_OPEN;
             f->t = 0;
+            f->b = 0;
         }
         break;
     case DN_OPEN:
@@ -495,6 +519,8 @@ static void dread_shots(LmpFoe *f) {
             if (f->state == DN_OPEN) {
                 f->hp--;
                 f->flash = 8;
+                /* three hits and the core shuts again */
+                if (++f->b >= 3 && f->hp > 0) { f->state = DN_CLOSED; f->t = 0; }
                 lmp_sfx("lmp_corehit");
                 lmp_burst(mx, my - 20, C_YELLOW, 6, 2);
                 if (f->hp <= 0) { f->state = DN_DYING; f->st = 0; lmp_sfx("lmp_bossdie"); }

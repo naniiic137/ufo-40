@@ -26,8 +26,8 @@ static inline bool lmp_axis(int n) { return (n & 1) == 0; }
 /* ---- the grid ------------------------------------------------------------ */
 #define LMP_T 10                 /* a tile, pixels */
 #define LMP_FX 256               /* one pixel, fixed point */
-#define LMP_MW 128               /* the largest map (the hub) */
-#define LMP_MH 64
+#define LMP_MW 160               /* the largest map (the hub) */
+#define LMP_MH 68
 #define LMP_HUD 10               /* the status strip on top */
 #define LMP_VIEW_H (SCREEN_H - LMP_HUD)
 
@@ -118,7 +118,7 @@ typedef struct {
     int vx, vy;
     int cx, cy, n;               /* grid foes: cell and normal */
     int ox, oy, on, mt;          /* grid foes moving: from, and frames into the step */
-    int t, st, state, dir, a, b;
+    int t, st, state, dir, a, b, c;
     int flash;
     int w, h;                    /* hitbox, pixels */
     int spawn;                   /* the index in the level's foe list, -1 none */
@@ -185,7 +185,7 @@ typedef struct { uint8_t kind; int x, y, n; } LmpSpawn;
 
 /* ---- states ------------------------------------------------------------------ */
 enum {
-    GS_TITLE, GS_STORY, GS_PLAY, GS_DEAD, GS_PROMPT, GS_CLEAR, GS_ENDING, GS_CHERRY, GS_TALK
+    GS_TITLE, GS_STORY, GS_PLAY, GS_DEAD, GS_PROMPT, GS_CLEAR, GS_ENDING, GS_CHERRY, GS_TALK, GS_SCENE
 };
 
 /* the cartridge save */
@@ -246,6 +246,10 @@ typedef struct {
     int deaths_here;
     int sim_deaths;
     int fired;                   /* shots fired in this deck */
+    /* the hub's scene when a clear opens something: which gate, how far in */
+    uint32_t scene_pending;
+    int scene_gate, scene_t;
+    bool scene_hide;             /* the gate (or the honey bridge) still shut in the scene */
 } LmpGame;
 
 extern LmpGame lg;
@@ -289,6 +293,7 @@ void lmp_take_checkpoint(void);
 void lmp_restore_checkpoint(void);
 int lmp_mover_at(int x, int y);
 void lmp_open_exit(void);
+bool lmp_gate_open(int i);
 int lmp_count_tiles(char c);
 
 /* lmp_tank.c: the surface graph, rolling, warping, shooting */

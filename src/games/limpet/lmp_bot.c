@@ -14,7 +14,8 @@
  *                    TS a swap switch, TO an outline block, TB a breakable
  *   B                shoot the red bulb
  *   E                go into the exit pod
- *   !  H             stand on the ! block, take the honey (honey runs only)
+ *   H                touch the hidden honey (honey runs only)
+ *   marks are the digits (not 7) and a g i j k l x
  *   ( ... )          only on honey runs
  *   m                wait for a moving platform under the warp line, then warp onto it
  *   V                shoot the switch worm until the swap blocks change over
@@ -95,8 +96,10 @@ typedef bool (*Goal)(int x, int y, int n, const void *arg);
 
 /* cells a foe sits in: the search goes round them */
 static uint8_t b_foe_cell[LMP_MH][LMP_MW];
+static bool b_nofoes; /* a search that ignores foes (to see if one is in the way) */
 static void mark_foes(void) {
     memset(b_foe_cell, 0, sizeof b_foe_cell);
+    if (b_nofoes) return;
     for (int i = 0; i < LMP_MAX_FOES; i++) {
         const LmpFoe *f = &lg.foe[i];
         if (!f->alive || f->kind == FO_FLAME) continue;
@@ -445,6 +448,26 @@ static int go(Goal goal, const void *arg, bool *arrived) {
     if (act == ACT_NONE) { *arrived = true; return 0; }
     bool danger = threat_near();
     if (act < 0) {
+        /* a timed door shut again: shoot its switch */
+        if (lg.timed_t == 0 && lmp_count_tiles('y') > 0 && lmp_count_tiles('Y') > 0) {
+            char want_c = 'y';
+            int d2;
+            int a2 = bfs(goal_hit, &want_c, &d2);
+            if (a2 == ACT_NONE) return (t->fire_gap == 0 && !(r_prev_mask & BTN_A)) ? BTN_A : 0;
+            if (a2 > 0) return act_buttons(a2);
+        }
+        /* a foe sitting in the way: go and shoot it */
+        int d3;
+        b_nofoes = true;
+        int clear = bfs(goal, arg, &d3);
+        b_nofoes = false;
+        if (clear >= 0) {
+            int a3 = bfs(goal_hunt, NULL, &d3);
+            if (a3 > 0) {
+                int b3 = act_buttons(a3);
+                if (!danger || survives(b3, a3 == ACT_WARP ? 1 : LMP_STEP_T, 50)) return b3;
+            }
+        }
         /* no way yet (a door, a platform): keep safe and wait */
         if (danger && !survives(0, 0, 45)) {
             static const int ALT[3] = {ACT_WARP, ACT_CW, ACT_CCW};
@@ -606,7 +629,7 @@ static int level_plan(void) {
     int shoot = fire_if_foe();
     bool arrived = false;
     int b = 0;
-    if (isdigit((unsigned char)tok[0])) {
+    if (isdigit((unsigned char)tok[0]) || strchr("agijklx", tok[0])) {
         int mx, my;
         Spot s = {-1, -1, -1};
         for (int y = 0; y < lg.mh && s.x < 0; y++)
@@ -649,37 +672,19 @@ static int level_plan(void) {
         /* a honey run that lost its jar to a death goes back for it if it can */
         if (lmp_bot_honey && lg.honey_x >= 0 && !lg.honey_held && lg.kind == LK_NORMAL) {
             Spot hs = {lg.honey_x, lg.honey_y, -1};
-            if (!lg.honey_shown)
-                for (int y = 0; y < lg.mh && hs.n == -1; y++)
-                    for (int x = 0; x < lg.mw; x++)
-                        if (lg.map[y][x] == '!') { hs.x = x; hs.y = y; hs.n = -2; break; }
             int d;
-            if (hs.n == -2) {
-                hs.n = -1;
-                if (bfs(goal_support, &hs, &d) >= 0) { b = go(goal_support, &hs, &arrived); return b | (b ? 0 : shoot); }
-            } else if (bfs(goal_spot, &hs, &d) >= 0) {
-                b = go(goal_spot, &hs, &arrived);
-                return b | (b ? 0 : shoot);
-            }
+            if (bfs(goal_support, &hs, &d) >= 0) { b = go(goal_support, &hs, &arrived); return b | (b ? 0 : shoot); }
         }
         Spot s = {lg.exit_x, lg.exit_y, -1};
         b = go(goal_spot, &s, &arrived);
         return b | (b ? 0 : shoot);
     }
-    case '!': {
-        if (lg.honey_shown) { r_pos = np; return 0; }
-        Spot s = {-1, -1, -1};
-        for (int y = 0; y < lg.mh && s.x < 0; y++)
-            for (int x = 0; x < lg.mw; x++)
-                if (lg.map[y][x] == '!') { s.x = x; s.y = y; break; }
-        b = go(goal_support, &s, &arrived);
-        if (arrived) r_pos = np;
-        return b | (b ? 0 : shoot);
-    }
     case 'H': {
+        /* the hidden honey: touch its surface (the Dreadnought's jar: its cell) */
         if (lg.honey_held || lg.honey_x < 0) { r_pos = np; return 0; }
         Spot s = {lg.honey_x, lg.honey_y, -1};
-        b = go(goal_spot, &s, &arrived);
+        bool tile = lmp_tile(lg.honey_x, lg.honey_y) == 'H';
+        b = go(tile ? goal_support : goal_spot, &s, &arrived);
         if (arrived) r_pos = np;
         return b | (b ? 0 : shoot);
     }

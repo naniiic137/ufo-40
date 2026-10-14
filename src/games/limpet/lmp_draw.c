@@ -34,6 +34,17 @@ void lmp_camera_update(void) {
         if (ty - LMP_VIEW_H / 2 + SNAP / 2 < 0) y = 0;
         y = iclamp(y, 0, mhp - LMP_VIEW_H);
     }
+    if (lg.state == GS_SCENE && lg.level == LV_HUB) {
+        /* the unlock scene: over to what opened, a look, and back */
+        const LmpGate *g = &LMP_HUB_GATE[lg.scene_gate];
+        int gx = (g->x * 2 + g->w) * LMP_T / 2 - SCREEN_W / 2, gy = (g->y * 2 + g->h) * LMP_T / 2 - LMP_VIEW_H / 2;
+        gx = iclamp(gx, 0, imax(0, mwp - SCREEN_W));
+        gy = iclamp(gy, 0, imax(0, mhp - LMP_VIEW_H));
+        int st = lg.scene_t, k = st < 25 ? st * 256 / 25 : st > 125 ? (150 - st) * 256 / 25 : 256;
+        k = iclamp(k, 0, 256);
+        x = x + (gx - x) * k / 256;
+        y = y + (gy - y) * k / 256;
+    }
     cam_x = x;
     cam_y = y - LMP_HUD;
     lg.cam_x = x;
@@ -95,9 +106,15 @@ static void draw_tile(int tx, int ty, char c, int t) {
         if ((tx + ty * 3) % 7 == 0) gfx_pset(x + 2, y + 2, C_DUSK);
         if (ty % 4 == 0) gfx_hline(x, x + LMP_T - 1, y, C_INK);
         break;
-    case '#':
+    case '#': case 'Q':
+        /* Q: a wall that isn't one (the hub's false dead end), drawn the same */
         plate(x, y, hc, PAL_LIGHTER[hc]);
         if ((tx + ty) % 3 == 0) gfx_pset(x + 2, y + 2, PAL_LIGHTER[PAL_LIGHTER[hc]]);
+        break;
+    case 'H':
+        /* the hidden honey: hull, a shade off, with no rivet */
+        plate(x, y, hc, PAL_LIGHTER[hc]);
+        gfx_hline(x + 1, x + 8, y + 1, hc);
         break;
     case 'G': {
         /* the hub's obstacles: Gus's crate, stuck doors, the hatch, the Dreadnought's wall */
@@ -217,11 +234,6 @@ static void draw_tile(int tx, int ty, char c, int t) {
         tiny_draw("C", x + 4, y + 3, cur ? C_WHITE : C_LIME);
         break;
     }
-    case '!':
-        plate(x, y, C_AMBER, C_YELLOW);
-        gfx_vline(x + 5, y + 2, y + 5, C_INK);
-        gfx_pset(x + 5, y + 7, C_INK);
-        break;
     case 'R':
         plate(x, y, C_SLATE, C_GREY);
         gfx_circ(x + 5, y + 5, 3, (t / 8) % 2 ? C_RED : C_ORANGE);
@@ -263,7 +275,7 @@ static void draw_tile(int tx, int ty, char c, int t) {
         break;
     }
     case '&':
-        if (lmp_honey_count() >= LMP_HONEY_TOTAL) {
+        if (lmp_honey_count() >= LMP_HONEY_TOTAL && !lg.scene_hide) {
             gfx_circ(x + 5, y + 5, 4, C_AMBER);
             gfx_circb(x + 5, y + 5, 4, C_YELLOW);
             gfx_pset(x + 3, y + 3, C_WHITE);
@@ -369,7 +381,7 @@ static void draw_world(void) {
     if (lgs.dread && lg.level < LMP_NORMAL_DECKS && lg.kind == LK_NORMAL) {
         for (int ty = 0; ty < lg.mh; ty++)
             for (int tx = 0; tx < lg.mw; tx++)
-                if (lg.map[ty][tx] == '!') {
+                if (lg.map[ty][tx] == 'H') {
                     int ph = (t / 3) % 24;
                     int bx = tx * LMP_T + 2 + (ph < 12 ? ph : 24 - ph) - 6;
                     int by = ty * LMP_T - 6 + ((t / 5) % 3);
@@ -543,9 +555,12 @@ static void draw_hud(void) {
     if (lg.level == LV_HUB) {
         extern int lmp_hub_zone(void);
         tiny_draw(LMP_ZONE_NAME[lmp_hub_zone()], 4, 3, C_CYAN);
-        snprintf(buf, sizeof buf, "DECKS %d/%d   HONEY %d/%d", lmp_cleared_count(), LMP_NORMAL_DECKS, lmp_honey_count(),
-                 LMP_HONEY_TOTAL);
-        tiny_draw(buf, SCREEN_W - 4 - tiny_width(buf), 3, C_LIGHT);
+        /* the counters are a reward for scrapping the Dreadnought */
+        if (lgs.dread) {
+            snprintf(buf, sizeof buf, "DECKS %d/%d   HONEY %d/%d", lmp_cleared_count(), LMP_NORMAL_DECKS, lmp_honey_count(),
+                     LMP_HONEY_TOTAL);
+            tiny_draw(buf, SCREEN_W - 4 - tiny_width(buf), 3, C_LIGHT);
+        }
         return;
     }
     int x = 4;
@@ -566,8 +581,7 @@ static void draw_hud(void) {
                 gfx_rect(170, 3, 72 * lg.foe[i].hp / mx, 4, C_RED);
             }
     }
-    time_str(buf, sizeof buf, lg.timer);
-    tiny_draw(buf, SCREEN_W - 4 - tiny_width(buf), 3, C_WHITE);
+    /* no clock on screen: the deck's time only shows when it is cleared */
 }
 
 static void draw_talk(void) {
@@ -627,8 +641,11 @@ static void draw_title(void) {
         for (int i = 0; i < LMP_SECTORS; i++) s += lgs.best[i];
         char tb[16];
         time_str(tb, sizeof tb, (int)s);
-        snprintf(buf, sizeof buf, "DECKS %d/%d  HONEY %d/%d  BEST TIMES %s", lmp_cleared_count(), LMP_NORMAL_DECKS,
-                 lmp_honey_count(), LMP_HONEY_TOTAL, tb);
+        if (lgs.dread)
+            snprintf(buf, sizeof buf, "DECKS %d/%d  HONEY %d/%d  BEST TIMES %s", lmp_cleared_count(), LMP_NORMAL_DECKS,
+                     lmp_honey_count(), LMP_HONEY_TOTAL, tb);
+        else
+            snprintf(buf, sizeof buf, "TOTAL OF BEST TIMES %s", tb);
         tiny_center(buf, SCREEN_W / 2, 150, C_LIGHT);
     }
     tiny_center("BEAMDOWN SOFTWORKS 1985", SCREEN_W / 2, 166, C_DUSK);
@@ -714,6 +731,7 @@ void lmp_draw(void) {
     draw_world();
     draw_hud();
     if (lg.state == GS_PLAY) { draw_talk(); draw_pod_hint(); }
+    if (lg.state == GS_SCENE) { gfx_rect(0, LMP_HUD, SCREEN_W, 6, C_INK); gfx_rect(0, SCREEN_H - 6, SCREEN_W, 6, C_INK); }
     if (lg.msg_t > 0) text_center(lg.msg, SCREEN_W / 2, SCREEN_H - 14, C_YELLOW);
     if (lg.state == GS_PROMPT) draw_prompt();
     if (lg.state == GS_CLEAR) draw_clear();

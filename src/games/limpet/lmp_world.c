@@ -48,14 +48,14 @@ bool lmp_solid(int x, int y) {
     char c = lmp_tile(x, y);
     switch (c) {
     case '#': case 'X': case 'Z': case 'M': case '=': case '-': case '[': case ']': case '^': case 'B':
-    case 'o': case 'S': case 'P': case 'D': case 'd': case 'u': case 'y': case 'C': case '!': case 'R':
+    case 'o': case 'S': case 'P': case 'D': case 'd': case 'u': case 'y': case 'C': case 'H': case 'R':
     case 'r': case 'W': case 'm': case 'G': case 'V':
         return true;
     case 'Y': return lg.timed_t <= 0;
     case 'T': return lg.parity == 0;
     case 'K': return lg.parity == 1;
     case 'E': return !lg.bulb_out;
-    case '&': return lmp_honey_count() >= LMP_HONEY_TOTAL;
+    case '&': return lmp_honey_count() >= LMP_HONEY_TOTAL && !lg.scene_hide;
     default: return false;
     }
 }
@@ -78,7 +78,7 @@ bool lmp_face_solid(int x, int y, int dir) {
 
 bool lmp_is_spikes(int x, int y) { return lmp_tile(x, y) == '^'; }
 
-/* a crusher's face: clinging to it is as bad as spikes */
+/* a crusher's face (the demo player keeps off them) */
 bool lmp_is_crusher(int x, int y) {
     if (lmp_tile(x, y) != 'm') return false;
     int i = lmp_mover_at(x, y);
@@ -295,7 +295,8 @@ static int foe_of(char c) {
     }
 }
 
-static bool hub_gate_open(const LmpGate *g) {
+bool lmp_gate_open(int i) {
+    const LmpGate *g = &LMP_HUB_GATE[i];
     switch (g->cond) {
     case GATE_CLEARED: return lmp_cleared_count() >= g->need;
     case GATE_TURNCOAT: return lgs.turncoat != 0;
@@ -346,7 +347,7 @@ void lmp_load_level(int level) {
         for (int x = 0; x < lg.mw; x++) {
             char c = lg.map[y][x];
             if (c == '@') { sx = x; sy = y; lg.map[y][x] = '.'; }
-            else if (c == 'H') { lg.honey_x = x; lg.honey_y = y; lg.map[y][x] = '.'; }
+            else if (c == 'H') { lg.honey_x = x; lg.honey_y = y; } /* a surface like any other */
             else if (c == 'E') { lg.exit_x = x; lg.exit_y = y; }
         }
     for (int y = 0; y < lg.mh; y++)
@@ -366,7 +367,7 @@ void lmp_load_level(int level) {
     if (level == LV_HUB) {
         for (int i = 0; i < LMP_HUB_NGATES; i++) {
             const LmpGate *g = &LMP_HUB_GATE[i];
-            if (!hub_gate_open(g)) continue;
+            if (!lmp_gate_open(i)) continue;
             for (int y = g->y; y < g->y + g->h; y++)
                 for (int x = g->x; x < g->x + g->w; x++)
                     if (lmp_tile(x, y) == 'G') lg.map[y][x] = '.';

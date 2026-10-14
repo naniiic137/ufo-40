@@ -222,7 +222,6 @@ static void arrive(void) {
     int sx = t->x - LMP_DX[t->n], sy = t->y - LMP_DY[t->n];
     char sup = lmp_tile(sx, sy);
     if (sup == '^') { lmp_kill_tank(1); return; }
-    if (lmp_is_crusher(sx, sy)) { lmp_kill_tank(101); return; }
     if (sup == 'C' && lg.level != LV_HUB) {
         if (!lg.check.set || lg.check.x != t->x || lg.check.y != t->y || lg.check.n != t->n) {
             bool was = lg.check.set && (lg.check.x / 3 == t->x / 3) && (lg.check.y / 3 == t->y / 3);
@@ -230,10 +229,11 @@ static void arrive(void) {
             if (!was) lmp_sfx("lmp_check");
         }
     }
-    if (sup == '!' && lg.honey_x >= 0 && !lg.honey_shown) {
-        lg.honey_shown = true;
-        lmp_sfx("lmp_reveal");
-        lmp_burst(lg.honey_x * LMP_T + 5, lg.honey_y * LMP_T + 5, C_YELLOW, 12, 2);
+    /* the deck's hidden honey: an unmarked surface that gives the jar when touched */
+    if (sup == 'H' && !lg.honey_held && lg.level != LV_HUB) {
+        lg.honey_held = true;
+        lmp_sfx("lmp_honey");
+        lmp_burst(t->x * LMP_T + 5, t->y * LMP_T + 5, C_AMBER, 14, 2);
     }
     if (sup == 'W') t->hop_t = 8;
     if (lg.honey_shown && !lg.honey_held && t->x == lg.honey_x && t->y == lg.honey_y) {

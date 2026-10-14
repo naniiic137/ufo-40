@@ -118,6 +118,50 @@ static void place_on_floor(int x, int y) {
     lmp_tank_place(x, y, DR_U);
 }
 
+/* A clear that opens something in the station: the camera goes to it, it
+ * opens, and the camera comes back. No words, no arrow. */
+#define SCENE_T 150
+static void hub_scene_start(void) {
+    lg.scene_hide = false;
+    for (int i = 0; i < LMP_HUB_NGATES; i++) {
+        if (!((lg.scene_pending >> i) & 1)) continue;
+        lg.scene_pending &= ~(1u << i);
+        const LmpGate *g = &LMP_HUB_GATE[i];
+        /* put it back shut for the scene */
+        if (g->cond != GATE_HONEY)
+            for (int y = g->y; y < g->y + g->h; y++)
+                for (int x = g->x; x < g->x + g->w; x++)
+                    if (lmp_tile(x, y) == '.') lg.map[y][x] = 'G';
+        lg.scene_hide = g->cond == GATE_HONEY;
+        lg.scene_gate = i;
+        lg.scene_t = 0;
+        set_state(GS_SCENE);
+        game_set_pausable(false);
+        return;
+    }
+}
+
+static void hub_scene_update(void) {
+    const LmpGate *g = &LMP_HUB_GATE[lg.scene_gate];
+    lg.scene_t++;
+    if (lg.scene_t == 70) {
+        for (int y = g->y; y < g->y + g->h; y++)
+            for (int x = g->x; x < g->x + g->w; x++) {
+                if (lmp_tile(x, y) == 'G') lg.map[y][x] = '.';
+                lmp_burst(x * LMP_T + 5, y * LMP_T + 5, g->cond == GATE_HONEY ? C_AMBER : C_GREY, 4, 2);
+            }
+        lg.scene_hide = false;
+        lmp_sfx(g->cond == GATE_HONEY ? "lmp_reveal" : "lmp_door");
+        lg.shake = 10;
+    }
+    lmp_parts_update();
+    if (lg.shake > 0) lg.shake--;
+    if (lg.scene_t >= SCENE_T) {
+        set_state(GS_PLAY);
+        hub_scene_start();
+    }
+}
+
 static void enter_hub(bool at_start) {
     int col = lgs.colour;
     lmp_load_level(LV_HUB);
@@ -132,6 +176,7 @@ static void enter_hub(bool at_start) {
     game_pause_items(0, NULL, NULL);
     lmp_music(zone_music(hub_zone_at(lg.tk.x, lg.tk.y)));
     set_state(GS_PLAY);
+    hub_scene_start();
 }
 
 static void leave_pick(int i) {
@@ -202,6 +247,8 @@ static void hub_update(void) {
 void lmp_level_cleared(void) {
     if (lg.state != GS_PLAY) return;
     if (lmp_simulating) { set_state(GS_CLEAR); return; }
+    uint32_t was_open = 0;
+    for (int i = 0; i < LMP_HUB_NGATES; i++) was_open |= (uint32_t)lmp_gate_open(i) << i;
     int lv = lg.level;
     lg.clear_level = lv;
     lg.clear_time = lg.timer;
@@ -228,6 +275,8 @@ void lmp_level_cleared(void) {
     lgs.started = 1;
     goals_from_save();
     lmp_save_now();
+    for (int i = 0; i < LMP_HUB_NGATES; i++)
+        if (lmp_gate_open(i) && !((was_open >> i) & 1)) lg.scene_pending |= 1u << i;
     lmp_music(lg.clear_honey ? LMP_MUS_HONEY : LMP_MUS_CLEAR);
     lmp_sfx("lmp_clear");
     game_pause_items(0, NULL, NULL);
@@ -423,6 +472,10 @@ static void lmp_update(void) {
             }
         }
         break;
+    case GS_SCENE:
+        game_set_pausable(false);
+        hub_scene_update();
+        break;
     case GS_ENDING:
     case GS_CHERRY:
         game_set_pausable(false);
@@ -438,7 +491,8 @@ static void lmp_update(void) {
         break;
     default: break;
     }
-    if (lg.state == GS_PLAY || lg.state == GS_DEAD || lg.state == GS_PROMPT || lg.state == GS_CLEAR) lmp_camera_update();
+    if (lg.state == GS_PLAY || lg.state == GS_DEAD || lg.state == GS_PROMPT || lg.state == GS_CLEAR || lg.state == GS_SCENE)
+        lmp_camera_update();
 }
 
 /* ---- cartridge interface ---------------------------------------------------- */
@@ -490,6 +544,8 @@ static int lmp_query(const char *key, int *out) {
     if (!strcmp(key, "blast")) { *out = t->blast_t; return 1; }
     if (!strcmp(key, "colour")) { *out = t->colour; return 1; }
     if (!strcmp(key, "fired")) { *out = lg.fired; return 1; }
+    if (!strcmp(key, "scene_gate")) { *out = lg.state == GS_SCENE ? lg.scene_gate : -1; return 1; }
+    if (!strcmp(key, "counters")) { *out = lgs.dread != 0; return 1; }
     if (!strncmp(key, "playing_", 8)) { *out = music_playing() >= 0 && music_playing() == song_find(key + 8); return 1; }
     if (!strcmp(key, "npods")) { *out = LMP_HUB_NPODS; return 1; }
     if (!strcmp(key, "nnpcs")) { *out = LMP_HUB_NNPCS; return 1; }
@@ -595,7 +651,7 @@ static int lmp_query(const char *key, int *out) {
             if (lv != LV_HUB && lmp_count_tiles('E') != 1) { bad++; fprintf(stderr, "level %d: exits %d\n", lv, lmp_count_tiles('E')); }
             if ((L->kind == LK_NORMAL || L->kind == LK_SECRET) && lmp_count_tiles('R') < 1) { bad++; fprintf(stderr, "level %d: no bulb\n", lv); }
             bool honey_deck = L->kind == LK_NORMAL;
-            if (honey_deck != (lg.honey_x >= 0) || honey_deck != (lmp_count_tiles('!') >= 1)) { bad++; fprintf(stderr, "level %d: honey\n", lv); }
+            if ((honey_deck ? 1 : 0) != lmp_count_tiles('H') || lmp_count_tiles('!') != 0) { bad++; fprintf(stderr, "level %d: honey\n", lv); }
             if (lmp_count_tiles('@') != 0) bad++;
         }
         lg = keep;
@@ -662,8 +718,7 @@ static int lmp_cheat(const char *cmd) {
     if (sscanf(cmd, "bossstate %d %d", &a, &b) == 2) { int i = boss_index(); if (i >= 0) { lg.foe[i].state = a; lg.foe[i].t = b; } return 1; }
     if (sscanf(cmd, "bosspos %d", &a) == 1) { int i = boss_index(); if (i >= 0) lg.foe[i].cx = a; return 1; }
     if (!strcmp(cmd, "die")) { lg.god = false; lg.tally_hits = false; lmp_kill_tank(0); return 1; }
-    if (!strcmp(cmd, "reveal")) { lg.honey_shown = true; return 1; }
-    if (!strcmp(cmd, "holdhoney")) { if (lg.honey_x >= 0) { lg.honey_shown = lg.honey_held = true; } return 1; }
+    if (!strcmp(cmd, "holdhoney")) { if (lg.honey_x >= 0) lg.honey_held = true; return 1; }
     if (!strcmp(cmd, "bulb")) { lmp_open_exit(); return 1; }
     if (!strcmp(cmd, "finish")) { lmp_level_cleared(); return 1; }
     if (sscanf(cmd, "parity %d", &a) == 1) { lg.parity = a & 1; return 1; }
