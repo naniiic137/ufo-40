@@ -152,6 +152,13 @@ static const struct { const char *id, *title; } TITLES[] = {
     {"sst_heart", "THE HEARTSTACK"}, {"sst_hop", "JELLY'S HOP"}, {"sst_clear", "CURTAIN"},
     {"sst_over", "LIGHTS DOWN"}, {"sst_bad", "AN EMPTY CAGE"}, {"sst_good", "ENCORE"},
     {"sst_credits", "TAKE A BOW"},
+    {"eko_title", "ECHO UNIT"}, {"eko_story", "HANGING IN THE BELFRY"}, {"eko_hq", "SOUND THE ROOST"},
+    {"eko_brief", "COLONEL HUSH"}, {"eko_docks", "DOCKSIDE DUST-UP"}, {"eko_lift", "GOING UP"},
+    {"eko_andes", "THIN AIR"}, {"eko_cairo", "SAND AND THROTTLE"}, {"eko_istanbul", "SILENT HALLS"},
+    {"eko_rescue", "CELL BLOCK"}, {"eko_boss", "BIG BAD"}, {"eko_caldera", "INTO THE CALDERA"},
+    {"eko_lab", "THE SECRET LAB"}, {"eko_tunnel", "LAVA RUN"}, {"eko_final", "MADAME COIL"},
+    {"eko_ending", "MANGO FEAST"}, {"eko_clear", "MISSION COMPLETE"}, {"eko_captured", "CAPTURED"},
+    {"eko_over", "NO SECOND CHANCES"},
 };
 
 const char *shell_song_title(int song) {

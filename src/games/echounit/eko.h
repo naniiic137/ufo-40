@@ -163,6 +163,7 @@ typedef struct {
     int wall_open_t;             /* the key in the lock: the wall blows */
     int kills, secrets;
     int tile_sn;                 /* the blow that last knocked a crate or wall */
+    int dmg_dealt;               /* for the demo player */
 } EkoBrawl;
 
 /* ==== VESPER: the shooting gallery ===================================================== */
@@ -306,10 +307,9 @@ typedef struct { char code; const char *rows[SN_RH]; } EkoRoom;
 typedef struct {
     const char *name;
     const char *layout[SN_MAX_RY + 1];
-    /* the demo player's way through: tiles of the whole map to reach in turn
-     * (x, y), and in the finale which zone each belongs to */
-    const int16_t (*route)[3];
-    int nroute;
+    /* which rooms open into which: "A-B" a doorway, "L-M:R" a door that
+     * wants the red card (G green, R red, U blue). Every other edge is wall. */
+    const char *links;
 } EkoSneakMap;
 extern const EkoSneakMap EKO_SMAP[SM_COUNT];
 extern const EkoRoom EKO_ROOM[];
@@ -440,6 +440,7 @@ typedef struct {
 extern EkoGame eg;
 extern EkoSave egs;
 extern bool eko_simulating;
+extern bool eko_sim_done;
 
 /* input helpers for game logic */
 static inline bool ek_btn(int m) { return (eg.in & m) != 0; }
@@ -509,7 +510,7 @@ enum {
     SP_FLINT_STAND, SP_FLINT_WALK1, SP_FLINT_WALK2, SP_FLINT_PUNCH, SP_FLINT_KICK, SP_FLINT_DUCK,
     SP_FLINT_LOW, SP_FLINT_JUMP, SP_FLINT_AIRKICK, SP_FLINT_CHARGE, SP_FLINT_CARRY, SP_FLINT_HURT,
     SP_TROOP_STAND, SP_TROOP_WALK, SP_TROOP_PUNCH, SP_TROOP_AIM, SP_GREN, SP_GREN_THROW, SP_JET1, SP_JET2,
-    SP_KEYMAN, SP_BARREL, SP_CRATE, SP_MANGO, SP_LIFE, SP_KEY, SP_SCRAPJAW, SP_SCRAPJAW2, SP_TALPA, SP_TALPA2,
+    SP_KEYMAN, SP_BARREL, SP_MANGO, SP_LIFE, SP_KEY, SP_SCRAPJAW, SP_SCRAPJAW2, SP_TALPA, SP_TALPA2,
     SP_VESPER, SP_VESPER_MOVE, SP_VESPER_FIRE, SP_VESPER_ROLL, SP_GTROOP, SP_GTROOP_AIM, SP_GRUNNER, SP_GMORTAR,
     SP_RAMROD, SP_RAMROD2, SP_VULTRA, SP_VULTRA2, SP_COIL,
     SP_BIKE1, SP_BIKE2, SP_CONE, SP_HURDLE, SP_BRUNNER, SP_BIKER, SP_HOG, SP_HOG2, SP_MINE,

@@ -249,6 +249,7 @@ static void hurt_foe(int i, int dmg, int dir, bool launch, int chain) {
     if (!f->alive || f->state == 99) return;
     if (f->kind == BF_TALPA && f->state == 2) return; /* under the floor */
     f->hp -= dmg;
+    B->dmg_dealt += dmg;
     f->flash = 8;
     eko_sfx("eko_hit");
     bool boss = f->kind == BF_SCRAPJAW || f->kind == BF_TALPA;

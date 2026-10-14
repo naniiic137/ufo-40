@@ -114,6 +114,7 @@ static void load_map(int m) {
                     case 'v': add_guard(GK_WALKER, tx, ty, 1); put = '.'; break;
                     case 'V': add_guard(GK_WALKER, tx, ty, 3); put = '.'; break;
                     case 't': add_guard(GK_TURNER, tx, ty, 1); put = '.'; break;
+                    case 's': add_guard(GK_WALKER, tx, ty, 1); S->g[S->ng - 1].b = 1; S->g[S->ng - 1].hp = 2; put = '.'; break;
                     case 'c': if (ncam < 16) { cams[ncam].tx = tx; cams[ncam].ty = ty; ncam++; } put = '#'; break;
                     case 'l': add_guard(GK_LIGHT, tx, ty, 0); put = '.'; break;
                     case 'C': S->boss_g = S->ng; add_guard(GK_CIPHER, tx, ty, 1); put = '.'; break;
@@ -132,6 +133,39 @@ static void load_map(int m) {
                     S->tile[ty][tx] = put;
                 }
         }
+    /* the walls round every room, then the doorways the map's links open */
+    for (int ry = 0; ry < rows; ry++)
+        for (int rx = 0; rx < cols; rx++) {
+            if (S->tile[ry * SN_RH + 1][rx * SN_RW + 1] == ' ') continue;
+            for (int k = 0; k < SN_RW; k++) { S->tile[ry * SN_RH][rx * SN_RW + k] = '#'; S->tile[ry * SN_RH + SN_RH - 1][rx * SN_RW + k] = '#'; }
+            for (int k = 0; k < SN_RH; k++) { S->tile[ry * SN_RH + k][rx * SN_RW] = '#'; S->tile[ry * SN_RH + k][rx * SN_RW + SN_RW - 1] = '#'; }
+        }
+    for (const char *l = sm->links; l && *l;) {
+        while (*l == ' ') l++;
+        if (!*l) break;
+        char a = l[0], b = l[2], door = l[3] == ':' ? l[4] : '.';
+        l += l[3] == ':' ? 5 : 3;
+        int ax = -1, ay = -1, bx = -1, by = -1;
+        for (int ry = 0; ry < rows; ry++)
+            for (int rx = 0; sm->layout[ry][rx]; rx++) {
+                if (sm->layout[ry][rx] == a) { ax = rx; ay = ry; }
+                if (sm->layout[ry][rx] == b) { bx = rx; by = ry; }
+            }
+        if (ax < 0 || bx < 0) continue;
+        if (ay == by && iabs(ax - bx) == 1) {
+            int lx = imin(ax, bx);
+            for (int k = 4; k <= 5; k++) {
+                S->tile[ay * SN_RH + k][lx * SN_RW + SN_RW - 1] = door;
+                S->tile[ay * SN_RH + k][(lx + 1) * SN_RW] = door;
+            }
+        } else if (ax == bx && iabs(ay - by) == 1) {
+            int ty = imin(ay, by);
+            for (int k = 9; k <= 10; k++) {
+                S->tile[ty * SN_RH + SN_RH - 1][ax * SN_RW + k] = door;
+                S->tile[(ty + 1) * SN_RH][ax * SN_RW + k] = door;
+            }
+        }
+    }
     for (int i = 0; i < ncam; i++) add_guard(GK_CAMERA, cams[i].tx, cams[i].ty, camera_dir(cams[i].tx, cams[i].ty));
     S->ammo[WP_DART] = 3;
     S->ammo[WP_PISTOL] = 3;
@@ -240,7 +274,7 @@ int eko_sneak_guard_sees(int gi) {
         if (g->state == GD_SLEEP || g->state == GD_STUN) return 0;
         int d = eko_dist(dx, dy);
         if (d < 14) return 1; /* bumped into */
-        if (d > SN_VIEW) return 0;
+        if (d > (g->b ? SN_VIEW + 40 : SN_VIEW)) return 0;
         int face = g->dir * 16;
         if (eko_angdiff(eko_dir_to(dx, dy), face) > SN_VIEW_ANG) return 0;
         return eko_sneak_los(gx, gy, sx, sy);
@@ -483,7 +517,8 @@ static void guards_update(void) {
             if (g->kind == GK_TURNER) {
                 if (g->t % 120 == 0) g->dir = (g->dir + 1) & 3;
             } else {
-                int nx = g->x + DX4[g->dir] * 176, ny = g->y + DY4[g->dir] * 176;
+                int sp = g->b ? 320 : 176; /* a spider robot scuttles */
+                int nx = g->x + DX4[g->dir] * sp, ny = g->y + DY4[g->dir] * sp;
                 int ax = EKO_PX(g->x) + DX4[g->dir] * 9, ay = EKO_PX(g->y) + DY4[g->dir] * 9;
                 if (!guard_free(g, nx, ny) || eko_sneak_solid_px(ax, ay)) { g->dir = (g->dir + 2) & 3; g->t = 0; }
                 else { g->x = nx; g->y = ny; }
@@ -544,7 +579,8 @@ static void blast(int x, int y, bool stun) {
             else { g->hp -= 10; g->flash = 10; eko_sfx("eko_hit"); }
             continue;
         }
-        if (stun) { g->state = GD_STUN; g->t = 0; }
+        if (stun && !g->b) { g->state = GD_STUN; g->t = 0; }
+        else if (stun) continue;
         else { g->alive = 0; g->state = GD_DEAD; eko_burst(EKO_PX(g->x), EKO_PX(g->y), C_RED, 6); }
     }
     if (!stun) {
@@ -592,6 +628,8 @@ static void shots_update(void) {
                 else eko_sfx("eko_tink");
                 break;
             }
+            if (s->kind == WP_DART && g->b) { eko_sfx("eko_tink"); break; } /* darts bounce off a robot */
+            if (s->kind == WP_PISTOL && g->b && --g->hp > 0) { g->flash = 6; eko_sfx("eko_hit"); break; }
             if (s->kind == WP_DART) {
                 g->state = GD_SLEEP;
                 g->t = 0;
