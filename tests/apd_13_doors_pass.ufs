@@ -43,7 +43,7 @@ expect state == 3
 expect sector == 1
 expect room_id == 84
 # the uplink: three ciphers aren't enough
-cheat room 0 F
+cheat room 2 v
 cheat ciphers 7
 wait 5
 press UP

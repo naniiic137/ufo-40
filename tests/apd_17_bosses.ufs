@@ -12,7 +12,7 @@ cheat newgame
 cheat god
 # the Crown's lightning deletes shots that cross it (here on its own)
 cheat nofoes
-cheat room 0 F
+cheat room 2 v
 cheat pos 60 134
 wait 5
 hold RIGHT 2

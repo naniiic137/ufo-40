@@ -8,7 +8,7 @@ game antipode
 wait 5
 cheat newgame
 cheat nofoes
-cheat room 0 F
+cheat room 2 v
 cheat pos 60 134
 wait 5
 hold A 1
