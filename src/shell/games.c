@@ -11,6 +11,7 @@ extern const GameDef GAME_WETPAINT;
 extern const GameDef GAME_PETALPARADE;
 extern const GameDef GAME_TINTROOP;
 extern const GameDef GAME_SKYWELL;
+extern const GameDef GAME_LANDFALL;
 extern const GameDef GAME_BANNERFALL;
 extern const GameDef GAME_FOSSILFEUD;
 extern const GameDef GAME_CUTLASS;
@@ -55,6 +56,7 @@ const GameDef *const GAMES[GAME_SLOTS] = {
     [4] = &GAME_PETALPARADE, /* 05 Magic Garden */
     [5] = &GAME_TINTROOP,    /* 06 Mortol */
     [6] = &GAME_SKYWELL,     /* 07 Velgress */
+    [7] = &GAME_LANDFALL,    /* 08 Planet Zoldath */
     [8] = &GAME_BANNERFALL,  /* 09 Attactics */
     [11] = &GAME_FOSSILFEUD, /* 12 Avianos */
     [12] = &GAME_DUSKLING,   /* 13 Mooncat */
