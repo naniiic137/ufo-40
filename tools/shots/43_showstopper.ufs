@@ -33,6 +33,9 @@ shot showstopper_boiler
 # Morrow splits in two
 cheat stage 4
 cheat cam 0
+cheat arena
+cheat pos 152 140
+cheat boss 7 152 40
 botplay 100
 cheat bossphase 3 0
 botplay 120

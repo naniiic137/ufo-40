@@ -1659,6 +1659,10 @@ the top.
   <img src="docs/shots/showstopper_hop.png" width="320" alt="The Hop: Jelly hops for coins on a board seen at an angle">
   <img src="docs/shots/showstopper_maw.png" width="320" alt="The Morrowmaw: two great eyes, four on its arms, a snake from the mouth">
 </p>
+<p align="center">
+  <img src="docs/shots/showstopper_lane.png" width="320" alt="Frostbell Lane: houses with lit windows, a lantern, cards on the snow">
+  <img src="docs/shots/showstopper_morrow.png" width="320" alt="Morrow the Marvellous splits in two">
+</p>
 
 *A tribute to **Elfazar's Hat** (UFO 50 #43).*
 

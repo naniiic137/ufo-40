@@ -530,7 +530,7 @@ static void draw_boss(void) {
     case BK_GOGGLE: {
         int y = view_y(SST_PX(b->part[0].y)) + 12;
         gfx_circ(bx, y - 6, 30, C_GREY);
-        gfx_circ(bx, y, 26, flash ? C_WHITE : C_TAN);
+        gfx_circ(bx, y, 26, flash ? C_CREAM : C_TAN);
         gfx_circb(bx, y, 26, C_INK);
         gfx_rect(bx - 16, y + 14, 32, 5, C_INK);
         gfx_rect(bx - 12, y + 15, 24, 2, C_RED);
@@ -566,7 +566,7 @@ static void draw_boss(void) {
         gfx_rectb(x - 16, y - 12, 32, 26, C_INK);
         int hy = view_y(SST_PX(b->part[1].y));
         gfx_circ(x, hy, 9, C_INK);
-        gfx_circ(x, hy, 8, flash ? C_WHITE : C_RED);
+        gfx_circ(x, hy, 8, flash ? C_ORANGE : C_RED);
         int a = sst_player_ang(b->part[1].x, b->part[1].y);
         gfx_line(x, hy, x + 14 * sst_cos(a) / 256, hy + 14 * sst_sin(a) / 256, C_INK);
         gfx_dither(x - 6 + (t / 3) % 5, y - 24 - (t / 2) % 10, 10, 8, C_LIGHT, 7);
@@ -631,7 +631,7 @@ static void draw_boss(void) {
             const SstPart *p = &b->part[k];
             if (!p->alive) continue;
             int x = SST_PX(p->x), y = view_y(SST_PX(p->y));
-            gfx_rect(x - 9, y - 2, 18, 16, flash ? C_WHITE : C_WINE);
+            gfx_rect(x - 9, y - 2, 18, 16, flash ? C_RED : C_WINE);
             gfx_rect(x - 6, y - 10, 12, 9, C_CREAM);
             gfx_rect(x - 4, y - 7, 2, 2, C_INK);
             gfx_rect(x + 2, y - 7, 2, 2, C_INK);
