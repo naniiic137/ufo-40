@@ -40,13 +40,21 @@ expect library_dud > 0
 press RIGHT
 expect library_dud == 0
 expect library_cursor == 0
-# slot 50, the last one: Cyber Owls
+# slot 40, still empty: Grimstone
+press UP
+press UP
 press UP
 press RIGHT
-expect library_cursor == 49
+press RIGHT
+press RIGHT
+press RIGHT
+press RIGHT
+press RIGHT
+press RIGHT
+expect library_cursor == 39
 expect library_placeholder == 1
-expect library_sticker_has.TRIBUTE_TO_CYBER_OWLS == 1
-expect library_sticker_has.UFO_50_#50 == 1
+expect library_sticker_has.TRIBUTE_TO_GRIMSTONE == 1
+expect library_sticker_has.UFO_50_#40 == 1
 press A
 wait 60
 expect_scene library
