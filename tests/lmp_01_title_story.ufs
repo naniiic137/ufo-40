@@ -14,8 +14,9 @@ press A
 wait 5
 expect state == 2
 expect level == 29
-expect tx == 60
-expect ty == 44
+expect tx == 80
+expect ty == 66
+expect counters == 0
 expect tn == 0
 expect zone == 0
 expect started == 1

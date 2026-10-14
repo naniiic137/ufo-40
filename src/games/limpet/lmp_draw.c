@@ -358,7 +358,15 @@ static void draw_world(void) {
     }
     if (lg.level == LV_HUB) {
         /* Rolo's loop line: eight sides and one little engine */
-        int cx = 110 * LMP_T, cy = 41 * LMP_T;
+        int cx = -1000, cy = -1000;
+        for (int i = 0, k = 0; i < lg.mw * lg.mh && cx < 0; i++)
+            if (lg.map[i / lg.mw][i % lg.mw] == 'N') {
+                if (k < LMP_HUB_NNPCS && !strncmp(LMP_HUB_NPC[k].name, "ROLO", 4)) {
+                    cx = (i % lg.mw + 5) * LMP_T;
+                    cy = (i / lg.mw - 3) * LMP_T;
+                }
+                k++;
+            }
         static const int OX[8] = {-10, 10, 22, 22, 10, -10, -22, -22};
         static const int OY[8] = {-12, -12, -5, 5, 12, 12, 5, -5};
         for (int k = 0; k < 8; k++) gfx_line(cx + OX[k], cy + OY[k], cx + OX[(k + 1) % 8], cy + OY[(k + 1) % 8], C_TAN);
@@ -368,12 +376,17 @@ static void draw_world(void) {
         gfx_rect(ex - 2, ey - 2, 5, 4, C_RED);
         gfx_pset(ex, ey - 3, C_GREY);
         /* Gus's crane: a trolley on the ceiling, its cable down to the crate */
-        int kx = 80 * LMP_T, ky = 25 * LMP_T;
-        gfx_rect(kx - 30, ky, 60, 3, C_AMBER);
-        gfx_rect(kx - 4, ky + 3, 8, 4, C_ORANGE);
-        bool lifted = lmp_cleared_count() >= 4;
-        gfx_vline(kx, ky + 7, lifted ? ky + 20 : 41 * LMP_T - 1, C_GREY);
-        if (lifted) gfx_rect(kx - 6, ky + 20, 12, 3, C_GREY);
+        const LmpGate *crate = NULL;
+        for (int i = 0; i < LMP_HUB_NGATES; i++)
+            if (LMP_HUB_GATE[i].what[0] == 'C' && LMP_HUB_GATE[i].what[1] == 'R') crate = &LMP_HUB_GATE[i];
+        if (crate) {
+            int kx = (crate->x + 1) * LMP_T, ky = (crate->y - 12) * LMP_T;
+            gfx_rect(kx - 30, ky, 60, 3, C_AMBER);
+            gfx_rect(kx - 4, ky + 3, 8, 4, C_ORANGE);
+            bool lifted = lmp_tile(crate->x, crate->y) != 'G';
+            gfx_vline(kx, ky + 7, lifted ? ky + 20 : crate->y * LMP_T - 1, C_GREY);
+            if (lifted) gfx_rect(kx - 6, ky + 20, 12, 3, C_GREY);
+        }
     }
     /* the hidden honey, and the bee that shows where it is once the Dreadnought is gone */
     if (lg.honey_x >= 0 && lg.honey_shown && !lg.honey_held)

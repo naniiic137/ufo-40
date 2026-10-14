@@ -5,15 +5,16 @@ game limpet
 wait 5
 cheat botplan 1
 botuntil state == 2 600
-botuntil turncoat == 1 60000
-botuntil dread == 1 80000
+botuntil turncoat == 1 80000
+botuntil dread == 1 120000
 expect honey == 23
 botuntil honey == 24 4000
-botuntil secret == 1 30000
+botuntil secret == 1 40000
 expect goals == 7
 expect cleared == 26
 expect secret == 1
 expect cleared_bits == 134217727
+expect best26 > 3000
 botuntil state == 7 4000
 botuntil state == 2 4000
 expect ends == 3

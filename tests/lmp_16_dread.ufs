@@ -1,8 +1,10 @@
 # LIMPET: the Dreadnought clings to its arena's ceiling with its barrel
 # hanging down; only a shot straight up the barrel while its core is open
-# (after each shell) hurts it. Scrapped, it is the Saucer, and it drops the
-# last jar of honey. The ending runs, and the tank comes back to the start of
-# the station, where the bees now show where each deck's honey hides.
+# (after each shell) hurts it, and three hits shut the core again, so the
+# fight goes through all three of its thirds. Scrapped, it is the Saucer,
+# and it drops the last jar of honey. The ending runs, and the tank comes
+# back to the start of the station, where the bees now show where each
+# deck's honey hides and the counters appear.
 game limpet
 wait 5
 cheat level 28
@@ -16,19 +18,28 @@ wait 2
 press A 1
 wait 30
 expect boss_hp == 24
-# open: hit
+# open: three hits, then it shuts
 cheat bosspos 20
 cheat bossstate 2 0
 press A 1
-wait 30
-expect boss_hp == 23
+wait 6
+press A 1
+wait 6
+press A 1
+wait 6
+press A 1
+wait 6
+press A 1
+wait 40
+expect boss_hp == 21
+expect boss_state == 0
 # a shot at its body does nothing
 cheat pos 15 15 0
 wait 2
 cheat bossstate 2 0
 press A 1
 wait 40
-expect boss_hp == 23
+expect boss_hp == 21
 cheat bosshp 1
 cheat pos 20 15 0
 wait 2
@@ -53,9 +64,10 @@ waituntil state == 6 260
 hold A 600
 waituntil state == 2 200
 expect level == 29
-expect tx == 60
-expect ty == 44
+expect tx == 80
+expect ty == 66
 expect save_wins == 1
+expect counters == 1
 cheat level 0
 wait 2
 expect bee_hint == 1

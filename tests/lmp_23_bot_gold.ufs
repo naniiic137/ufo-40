@@ -1,6 +1,8 @@
 # LIMPET: the demo player plays the whole game from the title with button
-# presses: through the hub's gates, every deck, the Turncoat (Beacon) and the
-# Dreadnought (Saucer), to the ending and back to the station.
+# presses: through the hub's maze and its gates (with their scenes), every
+# deck, the Turncoat (Beacon) and the Dreadnought (Saucer), to the ending and
+# back to the station. At the original's scale this takes it nearly twenty
+# minutes of play, and its best times add up to over twenty minutes.
 game limpet
 wait 5
 botuntil state == 2 600
@@ -13,6 +15,8 @@ botuntil cleared >= 22 60000
 botuntil dread == 1 60000
 expect goals == 3
 expect cleared == 26
+expect frame > 60000
+expect total_best > 40000
 botuntil state == 6 4000
 botuntil state == 2 4000
 expect level == 29

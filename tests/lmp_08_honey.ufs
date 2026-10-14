@@ -1,24 +1,22 @@
-# LIMPET: each deck hides one jar of honey that can't be seen until the tank
-# stands on the deck's ! block. Carried, it shows in the corner; it only
-# counts once the deck is left alive (a death loses it, and it can be taken
-# again). Banked, the deck's pod turns gold.
+# LIMPET: each deck hides one jar of honey in a surface that looks like the
+# rest of the hull: touching it (rolling or landing on it) gives the jar.
+# Carried, it shows in the corner; it only counts once the deck is left
+# alive (a death loses it, and it can be taken again). Banked, the deck's
+# pod turns gold.
 game limpet
 wait 5
 cheat level 0
 wait 2
-expect honey_x == 10
-expect honey_shown == 0
-# warping up at x 5 lands on the ! block
-cheat pos 5 15 0
+expect honey_x == 98
+expect honey_y == 0
+expect tile_98_0 == 72
+expect count_H == 1
+expect honey_held == 0
+cheat nofoes
+cheat pos 98 15 0
 wait 2
 press B 1
 expect ty == 1
-expect honey_shown == 1
-# the jar sits on top of the low wall
-cheat pos 10 1 4
-wait 20
-press B 1
-expect ty == 12
 expect honey_held == 1
 cheat die
 waituntil state == 4 80
@@ -26,15 +24,15 @@ press A
 wait 2
 expect honey_held == 0
 # again, and out of the deck this time
-cheat reveal
-cheat pos 10 1 4
-wait 20
+cheat nofoes
+cheat pos 98 15 0
+wait 2
 press B 1
 expect honey_held == 1
 cheat bulb
-cheat pos 58 1 4
-wait 20
-press B 1
+cheat pos 6 32 0
+wait 2
+hold LEFT 30
 expect state == 5
 expect honey == 1
 expect honey_bits == 1

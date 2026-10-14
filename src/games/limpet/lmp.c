@@ -8,7 +8,7 @@
 LmpGame lg;
 LmpSave lgs;
 
-#define SAVE_MAGIC 0x4C4D5001u
+#define SAVE_MAGIC 0x4C4D5002u
 
 bool lmp_simulating;
 uint32_t lmp_sim_cur, lmp_sim_prev;
@@ -167,7 +167,11 @@ static void enter_hub(bool at_start) {
     lmp_load_level(LV_HUB);
     lg.tk.colour = col;
     int px, py;
-    if (!at_start && lgs.last_pod < LMP_HUB_NPODS && nth_cell('$', lgs.last_pod, &px, &py)) place_on_floor(px, py);
+    if (!at_start && lgs.last_pod < LMP_HUB_NPODS && nth_cell('$', lgs.last_pod, &px, &py)) {
+        /* out of the pod the way it went in (a pod in a wall's slot faces the wall) */
+        if (lmp_state_ok(px, py, lgs.last_n)) lmp_tank_place(px, py, lgs.last_n);
+        else place_on_floor(px, py);
+    }
     lg.tk.colour = col;
     lg.check.set = false;
     lmp_take_checkpoint();
@@ -234,6 +238,7 @@ static void hub_update(void) {
     lmp_music(zone_music(hub_zone_at(t->x, t->y)));
     if (lg.pod_here >= 0 && lg.pod_here < LMP_HUB_NPODS && lmp_btnp(BTN_B) && t->pn == 0 && !lmp_simulating) {
         lgs.last_pod = (uint8_t)lg.pod_here;
+        lgs.last_n = (uint8_t)t->n;
         lgs.started = 1;
         lmp_save_now();
         lmp_sfx("lmp_enter");
@@ -321,7 +326,11 @@ void lmp_play_step(void) {
         lmp_save_now();
     }
     if (lg.boss_dead && lg.level == LV_TURNCOAT && !lgs.turncoat && !lmp_simulating) {
+        uint32_t was_open = 0;
+        for (int i = 0; i < LMP_HUB_NGATES; i++) was_open |= (uint32_t)lmp_gate_open(i) << i;
         lgs.turncoat = 1;
+        for (int i = 0; i < LMP_HUB_NGATES; i++)
+            if (lmp_gate_open(i) && !((was_open >> i) & 1)) lg.scene_pending |= 1u << i;
         lmp_save_now();
     }
 }

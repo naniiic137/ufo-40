@@ -17,16 +17,16 @@ expect tx == 2
 expect ty == 15
 expect deaths_here == 1
 # take the plate
-cheat pos 24 15 0
+cheat pos 33 15 0
 wait 2
 hold RIGHT 20
 wait 8
-expect check_x == 26
+expect check_x == 35
 cheat die
 waituntil state == 4 80
 press A
 wait 2
-expect tx == 26
+expect tx == 35
 # as often as it takes
 cheat die
 waituntil state == 4 80

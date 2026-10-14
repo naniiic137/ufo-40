@@ -13,13 +13,13 @@ cheat turncoat 1
 cheat level 29
 wait 2
 expect playing_lmp_concourse == 1
-cheat pos 90 44 0
+cheat pos 100 66 0
 wait 2
 expect playing_lmp_canteen == 1
-cheat pos 20 44 0
+cheat pos 20 66 0
 wait 2
 expect playing_lmp_gristle == 1
-cheat pos 50 21 0
+cheat pos 80 32 0
 wait 2
 expect playing_lmp_upper == 1
 cheat level 0

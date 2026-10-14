@@ -4,16 +4,16 @@ game limpet
 wait 5
 cheat level 18
 cheat nofoes
-cheat pos 11 11 0
+cheat pos 6 7 0
 wait 2
-expect mover0_x == 10
+expect mover0_x == 5
 wait 40
-expect mover0_x > 10
-expect tx > 11
-expect ty == 11
+expect mover0_x > 5
+expect tx > 6
+expect ty == 7
 expect state == 2
 cheat level 10
-cheat pos 20 15 0
+cheat pos 10 15 0
 wait 2
 waituntil state == 3 200
 expect last_hurt == 101

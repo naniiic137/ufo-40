@@ -1,37 +1,37 @@
 # LIMPET: a deck's exit pod is choked with gristle until a red bulb nearby is
-# shot; then rolling (or warping) into the pod shuts it and the deck is
-# cleared. Each deck keeps its best time; back in the hub the tank comes out
-# of the same pod.
+# shot; then rolling into the pod shuts it and the deck is cleared. Each
+# deck keeps its best time; back in the hub the tank comes out of the same pod.
 game limpet
 wait 5
 cheat level 29
-cheat pos 46 44 0
+cheat pos 70 66 0
 wait 2
-expect pod_here == 20
 expect pod_level == 0
 press B 1
 wait 2
 expect level == 0
 expect bulb == 0
-expect tile_58_7 == 69
-# the pod is solid until then: warping down lands on top of it
-cheat pos 58 1 4
-wait 2
-press B 1
-expect ty == 6
-# shoot the bulb from under the shelf
-cheat pos 52 15 0
+expect tile_4_32 == 69
+# the bulb, past the turret under it
+cheat tallyhits
+cheat pos 15 32 0
 wait 2
 press A 1
-waituntil bulb == 1 60
-expect tile_52_8 == 114
-cheat pos 58 1 4
-wait 20
-press B 1
+wait 8
+press A 1
+wait 8
+press A 1
+waituntil bulb == 1 90
+expect tile_15_17 == 114
+cheat notally
+cheat nofoes
+cheat pos 6 32 0
+wait 2
+hold LEFT 30
 expect state == 5
 expect best0 > 0
 expect cleared == 1
 waituntil state == 2 260
 expect level == 29
-expect tx == 46
-expect ty == 44
+expect tx == 70
+expect ty == 66

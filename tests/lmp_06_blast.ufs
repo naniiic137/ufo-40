@@ -4,10 +4,10 @@ game limpet
 wait 5
 cheat level 0
 cheat nofoes
-cheat pos 30 15 0
+cheat pos 5 15 0
 wait 2
-cheat foe 1 32 1 4
-cheat foe 1 36 1 4
+cheat foe 1 7 1 4
+cheat foe 1 11 1 4
 expect foes_1 == 2
 press B 1
 expect ty == 1

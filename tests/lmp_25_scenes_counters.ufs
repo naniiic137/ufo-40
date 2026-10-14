@@ -1,0 +1,29 @@
+# LIMPET: when a clear opens something in the station, the camera goes to
+# it, it opens, and the camera comes back, with no words and no arrow. The
+# deck and honey counters are a reward for scrapping the Dreadnought.
+game limpet
+wait 5
+cheat setcleared 3
+cheat level 29
+wait 2
+expect counters == 0
+expect tile_95_64 == 71
+cheat level 6
+wait 2
+cheat finish
+expect cleared == 4
+waituntil state == 9 300
+expect scene_gate == 1
+expect tile_95_64 == 71
+waituntil tile_95_64 == 46 100
+waituntil state == 2 200
+expect level == 29
+expect reach_102_66_0 > 0
+# nothing new opened: no scene
+cheat level 7
+wait 2
+cheat finish
+waituntil state == 2 300
+expect scene_gate == -1
+cheat dread 1
+expect counters == 1

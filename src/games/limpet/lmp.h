@@ -198,6 +198,7 @@ typedef struct {
     uint8_t colour, colours;     /* the tank's paint; bays found (bits) */
     uint8_t last_pod;            /* where the tank comes out in the hub */
     uint8_t ends_seen;
+    uint8_t last_n;              /* the way the tank faced when it went into that pod */
     uint16_t deaths, wins;
 } LmpSave;
 

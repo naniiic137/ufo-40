@@ -1,37 +1,34 @@
-# LIMPET: ramps carry the tank round corners: into a corner up the wall,
-# round the end of a ledge, and on with the same button held. On a wall
-# UP and DOWN roll it.
+# LIMPET: ramps carry the tank round corners: into a corner and up the wall,
+# over the top of a block and down again, on with the same button held.
+# On a wall UP and DOWN roll it; a sheer wall stops it.
 game limpet
 wait 5
 cheat level 1
 cheat nofoes
-cheat pos 44 32 0
+cheat pos 8 15 0
 wait 2
 hold RIGHT 30
 wait 10
-expect tx == 46
+expect tx == 10
 expect tn == 6
-expect ty < 32
-cheat pos 46 30 6
+expect ty < 15
+cheat pos 10 12 6
 wait 2
 press UP 1
 wait 8
-expect ty == 29
+expect ty == 11
 press DOWN 1
 wait 8
-expect ty == 30
-# round the end of a ledge: underneath, along its end and onto its top
-cheat pos 40 27 4
-wait 2
-hold LEFT 300
-wait 8
+expect ty == 12
+# up the face, round the top corner and onto the block's top
+hold UP 50
+wait 10
 expect tn == 0
-expect ty == 23
-expect tx == 46
-# a sheer wall: the step at the start
-cheat pos 12 32 0
+expect ty == 5
+# a sheer wall: the deck's left wall
+cheat pos 4 15 0
 wait 2
-hold LEFT 60
+hold LEFT 40
 wait 8
-expect tx == 7
+expect tx == 1
 expect tn == 0

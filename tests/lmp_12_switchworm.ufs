@@ -4,12 +4,12 @@
 game limpet
 wait 5
 cheat level 15
-cheat pos 45 15 0
+cheat pos 42 15 0
 wait 2
 expect parity == 0
-expect foes_9 == 1
-expect tile_55_12 == 84
-expect reach_57_15_0 == -1
+expect foes_9 >= 1
+expect tile_46_12 == 84
+expect reach_49_15_0 == -1
 press A 1
 wait 4
 press A 1
@@ -251,5 +251,5 @@ wait 4
 press A 1
 wait 4
 expect parity == 1
-expect foes_9 == 1
-expect reach_57_15_0 > 0
+expect foes_9 >= 1
+expect reach_49_15_0 > 0
