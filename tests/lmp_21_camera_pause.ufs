@@ -1,0 +1,23 @@
+# LIMPET: the camera doesn't scroll smoothly: it snaps along in steps of 40
+# pixels as the tank moves. The pause menu can leave a deck.
+game limpet
+wait 5
+cheat level 0
+wait 2
+expect cam_x == 0
+cheat pos 40 1 4
+wait 2
+expect cam_x == 240
+cheat pos 37 1 4
+wait 2
+expect cam_x == 200
+cheat pos 2 15 0
+wait 2
+press START
+wait 2
+expect paused == 1
+press DOWN
+press A
+wait 5
+expect paused == 0
+expect level == 29

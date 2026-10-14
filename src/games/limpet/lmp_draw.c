@@ -15,7 +15,7 @@ extern const int LMP_CHERRY_END_N;
 
 static int cam_x, cam_y;
 
-static void update_camera(void) {
+void lmp_camera_update(void) {
     int tx, ty;
     lmp_tank_centre(&tx, &ty);
     int mwp = lg.mw * LMP_T, mhp = lg.mh * LMP_T;
@@ -313,7 +313,9 @@ static void draw_world(void) {
                     draw_pod(tx, ty, st, t, lab, open);
                     k++;
                 } else if (c == 'N') {
-                    int sp = SPR_NPC0 + (np % 5);
+                    const char *nm = np < LMP_HUB_NNPCS ? LMP_HUB_NPC[np].name : "";
+                    int sp = !strncmp(nm, "ROLO", 4) ? SPR_NPC0 : !strncmp(nm, "MOTHER", 6) ? SPR_NPC1
+                           : !strncmp(nm, "GUS", 3) ? SPR_NPC2 : !strncmp(nm, "WREN", 4) ? SPR_NPC3 : SPR_NPC4;
                     spr_draw(&lmp_spr[sp], tx * LMP_T + 1, ty * LMP_T - 2 + ((t / 30 + np) % 2), 0);
                     np++;
                 }
@@ -666,7 +668,7 @@ void lmp_draw(void) {
     default: break;
     }
     gfx_cls(C_INK);
-    update_camera();
+    lmp_camera_update();
     draw_world();
     draw_hud();
     if (lg.state == GS_PLAY) { draw_talk(); draw_pod_hint(); }

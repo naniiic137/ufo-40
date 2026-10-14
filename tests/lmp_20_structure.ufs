@@ -1,0 +1,13 @@
+# LIMPET: the full size: 26 decks and a secret one; 3 of the 26 are survival
+# decks; 23 hide honey (with the Dreadnought's, 24); every deck has one pod,
+# a bulb where it needs one and its honey's ! block; 29 pods in the hub;
+# the screens' words fit; every sprite is the right size.
+game limpet
+wait 5
+expect levels_ok == 0
+expect decks_of_kind0 == 23
+expect decks_of_kind1 == 3
+expect decks_of_kind2 == 1
+expect npods == 29
+expect art_bad == 0
+expect layout == 0

@@ -155,6 +155,7 @@ static void enter_level(int level) {
     lmp_load_level(level);
     lg.tk.colour = col;
     lg.deaths_here = 0;
+    lg.fired = 0;
     static const char *const ITEMS[1] = {"LEAVE DECK"};
     if (!lmp_simulating) game_pause_items(1, ITEMS, leave_pick);
     lmp_music(deck_music(level));
@@ -227,7 +228,7 @@ void lmp_level_cleared(void) {
     lgs.started = 1;
     goals_from_save();
     lmp_save_now();
-    lmp_music(LMP_MUS_CLEAR);
+    lmp_music(lg.clear_honey ? LMP_MUS_HONEY : LMP_MUS_CLEAR);
     lmp_sfx("lmp_clear");
     game_pause_items(0, NULL, NULL);
     set_state(GS_CLEAR);
@@ -437,6 +438,7 @@ static void lmp_update(void) {
         break;
     default: break;
     }
+    if (lg.state == GS_PLAY || lg.state == GS_DEAD || lg.state == GS_PROMPT || lg.state == GS_CLEAR) lmp_camera_update();
 }
 
 /* ---- cartridge interface ---------------------------------------------------- */
@@ -487,6 +489,17 @@ static int lmp_query(const char *key, int *out) {
     if (!strcmp(key, "fizz")) { *out = t->fizz_t; return 1; }
     if (!strcmp(key, "blast")) { *out = t->blast_t; return 1; }
     if (!strcmp(key, "colour")) { *out = t->colour; return 1; }
+    if (!strcmp(key, "fired")) { *out = lg.fired; return 1; }
+    if (!strncmp(key, "playing_", 8)) { *out = music_playing() >= 0 && music_playing() == song_find(key + 8); return 1; }
+    if (!strcmp(key, "npods")) { *out = LMP_HUB_NPODS; return 1; }
+    if (!strcmp(key, "nnpcs")) { *out = LMP_HUB_NNPCS; return 1; }
+    if (!strncmp(key, "decks_of_kind", 13)) {
+        int k = atoi(key + 13), n = 0;
+        for (int i = 0; i < LMP_SECTORS; i++) n += LMP_LEVEL[i]->kind == k;
+        *out = n;
+        return 1;
+    }
+    if (!strcmp(key, "bee_hint")) { *out = lgs.dread && lg.level < LMP_NORMAL_DECKS && lg.kind == LK_NORMAL; return 1; }
     if (!strcmp(key, "shots")) { int n = 0; for (int i = 0; i < LMP_MAX_SHOTS; i++) n += lg.shot[i].alive; *out = n; return 1; }
     if (!strcmp(key, "shot_vx")) { *out = 0; for (int i = 0; i < LMP_MAX_SHOTS; i++) if (lg.shot[i].alive) { *out = lg.shot[i].vx; break; } return 1; }
     if (!strcmp(key, "shot_vy")) { *out = 0; for (int i = 0; i < LMP_MAX_SHOTS; i++) if (lg.shot[i].alive) { *out = lg.shot[i].vy; break; } return 1; }
@@ -606,6 +619,7 @@ static int lmp_cheat(const char *cmd) {
     if (!strcmp(cmd, "god")) { lg.god = true; return 1; }
     if (!strcmp(cmd, "mortal")) { lg.god = false; return 1; }
     if (!strcmp(cmd, "tallyhits")) { lg.tally_hits = true; lg.hits = 0; return 1; }
+    if (!strcmp(cmd, "notally")) { lg.tally_hits = false; return 1; }
     if (!strcmp(cmd, "nofoes")) {
         memset(lg.foe, 0, sizeof lg.foe);
         memset(lg.es, 0, sizeof lg.es);

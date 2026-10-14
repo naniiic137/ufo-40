@@ -1,0 +1,41 @@
+# LIMPET: the gun fires straight out from the surface. A tap fires one shot,
+# a held trigger a burst of three; pressing again and again fires faster.
+game limpet
+wait 5
+cheat level 0
+cheat nofoes
+wait 2
+press A 1
+expect fired == 1
+expect shot_vy < 0
+expect shot_vx == 0
+wait 60
+hold A 60
+expect fired == 4
+wait 30
+# mashing: a press every six frames
+press A 1
+wait 4
+press A 1
+wait 4
+press A 1
+wait 4
+press A 1
+wait 4
+press A 1
+wait 4
+press A 1
+wait 4
+expect fired == 10
+# from the ceiling it fires down, from a wall sideways
+wait 60
+cheat pos 30 1 4
+wait 2
+press A 1
+expect shot_vy > 0
+wait 60
+cheat pos 23 5 2
+wait 2
+press A 1
+expect shot_vx > 0
+expect shot_vy == 0

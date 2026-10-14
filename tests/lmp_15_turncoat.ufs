@@ -1,0 +1,41 @@
+# LIMPET: the Turncoat, a tank like Limpet that rolls, fires bursts and
+# warps. Scrapping it is the Beacon, and a wall in the station's first room
+# opens on a shaft up to the upper ring.
+game limpet
+wait 5
+cheat level 29
+wait 2
+expect tile_43_23 == 71
+cheat level 27
+wait 2
+expect boss_hp == 16
+expect foes_12 == 1
+expect bulb == 0
+expect goals == 0
+cheat tallyhits
+cheat bosshp 1
+cheat pos 28 15 0
+wait 2
+press A 1
+wait 8
+press A 1
+wait 8
+press A 1
+wait 8
+press A 1
+wait 8
+press A 1
+waituntil boss_dead == 1 200
+expect goals == 1
+expect turncoat == 1
+expect bulb == 1
+cheat notally
+cheat pos 14 15 0
+wait 20
+press RIGHT 1
+wait 10
+expect state == 5
+waituntil state == 2 260
+expect level == 29
+expect tile_43_23 == 46
+expect reach_50_21_0 > 0

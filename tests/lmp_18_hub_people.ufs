@@ -1,0 +1,36 @@
+# LIMPET: the station's people talk while the tank is next to them; paint
+# bays (one in each unlockable part) repaint the tank; each part of the
+# station has its own tune.
+game limpet
+wait 5
+cheat level 29
+wait 2
+expect nnpcs == 5
+expect talk == -1
+expect zone == 0
+cheat pos 63 44 0
+wait 2
+expect talk == 1
+cheat pos 74 44 0
+wait 2
+expect talk == 2
+cheat pos 19 44 0
+wait 2
+expect zone == 2
+expect colour == 2
+expect save_colour == 2
+expect colours == 2
+cheat pos 110 44 0
+wait 2
+expect zone == 1
+expect colour == 3
+expect colours == 6
+cheat pos 30 21 0
+wait 2
+expect zone == 3
+expect colour == 1
+expect colours == 7
+cheat pos 5 21 0
+wait 2
+expect talk == 0
+expect zone == 2

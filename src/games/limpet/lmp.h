@@ -246,6 +246,7 @@ typedef struct {
     bool tally_hits;
     int deaths_here;
     int sim_deaths;
+    int fired;                   /* shots fired in this deck */
 } LmpGame;
 
 extern LmpGame lg;
@@ -325,6 +326,7 @@ int lmp_bfs_reach(int tx, int ty, int tn);  /* steps from the tank to a state, -
 
 /* lmp_draw.c */
 void lmp_draw(void);
+void lmp_camera_update(void);
 void lmp_draw_label(int x, int y, int w, int h, int t);
 int lmp_layout_audit(void);
 

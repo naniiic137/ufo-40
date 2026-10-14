@@ -1,0 +1,55 @@
+# LIMPET: the station opens up as decks are cleared. Gus's crate swings away
+# at four (the canteen), two more obstacles move at nine (the Gristle wing's
+# doors and the canteen's back room); the Turncoat's pod is up a side way
+# from the Gristle wing; scrapping it opens the shaft to the upper ring; the
+# Dreadnought's wall opens at 22 decks; a bridge of honey to the secret deck
+# appears with all 24 jars. (Reach: the demo player's map search.)
+game limpet
+wait 5
+cheat setcleared 3
+cheat level 29
+wait 2
+expect reach_51_44_0 > 0
+expect reach_66_33_0 > 0
+expect reach_84_44_0 == -1
+cheat setcleared 4
+cheat level 29
+wait 2
+expect reach_84_44_0 > 0
+expect reach_96_44_0 > 0
+expect reach_24_44_0 == -1
+expect reach_107_44_0 == -1
+cheat setcleared 8
+cheat level 29
+wait 2
+expect reach_24_44_0 == -1
+cheat setcleared 9
+cheat level 29
+wait 2
+expect reach_24_44_0 > 0
+expect reach_4_33_0 > 0
+expect reach_107_44_0 > 0
+expect reach_113_44_0 > 0
+# the Turncoat, up the side way through the plates
+expect reach_8_21_0 > 0
+expect reach_50_21_0 == -1
+cheat turncoat 1
+cheat setcleared 21
+cheat level 29
+wait 2
+expect reach_50_21_0 > 0
+expect reach_103_10_0 > 0
+expect reach_114_10_0 == -1
+cheat setcleared 22
+cheat level 29
+wait 2
+expect reach_114_10_0 > 0
+cheat sethoney 23
+cheat level 29
+wait 2
+expect reach_115_35_0 == -1
+cheat sethoney 24
+cheat level 29
+wait 2
+expect reach_115_35_0 > 0
+expect npods == 29

@@ -139,7 +139,8 @@ void lmp_tank_place(int x, int y, int n) {
     t->x = x;
     t->y = y;
     t->n = n;
-    t->portal_lock = true;
+    char c = lmp_tile(x, y);
+    t->portal_lock = c == '{' || c == '}' || c == '<' || c == '>';
 }
 
 /* ---- effects ------------------------------------------------------------- */
@@ -320,6 +321,7 @@ static void fire(void) {
         break;
     }
     t->fire_gap = LMP_MASH_GAP;
+    lg.fired++;
     lmp_sfx("lmp_shot");
 }
 
@@ -382,7 +384,7 @@ static bool try_push(int sense) {
     /* only if the tank has something to roll on where the block was */
     if (!lmp_face_solid(bx - LMP_DX[t->n], by - LMP_DY[t->n], t->n)) return false;
     lg.map[cy][cx] = 'P';
-    lg.map[by][bx] = ' ';
+    lg.map[by][bx] = '.';
     lmp_sfx("lmp_push");
     return true;
 }
@@ -395,7 +397,8 @@ static void start_roll(int sense) {
         /* running into spikes is as bad as landing on them */
         int d = (t->n + 2 * sense) & 7;
         if (lmp_is_spikes(t->x + LMP_DX[d], t->y + LMP_DY[d])) lmp_kill_tank(2);
-        t->sense = 0;
+        /* stopped: the held button still means the same way round until it is let go */
+        t->sense = sense;
         return;
     }
     t->sx = t->x;
@@ -461,9 +464,11 @@ void lmp_tank_update(void) {
     int d = held_dir();
     int sense = 0;
     if (d >= 0) {
-        if (d == ((t->n + 2) & 7)) sense = 1;
+        /* the button that began a run keeps it going the same way round, even
+         * after a ramp has turned the tank; a fresh press is read afresh */
+        if (t->sense != 0 && t->run_btn && lmp_btn(t->run_btn)) sense = t->sense;
+        else if (d == ((t->n + 2) & 7)) sense = 1;
         else if (d == ((t->n + 6) & 7)) sense = -1;
-        else if (t->sense != 0 && t->run_btn && lmp_btn(t->run_btn)) sense = t->sense;
     }
     if (sense == 0) { t->sense = 0; t->run_btn = 0; return; }
     if (t->sense == 0 || !lmp_btn(t->run_btn)) t->run_btn = btn_of(d);

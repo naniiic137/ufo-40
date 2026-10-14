@@ -1,0 +1,19 @@
+# LIMPET: the demo player's honey run: every jar in the 23 decks (each taken
+# and carried out alive), the Dreadnought's 24th, then the bridge of honey to
+# the secret deck, the Comb, and the Alien with its own ending.
+game limpet
+wait 5
+cheat botplan 1
+botuntil state == 2 600
+botuntil turncoat == 1 60000
+botuntil dread == 1 80000
+expect honey == 23
+botuntil honey == 24 4000
+botuntil secret == 1 30000
+expect goals == 7
+expect cleared == 26
+expect secret == 1
+expect cleared_bits == 134217727
+botuntil state == 7 4000
+botuntil state == 2 4000
+expect ends == 3

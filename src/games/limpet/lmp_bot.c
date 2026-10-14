@@ -433,6 +433,7 @@ static int go(Goal goal, const void *arg, bool *arrived) {
         t->pn = 0;
         int act = goal(t->x, t->y, t->n, arg) ? ACT_NONE : bfs(goal, arg, NULL);
         int want = (act == ACT_CW || act == ACT_CCW) ? act_buttons(act) : 0;
+        if (want && keep.sense != 0 && keep.sense != (act == ACT_CW ? 1 : -1)) want = 0;
         *t = keep;
         if (!want) return 0;
         if (!threat_near()) return want;
@@ -454,6 +455,10 @@ static int go(Goal goal, const void *arg, bool *arrived) {
     }
     int want = act_buttons(act);
     if (act == ACT_WARP && t->warp_cool > 0) return 0;
+    /* a held button keeps an old run going its old way: let go first */
+    if ((act == ACT_CW || act == ACT_CCW) && (r_prev_mask & want) && t->sense != 0 &&
+        t->sense != (act == ACT_CW ? 1 : -1))
+        return 0;
     if (!danger) {
         /* where the move ends can be dangerous too */
         int ox, oy, on;
@@ -864,23 +869,8 @@ int lmp_bfs_reach(int tx, int ty, int tn) {
 int lmp_bot_rpos(void) { return r_pos; }
 
 int lmp_bot_debug(int what) {
-    /* tests: 1 = a warp now survives, 2 = waiting survives, 3 = the plan's first move */
+    /* tests: 1 = a warp now keeps the tank alive, 2 = so does waiting */
     if (what == 1) return survives(BTN_B, 1, 60);
     if (what == 2) return survives(0, 0, 60);
-    if (what == 3) { int d; return bfs(goal_bulb, NULL, &d); }
-    if (what == 4) return threat_near();
-    if (what == 5) return r_wait * 1000 + r_fire_t;
-    if (what == 8) return dread_plan();
-    if (what >= 11 && what <= 14) {
-        static const int B[4] = {0, BTN_B, BTN_RIGHT, BTN_LEFT};
-        int full;
-        int b = B[what - 11];
-        return survive_t(b, (b & (BTN_LEFT | BTN_RIGHT)) ? LMP_STEP_T : 1, 50, &full) * 1000 + full;
-    }
-    if (what == 15) { Spot sp = {33, 11, 4}; int d; return bfs(goal_bulb, &sp, &d); }
-    if (what == 10) return r_hx * 10000 + r_hy * 100 + r_hn * 10 + (r_hunt_t > 0);
-    if (what == 9) return r_prev_mask;
-    if (what == 6) { bool a; Spot sp = {50, 12, 4}; return go(goal_spot, &sp, &a); }
-    if (what == 7) { int d; Spot sp = {50, 12, 4}; return bfs(goal_spot, &sp, &d); }
     return 0;
 }

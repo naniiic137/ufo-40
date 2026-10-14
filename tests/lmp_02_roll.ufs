@@ -1,0 +1,45 @@
+# LIMPET: the tank rolls one tile at a time along the surface it clings to
+# (seven frames a tile), the pad's other two ways do nothing, and it can
+# neither drive off a ledge nor climb a sheer wall.
+game limpet
+wait 5
+cheat level 0
+wait 2
+expect tx == 2
+expect ty == 15
+expect tn == 0
+press RIGHT 1
+expect moving == 1
+wait 8
+expect moving == 0
+expect tx == 3
+hold RIGHT 28
+wait 8
+expect tx >= 6
+cheat pos 7 15 0
+wait 2
+hold UP 20
+hold DOWN 20
+expect tx == 7
+expect ty == 15
+expect tn == 0
+# a sheer wall: the low wall at x 10
+hold RIGHT 60
+wait 8
+expect tx == 9
+expect tn == 0
+# a ledge: the shelf under the pod ends at x 50
+cheat pos 55 7 0
+wait 2
+hold LEFT 80
+wait 8
+expect tx == 50
+expect ty == 7
+# on the ceiling, left and right still roll
+cheat pos 30 1 4
+wait 2
+hold RIGHT 15
+wait 8
+expect tx >= 31
+expect ty == 1
+expect tn == 4

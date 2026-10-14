@@ -1,0 +1,19 @@
+# LIMPET: the demo player plays the whole game from the title with button
+# presses: through the hub's gates, every deck, the Turncoat (Beacon) and the
+# Dreadnought (Saucer), to the ending and back to the station.
+game limpet
+wait 5
+botuntil state == 2 600
+expect level == 29
+botuntil cleared >= 4 30000
+botuntil cleared >= 9 30000
+botuntil turncoat == 1 40000
+expect goals == 1
+botuntil cleared >= 22 60000
+botuntil dread == 1 60000
+expect goals == 3
+expect cleared == 26
+botuntil state == 6 4000
+botuntil state == 2 4000
+expect level == 29
+expect save_wins == 1

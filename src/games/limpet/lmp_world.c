@@ -128,7 +128,7 @@ void lmp_shoot_tile(int x, int y) {
     int px = x * LMP_T + 5, py = y * LMP_T + 5;
     switch (c) {
     case 'B':
-        lg.map[y][x] = ' ';
+        lg.map[y][x] = '.';
         lmp_burst(px, py, C_TAN, 8, 2);
         lmp_sfx("lmp_break");
         break;
@@ -146,7 +146,7 @@ void lmp_shoot_tile(int x, int y) {
         lg.map[y][x] = 'u';
         for (int yy = 0; yy < lg.mh; yy++)
             for (int xx = 0; xx < lg.mw; xx++)
-                if (lg.map[yy][xx] == 'D') { lg.map[yy][xx] = ' '; lmp_burst(xx * LMP_T + 5, yy * LMP_T + 5, C_GREY, 3, 1); }
+                if (lg.map[yy][xx] == 'D') { lg.map[yy][xx] = '.'; lmp_burst(xx * LMP_T + 5, yy * LMP_T + 5, C_GREY, 3, 1); }
         lmp_sfx("lmp_door");
         break;
     case 'y':
@@ -193,7 +193,7 @@ static void mover_step(int i) {
     LmpTank *t = &lg.tk;
     int sx = t->x - LMP_DX[t->n], sy = t->y - LMP_DY[t->n];
     bool riding = lg.state == GS_PLAY && lmp_axis(t->n) && t->pn == 0 && lmp_mover_at(sx, sy) == i;
-    mover_paint(m, ' ');
+    mover_paint(m, '.');
     m->x += dx;
     m->y += dy;
     mover_paint(m, 'm');

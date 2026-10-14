@@ -1,0 +1,62 @@
+# LIMPET: the warp jumps straight out from the surface to the opposite one,
+# flipping the tank; floor to ceiling, wall to wall. Thin plates let it
+# through one way only, outline blocks let it through until shot, a magnet
+# floor holds it, and spikes on the far side are the end of it.
+game limpet
+wait 5
+cheat level 0
+wait 2
+press B 1
+expect tx == 2
+expect ty == 1
+expect tn == 4
+expect lag > 0
+expect blast > 0
+wait 20
+press B 1
+expect ty == 15
+expect tn == 0
+# wall to wall
+cheat pos 23 5 2
+wait 2
+press B 1
+expect tx == 62
+expect ty == 5
+expect tn == 6
+# thin plates: up through, not back down
+cheat level 5
+wait 2
+cheat pos 6 32 0
+wait 2
+press B 1
+expect ty == 17
+expect tn == 4
+wait 20
+press B 1
+expect ty == 23
+expect tn == 0
+# an outline block lets it through
+cheat level 6
+wait 2
+cheat pos 35 1 4
+wait 2
+press B 1
+expect ty == 19
+expect tn == 0
+# a magnet floor holds it
+cheat level 4
+wait 2
+cheat pos 12 15 0
+wait 2
+expect warp_ok == -2
+press B 1
+expect ty == 15
+expect fizz > 0
+# warping onto spikes
+cheat level 3
+wait 2
+cheat pos 12 1 4
+wait 2
+press B 1
+expect state == 3
+expect last_hurt == 1

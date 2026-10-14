@@ -142,6 +142,12 @@ static const struct { const char *id, *title; } TITLES[] = {
     {"rsl_boss", "THE HOLLOW HOST"}, {"rsl_special", "HIDDEN HOARD"}, {"rsl_spirit", "THE LOW GLOW"},
     {"rsl_ending", "LAID TO REST"}, {"rsl_scores", "NAMES IN THE ASH"}, {"rsl_clear", "STAGE CLEAR"},
     {"rsl_over", "SCATTERED"}, {"rsl_rise", "GRANDMOTHER ASH"},
+    {"lmp_title", "LIMPET"}, {"lmp_story", "THE CREW FLED"}, {"lmp_concourse", "CONCOURSE"},
+    {"lmp_canteen", "CANTEEN SWING"}, {"lmp_gristle", "THE GRISTLE WING"}, {"lmp_upper", "UPPER RING"},
+    {"lmp_deck_a", "HULL CRAWL"}, {"lmp_deck_b", "PRESSURE"}, {"lmp_deck_c", "COLD IRON"},
+    {"lmp_deck_d", "DEEP DECKS"}, {"lmp_survival", "HOLD THE LINE"}, {"lmp_turncoat", "TURNCOAT"},
+    {"lmp_dread", "DREADNOUGHT"}, {"lmp_comb", "THE COMB"}, {"lmp_ending", "QUIET ORBIT"},
+    {"lmp_clear", "POD SHUT"}, {"lmp_death", "SCRAPPED"}, {"lmp_honey", "HONEY BANKED"},
 };
 
 const char *shell_song_title(int song) {
@@ -158,7 +164,7 @@ const char *shell_song_title(int song) {
     return buf;
 }
 
-#define MAX_ROWS 448 /* every song plus a heading per cartridge */
+#define MAX_ROWS 640 /* every song plus a heading per cartridge */
 #define LIST_Y 69 /* the scroll marks fit between the panels */
 #define ROW_H 10
 #define VISIBLE 9

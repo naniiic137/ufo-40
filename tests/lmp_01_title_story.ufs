@@ -1,0 +1,50 @@
+# LIMPET: a fresh save shows NEW GAME only; the story, then the station hub
+# at its start. Once there is a log, CONTINUE comes first, and NEW GAME asks
+# before it wipes the log (NO is the answer it starts on).
+game limpet
+wait 5
+expect state == 0
+expect started == 0
+expect menu == 1
+press A
+wait 5
+expect state == 1
+wait 30
+press A
+wait 5
+expect state == 2
+expect level == 29
+expect tx == 60
+expect ty == 44
+expect tn == 0
+expect zone == 0
+expect started == 1
+expect layout == 0
+# back to the title: CONTINUE is offered first
+reload
+game limpet
+wait 5
+expect state == 0
+expect menu == 0
+press DOWN
+expect menu == 1
+press A
+wait 2
+# the question: NO first, and B backs out too
+expect state == 0
+expect started == 1
+press A
+wait 2
+expect state == 0
+expect started == 1
+press A
+wait 2
+press B
+wait 2
+expect state == 0
+press A
+wait 2
+press RIGHT
+press A
+wait 5
+expect state == 1

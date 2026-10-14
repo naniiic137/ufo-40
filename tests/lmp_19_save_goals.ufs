@@ -1,0 +1,42 @@
+# LIMPET: the station log saves itself: decks cleared, honey banked, best
+# times, bosses, paint and the last pod. The goals come back from it.
+game limpet
+wait 5
+cheat level 0
+wait 2
+cheat holdhoney
+cheat timer 1800
+cheat finish
+expect cleared == 1
+expect honey == 1
+expect best0 == 1800
+cheat colour 2
+cheat turncoat 1
+cheat dread 1
+reload
+game limpet
+wait 5
+expect started == 1
+expect cleared == 1
+expect honey == 1
+expect best0 == 1800
+expect save_colour == 2
+expect goals == 3
+# a slower clear keeps the best time
+cheat level 0
+wait 2
+cheat timer 2400
+cheat finish
+expect best0 == 1800
+cheat level 0
+wait 2
+cheat timer 900
+cheat finish
+expect best0 == 900
+expect total_best == 900
+# goals lost, the log kept: they come back
+set_goals limpet 0
+reload
+game limpet
+wait 5
+expect goals == 3
