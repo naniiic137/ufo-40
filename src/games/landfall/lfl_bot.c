@@ -6,7 +6,7 @@
  * juggles its two hands, and shoots what gets in line. */
 #include "lfl.h"
 
-int lfl_bot_task, lfl_bot_tx, lfl_bot_ty;
+int lfl_bot_task, lfl_bot_tx, lfl_bot_ty, lfl_bot_last;
 
 #define AW (LFL_GMAX_W * LFL_RW)
 #define AH (LFL_GMAX_H * LFL_RH)
@@ -930,7 +930,21 @@ static int fight(void) {
     return 0;
 }
 
+static int bot_buttons_inner(void);
+
+/* a button held on and on is let go for a frame now and then (a press the
+ * game swallowed, say when a talk box closed, only counts once released) */
 int lfl_bot_buttons(void) {
+    static int same, last;
+    int m = bot_buttons_inner();
+    same = m && m == last ? same + 1 : 0;
+    last = m;
+    if (same >= 24) { same = 0; last = 0; prev_mask = 0; m = 0; }
+    lfl_bot_last = m;
+    return m;
+}
+
+static int bot_buttons_inner(void) {
     int mask = 0;
     switch (lg.state) {
     case LS_TITLE:
@@ -1028,9 +1042,18 @@ int lfl_bot_buttons(void) {
     if (j.wx >= 0 && my_wx() == j.wx && my_wy() == j.wy) {
         stuck_t = 0;
         int ccx = pcx() % LFL_TILE, ccy = pcy() % LFL_TILE;
-        bool centred = ccx >= 5 && ccx <= 11 && ccy >= 5 && ccy <= 11;
+        /* centred, with room to turn: a one-frame tap toward the facing
+         * moves her a pixel or two, which must keep her on this tile */
+        int lox = 5, hix = 11, loy = 5, hiy = 11;
+        if (j.face >= 0 && p->face != j.face) {
+            if (j.face == DIR_UP) loy = 8;
+            if (j.face == DIR_DOWN) hiy = 8;
+            if (j.face == DIR_LEFT) lox = 8;
+            if (j.face == DIR_RIGHT) hix = 8;
+        }
+        bool centred = ccx >= lox && ccx <= hix && ccy >= loy && ccy <= hiy;
         if (j.act == 4) mask = dir_button(j.face);
-        else if (!centred) mask = ccx < 5 ? BTN_RIGHT : ccx > 11 ? BTN_LEFT : ccy < 5 ? BTN_DOWN : BTN_UP;
+        else if (!centred) mask = ccx < lox ? BTN_RIGHT : ccx > hix ? BTN_LEFT : ccy < loy ? BTN_DOWN : BTN_UP;
         else if (j.face >= 0 && p->face != j.face) mask = dir_button(j.face);
         else if (j.act == 1) {
             mask = press_a();

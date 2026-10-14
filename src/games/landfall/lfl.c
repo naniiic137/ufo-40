@@ -378,6 +378,7 @@ static int audit_many(int from, int n, int what) {
 static int lfl_query(const char *key, int *out) {
     const LflPlayer *p = &lg.pl;
     if (!strcmp(key, "bot")) { *out = lfl_bot_buttons(); return 1; }
+    if (!strcmp(key, "bot_last")) { *out = lfl_bot_last; return 1; }
     if (!strcmp(key, "bot_task")) { *out = lfl_bot_task; return 1; }
     if (!strncmp(key, "here", 4)) {
         /* the k-th live thing in this room: kind*1000 + x/16*10 + y/16 */

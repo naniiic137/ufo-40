@@ -365,6 +365,6 @@ void lfl_audio_load(void);
 /* lfl_bot.c */
 int lfl_bot_buttons(void);
 void lfl_bot_reset(void);
-extern int lfl_bot_task, lfl_bot_tx, lfl_bot_ty;
+extern int lfl_bot_task, lfl_bot_tx, lfl_bot_ty, lfl_bot_last;
 
 #endif
