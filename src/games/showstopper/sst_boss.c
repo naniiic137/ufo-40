@@ -8,7 +8,7 @@ const char *const SST_BOSS_NAME[BK_COUNT] = {
     "", "THE SNOW ENGINE", "GRANNY GOGGLE", "THE BOILER", "THE DOPPELS", "OLD WICKS", "THE RIBBON",
     "MORROW THE MARVELLOUS", "THE MORROWMAW", "THE HEARTSTACK",
 };
-const int SST_BOSS_HP[BK_COUNT] = {0, 60, 80, 70, 120, 70, 60, 140, 160, 208};
+const int SST_BOSS_HP[BK_COUNT] = {0, 150, 220, 170, 300, 180, 170, 340, 400, 486};
 
 enum { PK_BODY, PK_WEAK, PK_HAND, PK_TORCH, PK_SEG, PK_EYE, PK_MOUTH, PK_SNAKE, PK_RED, PK_GREEN };
 
@@ -83,8 +83,8 @@ void sst_boss_start(int kind, int x, int y) {
     case BK_MAW:
         B.x = 160 * FX;
         B.y = 46 * FX;
-        add_part(PK_EYE, B.x - 30 * FX, B.y - 4 * FX, 9, 7, 80);
-        add_part(PK_EYE, B.x + 30 * FX, B.y - 4 * FX, 9, 7, 80);
+        add_part(PK_EYE, B.x - 30 * FX, B.y - 4 * FX, 9, 7, 200);
+        add_part(PK_EYE, B.x + 30 * FX, B.y - 4 * FX, 9, 7, 200);
         add_part(PK_EYE, 36 * FX, 62 * FX, 6, 6, 6);
         add_part(PK_EYE, 284 * FX, 62 * FX, 6, 6, 6);
         add_part(PK_EYE, 64 * FX, 104 * FX, 6, 6, 6);
@@ -98,7 +98,7 @@ void sst_boss_start(int kind, int x, int y) {
         B.y = 92 * FX;
         for (int k = 0; k < 23; k++) {
             bool red = k % 2 == 0; /* twelve red, eleven green, in turns */
-            SstPart *p = add_part(red ? PK_RED : PK_GREEN, B.x, B.y, 6, 6, red ? 10 : 8);
+            SstPart *p = add_part(red ? PK_RED : PK_GREEN, B.x, B.y, 6, 6, red ? 24 : 18);
             p->a = k * SST_ANG * 4 / 23; /* angle, in quarter units */
         }
         break;

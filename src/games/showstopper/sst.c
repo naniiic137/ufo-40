@@ -461,6 +461,9 @@ static int sst_query(const char *key, int *out) {
     if (!strcmp(key, "hop_row")) { *out = h->row; return 1; }
     if (!strcmp(key, "hop_lane")) { *out = h->lane; return 1; }
     if (!strcmp(key, "hop_dir")) { *out = h->dir; return 1; }
+    if (!strcmp(key, "hop_t")) { *out = h->hop_t; return 1; }
+    if (!strcmp(key, "hop_cam")) { *out = h->cam; return 1; }
+    if (!strcmp(key, "hop_gen")) { *out = h->gen_row; return 1; }
     if (!strcmp(key, "hop_mark")) { *out = h->next_mark; return 1; }
     if (!strcmp(key, "hop_practice")) { *out = h->practice; return 1; }
     if (!strcmp(key, "hop_tile")) { *out = sst_hop_tile(h->row, h->lane); return 1; }

@@ -25,6 +25,19 @@ static uint32_t dir_mask(int d) {
     return m;
 }
 
+/* can a shot get from Clover to (x, y)? (its own wall tile doesn't count) */
+static bool clear_line(int x, int y) {
+    const SstPlayer *p = &sst_g.pl;
+    int x0 = SST_PX(p->x), y0 = SST_PX(p->y), x1 = SST_PX(x), y1 = SST_PX(y);
+    int n = imax(iabs(x1 - x0), iabs(y1 - y0)) / 6;
+    for (int k = 1; k < n; k++) {
+        int cx = x0 + (x1 - x0) * k / n, cy = y0 + (y1 - y0) * k / n;
+        if ((cx >> 4) == (x1 >> 4) && (cy >> 4) == (y1 >> 4)) break;
+        if (sst_tile_solid(sst_tile_at(cx >> 4, cy >> 4))) return false;
+    }
+    return true;
+}
+
 /* the thing to shoot at: the boss's soft spot, else the nearest foe or bomb shot on the screen */
 static bool pick_target(int *tx, int *ty) {
     if (sst_boss_weak(tx, ty)) return true;
@@ -35,6 +48,7 @@ static bool pick_target(int *tx, int *ty) {
         const SstFoe *f = &sst_g.foe[i];
         if (!f->alive || !sst_on_screen(f->x, f->y, -6)) continue;
         if (f->kind == FK_BAT && f->a == 0) continue;
+        if (!clear_line(f->x, f->y)) continue;
         int d = sst_dist(SST_PX(f->x - p->x), SST_PX(f->y - p->y));
         if (f->kind == FK_CRATE || f->kind == FK_BARREL || f->kind == FK_SECRET) d += 60;
         if (SST_PX(f->y) > SST_PX(p->y) + 40 && SST_STAGE[sst_g.stage].kind == SK_SCROLL) d += 80;
@@ -122,6 +136,8 @@ static uint32_t fire_buttons(int frame, uint32_t move, int aim) {
 /* ---- trying moves -------------------------------------------------------------------- */
 
 typedef struct { int dir, dash, follow; } Plan;
+/* when the walk up the stage stalls, getting on matters more and more */
+static int urgency, best_guide = 1 << 30, stall_t, stall_stage = -1;
 static bool has_target;
 static int tgt_x, tgt_y;
 
@@ -148,10 +164,10 @@ static long long score_now(int lives0, int hits0, int bosshp0, int cards0, int p
     s += (long long)(sst_g.cards_got - cards0) * 2000;
     s += (long long)(sst_g.passes_run - passes0) * 60000;
     int px = SST_PX(p->x), py = SST_PX(p->y);
-    if (fighting() || bosshp0 > 0) s += (long long)(bosshp0 - (sst_g.boss.alive ? sst_g.boss.hp : 0)) * 3000;
+    if (bosshp0 > 0) s += (long long)(bosshp0 - (sst_g.boss.alive ? imin(sst_g.boss.hp, bosshp0) : 0)) * 3000;
     if (SST_STAGE[sst_g.stage].kind == SK_SCROLL && !fighting()) {
         int g = sst_guide(px >> 4, py >> 4);
-        s -= (long long)g * 4000 + (py & 15) * 150;
+        s -= ((long long)g * 4000 + (py & 15) * 150) * (1 + urgency);
     }
     /* keep clear of what is flying about */
     for (int i = 0; i < SST_MAX_BULLETS; i++) {
@@ -182,7 +198,7 @@ static long long score_now(int lives0, int hits0, int bosshp0, int cards0, int p
     /* lined up with the thing being shot at */
     if (has_target && !fighting()) {
         int miss = aim_miss(SST_PX(tgt_x) - px, SST_PX(tgt_y) - py);
-        s -= (long long)imin(miss, 40) * 350;
+        if (sst_dist(SST_PX(tgt_x) - px, SST_PX(tgt_y) - py) < 110) s -= (long long)imin(miss, 40) * 350 / (1 + urgency);
     }
     /* not hard against the bottom of the view while it climbs */
     if (sst_g.chasing && py > sst_g.cam_y + SST_VIEW_H - 30) s -= (py - (sst_g.cam_y + SST_VIEW_H - 30)) * 2000;
@@ -269,6 +285,21 @@ static uint32_t play_buttons(void) {
         tgt_y = ty;
     }
     fire_dir = aim;
+    if (SST_STAGE[sst_g.stage].kind == SK_SCROLL && !fighting()) {
+        int g = sst_guide(SST_PX(p->x) >> 4, SST_PX(p->y) >> 4);
+        if (stall_stage != sst_g.stage * 2 + sst_g.continues * 16 || g < best_guide) {
+            stall_stage = sst_g.stage * 2 + sst_g.continues * 16;
+            best_guide = g;
+            stall_t = 0;
+            urgency = 0;
+        } else if (++stall_t > 240) {
+            urgency = imin(4, urgency + 1);
+            stall_t = 0;
+        }
+    } else {
+        urgency = 0;
+        best_guide = 1 << 30;
+    }
     if (!danger_near()) {
         sst_bot_why = 1;
         plan_t = 0;
@@ -322,31 +353,36 @@ static bool hop_bad(int row, int lane, int frames_ahead) {
     return bad;
 }
 
+/* the best a path of hops from (row, lane), landing `when` frames from now,
+ * can do in `depth` more hops: how far on it gets and the coins on the way */
+static int hop_search(int row, int lane, int when, int depth) {
+    if (depth == 0) return row * 8;
+    int best = -100000;
+    for (int d = 0; d < 4; d++) {
+        int nr = row + (d == 0) - (d == 2), nl = lane + (d == 1) - (d == 3);
+        if (nr < 0 || hop_bad(nr, nl, when + HOP_HOP_T + 1)) continue;
+        int v = hop_search(nr, nl, when + HOP_HOP_T, depth - 1) + sst_hop_coin(nr, nl) * 3;
+        if (v > best) best = v;
+    }
+    return best;
+}
+
 static uint32_t hop_buttons(void) {
     const SstHop *h = &sst_g.hop;
     if (h->state != HB_HOP && h->state != HB_READY) return 0;
-    /* the next landing after this one: where it can safely be */
+    /* where the next hop starts, and when */
     int left = h->state == HB_HOP ? HOP_HOP_T - h->hop_t : 40 - h->st;
-    int t1 = left + HOP_HOP_T, t2 = t1 + HOP_HOP_T;
     int r = h->row, l = h->lane;
-    if (h->state == HB_READY) { t1 = left; t2 = left + HOP_HOP_T; }
+    int best = 0, bscore = -1000000;
     static const int ORDER[4] = {0, 1, 3, 2};
-    int best = -1, bscore = -1000;
     for (int k = 0; k < 4; k++) {
         int d = ORDER[k];
         int nr = r + (d == 0) - (d == 2), nl = l + (d == 1) - (d == 3);
-        if (hop_bad(nr, nl, t1 + 1)) continue;
-        int sc = 10 - k * 2 + sst_hop_coin(nr, nl) * 3;
-        /* and somewhere to go from there */
-        int outs = 0;
-        for (int e = 0; e < 4; e++) {
-            int rr = nr + (e == 0) - (e == 2), ll = nl + (e == 1) - (e == 3);
-            if (!hop_bad(rr, ll, t2 + 1)) outs++;
-        }
-        if (!outs) sc -= 20;
-        if (sc > bscore) { bscore = sc; best = d; }
+        int land = h->state == HB_READY ? left : left + HOP_HOP_T;
+        if (nr < 0 || hop_bad(nr, nl, land + 1)) continue;
+        int v = hop_search(nr, nl, land, 4) + sst_hop_coin(nr, nl) * 3 - k;
+        if (v > bscore) { bscore = v; best = d; }
     }
-    if (best < 0) best = 0;
     if (h->next_dir == best) return 0;
     if (tog % 2) return 0;
     static const uint32_t KEY[4] = {BTN_UP, BTN_RIGHT, BTN_DOWN, BTN_LEFT};

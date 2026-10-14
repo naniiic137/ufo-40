@@ -18,6 +18,15 @@ static void gen_row(void) {
     int g = H.gen_row++;
     int r = g % HOP_ROWS;
     int d = imin(10, g / 12);
+    if (!H.practice && g >= HOP_LENGTH) {
+        /* the far end: a row of plain squares, then nothing */
+        for (int l = 0; l < HOP_LANES; l++) {
+            H.tile[r][l] = (uint8_t)(g == HOP_LENGTH ? HT_TILE : HT_HOLE);
+            H.coin[r][l] = 0;
+            H.phase[r][l] = 0;
+        }
+        return;
+    }
     /* one lane always safe, wandering a little, so there is a way on */
     static const int8_t wander[3] = {-1, 0, 1};
     int safe = g == 0 ? 3 : H.safe;
@@ -154,6 +163,17 @@ void sst_hop_step(uint32_t held) {
             }
         }
         fill_ahead();
+        if (!H.practice && H.row >= HOP_LENGTH) {
+            /* the far end: the round is over, and the tries not used are
+             * passes again */
+            H.made_it = 1;
+            sst_g.passes += H.tries;
+            H.tries = 0;
+            H.state = HB_DONE;
+            H.st = 0;
+            sst_sfx("sst_pass");
+            break;
+        }
         /* and on again */
         H.hop_t = 0;
         H.dir = H.next_dir;

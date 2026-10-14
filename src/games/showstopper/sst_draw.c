@@ -890,8 +890,8 @@ static void draw_hop(void) {
     gfx_rect(202, 4, fill, 3, C_YELLOW);
     spr_draw(&sst_spr[SP_LIFE], 307, 2, 0);
     gfx_rect(0, 170, SCREEN_W, 10, C_INK);
-    tiny_center(GLYPH_UP " ON   " GLYPH_RIGHT " " GLYPH_LEFT " ACROSS   " GLYPH_DOWN " BACK", 160, 172, C_LIGHT);
-    if (h->state == HB_DONE) say_cs("THAT'S ALL THE TRIES", 160, 80, C_WHITE, C_INK);
+    tsay_c("UP: ON   LEFT, RIGHT: ACROSS   DOWN: BACK", 160, 172, C_LIGHT);
+    if (h->state == HB_DONE) say_cs(h->made_it ? "THE FAR END!" : "THAT'S ALL THE TRIES", 160, 80, C_WHITE, C_INK);
 }
 
 /* ---- the small screens ------------------------------------------------------------------- */

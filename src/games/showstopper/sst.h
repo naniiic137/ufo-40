@@ -268,10 +268,12 @@ typedef struct {
     int state, st;                       /* HB_* */
     int cam;                             /* rows*16 the view has advanced */
     bool practice;
+    int made_it;                         /* reached the far end */
     Rng rng;
 } SstHop;
 enum { HB_READY, HB_HOP, HB_FALL, HB_BITTEN, HB_DONE };
 #define HOP_HOP_T 20
+#define HOP_LENGTH 150               /* rows to the far end (the free ride has none) */
 #define HOP_MARKS 9
 extern const int SST_HOP_MARK[HOP_MARKS];
 
