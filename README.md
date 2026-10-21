@@ -137,7 +137,7 @@ menu, shows the buttons as you now press them). SELECT or B closes it.
 | 26 | **SKID KIDS** | Hot Foot | top-down two-on-two dodgeball with beanbags that skid along the floor, one button to pick up, pass, swap kids and wind up (a tap tosses, a full wind-up knocks down, a jump calls it off), a team jump that earns half-stars over sliding bags, stars for each kid's special throw or move, juice boxes, the Coach's items, the forced throw, first to 15; the original's 12 kits one for one, a draft or a free pick of the team, six matches with the kid nobody picked coming back with a robot, co-op, versus, the codes and the demo | NOODLE, PIPPA, HOPS, MILO, SPARKY, NELL, KIKI, ROXIE, TOBY, SID, BUZZY and MOOSE, Boomer the kangaroo, Benchbot, the Coach and the Hornets' gym |
 | 27 | **SOUNDINGS** | Divers | a dark, silent sea under one raft: the only shop, the only place to change the kit and the only place the log is written; three divers with two hands each, turn-based fights (orders left to right, then the creatures), every use costs one, a flat 25 % to run that throws away the round's orders, shields that guard all the time and cover an ally, about three creatures a fight, three elements in a loop, telegraphs, spines, healers and revivers, relics and pearls, cracked rock, unseen chests, three hidden heads and two endings; a demo player beats it from the title | Moss, Reed and Skip the axolotls, the Sunlit Shelf, Gumwell, Frond Hollow, the Sunken Shrine, Lantern Cave, the Stilt Pit, the Still Room and the Red Deep, 18 creatures, the Abbot and the Gloamheart |
 | 28 | **DUNE EXPRESS** | Rail Heist | real time until a guard is alert, then 10-second turns, one-bullet lawmen who hit each other too, punches through walls and floors, carrying and throwing, hiding in barrels, levers, a crank gun, rams, three outlaws, three stars a mission with the original's time goals, 2P versus | Wade, Hush and Pearl, the Governor's tax trains, Biscuit the camel, 20 new trains |
-| 29 | **ANTIPODE** | Vainger | a side-on station of rooms where pressing jump again in the air flips gravity, as often as you like, and the ceiling is a real floor (one-way plates and spike balls that depend on which way is down); held automatic fire with the facing locked, four ways; armor 75 to 200 in 25 cells, two to five spare bodies that take over at the door you came in by with the room as you left it, and a lost signal back to the last cradle; cradles that save, refill and are the only place to see the map or move mods; four mods in three systems (FLIP, FRAME, GUN) for twelve effects that stack, with the overload costs (2 a flip, 1 a shot, more harm taken) until two dampers make room; three pass levels, barrels, cracked concrete, electric fields, targets in walls, nano-walls, heat and spike halls; three sectors and a fourth behind four ciphers held by bosses who get only 250 back when a spare body takes over; 25 cells, 3 bodies, 2 dampers, 4 mods, a hidden room, a code; two endings (the pilot is shown only at 100 %) | the AP-2 suit and its pilot, Director Halloran, Obverse, Tallow Station (the Gantry, the Brine, the Coil and the Crown, 98 rooms of our own), the treadles, spitters, star-eyes, hiveboxes, skipjacks, skimmers and sentry orbs, the Scrapper, the Warden, Brackish, the Lamprey and the Coilheart, thirteen tunes |
+| 29 | **ANTIPODE** | Vainger | a side-on station of rooms where pressing jump again in the air flips gravity, as often as you like, and the ceiling is a real floor (one-way plates and spike balls that depend on which way is down); held automatic fire with the facing locked, four ways; armor 75 to 200 in 25 cells, two to five spare bodies that take over at the door you came in by with the room as you left it, and a lost signal back to the last cradle; cradles that save, refill and are the only place to see the map or move mods; four mods in three systems (FLIP, FRAME, GUN) for twelve effects that stack, with the overload costs (2 a flip, 1 a shot, more harm taken) until two dampers make room; three pass levels, barrels, cracked concrete, electric fields, targets in walls, nano-walls, heat and spike halls; three sectors and a fourth behind four ciphers held by bosses who get only 250 back when a spare body takes over; 25 cells, 3 bodies, 2 dampers, 4 mods, a hidden vault, a code; two endings (the pilot is shown only at 100 %) | the AP-2 suit and its pilot, Director Halloran, Obverse, Tallow Station (the Gantry, the Brine, the Coil and the Crown, 98 hand-drawn rooms of our own), the treadles, spitters, star-eyes, hiveboxes, skipjacks, skimmers and sentry orbs, the Scrapper, the Warden, Brackish, the Lamprey and the Coilheart, thirteen tunes |
 | 45 | **DOT & DASH** | Mini & Max | one room at four sizes, where holding down shrinks you into whatever you stand on and holding up grows you back, a generated micro world that is the same for everyone inside every speck, a tiny size for one-tile gaps, lifting things from under your feet to throw, stack and ride (and carrying one up to full size as a step), a dog who roams and sniffs out secrets, long falls that send you back to full size, 39 upgrades that level up wherever they're found, five shops, favours for tiny towns, a 500 door and a 1,000 true ending | Dot and her talking dog Dash, the lumber room, Queen Tabitha the cat, Sir Sprocket, 21 towns and landmarks |
 | 46 | **MANDIBLES** | Combatants | you are one slow ant who holds a button for a cross of nine commands (follow, hold, instinct, their soldier-only versions, the queen's workers or soldiers, surrender), shouted to ants in earshot, and spits in eight directions while followers spit with you, food carried home to queens who lay workers for 1 and soldiers for 2, free respawns while your army lives, red ants with twice the health and exploitable brains (locked aim, food first, stuck on corners, stuck on your queen), brawls in a dust cloud, giant spiders that eat both sides, a branching road of 12 fields to the capital and a pointless bonus one, 2P versus | the Bluebell Colony and the Rust Horde, General Stag, the longlegs, every command's name, all 16 fields |
 | 30 | **FLINTHOLD** | Rock On! Island | waves down fixed roads to a cave with 30 hearts, a build phase as long as you like and a horn to start the wave, a pay-out between waves, a heroine who walks and throws eight ways, ten hunters in three upgrade trees, hens cooked by fire pits for meat (99 at most), fire pits that boost hunters, the original's beasts and bosses, 10 stages and 3 villages (two hidden), the Four Lords together in the last wave | Pim of the Hearth Clan, Flint Isle and its 13 layouts, the Four Lords of the Scale, every beast, hunter and villager |
@@ -1121,15 +1121,15 @@ the top.
 </p>
 <p align="center">
   <img src="docs/shots/antipode_title.png" width="320" alt="The title: a suit on the floor and one on the ceiling">
-  <img src="docs/shots/antipode_brine.png" width="320" alt="The Brine: acid on the floor, the suit upside down on the ceiling">
+  <img src="docs/shots/antipode_brine.png" width="320" alt="The Brine: an armor cell in the acid, the suit upside down on the ceiling">
 </p>
 <p align="center">
   <img src="docs/shots/antipode_mods.png" width="320" alt="A cradle's MODS page: four mods in the FLIP, FRAME and GUN systems">
   <img src="docs/shots/antipode_map.png" width="320" alt="A cradle's MAP page of the Gantry">
 </p>
 <p align="center">
-  <img src="docs/shots/antipode_warden.png" width="320" alt="The Warden raises a column of the floor">
-  <img src="docs/shots/antipode_crown.png" width="320" alt="Halloran's head calls down lightning in the Crown">
+  <img src="docs/shots/antipode_warden.png" width="320" alt="The Warden lands on the ceiling and its shocks run both ways along it">
+  <img src="docs/shots/antipode_crown.png" width="320" alt="Halloran's head calls down the storm in the Crown">
 </p>
 
 *A tribute to **Vainger** (UFO 50 #29).*
@@ -1153,20 +1153,24 @@ the top.
   dampers) flips, shots or hits cost extra armor.
 - **The station:** the Gantry, the Brine and the Coil, joined by
   teleporters, and the Crown behind four ciphers held by four bosses (two
-  minor fights besides); a spare body finds the boss with only 250 back. Pass
-  levels 1 to 3 open doors; barrels burn, cracked concrete breaks under the
-  heavy drop, electric fields part for the lightning ball, targets inside
-  walls take shots through walls, sentry orbs hold nano-walls, and heat
-  and spike halls want the right frame. 25 armor cells (75 to 200), three
-  spare bodies (2 to 5), two dampers and the four mods, some hidden; a
-  hidden room by the west teleporter; a code scratched under the first
-  terminal. The goals are a mod, Halloran beaten, and Halloran beaten with
+  minor fights besides); a spare body finds the boss with only 250 back.
+  Every one of the 98 rooms is drawn by hand to be read both ways, floor
+  and ceiling. Pass levels 1 to 3 open doors; barrels burn, cracked concrete
+  breaks under the heavy drop, the lightning ball carries the suit through
+  electric fields for up to three flips until it lands, targets inside walls
+  take shots through walls, sentry orbs hold nano-walls, and heat and spike
+  halls want the right frame. 25 armor cells (75 to 200), three spare bodies
+  (2 to 5), two dampers and the four mods, six of them hidden; a quiet vault
+  whose grey wall opens to a pad in the floor and one in the ceiling pressed
+  at once; a code scratched under the first terminal. Halloran's walker
+  raises the floor, and his last form's storm comes and goes at random. The goals are a mod, Halloran beaten, and Halloran beaten with
   every room and upgrade, after which the credits show who wears the suit.
   The demo player in the tests takes all of it, from the title to the end
   of the credits, with real button presses.
 - **Ours:** the AP-2 suit, its pilot, Director Halloran and Obverse, Tallow
   Station on Mira-6 (the Gantry, the Brine, the Coil and the Crown: 98
-  rooms on our own maps), every machine and boss, the mods' names, fifteen
+  hand-drawn rooms on our own maps, our own hidden spots and vault), every
+  machine and boss, the mods' names, fifteen
   terminal logs, both endings, and thirteen tunes.
 
 ### 45 · DOT & DASH
