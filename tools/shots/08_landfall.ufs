@@ -1,0 +1,59 @@
+# README media: LANDFALL. The GIF is the demo player's real button presses
+# from the landing on seed 4's planet; the stills set up a moment on known
+# planets with cheats.
+shotscale 2
+seed 4
+game landfall
+wait 60
+shot landfall_title
+press A
+wait 90
+shot landfall_landing
+botuntil state == 2 200
+botplay 1500
+gifstart landfall 3 1
+botplay 1200
+gifstop
+# a trade-giver's offer, in plain words
+cheat nomobs
+cheat planet 2
+cheat mobs
+cheat room 39 147 84
+cheat res 1 21
+cheat res 2 3
+cheat hp 5 6
+cheat hold 1 5
+wait 30
+press B 3
+wait 20
+shot landfall_village
+press A 3
+# the same offer from a glyph speaker
+cheat room 38 115 68
+wait 30
+press B 3
+wait 20
+shot landfall_glyphs
+press A 3
+# the big shell in the mouth of a way, with a chop laid out for it
+cheat planet 3
+cheat room 39 60 100
+cheat hold 6 1
+cheat res 3 4
+cheat face 2
+wait 20
+press A
+wait 60
+shot landfall_snail
+# down in the dungeon
+cheat planet 2
+cheat room 98 140 70
+cheat hold 1 0
+cheat hp 6 6
+botplay 90
+shot landfall_dungeon
+# home with the whole chart, a quarter of an hour on the clock
+cheat time 56520
+cheat win
+wait 480
+shot landfall_ending
