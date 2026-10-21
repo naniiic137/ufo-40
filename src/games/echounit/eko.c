@@ -775,7 +775,22 @@ static int eko_query(const char *key, int *out) {
         if (!strcmp(u, "_x")) { *out = EKO_PX(q->x); return 1; }
         if (!strcmp(u, "_y")) { *out = EKO_PX(q->y); return 1; }
         if (!strcmp(u, "_hp")) { *out = q->hp; return 1; }
+        if (!strcmp(u, "_dir")) { *out = q->dir; return 1; }
         return 0;
+    }
+    if (!strcmp(key, "s_goal_x")) { extern int eko_s_goal_x; *out = eko_s_goal_x; return 1; }
+    if (!strcmp(key, "s_goal_y")) { extern int eko_s_goal_y; *out = eko_s_goal_y; return 1; }
+    if (!strcmp(key, "s_ff")) { *out = s->ff; return 1; }
+    if (!strcmp(key, "s_wakeups")) { *out = s->wakeups; return 1; }
+    if (!strcmp(key, "s_robot_kos")) { *out = s->robot_kos; return 1; }
+    if (!strcmp(key, "s_lights_out")) { *out = s->lights_out; return 1; }
+    if (!strcmp(key, "s_cams_out")) { *out = s->cams_out; return 1; }
+    if (!strcmp(key, "s_lights")) {
+        /* cameras and searchlights still working in this room */
+        int n = 0, room = s->room_y * SN_MAX_RX + s->room_x;
+        for (int i = 0; i < s->ng; i++) n += s->g[i].alive && s->g[i].room == room && (s->g[i].kind == GK_LIGHT || s->g[i].kind == GK_CAMERA);
+        *out = n;
+        return 1;
     }
     /* jailbreak */
     if (!strcmp(key, "r_x")) { *out = r->ox; return 1; }
@@ -1041,6 +1056,23 @@ static int eko_cheat(const char *cmd) {
             q->room = (uint8_t)((c / SN_RH) * SN_MAX_RX + b / SN_RW);
             q->state = GD_PATROL;
             q->kind = GK_TURNER;
+            q->alive = 1;
+            q->t = 1;
+        }
+        return 1;
+    }
+    if (sscanf(cmd, "swalker %d %d %d %d", &a, &b, &c, &d) == 4 || sscanf(cmd, "sspider %d %d %d %d", &a, &b, &c, &d) == 4) {
+        /* guard a as a walker (or a spider robot) on a beat from tile (b, c), facing d */
+        if (a >= 0 && a < eg.sn.ng) {
+            EkoSGuard *q = &eg.sn.g[a];
+            q->x = q->hx = (b * 16 + 8) * EKO_FX;
+            q->y = q->hy = (SN_TOP + c * 16 + 8) * EKO_FX;
+            q->dir = q->hdir = d;
+            q->room = (uint8_t)((c / SN_RH) * SN_MAX_RX + b / SN_RW);
+            q->state = GD_PATROL;
+            q->kind = GK_WALKER;
+            q->b = cmd[1] == 's';
+            q->hp = q->b ? 2 : 1;
             q->alive = 1;
             q->t = 1;
         }

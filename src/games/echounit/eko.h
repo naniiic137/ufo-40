@@ -332,6 +332,13 @@ typedef struct {
 #define SN_LOOK_T 150
 #define SN_ROOM_BONUS 100
 #define SN_NOISE_COST 50
+#define SN_AMMO_MAX 20            /* she carries up to twenty of each */
+#define SN_NEAR 30                /* closer than this (out of sight), a guard comes to look where she was */
+#define SN_HUNT_SP 224            /* a hunting guard: 0.875 px a frame, slower than her */
+#define SN_HUNT_TURN 60           /* ... and it looks round only once a second */
+#define SN_HUNT_FIRE 50
+#define SN_THROW_T 18             /* frames a lobbed grenade flies (over anything) */
+#define SN_ROBOT_RUN 768          /* a spider robot's charge: 3 px a frame, straight on */
 
 enum { SM_ISTANBUL, SM_CALDERA, SM_COUNT };
 typedef struct { char code; const char *rows[SN_RH]; } EkoRoom;
@@ -358,6 +365,7 @@ typedef struct {
     int hx, hy, hdir;            /* post: where it stands and which way */
     int dir;                     /* 0 right 1 down 2 left 3 up (cameras: table angle) */
     int t, cd, tx, ty, flash, hp, a, b;
+    int aim_t;                   /* hunting: frames before it looks round again (until then it keeps one way) */
 } EkoSGuard;
 #define SN_MAX_GUARDS 120
 
@@ -387,6 +395,8 @@ typedef struct {
     int nitem;
     int boss_g;                  /* Cipher's guard slot (-1 none) */
     int used_relays;
+    int lights_out, cams_out;    /* fuse boxes blown; cameras broken */
+    int ff, wakeups, robot_kos;  /* guards hit by guards' shots; sleepers woken by friends; guards a robot ran down */
 } EkoSneak;
 
 /* ==== the jailbreak (rescue): turn-based ====================================================== */

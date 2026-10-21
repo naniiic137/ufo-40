@@ -421,6 +421,9 @@ static void sneak_field(int tx, int ty) {
     }
 }
 
+/* frames spent in the room she is in: a long while, and she stops picking things up there */
+static int sn_room_t, sn_room = -1;
+
 /* where Sable is headed now (a tile of the whole map) */
 static void sneak_target(int *tx, int *ty) {
     const EkoSneak *s = &eg.sn;
@@ -429,7 +432,7 @@ static void sneak_target(int *tx, int *ty) {
     /* anything lying in this room that can be reached */
     int best = -1, bd = 1 << 30;
     sneak_field(px, py);
-    for (int i = 0; i < s->nitem; i++) {
+    for (int i = 0; i < s->nitem && sn_room_t < 1500; i++) {
         if (s->item[i].taken || sdist[s->item[i].ty][s->item[i].tx] >= 30000) continue;
         int ix = s->item[i].tx, iy = s->item[i].ty;
         if (ix < rx0 || iy < ry0 || ix >= rx0 + SN_RW || iy >= ry0 + SN_RH) continue;
@@ -470,7 +473,9 @@ static void sneak_target(int *tx, int *ty) {
     *ty = by < 0 ? py : by;
 }
 
-static int s_goal_x, s_goal_y;
+int eko_s_goal_x, eko_s_goal_y;
+#define s_goal_x eko_s_goal_x
+#define s_goal_y eko_s_goal_y
 
 /* the direction (bits) that walks Sable down the field */
 static int sneak_step_dir(void) {
@@ -605,6 +610,11 @@ static int sneak_score(void) {
 }
 
 static int bot_sneak(void) {
+    {
+        int room = eg.sn.room_y * SN_MAX_RX + eg.sn.room_x + eg.sn.map * 100;
+        if (room != sn_room) { sn_room = room; sn_room_t = 0; }
+        else sn_room_t++;
+    }
     sneak_target(&s_goal_x, &s_goal_y);
     {
         const EkoSneak *s = &eg.sn;

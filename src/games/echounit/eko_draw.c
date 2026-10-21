@@ -839,6 +839,14 @@ static void sneak_draw(void) {
                 gfx_rect(x, y, 16, 16, cal ? C_DUSK : C_NIGHT);
                 gfx_rectb(x + 2, y + 2, 12, 12, (eg.frame_t / 10) % 2 ? C_YELLOW : C_AMBER);
                 break;
+            case 'K': case 'k':
+                /* the room's fuse box (blown: dark, sparking) */
+                gfx_rect(x, y, 16, 16, cal ? C_MAROON : C_NAVY);
+                gfx_rect(x + 3, y + 2, 10, 12, c == 'K' ? C_GREY : C_INK);
+                gfx_rectb(x + 3, y + 2, 10, 12, C_INK);
+                if (c == 'K') { gfx_line(x + 9, y + 4, x + 6, y + 8, C_YELLOW); gfx_line(x + 6, y + 8, x + 10, y + 8, C_YELLOW); gfx_line(x + 10, y + 8, x + 7, y + 12, C_YELLOW); }
+                else if ((eg.frame_t / 6) % 4 == 0) gfx_pset(x + 8, y + 7, C_YELLOW);
+                break;
             default:
                 gfx_rect(x, y, 16, 16, cal ? C_DUSK : C_NIGHT);
                 if ((tx + ty) % 2) gfx_rect(x + 7, y + 7, 2, 2, cal ? C_MAROON : C_DUSK);
@@ -911,7 +919,12 @@ static void sneak_draw(void) {
         if (sh->foe) gfx_rect(x - 1, y - 1, 3, 3, C_YELLOW);
         else if (sh->kind == WP_DART) gfx_rect(x - 1, y - 1, 3, 3, C_PINK);
         else if (sh->kind == WP_PISTOL) gfx_rect(x - 1, y - 1, 3, 3, C_WHITE);
-        else gfx_circ(x, y, 3, sh->kind == WP_STUN ? C_WHITE : C_FOREST);
+        else {
+            /* lobbed: up and over in an arc */
+            int hop = sh->t * (SN_THROW_T - sh->t) / 6;
+            gfx_pset(x, y, C_INK);
+            gfx_circ(x, y - hop, 3, sh->kind == WP_STUN ? C_WHITE : C_FOREST);
+        }
     }
     if (!(s->inv && (s->inv / 3) % 2)) {
         static const int SP[4] = {SP_SABLE_R, SP_SABLE_D, SP_SABLE_L, SP_SABLE_U};

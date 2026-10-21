@@ -1,7 +1,7 @@
 # STRUCTURE: four bats, four city missions and the Caldera. Marseille is
 # two stretches of eight screens and the lift; the lab climbs ten; Dart's
 # flight over the lava is 24,000 px; the
-# listening post has 18 rooms and the Caldera 10; the pass is a script of
+# listening post has 18 rooms and the Caldera's halls 28; the pass is a script of
 # about two minutes before its two bosses; the ring road 26,200 px.
 # SAVING: no run is ever saved (as the original); the records are: the
 # best scores in Marseille, the Andes and Cairo, and the rescues.
@@ -30,7 +30,7 @@ expect s_rooms == 18
 expect s_guards == 17
 cheat mission 4
 wait 3
-expect s_rooms == 10
+expect s_rooms == 28
 cheat mission 2
 wait 3
 expect k_length == 26200

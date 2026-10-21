@@ -3,10 +3,18 @@
  * together. She walks eight ways but uses her items only straight ahead,
  * the four ways she can face. She is frail (four pips, a blink of safety
  * after a hit) and starts with three tranquiliser darts and three pistol
- * rounds; everything else is found on site. Guards walk their beats, come to look when they
- * hear a shot, and hunt her once they see her; cameras and searchlights set
- * off every guard in the room. Leaving a room makes its guards forget. A
- * room left without being seen is worth 100, less 50 if a noise was heard. */
+ * rounds; everything else is found on site (up to twenty of each). Guards
+ * walk their beats, come to look when they hear a shot or when she passes
+ * close by, wake a darted friend they pass, and hunt her once they see her:
+ * slowly, turning only now and then and firing the way they face, so she
+ * can run past them. Their shots hit each other too (a stun, not a kill).
+ * Cameras and searchlights set off every guard in the room; a pistol round
+ * breaks a camera, and a room's fuse box (shot, or blown) puts out all its
+ * cameras and lights. Stun grenades go off without a sound; lobbed, stun
+ * grenades and grenades fly over walls and crates. A spider robot that
+ * sees her charges straight at her, flattening any guard in its way.
+ * Leaving a room makes its guards forget. A room left without being seen is
+ * worth 100, less 50 if a noise was heard. */
 #include "eko.h"
 
 #define S (&eg.sn)
@@ -32,7 +40,7 @@ static char tile_at(int tx, int ty) {
 bool eko_sneak_wall(int tx, int ty) {
     char c = tile_at(tx, ty);
     switch (c) {
-    case '#': case 'o': case 'w': case ' ': return true;
+    case '#': case 'o': case 'w': case ' ': case 'K': case 'k': return true;
     case 'G': return !(S->cards & CARD_GREEN);
     case 'R': return !(S->cards & CARD_RED);
     case 'U': return !(S->cards & CARD_BLUE);
@@ -116,6 +124,7 @@ static void load_map(int m) {
                     case 'V': add_guard(GK_WALKER, tx, ty, 3); put = '.'; break;
                     case 't': add_guard(GK_TURNER, tx, ty, 1); put = '.'; break;
                     case 's': add_guard(GK_WALKER, tx, ty, 1); S->g[S->ng - 1].b = 1; S->g[S->ng - 1].hp = 2; put = '.'; break;
+                    case 'Z': add_guard(GK_WALKER, tx, ty, 0); S->g[S->ng - 1].b = 1; S->g[S->ng - 1].hp = 2; put = '.'; break;
                     case 'c': if (ncam < 16) { cams[ncam].tx = tx; cams[ncam].ty = ty; ncam++; } put = '#'; break;
                     case 'l': add_guard(GK_LIGHT, tx, ty, 0); put = '.'; break;
                     case 'C': S->boss_g = S->ng; add_guard(GK_CIPHER, tx, ty, 1); put = '.'; break;
@@ -129,6 +138,7 @@ static void load_map(int m) {
                     case 'r': add_item(tx, ty, IK_RED); put = '.'; break;
                     case 'u': add_item(tx, ty, IK_BLUE); put = '.'; break;
                     case 'S': S->start_x = tx; S->start_y = ty; put = '.'; break;
+                    case 'K': put = 'K'; break; /* a fuse box in the wall */
                     default: break;
                     }
                     S->tile[ty][tx] = put;
@@ -177,6 +187,33 @@ static void load_map(int m) {
 }
 
 static int cur_room(void) { return room_index(S->room_x, S->room_y); }
+
+/* a room's fuse box blown: its cameras and searchlights go dark */
+static void fuse_out(int tx, int ty) {
+    if (tile_at(tx, ty) != 'K') return;
+    S->tile[ty][tx] = 'k';
+    int room = room_index(tx / SN_RW, ty / SN_RH);
+    for (int i = 0; i < S->ng; i++)
+        if (S->g[i].alive && S->g[i].room == room && (S->g[i].kind == GK_CAMERA || S->g[i].kind == GK_LIGHT)) S->g[i].alive = 0;
+    S->alarm = 0;
+    S->lights_out++;
+    eko_burst(tx * 16 + 8, SN_TOP + ty * 16 + 8, C_YELLOW, 10);
+    eko_sfx("eko_zap");
+    eko_say("THE LIGHTS GO OUT");
+}
+
+/* a camera on that wall tile, broken */
+static void camera_out(int tx, int ty) {
+    for (int i = 0; i < S->ng; i++) {
+        EkoSGuard *g = &S->g[i];
+        if (!g->alive || g->kind != GK_CAMERA) continue;
+        if (EKO_PX(g->x) >> 4 != tx || ((EKO_PX(g->y) - SN_TOP) >> 4) != ty) continue;
+        g->alive = 0;
+        S->cams_out++;
+        eko_burst(EKO_PX(g->x), EKO_PX(g->y), C_GREY, 6);
+        eko_sfx("eko_clang");
+    }
+}
 
 /* ---- rooms ------------------------------------------------------------------------- */
 
@@ -240,12 +277,21 @@ void eko_sneak_noise(int x, int y) {
     }
 }
 
+/* the way (of four) from a guard to Sable */
+static int dir_to_sable(const EkoSGuard *g) {
+    int dx = EKO_PX(S->x) - EKO_PX(g->x), dy = EKO_PX(S->y) - EKO_PX(g->y);
+    if (iabs(dx) >= iabs(dy)) return dx >= 0 ? 0 : 2;
+    return dy >= 0 ? 1 : 3;
+}
+
 static void spotted(EkoSGuard *g) {
     if (g->state == GD_ALERT) return;
     g->state = GD_ALERT;
     g->t = 0;
     g->cd = 25;
     g->flash = 40; /* "!" */
+    g->dir = dir_to_sable(g); /* the way it first saw her: it keeps to it a while */
+    g->aim_t = SN_HUNT_TURN;
     if (!S->room_spotted) S->spotted_total++;
     S->room_spotted = 1;
     eko_sfx("eko_spotted");
@@ -350,7 +396,7 @@ static void take_items(void) {
         case IK_RED: S->cards |= CARD_RED; eko_say("RED CARD"); break;
         case IK_BLUE: S->cards |= CARD_BLUE; eko_say("BLUE CARD"); break;
         }
-        for (int k = 0; k < WP_COUNT; k++) S->ammo[k] = imin(S->ammo[k], 9);
+        for (int k = 0; k < WP_COUNT; k++) S->ammo[k] = imin(S->ammo[k], SN_AMMO_MAX);
         if (S->ammo[S->weapon] == 0)
             for (int k = 0; k < WP_COUNT; k++) if (S->ammo[k] > 0) { S->weapon = k; break; }
         eko_sfx(S->item[i].kind == IK_LIFE ? "eko_1up" : S->item[i].kind >= IK_GREEN ? "eko_key" : "eko_pickup");
@@ -552,14 +598,38 @@ static void guards_update(void) {
             }
             break;
         case GD_ALERT: {
+            if (g->b) {
+                /* a spider robot charges straight on until something stops it */
+                int nx = g->x + DX4[g->dir] * SN_ROBOT_RUN, ny = g->y + DY4[g->dir] * SN_ROBOT_RUN;
+                if (!guard_free(g, nx, ny)) { g->state = GD_RETURN; g->t = 0; eko_sfx("eko_thud"); eg.shake = imax(eg.shake, 4); break; }
+                g->x = nx;
+                g->y = ny;
+                for (int k = 0; k < S->ng; k++) {
+                    EkoSGuard *o = &S->g[k];
+                    if (k == i || !o->alive || o->room != room || (o->kind != GK_WALKER && o->kind != GK_TURNER) || o->b) continue;
+                    if (iabs(EKO_PX(o->x) - EKO_PX(g->x)) < 12 && iabs(EKO_PX(o->y) - EKO_PX(g->y)) < 12) {
+                        o->alive = 0;
+                        o->state = GD_DEAD;
+                        S->robot_kos++;
+                        eko_burst(EKO_PX(o->x), EKO_PX(o->y), C_RED, 6);
+                        eko_sfx("eko_ko");
+                    }
+                }
+                if (!S->dead_t && iabs(EKO_PX(g->x) - sx) < 11 && iabs(EKO_PX(g->y) - sy) < 11) hurt_sable(2);
+                break;
+            }
+            /* a hunting guard is no genius: it keeps the way it faces and
+             * fires along it, looks round only now and then, and walks
+             * slower than she does */
+            if (g->aim_t > 0) g->aim_t--;
+            else { g->dir = dir_to_sable(g); g->aim_t = SN_HUNT_TURN; }
+            if (!g->cd && !S->dead_t) { guard_shoot(g); g->cd = SN_HUNT_FIRE; }
             int gx = EKO_PX(g->x), gy = EKO_PX(g->y);
-            int dx = sx - gx, dy = sy - gy;
-            bool lined = (iabs(dx) < 6 || iabs(dy) < 6) && eko_sneak_los(gx, gy, sx, sy);
-            if (lined) {
-                g->dir = iabs(dx) < 6 ? (dy > 0 ? 1 : 3) : (dx > 0 ? 0 : 2);
-                if (!g->cd && !S->dead_t) { guard_shoot(g); g->cd = 50; }
-                if (eko_dist(dx, dy) > 24) step_toward(g, S->x, S->y, 200);
-            } else step_toward(g, S->x, S->y, 288);
+            int ahead = (sx - gx) * DX4[g->dir] + (sy - gy) * DY4[g->dir];
+            if (ahead > 24) {
+                int nx = g->x + DX4[g->dir] * SN_HUNT_SP, ny = g->y + DY4[g->dir] * SN_HUNT_SP;
+                if (guard_free(g, nx, ny)) { g->x = nx; g->y = ny; }
+            }
             break;
         }
         case GD_SLEEP: case GD_STUN:
@@ -568,6 +638,27 @@ static void guards_update(void) {
         default: break;
         }
         if (g->state != GD_ALERT && g->state != GD_SLEEP && g->state != GD_STUN && !S->dead_t && eko_sneak_guard_sees(i)) spotted(g);
+        /* she passes close by, out of its sight: it comes to look where she was */
+        else if ((g->state == GD_PATROL || g->state == GD_RETURN || g->state == GD_LOOK) && !S->dead_t &&
+                 eko_dist(sx - EKO_PX(g->x), sy - EKO_PX(g->y)) < SN_NEAR) {
+            g->state = GD_INVESTIGATE;
+            g->tx = S->x;
+            g->ty = S->y;
+            g->t = 0;
+            g->flash = 30; /* "?" */
+        }
+        /* walking past a darted friend, it shakes it awake */
+        if (g->state == GD_PATROL || g->state == GD_RETURN || g->state == GD_INVESTIGATE || g->state == GD_ALERT)
+            for (int k = 0; k < S->ng; k++) {
+                EkoSGuard *o = &S->g[k];
+                if (k == i || !o->alive || o->room != room || o->state != GD_SLEEP) continue;
+                if (eko_dist(EKO_PX(o->x) - EKO_PX(g->x), EKO_PX(o->y) - EKO_PX(g->y)) < 20) {
+                    o->state = GD_LOOK;
+                    o->t = 0;
+                    o->flash = 30;
+                    S->wakeups++;
+                }
+            }
         /* a touch hurts once they are onto her */
         if (g->state == GD_ALERT && !S->dead_t && iabs(EKO_PX(g->x) - sx) < 10 && iabs(EKO_PX(g->y) - sy) < 10) hurt_sable(1);
     }
@@ -579,12 +670,20 @@ static void blast(int x, int y, bool stun) {
     eko_burst(x, y, stun ? C_WHITE : C_ORANGE, 14);
     eko_sfx(stun ? "eko_flash" : "eko_boom");
     eg.shake = imax(eg.shake, stun ? 4 : 8);
-    eko_sneak_noise(x, y);
+    if (!stun) eko_sneak_noise(x, y); /* a stun goes off without a sound */
     int r = stun ? 36 : 30;
     for (int i = 0; i < S->ng; i++) {
         EkoSGuard *g = &S->g[i];
         if (!g->alive || g->room != cur_room()) continue;
-        if (g->kind == GK_CAMERA || g->kind == GK_LIGHT) continue;
+        if (g->kind == GK_CAMERA || g->kind == GK_LIGHT) {
+            /* a grenade takes the camera or the lamp with it */
+            if (!stun && eko_dist(EKO_PX(g->x) - x, EKO_PX(g->y) - y) < r + 8) {
+                g->alive = 0;
+                if (g->kind == GK_CAMERA) S->cams_out++;
+                eko_burst(EKO_PX(g->x), EKO_PX(g->y), C_GREY, 6);
+            }
+            continue;
+        }
         if (eko_dist(EKO_PX(g->x) - x, EKO_PX(g->y) - y) > r + (g->kind == GK_CIPHER ? 8 : 0)) continue;
         if (g->kind == GK_CIPHER) {
             if (g->state == GD_INVESTIGATE) continue; /* not there to hit */
@@ -604,7 +703,7 @@ static void blast(int x, int y, bool stun) {
                 if (tile_at(tx, ty) == 'w' && eko_dist(tx * 16 + 8 - x, SN_TOP + ty * 16 + 8 - y) < r + 10) {
                     S->tile[ty][tx] = '.';
                     eko_burst(tx * 16 + 8, SN_TOP + ty * 16 + 8, C_GREY, 6);
-                }
+                } else if (tile_at(tx, ty) == 'K' && eko_dist(tx * 16 + 8 - x, SN_TOP + ty * 16 + 8 - y) < r + 10) fuse_out(tx, ty);
         if (eko_dist(EKO_PX(S->x) - x, EKO_PX(S->y) - y) < r) hurt_sable(2);
     }
 }
@@ -616,8 +715,26 @@ static void shots_update(void) {
         s->t++;
         bool thrown = !s->foe && (s->kind == WP_STUN || s->kind == WP_GRENADE);
         int nx = s->x + s->vx, ny = s->y + s->vy;
-        if (eko_sneak_solid_px(EKO_PX(nx), EKO_PX(ny)) || (thrown && s->t >= 18)) {
-            if (thrown) blast(EKO_PX(s->x), EKO_PX(s->y), s->kind == WP_STUN);
+        if (thrown) {
+            /* lobbed: over walls and crates in an arc, never out of the room */
+            int rx0 = S->room_x * SN_RW * 16 + 20, ry0 = SN_TOP + S->room_y * SN_RH * 16 + 20;
+            int px = EKO_PX(nx), py = EKO_PX(ny);
+            bool edge = px < rx0 || px > rx0 + SN_RW * 16 - 40 || py < ry0 || py > ry0 + SN_RH * 16 - 40;
+            if (s->t >= SN_THROW_T || edge) {
+                blast(EKO_PX(s->x), EKO_PX(s->y), s->kind == WP_STUN);
+                s->alive = 0;
+                continue;
+            }
+            s->x = nx;
+            s->y = ny;
+            continue;
+        }
+        if (eko_sneak_solid_px(EKO_PX(nx), EKO_PX(ny))) {
+            if (!s->foe && s->kind == WP_PISTOL) {
+                int tx = EKO_PX(nx) >> 4, ty = (EKO_PX(ny) - SN_TOP) >> 4;
+                camera_out(tx, ty);
+                fuse_out(tx, ty);
+            }
             s->alive = 0;
             continue;
         }
@@ -625,10 +742,22 @@ static void shots_update(void) {
         s->y = ny;
         int x = EKO_PX(s->x), y = EKO_PX(s->y);
         if (s->foe) {
-            if (!S->dead_t && iabs(x - EKO_PX(S->x)) < 6 && iabs(y - EKO_PX(S->y)) < 6) { hurt_sable(1); s->alive = 0; }
+            if (!S->dead_t && iabs(x - EKO_PX(S->x)) < 6 && iabs(y - EKO_PX(S->y)) < 6) { hurt_sable(1); s->alive = 0; continue; }
+            /* another guard in the way takes it: stunned a moment, not killed */
+            if (s->t > 3)
+                for (int k = 0; k < S->ng; k++) {
+                    EkoSGuard *g = &S->g[k];
+                    if (!g->alive || g->room != cur_room() || (g->kind != GK_WALKER && g->kind != GK_TURNER)) continue;
+                    if (iabs(x - EKO_PX(g->x)) > 6 || iabs(y - EKO_PX(g->y)) > 6) continue;
+                    g->state = GD_STUN;
+                    g->t = SN_STUN_T - 90;
+                    S->ff++;
+                    s->alive = 0;
+                    eko_sfx("eko_hit");
+                    break;
+                }
             continue;
         }
-        if (thrown) continue;
         for (int k = 0; k < S->ng; k++) {
             EkoSGuard *g = &S->g[k];
             if (!g->alive || g->room != cur_room() || g->kind == GK_CAMERA || g->kind == GK_LIGHT) continue;
