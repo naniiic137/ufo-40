@@ -120,7 +120,7 @@ menu, shows the buttons as you now press them). SELECT or B closes it.
 | 05 | **PETAL PARADE** | Magic Garden | a 12×12 field where you never stop and turn only at the next tile, a trail you must never run into, each follower left on the moving star tiles saved for 10 × its place, potions by strength, a witch who plants mushrooms when a star area goes unused, 200 to win | Posy the gardener, petalpups, sun circles, Madame Nettle |
 | 06 | **TIN TROOP** | Mortol | 20 lives that carry through ten levels, the arrow, bomb and stone sacrifices, bodies as ledges and weights, water, fire and plants, a ship that drops the next life | a toy army in a toymaker's house, the Jack of the Chest, 10 new levels |
 | 07 | **SKYWELL** | Velgress | a random shaft of crumbling platforms, a roller that only follows you up, stun instead of damage, four-way shooting, a shop between levels, a key bird, a locked fourth level | Kip the scrap-diver, the Grinder, the Tinker, the Well Eye |
-| 08 | **LANDFALL** | Planet Zoldath | a new planet every run (a 7×4 or 6×5 grid of flip-screen rooms, side rooms behind four gates, a dungeon of six rooms), only two of eight tools in hand, each gate opened by one tool (or a trick), locals who trade by fixed rarity prices, half of them in glyphs, creatures that roll new behaviour every planet, 3 energy and one life, three chart pieces home in under 20 minutes | Wick, the planet Yombra, the ten creature looks, the eight tools, beads, burrs, ferns and spores |
+| 08 | **LANDFALL** | Planet Zoldath | a new planet every run (a 7×4 or 6×5 grid of flip-screen rooms, side rooms and nooks behind four gates, a dungeon of six rooms), only two of eight tools in hand, each gate opened by one tool (or a trick), locals who trade by fixed rarity prices, half of them in glyphs, creatures that roll new behaviour every planet, 3 energy and one life, three chart pieces home in under 20 minutes | Wick, the planet Yombra, the ten creature looks, the eight tools, beads, burrs, ferns and spores |
 | 09 | **BANNERFALL** | Attactics | a 6×8 field between two keeps, a countdown turn where you drag troops within your half, the same end-of-turn order and clashes, eight unit types with promotions and heroes, the original's 24 campaign battles, ranked, survival and 2P versus | the Marigold Guard and the Thistle Host, all units and battle names |
 | 13 | **DUSKLING** | Mooncat | every way on the D-pad is left and both buttons are right (or the other way round); a jump goes toward the side held (higher the longer you press), low hops, rolls and sprints, somersaults, and a slam that pauses with a "!" and drops straight down; spiked foes flipped by a slam beside them and kicked away; one touch and back to the room's start, as often as it takes; flowers that mean a warp, stone faces that show hidden ledges, warps within warps to three eggs and three bosses, 42 rooms, 2P co-op | the duskling and the dayling, the Hush Wood, the Sunken Mere, the Old Steps and the Humming Works, the Ember Caves and the Windy Heights, the Brass Warden, the Ember Hermit and the Old Badger, 42 new rooms |
 | 10 | **BOOMTOWN** | Devilition | a 10 × 8 board, pieces dealt three at a time from bags of six, nine piece patterns (rockets land on their own pad), one detonation a night whose chain sets off every piece it reaches, demons that take one or two hits or heal, a hole a night, the original's round table, a 10-hit boss in the middle four tiles, the win score and clock bonus | Hazel the fireworks maker, Mossbury's folk, the bogles and the Bog King, eight fireworks |
@@ -409,11 +409,12 @@ the top.
   blast pods, a thumper, bog boots, a chop press and a talk box), and each
   gate (bog, a pit, a hole, crystal, foliage, blue blocks, a big shell) wants
   a particular one. Some tools burn a resource that the planet decides. The
-  locals trade at fixed prices by rarity, and half of them speak only in
-  glyphs. Every planet rolls its creatures afresh: who is friendly, how the
-  rest move, shoot, hurt and die. You have 3 energy and one life, and there
-  are hidden combos to find: cook a chop on the bog to call a gnat, blast
-  the bog to make a teleporter, shrink yourself with a ricochet.
+  locals trade at fixed prices by rarity, half of them speak only in
+  glyphs, and one may be shut in behind crystal and bog. Every planet
+  rolls its creatures afresh: who is friendly, how the rest move, shoot,
+  hurt and die. You have 3 energy and one life, and there are hidden
+  combos to find: cook a chop on the bog to call a gnat, blast the bog to
+  make a teleporter, shrink yourself with a ricochet.
 - **Ours:** Wick and the ship, the planet Yombra, the ten creature looks,
   the tools and resources, the villages' words and glyphs, and every room
   layout.
