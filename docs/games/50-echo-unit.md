@@ -214,7 +214,7 @@ screens, rooms, waves, roads and skies), and every jailbreak is rolled
   Hog Wild, Cipher the chameleon, Dr. Talpa and his drill, Major Rattle
   and his missile jet, Madame Coil.
 - **The places:** Marseille, the Andes, Cairo, Istanbul and the Caldera:
-  all 27 brawl screens, 50 rooms, two gallery scripts, a road and a sky.
+  all 29 brawl screens, 50 rooms, two gallery scripts, a road and a sky.
 - **Music:** "Echo Unit", "Hanging in the Belfry", "Sound the Roost",
   "Colonel Hush", "Dockside Dust-Up", "Going Up", "Thin Air", "Sand and
   Throttle", "Silent Halls", "Cell Block", "Big Bad", "Into the Caldera",
