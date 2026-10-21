@@ -1,14 +1,17 @@
-# THE JAILBREAK: each bat's own two moves.
-#   DART   A shoots down the line (no limit, loud); B dashes up to three tiles, felling a guard in the way
-#   FLINT  A punches the guard in front; B braces against the next blow
-#   VESPER A shoots (three shots, loud); B rolls two tiles
-#   SABLE  A darts a guard asleep for six turns (silent); B whistles: guards near come to look
+# THE JAILBREAK: each bat's own two skills. Used, a skill comes back after
+# a few turns (the panel shows the count); pressing it before then only
+# waits a turn.
+#   DART   A gun down the line, drops anything (loud)  2 | B dash up to three tiles, felling a guard in the way  3
+#   FLINT  A punch the guard in front                   2 | B brace: the next shot bounces off                     4
+#   VESPER A shoot down the line (loud)                 3 | B roll two tiles                                       2
+#   SABLE  A dart: asleep for six turns (silent)        3 | B whistle: guards near come to look                    2
 seed 1
 game echounit
 wait 5
 # DART
 cheat rescue 1 2 5
 cheat rblank
+expect r_hp == 4
 cheat rguard 0 10 4 0
 cheat rguard 0 5 6 2
 press A 1
@@ -16,12 +19,20 @@ wait 1
 expect r_guards == 1
 expect r_kos == 1
 expect r_seeking == 1
+expect r_cd0 == 2
+# not back yet: A only waits, and the count runs down
+press A 1
+wait 1
+expect r_turns == 2
+expect r_kos == 1
+expect r_cd0 == 1
 cheat rblank
 cheat rguard 0 4 4 1
 press B 1
 wait 1
 expect r_guards == 0
 expect r_x == 3
+expect r_cd1 == 3
 cheat rblank
 press B 1
 wait 1
@@ -33,29 +44,35 @@ cheat rguard 0 3 4 1
 press A 1
 wait 1
 expect r_guards == 0
+expect r_cd0 == 2
+# braced, a shot bounces off
 cheat rblank
-cheat rguard 0 3 3 2
-cheat rguard 0 3 5 0
+cheat rguard 0 8 4 2
+press UP 1
+wait 1
+press DOWN 1
+wait 1
+expect r_aiming == 1
 expect r_hp == 3
 press B 1
 wait 1
-press B 1
-wait 1
+expect r_gshots == 1
 expect r_hp == 3
+expect r_cd1 == 4
 # VESPER
 cheat rescue 0 1 5
 cheat rblank
-expect r_ammo == 3
 cheat rguard 0 9 4 0
 press A 1
 wait 1
 expect r_guards == 0
-expect r_ammo == 2
+expect r_cd0 == 3
 cheat rblank
 press B 1
 wait 1
 expect r_x == 4
 expect r_turns == 1
+expect r_cd1 == 2
 # SABLE
 cheat rescue 0 3 5
 cheat rblank
@@ -64,7 +81,7 @@ cheat rguard 0 9 4 0
 press A 1
 wait 1
 expect r_asleep == 1
-expect r_ammo == 2
+expect r_cd0 == 3
 expect r_seeking == 0
 press DOWN 1
 wait 1
@@ -79,10 +96,16 @@ wait 1
 press UP 1
 wait 1
 expect r_asleep == 0
+expect r_cd0 == 0
 cheat rblank
 cheat rguard 0 7 4 0
 cheat rguard 0 2 8 0
+cheat rguard 0 10 8 0
+# the whistle: the two within six tiles come to look, step straight into a
+# line on her and take aim; the one further off stays at its post
 press B 1
 wait 1
-# they come to look, and find her
-expect r_alert == 2
+expect r_cd1 == 2
+expect r_aiming == 2
+expect r_seeking == 0
+expect r_guards == 3

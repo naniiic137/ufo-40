@@ -307,6 +307,7 @@ static void start_rescue(int captive, int rescuer) {
     uint32_t seed = rng_next(&eg.rng);
     eko_rescue_gen(&eg.rs, seed & 0xFFFFFF, rescuer, captive);
     eg.in = eg.prev = 0;
+    eg.msg_t = 0;
     set_state(ES_PLAY);
     game_set_pausable(true);
     music_play(EKO_MUS_RESCUE);
@@ -316,6 +317,7 @@ static int rescue_rep;
 static void rescue_update(void) {
     EkoRescue *r = &eg.rs;
     if (r->shot_t) r->shot_t--;
+    if (r->gshot_t) r->gshot_t--;
     if (r->noise_t) r->noise_t--;
     if (r->won || r->lost) {
         r->msg_t++;
@@ -351,11 +353,22 @@ static void rescue_update(void) {
     if (ek_btnp(EKO_ALT)) act = RA_B;
     if (!(eg.in & (EKO_DIRS))) rescue_rep = 0;
     if (act != RA_NONE) {
-        int t0 = r->turns, hp0 = r->hp;
+        int t0 = r->turns, hp0 = r->hp, gs0 = r->gshots, ff0 = r->ff;
+        bool cooling = (act == RA_A && r->cd[0] > 0) || (act == RA_B && r->cd[1] > 0);
         bool card0 = r->card;
+        int aim0 = 0, aim1 = 0;
+        for (int i = 0; i < r->ng; i++) aim0 += r->g[i].alive && r->g[i].state == RGS_AIM;
         eko_rescue_turn(r, act);
-        if (r->turns != t0) eko_sfx(act >= RA_A ? (r->owl == OWL_SABLE && act == RA_B ? "eko_whistle" : "eko_swing") : "eko_step");
+        if (r->turns == t0 && act >= RA_A) eko_sfx("eko_tink"); /* no room to roll or dash */
+        if (r->turns != t0) {
+            static const char *const SFX[OWL_COUNT][2] = {{"eko_swing", "eko_clang"}, {"eko_gun", "eko_roll"}, {"eko_gun", "eko_rev"}, {"eko_dart", "eko_whistle"}};
+            eko_sfx(act >= RA_A && !cooling ? SFX[r->owl][act - RA_A] : "eko_step"); /* a skill still coming back: a wait */
+        }
+        for (int i = 0; i < r->ng; i++) aim1 += r->g[i].alive && r->g[i].state == RGS_AIM;
+        if (r->gshots != gs0) eko_sfx("eko_shot");
+        if (aim1 > aim0) eko_sfx("eko_aim");
         if (r->hp < hp0) eko_sfx("eko_ouch");
+        if (r->ff != ff0) eko_say("THEY SHOT THEIR OWN!");
         if (r->card && !card0) { eko_sfx("eko_key"); eko_say("THE CARD: NOW BACK TO THE CELL"); }
     }
 }
@@ -753,7 +766,12 @@ static int eko_query(const char *key, int *out) {
     if (!strcmp(key, "r_x")) { *out = r->ox; return 1; }
     if (!strcmp(key, "r_y")) { *out = r->oy; return 1; }
     if (!strcmp(key, "r_hp")) { *out = r->hp; return 1; }
-    if (!strcmp(key, "r_ammo")) { *out = r->ammo; return 1; }
+    if (!strcmp(key, "r_cd0")) { *out = r->cd[0]; return 1; }
+    if (!strcmp(key, "r_cd1")) { *out = r->cd[1]; return 1; }
+    if (!strcmp(key, "r_gshots")) { *out = r->gshots; return 1; }
+    if (!strcmp(key, "r_ff")) { *out = r->ff; return 1; }
+    if (!strcmp(key, "r_aiming")) { int n = 0; for (int i = 0; i < r->ng; i++) n += r->g[i].alive && r->g[i].state == RGS_AIM; *out = n; return 1; }
+    if (!strcmp(key, "r_dir")) { *out = r->dir; return 1; }
     if (!strcmp(key, "r_card")) { *out = r->card; return 1; }
     if (!strcmp(key, "r_won")) { *out = r->won; return 1; }
     if (!strcmp(key, "r_lost")) { *out = r->lost; return 1; }
@@ -771,6 +789,46 @@ static int eko_query(const char *key, int *out) {
     if (!strcmp(key, "r_alert")) { int n = 0; for (int i = 0; i < r->ng; i++) n += r->g[i].alive && r->g[i].state == RGS_ALERT; *out = n; return 1; }
     if (!strcmp(key, "r_asleep")) { int n = 0; for (int i = 0; i < r->ng; i++) n += r->g[i].alive && r->g[i].state == RGS_SLEEP; *out = n; return 1; }
     if (!strcmp(key, "r_seeking")) { int n = 0; for (int i = 0; i < r->ng; i++) n += r->g[i].alive && r->g[i].state == RGS_SEEK; *out = n; return 1; }
+    if (!strncmp(key, "r_botwins_", 10)) {
+        extern int eko_bot_debug;
+        /* r_botwins_<owl>_<first seed>_<n>: the demo player plays n rolled
+         * jails as that bat, turn by turn with the real rules; how many it wins */
+        int owl = 0, first = 1, n = 1;
+        if (sscanf(key + 10, "%d_%d_%d", &owl, &first, &n) != 3) return 0;
+        owl = iclamp(owl, 0, 3);
+        int wins = 0;
+        static EkoRescue t;
+        for (int sd = first; sd < first + n; sd++) {
+            if (eko_rescue_gen(&t, (uint32_t)sd, owl, (owl + 1) % 4) < 0) continue;
+            for (int turn = 0; turn < 400 && !t.won && !t.lost; turn++) {
+                int a = eko_rescue_bot_action(&t);
+                if (a == RA_NONE) break;
+                eko_rescue_turn(&t, a);
+                if (eko_bot_debug > 2 && turn < 60) {
+                    printf("    t%d a%d -> (%d,%d) d%d hp %d cd %d %d |", t.turns, a, t.ox, t.oy, t.dir, t.hp, t.cd[0], t.cd[1]);
+                    for (int i = 0; i < t.ng; i++) if (t.g[i].alive) printf(" g%d(%d,%d)s%dd%d", i, t.g[i].x, t.g[i].y, t.g[i].state, t.g[i].dir);
+                    printf("\n");
+                }
+            }
+            wins += t.won;
+            if (!t.won && eko_bot_debug > 1) {
+                /* the board where it gave up: # wall o crate C cell K card, guards by state, @ the bat */
+                for (int y = 0; y < RS_H; y++) {
+                    char line[RS_W + 1];
+                    for (int x = 0; x < RS_W; x++) line[x] = t.tile[y][x];
+                    line[RS_W] = 0;
+                    for (int i = 0; i < t.ng; i++)
+                        if (t.g[i].alive && t.g[i].y == y) line[(int)t.g[i].x] = "PASZXM"[t.g[i].state];
+                    if (t.oy == y) line[t.ox] = '@';
+                    printf("    %s\n", line);
+                }
+                printf("    hp %d cd %d %d card %d dir %d\n", t.hp, t.cd[0], t.cd[1], t.card, t.dir);
+            }
+            if (!t.won && eko_bot_debug) printf("  bat %d lost jail %d (%s, %d turns)\n", owl, sd, t.lost ? "caught" : "stuck", t.turns);
+        }
+        *out = wins;
+        return 1;
+    }
     if (!strcmp(key, "r_layouts_bad")) {
         /* 500 rolled jails: every one fair, and no two alike in a row */
         EkoRescue t, prev;
@@ -942,19 +1000,21 @@ static int eko_cheat(const char *cmd) {
         eg.cur_owl = eg.rescue_by;
         eko_rescue_gen(&eg.rs, (uint32_t)c, eg.rescue_by, eg.rescue_for);
         eg.in = eg.prev = 0;
+        eg.msg_t = 0;
         set_state(ES_PLAY);
         game_set_pausable(true);
         music_play(EKO_MUS_RESCUE);
         return 1;
     }
     if (!strcmp(cmd, "rblank")) {
-        /* an empty jail for rule tests: the bat at (2, 4) facing right */
+        /* an empty jail for rule tests (15 x 10, walls round it): the bat at
+         * (2, 4) facing right, the cell door at (0, 4), the card at (13, 1) */
         EkoRescue *r = &eg.rs;
         for (int y = 0; y < RS_H; y++) for (int x = 0; x < RS_W; x++) r->tile[y][x] = (x == 0 || y == 0 || x == RS_W - 1 || y == RS_H - 1) ? '#' : '.';
-        r->ng = 0; r->ox = 2; r->oy = 4; r->dir = RA_RIGHT; r->card = false; r->won = r->lost = false;
+        r->ng = 0; r->ox = 2; r->oy = 4; r->dir = RA_RIGHT; r->card = false; r->won = r->lost = false; r->brace = false;
         r->cell_x = 0; r->cell_y = 4; r->tile[4][0] = 'C';
-        r->key_x = 17; r->key_y = 1; r->tile[1][17] = 'K';
-        r->turns = 0; r->kos = 0;
+        r->key_x = 13; r->key_y = 1; r->tile[1][13] = 'K';
+        r->turns = 0; r->kos = 0; r->ff = 0; r->gshots = 0; r->hits = 0; r->cd[0] = r->cd[1] = 0;
         r->hp = EKO_RS_HP[r->owl];
         return 1;
     }

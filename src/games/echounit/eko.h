@@ -370,23 +370,31 @@ typedef struct {
 } EkoSneak;
 
 /* ==== the jailbreak (rescue): turn-based ====================================================== */
-#define RS_W 19
-#define RS_H 9
+#define RS_W 15                   /* the grid, right of the bat's panel */
+#define RS_H 10
 #define RS_TILE 16
-#define RS_X0 8
-#define RS_Y0 28
+#define RS_PANEL_W 76             /* the left side: the bat, its health, its two skills */
+#define RS_X0 78
+#define RS_Y0 20
 #define RS_MAX_GUARDS 10
 enum { RG_SENTRY, RG_PATROL, RG_TURNER };
-enum { RGS_POST, RGS_ALERT, RGS_SEEK, RGS_SLEEP, RGS_OUT };
+/* POST on watch; ALERT hunting the bat; SEEK going to look at a noise;
+ * SLEEP darted; OUT knocked out; AIM lined up, firing on its next turn */
+enum { RGS_POST, RGS_ALERT, RGS_SEEK, RGS_SLEEP, RGS_OUT, RGS_AIM };
 typedef struct { uint8_t alive, role, state; int8_t x, y, dir, sleep, tx, ty, hx, hy, hdir; } EkoRGuard;
-extern const int EKO_RS_HP[OWL_COUNT];   /* 3, 2, 4, 2 */
+extern const int EKO_RS_HP[OWL_COUNT];      /* 3, 2, 4, 2 */
+extern const int EKO_RS_CD[OWL_COUNT][2];   /* turns each skill takes to come back */
+extern const char *const EKO_RS_SKILL[OWL_COUNT][2];
 typedef struct {
     char tile[RS_H][RS_W];       /* '#' wall '.' floor 'o' crate 'C' cell door 'K' keycard */
-    int ox, oy, dir, hp, ammo;
+    int ox, oy, dir, hp;
+    int cd[2];                   /* turns until skill A / B is ready again (0: ready) */
     int owl, captive;
     bool card, won, lost, brace;
     EkoRGuard g[RS_MAX_GUARDS];
     int ng, turns, kos, shot_t, shot_x, shot_y, shot_x2, shot_y2, noise_t, noise_x, noise_y;
+    int gshot_t, gshot_x, gshot_y, gshot_x2, gshot_y2; /* the last guard shot, for the screen */
+    int gshots, ff, hits;        /* guard shots fired; guards downed by other guards; shots that hit the bat */
     int cell_x, cell_y, key_x, key_y, start_x, start_y;
     int msg_t;
     int seed;

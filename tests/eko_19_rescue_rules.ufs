@@ -1,7 +1,11 @@
 # THE JAILBREAK: every step is a turn, then every guard takes its turn.
-# Crates push like a block puzzle. A guard sees straight along the way it
-# faces (crates and other guards block it); seen, it comes for the bat and
-# strikes when next to it. Bumping a wall is no turn at all.
+# Steps go only the four straight ways. Crates push like a block puzzle.
+# A guard sees straight along the way it faces (crates and other guards
+# block it). Seen, it lines up its gun (one turn) and fires on its next
+# turn, at whatever stands first in that line by then: step out of it and
+# the shot goes by. Bumping a wall is no turn at all. The guards shoot
+# indiscriminately: one lined up on the bat hits the guard that walks in
+# between.
 seed 1
 game echounit
 wait 5
@@ -20,39 +24,51 @@ wait 1
 expect r_x == 4
 expect r_turns == 2
 expect r_tile_5_4 == 111
-
 # into the wall: no turn
 cheat rpos 1 1
 press UP 1
 wait 1
 expect r_turns == 2
 expect r_tile_5_4 == 111
-# a sentry looking along row 1 sees the bat, comes, and strikes (she
-# whistles to pass the turns)
-cheat rguard 0 8 1 2
-press DOWN 1
+# two ways at once: still one straight step, never a slant
+cheat rpos 2 6
+press RIGHT DOWN 1
 wait 1
+expect r_turns == 3
+expect r_x == 2
+expect r_y == 7
+# a sentry looking along row 1 sees the bat step in: it aims, one turn
+cheat rblank
+cheat rguard 0 8 1 2
+cheat rpos 1 2
 press UP 1
 wait 1
-expect r_alert == 1
+expect r_aiming == 1
+expect r_gshots == 0
+# out of the line before it fires: the shot goes by
+press DOWN 1
+wait 1
+expect r_gshots == 1
+expect r_hp == 2
+# back in: it lines up again, and this time she stays: hit
+press UP 1
+wait 1
+expect r_aiming == 1
+press RIGHT 1
+wait 1
+expect r_gshots == 2
+expect r_hp == 1
+# indiscriminate: the guard lined up on Flint fires into its friend
+cheat rescue 1 0 5
+cheat rblank
+cheat rguard 1 6 2 1
+cheat rguard 0 10 4 2
 press B 1
 wait 1
-press B 1
+expect r_aiming == 1
+press UP 1
 wait 1
-press B 1
-wait 1
-press B 1
-wait 1
-press B 1
-wait 1
-press B 1
-wait 1
-press B 1
-wait 1
-press B 1
-wait 1
-press B 1
-wait 1
-press B 1
-wait 1
-expect r_hp < 2
+expect r_gshots == 1
+expect r_ff == 1
+expect r_guards == 1
+expect r_hp == 3

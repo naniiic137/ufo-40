@@ -30,17 +30,20 @@ static void hud(void) {
     gfx_rect(0, 0, SCREEN_W, 18, C_INK);
     gfx_hline(0, SCREEN_W - 1, 18, C_DUSK);
     int o = eg.cur_owl;
-    text_draw(EKO_OWL_NAME[o], 4, 2, OWL_COL[o] == C_PURPLE ? C_VIOLET : OWL_COL[o] == C_BROWN ? C_TAN : OWL_COL[o]);
-    int hp = eg.mode == MODE_RESCUE ? eg.rs.hp : eg.owl[o].hp;
-    int mx = eg.mode == MODE_RESCUE ? EKO_RS_HP[o] : EKO_OWL_HP[o];
-    for (int i = 0; i < mx; i++) gfx_rect(48 + i * 7, 3, 5, 6, i < hp ? C_RED : C_MAROON);
     char b[48];
-    if (eg.mode != MODE_RESCUE) {
-        snprintf(b, sizeof b, "x%d", eg.owl[o].lives);
-        tiny_draw(b, 48, 11, C_WHITE);
-        snprintf(b, sizeof b, "%06d", eg.score);
-        text_draw(b, SCREEN_W - 4 - text_width(b), 2, C_WHITE);
+    if (eg.mode == MODE_RESCUE) {
+        /* the bat, its health and its skills are on the panel at the left */
+        snprintf(b, sizeof b, "JAILBREAK: %s GOES IN FOR %s", EKO_OWL_NAME[o], EKO_OWL_NAME[eg.rescue_for]);
+        text_center(b, 160, 5, C_YELLOW);
+        return;
     }
+    text_draw(EKO_OWL_NAME[o], 4, 2, OWL_COL[o] == C_PURPLE ? C_VIOLET : OWL_COL[o] == C_BROWN ? C_TAN : OWL_COL[o]);
+    int hp = eg.owl[o].hp, mx = EKO_OWL_HP[o];
+    for (int i = 0; i < mx; i++) gfx_rect(48 + i * 7, 3, 5, 6, i < hp ? C_RED : C_MAROON);
+    snprintf(b, sizeof b, "x%d", eg.owl[o].lives);
+    tiny_draw(b, 48, 11, C_WHITE);
+    snprintf(b, sizeof b, "%06d", eg.score);
+    text_draw(b, SCREEN_W - 4 - text_width(b), 2, C_WHITE);
     switch (eg.mode) {
     case MODE_BRAWL:
         if (eg.br.p.key) { spr_draw(&eko_spr[SP_KEY], 120, 4, 0); tiny_draw("KEY", 130, 6, C_YELLOW); }
@@ -69,16 +72,6 @@ static void hud(void) {
         if (eg.sn.cards & CARD_RED) gfx_rect(198, 5, 6, 8, C_RED);
         if (eg.sn.cards & CARD_BLUE) gfx_rect(206, 5, 6, 8, C_SKY);
         if (eg.sn.alarm || eg.sn.room_spotted) tiny_draw("SEEN", 216, 7, (eg.frame_t / 6) % 2 ? C_RED : C_ORANGE);
-        break;
-    }
-    case MODE_RESCUE: {
-        snprintf(b, sizeof b, "JAILBREAK FOR %s", EKO_OWL_NAME[eg.rescue_for]);
-        text_draw(b, 120, 2, C_YELLOW);
-        if (eg.rs.owl == OWL_VESPER || eg.rs.owl == OWL_SABLE) {
-            snprintf(b, sizeof b, "%s %d", eg.rs.owl == OWL_SABLE ? "DARTS" : "SHOTS", eg.rs.ammo);
-            tiny_draw(b, 48, 11, C_WHITE);
-        }
-        if (eg.rs.card) tiny_draw("CARD", 120, 11, C_LEAF);
         break;
     }
     default: break;
@@ -572,7 +565,7 @@ static void bike_draw(void) {
                 /* overheated: the whole bike glows red */
                 uint8_t map[PAL_COUNT];
                 pal_identity(map);
-                for (int c = 0; c < PAL_COUNT; c++) if (c != C_INK) map[c] = (uint8_t)((eg.frame_t / 3) % 2 ? C_RED : C_ORANGE);
+                for (int c = 0; c < PAL_COUNT; c++) if (c != C_INK) map[c] = (uint8_t)((eg.frame_t / 3) % 2 ? C_RED : C_MAROON);
                 spr_draw_ex(&eko_spr[(eg.frame_t / 4) % 2 ? SP_BIKE1 : SP_BIKE2], bx - 12, by - 16 - EKO_PX(k->z), 0, map, -1);
             } else if (!k->dead_t) spr_draw(&eko_spr[(eg.frame_t / 4) % 2 ? SP_BIKE1 : SP_BIKE2], bx - 12, by - 16 - EKO_PX(k->z), 0);
             if (k->heat > BK_HEAT_MAX * 3 / 4) gfx_pset(bx + 10, by - 18 - EKO_PX(k->z) - (eg.frame_t % 6), C_GREY);
@@ -599,7 +592,7 @@ static void sneak_kit(void) {
     for (int k = 1; k < WP_COUNT && next < 0; k++)
         if (s->ammo[(s->weapon + k) % WP_COUNT] > 0) next = (s->weapon + k) % WP_COUNT;
     int w = 28;
-    for (int k = 1; k < WP_COUNT; k++) if (s->ammo[(s->weapon + k) % WP_COUNT] > 0) w += 22 + ((s->weapon + k) % WP_COUNT == next ? 6 : 0);
+    for (int k = 1; k < WP_COUNT; k++) if (s->ammo[(s->weapon + k) % WP_COUNT] > 0) w += 22 + ((s->weapon + k) % WP_COUNT == next ? 9 : 0);
     int y = SCREEN_H - 15;
     gfx_rect(0, y, w, 15, C_INK);
     gfx_hline(0, w - 1, y, C_DUSK);
@@ -613,7 +606,7 @@ static void sneak_kit(void) {
     for (int k = 1; k < WP_COUNT; k++) {
         int i = (s->weapon + k) % WP_COUNT;
         if (s->ammo[i] <= 0) continue;
-        if (i == next) { tiny_draw(GLYPH_B, x, y + 6, C_YELLOW); x += 6; }
+        if (i == next) { text_draw(GLYPH_B, x, y + 4, C_YELLOW); x += 9; }
         spr_draw(&eko_spr[ICON[i]], x, y + 4, 0);
         snprintf(b, sizeof b, "%d", s->ammo[i]);
         tiny_draw(b, x + 10, y + 6, C_GREY);
@@ -757,6 +750,99 @@ static void owl_remap(uint8_t *map, int owl) {
     pal_swap(map, C_PURPLE, SCARF[owl]);
 }
 
+/* a skill's picture, in a 14 x 14 box at (x, y) */
+static void skill_icon(int owl, int k, int x, int y) {
+    int cx = x + 7, cy = y + 7;
+    switch (owl * 2 + k) {
+    case OWL_FLINT * 2: /* a fist */
+        gfx_rect(cx - 4, cy - 3, 8, 7, C_TAN);
+        for (int i = 0; i < 4; i++) gfx_pset(cx - 4 + i * 2, cy - 3, C_BROWN);
+        gfx_rect(cx - 6, cy - 1, 2, 4, C_TAN);
+        gfx_hline(cx + 5, cx + 6, cy - 2, C_YELLOW);
+        gfx_hline(cx + 5, cx + 6, cy + 2, C_YELLOW);
+        break;
+    case OWL_FLINT * 2 + 1: /* a shield */
+        gfx_rect(cx - 4, cy - 5, 9, 7, C_SKY);
+        for (int i = 0; i < 4; i++) gfx_hline(cx - 3 + i, cx + 3 - i, cy + 2 + i, C_SKY);
+        gfx_vline(cx, cy - 4, cy + 4, C_WHITE);
+        break;
+    case OWL_VESPER * 2: case OWL_DART * 2: /* the sight */
+        gfx_circb(cx, cy, 4, C_RED);
+        gfx_hline(cx - 6, cx - 3, cy, C_RED);
+        gfx_hline(cx + 3, cx + 6, cy, C_RED);
+        gfx_vline(cx, cy - 6, cy - 3, C_RED);
+        gfx_vline(cx, cy + 3, cy + 6, C_RED);
+        if (owl == OWL_DART) gfx_pset(cx, cy, C_YELLOW);
+        break;
+    case OWL_VESPER * 2 + 1: /* a roll */
+        gfx_circb(cx - 1, cy, 4, C_LIGHT);
+        gfx_line(cx + 3, cy - 1, cx + 6, cy + 2, C_LIGHT);
+        gfx_hline(cx - 6, cx - 4, cy + 5, C_GREY);
+        break;
+    case OWL_DART * 2 + 1: /* a dash */
+        tiny_draw(GLYPH_RIGHT GLYPH_RIGHT, x + 2, y + 5, C_ORANGE);
+        gfx_hline(x + 1, x + 4, cy - 4, C_GREY);
+        gfx_hline(x + 1, x + 4, cy + 4, C_GREY);
+        break;
+    case OWL_SABLE * 2: /* a dart */
+        spr_draw(&eko_spr[SP_IT_DART], x + 3, y + 3, 0);
+        break;
+    default: /* a whistle */
+        text_draw(GLYPH_NOTE, x + 4, y + 4, C_YELLOW);
+        gfx_pset(x + 1, y + 3, C_YELLOW);
+        gfx_pset(x + 12, y + 3, C_YELLOW);
+        break;
+    }
+}
+
+/* the left side: the bat, its health now and at most, its two skills with
+ * their buttons (a skill that was used shows the turns until it is back) */
+static void rescue_panel(void) {
+    const EkoRescue *r = &eg.rs;
+    gfx_rect(0, 19, RS_PANEL_W, SCREEN_H - 19, C_NIGHT);
+    gfx_vline(RS_PANEL_W - 1, 19, SCREEN_H - 1, C_DUSK);
+    spr_draw(&eko_spr[FACE[r->owl]], 4, 24, 0);
+    text_draw(EKO_OWL_NAME[r->owl], 27, 26, OWL_COL[r->owl] == C_PURPLE ? C_VIOLET : OWL_COL[r->owl] == C_BROWN ? C_TAN : OWL_COL[r->owl]);
+    char b[24];
+    snprintf(b, sizeof b, "FOR %s", EKO_OWL_NAME[r->captive]);
+    tiny_draw(b, 27, 36, C_GREY);
+    int mx = EKO_RS_HP[r->owl];
+    tiny_draw("LIFE", 4, 50, C_GREY);
+    for (int i = 0; i < mx; i++) gfx_rect(4 + i * 9, 57, 7, 6, i < r->hp ? C_RED : C_MAROON);
+    snprintf(b, sizeof b, "%d/%d", imax(0, r->hp), mx);
+    tiny_draw(b, 6 + mx * 9, 58, C_WHITE);
+    for (int k = 0; k < 2; k++) {
+        int y = 74 + k * 30;
+        text_draw(k == 0 ? GLYPH_A : GLYPH_B, 4, y + 4, C_WHITE);
+        bool ready = r->cd[k] == 0;
+        gfx_rect(13, y, 16, 16, C_INK);
+        gfx_rectb(13, y, 16, 16, ready ? C_YELLOW : C_DUSK);
+        if (ready) skill_icon(r->owl, k, 14, y + 1);
+        else {
+            /* the icon turns into the turns left until it is back */
+            snprintf(b, sizeof b, "%d", r->cd[k]);
+            text_center(b, 21, y + 5, C_ORANGE);
+        }
+        tiny_draw(EKO_RS_SKILL[r->owl][k], 32, y + 2, ready ? C_WHITE : C_GREY);
+        if (ready) tiny_draw("READY", 32, y + 9, C_LEAF);
+        else {
+            snprintf(b, sizeof b, "IN %d", r->cd[k]);
+            tiny_draw(b, 32, y + 9, C_ORANGE);
+        }
+    }
+    if (r->card) {
+        spr_draw(&eko_spr[SP_IT_CARD], 4, 140, 0);
+        gfx_rect(6, 142, 4, 3, C_YELLOW);
+        tiny_draw("TO THE", 15, 138, C_YELLOW);
+        tiny_draw("CELL!", 15, 145, C_YELLOW);
+    } else {
+        tiny_draw("FIND THE", 4, 138, C_LIGHT);
+        tiny_draw("CARD", 4, 145, C_LIGHT);
+    }
+    snprintf(b, sizeof b, "TURN %d", r->turns);
+    tiny_draw(b, 4, SCREEN_H - 10, C_GREY);
+}
+
 static void rescue_draw(void) {
     const EkoRescue *r = &eg.rs;
     gfx_cls(C_INK);
@@ -772,13 +858,10 @@ static void rescue_draw(void) {
                 gfx_rectb(px + 1, py + 1, 14, 14, C_BROWN);
                 gfx_line(px + 2, py + 2, px + 13, py + 13, C_BROWN);
                 break;
-            case 'C': {
+            case 'C':
                 gfx_rect(px, py, 16, 16, C_NIGHT);
                 for (int k = 2; k < 16; k += 4) gfx_vline(px + k, py, py + 15, r->card ? C_YELLOW : C_GREY);
-                uint8_t map[PAL_COUNT];
-                owl_remap(map, r->captive);
                 break;
-            }
             default:
                 gfx_rect(px, py, 16, 16, C_NIGHT);
                 gfx_rectb(px, py, 16, 16, C_INK);
@@ -796,26 +879,35 @@ static void rescue_draw(void) {
         gfx_noclip();
         for (int k = 2; k < 16; k += 4) gfx_vline(px + k, py, py + 15, r->card ? C_YELLOW : C_GREY);
     }
-    /* guards and their lines of sight */
+    /* guards and their lines of sight; a gun lined up shows its line of fire */
     static const int GDX[4] = {1, 0, -1, 0}, GDY[4] = {0, 1, 0, -1};
     for (int i = 0; i < r->ng; i++) {
         const EkoRGuard *g = &r->g[i];
         if (!g->alive) continue;
         int px = RS_X0 + g->x * RS_TILE, py = RS_Y0 + g->y * RS_TILE;
         if (g->state != RGS_SLEEP) {
-            /* the line it watches, dotted */
             int x = g->x, y = g->y;
+            bool aim = g->state == RGS_AIM;
             for (int k = 0; k < RS_W; k++) {
                 x += GDX[(int)g->dir];
                 y += GDY[(int)g->dir];
                 if (x < 0 || y < 0 || x >= RS_W || y >= RS_H) break;
                 char c = r->tile[y][x];
                 if (c != '.' && c != 'K') break;
+                int lx = RS_X0 + x * RS_TILE, ly = RS_Y0 + y * RS_TILE;
                 bool blocked = false;
                 for (int j = 0; j < r->ng; j++) if (r->g[j].alive && r->g[j].x == x && r->g[j].y == y) blocked = true;
-                if (blocked) break;
-                gfx_pset(RS_X0 + x * RS_TILE + 7, RS_Y0 + y * RS_TILE + 7, g->state == RGS_ALERT ? C_RED : C_MAROON);
-                gfx_pset(RS_X0 + x * RS_TILE + 8, RS_Y0 + y * RS_TILE + 8, g->state == RGS_ALERT ? C_RED : C_MAROON);
+                if (aim) {
+                    /* the line it will fire down: whatever stands first in it takes the shot */
+                    int col = (eg.frame_t / 4) % 2 ? C_RED : C_ORANGE;
+                    if (GDX[(int)g->dir]) gfx_hline(lx, lx + 15, ly + 7, col);
+                    else gfx_vline(lx + 7, ly, ly + 15, col);
+                } else {
+                    gfx_pset(lx + 7, ly + 7, g->state == RGS_ALERT ? C_RED : C_MAROON);
+                    gfx_pset(lx + 8, ly + 8, g->state == RGS_ALERT ? C_RED : C_MAROON);
+                }
+                if (blocked || (x == r->ox && y == r->oy && !aim)) break;
+                if (aim && x == r->ox && y == r->oy) break;
             }
         }
         static const int SP[4] = {SP_GUARD_R, SP_GUARD_D, SP_GUARD_L, SP_GUARD_U};
@@ -825,7 +917,8 @@ static void rescue_draw(void) {
         if (g->role == RG_TURNER) pal_swap(map, C_NAVY, C_PURPLE);
         if (g->role == RG_PATROL) pal_swap(map, C_NAVY, C_TEAL);
         spr_draw_ex(&eko_spr[SP[g->dir & 3]], px, py, 0, map, -1);
-        if (g->state == RGS_ALERT) text_draw("!", px + 6, py - 8, C_RED);
+        if (g->state == RGS_AIM) { text_draw("!", px + 6, py - 8 + (eg.frame_t / 6) % 2, C_RED); gfx_rectb(px, py, 16, 16, C_RED); }
+        if (g->state == RGS_ALERT) text_draw("!", px + 6, py - 8, C_ORANGE);
         if (g->state == RGS_SEEK) text_draw("?", px + 5, py - 8, C_YELLOW);
         if (g->state == RGS_SLEEP) tiny_draw("Z", px + 11, py - 4, C_WHITE);
     }
@@ -842,13 +935,14 @@ static void rescue_draw(void) {
     if (r->shot_t)
         gfx_line(RS_X0 + r->shot_x * RS_TILE + 8, RS_Y0 + r->shot_y * RS_TILE + 8, RS_X0 + r->shot_x2 * RS_TILE + 8,
                  RS_Y0 + r->shot_y2 * RS_TILE + 8, r->owl == OWL_SABLE ? C_PINK : C_YELLOW);
+    if (r->gshot_t)
+        gfx_line(RS_X0 + r->gshot_x * RS_TILE + 8, RS_Y0 + r->gshot_y * RS_TILE + 8, RS_X0 + r->gshot_x2 * RS_TILE + 8,
+                 RS_Y0 + r->gshot_y2 * RS_TILE + 8, (eg.frame_t / 2) % 2 ? C_RED : C_WHITE);
     if (r->noise_t) gfx_circb(RS_X0 + r->noise_x * RS_TILE + 8, RS_Y0 + r->noise_y * RS_TILE + 8, 20 + (12 - r->noise_t) * 4, C_YELLOW);
-    static const char *const ACT[OWL_COUNT][2] = {{"PUNCH", "BRACE"}, {"SHOOT", "ROLL"}, {"SHOOT", "DASH"}, {"DART", "WHISTLE"}};
-    char b[64];
-    snprintf(b, sizeof b, GLYPH_A " %s   " GLYPH_B " %s   TURN %d", ACT[r->owl][0], ACT[r->owl][1], r->turns);
-    text_draw(b, 8, SCREEN_H - 9, C_LIGHT);
-    if (r->won) { gfx_rect(80, 80, 160, 20, C_INK); text_center("THE CELL IS OPEN!", 160, 86, C_YELLOW); }
-    if (r->lost) { gfx_rect(80, 80, 160, 20, C_INK); text_center("CAUGHT!", 160, 86, C_RED); }
+    rescue_panel();
+    int bx = RS_X0 + RS_W * RS_TILE / 2;
+    if (r->won) { gfx_rect(bx - 70, 90, 140, 20, C_INK); text_center("THE CELL IS OPEN!", bx, 96, C_YELLOW); }
+    if (r->lost) { gfx_rect(bx - 70, 90, 140, 20, C_INK); text_center("CAUGHT!", bx, 96, C_RED); }
 }
 
 /* ---- the screens --------------------------------------------------------------------------------- */
