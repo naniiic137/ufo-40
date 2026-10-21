@@ -592,6 +592,15 @@ static int lfl_query(const char *key, int *out) {
         if (!strcmp(u, "_flags")) { *out = m->flags; return 1; }
         return 0;
     }
+    if (!strncmp(key, "drop", 4) && isdigit((unsigned char)key[4])) {
+        /* the i-th live drop: kind*10000 + sub*1000 + x/16*10 + y/16 (tests) */
+        int k = atoi(key + 4), n = 0;
+        *out = -1;
+        for (int i = 0; i < LFL_MAX_DROPS; i++)
+            if (lg.drop[i].alive && n++ == k)
+                *out = lg.drop[i].kind * 10000 + lg.drop[i].sub * 1000 + LFL_PX(lg.drop[i].x) / 16 * 10 + LFL_PX(lg.drop[i].y) / 16;
+        return 1;
+    }
     if (!strcmp(key, "drops")) { int n = 0; for (int i = 0; i < LFL_MAX_DROPS; i++) n += lg.drop[i].alive; *out = n; return 1; }
     if (!strcmp(key, "chops")) { int n = 0; for (int i = 0; i < LFL_MAX_DROPS; i++) n += lg.drop[i].alive && lg.drop[i].kind == DR_CHOP; *out = n; return 1; }
     if (!strcmp(key, "cooked")) { int n = 0; for (int i = 0; i < LFL_MAX_DROPS; i++) n += lg.drop[i].alive && lg.drop[i].kind == DR_CHOP && lg.drop[i].cooked; *out = n; return 1; }

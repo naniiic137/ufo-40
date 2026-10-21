@@ -205,6 +205,7 @@ typedef struct Job {
     int face;       /* then face this way, -1 = no need */
     int act;        /* 1 = press A there, 2 = hold A, 3 = talk (B) there, 4 = push toward face */
     int need[2], nneed;
+    int tpx, tpy;   /* a drop to step onto, in room pixels (-1 = none) */
 } Job;
 
 static int thing_wx(const LflThing *t) { return lp.room[t->room].gx * LFL_RW + (t->x + 6) / LFL_TILE; }
@@ -438,7 +439,7 @@ static bool job_gather(Job *j, int r) {
         if (!d->alive || d->kind != DR_RES || d->sub != r) continue;
         int wx = lp.room[lg.cur].gx * LFL_RW + (LFL_PX(d->x) + 4) / LFL_TILE, wy = lp.room[lg.cur].gy * LFL_RH + (LFL_PX(d->y) + 4) / LFL_TILE;
         int dd = D(wx, wy);
-        if (dd >= 0 && dd < best) { best = dd; j->wx = wx; j->wy = wy; }
+        if (dd >= 0 && dd < best) { best = dd; j->wx = wx; j->wy = wy; j->tpx = LFL_PX(d->x) + 4; j->tpy = LFL_PX(d->y) + 4; }
     }
     /* in other rooms: still there, or there again once she is three rooms away */
     for (int rm = 0; rm < LFL_MAX_ROOMS; rm++) {
@@ -450,7 +451,7 @@ static bool job_gather(Job *j, int r) {
             if (s->type != SPW_RES || s->sub != r || (s->taken && !reset)) continue;
             int wx = q->gx * LFL_RW + s->tx, wy = q->gy * LFL_RH + s->ty;
             int dd = D(wx, wy);
-            if (dd >= 0 && dd + 4 < best) { best = dd + 4; j->wx = wx; j->wy = wy; }
+            if (dd >= 0 && dd + 4 < best) { best = dd + 4; j->wx = wx; j->wy = wy; j->tpx = -1; }
         }
     }
     if (best < (1 << 30)) { j->kind = TK_GATHER; return true; }
@@ -688,6 +689,7 @@ static unsigned keep_set(void) {
 
 static void choose(Job *j) {
     memset(j, 0, sizeof *j);
+    j->tpx = j->tpy = -1;
     j->face = -1;
     j->wx = j->wy = -1;
     LflPlayer *p = &lg.pl;
@@ -747,7 +749,7 @@ static void choose(Job *j) {
         for (int i = 0; i < LFL_MAX_DROPS; i++)
             if (lg.drop[i].alive && lg.drop[i].kind == DR_CHOP) {
                 int wx = lp.room[lg.cur].gx * LFL_RW + (LFL_PX(lg.drop[i].x) + 4) / LFL_TILE, wy = lp.room[lg.cur].gy * LFL_RH + (LFL_PX(lg.drop[i].y) + 4) / LFL_TILE;
-                if (D(wx, wy) >= 0) { j->kind = TK_EAT; j->wx = wx; j->wy = wy; return; }
+                if (D(wx, wy) >= 0) { j->kind = TK_EAT; j->wx = wx; j->wy = wy; j->tpx = LFL_PX(lg.drop[i].x) + 4; j->tpy = LFL_PX(lg.drop[i].y) + 4; return; }
             }
     /* energy cells first: every one is a point of energy for the rest */
     {
@@ -1055,6 +1057,8 @@ static int bot_buttons_inner(void) {
         (j.wx != last.wx || j.wy != last.wy) && D(j.wx, j.wy) >= D(last.wx, last.wy) - 12) {
         j.wx = last.wx;
         j.wy = last.wy;
+        j.tpx = last.tpx;
+        j.tpy = last.tpy;
     }
     last = j;
     lfl_bot_task = j.kind;
@@ -1138,7 +1142,11 @@ static int bot_buttons_inner(void) {
             if (j.face == DIR_RIGHT) hix = 8;
         }
         bool centred = ccx >= lox && ccx <= hix && ccy >= loy && ccy <= hiy;
-        if (j.act == 4) mask = dir_button(j.face);
+        /* a drop near the edge of the tile: step right onto it */
+        int ddx = j.tpx >= 0 ? j.tpx - pcx() : 0, ddy = j.tpx >= 0 ? j.tpy - pcy() : 0;
+        if (j.act == 0 && j.tpx >= 0 && (iabs(ddx) > 4 || iabs(ddy) > 4))
+            mask = iabs(ddx) >= iabs(ddy) ? (ddx > 0 ? BTN_RIGHT : BTN_LEFT) : (ddy > 0 ? BTN_DOWN : BTN_UP);
+        else if (j.act == 4) mask = dir_button(j.face);
         else if (!centred) mask = ccx < lox ? BTN_RIGHT : ccx > hix ? BTN_LEFT : ccy < loy ? BTN_DOWN : BTN_UP;
         else if (j.face >= 0 && p->face != j.face) mask = dir_button(j.face);
         else if (j.act == 1) {
@@ -1163,7 +1171,11 @@ static int bot_buttons_inner(void) {
         bool threat = false;
         for (int i = 0; i < LFL_MAX_MOBS; i++)
             if (is_threat(&lg.mob[i]) && iabs(LFL_PX(lg.mob[i].x) + 6 - pcx()) + iabs(LFL_PX(lg.mob[i].y) + 6 - pcy()) < 70) threat = true;
-        if (threat && !fetching && !(j.act && j.nneed > 0) && (other == TL_RIVET || other == TL_DISC) && cur_t != TL_RIVET && cur_t != TL_DISC && !small() &&
+        /* (not on the way into a hole: the hatcher stays in hand for it) */
+        int d0 = j.wx >= 0 ? first_step(j.wx, j.wy) : -1;
+        int t0 = d0 >= 0 ? wtile(area(), my_wx() + DX[d0], my_wy() + DY[d0]) : T_FLOOR;
+        bool hole_next = t0 == T_HOLE || t0 == T_SECRET;
+        if (threat && !hole_next && !fetching && !(j.act && j.nneed > 0) && (other == TL_RIVET || other == TL_DISC) && cur_t != TL_RIVET && cur_t != TL_DISC && !small() &&
             lfl_talk_target() < 0) {
             b_tap = 2;
             prev_mask = BTN_B;
