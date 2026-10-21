@@ -1,0 +1,116 @@
+# FLINT: the stage turns on him. Troopers keep coming while he hangs about
+# (every four seconds, never more than three about), so he has to press
+# on. Hazards show a "!" first: a crane load drops where the "!" stood at
+# the top of the screen, a crane hook sweeps in at chest height from where
+# the "!" stood at the right edge (crouch under it). The ki blast wipes out
+# the bullets in its path; a jump kick sends a grenade back at the foes,
+# and its blast is his. Jetpackers shoot down at him while they hover.
+# Dock rats run low: a standing punch goes over them, a crouching jab gets
+# them. Gulls sit on the bollards; every one left in peace is worth 100
+# when the part ends.
+seed 1
+game echounit
+wait 5
+cheat mission 0
+expect b_gulls == 2
+cheat bclear
+cheat god
+# they keep coming
+cheat bwaves
+wait 5
+expect b_respawns == 1
+wait 250
+expect b_respawns == 2
+wait 900
+expect b_foes <= 3
+expect b_respawns >= 3
+# the ki blast wipes out a bullet in its path
+cheat bclear
+cheat bpos 120 128
+cheat bobj 6 180 114
+expect b_objs_6 == 1
+hold A 60
+wait 30
+expect b_objs_6 == 0
+# a jump kick meets a falling grenade: back it goes, into the trooper
+cheat bclear
+cheat bpos 30 128
+cheat bfoe 1 140 128
+cheat bobj 4 50 90
+press B 1
+wait 1
+press A 1
+wait 6
+expect b_kicked == 1
+wait 60
+expect b_kills == 1
+# a jetpacker hovering over him shoots down at him
+cheat bclear
+cheat bpos 120 128
+cheat bfoe 3 160 60
+wait 130
+expect b_objs_6 >= 1
+# a dock rat: the standing punch goes over it, the crouching jab gets it
+cheat bclear
+cheat bpos 120 128
+cheat bfoe 5 150 128
+press A 1
+wait 10
+press A 1
+wait 10
+expect b_rats == 1
+hold DOWN 4
+hold DOWN A 2
+hold DOWN 20
+hold DOWN A 2
+hold DOWN 20
+hold DOWN A 2
+hold DOWN 20
+hold DOWN A 2
+hold DOWN 20
+expect b_rats == 0
+# a crane load: its "!" at the top of the screen, then down it comes
+cheat mission 0
+cheat bclear
+cheat bhazards
+cheat bpos 680 128
+wait 5
+expect b_hazards == 0
+hold RIGHT 12
+expect b_hazards == 1
+expect b_objs_10 == 1
+wait 100
+expect b_objs_10 == 0
+# the crane hook at chest height: standing in its way, it hits
+cheat mission 0
+cheat mortal
+cheat bclear
+cheat bhazards
+cheat bpos 1400 128
+wait 10
+expect b_hazards == 1
+expect b_objs_11 == 1
+wait 160
+expect hp == 7
+expect b_objs_11 == 0
+# a gull hit is a gull lost; left in peace, 100 each at the end of the part
+cheat mission 0
+cheat bclear
+cheat god
+cheat bkey
+cheat score 0
+cheat bpos 2440 128
+wait 30
+hold RIGHT 80
+wait 80
+hold RIGHT 60
+waituntil sec == 1 200
+expect score == 200
+waituntil state == 6 200
+cheat bclear
+cheat bobj 9 200 128
+cheat bpos 180 128
+wait 5
+press A 1
+wait 10
+expect b_gulls_hit == 1

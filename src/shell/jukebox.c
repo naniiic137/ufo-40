@@ -156,7 +156,7 @@ static const struct { const char *id, *title; } TITLES[] = {
     {"eko_brief", "COLONEL HUSH"}, {"eko_docks", "DOCKSIDE DUST-UP"}, {"eko_lift", "GOING UP"},
     {"eko_andes", "THIN AIR"}, {"eko_cairo", "SAND AND THROTTLE"}, {"eko_istanbul", "SILENT HALLS"},
     {"eko_rescue", "CELL BLOCK"}, {"eko_boss", "BIG BAD"}, {"eko_caldera", "INTO THE CALDERA"},
-    {"eko_lab", "THE SECRET LAB"}, {"eko_tunnel", "LAVA RUN"}, {"eko_final", "MADAME COIL"},
+    {"eko_lab", "THE MAGMA WORKS"}, {"eko_tunnel", "LAVA RUN"}, {"eko_final", "MADAME COIL"},
     {"eko_ending", "MANGO FEAST"}, {"eko_clear", "MISSION COMPLETE"}, {"eko_captured", "CAPTURED"},
     {"eko_over", "NO SECOND CHANCES"},
 };

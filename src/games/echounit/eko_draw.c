@@ -198,6 +198,53 @@ static void brawl_draw(void) {
         case BO_GRENADE: gfx_circ(x, y - 3, 3, C_FOREST); gfx_pset(x, y - 6, (eg.frame_t / 3) % 2 ? C_RED : C_YELLOW); break;
         case BO_FBULLET: gfx_rect(x - 2, y - 1, 4, 2, C_YELLOW); break;
         case BO_FLAME: gfx_circ(x, y, 3, (eg.frame_t / 2) % 2 ? C_ORANGE : C_YELLOW); break;
+        case BO_GULL:
+            /* a gull on its bollard (frightened: flapping off) */
+            if (!o->state) {
+                gfx_rect(x - 2, y - 6, 4, 6, C_SLATE);
+                gfx_rect(x - 3, y - 7, 6, 2, C_GREY);
+                gfx_rect(x - 3, y - 12, 7, 5, C_WHITE);
+                gfx_rect(x + 3, y - 14, 3, 3, C_WHITE);
+                gfx_pset(x + 6, y - 13, C_AMBER);
+                gfx_rect(x - 2, y - 11, 4, 2, C_LIGHT);
+            } else {
+                int f = (eg.frame_t / 4) % 2;
+                gfx_rect(x - 2, y - 10, 5, 3, C_WHITE);
+                gfx_line(x - 6, y - 10 - f * 3, x - 2, y - 9, C_LIGHT);
+                gfx_line(x + 6, y - 10 - f * 3, x + 2, y - 9, C_LIGHT);
+            }
+            break;
+        case BO_DROP:
+            if (o->state == 0) {
+                /* the warning, up at the top of the screen */
+                if ((eg.frame_t / 4) % 2) {
+                    gfx_rect(x - 5, BR_TOP + 2, 10, 12, C_RED);
+                    text_draw("!", x - 2, BR_TOP + 4, C_WHITE);
+                }
+            } else if (b->map == BM_LAB) {
+                gfx_circ(x, y - 7, 7, C_EARTH);
+                gfx_circ(x, y - 7, 4, (eg.frame_t / 3) % 2 ? C_ORANGE : C_RED);
+            } else {
+                gfx_rect(x - 8, y - 14, 16, 14, C_TEAL);
+                gfx_rectb(x - 8, y - 14, 16, 14, C_INK);
+                gfx_vline(x - 3, y - 13, y - 2, C_FOREST);
+                gfx_vline(x + 2, y - 13, y - 2, C_FOREST);
+                gfx_vline(x, y - 30, y - 15, C_GREY);
+            }
+            break;
+        case BO_HOOK:
+            if (o->state == 0) {
+                if ((eg.frame_t / 4) % 2) {
+                    gfx_rect(SCREEN_W - 14, y - 6, 10, 12, C_RED);
+                    text_draw("!", SCREEN_W - 11, y - 4, C_WHITE);
+                }
+            } else {
+                gfx_vline(x, y - 60, y - 4, C_GREY);
+                gfx_rect(x - 4, y - 4, 9, 4, C_SLATE);
+                gfx_line(x - 4, y, x - 8, y + 4, C_SLATE);
+                gfx_line(x - 8, y + 4, x - 3, y + 6, C_SLATE);
+            }
+            break;
         case BO_KI:
             /* the ki blast: a hot ball with a short tail */
             for (int k = 1; k <= 3; k++) gfx_circ(x - isign(o->vx) * k * 5, y, 4 - k, k == 1 ? C_AMBER : C_ORANGE);
@@ -242,6 +289,18 @@ static void brawl_draw(void) {
             pal_swap(map, C_NAVY, C_RED);
             spr_draw_ex(&eko_spr[SP_KEYMAN], x - 8, y - 24, fl, map, -1);
             break;
+        case BF_RAT: {
+            /* a dock rat, low and quick */
+            int d = f->face, step = (eg.frame_t / 4) % 2;
+            gfx_rect(x - 6, y - 5, 12, 4, C_EARTH);
+            gfx_rect(x - 4, y - 6, 8, 2, C_EARTH);
+            gfx_rect(x + d * 6 - (d < 0 ? 3 : 0), y - 5, 3, 3, C_EARTH);
+            gfx_pset(x + d * 7, y - 5, C_RED);
+            gfx_line(x - d * 6, y - 3, x - d * 11, y - 5 - step, C_HIDE);
+            gfx_pset(x - 3, y - 1 + step, C_BROWN);
+            gfx_pset(x + 3, y - 1 + (1 - step), C_BROWN);
+            break;
+        }
         default: {
             int sp = f->state == 1 ? SP_TROOP_PUNCH : f->state == 2 ? SP_TROOP_AIM : (f->vx && (eg.frame_t / 8) % 2) ? SP_TROOP_WALK : SP_TROOP_STAND;
             if (f->state == 99) sp = SP_TROOP_WALK;
@@ -464,9 +523,137 @@ static void gallery_draw(void) {
 
 /* ---- DART ------------------------------------------------------------------------------------ */
 
+/* the Caldera's flight: under the volcano's roof, over the lava sea */
+static void flight_draw(void) {
+    const EkoBike *k = &eg.bk;
+    gfx_clip(0, 19, SCREEN_W, SCREEN_H - 19);
+    gfx_cls(C_INK);
+    /* the lava's glow climbing the crater's far wall */
+    gfx_dither(0, 104, SCREEN_W, 30, C_NIGHT, 5);
+    gfx_dither(0, 134, SCREEN_W, 34, C_MAROON, 6);
+    /* the far wall: crags going by slowly, lit from below */
+    int far = (k->dist / 6) % 120;
+    for (int x = -120; x < SCREEN_W + 120; x += 120) {
+        int cx = x - far;
+        for (int i = 0; i < 70; i++) gfx_hline(cx + 20 - i / 3, cx + 40 + i / 2, 64 + i, C_NIGHT);
+        for (int i = 0; i < 46; i++) gfx_hline(cx + 76 - i / 2, cx + 86 + i / 3, 88 + i, C_NIGHT);
+        gfx_hline(cx + 20, cx + 40, 64, C_DUSK);
+        gfx_pset(cx + 30, 100, C_RED);
+        gfx_pset(cx + 82, 112, C_ORANGE);
+    }
+    /* the roof's teeth, far and near */
+    int off = (k->dist / 4) % 48;
+    for (int x = -48; x < SCREEN_W + 48; x += 48)
+        for (int i = 0; i < 8; i++) gfx_hline(x - off + 6 + i, x - off + 22 - i, 19 + i * 2, C_NIGHT);
+    off = (k->dist / 2) % 80;
+    for (int x = -80; x < SCREEN_W + 80; x += 80)
+        for (int i = 0; i < 6; i++) gfx_hline(x - off + 30 + i * 2, x - off + 50 - i * 2, 19 + i * 3, C_DUSK);
+    /* the lava sea */
+    gfx_rect(0, BK_FLY_BOT + 6, SCREEN_W, SCREEN_H, C_RED);
+    for (int x = 0; x < SCREEN_W; x += 8) {
+        int wave = ((x + k->dist / 2 + eg.frame_t / 3) % 16) < 8 ? 0 : 2;
+        gfx_rect(x, BK_FLY_BOT + 4 + wave, 8, 3, C_ORANGE);
+    }
+    gfx_dither(0, BK_FLY_BOT + 12, SCREEN_W, 14, C_YELLOW, 7);
+    for (int i = 0; i < BK_MAX_OBJS; i++) {
+        const EkoKObj *o = &k->obj[i];
+        if (!o->alive) continue;
+        if (o->flash && (o->flash / 2) % 2) continue;
+        int x = EKO_PX(o->x) - k->dist, y = EKO_PX(o->y);
+        switch (o->kind) {
+        case OB_PILLAR: {
+            int top = o->a ? 19 : y, bot = o->a ? y : SCREEN_H;
+            gfx_rect(x - 10, top, 20, bot - top, C_EARTH);
+            gfx_rect(x - 10, top, 4, bot - top, C_BROWN);
+            gfx_rect(x + 6, top, 4, bot - top, C_NIGHT);
+            for (int yy = top + 6; yy < bot - 4; yy += 14) gfx_hline(x - 6, x + 3, yy, C_BROWN);
+            /* the tip glows from the lava below */
+            gfx_rect(x - 8, o->a ? y - 3 : y, 16, 3, o->a ? C_AMBER : C_HIDE);
+            break;
+        }
+        case OB_TURRET: {
+            int dy = o->a ? 1 : -1;
+            gfx_circ(x, y, 6, C_SLATE);
+            gfx_circb(x, y, 6, C_INK);
+            int a = eko_dir_to(EKO_PX(k->x) - x, EKO_PX(k->y) - 8 - y);
+            gfx_line(x, y, x + eko_cos(a) * 9 / 256, y + eko_sin(a) * 9 / 256, C_LIGHT);
+            gfx_pset(x, y - dy, C_RED);
+            break;
+        }
+        case OB_DRONE:
+            gfx_rect(x - 7, y - 3, 14, 6, C_GREY);
+            gfx_rect(x - 9, y - 1, 3, 2, C_SLATE);
+            gfx_rect(x - 4, y - 2, 3, 3, C_RED);
+            gfx_hline(x - 8 + (eg.frame_t % 4), x + 8 - (eg.frame_t % 4), y - 6, C_LIGHT);
+            gfx_vline(x, y - 6, y - 3, C_SLATE);
+            break;
+        case OB_FIREJET:
+            if (o->b >= 60 && o->b < 90) {
+                for (int b = 0; b < 3; b++) gfx_circ(x - 4 + b * 4, BK_FLY_BOT + 2 - ((eg.frame_t + b * 5) % 10), 2, C_ORANGE);
+            } else if (o->b >= 90) {
+                for (int h = y; h < BK_FLY_BOT + 8; h += 4) gfx_rect(x - 6 + (int)(hash2(h, eg.frame_t) % 4), h, 10, 4, h % 8 ? C_ORANGE : C_YELLOW);
+            } else gfx_circ(x, BK_FLY_BOT + 4, 3, C_AMBER);
+            break;
+        case OB_ROCK:
+            gfx_circ(x, y, 7, C_EARTH);
+            gfx_circ(x - 2, y - 2, 3, C_BROWN);
+            break;
+        case OB_GTRUCK:
+            /* a cargo drone with its crate of fruit */
+            gfx_hline(x - 10 + (eg.frame_t % 4), x + 10 - (eg.frame_t % 4), y - 10, C_LIGHT);
+            gfx_vline(x, y - 10, y - 6, C_SLATE);
+            gfx_rect(x - 9, y - 6, 18, 12, C_LEAF);
+            gfx_rectb(x - 9, y - 6, 18, 12, C_FOREST);
+            spr_draw(&eko_spr[SP_MANGO], x - 4, y - 4, 0);
+            break;
+        case OB_MANGO: spr_draw(&eko_spr[SP_MANGO], x - 4, y - 5 - (eg.frame_t / 8) % 2, 0); break;
+        case OB_LIFE: spr_draw(&eko_spr[SP_LIFE], x - 4, y - 5, 0); break;
+        case OB_MISSILE: {
+            int dx = eko_cos(o->b) * 6 / 256, dy = eko_sin(o->b) * 6 / 256;
+            gfx_line(x - dx, y - dy, x + dx, y + dy, o->a ? C_RED : C_LIGHT);
+            gfx_line(x - dx, y - dy + 1, x + dx, y + dy + 1, o->a ? C_MAROON : C_GREY);
+            gfx_rect(x - dx * 3 / 2 - 1, y - dy * 3 / 2 - 1, 3, 3, (eg.frame_t / 2) % 2 ? C_YELLOW : C_ORANGE);
+            break;
+        }
+        case OB_RATTLE: {
+            /* Major Rattle's missile jet: a delta, nose to the left */
+            for (int i2 = 0; i2 < 14; i2++) gfx_hline(x - 22 + i2 * 3, x + 18, y - i2 / 2, C_FOREST);
+            for (int i2 = 0; i2 < 14; i2++) gfx_hline(x - 22 + i2 * 3, x + 18, y + i2 / 2, C_JADE);
+            gfx_rect(x - 24, y - 2, 40, 5, C_LEAF);
+            gfx_rect(x - 10, y - 6, 10, 4, C_CYAN);
+            gfx_rect(x + 2, y - 12, 10, 4, C_SLATE);
+            gfx_rect(x + 2, y + 9, 10, 4, C_SLATE);
+            for (int s = 0; s < 4; s++) gfx_pset(x + 4 + s * 2, y - 13 + (s % 2) * 26, C_RED);
+            gfx_rect(x + 18, y - 2, 4, 5, (eg.frame_t / 2) % 2 ? C_ORANGE : C_YELLOW);
+            if (o->state == 2) gfx_circb(x, y, 18 + o->t % 6, C_RED);
+            break;
+        }
+        default: break;
+        }
+    }
+    if (!(k->inv && (k->inv / 3) % 2) && !k->dead_t) {
+        int bx = EKO_PX(k->x), by = EKO_PX(k->y);
+        uint8_t map[PAL_COUNT];
+        pal_identity(map);
+        if (k->hot) for (int c = 0; c < PAL_COUNT; c++) if (c != C_INK) map[c] = (uint8_t)((eg.frame_t / 3) % 2 ? C_RED : C_MAROON);
+        spr_draw_ex(&eko_spr[(eg.frame_t / 4) % 2 ? SP_BIKE1 : SP_BIKE2], bx - 12, by - 16, 0, map, -1);
+        gfx_rect(bx - 6, by - 1, 6, 2 + (eg.frame_t % 3), C_ORANGE); /* the jets under it */
+        if (k->heat > BK_HEAT_MAX * 3 / 4) gfx_pset(bx + 10, by - 18 - (eg.frame_t % 6), C_GREY);
+    }
+    for (int i = 0; i < BK_MAX_SHOTS; i++) {
+        const EkoKShot *s = &k->shot[i];
+        if (!s->alive) continue;
+        if (s->foe) gfx_circ(EKO_PX(s->x), EKO_PX(s->y), 2, C_YELLOW);
+        else gfx_rect(EKO_PX(s->x) - 3, EKO_PX(s->y), 6, 2, C_CYAN);
+    }
+    parts_draw(0, 0);
+    gfx_noclip();
+}
+
 static void bike_draw(void) {
     const EkoBike *k = &eg.bk;
-    bool tun = k->course == BC_TUNNEL;
+    if (EKO_KCOURSE[k->course].fly) { flight_draw(); return; }
+    bool tun = false;
     gfx_clip(0, 19, SCREEN_W, SCREEN_H - 19);
     gfx_cls(tun ? C_INK : C_NAVY);
     if (tun) {

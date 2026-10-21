@@ -1,6 +1,6 @@
 # FLINT: hold A standing still until he flashes (charged), then let go:
-# the ki blast, a ball hurled a short way forward (96 px) while he stays
-# put. Only while standing: walking or crouching throws the charge away,
+# the ki blast, a ball hurled a short way forward (96 px), and it carries
+# him forward with it (28 px). Only while standing: walking or crouching throws the charge away,
 # and a press too short is just a punch. The blast goes through every foe
 # in its path and scores more for each extra foe it takes (x1, x2, x3).
 seed 1
@@ -24,9 +24,10 @@ release A
 wait 2
 expect b_act == 6
 expect b_objs_8 == 1
-expect b_px == 24
+expect b_px == 28
 wait 30
 expect b_objs_8 == 0
+expect b_px == 52
 # walking while holding A never charges; nor does crouching
 hold A RIGHT 60
 expect b_charge == 0

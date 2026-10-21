@@ -2,11 +2,27 @@
 # beret) drops it when beaten; with the key the wall's charge is set and it
 # blows. Knock him down off the screen, though, and the key never appears:
 # the wall stays shut for good (Cyber Owls' Chicago softlock, kept on the
-# owner's word). The yards hide a mango in a wall near their end, and one
-# in the crates before the lift.
+# owner's word). A cracked block under a crane in the docks hides a mango,
+# and so does a crate stack up on a container in the yards.
 seed 1
 game echounit
 wait 5
+# the docks' block (chunk D, x 1072): four knocks
+cheat mission 0
+cheat bclear
+cheat bpos 1100 128
+wait 20
+hold LEFT 2
+press A 1
+wait 20
+press A 1
+wait 20
+press A 1
+wait 20
+press A 1
+wait 30
+expect b_secrets == 1
+expect b_objs_1 == 1
 # the softlock: Flint at the screen's left edge kicks the key carrier off it
 cheat mission 0
 cheat bclear
@@ -61,18 +77,21 @@ wait 80
 hold RIGHT 60
 waituntil sec == 1 200
 waituntil state == 6 200
-# the yards: the hidden mango in the wall by the last stack (chunk O, x 2416)
+# the yards: the crate stack up on the container (chunk K, x 816): the
+# plain crate first, then the one with the mango
 cheat bclear
-cheat bpos 2160 128
+cheat bpos 860 80
 wait 20
 expect b_objs_1 == 0
+hold LEFT 2
 press A 1
 wait 20
 press A 1
 wait 20
+hold LEFT 12
 press A 1
 wait 20
 press A 1
-wait 20
+wait 30
 expect b_secrets == 1
 expect b_objs_1 == 1

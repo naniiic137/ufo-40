@@ -105,7 +105,18 @@ static int brawl_target_x(void) {
             return wall - 40;
         }
     }
+    /* the way out, where there is one */
+    for (int x = b->mw - 1; x >= 0; x--)
+        for (int y = 0; y < b->mh; y++) if (b->tile[y][x] == 'E') return x * 16 + 8;
     return b->mw * 16;
+}
+
+/* the way out's floor (px), or -1 */
+static int brawl_exit_y(void) {
+    const EkoBrawl *b = &eg.br;
+    for (int x = b->mw - 1; x >= 0; x--)
+        for (int y = 0; y < b->mh; y++) if (b->tile[y][x] == 'E') return y * 16 + 16;
+    return -1;
 }
 
 static int stuck_t, best_prog = -1000000, best_map = -1, best_sec = -1;
@@ -121,6 +132,9 @@ static int brawl_score(void) {
     else {
         int tx = brawl_target_x();
         s -= iabs(tx - EKO_PX(b->p.x)) * w;
+        /* near the way out: down to its floor, too */
+        int ey = brawl_exit_y();
+        if (ey >= 0 && iabs(tx - EKO_PX(b->p.x)) < 48 && b->p.ground) s -= iabs(ey - EKO_PX(b->p.y)) * w;
     }
     s += b->kills * 400 + eg.score;
     s += b->dmg_dealt * (b->lift_on ? 2500 : 500);
@@ -326,10 +340,10 @@ static int bot_gallery(void) {
 /* ==== DART ===================================================================================== */
 
 static int pol_bike(int p, int f) {
-    /* p: lane offset in 12s (-4..4) + 9 * (jump now) ; the gun taps all the while */
+    /* p: lane offset in 12s (-4..4; 16s in the air) + 9 * (jump now) ; the gun taps all the while */
     const EkoBike *k = &eg.bk;
     int lane = (p % 9) - 4, jump = p / 9;
-    int ty = EKO_PX(k->y) + lane * 12;
+    int ty = EKO_PX(k->y) + lane * (EKO_KCOURSE[k->course].fly ? 16 : 12);
     /* line up with the nearest thing worth shooting in that lane band */
     int b = TAPA;
     int y = EKO_PX(k->y);
@@ -347,12 +361,13 @@ static int bike_score(void) {
     const EkoBike *k = &eg.bk;
     int s = k->kills * 300 + eg.score;
     for (int i = 0; i < BK_MAX_OBJS; i++)
-        if (k->obj[i].alive && k->obj[i].kind == OB_HOG) s -= k->obj[i].hp * 400;
+        if (k->obj[i].alive && (k->obj[i].kind == OB_HOG || k->obj[i].kind == OB_RATTLE)) s -= k->obj[i].hp * 400;
     if (k->boss_dead) s += 100000;
     if (k->card) s += 100000;
     s -= k->heat * 10;
-    /* the middle of the road leaves room both ways */
-    s -= iabs(EKO_PX(k->y) - 130) * 4;
+    /* the middle of the road (or the sky) leaves room both ways */
+    bool fly = EKO_KCOURSE[k->course].fly != 0;
+    s -= iabs(EKO_PX(k->y) - (fly ? 104 : 130)) * (fly ? 10 : 4);
     /* line up with something to shoot */
     int best = 1000;
     for (int i = 0; i < BK_MAX_OBJS; i++) {
@@ -360,8 +375,8 @@ static int bike_score(void) {
         if (!o->alive || o->hp <= 0 || o->kind == OB_CONE || o->kind == OB_MINE) continue;
         int sx = EKO_PX(o->x) - k->dist;
         if (sx < EKO_PX(k->x) || sx > 320) continue;
-        best = imin(best, iabs(EKO_PX(o->y) - EKO_PX(k->y)));
-        if (o->kind == OB_CARD || o->kind == OB_MANGO) best = imin(best, iabs(EKO_PX(o->y) - EKO_PX(k->y)));
+        if (o->kind == OB_PILLAR) continue;
+        best = imin(best, iabs(EKO_PX(o->y) - (EKO_PX(k->y) - (fly ? 8 : 0))));
     }
     if (best < 1000) s -= best * 15;
     return s;
@@ -372,7 +387,7 @@ static int bot_bike(void) {
     static Policy P[18];
     static int A[18];
     int n = 0;
-    for (int j = 0; j < 2; j++)
+    for (int j = 0; j < (EKO_KCOURSE[eg.bk.course].fly ? 1 : 2); j++) /* no jump in the air */
         for (int l = 0; l < 9; l++) { P[n] = pol_bike; A[n++] = l + 9 * j; }
     choose(P, A, n, 60, 6);
     return play_current();

@@ -5,7 +5,7 @@
 #include "eko.h"
 
 int EKO_MUS_TITLE = -1, EKO_MUS_STORY, EKO_MUS_HQ, EKO_MUS_BRIEF, EKO_MUS_DOCKS, EKO_MUS_ANDES, EKO_MUS_CAIRO,
-    EKO_MUS_ISTANBUL, EKO_MUS_RESCUE, EKO_MUS_BOSS, EKO_MUS_CALDERA, EKO_MUS_LAB, EKO_MUS_TUNNEL, EKO_MUS_FINAL,
+    EKO_MUS_ISTANBUL, EKO_MUS_RESCUE, EKO_MUS_BOSS, EKO_MUS_CALDERA, EKO_MUS_LAB, EKO_MUS_FLIGHT, EKO_MUS_FINAL,
     EKO_MUS_CLEAR, EKO_MUS_CAPTURED, EKO_MUS_OVER, EKO_MUS_ENDING, EKO_MUS_LIFT;
 
 /* one bar each */
@@ -139,7 +139,7 @@ static const char CAL_PAD[] = "@4 v5 q8 " W1("o4 e") W1("o4 e") W1("o4 f") W1("o
 static const char CAL_BASS[] = "@6 v12 q4 " EE("o2 e") EE("o2 e") EE("o2 f") EE("o2 e") EE("o2 a") EE("o2 g+") EE("o2 f") EE("o2 e");
 static const char CAL_DRUM[] = "[" MARCH "]8";
 
-/* "The Secret Lab" - Flint's climb, bubbling */
+/* "The Magma Works" - Flint's climb, bubbling */
 static const char LAB_LEAD[] =
     "@14 v10 q5 " E8("o5 a", "o6 c", "e", "c", "o5 a", "o6 c", "e", "a") Q4("o6 g", "e", "c", "o5 a")
     E8("o5 f", "a", "o6 c", "o5 a", "f", "a", "o6 c", "f") Q4("o6 e", "c", "o5 a", "f")
@@ -202,7 +202,7 @@ void eko_audio_load(void) {
     EKO_MUS_BOSS = song_define("eko_boss", 156, true, BOSS_LEAD, BOSS_STAB, BOSS_BASS, BOSS_DRUM);
     EKO_MUS_CALDERA = song_define("eko_caldera", 112, true, CAL_LEAD, CAL_PAD, CAL_BASS, CAL_DRUM);
     EKO_MUS_LAB = song_define("eko_lab", 140, true, LAB_LEAD, LAB_ARP, LAB_BASS, LAB_DRUM);
-    EKO_MUS_TUNNEL = song_define("eko_tunnel", 164, true, TUN_LEAD, TUN_ARP, TUN_BASS, TUN_DRUM);
+    EKO_MUS_FLIGHT = song_define("eko_tunnel", 164, true, TUN_LEAD, TUN_ARP, TUN_BASS, TUN_DRUM);
     EKO_MUS_FINAL = song_define("eko_final", 150, true, FIN_LEAD, FIN_STAB, FIN_BASS, FIN_DRUM);
     EKO_MUS_ENDING = song_define("eko_ending", 110, true, END_LEAD, END_PAD, END_BASS, END_DRUM);
     EKO_MUS_CLEAR = song_define("eko_clear", 140, false, CLEAR_P1, CLEAR_P2, CLEAR_TRI, "");
@@ -258,5 +258,8 @@ void eko_audio_load(void) {
     sfx_define("eko_select", CH_P2, 240, "@42 v8 o6 g32");
     sfx_define("eko_step", CH_NOISE, 240, "@9 v5 o7 c32");
     sfx_define("eko_cloak", CH_P2, 200, "@14 v7 o6 g16 e16 c16 o5 g16");
+    sfx_define("eko_warn", CH_P2, 220, "@42 v11 o7 c32 r32 c32 r32 c32");
+    sfx_define("eko_whoosh", CH_NOISE, 200, "@36 v9 o3 c8");
+    sfx_define("eko_gull", CH_P1, 220, "@14 v8 o7 c32 o6 a32 o7 c32");
     sfx_define("eko_free", CH_P1, 160, "@39 v13 o5 l16 c e g o6 c4");
 }

@@ -25,9 +25,9 @@ const EkoMission EKO_MISSION[MI_COUNT] = {
     {"CAIRO", 1, {{MODE_BIKE, OWL_DART, BC_CAIRO, "THE RING ROAD"}}},
     {"ISTANBUL", 1, {{MODE_SNEAK, OWL_SABLE, SM_ISTANBUL, "THE LISTENING POST"}}},
     {"THE CALDERA", 6, {{MODE_SNEAK, OWL_SABLE, 0, "SABLE: THE OUTER HALLS"},
-                        {MODE_BRAWL, OWL_FLINT, BM_LAB, "FLINT: THE SECRET LAB"},
+                        {MODE_BRAWL, OWL_FLINT, BM_LAB, "FLINT: THE MAGMA WORKS"},
                         {MODE_SNEAK, OWL_SABLE, 1, "SABLE: THE RED WING"},
-                        {MODE_BIKE, OWL_DART, BC_TUNNEL, "DART: THE LAVA TUNNEL"},
+                        {MODE_BIKE, OWL_DART, BC_FLIGHT, "DART: OVER THE LAVA SEA"},
                         {MODE_SNEAK, OWL_SABLE, 2, "SABLE: THE BLUE WING"},
                         {MODE_GALLERY, OWL_VESPER, GS_FINALE, "VESPER: THE LAUNCH PAD"}}},
 };
@@ -191,7 +191,7 @@ static void start_section(void) {
         break;
     case MODE_BIKE:
         eko_bike_start(s->data);
-        music_play(s->data == BC_CAIRO ? EKO_MUS_CAIRO : EKO_MUS_TUNNEL);
+        music_play(s->data == BC_CAIRO ? EKO_MUS_CAIRO : EKO_MUS_FLIGHT);
         break;
     case MODE_SNEAK:
         if (eg.mission == MI_CALDERA) {
@@ -610,6 +610,12 @@ static int eko_query(const char *key, int *out) {
     if (!strcmp(key, "b_key")) { *out = b->p.key; return 1; }
     if (!strcmp(key, "b_kills")) { *out = b->kills; return 1; }
     if (!strcmp(key, "b_secrets")) { *out = b->secrets; return 1; }
+    if (!strcmp(key, "b_respawns")) { *out = b->respawns; return 1; }
+    if (!strcmp(key, "b_hazards")) { *out = b->hazards; return 1; }
+    if (!strcmp(key, "b_gulls")) { *out = b->gulls; return 1; }
+    if (!strcmp(key, "b_gulls_hit")) { *out = b->gulls_hit; return 1; }
+    if (!strcmp(key, "b_kicked")) { int n = 0; for (int i = 0; i < BR_MAX_OBJS; i++) n += b->obj[i].alive && b->obj[i].kind == BO_GRENADE && b->obj[i].state; *out = n; return 1; }
+    if (!strcmp(key, "b_rats")) { int n = 0; for (int i = 0; i < BR_MAX_FOES; i++) n += b->foe[i].alive && b->foe[i].kind == BF_RAT; *out = n; return 1; }
     if (!strcmp(key, "b_boss")) { *out = b->boss_on; return 1; }
     if (!strcmp(key, "b_boss_dead")) { *out = b->boss_dead; return 1; }
     if (!strcmp(key, "b_lift_t")) { *out = b->lift_t; return 1; }
@@ -644,6 +650,11 @@ static int eko_query(const char *key, int *out) {
     if (!strcmp(key, "b_key_y")) {
         *out = -1;
         for (int i = 0; i < BR_MAX_OBJS; i++) if (b->obj[i].alive && b->obj[i].kind == BO_KEY) { *out = EKO_PX(b->obj[i].y); break; }
+        return 1;
+    }
+    if (!strcmp(key, "b_gren_x") || !strcmp(key, "b_gren_y")) {
+        *out = -1;
+        for (int i = 0; i < BR_MAX_OBJS; i++) if (b->obj[i].alive && b->obj[i].kind == BO_GRENADE) { *out = EKO_PX(key[7] == 'x' ? b->obj[i].x : b->obj[i].y); break; }
         return 1;
     }
     if (!strcmp(key, "b_barrel_state")) {
@@ -953,10 +964,13 @@ static int eko_cheat(const char *cmd) {
     if (sscanf(cmd, "bobj %d %d %d", &a, &b, &c) == 3) { eko_brawl_add_obj(a, b * EKO_FX, c * EKO_FX, 0, 0); return 1; }
     if (!strcmp(cmd, "bclear")) {
         for (int i = 0; i < BR_MAX_FOES; i++) eg.br.foe[i].alive = 0;
-        for (int i = 0; i < eg.br.nspawn; i++) eg.br.spawn[i].used = 1;
+        for (int i = 0; i < eg.br.nspawn; i++) if (eg.br.spawn[i].kind != SPK_DROP && eg.br.spawn[i].kind != SPK_HOOK) eg.br.spawn[i].used = 1;
         for (int i = 0; i < BR_MAX_OBJS; i++) if (eg.br.obj[i].kind != BO_KEY) eg.br.obj[i].alive = 0;
+        eg.br.calm = 3; /* and nobody else comes, nothing falls */
         return 1;
     }
+    if (!strcmp(cmd, "bwaves")) { eg.br.calm &= ~1; eg.br.respawn_t = BR_RESPAWN_T; return 1; }
+    if (!strcmp(cmd, "bhazards")) { eg.br.calm &= ~2; return 1; }
     if (!strcmp(cmd, "bkey")) { eg.br.p.key = true; return 1; }
     if (!strcmp(cmd, "bboss")) { eko_brawl_boss_start(); return 1; }
     if (sscanf(cmd, "bbosshp %d", &a) == 1) { if (eg.br.boss_i >= 0 && eg.br.boss_on) eg.br.foe[eg.br.boss_i].hp = a; return 1; }

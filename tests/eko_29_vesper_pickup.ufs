@@ -31,12 +31,12 @@ expect g_mangos == 1
 expect hp == 2
 wait 30
 expect g_mangos == 1
-expect g_shots == 9
+expect g_shots == 14
 press A 1
 expect g_mangos == 0
 expect hp == 6
 # that press went on the mango: no shot
-expect g_shots == 9
+expect g_shots == 14
 # a grenade lobbed at her: picked up with a tap, thrown back at the sight
 cheat gfoe 1 1 195
 cheat gfoestill 0

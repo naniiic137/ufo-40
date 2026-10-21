@@ -6,13 +6,19 @@
  * a short way forward, through everything in its path), barrels to lift and
  * throw, and more points for every extra foe one blast or one barrel takes
  * down. The key carrier knocked down off the screen leaves no key at all:
- * the original's bug, kept on purpose. */
+ * the original's bug, kept on purpose. More troopers keep coming while he
+ * hangs about, so he has to press on; hazards (a crane load, a crane hook,
+ * a lump of slag) show a "!" first. The ki blast wipes out the bullets in
+ * its path and carries him forward with it; a jump kick sends a grenade
+ * back where it came from. Gulls sit on the bollards: leave them be and
+ * they are worth 100 each at the end of the part. Dock rats run low: only
+ * a crouching jab (or a barrel) reaches them. */
 #include "eko.h"
 
 #define B (&eg.br)
 
-const int EKO_BF_HP[BF_KINDS] = {0, 3, 3, 2, 3, 36, 40};
-const int EKO_BF_POINTS[BF_KINDS] = {0, 20, 30, 40, 50, 500, 500};
+const int EKO_BF_HP[BF_KINDS] = {0, 3, 3, 2, 3, 1, 36, 40};
+const int EKO_BF_POINTS[BF_KINDS] = {0, 20, 30, 40, 50, 30, 500, 500};
 
 /* ---- the map ---------------------------------------------------------------- */
 
@@ -47,8 +53,6 @@ static void add_spawn(int tx, int ty, int kind) {
     B->nspawn++;
 }
 
-/* spawn kinds beyond the foes */
-enum { SPK_BARREL = 20, SPK_MANGO, SPK_LIFE };
 
 static void load_map(int m) {
     const EkoBrawlMap *bm = &EKO_BMAP[m];
@@ -80,6 +84,10 @@ static void load_map(int m) {
                     case 'b': add_spawn(tx, ty, SPK_BARREL); put = '.'; break;
                     case 'm': add_spawn(tx, ty, SPK_MANGO); put = '.'; break;
                     case '1': add_spawn(tx, ty, SPK_LIFE); put = '.'; break;
+                    case 'r': add_spawn(tx, ty, BF_RAT); put = '.'; break;
+                    case 'u': add_spawn(tx, ty, SPK_GULL); B->gulls++; put = '.'; break;
+                    case 'X': add_spawn(tx, ty, SPK_DROP); put = '.'; break;
+                    case 'Y': add_spawn(tx, ty, SPK_HOOK); put = '.'; break;
                     case 'P': px = tx * 16 + 8; py = ty * 16 + 16; put = '.'; break;
                     default: break;
                     }
@@ -135,7 +143,7 @@ int eko_brawl_spawn_foe(int kind, int x, int y) {
 
 static void run_spawns(void) {
     for (int i = 0; i < B->nspawn; i++) {
-        if (B->spawn[i].used) continue;
+        if (B->spawn[i].used || B->spawn[i].kind == SPK_DROP || B->spawn[i].kind == SPK_HOOK) continue;
         int x = B->spawn[i].tx * 16 + 8, y = B->spawn[i].ty * 16 + 16;
         if (x < B->cam_x - 16 || x > B->cam_x + SCREEN_W + 24) continue;
         if (y < B->cam_y - 16 || y > B->cam_y + BR_SH * 16 + 32) continue;
@@ -144,6 +152,7 @@ static void run_spawns(void) {
         if (k == SPK_BARREL) eko_brawl_add_obj(BO_BARREL, x * EKO_FX, y * EKO_FX, 0, 0);
         else if (k == SPK_MANGO) eko_brawl_add_obj(BO_MANGO, x * EKO_FX, y * EKO_FX, 0, 0);
         else if (k == SPK_LIFE) eko_brawl_add_obj(BO_LIFE, x * EKO_FX, y * EKO_FX, 0, 0);
+        else if (k == SPK_GULL) eko_brawl_add_obj(BO_GULL, x * EKO_FX, y * EKO_FX, 0, 0);
         else {
             int f = eko_brawl_spawn_foe(k, x * EKO_FX, y * EKO_FX);
             if (f >= 0) B->foe[f].spawn = i;
@@ -211,6 +220,26 @@ static bool on_ground(int x, int y, int hw) {
     for (int xx = EKO_PX(x) - hw + 1; xx <= EKO_PX(x) + hw - 1; xx += 3)
         if (solid_px(xx, fy) || (platform(xx >> 4, fy >> 4) && (fy & 15) == 0)) return true;
     return false;
+}
+
+/* a foe's half width and height (the bosses are big, a rat is low) */
+static int foe_hw(const EkoBFoe *f) { return f->kind >= BF_SCRAPJAW ? 14 : 7; }
+static int foe_h(const EkoBFoe *f) { return f->kind >= BF_SCRAPJAW ? 30 : f->kind == BF_RAT ? 4 : 22; }
+
+/* a gull frightened off its bollard: no thanks at the end of the part */
+static void frighten(EkoBObj *o) {
+    if (o->kind != BO_GULL || o->state) return;
+    o->state = 1;
+    o->t = 0;
+    B->gulls_hit++;
+    eko_sfx("eko_gull");
+}
+
+static void frighten_box(int x0, int y0, int w, int h) {
+    for (int i = 0; i < BR_MAX_OBJS; i++) {
+        EkoBObj *o = &B->obj[i];
+        if (o->alive && o->kind == BO_GULL && !o->state && rects_overlap(x0, y0, w, h, EKO_PX(o->x) - 5, EKO_PX(o->y) - 10, 10, 10)) frighten(o);
+    }
 }
 
 /* ---- damage ------------------------------------------------------------------------ */
@@ -395,7 +424,7 @@ static void attack_hits(void) {
         EkoBFoe *f = &B->foe[i];
         if (!f->alive || f->state == 99 || f->hitsn == p->atk_sn) continue;
         int fx = EKO_PX(f->x), fy = EKO_PX(f->y);
-        int hw = f->kind >= BF_SCRAPJAW ? 14 : 6, h = f->kind >= BF_SCRAPJAW ? 30 : 22;
+        int hw = f->kind >= BF_SCRAPJAW ? 14 : 6, h = foe_h(f);
         if (rects_overlap(x0, y0, x1 - x0, y1 - y0, fx - hw, fy - h, hw * 2, h)) {
             f->hitsn = p->atk_sn;
             hurt_foe(i, dmg, p->face, launch || p->act == BRA_KICK, 0);
@@ -415,6 +444,27 @@ static void attack_hits(void) {
             eko_sfx("eko_clang");
         }
     }
+    /* a grenade in the air meets a jump kick: back it goes, at them */
+    if (p->act == BRA_AIRKICK)
+        for (int i = 0; i < BR_MAX_OBJS; i++) {
+            EkoBObj *o = &B->obj[i];
+            if (!o->alive || o->kind != BO_GRENADE || o->state) continue;
+            if (!rects_overlap(x0 - 2, y0 - 2, x1 - x0 + 4, y1 - y0 + 4, EKO_PX(o->x) - 4, EKO_PX(o->y) - 7, 8, 8)) continue;
+            /* back the way it came, at the nearest foe ahead */
+            int gx = EKO_PX(o->x), gy = EKO_PX(o->y) - 3, best = -1, bd = 220;
+            for (int k = 0; k < BR_MAX_FOES; k++) {
+                const EkoBFoe *f = &B->foe[k];
+                int d = (EKO_PX(f->x) - gx) * p->face;
+                if (f->alive && f->state != 99 && d > 0 && d < bd) { bd = d; best = k; }
+            }
+            int a = best >= 0 ? eko_dir_to(EKO_PX(B->foe[best].x) - gx, EKO_PX(B->foe[best].y) - 12 - gy) : (p->face > 0 ? 0 : 32);
+            o->state = 1;
+            o->vx = eko_cos(a) * 1024 / 256;
+            o->vy = eko_sin(a) * 1024 / 256;
+            o->t = 0;
+            eko_sfx("eko_clang");
+        }
+    frighten_box(x0, y0, x1 - x0, y1 - y0);
     /* crates and cracked walls */
     for (int ty = y0 >> 4; ty <= y1 >> 4; ty++)
         for (int tx = x0 >> 4; tx <= x1 >> 4; tx++) {
@@ -490,8 +540,10 @@ static void player_update(void) {
             else if (p->act == BRA_PUNCH2 && p->act_t >= 5) begin_act(BRA_KICK);
         }
         bool rooted = p->ground && (p->act == BRA_PUNCH1 || p->act == BRA_PUNCH2 || p->act == BRA_KICK ||
-                                    p->act == BRA_LOW || p->act == BRA_THROW || p->act == BRA_KI);
-        if (rooted || p->duck) p->vx = 0;
+                                    p->act == BRA_LOW || p->act == BRA_THROW);
+        /* the ki blast carries him forward with it (off a ledge, too) */
+        if (p->act == BRA_KI) p->vx = p->face * BR_KI_LUNGE;
+        else if (rooted || p->duck) p->vx = 0;
         else {
             int dir = (R ? 1 : 0) - (L ? 1 : 0);
             p->vx = dir * (p->carry ? BR_CARRY_WALK : BR_WALK);
@@ -556,6 +608,17 @@ static void explode(int x, int y, int r, int dmg, bool from_foe) {
     eg.shake = imax(eg.shake, 6);
     EkoBPlayer *p = &B->p;
     if (from_foe && eko_dist(EKO_PX(p->x) - x, EKO_PX(p->y) - 12 - y) < r + 6) hurt_player(dmg, EKO_PX(p->x) < x ? -1 : 1);
+    if (!from_foe) {
+        /* his (a grenade kicked back): it takes the foes round it, as one chain */
+        int chain = ++B->chain_next;
+        B->chain_kills[chain & 15] = 0;
+        for (int k = 0; k < BR_MAX_FOES; k++) {
+            EkoBFoe *f = &B->foe[k];
+            if (f->alive && f->state != 99 && eko_dist(EKO_PX(f->x) - x, EKO_PX(f->y) - 12 - y) < r + 10)
+                hurt_foe(k, 3, EKO_PX(f->x) < x ? -1 : 1, true, chain);
+        }
+        frighten_box(x - r, y - r, r * 2, r * 2);
+    }
     /* a grenade spoils any fruit lying about */
     for (int i = 0; i < BR_MAX_OBJS; i++) {
         EkoBObj *o = &B->obj[i];
@@ -596,7 +659,7 @@ static void objs_update(void) {
                 for (int k = 0; k < BR_MAX_FOES; k++) {
                     EkoBFoe *f = &B->foe[k];
                     if (!f->alive || f->state == 99 || k == o->last_foe) continue;
-                    int hw = f->kind >= BF_SCRAPJAW ? 14 : 7, h = f->kind >= BF_SCRAPJAW ? 30 : 22;
+                    int hw = foe_hw(f), h = f->kind == BF_RAT ? 14 : foe_h(f); /* a barrel bowls low enough for a rat */
                     if (rects_overlap(EKO_PX(o->x) - 6, EKO_PX(o->y) - 12, 12, 12, EKO_PX(f->x) - hw, EKO_PX(f->y) - h, hw * 2, h) &&
                         (o->state == 2 || o->vy > 0)) {
                         o->last_foe = k;
@@ -608,6 +671,7 @@ static void objs_update(void) {
                         break;
                     }
                 }
+                frighten_box(EKO_PX(o->x) - 6, EKO_PX(o->y) - 12, 12, 12);
                 if (EKO_PX(o->y) > B->mh * 16 + 32) o->alive = 0;
                 break;
             }
@@ -640,12 +704,21 @@ static void objs_update(void) {
             break;
         }
         case BO_GRENADE: {
-            o->vy = imin(o->vy + 40, BR_MAX_FALL);
+            if (!o->state) o->vy = imin(o->vy + 40, BR_MAX_FALL); /* kicked back, it flies straight */
             int vx = o->vx, vy = o->vy;
             int r = move_body(&o->x, &o->y, &vx, &vy, 3, 6, false);
             o->vx = vx;
             o->vy = vy;
-            if (r || o->t > 150) { explode(EKO_PX(o->x), EKO_PX(o->y) - 4, 18, 1, true); o->alive = 0; }
+            if (o->state && o->t > 4) {
+                /* kicked back: it goes off on the first foe it meets */
+                for (int k = 0; k < BR_MAX_FOES; k++) {
+                    EkoBFoe *f = &B->foe[k];
+                    if (f->alive && f->state != 99 &&
+                        rects_overlap(EKO_PX(o->x) - 3, EKO_PX(o->y) - 6, 6, 6, EKO_PX(f->x) - foe_hw(f), EKO_PX(f->y) - foe_h(f), foe_hw(f) * 2, foe_h(f)))
+                        r = 1;
+                }
+            }
+            if (r || o->t > 150) { explode(EKO_PX(o->x), EKO_PX(o->y) - 4, 18, 1, o->state == 0); o->alive = 0; }
             break;
         }
         case BO_KI: {
@@ -655,12 +728,21 @@ static void objs_update(void) {
             for (int k = 0; k < BR_MAX_FOES; k++) {
                 EkoBFoe *f = &B->foe[k];
                 if (!f->alive || f->state == 99 || (o->hits & (1 << k))) continue;
-                int hw = f->kind >= BF_SCRAPJAW ? 14 : 7, h = f->kind >= BF_SCRAPJAW ? 30 : 22;
+                int hw = foe_hw(f), h = foe_h(f);
                 if (rects_overlap(kx - 6, ky - 6, 12, 12, EKO_PX(f->x) - hw, EKO_PX(f->y) - h, hw * 2, h)) {
                     o->hits |= 1 << k;
                     hurt_foe(k, 4, isign(o->vx), true, o->chain);
                 }
             }
+            /* it wipes out the bullets in its path */
+            for (int k = 0; k < BR_MAX_OBJS; k++) {
+                EkoBObj *b2 = &B->obj[k];
+                if (b2->alive && b2->kind == BO_FBULLET && iabs(EKO_PX(b2->x) - kx) < 9 && iabs(EKO_PX(b2->y) - ky) < 10) {
+                    b2->alive = 0;
+                    eko_burst(EKO_PX(b2->x), EKO_PX(b2->y), C_WHITE, 3);
+                }
+            }
+            frighten_box(kx - 6, ky - 6, 12, 12);
             char c = tile_at(kx >> 4, ky >> 4);
             if (eko_brawl_solid(kx >> 4, ky >> 4)) {
                 /* a crate or a cracked wall takes the blow */
@@ -670,6 +752,59 @@ static void objs_update(void) {
                 break;
             }
             if (o->t >= BR_KI_T) { eko_burst(kx, ky, C_YELLOW, 4); o->alive = 0; }
+            break;
+        }
+        case BO_GULL:
+            if (o->state) {
+                /* off it flies, complaining */
+                o->x += 384;
+                o->y -= 320;
+                if (EKO_PX(o->y) < B->cam_y - 20) o->alive = 0;
+            }
+            break;
+        case BO_DROP: {
+            /* "!" up at the top of the screen, then the load comes down */
+            if (o->state == 0) {
+                if (o->t >= BR_WARN_T) { o->state = 1; o->y = (B->cam_y - 8) * EKO_FX; o->vy = 0; eko_sfx("eko_whoosh"); }
+                break;
+            }
+            o->vy = imin(o->vy + 40, BR_MAX_FALL);
+            o->y += o->vy;
+            int dx0 = EKO_PX(o->x) - 8, dy0 = EKO_PX(o->y) - 14;
+            if (p->dead_t == 0 && rects_overlap(dx0, dy0, 16, 14, px - 5, py - (p->duck ? BR_PH_DUCK : BR_PH), 10, p->duck ? BR_PH_DUCK : BR_PH))
+                hurt_player(2, px < EKO_PX(o->x) ? -1 : 1);
+            for (int k = 0; k < BR_MAX_FOES; k++) {
+                EkoBFoe *f = &B->foe[k];
+                if (f->alive && f->state != 99 && f->kind < BF_SCRAPJAW &&
+                    rects_overlap(dx0, dy0, 16, 14, EKO_PX(f->x) - foe_hw(f), EKO_PX(f->y) - foe_h(f), foe_hw(f) * 2, foe_h(f)))
+                    hurt_foe(k, 3, EKO_PX(f->x) < EKO_PX(o->x) ? -1 : 1, true, 0);
+            }
+            int fx = EKO_PX(o->x) >> 4, fy = EKO_PX(o->y) >> 4;
+            if (tile_at(fx, fy) == '#' || EKO_PX(o->y) > B->mh * 16 + 32) {
+                eko_burst(EKO_PX(o->x), EKO_PX(o->y) - 6, C_TAN, 10);
+                eko_sfx("eko_thud");
+                eg.shake = imax(eg.shake, 5);
+                o->alive = 0;
+            }
+            break;
+        }
+        case BO_HOOK: {
+            /* "!" at the right edge, then the hook sweeps across at chest height */
+            if (o->state == 0) {
+                if (o->t >= BR_WARN_T) { o->state = 1; o->x = (B->cam_x + SCREEN_W + 16) * EKO_FX; eko_sfx("eko_whoosh"); }
+                break;
+            }
+            o->x -= 4 * EKO_FX;
+            int hx0 = EKO_PX(o->x) - 9, hy0 = EKO_PX(o->y) - 4;
+            if (p->dead_t == 0 && rects_overlap(hx0, hy0, 18, 8, px - 5, py - (p->duck ? BR_PH_DUCK : BR_PH), 10, p->duck ? BR_PH_DUCK : BR_PH))
+                hurt_player(1, -1);
+            for (int k = 0; k < BR_MAX_FOES; k++) {
+                EkoBFoe *f = &B->foe[k];
+                if (f->alive && f->state != 99 && f->kind < BF_SCRAPJAW &&
+                    rects_overlap(hx0, hy0, 18, 8, EKO_PX(f->x) - foe_hw(f), EKO_PX(f->y) - foe_h(f), foe_hw(f) * 2, foe_h(f)))
+                    hurt_foe(k, 3, -1, true, 0);
+            }
+            if (EKO_PX(o->x) < B->cam_x - 30) o->alive = 0;
             break;
         }
         case BO_FBULLET: case BO_FLAME:
@@ -726,7 +861,7 @@ static void foes_update(void) {
             for (int k = 0; k < BR_MAX_FOES; k++) {
                 EkoBFoe *g = &B->foe[k];
                 if (k == i || !g->alive || g->state == 99 || g->kind >= BF_SCRAPJAW) continue;
-                if (iabs(EKO_PX(g->x) - EKO_PX(f->x)) < 12 && iabs(EKO_PX(g->y) - EKO_PX(f->y)) < 18 && f->chain > 0)
+                if (iabs(EKO_PX(g->x) - EKO_PX(f->x)) < 12 && iabs(EKO_PX(g->y) - EKO_PX(f->y)) < (g->kind == BF_RAT ? 24 : 18) && f->chain > 0)
                     hurt_foe(k, 4, isign(f->vx) ? isign(f->vx) : 1, true, f->chain);
             }
             if ((r & 1) || f->t > 40 || EKO_PX(f->y) > B->mh * 16 + 24) kill_foe(i, f->chain);
@@ -748,6 +883,13 @@ static void foes_update(void) {
                 int tx = (px - f->face * 40) * EKO_FX, ty = (py - 56 + eko_sin(f->t * 2) * 6 / 256) * EKO_FX;
                 f->vx = iclamp((tx - f->x) / 24, -384, 384);
                 f->vy = iclamp((ty - f->y) / 24, -320, 320);
+                /* a slow shot down at him every so often */
+                if (++f->b >= 120 && iabs(dx) < 150 && fy < py - 20) {
+                    f->b = 0;
+                    int a = eko_dir_to(px - fx, py - 12 - (fy - 12));
+                    eko_brawl_add_obj(BO_FBULLET, f->x, f->y - 12 * EKO_FX, eko_cos(a) * 384 / 256, eko_sin(a) * 384 / 256);
+                    eko_sfx("eko_shot");
+                }
                 if (!f->cd && iabs(dx) < 70) { f->state = 1; f->t = 0; f->vx = f->face * 512; f->vy = 640; }
             } else {
                 if (f->t > 30) { f->state = 0; f->cd = 110; }
@@ -761,7 +903,21 @@ static void foes_update(void) {
             f->face = dx < 0 ? -1 : 1;
             int adx = iabs(dx);
             bool level = iabs(py - fy) < 14;
-            if (f->kind == BF_GRENADIER) {
+            if (f->kind == BF_RAT) {
+                /* runs at him low and fast; a bite, then it backs off */
+                if (f->state == 1) {
+                    f->vx = -f->face * 256;
+                    if (f->t > 24) f->state = 0;
+                } else {
+                    f->vx = f->face * 448;
+                    EkoBPlayer *pl = &B->p;
+                    if (!pl->dead_t && pl->inv == 0 && rects_overlap(fx - 6, fy - 5, 12, 5, px - 5, py - (pl->duck ? BR_PH_DUCK : BR_PH), 10, pl->duck ? BR_PH_DUCK : BR_PH)) {
+                        hurt_player(1, f->face);
+                        f->state = 1;
+                        f->t = 0;
+                    }
+                }
+            } else if (f->kind == BF_GRENADIER) {
                 /* keeps its distance and lobs */
                 if (adx < 70) f->vx = -f->face * 192;
                 else if (adx > 130) f->vx = f->face * 192;
@@ -807,11 +963,11 @@ static void foes_update(void) {
         }
         f->vy = imin(f->vy + BR_GRAV, BR_MAX_FALL);
         int vx = f->vx;
-        int r = move_body(&f->x, &f->y, &vx, &f->vy, 6, 22, false);
+        int r = move_body(&f->x, &f->y, &vx, &f->vy, 6, f->kind == BF_RAT ? 6 : 22, false);
         (void)r;
         if (on_ground(f->x, f->y, 5)) { f->last_gx = f->x; f->a = f->y; }
         if (EKO_PX(f->y) > B->mh * 16 + 24) { kill_foe(i, f->chain); continue; }
-        if (f->kb == 0) touch_damage(f, 5, 20, 1);
+        if (f->kb == 0 && f->kind != BF_RAT) touch_damage(f, 5, 20, 1);
     }
 }
 
@@ -953,7 +1109,8 @@ static void lift_update(void) {
             for (int k = 0; k < w->n; k++) {
                 int x = w->x + k * 30;
                 if (x > 296) x -= 270;
-                eko_brawl_spawn_foe(w->kind, x * EKO_FX, (BR_TOP + 4) * EKO_FX);
+                if (w->kind == BF_NONE) eko_brawl_add_obj(BO_MANGO, x * EKO_FX, (BR_TOP + 4) * EKO_FX, 0, 0); /* a crate of fruit dropped in */
+                else eko_brawl_spawn_foe(w->kind, x * EKO_FX, (BR_TOP + 4) * EKO_FX);
             }
         }
     } else if (!B->boss_on) {
@@ -963,6 +1120,57 @@ static void lift_update(void) {
             eko_say("THE ROOF");
             eko_brawl_boss_start();
         }
+    }
+}
+
+/* ---- they keep coming, and the stage turns on him ------------------------------------------------- */
+
+/* the ground in column x on the screen (its top, px), or -1 */
+static int ground_in(int x) {
+    int tx = x >> 4;
+    for (int ty = (B->cam_y >> 4) + 1; ty < (B->cam_y >> 4) + BR_SH; ty++) {
+        bool floor = eko_brawl_solid(tx, ty) || platform(tx, ty);
+        if (floor && !eko_brawl_solid(tx, ty - 1) && !eko_brawl_solid(tx, ty - 2)) return ty * 16;
+    }
+    return -1;
+}
+
+static void respawn_update(void) {
+    if ((B->calm & 1) || B->boss_on || B->lift_on || B->map == BM_LIFT || B->done_t || B->wall_open_t) return;
+    if (B->respawn_t < BR_RESPAWN_T) { B->respawn_t++; return; }
+    int n = 0;
+    for (int i = 0; i < BR_MAX_FOES; i++) n += B->foe[i].alive && B->foe[i].kind < BF_SCRAPJAW;
+    if (n >= BR_RESPAWN_CAP) return;
+    B->respawn_t = 0;
+    int k = B->respawns++;
+    if (B->map == BM_LAB || k % 3 == 2) {
+        /* a jetpacker drops in from above */
+        int x = B->cam_x + 40 + (k * 97) % (SCREEN_W - 80);
+        eko_brawl_spawn_foe(BF_JETPACK, x * EKO_FX, (B->cam_y + 24) * EKO_FX);
+        return;
+    }
+    /* a trooper walks on, from ahead or from behind, where there is ground */
+    int x = k % 2 ? B->cam_x + SCREEN_W + 8 : B->cam_x + 4;
+    int y = ground_in(x);
+    if (y < 0) { x = B->cam_x + SCREEN_W - 12; y = ground_in(x); }
+    if (y < 0) return;
+    eko_brawl_spawn_foe(k % 4 == 1 ? BF_GRENADIER : BF_SOLDIER, x * EKO_FX, y * EKO_FX);
+}
+
+static void hazards_update(void) {
+    if ((B->calm & 2) || B->boss_on) return;
+    int px = EKO_PX(B->p.x), py = EKO_PX(B->p.y);
+    for (int i = 0; i < B->nspawn; i++) {
+        int k = B->spawn[i].kind;
+        if (B->spawn[i].used || (k != SPK_DROP && k != SPK_HOOK)) continue;
+        int x = B->spawn[i].tx * 16 + 8, y = B->spawn[i].ty * 16 + 16;
+        if (y < B->cam_y || y > B->cam_y + BR_SH * 16) continue;
+        if (k == SPK_DROP ? iabs(px - x) >= 56 : (x - px >= 140 || x < px || iabs(py - y) > 24)) continue;
+        B->spawn[i].used = 1;
+        B->hazards++;
+        int o = eko_brawl_add_obj(k == SPK_DROP ? BO_DROP : BO_HOOK, x * EKO_FX, (k == SPK_DROP ? B->cam_y : y - 20) * EKO_FX, 0, 0);
+        (void)o;
+        eko_sfx("eko_warn");
     }
 }
 
@@ -1013,6 +1221,8 @@ void eko_brawl_update(void) {
     if (B->p.dead_t && B->p.dead_t > 80) return;
     camera_update(false);
     run_spawns();
+    respawn_update();
+    hazards_update();
     foes_update();
     objs_update();
     lift_update();
@@ -1049,6 +1259,14 @@ void eko_brawl_update(void) {
     }
     if (B->done_t) {
         B->done_t++;
+        if (B->done_t == 2 && B->gulls > B->gulls_hit) {
+            /* every gull left in peace: 100 */
+            char m[32];
+            snprintf(m, sizeof m, "GULLS LEFT IN PEACE +%d", (B->gulls - B->gulls_hit) * 100);
+            eko_add_score((B->gulls - B->gulls_hit) * 100);
+            eko_say(m);
+            eko_sfx("eko_bonus");
+        }
         if (B->done_t > 40) eko_section_done();
     }
 }

@@ -1,6 +1,6 @@
 # DART: tapping A fires at once and fast tapping is the fastest fire; the
-# gun never heats. Holding A fires slower, and after a moment the barrel
-# heats. Held too long, the bike overheats: it glows red and the gun holds
+# gun never heats. Holding A fires a little slower (every 6 frames, not
+# 4), and after a moment the barrel heats. Held too long, the bike overheats: it glows red and the gun holds
 # for half a second. Let go then and it cools off, no harm done; keep the
 # fire held and the next shot blows the bike up at once: a whole life gone.
 seed 1
@@ -29,9 +29,9 @@ press A 1
 wait 2
 expect k_shots == 8
 expect k_heat == 0
-# holding: slower, and it heats
+# holding: a little slower, and it heats
 hold A 40
-expect k_shots <= 13
+expect k_shots == 15
 expect k_heat > 0
 wait 120
 expect k_heat == 0

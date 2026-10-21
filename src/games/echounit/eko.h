@@ -73,7 +73,7 @@ typedef struct { int x, y, vx, vy, life, col; } EkoPart;
 #define BR_SH 10
 #define BR_TOP 20                 /* the play field starts under the HUD */
 #define BR_MAX_CW 12              /* a map is at most 12 chunks wide ... */
-#define BR_MAX_CH 6               /* ... and 6 high */
+#define BR_MAX_CH 11              /* ... and 11 high (the lab climb) */
 #define BR_MW (BR_SW * BR_MAX_CW)
 #define BR_MH (BR_SH * BR_MAX_CH)
 
@@ -108,12 +108,19 @@ extern const int EKO_LIFT_NWAVES;
 #define BR_CHARGE_T 40            /* hold A, standing still, this long: he flashes, charged */
 #define BR_KI_T 24                /* the ki blast flies this many frames ... */
 #define BR_KI_VX 1024             /* ... at 4 px a frame: 96 px, a short way */
-#define BR_KI_POSE 14             /* frames of the throwing pose */
+#define BR_KI_POSE 14             /* frames of the throwing pose ... */
+#define BR_KI_LUNGE 512           /* ... in which he lunges forward 2 px a frame (28 px; off a ledge, too) */
+#define BR_WARN_T 45              /* a hazard's "!" shows this long before it comes */
+#define BR_RESPAWN_T 240          /* more troopers come every 4 s ... */
+#define BR_RESPAWN_CAP 3          /* ... while fewer than this are about */
 #define BR_COMBO_WINDOW 22
 
 enum { BRA_NONE, BRA_PUNCH1, BRA_PUNCH2, BRA_KICK, BRA_LOW, BRA_AIRKICK, BRA_KI, BRA_THROW };
 
-enum { BF_NONE, BF_SOLDIER, BF_GRENADIER, BF_JETPACK, BF_KEYMAN, BF_SCRAPJAW, BF_TALPA, BF_KINDS };
+enum { BF_NONE, BF_SOLDIER, BF_GRENADIER, BF_JETPACK, BF_KEYMAN, BF_RAT, BF_SCRAPJAW, BF_TALPA, BF_KINDS };
+/* map marks beyond the foes: a barrel, a mango, an extra life, a gull, a
+ * hazard that drops, a hook that sweeps */
+enum { SPK_BARREL = 20, SPK_MANGO, SPK_LIFE, SPK_GULL, SPK_DROP, SPK_HOOK };
 extern const int EKO_BF_HP[BF_KINDS];
 extern const int EKO_BF_POINTS[BF_KINDS];
 enum { BRB_NONE, BRB_SCRAPJAW, BRB_TALPA };
@@ -128,7 +135,10 @@ typedef struct {
 } EkoBFoe;
 #define BR_MAX_FOES 24
 
-enum { BO_BARREL, BO_MANGO, BO_LIFE, BO_KEY, BO_GRENADE, BO_BULLET, BO_FBULLET, BO_FLAME, BO_KI };
+/* GULL: one sitting on a bollard (state 1: frightened off); DROP: a crane load
+ * or a lump of slag, "!" first, then it falls; HOOK: a crane hook, "!" first,
+ * then it sweeps across at chest height. A grenade in state 1 was kicked back. */
+enum { BO_BARREL, BO_MANGO, BO_LIFE, BO_KEY, BO_GRENADE, BO_BULLET, BO_FBULLET, BO_FLAME, BO_KI, BO_GULL, BO_DROP, BO_HOOK };
 typedef struct {
     uint8_t alive, kind, state;  /* barrel: 0 rest, 1 carried, 2 thrown, 3 bouncing */
     int x, y, vx, vy, t, chain, hits, last_foe;
@@ -165,6 +175,10 @@ typedef struct {
     int kills, secrets;
     int tile_sn;                 /* the blow that last knocked a crate or wall */
     int dmg_dealt;               /* for the demo player */
+    int respawn_t, respawns;     /* the troopers who keep coming */
+    int calm;                    /* tests: 1 no troopers coming, 2 no hazards */
+    int gulls, gulls_hit;        /* this part's gulls, and those frightened off */
+    int hazards;                 /* hazards set off */
 } EkoBrawl;
 
 /* ==== VESPER: the shooting gallery ===================================================== */
@@ -181,7 +195,7 @@ extern const int GA_ROW_SCALE[GA_ROWS]; /* sizes in 1/4: 2, 3, 4 */
 #define GA_CROSS_MAXY 150
 #define GA_LOCK_T 8               /* A held this long: locked in place */
 #define GA_TAP_CD 5               /* frames between shots when tapping ... */
-#define GA_HOLD_CD 11             /* ... and when holding: mashing fires faster */
+#define GA_HOLD_CD 7              /* ... and when holding: mashing fires only a little faster */
 #define GA_ROLL_T 22
 #define GA_ROLL_VX 768
 #define GA_COMBO_T 150            /* frames the combo meter lasts after a kill */
@@ -248,7 +262,7 @@ typedef struct {
 #define BK_JUMP_VZ 640            /* a jump: 30 px up, about 45 frames */
 #define BK_GRAV_Z 28
 #define BK_TAP_CD 4
-#define BK_HOLD_CD 10
+#define BK_HOLD_CD 6              /* held, only a little slower than tapping (the heat is the reason to tap) */
 #define BK_HEAT_MAX 300
 #define BK_HEAT_DELAY 10          /* held this long, the gun starts heating */
 #define BK_HEAT_UP 3
@@ -256,7 +270,12 @@ typedef struct {
 #define BK_GLOW_T 30              /* boiled over, the bike glows red and the gun holds this long; still held, the next shot blows it up */
 
 enum { OB_NONE, OB_CONE, OB_HURDLE, OB_RUNNER, OB_CAR, OB_BIKER, OB_GTRUCK, OB_SEMI, OB_MINE, OB_FIREJET,
-       OB_ROCK, OB_MANGO, OB_LIFE, OB_CARD, OB_HOG, OB_KINDS };
+       OB_ROCK, OB_MANGO, OB_LIFE, OB_CARD, OB_HOG,
+       /* the Caldera's flight */
+       OB_DRONE, OB_TURRET, OB_PILLAR, OB_MISSILE, OB_RATTLE, OB_KINDS };
+/* the flight over the lava: the bike flies anywhere in this band, no jump */
+#define BK_FLY_TOP 34
+#define BK_FLY_BOT 162
 extern const int EKO_OB_HP[OB_KINDS];
 extern const int EKO_OB_POINTS[OB_KINDS];
 
@@ -270,13 +289,14 @@ typedef struct { uint8_t alive, foe; int x, y, vx, vy; } EkoKShot;
 #define BK_MAX_SHOTS 40
 
 typedef struct { int32_t at; uint8_t kind; int16_t y; int8_t n; int16_t gap; int8_t arg; } EkoKSpawn;
-enum { BC_CAIRO, BC_TUNNEL, BC_COUNT };
+enum { BC_CAIRO, BC_FLIGHT, BC_COUNT };
 typedef struct {
     const char *name;
     const EkoKSpawn *spawns;
     int n;
-    int length;                  /* px of road before the end (the boss, or the card truck) */
-    int boss;                    /* 1: Hog Wild waits at the end */
+    int length;                  /* px of road (or sky) before the boss */
+    int boss;                    /* OB_HOG on the road, OB_RATTLE in the air */
+    int fly;                     /* 1: a flight, the bike off the road (no jump) */
 } EkoKCourse;
 extern const EkoKCourse EKO_KCOURSE[BC_COUNT];
 
@@ -572,7 +592,7 @@ void eko_art_load(void);
 int eko_art_check(void);
 void eko_audio_load(void);
 extern int EKO_MUS_TITLE, EKO_MUS_STORY, EKO_MUS_HQ, EKO_MUS_BRIEF, EKO_MUS_DOCKS, EKO_MUS_ANDES, EKO_MUS_CAIRO,
-    EKO_MUS_ISTANBUL, EKO_MUS_RESCUE, EKO_MUS_BOSS, EKO_MUS_CALDERA, EKO_MUS_LAB, EKO_MUS_TUNNEL, EKO_MUS_FINAL,
+    EKO_MUS_ISTANBUL, EKO_MUS_RESCUE, EKO_MUS_BOSS, EKO_MUS_CALDERA, EKO_MUS_LAB, EKO_MUS_FLIGHT, EKO_MUS_FINAL,
     EKO_MUS_CLEAR, EKO_MUS_CAPTURED, EKO_MUS_OVER, EKO_MUS_ENDING, EKO_MUS_LIFT;
 
 /* words */
