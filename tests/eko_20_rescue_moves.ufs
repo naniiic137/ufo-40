@@ -1,10 +1,14 @@
 # THE JAILBREAK: each bat's own two skills. Used, a skill comes back after
-# a few turns (the panel shows the count); pressing it before then only
-# waits a turn.
-#   DART   A gun down the line, drops anything (loud)  2 | B dash up to three tiles, felling a guard in the way  3
-#   FLINT  A punch the guard in front                   2 | B brace: the next shot bounces off                     4
-#   VESPER A shoot down the line (loud)                 3 | B roll two tiles                                       2
-#   SABLE  A dart: asleep for six turns (silent)        3 | B whistle: guards near come to look                    2
+# a few turns (the panel shows the count); pressed before then it does
+# nothing at all. Guards have health: 2, the gatlings 4.
+#   DART   A gun down the line, drops anything (loud)        2 | B dash exactly two tiles, through guards (2 to each)  3
+#   FLINT  A punch: knocks the guard two tiles back; one it   2 | B brace: the shots that turn bounce off               4
+#            runs into takes 2 with it and flies on
+#   VESPER A shoot down the line, 2 (loud)                    3 | B roll two tiles                                      2
+#   SABLE  A dart: asleep three turns, a Z for each (silent)  3 | B cloak: unseen up to five turns, B again ends it;    as used
+#                                                                   it recharges for the turns it was on, four at most
+# Pressing toward a guard turns the bat to face it; pressing again
+# strikes it (1; Sable's knife 2).
 seed 1
 game echounit
 wait 5
@@ -12,100 +16,186 @@ wait 5
 cheat rescue 1 2 5
 cheat rblank
 expect r_hp == 4
-cheat rguard 0 10 4 0
-cheat rguard 0 5 6 2
+cheat rguard 5 10 4 0
 press A 1
-wait 1
-expect r_guards == 1
-expect r_kos == 1
-expect r_seeking == 1
-expect r_cd0 == 2
-# not back yet: A only waits, and the count runs down
-press A 1
-wait 1
-expect r_turns == 2
-expect r_kos == 1
-expect r_cd0 == 1
-cheat rblank
-cheat rguard 0 4 4 1
-press B 1
 wait 1
 expect r_guards == 0
-expect r_x == 3
-expect r_cd1 == 3
+expect r_kos == 1
+expect r_cd0 == 2
+# not back yet: A does nothing, and no turn passes
+press A 1
+wait 1
+expect r_turns == 1
+expect r_cd0 == 2
+# the dash: exactly two tiles, through the guard in the way (2: down)
 cheat rblank
+cheat rguard 0 3 4 1
 press B 1
 wait 1
-expect r_x == 5
-# FLINT
+expect r_x == 4
+expect r_guards == 0
+expect r_cd1 == 3
+# a gatling's double health: the dash leaves it standing
+cheat rblank
+cheat rguard 5 3 4 1
+press B 1
+wait 1
+expect r_x == 4
+expect r_g0_hp == 2
+# nowhere to land: nothing happens
+cheat rblank
+cheat rtile 4 4 35
+press B 1
+wait 1
+expect r_turns == 0
+expect r_x == 2
+# FLINT: one shove fells a whole row
 cheat rescue 2 0 5
 cheat rblank
 cheat rguard 0 3 4 1
+cheat rguard 1 5 4 1
+cheat rguard 3 7 4 1
 press A 1
 wait 1
 expect r_guards == 0
+expect r_kos == 3
 expect r_cd0 == 2
-# braced, a shot bounces off
+# a lone gatling: knocked two tiles back, and the punch's 2
 cheat rblank
-cheat rguard 0 8 4 2
-press UP 1
+cheat rguard 5 3 4 1
+press A 1
 wait 1
-press DOWN 1
-wait 1
-expect r_aiming == 1
-expect r_hp == 3
-press B 1
+expect r_g0_x == 5
+expect r_g0_hp == 2
+# braced, the shot bounces off
+cheat rblank
+cheat rguard 2 8 4 2
+cheat rgstate 0 1 0
+press LEFT 1
 wait 1
 expect r_gshots == 1
+press RIGHT 1
+wait 1
+press B 1
+wait 1
 expect r_hp == 3
 expect r_cd1 == 4
-# VESPER
+# VESPER: 2 a shot (the gatling stands, and turns on her: spun up, it fires from the next turn)
 cheat rescue 0 1 5
 cheat rblank
-cheat rguard 0 9 4 0
+cheat rguard 5 9 4 0
 press A 1
 wait 1
-expect r_guards == 0
+expect r_g0_hp == 2
 expect r_cd0 == 3
+expect r_firing == 1
 cheat rblank
 press B 1
 wait 1
 expect r_x == 4
 expect r_turns == 1
 expect r_cd1 == 2
-# SABLE
+# the keycard stops two shots; spent, only Vesper's go through it
+cheat rblank
+cheat rtile 6 4 75
+cheat rguard 2 9 4 0
+press A 1
+wait 1
+expect r_card_hp == 1
+expect r_g0_hp == 2
+press UP 1
+wait 1
+press DOWN 1
+wait 1
+press RIGHT 1
+wait 1
+press A 1
+wait 1
+expect r_card_hp == 0
+press UP 1
+wait 1
+press DOWN 1
+wait 1
+press LEFT 1
+wait 1
+press RIGHT 1
+wait 1
+press A 1
+wait 1
+expect r_g0_hp == 0
+# SABLE: the dart, three turns asleep, a Z gone each turn
 cheat rescue 0 3 5
 cheat rblank
 expect r_hp == 2
-cheat rguard 0 9 4 0
+cheat rguard 2 9 4 0
 press A 1
 wait 1
 expect r_asleep == 1
+expect r_g0_sleep == 3
 expect r_cd0 == 3
 expect r_seeking == 0
-press DOWN 1
-wait 1
 press UP 1
 wait 1
+expect r_g0_sleep == 2
 press DOWN 1
 wait 1
-press UP 1
-wait 1
-press DOWN 1
-wait 1
+expect r_g0_sleep == 1
 press UP 1
 wait 1
 expect r_asleep == 0
 expect r_cd0 == 0
+# her knife: facing a guard, a step into it strikes for 2
 cheat rblank
-cheat rguard 0 7 4 0
-cheat rguard 0 2 8 0
-cheat rguard 0 10 8 0
-# the whistle: the two within six tiles come to look, step straight into a
-# line on her and take aim; the one further off stays at its post
+cheat rguard 2 3 4 0
+press RIGHT 1
+wait 1
+expect r_guards == 0
+expect r_strikes == 1
+# toward a guard she is not facing: the first press only turns her
+cheat rblank
+cheat rguard 2 2 5 1
+press DOWN 1
+wait 1
+expect r_turns == 0
+expect r_dir == 2
+press DOWN 1
+wait 1
+expect r_turns == 1
+expect r_guards == 0
+# the cloak: the sentry onto her loses her, and nobody sees her for five turns
+cheat rblank
+cheat rguard 2 9 4 2
+cheat rgstate 0 1 0
 press B 1
 wait 1
+expect r_alert == 0
+expect r_gshots == 0
+expect r_cloak == 4
+press UP 1
+wait 1
+press DOWN 1
+wait 1
+press UP 1
+wait 1
+expect r_cloak == 1
+press DOWN 1
+wait 1
+expect r_cloak == 0
+expect r_gshots == 0
+# on for five turns: it recharges for four (the most), and B does nothing till then
+expect r_cd1 == 4
+press B 1
+wait 1
+expect r_cloak == 0
+expect r_turns == 5
+# ended early with B: no turn, and it recharges for the turns it was on
+cheat rblank
+press B 1
+wait 1
+press UP 1
+wait 1
+press B 1
+wait 1
+expect r_cloak == 0
+expect r_turns == 2
 expect r_cd1 == 2
-expect r_aiming == 2
-expect r_seeking == 0
-expect r_guards == 3

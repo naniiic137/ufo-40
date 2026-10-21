@@ -317,7 +317,7 @@ static int rescue_rep;
 static void rescue_update(void) {
     EkoRescue *r = &eg.rs;
     if (r->shot_t) r->shot_t--;
-    if (r->gshot_t) r->gshot_t--;
+    if (r->boom_t) r->boom_t--;
     if (r->noise_t) r->noise_t--;
     if (r->won || r->lost) {
         r->msg_t++;
@@ -353,22 +353,26 @@ static void rescue_update(void) {
     if (ek_btnp(EKO_ALT)) act = RA_B;
     if (!(eg.in & (EKO_DIRS))) rescue_rep = 0;
     if (act != RA_NONE) {
-        int t0 = r->turns, hp0 = r->hp, gs0 = r->gshots, ff0 = r->ff;
-        bool cooling = (act == RA_A && r->cd[0] > 0) || (act == RA_B && r->cd[1] > 0);
+        int t0 = r->turns, hp0 = r->hp, gs0 = r->gshots, ff0 = r->ff, gr0 = r->grens, st0 = r->strikes, kos0 = r->kos;
+        int cloak0 = r->cloak;
         bool card0 = r->card;
-        int aim0 = 0, aim1 = 0;
-        for (int i = 0; i < r->ng; i++) aim0 += r->g[i].alive && r->g[i].state == RGS_AIM;
+        int al0 = 0, al1 = 0;
+        for (int i = 0; i < r->ng; i++) al0 += r->g[i].alive && r->g[i].flash;
         eko_rescue_turn(r, act);
-        if (r->turns == t0 && act >= RA_A) eko_sfx("eko_tink"); /* no room to roll or dash */
+        if (r->turns == t0 && act >= RA_A)
+            eko_sfx(cloak0 && !r->cloak ? "eko_cloak" : "eko_tink"); /* not ready (nothing happens), or no room to roll or dash */
         if (r->turns != t0) {
-            static const char *const SFX[OWL_COUNT][2] = {{"eko_swing", "eko_clang"}, {"eko_gun", "eko_roll"}, {"eko_gun", "eko_rev"}, {"eko_dart", "eko_whistle"}};
-            eko_sfx(act >= RA_A && !cooling ? SFX[r->owl][act - RA_A] : "eko_step"); /* a skill still coming back: a wait */
+            static const char *const SFX[OWL_COUNT][2] = {{"eko_swing", "eko_clang"}, {"eko_gun", "eko_roll"}, {"eko_gun", "eko_rev"}, {"eko_dart", "eko_cloak"}};
+            eko_sfx(act >= RA_A ? SFX[r->owl][act - RA_A] : r->strikes != st0 ? "eko_hit" : "eko_step");
         }
-        for (int i = 0; i < r->ng; i++) aim1 += r->g[i].alive && r->g[i].state == RGS_AIM;
+        for (int i = 0; i < r->ng; i++) al1 += r->g[i].alive && r->g[i].flash;
         if (r->gshots != gs0) eko_sfx("eko_shot");
-        if (aim1 > aim0) eko_sfx("eko_aim");
+        if (r->grens != gr0) eko_sfx("eko_toss");
+        if (r->boom_t == 14) { eko_sfx("eko_boom"); eg.shake = 8; }
+        if (al1 > al0) eko_sfx("eko_aim");
+        if (r->kos != kos0) eko_sfx("eko_ko");
         if (r->hp < hp0) eko_sfx("eko_ouch");
-        if (r->ff != ff0) eko_say("THEY SHOT THEIR OWN!");
+        if (r->ff != ff0) eko_say("THEY HIT THEIR OWN!");
         if (r->card && !card0) { eko_sfx("eko_key"); eko_say("THE CARD: NOW BACK TO THE CELL"); }
     }
 }
@@ -770,7 +774,37 @@ static int eko_query(const char *key, int *out) {
     if (!strcmp(key, "r_cd1")) { *out = r->cd[1]; return 1; }
     if (!strcmp(key, "r_gshots")) { *out = r->gshots; return 1; }
     if (!strcmp(key, "r_ff")) { *out = r->ff; return 1; }
-    if (!strcmp(key, "r_aiming")) { int n = 0; for (int i = 0; i < r->ng; i++) n += r->g[i].alive && r->g[i].state == RGS_AIM; *out = n; return 1; }
+    if (!strcmp(key, "r_spinning")) { int n = 0; for (int i = 0; i < r->ng; i++) n += r->g[i].alive && r->g[i].state == RGS_SPIN; *out = n; return 1; }
+    if (!strcmp(key, "r_firing")) { int n = 0; for (int i = 0; i < r->ng; i++) n += r->g[i].alive && r->g[i].state == RGS_FIRE; *out = n; return 1; }
+    if (!strcmp(key, "r_shots")) { int n = 0; for (int i = 0; i < RS_MAX_SHOTS; i++) n += r->shot[i].alive; *out = n; return 1; }
+    if (!strcmp(key, "r_grens")) { int n = 0; for (int i = 0; i < RS_MAX_GRENS; i++) n += r->gren[i].alive; *out = n; return 1; }
+    if (!strcmp(key, "r_thrown")) { *out = r->grens; return 1; }
+    if (!strcmp(key, "r_cloak")) { *out = r->cloak; return 1; }
+    if (!strcmp(key, "r_card_hp")) { *out = r->card_hp; return 1; }
+    if (!strcmp(key, "r_hits")) { *out = r->hits; return 1; }
+    if (!strcmp(key, "r_stabs")) { *out = r->stabs; return 1; }
+    if (!strcmp(key, "r_strikes")) { *out = r->strikes; return 1; }
+    if (!strcmp(key, "r_rooms")) { *out = r->rooms; return 1; }
+    if (!strncmp(key, "r_shot0_", 8)) {
+        /* the first shot in flight: its x, y */
+        *out = -1;
+        for (int i = 0; i < RS_MAX_SHOTS; i++) if (r->shot[i].alive) { *out = key[8] == 'x' ? r->shot[i].x : r->shot[i].y; break; }
+        return 1;
+    }
+    if (!strncmp(key, "r_g", 3) && key[3] >= '0' && key[3] <= '9') {
+        int i = atoi(key + 3);
+        const char *u = strchr(key + 3, '_');
+        if (i < 0 || i >= RS_MAX_GUARDS || !u) return 0;
+        const EkoRGuard *q = &r->g[i];
+        if (!strcmp(u, "_alive")) { *out = q->alive; return 1; }
+        if (!strcmp(u, "_x")) { *out = q->x; return 1; }
+        if (!strcmp(u, "_y")) { *out = q->y; return 1; }
+        if (!strcmp(u, "_hp")) { *out = q->alive ? q->hp : 0; return 1; }
+        if (!strcmp(u, "_state")) { *out = q->state; return 1; }
+        if (!strcmp(u, "_sleep")) { *out = q->sleep; return 1; }
+        if (!strcmp(u, "_dir")) { *out = q->dir; return 1; }
+        return 0;
+    }
     if (!strcmp(key, "r_dir")) { *out = r->dir; return 1; }
     if (!strcmp(key, "r_card")) { *out = r->card; return 1; }
     if (!strcmp(key, "r_won")) { *out = r->won; return 1; }
@@ -811,6 +845,9 @@ static int eko_query(const char *key, int *out) {
                 }
             }
             wins += t.won;
+            if (eko_bot_debug == 1)
+                printf("    jail %d bat %d: %s in %d turns, hits %d, kos %d, ff %d, shots %d, grenades %d, rooms %d, guards %d\n", sd, owl,
+                       t.won ? "won" : "lost", t.turns, t.hits, t.kos, t.ff, t.gshots, t.grens, t.rooms, t.ng);
             if (!t.won && eko_bot_debug > 1) {
                 /* the board where it gave up: # wall o crate C cell K card, guards by state, @ the bat */
                 for (int y = 0; y < RS_H; y++) {
@@ -818,7 +855,7 @@ static int eko_query(const char *key, int *out) {
                     for (int x = 0; x < RS_W; x++) line[x] = t.tile[y][x];
                     line[RS_W] = 0;
                     for (int i = 0; i < t.ng; i++)
-                        if (t.g[i].alive && t.g[i].y == y) line[(int)t.g[i].x] = "PASZXM"[t.g[i].state];
+                        if (t.g[i].alive && t.g[i].y == y) line[(int)t.g[i].x] = "PASZXF"[t.g[i].state];
                     if (t.oy == y) line[t.ox] = '@';
                     printf("    %s\n", line);
                 }
@@ -840,6 +877,21 @@ static int eko_query(const char *key, int *out) {
             prev = t;
         }
         *out = bad;
+        return 1;
+    }
+    if (!strcmp(key, "r_layout_variety")) {
+        /* 500 rolled jails: which room counts (bits 0-2: one, two, three
+         * rooms) and which walls the cell sat in (bits 3-6: left, right,
+         * top, bottom) came up, and the five kinds of guard (bits 7-12) */
+        EkoRescue t;
+        int seen = 0;
+        for (int sd = 1; sd <= 500; sd++) {
+            if (eko_rescue_gen(&t, (uint32_t)sd, sd % 4, (sd + 1) % 4) < 0) continue;
+            seen |= 1 << (iclamp(t.rooms, 1, 3) - 1);
+            seen |= 1 << (t.cell_x == 0 ? 3 : t.cell_x == RS_W - 1 ? 4 : t.cell_y == 0 ? 5 : 6);
+            for (int i = 0; i < t.ng; i++) seen |= 1 << (7 + t.g[i].kind);
+        }
+        *out = seen;
         return 1;
     }
     return 0;
@@ -1010,23 +1062,32 @@ static int eko_cheat(const char *cmd) {
         /* an empty jail for rule tests (15 x 10, walls round it): the bat at
          * (2, 4) facing right, the cell door at (0, 4), the card at (13, 1) */
         EkoRescue *r = &eg.rs;
+        int owl = r->owl, captive = r->captive, seed = r->seed;
+        memset(r, 0, sizeof *r);
+        r->owl = owl; r->captive = captive; r->seed = seed;
         for (int y = 0; y < RS_H; y++) for (int x = 0; x < RS_W; x++) r->tile[y][x] = (x == 0 || y == 0 || x == RS_W - 1 || y == RS_H - 1) ? '#' : '.';
-        r->ng = 0; r->ox = 2; r->oy = 4; r->dir = RA_RIGHT; r->card = false; r->won = r->lost = false; r->brace = false;
+        r->ox = r->start_x = 2; r->oy = r->start_y = 4; r->dir = RA_RIGHT;
         r->cell_x = 0; r->cell_y = 4; r->tile[4][0] = 'C';
         r->key_x = 13; r->key_y = 1; r->tile[1][13] = 'K';
-        r->turns = 0; r->kos = 0; r->ff = 0; r->gshots = 0; r->hits = 0; r->cd[0] = r->cd[1] = 0;
+        r->card_hp = RS_CARD_HP;
+        r->rooms = 1;
         r->hp = EKO_RS_HP[r->owl];
         return 1;
     }
     if (sscanf(cmd, "rguard %d %d %d %d", &a, &b, &c, &d) == 4) {
-        /* role a at (b, c) facing d */
+        /* a guard of kind a (RK_*) at (b, c) facing d */
         EkoRescue *r = &eg.rs;
         if (r->ng < RS_MAX_GUARDS) {
             EkoRGuard *q = &r->g[r->ng++];
             memset(q, 0, sizeof *q);
-            q->alive = 1; q->role = (uint8_t)a; q->state = RGS_POST;
+            q->alive = 1; q->kind = (uint8_t)iclamp(a, 0, RK_COUNT - 1); q->state = RGS_POST; q->hp = (uint8_t)EKO_RK_HP[q->kind];
             q->x = q->hx = (int8_t)b; q->y = q->hy = (int8_t)c; q->dir = q->hdir = (int8_t)d;
         }
+        return 1;
+    }
+    if (sscanf(cmd, "rgstate %d %d %d", &a, &b, &c) == 3) {
+        /* guard a's state (RGS_*), and its sleep turns */
+        if (a >= 0 && a < eg.rs.ng) { eg.rs.g[a].state = (uint8_t)iclamp(b, 0, RGS_FIRE); eg.rs.g[a].sleep = (int8_t)c; }
         return 1;
     }
     if (sscanf(cmd, "rtile %d %d %d", &a, &b, &c) == 3) { eg.rs.tile[b][a] = (char)c; return 1; }

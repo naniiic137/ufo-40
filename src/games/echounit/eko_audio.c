@@ -257,6 +257,6 @@ void eko_audio_load(void) {
     sfx_define("eko_pickup", CH_P1, 240, "@35 v10 o6 c32 g32");
     sfx_define("eko_select", CH_P2, 240, "@42 v8 o6 g32");
     sfx_define("eko_step", CH_NOISE, 240, "@9 v5 o7 c32");
-    sfx_define("eko_whistle", CH_P1, 200, "@14 v10 o6 e16 g16 o7 c8");
+    sfx_define("eko_cloak", CH_P2, 200, "@14 v7 o6 g16 e16 c16 o5 g16");
     sfx_define("eko_free", CH_P1, 160, "@39 v13 o5 l16 c e g o6 c4");
 }

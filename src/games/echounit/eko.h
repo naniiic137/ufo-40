@@ -370,32 +370,57 @@ typedef struct {
 } EkoSneak;
 
 /* ==== the jailbreak (rescue): turn-based ====================================================== */
-#define RS_W 15                   /* the grid, right of the bat's panel */
+#define RS_W 15                   /* the grid, right of the bat's panel: all the screen holds */
 #define RS_H 10
 #define RS_TILE 16
 #define RS_PANEL_W 76             /* the left side: the bat, its health, its two skills */
 #define RS_X0 78
 #define RS_Y0 20
 #define RS_MAX_GUARDS 10
-enum { RG_SENTRY, RG_PATROL, RG_TURNER };
-/* POST on watch; ALERT hunting the bat; SEEK going to look at a noise;
- * SLEEP darted; OUT knocked out; AIM lined up, firing on its next turn */
-enum { RGS_POST, RGS_ALERT, RGS_SEEK, RGS_SLEEP, RGS_OUT, RGS_AIM };
-typedef struct { uint8_t alive, role, state; int8_t x, y, dir, sleep, tx, ty, hx, hy, hdir; } EkoRGuard;
+#define RS_MAX_SHOTS 24
+#define RS_MAX_GRENS 6
+#define RS_SHOT_SPEED 3           /* tiles a guard's shot flies each turn */
+#define RS_SLEEP_T 3              /* a darted guard wakes three turns later */
+#define RS_CLOAK_T 5              /* Sable's cloak lasts at most five turns ... */
+#define RS_CLOAK_CD 4             /* ... and recharges for the turns it was on, four at most */
+#define RS_CARD_HP 2              /* the keycard stops two shots */
+/* the guards, each kind in its own colour:
+ *   GUN     (green)  walks a beat; seen, chases and fires a shot after each move
+ *   KNIFE   (green)  walks a beat; seen, closes in every turn and stabs
+ *   SENTRY  (red)    stands still; seen, shoots at the bat along any open line
+ *   GREN    (orange) walks a beat; seen, backs off and lobs grenades (they hurt its own side too)
+ *   JET     (purple) turns on the spot; seen, shoots once, then jumps to two tiles off the bat
+ *   GATLING (grey)   turns on the spot; seen, spins up a turn, then fires four turns the same way */
+enum { RK_GUN, RK_KNIFE, RK_SENTRY, RK_GREN, RK_JET, RK_GATLING, RK_COUNT };
+/* POST on its beat or watch; ALERT onto the bat; SEEK going to look at a
+ * noise; SLEEP darted; SPIN and FIRE the gatling's wind-up and volley */
+enum { RGS_POST, RGS_ALERT, RGS_SEEK, RGS_SLEEP, RGS_SPIN, RGS_FIRE };
+typedef struct { uint8_t alive, kind, state, hp; int8_t x, y, dir, sleep, tx, ty, hx, hy, hdir, t, cd, flash; } EkoRGuard;
+typedef struct { uint8_t alive, age; int8_t x, y, dir; } EkoRShot;   /* a guard's shot in flight */
+typedef struct { uint8_t alive; int8_t x, y, fuse; } EkoRGren;       /* a grenade on the floor, fuse burning */
 extern const int EKO_RS_HP[OWL_COUNT];      /* 3, 2, 4, 2 */
 extern const int EKO_RS_CD[OWL_COUNT][2];   /* turns each skill takes to come back */
 extern const char *const EKO_RS_SKILL[OWL_COUNT][2];
+extern const int EKO_RK_HP[RK_COUNT];       /* 2, the gatling 4 */
 typedef struct {
     char tile[RS_H][RS_W];       /* '#' wall '.' floor 'o' crate 'C' cell door 'K' keycard */
     int ox, oy, dir, hp;
     int cd[2];                   /* turns until skill A / B is ready again (0: ready) */
     int owl, captive;
     bool card, won, lost, brace;
+    int cloak, cloak_used;       /* Sable's cloak: turns left on it, turns it has been on */
+    int card_hp;                 /* the keycard's two health (only Vesper's shots go through it once spent) */
     EkoRGuard g[RS_MAX_GUARDS];
-    int ng, turns, kos, shot_t, shot_x, shot_y, shot_x2, shot_y2, noise_t, noise_x, noise_y;
-    int gshot_t, gshot_x, gshot_y, gshot_x2, gshot_y2; /* the last guard shot, for the screen */
-    int gshots, ff, hits;        /* guard shots fired; guards downed by other guards; shots that hit the bat */
+    EkoRShot shot[RS_MAX_SHOTS];
+    EkoRGren gren[RS_MAX_GRENS];
+    int ng, turns, kos, noise_t, noise_x, noise_y;
+    int shot_t, shot_x, shot_y, shot_x2, shot_y2; /* the bat's last shot or dash, for the screen */
+    int boom_t, boom_x, boom_y;                   /* the last grenade blast, for the screen */
+    int gshots, ff, hits, grens; /* guard shots fired; guards downed by their own side; hits on the bat; grenades thrown */
+    int strikes, stabs;          /* the bat's close blows (stepping into a guard); knife guards' stabs */
     int cell_x, cell_y, key_x, key_y, start_x, start_y;
+    int rooms, ndoor;            /* how the jail was rolled: 1-3 rooms, the doorways between them */
+    int8_t door_x[6], door_y[6];
     int msg_t;
     int seed;
 } EkoRescue;
