@@ -137,6 +137,7 @@ typedef struct LflGate {
     uint8_t snail_face;
     uint8_t prize_thing;    /* thing index behind it, 255 = none */
     uint8_t snail_room;     /* the room the snail stands in, at the mouth of the way */
+    uint8_t nook;           /* a nook in a grid room, not a side room: its obstacle tiles */
 } LflGate;
 
 typedef struct LflTrade {
@@ -183,6 +184,7 @@ typedef struct LflPlanet {
     uint8_t secret_key;
     int8_t warp_room[2], warp_x[2], warp_y[2]; /* the teleporting swamp pair */
     uint8_t mute_room;            /* the glyph speaker who stays untranslated */
+    uint8_t trapped_room;         /* the village whose giver is shut in by crystal and bog, 255 = none */
     uint8_t gen_tries;
 } LflPlanet;
 
@@ -302,9 +304,11 @@ int lfl_room_index(int area, int gx, int gy);
 int lfl_neighbor(int room, int dir); /* -1 = none */
 bool lfl_winnable(void);             /* the progression check */
 bool lfl_all_tools(void);            /* every tool can be had */
+bool lfl_nook_door(int g, int x, int y); /* a tile of a nook's wall beside the nook */
 int lfl_gen_audit(void);             /* 0 = every rule holds */
 int lfl_tile(int room, int tx, int ty);
 const char *lfl_hint_line(int i);
+const char *lfl_hint_any(int k);
 const char *const *lfl_tool_names(void);
 const char *lfl_res_name(int r);
 int lfl_trade_price(int kind, int tier);
@@ -315,6 +319,7 @@ void lfl_play_update(void);
 void lfl_scroll_update(void);
 bool lfl_solid_for_player(int tile, bool shrunk);
 bool lfl_tile_solid_at(int px, int py, bool shrunk);
+bool lfl_feet_in_bog(void);
 void lfl_hurt_player(int dmg, int why);
 extern int lfl_death_cause[8]; /* tests: what each death was */
 void lfl_heal(int n);

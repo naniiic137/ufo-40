@@ -1,8 +1,8 @@
 # LANDFALL: energy. Wick starts with 3 of 3. Hostile creatures hurt on
 # contact (each species its own damage), then a moment of safety. A chop
-# heals 3 (she leaves it be when she is well). An energy cell adds one to
-# the most she can hold and fills her up, to 7 at most. At 0 the trip is
-# over: no lives, no continues.
+# heals 3 (eaten when stepped on, even when she is well). An energy cell
+# adds one to the most she can hold and fills her up, to 7 at most. At 0
+# the trip is over: no lives, no continues.
 game landfall
 wait 5
 cheat nomobs
@@ -25,10 +25,11 @@ cheat drop -1 30 82
 hold LEFT 20
 expect hp == 3
 expect chops == 0
-# well: she walks over a chop and leaves it
+# well, she still eats a chop she walks over (a lure she steps on is gone)
 cheat drop -1 50 82
 hold RIGHT 20
-expect chops == 1
+expect chops == 0
+expect hp == 3
 # an energy cell: one more, and full
 cheat hp 1 3
 cheat thing 2 0 30 110

@@ -8,6 +8,8 @@
 #define PW_SMALL 6
 #define WALK 320   /* 1.25 px a frame */
 #define INV_HIT 60
+#define BOG_BITE 24 /* the bog bites again this often while she stands in it */
+#define BOG_RIM 6   /* the top of a bog tile below dry ground is its bank */
 #define INV_MORPH 60
 #define SHRINK_T 360
 #define MORPH_T 360
@@ -61,6 +63,18 @@ bool lfl_tile_solid_at(int px, int py, bool shrunk) {
     return lfl_solid_for_player(tile_at(px, py), shrunk);
 }
 
+static bool bog_tile(int t) { return t == T_SWAMP || t == T_WARP; }
+
+/* her feet: the middle of the bottom of her box. A bog tile's top few
+ * pixels are a dry bank when the ground above it isn't bog, so a small
+ * Wick can edge along under a wall where a full-size one would wade */
+bool lfl_feet_in_bog(void) {
+    int fx = pcx(), fy = LFL_PX(lg.pl.y) + pw() - 1;
+    if (!bog_tile(tile_at(fx, fy))) return false;
+    if (fy % LFL_TILE >= BOG_RIM) return true;
+    return bog_tile(tile_at(fx, fy - LFL_TILE));
+}
+
 static bool box_hits_tiles(int x, int y, int w, int h, bool shrunk) {
     for (int yy = y; yy < y + h; yy += 4)
         for (int xx = x; xx < x + w; xx += 4) {
@@ -80,14 +94,13 @@ static bool mob_blocks_player(const LflMob *m, int x, int y, int w) {
     if (!rects_overlap(x, y, w, w, LFL_PX(m->x), LFL_PX(m->y), m->w, m->h)) return false;
     /* (already inside it, say when it was thumped on top of her: she can get out) */
     if (rects_overlap(LFL_PX(lg.pl.x), LFL_PX(lg.pl.y), w, w, LFL_PX(m->x), LFL_PX(m->y), m->w, m->h)) return false;
-    /* a shell lying along the way lets a small Wick through */
+    /* a small Wick slips through a shell only when it faces away from where
+     * she is going (it faces back the way she comes) */
     if (lg.pl.shrink_t > 0) {
-        int gate = m->gate;
-        if (gate >= 0) {
-            int side = lp.gate[gate].side;
-            return (m->face & 1) != (side & 1);
-        }
-        return false;
+        int dx = x - LFL_PX(lg.pl.x), dy = y - LFL_PX(lg.pl.y);
+        if (!dx && !dy) return true;
+        int dir = iabs(dx) >= iabs(dy) ? (dx > 0 ? DIR_RIGHT : DIR_LEFT) : (dy > 0 ? DIR_DOWN : DIR_UP);
+        return m->face != ((dir + 2) & 3);
     }
     return true;
 }
@@ -106,9 +119,11 @@ void lfl_hurt_player(int dmg, int why) {
     if (dmg <= 0 || p->inv > 0 || lg.state != LS_PLAY || p->hp <= 0) return;
     lg.last_hurt = why;
     lg.hits_taken++;
-    if (lg.god) { p->inv = INV_HIT; return; }
+    /* a second of safety after a hit; the bog has its own, shorter bite */
+    int safe = why == 1 ? BOG_BITE : INV_HIT;
+    if (lg.god) { p->inv = safe; return; }
     p->hp -= dmg;
-    p->inv = INV_HIT;
+    p->inv = safe;
     p->hurt_flash = 12;
     lfl_sfx("lfl_hurt");
     if (p->hp <= 0) {
@@ -665,6 +680,16 @@ void lfl_room_reset(int room) {
 }
 
 static void leave_room(void) {
+    /* a big shell passed as a shell is back on its spot once she leaves its
+     * room (the trick only works one way at a time) */
+    for (int g = 0; g < lp.ngate; g++) {
+        LflGate *gt = &lp.gate[g];
+        if (gt->kind == GK_SNAIL && gt->snail == 2 && gt->snail_room == lg.cur) {
+            gt->snail = 0;
+            gt->sx = (gt->tx * LFL_TILE + 2) * LFL_FX;
+            gt->sy = (gt->ty * LFL_TILE + 2) * LFL_FX;
+        }
+    }
     /* morphed crystals turn back */
     for (int i = 0; i < LFL_MAX_FLESH; i++)
         if (lg.flesh[i].alive) {
@@ -793,7 +818,7 @@ static void front_point(int dist, int *x, int *y) {
 static void use_tool(bool fresh) {
     LflPlayer *p = &lg.pl;
     int tool = p->hold[p->act];
-    if (tool < 0 || p->shrink_t > 0) return;
+    if (tool < 0) return;
     int cx = pcx(), cy = pcy();
     switch (tool) {
     case TL_RIVET:
@@ -862,11 +887,9 @@ static void use_tool(bool fresh) {
         if (!pay(TL_THUMPER)) return;
         lg.pulse_flash = 40;
         lfl_sfx("lfl_thump");
-        for (int i = 0; i < LFL_MAX_MOBS; i++) {
-            LflMob *m = &lg.mob[i];
-            if (!m->alive || ((m->flags & MF_FRIENDLY) && !(m->flags & MF_ANGRY))) continue;
-            kill_mob(i, true);
-        }
+        /* everything in the room but Wick: the locals too */
+        for (int i = 0; i < LFL_MAX_MOBS; i++)
+            if (lg.mob[i].alive) kill_mob(i, true);
         for (int y = 0; y < LFL_RH; y++)
             for (int x = 0; x < LFL_RW; x++)
                 if (cur()->t[y][x] == T_TECH) cur()->t[y][x] = T_TECHDOWN;
@@ -1261,7 +1284,7 @@ static void player_update(void) {
     /* B: talk, else swap hands; held, set the active tool down */
     if (btn(BTN_B)) {
         p->b_held++;
-        if (p->b_held == DROP_HOLD && !p->b_used && p->hold[p->act] >= 0 && p->shrink_t <= 0) {
+        if (p->b_held == DROP_HOLD && !p->b_used && p->hold[p->act] >= 0) {
             int tool = p->hold[p->act];
             bool flying = tool == TL_DISC && count_shots(SH_DISC);
             if (!flying) {
@@ -1300,7 +1323,6 @@ static void player_update(void) {
         bool carried = false;
         for (int s = 0; s < LFL_MAX_SHOTS; s++) carried |= lg.shot[s].alive && lg.shot[s].carry_drop == i;
         if (carried) continue;
-        if (d->kind == DR_CHOP && p->hp >= p->hpmax) continue; /* not hungry */
         take_drop(i);
     }
     for (int i = 0; i < lp.nthing; i++) {
@@ -1310,12 +1332,10 @@ static void player_update(void) {
         /* a tool just set down waits until she has stepped off it */
         if (t->cd > 0) { if (!touch) t->cd--; continue; }
         if (!touch) continue;
-        if (t->kind == TH_TOOL && p->shrink_t > 0) continue;
         take_thing(i, false);
     }
-    /* the bog bites, a tile at a time, unless she wears the boots */
-    int under = tile_at(pcx(), pcy());
-    if ((under == T_SWAMP || under == T_WARP) && !holding(TL_BOOTS)) lfl_hurt_player(1, 1);
+    /* the bog bites her feet, again and again, unless she carries the boots */
+    if (lfl_feet_in_bog() && !holding(TL_BOOTS)) lfl_hurt_player(1, 1);
     stairs_and_warps();
     /* creatures she touches */
     for (int i = 0; i < LFL_MAX_MOBS; i++) {

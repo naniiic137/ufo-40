@@ -1,7 +1,8 @@
 # LANDFALL: the thumper (the Pulse Generator's job): each thump burns one
-# of a resource rolled per planet (ferns here) and knocks out every hostile
-# creature in the room at once; a big shell is left an empty shell; the
-# locals are spared; blue blocks sink into the ground.
+# of a resource rolled per planet (ferns here) and knocks out everything in
+# the room but Wick at once, the locals too (a local may drop the rare
+# resource); a big shell is left an empty shell; blue blocks sink into the
+# ground.
 game landfall
 wait 5
 cheat nomobs
@@ -24,10 +25,10 @@ expect hostiles == 3
 cheat res 2 3
 press A
 expect res2 == 2
-expect kills == 2
+expect kills == 3
 expect hostiles == 0
 expect shells == 1
-expect friendlies == 1
+expect friendlies == 0
 expect tile_5_7 == 10
 expect tile_6_7 == 10
 # blue blocks sunk: she walks over them

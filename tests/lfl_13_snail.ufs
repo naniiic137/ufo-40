@@ -2,21 +2,21 @@
 # side room. It can't be hurt and costs 3 to touch, so she can push past
 # it only by taking the hit (or in a moment of safety). A chop draws it
 # (each chop from the chop press burns a resource rolled per planet:
-# spores here); once it has left the way it never goes back. The thumper
+# beads here); once it has left the way it never goes back. The thumper
 # leaves an empty shell, and that one is a wall: only a small Wick slips
-# past, and only past a shell lying along the way. The shell is back when
-# the room comes back (three rooms away).
+# past, and only when the shell faces away from where she is going. Once
+# she leaves its room the big shell is back on its spot.
 game landfall
 wait 5
 cheat nomobs
-cheat planet 3
+cheat planet 15
 cheat room 39 40 100
 expect gate0_kind == 6
 expect gate0_snail == 0
 expect gate0_open == 0
 expect mobs == 1
 expect mob0_hp == 99
-# rivets only clink (the boots keep the bog round the middle harmless)
+# rivets only clink
 cheat hold 1 5
 cheat face 1
 cheat pos 90 104
@@ -34,36 +34,62 @@ expect hp == 4
 expect hits == 1
 expect last_hurt == 4
 # a fresh planet: a chop to the left draws it off the way, for good
-cheat planet 3
+cheat planet 15
 cheat room 39 40 100
 cheat hold 6 5
 cheat face 2
 press A
-expect flash3 > 0
+expect flash0 > 0
 expect chops == 0
-cheat res 3 2
+cheat res 0 2
 press A
 expect chops == 1
-expect res3 == 1
+expect res0 == 1
 hold UP 20
 waituntil gate0_snail == 1 300
 expect gate0_open == 1
 waituntil chops == 0 400
-# down the way unhurt: two spores lie in the side room
+# down the way unhurt: two beads (the rare one here) lie in the side room
 cheat pos 138 80
 hold DOWN 60
 wait 45
 expect room == 48
 expect hits == 0
-expect res2 == 0
+expect res0 == 1
 hold DOWN 80
-expect res2 == 2
-# another fresh planet: the thumper from above leaves a shell along the way
-cheat planet 3
-cheat room 39 136 82
+expect res0 == 3
+# another fresh planet: thumped from the side, the shell faces her (west)
+cheat planet 15
+cheat room 39 100 104
+cheat hold 4 2
+cheat res 1 3
+wait 2
+press A
+expect shells == 1
+expect gate0_snail == 2
+expect mob0_face == 3
+# small (a ricochet off the top wall), she still can't get by going south
+press B 3
+cheat face 0
+press A
+waituntil small == 1 120
+cheat pos 140 84
+hold DOWN 60
+expect room == 39
+expect py < 95
+# out of the room and back: a live big shell on its spot again
+hold UP 20
+waituntil small == 0 400
+cheat room 12 140 100
+cheat room 39 40 100
 expect gate0_snail == 0
+expect shells == 0
+expect mobs == 1
+# thumped from above, it faces north, away from the side room: a small
+# Wick slips through it going south
+cheat room 39 136 82
 cheat hold 4 5
-cheat res 2 3
+wait 2
 press A
 expect shells == 1
 expect gate0_snail == 2
@@ -83,10 +109,11 @@ hold DOWN 80
 wait 45
 expect room == 48
 expect hits == 0
-# three rooms away and back: the snail stands in the way again
-waituntil small == 0 400
-cheat room 12 140 100
-cheat room 39 40 100
+# she has left its room: the big shell is back in the way
 expect gate0_snail == 0
-expect shells == 0
+waituntil small == 0 400
+hold UP 30
+wait 45
+expect room == 39
 expect mobs == 1
+expect shells == 0
