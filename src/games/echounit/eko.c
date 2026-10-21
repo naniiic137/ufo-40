@@ -276,6 +276,7 @@ void eko_life_lost(void) {
         case MODE_GALLERY: eg.ga.dead_t = 0; eg.ga.inv = 120; break;
         case MODE_BIKE:
             eg.bk.dead_t = 0; eg.bk.inv = 120; eg.bk.heat = 0; eg.bk.held_t = 0; eg.bk.z = 0; eg.bk.vz = 0;
+            eg.bk.hot = 0; eg.bk.hot_held = 0;
             for (int i = 0; i < BK_MAX_SHOTS; i++) eg.bk.shot[i].alive = 0;
             break;
         case MODE_SNEAK: eko_sneak_respawn(); break;
@@ -674,6 +675,7 @@ static int eko_query(const char *key, int *out) {
     if (!strcmp(key, "k_shots")) { *out = k->shots_fired; return 1; }
     if (!strcmp(key, "k_kills")) { *out = k->kills; return 1; }
     if (!strcmp(key, "k_overheat")) { *out = k->overheat; return 1; }
+    if (!strcmp(key, "k_hot")) { *out = k->hot; return 1; }
     if (!strcmp(key, "k_dead")) { *out = k->dead_t; return 1; }
     if (!strcmp(key, "k_boss")) { *out = k->boss_on; return 1; }
     if (!strcmp(key, "k_boss_dead")) { *out = k->boss_dead; return 1; }

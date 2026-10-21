@@ -253,6 +253,7 @@ typedef struct {
 #define BK_HEAT_DELAY 10          /* held this long, the gun starts heating */
 #define BK_HEAT_UP 3
 #define BK_HEAT_DOWN 2
+#define BK_GLOW_T 30              /* boiled over, the bike glows red and the gun holds this long; still held, the next shot blows it up */
 
 enum { OB_NONE, OB_CONE, OB_HURDLE, OB_RUNNER, OB_CAR, OB_BIKER, OB_GTRUCK, OB_SEMI, OB_MINE, OB_FIREJET,
        OB_ROCK, OB_MANGO, OB_LIFE, OB_CARD, OB_HOG, OB_KINDS };
@@ -285,6 +286,7 @@ typedef struct {
     int spawn_i;
     int x, y, z, vz;             /* bike: screen x, road y, height (all *256) */
     int cd, held_t, heat, overheat;
+    int hot, hot_held;           /* glowing red; and fire held without a break since it started */
     int inv, dead_t;
     EkoKObj obj[BK_MAX_OBJS];
     EkoKShot shot[BK_MAX_SHOTS];

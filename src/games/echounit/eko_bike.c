@@ -1,9 +1,11 @@
 /* ECHO UNIT - DART's hover-bike: the Cairo ring road (Hog Wild at the end)
  * and the Caldera's lava tunnel (the blue card on the last truck). The road
  * scrolls on its own; the bike moves four ways, B jumps cones, hurdles and
- * mines, and A fires straight ahead. Tap A: the gun stays cool, and fast
- * tapping is the fastest fire. Hold A: it fires slower and the barrel heats;
- * let it boil over and the bike blows up, which costs a whole life. */
+ * mines (every stretch is road, so the jump is always there), and A fires
+ * straight ahead. Tap A: the gun stays cool, and fast tapping is the
+ * fastest fire. Hold A: it fires slower and the barrel heats; held too
+ * long, the bike overheats and glows red, and if the fire is still held
+ * when the gun comes back, it blows up at once: a whole life gone. */
 #include "eko.h"
 
 #define K (&eg.bk)
@@ -104,29 +106,40 @@ static void bike_update(void) {
     }
     /* the gun and its heat */
     K->held_t = A ? K->held_t + 1 : 0;
+    if (!A) K->hot_held = 0; /* a break in the fire: no blow-up, whatever the heat */
+    bool fired = false;
     if (Ap && K->cd <= 0) {
         add_shot(false, K->x + 14 * EKO_FX, K->y - K->z - 8 * EKO_FX, 6 * EKO_FX, 0);
         K->cd = BK_TAP_CD;
-        K->shots_fired++;
-        eko_sfx("eko_pew");
+        fired = true;
     } else if (A && K->held_t > 1 && K->cd <= 0) {
         add_shot(false, K->x + 14 * EKO_FX, K->y - K->z - 8 * EKO_FX, 6 * EKO_FX, 0);
         K->cd = BK_HOLD_CD;
-        K->shots_fired++;
-        eko_sfx("eko_pew");
+        fired = true;
     }
-    if (K->held_t > BK_HEAT_DELAY) K->heat += BK_HEAT_UP;
-    else K->heat = imax(0, K->heat - BK_HEAT_DOWN);
-    if (K->heat >= BK_HEAT_MAX && !eg.god) {
-        /* boiled over: the bike goes up, and a whole life with it */
+    if (fired) { K->shots_fired++; eko_sfx("eko_pew"); }
+    if (fired && K->hot_held && !eg.god) {
+        /* still shooting without a stop since it overheated: it blows up at
+         * once, and a whole life with it */
         K->overheat++;
-        K->heat = BK_HEAT_MAX;
         eko_say("OVERHEATED!");
         eko_hurt(99);
         K->dead_t = 1;
+        K->hot = K->hot_held = 0;
         eko_burst(EKO_PX(K->x), EKO_PX(K->y) - 8, C_ORANGE, 20);
         eko_sfx("eko_crash");
+        return;
     }
+    if (K->held_t > BK_HEAT_DELAY) K->heat = imin(BK_HEAT_MAX, K->heat + BK_HEAT_UP);
+    else K->heat = imax(0, K->heat - BK_HEAT_DOWN);
+    if (A && K->heat >= BK_HEAT_MAX && !K->hot_held) {
+        /* overheated (the fire held right up to it): the bike glows red and the gun holds a moment */
+        K->hot = 1;
+        K->hot_held = 1;
+        K->cd = imax(K->cd, BK_GLOW_T);
+        eko_say("OVERHEATING!");
+        eko_sfx("eko_hot");
+    } else if (K->hot && !K->hot_held && K->heat < BK_HEAT_MAX / 2) K->hot = 0;
 }
 
 /* ---- objects -------------------------------------------------------------------------- */

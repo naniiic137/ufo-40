@@ -57,7 +57,9 @@ static void hud(void) {
         int w = eg.bk.heat * 70 / BK_HEAT_MAX;
         gfx_rect(134, 5, 72, 7, C_NIGHT);
         int col = eg.bk.heat > BK_HEAT_MAX * 3 / 4 ? ((eg.frame_t / 3) % 2 ? C_RED : C_YELLOW) : eg.bk.heat > BK_HEAT_MAX / 2 ? C_ORANGE : C_JADE;
+        if (eg.bk.hot) col = C_RED;
         gfx_rect(135, 6, w, 5, col);
+        if (eg.bk.hot && (eg.frame_t / 6) % 2) tiny_draw("LET GO!", 210, 6, C_RED);
         break;
     }
     case MODE_SNEAK: {
@@ -568,7 +570,13 @@ static void bike_draw(void) {
         if (EKO_PX(k->y) / 2 * 2 == y && !(k->inv && (k->inv / 3) % 2)) {
             int bx = EKO_PX(k->x), by = EKO_PX(k->y);
             gfx_rect(bx - 10, by - 1, 20, 3, C_INK);
-            if (!k->dead_t) spr_draw(&eko_spr[(eg.frame_t / 4) % 2 ? SP_BIKE1 : SP_BIKE2], bx - 12, by - 16 - EKO_PX(k->z), 0);
+            if (!k->dead_t && k->hot) {
+                /* overheated: the whole bike glows red */
+                uint8_t map[PAL_COUNT];
+                pal_identity(map);
+                for (int c = 0; c < PAL_COUNT; c++) if (c != C_INK) map[c] = (uint8_t)((eg.frame_t / 3) % 2 ? C_RED : C_ORANGE);
+                spr_draw_ex(&eko_spr[(eg.frame_t / 4) % 2 ? SP_BIKE1 : SP_BIKE2], bx - 12, by - 16 - EKO_PX(k->z), 0, map, -1);
+            } else if (!k->dead_t) spr_draw(&eko_spr[(eg.frame_t / 4) % 2 ? SP_BIKE1 : SP_BIKE2], bx - 12, by - 16 - EKO_PX(k->z), 0);
             if (k->heat > BK_HEAT_MAX * 3 / 4) gfx_pset(bx + 10, by - 18 - EKO_PX(k->z) - (eg.frame_t % 6), C_GREY);
         }
     }
