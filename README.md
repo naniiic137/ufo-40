@@ -155,7 +155,7 @@ menu, shows the buttons as you now press them). SELECT or B closes it.
 | 47 | **WOBBLE DERBY** | Quibble Race | three punters and three runners a race, odds from a form book of twenty unseen races, rising bet caps and an open last race, one tip a race, five dirty tricks and a minder with the same prices and fines, a lender at 15 % compounded, sponsoring from a shortlist and a coach, meteors, garbage and smog, 26 runners in the same speed and clumsiness bands, 3-player hot-seat | Crater Downs, the 26 wobblers, the sixteen punters (five of them UFO 40 cameos), the Fixer, the Lender and the Wobble Wire |
 | 48 | **DRIFTLINE** | Seaside Drive | a car locked to the road at the bottom while the world scrolls by, steering that also swings the gun through a 90-degree cone (UP straightens it), a rapid roof gun on A and side pairs along the road on B, a charge meter (grey, green, red: its section sets the shots' damage, rate and speed) that fills only while you drive left and drains slowly otherwise, one hit per car and the screen swept clean as the next drives in fully charged, fliers that turn nasty if left alone, wrecks that pay only when shot again, four fixed stages from morning to the open sea, each with a boss (10,000 to 40,000) seen in the background all stage, a Breakout bonus stage after any stage with no car lost whose coin is two more cars (the only extra cars), 2P co-op in one car with a driver and a gunner | Lou and the Gull, Dee on the gun, Harbour Road, the Sundown Strip, the Moonlit Mile and Open Water, every foe, the Zephyr, the Orrery, the Man in the Moon, Old Crab (from ROOFCAT) and a Beamdown saucer, all the waves, swells and block layouts |
 | 49 | **FULL PEAL** | Campanella 3 | a faux-3D shooter flying into the screen, the ship free on a flat 6 × 4 plane with no gravity, fuel or walls; A fires into the distance down your lane, B fires the side blaster along the plane away from the way you move (held, it keeps its aim) at whatever has reached you; one hit a ship, three ships a credit, not given back between stages, a lost credit restarts the stage; five stages of four fixed waves and a boss, each wave graded 0–100 by the share shot down; a 100 or a 0 brings a balloon round after the boss (red 1, orange 3, 50 for a continue); the final count is the twenty grades plus 100 a continue; sixteen foes, five bosses (the last healing until your sister flies in), a no-guns code; and, for a second controller held on A, fifty four-colour micro-games in the cockpit monitor, each with its high score | Ansel and the Tinkler with Clary on the radio (the BELLHOP cast), the bell-planet Knell, Outer Belfry, Tin Nebula, The Murk and Tollgate, all sixteen foes, the Gloameye, Knucklebell, the Inkwell, Shellback and Queen Sordina, the owl, all twenty waves and fifty micro-games, the HUGS-ONLY code |
-| 50 | **ECHO UNIT** | Cyber Owls | four cyber bats and four genres: a brawler with one fixed jump, a three-hit combo, a charged lunge only from standing still and barrels to throw and kick on (more points for every extra foe one lunge or barrel takes), a shooting gallery where tapping fires fastest and holding plants your feet so the pad steers the sight, a hover-bike autoscroller whose gun boils over (and costs a life) if you hold the trigger, and a stealth maze of guards who come to look, hunt you once they see you and forget when you leave the room; two lives a mission, and a bat that loses both is captured, its mission locked until another bat wins a rolled, turn-based block-push jailbreak; then all four in the Caldera, where there are no second chances | Flint, Vesper, Dart, Sable and Colonel Hush, V.I.P.E.R. and its lizard troops, Scrapjaw, Ramrod and Vultra, Hog Wild, Cipher, Dr. Talpa and Madame Coil, Marseille, the Andes, Cairo, Istanbul and the Caldera, and sixteen tunes |
+| 50 | **ECHO UNIT** | Cyber Owls | four cyber bats and four genres: a brawler with one fixed jump, a three-hit combo, a ki blast charged only from standing still and barrels to throw and kick on (more points for every extra foe one blast or barrel takes), a shooting gallery where tapping fires fastest, holding plants your feet so the pad steers the sight, and lobbed grenades can be picked up and thrown back, a hover-bike autoscroller whose bike glows red and then blows up (and costs a life) if you keep holding the trigger, and an eight-way stealth maze of guards who come to look, hunt you once they see you and forget when you leave the room; two lives a mission, and a bat that loses both is captured, its mission locked until another bat wins a rolled, turn-based block-push jailbreak where skills come back after a few turns and guards take a turn to aim, then shoot whatever is in their line; then all four in the Caldera, where there are no second chances | Flint, Vesper, Dart, Sable and Colonel Hush, V.I.P.E.R. and its lizard troops, Scrapjaw, Ramrod and Vultra, Hog Wild, Cipher, Dr. Talpa and Madame Coil, Marseille, the Andes, Cairo, Istanbul and the Caldera, and sixteen tunes |
 | 08, 12, 20, 22, 29, 37, 40, 42–43, 50 | *coming soon* | | | still in the saucer's cargo hold |
 
 Every cartridge has three goals, which follow the original's own three: a
@@ -1966,34 +1966,42 @@ the top.
   <img src="docs/shots/echounit_istanbul.png" width="320" alt="Istanbul: Sable, a sleeping guard and a camera by the blue door">
 </p>
 <p align="center">
-  <img src="docs/shots/echounit_jailbreak.png" width="320" alt="A jailbreak: Dart on a grid of three rooms, guards round the card">
+  <img src="docs/shots/echounit_jailbreak.png" width="320" alt="A jailbreak: Dart's health and two skills on the left, a grid of three rooms with guards round the card">
   <img src="docs/shots/echounit_coil.png" width="320" alt="Madame Coil's gunship over the Caldera's launch pad">
 </p>
 
 *A tribute to **Cyber Owls** (UFO 50 #50).*
 
 - **Plays the same:** four bats, four genres, picked in any order from a
-  mission board. FLINT brawls through Marseille: one jump height, punch,
-  punch, kick, a crouching jab, a lunge charged by holding A standing
-  still (it can carry him into a pit), barrels to lift, throw and kick on,
-  and more points for each extra foe one lunge or barrel takes; a key
-  trooper, a locked wall, a lift ride, Scrapjaw. VESPER holds the Andes
-  pass: tap A to shoot as she walks (tapping fast is fastest), hold it to
-  plant her feet and steer the sight anywhere, a combo meter, red barrels,
-  and two bosses at once. DART rides Cairo's ring road: tap to shoot, hold
-  and the gun heats until the bike blows up (a whole life), B to jump
+  mission board. FLINT brawls through Marseille: one jump height (he faces
+  the same way all through it), punch, punch, kick, a crouching jab, a ki
+  blast charged by holding A standing still until he flashes, barrels to
+  lift, throw and kick on, and more points for each extra foe one blast or
+  barrel takes; a key trooper (knock him down off the screen and the key
+  is gone for good, the original's bug), a locked wall, a lift ride,
+  Scrapjaw. VESPER holds the Andes pass: tap A to shoot as she walks
+  (tapping fast is fastest), hold it to plant her feet and steer the
+  sight, always within a stretch in front of her; a tap on an item picks
+  it up, and a grenade lobbed at her can be picked up and thrown back; B
+  dives aside; a combo meter, red barrels, and two bosses at once. DART
+  rides Cairo's ring road: tap to shoot, hold and the gun heats until the
+  bike glows red, keep holding and it blows up (a whole life), B to jump
   cones and hurdles, a semi truck worth 500, Hog Wild. SABLE sneaks
-  through Istanbul with three darts and three rounds: guards walk their
-  beats, come to look at a noise and hunt her once seen, cameras raise
-  the whole room, leaving a room makes them forget, and a room left
-  unseen is worth 100 (50 if it heard a noise); cards, a cracked wall,
-  Cipher. A is every bat's main action, as everywhere in UFO 40.
+  through Istanbul in eight directions, her items used only straight
+  ahead, with three darts and three rounds (the kit at the bottom left):
+  guards walk their beats, come to look at a noise and hunt her once
+  seen, cameras raise the whole room, leaving a room makes them forget,
+  and a room left unseen is worth 100 (50 if it heard a noise); cards, a
+  cracked wall, Cipher. A is every bat's main action, as everywhere in
+  UFO 40.
 - **Captured:** two lives a mission. Lose both and that bat is captured,
   its mission locked, until another bat wins a jailbreak: a rolled,
-  turn-based grid of three rooms where crates push, guards see along
-  their line and come for you, and each bat has two moves of its own;
-  take the card, bring it to the cell. Fail, and the rescuer is locked up
-  too. With all four caught, the game is over.
+  turn-based grid of three rooms, the bat's health and two skills on the
+  left (a used skill counts down the turns until it is back); crates
+  push, guards see along their line, take a turn to aim and then shoot
+  whatever stands in it, each other included; take the card, bring it to
+  the cell. Fail, and the rescuer is locked up too. With all four caught,
+  the game is over.
 - **The Caldera:** with all four missions done, Sable leads the raid on
   V.I.P.E.R.'s volcano: Flint climbs the secret lab to Dr. Talpa for the
   red card, Dart rides the lava tunnel for the blue one, and Vesper takes
