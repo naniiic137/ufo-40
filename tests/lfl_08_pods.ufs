@@ -58,3 +58,31 @@ press A
 hold LEFT 60
 wait 40
 expect things2 == 4
+# a shard hits for 5 (outside the blast, in the shards' way)
+cheat res 0 5
+cheat hp 7 7
+cheat pos 179 114
+cheat tile 12 7 7
+press A
+hold LEFT 22
+waituntil shards > 0 120
+wait 20
+expect hp == 2
+expect last_hurt == 5
+# a crystal the hatcher turned to flesh blows up safely: no shards
+cheat hp 7 7
+cheat hold 2 3
+cheat tile 12 7 7
+cheat pos 160 114
+cheat face 1
+press A
+wait 10
+expect tile_12_7 == 8
+press B 3
+cheat pos 179 114
+press A
+hold LEFT 60
+wait 40
+expect tile_12_7 == 0
+expect shards == 0
+expect hp == 7

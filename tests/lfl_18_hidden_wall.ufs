@@ -1,0 +1,86 @@
+# LANDFALL: one hidden wall per planet, on one of the room looks the hint
+# names (a wooden walk ending at rock, a lone square of bog, a lone log,
+# two holes in the ground), with four of the rare resource behind it. Its
+# key is rolled per planet: the thumper, the disc (thrown from the side
+# the hint says), a blast pod, rivets, or being small enough to slip in.
+# The wrong tool does nothing.
+game landfall
+wait 5
+cheat nomobs
+# planet 2: a thump wakes it
+cheat planet 2
+expect secret_room == 14
+expect secret_key == 0
+cheat room 14 120 50
+expect tile_9_3 == 18
+cheat hold 1 4
+cheat face 1
+press A
+wait 20
+expect secret_open == 0
+press B 3
+cheat res 2 2
+press A
+expect secret_open == 1
+expect tile_9_3 == 0
+expect res3 == 0
+hold RIGHT 40
+expect res3 == 4
+# planet 5: rivets crack it (from above)
+cheat planet 5
+expect secret_key == 3
+cheat room 15 67 18
+cheat hold 1 -1
+cheat face 2
+expect tile_4_3 == 18
+press A
+wait 20
+expect tile_4_3 == 0
+expect res2 == 0
+hold DOWN 40
+expect res2 == 4
+# planet 9: a blast opens it
+cheat planet 9
+expect secret_key == 2
+cheat room 46 227 82
+expect tile_13_5 == 18
+cheat hold 3 5
+cheat res 0 5
+cheat res 1 5
+cheat res 2 5
+cheat res 3 5
+press A
+hold RIGHT 30
+wait 90
+expect tile_13_5 == 0
+hold LEFT 60
+expect res1 == 8
+# planet 3: the disc, thrown from the north
+cheat planet 3
+expect secret_key == 1
+cheat room 34 67 18
+cheat hold 0 -1
+cheat face 2
+expect tile_4_3 == 18
+press A
+wait 60
+expect tile_4_3 == 0
+hold DOWN 40
+expect res2 == 4
+# planet 1: only a small Wick gets in
+cheat planet 1
+expect secret_key == 4
+cheat room 40 243 50
+cheat hold 2 -1
+cheat face 3
+expect tile_13_3 == 18
+hold LEFT 30
+expect px == 224
+cheat face 1
+press A
+waituntil small == 1 120
+expect res0 == 0
+hold LEFT 60
+expect px < 220
+expect tile_13_3 == 18
+expect res0 == 4

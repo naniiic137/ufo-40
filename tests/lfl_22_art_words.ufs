@@ -1,0 +1,19 @@
+# LANDFALL: every sprite string is whole and uses only palette letters;
+# every screen's words fit and every line a local can say fits the talk
+# box; the music plays (each song's channels loop together: audio_songs).
+game landfall
+wait 5
+expect art_bad == 0
+expect layout == 0
+cheat planet 2
+expect layout == 0
+audio on
+music lfl_planet
+wait 120
+expect audio.peak > 8
+music lfl_dungeon
+wait 120
+expect audio.peak > 8
+music lfl_title
+wait 120
+expect audio.peak > 8

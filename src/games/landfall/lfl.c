@@ -183,6 +183,30 @@ void lfl_start_talk(int who) {
     lfl_sfx("lfl_talk");
 }
 
+/* tests: every line a local can say fits the talk box (the longest
+ * names and numbers in each offer) */
+static int talk_audit(void) {
+    int bad = 0;
+    char buf[64];
+    for (size_t i = 0; i < ARRAY_LEN(CHATTER_A); i++) bad += text_width(CHATTER_A[i]) > 268 || text_missing(CHATTER_A[i]);
+    for (size_t i = 0; i < ARRAY_LEN(CHATTER_B); i++) bad += text_width(CHATTER_B[i]) > 268 || text_missing(CHATTER_B[i]);
+    for (int r = 0; r < RS_COUNT; r++) {
+        snprintf(buf, sizeof buf, "%d %s FOR %d %s.", 32, lfl_res_name(r), 16, lfl_res_name(r));
+        bad += text_width(buf) > 268 || text_missing(buf);
+        snprintf(buf, sizeof buf, "A STAR CHART PIECE FOR %d %s.", 32, lfl_res_name(r));
+        bad += text_width(buf) > 268 || text_missing(buf);
+        for (int t = 0; t < TL_COUNT; t++) {
+            snprintf(buf, sizeof buf, "MY %s FOR %d %s.", lfl_tool_names()[t], 32, lfl_res_name(r));
+            bad += text_width(buf) > 268 || text_missing(buf);
+        }
+    }
+    const char *fixed[] = {"BOG BOOTS: THE BOG CANNOT HURT YOU", "WHILE YOU CARRY THEM.", "TALK BOX: WHILE YOU CARRY IT, THE",
+                           "GLYPH TONGUE READS PLAINLY.", "ONE DAY I WILL FLY TOO", "A SECRET, WALKER:", "THAT WAS MY ONLY ONE.",
+                           GLYPH_B " TRADE   " GLYPH_A " NO THANKS", "THEY SAY SKYWELL IS NOT HALF THIS GOOD"};
+    for (size_t i = 0; i < ARRAY_LEN(fixed); i++) bad += text_width(fixed[i]) > 268 || text_missing(fixed[i]);
+    return bad;
+}
+
 static void do_trade(void) {
     LflTrade *t = &lp.trade[lg.talk_trade];
     if (lg.res[t->pay_res] < t->pay_n) {
@@ -573,6 +597,7 @@ static int lfl_query(const char *key, int *out) {
     if (!strncmp(key, "room_dirty", 10)) { *out = lp.room[iclamp(atoi(key + 10), 0, LFL_MAX_ROOMS - 1)].dirty; return 1; }
     if (!strcmp(key, "warp_rooms")) { *out = (lp.warp_room[0] >= 0) + (lp.warp_room[1] >= 0); return 1; }
     if (!strcmp(key, "art_bad")) { *out = lfl_art_check(); return 1; }
+    if (!strcmp(key, "layout")) { *out = lfl_layout_audit() + talk_audit(); return 1; }
     if (!strncmp(key, "audit_many_", 11)) {
         int from = 0, n = 0, what = 0;
         if (sscanf(key + 11, "%d_%d_%d", &from, &n, &what) < 2) return 0;
