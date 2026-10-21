@@ -580,6 +580,16 @@ static void add_blast(int kind, int x, int y, int r, int t) {
         }
 }
 
+/* a crystal breaking beside a local turns it on Wick */
+static void crystal_broken(int tx, int ty) {
+    int cx = tx * LFL_TILE + 8, cy = ty * LFL_TILE + 8;
+    for (int i = 0; i < LFL_MAX_MOBS; i++) {
+        LflMob *m = &lg.mob[i];
+        if (!m->alive || !(m->flags & MF_FRIENDLY) || (m->flags & MF_MORPHED)) continue;
+        if (iabs(LFL_PX(m->x) + m->w / 2 - cx) <= 2 * LFL_TILE && iabs(LFL_PX(m->y) + m->h / 2 - cy) <= 2 * LFL_TILE) m->flags |= MF_ANGRY;
+    }
+}
+
 void lfl_open_secret(void) {
     LflRoom *r = cur();
     if (r->secret_x < 0 || r->t[(int)r->secret_y][(int)r->secret_x] != T_SECRET) return;
@@ -602,6 +612,7 @@ void lfl_explode(int x, int y, int rad, int dmg_player, int dmg_mob, bool from_c
             case T_FOLIAGE: case T_FLESH: *t = T_FLOOR; break;
             case T_CRYSTAL:
                 *t = T_FLOOR;
+                crystal_broken(tx, ty);
                 /* a blown crystal throws shards a moment later */
                 add_blast(1, tx * LFL_TILE + 8, ty * LFL_TILE + 8, 0, SHARD_DELAY);
                 break;
@@ -909,6 +920,7 @@ static void shot_hits_tile(LflShot *s, int tx, int ty) {
     int t = lfl_tile(lg.cur, tx, ty);
     if (t == T_CRYSTAL && s->kind == SH_RIVET) {
         r->t[ty][tx] = T_FLOOR; /* rivets break crystals safely */
+        crystal_broken(tx, ty);
         lfl_sfx("lfl_crystal");
     }
     if (t == T_CRYSTAL && s->kind == SH_HATCH) {
