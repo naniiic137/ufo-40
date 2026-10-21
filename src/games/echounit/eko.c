@@ -618,6 +618,7 @@ static int eko_query(const char *key, int *out) {
     if (!strcmp(key, "b_rats")) { int n = 0; for (int i = 0; i < BR_MAX_FOES; i++) n += b->foe[i].alive && b->foe[i].kind == BF_RAT; *out = n; return 1; }
     if (!strcmp(key, "b_boss")) { *out = b->boss_on; return 1; }
     if (!strcmp(key, "b_boss_dead")) { *out = b->boss_dead; return 1; }
+    if (!strcmp(key, "b_boss_hp")) { *out = b->boss_on && b->boss_i >= 0 && b->foe[b->boss_i].alive ? b->foe[b->boss_i].hp : -1; return 1; }
     if (!strcmp(key, "b_lift_t")) { *out = b->lift_t; return 1; }
     if (!strcmp(key, "b_wall")) { *out = b->wall_open_t; return 1; }
     if (!strcmp(key, "b_cam_x")) { *out = b->cam_x; return 1; }

@@ -1,6 +1,7 @@
-# VESPER: a red barrel's blast takes everything near it; a green truck
-# leaves a mango; the pass ends with Ramrod on the ground and Vultra in the
-# air, fought at the same time.
+# VESPER: a red barrel takes a long time to destroy (ten shots, cracking
+# as it softens); its blast takes everything near it. A green truck leaves
+# a mango. The pass ends with Ramrod on the ground and Vultra in the air,
+# fought at the same time.
 seed 1
 game echounit
 wait 5
@@ -16,6 +17,26 @@ cheat gfoe 1 1 140
 cheat gfoestill 2
 expect g_foes == 3
 cheat gaim 160 99
+press A 1
+wait 6
+press A 1
+wait 6
+press A 1
+wait 6
+press A 1
+wait 6
+press A 1
+wait 6
+press A 1
+wait 6
+press A 1
+wait 6
+press A 1
+wait 6
+press A 1
+wait 6
+expect g_foes == 3
+expect g_hpk6 == 1
 press A 1
 wait 5
 expect g_foes == 0

@@ -1229,7 +1229,9 @@ void eko_brawl_update(void) {
     /* the boss's mark */
     if (!B->boss_on && EKO_BMAP[B->map].boss && !B->lift_on) {
         int px = EKO_PX(B->p.x) >> 4, py = (EKO_PX(B->p.y) - 8) >> 4;
-        for (int ty = py - 3; ty <= py + 3; ty++)
+        /* only from inside the arena's own chunk (not from the floor below it) */
+        int ch0 = (py / BR_SH) * BR_SH;
+        for (int ty = imax(py - 3, ch0); ty <= imin(py + 3, ch0 + BR_SH - 1); ty++)
             for (int tx = (px / BR_SW) * BR_SW; tx < (px / BR_SW + 1) * BR_SW; tx++) /* anywhere in the arena's chunk */
                 if (tile_at(tx, ty) == 'B') {
                     /* the arena: the chunk he is in */

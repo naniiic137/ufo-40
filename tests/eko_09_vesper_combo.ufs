@@ -1,7 +1,8 @@
 # VESPER: troopers pop up from behind cover at three depths; a shot hits
-# the nearest thing under the sight. Each kill feeds the combo meter; it
-# multiplies the points (x1, then one more for every three kills in a row)
-# and runs down if she stops scoring.
+# the nearest thing under the sight. Everything is tanky: a rifleman takes
+# two shots. Each kill feeds the combo meter; it multiplies the points (x1,
+# then one more for every three kills in a row) and the damage of every
+# shot the same way, and runs down if she stops scoring.
 seed 1
 game echounit
 wait 5
@@ -16,6 +17,10 @@ cheat gfoestill 0
 cheat gaim 160 128
 press A 1
 wait 10
+expect g_kills == 0
+expect g_hpk1 == 1
+press A 1
+wait 10
 expect g_kills == 1
 expect g_combo == 1
 expect score == 10
@@ -24,17 +29,30 @@ cheat gfoestill 0
 cheat gaim 160 128
 press A 1
 wait 10
+press A 1
+wait 10
 cheat gfoe 1 2 160
 cheat gfoestill 0
 cheat gaim 160 128
 press A 1
 wait 10
+press A 1
+wait 10
 expect g_combo == 3
 # the third kill in a row is worth double
 expect score == 40
+# and now every shot does double: one shot drops a rifleman
+cheat gfoe 1 2 160
+cheat gfoestill 0
+cheat gaim 160 128
+press A 1
+wait 10
+expect g_kills == 4
+expect g_combo == 4
+expect score == 60
 wait 160
 expect g_combo == 0
 # a shot that hits nothing does nothing
 cheat gaim 160 60
 press A 1
-expect g_kills == 3
+expect g_kills == 4

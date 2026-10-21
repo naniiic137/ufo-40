@@ -8,14 +8,17 @@
  * Standing on something on the ground, a tap of A picks it up instead: a
  * mango, or a live grenade lobbed at her, which the next tap throws back
  * at the sight before it goes off. B dives aside. Every kill feeds the
- * combo meter, which multiplies the points while it lasts. */
+ * combo meter, which multiplies the points and the damage of her shots
+ * while it lasts. Everything here is tanky: riflemen take two shots, the
+ * mortar crews three, and a red barrel ten (it cracks as it softens, so
+ * it can be worn down and set off when the moment is right). */
 #include "eko.h"
 
 #define G (&eg.ga)
 
 const int GA_ROW_Y[GA_ROWS] = {70, 102, 140};
 const int GA_ROW_SCALE[GA_ROWS] = {2, 3, 4};
-const int EKO_GE_HP[GE_KINDS] = {0, 1, 1, 2, 6, 8, 1, 50, 50, 20, 30, 60, 1};
+const int EKO_GE_HP[GE_KINDS] = {0, 2, 1, 3, 6, 8, 10, 50, 50, 20, 30, 60, 1};
 const int EKO_GE_POINTS[GE_KINDS] = {0, 10, 10, 20, 50, 50, 0, 200, 200, 100, 100, 500, 0};
 
 static bool is_sky(int kind) {
@@ -173,7 +176,8 @@ void eko_gallery_fire(int x, int y) {
     /* the core shrugs it off while the pods and the cannon still fly */
     if (f->kind == GE_COIL && !f->a) { eko_sfx("eko_tink"); return; }
     G->hits++;
-    f->hp--;
+    /* the meter multiplies the damage too: one more for every three kills in a row */
+    f->hp -= 1 + G->combo / 3;
     f->flash = 6;
     if (f->hp <= 0) kill_foe(best);
     else eko_sfx("eko_hit");

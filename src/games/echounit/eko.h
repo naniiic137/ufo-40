@@ -17,6 +17,12 @@
 #include "../../shell/gamedef.h"
 #include "../../shell/ui.h"
 
+/* every global of the cartridge carries its prefix (the short names are for reading) */
+#define eg eko_eg
+#define egs eko_egs
+#define GA_ROW_Y EKO_GA_ROW_Y
+#define GA_ROW_SCALE EKO_GA_ROW_SCALE
+
 /* ---- fixed point and angles ---------------------------------------------- */
 #define EKO_FX 256
 #define EKO_PX(v) ((v) >> 8)

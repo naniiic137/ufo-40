@@ -127,7 +127,17 @@ static int brawl_score(void) {
     int w = stuck_t > 240 ? 120 : 40;
     /* the lab: up, from under the middle where the ledges overlap */
     if (b->boss_on) s += 60000; /* the arena reached: the fight terms below take over */
-    else if (b->map == BM_LAB) s -= EKO_PX(b->p.y) * w + iabs(EKO_PX(b->p.x) - 152) * 12;
+    else if (b->map == BM_LAB) {
+        /* up the shaft, from under the middle where the ledges overlap; at the
+         * top, along to the arena's mark */
+        int py = EKO_PX(b->p.y);
+        if (py > BR_SH * 16) s -= (py + 1200) * w + iabs(EKO_PX(b->p.x) - 152) * 12;
+        else {
+            int mx = b->mw * 16;
+            for (int x = 0; x < b->mw; x++) if (b->tile[8][x] == 'B') mx = x * 16 + 8;
+            s -= py * w + iabs(EKO_PX(b->p.x) - mx) * w;
+        }
+    }
     else if (b->lift_on) s -= iabs(EKO_PX(b->p.x) - 160) * 4;
     else {
         int tx = brawl_target_x();
@@ -136,8 +146,10 @@ static int brawl_score(void) {
         int ey = brawl_exit_y();
         if (ey >= 0 && iabs(tx - EKO_PX(b->p.x)) < 48 && b->p.ground) s -= iabs(ey - EKO_PX(b->p.y)) * w;
     }
-    s += b->kills * 400 + eg.score;
-    s += b->dmg_dealt * (b->lift_on ? 2500 : 500);
+    /* fighting pays, but they keep coming: stalled a while, only headway counts */
+    int fight = (b->lift_on || b->boss_on || stuck_t < 300) ? 1 : 0;
+    s += (b->kills * 400 + eg.score) * fight;
+    s += b->dmg_dealt * (b->lift_on ? 2500 : 500) * fight;
     /* in the lift and the boss arenas: close in on the nearest foe */
     if (b->lift_on || b->boss_on) {
         int nd = 1000;

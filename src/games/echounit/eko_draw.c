@@ -415,6 +415,10 @@ static void gfoe_draw(const EkoGFoe *f) {
         gfx_rect(x - w / 2, y - h, w, h, C_RED);
         gfx_hline(x - w / 2, x + w / 2 - 1, y - h + 2, C_MAROON);
         gfx_hline(x - w / 2, x + w / 2 - 1, y - 3, C_MAROON);
+        /* softened: it cracks, then it smokes */
+        if (f->hp <= 7) gfx_line(x - w / 4, y - h + 3, x, y - h / 2, C_INK);
+        if (f->hp <= 4) gfx_line(x + w / 4, y - 4, x, y - h / 2, C_INK);
+        if (f->hp <= 2 && (eg.frame_t / 6) % 2) gfx_pset(x, y - h - 2 - (eg.frame_t / 3) % 4, C_GREY);
         break;
     }
     case GE_RAMROD: spr_draw(&eko_spr[SP_RAMROD], x - 16, y - 32, f->dir < 0 ? SPR_FLIPX : 0); break;
