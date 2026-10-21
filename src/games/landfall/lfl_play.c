@@ -1289,8 +1289,10 @@ static void player_update(void) {
     for (int i = 0; i < lp.nthing; i++) {
         LflThing *t = &lp.thing[i];
         if (!t->alive || t->room != lg.cur) continue;
-        if (t->cd > 0) { t->cd--; continue; }
-        if (!rects_overlap(x, y, w, w, t->x, t->y, 12, 12)) continue;
+        bool touch = rects_overlap(x, y, w, w, t->x, t->y, 12, 12);
+        /* a tool just set down waits until she has stepped off it */
+        if (t->cd > 0) { if (!touch) t->cd--; continue; }
+        if (!touch) continue;
         if (t->kind == TH_TOOL && p->shrink_t > 0) continue;
         take_thing(i, false);
     }

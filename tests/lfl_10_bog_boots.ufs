@@ -1,0 +1,50 @@
+# LANDFALL: bog (the toxic swamp) bites: 1 a step, then a moment of safety
+# before the next, so a short stretch can be crossed by taking the hits.
+# Carrying the bog boots (in either hand) she walks it unharmed. A on the
+# boots or the talk box only says what they do; the clock stops while the
+# words are up.
+game landfall
+wait 5
+cheat nomobs
+cheat planet 1
+cheat tile 5 7 11
+cheat tile 6 7 11
+cheat tile 7 7 11
+cheat tile 8 7 11
+cheat tile 9 7 11
+cheat tile 10 7 11
+cheat pos 60 114
+hold RIGHT 90
+expect px >= 172
+expect hp == 1
+expect hits == 2
+expect last_hurt == 1
+# with the boots, in the hand that isn't active: no harm
+cheat hp 3 3
+cheat hold 1 5
+cheat pos 60 114
+hold RIGHT 90
+expect px >= 172
+expect hp == 3
+expect hits == 2
+# A on the boots: their words, and the clock stops
+cheat hold 5 7
+press A
+expect state == 3
+expect talk_lines == 2
+cheat time 600
+wait 120
+expect time == 600
+press A
+wait 10
+expect state == 2
+expect time > 600
+# the talk box says what it does
+press B 3
+expect active == 7
+press A
+expect state == 3
+wait 10
+press A
+wait 10
+expect state == 2

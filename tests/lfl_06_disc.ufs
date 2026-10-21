@@ -1,0 +1,53 @@
+# LANDFALL: the disc (the Boomerang's job): free, thrown out to about half
+# the screen and back, 2 damage going and coming, one in the air at a time.
+# It grabs a pickup it touches and brings it home, even across pits she
+# can't walk over, and it flies through a hollow log that stops a rivet.
+game landfall
+wait 5
+cheat nomobs
+cheat planet 1
+cheat hold 0 -1
+cheat species 3 0 0
+cheat spset 3 4 1 0
+cheat mob 3 150 113
+cheat pos 20 114
+cheat face 1
+press A
+expect shots == 1
+wait 6
+press A
+expect shots == 1
+wait 90
+expect shots == 0
+expect mob0_alive == 0
+# the drop came back with it
+expect res2 == 1
+expect drops == 0
+# over two pits: the bundle comes back to her hands
+cheat tile 10 7 13
+cheat tile 11 7 13
+cheat thing 4 0 200 114
+cheat pos 120 114
+cheat face 1
+hold RIGHT 30
+expect px <= 150
+expect res0 == 0
+press A
+wait 90
+expect res0 == 2
+expect shots == 0
+# a hollow log: rivets stop at it, the disc goes through
+cheat tile 10 7 15
+cheat tile 11 7 0
+cheat mob 3 180 113
+cheat pos 120 114
+cheat face 1
+cheat hold 1 0
+press A
+wait 30
+expect mob0_hp == 4
+press B 3
+expect active == 0
+press A
+wait 90
+expect mob0_alive == 0

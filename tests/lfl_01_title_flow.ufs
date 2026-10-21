@@ -1,0 +1,59 @@
+# LANDFALL: one mode, one player. A (or START) on the title builds a brand
+# new planet and lands Wick on it: a short landing, then play beside the
+# ship with 3 energy of 3, empty hands, no resources and an empty chart.
+# The clock starts with play. A death means a new planet next time, and B
+# on the title goes back to the library.
+seed 4
+game landfall
+wait 10
+expect state == 0
+expect save_runs == 0
+press A
+expect state == 1
+expect seed == -132590509
+expect room_kind == 3
+expect hp == 3
+expect hpmax == 3
+expect hold0 == -1
+expect hold1 == -1
+expect maps == 0
+expect res0 == 0
+expect res1 == 0
+expect res2 == 0
+expect res3 == 0
+expect save_runs == 1
+# the landing doesn't count on the clock
+wait 140
+expect state == 1
+expect time == 0
+wait 20
+expect state == 2
+wait 60
+expect time >= 60
+expect time <= 72
+# lost: the planet is gone, the next run lands on a new one
+cheat die
+expect state == 5
+wait 100
+expect state == 6
+expect save_deaths == 1
+wait 70
+press START
+expect state == 0
+wait 10
+press START
+wait 10
+expect state == 1
+expect seed != -132590509
+expect save_runs == 2
+expect hp == 3
+wait 150
+cheat die
+wait 170
+press A
+expect state == 0
+# B on the title: back to the library
+wait 10
+press B
+wait 30
+expect_scene library

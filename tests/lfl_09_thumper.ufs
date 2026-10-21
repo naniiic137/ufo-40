@@ -1,0 +1,36 @@
+# LANDFALL: the thumper (the Pulse Generator's job): each thump burns one
+# of a resource rolled per planet (burrs here) and knocks out every hostile
+# creature in the room at once; a big shell is left an empty shell; the
+# locals are spared; blue blocks sink into the ground.
+game landfall
+wait 5
+cheat nomobs
+cheat planet 1
+cheat hold 4 -1
+cheat pos 40 82
+cheat mob 3 200 113
+cheat mob 4 240 30
+cheat mob 0 60 20
+cheat mob 6 220 60
+cheat tile 5 7 9
+cheat tile 6 7 9
+expect mobs == 4
+expect hostiles == 3
+expect friendlies == 1
+# no burrs: a buzz, and burrs flash
+press A
+expect flash1 > 0
+expect hostiles == 3
+cheat res 1 3
+press A
+expect res1 == 2
+expect kills == 2
+expect hostiles == 0
+expect shells == 1
+expect friendlies == 1
+expect tile_5_7 == 10
+expect tile_6_7 == 10
+# blue blocks sunk: she walks over them
+cheat pos 70 114
+hold RIGHT 30
+expect px > 100

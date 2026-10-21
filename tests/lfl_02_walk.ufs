@@ -1,0 +1,68 @@
+# LANDFALL: Wick walks four ways only, 1.25 pixels a frame; with two
+# directions held the newest press wins. Walls and the ship stop her, and
+# walking into the side of a block slides her round its corner. Holding A
+# keeps her facing (strafe). Off an open edge the screen scrolls to the
+# next room (the clock runs on, and she can't be hurt meanwhile).
+game landfall
+wait 5
+cheat nomobs
+cheat planet 1
+expect state == 2
+expect px == 139
+expect py == 83
+expect face == 2
+# 16 frames right: 20 pixels, facing right
+hold RIGHT 16
+expect px == 159
+expect py == 83
+expect face == 1
+# two held: the newer press wins, and she walks one axis only
+hold DOWN 4
+expect py == 88
+hold DOWN RIGHT 8
+expect px == 169
+expect py == 88
+expect face == 1
+hold RIGHT 4
+hold RIGHT UP 8
+expect px == 174
+expect py == 78
+expect face == 0
+# the ship (two tiles wide, above her) stops her
+cheat pos 139 83
+hold UP 20
+expect py == 80
+expect px == 139
+# the corner slide: half under the ship's left edge, UP eases her left and on
+cheat pos 122 83
+hold UP 40
+expect px <= 118
+expect py <= 60
+# the stone wall on the left
+cheat pos 40 100
+hold LEFT 60
+expect px == 16
+# strafe: A held keeps her facing down while she walks left and right
+cheat pos 100 100
+press DOWN 1
+expect face == 2
+hold A
+hold A LEFT 10
+expect face == 2
+expect px < 100
+hold A RIGHT 10
+expect face == 2
+release A
+hold RIGHT 2
+expect face == 1
+# through the gap on the right (rows 3 to 6) into the next room
+cheat pos 250 70
+hold RIGHT 40
+expect state == 4
+expect room == 10
+wait 40
+expect state == 2
+expect room == 11
+expect px == 1
+expect py == 70
+expect time >= 80
