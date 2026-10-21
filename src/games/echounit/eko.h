@@ -617,5 +617,6 @@ extern const int EKO_STORY_LINES;
 extern const char *const EKO_BRIEF[MI_COUNT][4];
 extern const char *const EKO_ENDING[];
 extern const int EKO_ENDING_LINES;
+extern const char *const EKO_OVER[2];
 
 #endif

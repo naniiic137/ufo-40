@@ -82,6 +82,12 @@ const char *const EKO_ENDING[] = {
 };
 const int EKO_ENDING_LINES = ARRAY_LEN(EKO_ENDING);
 
+/* the bad ending, under its picture */
+const char *const EKO_OVER[2] = {
+    "AT NOON THE DAWN CANNON FIRED.",
+    "THE SYNDICATE'S SUN NEVER SET AGAIN.",
+};
+
 /* ---- small services -------------------------------------------------------------- */
 
 static void set_state(int s) {
@@ -710,6 +716,15 @@ static int eko_query(const char *key, int *out) {
     if (!strcmp(key, "k_boss_dead")) { *out = k->boss_dead; return 1; }
     if (!strcmp(key, "k_card")) { *out = k->card; return 1; }
     if (!strcmp(key, "k_length")) { *out = EKO_KCOURSE[k->course].length; return 1; }
+    if (!strcmp(key, "k_fly")) { *out = EKO_KCOURSE[k->course].fly; return 1; }
+    if (!strcmp(key, "k_jumps")) { *out = k->jumps; return 1; }
+    if (!strcmp(key, "k_homing")) {
+        /* homing missiles in the air */
+        int n = 0;
+        for (int i = 0; i < BK_MAX_OBJS; i++) n += k->obj[i].alive && k->obj[i].kind == OB_MISSILE && k->obj[i].a;
+        *out = n;
+        return 1;
+    }
     if (!strncmp(key, "k_kind", 6)) {
         int kd = atoi(key + 6), n = 0;
         for (int i = 0; i < BK_MAX_OBJS; i++) n += k->obj[i].alive && k->obj[i].kind == kd;
@@ -1032,7 +1047,7 @@ static int eko_cheat(const char *cmd) {
     }
     if (sscanf(cmd, "kpos %d %d", &a, &b) == 2) { eg.bk.x = a * EKO_FX; eg.bk.y = b * EKO_FX; return 1; }
     if (sscanf(cmd, "kbosshp %d", &a) == 1) {
-        for (int i = 0; i < BK_MAX_OBJS; i++) if (eg.bk.obj[i].alive && eg.bk.obj[i].kind == OB_HOG) eg.bk.obj[i].hp = a;
+        for (int i = 0; i < BK_MAX_OBJS; i++) if (eg.bk.obj[i].alive && (eg.bk.obj[i].kind == OB_HOG || eg.bk.obj[i].kind == OB_RATTLE)) eg.bk.obj[i].hp = a;
         return 1;
     }
     /* stealth */
@@ -1151,7 +1166,7 @@ const GameDef GAME_ECHOUNIT = {
     "1989",
     "ACTION / SHOOTER / STRATEGY",
     "FOUR CYBER BATS, FOUR WAYS TO FIGHT. LOSE A BAT, BREAK IT OUT OF JAIL.",
-    {"WIN A JAILBREAK", "BRING DOWN MADAME COIL", "SAVE THE WORLD WITHOUT LOSING A LIFE"},
+    {"WIN A JAILBREAK", "BRING DOWN MADAME COIL", "ALL THE WAY, NO HEALTH BAR EMPTIED"},
     "FLINT\t" GLYPH_A " HIT, HOLD: KI BLAST " GLYPH_B " JUMP\n"
     "\t" GLYPH_DOWN "+" GLYPH_A " JAB, OR LIFT A BARREL\n"
     "VESPER\t" GLYPH_A " TAP: SHOOT, HOLD: PLANT\n"
@@ -1159,7 +1174,7 @@ const GameDef GAME_ECHOUNIT = {
     "\t" GLYPH_A " ON AN ITEM: PICK IT UP\n"
     "DART\t" GLYPH_A " SHOOT (HOLD: IT HEATS) " GLYPH_B " JUMP\n"
     "SABLE\t" GLYPH_DPAD " 8 WAYS " GLYPH_A " USE " GLYPH_B " NEXT ITEM\n"
-    "JAILBREAK\t" GLYPH_DPAD " STEP " GLYPH_A GLYPH_B " SKILLS\n"
+    "JAILBREAK\t" GLYPH_DPAD " STEP OR STRIKE " GLYPH_A GLYPH_B " SKILLS\n"
     "START\tPAUSE",
     C_NAVY, C_RED,
     eko_load, eko_start, eko_update, eko_draw, eko_quit, eko_draw_label, eko_query, eko_cheat,

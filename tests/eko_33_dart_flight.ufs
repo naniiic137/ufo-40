@@ -1,0 +1,55 @@
+# DART in the Caldera: off the road, over the lava sea. The bike flies
+# anywhere in the band over the lava (high above where the road would be)
+# and there is no jump. Rock pillars hang from the roof or rise from the
+# lava: they hurt to touch and stop shots. At the end waits Major Rattle's
+# missile jet: fans of straight missiles, and pairs that home in on the
+# bike for a while. Brought down, it gives the blue card.
+seed 1
+game echounit
+wait 5
+cheat run
+cheat mission 4
+cheat section 3
+wait 5
+expect owl == 2
+expect k_fly == 1
+cheat knospawn
+cheat kclear
+cheat god
+# no jump in the air
+press B 1
+wait 20
+expect k_jumps == 0
+expect k_z == 0
+# up, well above the road's far edge
+hold UP 60
+expect k_y < 70
+hold DOWN 40
+cheat mortal
+# a pillar rising out of the lava up to y 100, straight ahead: it hurts
+cheat kpos 60 104
+cheat kobj 17 120 100
+wait 40
+expect hp == 4
+# shots stop on it and it stands
+cheat kclear
+cheat god
+cheat kobj 17 200 100
+cheat kpos 60 120
+press A 1
+wait 20
+expect k_kind17 == 1
+# Major Rattle at the end
+cheat kclear
+cheat kdist 27200
+wait 5
+expect k_boss == 1
+expect k_kind19 == 1
+botuntil k_homing >= 1 900
+cheat kbosshp 1
+botuntil k_card == 1 1200
+expect k_boss_dead == 1
+waituntil sec == 4 300
+waituntil state == 6 300
+expect owl == 3
+expect s_cards & 4

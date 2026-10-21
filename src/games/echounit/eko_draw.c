@@ -1342,10 +1342,44 @@ static void captured_draw(void) {
     if (eg.state_t > 60) tiny_center(GLYPH_A " ON", 160, 160, C_WHITE);
 }
 
+/* the bad ending: noon over a city, and the Dawn Cannon's beam coming down on it */
+static void over_picture(int t) {
+    const int X0 = 60, Y0 = 8, W = 200, H = 92;
+    gfx_clip(X0, Y0, W, H);
+    gfx_rect(X0, Y0, W, H, C_SKY);
+    gfx_dither(X0, Y0, W, 40, C_ICE, 5);
+    /* the mirror in the sky */
+    gfx_circ(160, Y0 + 16, 9, C_CREAM);
+    gfx_circb(160, Y0 + 16, 12, C_YELLOW);
+    /* the city */
+    static const int BX[9] = {62, 82, 98, 120, 140, 178, 196, 222, 240};
+    static const int BH[9] = {30, 44, 26, 52, 38, 46, 28, 40, 34};
+    for (int i = 0; i < 9; i++) {
+        int y = Y0 + H - BH[i];
+        gfx_rect(BX[i], y, 18, BH[i], C_NAVY);
+        for (int wy = y + 4; wy < Y0 + H - 4; wy += 7)
+            for (int wx = BX[i] + 3; wx < BX[i] + 15; wx += 5) gfx_pset(wx, wy, (hash2(wx, wy) % 3) ? C_YELLOW : C_NIGHT);
+    }
+    /* the beam, and the white of noon spreading from where it lands */
+    int bw = imin(10, 2 + t / 8);
+    gfx_rect(160 - bw / 2, Y0 + 26, bw, H - 26, C_WHITE);
+    gfx_rect(160 - bw / 2 - 2, Y0 + 26, 2, H - 26, C_YELLOW);
+    gfx_rect(160 + (bw + 1) / 2, Y0 + 26, 2, H - 26, C_YELLOW);
+    int r = imin(34, t / 3);
+    if (r > 4) {
+        gfx_dither_circle(160, Y0 + H, r + 10, C_YELLOW, 6);
+        gfx_circ(160, Y0 + H, r, C_WHITE);
+    }
+    gfx_noclip();
+    gfx_rectb(X0 - 1, Y0 - 1, W + 2, H + 2, C_GREY);
+}
+
 static void over_draw(void) {
     gfx_cls(C_INK);
-    ui_fancy_center("GAME OVER", 160, 60, 3, TITLE_GRAD, 3, C_INK, C_MAROON);
-    text_center(eg.in_finale ? "THE CALDERA GIVES NO SECOND CHANCES" : "ALL OF ECHO UNIT IS LOCKED UP", 160, 104, C_LIGHT);
+    over_picture(eg.state_t);
+    ui_fancy_center("GAME OVER", 160, 108, 2, TITLE_GRAD, 3, C_INK, C_MAROON);
+    for (int i = 0; i < 2; i++) text_center(EKO_OVER[i], 160, 136 + i * 12, C_LIGHT);
+    tiny_center(eg.in_finale ? "THE CALDERA GIVES NO SECOND CHANCES" : "ALL OF ECHO UNIT IS LOCKED UP", 160, 166, C_GREY);
 }
 
 static void ending_draw(void) {
@@ -1422,6 +1456,11 @@ int eko_layout_audit(void) {
                     bad += text_missing(EKO_BRIEF[m][k]) > 0;
                 }
         if (SCREENS[i] == ES_TITLE) ui_audit_text("start", "PRESS " GLYPH_A " TO START", 160 - text_width("PRESS " GLYPH_A " TO START") / 2, 112);
+        if (SCREENS[i] == ES_OVER)
+            for (int k = 0; k < 2; k++) {
+                ui_audit_text("over", EKO_OVER[k], 160 - text_width(EKO_OVER[k]) / 2, 136 + k * 12);
+                bad += text_missing(EKO_OVER[k]) > 0 || text_width(EKO_OVER[k]) > SCREEN_W - 8;
+            }
         bad += ui_audit_end();
         for (int k = 0; k < EKO_STORY_LINES; k++) bad += text_missing(EKO_STORY[k]) > 0 || text_width(EKO_STORY[k]) > SCREEN_W - 8;
         for (int k = 0; k < EKO_ENDING_LINES; k++) bad += text_missing(EKO_ENDING[k]) > 0 || text_width(EKO_ENDING[k]) > SCREEN_W - 8;
