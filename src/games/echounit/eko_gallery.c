@@ -3,8 +3,12 @@
  * screen and V.I.P.E.R. troops pop out of the scenery at three depths.
  * LEFT / RIGHT walk and dodge, UP / DOWN raise and lower the sight. Tap A
  * to shoot as you walk (tapping fast shoots faster); hold A and she plants
- * her feet: the pad then steers the sight across the whole screen. Every
- * kill feeds the combo meter, which multiplies the points while it lasts. */
+ * her feet: the pad then steers the sight. Either way she can only shoot
+ * within a stretch in front of her (the sight stays within 96 px of her).
+ * Standing on something on the ground, a tap of A picks it up instead: a
+ * mango, or a live grenade lobbed at her, which the next tap throws back
+ * at the sight before it goes off. B dives aside. Every kill feeds the
+ * combo meter, which multiplies the points while it lasts. */
 #include "eko.h"
 
 #define G (&eg.ga)
@@ -96,12 +100,15 @@ static void hurt_vesper(int dmg) {
     if (G->inv > 0 || G->dead_t || eg.god) return;
     if (G->roll_t > 2 && G->roll_t < GA_ROLL_T - 3) return; /* rolling: untouchable */
     eko_hurt(dmg);
-    if (eko_hp() <= 0) { G->dead_t = 1; eko_sfx("eko_down"); return; }
+    if (eko_hp() <= 0) { G->dead_t = 1; G->carry = 0; eko_sfx("eko_down"); return; }
     G->inv = EKO_OWL_INV[OWL_VESPER];
 }
 
+static void blast_foes(int bx, int by, int r, int boss_dmg, int dmg);
+
 static void kill_foe(int i) {
     EkoGFoe *f = &G->foe[i];
+    f->alive = 0; /* gone before any blast it sets off comes back round to it */
     int x0, y0, w, h;
     foe_box(f, &x0, &y0, &w, &h);
     eko_burst(x0 + w / 2, y0 + h / 2, f->kind == GE_BARREL ? C_ORANGE : C_YELLOW, f->kind == GE_JEEP || is_boss(f->kind) ? 18 : 8);
@@ -113,7 +120,6 @@ static void kill_foe(int i) {
     /* the meter multiplies: x1, then one more for every three kills in a row */
     eko_add_score(EKO_GE_POINTS[f->kind] * (1 + G->combo / 3));
     G->kills++;
-    f->alive = 0;
     if (f->kind == GE_JEEP) {
         /* the green truck's cargo: a mango falls to her row */
         add_shot(3, x0 + w / 2, y0, x0 + w / 2, GA_PY, 40);
@@ -122,21 +128,26 @@ static void kill_foe(int i) {
         /* the blast takes everything near it */
         eko_sfx("eko_boom");
         eg.shake = 8;
-        int bx = EKO_PX(f->x), by = EKO_PX(f->y) - 8;
-        for (int k = 0; k < GA_MAX_FOES; k++) {
-            EkoGFoe *o = &G->foe[k];
-            if (!o->alive || k == i) continue;
-            int ox, oy, ow, oh;
-            foe_box(o, &ox, &oy, &ow, &oh);
-            if (eko_dist(ox + ow / 2 - bx, oy + oh / 2 - by) < 44 + (o->kind == GE_RAMROD ? 12 : 0)) {
-                int dmg = is_boss(o->kind) ? 8 : 9;
-                if (o->kind == GE_COIL && (G->foe[k].a == 0)) dmg = 0;
-                o->hp -= dmg;
-                o->flash = 8;
-                if (o->hp <= 0) kill_foe(k);
-            }
-        }
+        blast_foes(EKO_PX(f->x), EKO_PX(f->y) - 8, 44, 8, 9);
     } else eko_sfx(is_boss(f->kind) ? "eko_bossdie" : "eko_ko");
+}
+
+/* a blast at (bx, by): everything within r takes dmg (a boss takes boss_dmg;
+ * the gunship's core shrugs it off while it is shut) */
+static void blast_foes(int bx, int by, int r, int boss_dmg, int dmg) {
+    for (int k = 0; k < GA_MAX_FOES; k++) {
+        EkoGFoe *o = &G->foe[k];
+        if (!o->alive) continue;
+        int ox, oy, ow, oh;
+        foe_box(o, &ox, &oy, &ow, &oh);
+        if (eko_dist(ox + ow / 2 - bx, oy + oh / 2 - by) >= r + (o->kind == GE_RAMROD ? 12 : 0)) continue;
+        int d = is_boss(o->kind) ? boss_dmg : dmg;
+        if (o->kind == GE_COIL && o->a == 0) d = 0;
+        if (d <= 0) continue;
+        o->hp -= d;
+        o->flash = 8;
+        if (o->hp <= 0) kill_foe(k);
+    }
 }
 
 void eko_gallery_fire(int x, int y) {
@@ -196,7 +207,7 @@ static void foes_update(void) {
         case GE_MORTAR:
             if (f->state == 0 && f->t >= 10) { f->state = 1; f->t = 0; }
             else if (f->state == 1) {
-                if (f->t == 40) fire_at(f, 0, 1, 70);
+                if (f->t == 40) fire_at(f, 0, 1, 44); /* a grenade: 44 frames up and over, then its fuse */
                 if (f->t > 110) { f->state = 2; f->t = 0; }
             } else if (f->state == 2 && f->t >= 10) f->alive = 0;
             break;
@@ -229,7 +240,7 @@ static void foes_update(void) {
                 if (!f->cd) { f->state = 1; f->t = 0; }
             } else if (f->state == 1) {
                 if (f->t == 22) {
-                    if (f->a % 3 == 2) fire_at(f, 0, 1, 60);
+                    if (f->a % 3 == 2) fire_at(f, 0, 1, 36);
                     else { fire_at(f, -32, 0, 40); fire_at(f, 0, 0, 40); fire_at(f, 32, 0, 40); }
                     f->a++;
                 }
@@ -304,13 +315,29 @@ static void shots_update(void) {
         if (!s->alive) continue;
         s->t++;
         if (s->kind == 3) {
-            /* a mango: falls, then lies there a while */
-            if (s->t >= s->dur && iabs(EKO_PX(G->px) - s->tx) < 12 && !G->dead_t) {
-                eko_set_hp(eko_hp() + EKO_MANGO_HP);
-                eko_sfx("eko_mango");
-                eko_say("MANGO!");
+            /* a mango: falls, then lies there a while (a tap of A takes it) */
+            if (s->t > s->dur + 240) s->alive = 0;
+            continue;
+        }
+        if (s->kind == 4) {
+            /* hers, thrown back: it goes off where the sight was */
+            if (s->t >= s->dur) {
+                eko_burst(s->tx, s->ty, C_ORANGE, 12);
+                eko_sfx("eko_boom");
+                eg.shake = imax(eg.shake, 6);
                 s->alive = 0;
-            } else if (s->t > s->dur + 240) s->alive = 0;
+                blast_foes(s->tx, s->ty, GA_THROW_R, 6, 3);
+            }
+            continue;
+        }
+        if (s->kind == 1) {
+            /* a grenade: lands, lies there with its fuse burning, then goes off */
+            if (s->t >= s->dur + GA_FUSE_T) {
+                eko_burst(s->tx, s->ty, C_ORANGE, 6);
+                eko_sfx("eko_boom");
+                if (iabs(EKO_PX(G->px) - s->tx) < 20) hurt_vesper(2);
+                s->alive = 0;
+            }
             continue;
         }
         if (s->t >= s->dur) {
@@ -358,6 +385,39 @@ void eko_gallery_start(int script) {
     G->face = 1;
 }
 
+/* a tap of A: throw back the grenade in hand, or take what she stands on.
+ * True when the press went on that (and so fires no shot). */
+static bool grab_or_throw(void) {
+    int px = EKO_PX(G->px);
+    if (G->carry) {
+        add_shot(4, px, GA_PY - 22, EKO_PX(G->cx), EKO_PX(G->cy), GA_THROW_T);
+        G->carry = 0;
+        G->throws++;
+        eko_sfx("eko_toss");
+        return true;
+    }
+    for (int i = 0; i < GA_MAX_SHOTS; i++) {
+        EkoGShot *s = &G->shot[i];
+        if (!s->alive || s->t < s->dur || iabs(px - s->tx) >= GA_GRAB) continue;
+        if (s->kind == 3) {
+            eko_set_hp(eko_hp() + EKO_MANGO_HP);
+            eko_sfx("eko_mango");
+            eko_say("MANGO!");
+            s->alive = 0;
+            return true;
+        }
+        if (s->kind == 1) {
+            /* a live grenade: hers now, its fuse still burning */
+            G->carry = imax(GA_GRAB_FUSE, s->dur + GA_FUSE_T - s->t);
+            G->grabs++;
+            s->alive = 0;
+            eko_sfx("eko_pickup");
+            return true;
+        }
+    }
+    return false;
+}
+
 void eko_gallery_update(void) {
     const EkoGScript *sc = &EKO_GSCRIPT[G->script];
     if (G->dead_t) {
@@ -403,8 +463,13 @@ void eko_gallery_update(void) {
             int d = G->px - G->cx;
             G->cx += iclamp(d, -1024, 1024);
         }
+        /* a press: a grenade in hand goes back at the sight; standing on
+         * something, it is picked up; otherwise it shoots */
+        bool took = Ap && grab_or_throw();
         /* fire: a press shoots at once (mashing is fastest), a hold keeps shooting slower */
-        if (Ap && G->cd <= 0) {
+        if (took || G->carry) {
+            /* the press went on the grenade (or the mango): no shot */
+        } else if (Ap && G->cd <= 0) {
             eko_gallery_fire(EKO_PX(G->cx), EKO_PX(G->cy));
             G->cd = GA_TAP_CD;
         } else if (A && G->held_t > 1 && G->cd <= 0) {
@@ -413,7 +478,15 @@ void eko_gallery_update(void) {
         }
     }
     G->px = iclamp(G->px, GA_MINX * EKO_FX, GA_MAXX * EKO_FX);
+    /* she can only shoot within a stretch in front of her */
+    G->cx = iclamp(G->cx, G->px - GA_REACH * EKO_FX, G->px + GA_REACH * EKO_FX);
     G->cx = iclamp(G->cx, 4 * EKO_FX, (SCREEN_W - 4) * EKO_FX);
+    /* a grenade held too long goes off in her hands */
+    if (G->carry && --G->carry == 0) {
+        eko_burst(EKO_PX(G->px), GA_PY - 20, C_ORANGE, 12);
+        eko_sfx("eko_boom");
+        hurt_vesper(2);
+    }
     G->cy = iclamp(G->cy, GA_CROSS_MINY * EKO_FX, GA_CROSS_MAXY * EKO_FX);
     /* the script */
     while (G->spawn_i < sc->n && sc->spawns[G->spawn_i].t <= G->t) {

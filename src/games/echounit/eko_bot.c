@@ -235,14 +235,41 @@ static void gal_aim(int fi, int *tx, int *ty) {
     *ty = y - (f->kind == GE_JEEP ? 6 * s / 4 : f->kind == GE_BARREL ? 4 * s / 4 : f->kind == GE_RAMROD ? 16 : 14 * s / 4);
 }
 
+/* the thing on the ground most worth a tap of A: a grenade lobbed at her
+ * (landed or about to), or a mango when she is hurt; -1 none */
+static int gal_pickup(void) {
+    const EkoGallery *g = &eg.ga;
+    int best = -1, bd = 1 << 30;
+    for (int i = 0; i < GA_MAX_SHOTS; i++) {
+        const EkoGShot *s = &g->shot[i];
+        if (!s->alive) continue;
+        if (s->kind == 1 && s->t >= s->dur - 20) { /* a grenade */ }
+        else if (s->kind == 3 && s->t >= s->dur && eko_hp() < EKO_OWL_HP[OWL_VESPER]) { /* a mango */ }
+        else continue;
+        int d = iabs(s->tx - EKO_PX(g->px));
+        if (d < bd) { bd = d; best = i; }
+    }
+    return best;
+}
+
 static int pol_gallery(int p, int f) {
     /* p: 0 aim on the move; 1 / 2 aim offset left / right (to dodge); 3 planted;
-     * 4 / 5 roll left / right; 6 / 7 run left / right with the sight on */
+     * 4 / 5 dive left / right; 6 / 7 run left / right with the sight on;
+     * 8 go and pick up what lies on the ground (a grenade goes back at the target) */
     const EkoGallery *g = &eg.ga;
     int t = gal_target();
     int px = EKO_PX(g->px), cx = EKO_PX(g->cx), cy = EKO_PX(g->cy);
     int b = 0;
     if (p == 4 || p == 5) return f < 2 ? (EKO_ALT | (p == 4 ? BTN_LEFT : BTN_RIGHT)) : 0;
+    if (p == 8 && !g->carry) {
+        int k = gal_pickup();
+        if (k < 0) return 0;
+        const EkoGShot *s = &g->shot[k];
+        if (px < s->tx - 2) return BTN_RIGHT;
+        if (px > s->tx + 2) return BTN_LEFT;
+        return s->t >= s->dur ? TAPA : 0;
+    }
+    if (p == 8 && g->carry && t < 0) return TAPA; /* nothing to throw it at: away with it */
     if (t < 0) {
         if (p == 6) return BTN_LEFT;
         if (p == 7) return BTN_RIGHT;
@@ -267,6 +294,7 @@ static int pol_gallery(int p, int f) {
     if (cy < ty - 2) b |= BTN_DOWN;
     if (cy > ty + 2) b |= BTN_UP;
     if (iabs(cx - tx) < 10 && iabs(cy - ty) < 10) b |= TAPA;
+    if (g->carry && g->carry < 6) b |= TAPA; /* never let it go off in her hands */
     return b;
 }
 
@@ -277,7 +305,7 @@ static int gallery_score(void) {
         if (g->foe[i].alive && g->foe[i].kind >= GE_RAMROD && g->foe[i].kind != GE_MISSILE) s -= g->foe[i].hp * 200;
     /* stay away from where shots will land */
     for (int i = 0; i < GA_MAX_SHOTS; i++)
-        if (g->shot[i].alive && g->shot[i].kind != 3 && iabs(g->shot[i].tx - EKO_PX(g->px)) < 14) s -= 4000;
+        if (g->shot[i].alive && g->shot[i].kind != 3 && g->shot[i].kind != 4 && iabs(g->shot[i].tx - EKO_PX(g->px)) < 14) s -= 4000;
     for (int i = 0; i < GA_MAX_FOES; i++)
         if (g->foe[i].alive && g->foe[i].kind == GE_MISSILE && iabs(EKO_PX(g->foe[i].x) - EKO_PX(g->px)) < 18) s -= 3000;
     for (int i = 0; i < GA_MAX_SHOTS; i++)
@@ -288,10 +316,10 @@ static int gallery_score(void) {
 
 static int bot_gallery(void) {
     if (cur_left > 0 && cur_pol == pol_gallery) return play_current();
-    static Policy P[8];
-    static int A[8];
-    for (int i = 0; i < 8; i++) { P[i] = pol_gallery; A[i] = i; }
-    choose(P, A, 8, 50, 6);
+    static Policy P[9];
+    static int A[9];
+    for (int i = 0; i < 9; i++) { P[i] = pol_gallery; A[i] = i; }
+    choose(P, A, 9, 50, 6);
     return play_current();
 }
 

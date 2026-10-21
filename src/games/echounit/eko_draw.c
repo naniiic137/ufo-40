@@ -421,8 +421,21 @@ static void gallery_draw(void) {
             spr_draw(&eko_spr[SP_MANGO], s->tx - 4, y - 9, 0);
             continue;
         }
+        if (s->kind == 1 && s->t >= s->dur) {
+            /* a grenade on the ground, its fuse fizzing: a tap of A on it picks it up */
+            gfx_circ(s->tx, GA_PY - 4, 3, C_FOREST);
+            gfx_pset(s->tx + 1, GA_PY - 8 - (eg.frame_t / 2) % 2, (eg.frame_t / 3) % 2 ? C_RED : C_YELLOW);
+            if (s->dur + GA_FUSE_T - s->t < 12 && (eg.frame_t / 2) % 2) gfx_circb(s->tx, GA_PY - 4, 6, C_RED);
+            continue;
+        }
         int x = s->sx + (s->tx - s->sx) * s->t / s->dur;
         int y = s->sy + (s->ty - s->sy) * s->t / s->dur;
+        if (s->kind == 4) {
+            /* hers, on its way back: it shrinks into the distance */
+            y -= eko_sin(s->t * 32 / s->dur) * 30 / 256;
+            gfx_circ(x, y, 3 - s->t * 2 / s->dur, C_FOREST);
+            continue;
+        }
         if (s->kind == 1) y -= eko_sin(s->t * 32 / s->dur) * 40 / 256;
         int r = 1 + s->t * 3 / s->dur;
         gfx_circ(x, y, r, s->kind == 2 ? C_INK : C_YELLOW);
@@ -436,6 +449,11 @@ static void gallery_draw(void) {
         int sp = g->roll_t ? SP_VESPER_ROLL : g->dead_t ? SP_VESPER_ROLL : g->held_t >= GA_LOCK_T || g->cd > 1 ? SP_VESPER_FIRE :
                  (ek_btn(BTN_LEFT) || ek_btn(BTN_RIGHT)) && (eg.frame_t / 8) % 2 ? SP_VESPER_MOVE : SP_VESPER;
         spr_draw(&eko_spr[sp], px - 8, GA_PY - 24, 0);
+        if (g->carry) {
+            /* a live grenade held up, ready to go back */
+            gfx_circ(px, GA_PY - 28, 3, C_FOREST);
+            gfx_pset(px + 1, GA_PY - 32, (eg.frame_t / 3) % 2 ? C_RED : C_YELLOW);
+        }
     }
     if (g->held_t >= GA_LOCK_T) tiny_draw("PLANTED", px - 13, GA_PY + 2, C_YELLOW);
     /* the sight */

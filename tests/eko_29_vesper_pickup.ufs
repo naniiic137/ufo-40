@@ -1,0 +1,73 @@
+# VESPER: she can only shoot within a stretch in front of her: the sight
+# never strays more than 96 px from her, planted or not. Standing on a
+# thing on the ground, a tap of A picks it up instead of shooting: a mango
+# (health back), or a live grenade lobbed at her, which the next tap throws
+# back at the sight, where it goes off. Held too long, it goes off in her
+# hands.
+seed 1
+game echounit
+wait 5
+cheat mission 1
+cheat gnospawn
+cheat gclear
+wait 10
+expect g_px == 160
+# planted, RIGHT carries the sight only so far
+hold A
+wait 10
+expect g_locked == 1
+hold A RIGHT 80
+expect g_px == 160
+expect g_cx == 256
+release A
+release RIGHT
+wait 40
+expect g_cx == 160
+# a mango at her feet: standing on it is not enough, a tap takes it
+cheat hp 2
+cheat gmango 160
+wait 5
+expect g_mangos == 1
+expect hp == 2
+wait 30
+expect g_mangos == 1
+expect g_shots == 9
+press A 1
+expect g_mangos == 0
+expect hp == 6
+# that press went on the mango: no shot
+expect g_shots == 9
+# a grenade lobbed at her: picked up with a tap, thrown back at the sight
+cheat gfoe 1 1 195
+cheat gfoestill 0
+cheat gfoe 1 1 210
+cheat gfoestill 1
+cheat ggrenade 160 20
+wait 22
+expect g_grenades == 1
+press A 1
+expect g_grenades == 0
+expect g_carry > 0
+expect g_grabs == 1
+hold RIGHT 20
+press A 1
+expect g_carry == 0
+expect g_throws == 1
+wait 20
+expect g_kills == 2
+# one left lying goes off where it lies, and hurts her if she is on it
+cheat hp 6
+cheat ggrenade 185 10
+wait 50
+expect g_grenades == 0
+expect hp == 4
+wait 70
+# picked up and kept: it goes off in her hands
+cheat hp 6
+cheat ggrenade 185 10
+wait 12
+press A 1
+expect g_carry > 0
+wait 40
+expect g_carry == 0
+expect hp == 4

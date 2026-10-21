@@ -186,6 +186,12 @@ extern const int GA_ROW_SCALE[GA_ROWS]; /* sizes in 1/4: 2, 3, 4 */
 #define GA_ROLL_VX 768
 #define GA_COMBO_T 150            /* frames the combo meter lasts after a kill */
 #define GA_COMBO_MAX 9
+#define GA_REACH 96               /* the sight stays within this far of her, either side */
+#define GA_GRAB 12                /* standing this close to a thing on the ground, a tap of A takes it */
+#define GA_FUSE_T 30              /* a grenade lies this long before it goes off */
+#define GA_GRAB_FUSE 16           /* picked up at the last moment, it still gives her this long */
+#define GA_THROW_T 16             /* frames a grenade thrown back takes to reach the sight */
+#define GA_THROW_R 28             /* and its blast */
 
 enum { GE_NONE, GE_RIFLE, GE_RUNNER, GE_MORTAR, GE_JEEP, GE_CHOPPER, GE_BARREL, GE_RAMROD, GE_VULTRA,
        GE_POD, GE_CANNON, GE_COIL, GE_MISSILE, GE_KINDS };
@@ -200,7 +206,7 @@ typedef struct {
 #define GA_MAX_FOES 32
 
 typedef struct {
-    uint8_t alive, kind;         /* 0 bullet, 1 shell (splash), 2 bomb, 3 mango */
+    uint8_t alive, kind;         /* 0 bullet, 1 grenade (lands, then a fuse), 2 bomb, 3 mango, 4 her grenade thrown back */
     int sx, sy, tx, ty, t, dur;  /* from (sx, sy) to (tx, ty) over dur frames, px */
 } EkoGShot;
 #define GA_MAX_SHOTS 40
@@ -228,6 +234,8 @@ typedef struct {
     EkoGShot shot[GA_MAX_SHOTS];
     int boss_on, boss_dead, done_t, barrel_t;
     int kills;
+    int carry;                   /* a live grenade in her hands: frames of fuse left (0 none) */
+    int grabs, throws;
 } EkoGallery;
 
 /* ==== DART: the hover-bike ============================================================ */

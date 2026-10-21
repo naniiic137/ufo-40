@@ -660,6 +660,10 @@ static int eko_query(const char *key, int *out) {
         return 1;
     }
     if (!strcmp(key, "g_eshots")) { int n = 0; for (int i = 0; i < GA_MAX_SHOTS; i++) n += g->shot[i].alive && g->shot[i].kind != 3; *out = n; return 1; }
+    if (!strcmp(key, "g_carry")) { *out = g->carry; return 1; }
+    if (!strcmp(key, "g_grabs")) { *out = g->grabs; return 1; }
+    if (!strcmp(key, "g_throws")) { *out = g->throws; return 1; }
+    if (!strcmp(key, "g_grenades")) { int n = 0; for (int i = 0; i < GA_MAX_SHOTS; i++) n += g->shot[i].alive && g->shot[i].kind == 1 && g->shot[i].t >= g->shot[i].dur; *out = n; return 1; }
     if (!strcmp(key, "g_mangos")) { int n = 0; for (int i = 0; i < GA_MAX_SHOTS; i++) n += g->shot[i].alive && g->shot[i].kind == 3; *out = n; return 1; }
     /* bike */
     if (!strcmp(key, "k_x")) { *out = EKO_PX(k->x); return 1; }
@@ -848,6 +852,14 @@ static int eko_cheat(const char *cmd) {
     if (sscanf(cmd, "gpos %d", &a) == 1) { eg.ga.px = a * EKO_FX; eg.ga.cx = a * EKO_FX; return 1; }
     if (sscanf(cmd, "gshot %d %d", &a, &b) == 2) { /* a bullet landing at x = a in b frames */
         for (int i = 0; i < GA_MAX_SHOTS; i++) if (!eg.ga.shot[i].alive) { eg.ga.shot[i] = (EkoGShot){1, 0, a, 60, a, GA_PY - 10, 0, b}; break; }
+        return 1;
+    }
+    if (sscanf(cmd, "ggrenade %d %d", &a, &b) == 2) { /* a lobbed grenade landing at x = a in b frames */
+        for (int i = 0; i < GA_MAX_SHOTS; i++) if (!eg.ga.shot[i].alive) { eg.ga.shot[i] = (EkoGShot){1, 1, a, 60, a, GA_PY - 10, 0, b}; break; }
+        return 1;
+    }
+    if (sscanf(cmd, "gmango %d", &a) == 1) { /* a mango lying at x = a */
+        for (int i = 0; i < GA_MAX_SHOTS; i++) if (!eg.ga.shot[i].alive) { eg.ga.shot[i] = (EkoGShot){1, 3, a, GA_PY, a, GA_PY, 1, 1}; break; }
         return 1;
     }
     if (sscanf(cmd, "gbosshp %d %d", &a, &b) == 2) {
