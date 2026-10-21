@@ -14,10 +14,11 @@ botplay 20
 gifstart antipode 3 1
 botplay 720
 gifstop
-# the Brine: acid underfoot, the suit upside down on the ceiling
+# the Brine: acid underfoot with an armor cell in it, the suit upside down
+# on the ceiling
 cheat nofoes
 cheat room 1 x
-cheat pos 300 26
+cheat pos 340 26
 cheat grav -1
 wait 30
 cheat foes
@@ -44,20 +45,23 @@ wait 10
 shot antipode_map
 press B
 wait 10
-# the Warden raises the floor
+# the Warden lands on the ceiling and its shocks run both ways along it
 cheat god
 cheat room 0 W
-wait 130
 hold RIGHT 40
-cheat pos 470 134
-cheat bossstate 2
+cheat pos 330 134
+waituntil boss_up == 1 400
+waituntil eshots_10 == 2 80
 wait 40
 shot antipode_warden
-# Halloran's head calls down the lightning
+# Halloran's head calls down the storm
 cheat room 3 F
 hold RIGHT 60
 cheat killboss
 cheat killboss
-cheat bosst 610
+wait 20
+cheat pos 330 26
+cheat grav -1
+cheat storm 1
 wait 80
 shot antipode_crown
