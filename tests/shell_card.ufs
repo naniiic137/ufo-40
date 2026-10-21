@@ -36,18 +36,22 @@ press RIGHT
 press DOWN
 expect library_cursor == 2
 press B
-# a placeholder has no card
-press LEFT
-press LEFT
-press LEFT
-expect library_cursor == 7
+# a placeholder has no card (slot 22)
+press DOWN
+press DOWN
+press RIGHT
+press RIGHT
+press RIGHT
+expect library_cursor == 21
 expect library_placeholder == 1
 press SELECT
 expect card_open == 0
 expect library_dud > 0
-press RIGHT
-press RIGHT
-press RIGHT
+press LEFT
+press LEFT
+press LEFT
+press UP
+press UP
 expect library_cursor == 2
 # play ROOFCAT for a minute and a bit: time and opens count, and the day
 press A

@@ -1,0 +1,58 @@
+# LANDFALL: two hands. Walking onto a tool picks it up into a free hand;
+# with both full, the tool in the active hand is set down where she stands
+# and the new one takes its place. A tap of B swaps hands (when no local is
+# near to talk to); holding B half a second sets the active tool down. A
+# tool just set down waits until she has stepped off it (and a moment
+# more) before it can be picked up again.
+game landfall
+wait 5
+cheat nomobs
+cheat planet 2
+cheat pos 40 82
+expect act == 0
+cheat thing 1 1 60 82
+cheat thing 1 2 90 82
+cheat thing 1 5 130 82
+# the rivet gun, then the hatcher into the other hand
+hold RIGHT 20
+expect hold0 == 1
+expect hold1 == -1
+expect active == 1
+expect items_found == 1
+hold RIGHT 20
+expect hold0 == 1
+expect hold1 == 2
+expect active == 1
+expect items_found == 2
+# hands full: the boots take the active hand, the rivet gun lies at her feet
+hold RIGHT 26
+expect hold0 == 5
+expect hold1 == 2
+expect items_found == 3
+expect tool_at_1 == 31
+# she stands on it: it stays down
+wait 120
+expect hold0 == 5
+expect tool_at_1 == 31
+# a tap of B: the other hand is active
+press B 3
+expect act == 1
+expect active == 2
+press B 3
+expect act == 0
+expect active == 5
+# holding B: the boots go down, the hand is empty
+hold B 32
+expect hold0 == -1
+expect hold1 == 2
+expect tool_at_5 == 31
+# back on them at once: nothing; a second away, and they can be taken again
+hold RIGHT 20
+hold LEFT 20
+expect hold0 == -1
+hold RIGHT 20
+wait 70
+hold LEFT 20
+expect hold0 >= 1
+# the same tool found again doesn't count twice
+expect items_found == 3

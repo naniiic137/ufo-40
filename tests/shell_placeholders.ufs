@@ -1,7 +1,7 @@
 # SHELL: every empty slot holds a grey placeholder cartridge for the UFO 50
 # game it is waiting for: COMING SOON, the slot number and the tribute
 # sticker on its label. A starts nothing: a dull sound and a short NOT
-# LOADED YET. (Slots 08 and 50 are still empty; a test for a slot that gets
+# LOADED YET. (Slots 22 and 50 are still empty; a test for a slot that gets
 # its cartridge must move to another empty one.)
 wait 30
 press A
@@ -14,14 +14,18 @@ expect library_cursor == 0
 expect library_placeholder == 0
 expect library_sticker_has.TRIBUTE_TO_BARBUTA == 1
 expect library_sticker_has.UFO_50_#1 == 1
-# slot 08, at the end of the first row: Planet Zoldath's placeholder
-press LEFT
-expect library_cursor == 7
+# slot 22, in the third row: Porgy's placeholder
+press DOWN
+press DOWN
+press RIGHT
+press RIGHT
+press RIGHT
+press RIGHT
+press RIGHT
+expect library_cursor == 21
 expect library_placeholder == 1
-# (a long title shortens "TRIBUTE TO" to "TRIBUTE:", as on the real ones)
-expect library_sticker_has.TRIBUTE == 1
-expect library_sticker_has.PLANET_ZOLDATH == 1
-expect library_sticker_has.UFO_50_#8 == 1
+expect library_sticker_has.TRIBUTE_TO_PORGY == 1
+expect library_sticker_has.UFO_50_#22 == 1
 expect library_sticker_has.BARBUTA == 0
 expect library_dud == 0
 # A on it: the message, and nothing starts
@@ -29,7 +33,7 @@ press A
 expect library_dud > 0
 wait 60
 expect_scene library
-expect library_cursor == 7
+expect library_cursor == 21
 expect library_dud == 0
 press START
 wait 60
@@ -39,10 +43,12 @@ press A
 expect library_dud > 0
 press RIGHT
 expect library_dud == 0
-expect library_cursor == 0
-# slot 50, the last one: Cyber Owls
+expect library_cursor == 22
+# slot 50, the last one: Cyber Owls (a column the short last row lacks
+# lands on its last slot)
 press UP
-press RIGHT
+press UP
+press UP
 expect library_cursor == 49
 expect library_placeholder == 1
 expect library_sticker_has.TRIBUTE_TO_CYBER_OWLS == 1

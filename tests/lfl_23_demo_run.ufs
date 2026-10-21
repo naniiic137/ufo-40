@@ -1,0 +1,16 @@
+# LANDFALL: proof the game can be won with real button presses alone. From
+# the title the demo player lands, finds tools and cells, trades, opens
+# gates, goes down the dungeon and comes home with the whole chart, in
+# under 20 minutes on the clock: all three goals.
+seed 2
+game landfall
+wait 10
+expect state == 0
+botuntil won == 1 60000
+expect maps == 3
+expect map_from == 7
+expect time < 72000
+expect goals == 7
+expect save_wins == 1
+expect items_found >= 4
+botuntil state == 0 2000

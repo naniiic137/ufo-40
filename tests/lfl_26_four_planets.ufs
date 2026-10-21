@@ -1,0 +1,23 @@
+# LANDFALL: four more planets won start to finish by the demo player with
+# real button presses (made unhurtable, so that only the planet's layout
+# is tested: every gate, trade and the dungeon can be got through).
+seed 1
+game landfall
+wait 10
+cheat god
+cheat planet 1
+botuntil won == 1 60000
+expect maps == 3
+seed 1
+cheat planet 3
+botuntil won == 1 60000
+expect maps == 3
+seed 1
+cheat planet 6
+botuntil won == 1 60000
+expect maps == 3
+seed 1
+cheat planet 11
+botuntil won == 1 60000
+expect maps == 3
+expect save_wins == 4

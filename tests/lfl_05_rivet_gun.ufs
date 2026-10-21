@@ -1,0 +1,60 @@
+# LANDFALL: the rivet gun (the Nail Gun's job): free, rapid, short-ranged
+# rivets for 2 damage each, up to three in the air. A creature knocked out
+# drops its species' resource. Rivets break crystal safely (no shards),
+# but a local standing beside a crystal that breaks turns on her.
+game landfall
+wait 5
+cheat nomobs
+cheat planet 2
+cheat hold 1 -1
+cheat species 3 0 0
+cheat spset 3 4 1 0
+cheat mob 3 150 113
+cheat pos 40 114
+cheat face 1
+expect mob0_hp == 4
+# 105 pixels away: out of reach
+press A
+expect shots == 1
+wait 30
+expect shots == 0
+expect mob0_hp == 4
+# 45 pixels away: two rivets knock it out
+cheat pos 100 114
+press A
+wait 20
+expect mob0_hp == 2
+press A
+wait 20
+expect mob0_alive == 0
+expect kills == 1
+expect drops_res2 == 1
+expect res2 == 0
+hold RIGHT 40
+expect res2 == 1
+# held: a rivet every 8 frames, never more than three in the air
+cheat pos 40 114
+cheat face 1
+hold A 9
+expect shots == 2
+wait 30
+expect shots == 0
+# a crystal in the way breaks, and no shards fly
+cheat tile 12 7 7
+cheat pos 150 114
+expect tile_12_7 == 7
+press A
+wait 20
+expect tile_12_7 == 0
+expect shards == 0
+expect hp == 3
+# a crystal broken beside a local: it turns on her
+cheat tile 12 7 7
+cheat mob 0 214 96
+cheat pos 150 114
+cheat face 1
+expect angry == 0
+press A
+wait 20
+expect tile_12_7 == 0
+expect angry == 1

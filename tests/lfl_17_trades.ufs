@@ -1,0 +1,113 @@
+# LANDFALL: the locals. A tap of B beside one talks (the clock stops while
+# the words are up). The trade-giver of each village makes its one offer:
+# B takes it if she can pay (else a buzz and that resource flashes), A
+# says no thanks. Resources cap at 63. A tool bought is set down in front
+# of the giver, and there is only one; the chart piece likewise. Half the
+# villages speak in glyphs: without the talk box their offers can't be
+# read or taken. One glyph speaker stays unreadable even with it. The
+# seventh village's giver tells where the hidden wall is and what opens it.
+game landfall
+wait 5
+cheat nomobs
+cheat planet 2
+cheat mobs
+# 16 beads for 16 burrs, plainly spoken
+cheat room 39 115 68
+expect friendlies == 4
+press B 3
+expect state == 3
+expect talk_trade == 3
+expect talk_glyph == 0
+expect talk_lines == 3
+cheat time 100
+wait 60
+expect time == 100
+press B 3
+expect state == 3
+expect flash1 > 0
+press A 3
+wait 2
+expect state == 2
+cheat res 1 20
+cheat res 0 60
+press B 3
+wait 10
+press B 3
+expect state == 2
+expect res1 == 4
+expect res0 == 63
+# again and again, while she can pay
+cheat res 1 16
+press B 3
+wait 10
+press B 3
+expect res1 == 0
+# B away from the locals: it swaps hands
+cheat hold 1 5
+cheat pos 20 110
+press B 3
+expect state == 2
+expect act == 1
+# the hatcher for 16 beads: set down in front of the giver, into her hands
+cheat room 40 147 68
+cheat hold -1 -1
+cheat res 0 20
+press B 3
+expect talk_trade == 4
+wait 10
+press B 3
+expect res0 == 4
+wait 2
+expect hold0 == 2
+expect items_found == 1
+# only one
+press B 3
+expect talk_trade == -1
+expect talk_lines == 1
+wait 10
+press A 3
+# the chart piece, in glyphs: no talk box, no deal
+cheat room 38 147 84
+cheat res 3 20
+press B 3
+expect talk_glyph == 1
+expect talk_trade == 1
+wait 10
+press B 3
+wait 2
+expect state == 2
+expect res3 == 20
+expect maps == 0
+# with the talk box in a hand it reads plainly
+cheat hold 7 -1
+press B 3
+expect talk_glyph == 0
+wait 10
+press B 3
+wait 2
+expect maps == 1
+expect map_from == 2
+expect res3 == 12
+expect goals & 1
+press B 3
+expect talk_trade == -1
+wait 10
+press A 3
+# the one who stays in glyphs
+cheat room 49 163 68
+press B 3
+expect talk_glyph == 2
+expect talk_trade == -1
+wait 10
+press A 3
+# the seventh village: the secret
+cheat room 41 115 68
+press B 3
+expect talk_lines == 3
+expect talk_trade == -1
+expect talk_glyph == 0
+wait 10
+press B 3
+wait 2
+expect state == 2
+expect layout == 0

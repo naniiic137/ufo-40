@@ -1,0 +1,80 @@
+# LANDFALL: creatures. Locals stand still and always face down; hostile
+# ones face Wick. Each hostile species rolls how it moves (stands, wanders,
+# walks at her), how it shoots (not at all, four ways, or straight at her),
+# its HP, its damage, what its death does (nothing, a blast of 3, or bog
+# left behind) and what it drops. A local hurt by her turns on her.
+game landfall
+wait 5
+cheat nomobs
+cheat planet 2
+cheat hold 1 -1
+cheat species 3 0 0
+cheat mob 0 100 20
+cheat mob 3 200 20
+cheat pos 40 82
+wait 2
+expect mob0_face == 2
+expect mob1_face == 3
+cheat pos 240 82
+wait 2
+expect mob0_face == 2
+expect mob1_face == 2
+# one that walks at her
+cheat clear
+cheat species 3 2 0
+cheat mob 3 200 82
+cheat pos 40 82
+wait 60
+expect mob0_x < 190
+expect mob0_y == 82
+# four ways: from up and to the side it misses; straight at her: it hits
+cheat clear
+cheat species 4 0 1
+cheat spset 4 3 1 0
+cheat mob 4 260 20
+cheat pos 180 110
+waituntil foe_shots >= 1 260
+wait 200
+expect hits == 0
+cheat clear
+cheat species 4 0 2
+cheat mob 4 260 20
+waituntil hits >= 1 500
+expect last_hurt == 3
+# a death blast: 3 to her if she is close
+cheat clear
+cheat hp 7 7
+cheat spset 5 1 1 1
+cheat species 5 0 0
+cheat mob 5 120 80
+cheat pos 100 82
+cheat face 1
+wait 70
+press A
+wait 10
+expect mob0_alive == 0
+expect hp == 4
+expect last_hurt == 2
+# bog left behind
+cheat clear
+cheat spset 5 1 1 2
+cheat mob 5 160 112
+cheat pos 120 114
+cheat face 1
+expect tiles11 == 0
+wait 70
+press A
+wait 10
+expect mob0_alive == 0
+expect tiles11 >= 3
+# a local hurt turns on her
+cheat clear
+cheat mob 0 160 82
+cheat pos 120 82
+cheat face 1
+expect friendlies == 1
+expect angry == 0
+press A
+wait 10
+expect angry == 1
+expect mob0_face == 3

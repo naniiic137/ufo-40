@@ -1,0 +1,34 @@
+# LANDFALL: the clock on the HUD counts the run in frames of play: it runs
+# while she walks (and while the screen scrolls between rooms), and stops
+# while words are up and while the game is paused. START pauses; the
+# title, the end of a trip and the ending can't be paused.
+game landfall
+wait 5
+expect paused == 0
+press START
+wait 5
+expect paused == 0
+expect state == 1
+wait 160
+expect state == 2
+cheat time 0
+wait 60
+expect time == 60
+press START
+wait 2
+expect paused == 1
+wait 300
+expect time <= 64
+press A
+wait 2
+expect paused == 0
+wait 60
+expect time >= 120
+expect time <= 130
+# the end of a trip: no pause
+cheat die
+wait 100
+expect state == 6
+press START
+wait 2
+expect paused == 0

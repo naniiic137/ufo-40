@@ -1,0 +1,94 @@
+# LANDFALL: bog (the toxic swamp) bites her feet: 1 at once, then 1 again
+# every 0.4 s while she stands in it, so a short stretch can be waded by
+# taking the hits and a gate's five tiles cost about 3. The top of a bog
+# tile below dry ground is its bank, safe to tread: under a wall a
+# full-size Wick can't keep her feet up there, but a small one can.
+# Carrying the bog boots (in either hand) she walks it unharmed. A on the
+# boots or the talk box only says what they do; the clock stops while the
+# words are up.
+game landfall
+wait 5
+cheat nomobs
+cheat planet 2
+cheat tile 5 7 11
+cheat tile 6 7 11
+cheat tile 7 7 11
+cheat tile 8 7 11
+cheat tile 9 7 11
+# five tiles of bog: three bites
+cheat hp 7 7
+cheat pos 60 114
+hold RIGHT 90
+expect px >= 172
+expect hp == 4
+expect hits == 3
+expect last_hurt == 1
+# along the bank, feet on the top of the bog: no harm
+cheat tile 10 7 11
+cheat pos 70 104
+hold RIGHT 90
+expect px >= 180
+expect hp == 4
+expect hits == 3
+# a few pixels lower, the feet are in it
+cheat pos 70 109
+hold RIGHT 30
+expect hits == 5
+expect feet_bog == 1
+# under a wall: full size, she wades
+cheat tile 5 6 2
+cheat tile 6 6 2
+cheat tile 7 6 2
+cheat tile 8 6 2
+cheat tile 9 6 2
+cheat tile 10 6 2
+cheat hp 7 7
+cheat pos 70 112
+wait 30
+hold RIGHT 90
+expect px >= 180
+expect hits >= 7
+# small (a ricochet off the wall behind her), she keeps to the bank
+cheat hp 7 7
+cheat hold 2 -1
+cheat pos 20 114
+cheat face 3
+press A
+wait 20
+expect small == 1
+wait 70
+cheat pos 70 112
+expect inv == 0
+hold RIGHT 90
+expect px >= 180
+expect small == 1
+expect hp == 7
+# with the boots, in the hand that isn't active: no harm
+waituntil small == 0 400
+cheat hp 3 3
+cheat hold 1 5
+cheat pos 60 114
+hold RIGHT 90
+expect px >= 172
+expect hp == 3
+# A on the boots: their words, and the clock stops
+cheat hold 5 7
+press A
+expect state == 3
+expect talk_lines == 2
+cheat time 600
+wait 120
+expect time == 600
+press A
+wait 10
+expect state == 2
+expect time > 600
+# the talk box says what it does
+press B 3
+expect active == 7
+press A
+expect state == 3
+wait 10
+press A
+wait 10
+expect state == 2

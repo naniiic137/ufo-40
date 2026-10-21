@@ -1,0 +1,15 @@
+# LANDFALL: the demo player once more, from the title with real button
+# presses, on a third planet: it comes home whole on its first trip with
+# only three of the tools found, still in under 20 minutes on the clock.
+seed 9
+game landfall
+wait 10
+expect state == 0
+botuntil won == 1 60000
+expect maps == 3
+expect map_from == 7
+expect time < 72000
+expect goals == 7
+expect save_wins == 1
+expect items_found >= 3
+botuntil state == 0 2000

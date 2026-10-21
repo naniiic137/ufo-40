@@ -1,0 +1,84 @@
+# LANDFALL: home. Touching the ship with all three chart pieces lifts off
+# (the one ending); with fewer nothing happens. Goals: the Beacon for a
+# chart piece found, the Saucer for leaving with the whole chart, the
+# Alien for leaving in under 20 minutes on the clock. The save keeps the
+# records (most tools, most energy found), runs, wins, deaths and the best
+# time, and the goals come back from it. (Rich in every resource, the ship
+# has a joke.)
+game landfall
+wait 5
+cheat nomobs
+cheat planet 2
+expect goals == 0
+hold UP 4
+expect py == 80
+wait 30
+expect state == 2
+expect won == 0
+# a joke for the rich
+cheat res 0 31
+cheat res 1 31
+cheat res 2 31
+cheat res 3 31
+cheat pos 139 90
+hold UP 10
+expect msg == 1
+# a chart piece found: the Beacon
+expect save_map == 0
+cheat thing 3 0 30 82
+cheat pos 50 82
+hold LEFT 20
+expect maps == 1
+expect goals & 1
+expect save_map == 1
+cheat pos 139 83
+# two chart pieces: still nothing; a third, past 20 minutes: away, no Alien
+cheat maps 2
+cheat pos 139 90
+hold UP 10
+expect state == 2
+cheat maps 3
+cheat time 72001
+cheat pos 139 90
+hold UP 10
+expect state == 7
+expect won == 1
+expect save_wins == 1
+expect save_best > 72000
+expect save_best < 72010
+expect goals & 2
+expect goals !& 4
+wait 210
+expect state == 8
+wait 130
+press A
+expect state == 0
+# again, under 20 minutes: the Alien
+cheat planet 2
+cheat maps 3
+cheat time 71000
+hold UP 4
+expect state == 7
+expect goals & 2
+expect goals & 4
+expect save_wins == 2
+expect save_best <= 71010
+# the save keeps it all, and the goals come back from it
+cheat planet 2
+cheat thing 1 1 100 82
+cheat thing 2 0 120 82
+cheat pos 80 82
+hold RIGHT 40
+expect save_items >= 1
+expect save_energy >= 1
+expect save_runs == 3
+reload
+game landfall
+wait 5
+expect save_wins == 2
+expect save_runs == 3
+expect save_best <= 71010
+expect save_items >= 1
+expect save_energy >= 1
+expect goals == 7
+expect save_map == 1

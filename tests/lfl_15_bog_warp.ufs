@@ -1,0 +1,41 @@
+# LANDFALL: a blast on bog makes a teleporting pair: one bog tile in the
+# blast and another bog tile somewhere on the planet (even down in the
+# dungeon) link up, and stepping on one puts her on the other. One pair at
+# a time: a new one turns the old pair back into plain bog.
+game landfall
+wait 5
+cheat nomobs
+cheat planet 2
+expect alltiles11 > 10
+expect warp_rooms == 0
+cheat tile 10 5 11
+cheat hold 3 5
+cheat res 0 3
+cheat pos 139 82
+press A
+hold LEFT 50
+wait 60
+expect warp_rooms == 2
+expect tile_10_5 == 12
+expect alltiles12 == 2
+expect hp == 3
+# onto it: somewhere else
+hold RIGHT 66
+expect warps == 1
+expect room != 31
+expect alltiles12 == 2
+# off it and back on: home again, beside the ship
+hold UP 14
+expect room == 4
+hold DOWN 14
+expect room == 31
+expect warps == 2
+# a new blast on bog: the old pair is plain bog again
+cheat tile 3 5 11
+cheat pos 30 82
+press A
+hold RIGHT 50
+wait 60
+expect alltiles12 == 2
+expect tile_3_5 == 12
+expect tile_10_5 == 11

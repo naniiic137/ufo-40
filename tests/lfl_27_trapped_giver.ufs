@@ -1,0 +1,115 @@
+# LANDFALL: now and then a trade's giver is shut in: a ring of crystal
+# round it, the one way in a short channel of bog under the crystal. She
+# can wade the bog (two bites), walk it in the bog boots, keep to its dry
+# bank while small, or break the crystal: rivets break it safely, but a
+# crystal breaking beside a local turns it on her (calm again once she has
+# left the room and come back); turned to flesh by the hatcher first, a pod
+# opens it with no shards and no anger. The planet check counts the
+# trapped trade only when one of those tools can be had.
+game landfall
+wait 5
+cheat planet 7
+expect trapped_room == 48
+cheat room 48 147 99
+expect friendlies == 4
+# from outside the ring she can't talk to the giver: B swaps hands
+cheat hold 1 0
+press B 3
+expect state == 2
+expect act == 1
+# wading in: two bites, then the trade
+cheat hp 7 7
+cheat pos 51 67
+hold RIGHT 80
+expect hits == 2
+expect hp == 5
+expect last_hurt == 1
+cheat res 2 8
+press B 3
+expect state == 3
+expect talk_trade == 3
+wait 10
+press B 3
+wait 2
+expect state == 2
+expect res1 == 8
+expect res2 == 0
+# small (a ricochet off the top wall), along the bank of the channel: no bites
+cheat planet 7
+cheat room 48 51 67
+cheat hold 2 -1
+cheat face 0
+press A
+waituntil small == 1 120
+wait 70
+cheat pos 51 64
+hold RIGHT 80
+expect small == 1
+expect hits == 0
+expect hp == 3
+press B 3
+expect state == 3
+expect talk_trade == 3
+wait 10
+press A 3
+wait 2
+# rivets from below: the crystal breaks, no shards, but the giver turns
+waituntil small == 0 400
+cheat planet 7
+cheat room 48 147 99
+cheat hold 1 -1
+cheat face 0
+press A
+wait 30
+expect tile_9_5 == 0
+expect shards == 0
+expect angry >= 1
+expect hp == 3
+# out of the room and back: calm again, and the way in stays open
+cheat room 47 140 70
+cheat room 48 147 99
+expect angry == 0
+expect tile_9_5 == 0
+hold UP 30
+press B 3
+expect state == 3
+expect talk_trade == 3
+wait 10
+press A 3
+wait 2
+# the hatcher turns the crystal to flesh; a pod then opens it safely
+cheat planet 7
+cheat room 48 131 99
+cheat hold 2 -1
+cheat face 0
+press A
+wait 40
+cheat pos 147 99
+press A
+wait 40
+cheat pos 163 99
+press A
+wait 10
+expect tile_8_5 == 8
+expect tile_9_5 == 8
+expect tile_10_5 == 8
+cheat hold 3 -1
+cheat res 2 2
+cheat pos 147 99
+press A
+hold LEFT 30
+wait 100
+expect tile_9_5 == 0
+expect tile_8_5 == 0
+expect shards == 0
+expect angry == 0
+expect hits == 0
+# the bog boots: in and out unharmed
+cheat planet 7
+cheat room 48 51 67
+cheat hold 5 -1
+hold RIGHT 80
+expect hits == 0
+hold LEFT 80
+expect hits == 0
+expect px < 70

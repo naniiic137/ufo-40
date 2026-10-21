@@ -1,0 +1,112 @@
+# LANDFALL: every planet is built by the same rules (the community's
+# generation rules for the original): a 7 x 4 or 6 x 5 grid with four to
+# six cells of solid stone, exactly four real gates (a chart piece, the
+# dungeon, a tool, two of the rare resource), each kind rolled on its own;
+# the gates lead to side rooms on the outer edge, never side by side, but
+# now and then the chart, tool or rare gate walls off a nook in a grid room
+# instead; six or seven villages (three trade in glyphs; a seventh keeps a
+# secret; now and then a trade's giver is shut in by crystal and bog), six
+# trades priced by rarity, eight tools (five lying about, one gated, two
+# sold, every one of them within reach), four energy cells (now and then five), one hidden wall, a
+# six-room dungeon, two friendly and four hostile species (one of them
+# dropping chops), and every planet winnable. The audit checks all of it
+# on 800 planets.
+game landfall
+wait 5
+cheat planet 2
+expect audit == 0
+expect winnable == 1
+expect all_tools == 1
+expect gw == 6
+expect gh == 5
+expect gate_role0 >= 0
+expect gate_role1 >= 0
+expect gate_role2 >= 0
+expect gate_role3 >= 0
+expect villages == 7
+expect ncubes == 4
+# five tools lying about plus the gated one, four cells, two chart pieces
+# (the third is sold), two bundles (the rare gate's 2, the hidden wall's 4)
+expect things1 == 6
+expect things2 == 4
+expect things3 == 2
+expect things4 == 2
+# this planet's rarity: burrs common, beads less, ferns more, spores rare
+expect tier_of1 == 0
+expect tier_of0 == 1
+expect tier_of2 == 2
+expect tier_of3 == 3
+# the pods, thumper and chop press each burn a different one, never burrs
+expect cost3 == 0
+expect cost4 == 2
+expect cost6 == 3
+expect cost0 == 255
+expect cost1 == 255
+expect cost2 == 255
+expect cost5 == 255
+expect cost7 == 255
+# prices by rarity: the chart piece 8 of the rare one; the tools 32 of the
+# common one and 16 of the less uncommon one (all three ask different ones)
+expect trade1_kind == 2
+expect trade1_pay == 3
+expect trade1_payn == 8
+expect trade0_kind == 1
+expect trade0_item == 3
+expect trade0_pay == 1
+expect trade0_payn == 32
+expect trade4_kind == 1
+expect trade4_item == 2
+expect trade4_pay == 0
+expect trade4_payn == 16
+# resource trades: 16 >> tier paid, 32 >> tier given
+expect trade2_kind == 0
+expect trade2_payn == 2
+expect trade2_getn == 8
+expect trade3_payn == 16
+expect trade3_getn == 16
+expect trade5_payn == 4
+expect trade5_getn == 32
+# three of the six trades speak in glyphs
+expect trade0_glyph == 1
+expect trade1_glyph == 1
+expect trade2_glyph == 1
+expect trade3_glyph == 0
+expect trade4_glyph == 0
+expect trade5_glyph == 0
+# the species: two friendly (one in glyphs), four hostile; three of those
+# drop the three plain resources, one drops chops; the locals drop the rare
+expect sp0_friendly == 1
+expect sp0_glyph == 0
+expect sp1_friendly == 1
+expect sp1_glyph == 1
+expect sp1_drop == 3
+expect sp2_friendly == 0
+expect sp2_drop == -1
+expect sp3_drop == 2
+expect sp4_drop == 0
+expect sp5_drop == 1
+# the big shell: 3 to touch
+expect sp6_dmg == 3
+# 800 planets: every rule holds on every one
+expect audit_many_1_200_0 == 0
+expect audit_many_1000_200_0 == 0
+expect audit_many_5000_400_0 == 0
+# both grid shapes, seven villages about two times in five, a fifth cell
+# now and then, and the generator seldom needs a second try
+expect audit_many_1_200_1 >= 70
+expect audit_many_1_200_1 <= 130
+expect audit_many_1_200_2 >= 50
+expect audit_many_1_200_2 <= 110
+expect audit_many_1_200_3 >= 5
+expect audit_many_1_200_3 <= 45
+expect audit_many_1_200_5 <= 20
+# a trapped giver on about half the planets, a gated nook on about three in
+# ten, and two real gates of the same kind on many
+expect audit_many_1_200_6 >= 70
+expect audit_many_1_200_6 <= 130
+expect audit_many_1_200_7 >= 35
+expect audit_many_1_200_7 <= 85
+expect audit_many_1_200_8 >= 60
+# (the queries leave this planet as it was)
+expect gw == 6
+expect seed == 2
