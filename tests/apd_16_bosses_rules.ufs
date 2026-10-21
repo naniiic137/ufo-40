@@ -16,7 +16,7 @@ expect boss_on == 1
 expect boss_lock == 1
 expect boss_max == 600
 expect boss_hp == 600
-expect tileat_8_70 == 10
+expect tileat_8_120 == 10
 cheat bosshp 100
 cheat die
 waituntil state == 3 100
@@ -31,7 +31,7 @@ expect ciphers == 0
 wait 110
 expect boss_lock == 0
 expect ciphers == 1
-expect tileat_8_70 == 8
+expect tileat_8_120 == 8
 # back again: no fight
 cheat room 0 W
 hold RIGHT 40

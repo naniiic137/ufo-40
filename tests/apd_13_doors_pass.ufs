@@ -8,15 +8,16 @@ cheat newgame
 cheat nofoes
 # the pass-1 door from the Brine's room j into f
 cheat room 1 j
-cheat pos 296 86
+cheat pos 280 134
 wait 5
+expect tileat_310_120 == 9
 hold RIGHT 30
 expect room_id == 106
 expect msg_t > 0
 release ALL
 # pass 1, at the terminal in the south corridor
 cheat room 1 v
-cheat pos 472 134
+cheat pos 408 134
 wait 5
 press UP
 wait 2
@@ -28,7 +29,7 @@ press A
 wait 2
 expect state == 3
 cheat room 1 j
-cheat pos 296 86
+cheat pos 280 134
 wait 5
 hold RIGHT 30
 expect room_id == 102
@@ -42,8 +43,8 @@ wait 70
 expect state == 3
 expect sector == 1
 expect room_id == 84
-# the uplink: three ciphers aren't enough
-cheat room 2 v
+# the uplink, north of the Concourse: three ciphers aren't enough
+cheat room 0 F
 cheat ciphers 7
 wait 5
 press UP

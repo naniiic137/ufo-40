@@ -27,25 +27,44 @@ cheat armor 75
 cheat pos 120 134
 wait 61
 expect armor == 60
-# an electric field in the east doorway of the Brine's room c
-cheat room 1 c
+# an electric field across the east doorway of the Brine's room e (four
+# tiles tall, between two emitters): walking in costs 30 and throws him back
+cheat room 1 e
 cheat armor 75
-cheat pos 296 86
-wait 5
-hold RIGHT 12
+cheat pos 270 134
+wait 10
+expect ground == 1
+expect tileat_310_70 == 1
+expect tileat_310_90 == 13
+expect tileat_310_130 == 13
+hold RIGHT 20
 expect armor == 45
-expect room_id == 99
+expect last_hurt == 101
+expect room_id == 101
 release ALL
 wait 70
-# with the STORMBALL: jump, flip, and walk through
+# with the STORMBALL: jump, flip, flip back and drift through; the ball
+# holds from the first flip to the landing
 cheat mod 2 1
 cheat armor 75
-cheat grav 1
-cheat pos 290 86
+cheat pos 270 134
 wait 10
-press B
-press B
-expect thunder > 30
-hold RIGHT 24
-expect room_id == 100
+hold RIGHT 4
+hold RIGHT B 1
+hold RIGHT 6
+hold RIGHT B 1
+expect thunder == 1
+hold RIGHT 12
+hold RIGHT B 1
+expect thunder == 1
+hold RIGHT 12
 expect armor == 75
+expect room_id == 90
+# it ends on landing: walking back in on the floor, the field bites (and
+# the mercy frames after the hit carry him through)
+release ALL
+waituntil ground == 1 60
+expect thunder == 0
+hold LEFT 30
+expect armor == 45
+expect room_id == 101

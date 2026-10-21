@@ -1,15 +1,15 @@
-# ANTIPODE: the station: 98 rooms (35 in the Gantry, 30 in the Brine, 29 in
-# the Coil, 4 in the Crown), 34 upgrades, 10 cradles; every room's things
+# ANTIPODE: the station: 98 rooms (33 in the Gantry, 29 in the Brine, 29 in
+# the Coil, 7 in the Crown), 34 upgrades, 10 cradles; every room's things
 # find a place, every room and upgrade can be reached, the words fit, the
 # art is whole and every tune's channels loop together.
 seed 1
 game antipode
 wait 5
 expect nrooms == 98
-expect rooms_0 == 35
-expect rooms_1 == 30
+expect rooms_0 == 33
+expect rooms_1 == 29
 expect rooms_2 == 29
-expect rooms_3 == 4
+expect rooms_3 == 7
 expect nitems == 34
 expect npods == 10
 expect place == 0

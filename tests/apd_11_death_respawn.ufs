@@ -23,16 +23,16 @@ expect foes == 1
 # a burnt gate stays burnt
 cheat room 0 H
 cheat mod 0 3
-cheat pos 296 86
+cheat pos 286 70
 wait 5
 hold A 10
 release ALL
 wait 10
-expect tileat_310_70 == 0
+expect tileat_310_56 == 0
 cheat die
 waituntil state == 3 100
 expect spares == 0
-expect tileat_310_70 == 0
+expect tileat_310_56 == 0
 # no spare left: the signal is lost, and it is back to the last save
 cheat pickup 0
 expect items_got == 1

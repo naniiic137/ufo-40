@@ -1,10 +1,12 @@
 # ANTIPODE: each fight. The Scrapper crosses to the other surface between
-# volleys; the Warden raises columns of the floor; Brackish can't be hurt
-# under the acid; the Lamprey's body turns shots aside; the Coilheart is
-# shut behind four nodes; Obverse fires sword beams, up to five in a row
-# once she is low; Halloran: legs, three volleys then a ram, a spell of
-# turning shots back, then the heart, then the head with its three joints,
-# and lightning that deletes shots.
+# volleys; the Warden crosses too and its landing sends a shock both ways
+# along that surface; Brackish can't be hurt under the acid; the Lamprey's
+# body turns shots aside; the Coilheart is shut behind four nodes; Obverse
+# fires sword beams, up to five in a row once she is low; Halloran: the
+# walker (legs, three volleys then a ram, columns of the floor that rise,
+# a spell of turning shots back), then the heart, then the head with its
+# three joints, and a storm of lightning that deletes shots, coming and
+# going on a random timer.
 seed 1
 game antipode
 wait 5
@@ -38,17 +40,16 @@ expect boss_up == 0
 cheat bossstate 1
 wait 110
 expect boss_up == 1
-# the Warden: columns of the floor rise (not under the suit)
+# the Warden: it crosses to the ceiling, and the landing sends two shocks
+# running along it
 cheat room 0 W
 hold RIGHT 10
 expect boss_on == 1
-cheat pos 60 134
-cheat bossstate 2
-wait 32
-expect tileat_104_120 == 1
-expect tileat_216_120 == 1
-wait 150
-expect tileat_104_120 == 0
+expect boss_up == 0
+expect eshots_10 == 0
+waituntil boss_up == 1 400
+waituntil eshots_10 == 2 80
+expect boss_state == 0
 # Brackish: out of reach under the acid
 cheat room 1 B
 hold RIGHT 10
@@ -90,6 +91,12 @@ expect boss == 6
 expect boss_max == 700
 expect foes_20 == 2
 waituntil boss_state == 1 200
+# its stamp raised columns of the floor (not under the suit or itself)
+expect tileat_104_264 == 1
+expect tileat_424_264 == 1
+cheat bosst 219
+wait 2
+expect tileat_104_264 == 0
 cheat bosst 399
 wait 2
 expect boss_flags & 4
@@ -109,12 +116,18 @@ cheat killkind 21
 wait 10
 expect boss_state == 1
 expect boss_flags !& 2
-# the storm: 20 seconds shut away
-cheat bosst 599
+# the storm: shut away, with lightning, for 20 to 30 seconds, then a calm
+# of 6 to 14 seconds, each length drawn at random
+expect storm == 0
+waituntil storm == 1 500
+expect storm_t >= 1199
+expect storm_t <= 1800
 wait 2
 expect boss_flags & 2
-expect lightning >= 0
-cheat bosst 1
+waituntil eshots_7 >= 1 60
+waituntil storm == 0 1900
+expect storm_t >= 359
+expect storm_t <= 840
 wait 2
 cheat bossstate 1
 wait 2

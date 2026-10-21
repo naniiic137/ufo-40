@@ -1,6 +1,8 @@
 # ANTIPODE: the demo player, with real presses from the title: every room
 # and every upgrade, the four ciphers, Halloran, the ending with the pilot
-# shown, and the credits to the end: all three goals.
+# shown, and the credits to the end: all three goals. A look-ahead player
+# that knows the map should take it all well inside 22 minutes of play
+# (the original's best human runs take about 24 and a half).
 seed 1
 game antipode
 wait 5
@@ -10,6 +12,7 @@ expect goals & 1
 expect explore >= 97
 expect ciphers == 15
 botuntil won == 1 100000
+expect frames < 79200
 expect explore == 100
 expect items == 100
 expect cherry_run == 1

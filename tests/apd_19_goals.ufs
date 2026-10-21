@@ -9,7 +9,7 @@ cheat newgame
 cheat nofoes
 expect goals == 0
 cheat room 0 H
-cheat pos 168 100
+cheat pos 56 130
 wait 30
 expect goals & 1
 expect goals !& 2

@@ -1,8 +1,9 @@
 # ANTIPODE: walking up to a cradle saves and fills the armor and the spare
 # bodies. UP steps in: the MODS page (LEFT and RIGHT pick a mod, UP and DOWN
-# move it between FLIP, FRAME, GUN and OFF) and, to the right of it, the MAP
-# (UP and DOWN change sector). B steps out. Only here can mods be moved or
-# the map be seen.
+# move it between FLIP, FRAME and GUN: a mod is always fitted somewhere) and,
+# to the right of it, the MAP (UP and DOWN page through the three sectors;
+# the Crown's page only in the Crown's own cradle). B steps out. Only here
+# can mods be moved or the map be seen.
 seed 1
 game antipode
 wait 5
@@ -28,7 +29,8 @@ wait 5
 expect state == 4
 expect pod_page == 0
 expect pod_mod == 0
-# EMBER from the GUN up to the FRAME, then the FLIP; down to OFF
+# EMBER from the GUN up to the FRAME, then the FLIP; down to the GUN and no
+# further (there is no unfitted row)
 press UP
 expect mod0 == 2
 press UP
@@ -38,8 +40,7 @@ expect mod0 == 1
 press DOWN
 press DOWN
 press DOWN
-expect mod0 == 0
-press UP
+expect mod0 == 3
 press UP
 expect mod0 == 2
 # a mod not found yet can't be moved
@@ -57,7 +58,9 @@ press DOWN
 expect pod_sector == 1
 press UP
 press UP
-expect pod_sector == 3
+expect pod_sector == 2
+press DOWN
+expect pod_sector == 0
 press LEFT
 expect pod_page == 0
 expect pod_mod == 3
@@ -65,3 +68,23 @@ press B
 wait 5
 expect state == 3
 expect mod0 == 2
+# the Crown's cradle: its page comes fourth
+cheat room 3 a
+wait 2
+expect pod_zone >= 0
+press UP
+wait 5
+expect state == 4
+press RIGHT
+press RIGHT
+press RIGHT
+press RIGHT
+expect pod_page == 1
+expect pod_sector == 3
+press DOWN
+expect pod_sector == 0
+press UP
+expect pod_sector == 3
+press B
+wait 5
+expect state == 3

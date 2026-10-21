@@ -17,25 +17,26 @@ expect shot0_dmg == 10
 release ALL
 wait 30
 cheat mod 0 -1
-# on the stub in front of the barrels to the east
-cheat pos 296 86
+# on the ledge in front of the barrels to the east
+cheat pos 286 70
 wait 5
 expect ground == 1
-expect tileat_310_70 == 7
+expect tileat_310_56 == 7
+expect tileat_310_72 == 7
 hold A 30
 release ALL
 wait 20
 # a plain shot only clinks
-expect tileat_310_70 == 7
+expect tileat_310_56 == 7
 cheat mod 0 3
 hold A 2
 release ALL
 wait 10
-expect tileat_310_70 == 0
-expect tileat_310_86 == 0
+expect tileat_310_56 == 0
+expect tileat_310_72 == 0
 # the hole stays burnt (it is saved with the run)
 cheat room 0 H
-expect tileat_310_70 == 0
+expect tileat_310_56 == 0
 # FANSHOT: three at once; with SCORCH all burning (two in the GUN: one damper)
 cheat dampers 1
 cheat mod 1 3

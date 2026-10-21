@@ -1,7 +1,8 @@
 # ANTIPODE: 34 upgrades: 25 armor cells (+5 each, 75 to 200), 3 spare bodies
 # (2 to 5), 2 dampers (one more mod a system each) and 4 mods. A new mod
-# goes into the first system with room (GUN, FRAME, FLIP), else OFF. The
-# first mod is the gift.
+# goes into the first empty system (GUN, FRAME, FLIP); with none empty, into
+# the GUN, which then overloads until a damper is found (there is no
+# unfitted row). The first mod is the gift.
 seed 1
 game antipode
 wait 5
@@ -21,10 +22,30 @@ expect goals == 0
 # EMBER, four rooms east of the start: into the GUN, and the gift
 cheat room 0 H
 expect items_here == 1
-cheat pos 168 100
+cheat pos 56 130
 wait 30
+expect items_here == 0
 expect mod0 == 3
 expect goals & 1
+# with the GUN taken it goes into the FRAME
+cheat newgame
+cheat nofoes
+cheat mod 1 3
+cheat room 0 H
+cheat pos 56 130
+wait 30
+expect mod0 == 2
+# with all three taken, into the GUN: two there, and no damper yet
+cheat newgame
+cheat nofoes
+cheat mod 1 3
+cheat mod 2 2
+cheat mod 3 1
+cheat room 0 H
+cheat pos 56 130
+wait 30
+expect mod0 == 3
+expect overload3 == 1
 cheat allitems
 expect items_got == 34
 expect items == 100
