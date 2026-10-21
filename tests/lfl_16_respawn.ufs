@@ -28,29 +28,25 @@ expect mobs == 2
 wait 40
 press A
 cheat room 14 140 70
-cheat room 11 146 34
+cheat room 11 84 36
 expect mobs == 1
 # down into the dungeon: everything comes back
 wait 40
 press A
 expect room_dirty11 == 1
-cheat room 92 140 70
+cheat room 94 140 70
 expect area == 1
 expect room_dirty11 == 0
-# a crystal gate broken stays broken
-cheat room 5 130 114
-expect gate1_kind == 3
-expect gate1_open == 0
-cheat face 0
-press B 3
-expect active == 1
+# a foliage gate blasted stays open
+cheat room 2 136 120
+expect gate2_kind == 4
+expect gate2_open == 0
+cheat hold 3 -1
+cheat res 0 2
 press A
-wait 20
-cheat pos 146 114
-press A
-wait 20
-expect gate1_open == 1
-cheat room 92 140 70
+wait 100
+expect gate2_open == 1
+cheat room 94 140 70
 cheat room 14 140 70
-cheat room 5 130 114
-expect gate1_open == 1
+cheat room 2 136 120
+expect gate2_open == 1

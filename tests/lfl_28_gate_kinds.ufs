@@ -1,0 +1,70 @@
+# LANDFALL: the real gates. A bog gate is five tiles of bog in the way into
+# its side room, so wading it costs 3: a Wick of 3 can't, one of 7 can,
+# and the bog boots walk it unharmed. Now and then the chart, tool or rare
+# gate is no side room but a nook in a grid room, walled by crystal,
+# foliage or blue blocks, with the prize inside.
+game landfall
+wait 5
+cheat nomobs
+# planet 2: the chart piece behind a bog gate, east of room 51
+cheat planet 2
+expect gate0_kind == 0
+expect gate0_role == 0
+expect gate0_room == 52
+cheat room 51 250 70
+hold RIGHT 150
+expect hp == 0
+expect state == 5
+expect maps == 0
+# again, with 7 of 7: three bites, and the chart piece
+cheat planet 2
+cheat hp 7 7
+cheat room 51 250 70
+hold RIGHT 200
+expect room == 52
+expect hits == 3
+expect hp == 4
+expect maps == 1
+# again, in the bog boots: no harm
+cheat planet 2
+cheat hold 5 -1
+cheat room 51 250 70
+hold RIGHT 200
+expect hits == 0
+expect maps == 1
+# planet 1: the tool gate is a ring of crystal round a nook in room 37
+cheat planet 1
+expect gate3_role == 2
+expect gate3_kind == 3
+expect gate3_nook == 8
+expect gate3_room == 37
+cheat room 37 83 83
+expect gate3_open == 0
+hold LEFT 30
+expect px >= 80
+expect items_found == 0
+cheat hold 1 -1
+cheat face 3
+press A
+wait 20
+expect gate3_open == 1
+expect shards == 0
+hold LEFT 30
+expect items_found == 1
+# planet 15: the chart gate is a nook behind blue blocks in room 15
+cheat planet 15
+expect gate3_role == 0
+expect gate3_kind == 5
+expect gate3_room == 15
+cheat room 15 203 99
+expect gate3_open == 0
+expect tile_12_2 == 9
+cheat hold 4 -1
+cheat res 1 2
+press A
+expect gate3_open == 1
+expect tile_12_2 == 10
+cheat pos 196 20
+hold DOWN 30
+expect maps == 1
+expect map_from == 1

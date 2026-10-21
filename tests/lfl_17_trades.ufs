@@ -12,7 +12,7 @@ cheat nomobs
 cheat planet 2
 cheat mobs
 # 16 beads for 16 burrs, plainly spoken
-cheat room 39 147 84
+cheat room 39 115 68
 expect friendlies == 4
 press B 3
 expect state == 3
@@ -67,7 +67,7 @@ expect talk_lines == 1
 wait 10
 press A 3
 # the chart piece, in glyphs: no talk box, no deal
-cheat room 38 115 68
+cheat room 38 147 84
 cheat res 3 20
 press B 3
 expect talk_glyph == 1
@@ -101,7 +101,7 @@ expect talk_trade == -1
 wait 10
 press A 3
 # the seventh village: the secret
-cheat room 41 131 68
+cheat room 41 115 68
 press B 3
 expect talk_lines == 3
 expect talk_trade == -1

@@ -24,10 +24,9 @@ hold RIGHT 66
 expect warps == 1
 expect room != 31
 expect alltiles12 == 2
-# off it and back on: home again
 # off it and back on: home again, beside the ship
 hold UP 14
-expect room == 51
+expect room == 4
 hold DOWN 14
 expect room == 31
 expect warps == 2

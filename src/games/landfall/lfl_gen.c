@@ -193,46 +193,48 @@ static const char *const FIELD[] = {
 };
 #define N_FIELD ARRAY_LEN(FIELD)
 
-/* rooms that can hold the hidden wall; the hint names their look */
+/* rooms that can hold the hidden wall; the hint names their look (four
+ * looks of our own: a cross of five plants, three crystals in a slant, a
+ * hut fallen to pieces, a zigzag of bushes) */
 static const char *const SECRET_T[] = {
     "................"
-    "........###....."
-    "..wwwwwwSa#....."
-    "........###....."
-    "..o............."
-    "............e..."
-    "................",
-
-    "................"
-    "...ss.....###..."
-    "...ss.....#aS..."
+    "...T............"
+    "..TTT.....###..."
+    "...T......#aS..."
     "..........###..."
-    "....e..........."
-    "..........o....."
+    "....e......o...."
     "................",
 
     "................"
-    "................"
-    ".....L.....#S#.."
-    "...........#a#.."
-    "..e........###.."
-    "......o........."
+    "..c............."
+    "...c......###..."
+    "....c.....Sa#..."
+    "..........###..."
+    "..o.........e..."
     "................",
 
     "................"
-    "..p.........p..."
+    "...H#......###.."
+    "...#.H.....#a#.."
+    "...........#S#.."
+    "..e............."
+    "........o......."
+    "................",
+
     "................"
-    ".....###........"
-    ".....#aS...e...."
-    ".....###...o...."
+    "..f.f.f.f......."
+    "...f.f.f...###.."
+    "...........#aS.."
+    "....o......###.."
+    "..........e....."
     "................",
 };
 #define N_SECRET ARRAY_LEN(SECRET_T)
 static const char *const SECRET_WHERE[N_SECRET] = {
-    "WHERE THE WOODEN WALK MEETS THE ROCK",
-    "BY THE LITTLE SQUARE OF BOG",
-    "NEAR THE LONELY LOG",
-    "BETWEEN THE TWO HOLES IN THE GROUND",
+    "WHERE FIVE PLANTS GROW IN A CROSS",
+    "PAST THREE CRYSTALS IN A SLANTED ROW",
+    "BY THE HUT THAT FELL TO PIECES",
+    "WHERE THE BUSHES ZIGZAG",
 };
 
 /* the villages: the giver always stands on the same tile of a layout (a
@@ -263,6 +265,17 @@ static const char *const VILLAGE_T[] = {
     "................",
 };
 #define N_VILLAGE ARRAY_LEN(VILLAGE_T)
+
+/* the village whose giver is shut in: a ring of crystal, the one way in a
+ * short channel of bog under the crystal (its tmpl is N_VILLAGE) */
+static const char TRAPPED_T[] =
+    "................"
+    ".HH..cccccccc.HH"
+    ".HH..c.G.cccc.HH"
+    "...v.c...sss...."
+    ".....cccccccc..."
+    "..v.........v..."
+    "................";
 
 static const char SHIP_T[] =
     "................"
@@ -483,12 +496,15 @@ static void side_set(int room, int side, int d, int l, int t) {
     if (x >= 0 && y >= 0 && x < LFL_RW && y < LFL_RH) lp.room[room].t[y][x] = (uint8_t)t;
 }
 static int lane0(int side) { return side == DIR_LEFT || side == DIR_RIGHT ? 4 : 8; }
+#define BOG_DEEP 5 /* a bog gate's tiles, from the way in */
 
 /* a gate in the passage leaving `room` by `side`: a corridor two tiles wide
- * and three deep, walled at the flanks, with the obstacle in it */
-static int carve_gate(int room, int side, int kind, int role) {
+ * and three deep, walled at the flanks, with the obstacle in it (a bog gate
+ * runs `bog` tiles deep, long enough to cost about 3 to wade) */
+static int carve_gate(int room, int side, int kind, int role, int bog) {
     int l0 = lane0(side);
-    for (int d = 1; d <= 3 && kind != GK_SNAIL; d++) {
+    int deep = kind == GK_SWAMP ? bog : 3;
+    for (int d = 1; d <= deep && kind != GK_SNAIL; d++) {
         side_set(room, side, d, l0 - 1, lp.room[room].area == AREA_DUN ? T_ROCK : T_STONE);
         side_set(room, side, d, l0 + 2, lp.room[room].area == AREA_DUN ? T_ROCK : T_STONE);
         side_set(room, side, d, l0, T_FLOOR);
@@ -515,12 +531,12 @@ static int carve_gate(int room, int side, int kind, int role) {
         break;
     }
     case GK_SWAMP:
-        for (int d = 1; d <= 3; d++) {
+        for (int d = 1; d <= deep; d++) {
             side_set(room, side, d, l0, T_SWAMP);
             side_set(room, side, d, l0 + 1, T_SWAMP);
         }
         side_xy(side, 1, l0, &x0, &y0);
-        side_xy(side, 3, l0 + 1, &x1, &y1);
+        side_xy(side, deep, l0 + 1, &x1, &y1);
         break;
     case GK_HOLE:
         for (int d = 1; d <= 3; d++) {
@@ -553,6 +569,15 @@ static int carve_gate(int room, int side, int kind, int role) {
     return lp.ngate++;
 }
 
+/* a gated nook's wall: the tiles on the edge of its box that touch the
+ * nook inside (side by side, not at a corner) */
+bool lfl_nook_door(int g, int x, int y) {
+    const LflGate *gt = &lp.gate[g];
+    if (!gt->nook || x < gt->tx || y < gt->ty || x >= gt->tx + gt->w || y >= gt->ty + gt->h) return false;
+    bool edge_x = x == gt->tx || x == gt->tx + gt->w - 1, edge_y = y == gt->ty || y == gt->ty + gt->h - 1;
+    return edge_x != edge_y; /* on one edge only: not inside, not a corner */
+}
+
 /* ------------------------------------------------------------------------ */
 /* the logic: can every planet be won?                                      */
 
@@ -566,6 +591,18 @@ static int find_gate(int role) {
     for (int i = 0; i < lp.ngate; i++)
         if (lp.gate[i].role == role) return i;
     return -1;
+}
+
+/* the keys into the trapped village: boots through the bog, rivets or a pod
+ * through the crystal, or the hatcher (small, along the bog's dry bank) */
+#define TRAP_KEYS ((1u << TL_BOOTS) | (1u << TL_RIVET) | (1u << TL_PODS) | (1u << TL_HATCHER))
+
+/* a trade can be made: its words can be read, its giver reached */
+static bool trade_open(int t, unsigned have) {
+    const LflTrade *tr = &lp.trade[t];
+    if (tr->glyph && !(have & (1u << TL_TALKBOX))) return false;
+    if (tr->room == lp.trapped_room && !(have & TRAP_KEYS)) return false;
+    return true;
 }
 
 /* the tools a player can lay hands on, counting juggling (any tool can be
@@ -583,7 +620,7 @@ static unsigned reachable_tools(void) {
             bool ok = false;
             if (lp.item_where[t] == 2) {
                 int tr = item_trade(t);
-                ok = tr >= 0 && (!lp.trade[tr].glyph || (have & (1u << TL_TALKBOX)));
+                ok = tr >= 0 && trade_open(tr, have);
             } else if (lp.item_where[t] == 1) {
                 int g = find_gate(GR_ITEM);
                 ok = g >= 0 && (have & (1u << GATE_KEY[lp.gate[g].kind]));
@@ -607,7 +644,7 @@ bool lfl_winnable(void) {
     for (int i = 0; i < lp.ngate; i++)
         if (lp.gate[i].role == GR_DUN && !(have & (1u << GATE_KEY[lp.gate[i].kind]))) return false;
     for (int i = 0; i < 6; i++)
-        if (lp.trade[i].kind == TR_MAP && lp.trade[i].glyph && !(have & (1u << TL_TALKBOX))) return false;
+        if (lp.trade[i].kind == TR_MAP && !trade_open(i, have)) return false;
     return true;
 }
 
@@ -723,7 +760,22 @@ static bool gen_logic(void) {
         lp.room[room].village = (uint8_t)(v + 1);
         lp.village[v].room = (uint8_t)room;
     }
-    /* the four gated side rooms, on the outer edge, never side by side */
+    /* the four real gates: what each guards, and its kind, each rolled on
+     * its own (two can be alike; nothing can fetch a staircase across a pit) */
+    int roles[4] = {GR_MAP, GR_DUNGEON, GR_ITEM, GR_RARE};
+    shuffle(roles, 4);
+    int kinds[4];
+    for (int i = 0; i < 4; i++)
+        do kinds[i] = rng_range(&gr, 0, GK_COUNT - 1); while (roles[i] == GR_DUNGEON && kinds[i] == GK_PIT);
+    /* now and then the chart, tool or rare gate walls off a nook in a grid
+     * room instead of a side room: crystal, foliage or blue blocks round it */
+    int nook = -1;
+    if (rng_chance(&gr, 30)) {
+        static const int NOOK_KIND[3] = {GK_CRYSTAL, GK_FOLIAGE, GK_TECH};
+        do nook = rng_range(&gr, 0, 3); while (roles[nook] == GR_DUNGEON);
+        kinds[nook] = NOOK_KIND[rng_range(&gr, 0, 2)];
+    }
+    /* the gated side rooms, on the outer edge, never side by side */
     int cand_x[64], cand_y[64], cand_d[64], ncand = 0;
     for (int y = 1; y <= lp.gh; y++)
         for (int x = 1; x <= lp.gw; x++) {
@@ -737,8 +789,8 @@ static bool gen_logic(void) {
     int order[64];
     for (int i = 0; i < ncand; i++) order[i] = i;
     shuffle(order, ncand);
-    int sx[4], sy[4], sd[4], ns = 0;
-    for (int k = 0; k < ncand && ns < 4; k++) {
+    int sx[4], sy[4], sd[4], ns = 0, want_side = nook >= 0 ? 3 : 4;
+    for (int k = 0; k < ncand && ns < want_side; k++) {
         int i = order[k];
         bool ok = true;
         for (int j = 0; j < ns; j++)
@@ -746,30 +798,24 @@ static bool gen_logic(void) {
         if (!ok) continue;
         sx[ns] = cand_x[i]; sy[ns] = cand_y[i]; sd[ns] = cand_d[i]; ns++;
     }
-    if (ns < 4) return false;
-    int roles[4] = {GR_MAP, GR_DUNGEON, GR_ITEM, GR_RARE};
-    shuffle(roles, 4);
-    /* four different kinds; nothing can fetch a staircase across a pit */
-    int kinds[GK_COUNT];
-    for (int i = 0; i < GK_COUNT; i++) kinds[i] = i;
-    shuffle(kinds, GK_COUNT);
-    for (int i = 0; i < 4; i++)
-        if (roles[i] == GR_DUNGEON && kinds[i] == GK_PIT) {
-            int t = kinds[i];
-            kinds[i] = kinds[4];
-            kinds[4] = t;
-        }
-    for (int i = 0; i < 4; i++) {
-        LflRoom *r = R(sx[i], sy[i]);
-        r->exists = 1;
-        r->kind = RK_SIDE;
+    if (ns < want_side) return false;
+    for (int i = 0, k = 0; i < 4; i++) {
         LflGate *g = &lp.gate[lp.ngate++];
         memset(g, 0, sizeof *g);
         g->kind = (uint8_t)kinds[i];
         g->role = (uint8_t)roles[i];
-        g->room = (uint8_t)lfl_room_index(AREA_OVER, sx[i], sy[i]);
-        g->side = (int8_t)((sd[i] + 2) & 3); /* the side facing back into the grid */
         g->prize_thing = 255;
+        if (i == nook) {
+            g->nook = 1; /* the room is picked with the rooms */
+            g->room = 255;
+            continue;
+        }
+        LflRoom *r = R(sx[k], sy[k]);
+        r->exists = 1;
+        r->kind = RK_SIDE;
+        g->room = (uint8_t)lfl_room_index(AREA_OVER, sx[k], sy[k]);
+        g->side = (int8_t)((sd[k] + 2) & 3); /* the side facing back into the grid */
+        k++;
     }
     /* rarity, costs */
     int tiers[RS_COUNT] = {0, 1, 2, 3};
@@ -834,6 +880,13 @@ static bool gen_logic(void) {
             v->glyph = 0;
         }
     }
+    /* now and then a trade's giver is shut in by crystal and bog */
+    lp.trapped_room = 255;
+    if (rng_chance(&gr, 50)) {
+        int k = rng_range(&gr, 0, 5);
+        for (int v = 0; v < lp.nvillage; v++)
+            if (lp.village[v].trade == k) lp.trapped_room = lp.village[v].room;
+    }
     roll_species();
     return lfl_winnable();
 }
@@ -895,23 +948,32 @@ typedef struct Plan {
 } Plan;
 static Plan plans[LFL_MAX_ROOMS];
 
-static void build_field(int room, int forced_secret) {
+/* a grid room; `forced` (with its index) is the hidden wall's look or a
+ * gated nook's field layout */
+static void build_field(int room, const char *forced, int forced_i) {
     LflRoom *r = &lp.room[room];
     Plan *pl = &plans[room];
-    uint8_t need[LFL_RH][LFL_RW];
+    uint8_t need[LFL_RH][LFL_RW], pass[LFL_RH][LFL_RW];
+    bool trapped = room == lp.trapped_room;
     for (int attempt = 0; attempt < 40; attempt++) {
         lay_border(room);
         const char *tm;
         int ti;
-        if (r->kind == RK_VILLAGE) { ti = rng_range(&gr, 0, N_VILLAGE - 1); tm = VILLAGE_T[ti]; }
+        if (trapped) { ti = N_VILLAGE; tm = TRAPPED_T; }
+        else if (r->kind == RK_VILLAGE) { ti = rng_range(&gr, 0, N_VILLAGE - 1); tm = VILLAGE_T[ti]; }
         else if (r->kind == RK_SHIP) { ti = 0; tm = SHIP_T; }
-        else if (forced_secret >= 0) { ti = forced_secret; tm = SECRET_T[ti]; }
+        else if (forced) { ti = forced_i; tm = forced; }
         else if (attempt < 30) { ti = rng_range(&gr, 0, N_FIELD - 1); tm = FIELD[ti]; }
         else { ti = 0; tm = FIELD[0]; }
         bool fx = rng_chance(&gr, 50), fy = r->kind == RK_VILLAGE ? false : rng_chance(&gr, 50);
         lay_template(room, tm, fx, fy, &pl->sp);
         r->tmpl = (uint8_t)ti;
         need_openings(room, need);
+        /* the trapped giver is reached through its bog */
+        memset(pass, 0, sizeof pass);
+        if (trapped)
+            for (int y = 0; y < LFL_RH; y++)
+                for (int x = 0; x < LFL_RW; x++) pass[y][x] = r->t[y][x] == T_SWAMP;
         for (int k = 0; k < pl->sp.n[SPOT_O]; k++) need[pl->sp.y[SPOT_O][k]][pl->sp.x[SPOT_O][k]] = 1;
         for (int k = 0; k < pl->sp.n[SPOT_G]; k++) {
             int gx = pl->sp.x[SPOT_G][k], gy = pl->sp.y[SPOT_G][k];
@@ -940,7 +1002,7 @@ static void build_field(int room, int forced_secret) {
                 }
             }
         }
-        if (room_connected(room, need, NULL)) return;
+        if (room_connected(room, need, pass)) return;
     }
     /* a plain room always works */
     lay_border(room);
@@ -978,6 +1040,7 @@ static void build_side(int g) {
         for (int l = llo; l <= lhi; l++) side_set(room, side, d, l, T_FLOOR);
     int cd = (dlo + dhi) / 2, cl = lr ? 4 : 8;
     if (gt->kind == GK_PIT && !lr) cl = 11; /* the island beside the way in, not across it */
+    if (gt->kind == GK_SWAMP) cd = imax(cd, BOG_DEEP + 1); /* past the end of the bog */
     int cx, cy;
     side_xy(side, cd, cl, &cx, &cy);
     if (gt->kind == GK_PIT) {
@@ -1002,7 +1065,7 @@ static void build_side(int g) {
         LflGate keep = *gt;
         int saved = lp.ngate;
         lp.ngate = g;
-        carve_gate(room, side, gt->kind, gt->role);
+        carve_gate(room, side, gt->kind, gt->role, BOG_DEEP);
         LflGate made = lp.gate[g];
         lp.ngate = saved;
         keep.tx = made.tx; keep.ty = made.ty; keep.w = made.w; keep.h = made.h;
@@ -1112,7 +1175,9 @@ static bool build_dungeon(void) {
             }
             if (gated) {
                 int save_n = lp.ngate;
-                carve_gate(room, dirs_k[k], gkind, GR_DUN);
+                /* (in the first room a long bog up or down would reach the stairs) */
+                bool ud = dirs_k[k] == DIR_UP || dirs_k[k] == DIR_DOWN;
+                carve_gate(room, dirs_k[k], gkind, GR_DUN, k == 0 && ud ? 3 : BOG_DEEP);
                 const LflGate *g = &lp.gate[save_n];
                 for (int y = g->ty; y < g->ty + g->h; y++)
                     for (int x = g->tx; x < g->tx + g->w; x++) pass[y][x] = 1;
@@ -1149,7 +1214,8 @@ static bool gen_rooms(void) {
                 link_rooms(lfl_room_index(AREA_OVER, x, y), d, lfl_room_index(AREA_OVER, nx, ny), lo, hi);
             }
         }
-    for (int g = 0; g < 4; g++) build_side(g);
+    for (int g = 0; g < 4; g++)
+        if (!lp.gate[g].nook) build_side(g);
     /* the room that hides the wall */
     int fields[64], nf = 0;
     for (int y = 1; y <= lp.gh; y++)
@@ -1159,6 +1225,26 @@ static bool gen_rooms(void) {
     shuffle(fields, nf);
     lp.secret_room = (uint8_t)fields[0];
     int sec_t = rng_range(&gr, 0, N_SECRET - 1);
+    /* a gated nook: a field room whose nook is walled by the gate's kind (not
+     * one where a big shell will stand in the mouth of a way) */
+    int nook_g = -1, nook_room = -1, nook_t = -1;
+    for (int g = 0; g < lp.ngate; g++)
+        if (lp.gate[g].nook) nook_g = g;
+    if (nook_g >= 0) {
+        nook_t = lp.gate[nook_g].kind == GK_CRYSTAL ? 3 : lp.gate[nook_g].kind == GK_FOLIAGE ? 4 : 7;
+        for (int k = 1; k < nf && nook_room < 0; k++) {
+            const LflRoom *f = &lp.room[fields[k]];
+            bool mouth = false;
+            for (int g = 0; g < lp.ngate; g++) {
+                const LflGate *gt = &lp.gate[g];
+                if (gt->nook || gt->kind != GK_SNAIL) continue;
+                const LflRoom *sr = &lp.room[gt->room];
+                mouth |= sr->gx + DX[gt->side] == f->gx && sr->gy + DY[gt->side] == f->gy;
+            }
+            if (!mouth) nook_room = fields[k];
+        }
+        if (nook_room < 0) return false;
+    }
     for (int y = 1; y <= lp.gh; y++)
         for (int x = 1; x <= lp.gw; x++) {
             int room = lfl_room_index(AREA_OVER, x, y);
@@ -1168,7 +1254,9 @@ static bool gen_rooms(void) {
                 lp.room[room].exists = 1;
                 continue;
             }
-            build_field(room, room == lp.secret_room ? sec_t : -1);
+            if (room == lp.secret_room) build_field(room, SECRET_T[sec_t], sec_t);
+            else if (room == nook_room) build_field(room, FIELD[nook_t], nook_t);
+            else build_field(room, NULL, -1);
         }
     /* the snails that guard a side room stand in the grid room's mouth */
     for (int g = 0; g < lp.ngate; g++) {
@@ -1192,6 +1280,36 @@ static bool gen_rooms(void) {
         gt->snail = 0;
         gt->snail_face = (uint8_t)out;
         gt->snail_room = (uint8_t)nb;
+    }
+    /* the gated nook: its obstacle round the nook, the prize inside */
+    if (nook_g >= 0) {
+        LflGate *gt = &lp.gate[nook_g];
+        Plan *pl = &plans[nook_room];
+        LflRoom *r = &lp.room[nook_room];
+        if (r->tmpl != nook_t || !pl->sp.n[SPOT_R]) return false;
+        int x0 = LFL_RW, y0 = LFL_RH, x1 = -1, y1 = -1;
+        for (int k = 0; k < pl->sp.n[SPOT_R]; k++) {
+            x0 = imin(x0, pl->sp.x[SPOT_R][k] - 1); x1 = imax(x1, pl->sp.x[SPOT_R][k] + 1);
+            y0 = imin(y0, pl->sp.y[SPOT_R][k] - 1); y1 = imax(y1, pl->sp.y[SPOT_R][k] + 1);
+        }
+        int n = 0;
+        for (int y = y0; y <= y1; y++)
+            for (int x = x0; x <= x1; x++) n += r->t[y][x] == T_CRYSTAL || r->t[y][x] == T_FOLIAGE || r->t[y][x] == T_TECH;
+        if (!n) return false;
+        gt->room = (uint8_t)nook_room;
+        gt->tx = (int8_t)x0; gt->ty = (int8_t)y0;
+        gt->w = (int8_t)(x1 - x0 + 1); gt->h = (int8_t)(y1 - y0 + 1);
+        gt->nook = (uint8_t)n;
+        int px = pl->sp.x[SPOT_R][0], py = pl->sp.y[SPOT_R][0];
+        pl->used[py][px] = 1;
+        switch (gt->role) {
+        case GR_MAP: gt->prize_thing = (uint8_t)add_thing(TH_MAP, 0, 1, nook_room, px, py); break;
+        case GR_ITEM:
+            for (int t = 0; t < TL_COUNT; t++)
+                if (lp.item_where[t] == 1) gt->prize_thing = (uint8_t)add_thing(TH_TOOL, t, 1, nook_room, px, py);
+            break;
+        default: gt->prize_thing = (uint8_t)add_thing(TH_BUNDLE, lp.res_of_tier[TIER_RARE], 2, nook_room, px, py); break;
+        }
     }
     /* the hidden wall: the generator chose the look, now the key */
     {
@@ -1259,7 +1377,9 @@ static bool gen_rooms(void) {
                 pl->used[ty][tx] = 1;
                 add_spawn(room, SPW_RES, res_by_weight(6, 3, 1), tx, ty);
             }
-            for (int k = 0; k < pl->sp.n[SPOT_R]; k++) add_spawn(room, SPW_RES, res_by_weight(1, 3, 3), pl->sp.x[SPOT_R][k], pl->sp.y[SPOT_R][k]);
+            for (int k = 0; k < pl->sp.n[SPOT_R]; k++)
+                if (!pl->used[pl->sp.y[SPOT_R][k]][pl->sp.x[SPOT_R][k]])
+                    add_spawn(room, SPW_RES, res_by_weight(1, 3, 3), pl->sp.x[SPOT_R][k], pl->sp.y[SPOT_R][k]);
             int extra = rng_range(&gr, 1, 2);
             for (int k = 0; k < extra; k++) {
                 int tx, ty;
@@ -1306,28 +1426,37 @@ void lfl_generate(uint32_t seed) {
 }
 
 /* the hint the seventh village gives: where, then how */
+static const char *const SIDE_NAME[4] = {"NORTH", "EAST", "SOUTH", "WEST"};
+static const char *const KEY_HINT[SK_COUNT] = {"A THUMP WAKES THE SLEEPING STONE", "WHAT COMES BACK OPENS IT FROM THE %s",
+                                               "A BLAST WILL OPEN IT", "A FEW RIVETS WILL CRACK IT", "ONLY THE VERY SMALL GET IN"};
+
 const char *lfl_hint_line(int i) {
     static char buf[48];
     if (lp.secret_room == 255) return "";
     const LflRoom *r = &lp.room[lp.secret_room];
     if (i == 0) return r->tmpl < N_SECRET ? SECRET_WHERE[r->tmpl] : "";
-    switch (lp.secret_key) {
-    case SK_THUMPER: return "A THUMP WAKES THE SLEEPING STONE";
-    case SK_PODS: return "A BLAST WILL OPEN IT";
-    case SK_RIVET: return "A FEW RIVETS WILL CRACK IT";
-    case SK_SMALL: return "ONLY THE VERY SMALL GET IN";
-    default: {
-        /* the disc: from which side to throw */
-        static const char *const SIDE[4] = {"NORTH", "EAST", "SOUTH", "WEST"};
-        int side = 0;
-        for (int d = 0; d < 4; d++) {
-            int t = lfl_tile(lp.secret_room, r->secret_x + DX[d], r->secret_y + DY[d]);
-            if (t == T_FLOOR || t == T_WOOD) { side = d; break; }
-        }
-        snprintf(buf, sizeof buf, "STAND %s AND THROW WHAT RETURNS", SIDE[side]);
+    if (lp.secret_key != SK_DISC) return KEY_HINT[lp.secret_key];
+    /* the disc: the side of the wall to throw from */
+    int side = 0;
+    for (int d = 0; d < 4; d++) {
+        int t = lfl_tile(lp.secret_room, r->secret_x + DX[d], r->secret_y + DY[d]);
+        if (t == T_FLOOR || t == T_WOOD) { side = d; break; }
+    }
+    snprintf(buf, sizeof buf, KEY_HINT[SK_DISC], SIDE_NAME[side]);
+    return buf;
+}
+
+/* tests: every line the hint can be, k = 0, 1, ... (NULL past the last) */
+const char *lfl_hint_any(int k) {
+    static char buf[48];
+    if (k < (int)N_SECRET) return SECRET_WHERE[k];
+    k -= (int)N_SECRET;
+    if (k < SK_COUNT && k != SK_DISC) return KEY_HINT[k];
+    if (k >= SK_COUNT && k < SK_COUNT + 4) {
+        snprintf(buf, sizeof buf, KEY_HINT[SK_DISC], SIDE_NAME[k - SK_COUNT]);
         return buf;
     }
-    }
+    return k == SK_DISC ? "" : NULL;
 }
 
 /* ------------------------------------------------------------------------ */
@@ -1339,20 +1468,35 @@ int lfl_gen_audit(void) {
     for (int y = 1; y <= lp.gh; y++)
         for (int x = 1; x <= lp.gw; x++) stone += R(x, y)->kind == RK_STONE;
     if (stone < 4 || stone > 6 || !grid_connected()) return 2;
-    int roles = 0, over = 0;
+    int roles = 0, over = 0, nooks = 0;
     for (int g = 0; g < lp.ngate; g++) {
         const LflGate *gt = &lp.gate[g];
         if (gt->role == GR_DUN) continue;
         over++;
         roles |= 1 << gt->role;
         const LflRoom *r = &lp.room[gt->room];
+        if (gt->nook) {
+            /* a nook in a grid room: the prize inside, walled by the gate's kind */
+            nooks++;
+            if (r->kind != RK_FIELD || !in_grid(r->gx, r->gy) || gt->role == GR_DUNGEON || gt->prize_thing == 255) return 3;
+            if (gt->kind != GK_CRYSTAL && gt->kind != GK_FOLIAGE && gt->kind != GK_TECH) return 3;
+            const LflThing *t = &lp.thing[gt->prize_thing];
+            int px = (t->x + 6) / LFL_TILE, py = (t->y + 6) / LFL_TILE;
+            if (t->room != gt->room || px < gt->tx || py < gt->ty || px >= gt->tx + gt->w || py >= gt->ty + gt->h) return 3;
+            uint8_t need[LFL_RH][LFL_RW];
+            need_openings(gt->room, need);
+            need[py][px] = 1;
+            if (room_connected(gt->room, need, NULL)) return 3;
+            continue;
+        }
         if (r->kind != RK_SIDE || in_grid(r->gx, r->gy)) return 3;
         for (int h = 0; h < g; h++) {
             const LflRoom *q = &lp.room[lp.gate[h].room];
-            if (lp.gate[h].role != GR_DUN && iabs(q->gx - r->gx) + iabs(q->gy - r->gy) < 2) return 4;
+            if (lp.gate[h].role != GR_DUN && !lp.gate[h].nook && iabs(q->gx - r->gx) + iabs(q->gy - r->gy) < 2) return 4;
         }
         if (gt->role == GR_DUNGEON && gt->kind == GK_PIT) return 3;
     }
+    if (nooks > 1) return 3;
     if (over != 4 || roles != 0xF) return 3;
     if (lp.nvillage < 6 || lp.nvillage > 7) return 5;
     int glyph = 0, plain = 0, hint = 0;
@@ -1388,7 +1532,7 @@ int lfl_gen_audit(void) {
         if (t->kind == TH_TOOL) tools_on_map++;
         if (t->kind == TH_CUBE) cubes++;
         if (t->kind == TH_MAP) maps++;
-        if (t->kind == TH_BUNDLE && t->n == 2 && t->sub == lp.res_of_tier[TIER_RARE] && lp.room[t->room].kind == RK_SIDE) rare_gate++;
+        if (t->kind == TH_BUNDLE && t->n == 2 && t->sub == lp.res_of_tier[TIER_RARE] && lp.room[t->room].kind != RK_DUN) rare_gate++;
     }
     if (tools_on_map != 6) return 7;
     if (cubes < 4 || cubes > 5) return 8;
@@ -1417,6 +1561,19 @@ int lfl_gen_audit(void) {
         lp.tier_of[lp.cost_res[TL_CHOPS]] == TIER_COMMON)
         return 13;
     if (lp.secret_room == 255 || lp.room[lp.secret_room].secret_key < 0) return 14;
+    /* the trapped giver: a trade's, out of reach but through the bog */
+    if (lp.trapped_room != 255) {
+        const LflRoom *r = &lp.room[lp.trapped_room];
+        if (r->kind != RK_VILLAGE || r->tmpl != N_VILLAGE || lp.village[r->village - 1].trade < 0) return 17;
+        const LflVillage *v = &lp.village[r->village - 1];
+        uint8_t need[LFL_RH][LFL_RW], pass[LFL_RH][LFL_RW];
+        need_openings(lp.trapped_room, need);
+        need[v->gy + 1][v->gx] = 1;
+        if (room_connected(lp.trapped_room, need, NULL)) return 17;
+        for (int y = 0; y < LFL_RH; y++)
+            for (int x = 0; x < LFL_RW; x++) pass[y][x] = r->t[y][x] == T_SWAMP;
+        if (!room_connected(lp.trapped_room, need, pass)) return 17;
+    }
     for (int k = 0; k < LFL_DUN_ROOMS; k++)
         if (!lp.room[lp.dun_room[k]].exists || lp.room[lp.dun_room[k]].dun_step != k) return 15;
     for (int k = 0; k + 1 < LFL_DUN_ROOMS; k++) {

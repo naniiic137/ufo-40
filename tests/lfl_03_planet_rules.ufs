@@ -1,11 +1,13 @@
 # LANDFALL: every planet is built by the same rules (the community's
 # generation rules for the original): a 7 x 4 or 6 x 5 grid with four to
-# six cells of solid stone, exactly four real gates on the outer edge
-# (a chart piece, the dungeon, a tool, two of the rare resource), gated
-# side rooms never side by side, six or seven villages (three trade in
-# glyphs; a seventh keeps a secret), six trades priced by rarity, eight
-# tools (five lying about, one gated, two sold, every one of them within
-# reach), four energy cells (now and then five), one hidden wall, a
+# six cells of solid stone, exactly four real gates (a chart piece, the
+# dungeon, a tool, two of the rare resource), each kind rolled on its own;
+# the gates lead to side rooms on the outer edge, never side by side, but
+# now and then the chart, tool or rare gate walls off a nook in a grid room
+# instead; six or seven villages (three trade in glyphs; a seventh keeps a
+# secret; now and then a trade's giver is shut in by crystal and bog), six
+# trades priced by rarity, eight tools (five lying about, one gated, two
+# sold, every one of them within reach), four energy cells (now and then five), one hidden wall, a
 # six-room dungeon, two friendly and four hostile species (one of them
 # dropping chops), and every planet winnable. The audit checks all of it
 # on 800 planets.
@@ -79,8 +81,8 @@ expect sp1_friendly == 1
 expect sp1_glyph == 1
 expect sp1_drop == 3
 expect sp2_friendly == 0
-expect sp2_drop == 2
-expect sp3_drop == -1
+expect sp2_drop == -1
+expect sp3_drop == 2
 expect sp4_drop == 0
 expect sp5_drop == 1
 # the big shell: 3 to touch
@@ -98,6 +100,13 @@ expect audit_many_1_200_2 <= 110
 expect audit_many_1_200_3 >= 5
 expect audit_many_1_200_3 <= 45
 expect audit_many_1_200_5 <= 20
+# a trapped giver on about half the planets, a gated nook on about three in
+# ten, and two real gates of the same kind on many
+expect audit_many_1_200_6 >= 70
+expect audit_many_1_200_6 <= 130
+expect audit_many_1_200_7 >= 35
+expect audit_many_1_200_7 <= 85
+expect audit_many_1_200_8 >= 60
 # (the queries leave this planet as it was)
 expect gw == 6
 expect seed == 2

@@ -204,6 +204,8 @@ static int talk_audit(void) {
                            "GLYPH TONGUE READS PLAINLY.", "ONE DAY I WILL FLY TOO", "A SECRET, WALKER:", "THAT WAS MY ONLY ONE.",
                            GLYPH_B " TRADE   " GLYPH_A " NO THANKS", "THEY SAY SKYWELL IS NOT HALF THIS GOOD"};
     for (size_t i = 0; i < ARRAY_LEN(fixed); i++) bad += text_width(fixed[i]) > 268 || text_missing(fixed[i]);
+    const char *h;
+    for (int k = 0; (h = lfl_hint_any(k)) != NULL; k++) bad += text_width(h) > 268 || text_missing(h);
     return bad;
 }
 
@@ -359,11 +361,22 @@ static int find_gate_role(int role) {
 
 static int gate_room_neighbor(int g) {
     const LflGate *gt = &lp.gate[g];
+    if (gt->nook) return -1;
     return lfl_neighbor(gt->room, gt->side);
 }
 
 bool lfl_gate_open(int g) {
     const LflGate *gt = &lp.gate[g];
+    if (gt->nook) {
+        /* a nook is open once one of the tiles of its wall beside the nook
+         * is gone (a corner gone opens nothing) */
+        for (int y = gt->ty; y < gt->ty + gt->h; y++)
+            for (int x = gt->tx; x < gt->tx + gt->w; x++) {
+                int t = lp.room[gt->room].t[y][x];
+                if (lfl_nook_door(g, x, y) && (t == T_FLOOR || t == T_WOOD || t == T_TECHDOWN)) return true;
+            }
+        return false;
+    }
     switch (gt->kind) {
     case GK_SNAIL: return gt->snail == 1;
     case GK_PIT: return gt->used;
@@ -395,6 +408,17 @@ static int audit_many(int from, int n, int what) {
             counts += dg;
         }
         if (what == 5) counts = imax(counts, lp.gen_tries);
+        if (what == 6) counts += lp.trapped_room != 255; /* a trapped giver */
+        if (what == 7)
+            for (int g = 0; g < lp.ngate; g++) counts += lp.gate[g].nook != 0; /* a gated nook in the grid */
+        if (what == 8) {
+            /* two real gates of the same kind */
+            bool same = false;
+            for (int g = 0; g < lp.ngate; g++)
+                for (int h = 0; h < g; h++)
+                    same |= lp.gate[g].role != GR_DUN && lp.gate[h].role != GR_DUN && lp.gate[g].kind == lp.gate[h].kind;
+            counts += same;
+        }
     }
     return what == 0 ? bad : counts;
 }
@@ -467,6 +491,11 @@ static int lfl_query(const char *key, int *out) {
     if (!strcmp(key, "all_tools")) { *out = lfl_all_tools(); return 1; }
     if (!strcmp(key, "gates")) { *out = lp.ngate; return 1; }
     if (!strcmp(key, "secret_key")) { *out = lp.secret_key; return 1; }
+    if (!strcmp(key, "trapped_room")) { *out = lp.trapped_room; return 1; }
+    if (!strcmp(key, "secret_x")) { *out = lp.room[lp.secret_room].secret_x; return 1; }
+    if (!strcmp(key, "secret_y")) { *out = lp.room[lp.secret_room].secret_y; return 1; }
+    if (!strcmp(key, "secret_look")) { *out = lp.room[lp.secret_room].tmpl; return 1; }
+    if (!strcmp(key, "feet_bog")) { *out = lfl_feet_in_bog(); return 1; }
     if (!strcmp(key, "secret_room")) { *out = lp.secret_room; return 1; }
     if (!strcmp(key, "secret_open")) {
         const LflRoom *r = &lp.room[lp.secret_room];
@@ -487,6 +516,7 @@ static int lfl_query(const char *key, int *out) {
         if (!strcmp(u, "_snail")) { *out = gt->snail; return 1; }
         if (!strcmp(u, "_outer")) { *out = gate_room_neighbor(g); return 1; }
         if (!strcmp(u, "_tx")) { *out = gt->tx; return 1; }
+        if (!strcmp(u, "_nook")) { *out = gt->nook; return 1; }
         if (!strcmp(u, "_ty")) { *out = gt->ty; return 1; }
         return 0;
     }
@@ -506,6 +536,18 @@ static int lfl_query(const char *key, int *out) {
         if (!strcmp(u, "_room")) { *out = tr->room; return 1; }
         return 0;
     }
+    if (!strncmp(key, "vil", 3) && isdigit((unsigned char)key[3])) {
+        int v = iclamp(atoi(key + 3), 0, 6);
+        const char *u = strchr(key + 3, '_');
+        if (!u) return 0;
+        const LflVillage *vl = &lp.village[v];
+        if (!strcmp(u, "_room")) { *out = vl->room; return 1; }
+        if (!strcmp(u, "_gx")) { *out = vl->gx; return 1; }
+        if (!strcmp(u, "_gy")) { *out = vl->gy; return 1; }
+        if (!strcmp(u, "_trade")) { *out = vl->trade; return 1; }
+        return 0;
+    }
+    if (!strcmp(key, "mute_room")) { *out = lp.mute_room; return 1; }
     if (!strncmp(key, "where", 5) && isdigit((unsigned char)key[5])) { *out = lp.item_where[iclamp(atoi(key + 5), 0, 7)]; return 1; }
     if (!strncmp(key, "sp", 2) && isdigit((unsigned char)key[2])) {
         int s = iclamp(atoi(key + 2), 0, SP_COUNT - 1);

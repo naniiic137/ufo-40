@@ -8,15 +8,15 @@ game landfall
 wait 5
 cheat nomobs
 cheat planet 2
-expect dun_entry == 9
-cheat room 9 160 67
+expect dun_entry == 4
+cheat room 4 160 35
 expect area == 0
-expect tile_8_4 == 16
+expect tile_8_2 == 16
 hold LEFT
 waituntil area == 1 60
 release LEFT
 expect area == 1
-expect room == 92
+expect room == 94
 expect dun_step == 0
 expect tile_8_4 == 17
 expect neighbors == 1
@@ -27,23 +27,23 @@ hold RIGHT 14
 expect area == 1
 hold LEFT 14
 expect area == 0
-expect room == 9
+expect room == 4
 # back down, and along the line: one way on from each room
 hold RIGHT 14
 hold LEFT
 waituntil area == 1 60
 release LEFT
-expect room == 92
-cheat room 98 140 70
+expect room == 94
+cheat room 93 140 70
 expect dun_step == 1
 expect neighbors == 2
-cheat room 97 140 70
+cheat room 87 140 70
 expect dun_step == 2
-cheat room 96 140 70
+cheat room 81 140 70
 expect dun_step == 3
-cheat room 90 140 70
+cheat room 82 140 70
 expect dun_step == 4
-cheat room 89 100 66
+cheat room 76 100 66
 expect dun_step == 5
 expect neighbors == 1
 # the chart piece at the end
@@ -54,5 +54,5 @@ expect map_from == 4
 expect goals & 1
 # foes in every room of the line
 cheat mobs
-cheat room 98 140 70
+cheat room 93 140 70
 expect hostiles >= 1
