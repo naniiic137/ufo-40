@@ -1,0 +1,64 @@
+# ANTIPODE: the title offers NEW GAME, CONTINUE (greyed until there is a
+# save) and CODE. NEW GAME tells the story (A skips it) and wakes the suit
+# in the cradle bay in the middle of the Gantry: 75 armor, two spare bodies,
+# no mods, and the start already counts as a save. B on the title goes back
+# to the library.
+seed 1
+game antipode
+wait 10
+expect state == 0
+expect menu == 0
+expect paused == 0
+press DOWN
+expect menu == 1
+press A
+wait 5
+# no save yet: CONTINUE does nothing
+expect state == 0
+press DOWN
+expect menu == 2
+press A
+wait 5
+expect state == 1
+press B
+wait 5
+expect state == 0
+press UP
+press UP
+expect menu == 0
+press A
+wait 5
+expect state == 2
+wait 30
+press A
+wait 5
+expect state == 3
+expect room_id == 83
+expect sector == 0
+expect armor == 75
+expect armor_max == 75
+expect spares == 2
+expect spares_max == 2
+expect mod0 == 255
+expect mod1 == 255
+expect mod2 == 255
+expect mod3 == 255
+expect pass == 0
+expect ciphers == 0
+expect save_has == 1
+expect grav == 1
+# the pause menu works in play
+press START
+expect paused == 1
+press START
+expect paused == 0
+expect layout == 0
+expect art_bad == 0
+# back on the title CONTINUE is offered first now; B leaves for the library
+cheat menu 1
+game antipode
+wait 10
+expect menu == 1
+press B
+wait 40
+expect_scene library

@@ -321,6 +321,17 @@ CORE_SRC += src/games/limpet/lmp_bot.c
 CORE_SRC += src/games/limpet/lmp_draw.c
 CORE_SRC += src/games/limpet/lmp_art.c
 CORE_SRC += src/games/limpet/lmp_audio.c
+CORE_SRC += src/games/antipode/apd.c
+CORE_SRC += src/games/antipode/apd_world.c
+CORE_SRC += src/games/antipode/apd_rooms.c
+CORE_SRC += src/games/antipode/apd_play.c
+CORE_SRC += src/games/antipode/apd_foes.c
+CORE_SRC += src/games/antipode/apd_boss.c
+CORE_SRC += src/games/antipode/apd_bot.c
+CORE_SRC += src/games/antipode/apd_text.c
+CORE_SRC += src/games/antipode/apd_draw.c
+CORE_SRC += src/games/antipode/apd_art.c
+CORE_SRC += src/games/antipode/apd_audio.c
 
 HEADLESS_SRC += src/platform/headless/main_headless.c
 HEADLESS_SRC += src/platform/headless/imgwrite.c

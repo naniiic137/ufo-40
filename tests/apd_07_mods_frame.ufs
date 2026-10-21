@@ -1,0 +1,89 @@
+# ANTIPODE: the four mods in the FRAME. KILNSKIN (EMBER) halves all harm,
+# spikes 100 to 50, and keeps heat out; SATELLITE (TWIN) is a drone that
+# fires with you and latches on to foes near by; SIPHON (VOLT) turns harm
+# done into a little armor (1 for 10); IRONSOLE (MASS) makes spikes 10 (5
+# with KILNSKIN too). Spikes kill at the start: 100 against 75.
+seed 1
+game antipode
+wait 5
+cheat newgame
+cheat nofoes
+cheat room 2 v
+cheat pos 60 134
+wait 5
+cheat hurt 20
+expect armor == 55
+wait 70
+cheat mod 0 2
+cheat hurt 20
+expect armor == 45
+cheat mod 0 -1
+wait 70
+# spikes: the floor of a Coil spike hall (off them, on a block, after each touch)
+cheat room 2 e
+cheat cells 25
+cheat pos 40 118
+wait 3
+expect armor == 100
+cheat pos 112 86
+wait 70
+cheat mod 3 2
+cheat armor 200
+cheat pos 40 118
+wait 3
+expect armor == 190
+cheat pos 112 86
+wait 70
+cheat mod 0 2
+cheat dampers 1
+cheat armor 200
+cheat pos 40 118
+wait 3
+expect armor == 195
+cheat pos 112 86
+cheat mod 0 -1
+cheat mod 3 -1
+cheat dampers 0
+cheat cells 0
+cheat armor 75
+wait 70
+# spikes kill at the start
+cheat pos 40 118
+wait 3
+expect armor == 0
+expect state == 7
+waituntil state == 3 120
+cheat pos 112 86
+expect spares == 1
+expect armor == 75
+# SATELLITE
+cheat room 2 v
+cheat mod 1 2
+cheat pos 60 134
+wait 5
+expect drone == 1
+cheat foe 6 100 137
+wait 60
+expect drone_latch == 0
+expect foe0_hp < 80
+cheat clear
+cheat mod 1 -1
+# SIPHON
+cheat mod 2 2
+cheat armor 50
+cheat foe 6 110 137
+wait 2
+hold A 40
+expect armor >= 52
+release ALL
+cheat clear
+cheat mod 2 -1
+# heat: a drain without KILNSKIN, none with it
+cheat room 2 w
+cheat armor 75
+wait 60
+expect armor == 65
+cheat mod 0 2
+cheat armor 75
+wait 60
+expect armor == 75

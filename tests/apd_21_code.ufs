@@ -1,0 +1,95 @@
+# ANTIPODE: the code (LOAD-KITS, entered on the title's CODE screen) starts
+# a run with every upgrade, and nothing in it is saved or earns a goal.
+seed 1
+game antipode
+wait 10
+press DOWN
+press DOWN
+press A
+wait 5
+expect state == 1
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press RIGHT
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press RIGHT
+press RIGHT
+press UP
+press UP
+press UP
+press RIGHT
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press RIGHT
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press UP
+press RIGHT
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press RIGHT
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press A
+wait 5
+expect state == 2
+wait 30
+press A
+wait 5
+expect state == 3
+expect code_on == 1
+expect items_got == 34
+expect armor == 200
+expect spares == 5
+expect dampers == 2
+expect save_has == 0
+cheat nofoes
+cheat room 0 P
+wait 2
+expect save_has == 0
+cheat win
+expect goals == 0

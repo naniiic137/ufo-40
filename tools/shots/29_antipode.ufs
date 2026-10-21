@@ -1,0 +1,67 @@
+# README media: ANTIPODE. Everything in play is the demo player's real
+# button presses, except where a cheat sets the scene. The GIF is the first
+# minute of a run: out of the cradle bay, walking the floor and the ceiling.
+shotscale 2
+seed 29
+game antipode
+wait 60
+shot antipode_title
+press A
+wait 40
+press A
+botuntil state == 3 3000
+botplay 20
+gifstart antipode 3 1
+botplay 720
+gifstop
+# the Brine: acid underfoot with an armor cell in it, the suit upside down
+# on the ceiling
+cheat nofoes
+cheat room 1 x
+cheat pos 340 26
+cheat grav -1
+wait 30
+cheat foes
+shot antipode_brine
+# the cradle's MODS page with every mod fitted, and its MAP
+cheat allitems
+cheat visitall
+# (after the goal's toast has gone)
+wait 400
+cheat mod 0 3
+cheat mod 1 2
+cheat mod 2 1
+cheat mod 3 1
+cheat room 0 C
+wait 3
+press UP
+wait 10
+shot antipode_mods
+press RIGHT
+press RIGHT
+press RIGHT
+press RIGHT
+wait 10
+shot antipode_map
+press B
+wait 10
+# the Warden lands on the ceiling and its shocks run both ways along it
+cheat god
+cheat room 0 W
+hold RIGHT 40
+cheat pos 330 134
+waituntil boss_up == 1 400
+waituntil eshots_10 == 2 80
+wait 40
+shot antipode_warden
+# Halloran's head calls down the storm
+cheat room 3 F
+hold RIGHT 60
+cheat killboss
+cheat killboss
+wait 20
+cheat pos 330 26
+cheat grav -1
+cheat storm 1
+wait 80
+shot antipode_crown

@@ -48,6 +48,7 @@ extern const GameDef GAME_RESTLESS;
 extern const GameDef GAME_SHOWSTOPPER;
 extern const GameDef GAME_WITHERLEA;
 extern const GameDef GAME_LIMPET;
+extern const GameDef GAME_ANTIPODE;
 
 const GameDef *const GAMES[GAME_SLOTS] = {
     [0] = &GAME_UNDERDELVE,  /* 01 Barbuta */
@@ -76,6 +77,7 @@ const GameDef *const GAMES[GAME_SLOTS] = {
     [25] = &GAME_SKIDKIDS,   /* 26 Hot Foot */
     [26] = &GAME_SOUNDINGS,  /* 27 Divers */
     [27] = &GAME_DUNE,       /* 28 Rail Heist */
+    [28] = &GAME_ANTIPODE,   /* 29 Vainger */
     [44] = &GAME_DOTDASH,    /* 45 Mini & Max */
     [45] = &GAME_MANDIBLES,  /* 46 Combatants */
     [29] = &GAME_FLINTHOLD,  /* 30 Rock On! Island */

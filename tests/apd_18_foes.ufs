@@ -1,0 +1,61 @@
+# ANTIPODE: the station's machines and their hit points: treadles 15, red
+# 40, gold 80 (gold ones shoot), spitters 25 (slow balls), star-eyes 60
+# (eight-way bursts), hiveboxes 80 (let out mites of 5, three at most),
+# skipjacks 25 (leap floor to ceiling and back), skimmers 15, sentry orbs
+# 30. Touching one hurts.
+seed 1
+game antipode
+wait 5
+cheat newgame
+cheat nofoes
+cheat room 2 v
+cheat god
+cheat pos 40 134
+wait 5
+cheat foe 1 200 138
+expect foe0_hp == 15
+cheat clear
+cheat foe 2 200 138
+expect foe0_hp == 40
+cheat clear
+cheat foe 3 200 138
+expect foe0_hp == 80
+waituntil eshots_0 >= 1 130
+cheat clear
+cheat foe 4 200 139
+expect foe0_hp == 25
+waituntil eshots_0 >= 1 110
+cheat clear
+cheat foe 5 200 80
+expect foe0_hp == 60
+waituntil eshots_1 >= 8 160
+cheat clear
+cheat foe 6 200 137
+expect foe0_hp == 80
+waituntil foes_7 >= 1 160
+expect foe1_hp == 5
+wait 450
+expect foes_7 == 3
+cheat clear
+cheat foe 8 200 138
+expect foe0_hp == 25
+expect foe0_up == 0
+waituntil foe0_up == 1 200
+cheat clear
+cheat foe 9 200 80
+expect foe0_hp == 15
+cheat clear
+cheat foe 10 200 80
+expect foe0_hp == 30
+cheat clear
+# a red treadle turns back at the wall
+cheat foe 2 80 138
+waituntil foe0_x <= 30 80
+waituntil foe0_x > 80 200
+cheat clear
+# contact hurts
+cheat mortal
+wait 70
+cheat foe 1 40 138
+wait 2
+expect armor == 67

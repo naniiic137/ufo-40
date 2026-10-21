@@ -1,0 +1,35 @@
+# ANTIPODE: the gift for getting a mod; gold for beating Halloran (the
+# ending with the visor dark below 100 %); the cherry for beating him with
+# every room and every upgrade, and only once the credits have run to the
+# end (that ending shows the pilot).
+seed 1
+game antipode
+wait 5
+cheat newgame
+cheat nofoes
+expect goals == 0
+cheat room 0 H
+cheat pos 56 130
+wait 30
+expect goals & 1
+expect goals !& 2
+cheat win
+expect state == 9
+expect won == 1
+expect cherry_run == 0
+expect goals & 2
+expect goals !& 4
+waituntil state == 10 1400
+waituntil state == 0 2200
+expect goals !& 4
+expect rec_wins == 1
+cheat cherrywin
+expect state == 9
+expect cherry_run == 1
+waituntil state == 10 1400
+expect goals !& 4
+cheat credits 2090
+wait 15
+expect state == 0
+expect goals & 4
+expect rec_cherries == 1

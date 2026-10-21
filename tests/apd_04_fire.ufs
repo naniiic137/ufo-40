@@ -1,0 +1,62 @@
+# ANTIPODE: holding A fires on its own, a shot every 8 frames, 5 damage, 5 px
+# a frame for 22 frames (110 px). While A is held the facing is locked:
+# walk back and keep shooting ahead. UP + A fires over the head; DOWN + A
+# fires under the feet only in the air; on the ground DOWN crouches and
+# fires low ahead. No diagonals.
+seed 1
+game antipode
+wait 5
+cheat newgame
+cheat nofoes
+cheat room 2 v
+cheat pos 60 134
+wait 5
+hold A 1
+expect fired == 1
+expect shot0_dmg == 5
+expect shot0_vx == 1280
+expect shot0_vy == 0
+expect shot0_life >= 20
+expect shot0_life <= 22
+release ALL
+wait 30
+expect shots == 0
+hold A 40
+expect fired == 6
+release ALL
+wait 30
+# the facing locks while firing
+hold RIGHT 2
+expect face == 1
+hold A LEFT 20
+expect face == 1
+expect px < 60
+release ALL
+wait 30
+# over the head
+hold UP A 1
+expect shot0_vx == 0
+expect shot0_vy == -1280
+release ALL
+wait 30
+# DOWN on the ground: a crouched shot ahead
+hold DOWN A 1
+expect crouch == 1
+expect shot0_vy == 0
+release ALL
+wait 30
+# DOWN in the air: under the feet
+press B
+hold DOWN A 1
+expect shot0_vy == 1280
+release ALL
+waituntil ground == 1 60
+wait 30
+# upside down, "over the head" points down the screen
+press B
+press B
+waituntil ground == 1 60
+expect grav == -1
+hold UP A 1
+expect shot0_vy == 1280
+release ALL

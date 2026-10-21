@@ -1,0 +1,73 @@
+# ANTIPODE: the four mods in the GUN. SCORCH (EMBER) doubles the damage and
+# burns orange barrels (nothing else does); FANSHOT (TWIN) adds two shots at
+# 45 degrees; PHASER (VOLT) goes through walls; REACH (MASS) doubles the
+# range. Mods in one system add up: SCORCH and FANSHOT fire three burning
+# shots.
+seed 1
+game antipode
+wait 5
+cheat newgame
+cheat nofoes
+cheat room 0 H
+cheat pos 40 134
+wait 5
+cheat mod 0 3
+hold A 1
+expect shot0_dmg == 10
+release ALL
+wait 30
+cheat mod 0 -1
+# on the ledge in front of the barrels to the east
+cheat pos 286 70
+wait 5
+expect ground == 1
+expect tileat_310_56 == 7
+expect tileat_310_72 == 7
+hold A 30
+release ALL
+wait 20
+# a plain shot only clinks
+expect tileat_310_56 == 7
+cheat mod 0 3
+hold A 2
+release ALL
+wait 10
+expect tileat_310_56 == 0
+expect tileat_310_72 == 0
+# the hole stays burnt (it is saved with the run)
+cheat room 0 H
+expect tileat_310_56 == 0
+# FANSHOT: three at once; with SCORCH all burning (two in the GUN: one damper)
+cheat dampers 1
+cheat mod 1 3
+cheat pos 40 134
+wait 5
+hold A 1
+expect shots == 3
+expect shots_0 == 3
+expect shot0_dmg == 10
+release ALL
+wait 30
+# REACH: twice as far
+cheat mod 0 -1
+cheat mod 1 -1
+cheat mod 3 3
+hold A 1
+expect shot0_life >= 42
+release ALL
+wait 50
+# PHASER: through the west wall
+cheat mod 3 -1
+cheat mod 2 3
+hold LEFT 2
+expect face == -1
+hold A 1
+release ALL
+wait 10
+expect shots == 1
+cheat mod 2 -1
+wait 30
+hold A 1
+release ALL
+wait 10
+expect shots == 0

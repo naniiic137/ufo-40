@@ -1,0 +1,138 @@
+# ANTIPODE: each fight. The Scrapper crosses to the other surface between
+# volleys; the Warden crosses too and its landing sends a shock both ways
+# along that surface; Brackish can't be hurt under the acid; the Lamprey's
+# body turns shots aside; the Coilheart is shut behind four nodes; Obverse
+# fires sword beams, up to five in a row once she is low; Halloran: the
+# walker (legs, three volleys then a ram, columns of the floor that rise,
+# a spell of turning shots back), then the heart, then the head with its
+# three joints, and a storm of lightning that deletes shots, coming and
+# going on a random timer.
+seed 1
+game antipode
+wait 5
+cheat newgame
+cheat god
+# the Crown's lightning deletes shots that cross it (here on its own)
+cheat nofoes
+cheat room 2 v
+cheat pos 60 134
+wait 5
+hold RIGHT 2
+cheat eshot 7 120 80 0 0
+wait 42
+expect lightning == 1
+hold A 1
+release ALL
+wait 12
+expect shots == 0
+wait 40
+expect lightning == 0
+hold A 1
+release ALL
+wait 12
+expect shots == 1
+cheat foes
+# the Scrapper
+cheat room 0 M
+hold RIGHT 20
+expect boss_on == 1
+expect boss_up == 0
+cheat bossstate 1
+wait 110
+expect boss_up == 1
+# the Warden: it crosses to the ceiling, and the landing sends two shocks
+# running along it
+cheat room 0 W
+hold RIGHT 10
+expect boss_on == 1
+expect boss_up == 0
+expect eshots_10 == 0
+waituntil boss_up == 1 400
+waituntil eshots_10 == 2 80
+expect boss_state == 0
+# Brackish: out of reach under the acid
+cheat room 1 B
+hold RIGHT 10
+expect boss_on == 1
+expect boss_max == 700
+wait 2
+expect boss_flags & 2
+cheat bossstate 1
+wait 3
+expect boss_flags !& 2
+# the Lamprey: six segments that only clink
+cheat room 2 y
+hold RIGHT 10
+expect boss_on == 1
+expect foes_15 == 6
+expect boss_hp == 400
+# the Coilheart: shut while its nodes live
+cheat room 2 k
+hold RIGHT 10
+expect boss_on == 1
+wait 3
+expect foes_17 == 4
+expect boss_flags & 1
+cheat killkind 17
+wait 15
+expect boss_flags !& 1
+# Obverse: five beams in a row once low
+cheat room 1 Y
+hold RIGHT 10
+expect boss_on == 1
+expect boss_max == 800
+cheat bosshp 200
+waituntil eshots_4 >= 4 300
+# Halloran
+cheat room 3 F
+hold RIGHT 10
+expect boss_on == 1
+expect boss == 6
+expect boss_max == 700
+expect foes_20 == 2
+waituntil boss_state == 1 200
+# its stamp raised columns of the floor (not under the suit or itself)
+expect tileat_104_264 == 1
+expect tileat_424_264 == 1
+cheat bosst 219
+wait 2
+expect tileat_104_264 == 0
+cheat bosst 399
+wait 2
+expect boss_flags & 4
+cheat bosst 1
+wait 2
+cheat killboss
+expect boss_phase == 1
+expect boss_max == 600
+expect foes_20 == 0
+cheat killboss
+expect boss_phase == 2
+expect boss_max == 800
+wait 3
+expect foes_21 == 3
+expect boss_flags & 2
+cheat killkind 21
+wait 10
+expect boss_state == 1
+expect boss_flags !& 2
+# the storm: shut away, with lightning, for 20 to 30 seconds, then a calm
+# of 6 to 14 seconds, each length drawn at random
+expect storm == 0
+waituntil storm == 1 500
+expect storm_t >= 1199
+expect storm_t <= 1800
+wait 2
+expect boss_flags & 2
+waituntil eshots_7 >= 1 60
+waituntil storm == 0 1900
+expect storm_t >= 359
+expect storm_t <= 840
+wait 2
+cheat bossstate 1
+wait 2
+cheat killboss
+wait 110
+expect state == 9
+expect won == 1
+expect goals & 2

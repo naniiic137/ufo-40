@@ -1,0 +1,70 @@
+# ANTIPODE: harm and what follows it. After a hit the suit is safe for 60
+# frames. Acid takes 5 every 20 frames; an electric field 30 and a push
+# back, unless the STORMBALL is around the suit, which carries it through.
+seed 1
+game antipode
+wait 5
+cheat newgame
+cheat nofoes
+cheat room 2 v
+cheat pos 60 134
+wait 5
+# mercy: a second shot at once does nothing
+cheat eshot 0 60 134 0 0
+wait 1
+expect armor == 65
+expect inv >= 58
+cheat eshot 0 60 134 0 0
+wait 1
+expect armor == 65
+wait 60
+cheat eshot 0 60 134 0 0
+wait 1
+expect armor == 55
+# acid, in the Brine
+cheat room 1 w
+cheat armor 75
+cheat pos 120 134
+wait 61
+expect armor == 60
+# an electric field across the east doorway of the Brine's room e (four
+# tiles tall, between two emitters): walking in costs 30 and throws him back
+cheat room 1 e
+cheat armor 75
+cheat pos 270 134
+wait 10
+expect ground == 1
+expect tileat_310_70 == 1
+expect tileat_310_90 == 13
+expect tileat_310_130 == 13
+hold RIGHT 20
+expect armor == 45
+expect last_hurt == 101
+expect room_id == 101
+release ALL
+wait 70
+# with the STORMBALL: jump, flip, flip back and drift through; the ball
+# holds from the first flip to the landing
+cheat mod 2 1
+cheat armor 75
+cheat pos 270 134
+wait 10
+hold RIGHT 4
+hold RIGHT B 1
+hold RIGHT 6
+hold RIGHT B 1
+expect thunder == 1
+hold RIGHT 12
+hold RIGHT B 1
+expect thunder == 1
+hold RIGHT 12
+expect armor == 75
+expect room_id == 90
+# it ends on landing: walking back in on the floor, the field bites (and
+# the mercy frames after the hit carry him through)
+release ALL
+waituntil ground == 1 60
+expect thunder == 0
+hold LEFT 30
+expect armor == 45
+expect room_id == 101

@@ -1,0 +1,48 @@
+# ANTIPODE: at 0 armor a spare body takes over at the door the suit came in
+# by, with full armor, in the room as it was: the machines it destroyed
+# stay destroyed, the walls it broke stay broken. With no spare left the
+# signal is lost: back to the last cradle, losing what came since.
+seed 1
+game antipode
+wait 5
+cheat newgame
+cheat room 0 g
+expect foes == 2
+cheat pos 300 86
+wait 2
+cheat killfoe 0
+expect foes == 1
+cheat die
+expect state == 7
+expect deaths == 1
+waituntil state == 3 100
+expect spares == 1
+expect armor == 75
+expect px == 300
+expect foes == 1
+# a burnt gate stays burnt
+cheat room 0 H
+cheat mod 0 3
+cheat pos 286 70
+wait 5
+hold A 10
+release ALL
+wait 10
+expect tileat_310_56 == 0
+cheat die
+waituntil state == 3 100
+expect spares == 0
+expect tileat_310_56 == 0
+# no spare left: the signal is lost, and it is back to the last save
+cheat pickup 0
+expect items_got == 1
+cheat die
+waituntil state == 8 100
+wait 70
+press A
+wait 5
+expect state == 3
+expect room_id == 83
+expect items_got == 0
+expect spares == 2
+expect mod0 == 255

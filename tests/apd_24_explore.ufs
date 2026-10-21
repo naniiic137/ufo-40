@@ -1,0 +1,16 @@
+# ANTIPODE: rooms seen and upgrades found make the completion; the Crown's
+# own hall counts only once Halloran is beaten, so a run with everything
+# else stands at 98 % before the last fight.
+seed 1
+game antipode
+wait 5
+cheat newgame
+cheat nofoes
+expect explore == 1
+cheat visitall
+cheat allitems
+expect explore == 98
+expect items == 100
+cheat win
+expect explore == 100
+expect cherry_run == 1

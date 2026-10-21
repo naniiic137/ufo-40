@@ -1,0 +1,60 @@
+# ANTIPODE: gravity spike balls: the red ones are live while gravity points
+# down, the purple ones while it points up; a live one is a spike (100).
+# One-way plates hold the suit from the side its feet are on: falling down
+# onto one, or falling up onto its underside; it jumps up through them.
+seed 1
+game antipode
+wait 5
+cheat newgame
+cheat nofoes
+cheat room 0 c
+expect balls_here == 5
+cheat cells 25
+# a red ball (row 7) while falling down: hurt
+cheat pos 88 120
+cheat grav 1
+wait 1
+expect armor == 100
+expect last_hurt == 102
+cheat pos 40 134
+wait 70
+# the same red ball with gravity up: nothing
+cheat armor 200
+cheat pos 88 120
+cheat grav -1
+wait 1
+expect armor == 200
+# a purple ball (row 3) with gravity up: hurt
+cheat pos 120 56
+cheat grav -1
+wait 1
+expect armor == 100
+cheat pos 40 134
+cheat grav 1
+wait 70
+cheat armor 200
+cheat pos 120 56
+cheat grav 1
+wait 1
+expect armor == 200
+# plates, in the room west of the Concourse: falling onto one holds
+cheat room 0 a
+cheat pos 312 60
+cheat grav 1
+wait 30
+expect ground == 1
+expect py == 86
+# from the floor under it, a jump goes up through it and lands on it
+cheat pos 312 134
+wait 20
+expect ground == 1
+hold B 30
+release ALL
+waituntil ground == 1 90
+expect py == 86
+# upside down, under it: it holds the suit's feet
+cheat pos 312 130
+cheat grav -1
+wait 30
+expect ground == 1
+expect py == 122
