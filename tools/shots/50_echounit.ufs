@@ -31,14 +31,18 @@ cheat mission 3
 botplay 1400
 shot echounit_istanbul
 # a jailbreak
-cheat rescue 1 2 11
+cheat rescue 1 2 14
 botplay 6
 shot echounit_jailbreak
-# the Caldera's lab, and Madame Coil's gunship
+# the Caldera's Magma Works, Dart's flight at Major Rattle, and Madame Coil's gunship
 cheat mission 4
 cheat section 1
 botplay 900
 shot echounit_lab
+cheat section 3
+cheat kdist 26900
+botplay 420
+shot echounit_flight
 cheat section 5
 cheat gnospawn
 cheat gboss

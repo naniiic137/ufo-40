@@ -562,7 +562,7 @@ static void flight_draw(void) {
     for (int i = 0; i < BK_MAX_OBJS; i++) {
         const EkoKObj *o = &k->obj[i];
         if (!o->alive) continue;
-        if (o->flash && (o->flash / 2) % 2) continue;
+        if (o->flash && (o->flash / 2) % 2 && o->kind != OB_HOG && o->kind != OB_RATTLE) continue; /* a boss stays in sight */
         int x = EKO_PX(o->x) - k->dist, y = EKO_PX(o->y);
         switch (o->kind) {
         case OB_PILLAR: {
@@ -620,15 +620,24 @@ static void flight_draw(void) {
             break;
         }
         case OB_RATTLE: {
-            /* Major Rattle's missile jet: a delta, nose to the left */
-            for (int i2 = 0; i2 < 14; i2++) gfx_hline(x - 22 + i2 * 3, x + 18, y - i2 / 2, C_FOREST);
-            for (int i2 = 0; i2 < 14; i2++) gfx_hline(x - 22 + i2 * 3, x + 18, y + i2 / 2, C_JADE);
-            gfx_rect(x - 24, y - 2, 40, 5, C_LEAF);
-            gfx_rect(x - 10, y - 6, 10, 4, C_CYAN);
-            gfx_rect(x + 2, y - 12, 10, 4, C_SLATE);
-            gfx_rect(x + 2, y + 9, 10, 4, C_SLATE);
-            for (int s = 0; s < 4; s++) gfx_pset(x + 4 + s * 2, y - 13 + (s % 2) * 26, C_RED);
-            gfx_rect(x + 18, y - 2, 4, 5, (eg.frame_t / 2) % 2 ? C_ORANGE : C_YELLOW);
+            /* Major Rattle's missile jet, nose to the left: swept wings, pods under them */
+            for (int i = 0; i < 12; i++) {
+                gfx_hline(x - 6 + i, x + 10, y - 4 - i, i > 9 ? C_FOREST : C_LEAF);
+                gfx_hline(x - 6 + i, x + 10, y + 4 + i, i > 9 ? C_FOREST : C_JADE);
+            }
+            gfx_rect(x - 22, y - 4, 40, 9, C_FOREST);
+            gfx_rect(x - 22, y - 4, 40, 2, C_JADE);
+            gfx_rect(x - 27, y - 2, 5, 5, C_FOREST);
+            gfx_pset(x - 28, y, C_JADE);
+            gfx_rect(x - 17, y - 7, 9, 3, C_CYAN);
+            gfx_rect(x + 12, y - 15, 5, 11, C_FOREST);
+            gfx_rect(x + 2, y - 14, 10, 3, C_SLATE);
+            gfx_rect(x + 2, y + 12, 10, 3, C_SLATE);
+            gfx_pset(x + 1, y - 13, C_RED);
+            gfx_pset(x + 1, y + 13, C_RED);
+            /* the rattle on the tail */
+            for (int r = 0; r < 3; r++) gfx_rect(x + 13, y - 13 + r * 3, 3, 2, (r + eg.frame_t / 4) % 2 ? C_YELLOW : C_AMBER);
+            gfx_rect(x + 18, y - 2, 3 + (eg.frame_t % 3), 5, (eg.frame_t / 2) % 2 ? C_ORANGE : C_YELLOW);
             if (o->state == 2) gfx_circb(x, y, 18 + o->t % 6, C_RED);
             break;
         }
@@ -697,7 +706,7 @@ static void bike_draw(void) {
         for (int i = 0; i < BK_MAX_OBJS; i++) {
             const EkoKObj *o = &k->obj[i];
             if (!o->alive || EKO_PX(o->y) / 2 * 2 != y) continue;
-            if (o->flash && (o->flash / 2) % 2) continue;
+            if (o->flash && (o->flash / 2) % 2 && o->kind != OB_HOG && o->kind != OB_RATTLE) continue; /* a boss stays in sight */
             int x = EKO_PX(o->x) - k->dist, oy = EKO_PX(o->y);
             switch (o->kind) {
             case OB_CONE: spr_draw(&eko_spr[SP_CONE], x - 4, oy - 8, 0); break;

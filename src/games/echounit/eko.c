@@ -717,6 +717,13 @@ static int eko_query(const char *key, int *out) {
     if (!strcmp(key, "k_card")) { *out = k->card; return 1; }
     if (!strcmp(key, "k_length")) { *out = EKO_KCOURSE[k->course].length; return 1; }
     if (!strcmp(key, "k_fly")) { *out = EKO_KCOURSE[k->course].fly; return 1; }
+    if (!strcmp(key, "k_boss_sx") || !strcmp(key, "k_boss_y") || !strcmp(key, "k_boss_state")) {
+        *out = -999;
+        for (int i = 0; i < BK_MAX_OBJS; i++)
+            if (k->obj[i].alive && (k->obj[i].kind == OB_HOG || k->obj[i].kind == OB_RATTLE))
+                *out = key[7] == 's' && key[8] == 'x' ? EKO_PX(k->obj[i].x) - k->dist : key[7] == 'y' ? EKO_PX(k->obj[i].y) : k->obj[i].state;
+        return 1;
+    }
     if (!strcmp(key, "k_jumps")) { *out = k->jumps; return 1; }
     if (!strcmp(key, "k_homing")) {
         /* homing missiles in the air */
