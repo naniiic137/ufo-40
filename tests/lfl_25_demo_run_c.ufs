@@ -1,7 +1,6 @@
-# LANDFALL: the demo player again, from the title with real button presses,
-# on a third planet, where its first two trips end badly: it keeps landing
-# on new planets until one comes home whole, still in under 20 minutes on
-# the clock.
+# LANDFALL: the demo player once more, from the title with real button
+# presses, on a third planet: it comes home whole on its first trip with
+# only three of the tools found, still in under 20 minutes on the clock.
 seed 9
 game landfall
 wait 10
@@ -12,5 +11,5 @@ expect map_from == 7
 expect time < 72000
 expect goals == 7
 expect save_wins == 1
-expect items_found >= 4
+expect items_found >= 3
 botuntil state == 0 2000

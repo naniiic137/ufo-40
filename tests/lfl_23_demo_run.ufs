@@ -2,7 +2,7 @@
 # the title the demo player lands, finds tools and cells, trades, opens
 # gates, goes down the dungeon and comes home with the whole chart, in
 # under 20 minutes on the clock: all three goals.
-seed 4
+seed 2
 game landfall
 wait 10
 expect state == 0

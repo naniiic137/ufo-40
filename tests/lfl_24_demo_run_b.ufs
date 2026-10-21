@@ -2,7 +2,7 @@
 # on another planet, where its first trip ends badly: it keeps landing
 # on new planets until one comes home whole, still in under 20 minutes on
 # the clock.
-seed 7
+seed 1
 game landfall
 wait 10
 expect state == 0
@@ -12,5 +12,6 @@ expect map_from == 7
 expect time < 72000
 expect goals == 7
 expect save_wins == 1
+expect save_deaths == 1
 expect items_found >= 4
 botuntil state == 0 2000
