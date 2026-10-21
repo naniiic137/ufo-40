@@ -5,7 +5,7 @@
 <h1 align="center">UFO 40</h1>
 
 <p align="center">
-  <b>A pretend 1980s console with fifty cartridges (well, forty-four so far), built from scratch<br>
+  <b>A pretend 1980s console with fifty cartridges (well, forty-seven so far), built from scratch<br>
   for the PlayStation Vita, Windows and the web.</b><br><br>
   <a href="https://naniiic137.github.io/ufo-40/"><b>▶ Play it in your browser</b></a> ·
   <a href="https://github.com/naniiic137/ufo-40/releases">Download for Vita / Windows</a>
@@ -18,18 +18,16 @@
 > coding assistant (Claude Code), which wrote the code, pixel art, music, levels
 > and tests from my descriptions, research notes and play-testing feedback.
 
-## What's new (v0.11.0)
+## What's new (v0.12.0)
 
-- **44 cartridges** in a 50-slot library, each checked against its UFO 50 original by an independent review, then fixed.
-- **Four new cartridges:**
-  - **12 FOSSIL FEUD** (tribute to Avianos): a tiny war on a 5 × 4 board; each turn you pray to one of three Ancestors, then fight real-time bird battles. A 3-level campaign, five ordeals and a custom match.
-  - **20 LIMPET** (tribute to Warptank): a tank that clings to floors, walls and ceilings and warps across to the opposite surface; 27 decks, hidden honey and two bosses.
-  - **42 WITHERLEA** (tribute to Night Manor): a first-person house on the fens, a slow cursor, a keeper who comes when you make noise, our own puzzles and three endings.
-  - **43 SHOWSTOPPER** (tribute to Elfazar's Hat): a top-down wand shooter with a dodge-dash, a three-card power system, five stages and a secret true final.
-- **2 players: next update.** FOSSIL FEUD's versus and SHOWSTOPPER's co-op show greyed out for now; they come in a later update.
+- **47 cartridges** in a 50-slot library, each checked against its UFO 50 original by an independent review, then fixed.
+- **Three new cartridges:**
+  - **08 LANDFALL** (tribute to Planet Zoldath): a new planet every run of flip-screen rooms, only two of eight tools in hand, gates each opened by one tool, locals who trade (half of them in glyphs), creatures that change every planet, one life and three chart pieces to bring home.
+  - **29 ANTIPODE** (tribute to Vainger): a suit that flips gravity in mid-air, a 4 × 3 mod table, 98 hand-drawn rooms across three sectors, seven bosses and two endings.
+  - **50 ECHO UNIT** (tribute to Cyber Owls): four bats, four genres (a brawler, a shooting gallery, a flight shooter and a stealth maze); a captured bat is freed in a turn-based jailbreak, then all four storm the Caldera.
 - The main attack is on **A** (Z / Space / Cross) in the new cartridges; each card's CONTROLS page can swap it back.
 
-Earlier in v0.10.0: SOUNDINGS, DUKES UP, HOOPLA and RESTLESS.
+Earlier in v0.11.0: FOSSIL FEUD, LIMPET, WITHERLEA and SHOWSTOPPER.
 
 ---
 
@@ -85,7 +83,7 @@ and the music and sound volumes are in every game's pause menu too.
   <img src="docs/shots/savedata.png" width="320" alt="The save data screen">
 </p>
 
-## The library (44 of 50 loaded)
+## The library (47 of 50 loaded)
 
 <p align="center"><img src="docs/shots/library.png" width="640" alt="The UFO 40 game library with 50 cartridge slots"></p>
 
@@ -160,7 +158,8 @@ menu, shows the buttons as you now press them). SELECT or B closes it.
 | 47 | **WOBBLE DERBY** | Quibble Race | three punters and three runners a race, odds from a form book of twenty unseen races, rising bet caps and an open last race, one tip a race, five dirty tricks and a minder with the same prices and fines, a lender at 15 % compounded, sponsoring from a shortlist and a coach, meteors, garbage and smog, 26 runners in the same speed and clumsiness bands, 3-player hot-seat | Crater Downs, the 26 wobblers, the sixteen punters (five of them UFO 40 cameos), the Fixer, the Lender and the Wobble Wire |
 | 48 | **DRIFTLINE** | Seaside Drive | a car locked to the road at the bottom while the world scrolls by, steering that also swings the gun through a 90-degree cone (UP straightens it), a rapid roof gun on A and side pairs along the road on B, a charge meter (grey, green, red: its section sets the shots' damage, rate and speed) that fills only while you drive left and drains slowly otherwise, one hit per car and the screen swept clean as the next drives in fully charged, fliers that turn nasty if left alone, wrecks that pay only when shot again, four fixed stages from morning to the open sea, each with a boss (10,000 to 40,000) seen in the background all stage, a Breakout bonus stage after any stage with no car lost whose coin is two more cars (the only extra cars), 2P co-op in one car with a driver and a gunner | Lou and the Gull, Dee on the gun, Harbour Road, the Sundown Strip, the Moonlit Mile and Open Water, every foe, the Zephyr, the Orrery, the Man in the Moon, Old Crab (from ROOFCAT) and a Beamdown saucer, all the waves, swells and block layouts |
 | 49 | **FULL PEAL** | Campanella 3 | a faux-3D shooter flying into the screen, the ship free on a flat 6 × 4 plane with no gravity, fuel or walls; A fires into the distance down your lane, B fires the side blaster along the plane away from the way you move (held, it keeps its aim) at whatever has reached you; one hit a ship, three ships a credit, not given back between stages, a lost credit restarts the stage; five stages of four fixed waves and a boss, each wave graded 0–100 by the share shot down; a 100 or a 0 brings a balloon round after the boss (red 1, orange 3, 50 for a continue); the final count is the twenty grades plus 100 a continue; sixteen foes, five bosses (the last healing until your sister flies in), a no-guns code; and, for a second controller held on A, fifty four-colour micro-games in the cockpit monitor, each with its high score | Ansel and the Tinkler with Clary on the radio (the BELLHOP cast), the bell-planet Knell, Outer Belfry, Tin Nebula, The Murk and Tollgate, all sixteen foes, the Gloameye, Knucklebell, the Inkwell, Shellback and Queen Sordina, the owl, all twenty waves and fifty micro-games, the HUGS-ONLY code |
-| 08, 22, 29, 37, 40, 50 | *coming soon* | | | still in the saucer's cargo hold |
+| 50 | **ECHO UNIT** | Cyber Owls | four cyber bats and four genres: a brawler with one fixed jump, a three-hit combo, a ki blast charged only from standing still that wipes out bullets and carries you forward, barrels to throw and kick on, troopers that keep coming and hazards that flash a "!" first, a shooting gallery where tapping fires a little faster, holding plants your feet so the pad steers the sight, the combo meter multiplies points and damage and lobbed grenades can be picked up and thrown back, a hover-bike autoscroller whose bike glows red and then blows up (and costs a life) if you keep holding the trigger, and an eight-way stealth maze of not-so-clever guards who come to look, hunt you once they see you and forget when you leave the room; two lives a mission, and a bat that loses both is captured, its mission locked until another bat wins a rolled, turn-based block-push jailbreak against five colours of guard, with skills on cooldowns and shots that fly; then all four in the Caldera, a second half as long as the first, where there are no second chances | Flint, Vesper, Dart, Sable and Colonel Hush, V.I.P.E.R. and its lizard troops, Scrapjaw, Ramrod and Vultra, Hog Wild, Cipher, Dr. Talpa, Major Rattle and Madame Coil, Marseille, the Andes, Cairo, Istanbul and the Caldera, and sixteen tunes |
+| 22, 37, 40 | *coming soon* | | | still in the saucer's cargo hold |
 
 Every cartridge has three goals, which follow the original's own three: a
 **Beacon** (a side challenge), the **Saucer** (beating the game) and the
@@ -2149,6 +2148,81 @@ the top.
   Knucklebell, the Inkwell, Shellback and Queen Sordina, every wave, all
   fifty micro-games, and the music.
 
+### 50 · ECHO UNIT
+
+<p align="center">
+  <img src="docs/shots/echounit.gif" width="640" alt="Echo Unit: Flint brawls along the Marseille docks at dusk">
+</p>
+<p align="center">
+  <img src="docs/shots/echounit_board.png" width="320" alt="The mission board in the belfry: four bats, four cities, the Caldera locked">
+  <img src="docs/shots/echounit_andes.png" width="320" alt="The Andes: Vesper's sight on troopers popping up at three depths">
+</p>
+<p align="center">
+  <img src="docs/shots/echounit_cairo.png" width="320" alt="Cairo's ring road at night: Dart's hover-bike and a hurdle">
+  <img src="docs/shots/echounit_istanbul.png" width="320" alt="Istanbul: Sable, a sleeping guard and a camera by the blue door">
+</p>
+<p align="center">
+  <img src="docs/shots/echounit_jailbreak.png" width="320" alt="A jailbreak: Dart's health and two skills on the left, a rolled jail with guards of five colours round the card">
+  <img src="docs/shots/echounit_flight.png" width="320" alt="The Caldera: Dart flies over the lava sea at Major Rattle's missile jet">
+</p>
+
+*A tribute to **Cyber Owls** (UFO 50 #50).*
+
+- **Plays the same:** four bats, four genres, picked in any order from a
+  mission board. FLINT brawls through Marseille: one jump height (he faces
+  the same way all through it), punch, punch, kick, a crouching jab, a jump
+  kick that sends grenades back, a ki blast charged by holding A standing
+  still until he flashes (it wipes out bullets and carries him forward),
+  barrels to lift, throw and kick on, and more points for each extra foe
+  one blast or barrel takes; troopers keep coming while he lingers,
+  hazards flash a red "!" before they come, jetpackers shoot down at him,
+  rats run low, and gulls left alone are worth 100 each; a key trooper
+  (knock him down off the screen and the key is gone for good, the
+  original's bug), a locked wall, a lift ride, Scrapjaw. VESPER holds the
+  Andes pass: tap A to shoot as she walks (tapping fast is a little
+  faster), hold it to plant her feet and steer the sight, always within a
+  stretch in front of her; a tap on an item picks it up, and a grenade
+  lobbed at her can be picked up and thrown back; B dives aside; a combo
+  meter that multiplies points and damage, tanky troopers, red barrels to
+  soften and set off, and two bosses at once. DART rides Cairo's ring
+  road: tap to shoot, hold and the gun heats until the bike glows red,
+  keep holding and it blows up (a whole life), B to jump cones and
+  hurdles, a semi truck worth 500, Hog Wild. SABLE sneaks through Istanbul
+  in eight directions, her items used only straight ahead, with three
+  darts and three rounds (the kit at the bottom left): guards walk their
+  beats, come to look at a noise or when she passes close, wake a darted
+  friend, hunt her once seen (not cleverly: they keep one way and fire
+  along it) and forget when she leaves the room; cameras raise the whole
+  room unless she breaks them or blows the fuse box; stun grenades are
+  silent and fly over walls; a room left unseen is worth 100 (50 if it
+  heard a noise); cards, a cracked wall, Cipher. A is every bat's main
+  action, as everywhere in UFO 40.
+- **Captured:** two lives a mission. Lose both and that bat is captured,
+  its mission locked, until another bat wins a jailbreak: a rolled,
+  turn-based grid of one to three rooms, the bat's health and two skills
+  on the left (a used skill counts down the turns until it is back, and
+  does nothing till then); crates push; five colours of guard with health
+  (chasers with guns or knives, sentries, grenadiers who blow up their own
+  side, jetpackers, gatlings), shots that fly across the grid and hit
+  whatever they meet, each other included; Flint's punch knocks a whole
+  row down, Dart dashes through guards, Sable darts them asleep or turns
+  invisible; take the card, bring it to the cell. Fail, and the rescuer is
+  locked up too. With all four caught, the game is over.
+- **The Caldera:** with all four missions done, Sable leads the raid on
+  V.I.P.E.R.'s volcano, a second half as long as the first: 32 halls in
+  three zones (and the long way round to the red door), Flint's climb up
+  the Magma Works to Dr. Talpa for the red card, Dart's flight over the
+  lava sea to Major Rattle's missile jet for the blue one, and Vesper
+  against Madame Coil's gunship. No second chances there: game over shows
+  the Dawn Cannon firing at noon. Nothing is saved but the best scores and
+  the rescues. The demo player in the tests plays the whole game from the
+  title, and once without losing a single life.
+- **Ours:** Flint, Vesper, Dart, Sable and Colonel Hush, V.I.P.E.R. and the
+  Dawn Cannon, the lizard troops and dock rats, Scrapjaw, Ramrod and
+  Vultra, Hog Wild, Cipher, Dr. Talpa, Major Rattle and Madame Coil,
+  Marseille, the Andes, Cairo, Istanbul and the Caldera, every screen,
+  room, wave, road and sky, and the music.
+
 ## Install on PS Vita
 
 You need a Vita running HENkaku / h-encore / Ensō with **VitaShell**.
@@ -2274,8 +2348,8 @@ src/platform/headless/ scripted test runner, PNG / GIF / WAV writers, Vita LiveA
     plays notes with lengths, ties and repeat blocks.
   - Sound effects use the same notation and take over one channel for a
     moment, just like old hardware.
-  - Every track and jingle is original: 457 compositions across the console and
-    the forty-four cartridges.
+  - Every track and jingle is original: 497 compositions across the console and
+    the forty-seven cartridges.
 - **Art.** Sprites are written as strings of palette letters in the C source
   (`k` ink, `y` yellow, `C` cyan and so on), so there are no binary assets at
   all. The Vita LiveArea images are drawn by the engine itself

@@ -1,0 +1,97 @@
+# FLINT: the docks end at a locked wall. The trooper with the key (red
+# beret) drops it when beaten; with the key the wall's charge is set and it
+# blows. Knock him down off the screen, though, and the key never appears:
+# the wall stays shut for good (Cyber Owls' Chicago softlock, kept on the
+# owner's word). A cracked block under a crane in the docks hides a mango,
+# and so does a crate stack up on a container in the yards.
+seed 1
+game echounit
+wait 5
+# the docks' block (chunk D, x 1072): four knocks
+cheat mission 0
+cheat bclear
+cheat bpos 1100 128
+wait 20
+hold LEFT 2
+press A 1
+wait 20
+press A 1
+wait 20
+press A 1
+wait 20
+press A 1
+wait 30
+expect b_secrets == 1
+expect b_objs_1 == 1
+# the softlock: Flint at the screen's left edge kicks the key carrier off it
+cheat mission 0
+cheat bclear
+cheat god
+cheat bpos 900 128
+wait 30
+hold LEFT 88
+expect b_cam_x == 760
+cheat bfoe 4 772 128
+wait 2
+press A 1
+wait 8
+press A 1
+wait 8
+press A 1
+wait 60
+expect b_kills == 1
+expect b_keylost == 1
+expect b_objs_3 == 0
+expect b_key == 0
+cheat bpos 2440 128
+wait 30
+hold RIGHT 90
+expect b_px < 2496
+expect b_wall == 0
+# a fresh go at the docks
+cheat mission 0
+cheat bclear
+cheat god
+cheat bpos 2440 128
+wait 30
+# no key: the wall holds
+hold RIGHT 60
+expect b_px < 2496
+expect b_wall == 0
+cheat bfoe 4 2462 128
+wait 2
+hold LEFT 2
+press A 1
+wait 8
+press A 1
+wait 8
+press A 1
+wait 40
+expect b_objs_3 == 1
+hold LEFT 60
+hold RIGHT 4
+waituntil b_key == 1 120
+hold RIGHT 80
+expect b_wall > 0
+wait 80
+hold RIGHT 60
+waituntil sec == 1 200
+waituntil state == 6 200
+# the yards: the crate stack up on the container (chunk K, x 816): the
+# plain crate first, then the one with the mango
+cheat bclear
+cheat bpos 860 80
+wait 20
+expect b_objs_1 == 0
+hold LEFT 2
+press A 1
+wait 20
+press A 1
+wait 20
+hold LEFT 12
+press A 1
+wait 20
+press A 1
+wait 30
+expect b_secrets == 1
+expect b_objs_1 == 1

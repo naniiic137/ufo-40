@@ -1,0 +1,27 @@
+# THE JAILBREAK, played for real by the demo player across rolled jails,
+# all five kinds of guard shooting, stabbing and lobbing grenades: each bat
+# wins one with button presses, then every bat wins twenty-five more
+# rolled jails played out turn by turn with the same rules (a way in
+# exists for each, and the demo player finds it).
+seed 1
+game echounit
+wait 5
+cheat rescue 1 2 11
+botuntil state != 6 3000
+expect r_won == 1
+cheat rescue 2 0 22
+botuntil state != 6 3000
+expect r_won == 1
+cheat rescue 3 1 35
+botuntil state != 6 3000
+expect r_won == 1
+cheat rescue 0 3 45
+botuntil state != 6 3000
+expect r_won == 1
+cheat rescue 1 2 66
+botuntil state != 6 3000
+expect r_won == 1
+expect r_botwins_0_200_25 == 25
+expect r_botwins_1_300_25 == 25
+expect r_botwins_2_400_25 == 25
+expect r_botwins_3_500_25 == 25

@@ -1,0 +1,57 @@
+# GOALS: the gift for winning a jailbreak, gold for bringing down Madame
+# Coil, the cherry for doing it without ever emptying a health bar (any
+# bar, anywhere, the Caldera included).
+seed 1
+game echounit
+wait 5
+cheat run
+cheat mission 4
+cheat section 5
+cheat gnospawn
+cheat gclear
+cheat gboss
+wait 5
+expect g_kind11 == 1
+# a lost life in the finale itself: no cherry
+cheat die
+waituntil lives == 1 200
+cheat god
+cheat gbosshp 9 1
+cheat gbosshp 10 1
+cheat gbosshp 11 1
+botuntil g_boss_dead == 1 4000
+botuntil state == 7 600
+expect won == 1
+expect goals & 2
+expect goals !& 4
+expect save_wins == 1
+expect save_cherries == 0
+wait 70
+press A 1
+wait 5
+expect state == 12
+# a clean finish: the cherry
+cheat mortal
+cheat run
+cheat mission 4
+cheat section 5
+cheat gnospawn
+cheat gclear
+cheat gboss
+wait 5
+cheat gbosshp 9 1
+cheat gbosshp 10 1
+cheat gbosshp 11 1
+botuntil g_boss_dead == 1 4000
+botuntil state == 7 600
+expect lives_lost == 0
+expect goals & 4
+expect save_cherries == 1
+# the gift
+cheat rescue 1 2 5
+cheat rblank
+cheat rcard
+cheat rpos 1 4
+press LEFT 1
+waituntil state == 9 200
+expect goals == 7

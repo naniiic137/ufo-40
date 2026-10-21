@@ -1,0 +1,44 @@
+# FLINT: the standing combo is punch, punch, kick (A three times); DOWN + A
+# is the crouching jab; A in the air is a jump kick.
+seed 1
+game echounit
+wait 5
+cheat mission 0
+cheat bclear
+wait 30
+press A 1
+expect b_act == 1
+press A 1
+wait 3
+press A 1
+expect b_act == 2
+wait 4
+press A 1
+expect b_act == 3
+wait 30
+expect b_act == 0
+hold DOWN 4
+hold DOWN A 2
+expect b_act == 4
+expect b_duck == 1
+wait 30
+press B 1
+wait 6
+press A 1
+expect b_act == 5
+waituntil b_ground == 1 60
+expect b_act == 0
+# the combo knocks a trooper down: three hits for its three points of health
+cheat bpos 80 128
+wait 2
+cheat bfoe 1 100 128
+wait 2
+expect b_foe0_hp == 3
+press A 1
+wait 6
+press A 1
+wait 6
+press A 1
+wait 30
+expect b_kills == 1
+expect score >= 20

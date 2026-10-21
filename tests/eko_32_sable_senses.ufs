@@ -1,0 +1,96 @@
+# SABLE: what the guards notice, and what they miss. A stun grenade goes
+# off without a sound, and lobbed it flies over crates and walls. She
+# carries up to twenty of each thing. Passing close by a guard, out of its
+# sight, makes it come and look where she was; a guard walking past a
+# darted friend wakes it. A guard's shots hit another guard in the way (a
+# stun, not a kill). A hunting guard keeps the way it first saw her for a
+# second, fires along it, and walks slower than she does. A pistol round
+# breaks a camera; a room's fuse box, shot, puts out its cameras and
+# lights. A spider robot that sees her charges straight at her, running
+# down any guard in its way.
+seed 1
+game echounit
+wait 5
+cheat mission 3
+wait 10
+# a stun grenade lobbed over the crates: the guard behind them is stunned, and nobody heard a thing
+cheat sguard 0 12 6 0
+cheat spos 7 6
+cheat sdir 0
+cheat sammo 2 3
+cheat sweapon 2
+wait 2
+press A 1
+wait 30
+expect s_g0_state == 6
+expect s_room_noise == 0
+# twenty at most
+cheat sammo 1 19
+cheat spos 14 3
+wait 2
+expect s_ammo1 == 20
+# close by, out of its sight: it comes to look where she was
+cheat sguard 0 10 4 3
+cheat spos 11 5
+wait 2
+expect s_g0_state == 2
+# a darted guard, woken by a friend on his beat
+cheat sguard 0 12 8 0
+cheat sguard 1 1 1 0
+cheat spos 3 8
+cheat sdir 0
+cheat sweapon 0
+wait 2
+press A 1
+wait 60
+expect s_g0_state == 5
+cheat swalker 1 6 8 0
+wait 150
+expect s_wakeups == 1
+expect s_g0_state != 5
+# a hunting guard's shot takes the guard in its way (stunned, not dead);
+# and it keeps the way it first saw her for a while before it looks round
+cheat sgoff 1
+cheat sguard 0 12 4 2
+cheat sguard 1 9 4 3
+cheat spos 7 4
+cheat god
+wait 3
+expect s_g0_state == 4
+expect s_g0_dir == 2
+wait 40
+expect s_ff == 1
+expect s_g1_state == 6
+hold DOWN 64
+expect s_g0_dir == 2
+wait 30
+expect s_g0_dir == 1
+cheat mortal
+# room B's camera, broken by a pistol round
+cheat sgoff 0
+cheat sgoff 1
+cheat spos 29 5
+cheat sdir 3
+cheat sammo 1 5
+cheat sweapon 1
+wait 2
+press A 1
+wait 30
+expect s_cams_out == 1
+# room F's fuse box, shot: its searchlight goes dark
+cheat spos 43 16
+cheat sdir 3
+wait 2
+expect s_lights >= 1
+press A 1
+wait 30
+expect s_lights_out == 1
+expect s_tile_43_13 == 107
+expect s_lights == 0
+# a spider robot charges, running down the guard in its way, and into her
+cheat spos 7 4
+cheat sguard 0 11 4 1
+cheat sspider 1 14 4 2
+wait 40
+expect s_robot_kos == 1
+expect hp == 2

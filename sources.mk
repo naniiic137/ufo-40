@@ -340,6 +340,18 @@ CORE_SRC += src/games/antipode/apd_draw.c
 CORE_SRC += src/games/antipode/apd_art.c
 CORE_SRC += src/games/antipode/apd_audio.c
 
+CORE_SRC += src/games/echounit/eko.c
+CORE_SRC += src/games/echounit/eko_levels.c
+CORE_SRC += src/games/echounit/eko_brawl.c
+CORE_SRC += src/games/echounit/eko_gallery.c
+CORE_SRC += src/games/echounit/eko_bike.c
+CORE_SRC += src/games/echounit/eko_sneak.c
+CORE_SRC += src/games/echounit/eko_rescue.c
+CORE_SRC += src/games/echounit/eko_bot.c
+CORE_SRC += src/games/echounit/eko_draw.c
+CORE_SRC += src/games/echounit/eko_art.c
+CORE_SRC += src/games/echounit/eko_audio.c
+
 HEADLESS_SRC += src/platform/headless/main_headless.c
 HEADLESS_SRC += src/platform/headless/imgwrite.c
 HEADLESS_SRC += src/platform/headless/vita_assets.c

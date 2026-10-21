@@ -1,0 +1,57 @@
+# VESPER: LEFT / RIGHT walk, UP / DOWN raise the sight. A tap shoots at
+# once and tapping fast shoots fastest (every 5 frames); holding A shoots
+# only a little slower (every 7) and plants her feet: then the pad steers
+# the sight anywhere while she stands still.
+seed 1
+game echounit
+wait 5
+cheat mission 1
+cheat gnospawn
+cheat gclear
+cheat god
+wait 10
+expect g_px == 160
+hold RIGHT 40
+expect g_px == 220
+expect g_cx == 220
+hold UP 20
+expect g_cy < 100
+# mashing: ten taps in 50 frames, ten shots
+press A 1
+wait 3
+press A 1
+wait 3
+press A 1
+wait 3
+press A 1
+wait 3
+press A 1
+wait 3
+press A 1
+wait 3
+press A 1
+wait 3
+press A 1
+wait 3
+press A 1
+wait 3
+press A 1
+wait 3
+expect g_shots == 10
+# holding for the same 50 frames: eight, a little fewer
+wait 10
+hold A 50
+expect g_shots == 18
+# planted: RIGHT moves the sight, not her
+wait 10
+hold A
+wait 10
+expect g_locked == 1
+hold A RIGHT 30
+expect g_px == 220
+expect g_cx > 260
+release A
+release RIGHT
+wait 30
+expect g_locked == 0
+expect g_cx == 220

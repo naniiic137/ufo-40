@@ -1,0 +1,73 @@
+# DART: tapping A fires at once and fast tapping is the fastest fire; the
+# gun never heats. Holding A fires a little slower (every 6 frames, not
+# 4), and after a moment the barrel heats. Held too long, the bike overheats: it glows red and the gun holds
+# for half a second. Let go then and it cools off, no harm done; keep the
+# fire held and the next shot blows the bike up at once: a whole life gone.
+seed 1
+game echounit
+wait 5
+cheat mission 2
+cheat knospawn
+cheat kclear
+wait 10
+expect k_heat == 0
+press A 1
+wait 2
+press A 1
+wait 2
+press A 1
+wait 2
+press A 1
+wait 2
+press A 1
+wait 2
+press A 1
+wait 2
+press A 1
+wait 2
+press A 1
+wait 2
+expect k_shots == 8
+expect k_heat == 0
+# holding: a little slower, and it heats
+hold A 40
+expect k_shots == 15
+expect k_heat > 0
+wait 120
+expect k_heat == 0
+expect lives == 2
+# held until it overheats: glowing red, the gun holds
+hold A
+waituntil k_hot == 1 130
+expect k_overheat == 0
+wait 10
+expect lives_lost == 0
+# a break in the fire: it cools, and nothing blows up
+release A
+wait 60
+expect k_overheat == 0
+expect lives_lost == 0
+waituntil k_hot == 0 200
+expect lives == 2
+# no way round it: let go a moment while it glows, hold again, and once the
+# heat is back to the top it glows again; held through that, it blows up
+hold A
+waituntil k_hot == 1 130
+release A
+wait 4
+hold A
+wait 60
+expect k_overheat == 1
+expect lives_lost == 1
+release A
+waituntil lives == 1 200
+expect k_heat == 0
+wait 30
+# held through the glow: it blows up at once
+wait 120
+hold A
+waituntil k_hot == 1 130
+waituntil k_overheat == 2 40
+release A
+expect lives_lost == 2
+expect k_hot == 0

@@ -1,0 +1,39 @@
+# FLINT: a grenade's blast spoils any fruit lying near it. The crane lift
+# climbs while troopers drop in; at the roof, Scrapjaw. Beating him ends
+# Marseille: the mission is done and its best score is kept.
+seed 1
+game echounit
+wait 5
+cheat mission 0
+cheat bclear
+cheat god
+wait 20
+cheat bobj 1 60 128
+wait 20
+expect b_objs_1 == 1
+cheat bobj 4 64 90
+wait 60
+expect b_objs_1 == 0
+# the lift
+cheat section 2
+wait 5
+expect mode == 1
+expect b_lift_t > 0
+botplay 600
+expect b_lift_t > 600
+expect b_boss == 0
+cheat blift 2700
+cheat bclear
+wait 5
+expect b_boss == 1
+cheat bbosshp 1
+cheat bpos 200 128
+wait 40
+botuntil b_boss_dead == 1 1200
+botuntil state == 7 600
+expect cleared0 == 1
+expect save_best0 > 0
+wait 60
+press A
+wait 5
+expect state == 2

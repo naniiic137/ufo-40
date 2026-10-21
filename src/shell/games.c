@@ -50,6 +50,7 @@ extern const GameDef GAME_SHOWSTOPPER;
 extern const GameDef GAME_WITHERLEA;
 extern const GameDef GAME_LIMPET;
 extern const GameDef GAME_ANTIPODE;
+extern const GameDef GAME_ECHOUNIT;
 
 const GameDef *const GAMES[GAME_SLOTS] = {
     [0] = &GAME_UNDERDELVE,  /* 01 Barbuta */
@@ -98,4 +99,5 @@ const GameDef *const GAMES[GAME_SLOTS] = {
     [46] = &GAME_WOBBLE,     /* 47 Quibble Race */
     [47] = &GAME_DRIFTLINE,  /* 48 Seaside Drive */
     [48] = &GAME_FULLPEAL,   /* 49 Campanella 3 */
+    [49] = &GAME_ECHOUNIT,   /* 50 Cyber Owls */
 };

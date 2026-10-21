@@ -1,0 +1,39 @@
+# SABLE: coloured doors want their card (only the green one is needed to
+# reach Cipher; red and blue open side rooms of supplies). A grenade opens
+# a cracked wall. Cipher (26) blinks between terminals and can only be hurt
+# while he shows: a grenade does 10, a pistol round 3.
+seed 1
+game echounit
+wait 5
+cheat mission 3
+cheat god
+wait 10
+# the green door into Cipher's room
+cheat spos 97 34
+cheat sroomoff
+hold RIGHT 40
+expect s_room_x == 4
+cheat scards 1
+hold RIGHT 40
+expect s_room_x == 5
+expect s_boss_hp == 26
+# a cracked wall in the guard post (H): a grenade, and it gives
+cheat spos 93 17
+cheat sroomoff
+expect s_tile_97_17 == 119
+cheat sammo 3 2
+cheat sweapon 3
+cheat sdir 0
+press A 1
+wait 40
+expect s_tile_97_17 == 46
+expect s_ammo3 == 1
+# Cipher, worn down by the demo player
+cheat scards 1
+cheat spos 97 34
+cheat sammo 1 9
+botuntil s_room_x == 5 600
+expect s_boss_hp == 26
+botuntil s_boss_dead == 1 6000
+botuntil state == 7 600
+expect cleared3 == 1

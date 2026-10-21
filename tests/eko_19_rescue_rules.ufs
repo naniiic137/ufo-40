@@ -1,0 +1,158 @@
+# THE JAILBREAK: every step is a turn, then the guards' side takes its
+# turn. Steps go only the four straight ways. Crates push like a block
+# puzzle. Bumping a wall is no turn at all. A guard sees straight along
+# the way it faces; seen, it raises its "!" and acts on it the turn after.
+# Guard shots are things in flight, three tiles a turn: step out of the
+# line and the shot goes by; stay and it hits. They hit whatever they come
+# to first, the bat or another guard. Five kinds of guard: the red sentry
+# stands and shoots, the green knife closes in and stabs, the orange
+# grenadier lobs grenades that blow up its own side too, the purple
+# jetpack shoots and then jumps to two tiles off the bat, the grey gatling
+# spins up a turn and then fires four turns the same way.
+seed 1
+game echounit
+wait 5
+cheat rescue 1 3 5
+cheat rblank
+wait 2
+expect mode == 5
+expect r_owl == 3
+expect r_hp == 2
+# a crate pushed along
+cheat rtile 4 4 111
+press RIGHT 1
+wait 1
+press RIGHT 1
+wait 1
+expect r_x == 4
+expect r_turns == 2
+expect r_tile_5_4 == 111
+# into the wall: no turn
+cheat rpos 1 1
+press UP 1
+wait 1
+expect r_turns == 2
+# two ways at once: still one straight step, never a slant
+cheat rpos 2 6
+press RIGHT DOWN 1
+wait 1
+expect r_turns == 3
+expect r_x == 2
+expect r_y == 7
+# a red sentry looking along row 1 sees the bat step in: "!" now, no shot yet
+cheat rblank
+cheat rguard 2 8 1 2
+cheat rpos 1 2
+press UP 1
+wait 1
+expect r_alert == 1
+expect r_gshots == 0
+# the next turn it fires: the shot leaves the muzzle
+press RIGHT 1
+wait 1
+expect r_gshots == 1
+expect r_shots == 1
+# out of the line: the shot flies on, three tiles a turn, and goes by
+press DOWN 1
+wait 1
+expect r_shot0_x == 5
+press RIGHT 1
+wait 1
+expect r_shot0_x == 2
+press LEFT 1
+wait 1
+expect r_shots == 0
+expect r_hp == 2
+# back into its line: it fires again, and this time she stays in it: hit
+press UP 1
+wait 1
+expect r_gshots == 2
+press RIGHT 1
+wait 1
+press RIGHT 1
+wait 1
+expect r_hp == 1
+expect r_hits == 1
+# indiscriminate: the sentry's shots go into the sleeper standing in the line
+cheat rescue 1 0 5
+cheat rblank
+cheat rguard 2 10 4 2
+cheat rgstate 0 1 0
+cheat rguard 0 6 4 1
+cheat rgstate 1 3 9
+press B 1
+wait 1
+expect r_gshots == 1
+press UP 1
+wait 1
+press DOWN 1
+wait 1
+expect r_g1_hp == 1
+press UP 1
+wait 1
+press DOWN 1
+wait 1
+press UP 1
+wait 1
+expect r_ff == 1
+expect r_hp == 3
+# the knife: next to the bat, it stabs (a brace only stops shots)
+cheat rblank
+cheat rguard 1 3 4 2
+cheat rgstate 0 1 0
+press B 1
+wait 1
+expect r_stabs == 1
+expect r_hp == 2
+# the grenadier lobs one onto the bat's tile: it goes off two turns later,
+# three tiles square, and takes the grenadier's own sleeping friend with it
+cheat rblank
+cheat rguard 3 8 4 2
+cheat rgstate 0 1 0
+cheat rguard 0 3 5 1
+cheat rgstate 1 3 9
+press RIGHT 1
+wait 1
+expect r_thrown == 1
+expect r_grens == 1
+press UP 1
+wait 1
+expect r_grens == 1
+press UP 1
+wait 1
+expect r_grens == 0
+expect r_ff == 1
+expect r_hp == 3
+# the jetpack: a shot, then a jump to two tiles off the bat, lined up on it
+cheat rblank
+cheat rguard 4 8 4 2
+cheat rgstate 0 1 0
+press LEFT 1
+wait 1
+expect r_gshots == 1
+press UP 1
+wait 1
+expect r_g0_x == 3
+expect r_g0_y == 3
+# the gatling: seen, it spins up a turn, then fires four turns the same way
+cheat rblank
+cheat rguard 5 10 4 2
+cheat rpos 2 3
+press DOWN 1
+wait 1
+expect r_spinning == 1
+press UP 1
+wait 1
+expect r_firing == 1
+expect r_gshots == 0
+press RIGHT 1
+wait 1
+press LEFT 1
+wait 1
+press RIGHT 1
+wait 1
+press LEFT 1
+wait 1
+expect r_gshots == 4
+expect r_firing == 0
+expect r_hp == 3

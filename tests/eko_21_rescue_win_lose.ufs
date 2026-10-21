@@ -1,0 +1,45 @@
+# THE JAILBREAK: take the card, bring it to the cell door, and the captive
+# walks free (the gift: win a jailbreak). Caught (out of health), and the
+# rescuer is locked up too. Every jail is rolled anew: 500 rolls, all fair
+# (a way to the card and back, guards round the card, nobody watching or
+# standing near the start, a free tile to step to), no two in a row alike,
+# and between them one, two and three rooms, the cell in each of the four
+# outer walls, and all five kinds of guard (and both green ones).
+seed 1
+game echounit
+wait 5
+expect r_layouts_bad == 0
+expect r_layout_variety == 8191
+cheat rescue 1 2 5
+cheat rblank
+press RIGHT 1
+wait 1
+expect r_card == 0
+cheat rcard
+cheat rpos 1 4
+press LEFT 1
+wait 1
+expect r_won == 1
+waituntil state == 9 120
+expect captured1 == 0
+expect save_rescues == 1
+expect goals & 1
+# caught: two knives either side of Sable, the dart only stops a third
+press A 1
+wait 70
+press A 1
+wait 5
+cheat rescue 1 3 5
+cheat rblank
+cheat rguard 1 3 4 2
+cheat rgstate 0 1 0
+cheat rguard 1 2 3 1
+cheat rgstate 1 1 0
+cheat rguard 1 2 5 3
+cheat rgstate 2 1 0
+press A 1
+wait 1
+expect r_lost == 1
+waituntil state == 10 120
+expect captured3 == 1
+expect captured1 == 1

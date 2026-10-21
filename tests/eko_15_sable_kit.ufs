@@ -1,0 +1,48 @@
+# SABLE: she starts with three tranquilliser darts and three pistol
+# rounds; everything else is found on site. B picks the next weapon she
+# has any of, A uses it. A dart puts a guard to sleep without a sound; a
+# pistol round drops a guard but every guard in the room hears it and comes
+# to look (and the room's bonus is cut by 50).
+seed 1
+game echounit
+wait 5
+cheat mission 3
+wait 10
+expect s_room_x == 0
+expect s_room_y == 0
+expect s_ammo0 == 3
+expect s_ammo1 == 3
+expect s_ammo2 == 0
+expect s_ammo3 == 0
+expect s_weapon == 0
+press B 1
+expect s_weapon == 1
+press B 1
+expect s_weapon == 0
+# a guard ahead with its back turned: a dart, and it sleeps
+cheat sguard 0 12 8 0
+cheat spos 3 8
+cheat sdir 0
+wait 2
+press A 1
+wait 60
+expect s_g0_state == 5
+expect s_ammo0 == 2
+expect s_room_noise == 0
+expect s_spotted == 0
+# a pistol round at another: it drops, and the sound brings the rest
+cheat sguard 1 12 1 0
+cheat sguard 2 16 5 1
+cheat spos 3 1
+cheat sdir 0
+cheat sweapon 1
+wait 2
+press A 1
+wait 40
+expect s_g1_state == 7
+expect s_ammo1 == 2
+expect s_room_noise == 1
+expect s_looking >= 1
+# the sleeper wakes in time and goes back to its post
+wait 600
+expect s_g0_state != 5

@@ -1,0 +1,56 @@
+# FLINT: hold A standing still until he flashes (charged), then let go:
+# the ki blast, a ball hurled a short way forward (96 px), and it carries
+# him forward with it (28 px). Only while standing: walking or crouching throws the charge away,
+# and a press too short is just a punch. The blast goes through every foe
+# in its path and scores more for each extra foe it takes (x1, x2, x3).
+seed 1
+game echounit
+wait 5
+cheat mission 0
+cheat bclear
+wait 30
+# not held long enough: no charge, no blast
+hold A 20
+wait 20
+expect b_objs_8 == 0
+# held long enough (the press itself is a punch, then the charge builds):
+# charged, he flashes, and letting go throws it
+hold A
+wait 60
+expect b_charge >= 40
+expect b_objs_8 == 0
+expect b_px == 24
+release A
+wait 2
+expect b_act == 6
+expect b_objs_8 == 1
+expect b_px == 28
+wait 30
+expect b_objs_8 == 0
+expect b_px == 52
+# walking while holding A never charges; nor does crouching
+hold A RIGHT 60
+expect b_charge == 0
+hold A DOWN 60
+expect b_charge == 0
+wait 20
+# a blast through three troopers in a row: x1, x2, x3 for 20 each = 120
+cheat bpos 120 128
+cheat score 0
+cheat bfoe 1 150 128
+cheat bfoe 1 162 128
+cheat bfoe 1 174 128
+wait 2
+hold A 60
+wait 60
+expect b_kills == 3
+expect score == 120
+# a short way only: a trooper 180 px off is never touched
+cheat bclear
+cheat bpos 120 128
+cheat bfoe 1 300 128
+wait 2
+hold A 60
+wait 60
+expect b_kills == 3
+expect b_foes == 1
