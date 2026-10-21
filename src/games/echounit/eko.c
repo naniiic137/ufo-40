@@ -694,6 +694,18 @@ static int eko_query(const char *key, int *out) {
     if (!strcmp(key, "s_room_x")) { *out = s->room_x; return 1; }
     if (!strcmp(key, "s_room_y")) { *out = s->room_y; return 1; }
     if (!strcmp(key, "s_weapon")) { *out = s->weapon; return 1; }
+    if (!strcmp(key, "s_next")) {
+        /* the item B picks next, as the kit at the bottom left marks it (-1 none) */
+        *out = -1;
+        for (int k = 1; k < WP_COUNT && *out < 0; k++) if (s->ammo[(s->weapon + k) % WP_COUNT] > 0) *out = (s->weapon + k) % WP_COUNT;
+        return 1;
+    }
+    if (!strcmp(key, "s_shotvx") || !strcmp(key, "s_shotvy")) {
+        *out = 0;
+        for (int i = 0; i < SN_MAX_SHOTS; i++)
+            if (s->shot[i].alive && !s->shot[i].foe) { *out = key[7] == 'x' ? s->shot[i].vx : s->shot[i].vy; break; }
+        return 1;
+    }
     if (!strncmp(key, "s_ammo", 6)) { *out = s->ammo[iclamp(atoi(key + 6), 0, 3)]; return 1; }
     if (!strcmp(key, "s_cards")) { *out = s->cards; return 1; }
     if (!strcmp(key, "s_spotted")) { *out = s->spotted_total; return 1; }

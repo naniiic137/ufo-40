@@ -1,0 +1,64 @@
+# SABLE: the pad walks her all eight ways (a diagonal at the same speed
+# overall), but she faces only four, the newest way pressed, and her items
+# go only straight ahead that way, never on a slant. At the bottom left:
+# the item in hand with its uses left, then the others she carries, the
+# one B picks next marked.
+seed 1
+game echounit
+wait 5
+cheat mission 3
+wait 10
+cheat spos 4 4
+wait 2
+expect s_x == 72
+expect s_y == 92
+# down and right at once: a diagonal
+hold RIGHT DOWN 32
+expect s_x >= 92
+expect s_x <= 96
+expect s_y >= 112
+expect s_y <= 116
+# the newest press sets the way she faces: DOWN first, then RIGHT
+cheat spos 4 4
+cheat sdir 1
+wait 2
+hold DOWN
+wait 2
+hold RIGHT
+wait 10
+expect s_dir == 0
+expect s_x > 72
+expect s_y > 92
+# a dart thrown on the move goes straight right, not on the slant
+press A 1
+expect s_shotvx > 0
+expect s_shotvy == 0
+release RIGHT
+release DOWN
+wait 60
+# RIGHT first, then DOWN: she faces down, and the next dart goes straight down
+cheat spos 4 4
+wait 2
+hold RIGHT
+wait 2
+hold DOWN
+wait 4
+expect s_dir == 1
+press A 1
+expect s_shotvx == 0
+expect s_shotvy > 0
+release RIGHT
+release DOWN
+wait 60
+# the kit: darts in hand (one left), pistol next; grenades found, then B
+expect s_weapon == 0
+expect s_ammo0 == 1
+expect s_next == 1
+cheat sammo 3 2
+expect s_next == 1
+press B 1
+expect s_weapon == 1
+expect s_next == 3
+press B 1
+expect s_weapon == 3
+expect s_next == 0

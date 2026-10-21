@@ -63,10 +63,8 @@ static void hud(void) {
         break;
     }
     case MODE_SNEAK: {
-        static const int ICON[WP_COUNT] = {SP_IT_DART, SP_IT_AMMO, SP_IT_STUN, SP_IT_GREN};
-        spr_draw(&eko_spr[ICON[eg.sn.weapon]], 116, 5, 0);
-        snprintf(b, sizeof b, "%s %d", EKO_WP_NAME[eg.sn.weapon], eg.sn.ammo[eg.sn.weapon]);
-        tiny_draw(b, 127, 7, C_WHITE);
+        /* the kit sits at the bottom left (sneak_kit) */
+        tiny_draw(EKO_WP_NAME[eg.sn.weapon], 116, 7, C_LIGHT);
         if (eg.sn.cards & CARD_GREEN) gfx_rect(190, 5, 6, 8, C_LEAF);
         if (eg.sn.cards & CARD_RED) gfx_rect(198, 5, 6, 8, C_RED);
         if (eg.sn.cards & CARD_BLUE) gfx_rect(206, 5, 6, 8, C_SKY);
@@ -592,6 +590,37 @@ static void bike_draw(void) {
 
 /* ---- SABLE ------------------------------------------------------------------------------------ */
 
+/* bottom left: the item in hand and its uses, then the others she carries;
+ * the one B picks next is marked */
+static void sneak_kit(void) {
+    static const int ICON[WP_COUNT] = {SP_IT_DART, SP_IT_AMMO, SP_IT_STUN, SP_IT_GREN};
+    const EkoSneak *s = &eg.sn;
+    int next = -1;
+    for (int k = 1; k < WP_COUNT && next < 0; k++)
+        if (s->ammo[(s->weapon + k) % WP_COUNT] > 0) next = (s->weapon + k) % WP_COUNT;
+    int w = 28;
+    for (int k = 1; k < WP_COUNT; k++) if (s->ammo[(s->weapon + k) % WP_COUNT] > 0) w += 22 + ((s->weapon + k) % WP_COUNT == next ? 6 : 0);
+    int y = SCREEN_H - 15;
+    gfx_rect(0, y, w, 15, C_INK);
+    gfx_hline(0, w - 1, y, C_DUSK);
+    gfx_vline(w - 1, y, SCREEN_H - 1, C_DUSK);
+    char b[8];
+    gfx_rectb(2, y + 2, 23, 12, s->ammo[s->weapon] > 0 ? C_YELLOW : C_DUSK);
+    spr_draw(&eko_spr[ICON[s->weapon]], 4, y + 4, 0);
+    snprintf(b, sizeof b, "%d", s->ammo[s->weapon]);
+    tiny_draw(b, 15, y + 6, s->ammo[s->weapon] > 0 ? C_WHITE : C_RED);
+    int x = 28;
+    for (int k = 1; k < WP_COUNT; k++) {
+        int i = (s->weapon + k) % WP_COUNT;
+        if (s->ammo[i] <= 0) continue;
+        if (i == next) { tiny_draw(GLYPH_B, x, y + 6, C_YELLOW); x += 6; }
+        spr_draw(&eko_spr[ICON[i]], x, y + 4, 0);
+        snprintf(b, sizeof b, "%d", s->ammo[i]);
+        tiny_draw(b, x + 10, y + 6, C_GREY);
+        x += 22;
+    }
+}
+
 static void sneak_draw(void) {
     const EkoSneak *s = &eg.sn;
     int rx0 = s->room_x * SN_RW, ry0 = s->room_y * SN_RH;
@@ -713,6 +742,7 @@ static void sneak_draw(void) {
     if (s->alarm && (eg.frame_t / 8) % 2) gfx_rectb(0, SN_TOP, SCREEN_W, SCREEN_H - SN_TOP, C_RED);
     parts_draw(ox, oy);
     gfx_noclip();
+    sneak_kit();
 }
 
 /* ---- the jailbreak ------------------------------------------------------------------------------ */

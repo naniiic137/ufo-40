@@ -1,8 +1,9 @@
 /* ECHO UNIT - SABLE's stealth: the Istanbul listening post (Cipher waits at
  * the bottom of it) and the Caldera's halls, which hold the whole finale
- * together. She is frail (four pips, a blink of safety after a hit) and
- * starts with three tranquiliser darts and three pistol rounds; everything
- * else is found on site. Guards walk their beats, come to look when they
+ * together. She walks eight ways but uses her items only straight ahead,
+ * the four ways she can face. She is frail (four pips, a blink of safety
+ * after a hit) and starts with three tranquiliser darts and three pistol
+ * rounds; everything else is found on site. Guards walk their beats, come to look when they
  * hear a shot, and hunt her once they see her; cameras and searchlights set
  * off every guard in the room. Leaving a room makes its guards forget. A
  * room left without being seen is worth 100, less 50 if a noise was heard. */
@@ -366,12 +367,23 @@ static void sable_update(void) {
     if (S->hurt_t) S->hurt_t--;
     bool held[4] = {ek_btn(BTN_RIGHT), ek_btn(BTN_DOWN), ek_btn(BTN_LEFT), ek_btn(BTN_UP)};
     bool press[4] = {ek_btnp(BTN_RIGHT), ek_btnp(BTN_DOWN), ek_btnp(BTN_LEFT), ek_btnp(BTN_UP)};
-    int mdir = -1;
-    for (int k = 0; k < 4; k++) if (press[k]) mdir = k;
-    if (mdir < 0 && held[S->dir]) mdir = S->dir;
-    if (mdir < 0) for (int k = 0; k < 4; k++) if (held[k]) { mdir = k; break; }
-    if (mdir >= 0) {
-        S->dir = mdir;
+    /* she walks eight ways, but faces (and uses her items) only four: the
+     * newest of the held directions, else the one she already faces */
+    int fdir = -1;
+    for (int k = 0; k < 4; k++) if (press[k]) fdir = k;
+    if (fdir < 0 && held[S->dir]) fdir = S->dir;
+    if (fdir < 0) for (int k = 0; k < 4; k++) if (held[k]) { fdir = k; break; }
+    int mx = (held[0] ? 1 : 0) - (held[2] ? 1 : 0), my = (held[1] ? 1 : 0) - (held[3] ? 1 : 0);
+    if (fdir >= 0) S->dir = fdir;
+    if (mx && my) {
+        /* a diagonal: each way on its own, so a wall on one side slides her along it */
+        S->walk_t++;
+        int sp = SN_WALK * 181 / 256;
+        int nx = S->x + mx * sp, ny = S->y + my * sp;
+        if (box_free(EKO_PX(nx), EKO_PX(S->y), SN_PW / 2)) S->x = nx;
+        if (box_free(EKO_PX(S->x), EKO_PX(ny), SN_PW / 2)) S->y = ny;
+    } else if (mx || my) {
+        int mdir = mx > 0 ? 0 : mx < 0 ? 2 : my > 0 ? 1 : 3;
         S->walk_t++;
         int nx = S->x + DX4[mdir] * SN_WALK, ny = S->y + DY4[mdir] * SN_WALK;
         if (box_free(EKO_PX(nx), EKO_PX(ny), SN_PW / 2)) { S->x = nx; S->y = ny; }
