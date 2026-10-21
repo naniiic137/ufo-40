@@ -127,6 +127,12 @@ static void draw_tile(int room, int tx, int ty, int x, int y) {
         gfx_circ(x + 4 + (int)(h % 7), y + 4 + (b & 7), 1 + (b >> 3), c2);
         gfx_pset(x + 11 - (int)(h % 5), y + 11, c2);
         if (t == T_WARP) gfx_circb(x + 8, y + 8, 2 + (f / 6) % 5, C_WHITE);
+        /* under dry ground its top is a muddy bank she can tread (lfl_play.c) */
+        int up = ty > 0 ? r->t[ty - 1][tx] : T_STONE;
+        if (up != T_SWAMP && up != T_WARP) {
+            gfx_rect(x, y, 16, 5, gd);
+            gfx_hline(x, x + 15, y + 5, c2);
+        }
         break;
     }
     case T_PIT:
