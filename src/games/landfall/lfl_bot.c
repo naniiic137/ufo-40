@@ -1066,6 +1066,11 @@ static int bot_buttons_inner(void) {
     lfl_bot_tx = j.wx;
     lfl_bot_ty = j.wy;
     LflPlayer *p = &lg.pl;
+    /* the next step into a hole (or the small way through the hidden wall):
+     * the hatcher stays in hand for it */
+    int d0 = j.wx >= 0 ? first_step(j.wx, j.wy) : -1;
+    int t0 = d0 >= 0 ? wtile(area(), my_wx() + DX[d0], my_wy() + DY[d0]) : T_FLOOR;
+    bool hole_next = (t0 == T_HOLE || t0 == T_SECRET) && !small();
     /* hands: the job's tools in hand, the active one ready */
     bool fetching = false;
     for (int k = 0; k < j.nneed; k++) {
@@ -1083,7 +1088,7 @@ static int bot_buttons_inner(void) {
             sc = sc * 2 + (h == p->act); /* a tie keeps the active hand: no needless swap */
             if (sc > score) { score = sc; spare = h; }
         }
-        if (spare >= 0 && spare != p->act && p->hold[p->act] >= 0 && p->hold[spare] >= 0) {
+        if (spare >= 0 && spare != p->act && p->hold[p->act] >= 0 && p->hold[spare] >= 0 && !hole_next) {
             int who = lfl_talk_target();
             if (who < 0) { b_tap = 2; prev_mask = BTN_B; return BTN_B; }
             /* a local close by would answer B: step away first */
@@ -1098,7 +1103,7 @@ static int bot_buttons_inner(void) {
         if (job_thing(&j, i)) { j.act = 0; j.face = -1; }
         break;
     }
-    if (j.act && j.act != 3 && j.nneed > 0 && j.need[0] >= 0 && p->hold[p->act] != j.need[0] && holding(j.need[0]) && !small()) {
+    if (j.act && j.act != 3 && j.nneed > 0 && j.need[0] >= 0 && p->hold[p->act] != j.need[0] && holding(j.need[0]) && !small() && !hole_next) {
         if (lfl_talk_target() < 0) { b_tap = 2; prev_mask = BTN_B; return BTN_B; }
     }
     /* at the spot: face, then act */
@@ -1171,10 +1176,6 @@ static int bot_buttons_inner(void) {
         bool threat = false;
         for (int i = 0; i < LFL_MAX_MOBS; i++)
             if (is_threat(&lg.mob[i]) && iabs(LFL_PX(lg.mob[i].x) + 6 - pcx()) + iabs(LFL_PX(lg.mob[i].y) + 6 - pcy()) < 70) threat = true;
-        /* (not on the way into a hole: the hatcher stays in hand for it) */
-        int d0 = j.wx >= 0 ? first_step(j.wx, j.wy) : -1;
-        int t0 = d0 >= 0 ? wtile(area(), my_wx() + DX[d0], my_wy() + DY[d0]) : T_FLOOR;
-        bool hole_next = t0 == T_HOLE || t0 == T_SECRET;
         if (threat && !hole_next && !fetching && !(j.act && j.nneed > 0) && (other == TL_RIVET || other == TL_DISC) && cur_t != TL_RIVET && cur_t != TL_DISC && !small() &&
             lfl_talk_target() < 0) {
             b_tap = 2;
