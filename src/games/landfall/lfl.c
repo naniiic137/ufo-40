@@ -428,6 +428,7 @@ static int lfl_query(const char *key, int *out) {
     if (!strcmp(key, "bot")) { *out = lfl_bot_buttons(); return 1; }
     if (!strcmp(key, "bot_last")) { *out = lfl_bot_last; return 1; }
     if (!strcmp(key, "bot_task")) { *out = lfl_bot_task; return 1; }
+    if (!strcmp(key, "bot_need")) { *out = lfl_bot_need; return 1; }
     if (!strncmp(key, "here", 4)) {
         /* the k-th live thing in this room: kind*1000 + x/16*10 + y/16 */
         int k = atoi(key + 4), n = 0;

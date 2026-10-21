@@ -6,7 +6,7 @@
  * juggles its two hands, and shoots what gets in line. */
 #include "lfl.h"
 
-int lfl_bot_task, lfl_bot_tx, lfl_bot_ty, lfl_bot_last;
+int lfl_bot_task, lfl_bot_tx, lfl_bot_ty, lfl_bot_last, lfl_bot_need;
 
 #define AW (LFL_GMAX_W * LFL_RW)
 #define AH (LFL_GMAX_H * LFL_RH)
@@ -21,12 +21,15 @@ static const int DX[4] = {0, 1, 0, -1}, DY[4] = {-1, 0, 1, 0};
 static int16_t dist[AH][AW];
 static int16_t parent[AH][AW];
 static uint32_t prev_mask;
+/* (fight_busy / fight_off: lining up on a creature that keeps out of line,
+ * say one whose shots she keeps dodging, is given up for a while) */
+static int fight_busy, fight_off;
 static int a_hold, b_tap, retreat_t, chop_gate, chop_t, stuck_t, last_wx, last_wy, wander_room, clear_t, clear_dir;
 
 void lfl_bot_reset(void) {
     lfl_bot_task = 0;
     prev_mask = 0;
-    a_hold = b_tap = retreat_t = chop_t = stuck_t = clear_t = 0;
+    a_hold = b_tap = retreat_t = chop_t = stuck_t = clear_t = fight_busy = fight_off = 0;
     chop_gate = -1;
     last_wx = last_wy = -1;
     wander_room = -1;
@@ -54,7 +57,8 @@ static int wtile(int ar, int wx, int wy) {
 /* ------------------------------------------------------------------------ */
 /* the search                                                               */
 
-static uint8_t blocked[AH][AW]; /* 1 a snail (never), 2 near a creature (only if need be) */
+static uint8_t blocked[AH][AW]; /* 1 a snail (never), 2 near a creature or a chop (only if need be) */
+static int bog_room = -1;       /* the trapped village's bog, waded when she is well */
 
 static bool can_step(int ar, int wx, int wy, bool swamp_ok) {
     if (wx < 0 || wy < 0 || wx >= AW || wy >= AH) return false;
@@ -62,7 +66,7 @@ static bool can_step(int ar, int wx, int wy, bool swamp_ok) {
     int t = wtile(ar, wx, wy);
     switch (t) {
     case T_FLOOR: case T_WOOD: case T_TECHDOWN: case T_STAIRS_DN: case T_STAIRS_UP: return true;
-    case T_SWAMP: return swamp_ok || holding(TL_BOOTS);
+    case T_SWAMP: return swamp_ok || holding(TL_BOOTS) || (bog_room >= 0 && room_of(ar, wx, wy) == bog_room);
     case T_HOLE: return holding(TL_HATCHER) || small();
     case T_SECRET: return lp.secret_key == SK_SMALL && room_of(ar, wx, wy) == lp.secret_room && (holding(TL_HATCHER) || small());
     default: return false;
@@ -103,6 +107,11 @@ static void build_blocks(bool foes) {
         if ((m->flags & MF_FRIENDLY) && !(m->flags & MF_ANGRY)) continue;
         mark_box(ar, lg.cur, LFL_PX(m->x), LFL_PX(m->y), m->w, m->h, 8, 2);
     }
+    /* chops: stepped on, they are eaten, so round them unless she is hurt */
+    if (lg.pl.hp >= lg.pl.hpmax)
+        for (int i = 0; i < LFL_MAX_DROPS; i++)
+            if (lg.drop[i].alive && lg.drop[i].kind == DR_CHOP)
+                mark_box(ar, lg.cur, LFL_PX(lg.drop[i].x), LFL_PX(lg.drop[i].y), 8, 8, 5, 2);
     /* never stand on the teleporting bog */
     for (int k = 0; k < 2; k++)
         if (lp.warp_room[k] >= 0 && lp.room[lp.warp_room[k]].area == ar) {
@@ -163,7 +172,7 @@ static void bfs(bool swamp_ok) {
             int nx = x + DX[d], ny = y + DY[d];
             if (nx < 0 || ny < 0 || nx >= AW || ny >= AH) continue;
             if (!can_step(ar, nx, ny, swamp_ok)) continue;
-            int nc = cost + (blocked[ny][nx] == 2 ? 12 : 1);
+            int nc = cost + (blocked[ny][nx] == 2 ? 12 : 1) + (wtile(ar, nx, ny) == T_SWAMP && !holding(TL_BOOTS) ? 8 : 0);
             if (dist[ny][nx] >= 0 && dist[ny][nx] <= nc) continue;
             dist[ny][nx] = (int16_t)nc;
             parent[ny][nx] = (int16_t)d;
@@ -232,6 +241,7 @@ static bool gate_stand(int g, int *wx, int *wy, int *face) {
         for (int x = gt->tx; x < gt->tx + gt->w; x++) {
             int t = lp.room[room].t[y][x];
             if (gt->kind != GK_SNAIL && t != T_CRYSTAL && t != T_FOLIAGE && t != T_TECH && t != T_FLESH) continue;
+            if (gt->nook && !lfl_nook_door(g, x, y)) continue;
             for (int d = 0; d < 4; d++) {
                 int sx = ox + x - DX[d], sy = oy + y - DY[d];
                 int dd = D(sx, sy);
@@ -559,7 +569,9 @@ static bool job_resources_in(Job *j, int r, int n) {
     if (lp.tier_of[r] == TIER_RARE) {
         /* the two behind their gate, the four behind the hidden wall */
         int g = find_gate(GR_RARE);
-        if (g >= 0 && !lp.gate[g].used && lp.thing[lp.gate[g].prize_thing].alive) {
+        /* (not when its key burns the rare one and she has none: a loop) */
+        bool fuel_loop = g >= 0 && lp.cost_res[KEY[lp.gate[g].kind]] == r && lg.res[r] < 1 && gate_shut(g);
+        if (g >= 0 && !fuel_loop && !lp.gate[g].used && lp.thing[lp.gate[g].prize_thing].alive) {
             int i = lp.gate[g].prize_thing, key = KEY[lp.gate[g].kind];
             if (lp.gate[g].kind == GK_PIT) {
                 if (holding(TL_DISC) && job_disc(j, i)) { j->kind = TK_PRIZE; return true; }
@@ -607,9 +619,10 @@ static bool job_get_tool(Job *j, int t, int depth) {
     for (int k = 0; k < 6; k++) {
         const LflTrade *tr = &lp.trade[k];
         if (tr->kind != TR_ITEM || tr->item != t || tr->done) continue;
+        /* the price first (gathering it wants no talk box), then the words */
+        if (lg.res[tr->pay_res] < tr->pay_n) return job_resources(j, tr->pay_res, tr->pay_n);
         if (tr->glyph && !holding(TL_TALKBOX)) return depth < 2 && job_get_tool(j, TL_TALKBOX, depth + 1);
-        if (lg.res[tr->pay_res] >= tr->pay_n) return job_trade(j, k);
-        return job_resources(j, tr->pay_res, tr->pay_n);
+        return job_trade(j, k);
     }
     return false;
 }
@@ -629,13 +642,18 @@ static bool job_secret(Job *j) {
     if (!shut) return false;
     static const int SKEY[SK_COUNT] = {TL_THUMPER, TL_DISC, TL_PODS, TL_RIVET, TL_HATCHER};
     int key = SKEY[lp.secret_key];
-    if (!holding(key)) return job_get_tool(j, key, 1);
     int r_need = lp.cost_res[key];
+    /* (a key that burns the rare one, with none: the rare one comes first) */
+    if (r_need < RS_COUNT && lp.tier_of[r_need] == TIER_RARE && lg.res[r_need] < 1) return false;
+    if (!holding(key)) return job_get_tool(j, key, 1);
     if (r_need < RS_COUNT && lg.res[r_need] < 1) return job_resources(j, r_need, 2);
     int ox = r->gx * LFL_RW, oy = r->gy * LFL_RH, best = 1 << 30;
     for (int d = 0; d < 4; d++)
         for (int k = 1; k <= (key == TL_DISC || key == TL_RIVET ? 3 : 1); k++) {
             int sx = ox + r->secret_x - DX[d] * k, sy = oy + r->secret_y - DY[d] * k;
+            /* a clear line from her to the wall (a rock in between stops the shot) */
+            int between = wtile(area(), sx + DX[d], sy + DY[d]);
+            if (k > 1 && !(between == T_FLOOR || between == T_WOOD || between == T_TECHDOWN || between == T_SWAMP || between == T_PIT)) break;
             int dd = D(sx, sy);
             if (dd < 0 || dd >= best) continue;
             best = dd;
@@ -795,6 +813,14 @@ static void choose(Job *j) {
                 if (holding(key) && job_gate_fuel(j, gd)) return;
                 if (!holding(key) && job_get_tool(j, key, 0)) return;
             }
+            /* fuel for the gates inside, before going down (gathered first: the
+             * gathering may want other tools in hand) */
+            if (area() == AREA_OVER)
+                for (int g = 0; g < lp.ngate; g++) {
+                    if (lp.gate[g].role != GR_DUN || !gate_shut(g)) continue;
+                    int r = lp.cost_res[KEY[lp.gate[g].kind]];
+                    if (r < RS_COUNT && lg.res[r] < 2 && job_resources(j, r, 3)) return;
+                }
             /* carry what the dungeon needs, two at a time */
             int want[2], nw = 0;
             for (int k = 0; k < nk && nw < 2; k++) {
@@ -804,15 +830,12 @@ static void choose(Job *j) {
             }
             for (int k = 0; k < nw; k++)
                 if (!holding(want[k]) && job_get_tool(j, want[k], 0)) {
-                    if (j->kind == TK_TOOL) { j->need[0] = want[0]; j->need[1] = nw > 1 ? want[1] : -1; j->nneed = nw; }
+                    /* fetching one of the trip's tools: keep both in hand (a
+                     * tool fetched on the way, say the talk box to buy one,
+                     * keeps its own need) */
+                    bool trip = j->kind == TK_TOOL && (j->need[0] == want[0] || (nw > 1 && j->need[0] == want[1]));
+                    if (trip) { j->need[0] = want[0]; j->need[1] = nw > 1 ? want[1] : -1; j->nneed = nw; }
                     return;
-                }
-            /* fuel for the gates inside, before going down */
-            if (area() == AREA_OVER)
-                for (int g = 0; g < lp.ngate; g++) {
-                    if (lp.gate[g].role != GR_DUN || !gate_shut(g)) continue;
-                    int r = lp.cost_res[KEY[lp.gate[g].kind]];
-                    if (r < RS_COUNT && lg.res[r] < 2 && job_resources(j, r, 3)) return;
                 }
             if (job_thing(j, mi)) { j->kind = TK_DUNGEON; memcpy(j->need, want, sizeof want); j->nneed = nw; return; }
             /* a gate inside in the way */
@@ -911,10 +934,13 @@ static int fight(void) {
         int d = iabs(LFL_PX(m->x) + m->w / 2 - px) + iabs(LFL_PX(m->y) + m->h / 2 - py);
         if (d < bd) { bd = d; best = i; }
     }
-    if (best < 0 || bd > 84) return 0;
+    if (best < 0 || bd > 84) { fight_busy = 0; return 0; }
     const LflMob *m = &lg.mob[best];
     int mx = LFL_PX(m->x) + m->w / 2, my = LFL_PX(m->y) + m->h / 2;
     int dx = mx - px, dy = my - py, reach = tool == TL_RIVET ? 70 : 130;
+    /* right on top of her: any facing hits it (turning would only nudge her
+     * from one side of it to the other) */
+    if (iabs(dx) <= 6 && iabs(dy) <= 6) return press_a();
     int d = -1;
     if (iabs(dy) <= 5 && iabs(dx) <= reach) d = dx > 0 ? DIR_RIGHT : DIR_LEFT;
     else if (iabs(dx) <= 5 && iabs(dy) <= reach) d = dy > 0 ? DIR_DOWN : DIR_UP;
@@ -924,6 +950,8 @@ static int fight(void) {
         return press_a();
     }
     if (iabs(dx) <= 5 || iabs(dy) <= 5) return 0; /* in line but out of reach */
+    if (fight_off > 0) return 0;
+    if (++fight_busy > 240) { fight_busy = 0; fight_off = 360; return 0; }
     /* too close and not lined up: back away */
     if (bd < 22) {
         int ax = dx > 0 ? -1 : 1, ay = dy > 0 ? -1 : 1;
@@ -1006,7 +1034,9 @@ static int bot_buttons_inner(void) {
     static int was_room = -1, in_room_t;
     if (lg.cur != was_room) { was_room = lg.cur; in_room_t = 0; }
     in_room_t++;
+    if (fight_off > 0) fight_off--;
     build_blocks(in_room_t > 45);
+    bog_room = lp.trapped_room != 255 && (lg.god || lg.pl.hp >= 5) ? lp.trapped_room : -1;
     bfs(false);
     Job j;
     choose(&j);
@@ -1028,6 +1058,7 @@ static int bot_buttons_inner(void) {
     }
     last = j;
     lfl_bot_task = j.kind;
+    lfl_bot_need = j.nneed > 0 ? (j.need[0] + 1) * 10 + (j.nneed > 1 ? j.need[1] + 1 : 0) : 0;
     lfl_bot_tx = j.wx;
     lfl_bot_ty = j.wy;
     LflPlayer *p = &lg.pl;
