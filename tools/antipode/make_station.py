@@ -185,6 +185,13 @@ def door_pos(d, doorpos):
 
 def gaps(r, ri, doors, doorpos):
     """the room's doorway tiles: (x, y) in the room"""
+    return [t for g in door_gaps(r, ri, doors, doorpos) for t in g]
+
+
+def door_gaps(r, ri, doors, doorpos):
+    """each doorway's tiles, one list a door (an electric field across a side
+    doorway stands four tiles tall, from two rows over its row: room to jump
+    and flip through it with the STORMBALL)"""
     out = []
     for d in doors:
         if d['ra'] != ri and d['rb'] != ri:
@@ -196,10 +203,11 @@ def gaps(r, ri, doors, doorpos):
         p = door_pos(d, doorpos)
         if not d['v']:
             bx = lx + CW - 1 if is_a else lx
-            out += [(bx, ly + p), (bx, ly + p + 1)]
+            top = p - 2 if d['type'] == 'e' else p
+            out.append([(bx, ly + y) for y in range(top, p + 2)])
         else:
             by = ly + CH - 1 if is_a else ly
-            out += [(lx + p, by), (lx + p + 1, by)]
+            out.append([(lx + p, by), (lx + p + 1, by)])
     return out
 
 
@@ -285,7 +293,7 @@ def check(r, ri, doors, doorpos):
             bad('%s: %s at %d,%d needs a ceiling over it' % (where, tok, x, y))
     FOES = ('tread', 'treadr', 'treadg', 'spitter', 'eye', 'hive', 'skip', 'skimmer', 'sentry')
     need = [tok.split('@')[1][:1] for tok in r['things'].split() if '@' in tok and tok.split('@')[0].split('*')[0] not in FOES]
-    targets = [[gp[k], gp[k + 1]] for k in range(0, len(gp), 2)] + [[marks[m]] for m in need]
+    targets = [[g[0], g[-1]] for g in door_gaps(r, ri, doors, doorpos)] + [[marks[m]] for m in need]
     if not targets:
         return
     def cells_near(tx, ty):

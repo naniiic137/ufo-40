@@ -269,7 +269,11 @@ static void put_doors(int room) {
         int t = door_tile(d, di, d->vertical);
         if (!d->vertical) {
             int bx = is_a ? lx + APD_CW - 1 : lx;      /* the border column */
-            for (int row = pos; row <= pos + 1; row++) {
+            /* an electric field across a side doorway stands four tiles tall
+             * (from two rows over the doorway's row): room to jump into it and
+             * flip, so the STORMBALL carries the suit across in the air */
+            int top = d->type == E_ZAP ? pos - 2 : pos;
+            for (int row = top; row <= pos + 1; row++) {
                 set_t(bx, ly + row, t);
                 ag.tdoor[ly + row][bx] = (uint8_t)(di + 1);
             }
@@ -277,7 +281,7 @@ static void put_doors(int room) {
             int ty = tile(bx, ly + pos - 1) == T_WALL && pos > 1 ? ly + pos - 1 : ly + pos + 2;
             if (d->type == E_TARGET && !ag.run.gate_open[di]) add_thing(TH_TARGET, 0, bx, ty, di);
             if (d->type == E_ZAP) {
-                add_thing(TH_EMITTER, 0, bx, ly + pos - 1, di);
+                add_thing(TH_EMITTER, 0, bx, ly + top - 1, di);
                 add_thing(TH_EMITTER, 1, bx, ly + pos + 2, di);
             }
         } else {
