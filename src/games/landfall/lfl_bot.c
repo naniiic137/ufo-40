@@ -673,16 +673,18 @@ static void choose(Job *j) {
     j->face = -1;
     j->wx = j->wy = -1;
     LflPlayer *p = &lg.pl;
-    /* a pod about to go: keep away */
+    /* a pod about to go: keep away, but in this room (leaving it would take
+     * the pod away too); in a narrow way with no room, as far as she can */
     for (int i = 0; i < LFL_MAX_BOMBS; i++)
         if (lg.bomb[i].alive) {
             int bx = lp.room[lg.cur].gx * LFL_RW + LFL_PX(lg.bomb[i].x) / LFL_TILE, by = lp.room[lg.cur].gy * LFL_RH + LFL_PX(lg.bomb[i].y) / LFL_TILE;
             int best = 1 << 30;
             for (int y = by - 6; y <= by + 6; y++)
                 for (int x = bx - 6; x <= bx + 6; x++) {
-                    if (imax(iabs(x - bx), iabs(y - by)) < 3) continue;
                     int dd = D(x, y);
-                    if (dd >= 0 && dd < best) { best = dd; j->wx = x; j->wy = y; }
+                    if (dd < 0 || room_of(area(), x, y) != lg.cur) continue;
+                    int sc = (3 - imin(3, imax(iabs(x - bx), iabs(y - by)))) * 1000 + dd;
+                    if (sc < best) { best = sc; j->wx = x; j->wy = y; }
                 }
             j->kind = TK_RETREAT;
             return;
@@ -746,17 +748,23 @@ static void choose(Job *j) {
         if (i < 0 || !job_thing(j, i)) i = tool_thing(TL_DISC);
         if (i >= 0 && job_thing(j, i)) { j->kind = TK_TOOL; j->need[0] = lp.thing[i].sub; j->nneed = 1; return; }
     }
+    /* down in the dungeon with its chart piece still there: that first (the
+     * jobs above ground would only send her up and down the stairs) */
+    bool below = false;
+    if (area() == AREA_DUN)
+        for (int i = 0; i < lp.nthing; i++)
+            if (lp.thing[i].alive && lp.thing[i].kind == TH_MAP && lp.room[lp.thing[i].room].area == AREA_DUN) below = true;
     /* 1: the chart piece for sale */
     int mt = map_trade();
     const LflTrade *mtr = &lp.trade[mt];
-    if (!mtr->done && lg.res[mtr->pay_res] >= mtr->pay_n) {
+    if (!below && !mtr->done && lg.res[mtr->pay_res] >= mtr->pay_n) {
         if (mtr->glyph && !holding(TL_TALKBOX)) {
             if (job_get_tool(j, TL_TALKBOX, 0)) return;
         } else if (job_trade(j, mt)) return;
     }
     /* 2: the chart piece behind its gate */
     int gm = find_gate(GR_MAP);
-    if (gm >= 0 && lp.gate[gm].prize_thing != 255 && lp.thing[lp.gate[gm].prize_thing].alive) {
+    if (!below && gm >= 0 && lp.gate[gm].prize_thing != 255 && lp.thing[lp.gate[gm].prize_thing].alive) {
         int i = lp.gate[gm].prize_thing;
         if (lp.gate[gm].kind == GK_PIT && !lp.gate[gm].used) {
             if (holding(TL_DISC) && job_disc(j, i)) { j->kind = TK_PRIZE; return; }
@@ -798,6 +806,13 @@ static void choose(Job *j) {
                 if (!holding(want[k]) && job_get_tool(j, want[k], 0)) {
                     if (j->kind == TK_TOOL) { j->need[0] = want[0]; j->need[1] = nw > 1 ? want[1] : -1; j->nneed = nw; }
                     return;
+                }
+            /* fuel for the gates inside, before going down */
+            if (area() == AREA_OVER)
+                for (int g = 0; g < lp.ngate; g++) {
+                    if (lp.gate[g].role != GR_DUN || !gate_shut(g)) continue;
+                    int r = lp.cost_res[KEY[lp.gate[g].kind]];
+                    if (r < RS_COUNT && lg.res[r] < 2 && job_resources(j, r, 3)) return;
                 }
             if (job_thing(j, mi)) { j->kind = TK_DUNGEON; memcpy(j->need, want, sizeof want); j->nneed = nw; return; }
             /* a gate inside in the way */
@@ -993,6 +1008,9 @@ static int bot_buttons_inner(void) {
     /* keep to the last target unless the new one is clearly nearer (no
      * dithering between two cells as creatures shift the search) */
     static Job last;
+    static int last_area = -1;
+    if (last_area != area()) last.wx = -1; /* the other area's tiles mean other rooms */
+    last_area = area();
     if (j.kind == last.kind && j.act == 0 && last.act == 0 && last.wx >= 0 && D(last.wx, last.wy) > 0 &&
         (j.wx != last.wx || j.wy != last.wy) && D(j.wx, j.wy) >= D(last.wx, last.wy) - 12) {
         j.wx = last.wx;
@@ -1041,6 +1059,17 @@ static int bot_buttons_inner(void) {
     /* at the spot: face, then act */
     if (j.wx >= 0 && my_wx() == j.wx && my_wy() == j.wy) {
         stuck_t = 0;
+        /* stairs she arrived on only work once she steps off and back on */
+        int under = wtile(area(), my_wx(), my_wy());
+        if ((under == T_STAIRS_DN || under == T_STAIRS_UP) && lg.stairs_lock) {
+            for (int k = 0; k < 4; k++)
+                if (D(my_wx() + DX[k], my_wy() + DY[k]) >= 0) {
+                    mask = dir_button(k);
+                    break;
+                }
+            prev_mask = (uint32_t)mask;
+            return mask;
+        }
         int ccx = pcx() % LFL_TILE, ccy = pcy() % LFL_TILE;
         /* centred, with room to turn: a one-frame tap toward the facing
          * moves her a pixel or two, which must keep her on this tile */
