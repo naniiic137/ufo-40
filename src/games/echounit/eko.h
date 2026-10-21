@@ -105,12 +105,13 @@ extern const int EKO_LIFT_NWAVES;
 #define BR_PW 12
 #define BR_PH 24
 #define BR_PH_DUCK 15
-#define BR_CHARGE_T 40            /* hold A, standing still, this long: the charged lunge */
-#define BR_LUNGE_T 18
-#define BR_LUNGE_VX 896
+#define BR_CHARGE_T 40            /* hold A, standing still, this long: he flashes, charged */
+#define BR_KI_T 24                /* the ki blast flies this many frames ... */
+#define BR_KI_VX 1024             /* ... at 4 px a frame: 96 px, a short way */
+#define BR_KI_POSE 14             /* frames of the throwing pose */
 #define BR_COMBO_WINDOW 22
 
-enum { BRA_NONE, BRA_PUNCH1, BRA_PUNCH2, BRA_KICK, BRA_LOW, BRA_AIRKICK, BRA_LUNGE, BRA_THROW };
+enum { BRA_NONE, BRA_PUNCH1, BRA_PUNCH2, BRA_KICK, BRA_LOW, BRA_AIRKICK, BRA_KI, BRA_THROW };
 
 enum { BF_NONE, BF_SOLDIER, BF_GRENADIER, BF_JETPACK, BF_KEYMAN, BF_SCRAPJAW, BF_TALPA, BF_KINDS };
 extern const int EKO_BF_HP[BF_KINDS];
@@ -127,7 +128,7 @@ typedef struct {
 } EkoBFoe;
 #define BR_MAX_FOES 24
 
-enum { BO_BARREL, BO_MANGO, BO_LIFE, BO_KEY, BO_GRENADE, BO_BULLET, BO_FBULLET, BO_FLAME };
+enum { BO_BARREL, BO_MANGO, BO_LIFE, BO_KEY, BO_GRENADE, BO_BULLET, BO_FBULLET, BO_FLAME, BO_KI };
 typedef struct {
     uint8_t alive, kind, state;  /* barrel: 0 rest, 1 carried, 2 thrown, 3 bouncing */
     int x, y, vx, vy, t, chain, hits, last_foe;
@@ -139,7 +140,6 @@ typedef struct {
     int face, ground, duck;
     int act, act_t, combo_ok, charge, carry; /* carry: object index + 1 */
     int inv, hurt_t, dead_t;
-    int chain;                   /* the lunge that is scoring now */
     int atk_sn;                  /* serial of the attack in progress */
     int safe_x, safe_y;
     bool key;
@@ -161,6 +161,7 @@ typedef struct {
     int lift_t, lift_wave, lift_on, lift_y;
     int boss_on, boss_dead, boss_t, boss_i, done_t;
     int wall_open_t;             /* the key in the lock: the wall blows */
+    int key_lost;                /* the key carrier went down off the screen: no key, ever (the original's bug) */
     int kills, secrets;
     int tile_sn;                 /* the blow that last knocked a crate or wall */
     int dmg_dealt;               /* for the demo player */

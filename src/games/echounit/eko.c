@@ -584,6 +584,9 @@ static int eko_query(const char *key, int *out) {
     if (!strcmp(key, "b_ground")) { *out = b->p.ground; return 1; }
     if (!strcmp(key, "b_act")) { *out = b->p.act; return 1; }
     if (!strcmp(key, "b_charge")) { *out = b->p.charge; return 1; }
+    if (!strcmp(key, "b_face")) { *out = b->p.face; return 1; }
+    if (!strcmp(key, "b_vx")) { *out = b->p.vx; return 1; }
+    if (!strcmp(key, "b_keylost")) { *out = b->key_lost; return 1; }
     if (!strcmp(key, "b_duck")) { *out = b->p.duck; return 1; }
     if (!strcmp(key, "b_carry")) { *out = b->p.carry; return 1; }
     if (!strcmp(key, "b_key")) { *out = b->p.key; return 1; }

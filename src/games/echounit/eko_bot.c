@@ -136,8 +136,9 @@ static int brawl_score(void) {
     /* the key and the blown wall are worth any walk they lead to */
     if (b->p.key) s += 400000;
     if (b->wall_open_t) s += 800000;
-    /* falling is the worst thing */
+    /* falling is the worst thing, and losing the key for good is worse */
     if (b->p.dead_t) s -= 3000000;
+    if (b->key_lost) s -= 6000000;
     return s;
 }
 
@@ -156,7 +157,7 @@ static int pol_brawl(int p, int f) {
     case 6: return BTN_LEFT | TAPA;
     case 7: return BTN_DOWN | TAPA;
     case 8: return 0;
-    case 9: return f < BR_CHARGE_T + 2 ? EKO_MAIN : 0;                 /* charge and let go */
+    case 9: return f < BR_CHARGE_T + 2 ? EKO_MAIN : 0;                 /* charge, let go: the ki blast */
     case 10: return f < 2 ? EKO_ALT : TAPA;                            /* hop on the spot, kick */
     case 11: return f < 2 ? (BTN_LEFT | EKO_ALT) : BTN_LEFT;
     case 12: return f < 3 ? (BTN_DOWN | EKO_MAIN) : f < 10 ? 0 : (f < 12 ? EKO_MAIN : BTN_RIGHT); /* lift a barrel, throw it */

@@ -212,6 +212,9 @@ void eko_audio_load(void) {
     sfx_define("eko_swing", CH_NOISE, 240, "@36 v7 o6 c32");
     sfx_define("eko_lunge", CH_NOISE, 200, "@36 v10 o4 c8");
     sfx_define("eko_charged", CH_P2, 240, "@39 v8 o6 c32 e32 g32");
+    sfx_define("eko_ki", CH_P1, 220, "@37 v11 o5 g16 o6 c16 e16");
+    sfx_define("eko_hot", CH_P2, 180, "@1 v11 o6 c16 o5 b16 o6 c16 o5 b16");
+    sfx_define("eko_aim", CH_P2, 220, "@42 v9 o7 c32 r32 c32");
     sfx_define("eko_hit", CH_NOISE, 240, "@21 v9 o6 c32");
     sfx_define("eko_ko", CH_NOISE, 200, "@34 v9 o4 c16");
     sfx_define("eko_jump", CH_P1, 240, "@32 v8 o4 c32 g32");

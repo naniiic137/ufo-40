@@ -1,5 +1,6 @@
 # FLINT: one fixed jump. A tap and a long hold of B reach the same height
-# (40 px); there is no variable jump.
+# (40 px); there is no variable jump. In the air LEFT / RIGHT steer the
+# jump, but he keeps facing the way he took off until he lands.
 seed 1
 game echounit
 wait 5
@@ -21,3 +22,18 @@ expect b_py == 89
 release B
 waituntil b_ground == 1 60
 expect b_py == 128
+# off to the right, steered back left in the air: still facing right
+cheat bpos 200 128
+wait 5
+hold RIGHT 4
+expect b_face == 1
+hold RIGHT B 2
+hold LEFT
+wait 10
+expect b_ground == 0
+expect b_vx < 0
+expect b_face == 1
+waituntil b_ground == 1 60
+wait 2
+expect b_face == -1
+release LEFT

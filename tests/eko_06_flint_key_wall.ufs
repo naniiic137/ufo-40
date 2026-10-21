@@ -1,10 +1,38 @@
 # FLINT: the docks end at a locked wall. The trooper with the key (red
 # beret) drops it when beaten; with the key the wall's charge is set and it
-# blows. The yards hide a mango in a wall near their end, and one in the
-# crates before the lift.
+# blows. Knock him down off the screen, though, and the key never appears:
+# the wall stays shut for good (Cyber Owls' Chicago softlock, kept on the
+# owner's word). The yards hide a mango in a wall near their end, and one
+# in the crates before the lift.
 seed 1
 game echounit
 wait 5
+# the softlock: Flint at the screen's left edge kicks the key carrier off it
+cheat mission 0
+cheat bclear
+cheat god
+cheat bpos 900 128
+wait 30
+hold LEFT 88
+expect b_cam_x == 760
+cheat bfoe 4 772 128
+wait 2
+press A 1
+wait 8
+press A 1
+wait 8
+press A 1
+wait 60
+expect b_kills == 1
+expect b_keylost == 1
+expect b_objs_3 == 0
+expect b_key == 0
+cheat bpos 2440 128
+wait 30
+hold RIGHT 90
+expect b_px < 2496
+expect b_wall == 0
+# a fresh go at the docks
 cheat mission 0
 cheat bclear
 cheat god

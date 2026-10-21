@@ -205,6 +205,12 @@ static void brawl_draw(void) {
         case BO_GRENADE: gfx_circ(x, y - 3, 3, C_FOREST); gfx_pset(x, y - 6, (eg.frame_t / 3) % 2 ? C_RED : C_YELLOW); break;
         case BO_FBULLET: gfx_rect(x - 2, y - 1, 4, 2, C_YELLOW); break;
         case BO_FLAME: gfx_circ(x, y, 3, (eg.frame_t / 2) % 2 ? C_ORANGE : C_YELLOW); break;
+        case BO_KI:
+            /* the ki blast: a hot ball with a short tail */
+            for (int k = 1; k <= 3; k++) gfx_circ(x - isign(o->vx) * k * 5, y, 4 - k, k == 1 ? C_AMBER : C_ORANGE);
+            gfx_circ(x, y, 5, (eg.frame_t / 2) % 2 ? C_YELLOW : C_WHITE);
+            gfx_circ(x, y, 2, C_WHITE);
+            break;
         default: break;
         }
     }
@@ -256,7 +262,7 @@ static void brawl_draw(void) {
     if (!(p->inv && (p->inv / 3) % 2)) {
         int sp = SP_FLINT_STAND;
         if (p->dead_t || p->hurt_t) sp = SP_FLINT_HURT;
-        else if (p->act == BRA_LUNGE) sp = SP_FLINT_CHARGE;
+        else if (p->act == BRA_KI) sp = SP_FLINT_CHARGE;
         else if (p->act == BRA_AIRKICK) sp = SP_FLINT_AIRKICK;
         else if (!p->ground) sp = SP_FLINT_JUMP;
         else if (p->act == BRA_LOW) sp = SP_FLINT_LOW;
@@ -273,7 +279,6 @@ static void brawl_draw(void) {
             pal_swap(map, C_HIDE, C_AMBER);
             spr_draw_ex(&eko_spr[sp], x - 8, y - 24, p->face < 0 ? SPR_FLIPX : 0, map, -1);
         } else spr_draw(&eko_spr[sp], x - 8, y - 24, p->face < 0 ? SPR_FLIPX : 0);
-        if (p->act == BRA_LUNGE) for (int k = 1; k < 4; k++) gfx_vline(x - p->face * (8 + k * 5), y - 20, y - 4, C_YELLOW);
     }
     parts_draw(ox, oy);
     gfx_noclip();

@@ -1,9 +1,12 @@
 /* ECHO UNIT - FLINT's brawler: the Marseille docks and yards, the lift ride
  * with Scrapjaw on the roof, and the Caldera's lab climb with Dr. Talpa.
- * One fixed-height jump, a three-hit standing combo, a crouching jab, a
- * charged lunge (standing still only, and it can carry him into a pit),
- * barrels to lift and throw, and more points for every extra foe one lunge
- * or one barrel takes down. */
+ * One fixed-height jump (he faces the same way the whole jump; LEFT / RIGHT
+ * only steer it), a three-hit standing combo, a crouching jab, a charged ki
+ * blast (A held standing still until he flashes, then let go: a ball hurled
+ * a short way forward, through everything in its path), barrels to lift and
+ * throw, and more points for every extra foe one blast or one barrel takes
+ * down. The key carrier knocked down off the screen leaves no key at all:
+ * the original's bug, kept on purpose. */
 #include "eko.h"
 
 #define B (&eg.br)
@@ -212,11 +215,16 @@ static bool on_ground(int x, int y, int hw) {
 
 /* ---- damage ------------------------------------------------------------------------ */
 
+/* the key carrier is down: the key drops where he fell, if that is on the
+ * screen. Knocked down off it (past either edge, or down a pit) and the key
+ * never appears: Cyber Owls' Chicago softlock, kept as the owner chose. */
 static void drop_key(EkoBFoe *f) {
-    int x = f->x, y = f->y;
-    if (EKO_PX(y) > B->mh * 16) { x = f->last_gx; y = f->a ? f->a : (B->mh * 16 - 32) * EKO_FX; }
-    int o = eko_brawl_add_obj(BO_KEY, x, y - 8 * EKO_FX, 0, -512);
-    (void)o;
+    int x = EKO_PX(f->x), y = EKO_PX(f->y) - 12;
+    if (x < B->cam_x || x >= B->cam_x + SCREEN_W || y < B->cam_y - 8 || y >= B->cam_y + BR_SH * 16) {
+        B->key_lost = 1;
+        return;
+    }
+    eko_brawl_add_obj(BO_KEY, f->x, f->y - 8 * EKO_FX, 0, -512);
     eko_say("THE WALL KEY!");
 }
 
@@ -277,7 +285,6 @@ static void hurt_foe(int i, int dmg, int dir, bool launch, int chain) {
 static void hurt_player(int dmg, int dir) {
     EkoBPlayer *p = &B->p;
     if (p->inv > 0 || p->dead_t || eg.god) return;
-    if (p->act == BRA_LUNGE) return; /* a lunge goes through */
     eko_hurt(dmg);
     if (eko_hp() <= 0) {
         p->dead_t = 1;
@@ -306,6 +313,7 @@ static int act_len(int a) {
     switch (a) {
     case BRA_PUNCH1: case BRA_PUNCH2: case BRA_LOW: return 14;
     case BRA_KICK: return 20;
+    case BRA_KI: return BR_KI_POSE;
     case BRA_THROW: return 12;
     case BRA_AIRKICK: return 999;
     default: return 0;
@@ -333,9 +341,6 @@ static bool attack_box(int *x0, int *y0, int *x1, int *y1, int *dmg, bool *launc
     case BRA_AIRKICK:
         *x0 = f > 0 ? px : px - 18; *x1 = *x0 + 18; *y0 = py - 14; *y1 = py + 2; *dmg = 2;
         return true;
-    case BRA_LUNGE:
-        *x0 = px - 8 + f * 6; *x1 = *x0 + 16 + 6; *y0 = py - 22; *y1 = py - 2; *dmg = 4; *launch = true;
-        return true;
     default: return false;
     }
 }
@@ -345,10 +350,15 @@ static void begin_act(int a) {
     p->act = a;
     p->act_t = 0;
     p->atk_sn++;
-    if (a == BRA_LUNGE) {
-        p->chain = ++B->chain_next;
-        B->chain_kills[p->chain & 15] = 0;
-        eko_sfx("eko_lunge");
+    if (a == BRA_KI) {
+        /* the ki blast: hurled a short way forward; it scores as one chain */
+        int o = eko_brawl_add_obj(BO_KI, p->x + p->face * 10 * EKO_FX, p->y - 14 * EKO_FX, p->face * BR_KI_VX, 0);
+        if (o >= 0) {
+            B->obj[o].chain = ++B->chain_next;
+            B->chain_kills[B->obj[o].chain & 15] = 0;
+            B->obj[o].hits = 0; /* the foes it has gone through, one bit each */
+        }
+        eko_sfx("eko_ki");
     } else if (a != BRA_THROW) eko_sfx("eko_swing");
 }
 
@@ -360,6 +370,20 @@ static int barrel_near(void) {
         if (iabs(EKO_PX(o->x) - EKO_PX(p->x)) < 16 && iabs(EKO_PX(o->y) - EKO_PX(p->y)) < 10) return i;
     }
     return -1;
+}
+
+/* a blow on a crate or a cracked wall: it gives once its knocks run out */
+static void knock_tile(int tx, int ty, int dmg) {
+    char c = tile_at(tx, ty);
+    B->thp[ty][tx] = (int8_t)(B->thp[ty][tx] - dmg);
+    eko_sfx("eko_clang");
+    if (B->thp[ty][tx] > 0) return;
+    B->tile[ty][tx] = '.';
+    eko_burst(tx * 16 + 8, ty * 16 + 8, c == 'c' || c == 'q' ? C_TAN : C_GREY, 10);
+    if (c == 'c' || c == 'q') eko_add_score(10);
+    if (c == 'q' || c == 'H') { eko_brawl_add_obj(BO_MANGO, (tx * 16 + 8) * EKO_FX, (ty * 16 + 16) * EKO_FX, 0, -384); B->secrets++; }
+    if (c == 'h') { eko_brawl_add_obj(BO_LIFE, (tx * 16 + 8) * EKO_FX, (ty * 16 + 16) * EKO_FX, 0, -384); B->secrets++; }
+    if (c == 'H' || c == 'h') eko_sfx("eko_secret");
 }
 
 static void attack_hits(void) {
@@ -374,7 +398,7 @@ static void attack_hits(void) {
         int hw = f->kind >= BF_SCRAPJAW ? 14 : 6, h = f->kind >= BF_SCRAPJAW ? 30 : 22;
         if (rects_overlap(x0, y0, x1 - x0, y1 - y0, fx - hw, fy - h, hw * 2, h)) {
             f->hitsn = p->atk_sn;
-            hurt_foe(i, dmg, p->face, launch || p->act == BRA_KICK, p->act == BRA_LUNGE ? p->chain : 0);
+            hurt_foe(i, dmg, p->face, launch || p->act == BRA_KICK, 0);
         }
     }
     /* barrels in the air: a kick (or any blow) sends them on again */
@@ -400,16 +424,7 @@ static void attack_hits(void) {
             /* one knock per blow */
             if (B->tile_sn == p->atk_sn) continue;
             B->tile_sn = p->atk_sn;
-            B->thp[ty][tx] -= (int8_t)imax(1, dmg / 2 + (launch ? 2 : 0));
-            eko_sfx("eko_clang");
-            if (B->thp[ty][tx] <= 0) {
-                B->tile[ty][tx] = '.';
-                eko_burst(tx * 16 + 8, ty * 16 + 8, c == 'c' || c == 'q' ? C_TAN : C_GREY, 10);
-                if (c == 'c' || c == 'q') eko_add_score(10);
-                if (c == 'q' || c == 'H') { eko_brawl_add_obj(BO_MANGO, (tx * 16 + 8) * EKO_FX, (ty * 16 + 16) * EKO_FX, 0, -384); B->secrets++; }
-                if (c == 'h') { eko_brawl_add_obj(BO_LIFE, (tx * 16 + 8) * EKO_FX, (ty * 16 + 16) * EKO_FX, 0, -384); B->secrets++; }
-                if (c == 'H' || c == 'h') eko_sfx("eko_secret");
-            }
+            knock_tile(tx, ty, imax(1, dmg / 2 + (launch ? 2 : 0)));
         }
 }
 
@@ -428,9 +443,6 @@ static void player_update(void) {
     p->ground = on_ground(p->x, p->y, BR_PW / 2) && p->vy >= 0;
     if (p->hurt_t > 0) {
         p->hurt_t--;
-    } else if (p->act == BRA_LUNGE) {
-        p->vx = p->face * BR_LUNGE_VX;
-        if (--p->act_t <= 0) { p->act = BRA_NONE; p->vx = 0; }
     } else {
         if (p->act && p->act != BRA_AIRKICK) {
             p->act_t++;
@@ -444,14 +456,11 @@ static void player_update(void) {
             p->charge++;
             if (p->charge == BR_CHARGE_T) eko_sfx("eko_charged");
         } else if (!A) {
-            if (p->charge >= BR_CHARGE_T && still) {
-                begin_act(BRA_LUNGE);
-                p->act_t = BR_LUNGE_T;
-            }
+            if (p->charge >= BR_CHARGE_T && still) begin_act(BRA_KI);
             p->charge = 0;
         } else if (!still) p->charge = 0;
         /* blows */
-        if (Ap && p->act != BRA_LUNGE) {
+        if (Ap) {
             if (p->carry) {
                 EkoBObj *o = &B->obj[p->carry - 1];
                 o->state = 2;
@@ -481,12 +490,13 @@ static void player_update(void) {
             else if (p->act == BRA_PUNCH2 && p->act_t >= 5) begin_act(BRA_KICK);
         }
         bool rooted = p->ground && (p->act == BRA_PUNCH1 || p->act == BRA_PUNCH2 || p->act == BRA_KICK ||
-                                    p->act == BRA_LOW || p->act == BRA_THROW);
+                                    p->act == BRA_LOW || p->act == BRA_THROW || p->act == BRA_KI);
         if (rooted || p->duck) p->vx = 0;
         else {
             int dir = (R ? 1 : 0) - (L ? 1 : 0);
             p->vx = dir * (p->carry ? BR_CARRY_WALK : BR_WALK);
-            if (dir && p->act == BRA_NONE) p->face = dir;
+            /* in the air the pad only steers: he faces the same way the whole jump */
+            if (dir && p->act == BRA_NONE && p->ground) p->face = dir;
         }
         /* the one jump: the same height every time */
         if (Bp && p->ground && !p->duck) {
@@ -636,6 +646,30 @@ static void objs_update(void) {
             o->vx = vx;
             o->vy = vy;
             if (r || o->t > 150) { explode(EKO_PX(o->x), EKO_PX(o->y) - 4, 18, 1, true); o->alive = 0; }
+            break;
+        }
+        case BO_KI: {
+            /* straight ahead, through every foe in its path, until it has flown its way */
+            o->x += o->vx;
+            int kx = EKO_PX(o->x), ky = EKO_PX(o->y);
+            for (int k = 0; k < BR_MAX_FOES; k++) {
+                EkoBFoe *f = &B->foe[k];
+                if (!f->alive || f->state == 99 || (o->hits & (1 << k))) continue;
+                int hw = f->kind >= BF_SCRAPJAW ? 14 : 7, h = f->kind >= BF_SCRAPJAW ? 30 : 22;
+                if (rects_overlap(kx - 6, ky - 6, 12, 12, EKO_PX(f->x) - hw, EKO_PX(f->y) - h, hw * 2, h)) {
+                    o->hits |= 1 << k;
+                    hurt_foe(k, 4, isign(o->vx), true, o->chain);
+                }
+            }
+            char c = tile_at(kx >> 4, ky >> 4);
+            if (eko_brawl_solid(kx >> 4, ky >> 4)) {
+                /* a crate or a cracked wall takes the blow */
+                if ((c == 'c' || c == 'q' || c == 'H' || c == 'h') && B->thp[ky >> 4][kx >> 4] > 0) knock_tile(kx >> 4, ky >> 4, 3);
+                eko_burst(kx, ky, C_YELLOW, 6);
+                o->alive = 0;
+                break;
+            }
+            if (o->t >= BR_KI_T) { eko_burst(kx, ky, C_YELLOW, 4); o->alive = 0; }
             break;
         }
         case BO_FBULLET: case BO_FLAME:
