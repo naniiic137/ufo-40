@@ -413,6 +413,18 @@ static bool job_gate_fuel(Job *j, int g) {
     return job_gate(j, g);
 }
 
+static bool job_get_tool(Job *j, int t, int depth);
+
+/* work toward gate g: what its key burns first (gathering it may want the
+ * hands), then the key, then the gate */
+static bool job_key_gate(Job *j, int g) {
+    int key = KEY[lp.gate[g].kind];
+    int r = lp.cost_res[key];
+    if (r < RS_COUNT && lg.res[r] < 1 && job_resources(j, r, 3)) return true;
+    if (holding(key)) return job_gate_fuel(j, g);
+    return job_get_tool(j, key, 0);
+}
+
 /* the trade at village v's giver: stand below, face up, talk */
 static bool job_trade(Job *j, int t) {
     const LflTrade *tr = &lp.trade[t];
@@ -791,9 +803,7 @@ static void choose(Job *j) {
             if (job_get_tool(j, TL_DISC, 0)) return;
         } else {
             if (job_thing(j, i)) { j->kind = TK_PRIZE; j->need[0] = KEY[lp.gate[gm].kind]; j->nneed = gate_shut(gm) || lp.gate[gm].kind == GK_SWAMP || lp.gate[gm].kind == GK_HOLE; return; }
-            int key = KEY[lp.gate[gm].kind];
-            if (holding(key) && job_gate_fuel(j, gm)) return;
-            if (!holding(key) && job_get_tool(j, key, 0)) return;
+            if (job_key_gate(j, gm)) return;
         }
     }
     /* 3: the dungeon */
@@ -811,9 +821,7 @@ static void choose(Job *j) {
             for (int g = 0; g < lp.ngate; g++)
                 if (lp.gate[g].role == GR_DUN && (lp.gate[g].kind == GK_SWAMP || lp.gate[g].kind == GK_HOLE || gate_shut(g))) keys[nk++] = KEY[lp.gate[g].kind];
             if (area() == AREA_OVER && gate_shut(gd) && gg->kind != GK_SWAMP && gg->kind != GK_HOLE) {
-                int key = KEY[gg->kind];
-                if (holding(key) && job_gate_fuel(j, gd)) return;
-                if (!holding(key) && job_get_tool(j, key, 0)) return;
+                if (job_key_gate(j, gd)) return;
             }
             /* fuel for the gates inside, before going down (gathered first: the
              * gathering may want other tools in hand) */
@@ -843,9 +851,7 @@ static void choose(Job *j) {
             /* a gate inside in the way */
             for (int g = 0; g < lp.ngate; g++)
                 if (lp.gate[g].role == GR_DUN && gate_shut(g) && lp.gate[g].kind != GK_SWAMP && lp.gate[g].kind != GK_HOLE) {
-                    int key = KEY[lp.gate[g].kind];
-                    if (holding(key) && job_gate_fuel(j, g)) return;
-                    if (!holding(key) && job_get_tool(j, key, 0)) return;
+                    if (job_key_gate(j, g)) return;
                 }
         }
     }
