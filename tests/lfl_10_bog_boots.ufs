@@ -6,7 +6,7 @@
 game landfall
 wait 5
 cheat nomobs
-cheat planet 1
+cheat planet 2
 cheat tile 5 7 11
 cheat tile 6 7 11
 cheat tile 7 7 11

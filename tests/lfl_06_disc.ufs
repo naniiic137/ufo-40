@@ -5,11 +5,11 @@
 game landfall
 wait 5
 cheat nomobs
-cheat planet 1
+cheat planet 2
 cheat hold 0 -1
-cheat species 3 0 0
-cheat spset 3 4 1 0
-cheat mob 3 150 113
+cheat species 2 0 0
+cheat spset 2 4 1 0
+cheat mob 2 150 113
 cheat pos 20 114
 cheat face 1
 press A
@@ -39,7 +39,7 @@ expect shots == 0
 # a hollow log: rivets stop at it, the disc goes through
 cheat tile 10 7 15
 cheat tile 11 7 0
-cheat mob 3 180 113
+cheat mob 2 180 113
 cheat pos 120 114
 cheat face 1
 cheat hold 1 0

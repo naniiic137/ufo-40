@@ -1,0 +1,38 @@
+# LANDFALL: a chop on bog cooks. Five seconds later a gnat flies in from
+# the nearest edge for it (one gnat at a time) and eats it. A gnat knocked
+# out drops two of the rare resource (spores here), so cooking chops is a
+# way to farm the rare one.
+game landfall
+wait 5
+cheat nomobs
+cheat planet 2
+cheat mobs
+cheat tile 10 5 11
+cheat hold 6 4
+cheat res 3 2
+cheat pos 142 82
+cheat face 1
+press A
+expect chops == 1
+expect cooked == 1
+expect res3 == 1
+cheat pos 40 100
+wait 280
+expect gnats == 0
+wait 30
+expect gnats == 1
+expect gnats_called == 1
+# a second cooked chop doesn't call a second gnat while one is about
+cheat drop -1 160 100
+cheat tile 10 6 11
+expect cooked >= 1
+waituntil chops == 0 600
+expect gnats == 1
+expect gnats_called == 1
+# thumped: two spores where it fell
+cheat res 2 1
+press B 3
+expect active == 4
+press A
+expect gnats == 0
+expect drops_res3 == 2

@@ -440,6 +440,7 @@ static int lfl_query(const char *key, int *out) {
     if (!strcmp(key, "ship_room")) { *out = lp.ship_room; return 1; }
     if (!strcmp(key, "audit")) { *out = lfl_gen_audit(); return 1; }
     if (!strcmp(key, "winnable")) { *out = lfl_winnable(); return 1; }
+    if (!strcmp(key, "all_tools")) { *out = lfl_all_tools(); return 1; }
     if (!strcmp(key, "gates")) { *out = lp.ngate; return 1; }
     if (!strcmp(key, "secret_key")) { *out = lp.secret_key; return 1; }
     if (!strcmp(key, "secret_room")) { *out = lp.secret_room; return 1; }

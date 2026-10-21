@@ -594,6 +594,10 @@ static unsigned reachable_tools(void) {
     return have;
 }
 
+/* every tool can be had (none sold only in glyphs to a planet whose talk
+ * box is out of reach, say the talk box itself) */
+bool lfl_all_tools(void) { return reachable_tools() == (1u << TL_COUNT) - 1; }
+
 bool lfl_winnable(void) {
     unsigned have = reachable_tools();
     int gm = find_gate(GR_MAP), gd = find_gate(GR_DUNGEON);
@@ -1391,6 +1395,7 @@ int lfl_gen_audit(void) {
     if (maps != 2) return 9;
     if (rare_gate != 1) return 10;
     if (!lfl_winnable()) return 11;
+    if (!lfl_all_tools()) return 16;
     int friendly = 0, hostile = 0, meat = 0, drops = 0;
     for (int s = 0; s < 6; s++) {
         if (lp.sp[s].friendly) friendly++;

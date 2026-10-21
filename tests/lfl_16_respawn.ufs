@@ -1,0 +1,56 @@
+# LANDFALL: creatures, and what was taken from a room, come back once Wick
+# is three rooms away (counting steps across the grid), or when she goes
+# down into the dungeon or up out of it. Walking in on top of a creature's
+# spot means it isn't there. What she opens stays open.
+game landfall
+wait 5
+cheat planet 2
+cheat god
+cheat room 11 140 70
+expect mobs == 2
+cheat hold 4 1
+cheat res 2 5
+press A
+expect mobs == 0
+expect spawns_taken == 2
+expect room_dirty11 == 1
+# two rooms away and back: still gone
+cheat room 13 140 70
+expect room_dirty11 == 1
+cheat room 11 140 70
+expect mobs == 0
+# three rooms away: back again
+cheat room 14 140 70
+expect room_dirty11 == 0
+cheat room 11 140 70
+expect mobs == 2
+# in on top of one's spot: it isn't there
+wait 40
+press A
+cheat room 14 140 70
+cheat room 11 146 34
+expect mobs == 1
+# down into the dungeon: everything comes back
+wait 40
+press A
+expect room_dirty11 == 1
+cheat room 92 140 70
+expect area == 1
+expect room_dirty11 == 0
+# a crystal gate broken stays broken
+cheat room 5 130 114
+expect gate1_kind == 3
+expect gate1_open == 0
+cheat face 0
+press B 3
+expect active == 1
+press A
+wait 20
+cheat pos 146 114
+press A
+wait 20
+expect gate1_open == 1
+cheat room 92 140 70
+cheat room 14 140 70
+cheat room 5 130 114
+expect gate1_open == 1

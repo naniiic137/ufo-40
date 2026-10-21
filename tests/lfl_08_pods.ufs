@@ -7,7 +7,7 @@
 game landfall
 wait 5
 cheat nomobs
-cheat planet 1
+cheat planet 2
 cheat hold 3 -1
 cheat pos 179 114
 press A

@@ -301,6 +301,7 @@ void lfl_generate(uint32_t seed);
 int lfl_room_index(int area, int gx, int gy);
 int lfl_neighbor(int room, int dir); /* -1 = none */
 bool lfl_winnable(void);             /* the progression check */
+bool lfl_all_tools(void);            /* every tool can be had */
 int lfl_gen_audit(void);             /* 0 = every rule holds */
 int lfl_tile(int room, int tx, int ty);
 const char *lfl_hint_line(int i);

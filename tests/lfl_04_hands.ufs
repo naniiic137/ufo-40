@@ -7,7 +7,7 @@
 game landfall
 wait 5
 cheat nomobs
-cheat planet 1
+cheat planet 2
 cheat pos 40 82
 expect act == 0
 cheat thing 1 1 60 82
@@ -29,11 +29,11 @@ hold RIGHT 26
 expect hold0 == 5
 expect hold1 == 2
 expect items_found == 3
-expect tool_at_1 == 10
+expect tool_at_1 == 31
 # she stands on it: it stays down
 wait 120
 expect hold0 == 5
-expect tool_at_1 == 10
+expect tool_at_1 == 31
 # a tap of B: the other hand is active
 press B 3
 expect act == 1
@@ -45,7 +45,7 @@ expect active == 5
 hold B 32
 expect hold0 == -1
 expect hold1 == 2
-expect tool_at_5 == 10
+expect tool_at_5 == 31
 # back on them at once: nothing; a second away, and they can be taken again
 hold RIGHT 20
 hold LEFT 20

@@ -6,7 +6,7 @@
 game landfall
 wait 5
 cheat nomobs
-cheat planet 1
+cheat planet 2
 expect state == 2
 expect px == 139
 expect py == 83
@@ -38,10 +38,10 @@ cheat pos 122 83
 hold UP 40
 expect px <= 118
 expect py <= 60
-# the stone wall on the left
-cheat pos 40 100
-hold LEFT 60
-expect px == 16
+# the stone wall at the top
+cheat pos 40 60
+hold UP 60
+expect py == 16
 # strafe: A held keeps her facing down while she walks left and right
 cheat pos 100 100
 press DOWN 1
@@ -59,10 +59,10 @@ expect face == 1
 cheat pos 250 70
 hold RIGHT 40
 expect state == 4
-expect room == 10
+expect room == 31
 wait 40
 expect state == 2
-expect room == 11
+expect room == 32
 expect px == 1
 expect py == 70
 expect time >= 80

@@ -73,11 +73,15 @@ static bool box_hits_tiles(int x, int y, int w, int h, bool shrunk) {
     return false;
 }
 
+/* a live big shell is no wall: she can push past it, at 3 a touch (or with
+ * a moment of safety); the empty shell the thumper leaves is one */
 static bool mob_blocks_player(const LflMob *m, int x, int y, int w) {
-    if (!m->alive || m->sp != SP_SNAIL) return false;
+    if (!m->alive || m->sp != SP_SNAIL || !(m->flags & MF_SHELL)) return false;
     if (!rects_overlap(x, y, w, w, LFL_PX(m->x), LFL_PX(m->y), m->w, m->h)) return false;
+    /* (already inside it, say when it was thumped on top of her: she can get out) */
+    if (rects_overlap(LFL_PX(lg.pl.x), LFL_PX(lg.pl.y), w, w, LFL_PX(m->x), LFL_PX(m->y), m->w, m->h)) return false;
     /* a shell lying along the way lets a small Wick through */
-    if ((m->flags & MF_SHELL) && lg.pl.shrink_t > 0) {
+    if (lg.pl.shrink_t > 0) {
         int gate = m->gate;
         if (gate >= 0) {
             int side = lp.gate[gate].side;
@@ -320,6 +324,7 @@ static void kill_mob(int i, bool by_pulse) {
         /* the thumper leaves an empty shell */
         m->flags |= MF_SHELL;
         if (m->gate >= 0) lp.gate[m->gate].snail = 2;
+        dirty(); /* it comes back with the room */
         lfl_sfx("lfl_crunch");
         return;
     }

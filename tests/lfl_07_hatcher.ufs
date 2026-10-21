@@ -9,11 +9,11 @@
 game landfall
 wait 5
 cheat nomobs
-cheat planet 1
+cheat planet 2
 cheat hold 2 1
-cheat species 3 0 0
-cheat spset 3 2 1 0
-cheat mob 3 100 113
+cheat species 2 0 0
+cheat spset 2 2 1 0
+cheat mob 2 100 113
 cheat pos 60 114
 cheat face 1
 press A
@@ -36,9 +36,9 @@ expect hits == 0
 wait 330
 expect morphed == 0
 expect mob0_hp == 2
-# hatched again, then a rivet: the second-rarest resource (beads here)
+# hatched again, then a rivet: the second-rarest resource (ferns here)
 cheat clear
-cheat mob 3 100 113
+cheat mob 2 100 113
 cheat pos 60 114
 cheat face 1
 press A
@@ -52,12 +52,12 @@ wait 10
 press A
 wait 20
 expect mob0_alive == 0
-expect drops_res0 == 1
+expect drops_res2 == 1
 # the bog boots stomp a hatchling (even from the other hand)
 cheat clear
 cheat clearitems
 cheat hold 2 5
-cheat mob 3 100 113
+cheat mob 2 100 113
 cheat pos 80 114
 cheat face 1
 press A

@@ -21,12 +21,12 @@ static const int DX[4] = {0, 1, 0, -1}, DY[4] = {-1, 0, 1, 0};
 static int16_t dist[AH][AW];
 static int16_t parent[AH][AW];
 static uint32_t prev_mask;
-static int a_hold, b_tap, retreat_t, chop_gate, chop_t, stuck_t, last_wx, last_wy, wander_room;
+static int a_hold, b_tap, retreat_t, chop_gate, chop_t, stuck_t, last_wx, last_wy, wander_room, clear_t, clear_dir;
 
 void lfl_bot_reset(void) {
     lfl_bot_task = 0;
     prev_mask = 0;
-    a_hold = b_tap = retreat_t = chop_t = stuck_t = 0;
+    a_hold = b_tap = retreat_t = chop_t = stuck_t = clear_t = 0;
     chop_gate = -1;
     last_wx = last_wy = -1;
     wander_room = -1;
@@ -932,12 +932,15 @@ static int fight(void) {
         if (free_px(px + ax * 12, py)) return ax < 0 ? BTN_LEFT : BTN_RIGHT;
         return 0;
     }
-    /* line up on the nearer axis, when the shot would then be clear */
+    /* line up on the nearer axis, when the shot would then be clear and
+     * reach (else the walk takes her off the line again, and round it goes) */
     if (iabs(dy) < iabs(dx)) {
+        if (iabs(dx) > reach) return 0;
         if (!line_clear(px, my, mx, my)) return 0;
         int sg = isign(dy);
         if (free_px(px, py + sg * 8)) return sg > 0 ? BTN_DOWN : BTN_UP;
     } else {
+        if (iabs(dy) > reach) return 0;
         if (!line_clear(mx, py, mx, my)) return 0;
         int sg = isign(dx);
         if (free_px(px + sg * 8, py)) return sg > 0 ? BTN_RIGHT : BTN_LEFT;
@@ -983,6 +986,13 @@ static int bot_buttons_inner(void) {
     default:
         prev_mask = 0;
         return 0;
+    }
+    if (clear_t > 0) {
+        /* stepping well clear of a tool she has to step off first */
+        clear_t--;
+        mask = dir_button(clear_dir);
+        prev_mask = (uint32_t)mask;
+        return mask;
     }
     if (b_tap > 0) {
         /* a B tap swaps hands: down one frame, then up */
@@ -1059,14 +1069,30 @@ static int bot_buttons_inner(void) {
     /* at the spot: face, then act */
     if (j.wx >= 0 && my_wx() == j.wx && my_wy() == j.wy) {
         stuck_t = 0;
-        /* stairs she arrived on only work once she steps off and back on */
+        /* stairs she arrived on only work once she steps off and back on;
+         * so does a tool just set down under her feet */
         int under = wtile(area(), my_wx(), my_wy());
-        if ((under == T_STAIRS_DN || under == T_STAIRS_UP) && lg.stairs_lock) {
-            for (int k = 0; k < 4; k++)
-                if (D(my_wx() + DX[k], my_wy() + DY[k]) >= 0) {
-                    mask = dir_button(k);
-                    break;
-                }
+        bool tool_wait = false;
+        for (int i = 0; i < lp.nthing && j.act == 0; i++) {
+            const LflThing *t = &lp.thing[i];
+            if (t->alive && t->kind == TH_TOOL && t->room == lg.cur && t->cd > 0 &&
+                rects_overlap(LFL_PX(p->x), LFL_PX(p->y), pw(), pw(), t->x, t->y, 12, 12))
+                tool_wait = true;
+        }
+        if (((under == T_STAIRS_DN || under == T_STAIRS_UP) && lg.stairs_lock) || tool_wait) {
+            /* off it, inside this room, two tiles clear if she can */
+            int best = -1;
+            for (int k = 0; k < 4; k++) {
+                int nx = my_wx() + DX[k], ny = my_wy() + DY[k];
+                if (D(nx, ny) < 0 || room_of(area(), nx, ny) != lg.cur) continue;
+                bool two = D(nx + DX[k], ny + DY[k]) >= 0 && room_of(area(), nx + DX[k], ny + DY[k]) == lg.cur;
+                if (best < 0 || two) best = k;
+                if (two) break;
+            }
+            if (best >= 0) {
+                mask = dir_button(best);
+                if (tool_wait) { clear_t = 16; clear_dir = best; }
+            }
             prev_mask = (uint32_t)mask;
             return mask;
         }
