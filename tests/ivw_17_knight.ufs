@@ -1,0 +1,127 @@
+# IRONVOW: the Amber Knight (floors 1, 3 and 5). He talks, three lines a
+# floor; given the oathblade he gives an amber coin (a secret); he takes
+# other gifts too, and each 10 of favour he repays (shards, a tonic, more
+# health, a bigger pack). Struck at, he leaves for good. After the wish for
+# honour he gives the Dawnbrand, but only to a knight with room for it.
+seed 17
+game ironvow
+cheat newgame 5
+cheat floor 1
+cheat noflames
+cheat pos 10 6 1
+press A
+wait 3
+expect menu0 == 19
+expect menu1 == 20
+expect menu2 == 21
+press A
+wait 3
+expect state == 14
+wait 10
+press A
+wait 3
+expect state == 3
+# the oathblade: the coin, a secret
+cheat give OATHBLADE
+press A
+wait 3
+press DOWN
+press A
+wait 3
+expect state == 7
+press DOWN
+press DOWN
+press DOWN
+press A
+wait 3
+expect coin_given == 1
+expect has11 == 0
+expect has43 == 1
+expect secrets & 2
+wait 10
+press A
+wait 10
+press A
+wait 3
+expect state == 3
+# gifts build favour; ten earns a reward
+cheat give MORNINGSTAR
+cheat give GLAIVE
+press A
+wait 3
+press DOWN
+press A
+wait 3
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press A
+wait 3
+expect knight_favour == 7
+wait 10
+press A
+wait 3
+press A
+wait 3
+press DOWN
+press A
+wait 3
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press A
+wait 3
+expect knight_favour == 14
+wait 10
+press A
+wait 10
+press A
+wait 3
+# honour: the Dawnbrand, a secret
+cheat honor 1
+press A
+wait 3
+press A
+wait 3
+expect dawn_given == 1
+expect has12 == 1
+expect secrets & 8
+# with no room, the gift is gone for good
+cheat newgame 6
+cheat floor 3
+cheat noflames
+cheat honor 1
+cheat give FOIL
+cheat give FOIL
+cheat give FOIL
+cheat give FOIL
+cheat give FOIL
+cheat give FOIL
+cheat give FOIL
+cheat pos 11 2 1
+press A
+wait 3
+press A
+wait 3
+expect dawn_given == 2
+expect has12 == 0
+# struck at, he leaves for good
+cheat newgame 7
+cheat floor 1
+cheat noflames
+cheat pos 10 6 1
+press A
+wait 3
+press DOWN
+press DOWN
+press A
+wait 3
+expect knight_gone == 1
+cheat floor 3
+cheat noflames
+cheat pos 11 2 1
+press A
+wait 3
+expect menu0 == 0

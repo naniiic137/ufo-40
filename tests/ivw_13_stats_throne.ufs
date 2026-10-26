@@ -1,0 +1,63 @@
+# IRONVOW: MIGHT, GRIT, LORE. GRIT gives 6 stamina a point and 10 health
+# every third point; LORE gives 4 mana a point (and more casting time);
+# MIGHT gives harder blows, cheaper swings, quicker breath. One throne a
+# floor from floor 1: sitting costs motes (more each floor down; the last is
+# free) and gives 3 points to place. 8 in any stat earns the gift.
+seed 13
+game ironvow
+cheat newgame 5
+cheat stats 5 9 10
+expect hp_max == 80
+expect st_max == 94
+expect mp_max == 50
+cheat stats 5 5 5
+cheat floor 1
+cheat noflames
+cheat pos 18 4 1
+expect goals == 0
+cheat essence 149
+press A
+wait 3
+expect menu0 == 16
+press A
+wait 3
+expect state == 3
+expect essence == 149
+cheat essence 160
+press A
+wait 3
+press A
+wait 3
+expect state == 9
+expect throne_pts == 3
+expect essence == 10
+press A
+press A
+press LEFT
+expect throne_pts == 2
+press A
+press A
+expect throne_pts == 0
+expect might == 8
+press DOWN
+press DOWN
+press DOWN
+press A
+wait 3
+expect state == 3
+expect goals == 1
+# a throne gives once
+press A
+wait 3
+expect menu0 == 0
+press B
+# the last floor's throne asks nothing
+cheat floor 6
+cheat noflames
+cheat essence 0
+cheat pos 13 12 3
+press A
+wait 3
+press A
+wait 3
+expect state == 9

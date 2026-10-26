@@ -1,0 +1,115 @@
+# IRONVOW: the pack (10 places to start). Gear is worn from the pack; a
+# weapon wanting more MIGHT than the knight has hits softer. Tonics are drunk
+# from the pack; monster parts are readied and go off as the next fight
+# begins (a thrown skull bounces about stunning; a bat heart heals). A bone
+# sends nearby flames away. Whatever is set down stays where it was left.
+seed 15
+game ironvow
+cheat newgame 5
+cheat noflames
+# a maul (17) wants 10 MIGHT: with 5 it hits for two thirds (11), with 10 for 23
+cheat give MAUL
+cheat equip 3
+cheat fight 0
+wait 2
+cheat fhp 0 50
+cheat fcd 0 999
+press A 1
+wait 40
+expect fhp0 == 39
+cheat stats 10 5 5
+cheat fight 0
+wait 2
+cheat fhp 0 50
+cheat fcd 0 999
+press A 1
+wait 40
+expect fhp0 == 27
+# drinking a red tonic from the pack
+cheat newgame 6
+cheat noflames
+cheat give RED_TONIC
+cheat hp 10
+press A
+wait 3
+press A
+wait 3
+expect state == 5
+press DOWN
+press DOWN
+press DOWN
+press A
+wait 3
+expect state == 6
+press A
+wait 3
+expect hp == 50
+expect pack == 3
+# a readied ooze skull and a bat heart go off as the fight begins
+cheat give OOZE_SKULL
+cheat give BAT_HEART
+cheat ready 3
+cheat ready 4
+cheat hp 30
+cheat fight 0
+wait 2
+expect f_ball == 35
+expect hp == 45
+expect pack == 3
+# a bone: the flames nearby go out
+cheat newgame 7
+cheat noflames
+cheat flame 2 3
+cheat flame 3 1
+cheat give BONE
+press A
+wait 3
+press A
+wait 3
+press DOWN
+press DOWN
+press DOWN
+press A
+wait 3
+press A
+wait 3
+expect flames == 0
+# set down, it stays
+cheat give FOIL
+press A
+wait 3
+press A
+wait 3
+press DOWN
+press DOWN
+press DOWN
+press A
+wait 3
+press DOWN
+press A
+wait 3
+expect pack == 3
+expect drops == 1
+press UP
+wait 10
+press DOWN
+wait 10
+expect drops == 1
+# a full pack: what a chest gives falls at the knight's feet
+cheat newgame 8
+cheat noflames
+cheat give FOIL
+cheat give FOIL
+cheat give FOIL
+cheat give FOIL
+cheat give FOIL
+cheat give FOIL
+cheat give FOIL
+expect pack == 10
+cheat pos 13 3 2
+press A
+wait 3
+press A
+wait 3
+expect pack == 10
+expect drops == 1

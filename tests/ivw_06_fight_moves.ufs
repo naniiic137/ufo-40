@@ -1,0 +1,62 @@
+# IRONVOW: the fight. LEFT / RIGHT strafe along the line; A strikes and
+# pressed again chains up to three blows (the third harder); each swing
+# costs stamina; DOWN held guards; DOWN then quickly LEFT or RIGHT rolls
+# (stamina again). An empty tank means exhaustion: no blows, no guard, no
+# roll and half speed until half of it is back.
+seed 6
+game ironvow
+cheat newgame 5
+cheat fight 0
+wait 2
+expect state == 15
+expect f_px == 88
+expect f_pstate == 0
+hold RIGHT 10
+expect f_px == 100
+hold LEFT 10
+expect f_px == 88
+# a blow costs stamina
+expect st == 70
+press A 1
+expect f_pstate == 2
+expect st < 70
+wait 30
+expect f_pstate == 0
+# three blows chained
+cheat fhp 0 99
+cheat fcd 0 999
+cheat st 70
+press A 1
+wait 6
+press A 1
+wait 20
+press A 1
+wait 30
+expect fhp0 == 82
+# guard while DOWN is held
+hold DOWN 5
+expect f_pstate == 1
+release DOWN
+wait 2
+expect f_pstate == 0
+# a roll: DOWN, then RIGHT at once
+hold DOWN 2
+hold DOWN RIGHT 1
+expect f_pstate == 3
+wait 20
+expect f_px > 100
+# exhaustion: a swing with too little left empties the tank
+cheat fpx 30
+cheat fcd 0 999
+cheat st 5
+press A 1
+wait 20
+expect f_exhausted == 1
+press A 1
+expect f_pstate == 0
+hold DOWN 3
+expect f_pstate == 0
+# half speed: ten frames move about six pixels
+cheat fpx 40
+hold RIGHT 10
+expect f_px == 46

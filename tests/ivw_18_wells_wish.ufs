@@ -1,0 +1,107 @@
+# IRONVOW: wells. A sweet well heals (three drinks); a foul one poisons. The
+# amber coin thrown into a sweet well grants a wish (a secret): CHANGE takes
+# 2 from each stat and gives 7 points to place; TREASURE gives 20 shards and
+# two things; HONOUR gives nothing now. A foul well twists each wish.
+seed 18
+game ironvow
+cheat newgame 5
+cheat floor 1
+cheat noflames
+cheat pos 2 5 2
+cheat hp 20
+press A
+wait 3
+expect menu0 == 14
+expect menu1 == 15
+press A
+wait 3
+expect hp == 45
+# the coin: HONOUR
+cheat give AMBER_COIN
+press A
+wait 3
+press DOWN
+press A
+wait 3
+expect state == 7
+press DOWN
+press DOWN
+press DOWN
+press A
+wait 3
+expect state == 11
+expect has43 == 0
+expect secrets & 4
+press DOWN
+press DOWN
+press A
+wait 3
+expect honor == 1
+expect state == 3
+# CHANGE
+cheat give AMBER_COIN
+press A
+wait 3
+press DOWN
+press A
+wait 3
+press DOWN
+press DOWN
+press DOWN
+press A
+wait 3
+press A
+wait 3
+expect state == 9
+expect might == 3
+expect grit == 3
+expect lore == 3
+expect throne_pts == 7
+# TREASURE
+cheat newgame 6
+cheat floor 1
+cheat noflames
+cheat pos 2 5 2
+cheat give AMBER_COIN
+press A
+wait 3
+press DOWN
+press A
+wait 3
+press DOWN
+press DOWN
+press DOWN
+press A
+wait 3
+press DOWN
+press A
+wait 3
+expect shards == 20
+expect pack == 5
+# the foul well: drinking poisons; a wish for treasure brings nothing
+cheat floor 3
+cheat noflames
+cheat pos 15 20 2
+press A
+wait 3
+press A
+wait 3
+expect poison >= 9
+cheat give AMBER_COIN
+press A
+wait 3
+press DOWN
+press A
+wait 3
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press A
+wait 3
+press DOWN
+press A
+wait 3
+expect shards == 20
+expect pack == 5

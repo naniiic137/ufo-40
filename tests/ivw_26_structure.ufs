@@ -1,0 +1,68 @@
+# IRONVOW: seven floors, 0 to 6, in three parts: the Gaol (0-2), the Warren
+# (3-4), the Starvault (5-6). Floor 0 is short (16 x 16), floor 1 bigger
+# (24 x 24), the rest 32 x 32. The stairs only go down. Glyphs are written
+# on the walls of floors 1 to 5 (4, 4, 3, 3, 2). The last floor's way up
+# stays a wall until the Regent falls.
+seed 26
+game ironvow
+cheat newgame 5
+expect floor == 0
+cheat floor 1
+expect tile_13_1 == 20
+expect tile_11_15 == 20
+expect tile_2_17 == 20
+expect tile_11_21 == 20
+cheat floor 2
+expect tile_14_0 == 20
+expect tile_30_11 == 20
+expect tile_30_17 == 20
+expect tile_0_20 == 20
+expect tile_17_30 == 13
+cheat floor 3
+expect tile_31_3 == 20
+expect tile_0_8 == 20
+expect tile_25_21 == 20
+cheat floor 4
+expect tile_24_0 == 20
+expect tile_0_14 == 20
+expect tile_0_25 == 20
+cheat floor 5
+expect tile_30_2 == 20
+expect tile_30_13 == 20
+cheat floor 6
+expect tile_17_20 == 16
+cheat pos 17 19 2
+expect ahead == 16
+press UP
+wait 10
+expect y == 19
+# the stairs ask, and there is no way back up
+cheat floor 0
+cheat noflames
+cheat keys 1
+cheat pos 10 13 3
+press A
+wait 3
+press A
+wait 3
+press UP
+wait 10
+press UP
+wait 10
+expect state == 19
+press LEFT
+press A
+wait 3
+expect state == 3
+expect floor == 0
+wait 10
+press UP
+wait 10
+press DOWN
+wait 10
+expect state == 19
+press A
+wait 3
+expect floor == 1
+expect state == 2
+expect save_floor == 1

@@ -1,0 +1,40 @@
+# IRONVOW: foes stand in two rows, two at most in each. Most blades reach
+# only the front row; a glaive or the oathblade reaches past it to the back.
+# Now and then a foe at the back trades places with one in front.
+seed 9
+game ironvow
+cheat newgame 5
+cheat fight 0 0 0 0
+wait 2
+expect f_nfoe == 4
+expect f_front == 2
+expect frow2 == 1
+expect frow3 == 1
+# only the back-row ooze in line: the dirk cannot reach it
+cheat fpos 0 20
+cheat fpos 1 160
+cheat fpos 2 88
+cheat fpos 3 140
+cheat fcd 0 999
+cheat fcd 1 999
+press A 1
+wait 20
+expect fhp2 == 16
+# the glaive reaches the back row
+cheat stats 9 5 5
+cheat give GLAIVE
+cheat equip 3
+cheat st 70
+press A 1
+wait 30
+expect fhp2 < 16
+# rows trade places
+waituntil f_swaps >= 1 600
+expect f_front == 2
+# a full fight: a mummer's call finds no room, so it throws instead
+cheat newgame 6
+cheat fight 13 0 0 0
+wait 2
+cheat fpx 160
+waituntil f_shots >= 1 400
+expect f_nfoe == 4

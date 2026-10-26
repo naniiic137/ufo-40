@@ -1,0 +1,76 @@
+# IRONVOW: the title keeps the records UFO 50 shows for this game: battles
+# won, deaths and secrets found (four: the oathblade among the pillars, the
+# coin for it, the wish, the Dawnbrand). The pillar hall of floor 2 can be
+# searched five times: a fight, a find, a fight, a find, then the oathblade.
+# The words of every screen stay on the screen; START pauses a fight.
+seed 23
+game ironvow
+expect layout == 0
+expect save_battles == 0
+expect save_deaths == 0
+expect save_secrets == 0
+cheat newgame 5
+cheat stats 9 9 20
+cheat noloot 1
+cheat floor 2
+cheat noflames
+cheat pos 16 12 0
+press A
+wait 3
+expect menu0 == 24
+press A
+wait 3
+expect searches == 1
+expect state == 15
+cheat fhp 0 1
+cheat fhp 1 1
+cheat fhp 2 1
+cheat fhp 3 1
+cheat spell 13
+waituntil state == 16 60
+wait 40
+press A
+wait 3
+expect save_battles == 1
+press A
+wait 3
+press A
+wait 3
+expect searches == 2
+expect state == 3
+press A
+wait 3
+press A
+wait 3
+expect searches == 3
+expect state == 15
+press START
+expect paused == 1
+press START
+expect paused == 0
+cheat fhp 0 1
+cheat fhp 1 1
+cheat fhp 2 1
+cheat fhp 3 1
+cheat spell 13
+waituntil state == 16 60
+wait 40
+press A
+wait 3
+press A
+wait 3
+press A
+wait 3
+expect searches == 4
+press A
+wait 3
+press A
+wait 3
+expect searches == 5
+expect has11 == 1
+expect secrets & 1
+expect save_secrets == 1
+# no more to search
+press A
+wait 3
+expect menu0 == 0

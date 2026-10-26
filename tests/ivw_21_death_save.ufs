@@ -1,0 +1,48 @@
+# IRONVOW: the game saves only when the knight arrives on a new floor. Death
+# is the end of the vow: the floor starts again from that save, and all done
+# since is lost (motes, finds, levers). The title's CONTINUE also goes back
+# to the start of the saved floor. Deaths are counted.
+seed 21
+game ironvow
+cheat newgame 5
+cheat floor 1
+cheat noflames
+expect save_floor == 1
+cheat essence 500
+cheat give FOIL
+cheat pos 11 13 1
+press A
+wait 3
+press A
+wait 3
+expect tile_20_14 == 6
+cheat hp 1
+cheat fight 3
+wait 2
+cheat fcd 0 0
+waituntil state == 17 300
+expect save_deaths == 1
+wait 70
+press A
+wait 3
+expect state == 2
+expect floor == 1
+expect essence == 0
+expect pack == 3
+expect hp == 60
+expect tile_20_14 == 5
+expect x == 1
+expect y == 1
+# quitting mid-floor and continuing: the floor starts over
+cheat essence 77
+cheat pos 5 5 1
+reload
+game ironvow
+wait 20
+expect title_sel == 1
+press A
+wait 3
+expect state == 2
+expect floor == 1
+expect essence == 0
+expect x == 1

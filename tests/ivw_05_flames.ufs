@@ -1,0 +1,69 @@
+# IRONVOW: the foes walk the halls as flames. They gather at their haunts
+# while the knight wanders (one every eight turns, up to the floor's cap),
+# hunt him when he is near (three moves in four), and touching one starts
+# a fight. Veiled, the knight passes through them.
+seed 5
+game ironvow
+cheat newgame 5
+expect flames == 0
+# eight turns pass: a flame gathers far from the knight
+press A
+wait 3
+press DOWN
+press A
+wait 3
+press A
+wait 3
+press DOWN
+press A
+wait 3
+press A
+wait 3
+press DOWN
+press A
+wait 3
+press A
+wait 3
+press DOWN
+press A
+wait 3
+press A
+wait 3
+press DOWN
+press A
+wait 3
+press A
+wait 3
+press DOWN
+press A
+wait 3
+press A
+wait 3
+press DOWN
+press A
+wait 3
+press A
+wait 3
+press DOWN
+press A
+wait 3
+expect turn == 8
+expect flames == 1
+# a flame right ahead: stepping into it starts the fight
+cheat noflames
+cheat flame 2 2
+press UP
+wait 5
+expect state == 15
+expect fight == 1
+expect f_foes >= 1
+# veiled, the knight walks through
+cheat newgame 6
+cheat noflames
+cheat flame 2 2
+cheat spell 6
+expect veil >= 10
+press UP
+wait 10
+expect state == 3
+expect x == 2

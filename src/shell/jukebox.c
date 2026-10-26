@@ -176,6 +176,9 @@ static const struct { const char *id, *title; } TITLES[] = {
     {"eko_lab", "THE MAGMA WORKS"}, {"eko_tunnel", "LAVA RUN"}, {"eko_final", "MADAME COIL"},
     {"eko_ending", "MANGO FEAST"}, {"eko_clear", "MISSION COMPLETE"}, {"eko_captured", "CAPTURED"},
     {"eko_over", "NO SECOND CHANCES"},
+    {"ivw_title", "IRONVOW"}, {"ivw_gaol", "THE GAOL"}, {"ivw_warren", "THE WARREN"}, {"ivw_star", "THE STARVAULT"},
+    {"ivw_throne", "THE EMPTY THRONE"}, {"ivw_boss", "STEEL ON STEEL"}, {"ivw_regent", "THE PIT REGENT"},
+    {"ivw_ending", "DAYLIGHT"}, {"ivw_over", "THE VOW IS BROKEN"},
 };
 
 const char *shell_song_title(int song) {

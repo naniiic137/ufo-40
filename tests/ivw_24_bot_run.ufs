@@ -1,0 +1,32 @@
+# IRONVOW: proof that the game can be finished. The demo player (ivw_bot.c)
+# plays from the title with real presses: all seven floors, the Wraith
+# Warden, the Comb Matron, the pillar hall's oathblade, the coin, the wish
+# for honour, the Dawnbrand, the three stones, the Pit Regent and the climb
+# out. It earns all three goals.
+seed 3
+game ironvow
+botuntil floor >= 1 30000
+expect floor == 1
+botuntil floor >= 2 60000
+expect might >= 8
+expect goals & 1
+botuntil floor >= 3 80000
+expect bosses & 2
+expect secrets & 1
+botuntil floor >= 4 80000
+expect dawn_given == 1
+expect secrets == 15
+botuntil floor >= 5 80000
+expect bosses & 4
+botuntil floor >= 6 80000
+botuntil escape >= 1 120000
+expect dawn_kill == 1
+expect bosses & 8
+botuntil state == 18 30000
+expect goals == 7
+expect ending == 1
+expect save_wins == 1
+expect save_secrets == 4
+print save_battles
+print save_deaths
+print frame
