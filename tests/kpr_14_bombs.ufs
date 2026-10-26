@@ -1,7 +1,9 @@
 # KIPPER: Sinker Bombs ride in the trail (two from a dock). Sitting still,
-# holding the dash button drops the last one: it sinks and goes off,
-# breaking blue blocks and sealed walls and knocking the sub if it's close.
-# Swimming into a bomb picks it straight back up.
+# holding the dash button readies the last one and letting go drops it;
+# touching the pad first calls it off (no bomb, no dash), and letting go
+# before it is ready is a plain dash. A bomb sinks and goes off, breaking
+# blue blocks and sealed walls, hitting a big one for 350 and knocking the
+# sub if it's close. A dropped bomb can't be picked up again.
 seed 1
 game kipper
 wait 5
@@ -14,27 +16,70 @@ expect trail_charges == 2
 cheat tile 56 96
 wait 2
 hold LEFT 110
-hold B 30
+wait 20
+# held: ready, but nothing drops until it's let go
+hold B
+wait 30
+expect ready_bomb == 1
+expect bombs == 0
+expect trail_charges == 2
+release B
+wait 2
 expect bombs == 1
 expect trail_charges == 1
 hold UP+LEFT 60
 wait 120
 expect bombs == 0
 expect tile_49_98 == 46
-# a bomb swum into goes back in the trail
+# the pad touched while holding: called off, no bomb and no dash
 cheat tile 70 28
+cheat clear
+wait 30
+cheat fuel 1000
+hold B
+wait 10
+hold UP
 wait 2
-hold RIGHT 40
-wait 5
-hold B 30
-expect bombs == 1
-hold DOWN+LEFT 24
+release UP
+wait 20
+release B
+wait 2
 expect bombs == 0
 expect trail_charges == 1
-# sitting by a bomb when it goes off: a knock
-wait 70
-hold B 30
+expect fuel >= 990
+# let go too soon: a dash
+press B 5
+expect dash > 0
+expect fuel <= 820
+# a bomb never comes back into the trail, even swum through
+wait 30
+hold B 25
+wait 2
 expect bombs == 1
-wait 160
+expect trail_charges == 0
+hold DOWN+LEFT 24
+hold UP+RIGHT 30
+expect trail_charges == 0
+# sitting by it when it goes off: a knock
+wait 150
 expect bombs == 0
-expect hits >= 2
+expect hits >= 1
+# a big one takes 350
+cheat dock 0
+wait 25
+press A
+wait 5
+press B
+wait 5
+expect trail_charges == 2
+cheat calm
+cheat tile 77 138
+cheat clear
+wait 2
+expect boss5_hp == 1400
+hold B 25
+wait 2
+expect bombs == 1
+hold UP+LEFT 30
+wait 150
+expect boss5_hp == 1050

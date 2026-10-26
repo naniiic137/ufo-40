@@ -376,20 +376,13 @@ void kpr_bombs_update(void) {
         if (--b->fuse <= 0) {
             b->alive = 0;
             kpr_blast(b->x, b->y, 44);
-            blast_damage(b->x, b->y, 44, 40, 170, true);
+            blast_damage(b->x, b->y, 44, 40, 350, true);
             kpr_burst(b->x, b->y, C_ORANGE, 16, 2.6f);
             kpr_burst(b->x, b->y, C_YELLOW, 12, 1.6f);
             kpr_burst(b->x, b->y, C_WHITE, 8, 0.8f);
             kg.shake = imax(kg.shake, 12);
             kpr_sfx("kpr_bigboom");
             continue;
-        }
-        /* swimming into an unexploded charge picks it straight back up */
-        float dx = b->x - kg.x, dy = b->y - kg.y;
-        if (dx * dx + dy * dy < 100.0f && kg.trail_n < KPR_TRAIL && b->fuse > 20) {
-            b->alive = 0;
-            kpr_trail_add(TR_CHARGE, -1);
-            kpr_sfx("kpr_pick");
         }
     }
 }
@@ -465,6 +458,7 @@ void kpr_items_update(void) {
 
 /* ---- the sub ----------------------------------------------------------------- */
 
+bool kpr_drilling(void) { return kpr_on(EQ_DRILL) && (kg.dash_t > 0 || kg.boosting); }
 static bool drilling(void) { return kpr_on(EQ_DRILL) && (kg.dash_t > 0 || kg.boosting); }
 
 /* move along one axis; dirt gives way to a drilling dash, a cracked wall
@@ -570,22 +564,30 @@ void kpr_sub_update(void) {
     } else if (b) {
         kg.b_hold++;
         if (kg.b_still > 0) {
-            if (!still) kg.b_still = 0;
-            else if (++kg.b_still > KPR_CHARGE_HOLD) {
-                drop_charge();
+            /* held sitting still: a bomb readies; touching the pad calls it off */
+            if (!still) {
                 kg.b_still = -1;
+                kg.charge_ready = false;
+            } else if (++kg.b_still > KPR_CHARGE_HOLD && !kg.charge_ready) {
+                kg.charge_ready = true;
+                kpr_sfx("kpr_ready");
             }
         }
     }
     if (kpr_btnr(BTN_B) && kg.b_still > 0) {
-        /* let go before the charge dropped: a dash after all */
-        kg.dash_dx = (float)kg.face;
-        kg.dash_dy = 0;
-        kg.dash_t = KPR_DASH_T;
-        kpr_burn(KPR_DASH_COST);
-        kpr_sfx("kpr_dash");
+        if (kg.charge_ready) drop_charge();      /* let go: the bomb drops */
+        else {
+            /* let go before it readied: a dash after all */
+            kg.dash_dx = (float)kg.face;
+            kg.dash_dy = 0;
+            kg.dash_t = KPR_DASH_T;
+            kpr_burn(KPR_DASH_COST);
+            kpr_sfx("kpr_dash");
+        }
+        kg.b_still = 0;
+        kg.charge_ready = false;
     }
-    if (!b) kg.b_still = 0;
+    if (!b) { kg.b_still = 0; kg.charge_ready = false; }
     kg.boosting = b && kpr_on(EQ_BOOSTER) && kg.b_still == 0 && kg.dash_t == 0 && kg.b_hold >= KPR_DASH_T;
 
     /* swimming */

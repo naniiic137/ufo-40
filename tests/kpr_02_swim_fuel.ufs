@@ -1,6 +1,7 @@
 # KIPPER: fuel is health and time. Sitting still burns nothing; swimming
 # burns a unit a frame (360 to a bar); pushing on rock burns nothing; the
-# sub swims eight ways at a pixel a frame; a dash bursts ahead for 54; the
+# sub swims eight ways at a pixel a frame; a dash bursts ahead for half a
+# bar, as much as a knock; the
 # sub can't leave the water.
 seed 1
 game kipper
@@ -39,7 +40,7 @@ cheat face 1
 press B 1
 expect dash > 0
 expect vx100 > 250
-expect fuel == 946
+expect fuel == 820
 # the surface stops the sub
 cheat tile 75 4
 hold UP 40

@@ -56,3 +56,10 @@ wait 4
 expect eshots_1 >= 6
 wait 90
 expect trail_charges < 2
+# a polyp sends a filcher after bombs in tow too
+cheat clear
+cheat tile 66 28
+wait 2
+expect trail_charges >= 1
+cheat foe 0 1000 456
+waituntil foes_1 >= 1 300

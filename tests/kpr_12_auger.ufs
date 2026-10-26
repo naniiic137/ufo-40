@@ -26,3 +26,19 @@ expect ty >= 100
 expect tile_79_98 == 46
 cheat dock 0
 expect tile_79_98 == 100
+# the Auger on a dash or a boost runs creatures through: they're hit (40,
+# enough to calm most), and the sub takes no knock
+wait 25
+press A
+wait 5
+press B
+wait 5
+cheat tile 64 28
+cheat clear
+cheat fit 2
+wait 2
+cheat foe 3 1110 456
+wait 1
+hold RIGHT+B 40
+expect calm_3 == 1
+expect hits == 0

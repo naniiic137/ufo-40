@@ -264,7 +264,7 @@ ell(104, 102, 3, 1)
 rect(60, 120, 61, 121, '?')
 ell(61, 123, 2, 1)
 # the way down to Xolloth: a shaft with a floor of blue blocks, then an
-# antechamber, then either the switch gate or a tunnel of dirt
+# antechamber, then the switch gate (the Ram Torpedoes)
 rect(78, 117, 81, 124)
 rect(78, 125, 81, 126, 'B')
 rect(73, 127, 86, 129)
@@ -272,7 +272,6 @@ rect(74, 130, 77, 132, '#')
 rect(78, 130, 81, 131, '1')
 put(73, 128, 'b')
 rect(72, 127, 72, 129, '#')
-path([(86, 128), (92, 131), (90, 134)], 2, 'd')
 rect(78, 132, 81, 133)
 # the lair
 ell(80, 140, 13, 6)

@@ -80,8 +80,8 @@ extern const char *const KPR_FOE_NAME[FK_KINDS];
 #define KPR_BAR 360                /* fuel in a bar: frames of swimming */
 #define KPR_BARS0 4                /* bars at the start; +1 a tank */
 #define KPR_HIT 180                /* a knock costs half a bar */
-#define KPR_DASH_COST 54           /* a dash */
-#define KPR_BOOST_COST 3           /* a frame of the super booster */
+#define KPR_DASH_COST KPR_HIT      /* a dash: half a bar, as much as a knock */
+#define KPR_BOOST_COST 2           /* a frame of the long thruster: cheaper than swimming per px */
 #define KPR_SPEED 1.0f             /* swimming, px a frame */
 #define KPR_ACCEL 0.08f
 #define KPR_DRAG 0.06f
@@ -203,7 +203,7 @@ typedef struct {
     float dash_dx, dash_dy;
     bool boosting, firing, moving;
     int fire_t, fire_hold, b_hold, b_still, rub_t, area, last_dir_x, last_dir_y;
-    bool missile_ready;
+    bool missile_ready, charge_ready;
     int plates;
     KprPlate plate[KPR_PLATES];
     /* the trail */
@@ -311,6 +311,7 @@ void kpr_bombs_update(void);
 void kpr_vents_update(void);
 bool kpr_vent_on(int v);
 void kpr_burst(float x, float y, int col, int n, float sp);
+bool kpr_drilling(void);          /* the Auger and a dash or boost: creatures in the way are hit */
 void kpr_camera(bool snap);
 void kpr_steal_from_trail(int foe);
 void kpr_drop_item_loose(int item, float x, float y);

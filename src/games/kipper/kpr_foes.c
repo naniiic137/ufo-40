@@ -189,7 +189,7 @@ static void foe_update(int i) {
     case FK_POLYP:
         if (f->t % 200 == 0 && d2 < 112.0f * 112.0f) shoot_at_sub(f, 0.9f);
         if (f->child >= 0 && (!kg.foe[f->child].alive || kg.foe[f->child].owner != i)) f->child = -1;
-        if (f->child < 0 && kpr_trail_count(TR_ITEM) > 0 && d2 < 170.0f * 170.0f && f->t % 200 == 100) {
+        if (f->child < 0 && kg.trail_n > 0 && d2 < 170.0f * 170.0f && f->t % 200 == 100) {
             int c = kpr_spawn_foe(FK_FILCHER, f->x, f->y - 6);
             if (c >= 0) {
                 kg.foe[c].owner = (int16_t)i;
@@ -234,15 +234,11 @@ static void foe_update(int i) {
         break;
     case FK_SHELLBACK:
         if (f->state == 0) {
+            /* back and forth along its floor, shooting at the sub */
             if (!solid_at(f->x, f->y + 7)) move_foe(f, 0, 0.8f);
-            if (d2 < 128.0f * 128.0f && fabsf(dx) > 4) {
-                f->dir = dx > 0 ? 1 : -1;
-                if (move_foe(f, f->dir * 0.4f, 0)) f->dir = -f->dir;
-            }
-            if (f->t % 160 == 60 && d2 < 140.0f * 140.0f) {
-                kpr_add_eshot(ES_PELLET, f->x + f->dir * 6, f->y, f->dir * 1.1f, 0);
-                kpr_sfx("kpr_spit");
-            }
+            if (move_foe(f, f->dir * 0.4f, 0) || fabsf(f->x - f->hx) > 64 || !solid_at(f->x + f->dir * 8, f->y + 9))
+                f->dir = -f->dir;
+            if (f->t % 160 == 60 && d2 < 140.0f * 140.0f) shoot_at_sub(f, 1.1f);
             if (f->t % 330 == 300) { f->state = 1; f->t = 0; }
         } else if (f->state == 1) {
             if (f->t == 1 && d2 < 52.0f * 52.0f) {
@@ -409,7 +405,11 @@ void kpr_foes_update(void) {
         if (fabsf(f->x - kg.x) > 300 || fabsf(f->y - kg.y) > 200) continue;
         foe_update(i);
         if (kg.state != KS_PLAY) return;
-        if (f->alive && !f->pacified && touches_sub(f)) kpr_sub_hurt(f->x, f->y, KPR_HIT);
+        if (f->alive && !f->pacified && touches_sub(f)) {
+            /* the Auger on a dash or boost runs creatures through */
+            if (kpr_drilling()) kpr_hurt_foe(i, 40, true);
+            else kpr_sub_hurt(f->x, f->y, KPR_HIT);
+        }
         if (kg.state != KS_PLAY) return;
     }
 }

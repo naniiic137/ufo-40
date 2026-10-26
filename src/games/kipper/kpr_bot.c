@@ -608,7 +608,7 @@ static int path_step(int gx, int gy) {
     if (target_ahead()) m |= tap_fire();
     /* a long straight swim: the thruster, while the fuel is easy */
     if (kpr_on(EQ_BOOSTER) && kg.fuel > fuel_home_need() * 2 && (m & (BTN_LEFT | BTN_RIGHT | BTN_UP | BTN_DOWN)) &&
-        f_goal[tile_y()][tile_x()] > 120 && !(m & BTN_A))
+        f_goal[tile_y()][tile_x()] > 600 && !(m & BTN_A))
         m |= (kg.boosting || kg.dash_t > 0 || (kg.frame_t % 30) == 0) ? BTN_B : 0;
     return m;
 }
@@ -653,8 +653,11 @@ static int plug_routine(int p) {
         return steer(f_goal, &nt);
     }
     if (fabsf(kg.x - gx) < 3 && fabsf(kg.y - gy) < 3 && fabsf(kg.vx) + fabsf(kg.vy) < 0.3f) {
-        /* sitting still: hold the dash button (let go now and then for a fresh press) */
-        return (plug_t % 40) == 0 ? 0 : BTN_B;
+        /* sitting still: hold the dash button until the bomb is ready, then
+         * let go (and let go first if it was held from before) */
+        if (kg.charge_ready) return 0;
+        if (kg.b_still <= 0) return (plug_t & 1) ? 0 : BTN_B;
+        return BTN_B;
     }
     /* straight across to the drop point, so the trail lies to the side */
     int m = 0;
@@ -1025,7 +1028,7 @@ static int look_ahead(int want) {
             int m = DIRS[k] | BTN_A;
             int end = simulate(m, dsh, 36, &hurt);
             int prog = (start == FBIG || end == FBIG) ? 0 : start - end;
-            int score = prog - hurt * 400 - dsh * 30;
+            int score = prog - hurt * 400 - dsh * 350;   /* a dash costs as much as a knock */
             if (score > best_score) { best_score = score; best = m; best_dash = dsh; }
         }
     commit_mask = best | (best_dash ? BTN_B : 0);

@@ -11,10 +11,17 @@ cheat tile 60 58
 wait 2
 cheat fit 2
 cheat fuel 2000
-hold RIGHT+B 40
+hold RIGHT+B
+wait 20
 expect boosting == 1
 expect vx100 >= 250
-expect fuel < 1900
+expect fuel >= 1795
+expect fuel <= 1810
+# cruising: 2 a frame for 2.6 px, cheaper than swimming
+cheat fuel 2000
+wait 30
+release
+expect fuel == 1940
 # the Lean Mix
 cheat unfit 2
 cheat fit 8

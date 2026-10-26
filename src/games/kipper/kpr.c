@@ -663,6 +663,8 @@ static int kpr_query(const char *key, int *out) {
     if (!strcmp(key, "dash")) { *out = kg.dash_t; return 1; }
     if (!strcmp(key, "boosting")) { *out = kg.boosting; return 1; }
     if (!strcmp(key, "ready")) { *out = kg.missile_ready; return 1; }
+    if (!strcmp(key, "eshot_vy100")) { *out = 0; for (int i = 0; i < KPR_MAX_ESHOTS; i++) if (kg.es[i].alive && kg.es[i].kind == ES_PELLET) { *out = (int)(kg.es[i].vy * 100); break; } return 1; }
+    if (!strcmp(key, "ready_bomb")) { *out = kg.charge_ready; return 1; }
     if (!strcmp(key, "fire_hold")) { *out = kg.fire_hold; return 1; }
     if (!strcmp(key, "missile_y")) { *out = -1; for (int i = 0; i < KPR_MAX_SHOTS; i++) if (kg.shot[i].alive && kg.shot[i].kind == SH_MISSILE) *out = (int)kg.shot[i].y; return 1; }
     if (!strcmp(key, "missile_life")) { *out = -1; for (int i = 0; i < KPR_MAX_SHOTS; i++) if (kg.shot[i].alive && kg.shot[i].kind == SH_MISSILE) *out = kg.shot[i].life; return 1; }
