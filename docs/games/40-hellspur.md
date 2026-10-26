@@ -45,9 +45,9 @@ end).
 **How long it takes.** A first clear of Grimstone is about 15 hours; the
 Gold/Cherry speedrun record is 55:59 [LIZ] [SR]. Our demo player, which
 knows the way and wastes no time reading, reaches the ending in about
-700,000 frames (3 hours 15 minutes of game time, 560 or so fights, with
+850,000 frames (about 4 hours of game time, 850 or so fights, with
 the levels it grinds for each step: 6 before the first mine, 16 for the
-siege, 28 for the Cinder Worm, around 45 by the last fight). A first-time
+siege, 28 for the Cinder Worm, around 48 by the last fight). A first-time
 player who talks, explores and gets lost should take several times that.
 
 ## Mechanics checklist

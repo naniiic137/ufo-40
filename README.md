@@ -151,6 +151,7 @@ menu, shows the buttons as you now press them). SELECT or B closes it.
 | 36 | **HOOPLA** | Hyper Contender | a one-screen, one-on-one platform brawl with no health: hold five hoops at once to win, one each at the start, a new one every 15 s (on fire at first), every hit knocking one out to bounce round the pit (two if you were dizzy); the block that stops a lunge and leaves the attacker dizzy, the lunge that goes through shots, shots that get past the block; eight fighters who each move their own way (double jump with a knife-turning spin, claw line, gravity turned over, spring traps, wings, a cage lift, a rocket pack, a charged leap) with their weapon, alt shot and the button exceptions; twelve fixed pits in a random order and colours, some with moving ledges; the tournament of eight with the mirror match last and one rematch each, a second foe on the hardest challenge, the snake draft of three each to five wins, 2P exhibition, the ring options, the old-rules code, the demo and its twentieth-time note | TANSY, CLAMP, MOSS, BRISTLE, PEWIT, COLLIER, ASTRA and GULP, their endings, the twelve pits of the Glass Pit, twelve tunes |
 | 38 | **RESTLESS** | Rakshasa | a side-on platformer where one touch kills but there are no lives: every death (and the start: you begin dead) sends your wisp into a soul round of 1, 3, 6, 9, then 12 pieces past as many guardians, and one touch there ends the run; you rise on the spot with the plain weapon and the screen swept clean; every death makes the world harsher (more and nastier foes, torches that spit fire, a tougher first boss from four, a double-speed clock from six) and its treasure richer; one walking pace, one committed jump with no steering, a freeze on every landing, aim ahead or on the slants only, tap or charge; four weapons from torch wheels, the original's 19 foes with their hit points, pits that drop you into rooms of foes, a 150-second clock, bells that take a death back, a familiar that takes a hit and finds hidden spots, gifts every 5,000; three stages of two halves and six fights; a high-score table | Old Gaunt of Mossfold, his wisp, Blink the owlet, Grandmother Ash, the Hollow Host and all its foes, the Bridgekeeper, Old Rattle, Three-Tongue, Gust and Gash, the Rammer and the Hollow King, all 64 screens |
 | 39 | **BUZZBOLT** | Star Waspir | a fast vertical shooter over the whole wide screen where one hit is a loss, tap fire for a wide spread at full speed and hold it for focused fire and a slower ship, three ships with their own fire, options and two specials each (a charge lance, guard orbs, a shield drone, bombs on the second button), every kill dropping a letter in the fixed order B, Z, Z, words of three (BZZ puts the multiplier up with no limit, ZZZ brings an option, BBB and ZBB are the ship's specials, any other word puts it back to x1), the multiplier built up and cashed in on the bosses, losing a ship costs the multiplier and every gift, ships at 25k, 100k and 200k, five waves with a boss each (wave 1's pair flies off if left alone; wave 3 the hard one; walls, gates and a golden swarm in wave 4; a last boss of aimed fans), an unmultiplied time bonus, a high-score table | the Hive Wing (lacewing, shieldbug, firefly), the hiveship and the dragonfly, the Blight's gnats, midges, whirlers, crickets, blisters, puffballs, rot walls and goldbugs, the Ironbacks, the Bloatfly, the Queen Tick, Scythewing and Dustwing, the Sporeheart, five new waves |
+| 40 | **HELLSPUR** | Grimstone | a Western RPG in Hell: an angel carries four of eight strangers out of a burning saloon (any one to four of them, and the rest burn), each with a trade of their own (animal spirits, half-price medicine, learning foes' tricks, picking pockets, shotguns and heavy guns, dances, a hound with a mind of his own); no random battles, but wisps on the map that step when you step toward the posse in its line (the fallen in their boxes still count) and fight on a touch, one step in two on horseback; a timing bar on every plain attack (yellow hits, red is a critical, anything else misses; marks for each shot, a shotgun's one wide yellow, a heavy gun held and reloaded, a bow all red); turns by speed, levels to 50, five equipment slots, twenty bag slots, hotels, chapels, a bank with interest, trains, wipes back to the chapel with an empty purse, saves in towns; eleven towns, twenty dungeon floors, nineteen boss fights, winged horses, three spikes and the last fight won when Zenith falls | the Territory of Calico and its towns and dungeons, Tucker, Sage, Hollis, Quill, Vera, Hattie, Cora and Biscuit, the angels, every boss and all 77 kinds of foe, 83 items and 37 skills by our names, twenty tunes |
 | 43 | **SHOWSTOPPER** | Elfazar's Hat | a top-down run-and-gun: eight-way walking, a wand that fires at once on a press and, held, keeps firing in bursts with the aim locked while you walk any way (tapping fires faster but doesn't lock), and a dash that is safe while it lasts, crosses pits and stuns; foes and crates drop cards of five colours, every third card is a hand (a pair: the colour's small power, three of a kind: its big one, three different: nothing) and the powers (hearts and Extend, spread shots, a helper, bombs from the dash, spiked balls) last until a life is lost; three hearts, three lives a credit (two spares on the counter, up to nine spares), a lost life brings you back on the spot in a bubble, a pit takes a life at once, unlimited continues restart the stage; five stages in the original's shape (a snow village with a mini-boss and a boss, one screen on a train's roof, a town in two halves with a chase up a winding road, the longest stage, a palace with two mini-boss fights and the magician, a lift and the last form), nine hidden star passes that pay for the Hop, a bonus round of hops on a board seen at an angle whose coins win lives, and on a run with no continue the true last boss and the true ending; 2 PLAYERS is in the menu, greyed out until the next update | Clover the show rabbit, her helpers, Jelly, Morrow the Marvellous, the Morrowmaw and the Heartstack, 22 kinds of foe, the Snow Engine, Granny Goggle, the Boiler, the Doppels, Old Wicks and the Ribbon, every row of the five stages, the cards' faces and nineteen tunes |
 | 44 | **HOMESPUN** | Pilot Quest | a camp that keeps working in real time while the console is on, even in other cartridges; a yo-yo that knocks glints out of a crystal; plants, bars, huts, anvils, bins and research at the original's prices; jerky as two minutes of trip time a strip, and a clock that is also your health; one Wilds map whose roadblocks and caves are shuffled per save; three dungeons with a ship part each; a gun that costs a glint a shot; coins for hopstones, vendors and a gambling den; a spider that spins thread at camp; a super boss beaten six times in one trip; new-game-plus stones | Wick and the *Tumbleweed*, the moor-moon Oddmoor and its folk, the Wilds, three dungeons, all 19 foes and 6 bosses |
 | 41 | **RIMSHIRE** | Lords of Diskonia | a board where two banners take turns stepping along roads, trails a banner can't step back onto that pull an army back when struck, inns, tomes, seams and chests; flick battles on fields built from the four tiles round the fight: a queue of three, aim, charge and launch, knocks that hurt by the striking disk's own melee, water, the closing haze and stalemates; the original's 15 disks with their numbers, 8 skills, 10 campaign wars, the streak and 2P | Rimshire, the Brass and Plum banners, the Plum Empress, Lady Brass's letters, all 16 disks, 10 new boards |
@@ -1834,6 +1835,61 @@ the top.
 - **Ours:** the Hive Wing, the B and Z letters, the Blight and its bosses
   (the Ironbacks, the Bloatfly, the Queen Tick, Scythewing and Dustwing,
   the Sporeheart), every wave, the opening, the table's names and the music.
+
+### 40 · HELLSPUR
+
+<p align="center">
+  <img src="docs/shots/hellspur.gif" width="640" alt="Hellspur: the posse rides in a line, a wisp catches the last of them, and the fight runs on the timing bar">
+</p>
+<p align="center">
+  <img src="docs/shots/hellspur_saloon.png" width="320" alt="The Golden Garter on fire: the angel and the eight strangers">
+  <img src="docs/shots/hellspur_town.png" width="320" alt="Meridian, the first town">
+</p>
+<p align="center">
+  <img src="docs/shots/hellspur_bar.png" width="320" alt="The Saguaro Mother and her arms; Sage's timing bar, yellow running into red">
+  <img src="docs/shots/hellspur_menu.png" width="320" alt="The posse menu's equipment page: right hand, left hand, neck, body, feet">
+</p>
+<p align="center">
+  <img src="docs/shots/hellspur_final.png" width="320" alt="Zenith and Nadir at the top of Hellspur">
+  <img src="docs/shots/hellspur_fly.png" width="320" alt="The winged horses carry the posse over the mountains">
+</p>
+
+*A tribute to **Grimstone** (UFO 50 #40).*
+
+- **Plays the same:** a full-size Western RPG in Hell. In the burning
+  saloon the angel reads each of eight strangers and carries out four at
+  most (one, two or three is allowed); the rest burn, and the posse is
+  yours for good: a cowhand, a spiritwalker who learns from ten animals
+  (each offers a choice of two), a one-armed surgeon whose medicine goes
+  further, a scholar who learns foes' tricks by watching, an outlaw who
+  picks pockets, a homesteader with shotguns, heavy guns and bribes, a
+  showgirl whose dances lift the whole posse, and a hound who does as he
+  pleases. No random battles: wisps appear on the map and in the
+  dungeons, step once for every step you take toward the nearest of the
+  posse (the fallen trail behind in their pine boxes and still count),
+  and a touch starts a fight; on hired horses they step once for every
+  two. Every plain attack is a timing bar: yellow hits, red is a critical
+  that can't be dodged, anything else misses; pistols that fire twice or
+  thrice put that many marks on it, a shotgun has one big yellow, a heavy
+  gun fires while A is held and must reload, a bow is all red in anyone's
+  hands but Sage's, and holding RIGHT runs it faster. Turns by speed,
+  ATTACK, SKILL, ITEM, DEFEND, RUN; the front two get hit more. Levels to
+  50 on shared XP, equipment in two hands, neck, body and feet, twenty
+  things in the bags, hotels, chapels at 20 a level, a bank paying two in
+  a hundred after every fight, trains, wipes that send you to the last
+  chapel with an empty purse, saving only in towns. Eleven towns, twenty
+  dungeon floors, nineteen boss fights, four riders in a bone tower whose
+  last gives you winged horses, three spikes to pull, and the last fight
+  won when Zenith falls. Gift at level 10, gold for the ending, the cherry
+  for ending it with every one the angel saved still standing. The demo
+  player plays the whole game from the title.
+- **Ours:** the Territory of Calico and its eleven towns, all twenty
+  dungeon floors, Tucker, Sage, Hollis, Quill, Vera, Hattie, Cora and
+  Biscuit, the angels Wren, Ambrose and Cassius, the widow Tallow, Brutus,
+  the Tallyman, Jackal Jack, the Mimic, Black Molly, the Storm Crow, the
+  Cinder Worm, the Saguaro Mother, Blight, Carnage, Hunger and the Reaper,
+  the Governor, Zenith and Nadir, all 77 kinds of foe, 83 items and 37
+  skills by our names, bits for money, every word and twenty tunes.
 
 ### 43 · SHOWSTOPPER
 

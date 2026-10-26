@@ -1,0 +1,20 @@
+# HELLSPUR: the whole game, played by the demo player with real button
+# presses from the title: it carries Tucker, Hattie, Hollis and Sage out of
+# the saloon, then walks, fights on the timing bar, shops, rests, raises
+# the fallen, banks, grinds for each step's level, works through every gate
+# and boss in story order, flies the nightmares to the spikes, and ends the
+# game in Hellspur. Then the ending rolls back to the title.
+seed 3
+game hellspur
+wait 5
+botuntil bot_step >= 3 200000
+botuntil bot_step >= 11 600000
+botuntil bot_step >= 21 1500000
+botuntil bot_step >= 29 2500000
+botuntil state == 4 4000000
+expect flag39 == 1
+expect goals & 2
+expect goals & 1
+expect save_wins == 1
+expect battles > 300
+botuntil state == 0 20000

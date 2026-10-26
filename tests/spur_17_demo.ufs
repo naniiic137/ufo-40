@@ -1,0 +1,18 @@
+# HELLSPUR: left alone on the title, the cartridge plays itself: Tucker,
+# Hollis, Cora and Biscuit walk out of Gladwell and get into fights, the
+# demo player's buttons doing the work. Any button goes back to the title,
+# and nothing of the demo is kept.
+seed 12
+game hellspur
+wait 1250
+expect demo == 1
+expect state == 2
+expect posse == 4
+expect order3 == 7
+wait 2400
+expect steps > 20
+expect save_valid == 0
+press A
+wait 5
+expect demo == 0
+expect state == 0
