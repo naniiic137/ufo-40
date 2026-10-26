@@ -62,7 +62,7 @@ bosses sit). The rolls are seeded per run.
 | Pits | a fall is death unless floating | [GUIDE] | ivw_04 |
 | Slime | wet slime poisons; poison takes health down to 1 but never kills | [GUIDE], [MH] | ivw_04 |
 | Lava | burns, and burning can kill | [GUIDE] | ivw_04 |
-| Flames | they gather at the floor's haunts (one every 8 turns, up to the floor's cap of 2-4), hunt the knight within 7 tiles (three moves in four), and touching one starts a fight; veiled, he walks through | [MH], [MM], [POPCAR] | ivw_05 |
+| Flames | they gather at the floor's haunts (3 on floor 0, 6 or 7 below; one every 8 turns, up to the floor's cap of 2-4), hunt the knight within 7 tiles (three moves in four), and touching one starts a fight; veiled, he walks through | [MH], [MM], [POPCAR] | ivw_05 |
 | No mid-floor heal | health never comes back by itself; mana does as turns pass (a cowl speeds it) | [MM], [GUIDE] | ivw_10 |
 | The fight's moves | LEFT / RIGHT strafe; A strikes, again for a combo of three (the third 1.5 times); DOWN held guards; DOWN then LEFT / RIGHT within 8 frames rolls (frames 1-12 untouchable, 18 stamina) | [MH], [MM], [GUIDE] | ivw_06 |
 | Stamina | swings (cheaper with MIGHT), blocks and rolls cost it; it does not come back while guarding; at 0 the knight is exhausted (no blows, guard or roll, half speed) until half is back | [MH], [MM] | ivw_06 |
@@ -80,7 +80,7 @@ bosses sit). The rolls are seeded per run.
 | Thrones | one a floor from floor 1; 150, 300, 450, 600, 750 motes, the last free (and blue, not red); 3 points to place | [GUIDE], [TVT], [STEAM-HELP] | ivw_13 |
 | Motes | each foe's worth (the wiki's 10-60 range, ours); the first 6 fights of a floor pay it times (2 + floor) / 2, the next 6 the plain worth, then 5 at most | [TVT], [MH] | ivw_14 |
 | The pack | 10 places, 12 at most; gear is worn from it; tonics are drunk from it; monster parts are readied and go off as the next fight starts; what is set down stays there | [MH], [GUIDE], [STEAM-RK] | ivw_15 |
-| Gear | 12 blades (dirk to Dawnbrand, MIGHT needs 3-15; under it a blade hits for two thirds and costs half again), 9 armours (plate slows and costs swings), 7 shields and bracers (bracers cannot block) | [GUIDE] | ivw_15, ivw_09 |
+| Gear | 12 blades (dirk to Dawnbrand; the dirk needs no MIGHT, the others 3-15, and under it a blade hits for two thirds and costs half again), 9 armours (plate slows and costs swings), 7 shields and bracers (bracers cannot block) | [GUIDE] | ivw_15, ivw_09 |
 | Tonics and parts | red heals 40; blue stamina and mana; black harder blows, green haste, grey a sturdier guard, yellow foes stunned, for the next fight; ooze and bone skulls bounce and stun; a bat heart heals; a tusk stabs; a venom sac poisons; the juggler's ball bounces all fight; a bone scares nearby flames off; a chitin head leaps to a seen tile up to 8 away | [GUIDE] | ivw_15 |
 | The pedlar | trades for shards; floor 1's shelf is fixed and holds a boar shield, later shelves are rolled; she buys what the knight carries; stealing always fails: she fights (150 motes), and beaten she leaves the floor and the thing is his | [GUIDE] | ivw_16 |
 | The Amber Knight | three lines a floor; gifts build favour, a reward each 10 (5-14 shards, a tonic, +10 health up to +20, +1 pack place up to 12); struck at, he leaves for good | [GUIDE], [STEAM-RK] | ivw_17 |
@@ -149,7 +149,7 @@ bosses sit). The rolls are seeded per run.
   mana, a pack of 10; health 50 + 10 per 3 GRIT (+ the knight's gifts),
   stamina 40 + 6 per GRIT, mana 10 + 4 per LORE; a blade's damage times
   (8 + MIGHT) / 13; armour takes 5-40 percent off a blow; shields 5-18
-  blocks; swings 13-46 frames by weight; stamina back 3 + MIGHT / 3
+  blocks; swings 13-41 frames by weight; stamina back 3 + MIGHT / 3
   sixteenths a frame; foes' health 13-46 (bosses 130-340) and blows 3-16;
   sweet wells 3 drinks of 25; a lever's trap 12; spikes 8; poison 1 a turn
   (never below 1); lava 2 a turn; FLOAT 10 turns; VEIL 10 + LORE turns.
