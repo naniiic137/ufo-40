@@ -313,7 +313,7 @@ static void foe_update(int i) {
                 for (int k = 0; k < 8; k++) {
                     float a = k * 0.785398f, c = cosf(a), s = sinf(a);
                     kpr_add_eshot(ES_PELLET, f->x, f->y, c * 1.0f, s * 1.0f);
-                    kpr_add_eshot(ES_CLOUD, f->x, f->y, cosf(a + 0.39f) * 0.7f, sinf(a + 0.39f) * 0.7f);
+                    kpr_add_eshot(ES_CLOUD, f->x, f->y, c * 0.7f, s * 0.7f);
                 }
                 kpr_sfx("kpr_puff");
             }

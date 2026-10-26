@@ -23,6 +23,7 @@ const char *const KPR_EQ_LINE[KPR_EQUIP] = {
 };
 
 bool kpr_simulating;
+bool kpr_demo;
 uint32_t kpr_sim_cur, kpr_sim_prev;
 
 void kpr_sfx(const char *name) {
@@ -71,8 +72,10 @@ int kpr_completion(void) { return kpr_parts_done() * 100 / 75; }
 
 /* ---- saving --------------------------------------------------------------------- */
 
+static void demo_end(void);
+
 void kpr_save_now(void) {
-    if (kpr_simulating) return;
+    if (kpr_simulating || kpr_demo) return;
     ksv.magic = SAVE_MAGIC;
     game_save_write(game_current_index(), &ksv, (int)sizeof ksv);
 }
@@ -174,6 +177,7 @@ void kpr_launch(int d) {
  * topped up, the dive is banked and saved, the creatures wake */
 void kpr_dock_at(int d) {
     if (kpr_simulating) { set_state(KS_DOCK); return; }   /* the demo player's look-ahead stops here */
+    if (kpr_demo) { demo_end(); return; }
     kg.dock_lines = 0;
     char line[40];
     int keep_n = 0;
@@ -242,6 +246,7 @@ void kpr_dock_at(int d) {
 /* the tank ran dry: towed back to the last dock, the dive lost */
 void kpr_run_dry(void) {
     if (kg.state != KS_PLAY) return;
+    if (kpr_demo && !kpr_simulating) { demo_end(); return; }
     kg.fuel = 0;
     set_state(KS_TOWED);
     kpr_sfx("kpr_dry");
@@ -319,6 +324,7 @@ static void dock_update(void) {
 
 void kpr_meet_roe(void) {
     if (kpr_simulating) return;
+    if (kpr_demo) { demo_end(); return; }
     int eggs = 0;
     for (int s = 0; s < kg.trail_n; s++)
         if (kg.trail[s].kind == TR_ITEM && KPR_ITEMS[kg.trail[s].id].kind == IK_EGG) eggs++;
@@ -370,6 +376,7 @@ static void roe_update(void) {
 /* a creature beaten flees for good, at once, and its deep light counts */
 void kpr_boss_defeated(int b) {
     if (kpr_simulating) { kg.cur.boss_dead[b] = 1; return; }
+    if (kpr_demo) { demo_end(); return; }
     kg.cur.boss_dead[b] = 1;
     kg.cur.boss_hp[b] = 0;
     kg.cur.lights++;
@@ -394,6 +401,7 @@ void kpr_boss_defeated(int b) {
 
 void kpr_final_defeated(void) {
     if (kpr_simulating) { set_state(KS_ENDING); return; }
+    if (kpr_demo) { demo_end(); return; }
     kg.cherry_run = kpr_completion() >= 100;
     if (!kpr_simulating) {
         game_award(GOAL_SAUCER);
@@ -412,7 +420,7 @@ void kpr_final_defeated(void) {
 /* ---- one frame of a dive --------------------------------------------------------- */
 
 void kpr_play_step(void) {
-    if (!kpr_simulating) game_set_pausable(true);
+    if (!kpr_simulating && !kpr_demo) game_set_pausable(true);
     kg.cur.frames++;
     if (kg.msg_t > 0) kg.msg_t--;
     kpr_sub_update();
@@ -479,8 +487,43 @@ static void continue_run(void) {
     kpr_launch(kg.cur.dock);
 }
 
+/* left alone on the title, the cartridge shows a dive: the sub on its way
+ * home towing three finds with a full tank (any button ends it) */
+static void demo_start(void) {
+    memset(&kg.cur, 0, sizeof kg.cur);
+    for (int b = 0; b < KPR_BOSSES; b++) kg.cur.boss_hp[b] = (int16_t)KPR_BOSS_HP[b];
+    kg.cur.docks_known = 1;
+    kg.cur.tanks = 6;
+    kg.cur.boosters = 4;
+    bank = kg.cur;
+    kpr_demo = true;
+    restore_sea();
+    kpr_launch(0);
+    kg.x = 70 * KPR_TILE + 8.0f;
+    kg.y = 28 * KPR_TILE + 8.0f;
+    kpr_reset_history();
+    kpr_trail_add(TR_ITEM, 10);
+    kpr_trail_add(TR_ITEM, 30);
+    kpr_trail_add(TR_ITEM, 50);
+    kg.area = kpr_area_of(kg.y);
+    kpr_camera(true);
+    kg.demo_t = 0;
+    kpr_sim_cur = kpr_sim_prev = 0;
+    kpr_bot_reset();
+}
+
+static void demo_end(void) {
+    kpr_demo = false;
+    load_save();
+    memset(&kg, 0, sizeof kg);
+    kg.fight = -1;
+    to_title();
+}
+
 static void title_update(void) {
     game_set_pausable(false);
+    if (input_held()) kg.idle_t = 0;
+    else if (++kg.idle_t > 900) { demo_start(); return; }
     if (kpr_btnp(BTN_UP) || kpr_btnp(BTN_DOWN)) { kg.menu ^= 1; kpr_sfx("ui_move"); }
     if (kpr_btnp(BTN_B)) { game_exit_to_library(); return; }
     if ((kpr_btnp(BTN_A) || kpr_btnp(BTN_START)) && kg.state_t > 5) {
@@ -522,6 +565,20 @@ static void credits_update(void) {
 static void kpr_update(void) {
     kg.state_t++;
     kg.frame_t++;
+    if (kpr_demo) {
+        /* the demo: the demo player's buttons; a real press or time ends it */
+        game_set_pausable(false);
+        if (btnp(BTN_ANY) || ++kg.demo_t > 1500 || kg.state != KS_PLAY) {
+            input_consume();
+            demo_end();
+            return;
+        }
+        uint32_t m = (uint32_t)kpr_bot_buttons();
+        kpr_sim_prev = kpr_sim_cur;
+        kpr_sim_cur = m;
+        kpr_play_step();
+        return;
+    }
     switch (kg.state) {
     case KS_TITLE: title_update(); break;
     case KS_INTRO: intro_update(); break;
@@ -544,6 +601,7 @@ static void kpr_load(void) {
 }
 
 static void kpr_start(void) {
+    kpr_demo = false;
     load_save();
     memset(&kg, 0, sizeof kg);
     kg.fight = -1;
@@ -587,6 +645,7 @@ static int kpr_query(const char *key, int *out) {
     if (!strcmp(key, "bot_idle")) { *out = kpr_bot_idle(); return 1; }
     if (!strcmp(key, "bot_goal")) { *out = kpr_bot_goal; return 1; }
     if (!strcmp(key, "state")) { *out = kg.state; return 1; }
+    if (!strcmp(key, "demo")) { *out = kpr_demo; return 1; }
     if (!strcmp(key, "menu")) { *out = kg.menu; return 1; }
     if (!strcmp(key, "x")) { *out = (int)kg.x; return 1; }
     if (!strcmp(key, "y")) { *out = (int)kg.y; return 1; }
@@ -608,6 +667,8 @@ static int kpr_query(const char *key, int *out) {
     if (!strcmp(key, "missile_y")) { *out = -1; for (int i = 0; i < KPR_MAX_SHOTS; i++) if (kg.shot[i].alive && kg.shot[i].kind == SH_MISSILE) *out = (int)kg.shot[i].y; return 1; }
     if (!strcmp(key, "missile_life")) { *out = -1; for (int i = 0; i < KPR_MAX_SHOTS; i++) if (kg.shot[i].alive && kg.shot[i].kind == SH_MISSILE) *out = kg.shot[i].life; return 1; }
     if (!strcmp(key, "plates")) { *out = kg.plates; return 1; }
+    if (!strcmp(key, "plate_x")) { *out = -1; for (int i = 0; i < KPR_PLATES; i++) if (kg.plate[i].alive) *out = (int)kg.plate[i].x; return 1; }
+    if (!strcmp(key, "plate_y")) { *out = -1; for (int i = 0; i < KPR_PLATES; i++) if (kg.plate[i].alive) *out = (int)kg.plate[i].y; return 1; }
     if (!strcmp(key, "loose_plates")) { int n = 0; for (int i = 0; i < KPR_PLATES; i++) n += kg.plate[i].alive; *out = n; return 1; }
     if (!strcmp(key, "trail")) { *out = kg.trail_n; return 1; }
     if (!strcmp(key, "trail_charges")) { *out = kpr_trail_count(TR_CHARGE); return 1; }
@@ -726,6 +787,23 @@ static int kpr_query(const char *key, int *out) {
     if (!strcmp(key, "layout")) { *out = kpr_layout_audit(); return 1; }
     if (!strcmp(key, "art_bad")) { *out = kpr_art_check(); return 1; }
     if (!strcmp(key, "vent0")) { *out = kpr_vent_on(0); return 1; }
+    if (!strcmp(key, "ink_view") || !strcmp(key, "radar_yellow") || !strcmp(key, "radar_red")) {
+        /* draw the screen and count: black pixels in the view, yellow or
+         * red ones in the radar */
+        kpr_draw();
+        int n = 0;
+        if (key[0] == 'i') {
+            for (int y = 0; y < SCREEN_H; y++)
+                for (int x = KPR_HUD_W; x < SCREEN_W; x++) n += g_screen.px[y * SCREEN_W + x] == C_INK;
+        } else {
+            int col = key[6] == 'y' ? C_YELLOW : C_RED;
+            for (int y = 4; y < 54; y++)
+                for (int x = 8; x < 58; x++) n += g_screen.px[y * SCREEN_W + x] == col;
+        }
+        *out = n;
+        return 1;
+    }
+    if (!strcmp(key, "sx")) { *out = (int)kg.x - kg.cam_x + KPR_HUD_W; return 1; }
     return 0;
 }
 

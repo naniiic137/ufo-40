@@ -237,6 +237,7 @@ typedef struct {
     /* the ending */
     bool cherry_run;
     int towed_t;
+    int idle_t, demo_t;               /* the title's wait for its demo */
     /* tests */
     bool god, no_foes, calm;
     int hits_taken, last_cost, dives;
@@ -249,13 +250,15 @@ extern KprSave ksv;
  * the game reads these instead of the pad, and makes no sound and saves
  * nothing. */
 extern bool kpr_simulating;
+extern bool kpr_demo;                 /* the title's attract demo: the demo player swims */
 extern uint32_t kpr_sim_cur, kpr_sim_prev;
-static inline bool kpr_btn(int m) { return kpr_simulating ? (kpr_sim_cur & (uint32_t)m) != 0 : btn(m); }
+static inline bool kpr_virtual(void) { return kpr_simulating || kpr_demo; }
+static inline bool kpr_btn(int m) { return kpr_virtual() ? (kpr_sim_cur & (uint32_t)m) != 0 : btn(m); }
 static inline bool kpr_btnp(int m) {
-    return kpr_simulating ? ((kpr_sim_cur & ~kpr_sim_prev) & (uint32_t)m) != 0 : btnp(m);
+    return kpr_virtual() ? ((kpr_sim_cur & ~kpr_sim_prev) & (uint32_t)m) != 0 : btnp(m);
 }
 static inline bool kpr_btnr(int m) {
-    return kpr_simulating ? ((~kpr_sim_cur & kpr_sim_prev) & (uint32_t)m) != 0 : btnr(m);
+    return kpr_virtual() ? ((~kpr_sim_cur & kpr_sim_prev) & (uint32_t)m) != 0 : btnr(m);
 }
 void kpr_sfx(const char *name);
 void kpr_music(int id);
@@ -337,6 +340,7 @@ bool kpr_boss_vulnerable(int b);
 /* kpr_bot.c */
 int kpr_bot_buttons(void);
 int kpr_bot_idle(void);
+void kpr_bot_reset(void);
 extern int kpr_bot_goal, kpr_bot_log;
 
 /* kpr_draw.c */

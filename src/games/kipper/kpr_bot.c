@@ -1080,6 +1080,17 @@ int kpr_bot_buttons(void) {
 
 int kpr_bot_idle(void) { return 0; }
 
+/* a fresh start (the title's demo) */
+void kpr_bot_reset(void) {
+    nplan = plan_i = 0;
+    mode = 0;
+    last_state = -1;
+    commit_t = 0;
+    stuck_t = plug_t = chase_t = dive_frames = unstick_n = idle_plans = 0;
+    switch_pending = force_dock = -1;
+    memset(fail_dive, 0, sizeof fail_dive);
+}
+
 /* tests: with every way open, every pick-up, Roe and both docks can be
  * reached from the Pier */
 int kpr_reach_check(void) {

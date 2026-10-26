@@ -135,8 +135,8 @@ void kpr_steal_from_trail(int f) {
         trail_pos(s, &x, &y);
         trail_remove(s);
         if (o.kind == TR_CHARGE) {
-            bomb_at(x, y, 30);
-            kg.foe[f].state = 2;
+            bomb_at(x, y, 30);       /* a snatched bomb goes off; the filcher swims home empty */
+            kg.foe[f].state = 1;
         } else {
             kg.foe[f].carry = o.id;
             if (kg.cur.item[o.id] == IS_CARRIED) kg.cur.item[o.id] = IS_HOME;

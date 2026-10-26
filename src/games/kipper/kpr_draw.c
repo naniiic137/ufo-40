@@ -30,7 +30,7 @@ static int water_col(int wy) {
     if (ty < 12) return C_BLUE;
     if (ty < KPR_AREA2) return C_NAVY;
     if (ty < KPR_AREA3) return C_NIGHT;
-    return C_INK;
+    return C_NAVY;
 }
 
 static void draw_backdrop(void) {
@@ -62,7 +62,7 @@ static void draw_backdrop(void) {
 static int rock_col(int ty, int *edge, int *dark) {
     if (ty < KPR_AREA2) { *edge = C_TAN; *dark = C_EARTH; return C_BROWN; }
     if (ty < KPR_AREA3) { *edge = C_GREY; *dark = C_DUSK; return C_SLATE; }
-    *edge = C_DUSK; *dark = C_INK; return C_NIGHT;
+    *edge = C_GREY; *dark = C_NIGHT; return C_DUSK;
 }
 
 static bool solidish(int c) { return c == '#' || c == 'P' || c == '?' || c == 'X' || (c >= 'a' && c <= 'h'); }
@@ -648,6 +648,9 @@ static void draw_dark(void) {
         int x = sx(KPR_VENTS[v].x * KPR_TILE + 8.0f), y = sy((KPR_VENTS[v].y + 1) * KPR_TILE);
         if (y >= top && x > VX && x < SCREEN_W && y < KPR_VIEW_H + 4) gfx_rect(x - 2, y - 5, 4, 2, kpr_vent_on(v) ? C_ORANGE : C_MAROON);
     }
+    /* Xolloth glows in the dark */
+    const KprBoss *o = &kg.boss[BS_XOLLOTH];
+    if (o->on && !(o->flash & 2) && on_view(o->x, o->y, 60)) boss_alien(o, sx(o->x), sy(o->y));
 }
 
 /* ---- the console on the left ------------------------------------------------------------ */
@@ -732,6 +735,10 @@ static void draw_hud(void) {
 
 static void draw_view_text(void) {
     ui_audit_area("view", VX, 0, KPR_VIEW_W, KPR_VIEW_H);
+    if (kpr_demo) {
+        if ((kg.frame_t / 30) & 1) txt_c("DEMO", VX + KPR_VIEW_W / 2, 20, C_YELLOW);
+        tiny_c("PRESS ANY BUTTON", VX + KPR_VIEW_W / 2, 30, C_WHITE);
+    }
     if (kg.fight >= 0 && kg.boss[kg.fight].on) {
         const KprBoss *o = &kg.boss[kg.fight];
         int w = 120, x = VX + (KPR_VIEW_W - w) / 2;
