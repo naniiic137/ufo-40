@@ -30,7 +30,9 @@ wait 3
 expect state == 3
 expect ahead == 3
 expect turn == 3
-# PASS TURN
+# PASS TURN: the menu stays open on it; A again passes another, and A
+# held keeps passing turns (one at the press, then one each 12 frames
+# after the first 24)
 press A
 wait 3
 press DOWN
@@ -39,6 +41,15 @@ expect vmenu_sel == 2
 press A
 wait 3
 expect turn == 4
+expect state == 4
+press A
+wait 3
+expect turn == 5
+hold A 60
+expect turn == 10
+press B
+wait 3
+expect state == 3
 # the key on floor 0 lies at (2,6); stand on it and pick it up
 cheat pos 2 6 0
 press A

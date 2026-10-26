@@ -26,16 +26,12 @@ expect turn == 2
 expect hp == 52
 press A
 wait 3
-press DOWN
-press A
-wait 3
 expect hp == 44
 press A
 wait 3
-press DOWN
-press A
-wait 3
 expect hp == 44
+press B
+wait 3
 # poison (from wet slime): 1 a turn, but never below 1
 cheat pos 2 5 1
 cheat hp 3
@@ -47,13 +43,9 @@ press A
 wait 3
 press A
 wait 3
-press DOWN
 press A
 wait 3
-press A
-wait 3
-press DOWN
-press A
+press B
 wait 3
 expect hp == 1
 expect state == 3
@@ -75,9 +67,6 @@ press A
 wait 3
 expect hp == 58
 cheat hp 2
-press A
-wait 3
-press DOWN
 press A
 wait 3
 expect state == 17

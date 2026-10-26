@@ -517,6 +517,13 @@ static void ivw_update(void) {
     case VS_MENU:
         ig.menu_sel = menu_move(ig.menu_sel, ig.nmenu);
         if (pressed_b()) { ivw_set_state(VS_EXPLORE); break; }
+        /* A held on PASS TURN keeps passing turns */
+        if (ig.menu[ig.menu_sel] == MA_PASS && (input_down() & BTN_A)) {
+            if (++ig.pass_hold >= 24 && ig.pass_hold % 12 == 0) {
+                ivw_pass_turn();
+                if (ig.state == VS_EXPLORE) ivw_set_state(VS_MENU);
+            }
+        } else ig.pass_hold = 0;
         if (pressed_a()) { ivw_sfx("ui_ok"); ivw_menu_do(ig.menu[ig.menu_sel]); }
         break;
     case VS_INV: {

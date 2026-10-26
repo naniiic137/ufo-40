@@ -653,7 +653,11 @@ void ivw_menu_do(int a) {
     ivw_set_state(VS_EXPLORE);
     switch (a) {
     case MA_INV: ig.inv_sel = 0; ivw_set_state(VS_INV); return;
-    case MA_PASS: ivw_pass_turn(); return;
+    case MA_PASS:
+        /* the menu stays open on PASS TURN: press again, or hold A, to pass more */
+        ivw_pass_turn();
+        if (ig.state == VS_EXPLORE) ivw_set_state(VS_MENU);
+        return;
     case MA_OPEN: w->tile[y][x] = T_DOOR_OPEN; ivw_sfx("ivw_door"); break;
     case MA_CLOSE: w->tile[y][x] = T_DOOR; ivw_sfx("ivw_door"); break;
     case MA_UNLOCK:

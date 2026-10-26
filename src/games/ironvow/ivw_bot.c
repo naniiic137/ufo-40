@@ -688,7 +688,8 @@ static int screen_buttons(void) {
         return tap(BTN_A);
     }
     case VS_MENU: {
-        int want = op == OP_MENU ? op_action : MA_PASS;
+        if (op != OP_MENU) return tap(BTN_B); /* done: close it */
+        int want = op_action;
         int i = menu_index(want);
         if (i < 0) { op = OP_NONE; return tap(BTN_B); }
         int m = move_cursor(ig.menu_sel, i);

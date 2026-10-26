@@ -254,7 +254,7 @@ static int cut_cmp(const void *a, const void *b) {
     return da < db ? 1 : da > db ? -1 : 0;
 }
 
-static uint8_t map_sweet[PAL_COUNT], map_foul[PAL_COUNT];
+static uint8_t map_sweet[PAL_COUNT], map_foul[PAL_COUNT], map_free[PAL_COUNT];
 
 static void gather_cuts(void) {
     IvwWorld *w = &ig.w;
@@ -264,6 +264,12 @@ static void gather_cuts(void) {
         pal_identity(map_sweet); pal_identity(map_foul);
         pal_swap(map_sweet, C_BLUE, C_SKY);
         pal_swap(map_foul, C_BLUE, C_LEAF);
+        /* the last throne, the free one, is another colour */
+        pal_identity(map_free);
+        pal_swap(map_free, C_WINE, C_NAVY);
+        pal_swap(map_free, C_RED, C_BLUE);
+        pal_swap(map_free, C_AMBER, C_LIGHT);
+        pal_swap(map_free, C_YELLOW, C_WHITE);
         maps_ready = true;
     }
     for (int i = 0; i < w->nobj; i++) {
@@ -274,7 +280,7 @@ static void gather_cuts(void) {
         case OB_MIMIC: add_cut(&ivw_spr[SPR_CHEST], x, y, 0.55f, NULL); break;
         case OB_SWEET_WELL: add_cut(&ivw_spr[SPR_WELL], x, y, 0.7f, map_sweet); break;
         case OB_FOUL_WELL: add_cut(&ivw_spr[SPR_WELL], x, y, 0.7f, map_foul); break;
-        case OB_THRONE: add_cut(&ivw_spr[SPR_THRONE], x, y, 0.85f, NULL); break;
+        case OB_THRONE: add_cut(&ivw_spr[SPR_THRONE], x, y, 0.85f, ig.hero.floor == 6 ? map_free : NULL); break;
         case OB_PEDLAR: add_cut(&ivw_spr[SPR_PEDLAR], x, y, 0.75f, NULL); break;
         case OB_KNIGHT: add_cut(&ivw_spr[SPR_KNIGHT_NPC], x, y, 0.85f, NULL); break;
         case OB_PILLAR: add_cut(&ivw_spr[o->param ? SPR_RACK : SPR_PILLAR], x, y, o->param ? 0.75f : 1.0f, NULL); break;

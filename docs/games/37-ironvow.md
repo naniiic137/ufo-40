@@ -55,7 +55,7 @@ bosses sit). The rolls are seeded per run.
 | Mechanic | How IRONVOW does it | Source | Test |
 |---|---|---|---|
 | Walking | UP a tile forward, DOWN a tile back, LEFT / RIGHT a quarter turn; a wall is a bump | [MH], [MM] | ivw_02 |
-| Time | every step and every interaction passes a turn; the clock moves when it does | [GUIDE], [MM] | ivw_02, ivw_03 |
+| Time | every step and every interaction passes a turn; the clock moves when it does; PASS TURN stays open in the menu and A held on it keeps passing turns | [GUIDE], [MM] | ivw_02, ivw_03 |
 | The menu | A: PACK and PASS TURN always, then what the knight faces or stands on (doors, levers, torches, fungus, lanterns, gem panels, switches, glyphs, chests, wells, the throne, the pedlar, the knight, the socket, things on the floor, the searched room); B backs out | [MM], [GUIDE] | ivw_03 |
 | Doors and keys | doors open from the menu; a locked door takes an iron key (keys go on a ring) | [MM] | ivw_03 |
 | Spikes | up two turns, down two; PASS TURN times them | [GUIDE] | ivw_04 |
@@ -77,7 +77,7 @@ bosses sit). The rolls are seeded per run.
 | Spells outside a fight | CHART (what has been seen, 16 x 16), OPEN (an outlined wall becomes a door), KINDLE (lights a torch), GALE (flames down a passage blown away; things lying there pushed to its end), VEIL (10 turns + 1 a point of LORE, through flames and bosses), FLOAT (10 turns; ending over a pit is death), FLARE (a flame ahead starts its fight burning), MEND, RESTORE | [MH], [GUIDE] | ivw_11 |
 | Spells in a fight | LANCE (through any guard, down the line, back row too, a short stun), KINDLE (singes, slows), GALE (out of the fight, no motes), MIRE (the front row slowed), RIME (frozen: no guard, no blows; a coiler three times as long), THUNDER (every foe), HUSH (no casting), TWIN (a second knight strikes), WARD (takes blows, unblockable ones too), QUICKEN (much faster feet), VEIL (no foe can guard) | [MH], [GUIDE] | ivw_12 |
 | Stats | MIGHT: harder blows, cheaper swings, quicker breath, eases heavy armour; GRIT: 6 stamina a point, 10 health every 3; LORE: 4 mana a point, harder spells, more time to draw | [GUIDE] | ivw_13 |
-| Thrones | one a floor from floor 1; 150, 300, 450, 600, 750 motes, the last free; 3 points to place | [GUIDE], [TVT], [STEAM-HELP] | ivw_13 |
+| Thrones | one a floor from floor 1; 150, 300, 450, 600, 750 motes, the last free (and blue, not red); 3 points to place | [GUIDE], [TVT], [STEAM-HELP] | ivw_13 |
 | Motes | each foe's worth (the wiki's 10-60 range, ours); the first 6 fights of a floor pay it times (2 + floor) / 2, the next 6 the plain worth, then 5 at most | [TVT], [MH] | ivw_14 |
 | The pack | 10 places, 12 at most; gear is worn from it; tonics are drunk from it; monster parts are readied and go off as the next fight starts; what is set down stays there | [MH], [GUIDE], [STEAM-RK] | ivw_15 |
 | Gear | 12 blades (dirk to Dawnbrand, MIGHT needs 3-15; under it a blade hits for two thirds and costs half again), 9 armours (plate slows and costs swings), 7 shields and bracers (bracers cannot block) | [GUIDE] | ivw_15, ivw_09 |
@@ -201,7 +201,7 @@ the UFO 50 collection; UFO 40 has no terminal, so they are left out.
 |---|---|---|
 | Exploring | UP / DOWN | a step forward / back |
 | | LEFT / RIGHT | turn a quarter |
-| | A | the menu (PACK, PASS TURN, and what is in front or underfoot) |
+| | A | the menu (PACK, PASS TURN, and what is in front or underfoot); A held on PASS TURN keeps passing |
 | | B, then the pad | draw a glyph |
 | Menus | pad, A, B | choose, take, back |
 | Fighting | LEFT / RIGHT | strafe |
