@@ -133,6 +133,7 @@ menu, shows the buttons as you now press them). SELECT or B closes it.
 | 19 | **CHIME CIRCUIT** | The Big Bell Race | side-view flight with gravity, thrust and drift, six ships on one screen, eight laps on each of eight courses in a fixed order, three hit points that walls, floors and weapons take, a slash that only knocks, a relaunch from under the start line to fly the lap again, a hit point back every lap, pickup stations with a "!!" warning (bullets, mines, fireballs, the big slash, the payload), boost arrows and side routes, 9/7/5/3/2/1 points, the winner starting last, CPUs that turn on you, 2P at once | the chime ship, Ansel and Clary and four visitors from other UFO 40 cartridges, the eight tracks and their skies, the LOOT-GALE code |
 | 20 | **LIMPET** | Warptank | a tank that clings to any surface and can't jump or fall: it rolls tile by tile along floors, walls and ceilings, ramps carry it round corners, it fires straight out from its surface (a tap one shot, a hold a burst of three) and warps straight across to the opposite surface, with flares where it lands; one hit and it's scrapped, then try again from the last C plate or go back to the station, as often as it takes; a camera that snaps along; 26 decks of eight screen-sized rooms and a secret 27th, entered from pods in a station hub that is a maze of twenty rooms with hidden pods, opening up at 4 and 9 decks, by a hidden side way and by the mid-game boss, each opening shown in a short scene, with three survival decks of waves; a jar hidden in an unmarked surface in 23 decks that only counts if you leave alive, gold pods, hint bees and counters after the end; outline, swap, breakable and push blocks, one-way plates, magnet floors, doors, timed doors, portals, hoppers, platforms and crushers; turrets, lasers, drones, oglers, crawlers, sacs, worms and a switch worm; the Turncoat and the Dreadnought (hit only up its barrel); every deck's best time | Limpet and Spindle Station (the Concourse, the Canteen, the Gristle Wing, the Upper Ring), all 27 decks, the Gristle and its creatures, the Turncoat and the Dreadnought, honey and bees, Wren, Gus, Mother Brindle, Rolo and the night clerk, eighteen tunes |
 | 21 | **TUSKWIND** | Waldorf's Journey | a new random map every run, a chain of floating islets to a door at the far end; every jump aimed with a cursor and charged before launch (aimed flat, a lunge with no air), then nothing in the air but flapping on a bar only fish refill; one-way islets, solid bouncy rocks and foam that lasts one full charge; six terns from six lighthouses as lives; 36 loose shells that are money and score, two chests and two keys and a hidden third; winds at 40 % and 80 % and bells that toggle them once; charging rams; mantas to dodge, ride or burst for keys; stalls of two random wares from six items, one visit each; 22 signs and a hidden one; an end room with spiral shells for unused terns, a shaft and the hidden chest; two endings split at 50 shells; a 2P brawl on a wrapping screen whose islets crumble | Burl the walrus in his nightcap, Skerry the old one, the Duchess Auk, terns, rams and mantas, the bobber, spyglass, grapnel, kite, spinner and sprat tin, every sign, both talks and the hall |
+| 22 | **KIPPER** | Porgy | an undersea map in three areas stacked by depth, explored from two docks on the surface, where fuel is health and time: swimming, dashing and every knock burn it (half a bar a knock), and running dry means a tow home with the dive's finds lost; anything picked up trails behind the sub, three at most, and counts only once docked, where the dive is banked; stun torpedoes that pacify instead of kill (held fire keeps the facing, taps fire quicker), creatures that wake again at a dock or in another area, thieves that snatch from the trail and clouds that knock it loose; 20 fuel tanks (4 to 24 bars), 20 torpedo kits, 20 eggs for a fish lady who gives a fish companion every five, 10 pieces of equipment fitted 2 to 4 at a time (short hard torpedoes for switches, a drill dash for dirt, a held boost, bombs dropped sitting still, rockets that go up, homing torpedoes, a lamp for the pitch-dark deep, a radar for big ones and hidden things, leaner fuel, armour plates), five big ones who roam (one keeps to its chamber) and keep the damage done once you dock, a light from each for the slots, steam vents, hidden walls, the alien at the bottom and two endings; a demo on the title | Dr. Juno Marlow and her yellow sub Kipper, Auntie Roe, Gullwater Sound and every cavern of it, all 18 creatures, Gnasher, Inkwell, Longjaw, the Whorl, Nightcape and Xolloth, the equipment's names, nine tunes |
 | 23 | **TURNIP TRUCK** | Onion Delivery | one wrapping city under a fixed camera, steering that turns the truck to its own left and right, a tapped turn that sidesteps, a weak brake that becomes reverse, A+B powerslides and the spin-out's spin attack, walls that only spin you, three hearts that come back at top speed and refill on every delivery, seven workdays of five timed deliveries (+8 s, +30 s for the fifth, +12 s for a crate hanging over a hazard past a ramp) and back to the depot before 00, overtime, three spare tries for the whole week, six chaos events in a shuffled order from Tuesday, ramps, brine pools and drop zones, gas canisters, rocks and right-hand traffic, a practice code and a reverse code | Zib, Granny Root, Glenda Glorp of Channel 9, Blipton and its 33 places, the brine burst, the big beet, the mush mob, the radish ring, the downpour and the moon raid |
 | 24 | **SHUTTERBUG** | Caramel Caramel | a side-scroller with no power-ups: hold fire for an automatic gun that also charges four rings which bounce off rock, tap the other button for a photo a third of the screen ahead that stuns, doubles damage and points, blows up the foes round it, stops green foes firing back, brings down wall foes, stops whole trains and opens boss weak points; a camera that refills slowly, or at once with two bulbs that only fly to you when you stop firing; rock that does no harm; two hits a life, no spare ships to start, eight from points, a lost ship back to the stage start with the shown score at 0; a tutorial, three planets and two open wave stages, two mid-bosses (one you can leave), three bosses, a red repair foe per planet, and U, F and O hidden one per planet for the true last boss; 2P co-op | Poppy and Sprig, Teatime, Gloom and Fossil Planets, Comet Rain, Madame Scone, the Teapot, Old Croak, the Signalman, King Thunderjaw, the Kaleidoscope, every cave and wave |
 | 25 | **OPEN HOUSE** | Party House | drawing guests from a deck into a house with limited space, the original's 46 guest abilities, costs and trouble, police, fire marshal and bans, set guest lists and a random list, win by ending a party with four stars within 25 nights, 2P hot-seat; the fame and cash caps; the owner's endless OPEN ALL NIGHT, a custom list and two guests of his own | a whitewashed house by the sea, all 48 guests' names and faces |
@@ -932,6 +933,60 @@ the top.
   terns, rams, mantas, cockles and whelks, the bobber, spyglass, grapnel,
   kite, spinner and sprat tin, all 23 signs, both talks, the hall, and the
   music.
+
+### 22 · KIPPER
+
+<p align="center">
+  <img src="docs/shots/kipper.gif" width="640" alt="Kipper: the little yellow sub towing three finds home through the Kelpwood">
+</p>
+<p align="center">
+  <img src="docs/shots/kipper_title.png" width="320" alt="The title: Kipper bobbing under the waves">
+  <img src="docs/shots/kipper_dock.png" width="320" alt="A dock's equipment screen: ten pieces, as many fitted as there are slots">
+</p>
+<p align="center">
+  <img src="docs/shots/kipper_inkwell.png" width="320" alt="The Coral Garden: Inkwell the octopus reaches an arm out of the wall">
+  <img src="docs/shots/kipper_roe.png" width="320" alt="Auntie Roe takes her eggs back">
+</p>
+<p align="center">
+  <img src="docs/shots/kipper_blackwater.png" width="320" alt="The Blackwater by lamplight: eyes in the dark and a steam vent">
+  <img src="docs/shots/kipper_xolloth.png" width="320" alt="Xolloth in its lair, its laser trailing the sub">
+</p>
+
+*A tribute to **Porgy** (UFO 50 #22).*
+
+- **Plays the same:** a little sub in an undersea map, eight ways, slow,
+  from two docks on the surface. Fuel is health and time: swimming burns
+  it (sitting still doesn't), a dash burns more, and every knock from a
+  creature, a shot or a vent costs half a bar and a push. Run dry and the
+  sub is towed back to the last dock, the dive's finds back where they lay.
+  Anything picked up trails behind on the sub's wake, three at most, and
+  counts only once the sub noses up under a dock, which fills the tank,
+  saves, keeps the damage done to the big ones and the blocks blasted, and
+  wakes every creature again (as crossing into another area does). Stun
+  torpedoes don't kill: they pacify. Hold A for a torpedo every 14 frames
+  with the facing locked, or tap it for quicker fire (A is the main action,
+  as everywhere in UFO 40; the original fires with B and dashes with A).
+  Polyps let out thieves while you tow something, and a bloater's clouds
+  knock the trail loose.
+- **The sea:** the Kelpwood (lit, with both docks), the Drowned Arcade
+  (ruins and columns) and the Blackwater (pitch dark without the lamp,
+  eyes in the walls, steam vents). 20 fuel tanks (4 to 24 bars), 20 torpedo
+  kits, 20 eggs for Auntie Roe, who sends a fish along every five (blue
+  ones stop shots, red ones shoot with you), and ten pieces of equipment,
+  two fitted at a dock, three and four as the big ones fall: ram torpedoes
+  (switches, crabs in their shells), the auger (dashes through dirt), the
+  long thruster, sinker bombs (sit still, hold B), upshot rockets (blue
+  blocks from below), seeker fins, the lamp, the sonar, the lean mix and
+  hull plates. Five big ones roam their areas (the Whorl keeps to its
+  chamber) and Xolloth waits at the bottom; beaten, each flees for good and
+  leaves a deep light. Cracked and sealed walls hide things. The goals are
+  driving off Gnasher, beating Xolloth, and beating it with everything
+  found; the demo player in the tests does all of it from the title with
+  real button presses, in 78 minutes of play.
+- **Ours:** Dr. Juno Marlow and Kipper, Auntie Roe, Gullwater Sound and
+  every cavern of it (laid out by hand), all 18 creatures, Gnasher,
+  Inkwell, Longjaw, the Whorl, Nightcape and Xolloth, the equipment's
+  names, both endings, and nine tunes.
 
 ### 23 · TURNIP TRUCK
 
