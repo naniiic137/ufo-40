@@ -114,6 +114,7 @@ static int first_foe(void) {
     return -1;
 }
 
+static void build_queue(void);
 static void start_round(void) {
     B.turn++;
     for (int i = 0; i < 4; i++) {
@@ -127,6 +128,7 @@ static void start_round(void) {
     B.phase_t = 0;
     if (B.cur < 0) {
         /* nobody to order (the hound alone, or all raging): straight into the round */
+        build_queue();
         B.phase = BP_ACT;
     }
 }
@@ -162,6 +164,12 @@ static void hero_falls(int h) {
     sg.s.hero[h].status = 0;
     sg.s.deaths++;
     spur_sfx("spur_fall");
+}
+
+static void foe_hit(int i, int dmg);
+/* tests: a foe struck down where it stands */
+void spur_foe_kill(int i) {
+    if (i >= 0 && i < B.nfoe && spur_foe_alive(i)) foe_hit(i, B.foe[i].hp);
 }
 
 /* returns the damage done (after Second Wind) */
@@ -310,6 +318,7 @@ static void bar_update(int slot) {
         return;
     }
     B.bar_x += spd;
+    B.bar_delta = spd;
     if (B.bar_kind == WC_HEAVY && !B.bar_auto) {
         /* hold A while the marker is in the band: a shot every six frames, eight at most */
         SpurZoneBar *z = &B.z[0];
@@ -521,7 +530,7 @@ static void do_skill(int slot) {
             f->lifted = 1;
             int t = e->teeth / 2 + 5;
             sg.s.teeth += t;
-            snprintf(b2, sizeof b2, "LIFTS %d TEETH.", t);
+            snprintf(b2, sizeof b2, "LIFTS %d BITS.", t);
         } else snprintf(b2, sizeof b2, "COMES UP EMPTY.");
         break;
     }
@@ -530,12 +539,12 @@ static void do_skill(int slot) {
         const SpurEnemyDef *e = ed(tf);
         int cost = (int)((e->xp + e->teeth) / 2 + B.foe[tf].hp / 2 + 10);
         if (e->flags & EF_NOBRIBE) { snprintf(b2, sizeof b2, "%s WON'T TAKE A BRIBE.", e->name); break; }
-        if (sg.s.teeth < cost) { snprintf(b2, sizeof b2, "IT WANTS %d TEETH. YOU'RE SHORT.", cost); break; }
+        if (sg.s.teeth < cost) { snprintf(b2, sizeof b2, "IT WANTS %d BITS. YOU'RE SHORT.", cost); break; }
         if (rng_range(&sg.rng, 0, 99) < (e->flags & EF_BOSS ? 50 : 75)) {
             sg.s.teeth -= cost;
             B.foe[tf].fled = 1;
             B.foe[tf].hp = 0;
-            snprintf(b2, sizeof b2, "%s TAKES %d TEETH AND LEAVES.", e->name, cost);
+            snprintf(b2, sizeof b2, "%s TAKES %d BITS AND LEAVES.", e->name, cost);
             if (B.troop == 100 && B.foe[tf].e == 99) B.final_kill = 2; /* Nadir paid off */
         } else snprintf(b2, sizeof b2, "%s SPITS ON THE MONEY.", e->name);
         break;
@@ -846,7 +855,7 @@ static void foe_act(int foe) {
         int t = imin(sg.s.teeth, imax(5, ac->power));
         sg.s.teeth -= t;
         snprintf(a, sizeof a, "%s PICKS A POCKET.", e->name);
-        snprintf(b2, sizeof b2, "%d TEETH GONE!", t);
+        snprintf(b2, sizeof b2, "%d BITS GONE!", t);
         break;
     }
     case EA_FLEE:
@@ -1332,7 +1341,7 @@ void spur_battle_draw(void) {
     }
     case BP_WIN: {
         text_draw("THE WISPS ARE SNUFFED OUT.", 136, 128, C_YELLOW);
-        snprintf(b, sizeof b, "%d XP EACH, %d TEETH", B.xp_gain, B.teeth_gain);
+        snprintf(b, sizeof b, "%d XP EACH, %d BITS", B.xp_gain, B.teeth_gain);
         text_draw(b, 136, 140, C_WHITE);
         if (sg.s.bank > 0) {
             snprintf(b, sizeof b, "THE BANK HOLDS %d", sg.s.bank);

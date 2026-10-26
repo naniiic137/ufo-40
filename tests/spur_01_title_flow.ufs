@@ -1,0 +1,37 @@
+# HELLSPUR: the title (NEW GAME only, with no save yet; one player, no
+# 2-player choice), the four story pages, then the burning saloon with the
+# angel and the eight strangers. B on the title goes back to the library.
+seed 1
+game hellspur
+wait 20
+expect state == 0
+expect art_bad == 0
+expect layout == 0
+expect save_valid == 0
+expect paused == 0
+press A
+wait 5
+expect state == 1
+wait 20
+press A
+wait 25
+press A
+wait 25
+press A
+wait 25
+press A
+wait 5
+expect state == 2
+expect map == 2
+expect posse == 0
+expect nsaved == 0
+# the strangers are all there; B does nothing for the angel
+press B
+wait 5
+expect ui == 0
+# back to the title from a fresh start, then out to the library
+game hellspur
+wait 20
+press B
+wait 30
+expect_scene library

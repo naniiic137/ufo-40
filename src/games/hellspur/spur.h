@@ -27,6 +27,19 @@
 #define SPUR_BACK BTN_B
 #define SPUR_DIRS (BTN_UP | BTN_DOWN | BTN_LEFT | BTN_RIGHT)
 
+/* The title's demo plays itself: while it runs, the cartridge reads the demo
+ * player's buttons instead of the pad. Every btn/btnp/btn_repeat/
+ * input_consume in the cartridge goes through these. */
+bool spur_btn(int m);
+bool spur_btnp(int m);
+bool spur_btn_repeat(int m);
+void spur_consume(void);
+void spur_input_frame(void);
+#define btn(m) spur_btn(m)
+#define btnp(m) spur_btnp(m)
+#define btn_repeat(m) spur_btn_repeat(m)
+#define input_consume() spur_consume()
+
 /* ---- the screen ---------------------------------------------------------- */
 #define TS 16                     /* a tile is 16 x 16 pixels */
 #define VIEW_W 20                 /* tiles across the screen */
@@ -439,6 +452,7 @@ typedef struct {
     int bar_done_t;
     int bar_auto;             /* dog / rage: the game presses for you */
     int bar_auto_at;
+    int bar_delta;            /* how far the marker moved last frame */
     bool boss, norun, wiped, won, fled;
     int xp_gain, teeth_gain;
     int lift_item;
@@ -520,6 +534,7 @@ typedef struct {
     int last_battle_won;
     int ani;
     int map_t;                /* frames since this map was entered */
+    int no_spawn;             /* tests: no new wisps */
 } SpurGame;
 
 extern SpurGame sg;
@@ -631,6 +646,7 @@ void spur_battle_end(void);
 void spur_battle_draw(void);
 int spur_foe_alive(int i);
 int spur_foes_left(void);
+void spur_foe_kill(int i);
 
 /* ---- spur_story.c ------------------------------------------------------------------------- */
 void spur_talk(int npc);
@@ -646,6 +662,7 @@ const char *spur_ending_line(int k);
 extern const char *const SPUR_INTRO[];
 extern const int SPUR_INTRO_PAGES;
 const char *spur_objective(void);
+void spur_saloon_exit(void);
 
 /* ---- spur_draw.c / spur_art.c -------------------------------------------------------------- */
 void spur_draw(void);

@@ -1,0 +1,73 @@
+# HELLSPUR: walking and the wisps. The posse walks tile by tile in a line,
+# each following in the step of the one ahead (the fallen too, in their pine
+# boxes). A wisp steps once toward the nearest of the posse for every step
+# you take, and not at all while you stand still; a touch on any of the
+# posse, the dead one at the back included, starts a fight. On hired horses
+# the wisps step once for every two of yours.
+seed 1
+game hellspur
+wait 5
+cheat posse 0 2 5 6
+cheat spawns 0
+cheat warp 0 30 78
+wait 2
+hold RIGHT 30
+wait 2
+expect x == 33
+expect tx1 == 32
+expect tx2 == 31
+expect tx3 == 30
+expect ty3 == 78
+# a wisp seven tiles ahead
+cheat wisp 40 78
+expect wisps == 1
+press A
+wait 20
+expect wisp0x == 40
+hold RIGHT 10
+wait 2
+expect x == 34
+expect wisp0x == 39
+expect state == 2
+hold RIGHT 30
+wait 30
+expect state == 3
+expect b_troop > 0
+expect wisps == 0
+cheat god
+botuntil state == 2 5000
+cheat mortal
+# the dead one at the back of the line still gets caught
+cheat warp 0 30 78
+cheat heal
+hold RIGHT 30
+wait 2
+cheat hp 6 0
+expect alive == 3
+expect tx3 == 30
+hold UP 10
+wait 2
+expect ty0 == 77
+expect tx3 == 31
+cheat wisp 32 79
+hold UP 10
+wait 30
+expect state == 3
+cheat god
+botuntil state == 2 5000
+cheat mortal
+# on horseback: one wisp step for two of ours
+cheat heal
+cheat warp 0 30 78
+cheat horses 1
+cheat mount 1
+expect mounted == 1
+cheat wisp 38 78
+hold RIGHT 5
+wait 2
+expect x == 31
+expect wisp0x == 38
+hold RIGHT 5
+wait 2
+expect x == 32
+expect wisp0x == 37

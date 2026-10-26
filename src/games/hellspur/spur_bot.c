@@ -1193,7 +1193,7 @@ static int field_buttons(void) {
     int home = STEP[s].home;
     int need = STEP[s].level + bot_extra[s];
     bool weak = avg_level() < need;
-    bool beaten = posse_hp_pct() < 45 || (dead_slot() >= 0 && sg.map.kind != MK_TOWN);
+    bool beaten = posse_hp_pct() < 45;
     if (sg.map.kind == MK_TOWN || sg.map_id == M_WIDOW) {
         int r = town_chores();
         if (r >= 0) return r;
@@ -1211,7 +1211,8 @@ static int field_buttons(void) {
         bool raise = false;
         for (int i = 0; i < 4; i++) { int h = spur_hero_at(i); raise |= spur_alive(h) && spur_has_skill(h, SK_RAISE); }
         int ch = town_has(home, SV_CHAPEL) ? home : sg.s.chapel;
-        if (!raise && spur_bag_find(IT_HOLYOIL) < 0 && sg.map_id != ch && ch >= SPUR_FIRST_TOWN) {
+        bool afford = sg.s.teeth >= 20 * sg.s.hero[spur_hero_at(dead)].level;
+        if (!raise && afford && spur_bag_find(IT_HOLYOIL) < 0 && sg.map_id != ch && ch >= SPUR_FIRST_TOWN) {
             int r = travel_to(ch);
             if (r) return r;
         }
@@ -1241,15 +1242,22 @@ static int field_buttons(void) {
     Goal g = step_goal(s);
     /* a boss waits: go in rested and whole */
     bool boss_step = g.npc == -2 || s == S_TALLY || s == S_FORT || s == S_MOLLY || s == S_MIMIC || s == S_FINAL;
-    if (boss_step && sg.map_id != g.map && (posse_hp_pct() < 80 || dead_slot() >= 0)) {
+    /* a fallen one only holds things up while there's a way to raise them */
+    int fallen = dead_slot();
+    if (fallen >= 0) {
+        bool way = spur_bag_find(IT_HOLYOIL) >= 0 || sg.s.teeth >= 20 * sg.s.hero[spur_hero_at(fallen)].level;
+        for (int i = 0; i < 4; i++) { int h = spur_hero_at(i); way |= spur_alive(h) && spur_has_skill(h, SK_RAISE); }
+        if (!way) fallen = -1;
+    }
+    if (boss_step && sg.map_id != g.map && (posse_hp_pct() < 80 || fallen >= 0)) {
         if (sg.map.kind != MK_TOWN && field_heal()) return TAP(SPUR_BACK);
         bot.rest_flag = 1;
         int r = go_home(home);
         if (r >= 0) return r;
     }
-    if (boss_step && sg.map_id == g.map && sg.map.kind == MK_DUNGEON && (posse_hp_pct() < 75 || dead_slot() >= 0)) {
+    if (boss_step && sg.map_id == g.map && sg.map.kind == MK_DUNGEON && (posse_hp_pct() < 75 || fallen >= 0)) {
         if (field_heal()) return TAP(SPUR_BACK);
-        if (posse_hp_pct() < 55 || dead_slot() >= 0) {
+        if (posse_hp_pct() < 55 || fallen >= 0) {
             bot.rest_flag = 1;
             int r = go_home(home);
             if (r >= 0) return r;

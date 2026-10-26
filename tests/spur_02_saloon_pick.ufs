@@ -1,0 +1,95 @@
+# HELLSPUR: the burning saloon. The angel walks up to each stranger, reads
+# who they are, and chooses whether to carry them out; four at most, at
+# least one. Walking to the door asks to leave with those chosen; the rest
+# burn. The posse is the chosen ones, in the strangers' own order.
+seed 1
+game hellspur
+wait 5
+cheat title
+wait 20
+press A
+wait 25
+press A
+wait 25
+press A
+wait 25
+press A
+wait 25
+press A
+wait 10
+expect map == 2
+expect x == 10
+expect y == 11
+# Cora, four steps right
+hold RIGHT 40
+expect x == 14
+press RIGHT
+expect face == 3
+expect npc_ahead == 6
+press A
+wait 10
+expect ui == 10
+press A
+wait 10
+# the question: NO is the default; LEFT picks YES
+press LEFT
+press A
+wait 10
+expect saved6 == 1
+expect nsaved == 1
+press A
+wait 10
+expect ui == 0
+# Hattie, up the room
+hold LEFT 50
+hold UP 10
+expect x == 9
+expect y == 10
+press UP
+press A
+wait 10
+press A
+wait 10
+press LEFT
+press A
+wait 10
+press A
+wait 10
+expect saved5 == 1
+expect nsaved == 2
+# Quill: read about him, and leave him
+hold LEFT 40
+hold UP 10
+expect x == 5
+expect y == 9
+press UP
+expect npc_ahead == 3
+press A
+wait 10
+press A
+wait 10
+press A
+wait 10
+expect saved3 == 0
+expect nsaved == 2
+# to the door: leave with two
+hold RIGHT 50
+expect x == 10
+hold DOWN 40
+wait 10
+expect ui == 10
+press LEFT
+press A
+wait 10
+# the fall of the Garter, then Gladwell's chapel steps
+press A
+wait 10
+press A
+wait 10
+expect map == 3
+expect posse == 2
+expect order0 == 5
+expect order1 == 6
+expect order2 == -1
+expect teeth == 200
+expect save_valid == 1

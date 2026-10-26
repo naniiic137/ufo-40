@@ -9,6 +9,22 @@ SpurGame sg;
 SpurSave spur_records; /* what the save file holds right now */
 bool spur_sim;
 
+/* ---- the pad, or the demo player's hands ------------------------------------------- */
+static uint32_t d_cur, d_prev, d_block;
+void spur_input_frame(void) {
+    if (!sg.demo) return;
+    d_prev = d_cur;
+    d_cur = (uint32_t)spur_bot_buttons() & 0xFF;
+    d_block &= d_cur;
+}
+bool spur_btn(int m) { return sg.demo ? (d_cur & ~d_block & (uint32_t)m) != 0 : (btn)(m); }
+bool spur_btnp(int m) { return sg.demo ? (d_cur & ~d_prev & ~d_block & (uint32_t)m) != 0 : (btnp)(m); }
+bool spur_btn_repeat(int m) { return sg.demo ? spur_btnp(m) : (btn_repeat)(m); }
+void spur_consume(void) {
+    if (sg.demo) d_block = d_cur;
+    else (input_consume)();
+}
+
 /* ---- small services -------------------------------------------------------------- */
 void spur_sfx(const char *name) {
     if (!spur_sim) sfx_play_name(name);
@@ -193,8 +209,9 @@ static void spur_update(void) {
     sg.state_t++;
     sg.ani++;
     if (sg.demo) {
-        if (++sg.demo_t > 60 * 60 || (input_held() & 0xFF)) { input_consume(); to_title(); return; }
+        if (++sg.demo_t > 60 * 60 || (input_held() & 0xFF)) { sg.demo = 0; (input_consume)(); to_title(); return; }
     }
+    spur_input_frame();
     switch (sg.state) {
     case GS_TITLE: title_update(); break;
     case GS_INTRO:
@@ -259,6 +276,12 @@ static int spur_query(const char *key, int *out) {
     if (!strncmp(key, "skill", 5)) {
         int h = 0, s = 0;
         if (sscanf(key + 5, "%d_%d", &h, &s) == 2) { *out = spur_has_skill(iclamp(h, 0, H_COUNT - 1), s); return 1; }
+        return 0;
+    }
+    if (!strncmp(key, "can", 3)) {
+        /* can_H_ITEM_SLOT: may this stranger wear or hold it there */
+        int h = 0, it = 0, sl = 0;
+        if (sscanf(key + 3, "%d_%d_%d", &h, &it, &sl) == 3) { *out = spur_can_equip(iclamp(h, 0, H_COUNT - 1), it, sl); return 1; }
         return 0;
     }
     if (!strncmp(key, "equip", 5)) {
@@ -328,6 +351,19 @@ static int spur_query(const char *key, int *out) {
     if (!strncmp(key, "b_zr", 4)) { *out = b->z[iclamp(atoi(key + 4), 0, BAR_MAXZ - 1)].red; return 1; }
     if (!strncmp(key, "b_zb", 4)) { *out = b->z[iclamp(atoi(key + 4), 0, BAR_MAXZ - 1)].b; return 1; }
     if (!strcmp(key, "b_shots")) { *out = b->bar_shots; return 1; }
+    if (!strcmp(key, "b_delta")) { *out = b->bar_delta; return 1; }
+    if (!strncmp(key, "b_yw", 4)) { int k = iclamp(atoi(key + 4), 0, BAR_MAXZ - 1); *out = b->z[k].red - b->z[k].a; return 1; }
+    if (!strncmp(key, "b_rw", 4)) { int k = iclamp(atoi(key + 4), 0, BAR_MAXZ - 1); *out = b->z[k].b - b->z[k].red; return 1; }
+    if (!strcmp(key, "b_inred") || !strcmp(key, "b_inyellow") || !strcmp(key, "b_ingap")) {
+        /* where the marker will be next frame, against the first mark still waiting */
+        int nx = b->bar_x + b->bar_speed, k = 0;
+        while (k < b->nz && b->z[k].result != ZR_PENDING) k++;
+        *out = 0;
+        if (b->phase != BP_BAR || k >= b->nz) return 1;
+        bool red = nx >= b->z[k].red && nx <= b->z[k].b, yel = nx >= b->z[k].a && nx < b->z[k].red;
+        *out = key[4] == 'r' ? red : key[4] == 'y' ? yel : (!red && !yel);
+        return 1;
+    }
     if (!strcmp(key, "b_kind")) { *out = b->bar_kind; return 1; }
     if (!strcmp(key, "b_auto")) { *out = b->bar_auto; return 1; }
     if (!strcmp(key, "b_won")) { *out = b->won; return 1; }
@@ -419,8 +455,20 @@ static int spur_cheat(const char *cmd) {
     if (sscanf(cmd, "bank %d", &a) == 1) { sg.s.bank = a; return 1; }
     if (sscanf(cmd, "wisp %d %d", &a, &b) == 2) { spur_spawn_wisp_at(a, b); return 1; }
     if (!strcmp(cmd, "nowisps")) { spur_clear_wisps(); return 1; }
+    if (sscanf(cmd, "spawns %d", &a) == 1) { sg.no_spawn = !a; return 1; }
     if (sscanf(cmd, "ward %d", &a) == 1) { sg.ward_steps = a; return 1; }
     if (sscanf(cmd, "battle %d", &a) == 1) { sg.ui.kind = UI_NONE; spur_battle_begin(iclamp(a, 1, SPUR_TROOPS - 1), -1); return 1; }
+    if (!strcmp(cmd, "closeui")) { sg.ui.kind = UI_NONE; return 1; }
+    if (sscanf(cmd, "talkto %d", &a) == 1) {
+        /* stand next to a person on this map, facing them (tests) */
+        if (a < 0 || a >= sg.map.nnpc) return 1;
+        int nx = sg.npc_x[a], ny = sg.npc_y[a];
+        static const int DX4[4] = {0, 0, -1, 1}, DY4[4] = {1, -1, 0, 0};
+        for (int k = 0; k < 4; k++)
+            if (spur_walkable(nx + DX4[k], ny + DY4[k], false)) { spur_place_party(nx + DX4[k], ny + DY4[k], k == 0 ? 1 : k == 1 ? 0 : k == 2 ? 3 : 2); break; }
+        return 1;
+    }
+    if (sscanf(cmd, "foekill %d", &a) == 1) { spur_foe_kill(a); return 1; }
     if (sscanf(cmd, "foehp %d %d", &a, &b) == 2) { if (a >= 0 && a < SPUR_FOES) sg.b.foe[a].hp = b; return 1; }
     if (sscanf(cmd, "mount %d", &a) == 1) { spur_set_mount(a); return 1; }
     if (!strcmp(cmd, "god")) { sg.god = 1; return 1; }

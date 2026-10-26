@@ -184,7 +184,7 @@ static int zone_here(void) {
 
 static void maybe_spawn(void) {
     int z = zone_here();
-    if (z < 0 || z >= SPUR_ZONES || sg.mounted == 2) return;
+    if (z < 0 || z >= SPUR_ZONES || sg.mounted == 2 || sg.no_spawn) return;
     int rate = SPUR_ZONE[z].rate;
     if (!rate) return;
     int live = 0;
@@ -288,7 +288,7 @@ void spur_respawn_at_chapel(void) {
     sg.s.horses = 0;
     spur_enter_map(town, -1, 0, 1);
     spur_save_game();
-    spur_say("YOU WAKE IN THE CHAPEL PEWS.\nSOMEONE HAS GONE THROUGH YOUR POCKETS.\nEVERY TOOTH YOU CARRIED IS GONE.");
+    spur_say("YOU WAKE IN THE CHAPEL PEWS.\nSOMEONE HAS GONE THROUGH YOUR POCKETS.\nEVERY BIT YOU CARRIED IS GONE.");
 }
 
 void spur_wipe_return(void) { spur_respawn_at_chapel(); }
@@ -329,6 +329,14 @@ static void step_done(void) {
     }
     /* doors and stairs */
     int t = spur_tile_at(&sg.map, x, y);
+    /* the angel at the saloon door: ask who goes */
+    if (sg.map_id == M_SALOON && !spur_flag(F_POSSE) && t == T_EXIT) {
+        sg.pos[0].y--;
+        sg.prev[0] = sg.pos[0];
+        sg.face = 0;
+        spur_saloon_exit();
+        return;
+    }
     if (sg.map.kind == MK_TOWN || sg.map.kind == MK_PLACE) {
         for (int i = 0; i < sg.map.ndoor; i++)
             if (sg.map.door[i].x == x && sg.map.door[i].y == y) {

@@ -1,0 +1,87 @@
+# README media: HELLSPUR. The title and the burning saloon from a new game;
+# the rest is set up with cheats and played by the demo player's real
+# button presses. The GIF is the posse in the Sweetgrass, a wisp catching
+# them, and a fight on the timing bar.
+shotscale 2
+seed 40
+game hellspur
+wait 60
+shot hellspur_title
+press A
+wait 25
+press A
+wait 25
+press A
+wait 25
+press A
+wait 25
+press A
+wait 20
+shot hellspur_saloon
+# the Sweetgrass, a wisp closing in, and the fight
+cheat posse 0 5 2 1
+cheat level 0 6
+cheat level 5 6
+cheat level 2 6
+cheat level 1 6
+cheat equip 0 0 35
+cheat spawns 0
+cheat warp 0 22 76
+cheat wisp 30 74
+cheat wisp 26 80
+gifstart hellspur 3 1
+hold RIGHT 20
+wait 4
+hold RIGHT 20
+wait 4
+hold RIGHT 20
+wait 30
+botplay 900
+gifstop
+# Meridian
+cheat warp 4 16 13
+wait 20
+shot hellspur_town
+# the B menu's equipment page
+press B
+wait 5
+press DOWN
+press DOWN
+press A
+wait 3
+press A
+wait 6
+shot hellspur_menu
+press B
+press B
+press B
+wait 5
+# a boss on the timing bar: the Saguaro Mother
+cheat level 0 30
+cheat level 5 30
+cheat level 2 30
+cheat level 1 30
+cheat god
+cheat warp 33 -1 0
+cheat battle 93
+botuntil b_phase == 8 2000
+botplay 22
+shot hellspur_bar
+# the last fight
+cheat level 0 45
+cheat level 5 45
+cheat level 2 45
+cheat level 1 45
+cheat warp 40 -1 0
+cheat battle 100
+botplay 70
+shot hellspur_final
+cheat mortal
+# the nightmares over the Territory
+cheat posse 0 5 2 1
+cheat key 10
+cheat warp 0 84 60
+cheat mount 2
+hold UP 40
+wait 3
+shot hellspur_fly

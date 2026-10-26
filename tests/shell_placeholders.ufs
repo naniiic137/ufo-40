@@ -1,7 +1,7 @@
 # SHELL: every empty slot holds a grey placeholder cartridge for the UFO 50
 # game it is waiting for: COMING SOON, the slot number and the tribute
 # sticker on its label. A starts nothing: a dull sound and a short NOT
-# LOADED YET. (Slots 22 and 40 are still empty; a test for a slot that gets
+# LOADED YET. (Slots 22 and 37 are still empty; a test for a slot that gets
 # its cartridge must move to another empty one.)
 wait 30
 press A
@@ -44,14 +44,15 @@ expect library_dud > 0
 press RIGHT
 expect library_dud == 0
 expect library_cursor == 22
-# slot 40, still empty: Grimstone
+# slot 37, still empty: Valbrace
 press DOWN
 press DOWN
-press RIGHT
-expect library_cursor == 39
+press LEFT
+press LEFT
+expect library_cursor == 36
 expect library_placeholder == 1
-expect library_sticker_has.TRIBUTE_TO_GRIMSTONE == 1
-expect library_sticker_has.UFO_50_#40 == 1
+expect library_sticker_has.TRIBUTE_TO_VALBRACE == 1
+expect library_sticker_has.UFO_50_#37 == 1
 press A
 wait 60
 expect_scene library

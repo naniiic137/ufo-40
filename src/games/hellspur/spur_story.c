@@ -51,6 +51,9 @@ static void saloon_talk(int slot) {
     spur_ask(tb, EV_CARRY, EV_DONT);
 }
 
+static void saloon_leave(void);
+void spur_saloon_exit(void) { saloon_leave(); }
+
 static void saloon_leave(void) {
     if (sg.nsaved == 0) { spur_say("YOU CANNOT LEAVE THEM ALL TO BURN."); return; }
     char names[96] = "";
@@ -132,7 +135,7 @@ static void talk_gladwell(int s) {
     case 2: spur_say("THE BLUE FIRES COME OUT AT YOU IN THE GRASS!\nIF ONE TOUCHES ANY OF YOU, EVEN THE ONE AT\nTHE BACK, IT'S A FIGHT!"); break;
     case 3:
         if (spur_bag_find(IT_HELLITE) >= 0 || spur_flag(F_SMITH_DONE)) { spur_say("SOLD YOU THE ONLY ONE I HAD."); break; }
-        spur_ask("GOT A LUMP OF BLACK HELLITE HERE. HOT TO THE\nTOUCH. A SMITH IN HELL WOULD KILL FOR IT.\fYOURS FOR 100,000 TEETH. BUY?", EV_BUY_HELLITE, 0);
+        spur_ask("GOT A LUMP OF BLACK HELLITE HERE. HOT TO THE\nTOUCH. A SMITH IN HELL WOULD KILL FOR IT.\fYOURS FOR 100,000 BITS. BUY?", EV_BUY_HELLITE, 0);
         break;
     case 4:
         if (posse_has_alive(H_BISCUIT)) spur_say("THE SHERIFF'S HOUND TOUCHES NOSES WITH BISCUIT.\nTHEY AGREE ON SOMETHING.");
@@ -142,7 +145,7 @@ static void talk_gladwell(int s) {
         if (spur_flag(F_WON)) spur_say("WE'RE RAISING THE GARTER AGAIN, BOARD BY BOARD.\nTHERE'LL BE A ROOM FOR EACH OF YOU.");
         else spur_say("I'M A CARPENTER. SOMEDAY I'LL BUILD THE GARTER\nBACK. SOMEDAY WHEN IT'S SAFE TO.");
         break;
-    case 6: spur_say("SHERIFF. A BANK UP IN MERIDIAN PAYS INTEREST\nAFTER EVERY FIGHT YOU WIN. PUT YOUR TEETH IN\nIT BEFORE YOU GO ANYWHERE STUPID."); break;
+    case 6: spur_say("SHERIFF. A BANK UP IN MERIDIAN PAYS INTEREST\nAFTER EVERY FIGHT YOU WIN. PUT YOUR BITS IN\nIT BEFORE YOU GO ANYWHERE STUPID."); break;
     }
 }
 
@@ -163,7 +166,7 @@ static void talk_meridian(int s) {
     case 5: spur_say("THE HORSE LOOKS AT YOU LIKE YOU OWE IT MONEY."); break;
     case 6:
         if (in_posse(H_HATTIE) && !spur_flag(F_LETTER_PAID)) {
-            if (spur_key(KI_LETTER)) spur_ask("THE TELLER READS THE LETTER TWICE.\n\"YOUR BROTHER AMOS WAS WIRING YOU HIS SAVINGS,\nMISS HATTIE. 3,000 TEETH. INTO THE BANK?\"", EV_LETTER_BANK, 0);
+            if (spur_key(KI_LETTER)) spur_ask("THE TELLER READS THE LETTER TWICE.\n\"YOUR BROTHER AMOS WAS WIRING YOU HIS SAVINGS,\nMISS HATTIE. 3,000 BITS. INTO THE BANK?\"", EV_LETTER_BANK, 0);
             else spur_say("A TELLER: \"HATTIE? THERE WAS A LETTER FOR YOU.\nYOUR BROTHER AMOS RODE OFF WITH IT FOR HOPE\nSPRINGS. NOBODY'S SEEN HIM SINCE.\"");
         } else spur_say("I WORK AT THE BANK. TWO IN A HUNDRED AFTER\nEVERY FIGHT, ROUNDED UP. UP TO 100,000.");
         break;
@@ -266,7 +269,7 @@ static void talk_dolores(int s) {
     case 2: animal_talk(5); break;
     case 3:
         if (spur_flag(F_ANIMAL0 + 5)) { spur_say("\"ENJOY THE MULE.\""); break; }
-        spur_ask("\"FINE TAME BURRO, YOURS FOR 1,000 TEETH.\nIT TALKS, SOME SAY. TO SPIRIT FOLK.\"\fBUY?", EV_BURRO_BUY, 0);
+        spur_ask("\"FINE TAME BURRO, YOURS FOR 1,000 BITS.\nIT TALKS, SOME SAY. TO SPIRIT FOLK.\"\fBUY?", EV_BURRO_BUY, 0);
         break;
     case 4: spur_say("THE PLUNGER? MOLLY'S BOYS HAD IT. THEN THEY\nWENT DIGGING FOR SILVER IN THE HOLLOW GAP\nMINE. NOBODY CAME BACK."); break;
     case 5:
@@ -286,7 +289,7 @@ static void talk_hollow(int s) {
     case 0: spur_say("WELCOME TO HOLLOW GAP! BEST SILVER IN CALICO.\nTHE MINE'S BEEN SINGING LATELY, THOUGH."); break;
     case 1: spur_say("MY HUSBAND SAYS THERE'S SOMETHING DOWN IN THE\nMINE THAT KNOCKS BACK WHEN YOU KNOCK."); break;
     case 2: spur_say("IF THE BAD THINGS EVER COME, I'M HIDING IN THE\nWELL. IT'S MY SECRET. DON'T TELL."); break;
-    case 3: spur_say("THE OLD PROSPECTOR, IN THE ASSAY OFFICE:\n\"I'LL TEACH ANY OF YOU TO PROSPECT. A BOOK\nOF IT, 8,000 TEETH.\""); break;
+    case 3: spur_say("THE OLD PROSPECTOR, IN THE ASSAY OFFICE:\n\"I'LL TEACH ANY OF YOU TO PROSPECT. A BOOK\nOF IT, 8,000 BITS.\""); break;
     case 4: spur_say("WHAT YEAR IS IT? WHY, IT'S '61, STRANGER."); break;
     case 5:
         if (in_posse(H_TUCKER) && spur_alive(H_TUCKER) && !spur_flag(F_TUCKER_COVER)) {
@@ -353,7 +356,7 @@ static void talk_place(int map, int s) {
                 spur_set_flag(F_PIKE_PAID);
                 sg.s.teeth += 500;
                 spur_sfx("spur_buy");
-                spur_say("EZRA PIKE PRESSES A PURSE ON YOU. \"500 TEETH.\nIT'S WHAT HE PAID ME. I DON'T WANT IT.\"");
+                spur_say("EZRA PIKE PRESSES A PURSE ON YOU. \"500 BITS.\nIT'S WHAT HE PAID ME. I DON'T WANT IT.\"");
             } else spur_say("\"I'M SORRY. I'LL BE SORRY TILL I DIE.\"");
         } else spur_say(spur_flag(F_PIKE_FOUND) ? "\"YOU BROUGHT MY BROTHER HOME. WHATEVER HE DID.\"" : "\"MY BROTHER EZRA RAN OFF SOUTH-EAST, TO THE DRY\nWASH CAVE. HE WAS CRYING ABOUT A FIRE.\"");
         break;
@@ -365,7 +368,7 @@ static void talk_place(int map, int s) {
                 break;
             }
             if (in_posse(H_VERA) && spur_alive(H_VERA))
-                spur_ask("BLACK MOLLY SPITS. \"VERA. STILL ALIVE. STILL\nRIDING WITH THE BLUE HORSE?\"\f\"GIL OWES ME 6,000. FOR YOU, OLD FRIEND...\n4,000, AND I'LL SELL YOU MY BLACK BREW AFTER.\"\fPAY 4,000 FOR GIL?", EV_PAY_MOLLY, 0);
+                spur_ask("BLACK MOLLY SPITS. \"VERA. STILL ALIVE. STILL\nWEARING THE FACE OFF THE POSTERS?\"\f\"GIL OWES ME 6,000. FOR YOU, OLD FRIEND...\n4,000, AND I'LL SELL YOU MY BLACK BREW AFTER.\"\fPAY 4,000 FOR GIL?", EV_PAY_MOLLY, 0);
             else spur_ask("BLACK MOLLY PUTS DOWN HER GLASS. \"GIL SENT\nYOU? THEN YOU OWE ME 6,000 TOO.\"\fFIGHT?", EV_FIGHT_MOLLY, 0);
         } else if (s == 1) spur_say("\"MOLLY'S GOT A POT OF BLACK BREW HID SOMEWHERE.\nTHAT STUFF WAKES THE DEAD SOUL.\"");
         else if (s == 2) spur_say("\"THAT DOOR GOES DOWN TO THE OLD MINE. THE KEY\nWENT TO THE MISSION FOLK, YEARS BACK.\"");
@@ -376,7 +379,7 @@ static void talk_place(int map, int s) {
             if (spur_key(KI_BELL)) spur_ask("THE PRIEST SMILES AND SMILES. \"BLESS YOU.\nBLESS YOU. BLESS YOU.\"\fRING THE SILVER BELL?", EV_FIGHT_MIMIC, 0);
             else spur_say("THE PRIEST SMILES. \"BLESS YOU, CHILD.\" HIS EYES\nDON'T MOVE WHEN HIS HEAD DOES.");
         } else if (s == 1) spur_say(spur_flag(F_MIMIC) ? "\"THE STAIRS WERE BEHIND HIM ALL ALONG!\"" : "A NUN WHISPERS: \"THAT IS NOT FATHER LUIS.\nFATHER LUIS HAD TWO EYEBROWS.\"");
-        else if (s == 2) spur_say("THE COLLECTION PLATE IS FULL OF TEETH.");
+        else if (s == 2) spur_say("THE COLLECTION PLATE IS FULL OF BITS.");
         else if (s == 3) spur_say("I CAME TO PRAY. I DON'T REMEMBER WHY I STAY.");
         else spur_say("THE KID IS COUNTING THE PEWS. HE KEEPS GETTING\nA DIFFERENT NUMBER.");
         break;
@@ -411,7 +414,7 @@ static void talk_place(int map, int s) {
     case M_SMITH:
         if (spur_flag(F_SMITH_DONE)) { spur_say("THE SMITH WIPES HER HANDS. \"ONE RIFLE. THERE\nWILL NEVER BE ANOTHER.\""); break; }
         if (spur_bag_find(IT_HELLITE) >= 0)
-            spur_ask("THE DEMON SMITH SEES THE HELLITE AND HER EYES\nCATCH FIRE. \"HELLITE! FOR THAT, AND 20,000\nTEETH, I'LL MAKE THE DOOMSDAY RIFLE.\"\fDEAL?", EV_SMITH_YES, 0);
+            spur_ask("THE DEMON SMITH SEES THE HELLITE AND HER EYES\nCATCH FIRE. \"HELLITE! FOR THAT, AND 20,000\nBITS, I'LL MAKE THE DOOMSDAY RIFLE.\"\fDEAL?", EV_SMITH_YES, 0);
         else spur_say("THE DEMON SMITH: \"I ONLY WORK IN HELLITE.\nBRING ME SOME. DIG IT, OR BUY IT.\"");
         break;
     case M_SPUR3:
@@ -547,7 +550,7 @@ void spur_open_chest(int i) {
         snprintf(m, sizeof m, "%s %s.", c->hidden ? "TUCKED AWAY:" : "INSIDE:", SPUR_ITEM[c->item].name);
     } else {
         sg.s.teeth += c->teeth;
-        snprintf(m, sizeof m, "%s %d TEETH.", c->hidden ? "TUCKED AWAY:" : "INSIDE:", c->teeth);
+        snprintf(m, sizeof m, "%s %d BITS.", c->hidden ? "TUCKED AWAY:" : "INSIDE:", c->teeth);
     }
     spur_set_chest(c->id);
     spur_sfx("spur_chest");
@@ -839,7 +842,7 @@ void spur_event(int ev) {
     case EV_SMITH_YES: {
         int s = spur_bag_find(IT_HELLITE);
         if (s < 0) return;
-        if (sg.s.teeth < 20000) { spur_say("\"20,000 TEETH, PLUS THE ORE. NO CREDIT.\""); return; }
+        if (sg.s.teeth < 20000) { spur_say("\"20,000 BITS, PLUS THE ORE. NO CREDIT.\""); return; }
         sg.s.teeth -= 20000;
         sg.s.bag[s] = IT_DOOMSDAY;
         spur_set_flag(F_SMITH_DONE);
@@ -854,7 +857,7 @@ void spur_event(int ev) {
         spur_say("THE OLD MAN HANDS IT OVER WITH TONGS.");
         return;
     case EV_BURRO_BUY:
-        if (sg.s.teeth < 1000) { spur_say("\"NO TEETH, NO BURRO.\""); return; }
+        if (sg.s.teeth < 1000) { spur_say("\"NO BITS, NO BURRO.\""); return; }
         sg.s.teeth -= 1000;
         if (in_posse(H_SAGE) && spur_alive(H_SAGE)) { spur_say("THE BURRO FOLLOWS SAGE ROUND, TALKING."); animal_talk(5); }
         else spur_say("THE BURRO WANDERS OFF. YOU HAVE BEEN HAD.");
@@ -872,7 +875,7 @@ void spur_event(int ev) {
         spur_set_flag(F_LETTER_PAID);
         sg.s.bank += 3000; /* even past the cap: a gift is a gift */
         spur_sfx("spur_buy");
-        spur_say("3,000 TEETH GO INTO THE BANK. HATTIE HOLDS HER\nHANDBAG TIGHTER THAN EVER.");
+        spur_say("3,000 BITS GO INTO THE BANK. HATTIE HOLDS HER\nHANDBAG TIGHTER THAN EVER.");
         return;
     case EV_FERRY_FIX:
         spur_set_flag(F_FERRY);

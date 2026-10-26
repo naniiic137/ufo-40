@@ -596,7 +596,7 @@ static void shop_update(void) {
         if (!ok) return;
         int it = SPUR_SHOP[u->shop].item[u->sel2];
         int price = SPUR_ITEM[it].price;
-        if (sg.s.teeth < price) { snprintf(shop_note, sizeof shop_note, "NOT ENOUGH TEETH."); spur_sfx("spur_no"); return; }
+        if (sg.s.teeth < price) { snprintf(shop_note, sizeof shop_note, "NOT ENOUGH BITS."); spur_sfx("spur_no"); return; }
         if (spur_bag_add(it) < 0) { snprintf(shop_note, sizeof shop_note, "NO ROOM IN THE BAGS."); spur_sfx("spur_no"); return; }
         sg.s.teeth -= price;
         snprintf(shop_note, sizeof shop_note, "BOUGHT %s.", SPUR_ITEM[it].name);
@@ -650,7 +650,7 @@ static void open_train(void) {
         train_dest[train_n++] = LINE[i];
     }
     if (!train_n) { spur_say("THE LINE IS CUT EVERY WHICH WAY. NO TRAINS TODAY."); return; }
-    spur_pick("WHERE TO? 40 TEETH A STOP", opts, train_n, PK_TRAIN);
+    spur_pick("WHERE TO? 40 BITS A STOP", opts, train_n, PK_TRAIN);
 }
 
 static int chapel_who[4];
@@ -669,7 +669,7 @@ static void open_chapel(void) {
         chapel_who[chapel_n++] = h;
     }
     if (!chapel_n) { spur_say("THE PREACHER LOOKS UP.\n\"NOBODY HERE NEEDS RAISING. GO WITH GOD, WHATEVER'S LEFT OF HIM.\""); return; }
-    spur_pick("RAISE THE FALLEN: 20 TEETH A LEVEL", opts, chapel_n, PK_CHAPEL);
+    spur_pick("RAISE THE FALLEN: 20 BITS A LEVEL", opts, chapel_n, PK_CHAPEL);
 }
 
 static void hotel(void) {
@@ -677,7 +677,7 @@ static void hotel(void) {
     int price = ti >= 0 ? SPUR_TOWN[ti].hotel : 0;
     if (sg.map_id == M_WIDOW) price = 0;
     char q[96];
-    if (price > 0) snprintf(q, sizeof q, "A NIGHT FOR THE POSSE IS %d TEETH. STAY?", price);
+    if (price > 0) snprintf(q, sizeof q, "A NIGHT FOR THE POSSE IS %d BITS. STAY?", price);
     else snprintf(q, sizeof q, "THE BEDS ARE FREE. REST A WHILE?");
     sg.ui.num = price;
     spur_ask(q, 9001, 0);
@@ -732,7 +732,7 @@ void spur_open_door(int service, int arg) {
     case SV_STABLES: {
         if (!t || !t->stables) { spur_say("NO HORSES HERE."); return; }
         char q[120];
-        snprintf(q, sizeof q, "HORSES FOR THE WHOLE POSSE, %d TEETH, TILL YOU NEXT REACH A TOWN. WISPS CAN'T KEEP UP WITH A HORSE. RENT THEM?", t->stable_price);
+        snprintf(q, sizeof q, "HORSES FOR THE WHOLE POSSE, %d BITS, TILL YOU NEXT REACH A TOWN. WISPS CAN'T KEEP UP WITH A HORSE. RENT THEM?", t->stable_price);
         sg.ui.num = t->stable_price;
         hotel_price = t->stable_price;
         spur_ask(q, 9003, 0);
@@ -926,7 +926,7 @@ void spur_draw_posse_panel(int x, int y, int w) {
 
 static void teeth_box(void) {
     char b[48];
-    snprintf(b, sizeof b, "%d TEETH", sg.s.teeth);
+    snprintf(b, sizeof b, "%d BITS", sg.s.teeth);
     int w = text_width(b) + 12;
     panel(SCREEN_W - 8 - w, 158, w, 16);
     text_draw(b, SCREEN_W - 2 - w, 162, C_CREAM);
@@ -951,7 +951,7 @@ static void list_box(const char *title, const char *const *items, int n, int sel
     panel(x, y, w, h);
     text_draw(title, x + 8, y + 5, C_TAN);
     for (int i = 0; i < n; i++) text_draw(items[i], x + 16, y + 16 + i * 10, i == sel ? C_YELLOW : C_WHITE);
-    cursor(x + 6, y + 16 + sel * 10);
+    if (sel >= 0) cursor(x + 6, y + 16 + sel * 10);
 }
 
 static void who_list(int sel, int x, int y) {

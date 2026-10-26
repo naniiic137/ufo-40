@@ -1,0 +1,61 @@
+# HELLSPUR: death and coming back. The fallen stay dead after a fight; a
+# chapel raises them for 20 teeth a level; holy oil raises one with a
+# breath of life. When the whole posse falls, they wake in the last chapel
+# visited, on their feet, with every tooth they carried gone; the bank
+# keeps its money. Every fall is counted.
+seed 3
+game hellspur
+wait 5
+cheat posse 0 2
+cheat level 2 3
+cheat hp 2 0
+expect alive == 1
+# Gladwell's chapel, raising Hollis (level 3: 60 teeth)
+cheat pos 5 5
+cheat face 1
+press UP
+wait 12
+expect ui == 12
+press A
+wait 10
+expect hp2 > 0
+expect teeth == 140
+press A
+wait 10
+expect chapel == 3
+# holy oil on Tucker
+cheat hp 0 0
+cheat give 15
+press B
+wait 5
+press A
+wait 3
+press A
+wait 3
+press A
+wait 3
+press A
+wait 5
+expect hp0 == 1
+expect count15 == 0
+press A
+wait 5
+press B
+press B
+wait 5
+# the whole posse falls
+cheat bank 777
+cheat teeth 555
+cheat warp 0 30 78
+cheat hp 0 1
+cheat hp 2 1
+cheat battle 84
+botuntil b_phase == 12 3000
+expect b_wiped == 1
+expect deaths >= 2
+botuntil state == 2 600
+expect map == 3
+expect teeth == 0
+expect bank == 777
+expect alive == 2
+expect hp0 == 32
