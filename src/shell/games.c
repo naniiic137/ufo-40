@@ -51,6 +51,7 @@ extern const GameDef GAME_WITHERLEA;
 extern const GameDef GAME_LIMPET;
 extern const GameDef GAME_ANTIPODE;
 extern const GameDef GAME_ECHOUNIT;
+extern const GameDef GAME_KIPPER;
 
 const GameDef *const GAMES[GAME_SLOTS] = {
     [0] = &GAME_UNDERDELVE,  /* 01 Barbuta */
@@ -74,6 +75,7 @@ const GameDef *const GAMES[GAME_SLOTS] = {
     [18] = &GAME_CHIME,      /* 19 The Big Bell Race */
     [19] = &GAME_LIMPET,     /* 20 Warptank */
     [20] = &GAME_TUSKWIND,   /* 21 Waldorf's Journey */
+    [21] = &GAME_KIPPER,     /* 22 Porgy */
     [22] = &GAME_TURNIP,     /* 23 Onion Delivery */
     [23] = &GAME_SHUTTERBUG, /* 24 Caramel Caramel */
     [24] = &GAME_OPENHOUSE,  /* 25 Party House */
