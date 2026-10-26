@@ -36,13 +36,17 @@ press RIGHT
 press DOWN
 expect library_cursor == 2
 press B
-# a placeholder has no card (slot 22)
+# a placeholder has no card (slot 40)
+press DOWN
+press DOWN
 press DOWN
 press DOWN
 press RIGHT
 press RIGHT
 press RIGHT
-expect library_cursor == 21
+press RIGHT
+press RIGHT
+expect library_cursor == 39
 expect library_placeholder == 1
 press SELECT
 expect card_open == 0
@@ -50,6 +54,10 @@ expect library_dud > 0
 press LEFT
 press LEFT
 press LEFT
+press LEFT
+press LEFT
+press UP
+press UP
 press UP
 press UP
 expect library_cursor == 2

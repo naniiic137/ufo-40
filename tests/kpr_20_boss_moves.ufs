@@ -1,0 +1,51 @@
+# KIPPER: the big ones' moves. A roaming one comes after the sub when it
+# sees it, after a rumble, and gives up out of sight; Inkwell reaches arms
+# out of the walls; the Whorl can't be hurt from outside its chamber and
+# sprays spirals inside it; Nightcape's cape shuts out harm while it sheds
+# spines; Xolloth's laser trails the sub and its spin whirls round the lair.
+seed 1
+game kipper
+wait 5
+cheat newgame
+cheat clear
+cheat god
+# Gnasher sees the sub and comes
+cheat tile 40 24
+cheat bosspos 0 760 380
+wait 2
+expect boss0_state == 1
+# Inkwell's arms
+cheat tile 128 22
+cheat bosspos 1 2080 330
+cheat bosst 1 199
+wait 2
+expect boss1_tent > 0
+# the Whorl: no harm from outside
+cheat tile 128 66
+wait 2
+cheat hurtboss 3 50
+expect boss3_hp == 800
+cheat tile 132 80
+wait 30
+cheat hurtboss 3 50
+expect boss3_hp == 750
+wait 30
+expect eshots > 3
+# Nightcape's cape
+cheat tile 60 116
+cheat bosspos 4 1060 1860
+cheat bossstate 4 3
+wait 2
+cheat hurtboss 4 50
+expect boss4_hp == 1000
+expect eshots_3 > 0
+# Xolloth
+cheat openall
+cheat tile 72 138
+wait 2
+cheat bosst 5 100
+wait 2
+expect boss5_beam == 2
+cheat bosst 5 250
+wait 2
+expect boss5_beam == 0

@@ -1,0 +1,40 @@
+# KIPPER: Sinker Bombs ride in the trail (two from a dock). Sitting still,
+# holding the dash button drops the last one: it sinks and goes off,
+# breaking blue blocks and sealed walls and knocking the sub if it's close.
+# Swimming into a bomb picks it straight back up.
+seed 1
+game kipper
+wait 5
+cheat newgame
+cheat clear
+cheat calm
+cheat fit 3
+cheat fit 6
+expect trail_charges == 2
+cheat tile 56 96
+wait 2
+hold LEFT 110
+hold B 30
+expect bombs == 1
+expect trail_charges == 1
+hold UP+LEFT 60
+wait 120
+expect bombs == 0
+expect tile_49_98 == 46
+# a bomb swum into goes back in the trail
+cheat tile 70 28
+wait 2
+hold RIGHT 40
+wait 5
+hold B 30
+expect bombs == 1
+hold DOWN+LEFT 24
+expect bombs == 0
+expect trail_charges == 1
+# sitting by a bomb when it goes off: a knock
+wait 70
+hold B 30
+expect bombs == 1
+wait 160
+expect bombs == 0
+expect hits >= 2

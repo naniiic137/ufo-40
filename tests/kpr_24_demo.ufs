@@ -1,0 +1,17 @@
+# KIPPER: left alone on the title, the cartridge shows a dive: the demo
+# player swims Kipper home towing three finds with a full tank. Any button
+# ends it; nothing is saved.
+seed 1
+game kipper
+wait 905
+expect demo == 1
+expect state == 2
+expect trail == 3
+wait 300
+expect demo == 1
+expect save_has == 0
+press A
+wait 3
+expect demo == 0
+expect state == 0
+expect save_has == 0

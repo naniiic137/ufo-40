@@ -1,0 +1,58 @@
+# KIPPER: at a dock the equipment screen shows the ten pieces; A fits or
+# takes off the one under the cursor, as many as there are slots: two,
+# three with two deep lights, four with four. B launches. The fitting is
+# saved.
+seed 1
+game kipper
+wait 5
+cheat newgame
+cheat clear
+cheat calm
+cheat have 0
+cheat have 1
+cheat have 2
+cheat have 3
+cheat have 4
+cheat tile 80 5
+hold UP 60
+expect state == 3
+expect dock_phase == 1
+expect slots == 2
+expect dock_cur == 0
+press A
+expect on == 1
+press RIGHT
+press A
+expect on == 3
+press RIGHT
+press A
+# no third slot yet
+expect on == 3
+expect save_on == 3
+press LEFT
+press A
+expect on == 1
+press RIGHT
+press A
+expect on == 5
+cheat lights 2
+expect slots == 3
+press LEFT
+press A
+expect on == 7
+cheat lights 4
+expect slots == 4
+press RIGHT
+press RIGHT
+press A
+expect on == 15
+cheat lights 6
+expect slots == 4
+# a piece not found yet can't be fitted
+press DOWN
+press A
+expect on == 15
+press B
+wait 5
+expect state == 2
+expect save_on == 15

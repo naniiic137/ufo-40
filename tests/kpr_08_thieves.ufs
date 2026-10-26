@@ -1,0 +1,58 @@
+# KIPPER: polyps let out filchers while the sub tows something; a filcher
+# snatches the last thing in the trail and swims home with it, and drops it
+# when pacified. A bloater close by puffs out shots and clouds; a cloud
+# knocks the last thing in the trail loose, and a sinker bomb knocked loose
+# goes off.
+seed 1
+game kipper
+wait 5
+cheat newgame
+cheat clear
+cheat calm
+cheat tile 70 28
+wait 2
+cheat take 10
+cheat foe 1 1060 456
+wait 120
+expect trail == 0
+expect held == 1
+expect item10_where == 3
+expect foe85_carry == 10
+cheat hurtfoe 85 4
+expect held == 0
+expect loose == 1
+expect item10_where == 2
+# swim into it: in tow again
+cheat tile 66 28
+wait 5
+expect trail == 1
+expect item10_where == 1
+# a bloater close by: shots and clouds every way; a cloud knocks the trail
+cheat clear
+cheat god
+cheat tile 66 28
+wait 2
+cheat take 11
+hold RIGHT 40
+cheat foe 11 1075 456
+wait 90
+expect trail < 2
+expect loose >= 1
+# a sinker bomb knocked loose goes off
+cheat fit 3
+cheat dock 0
+wait 25
+press A
+wait 5
+press B
+wait 5
+cheat clear
+cheat tile 66 28
+wait 2
+expect trail_charges == 2
+hold RIGHT 40
+cheat foe 11 1075 456
+wait 4
+expect eshots_1 >= 6
+wait 90
+expect trail_charges < 2

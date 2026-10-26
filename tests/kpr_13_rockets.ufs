@@ -1,0 +1,31 @@
+# KIPPER: with the Upshot Rockets fitted, holding fire readies a rocket and
+# letting go sends it straight up; its blast breaks a whole blue block. The
+# block stays broken only if the sub then docks.
+seed 1
+game kipper
+wait 5
+cheat newgame
+cheat clear
+cheat calm
+cheat fit 4
+cheat tile 36 51
+wait 2
+hold A 30
+expect ready == 0
+hold A 12
+expect ready == 1
+wait 2
+expect shots_3 == 1
+expect ready == 0
+wait 30
+expect tile_36_49 == 46
+expect tile_37_48 == 46
+expect tile_35_48 == 46
+expect bank_brk == 0
+cheat dock 0
+expect bank_brk == 6
+press A
+wait 5
+press B
+wait 5
+expect tile_36_49 == 46

@@ -1,0 +1,22 @@
+# KIPPER: the demo player, with real presses from the title: every fuel
+# tank, kit, egg and piece of equipment, the five big ones, then Xolloth:
+# all three goals, in under 85 minutes of play (306,000 frames).
+seed 1
+game kipper
+wait 5
+botuntil state == 2 600
+botuntil goals & 1 120000
+botuntil state == 6 330000
+expect frames < 306000
+expect completion == 100
+expect cherry_run == 1
+expect goals & 2
+expect goals & 4
+expect tanks == 20
+expect boosters == 20
+expect eggs_back == 20
+expect have == 1023
+expect lights == 5
+botuntil state == 0 4000
+expect rec_tanks == 20
+expect rec_eggs == 20
