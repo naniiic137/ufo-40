@@ -113,3 +113,41 @@ press A
 wait 3
 expect pack == 10
 expect drops == 1
+# the amber coin flips from the pack (heads or tails, it stays); a chitin
+# head leaps the knight to a tile already seen, eight at most away
+cheat newgame 9
+cheat noflames
+cheat give AMBER_COIN
+press A
+wait 3
+press A
+wait 3
+press DOWN
+press DOWN
+press DOWN
+press A
+wait 3
+press A
+wait 3
+expect has43 == 1
+expect turn == 1
+cheat give CHITIN_HEAD
+press A
+wait 3
+press A
+wait 3
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press A
+wait 3
+press A
+wait 3
+expect state == 21
+press RIGHT
+press RIGHT
+press A
+wait 3
+expect x == 3
+expect has40 == 0
