@@ -776,7 +776,10 @@ static int explore_buttons(void) {
     if (ig.anim_t > 0) return 0;
     if ((m = cast_step()) >= 0) return m;
     /* hurt: heal by spell, then by tonic */
-    if (h->hp < ivw_max_hp(h) * 6 / 10 + 1) {
+    /* before the last fight it wants more than before the stairs */
+    bool stones = ivw_find_item(IT_CINDER) >= 0 && ivw_find_item(IT_MOSS) >= 0 && ivw_find_item(IT_FROST) >= 0;
+    int want_pct = stones && !ig.w.stones_set ? 85 : 60;
+    if (h->hp < ivw_max_hp(h) * want_pct / 100 + 1) {
         if (h->mp >= 18 && ivw_max_hp(h) - h->hp >= 40 && start_cast(SP_RESTORE)) return cast_buttons();
         if (h->mp >= 8 && start_cast(SP_MEND)) return cast_buttons();
         int r = ivw_find_item(IT_RED);
@@ -793,10 +796,12 @@ static int explore_buttons(void) {
             return pack_op(s, 3);
     }
     /* a full pack with a chest still shut: drink a spare tonic to make room */
-    if (pack_n() >= h->inv_cap && first_junk() < 0 && h->floor == 6) {
+    if (pack_n() >= h->inv_cap && first_junk() < 0) {
         static const uint8_t ORDER[4] = {IT_GREY, IT_BLACK, IT_BLUE, IT_RED};
         int gx2, gy2;
-        if (plan(g_chest_adj, &gx2, &gy2, true) >= 0)
+        int kind = IVW_FLOOR[h->floor].search_kind;
+        bool last_find = search_left() == 1 && kind && kind != IVW_RANDOM && plan(g_search, &gx2, &gy2, false) >= 0;
+        if ((h->floor == 6 && plan(g_chest_adj, &gx2, &gy2, true) >= 0) || last_find)
             for (int k = 0; k < 4; k++) {
                 int s = ivw_find_item(ORDER[k]);
                 if (s >= 0) return pack_op(s, 2);

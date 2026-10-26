@@ -277,7 +277,7 @@ static void gather_cuts(void) {
         case OB_THRONE: add_cut(&ivw_spr[SPR_THRONE], x, y, 0.85f, NULL); break;
         case OB_PEDLAR: add_cut(&ivw_spr[SPR_PEDLAR], x, y, 0.75f, NULL); break;
         case OB_KNIGHT: add_cut(&ivw_spr[SPR_KNIGHT_NPC], x, y, 0.85f, NULL); break;
-        case OB_PILLAR: add_cut(&ivw_spr[SPR_PILLAR], x, y, 1.0f, NULL); break;
+        case OB_PILLAR: add_cut(&ivw_spr[o->param ? SPR_RACK : SPR_PILLAR], x, y, o->param ? 0.75f : 1.0f, NULL); break;
         case OB_SOCKET: add_cut(&ivw_spr[SPR_SOCKET], x, y, 1.0f, NULL); break;
         case OB_BOSS: {
             int k = o->param == BOSS_WARDEN ? FK_WARDEN : FK_MATRON;

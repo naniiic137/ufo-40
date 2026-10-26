@@ -316,6 +316,20 @@ static void spr_pillar(void) {
     end(&ivw_spr[SPR_PILLAR], true);
 }
 
+static void spr_rack(void) {
+    begin(32, 32);
+    gfx_rect(5, 6, 22, 3, C_BROWN);
+    gfx_rect(5, 22, 22, 3, C_BROWN);
+    gfx_rect(6, 6, 2, 26, C_EARTH);
+    gfx_rect(24, 6, 2, 26, C_EARTH);
+    for (int i = 0; i < 3; i++) {
+        gfx_rect(10 + i * 5, 2, 2, 22, C_GREY);
+        gfx_rect(9 + i * 5, 18, 4, 2, C_AMBER);
+    }
+    gfx_line(12, 4, 20, 24, C_SLATE);
+    end(&ivw_spr[SPR_RACK], true);
+}
+
 static void spr_socket(void) {
     begin(32, 32);
     gfx_rect(9, 2, 14, 30, C_PURPLE);
@@ -614,7 +628,7 @@ void ivw_art_load(void) {
     spr_well(); spr_throne();
     spr_person(SPR_PEDLAR, C_PURPLE, C_VIOLET, C_LIME, false);
     spr_person(SPR_KNIGHT_NPC, C_AMBER, C_ORANGE, C_TAN, true);
-    spr_pillar(); spr_socket(); spr_stairs(); spr_bag(); spr_flame(); spr_boulder();
+    spr_pillar(); spr_rack(); spr_socket(); spr_stairs(); spr_bag(); spr_flame(); spr_boulder();
     spr_knight();
     for (int k = 0; k < FK_COUNT; k++) { foe_art(k, 0); foe_art(k, 1); }
 }

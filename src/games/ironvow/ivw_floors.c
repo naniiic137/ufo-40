@@ -16,7 +16,7 @@
  *   T t  a torch, lit or out   F f  a fungus torch   N n  a lantern
  *   M  a glyph on the wall     K  a lever   Q  a gem panel   W  a slime switch
  *   C  chest   m  a lidmaw (it looks like a chest)   w x  sweet and foul wells
- *   Y  throne  P  the pedlar  R  the Amber Knight  I  pillar  Z  the socket
+ *   Y  throne  P  the pedlar  R  the Amber Knight  I  pillar  r  weapon rack  Z  the socket
  *   B  the floor's boss   k  an iron key   s  floor of the searched room
  *   e  flames gather here */
 #include "ivw.h"
@@ -75,13 +75,13 @@ static const char *const F2_ROWS[] = {
     "###+############.########......#",
     "###.############.#########+#####",
     "###.############+#######Q#.#####",
-    "###.#######sssssssssss##......##",
-    "#......####sssssssssss+.......##",
-    "#...Y..####ssIssIssIss##......M#",
-    "t......###Tssssssssssst#......##",
-    "#......####ssIssIssIss##.e..m.##",
-    "#.e..m.+..+sssssssssss##......##",
-    "#......####sssssssssss#####h####",
+    "###.#######...........##......##",
+    "#rssssr####.....Y.....+.......##",
+    "#ssssss####..I.....I..##......M#",
+    "tssssss###T...........t#......##",
+    "#ssssss####..I.....I..##.e..m.##",
+    "#sessms+..+...........##......##",
+    "#rssssr####...........#####h####",
     "###+######################....##",
     "###.############Q#########..C.M#",
     "#.......#######....##....#....##",
@@ -334,6 +334,7 @@ void ivw_floor_load(int floor) {
             case 'P': add_obj(OB_PEDLAR, x, y, 0, 0); break;
             case 'R': add_obj(OB_KNIGHT, x, y, 0, 0); break;
             case 'I': add_obj(OB_PILLAR, x, y, 0, 0); break;
+            case 'r': add_obj(OB_PILLAR, x, y, 1, 0); st = 0x80; break;
             case 'Z': add_obj(OB_SOCKET, x, y, 0, 0); break;
             case 'B': add_obj(OB_BOSS, x, y, fd->boss, 0); break;
             case 'k':

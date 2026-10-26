@@ -1,6 +1,6 @@
 # IRONVOW: proof that the game can be finished. The demo player (ivw_bot.c)
 # plays from the title with real presses: all seven floors, the Wraith
-# Warden, the Comb Matron, the pillar hall's oathblade, the coin, the wish
+# Warden, the Comb Matron, the armoury's oathblade, the coin, the wish
 # for honour, the Dawnbrand, the three stones, the Pit Regent and the climb
 # out. It earns all three goals.
 seed 3

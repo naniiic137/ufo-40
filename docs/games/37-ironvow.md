@@ -47,7 +47,7 @@ bosses sit). The rolls are seeded per run.
 | Stats | Battles, Deaths, Secrets [MH] | the same, on the title |
 | Endings | 2: plain, and with the Red Star Sword [GUIDE] | 2: the grey ending and the dawn ending |
 | Title | New Game, Continue, an attract mode [GUIDE] | the same |
-| Run length | casual about 5 h [POPCAR]; speedrun 7:08 (Gold/Cherry, 2nd place) [SR] | the demo player, which knows every floor and reacts in one frame, takes 10.5-14 min for gold and cherry (38,000-50,000 frames over eight seeds) with about 70 battles; a player mapping the floors and learning the fights will take hours |
+| Run length | casual about 5 h [POPCAR]; speedrun 7:08 (Gold/Cherry, 2nd place) [SR] | the demo player, which knows every floor and reacts in one frame, takes 12-14.5 min for gold and cherry (42,400-51,700 frames over twelve seeds, never dying) with about 70 battles; a player mapping the floors and learning the fights will take hours |
 | Goals | 3 [MH], [GGC] | the same 3 |
 
 ## Mechanics checklist
@@ -84,7 +84,7 @@ bosses sit). The rolls are seeded per run.
 | Tonics and parts | red heals 40; blue stamina and mana; black harder blows, green haste, grey a sturdier guard, yellow foes stunned, for the next fight; ooze and bone skulls bounce and stun; a bat heart heals; a tusk stabs; a venom sac poisons; the juggler's ball bounces all fight; a bone scares nearby flames off; a chitin head leaps to a seen tile up to 8 away | [GUIDE] | ivw_15 |
 | The pedlar | trades for shards; floor 1's shelf is fixed and holds a boar shield, later shelves are rolled; she buys what the knight carries; stealing always fails: she fights (150 motes), and beaten she leaves the floor and the thing is his | [GUIDE] | ivw_16 |
 | The Amber Knight | three lines a floor; gifts build favour, a reward each 10 (5-14 shards, a tonic, +10 health up to +20, +1 pack place up to 12); struck at, he leaves for good | [GUIDE], [STEAM-RK] | ivw_17 |
-| The secrets | the oathblade from the pillar hall's last search; given to the knight, the amber coin; the coin in a sweet well, a wish; after HONOUR, the knight's Dawnbrand (only with room for it; otherwise lost for good) | [GUIDE] | ivw_17, ivw_18, ivw_23 |
+| The secrets | the oathblade from the old armoury's last search; given to the knight, the amber coin; the coin in a sweet well, a wish; after HONOUR, the knight's Dawnbrand (only with room for it; otherwise lost for good) | [GUIDE] | ivw_17, ivw_18, ivw_23 |
 | Wells | sweet: heals (three drinks); foul: poisons; the coin in a sweet well: CHANGE (-2 each stat, 7 points), TREASURE (20 shards, a thing, a weapon), HONOUR; in a foul well: CHANGE gives only 3, the others nothing | [GUIDE] | ivw_18 |
 | The coin | flipped from the pack: heads heals a little, tails poisons | [GUIDE] | ivw_15 |
 | Levers | gates open somewhere (the message does not say where); a boulder fills a pit; a trap drops one on the knight | [GUIDE], [POPCAR] | ivw_19 |
@@ -92,7 +92,7 @@ bosses sit). The rolls are seeded per run.
 | The shifting comb | floor 4's levers raise some walls and lower others | [GUIDE] | ivw_19, ivw_24 |
 | Gem panels | floor 2: swap gems until no two alike touch; 4-8 shards fall out | [GUIDE] | ivw_19 |
 | Torches and lanterns | the Gaol's torches are put out from the menu and lit with KINDLE; the Warren's fungus lights when poked (all stamina gone) or dims; the Starvault's lanterns take 30 motes to light and give 10 back put out | [GUIDE] | ivw_19 |
-| Searched rooms | floor 2's pillar hall: a fight, a find, a fight, a find, the oathblade; floor 4's comb room the same, ending in the grub egg; floor 6's vault room four rolls | [GUIDE] | ivw_23, ivw_27 |
+| Searched rooms | floor 2's old armoury (west, among weapon racks): a fight, a find, a fight, a find, the oathblade; floor 4's comb room the same, ending in the grub egg; floor 6's vault room four rolls | [GUIDE] | ivw_23, ivw_27 |
 | The Wraith Warden | guards the stairs of floor 2; dives and slashes, throws his shield, and below full health may charge flashing yellow, striking 1 + 3 x (lost share) times (each blockable, heavy on stamina); every torch of the Gaol lit: he starts at half health; every one out: he leaves the wraith shield (mana on each block); VEIL slips past him | [GUIDE], [MH] | ivw_20 |
 | The Comb Matron | guards the stairs of floor 4 with two chitins; her two claws have their own health and nothing reaches her until both are broken; she spits acid, coughs a cloud, lays eggs; she leaves the mould cloak (spores bite attackers; spending stamina wins back lost health) | [GUIDE], [MH] | ivw_20 |
 | The Pit Regent | rises when the three stones are set in the floor 6 pillar; three phases (a sweep no guard holds from the second, quicker blows in the third); his stones mend him (moss), throw fire (cinder) and call his guards (frost); they hover high and sink low to be struck; he cannot be poisoned, burned or frozen | [GUIDE] | ivw_20 |
@@ -139,7 +139,7 @@ bosses sit). The rolls are seeded per run.
   summons foes, and they can be broken by ranged attacks or in melee when
   low; ours are moss (mends him), cinder (fire) and frost (guards), sinking
   low for 150 frames now and then; phases at two thirds and one third.
-- **The escape:** a walk out through a way in the pillar hall's south wall
+- **The escape:** a walk out through a way in the socket hall's south wall
   that opens when he falls; no timer.
 - **The Red Star Sword:** ours, the Dawnbrand: MIGHT 5, a held A charges a
   blow no guard stops, and at nine tenths of full health each swing sends a
@@ -158,7 +158,9 @@ bosses sit). The rolls are seeded per run.
   them; the odds are ours.
 - **Floor layouts:** all ours. Floor 1 has the boulder lever that fills a
   pit before a chest and an outlined wall before a room holding LANCE's
-  glyph; floor 2 the pillar hall in the middle, gem panels, a spiked way
+  glyph; floor 2 a throne hall in the middle, the searched armoury in the
+  west wing (the original's searched room is a pillared room in the middle,
+  so ours moved and changed), gem panels, a spiked way
   to the key and the Warden's hall at the south end; floor 3 a chasm across
   its middle (FLOAT, or a slime tunnel the switch dries); floor 4 the comb
   of shifting walls in three bands; floor 5 two rivers of lava with a gated

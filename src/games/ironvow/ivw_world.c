@@ -468,7 +468,7 @@ void ivw_mimic_loot(int obj) {
 static const char *const KNIGHT_LINES[3][3] = {
     {"WELL MET, FELLOW PRISONER. WE BOTH CAME DOWN HERE FOR THE REGENT.",
      "I WILL NOT CROSS SWORDS WITH YOU. MY BLADE IS SWORN TO HIM ALONE.",
-     "THEY SAY AN OLD GREAT SWORD LIES SOMEWHERE AMONG THE PILLARS BELOW."},
+     "THEY SAY A GREAT SWORD LIES FORGOTTEN IN AN OLD ARMOURY BELOW."},
     {"STILL BREATHING? GOOD. SO AM I, MOSTLY.",
      "MIND THE DARK HERE. SOME DOORS ONLY SHOW WHERE THE FUNGUS GLOWS.",
      "GO CAREFULLY, FRIEND. IT ONLY GETS WORSE BELOW."},
@@ -613,7 +613,7 @@ void ivw_search_room(void) {
     /* what the search turns up comes first; then the turn passes */
     if (last && kind != IVW_RANDOM) {
         if (kind == IT_OATH) ivw_add_secret(SEC_OATH);
-        ivw_say("BEHIND A PILLAR, SOMETHING WAITS...");
+        ivw_say("UNDER THE LAST RACK, SOMETHING GLINTS...");
         receive(kind);
         ivw_pass_turn();
         return;

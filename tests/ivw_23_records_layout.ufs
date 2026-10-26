@@ -1,6 +1,6 @@
 # IRONVOW: the title keeps the records UFO 50 shows for this game: battles
 # won, deaths and secrets found (four: the oathblade among the pillars, the
-# coin for it, the wish, the Dawnbrand). The pillar hall of floor 2 can be
+# coin for it, the wish, the Dawnbrand). The old armoury of floor 2 can be
 # searched five times: a fight, a find, a fight, a find, then the oathblade.
 # The words of every screen stay on the screen; START pauses a fight.
 seed 23
@@ -14,7 +14,7 @@ cheat stats 9 9 20
 cheat noloot 1
 cheat floor 2
 cheat noflames
-cheat pos 16 12 0
+cheat pos 3 12 0
 press A
 wait 3
 expect menu0 == 24

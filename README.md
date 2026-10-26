@@ -1778,7 +1778,7 @@ the top.
   at the end of floor 4 behind her two claws, and on floor 6 three stones to
   find and set in a pillar to wake the Pit Regent, then the climb out. The
   game saves when you reach a floor, and only then; death starts the floor
-  again. Four secrets lead from the pillar hall's oathblade through the
+  again. Four secrets lead from the old armoury's oathblade through the
   Amber Knight's coin and a wish to the Dawnbrand. The goals: 8 in any
   stat, slay the Regent and escape, and slay him with the Dawnbrand. The
   demo player in the tests does all three from the title with button
