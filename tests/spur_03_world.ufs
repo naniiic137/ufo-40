@@ -1,0 +1,60 @@
+# HELLSPUR: the Territory's structure. Every map's doors, chests and people
+# can be reached from where you come in, and on foot the regions open in the
+# story's order: the Sweetgrass first; the Bottoms only once the ferry runs;
+# the High Mesa, the valley, the Burnt Hills' three parts and Hell's gate
+# each lie behind a pass, a tunnel or a mine (map numbers as in spur.h).
+seed 1
+game hellspur
+wait 5
+cheat posse 0 2 5 1
+expect maps_bad == 0
+# from Gladwell, before the ferry
+expect reach_16_74_3 == 1
+expect reach_16_74_4 == 1
+expect reach_16_74_5 == 1
+expect reach_16_74_14 == 1
+expect reach_16_74_21 == 1
+expect reach_16_74_22 == 1
+expect reach_16_74_6 == 0
+expect reach_16_74_23 == 0
+expect reach_16_74_20 == 0
+expect reach_16_74_19 == 0
+# the ferry runs: the Bottoms, but the angels still hold the Notch
+cheat flag 5
+expect reach_16_74_6 == 1
+expect reach_16_74_23 == 1
+expect reach_16_74_25 == 0
+expect reach_16_74_13 == 0
+expect reach_16_74_7 == 0
+cheat flag 10
+expect reach_16_74_25 == 1
+expect reach_16_74_7 == 0
+# out of the Notch's north end: the High Mesa
+expect reach_84_50_7 == 1
+expect reach_84_50_8 == 1
+expect reach_84_50_9 == 1
+expect reach_84_50_15 == 1
+expect reach_84_50_16 == 1
+expect reach_84_50_29 == 0
+expect reach_84_50_10 == 0
+cheat flag 23
+expect reach_84_50_29 == 1
+# out of the Roost Mine: the valley of Hollow Gap
+expect reach_58_12_10 == 1
+expect reach_58_12_28 == 1
+expect reach_58_12_7 == 0
+# out of the Cut: the eastern Burnt Hills and the Snake Tunnels
+expect reach_58_38_30 == 1
+expect reach_58_38_11 == 0
+# out of the Snake Tunnels: the lake and the widow's house, the deep tunnels
+expect reach_37_44_17 == 1
+expect reach_37_44_31 == 1
+expect reach_37_44_11 == 0
+# out of the deep tunnels: Last Chance, the shrine and the Black Gate
+expect reach_6_33_11 == 1
+expect reach_6_33_18 == 1
+expect reach_6_33_1 == 1
+expect reach_6_33_38 == 0
+# the places only wings reach
+expect reach_6_33_12 == 0
+expect reach_84_50_13 == 0

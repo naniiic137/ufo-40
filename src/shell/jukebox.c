@@ -176,6 +176,13 @@ static const struct { const char *id, *title; } TITLES[] = {
     {"eko_lab", "THE MAGMA WORKS"}, {"eko_tunnel", "LAVA RUN"}, {"eko_final", "MADAME COIL"},
     {"eko_ending", "MANGO FEAST"}, {"eko_clear", "MISSION COMPLETE"}, {"eko_captured", "CAPTURED"},
     {"eko_over", "NO SECOND CHANCES"},
+    {"spur_title", "HELLSPUR"}, {"spur_saloon", "THE GOLDEN GARTER"}, {"spur_town", "MAIN STREET"},
+    {"spur_world", "OPEN COUNTRY"}, {"spur_battle", "WISPS!"}, {"spur_boss", "SOMETHING BIG"},
+    {"spur_cave", "DOWN THE SHAFT"}, {"spur_dream", "THE DREAMING"}, {"spur_hell", "THE PIT"},
+    {"spur_citadel", "THE GOVERNOR'S HOUSE"}, {"spur_church", "OLD HUNDRED AND ONE"}, {"spur_ride", "HIRED HORSES"},
+    {"spur_fly", "NIGHTMARES"}, {"spur_ghost", "GHOST TOWN"}, {"spur_shop", "BUY SOMETHING"},
+    {"spur_final", "THE LAST HAND"}, {"spur_ending", "SUN COMES UP YELLOW"}, {"spur_win", "SNUFFED OUT"},
+    {"spur_lose", "DRAGGED DOWN"}, {"spur_level", "LEVEL UP"},
 };
 
 const char *shell_song_title(int song) {

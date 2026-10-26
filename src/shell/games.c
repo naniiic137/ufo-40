@@ -51,6 +51,7 @@ extern const GameDef GAME_WITHERLEA;
 extern const GameDef GAME_LIMPET;
 extern const GameDef GAME_ANTIPODE;
 extern const GameDef GAME_ECHOUNIT;
+extern const GameDef GAME_HELLSPUR;
 
 const GameDef *const GAMES[GAME_SLOTS] = {
     [0] = &GAME_UNDERDELVE,  /* 01 Barbuta */
@@ -92,6 +93,7 @@ const GameDef *const GAMES[GAME_SLOTS] = {
     [35] = &GAME_HOOPLA,     /* 36 Hyper Contender */
     [37] = &GAME_RESTLESS,   /* 38 Rakshasa */
     [38] = &GAME_BUZZBOLT,   /* 39 Star Waspir */
+    [39] = &GAME_HELLSPUR,   /* 40 Grimstone */
     [42] = &GAME_SHOWSTOPPER, /* 43 Elfazar's Hat */
     [43] = &GAME_HOMESPUN,   /* 44 Pilot Quest */
     [40] = &GAME_RIMSHIRE,   /* 41 Lords of Diskonia */
