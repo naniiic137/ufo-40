@@ -1,0 +1,13 @@
+# Promo tile: slot 34 (BRAVADO) for the games grid, made from
+# tools/shots/34_bravado.ufs: its set-up, then 240 frames of its GIF's play
+seed 4
+game bravado
+wait 40
+cheat botplan 1
+botuntil state == 3 600
+botuntil round == 4 100000
+botuntil state == 3 3000
+botplay 600
+record_start 34
+botplay 240
+record_stop

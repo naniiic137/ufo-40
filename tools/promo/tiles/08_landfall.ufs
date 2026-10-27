@@ -1,0 +1,12 @@
+# Promo tile: slot 08 (LANDFALL) for the games grid, made from
+# tools/shots/08_landfall.ufs: its set-up, then 240 frames of its GIF's play
+seed 2
+game landfall
+wait 60
+press A
+wait 90
+botuntil state == 2 200
+botplay 1500
+record_start 08
+botplay 240
+record_stop

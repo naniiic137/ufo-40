@@ -1,0 +1,12 @@
+# Promo tile: slot 17 (BELLHOP) for the games grid, made from
+# tools/shots/17_bellhop.ufs: its set-up, then 240 frames of its GIF's play
+seed 17
+game bellhop
+wait 60
+press A
+wait 40
+cheat stage 0
+wait 2
+record_start 17
+botplay 240
+record_stop

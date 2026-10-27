@@ -10,6 +10,14 @@
  *   saucer, and the end card with the logo beamed in and stars; a light CRT
  *   look (scanlines and a vignette) over the lot.
  *
+ *   Big words (cuts.txt's l= lines) go on a layer of their own at half the
+ *   game's pixel size, so a whole sentence fits across the screen: each line
+ *   slams, types, drops or slides in, a slam hits the picture with a punch,
+ *   a shake and a flash (then holds still to be read), and the first line
+ *   bobs on the beat. Under them the picture can dim (dim=) and change clip
+ *   on every beat (bg=). In the vertical video the words take the place of
+ *   the top card (or the bottom one, v=bot), so the game stays clear.
+ *
  *   promo_fx [options] > frames.rgb     raw RGB24 frames, 60 a second
  *   promo_fx -wav OUT.wav [options]     the edit's sound effects instead
  *   promo_fx -info [options]            the edit's length and shots
@@ -345,12 +353,17 @@ static const Img *frame_get(int clip, int frame) {
 enum { K_CLIP, K_HOOK, K_GRID, K_END };
 enum { T_CUT, T_FLASH, T_GLITCH, T_MOSAIC, T_DITHER, T_ZOOM };
 enum { C_SLIDE, C_DROP, C_SLAM };
+enum { L_SLAM, L_TYPE, L_DROP, L_SLIDE };
 
 typedef struct {
     char align;
     int x, y, scale, col;
     char text[128];
 } Text;
+
+/* a line of big words: from frame AT of its shot, at SCALE (in word-layer
+ * pixels), '^' marks where it may break in two when it doesn't fit */
+typedef struct { int at, scale, col, style, vonly; char text[96]; } Line;
 
 typedef struct {
     int kind, clip, first, frames, start, hold;
@@ -359,6 +372,13 @@ typedef struct {
     Text title, sub;
     int has_title, has_sub;
     char badge[16];
+    Line line[8];
+    int nline;
+    int bgc[12], bgf[12], nbg, every; /* the picture changes clip every EVERY frames */
+    int dim;                          /* the picture's brightness under words, % */
+    int wy;                           /* the words' middle, in game rows (0 = centred) */
+    int vbot;                         /* vertical video: the words go below the game */
+    int pop;                          /* grid: frames between games */
 } Shot;
 
 static Shot shots[64];
@@ -473,6 +493,8 @@ static void load_cuts(void) {
         sh->kind = !strcmp(tok[0], "grid") ? K_GRID : K_CLIP;
         sh->clip = sh->kind == K_GRID ? -1 : clip_id(tok[0]);
         sh->hold = 1 << 30;
+        sh->dim = 100;
+        sh->pop = 6;
         for (int i = 3; i < nt; i++) {
             char *eq = strchr(tok[i], '=');
             if (!eq) die("bad effect:", tok[i]);
@@ -497,9 +519,39 @@ static void load_cuts(void) {
                 unescape(t->text, v, sizeof t->text, 1);
                 if (k[0] == 't') sh->has_title = 1;
                 else sh->has_sub = 1;
-            } else die("unknown effect", k);
+            } else if (!strcmp(k, "l") || !strcmp(k, "lt")) { /* l=AT,SCALE,COLOUR,STYLE,TEXT */
+                if (sh->nline == 8) die("too many lines in", tok[0]);
+                Line *ln = &sh->line[sh->nline++];
+                ln->vonly = k[1] == 't'; /* lt=: the vertical video's top only */
+                char col[8] = {0}, st[16] = {0}, plain[96];
+                int used = 0;
+                sscanf(v, "%d,%d,%7[^,],%15[^,],%n", &ln->at, &ln->scale, col, st, &used);
+                if (!used || ln->scale < 1) die("bad line:", v);
+                ln->col = parse_col(col);
+                ln->style = !strcmp(st, "type") ? L_TYPE : !strcmp(st, "drop") ? L_DROP : !strcmp(st, "slide") ? L_SLIDE : L_SLAM;
+                unescape(ln->text, v + used, sizeof ln->text, 1);
+                size_t n = 0;
+                for (const char *s = ln->text; *s; s++)
+                    if (*s != '^') plain[n++] = *s;
+                plain[n] = 0;
+                if (text_missing(plain)) die("the font has no glyph for a character in", v);
+            } else if (!strcmp(k, "bg")) { /* bg=CLIP:FIRST,CLIP:FIRST... */
+                for (char *e = strtok(eq + 1, ","); e && sh->nbg < 12; e = strtok(NULL, ",")) {
+                    char *c = strchr(e, ':');
+                    if (!c) die("bad bg:", e);
+                    *c = 0;
+                    sh->bgc[sh->nbg] = clip_id(e);
+                    sh->bgf[sh->nbg++] = atoi(c + 1);
+                    if (all_digits(e)) add_game(clip_id(e), atoi(c + 1));
+                }
+            } else if (!strcmp(k, "every")) sh->every = atoi(v);
+            else if (!strcmp(k, "dim")) sh->dim = atoi(v);
+            else if (!strcmp(k, "wy")) sh->wy = atoi(v);
+            else if (!strcmp(k, "v")) sh->vbot = !strcmp(v, "bot");
+            else if (!strcmp(k, "pop")) sh->pop = atoi(v) > 0 ? atoi(v) : 6;
+            else die("unknown effect", k);
         }
-        if (sh->kind == K_CLIP && !sh->has_title) script_captions(sh, tok[0]);
+        if (sh->kind == K_CLIP && !sh->has_title && !sh->nline) script_captions(sh, tok[0]);
         if (sh->kind == K_CLIP && all_digits(tok[0])) add_game(sh->clip, sh->first);
     }
     fclose(f);
@@ -944,7 +996,6 @@ static void clip_words(const Shot *sh, int l) {
 
 /* the grid: all the games at once, popping in on the sixteenths while a
  * counter runs up, then drawn up into the saucer */
-#define POP 6
 static void draw_grid(const Shot *sh, int l, FX *fx) {
     int n = S % 3 == 0 ? 3 : 2, T = n * n, ts = S / n, gw = SW * n, gh = SH * n;
     float e = clampf((l - (sh->frames - 26)) / 20.0f, 0, 1), e2 = e * e;
@@ -959,9 +1010,9 @@ static void draw_grid(const Shot *sh, int l, FX *fx) {
     for (int t = 0; t < T; t++) {
         int last = -1;
         for (int g = t; g < ngames; g += T)
-            if (g * POP <= l) last = g;
+            if (g * sh->pop <= l) last = g;
         if (last < 0) continue;
-        int since = l - last * POP;
+        int since = l - last * sh->pop;
         img[t] = frame_get(games[last].clip, games[last].first + since);
         if (since < 5) tf[t] = (float[]){1, 0.7f, 0.45f, 0.25f, 0.1f}[since];
     }
@@ -990,7 +1041,7 @@ static void draw_grid(const Shot *sh, int l, FX *fx) {
 }
 
 static void grid_words(const Shot *sh, int l) {
-    int shown = l / POP + 1, pop = l % POP;
+    int shown = l / sh->pop + 1, pop = l % sh->pop;
     if (shown > ngames) { shown = ngames; pop = 99; }
     if (l >= sh->frames - 8) return;
     char num[16];
@@ -1003,6 +1054,165 @@ static void grid_words(const Shot *sh, int l) {
     gfx_rect(160 - w / 2 - 6, y - 5, w + 12, h + 10 + 22, C_INK);
     text_at(num, 160 - w / 2, y, scale, col, 0);
     text_at("GAMES", 160 - text_width_scaled("GAMES", 2) / 2, y + h + 6, 2, C_CYAN, 0);
+}
+
+/* ---- big words (the l= lines) ------------------------------------------------------- */
+
+/* the word layer: U output pixels a pixel (half the game's when that's
+ * whole), covering the whole frame */
+static int U = 3, LW, LH;
+static uint8_t *words_px;
+
+typedef struct { char text[96]; int at, scale, col, style, y, w; } Lay;
+
+/* a shot's lines as they are drawn: split at '^' when too wide, shrunk to
+ * fit, stacked round the middle of their place */
+/* where a line goes: 1 the top (the vertical video's top card, or the
+ * whole landscape frame), 0 below the game (vertical), -1 nowhere */
+static int line_top(const Shot *sh, const Line *ln) {
+    if (!card_paths[0]) return ln->vonly ? -1 : 1;
+    return ln->vonly || !sh->vbot ? 1 : 0;
+}
+
+static int region_used(const Shot *sh, int top) {
+    for (int i = 0; i < sh->nline; i++)
+        if (line_top(sh, &sh->line[i]) == top) return 1;
+    return 0;
+}
+
+static int layout(const Shot *sh, Lay *ly, int top) {
+    int n = 0, maxw = LW - 16;
+    for (int i = 0; i < sh->nline && n < 15; i++) {
+        const Line *ln = &sh->line[i];
+        if (line_top(sh, ln) != top) continue;
+        char whole[96], *cut = strchr(ln->text, '^');
+        size_t k = 0;
+        for (const char *s = ln->text; *s; s++)
+            if (*s != '^') whole[k++] = *s;
+        whole[k] = 0;
+        Lay base = {{0}, ln->at, ln->scale, ln->col, ln->style, 0, 0};
+        if (cut && text_width_scaled(whole, ln->scale) > maxw) { /* in two, without the spaces round the cut */
+            int a = (int)(cut - ln->text), b = 1;
+            while (a > 0 && ln->text[a - 1] == ' ') a--;
+            while (cut[b] == ' ') b++;
+            ly[n] = base;
+            snprintf(ly[n].text, sizeof ly[n].text, "%.*s", a, ln->text);
+            n++;
+            ly[n] = base;
+            snprintf(ly[n].text, sizeof ly[n].text, "%s", cut + b);
+            if (ln->style == L_TYPE) ly[n].at += (int)(cut - ln->text); /* the typing carries on */
+            n++;
+        } else {
+            ly[n] = base;
+            snprintf(ly[n].text, sizeof ly[n].text, "%s", whole);
+            n++;
+        }
+    }
+    for (int i = 0; i < n; i++)
+        while (ly[i].scale > 1 && text_width_scaled(ly[i].text, ly[i].scale) > maxw) ly[i].scale--;
+    /* the whole block in its place: the biggest lines shrink till it fits */
+    int y0 = 0, y1 = LH;
+    if (card_paths[0]) { /* vertical: the place of the top card, or the bottom one */
+        if (top) y1 = GY / U;
+        else y0 = (GY + GH) / U;
+    }
+    int total_h;
+    for (;;) {
+        total_h = 0;
+        int big = 0;
+        for (int i = 0; i < n; i++) {
+            total_h += FONT_H * ly[i].scale + (i ? 3 + ly[i].scale * 2 : 0);
+            if (ly[i].scale > ly[big].scale) big = i;
+        }
+        if (total_h <= y1 - y0 - 16 || !n || ly[big].scale <= 1) break;
+        ly[big].scale--;
+    }
+    for (int i = 0; i < n; i++) ly[i].w = text_width_scaled(ly[i].text, ly[i].scale);
+    int cy = card_paths[0] || !sh->wy ? (y0 + y1) / 2 : (GY + sh->wy * S) / U;
+    int y = cy - total_h / 2;
+    for (int i = 0; i < n; i++) {
+        if (i) y += 3 + ly[i].scale * 2;
+        ly[i].y = y;
+        y += FONT_H * ly[i].scale;
+    }
+    return n;
+}
+
+/* the hits under the words: each slam punches, shakes and flashes the picture */
+static void words_hits(const Shot *sh, int l, FX *fx) {
+    for (int i = 0; i < sh->nline; i++) {
+        const Line *ln = &sh->line[i];
+        if (ln->style != L_SLAM || line_top(sh, ln) < 0) continue;
+        int t = l - ln->at;
+        punch(fx, l, ln->at, 0.1f, 0);
+        shake(fx, l, ln->at, 2.6f, (uint32_t)(sh->start + ln->at) * 57);
+        if (t >= 0 && t < 4) fx->flash += (float[]){0.4f, 0.22f, 0.1f, 0.04f}[t];
+    }
+}
+
+static void draw_words(const Shot *sh, int l) {
+    if (!sh->nline) return;
+    if (sh->kind == K_GRID && l >= sh->frames - 8) return; /* gone as the grid flies off */
+    Lay all[16], ly[16];
+    int n = layout(sh, all, 1);
+    for (int i = 0; i < n; i++) ly[i] = all[i];
+    if (card_paths[0]) n += layout(sh, ly + n, 0);
+    gfx_set_target(&(Surface){LW, LH, words_px});
+    gfx_cls(TRANSPARENT);
+    for (int i = 0; i < n; i++) {
+        int t = l - ly[i].at;
+        if (t < 0) continue;
+        int scale = ly[i].scale, col = ly[i].col, y = ly[i].y, w = ly[i].w, h = FONT_H * scale;
+        int x = LW / 2 - w / 2;
+        char buf[100];
+        memcpy(buf, ly[i].text, sizeof ly[i].text);
+        if (ly[i].style == L_TYPE) {
+            typed(buf, ly[i].text, t, (t / 4) % 2 == 0); /* a letter a frame */
+        } else {
+            if (ly[i].style == L_SLAM && t < 4) { /* lands big, then settles */
+                int big = scale + (t < 2 ? 2 : 1);
+                while (big > scale && text_width_scaled(buf, big) > LW - 4) big--;
+                y -= FONT_H * (big - scale) / 2;
+                scale = big;
+                w = text_width_scaled(buf, scale);
+                h = FONT_H * scale;
+                x = LW / 2 - w / 2;
+            } else if (ly[i].style == L_DROP && t < 10) {
+                int from = -h - 8;
+                y = (int)lroundf(from + (y - from) * ease_out_back(t / 10.0f));
+            } else if (ly[i].style == L_SLIDE && t < 10) {
+                int from = -w - 8;
+                x = (int)lroundf(from + (x - from) * ease_out_back(t / 10.0f));
+            }
+            if (t < 14 && (t / 2) % 2 == 0) col = col == C_WHITE ? C_YELLOW : C_WHITE;
+        }
+        if (i == 0 && t >= 24 && l % BEAT < 3) y -= 1; /* the first line bobs on the beat */
+        if (!buf[0]) continue;
+        int bw = text_width_scaled(buf, scale);
+        gfx_rect(x - 5, y - 4, bw + 10, h + 8, C_INK);
+        text_at(buf, x, y, scale, col, 0);
+    }
+    gfx_set_target(NULL);
+    /* onto the frame, with the slams' shake */
+    FX wfx;
+    fx_reset(&wfx);
+    for (int i = 0; i < sh->nline; i++)
+        if (sh->line[i].style == L_SLAM && line_top(sh, &sh->line[i]) >= 0) shake(&wfx, l, sh->line[i].at, 1.4f, (uint32_t)(sh->start + sh->line[i].at) * 91);
+    for (int y = 0; y < LH; y++)
+        for (int x = 0; x < LW; x++) {
+            int c = words_px[y * LW + x];
+            if (c != TRANSPARENT) fill_rect(x * U + wfx.dx, y * U + wfx.dy, U, U, pal_rgb(c));
+        }
+}
+
+/* the picture darker, for words over it */
+static void dim_rect(int x0, int y0, int w, int h, int pct) {
+    if (pct >= 100) return;
+    int k = pct * 256 / 100;
+    for (int y = y0; y < y0 + h; y++) {
+        uint8_t *o = out + ((size_t)y * W + x0) * 3;
+        for (int i = 0; i < w * 3; i++) o[i] = (uint8_t)(o[i] * k >> 8);
+    }
 }
 
 /* ---- one frame ------------------------------------------------------------------------- */
@@ -1028,11 +1238,14 @@ static void render(int f) {
     gfx_set_target(&(Surface){SW, SH, cap_px});
     gfx_cls(TRANSPARENT);
 
-    if (card_paths[0]) {
+    if (card_paths[0]) { /* words take the place of a card */
         fill_rect(0, 0, W, H, pal_rgb(C_INK));
-        draw_card(&card_top, GX, GY - GH - 60 * S / 3);
-        draw_card(&card_bot, GX, GY + GH + 60 * S / 3);
+        if (!region_used(sh, 1)) draw_card(&card_top, GX, GY - GH - 60 * S / 3);
+        if (!region_used(sh, 0)) draw_card(&card_bot, GX, GY + GH + 60 * S / 3);
     }
+    words_hits(sh, l, &fx);
+    if (sh->nline && sh->kind == K_CLIP)
+        for (int b = BEAT; b < sh->frames; b += BEAT) punch(&fx, l, b, 0.03f, 0);
 
     if (sh->kind == K_HOOK) {
         /* the glitchy reveal: the logo comes up out of a mosaic and an RGB
@@ -1050,7 +1263,8 @@ static void render(int f) {
         for (int b = 48; b < sh->frames; b += BEAT)
             if (b != 96) punch(&fx, l, b, 0.025f, 0);
         draw_picture(boot_frame(sh->clip, sh->first + l < sh->hold ? sh->first + l : sh->hold), &fx);
-        hook_words(l);
+        if (sh->nline) star_burst(l, 8, 160, 78);
+        else hook_words(l);
     } else if (sh->kind == K_END) {
         if (l >= 48 && l < 53) fx.flash += (float[]){0.9f, 0.6f, 0.35f, 0.15f, 0.05f}[l - 48];
         if (l >= 44 && l < 48) glitch(&fx, (uint32_t)l * 31, 0.3f);
@@ -1058,19 +1272,38 @@ static void render(int f) {
         shake(&fx, l, 48, 2.5f, 1234);
         for (int b = 96; b < sh->frames; b += BAR) punch(&fx, l, b, 0.03f, 0);
         draw_picture(boot_frame(sh->clip, sh->first + l < sh->hold ? sh->first + l : sh->hold), &fx);
-        end_words(l);
+        if (sh->nline) {
+            Text fan = {'C', 160, 170, 0, C_GREY, "FAN-MADE TRIBUTE \x8a NOT AFFILIATED WITH MOSSMOUTH"};
+            typing(&fan, l - 168, 4);
+            twinkles(l, 50, 0);
+            star_burst(l, 48, 160, 78);
+        } else end_words(l);
     } else if (sh->kind == K_GRID) {
         for (int b = BEAT * 6; b < sh->frames - 26; b += BEAT) punch(&fx, l, b, 0.03f, 0);
         draw_grid(sh, l, &fx);
         grid_words(sh, l);
         if (l >= sh->frames - 4) fx.flash += (l - (sh->frames - 4) + 1) * 0.2f;
     } else {
-        const Img *a = frame_get(sh->clip, sh->first + l < sh->hold ? sh->first + l : sh->hold);
-        draw_picture(a, &fx);
+        /* with bg=, a new clip on every beat (or EVERY frames), cut with a
+         * glitch, a flash or a mosaic in turn */
+        int ev = sh->every ? sh->every : BEAT, seg = sh->nbg ? l / ev : 0, sl = l - seg * ev;
+        int cc = sh->clip, cf = sh->first + l < sh->hold ? sh->first + l : sh->hold;
+        if (seg) {
+            cc = sh->bgc[(seg - 1) % sh->nbg];
+            cf = sh->bgf[(seg - 1) % sh->nbg] + sl;
+            if (sl < 4) switch (seg % 3) {
+                case 0: glitch(&fx, (uint32_t)(f * 7 + seg), (4 - sl) / 4.0f); if (!sl) fx.flash += 0.25f; break;
+                case 1: fx.flash += (float[]){0.6f, 0.4f, 0.2f, 0.08f}[sl]; break;
+                default: fx.mosaic = (int[]){8, 4, 2, 1}[sl]; break;
+                }
+        }
+        draw_picture(frame_get(cc, cf), &fx);
+        if (sh->nline && !card_paths[0]) dim_rect(GX, GY, GW, GH, sh->dim);
         clip_words(sh, l);
     }
     gfx_set_target(NULL);
     draw_caps();
+    draw_words(sh, l);
     flash_rect(GX, GY, GW, GH, fx.flash);
     if (crt)
         for (size_t k = 0, n = (size_t)W * H; k < n; k++) {
@@ -1085,17 +1318,60 @@ static void render(int f) {
 
 /* ---- the sound ------------------------------------------------------------------------ */
 
+/* a slam: a thump that drops in pitch under a burst of noise */
+static void add_hit(float *mix, long n, long s0) {
+    float ph = 0;
+    for (long k = 0; k < 14400 && s0 + k < n; k++) {
+        float t = k / 48000.0f, fq = 42 + 120 * expf(-t * 16);
+        ph += fq / 48000.0f;
+        float v = sinf(ph * 6.2831853f) * expf(-t * 8) * 0.42f +
+                  (rnd((uint32_t)(s0 + k) * 2654435761u) * 2 - 1) * expf(-t * 45) * 0.22f;
+        mix[(s0 + k) * 2] += v;
+        mix[(s0 + k) * 2 + 1] += v;
+    }
+}
+
+/* a typed letter: a short square blip */
+static void add_tick(float *mix, long n, long s0, float fq) {
+    for (long k = 0; k < 900 && s0 + k < n; k++) {
+        float env = expf(-k / 160.0f) * 0.05f, v = fmodf(k * fq / 48000.0f, 1) < 0.5f ? env : -env;
+        mix[(s0 + k) * 2] += v;
+        mix[(s0 + k) * 2 + 1] += v;
+    }
+}
+
+/* SRC's sound from its frame FIRST, FRAMES long, at sample frame AT */
+static void add_clip(float *mix, long n, int clip, int first, int frames, long at, float vol) {
+    Clip *c = &clips[clip];
+    clip_wav(c);
+    if (c->wav_n <= 0) return;
+    for (long k = 0; k < (long)frames * 800 && at + k < n; k++) {
+        long src = (long)first * 800 + k;
+        if (src >= c->wav_n) break;
+        mix[(at + k) * 2] += vol * c->wav[src * 2] / 32768.0f;
+        mix[(at + k) * 2 + 1] += vol * c->wav[src * 2 + 1] / 32768.0f;
+    }
+}
+
 static void write_wav(const char *path) {
     long n = (long)total * 800;
     float *mix = calloc((size_t)n * 2, sizeof(float));
     for (int i = 0; i < nshots; i++) {
         const Shot *sh = &shots[i];
         long at = (long)sh->start * 800;
+        for (int j = 0; j < sh->nline; j++) {
+            const Line *ln = &sh->line[j];
+            if (ln->vonly) continue; /* one sound for both videos */
+            if (ln->style == L_SLAM) add_hit(mix, n, at + (long)ln->at * 800);
+            else if (ln->style == L_TYPE)
+                for (int c = 0; ln->text[c]; c += 2) add_tick(mix, n, at + (long)(ln->at + c) * 800, c % 4 ? 1320 : 1760);
+        }
         if (sh->kind == K_GRID) {
-            /* a rising blip for each game, and a swoop up into the saucer */
+            /* a rising blip for each game (over the same 21 semitones, however
+             * many), and a swoop up into the saucer */
             for (int g = 0; g < ngames; g++) {
-                float fq = 660 * powf(2, g / 12.0f);
-                long s0 = at + (long)g * POP * 800;
+                float fq = 660 * powf(2, (ngames > 1 ? g * 21.0f / (ngames - 1) : 0) / 12.0f);
+                long s0 = at + (long)g * sh->pop * 800;
                 for (int k = 0; k < 2400 && s0 + k < n; k++) {
                     float env = expf(-k / 500.0f) * 0.1f;
                     float v = fmodf(k * fq / 48000.0f, 1) < 0.5f ? env : -env;
@@ -1115,15 +1391,16 @@ static void write_wav(const char *path) {
             }
             continue;
         }
-        Clip *c = &clips[sh->clip];
-        clip_wav(c);
-        if (c->wav_n <= 0) continue;
-        for (long k = 0; k < (long)sh->frames * 800; k++) {
-            long src = (long)sh->first * 800 + k;
-            if (src >= c->wav_n) break;
-            mix[(at + k) * 2] += c->wav[src * 2] / 32768.0f;
-            mix[(at + k) * 2 + 1] += c->wav[src * 2 + 1] / 32768.0f;
+        if (sh->nbg) { /* each beat's clip, a little quieter under the words */
+            int ev = sh->every ? sh->every : BEAT;
+            for (int seg = 0; seg * ev < sh->frames; seg++) {
+                int len = sh->frames - seg * ev < ev ? sh->frames - seg * ev : ev;
+                int cc = seg ? sh->bgc[(seg - 1) % sh->nbg] : sh->clip, cf = seg ? sh->bgf[(seg - 1) % sh->nbg] : sh->first;
+                add_clip(mix, n, cc, cf, len, at + (long)seg * ev * 800, 0.7f);
+            }
+            continue;
         }
+        add_clip(mix, n, sh->clip, sh->first, sh->frames, at, 1);
     }
     FILE *f = fopen(path, "wb");
     if (!f) die("cannot write", path);
@@ -1189,6 +1466,10 @@ int main(int argc, char **argv) {
     GH = SH * S;
     if (GX + GW > W || GY + GH > H || S < 1) die("the game doesn't fit the frame", NULL);
     out = calloc((size_t)W * H * 3, 1);
+    U = card_paths[0] || S % 2 || S < 4 ? S : S / 2;
+    LW = W / U;
+    LH = H / U;
+    words_px = malloc((size_t)LW * LH);
     if (crt) build_crt();
     if (card_paths[0]) {
         png_load(card_paths[0], &card_top);

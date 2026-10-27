@@ -1,0 +1,85 @@
+# The thank-you video's edit (EDIT=thanks sh tools/promo/render.sh), in the
+# same form as cuts.txt (see there), plus the big words:
+#   l=AT,SCALE,COLOUR,STYLE,TEXT   a line of big words from frame AT of the
+#                 shot; SCALE in word-layer pixels (half a game pixel in the
+#                 landscape video), STYLE slam|type|drop|slide, '_' a space,
+#                 '^' where it may break in two when it doesn't fit (the
+#                 vertical video); a slam hits the picture, then holds still
+#   bg=CLIP:FIRST,...  the picture changes to the next of these on every
+#                 beat (every=FRAMES to change slower); dim=PCT darkens it
+#   wy=ROW        the middle of the words, in game rows (landscape)
+#   v=bot         the vertical video puts the words below the game
+#   pop=F         the grid's frames between games
+# Words stay on screen about 0.35 s a word, 1.5 s at the least.
+boot     118  192  as=hook wy=142 l=8,9,y,slam,THANK_YOU! l=60,3,C,type,A_UFO_50_FAN_TRIBUTE
+13       529  192  in=flash dim=55 l=4,7,y,slam,100+_DOWNLOADS l=32,4,w,slam,THANK_YOU_^FOR_PLAYING! bg=01:274,45:210,16:199,04:176,44:235,09:82,02:51
+22       560   96  in=flash cap=slam badge=NEW! shake=24 zoom=72
+37       990   96  in=glitch cap=drop badge=NEW! zoom=24 shake=84
+40        96   96  in=mosaic cap=slam badge=NEW! shake=84 zoom=84
+39       150   48  in=flash cap=slide shake=24
+33       120   48  in=glitch cap=slide zoom=24
+48       300   48  in=flash cap=slide shake=24
+10        76   48  in=glitch cap=slide zoom=24 shake=24,38
+14       166   48  in=flash cap=slide shake=30,44
+03       565   48  in=dither cap=slide shake=24
+47        93   48  in=glitch cap=slide zoom=24
+library    4   96  in=glitch
+grid       0  432  in=flash pop=4 wy=150 l=204,4,y,slam,ALL_50_GAMES_^ARE_IN! l=228,3,w,slam,V1.0.0_\x88_OUT_NOW
+28       899  240  in=flash dim=55 l=4,4,C,slam,COMING_LATER: l=24,6,y,slam,A_BIG_OVERHAUL l=60,3,w,slam,NEW_GRAPHICS_\x88_^BETTER_MISSIONS bg=05:317,30:357,41:0,42:0,43:0,49:0,50:0,38:0,32:0
+18        40  216  in=glitch dim=50 every=48 l=4,5,y,slam,IT_WILL_TAKE_^A_WHILE: l=40,4,w,slam,OTHER_PROJECTS_^COME_FIRST bg=15:94,07:20,25:290,08:0
+46       600   48  in=flash cap=slide shake=24
+06       291   48  in=glitch cap=slam shake=24
+11         0  192  in=flash dim=55 l=4,8,y,slam,FOUND_A_BUG? l=36,3,w,slam,A_BROKEN_OR_^IMPOSSIBLE_MISSION? bg=12:0,17:0,19:0,20:0,21:0,23:0,24:0
+26         0  288  in=glitch dim=50 every=48 l=4,4,w,slam,REPORT_IT_ON_^GITHUB_ISSUES l=28,3,C,type,GITHUB.COM/NANIIIC137/^UFO-40/ISSUES l=96,5,y,slam,I'LL_FIX_^THEM_ALL! bg=27:0,29:0,31:0,34:0,36:0
+boot      64  384  as=end in=flash hold=300 wy=140 v=bot lt=48,6,y,slam,THANK_YOU! lt=60,3,w,type,FOR_PLAYING_UFO_40 l=60,3,y,slam,PLAY_FREE_IN_^YOUR_BROWSER l=72,3,C,type,NANIIIC137.GITHUB.IO/UFO-40 l=132,2,w,slide,DOWNLOAD_FOR_PS_VITA_&_WINDOWS l=144,2,C,type,GITHUB.COM/NANIIIC137/^UFO-40/RELEASES
+# every game for the grid (a game's first shot above sets its frames)
+tile 01 274
+tile 02 51
+tile 03 565
+tile 04 176
+tile 05 317
+tile 06 291
+tile 07 20
+tile 08 0
+tile 09 82
+tile 10 76
+tile 11 0
+tile 12 0
+tile 13 529
+tile 14 166
+tile 15 94
+tile 16 199
+tile 17 0
+tile 18 40
+tile 19 0
+tile 20 0
+tile 21 0
+tile 22 560
+tile 23 0
+tile 24 0
+tile 25 290
+tile 26 0
+tile 27 0
+tile 28 899
+tile 29 0
+tile 30 357
+tile 31 0
+tile 32 0
+tile 33 120
+tile 34 0
+tile 35 0
+tile 36 0
+tile 37 990
+tile 38 0
+tile 39 150
+tile 40 96
+tile 41 0
+tile 42 0
+tile 43 0
+tile 44 235
+tile 45 210
+tile 46 600
+tile 47 93
+tile 48 300
+tile 49 0
+tile 50 0

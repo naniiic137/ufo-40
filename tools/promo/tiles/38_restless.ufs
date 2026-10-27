@@ -1,0 +1,13 @@
+# Promo tile: slot 38 (RESTLESS) for the games grid, made from
+# tools/shots/38_restless.ufs: its set-up, then 240 frames of its GIF's play
+seed 38
+game restless
+wait 60
+press A
+wait 40
+press A
+botuntil state == 2 3000
+botplay 60
+record_start 38
+botplay 240
+record_stop

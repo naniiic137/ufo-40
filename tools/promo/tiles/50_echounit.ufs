@@ -1,0 +1,14 @@
+# Promo tile: slot 50 (ECHOUNIT) for the games grid, made from
+# tools/shots/50_echounit.ufs: its set-up, then 240 frames of its GIF's play
+seed 50
+game echounit
+wait 60
+press A
+wait 30
+press A
+wait 30
+cheat mission 0
+botplay 300
+record_start 50
+botplay 240
+record_stop

@@ -1,0 +1,15 @@
+# Promo tile: slot 24 (SHUTTERBUG) for the games grid, made from
+# tools/shots/24_shutterbug.ufs: its set-up, then 240 frames of its GIF's play
+seed 24
+game shutterbug
+wait 40
+press A
+wait 60
+botuntil state == 3 600
+botplay 1000
+cheat stage 1
+cheat lives 5
+botplay 1500
+record_start 24
+botplay 240
+record_stop

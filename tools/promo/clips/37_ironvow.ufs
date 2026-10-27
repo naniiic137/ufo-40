@@ -1,0 +1,20 @@
+# Promo clip: IRONVOW (slot 37), from tools/shots/37_ironvow.ufs: floor 2,
+# the demo player exploring and fighting with real presses
+audio on
+volume 0 10
+overlay_text L 3 160 1 y 37 IRONVOW
+overlay_text L 3 172 0 l TRIBUTE TO VALBRACE
+seed 37
+game ironvow
+wait 60
+cheat newgame 37
+cheat stats 9 9 9
+cheat give ARMING_SWORD
+cheat equip 3
+cheat floor 2
+botplay 400
+record_start 37
+wav_start 37
+botplay 1200
+record_stop
+wav_stop

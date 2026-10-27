@@ -1,0 +1,10 @@
+# Promo tile: slot 32 (FORLORN) for the games grid, made from
+# tools/shots/32_forlorn.ufs: its set-up, then 240 frames of its GIF's play
+seed 32
+game forlorn
+wait 60
+cheat start 1
+wait 30
+record_start 32
+botplay 240
+record_stop

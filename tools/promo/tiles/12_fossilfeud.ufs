@@ -1,0 +1,17 @@
+# Promo tile: slot 12 (FOSSILFEUD) for the games grid, made from
+# tools/shots/12_fossilfeud.ufs: its set-up, then 240 frames of its GIF's play
+seed 12
+game fossilfeud
+wait 40
+press A
+wait 20
+botuntil turn >= 9 40000
+botuntil mp == 1 4000
+wait 20
+botuntil mp == 3 4000
+botuntil au == 3 4000
+wait 4
+botuntil state == 5 60000
+record_start 12
+botplay 240
+record_stop

@@ -1,0 +1,19 @@
+# Promo clip: KIPPER (slot 22), from tools/shots/22_kipper.ufs: a new game,
+# the demo player's real presses taking Kipper out of the first dock
+audio on
+volume 0 10
+overlay_text L 3 160 1 y 22 KIPPER
+overlay_text L 3 172 0 l TRIBUTE TO PORGY
+seed 22
+game kipper
+wait 10
+press A
+wait 40
+press A
+wait 10
+botplay 120
+record_start 22
+wav_start 22
+botplay 900
+record_stop
+wav_stop
