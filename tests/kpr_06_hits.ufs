@@ -1,0 +1,50 @@
+# KIPPER: a knock (a creature, a shot) costs half a bar and pushes the sub
+# away, then a second of mercy. Hull Plates take three knocks instead of
+# fuel; a plate knocked off floats and can be picked up again; a dock
+# brings all three back.
+seed 1
+game kipper
+wait 5
+cheat newgame
+cheat clear
+cheat calm
+cheat tile 70 28
+wait 40
+cheat fuel 1000
+cheat eshot 0 1128 456 0 0
+wait 2
+expect fuel == 820
+expect hits == 1
+expect inv > 50
+# mercy: a second shot right away does nothing
+cheat eshot 0 1128 456 0 0
+wait 2
+expect fuel == 820
+wait 60
+cheat tile 70 28
+wait 2
+cheat fit 9
+expect plates == 3
+cheat eshot 0 1128 456 0 0
+wait 2
+expect plates == 2
+expect fuel == 820
+expect loose_plates == 1
+wait 90
+# back for the plate: it floated off the way the knock pushed the sub
+hold LEFT 30
+expect loose_plates == 0
+expect plates == 3
+# a dock fits a full set again
+cheat tile 70 28
+wait 2
+cheat eshot 0 1128 456 0 0
+wait 2
+expect plates == 2
+cheat dock 0
+press A
+wait 5
+press B
+wait 5
+expect plates == 3
+

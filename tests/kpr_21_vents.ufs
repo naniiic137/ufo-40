@@ -1,0 +1,32 @@
+# KIPPER: the Blackwater's steam vents blow for a second out of every
+# three; in the steam the sub takes a knock, beside it nothing.
+seed 1
+game kipper
+wait 5
+cheat newgame
+cheat clear
+cheat calm
+cheat fit 6
+# beside the vent: nothing happens while it blows
+cheat tile 21 115
+cheat clear
+waituntil vent0 == 0 200
+waituntil vent0 == 1 200
+wait 30
+expect hits == 0
+# over it
+waituntil vent0 == 0 200
+cheat tile 18 116
+cheat clear
+cheat fuel 1000
+wait 2
+expect hits == 0
+waituntil vent0 == 1 200
+wait 3
+expect hits == 1
+expect fuel == 820
+# a second out of three
+waituntil vent0 == 0 200
+wait 100
+expect vent0 == 0
+waituntil vent0 == 1 30

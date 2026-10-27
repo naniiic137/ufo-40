@@ -1,0 +1,27 @@
+# KIPPER: switches in the walls want the Ram Torpedoes: a plain torpedo
+# only tinks; a ram torpedo lights the switch and its gate opens for the
+# rest of the dive. A dock shuts it again.
+seed 1
+game kipper
+wait 5
+cheat newgame
+cheat clear
+cheat calm
+cheat tile 47 59
+cheat face -1
+wait 2
+expect tile_45_59 == 97
+press A 1
+wait 20
+expect gates == 0
+cheat fit 0
+wait 20
+press A 1
+wait 20
+expect gates == 1
+# through the gate
+cheat tile 46 62
+hold LEFT 60
+expect tx < 44
+cheat dock 0
+expect gates == 0

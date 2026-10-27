@@ -1,0 +1,23 @@
+# KIPPER: the Blackwater is black but for a few pixels round the sub; the
+# Lamp lights a circle. The radar shows big ones nearby; with the Sonar it
+# also shows pick-ups, hidden ones too, and big ones anywhere in the area on
+# its rim.
+seed 1
+game kipper
+wait 5
+cheat newgame
+cheat clear
+cheat calm
+cheat tile 50 115
+wait 30
+expect ink_view > 40000
+cheat fit 6
+wait 2
+expect ink_view < 30000
+# the radar: Gnasher close by is a red dot; items are not shown without the Sonar
+cheat tile 98 18
+wait 2
+expect radar_yellow == 0
+cheat fit 7
+wait 2
+expect radar_yellow > 0

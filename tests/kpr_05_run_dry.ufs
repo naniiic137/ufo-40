@@ -1,0 +1,44 @@
+# KIPPER: out of fuel the sub is towed back to the last dock. Everything
+# the dive found goes back where it was, the big ones get their damage back
+# and blasted blocks come back too; what the last dock banked stays.
+seed 1
+game kipper
+wait 5
+cheat newgame
+cheat clear
+cheat calm
+cheat take 10
+cheat tile 80 5
+hold UP 60
+expect tanks == 1
+press A
+wait 5
+press B
+wait 5
+# a dive: a find, damage to Gnasher, a block blasted
+cheat take 11
+cheat bosshp 0 300
+cheat fit 4
+cheat tile 36 51
+wait 2
+hold A 45
+wait 40
+expect tile_36_49 == 46
+expect brk >= 6
+cheat dry
+wait 5
+expect state == 4
+wait 150
+expect state == 3
+expect dock_phase == 1
+expect tanks == 1
+expect item11_state == 0
+expect item11_where == 0
+expect boss0_hp == 500
+expect tile_36_49 == 66
+expect brk == 0
+expect towed == 1
+press B
+wait 5
+expect state == 2
+expect fuel == 1800

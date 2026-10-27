@@ -1,0 +1,42 @@
+# KIPPER: torpedoes don't kill. Enough of them pacify a creature: small,
+# blue and harmless until the sub docks or swims into another area, when
+# every creature wakes and goes home.
+seed 1
+game kipper
+wait 5
+cheat newgame
+cheat calm
+cheat clear
+cheat tile 70 28
+wait 2
+cheat foe 3 1180 456
+wait 1
+expect foes_3 == 1
+cheat hurtfoe 85 6
+expect calm_3 == 1
+expect foes_3 == 0
+# a pacified greenling does no harm
+cheat fuel 1000
+cheat foe 3 1130 456
+cheat hurtfoe 86 6
+wait 30
+expect fuel == 1000
+# changing area wakes everything
+cheat resetfoes
+cheat tile 80 46
+wait 2
+expect area == 0
+cheat hurtfoe 32 30
+expect foe32_calm == 1
+cheat tile 80 56
+wait 2
+expect area == 1
+expect foe32_calm == 0
+expect foe32_hp == 30
+# and so does a dock
+cheat tile 58 58
+wait 2
+cheat hurtfoe 33 6
+expect foe33_calm == 1
+cheat dock 0
+expect foe33_calm == 0

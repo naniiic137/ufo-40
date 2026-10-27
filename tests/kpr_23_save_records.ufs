@@ -1,0 +1,35 @@
+# KIPPER: the game saves at every dock; CONTINUE goes back to the last one
+# with everything it banked. The title keeps the best Fuel Tanks, Torpedo
+# Upgrades and Eggs Returned.
+seed 1
+game kipper
+wait 5
+cheat newgame
+cheat clear
+cheat calm
+cheat take 10
+cheat take 30
+cheat tile 134 6
+hold UP 60
+expect state == 3
+expect dock == 1
+expect docks_known == 3
+expect rec_tanks == 1
+expect rec_boosters == 1
+press A
+wait 5
+press B
+wait 5
+cheat take 11
+reload
+game kipper
+wait 10
+expect menu == 1
+expect rec_tanks == 1
+press A
+wait 5
+expect state == 2
+expect dock == 1
+expect tanks == 1
+expect boosters == 1
+expect item11_state == 0

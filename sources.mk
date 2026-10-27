@@ -352,6 +352,18 @@ CORE_SRC += src/games/echounit/eko_draw.c
 CORE_SRC += src/games/echounit/eko_art.c
 CORE_SRC += src/games/echounit/eko_audio.c
 
+CORE_SRC += src/games/kipper/kpr.c
+CORE_SRC += src/games/kipper/kpr_sea.c
+CORE_SRC += src/games/kipper/kpr_world.c
+CORE_SRC += src/games/kipper/kpr_play.c
+CORE_SRC += src/games/kipper/kpr_foes.c
+CORE_SRC += src/games/kipper/kpr_boss.c
+CORE_SRC += src/games/kipper/kpr_bot.c
+CORE_SRC += src/games/kipper/kpr_text.c
+CORE_SRC += src/games/kipper/kpr_draw.c
+CORE_SRC += src/games/kipper/kpr_art.c
+CORE_SRC += src/games/kipper/kpr_audio.c
+
 HEADLESS_SRC += src/platform/headless/main_headless.c
 HEADLESS_SRC += src/platform/headless/imgwrite.c
 HEADLESS_SRC += src/platform/headless/vita_assets.c
