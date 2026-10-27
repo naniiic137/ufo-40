@@ -1,5 +1,7 @@
-# The thank-you video's edit (EDIT=thanks sh tools/promo/render.sh), in the
-# same form as cuts.txt (see there), plus the big words:
+# The v1.0.0 video's edit (EDIT=thanks sh tools/promo/render.sh): just the
+# games, in the same form as cuts.txt (see there), plus:
+#   words=none    the hook without its words (the logo and its star burst)
+#   title=TEXT sub=TEXT  the caption of a game that has no clip script
 #   l=AT,SCALE,COLOUR,STYLE,TEXT   a line of big words from frame AT of the
 #                 shot; SCALE in word-layer pixels (half a game pixel in the
 #                 landscape video), STYLE slam|type|drop|slide, '_' a space,
@@ -11,8 +13,16 @@
 #   v=bot         the vertical video puts the words below the game
 #   pop=F         the grid's frames between games
 # Words stay on screen about 0.35 s a word, 1.5 s at the least.
-boot     118  192  as=hook wy=142 l=8,9,y,slam,THANK_YOU! l=60,3,C,type,A_UFO_50_FAN_TRIBUTE
-13       529  192  in=flash dim=55 l=4,7,y,slam,100+_DOWNLOADS l=32,4,w,slam,THANK_YOU_^FOR_PLAYING! bg=01:274,45:210,16:199,04:176,44:235,09:82,02:51
+# the logo
+boot     118  120  as=hook words=none
+# quick cuts
+13        529   48  in=flash cap=slide shake=24
+01        274   48  in=glitch cap=drop zoom=24
+45        210   48  in=mosaic cap=slam shake=24,38
+16        199   48  in=flash cap=slide zoom=24 shake=24
+04        176   48  in=dither cap=drop shake=24
+44        235   48  in=glitch cap=slam zoom=24
+# the three new games, then more
 22       560   96  in=flash cap=slam badge=NEW! shake=24 zoom=72
 37       990   96  in=glitch cap=drop badge=NEW! zoom=24 shake=84
 40        96   96  in=mosaic cap=slam badge=NEW! shake=84 zoom=84
@@ -24,14 +34,33 @@ boot     118  192  as=hook wy=142 l=8,9,y,slam,THANK_YOU! l=60,3,C,type,A_UFO_50
 03       565   48  in=dither cap=slide shake=24
 47        93   48  in=glitch cap=slide zoom=24
 library    4   96  in=glitch
-grid       0  432  in=flash pop=4 wy=150 l=204,4,y,slam,ALL_50_GAMES_^ARE_IN! l=228,3,w,slam,V1.0.0_\x88_OUT_NOW
-28       899  240  in=flash dim=55 l=4,4,C,slam,COMING_LATER: l=24,6,y,slam,A_BIG_OVERHAUL l=60,3,w,slam,NEW_GRAPHICS_\x88_^BETTER_MISSIONS bg=05:317,30:357,41:0,42:0,43:0,49:0,50:0,38:0,32:0
-18        40  216  in=glitch dim=50 every=48 l=4,5,y,slam,IT_WILL_TAKE_^A_WHILE: l=40,4,w,slam,OTHER_PROJECTS_^COME_FIRST bg=15:94,07:20,25:290,08:0
-46       600   48  in=flash cap=slide shake=24
-06       291   48  in=glitch cap=slam shake=24
-11         0  192  in=flash dim=55 l=4,8,y,slam,FOUND_A_BUG? l=36,3,w,slam,A_BROKEN_OR_^IMPOSSIBLE_MISSION? bg=12:0,17:0,19:0,20:0,21:0,23:0,24:0
-26         0  288  in=glitch dim=50 every=48 l=4,4,w,slam,REPORT_IT_ON_^GITHUB_ISSUES l=28,3,C,type,GITHUB.COM/NANIIIC137/^UFO-40/ISSUES l=96,5,y,slam,I'LL_FIX_^THEM_ALL! bg=27:0,29:0,31:0,34:0,36:0
-boot      64  384  as=end in=flash hold=300 wy=140 v=bot lt=48,6,y,slam,THANK_YOU! lt=60,3,w,type,FOR_PLAYING_UFO_40 l=60,3,y,slam,PLAY_FREE_IN_^YOUR_BROWSER l=72,3,C,type,NANIIIC137.GITHUB.IO/UFO-40 l=132,2,w,slide,DOWNLOAD_FOR_PS_VITA_&_WINDOWS l=144,2,C,type,GITHUB.COM/NANIIIC137/^UFO-40/RELEASES
+grid       0  288  in=flash pop=4
+# more of the 50
+08         60   48  in=glitch cap=slide shake=24,38 title=08_LANDFALL sub=TRIBUTE_TO_PLANET_ZOLDATH
+28        899   48  in=mosaic cap=drop zoom=24 shake=24
+11         60   48  in=flash cap=slam shake=24 title=11_HAT_TRICK sub=TRIBUTE_TO_KICK_CLUB
+12         60   48  in=dither cap=slide zoom=24 title=12_FOSSIL_FEUD sub=TRIBUTE_TO_AVIANOS
+46        600   48  in=glitch cap=drop shake=24
+17         60   48  in=flash cap=slam zoom=24 title=17_BELLHOP sub=TRIBUTE_TO_CAMPANELLA
+19         60   48  in=glitch cap=slide shake=24,38 title=19_CHIME_CIRCUIT sub=TRIBUTE_TO_THE_BIG_BELL_RACE
+05        317   48  in=mosaic cap=drop zoom=24 shake=24
+20         60   48  in=flash cap=slam shake=24 title=20_LIMPET sub=TRIBUTE_TO_WARPTANK
+21         60   48  in=dither cap=slide zoom=24 title=21_TUSKWIND sub=TRIBUTE_TO_WALDORF'S_JOURNEY
+06        291   48  in=glitch cap=drop shake=24
+23         60   48  in=flash cap=slam zoom=24 title=23_TURNIP_TRUCK sub=TRIBUTE_TO_ONION_DELIVERY
+24         60   48  in=glitch cap=slide shake=24,38 title=24_SHUTTERBUG sub=TRIBUTE_TO_CARAMEL_CARAMEL
+41          0   48  in=mosaic cap=drop zoom=24 shake=24
+26         60   48  in=flash cap=slam shake=24 title=26_SKID_KIDS sub=TRIBUTE_TO_HOT_FOOT
+27         60   48  in=dither cap=slide zoom=24 title=27_SOUNDINGS sub=TRIBUTE_TO_DIVERS
+25        290   48  in=glitch cap=drop shake=24
+29         60   48  in=flash cap=slam zoom=24 title=29_ANTIPODE sub=TRIBUTE_TO_VAINGER
+31         60   48  in=glitch cap=slide shake=24,38 title=31_TILTSHOT sub=TRIBUTE_TO_PINGOLF
+34         60   48  in=mosaic cap=drop zoom=24 shake=24 title=34_BRAVADO sub=TRIBUTE_TO_OVERBOLD
+36         60   48  in=flash cap=slam shake=24 title=36_HOOPLA sub=TRIBUTE_TO_HYPER_CONTENDER
+42         60   48  in=dither cap=slide zoom=24 title=42_WITHERLEA sub=TRIBUTE_TO_NIGHT_MANOR
+43         60   48  in=glitch cap=drop shake=24 title=43_SHOWSTOPPER sub=TRIBUTE_TO_ELFAZAR'S_HAT
+50         60   48  in=flash cap=slam zoom=24 title=50_ECHO_UNIT sub=TRIBUTE_TO_CYBER_OWLS
+boot      64  360  as=end in=flash hold=300 wy=140 v=bot l=60,3,y,slam,PLAY_FREE_IN_^YOUR_BROWSER l=72,3,C,type,NANIIIC137.GITHUB.IO/UFO-40 l=132,2,w,slide,DOWNLOAD_FOR_PS_VITA_&_WINDOWS l=144,2,C,type,GITHUB.COM/NANIIIC137/^UFO-40/RELEASES
 # every game for the grid (a game's first shot above sets its frames)
 tile 01 274
 tile 02 51

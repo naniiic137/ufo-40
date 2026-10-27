@@ -379,6 +379,7 @@ typedef struct {
     int wy;                           /* the words' middle, in game rows (0 = centred) */
     int vbot;                         /* vertical video: the words go below the game */
     int pop;                          /* grid: frames between games */
+    int quiet;                        /* words=none: the hook without its words */
 } Shot;
 
 static Shot shots[64];
@@ -549,6 +550,7 @@ static void load_cuts(void) {
             else if (!strcmp(k, "wy")) sh->wy = atoi(v);
             else if (!strcmp(k, "v")) sh->vbot = !strcmp(v, "bot");
             else if (!strcmp(k, "pop")) sh->pop = atoi(v) > 0 ? atoi(v) : 6;
+            else if (!strcmp(k, "words")) sh->quiet = !strcmp(v, "none");
             else die("unknown effect", k);
         }
         if (sh->kind == K_CLIP && !sh->has_title && !sh->nline) script_captions(sh, tok[0]);
@@ -1263,7 +1265,7 @@ static void render(int f) {
         for (int b = 48; b < sh->frames; b += BEAT)
             if (b != 96) punch(&fx, l, b, 0.025f, 0);
         draw_picture(boot_frame(sh->clip, sh->first + l < sh->hold ? sh->first + l : sh->hold), &fx);
-        if (sh->nline) star_burst(l, 8, 160, 78);
+        if (sh->nline || sh->quiet) star_burst(l, 8, 160, 78);
         else hook_words(l);
     } else if (sh->kind == K_END) {
         if (l >= 48 && l < 53) fx.flash += (float[]){0.9f, 0.6f, 0.35f, 0.15f, 0.05f}[l - 48];
