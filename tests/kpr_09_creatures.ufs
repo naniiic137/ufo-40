@@ -75,7 +75,7 @@ cheat tile 80 26
 cheat clear
 wait 2
 cheat foe 4 1240 470
-waituntil foe85_x < 1228 300
-waituntil foe85_x > 1252 600
-waituntil eshots_0 >= 1 400
+waituntil eshots_0 >= 1 100
 expect eshot_vy100 < 0
+waituntil foe85_x < 1225 300
+waituntil foe85_x > 1235 600

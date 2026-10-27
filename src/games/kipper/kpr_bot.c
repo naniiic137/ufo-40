@@ -191,6 +191,8 @@ static int mode;                       /* 0 at a dock, 1 out */
 static int last_state = -1, state_frames, release_t;
 static int stuck_t, last_tx, last_ty, plug_t, fail_dive[KPR_NITEMS + 8];
 static int want_dir;                   /* the d-pad the path wants */
+static int last_out;                   /* what the bot pressed last frame */
+static int path_step(int gx, int gy);
 static int force_dock = -1;            /* a dive to move to the other dock */
 static int switch_pending = -1;        /* a gate in the way: its switch first */
 static int fight_frames;
@@ -238,7 +240,7 @@ static int route_fuel(int tiles10, uint16_t on) {
 }
 
 static uint16_t fill_slots(uint16_t on) {
-    static const int PREF[] = {EQ_EFFICIENT, EQ_BOOSTER, EQ_ARMOR, EQ_TARGET, EQ_RADAR, EQ_MISSILE, EQ_CHARGE};
+    static const int PREF[] = {EQ_EFFICIENT, EQ_ARMOR, EQ_TARGET, EQ_RADAR, EQ_MISSILE, EQ_CHARGE};
     for (int k = 0; k < ARRAY_LEN(PREF) && popc(on) < kpr_slots(); k++)
         if ((kg.cur.have >> PREF[k]) & 1) on |= (uint16_t)(1 << PREF[k]);
     return on;
@@ -548,15 +550,19 @@ static int go_home(void) {
     int dx = KPR_DOCKS[which].x;
     float cx = dx * KPR_TILE + 8.0f;
     if (tile_y() <= KPR_SKY + 1 && fabsf(kg.x - cx) < 12) return BTN_UP;
-    set_goal(dx, KPR_SKY, dive_caps);
-    int nt;
-    return steer(f_goal, &nt);
+    return path_step(dx, KPR_SKY);
 }
 
 static bool task_done(const Task *t) {
     switch (t->kind) {
     case T_ITEM: return kg.cur.item[t->id] != IS_HOME || kg.where[t->id] == IW_TRAIL || kg.trail_n >= KPR_TRAIL;
-    case T_ROE: return trail_eggs() == 0;
+    case T_ROE:
+        /* an egg snatched or knocked loose is fetched back first */
+        if (trail_eggs() > 0) return false;
+        for (int i = 0; i < KPR_NITEMS; i++)
+            if (KPR_ITEMS[i].kind == IK_EGG && kg.cur.item[i] == IS_HOME && (kg.where[i] == IW_LOOSE || kg.where[i] == IW_HELD))
+                return false;
+        return true;
     case T_PLUG: return plug_open(t->id);
     case T_BOSS:
         /* an egg picked up on the way to Xolloth goes to Auntie Roe first */
@@ -606,10 +612,6 @@ static int path_step(int gx, int gy) {
     if (nt == 'd' && kg.dash_t == 0 && (kg.frame_t % 6) == 0) m |= BTN_B;
     if (nt == '?' && cracked_ahead()) m |= tap_fire();
     if (target_ahead()) m |= tap_fire();
-    /* a long straight swim: the thruster, while the fuel is easy */
-    if (kpr_on(EQ_BOOSTER) && kg.fuel > fuel_home_need() * 2 && (m & (BTN_LEFT | BTN_RIGHT | BTN_UP | BTN_DOWN)) &&
-        f_goal[tile_y()][tile_x()] > 600 && !(m & BTN_A))
-        m |= (kg.boosting || kg.dash_t > 0 || (kg.frame_t % 30) == 0) ? BTN_B : 0;
     return m;
 }
 
@@ -631,8 +633,7 @@ static int plug_routine(int p) {
             if (gy - kg.y < -2) m |= BTN_UP;
             return m;
         }
-        set_goal(q->at_x, q->at_y, dive_caps);
-        return steer(f_goal, &nt);
+        return path_step(q->at_x, q->at_y);
     }
     bool live = false;
     for (int i = 0; i < KPR_MAX_BOMBS; i++) live |= kg.bomb[i].alive != 0;
@@ -649,14 +650,13 @@ static int plug_routine(int p) {
     if (plug_phase == 0) {
         float ax = q->ap_x * KPR_TILE + 8.0f, ay = q->ap_y * KPR_TILE + 8.0f;
         if (fabsf(kg.x - ax) < 4 && fabsf(kg.y - ay) < 4) plug_phase = 1;
-        set_goal(q->ap_x, q->ap_y, dive_caps);
-        return steer(f_goal, &nt);
+        return path_step(q->ap_x, q->ap_y);
     }
     if (fabsf(kg.x - gx) < 3 && fabsf(kg.y - gy) < 3 && fabsf(kg.vx) + fabsf(kg.vy) < 0.3f) {
         /* sitting still: hold the dash button until the bomb is ready, then
          * let go (and let go first if it was held from before) */
         if (kg.charge_ready) return 0;
-        if (kg.b_still <= 0) return (plug_t & 1) ? 0 : BTN_B;
+        if (kg.b_still <= 0) return (last_out & BTN_B) ? 0 : BTN_B;
         return BTN_B;
     }
     /* straight across to the drop point, so the trail lies to the side */
@@ -1028,7 +1028,7 @@ static int look_ahead(int want) {
             int m = DIRS[k] | BTN_A;
             int end = simulate(m, dsh, 36, &hurt);
             int prog = (start == FBIG || end == FBIG) ? 0 : start - end;
-            int score = prog - hurt * 400 - dsh * 350;   /* a dash costs as much as a knock */
+            int score = prog - hurt * 400 - dsh * 450;   /* a dash costs as much as a knock */
             if (score > best_score) { best_score = score; best = m; best_dash = dsh; }
         }
     commit_mask = best | (best_dash ? BTN_B : 0);
@@ -1036,7 +1036,13 @@ static int look_ahead(int want) {
     return commit_mask;
 }
 
+static int bot_buttons(void);
 int kpr_bot_buttons(void) {
+    last_out = bot_buttons();
+    return last_out;
+}
+
+static int bot_buttons(void) {
     if (kg.state != last_state) { last_state = kg.state; state_frames = 0; }
     state_frames++;
     /* let go of everything now and then (a scene change swallows held buttons) */

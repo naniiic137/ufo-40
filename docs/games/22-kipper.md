@@ -10,7 +10,8 @@ community wiki's raw page, the Steam guides "The missing manuals" (section
 22) and "Gift, Gold & Cherry", the text and comments of YellowAfterlife's
 Porgy map guide (its images were not opened), Steam threads, written
 reviews, TV Tropes and speedrun.com's leaderboard (listed under Sources;
-the full notes are in the research folder, `22-porgy.md`). No UFO 50
+the full notes are in the research folder, `22-porgy.md`, and the
+independent review is `ufo40-review/22-review.md`). No UFO 50
 images, video, sprites, music, maps or text were used as references, and
 nothing was taken from a UFO 50 install.
 
@@ -36,7 +37,7 @@ structure follows the original:
 | Bosses | 6: a shark and an octopus (Area 1), a moray eel and a nautilus (Area 2), a vampire squid and the alien (Area 3), 500 / 500 / 600 / 800 / 1000 / 1400 [MH] | Gnasher, Inkwell, Longjaw, the Whorl, Nightcape, Xolloth, with the same hit points |
 | Creatures | 18 kinds [MH] | 18 kinds, 85 placed (33, 30, 22) and the filchers the polyps let out |
 | Hidden things | many items in walls or behind suspicious tiles; some need a depth charge [G-MAP], [STEAM-TIPS] | 5 pick-ups behind cracked walls (shoot or rub) or sealed walls (a blast only), and the Seeker Fins down a hidden way |
-| Length | Gold record 8:33, Cherry record 33:58 (speedrun.com) [SR]; about 5 hours to 100 % for a first player [LIZ] | the demo player takes everything and beats Xolloth in 78 minutes of play (281,040 frames, 89 dives) |
+| Length | Gold record 8:33, Cherry record 33:58 (speedrun.com) [SR]; about 5 hours to 100 % for a first player [LIZ] | the demo player takes everything and beats Xolloth in 59 minutes of play (212,447 frames, 71 dives) |
 | Goals | 3 [MH], [GGC] | the same 3 |
 | Stats | Fuel Tanks, Torpedo Upgrades, Eggs Returned [MH] | the same three, on the title |
 
@@ -66,8 +67,9 @@ the Lamp: a plug of dirt in the Undercroft's floor (the Auger) and a floor
 of blue blocks near the Whorl (a sinker bomb from above). Nightcape roams
 the Trench. The **Lean Mix**, the **Hull Plates** and the **Sonar** wait
 in its side caves. Xolloth's lair is under the Trench: a floor of blue
-blocks (a bomb), then the antechamber, then either a switch gate (the Ram
-Torpedoes) or a tunnel of dirt (the Auger).
+blocks (a bomb), then the antechamber, then a switch gate (the Ram
+Torpedoes): with the Lamp, the last dive needs three slots, as the
+original's does ("Light and Busters are necessary") [STEAM-FINAL].
 
 ## Mechanics checklist
 
@@ -75,7 +77,7 @@ Torpedoes) or a tunnel of dirt (the Auger).
 |---|---|---|---|
 | Swimming | eight ways, slow (a pixel a frame), a little momentum; knocked back when hit | [MANUALS], [TVT], [POPCAR] | kpr_02 |
 | Fuel is health and time | a bar is 360 frames of swimming; swimming burns it, sitting still or pushing on rock doesn't | [MH], [MANUALS], [STEAM-REVIEW] | kpr_02 |
-| The dash | a tap of the dash button: a quick burst the way the pad points (or the nose, sitting still) for 54 (0.15 bar) | [MANUALS], [MH] | kpr_02 |
+| The dash | a tap of the dash button: a quick burst the way the pad points (or the nose, sitting still) for half a bar, as much as a knock ("when you dash 2 times, that's one bar of fuel gone") | [MANUALS], [MH], [STEAM-TIPS] | kpr_02 |
 | A knock | a creature, a shot, a steam vent or a big one: half a bar and a push away, then a second of mercy | [MH], [MANUALS] | kpr_06 |
 | Torpedoes | held fire: one every 14 frames, the facing locked (back away firing forward); tapped: as fast as every 7, the facing free; firing costs no fuel | [MANUALS] | kpr_03 |
 | Torpedo kits | damage 3 + 1 a kit (3 to 23), reach 40 + 6 px a kit (40 to 160 px) | [MH], [STEAM-REVIEW] | kpr_03 |
@@ -85,14 +87,14 @@ Torpedoes) or a tunnel of dirt (the Auger).
 | What a dock keeps | pick-ups, damage to the big ones, blocks blasted on that dive; dirt grows back and gates shut | [MANUALS], [TVT-YMMV], [MH] | kpr_05, kpr_12, kpr_13 |
 | Out of fuel | towed back to the last dock; the dive's finds go back where they were, the big ones' damage and the blasted blocks too | [MANUALS], [MH], [STEAM-CHANGES] | kpr_05 |
 | Respawning | creatures wake and go home at a dock and on crossing into another area | [MH], [LIZ] | kpr_07 |
-| Polyps and filchers | a polyp shoots, and while the sub tows something it lets out a filcher that snatches the last thing in the trail and takes it home; pacify the filcher and it drops it | [MH], [TVT] | kpr_08 |
+| Polyps and filchers | a polyp shoots, and while the sub tows anything (sinker bombs too) it lets out a filcher that snatches the last thing in the trail and takes it home; pacify the filcher and it drops it | [MH], [TVT], [STEAM-CHANGES] | kpr_08 |
 | Bloaters' clouds | a bloater puffs shots and clouds every way when the sub comes close or hits it; a cloud knocks the last thing in the trail loose (a sinker bomb knocked loose or snatched goes off) | [MH], [TVT] | kpr_08 |
 | The equipment screen | at a dock: the ten pieces, fitted or not, as many as there are slots | [MANUALS], [MH] | kpr_10 |
 | Slots | 2; 3 with two deep lights; 4 with four | [MH], [TVT] | kpr_10, kpr_19 |
 | Ram Torpedoes | strong and short (damage x2 + 2, reach 32-72 px); they light switches and hurt a shellback in its shell | [MH] | kpr_03, kpr_09, kpr_11 |
-| Auger | a dash (or the thruster) digs through dirt; dirt grows back whenever the sub docks | [MH] | kpr_12 |
-| Long Thruster | holding the dash button keeps it going (2.6 px a frame, 3 fuel a frame) | [MH] | kpr_15 |
-| Sinker Bombs | two ride in the trail from a dock; sitting still, hold the dash button: one drops and sinks; its blast breaks blue blocks and sealed walls, hits the big ones for 170 and the sub for half a bar; swimming into it picks it straight back up | [MH], [TVT], [STEAM-CHANGES] | kpr_14 |
+| Auger | a dash (or the thruster) digs through dirt, and runs through the creatures it meets (a hit of 40, no knock to the sub; "with Long Boost + Digger, you instant kill most enemies"); dirt grows back whenever the sub docks | [MH], [STEAM-TIPS] | kpr_12 |
+| Long Thruster | holding the dash button keeps it going (2.6 px a frame, 2 fuel a frame): a dear start, then a cruise cheaper than swimming ("more efficient than swimming slowly, as long as you can get long boosts") | [MH], [STEAM-TIPS] | kpr_15 |
+| Sinker Bombs | two ride in the trail from a dock; sitting still, hold the dash button to ready one and let go to drop it (touching the pad first calls it off; letting go too soon is a dash); it sinks and goes off, breaking blue blocks and sealed walls, hitting the big ones for 350 (two halve Xolloth) and the sub for half a bar | [MH], [TVT], [STEAM-CHANGES], [STEAM-FINAL] | kpr_14 |
 | Upshot Rockets | hold fire to ready one, let go: it goes straight up; its blast breaks blue blocks and sealed walls | [MH] | kpr_13 |
 | Seeker Fins | torpedoes steer at the nearest creature ahead | [MH] | kpr_15 |
 | Lamp | the Blackwater is black past a few pixels without it; with it, a circle of light round the sub | [TVT], [MH], [G-MAP] | kpr_16 |
@@ -120,8 +122,9 @@ Torpedoes) or a tunnel of dirt (the Auger).
 ### Readings we had to choose
 
 - **Fuel numbers** (no source gives rates): a bar is 360 frames of
-  swimming at a pixel a frame (22.5 tiles), a dash 54, the thruster 3 a
-  frame, a knock 180 (half a bar). The Lean Mix takes a quarter off
+  swimming at a pixel a frame (22.5 tiles), a dash 180 (half a bar, as
+  players measure it), the thruster 2 a frame, a knock 180. The Lean Mix
+  takes a quarter off
   swimming, dashes and the thruster, not knocks.
 - **Idle drain**: none while sitting still; pushing on rock counts as
   sitting still. (Players disagree; the wiki and manual list only moving,
@@ -133,8 +136,10 @@ Torpedoes) or a tunnel of dirt (the Auger).
   fires torpedoes while a rocket readies.
 - **Sinker Bombs** ride in the trail and take its slots (so a dive with
   both carries one find); dropped from the end of the trail, they sink
-  0.45 px a frame and go off after 2.5 s (blast 44 px). No grace before
-  the sub can pick one up again (players complain of exactly that).
+  0.45 px a frame and go off after 2.5 s (blast 44 px, 350 to a big
+  one). A dropped bomb can't be picked up again: the players' "it picks
+  it right back up" turned out to be the hold being called off
+  [STEAM-CHANGES].
 - **Blue blocks** break as whole blocks (the original's are "big
   blocks"): a blast touching any tile of a block breaks all of it.
 - **Switch gates** stay open for the rest of the dive and shut at the
@@ -147,6 +152,8 @@ Torpedoes) or a tunnel of dirt (the Auger).
   near the Pier. Companions alternate blue, red, blue, red.
 - **100 %** counts the 20 tanks, 20 kits, 20 eggs handed over, the 10
   pieces of equipment and the five big ones before Xolloth (75 parts).
+- **The shellback** walks back and forth along its floor (up to 64 px
+  either way) and aims its shots at the sub, as the wiki has it.
 - **Chases**: a big one sees the sub within 150 px with a clear line,
   chases for up to 4 s, gives up out of sight for a second or beyond
   260 px, and swims back along its own trail to its loop. Chase speeds
@@ -203,9 +210,9 @@ collection features; UFO 40 has no terminal, so they are left out.
 | A (hold) | torpedoes, the facing locked |
 | A (tap) | torpedoes, quicker; the facing follows the pad |
 | A held, let go (Upshot Rockets) | a rocket straight up |
-| B | dash (more fuel) |
+| B | dash (half a bar) |
 | B held (Long Thruster) | keep going |
-| B held, sitting still (Sinker Bombs) | drop a bomb |
+| B held sitting still, then let go (Sinker Bombs) | drop a bomb (the pad first calls it off) |
 | UP under a dock | dock |
 | At a dock | D-pad picks, A fits or takes off, B launches |
 | START | pause |
@@ -217,7 +224,7 @@ collection features; UFO 40 has no terminal, so they are left out.
 | Which button fires | A here (the owner's layout, swappable); B in the original [MANUALS] |
 | Tapped fire rate | every 7 frames at best, against 14 held |
 | Rockets and torpedoes together | held fire keeps firing torpedoes while a rocket readies |
-| The rocket's and the bomb's hold times | 40 and 20 frames |
+| The rocket's and the bomb's hold times | 40 and 20 frames (the bomb drops on release [STEAM-CHANGES]) |
 | The dash sitting still | goes the way the nose points |
 | Docking | nose up (UP) under the dock |
 | Switch gates | open until the next dock |
@@ -238,7 +245,8 @@ the nearest things it can reach and bring home with the fuel it has (a
 quarter spare and room for knocks), up to three, or a blast to open a
 sealed way, or Auntie Roe when it tows eggs, or a fight with a big one
 once nothing else is in reach; it fits what the dive needs and fills the
-other slots. Out in the sea it follows a distance map, lights switches,
+other slots (it leaves the thruster be: with a dash at half a bar, short
+boosts don't pay). Out in the sea it follows a distance map, lights switches,
 dashes through dirt, rubs cracked walls, shoots at creatures in its way and
 at thieves after its trail, goes back for anything knocked loose, and
 turns for home as soon as the fuel would only just get it there. Before
@@ -246,7 +254,7 @@ each move it runs the real game ahead on a copy to see whether that move
 gets knocked or loses something from the trail; if so, it tries the other
 ways and keeps the safest that still gets on. `kpr_26` plays from the
 title with real presses: all 70 pick-ups, the five big ones and Xolloth,
-all three goals, in 78 minutes of play.
+all three goals, in 59 minutes of play.
 
 ## Sources
 
@@ -264,15 +272,20 @@ all three goals, in 78 minutes of play.
 - [G-MAP] Steam guide "Porgy map" by YellowAfterlife (text and comments
   only, no images opened): the dark third area, secrets behind walls, some
   needing a depth charge. https://steamcommunity.com/sharedfiles/filedetails/?id=3335347833
-- [STEAM-TIPS] Steam thread "beginner tips for porgy?".
+- [STEAM-TIPS] Steam thread "beginner tips for porgy?": two dashes are a
+  bar, as dear as a knock; a drilling long boost runs creatures through;
+  a long boost beats swimming for fuel.
   https://steamcommunity.com/app/1147860/discussions/0/4849903998517165833/
 - [STEAM-REVIEW] Steam thread "Porgy Review - a Sub with an Identity Crisis".
   https://steamcommunity.com/app/1147860/discussions/0/4849904176633778261/
-- [STEAM-CHANGES] Steam thread "Changes I would bring to Porgy".
+- [STEAM-CHANGES] Steam thread "Changes I would bring to Porgy": hold,
+  then let go to drop a depth charge (moving calls it off); charges in the
+  trail can be stolen.
   https://steamcommunity.com/app/1147860/discussions/0/4849904631720486806/
 - [STEAM-SUGG] Steam thread "Suggested changes to Porgy".
   https://steamcommunity.com/app/1147860/discussions/0/4700161359561460813/
-- [STEAM-FINAL] Steam thread "What did you bring to the final boss?".
+- [STEAM-FINAL] Steam thread "What did you bring to the final boss?":
+  light and busters needed to reach it; two charges halve its health.
   https://steamcommunity.com/app/1147860/discussions/0/4700161192395966591/
 - [TVT] TV Tropes recap. https://tvtropes.org/pmwiki/pmwiki.php/Recap/UFO50Game22Porgy
 - [TVT-YMMV] TV Tropes YMMV page (boss cheeses, slots, the 1.1.4 block
