@@ -1,0 +1,181 @@
+# HELLSPUR: the town counters. A night at the hotel heals the living and
+# saves the game. The bank takes deposits and pays them back (it holds no
+# more than 100,000). The stables hire horses that wait till the next town;
+# the train runs between opened stations at 40 teeth a stop, but not with
+# horses. A halo pin flies you to the last chapel; the nightmares fly over
+# mountains, and land only on open ground.
+seed 6
+game hellspur
+wait 5
+cheat posse 0 2
+cheat hp 0 3
+cheat warp 4 5 5
+cheat face 1
+press UP
+wait 12
+expect map == 41
+hold UP 50
+wait 5
+press A
+wait 12
+expect ui == 10
+press LEFT
+press A
+wait 5
+expect hp0 == 32
+expect teeth == 180
+expect save_valid == 1
+expect save_map == 4
+press A
+wait 10
+expect ui == 0
+# the bank: deposit 100
+cheat warp 4 22 5
+cheat face 1
+press UP
+wait 12
+expect map == 41
+hold UP 50
+wait 5
+press A
+wait 12
+expect ui == 12
+press A
+wait 5
+expect ui == 13
+press LEFT
+press LEFT
+press UP
+press A
+wait 5
+expect teeth == 80
+expect bank == 100
+press A
+wait 5
+# and draw it back
+cheat warp 4 22 5
+cheat face 1
+press UP
+wait 12
+expect map == 41
+hold UP 50
+wait 5
+press A
+wait 12
+press DOWN
+press A
+wait 5
+press LEFT
+press LEFT
+press UP
+press A
+wait 5
+expect teeth == 180
+expect bank == 0
+press A
+wait 5
+# the stables
+cheat warp 4 29 12
+cheat face 1
+press UP
+wait 12
+press LEFT
+press A
+wait 5
+expect horses == 1
+expect teeth == 80
+press A
+wait 5
+cheat warp 0 40 81
+press B
+wait 5
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press A
+wait 5
+expect mounted == 1
+# into a town: the horses go home
+hold LEFT 30
+cheat warp 4 -1 0
+wait 5
+expect horses == 0
+expect mounted == 0
+# the train, once Hope Springs is free and Gladwell is on the line
+cheat flag 8
+cheat warp 3 -1 0
+wait 5
+cheat warp 4 6 18
+cheat face 1
+press UP
+wait 12
+expect ui == 12
+press A
+wait 10
+expect map == 3
+expect teeth == 40
+press A
+wait 5
+# no horses on the train
+cheat warp 4 6 18
+cheat horses 1
+cheat face 1
+press UP
+wait 12
+expect ui == 1
+expect map == 4
+press A
+wait 5
+cheat horses 0
+# a halo pin
+cheat chapel 5
+cheat warp 0 40 81
+cheat give 18
+press B
+wait 5
+press A
+wait 3
+press A
+wait 3
+press A
+wait 10
+expect map == 5
+press A
+wait 5
+# the nightmares: over the southern range, and no landing on a mountain
+cheat key 10
+cheat warp 0 30 58
+press B
+wait 5
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press A
+wait 5
+expect mounted == 2
+hold UP 8
+wait 2
+expect y == 56
+press B
+wait 5
+press UP
+press A
+wait 5
+expect mounted == 2
+expect ui == 1
+press A
+wait 5
+hold DOWN 8
+wait 2
+press B
+wait 5
+press UP
+press A
+wait 5
+expect mounted == 0

@@ -1,0 +1,79 @@
+# HELLSPUR: each stranger's way of learning. Sage hears the animals: each
+# offers a choice of two skills and she keeps one. Quill watches a foe and
+# learns its trick (nine at most). Hollis makes medicine go further: a
+# bandage leaves half behind. Cora's REEL patches up the whole posse.
+seed 5
+game hellspur
+wait 5
+# the jackrabbit, south of the mission
+cheat posse 1
+cheat warp 0 26 81
+cheat face 0
+press A
+wait 5
+expect ui == 12
+press A
+wait 5
+expect skill1_10 == 1
+expect skill1_8 == 0
+expect flag55 == 1
+press A
+wait 5
+# twice? it has said its piece
+press A
+wait 5
+expect ui == 1
+press A
+wait 5
+# without Sage the rabbit only twitches its nose
+cheat posse 0
+cheat warp 0 26 81
+cheat face 0
+press A
+wait 5
+expect ui == 1
+expect flag55 == 0
+press A
+wait 5
+# Quill learns LIFT from a footpad
+cheat posse 3
+cheat level 3 4
+cheat god
+cheat battle 101
+botuntil skill3_5 == 1 6000
+cheat mortal
+# Hollis: a bandage leaves half behind
+cheat posse 2
+cheat hp 2 5
+cheat give 1
+press B
+wait 5
+press A
+wait 3
+press A
+wait 3
+press A
+wait 3
+press A
+wait 5
+expect hp2 == 24
+expect has2 == 1
+expect has1 == 0
+# Cora's reel
+cheat posse 0 6
+cheat level 6 5
+cheat hp 0 5
+cheat hp 6 3
+press B
+wait 5
+press DOWN
+press A
+wait 3
+press DOWN
+press A
+wait 3
+press A
+wait 5
+expect hp0 > 30
+expect hp6 > 20
+expect sp6 < 30

@@ -1,8 +1,9 @@
-# SHELL: every empty slot holds a grey placeholder cartridge for the UFO 50
-# game it is waiting for: COMING SOON, the slot number and the tribute
-# sticker on its label. A starts nothing: a dull sound and a short NOT
-# LOADED YET. (Slot 40 is the last empty one; when it gets its cartridge this
-# test changes to check that no placeholder is left.)
+# SHELL: an empty slot holds a grey placeholder cartridge for the UFO 50 game
+# it is waiting for (COMING SOON, the slot number and the tribute sticker on
+# its label; A starts nothing). Slot 40 was the last empty one: with all fifty
+# cartridges loaded, no placeholder is left. Every slot, walked one by one,
+# holds a real cartridge whose sticker credits its tribute, and the save data
+# list still opens on the first cartridge.
 wait 30
 press A
 wait 30
@@ -14,42 +15,259 @@ expect library_cursor == 0
 expect library_placeholder == 0
 expect library_sticker_has.TRIBUTE_TO_BARBUTA == 1
 expect library_sticker_has.UFO_50_#1 == 1
-# slot 40, in the fifth row: Grimstone's placeholder
+# every slot, one by one
+expect library_cursor == 0
+expect library_placeholder == 0
+expect library_sticker_has.TRIBUTE == 1
+expect library_sticker_has.UFO_50_#1 == 1
+press RIGHT
+expect library_cursor == 1
+expect library_placeholder == 0
+expect library_sticker_has.TRIBUTE == 1
+expect library_sticker_has.UFO_50_#2 == 1
+press RIGHT
+expect library_cursor == 2
+expect library_placeholder == 0
+expect library_sticker_has.TRIBUTE == 1
+expect library_sticker_has.UFO_50_#3 == 1
+press RIGHT
+expect library_cursor == 3
+expect library_placeholder == 0
+expect library_sticker_has.TRIBUTE == 1
+expect library_sticker_has.UFO_50_#4 == 1
+press RIGHT
+expect library_cursor == 4
+expect library_placeholder == 0
+expect library_sticker_has.TRIBUTE == 1
+expect library_sticker_has.UFO_50_#5 == 1
+press RIGHT
+expect library_cursor == 5
+expect library_placeholder == 0
+expect library_sticker_has.TRIBUTE == 1
+expect library_sticker_has.UFO_50_#6 == 1
+press RIGHT
+expect library_cursor == 6
+expect library_placeholder == 0
+expect library_sticker_has.TRIBUTE == 1
+expect library_sticker_has.UFO_50_#7 == 1
+press RIGHT
+expect library_cursor == 7
+expect library_placeholder == 0
+expect library_sticker_has.TRIBUTE == 1
+expect library_sticker_has.UFO_50_#8 == 1
 press DOWN
-press DOWN
-press DOWN
-press DOWN
-press RIGHT
-press RIGHT
-press RIGHT
-press RIGHT
-press RIGHT
-press RIGHT
-press RIGHT
-expect library_cursor == 39
-expect library_placeholder == 1
-expect library_sticker_has.TRIBUTE_TO_GRIMSTONE == 1
-expect library_sticker_has.UFO_50_#40 == 1
-expect library_sticker_has.BARBUTA == 0
-expect library_dud == 0
-# A on it: the message, and nothing starts
-press A
-expect library_dud > 0
-wait 60
-expect_scene library
-expect library_cursor == 39
-expect library_dud == 0
-press START
-wait 60
-expect_scene library
-# moving off clears the message at once
-press A
-expect library_dud > 0
+expect library_cursor == 15
+expect library_placeholder == 0
+expect library_sticker_has.TRIBUTE == 1
+expect library_sticker_has.UFO_50_#16 == 1
 press LEFT
-expect library_dud == 0
+expect library_cursor == 14
+expect library_placeholder == 0
+expect library_sticker_has.TRIBUTE == 1
+expect library_sticker_has.UFO_50_#15 == 1
+press LEFT
+expect library_cursor == 13
+expect library_placeholder == 0
+expect library_sticker_has.TRIBUTE == 1
+expect library_sticker_has.UFO_50_#14 == 1
+press LEFT
+expect library_cursor == 12
+expect library_placeholder == 0
+expect library_sticker_has.TRIBUTE == 1
+expect library_sticker_has.UFO_50_#13 == 1
+press LEFT
+expect library_cursor == 11
+expect library_placeholder == 0
+expect library_sticker_has.TRIBUTE == 1
+expect library_sticker_has.UFO_50_#12 == 1
+press LEFT
+expect library_cursor == 10
+expect library_placeholder == 0
+expect library_sticker_has.TRIBUTE == 1
+expect library_sticker_has.UFO_50_#11 == 1
+press LEFT
+expect library_cursor == 9
+expect library_placeholder == 0
+expect library_sticker_has.TRIBUTE == 1
+expect library_sticker_has.UFO_50_#10 == 1
+press LEFT
+expect library_cursor == 8
+expect library_placeholder == 0
+expect library_sticker_has.TRIBUTE == 1
+expect library_sticker_has.UFO_50_#9 == 1
+press DOWN
+expect library_cursor == 16
+expect library_placeholder == 0
+expect library_sticker_has.TRIBUTE == 1
+expect library_sticker_has.UFO_50_#17 == 1
+press RIGHT
+expect library_cursor == 17
+expect library_placeholder == 0
+expect library_sticker_has.TRIBUTE == 1
+expect library_sticker_has.UFO_50_#18 == 1
+press RIGHT
+expect library_cursor == 18
+expect library_placeholder == 0
+expect library_sticker_has.TRIBUTE == 1
+expect library_sticker_has.UFO_50_#19 == 1
+press RIGHT
+expect library_cursor == 19
+expect library_placeholder == 0
+expect library_sticker_has.TRIBUTE == 1
+expect library_sticker_has.UFO_50_#20 == 1
+press RIGHT
+expect library_cursor == 20
+expect library_placeholder == 0
+expect library_sticker_has.TRIBUTE == 1
+expect library_sticker_has.UFO_50_#21 == 1
+press RIGHT
+expect library_cursor == 21
+expect library_placeholder == 0
+expect library_sticker_has.TRIBUTE == 1
+expect library_sticker_has.UFO_50_#22 == 1
+press RIGHT
+expect library_cursor == 22
+expect library_placeholder == 0
+expect library_sticker_has.TRIBUTE == 1
+expect library_sticker_has.UFO_50_#23 == 1
+press RIGHT
+expect library_cursor == 23
+expect library_placeholder == 0
+expect library_sticker_has.TRIBUTE == 1
+expect library_sticker_has.UFO_50_#24 == 1
+press DOWN
+expect library_cursor == 31
+expect library_placeholder == 0
+expect library_sticker_has.TRIBUTE == 1
+expect library_sticker_has.UFO_50_#32 == 1
+press LEFT
+expect library_cursor == 30
+expect library_placeholder == 0
+expect library_sticker_has.TRIBUTE == 1
+expect library_sticker_has.UFO_50_#31 == 1
+press LEFT
+expect library_cursor == 29
+expect library_placeholder == 0
+expect library_sticker_has.TRIBUTE == 1
+expect library_sticker_has.UFO_50_#30 == 1
+press LEFT
+expect library_cursor == 28
+expect library_placeholder == 0
+expect library_sticker_has.TRIBUTE == 1
+expect library_sticker_has.UFO_50_#29 == 1
+press LEFT
+expect library_cursor == 27
+expect library_placeholder == 0
+expect library_sticker_has.TRIBUTE == 1
+expect library_sticker_has.UFO_50_#28 == 1
+press LEFT
+expect library_cursor == 26
+expect library_placeholder == 0
+expect library_sticker_has.TRIBUTE == 1
+expect library_sticker_has.UFO_50_#27 == 1
+press LEFT
+expect library_cursor == 25
+expect library_placeholder == 0
+expect library_sticker_has.TRIBUTE == 1
+expect library_sticker_has.UFO_50_#26 == 1
+press LEFT
+expect library_cursor == 24
+expect library_placeholder == 0
+expect library_sticker_has.TRIBUTE == 1
+expect library_sticker_has.UFO_50_#25 == 1
+press DOWN
+expect library_cursor == 32
+expect library_placeholder == 0
+expect library_sticker_has.TRIBUTE == 1
+expect library_sticker_has.UFO_50_#33 == 1
+press RIGHT
+expect library_cursor == 33
+expect library_placeholder == 0
+expect library_sticker_has.TRIBUTE == 1
+expect library_sticker_has.UFO_50_#34 == 1
+press RIGHT
+expect library_cursor == 34
+expect library_placeholder == 0
+expect library_sticker_has.TRIBUTE == 1
+expect library_sticker_has.UFO_50_#35 == 1
+press RIGHT
+expect library_cursor == 35
+expect library_placeholder == 0
+expect library_sticker_has.TRIBUTE == 1
+expect library_sticker_has.UFO_50_#36 == 1
+press RIGHT
+expect library_cursor == 36
+expect library_placeholder == 0
+expect library_sticker_has.TRIBUTE == 1
+expect library_sticker_has.UFO_50_#37 == 1
+press RIGHT
+expect library_cursor == 37
+expect library_placeholder == 0
+expect library_sticker_has.TRIBUTE == 1
+expect library_sticker_has.UFO_50_#38 == 1
+press RIGHT
 expect library_cursor == 38
-# every placeholder's panel lays out cleanly, and no placeholder turns up in
-# the save data list (they have no save to delete)
+expect library_placeholder == 0
+expect library_sticker_has.TRIBUTE == 1
+expect library_sticker_has.UFO_50_#39 == 1
+press RIGHT
+expect library_cursor == 39
+expect library_placeholder == 0
+expect library_sticker_has.TRIBUTE == 1
+expect library_sticker_has.UFO_50_#40 == 1
+press DOWN
+expect library_cursor == 47
+expect library_placeholder == 0
+expect library_sticker_has.TRIBUTE == 1
+expect library_sticker_has.UFO_50_#48 == 1
+press LEFT
+expect library_cursor == 46
+expect library_placeholder == 0
+expect library_sticker_has.TRIBUTE == 1
+expect library_sticker_has.UFO_50_#47 == 1
+press LEFT
+expect library_cursor == 45
+expect library_placeholder == 0
+expect library_sticker_has.TRIBUTE == 1
+expect library_sticker_has.UFO_50_#46 == 1
+press LEFT
+expect library_cursor == 44
+expect library_placeholder == 0
+expect library_sticker_has.TRIBUTE == 1
+expect library_sticker_has.UFO_50_#45 == 1
+press LEFT
+expect library_cursor == 43
+expect library_placeholder == 0
+expect library_sticker_has.TRIBUTE == 1
+expect library_sticker_has.UFO_50_#44 == 1
+press LEFT
+expect library_cursor == 42
+expect library_placeholder == 0
+expect library_sticker_has.TRIBUTE == 1
+expect library_sticker_has.UFO_50_#43 == 1
+press LEFT
+expect library_cursor == 41
+expect library_placeholder == 0
+expect library_sticker_has.TRIBUTE == 1
+expect library_sticker_has.UFO_50_#42 == 1
+press LEFT
+expect library_cursor == 40
+expect library_placeholder == 0
+expect library_sticker_has.TRIBUTE == 1
+expect library_sticker_has.UFO_50_#41 == 1
+press DOWN
+expect library_cursor == 48
+expect library_placeholder == 0
+expect library_sticker_has.TRIBUTE == 1
+expect library_sticker_has.UFO_50_#49 == 1
+press RIGHT
+expect library_cursor == 49
+expect library_placeholder == 0
+expect library_sticker_has.TRIBUTE == 1
+expect library_sticker_has.UFO_50_#50 == 1
+# A on the last one starts its cartridge (no NOT LOADED YET message)
+expect library_dud == 0
+# every panel lays out cleanly, and the save data list opens on a cartridge
 expect library_layout_all == 0
 press B
 wait 30

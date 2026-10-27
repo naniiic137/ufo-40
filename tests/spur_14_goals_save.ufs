@@ -1,0 +1,64 @@
+# HELLSPUR: the three goals and the save. Gold for ending the game in
+# Hellspur: the last fight is won when Zenith falls, and Nadir falls with
+# him. The cherry only if every one the angel saved is standing at that
+# moment (a posse of two needs both). The game saves at hotels, chapels and
+# on leaving a town; CONTINUE picks up there after the console is switched
+# off, and the records (wins, cherries, battles, deaths) stay.
+seed 9
+game hellspur
+wait 5
+cheat posse 0 2
+cheat level 0 45
+cheat level 2 45
+cheat warp 13 -1 0
+cheat save
+expect save_valid == 1
+# a win with Hollis dead: gold, no cherry
+cheat warp 40 -1 0
+cheat hp 2 0
+cheat god
+cheat battle 100
+cheat foehp 0 1
+botuntil b_final > 0 4000
+expect b_final == 1
+expect b_foes == 0
+botuntil state == 4 1200
+expect goals & 2
+expect goals !& 4
+expect save_wins == 1
+expect save_cherries == 0
+expect cherry == 0
+# Nadir first, then Zenith, the posse whole: the cherry
+cheat posse 0 2
+cheat level 0 45
+cheat level 2 45
+cheat mortal
+cheat warp 40 -1 0
+cheat battle 100
+wait 60
+cheat foekill 1
+expect b_final == 2
+expect b_foes == 1
+cheat foehp 0 1
+botuntil state == 4 4000
+expect cherry == 1
+expect goals & 4
+expect save_cherries == 1
+# the ending rolls to the title
+botuntil state == 0 20000
+# the save survives a restart: CONTINUE takes you back to the Hermitage
+reload
+game hellspur
+wait 20
+expect save_valid == 1
+expect save_wins == 2
+press A
+wait 20
+expect state == 2
+# carrying on: inside the chapel of the town where the game was saved
+expect map == 41
+expect in_town == 13
+expect in_service == 2
+expect posse == 2
+expect lv0 == 45
+expect goals & 6

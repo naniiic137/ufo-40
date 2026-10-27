@@ -374,6 +374,17 @@ CORE_SRC += src/games/ironvow/ivw_view.c
 CORE_SRC += src/games/ironvow/ivw_draw.c
 CORE_SRC += src/games/ironvow/ivw_art.c
 CORE_SRC += src/games/ironvow/ivw_audio.c
+CORE_SRC += src/games/hellspur/spur.c
+CORE_SRC += src/games/hellspur/spur_data.c
+CORE_SRC += src/games/hellspur/spur_world.c
+CORE_SRC += src/games/hellspur/spur_field.c
+CORE_SRC += src/games/hellspur/spur_menu.c
+CORE_SRC += src/games/hellspur/spur_battle.c
+CORE_SRC += src/games/hellspur/spur_story.c
+CORE_SRC += src/games/hellspur/spur_bot.c
+CORE_SRC += src/games/hellspur/spur_draw.c
+CORE_SRC += src/games/hellspur/spur_art.c
+CORE_SRC += src/games/hellspur/spur_audio.c
 
 HEADLESS_SRC += src/platform/headless/main_headless.c
 HEADLESS_SRC += src/platform/headless/imgwrite.c

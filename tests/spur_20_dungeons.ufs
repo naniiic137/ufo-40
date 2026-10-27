@@ -1,0 +1,129 @@
+# HELLSPUR: the set pieces each kind of dungeon is known for. The snake
+# tunnels have sinkholes that drop into sealed pockets, with a rope to climb
+# back. Each Bone Tower floor has an exit portal past its rider, straight
+# back out to the Reach. The mines end in a long winding stretch with a gang
+# waiting in it. The tower's third floor is a row of empty chests (one of
+# them a joke) and a wishbone. The citadel is a maze with six winches, three
+# a floor; wind them all and the lift by the gate rises.
+seed 4
+game hellspur
+wait 5
+cheat posse 0 2
+cheat spawns 0
+# a sinkhole in the snake tunnels, and the rope back up
+cheat warp 30 -1 0
+wait 2
+expect m_same == 2
+cheat besidetile 59 0
+press LEFT
+wait 15
+expect map == 30
+expect x == 27
+expect y == 15
+cheat besidetile 58 0
+press LEFT
+wait 15
+expect map == 30
+expect x == 37
+expect y == 15
+# the exit portal past the first rider
+cheat warp 34 -1 0
+wait 2
+expect m_count89 == 1
+cheat besidetile 89 0
+press DOWN
+wait 15
+expect map == 1
+# the mines' last stretch is held
+cheat warp 22 -1 0
+expect m_ambushflag105 == 1
+cheat warp 27 -1 0
+expect m_ambushflag106 == 1
+cheat warp 28 -1 0
+expect m_ambushflag107 == 1
+# the third floor of the tower: nothing, nothing, a joke, and a wishbone
+cheat warp 36 -1 0
+wait 2
+expect m_chests == 7
+expect m_emptychests == 5
+expect m_jokechests == 1
+cheat teeth 0
+cheat besidechest 0
+press A
+wait 5
+expect teeth == 0
+press A
+wait 5
+cheat besidechest 5
+press A
+wait 5
+expect teeth == 0
+press A
+wait 5
+press A
+wait 5
+cheat emptybag
+cheat besidechest 6
+press A
+wait 5
+expect has22 == 1
+press A
+wait 5
+# the satin went up to the citadel
+cheat warp 39 -1 0
+wait 2
+cheat besidechest 8
+press A
+wait 5
+expect has63 == 1
+press A
+wait 5
+# six winches, three a floor; the lift rises when all are wound
+cheat warp 38 -1 0
+wait 2
+expect m_count87 == 3
+expect m_count88 == 0
+cheat besidetile 87 0
+press A
+wait 5
+press A
+wait 5
+cheat besidetile 87 1
+press A
+wait 5
+press A
+wait 5
+cheat besidetile 87 2
+press A
+wait 5
+press A
+wait 5
+expect flag117 == 1
+expect flag118 == 1
+expect flag119 == 1
+cheat warp 39 -1 0
+wait 2
+expect m_count87 == 3
+cheat besidetile 87 0
+press A
+wait 5
+press A
+wait 5
+cheat besidetile 87 1
+press A
+wait 5
+press A
+wait 5
+cheat besidetile 87 2
+press A
+wait 5
+press A
+wait 5
+press A
+wait 5
+expect flag120 == 1
+expect flag121 == 1
+expect flag122 == 1
+cheat warp 38 -1 0
+wait 2
+expect m_count88 == 1

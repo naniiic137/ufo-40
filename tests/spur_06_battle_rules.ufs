@@ -1,0 +1,67 @@
+# HELLSPUR: the order of a round and the spoils. Everyone acts by speed, the
+# posse winning ties in posse order (swap the order in the menu and the tie
+# goes the other way). XP is shared among the posse still standing; every
+# tooth the foes carried is yours; the bank pays two in a hundred, rounded
+# up, after every fight won. There's no running from a boss.
+seed 2
+game hellspur
+wait 5
+# Cora (speed 9), Brutus (8), Tucker (6)
+cheat posse 0 6
+cheat god
+cheat battle 84
+wait 60
+press A
+press A
+press A
+press A
+wait 2
+expect b_queue0 == 1
+expect b_queue1 == 10
+expect b_queue2 == 0
+# Hollis and Hattie are equally quick (5): after Brutus, the first in the posse goes first
+cheat posse 2 5
+cheat god
+cheat battle 84
+wait 60
+press A
+press A
+press A
+press A
+wait 2
+expect b_queue0 == 10
+expect b_queue1 == 0
+expect b_queue2 == 1
+# no running from a boss
+cheat posse 2 5
+cheat god
+cheat battle 84
+wait 60
+press UP
+press A
+press UP
+press A
+wait 2
+waituntil b_phase == 9 400
+wait 60
+expect b_fled == 0
+expect state == 3
+# the spoils: a centipede (320 XP, 189 teeth) split between the two standing
+# (the demo player swings for it)
+cheat posse 0 2 5
+cheat hp 5 0
+cheat bank 5000
+cheat battle 8
+cheat foehp 0 1
+botuntil b_phase == 10 900
+expect b_xp == 160
+expect xp0 == 160
+expect xp2 == 160
+expect xp5 == 0
+expect teeth == 389
+expect bank == 5100
+botuntil state == 2 600
+cheat battle 8
+cheat foehp 0 1
+botuntil b_phase == 10 900
+expect bank == 5202

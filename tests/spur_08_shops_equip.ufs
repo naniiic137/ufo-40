@@ -1,0 +1,128 @@
+# HELLSPUR: the store and the bags. Buying costs teeth and needs room in
+# the bags (twenty things, two pages of ten); selling pays half. Gear goes on
+# from the B menu, in the hand, neck, body or feet it fits; what comes off
+# goes back in the bag. Each stranger can only use what suits them: a rifle
+# needs RIFLE, Hollis has one arm, Cora wears only light clothes, the
+# hound only a neck piece, and the hellhide fits Tucker alone.
+seed 3
+game hellspur
+wait 5
+cheat posse 0 2 6 7
+# Gladwell's general store: in at the door, up to the counter
+cheat pos 21 12
+cheat face 1
+press UP
+wait 12
+expect map == 41
+hold UP 50
+wait 5
+press A
+wait 12
+expect ui == 3
+press A
+wait 3
+press DOWN
+press DOWN
+press DOWN
+press A
+wait 3
+expect teeth == 175
+expect has70 == 1
+press UP
+press UP
+press UP
+press A
+wait 3
+expect teeth == 135
+expect has1 == 1
+# too dear
+cheat teeth 10
+press DOWN
+press A
+wait 3
+expect teeth == 10
+expect has25 == 0
+press B
+wait 3
+# selling the boots: half of 25
+press DOWN
+press A
+wait 3
+press A
+wait 3
+expect teeth == 22
+expect has70 == 0
+press B
+wait 3
+press DOWN
+press A
+wait 10
+expect ui == 0
+# a rifle for Tucker from the B menu
+cheat give 35
+press B
+wait 5
+press DOWN
+press DOWN
+press A
+wait 3
+press A
+wait 3
+press A
+wait 3
+press DOWN
+press A
+wait 3
+expect equip0_0 == 35
+expect has25 == 1
+press B
+press B
+press B
+wait 5
+expect ui == 0
+# who may use what
+expect can0_35_0 == 1
+expect can2_35_0 == 0
+expect can2_25_0 == 1
+expect can6_64_3 == 0
+expect can6_59_3 == 1
+expect can7_51_2 == 1
+expect can7_64_3 == 0
+expect can7_25_0 == 0
+expect can0_69_3 == 1
+expect can2_69_3 == 0
+# the bags hold twenty
+cheat emptybag
+cheat teeth 999
+cheat give 1
+cheat give 1
+cheat give 1
+cheat give 1
+cheat give 1
+cheat give 1
+cheat give 1
+cheat give 1
+cheat give 1
+cheat give 1
+cheat give 1
+cheat give 1
+cheat give 1
+cheat give 1
+cheat give 1
+cheat give 1
+cheat give 1
+cheat give 1
+cheat give 1
+cheat give 1
+expect bag == 20
+cheat give 3
+expect bag == 20
+cheat pos 21 12
+cheat face 1
+press UP
+wait 12
+press A
+wait 3
+press A
+wait 3
+expect teeth == 999

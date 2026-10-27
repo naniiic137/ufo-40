@@ -1,0 +1,197 @@
+# HELLSPUR: every boss and what beating it does: each sets its part of the
+# story going (the Puck King leaves the crank's chest, the Tallyman frees
+# Hope Springs, the Storm Crow drops its feather, the Reaper gives up his
+# winged horses, and so on). Each fight is played out by the demo player
+# with the foes worn down first.
+seed 7
+game hellspur
+wait 5
+cheat posse 0 2 5 6
+cheat level 0 30
+cheat level 2 30
+cheat level 5 30
+cheat level 6 30
+cheat warp 0 30 78
+cheat god
+cheat battle 82
+cheat foehp 0 1
+cheat foehp 1 1
+cheat foehp 2 1
+cheat foehp 3 1
+cheat foehp 4 1
+cheat foehp 5 1
+botuntil state == 2 4000
+expect flag4 == 1
+botuntil ui == 0 600
+cheat battle 83
+cheat foehp 0 1
+cheat foehp 1 1
+cheat foehp 2 1
+cheat foehp 3 1
+cheat foehp 4 1
+cheat foehp 5 1
+botuntil state == 2 4000
+expect flag9 == 1
+botuntil ui == 0 600
+cheat battle 84
+cheat foehp 0 1
+cheat foehp 1 1
+cheat foehp 2 1
+cheat foehp 3 1
+cheat foehp 4 1
+cheat foehp 5 1
+botuntil state == 2 4000
+expect flag6 == 1
+botuntil ui == 0 600
+cheat battle 85
+cheat foehp 0 1
+cheat foehp 1 1
+cheat foehp 2 1
+cheat foehp 3 1
+cheat foehp 4 1
+cheat foehp 5 1
+botuntil state == 2 4000
+expect flag8 == 1
+botuntil ui == 0 600
+cheat battle 86
+cheat foehp 0 1
+cheat foehp 1 1
+cheat foehp 2 1
+cheat foehp 3 1
+cheat foehp 4 1
+cheat foehp 5 1
+botuntil state == 2 4000
+expect flag11 == 1
+botuntil ui == 0 600
+cheat battle 87
+cheat foehp 0 1
+cheat foehp 1 1
+cheat foehp 2 1
+cheat foehp 3 1
+cheat foehp 4 1
+cheat foehp 5 1
+botuntil state == 2 4000
+expect flag13 == 1
+botuntil ui == 0 600
+cheat battle 88
+cheat foehp 0 1
+cheat foehp 1 1
+cheat foehp 2 1
+cheat foehp 3 1
+cheat foehp 4 1
+cheat foehp 5 1
+botuntil state == 2 4000
+expect flag18 == 1
+botuntil ui == 0 600
+cheat battle 89
+cheat foehp 0 1
+cheat foehp 1 1
+cheat foehp 2 1
+cheat foehp 3 1
+cheat foehp 4 1
+cheat foehp 5 1
+botuntil state == 2 4000
+expect flag15 == 1
+botuntil ui == 0 600
+cheat battle 90
+cheat foehp 0 1
+cheat foehp 1 1
+cheat foehp 2 1
+cheat foehp 3 1
+cheat foehp 4 1
+cheat foehp 5 1
+botuntil state == 2 4000
+expect flag12 == 1
+botuntil ui == 0 600
+cheat battle 91
+cheat foehp 0 1
+cheat foehp 1 1
+cheat foehp 2 1
+cheat foehp 3 1
+cheat foehp 4 1
+cheat foehp 5 1
+botuntil state == 2 4000
+expect flag24 == 1
+botuntil ui == 0 600
+cheat battle 92
+cheat foehp 0 1
+cheat foehp 1 1
+cheat foehp 2 1
+cheat foehp 3 1
+cheat foehp 4 1
+cheat foehp 5 1
+botuntil state == 2 4000
+expect flag27 == 1
+botuntil ui == 0 600
+cheat battle 93
+cheat foehp 0 1
+cheat foehp 1 1
+cheat foehp 2 1
+cheat foehp 3 1
+cheat foehp 4 1
+cheat foehp 5 1
+botuntil state == 2 4000
+expect flag28 == 1
+botuntil ui == 0 600
+cheat battle 94
+cheat foehp 0 1
+cheat foehp 1 1
+cheat foehp 2 1
+cheat foehp 3 1
+cheat foehp 4 1
+cheat foehp 5 1
+botuntil state == 2 4000
+expect flag30 == 1
+botuntil ui == 0 600
+cheat battle 95
+cheat foehp 0 1
+cheat foehp 1 1
+cheat foehp 2 1
+cheat foehp 3 1
+cheat foehp 4 1
+cheat foehp 5 1
+botuntil state == 2 4000
+expect flag31 == 1
+botuntil ui == 0 600
+cheat battle 96
+cheat foehp 0 1
+cheat foehp 1 1
+cheat foehp 2 1
+cheat foehp 3 1
+cheat foehp 4 1
+cheat foehp 5 1
+botuntil state == 2 4000
+expect flag32 == 1
+botuntil ui == 0 600
+cheat battle 97
+cheat foehp 0 1
+cheat foehp 1 1
+cheat foehp 2 1
+cheat foehp 3 1
+cheat foehp 4 1
+cheat foehp 5 1
+botuntil state == 2 4000
+expect flag33 == 1
+botuntil ui == 0 600
+cheat battle 98
+cheat foehp 0 1
+cheat foehp 1 1
+cheat foehp 2 1
+cheat foehp 3 1
+cheat foehp 4 1
+cheat foehp 5 1
+botuntil state == 2 4000
+expect flag48 == 1
+botuntil ui == 0 600
+cheat battle 99
+cheat foehp 0 1
+cheat foehp 1 1
+cheat foehp 2 1
+cheat foehp 3 1
+cheat foehp 4 1
+cheat foehp 5 1
+botuntil state == 2 4000
+expect flag38 == 1
+botuntil ui == 0 600
+expect key6 == 1
+expect key10 == 1

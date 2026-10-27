@@ -1,0 +1,111 @@
+# HELLSPUR: the gates the story keeps shut and the keys that open them: the
+# ferry and its crank, the angels at Widow's Notch, the rockfall and the
+# plunger, the Roost's cellar door, the Black Gate and the iron spur, and
+# the three spikes whose pulling lifts the veil round Hellspur.
+seed 8
+game hellspur
+wait 5
+cheat posse 0 2
+cheat spawns 0
+# the ferry: no crank, no crossing
+cheat warp 0 57 76
+cheat face 3
+press A
+wait 5
+expect ui == 1
+press A
+wait 5
+hold RIGHT 10
+expect x == 57
+expect ui == 1
+press A
+wait 5
+cheat key 0
+press A
+wait 5
+expect ui == 10
+press LEFT
+press A
+wait 5
+expect flag5 == 1
+expect key0 == 0
+press A
+wait 5
+hold RIGHT 20
+wait 2
+expect x == 59
+# the angels at the Notch speak when bumped
+cheat warp 0 84 58
+press UP
+wait 5
+expect ui == 1
+expect y == 58
+press A
+wait 5
+cheat flag 10
+cheat refresh
+hold UP 10
+wait 2
+expect y == 57
+# the rockfall and the plunger
+cheat warp 0 64 44
+cheat face 2
+cheat key 5
+press A
+wait 5
+press A
+wait 5
+press LEFT
+press A
+wait 5
+expect flag23 == 1
+press A
+wait 5
+hold LEFT 10
+wait 2
+expect x == 63
+# the Roost's cellar door
+cheat warp 15 14 6
+cheat face 3
+press A
+wait 5
+expect flag20 == 0
+press A
+wait 5
+cheat key 4
+press A
+wait 5
+expect flag20 == 1
+expect key4 == 0
+press A
+wait 5
+# the Black Gate: held back without the spur
+cheat warp 0 24 28
+hold UP 10
+wait 10
+expect map == 0
+press A
+wait 5
+cheat key 8
+cheat warp 0 24 28
+hold UP 10
+wait 10
+expect map == 1
+expect flag29 == 1
+# the spikes and the veil
+expect reach_16_19_38 == 0
+cheat key 9
+cheat key 10
+cheat warp 0 104 8
+cheat face 1
+press A
+wait 5
+press LEFT
+press A
+wait 5
+expect flag35 == 1
+press A
+wait 5
+cheat flag 36
+cheat flag 37
+expect reach_16_19_38 == 1

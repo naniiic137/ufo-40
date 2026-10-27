@@ -1,0 +1,153 @@
+# HELLSPUR: each stranger's own scenes. Quill's old sparring rival in
+# Steepleton (SECOND WIND); Tucker's partner in Hollow Gap's past (COVER);
+# Hollis saves a soldier at Fort Patience with a med chest (RAISE); Vera
+# talks Black Molly down for Gil's debt (and Molly sells her black brew
+# after); Hattie's brother's letter pays into the Meridian bank; Cora takes
+# the stage in Dolores once Slick Magpie is beaten (CANCAN); Sage meets her
+# grandmother in the Dreaming (SPIRIT BEADS); the coyote has a bone for
+# Biscuit. Each happens only with that stranger in the posse.
+seed 10
+game hellspur
+wait 5
+cheat posse 3 0 2 4
+cheat spawns 0
+# Quill, upstairs in the Steepleton hotel
+cheat inside 7 1 1
+cheat talkto 0
+press A
+wait 5
+expect passive3_7 == 1
+press A
+wait 5
+press A
+wait 5
+press A
+wait 5
+cheat closeui
+# Tucker, in the past
+cheat flag 113
+cheat warp 10 -1 0
+cheat talkto 5
+press A
+wait 5
+expect skill0_16 == 1
+press A
+wait 5
+press A
+wait 5
+press A
+wait 5
+cheat closeui
+# Hollis and the soldier
+cheat flag 12
+cheat give 7
+cheat inside 8 1 1
+cheat talkto 0
+press A
+wait 5
+press A
+wait 5
+press LEFT
+press A
+wait 5
+expect skill2_14 == 1
+expect has7 == 0
+press A
+wait 5
+press A
+wait 5
+cheat closeui
+# Vera and Black Molly
+cheat teeth 5000
+cheat warp 15 -1 0
+cheat talkto 0
+press A
+wait 5
+press A
+wait 5
+press A
+wait 5
+press LEFT
+press A
+wait 5
+expect flag15 == 1
+expect flag16 == 1
+expect teeth == 1000
+press A
+wait 5
+cheat closeui
+# Gil's bell, now he's free
+cheat warp 9 -1 0
+cheat talkto 1
+press A
+wait 5
+expect key3 == 1
+press A
+wait 5
+press A
+wait 5
+cheat closeui
+# Hattie's letter
+cheat posse 5
+cheat key 2
+cheat inside 4 5 0
+cheat talkto 1
+press A
+wait 5
+press LEFT
+press A
+wait 5
+expect bank == 3000
+expect flag41 == 1
+press A
+wait 5
+cheat closeui
+# Cora and Slick Magpie
+cheat posse 6
+cheat level 6 30
+cheat inside 9 6 0
+cheat talkto 1
+press A
+wait 5
+press A
+wait 5
+press LEFT
+press A
+wait 10
+expect state == 3
+cheat god
+cheat foehp 0 1
+botuntil state == 2 3000
+expect flag13 == 1
+botuntil ui == 0 600
+cheat warp 9 14 5
+cheat face 1
+press UP
+wait 12
+expect map == 41
+hold UP 50
+wait 5
+press A
+wait 12
+expect skill6_4 == 1
+press A
+wait 5
+press A
+wait 5
+cheat closeui
+# Sage's grandmother in the Dreaming
+cheat posse 1
+cheat warp 32 -1 0
+cheat talkto 0
+press A
+wait 5
+expect has57 == 1
+expect flag46 == 1
+cheat closeui
+# Biscuit and the coyote
+cheat posse 7
+cheat warp 0 96 71
+cheat face 1
+press A
+wait 5
+expect has22 == 1

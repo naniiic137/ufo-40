@@ -1,0 +1,31 @@
+# HELLSPUR: levels. Each stranger levels on their own XP, up to 50; every
+# level raises their numbers, and some bring a skill or a better hand with
+# a kind of weapon. The gift goal comes when anyone reaches level 10.
+seed 3
+game hellspur
+wait 5
+cheat posse 6
+expect lv6 == 1
+expect maxhp6 == 20
+expect xp_for10 == 815
+expect skill6_1 == 0
+cheat xp 6 811
+cheat battle 8
+cheat foehp 0 1
+botuntil b_phase == 10 900
+expect lv6 >= 10
+expect skill6_1 == 1
+expect skill6_2 == 0
+expect goals & 1
+expect maxhp6 > 50
+botuntil b_phase == 11 300
+botuntil state == 2 600
+# the top: level 50 and no further
+expect xp_for50 == 372305
+cheat xp 6 9000000
+cheat battle 8
+cheat foehp 0 1
+botuntil b_phase == 10 900
+expect lv6 == 50
+expect passive6_1 == 3
+expect skill6_4 == 0

@@ -2,7 +2,9 @@
 # library (no new screen): time played, times opened and the last day
 # played, its goals, DELETE SAVE and CONTROLS, where the A, B and SELECT
 # jobs move between those buttons for that cartridge only. SELECT or B
-# closes it. On a placeholder SELECT only says COMING SOON.
+# closes it. All fifty slots hold a cartridge now, so even the last one to
+# arrive (slot 40) has its card, and no placeholder is left to say COMING
+# SOON.
 set_goals roofcat 3
 fake_save roofcat 40
 wait 30
@@ -36,7 +38,7 @@ press RIGHT
 press DOWN
 expect library_cursor == 2
 press B
-# a placeholder has no card (slot 40)
+# slot 40, the last to be filled: a cartridge with a card, not a placeholder
 press DOWN
 press DOWN
 press DOWN
@@ -47,10 +49,12 @@ press RIGHT
 press RIGHT
 press RIGHT
 expect library_cursor == 39
-expect library_placeholder == 1
+expect library_placeholder == 0
+press SELECT
+expect card_open == 1
+expect library_dud == 0
 press SELECT
 expect card_open == 0
-expect library_dud > 0
 press LEFT
 press LEFT
 press LEFT

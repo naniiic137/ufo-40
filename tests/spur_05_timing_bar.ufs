@@ -1,0 +1,111 @@
+# HELLSPUR: every plain attack is a timing bar. A press on the red is a
+# critical, on the yellow a hit (a foe can still dodge it), anywhere else, or
+# no press at all, a miss. A gun that fires twice puts two marks on the bar.
+# A shotgun's bar is one wide yellow with no red; a bow is all red in any
+# hands but Sage's; a heavy gun fires while A is held across its band (eight
+# shots at most) and must reload next turn. Holding RIGHT runs the marker
+# twice as fast. The hound swings on his own.
+seed 4
+game hellspur
+wait 5
+cheat posse 0
+cheat god
+cheat battle 84
+wait 60
+expect b_phase == 1
+press A
+press A
+waituntil b_phase == 8 400
+expect b_nz == 1
+expect b_auto == 0
+waituntil b_inred == 1 100
+press A 1
+expect b_zres0 == 3
+wait 20
+expect b_foehp0 < 2400
+# the yellow: a plain hit (Brutus never dodges)
+waituntil b_phase == 1 600
+press A
+press A
+waituntil b_phase == 8 400
+waituntil b_inyellow == 1 100
+press A 1
+expect b_zres0 == 2
+# pressed in the gap before the marks: a miss
+waituntil b_phase == 1 600
+press A
+press A
+waituntil b_phase == 8 400
+press A 1
+expect b_zres0 == 1
+# no press: a miss once the marker passes
+waituntil b_phase == 1 600
+press A
+press A
+waituntil b_phase == 8 400
+waituntil b_zres0 == 1 200
+# hold RIGHT: the marker runs twice as fast
+waituntil b_phase == 1 600
+press A
+press A
+waituntil b_phase == 8 400
+expect b_delta == 46
+hold RIGHT 3
+expect b_delta == 92
+release
+# a pistol that fires twice: two marks, two crits
+cheat equip 0 0 26
+waituntil b_phase == 1 600
+press A
+press A
+waituntil b_phase == 8 400
+expect b_nz == 2
+waituntil b_inred == 1 100
+press A 1
+waituntil b_inred == 1 100
+press A 1
+expect b_zres0 == 3
+expect b_zres1 == 3
+# a shotgun: one wide yellow, no red
+cheat equip 0 0 31
+waituntil b_phase == 1 600
+press A
+press A
+waituntil b_phase == 8 400
+expect b_nz == 1
+expect b_rw0 == 0
+expect b_yw0 > 1000
+expect b_kind == 4
+# a bow in Tucker's hands: all red
+cheat equip 0 0 48
+waituntil b_phase == 1 600
+press A
+press A
+waituntil b_phase == 8 400
+expect b_yw0 == 0
+expect b_rw0 > 0
+# a heavy gun: hold A across the band, then reload
+cheat posse 5
+cheat level 5 12
+cheat equip 5 0 40
+cheat god
+cheat battle 84
+wait 60
+press A
+press A
+waituntil b_phase == 8 400
+expect b_kind == 5
+hold A 60
+release
+expect b_shots >= 4
+expect b_shots <= 8
+expect b_reload5 == 1
+waituntil b_phase == 1 600
+press A
+waituntil b_reload5 == 0 400
+# the hound swings by himself
+cheat posse 7
+cheat god
+cheat battle 84
+waituntil b_phase == 8 400
+expect b_auto == 1

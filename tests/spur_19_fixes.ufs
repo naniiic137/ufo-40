@@ -1,0 +1,171 @@
+# HELLSPUR: rules checked against the sources a second time. DEFEND holds from
+# the moment it is ordered, so it covers the whole round, even against
+# quicker foes. A camp kit only makes camp out in the open. The bags sort by
+# kind. Old Gil will sell his bell to settle his debt, and a gentleman
+# outside the Dolores saloon sells one med chest for 8,000. The demon smith
+# wants the hellite and nothing else. The Last Chance stop opens on the line
+# when the Cinder Worm dies. Foes have the wiki's hit points; the
+# cutthroats are the citadel's rare fight, two to six of them with up to two
+# haunts; the grave bull waits only in its ambush.
+seed 12
+game hellspur
+wait 5
+cheat spawns 0
+# DEFEND: Hollis guards before Brutus (quicker) even moves
+cheat posse 2 5
+cheat god
+cheat battle 84
+wait 60
+press UP
+press UP
+press A
+press A
+press A
+wait 2
+expect b_queue0 == 10
+expect b_defend0 == 1
+expect b_defend1 == 0
+cheat mortal
+cheat closeui
+cheat warp 3 -1 0
+wait 5
+# the camp kit: not in a cave, only under the sky
+cheat posse 0 2
+cheat emptybag
+cheat give 16
+cheat warp 21 -1 0
+wait 5
+press B
+wait 5
+press A
+wait 3
+press A
+wait 3
+press A
+wait 5
+expect count16 == 1
+cheat closeui
+cheat warp 0 30 78
+wait 5
+press B
+wait 5
+press A
+wait 3
+press A
+wait 3
+press A
+wait 5
+expect count16 == 0
+cheat closeui
+# SORT: by kind, then by item
+cheat emptybag
+cheat give 63
+cheat give 1
+cheat give 83
+cheat give 32
+press B
+wait 5
+press A
+wait 3
+press A
+wait 3
+press UP
+press A
+wait 5
+expect bagslot0 == 1
+expect bagslot1 == 32
+expect bagslot2 == 63
+expect bagslot3 == 83
+cheat closeui
+# Old Gil sells the bell, and Molly is paid
+cheat teeth 7000
+cheat warp 9 -1 0
+cheat talkto 1
+press A
+wait 5
+press A
+wait 5
+press A
+wait 5
+press LEFT
+press A
+wait 5
+expect key3 == 1
+expect flag15 == 1
+expect flag53 == 1
+expect teeth == 1000
+cheat closeui
+# the med chest outside the saloon: one only
+cheat emptybag
+cheat teeth 9000
+cheat talkto 9
+press A
+wait 5
+press A
+wait 5
+press LEFT
+press A
+wait 5
+expect has7 == 1
+expect teeth == 1000
+cheat closeui
+cheat teeth 9000
+cheat talkto 9
+press A
+wait 5
+expect teeth == 9000
+cheat closeui
+# the smith wants hellite, not bits
+cheat teeth 0
+cheat give 83
+cheat warp 20 -1 0
+cheat talkto 0
+press A
+wait 5
+press A
+wait 5
+press LEFT
+press A
+wait 5
+expect has39 == 1
+expect has83 == 0
+expect teeth == 0
+cheat closeui
+# the Cinder Worm falls, and the train runs to Last Chance
+expect stations !& 16
+cheat god
+cheat battle 92
+cheat foekill 0
+botuntil state == 2 3000
+expect flag27 == 1
+expect stations & 16
+cheat mortal
+cheat closeui
+# hit points as the wiki has them
+expect e_hp18 == 337
+expect e_hp28 == 800
+expect e_hp32 == 118
+expect e_hp86 == 217
+expect e_hp11 == 89
+expect e_hp7 == 89
+expect e_hp6 == 25
+expect e_hp3 == 27
+expect e_hp4 == 34
+expect e_hp5 == 40
+# the citadel's rare fight, and the grave bull only in its ambush
+expect zone_rare21 == 76
+expect zone_pct21 == 9
+expect troop_in_zones81 == 0
+cheat god
+cheat battle 76
+expect b_foe0 == 74
+expect b_foe1 == 74
+expect b_count74 >= 2
+expect b_count72 <= 2
+cheat foekill 0
+cheat foekill 1
+cheat foekill 2
+cheat foekill 3
+cheat foekill 4
+cheat foekill 5
+botuntil state == 2 3000

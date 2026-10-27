@@ -1,0 +1,141 @@
+# HELLSPUR: inside the town buildings. Every town door (but the station,
+# the stables and Hollow Gap's dream of a town) leads into a room: you walk
+# up to the counter and speak over it. The Meridian saloon has a loose flap
+# at the end of its bar with something hidden behind it; hotels have an
+# upstairs with rooms, and things left under the beds. The Tallyman counts
+# souls at his desk in the Hope Springs jailhouse. While he holds the town,
+# its chapel and saloon stay shut and nothing there saves the game.
+seed 7
+game hellspur
+wait 5
+cheat posse 0 2
+cheat spawns 0
+expect save_valid == 0
+# Hope Springs under the Tallyman: the chapel door is held shut
+cheat warp 6 12 5
+cheat face 1
+press UP
+wait 12
+expect map == 6
+expect ui > 0
+press A
+wait 5
+# its hotel rents a bed, but writes no names in the book
+cheat hp 0 3
+cheat teeth 200
+cheat warp 6 5 5
+cheat face 1
+press UP
+wait 12
+expect map == 41
+expect in_town == 6
+expect in_service == 1
+hold UP 50
+wait 5
+press A
+wait 10
+press LEFT
+press A
+wait 10
+expect hp0 == 32
+expect teeth == 140
+expect save_valid == 0
+press A
+wait 5
+press A
+wait 10
+# leaving the town saves nothing either
+cheat closeui
+cheat warp 6 15 18
+cheat face 0
+press DOWN
+wait 20
+expect map == 0
+expect save_valid == 0
+# the jailhouse: the Tallyman at his desk, an imp at each elbow
+cheat flag 6
+cheat warp 6 20 5
+cheat face 1
+press UP
+wait 12
+expect map == 41
+expect in_service == 11
+expect m_people == 5
+hold UP 50
+wait 5
+press A
+wait 5
+press A
+wait 5
+press LEFT
+press A
+wait 10
+expect state == 3
+expect b_troop == 85
+cheat god
+cheat foekill 0
+cheat foekill 1
+cheat foekill 2
+cheat foekill 3
+cheat foekill 4
+botuntil state == 2 3000
+botuntil ui == 0 900
+expect flag8 == 1
+expect map == 41
+expect m_people == 2
+cheat mortal
+# Meridian's saloon, and the loose flap at the end of the bar
+cheat warp 4 29 5
+cheat face 1
+press UP
+wait 12
+expect map == 41
+expect in_town == 4
+expect in_service == 6
+hold RIGHT 30
+hold UP 80
+wait 5
+expect x == 11
+expect y == 1
+hold LEFT 8
+wait 5
+expect x == 11
+press A
+wait 5
+expect has32 == 1
+press A
+wait 5
+# the hotel's stairs, and a purse under the end bed upstairs
+cheat warp 4 5 5
+cheat face 1
+press UP
+wait 12
+hold RIGHT 80
+hold UP 80
+wait 10
+expect in_floor == 1
+expect x == 14
+hold UP 40
+hold RIGHT 20
+wait 5
+expect x == 15
+expect y == 1
+cheat teeth 0
+press A
+wait 5
+expect teeth == 300
+press A
+wait 5
+# and down again, and out of the door
+cheat besidetile 59 0
+press RIGHT
+wait 15
+expect in_floor == 0
+hold DOWN 80
+wait 5
+hold LEFT 80
+hold DOWN 30
+wait 20
+expect map == 4
+expect x == 5
+expect y >= 5
