@@ -243,6 +243,17 @@ bool spur_use_skill_field(int who, int sk, int target) {
     return true;
 }
 
+/* SORT: by kind of item, then by item, the empty slots last */
+void spur_bag_sort(void) {
+    for (int a = 0; a < SPUR_BAG; a++)
+        for (int b = a + 1; b < SPUR_BAG; b++) {
+            int ia = sg.s.bag[a], ib = sg.s.bag[b];
+            long ka = ia ? (long)SPUR_ITEM[ia].kind * 1000 + ia : 1000000L;
+            long kb = ib ? (long)SPUR_ITEM[ib].kind * 1000 + ib : 1000000L;
+            if (kb < ka) { sg.s.bag[a] = (uint8_t)ib; sg.s.bag[b] = (uint8_t)ia; }
+        }
+}
+
 static bool needs_target(int it) {
     int u = SPUR_ITEM[it].use;
     return u == IU_HEAL || u == IU_SP || u == IU_SPALL || u == IU_REVIVE || u == IU_CURE || u == IU_TREAT_D ||
@@ -280,6 +291,7 @@ void spur_use_item_field(int slot, int who) {
         snprintf(msgbuf, sizeof msgbuf, "THE POISON IS GONE.");
         break;
     case IU_CAMP:
+        if (sg.map.kind != MK_WORLD) { spur_say("NOT IN HERE. CAMP OUT IN THE OPEN."); return; }
         for (int i = 0; i < 4; i++) {
             int t = spur_hero_at(i);
             if (!spur_alive(t)) continue;
@@ -423,10 +435,18 @@ static void field_menu_update(void) {
         if (back) { menu_back(FM_ROOT, 0); return; }
         if (ok && sg.s.bag[sg.menu_slot]) { sg.menu_page = FM_ITEM_DO; sg.menu_sel2 = 0; spur_sfx("spur_ok"); }
         break;
-    case FM_ITEM_DO: /* USE / DROP */
-        if (up || down) { sg.menu_sel2 ^= 1; spur_sfx("spur_tick"); }
+    case FM_ITEM_DO: /* USE / DROP / SORT */
+        if (up) { sg.menu_sel2 = (sg.menu_sel2 + 2) % 3; spur_sfx("spur_tick"); }
+        if (down) { sg.menu_sel2 = (sg.menu_sel2 + 1) % 3; spur_sfx("spur_tick"); }
         if (back) { menu_back(FM_ITEM, 0); return; }
         if (!ok) return;
+        if (sg.menu_sel2 == 2) {
+            spur_bag_sort();
+            spur_sfx("spur_ok");
+            sg.menu_page = FM_ITEM;
+            sg.menu_slot = 0;
+            return;
+        }
         if (sg.menu_sel2 == 1) {
             int it = sg.s.bag[sg.menu_slot];
             if (it == IT_DOOMSDAY || it == IT_HELLITE) { spur_say("BETTER HANG ON TO THAT."); return; }
@@ -556,7 +576,10 @@ static void field_menu_update(void) {
 enum { PK_SHOP_ROOT = 1, PK_CHAPEL, PK_BANK, PK_TRAIN, PK_SALOON, PK_BOARD };
 enum { NUM_DEPOSIT = 1, NUM_WITHDRAW };
 
-static int town_index(void) { return sg.map_id >= SPUR_FIRST_TOWN && sg.map_id < SPUR_FIRST_TOWN + SPUR_TOWNS ? sg.map_id - SPUR_FIRST_TOWN : -1; }
+static int town_index(void) {
+    int t = spur_town_here();
+    return t >= SPUR_FIRST_TOWN && t < SPUR_FIRST_TOWN + SPUR_TOWNS ? t - SPUR_FIRST_TOWN : -1;
+}
 
 static void open_shop(int shop) {
     if (shop <= 0 || shop >= SPUR_SHOPS) { spur_say("CLOSED."); return; }
@@ -657,7 +680,7 @@ static int chapel_who[4];
 static int chapel_n;
 
 static void open_chapel(void) {
-    sg.s.chapel = (uint8_t)sg.map_id;
+    sg.s.chapel = (uint8_t)spur_town_here();
     chapel_n = 0;
     static char opt[4][40];
     const char *opts[4];
@@ -693,9 +716,11 @@ void spur_hotel_rest(int price) {
         sg.s.hero[h].sp = (int16_t)spur_maxsp(h);
         sg.s.hero[h].status = 0;
     }
+    bool saved = spur_can_save();
     spur_save_game();
     music_play(SPUR_MUS_LEVEL);
-    spur_say_then("THE POSSE SLEEPS LIKE THE DEAD.\nTHE GAME IS SAVED.", 9002);
+    if (saved) spur_say_then("THE POSSE SLEEPS LIKE THE DEAD.\nTHE GAME IS SAVED.", 9002);
+    else spur_say_then("THE POSSE SLEEPS LIKE THE DEAD.\fTHE CLERK WON'T WRITE YOUR NAMES IN THE BOOK.\n\"THE TALLYMAN READS IT.\" THE GAME IS NOT SAVED.", 9002);
 }
 
 static int hotel_price;
@@ -738,7 +763,7 @@ void spur_open_door(int service, int arg) {
         spur_ask(q, 9003, 0);
         break;
     }
-    case SV_SHERIFF: spur_say("THE SHERIFF'S OUT."); break;
+    case SV_SHERIFF: spur_say("THE DEPUTY DOESN'T LOOK UP FROM HIS CARDS.\n\"SHERIFF'S OUT ON HIS ROUNDS.\""); break;
     case SV_LOCKED: spur_say("LOCKED."); break;
     default: spur_say("NOBODY ANSWERS."); break;
     }
@@ -798,7 +823,7 @@ static void pick_done(int mode, int c) {
             sg.s.teeth -= 120;
             spur_sfx("spur_buy");
             spur_say("ONE GINGER POP. IT FIZZES THE SOUL.");
-        } else if (c == 1) spur_story_pick(100 + sg.map_id, 0);
+        } else if (c == 1) spur_story_pick(100 + spur_town_here(), 0);
         return;
     default: spur_story_pick(mode, c); return;
     }
@@ -1005,8 +1030,8 @@ static void draw_field_menu(void) {
             tiny_draw(b, 230, 26, C_TAN);
         }
         if (sg.menu_page == FM_ITEM_DO) {
-            static const char *const DO[] = {"USE", "DROP"};
-            list_box("", DO, 2, sg.menu_sel2, 236, 60, 64);
+            static const char *const DO[] = {"USE", "DROP", "SORT"};
+            list_box("", DO, 3, sg.menu_sel2, 236, 60, 64);
         }
         break;
     }

@@ -78,6 +78,14 @@ static void map_music(void) {
         if (id == M_STCLARE || id == M_HERMITAGE) mus = SPUR_MUS_CHURCH;
         break;
     case MK_PLACE:
+        if (id == M_INSIDE) {
+            int town = sg.inside.town;
+            mus = sg.inside.service == SV_SALOON ? SPUR_MUS_SALOON : sg.inside.service == SV_CHAPEL ? SPUR_MUS_CHURCH : SPUR_MUS_TOWN;
+            if (town == M_HOPE && !spur_flag(F_HOPE_FREE)) mus = SPUR_MUS_GHOST;
+            if (town == M_ASHMARKET) mus = SPUR_MUS_HELL;
+            if (town == M_STCLARE || town == M_HERMITAGE) mus = SPUR_MUS_CHURCH;
+            break;
+        }
         mus = id == M_SALOON || id == M_SKYBAR || id == M_ROOST ? SPUR_MUS_SALOON
             : id == M_THORNS || id == M_SHRINE ? SPUR_MUS_CHURCH
             : id == M_SPUR3 ? SPUR_MUS_CITADEL : SPUR_MUS_TOWN;
@@ -286,7 +294,7 @@ void spur_respawn_at_chapel(void) {
     sg.state = GS_FIELD;
     sg.mounted = 0;
     sg.s.horses = 0;
-    spur_enter_map(town, -1, 0, 1);
+    if (!spur_enter_town_room(town, SV_CHAPEL)) spur_enter_map(town, -1, 0, 1);
     spur_save_game();
     spur_say("YOU WAKE IN THE CHAPEL PEWS.\nSOMEONE HAS GONE THROUGH YOUR POCKETS.\nEVERY BIT YOU CARRIED IS GONE.");
 }
@@ -305,6 +313,12 @@ static bool try_link(int x, int y) {
         int target = l->map;
         if (sg.map_id == M_WORLD && !spur_event_door(target)) return true;
         spur_sfx(t == T_DOWN || t == T_UP ? "spur_stairs" : "spur_door");
+        if (target == M_INSIDE) {
+            /* up or down the hotel stairs */
+            sg.inside.floor = (uint8_t)l->ty;
+            spur_enter_map(M_INSIDE, -2, 0, 0);
+            return true;
+        }
         spur_enter_map(target, l->tx, l->ty, 0);
         return true;
     }
@@ -340,11 +354,18 @@ static void step_done(void) {
     if (sg.map.kind == MK_TOWN || sg.map.kind == MK_PLACE) {
         for (int i = 0; i < sg.map.ndoor; i++)
             if (sg.map.door[i].x == x && sg.map.door[i].y == y) {
-                /* step back out under the sign, then the counter */
+                int sv = sg.map.door[i].service;
+                /* most doors lead into a room with a counter */
+                if (spur_has_inside(sg.map_id, sv) && !spur_story_gate(sv)) {
+                    spur_sfx("spur_door");
+                    spur_enter_inside(sg.map_id, sv, sg.map.door[i].arg, x, y);
+                    return;
+                }
+                /* the rest (and the shut ones): step back out under the sign */
                 sg.pos[0].y = (int16_t)(y + 1);
                 sg.prev[0] = sg.pos[0];
                 sg.face = 1;
-                spur_open_door(sg.map.door[i].service, sg.map.door[i].arg);
+                if (!spur_has_inside(sg.map_id, sv)) spur_open_door(sv, sg.map.door[i].arg);
                 return;
             }
     }
@@ -376,6 +397,29 @@ static void step_done(void) {
         if (touching()) { wisp_battle(); return; }
     }
     if (sg.mounted != 2) maybe_spawn();
+}
+
+/* through a town door, into the room behind it */
+void spur_enter_inside(int town, int service, int arg, int dx, int dy) {
+    sg.inside.town = (uint8_t)town;
+    sg.inside.service = (uint8_t)service;
+    sg.inside.arg = (uint8_t)arg;
+    sg.inside.floor = 0;
+    sg.inside.dx = (int8_t)dx;
+    sg.inside.dy = (int8_t)dy;
+    spur_enter_map(M_INSIDE, -1, 0, 1);
+}
+
+/* waking or carrying on in a town: inside its chapel (or hotel), else at that door */
+bool spur_enter_town_room(int town, int service) {
+    int x, y;
+    if (!spur_town_door(town, service, &x, &y)) {
+        if (service != SV_CHAPEL || !spur_town_door(town, SV_HOTEL, &x, &y)) return false;
+        service = SV_HOTEL;
+    }
+    if (spur_has_inside(town, service)) spur_enter_inside(town, service, 0, x, y);
+    else spur_enter_map(town, x, y + 1, 0);
+    return true;
 }
 
 void spur_leave_town(void) {
@@ -413,7 +457,7 @@ static void interact(void) {
     /* over a counter */
     int t = spur_tile_at(&sg.map, fx, fy);
     int n = spur_npc_at(fx, fy);
-    if (n < 0 && t == T_COUNTER) n = spur_npc_at(fx + DX[sg.face], fy + DY[sg.face]);
+    if (n < 0 && (t == T_COUNTER || t == T_ALTAR || t == T_BARS)) n = spur_npc_at(fx + DX[sg.face], fy + DY[sg.face]);
     if (n >= 0) {
         /* they turn to face you */
         static const int OPP[4] = {1, 0, 3, 2};

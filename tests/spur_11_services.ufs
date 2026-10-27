@@ -13,6 +13,11 @@ cheat warp 4 5 5
 cheat face 1
 press UP
 wait 12
+expect map == 41
+hold UP 50
+wait 5
+press A
+wait 12
 expect ui == 10
 press LEFT
 press A
@@ -28,6 +33,11 @@ expect ui == 0
 cheat warp 4 22 5
 cheat face 1
 press UP
+wait 12
+expect map == 41
+hold UP 50
+wait 5
+press A
 wait 12
 expect ui == 12
 press A
@@ -46,6 +56,11 @@ wait 5
 cheat warp 4 22 5
 cheat face 1
 press UP
+wait 12
+expect map == 41
+hold UP 50
+wait 5
+press A
 wait 12
 press DOWN
 press A

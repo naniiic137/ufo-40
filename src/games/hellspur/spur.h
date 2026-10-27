@@ -64,6 +64,7 @@ enum {
     T_ORE, T_HERB, T_WATER, T_BARS, T_ALTAR, T_TORCH, T_GRAVE, T_BURNING, T_PEW, T_RUG,
     T_BONEWALL, T_DREAMFLOOR, T_HELLFLOOR, T_HELLWALL, T_GLASS, T_SIGN, T_BOOKS, T_PIANO, T_TRACKS, T_STOOL,
     T_TREE, T_HIVE, T_WINCH, T_LIFT, T_PORTAL, T_CAULDRON,
+    T_SECRET,             /* looks like a counter; you can walk through it */
     T_COUNT
 };
 
@@ -80,13 +81,14 @@ enum {
     M_DRYWASH, M_SIXPENNY, M_PEN1, M_PEN2, M_NOTCH, M_CRYPT, M_ROOSTMINE, M_HOLLOWMINE, M_CUT,
     M_SNAKE1, M_SNAKE2, M_DREAM1, M_DREAM2, M_TOWER1, M_TOWER2, M_TOWER3, M_TOWER4,
     M_SPUR1, M_SPUR2, M_SPUR3,
+    M_INSIDE,             /* the inside of a town building (sg.inside says which) */
     M_COUNT
 };
 enum { MK_WORLD, MK_TOWN, MK_PLACE, MK_DUNGEON };
 #define SPUR_FIRST_TOWN M_GLADWELL
 #define SPUR_TOWNS 11              /* Gladwell ... the Hermitage */
 #define SPUR_FIRST_DUNGEON M_DRYWASH
-#define SPUR_DUNGEON_MAPS (M_COUNT - M_DRYWASH)
+#define SPUR_DUNGEON_MAPS (M_SPUR3 + 1 - M_DRYWASH)
 
 /* what lives on a map */
 typedef struct { int8_t x, y; uint8_t map; int8_t tx, ty; } SpurLink;   /* stairs, doors, edges */
@@ -310,7 +312,7 @@ int spur_enemy_find(const char *name);
 /* troops: up to six */
 #define SPUR_TROOP_MAX 6
 typedef struct { uint8_t e[SPUR_TROOP_MAX]; uint8_t min, max; uint8_t flags; } SpurTroop;
-enum { TRF_BOSS = 1, TRF_RANDOMN = 2, TRF_NORUN = 4 };
+enum { TRF_BOSS = 1, TRF_RANDOMN = 2, TRF_NORUN = 4, TRF_TWOPOOL = 8 }; /* TWOPOOL: min..max of e[0], then 0..2 of e[1] */
 extern const SpurTroop SPUR_TROOP[];
 extern const int SPUR_TROOPS;
 
@@ -343,6 +345,8 @@ enum {
 };
 #define SPUR_FLAG_BYTES ((F_COUNT + 7) / 8)
 #define SPUR_CHESTS 672             /* sixteen a map */
+#define SPUR_CHEST_EMPTY 30001      /* a chest's "bits" that mean: nothing in it */
+#define SPUR_CHEST_JOKE 30002       /* ...and the one that pretends otherwise */
 #define SPUR_CHEST_BYTES (SPUR_CHESTS / 8)
 
 /* ---- the posse ------------------------------------------------------------------------------- */
@@ -535,6 +539,10 @@ typedef struct {
     int ani;
     int map_t;                /* frames since this map was entered */
     int no_spawn;             /* tests: no new wisps */
+    struct {                  /* the building the posse is in (map M_INSIDE) */
+        uint8_t town, service, arg, floor;
+        int8_t dx, dy;        /* its door in the street */
+    } inside;
 } SpurGame;
 
 extern SpurGame sg;
@@ -578,6 +586,7 @@ const char *spur_item_name(int it);
 int spur_bag_count(void);
 int spur_bag_add(int it);                   /* slot or -1 when full */
 void spur_bag_remove(int slot);
+void spur_bag_sort(void);                   /* the bag menu's SORT */
 int spur_bag_find(int it);
 int spur_posse_alive(void);
 int spur_hero_at(int slot);                 /* hero in posse slot, -1 */
@@ -597,6 +606,14 @@ int spur_poi_at(int map, int x, int y);     /* the map a big-map tile opens */
 
 /* ---- spur_field.c ----------------------------------------------------------------------- */
 void spur_enter_map(int id, int x, int y, int dir);
+void spur_enter_inside(int town, int service, int arg, int dx, int dy); /* through a town door */
+bool spur_enter_town_room(int town, int service); /* into a town's chapel or hotel from afar */
+int spur_town_here(void);                   /* the map, or the town of the building you are in */
+int spur_inside_finds(void);                 /* hidden finds indoors */
+bool spur_town_door(int town, int service, int *x, int *y); /* a town's door for a service */
+bool spur_has_inside(int town, int service); /* does that door lead into a room */
+bool spur_can_save(void);                    /* not in an occupied Hope Springs */
+bool spur_story_gate(int service);           /* a door the story keeps shut (says why) */
 void spur_field_update(void);
 void spur_field_after_battle(bool won);
 void spur_place_party(int x, int y, int dir);

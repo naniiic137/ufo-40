@@ -50,9 +50,14 @@ const SpurMapInfo SPUR_MAPINFO[M_COUNT] = {
     [M_SPUR1] = {"HELLSPUR", MK_DUNGEON, M_WORLD, 16, 12, 0},
     [M_SPUR2] = {"HELLSPUR, UPPER", MK_DUNGEON, M_WORLD, 16, 12, 0},
     [M_SPUR3] = {"HELLSPUR, SUMMIT", MK_PLACE, M_WORLD, 16, 12, 0},
+    [M_INSIDE] = {"INDOORS", MK_PLACE, M_WORLD, 0, 0, 0},
 };
 
-const char *spur_map_name(int id) { return id >= 0 && id < M_COUNT ? SPUR_MAPINFO[id].name : ""; }
+const char *spur_inside_name(void);
+const char *spur_map_name(int id) {
+    if (id == M_INSIDE && sg.map_id == M_INSIDE) return spur_inside_name();
+    return id >= 0 && id < M_COUNT ? SPUR_MAPINFO[id].name : "";
+}
 
 /* ---- a seeded hash for the painters (never the game's RNG) ------------------ */
 static uint32_t hsh(uint32_t a, uint32_t b, uint32_t c) {
@@ -518,7 +523,7 @@ static const char *const MAP_DOLORES[] = {
     "v.RRRRRRR.RRRRRRRRR.RRRRR.RRRRRv",
     "v.WwWHWwW.WwWwSwWwW.WwCwW.WwDwWv",
     "v....+........+.......+........v",
-    "v....+........+.......+........v",
+    "v....+........+9......+........v",
     "v....+....0...+....3..+......6.v",
     "v....+........+.......+........v",
     "++++++++++++++++++++++++++++++++",
@@ -768,7 +773,7 @@ static const char *const MAP_SPUR3[] = {
     NULL,
 };
 
-typedef struct { uint8_t look, pal, dir, wander; int16_t show_if, hide_if; } NpcDef;
+typedef struct { uint8_t look, pal, dir, wander; int16_t show_if, hide_if; char in; } NpcDef; /* in: the door they live behind (h: upstairs) */
 typedef struct { int8_t x, y; int16_t item; int32_t teeth; } FindDef; /* hidden: search the tile */
 typedef struct {
     int map;
@@ -782,15 +787,16 @@ typedef struct {
 
 #define NO -1
 #define N(look, pal, dir, wander) {look, pal, dir, wander, NO, NO}
-#define NS(look, pal, dir, wander, s, h) {look, pal, dir, wander, s, h}
+#define NS(look, pal, dir, wander, s, h) {look, pal, dir, wander, s, h, 0}
+#define NI(look, pal, dir, wander, s, h, in) {look, pal, dir, wander, s, h, in}
 static const HandMap HAND[] = {
     {M_GLADWELL, MAP_GLADWELL, ',',
-     {N(LOOK_MAN, 0, 0, 1), N(LOOK_WOMAN, 0, 0, 0), N(LOOK_KID, 0, 0, 1), N(LOOK_OLD, 0, 0, 0), N(LOOK_DOG, 0, 0, 1),
+     {N(LOOK_MAN, 0, 0, 1), N(LOOK_WOMAN, 0, 0, 0), N(LOOK_KID, 0, 0, 1), NI(LOOK_OLD, 0, 0, 0, NO, NO, 'h'), N(LOOK_DOG, 0, 0, 1),
       N(LOOK_MAN, 1, 0, 0), N(LOOK_SHERIFF, 0, 0, 0)},
      {0}, {0}, {{7, 15, IT_BANDAGE, 0}, {24, 15, 0, 25}}, 0},
     {M_MERIDIAN, MAP_MERIDIAN, ',',
      {N(LOOK_MAN, 2, 0, 1), N(LOOK_WOMAN, 1, 0, 1), N(LOOK_KID, 1, 0, 1), N(LOOK_SHERIFF, 1, 0, 0), N(LOOK_OLD, 1, 0, 0),
-      N(LOOK_HORSE, 0, 2, 0), N(LOOK_WOMAN, 2, 0, 0), N(LOOK_MINER, 0, 0, 0), N(LOOK_BARKEEP, 0, 0, 0)},
+      N(LOOK_HORSE, 0, 2, 0), NI(LOOK_WOMAN, 2, 0, 0, NO, NO, 'N'), N(LOOK_MINER, 0, 0, 0), N(LOOK_BARKEEP, 0, 0, 0)},
      {0}, {0}, {{13, 19, IT_HERB, 0}, {31, 19, 0, 40}}, 0},
     {M_STCLARE, MAP_STCLARE, ':',
      {N(LOOK_NUN, 0, 0, 1), N(LOOK_ANGEL, 0, 0, 0), N(LOOK_PRIEST, 0, 0, 0), N(LOOK_NUN, 1, 0, 0), N(LOOK_KID, 2, 0, 1)},
@@ -801,17 +807,18 @@ static const HandMap HAND[] = {
       N(LOOK_OLD, 2, 0, 0), NS(LOOK_DEMON, 2, 0, 0, NO, F_HOPE_FREE), N(LOOK_MAN, 4, 0, 1)},
      {0}, {0}, {{27, 8, IT_SALVE, 0}, {2, 17, 0, 60}}, 0},
     {M_STEEPLE, MAP_STEEPLE, ',',
-     {N(LOOK_MAN, 5, 0, 1), N(LOOK_WOMAN, 4, 0, 0), N(LOOK_KID, 4, 0, 1), N(LOOK_SHERIFF, 2, 0, 0), N(LOOK_HORSE, 1, 3, 0),
+     {N(LOOK_MAN, 5, 0, 1), NI(LOOK_WOMAN, 4, 0, 0, NO, NO, 'h'), N(LOOK_KID, 4, 0, 1), N(LOOK_SHERIFF, 2, 0, 0), N(LOOK_HORSE, 1, 3, 0),
       N(LOOK_OLD, 3, 0, 0), N(LOOK_SOLDIER, 0, 0, 0), NS(LOOK_MAN, 6, 0, 0, NO, NO)},
      {0}, {0}, {{2, 16, IT_GINGERPOP, 0}, {29, 18, 0, 120}}, 1},
     {M_FORT, MAP_FORT, ':',
      {NS(LOOK_ANGEL, 5, 0, 0, F_FORT, F_CUT_OPEN),
       N(LOOK_SOLDIER, 1, 0, 1), N(LOOK_SOLDIER, 2, 0, 0), N(LOOK_PRIEST, 1, 0, 0), N(LOOK_SOLDIER, 3, 0, 1),
-      NS(LOOK_SOLDIER, 4, 0, 0, NO, F_SOLDIER_DEAD), N(LOOK_SOLDIER, 5, 0, 0), N(LOOK_SOLDIER, 6, 0, 0)},
+      NI(LOOK_SOLDIER, 4, 0, 0, NO, F_SOLDIER_DEAD, 'h'), N(LOOK_SOLDIER, 5, 0, 0), N(LOOK_SOLDIER, 6, 0, 0)},
      {0}, {0}, {{4, 12, IT_HOLYOIL, 0}, {19, 9, 0, 300}}, 0},
     {M_DOLORES, MAP_DOLORES, '.',
      {N(LOOK_OUTLAW, 0, 0, 1), N(LOOK_OLD, 4, 0, 0), N(LOOK_ANIMAL, 5, 0, 0), N(LOOK_MAN, 7, 0, 0), N(LOOK_KID, 5, 0, 1),
-      N(LOOK_DOG, 1, 0, 1), N(LOOK_OUTLAW, 1, 0, 0), NS(LOOK_BOSS, A_MAGPIE, 0, 0, NO, F_MAGPIE)},
+      N(LOOK_DOG, 1, 0, 1), N(LOOK_OUTLAW, 1, 0, 0), NI(LOOK_BOSS, A_MAGPIE, 0, 0, NO, F_MAGPIE, 'S'),
+      NI(LOOK_OUTLAW, 3, 0, 0, NO, NO, 'S'), N(LOOK_MAN, 11, 0, 0)},
      {0}, {0}, {{2, 17, 0, 1000}, {29, 18, IT_SNAKEROOT, 0}}, 0},
     {M_HOLLOW, MAP_HOLLOW, '.',
      {NS(LOOK_MAN, 8, 0, 1, F_MISC0, NO), NS(LOOK_WOMAN, 5, 0, 1, F_MISC0, NO), NS(LOOK_KID, 6, 0, 0, F_MISC0, NO),
@@ -942,6 +949,7 @@ static void build_hand(SpurMap *m, const HandMap *h) {
                 int i = c - '0';
                 const NpcDef *d = &h->npc[i];
                 if (m->nnpc <= i) m->nnpc = i + 1;
+                if (d->in && spur_has_inside(h->map, SV_HOTEL)) continue; /* they are indoors */
                 m->npc[i] = (SpurNpc){(int8_t)x, (int8_t)y, d->look, d->pal, d->dir, d->wander, (uint16_t)(h->map * 32 + i),
                                       d->show_if, d->hide_if};
             }
@@ -975,6 +983,303 @@ static void build_hand(SpurMap *m, const HandMap *h) {
     if (h->map == M_SPUR3)
         for (int i = 0; i < m->nlink; i++) { m->link[i].map = M_SPUR2; m->link[i].tx = -2; }
 }
+
+/* ---- inside the town buildings ------------------------------------------------------- */
+/* One room per door (two floors for a hotel). '0' is whoever works the counter, '1' and '2'
+ * are folk passing the time, '5' to '7' are where the town's own people stand when the
+ * table above puts them indoors. 'u' and 'd' are the hotel stairs, 'e' the way out. */
+static const char *const IN_HOTEL[] = {
+    "##################",
+    "#Kb.#...0..#....u#",
+    "#...#kkkkkk#.....#",
+    "#.t1.............#",
+    "#.s......rrr..t2.#",
+    "#........rrr..s..#",
+    "#.t.s............#",
+    "#...........K..b.#",
+    "#................#",
+    "########e#########",
+    NULL,
+};
+static const char *const IN_UPSTAIRS[] = {
+    "##################",
+    "#B..#B..#B..#B..B#",
+    "#5..#..6#...#7...#",
+    "#t..#t..#t..#t..t#",
+    "##.###.###.###.###",
+    "#..............d.#",
+    "#................#",
+    "#.K...b.....b..K.#",
+    "#................#",
+    "##################",
+    NULL,
+};
+static const char *const IN_SALOON[] = {
+    "##################",
+    "#rr5#...0.x.#...6#",
+    "#rrr#kkkkkkk#....#",
+    "#........P.......#",
+    "#.s.t.s.......s.t#",
+    "#.....1.......s..#",
+    "#.s.t.s.....2....#",
+    "#............t.s.#",
+    "#b..............b#",
+    "########e#########",
+    NULL,
+};
+static const char *const IN_SHOP[] = {
+    "##################",
+    "#KKKbx..0..xbKKKK#",
+    "#kkkkkkkkkkkkkkkk#",
+    "#................#",
+    "#.x...t......x.1.#",
+    "#................#",
+    "#.b..........b...#",
+    "#....x.....2.....#",
+    "#................#",
+    "########e#########",
+    NULL,
+};
+static const char *const IN_BANK[] = {
+    "##################",
+    "#5..#iii0iiiii#xx#",
+    "#...#kkkkkkkkk#bb#",
+    "#................#",
+    "#..rrrrrrrrrrrr..#",
+    "#..r..........r..#",
+    "#.t.s......s.t.1.#",
+    "#.........2......#",
+    "#K..............K#",
+    "########e#########",
+    NULL,
+};
+static const char *const IN_SHERIFF[] = {
+    "##################",
+    "#..#..#.....K..bK#",
+    "#..#..#..........#",
+    "#ii#ii#506.......#",
+    "#......kkkkk######",
+    "#................#",
+    "#.t.s.......b....#",
+    "#.....1..........#",
+    "#K........2.....b#",
+    "########e#########",
+    NULL,
+};
+static const char *const IN_CHAPEL[] = {
+    "##################",
+    "#K......0......K.#",
+    "#......aaa.......#",
+    "#................#",
+    "#.pppppp..pppppp1#",
+    "#................#",
+    "#.pppppp..pppppp.#",
+    "#................#",
+    "#.pppppp..pppppp2#",
+    "########e#########",
+    NULL,
+};
+
+/* hidden finds indoors: search the tile (chest ids 12..15 of the town's sixteen) */
+typedef struct { uint8_t town, service, floor; int8_t x, y; int16_t item; int32_t teeth; } InsideFind;
+static const InsideFind IN_FINDS[] = {
+    {M_MERIDIAN, SV_SALOON, 0, 10, 1, IT_QUAD, 0},      /* behind the bar, past the loose counter flap */
+    {M_MERIDIAN, SV_HOTEL, 1, 16, 1, 0, 300},          /* under the end bed */
+    {M_STEEPLE, SV_HOTEL, 1, 1, 1, IT_SALVE, 0},
+    {M_DOLORES, SV_SALOON, 0, 16, 8, 0, 450},          /* in the corner barrel */
+    {M_LASTCHANCE, SV_SHERIFF, 0, 16, 8, IT_HALOPIN, 0}, /* in the evidence barrel */
+    {M_HOPE, SV_HOTEL, 1, 9, 1, IT_HOLYOIL, 0},
+};
+/* the one saloon with a way behind its bar */
+#define SECRET_BAR_TOWN M_MERIDIAN
+
+static const char *const *inside_rows(int service, int floor) {
+    switch (service) {
+    case SV_HOTEL: return floor ? IN_UPSTAIRS : IN_HOTEL;
+    case SV_SALOON: return IN_SALOON;
+    case SV_SHOP_A: case SV_SHOP_B: return IN_SHOP;
+    case SV_BANK: return IN_BANK;
+    case SV_SHERIFF: case SV_STORY: return IN_SHERIFF;
+    case SV_CHAPEL: return IN_CHAPEL;
+    default: return NULL;
+    }
+}
+
+static const HandMap *hand_of(int map) {
+    for (int i = 0; i < ARRAY_LEN(HAND); i++)
+        if (HAND[i].map == map) return &HAND[i];
+    return NULL;
+}
+
+static char service_char(int service) {
+    switch (service) {
+    case SV_HOTEL: return 'H';
+    case SV_CHAPEL: return 'C';
+    case SV_SHOP_A: return 'G';
+    case SV_SHOP_B: return 'U';
+    case SV_BANK: return 'N';
+    case SV_SALOON: return 'S';
+    case SV_TRAIN: return 'Y';
+    case SV_STABLES: return 'L';
+    case SV_SHERIFF: return 'X';
+    case SV_STORY: return 'Q';
+    default: return 'D';
+    }
+}
+
+bool spur_town_door(int town, int service, int *x, int *y) {
+    const HandMap *h = hand_of(town);
+    if (!h) return false;
+    char c = service_char(service);
+    for (int yy = 0; h->rows[yy]; yy++)
+        for (int xx = 0; h->rows[yy][xx]; xx++)
+            if (h->rows[yy][xx] == c) { *x = xx; *y = yy; return true; }
+    return false;
+}
+
+bool spur_has_inside(int town, int service) {
+    if (town < SPUR_FIRST_TOWN || town >= SPUR_FIRST_TOWN + SPUR_TOWNS) return false;
+    if (town == M_HOLLOW) return false; /* the ghost town keeps its doors: its past is a dream */
+    return inside_rows(service, 0) != NULL;
+}
+
+int spur_town_here(void) { return sg.map_id == M_INSIDE ? sg.inside.town : sg.map_id; }
+
+/* who works the counter */
+static void counter_look(int town, int service, uint8_t *look, uint8_t *pal) {
+    int ti = town - SPUR_FIRST_TOWN;
+    *pal = (uint8_t)(ti * 3 + service);
+    switch (service) {
+    case SV_HOTEL: case SV_SHOP_A: case SV_SHOP_B: *look = LOOK_KEEPER; break;
+    case SV_BANK: *look = LOOK_MAN; break;
+    case SV_SALOON: *look = LOOK_BARKEEP; break;
+    case SV_SHERIFF: *look = LOOK_SHERIFF; break;
+    case SV_CHAPEL: *look = (town == M_STCLARE || town == M_HERMITAGE) ? LOOK_NUN : LOOK_PRIEST; break;
+    case SV_STORY: *look = LOOK_BOSS; *pal = A_TALLYMAN; break;
+    default: *look = LOOK_MAN; break;
+    }
+    if (town == M_ASHMARKET) *look = LOOK_DEMON;
+    if (town == M_FORT && service != SV_CHAPEL) *look = LOOK_SOLDIER;
+}
+
+static const char *const IN_WORD[] = {
+    [SV_HOTEL] = "HOTEL", [SV_CHAPEL] = "CHAPEL", [SV_SHOP_A] = "STORE", [SV_SHOP_B] = "STORE", [SV_BANK] = "BANK",
+    [SV_SALOON] = "SALOON", [SV_SHERIFF] = "SHERIFF'S OFFICE", [SV_STORY] = "JAILHOUSE",
+};
+const char *spur_inside_name(void) {
+    static char nm[48];
+    int s = sg.inside.service;
+    const char *w = s < (int)ARRAY_LEN(IN_WORD) && IN_WORD[s] ? IN_WORD[s] : "HOUSE";
+    if (sg.inside.town == M_FORT && s == SV_HOTEL) w = "BARRACKS";
+    snprintf(nm, sizeof nm, "%s %s%s", SPUR_MAPINFO[sg.inside.town].name, w, sg.inside.floor ? ", UPSTAIRS" : "");
+    return nm;
+}
+
+static void build_inside(SpurMap *m) {
+    int town = sg.inside.town, service = sg.inside.service, floor = sg.inside.floor;
+    const HandMap *h = hand_of(town);
+    const char *const *rows = inside_rows(service, floor);
+    if (!h || !rows) { town = M_GLADWELL; service = SV_HOTEL; floor = 0; h = hand_of(town); rows = IN_HOTEL; }
+    int anchor_x[10], anchor_y[10];
+    for (int i = 0; i < 10; i++) anchor_x[i] = -1, anchor_y[i] = -1;
+    for (int y = 0; rows[y]; y++) {
+        int w = (int)strlen(rows[y]);
+        m->w = imax(m->w, w);
+        m->h = y + 1;
+        for (int x = 0; x < w; x++) {
+            char c = rows[y][x];
+            int t = T_FLOOR;
+            switch (c) {
+            case '#': t = T_WALL; break;
+            case 'k': t = T_COUNTER; break;
+            case 'r': t = T_RUG; break;
+            case 't': t = T_TABLE; break;
+            case 's': t = T_STOOL; break;
+            case 'B': t = T_BED; break;
+            case 'P': t = T_PIANO; break;
+            case 'K': t = T_BOOKS; break;
+            case 'b': t = T_BARREL; break;
+            case 'x': t = T_CRATE; break;
+            case 'p': t = T_PEW; break;
+            case 'a': t = T_ALTAR; break;
+            case 'i': t = T_BARS; break;
+            case 'u': t = T_UP; break;
+            case 'd': t = T_DOWN; break;
+            case 'e': t = T_EXIT; break;
+            default: break;
+            }
+            if (service == SV_CHAPEL && t == T_FLOOR) t = T_STONE;
+            if (town == M_ASHMARKET && t == T_FLOOR) t = T_HELLFLOOR;
+            put(m, x, y, t);
+            if (c >= '0' && c <= '9') { anchor_x[c - '0'] = x; anchor_y[c - '0'] = y; }
+            if (c == 'e') {
+                m->link[m->nlink++] = (SpurLink){(int8_t)x, (int8_t)y, (uint8_t)town, sg.inside.dx, (int8_t)(sg.inside.dy + 1)};
+                m->start_x = x;
+                m->start_y = y - 1;
+            }
+            if (c == 'u') {
+                m->link[m->nlink++] = (SpurLink){(int8_t)x, (int8_t)y, M_INSIDE, -2, 1};
+                m->back_x = x;
+                m->back_y = y + 1;
+            }
+            if (c == 'd') {
+                m->link[m->nlink++] = (SpurLink){(int8_t)x, (int8_t)y, M_INSIDE, -2, 0};
+                m->back_x = x - 1;
+                m->back_y = y;
+                m->start_x = x - 1;
+                m->start_y = y;
+            }
+        }
+    }
+    /* the loose flap in one bar */
+    if (service == SV_SALOON && town == SECRET_BAR_TOWN) put(m, 11, 2, T_SECRET);
+    /* the counter */
+    if (anchor_x[0] >= 0) {
+        uint8_t look, pal;
+        counter_look(town, service, &look, &pal);
+        SpurNpc *n = &m->npc[0];
+        *n = (SpurNpc){(int8_t)anchor_x[0], (int8_t)anchor_y[0], look, pal, 0, 0, (uint16_t)(0xF000 | service), NO, NO};
+        if (service == SV_STORY) n->hide_if = F_HOPE_FREE; /* the Tallyman's desk */
+        m->nnpc = 1;
+    }
+    /* the town's own people who live indoors */
+    char want = floor ? 'h' : service_char(service);
+    int slot = 5;
+    for (int i = 0; i < 10 && h; i++) {
+        const NpcDef *d = &h->npc[i];
+        if (d->in != want || slot > 7 || anchor_x[slot] < 0) continue;
+        m->npc[m->nnpc++] = (SpurNpc){(int8_t)anchor_x[slot], (int8_t)anchor_y[slot], d->look, d->pal, d->dir, 0,
+                                      (uint16_t)(town * 32 + i), d->show_if, d->hide_if};
+        slot++;
+    }
+    /* the Tallyman's imps, at his elbows */
+    if (service == SV_STORY)
+        for (int k = 0; k < 2 && slot <= 7; k++, slot++)
+            if (anchor_x[slot] >= 0)
+                m->npc[m->nnpc++] = (SpurNpc){(int8_t)anchor_x[slot], (int8_t)anchor_y[slot], LOOK_DEMON, (uint8_t)(k + 2), 0, 0,
+                                              (uint16_t)(M_HOPE * 32 + 1 + k), NO, F_HOPE_FREE};
+    /* folk passing the time */
+    for (int k = 1; k <= 2; k++) {
+        if (anchor_x[k] < 0) continue;
+        static const uint8_t LOOKS[] = {LOOK_MAN, LOOK_WOMAN, LOOK_OLD, LOOK_OUTLAW, LOOK_MINER, LOOK_KID};
+        int ti = town - SPUR_FIRST_TOWN;
+        uint8_t look = LOOKS[(ti * 2 + k + service) % ARRAY_LEN(LOOKS)];
+        if (town == M_ASHMARKET) look = LOOK_DEMON;
+        if (town == M_FORT) look = LOOK_SOLDIER;
+        if (town == M_STCLARE || town == M_HERMITAGE) look = k == 1 ? LOOK_NUN : LOOK_OLD;
+        if (service == SV_SALOON && town == M_HOPE) continue; /* the devils drink alone */
+        m->npc[m->nnpc++] = (SpurNpc){(int8_t)anchor_x[k], (int8_t)anchor_y[k], look, (uint8_t)(ti + k * 5), 0, 0,
+                                      (uint16_t)(0xE000 | (service << 4) | (k - 1)), NO, NO};
+    }
+    for (int i = 0; i < ARRAY_LEN(IN_FINDS); i++) {
+        const InsideFind *f = &IN_FINDS[i];
+        if (f->town != town || f->service != service || f->floor != floor || m->nchest >= SPUR_MAX_CHEST) continue;
+        m->chest[m->nchest++] = (SpurChest){f->x, f->y, (uint16_t)(town * 16 + 12 + i % 4), f->item, f->teeth, 1};
+    }
+    m->zone = -1;
+}
+
+int spur_inside_finds(void) { return ARRAY_LEN(IN_FINDS); }
 
 /* ---- dungeons -------------------------------------------------------------------------- */
 enum { DS_CAVE, DS_MINE, DS_PRISON, DS_PASS, DS_CRYPT, DS_SNAKE, DS_DREAM, DS_TOWER, DS_CITADEL };
@@ -1039,13 +1344,15 @@ static const DunSpec DUN[] = {
     {M_TOWER2, DS_TOWER, 40, 29, 1415, DX_NEXT, M_TOWER3, M_TOWER1, 18, 95, A_CARNAGE, F_CARNAGE, 0, 0,
      {IT_LAWMAN, T(1190), IT_THRESHER, IT_NEEDLEGUN, IT_BLACKGLASS}, {110, 0}, 0, 0, -1, -1, 0, 0, 0},
     {M_TOWER3, DS_TOWER, 40, 29, 1516, DX_NEXT, M_TOWER4, M_TOWER2, 19, 96, A_HUNGER, F_HUNGER, 0, 0,
-     {IT_WISHBONE, T(2400), IT_MEDCHEST, IT_SATIN}, {0}, 0, 0, -1, -1, 0, 0, 0},
+     /* a floor of empty chests, one of them a joke, and the wishbone */
+     {T(SPUR_CHEST_EMPTY), T(SPUR_CHEST_EMPTY), T(SPUR_CHEST_EMPTY), T(SPUR_CHEST_EMPTY), T(SPUR_CHEST_EMPTY),
+      T(SPUR_CHEST_JOKE), IT_WISHBONE}, {0}, 0, 0, -1, -1, 0, 0, 0},
     {M_TOWER4, DS_TOWER, 40, 29, 1617, DX_NONE, 0, M_TOWER3, 20, 97, A_REAPER, F_REAPER, 0, 0,
      {IT_MEDCHEST, IT_HALOPIN, IT_DEVILSOWN, IT_LARIAT, T(2220), IT_HOLYOIL}, {109, 111}, 0, 0, -1, LOOK_ANGEL, 6, 0, 0},
     {M_SPUR1, DS_CITADEL, 56, 36, 1718, DX_NEXT, M_SPUR2, -1, 21, 0, 0, NO, 0, 0,
      {IT_MEDCHEST, T(3000), IT_SMUDGE, IT_BLACKBREW}, {112, 0}, 0, 0, -1, -1, 0, 0, 0},
     {M_SPUR2, DS_CITADEL, 56, 36, 1819, DX_NEXT, M_SPUR3, M_SPUR1, 21, 99, A_GOVERNOR, F_GOVERNOR, 0, 0,
-     {IT_HOLYOIL, IT_ELEPHANT, IT_STARSAPPHIRE, T(9999), IT_BLACKBREW, IT_RUBY, T(666), IT_LARIAT}, {113, 0}, 0, 0, -1, -1,
+     {IT_HOLYOIL, IT_ELEPHANT, IT_STARSAPPHIRE, T(9999), IT_BLACKBREW, IT_RUBY, T(666), IT_LARIAT, IT_SATIN}, {113, 0}, 0, 0, -1, -1,
      0, 0, 0},
 };
 #undef T
@@ -1076,6 +1383,20 @@ static void corridor(SpurMap *m, Cell *to, int x0, int y0, int x1, int y1, int f
     }
 }
 
+/* the mines' last stretch: two steps across, two down, over and over */
+static void corridor_wind(SpurMap *m, Cell *to, int x0, int y0, int x1, int y1, int floor) {
+    int x = x0, y = y0, step = 0;
+    to->ncorr = 0;
+    while (x != x1 || y != y1) {
+        bool across = x != x1 && (y == y1 || (step / 2) % 2 == 0);
+        if (across) x += isign(x1 - x);
+        else y += isign(y1 - y);
+        step++;
+        carve(m, x, y, floor);
+        if (to->ncorr < 64) { to->corr[to->ncorr][0] = x; to->corr[to->ncorr][1] = y; to->ncorr++; }
+    }
+}
+
 static bool in_room(const Cell *c, int x, int y) { return x >= c->rx && y >= c->ry && x < c->rx + c->rw && y < c->ry + c->rh; }
 
 static void style_tiles(int style, int *wall, int *floor, int *path) {
@@ -1093,8 +1414,8 @@ static void style_tiles(int style, int *wall, int *floor, int *path) {
 }
 
 /* how many open tiles can be walked to from a place (fire and bosses count as open) */
+static uint8_t vis[SPUR_MAX_H][SPUR_MAX_W]; /* what the last reach_count could walk to */
 static int reach_count(const SpurMap *m, int sx, int sy) {
-    static uint8_t vis[SPUR_MAX_H][SPUR_MAX_W];
     static int qx[SPUR_MAX_W * SPUR_MAX_H], qy[SPUR_MAX_W * SPUR_MAX_H];
     memset(vis, 0, sizeof vis);
     int qh = 0, qt = 0, n = 0;
@@ -1137,6 +1458,110 @@ static bool room_spot(SpurMap *m, const Cell *cc, int t, int sx, int sy, int *ox
     return false;
 }
 
+/* ---- the set pieces each kind of dungeon is known for ------------------------------------ */
+static bool tile_free(const SpurMap *m, int x, int y, int floor) {
+    if (get(m, x, y) != floor) return false;
+    for (int i = 0; i < m->nnpc; i++) if (m->npc[i].x == x && m->npc[i].y == y) return false;
+    for (int i = 0; i < m->nchest; i++) if (m->chest[i].x == x && m->chest[i].y == y) return false;
+    for (int i = 0; i < m->nambush; i++) if (m->ambush[i].x == x && m->ambush[i].y == y) return false;
+    for (int i = 0; i < m->nlink; i++) if (m->link[i].x == x && m->link[i].y == y) return false;
+    return true;
+}
+/* away from the doorways: no way in or out of the room touches it */
+static bool inner_tile(const SpurMap *m, const Cell *cc, int x, int y) {
+    for (int k = 0; k < 4; k++) {
+        int nx = x + (k == 0) - (k == 1), ny = y + (k == 2) - (k == 3);
+        if (!in_room(cc, nx, ny) && spur_tile_walk(get(m, nx, ny))) return false;
+    }
+    return true;
+}
+/* a free floor tile in a room with a free floor tile beside it (to land on) */
+static bool spot_with_landing(const SpurMap *m, const Cell *cc, int floor, int *x, int *y, int *lx, int *ly) {
+    for (int yy = cc->ry; yy < cc->ry + cc->rh; yy++)
+        for (int xx = cc->rx; xx < cc->rx + cc->rw; xx++) {
+            if (!tile_free(m, xx, yy, floor) || !inner_tile(m, cc, xx, yy)) continue;
+            for (int k = 0; k < 4; k++) {
+                int nx = xx + (k == 0) - (k == 1), ny = yy + (k == 2) - (k == 3);
+                if (in_room(cc, nx, ny) && tile_free(m, nx, ny, floor)) { *x = xx; *y = yy; *lx = nx; *ly = ny; return true; }
+            }
+        }
+    return false;
+}
+
+static void set_pieces(SpurMap *m, const DunSpec *d, int di, Cell *c, int n, int entry, int far, int ex, int ey, int floor, int wall) {
+    Cell *f = &c[far];
+    int fx = f->rx + f->rw / 2, fy = f->ry + f->rh / 2;
+    (void)di;
+    /* the Bone Tower: past each rider, an exit portal straight back out to the Reach */
+    if (d->style == DS_TOWER && d->exitkind == DX_NEXT)
+        for (int k = 0; k < 4; k++) {
+            int px = fx + (k == 0) - (k == 1), py = fy + (k == 2) - (k == 3);
+            if (in_room(f, px, py) && tile_free(m, px, py, floor) && inner_tile(m, f, px, py) && m->nlink < SPUR_MAX_LINK) {
+                put(m, px, py, T_PORTAL);
+                m->link[m->nlink++] = (SpurLink){(int8_t)px, (int8_t)py, M_HELL, 32, 6};
+                break;
+            }
+        }
+    /* the mines: the winding last stretch has a gang waiting in it that you can't go round */
+    if (d->style == DS_MINE && f->ncorr > 4 && m->nambush < SPUR_MAX_AMBUSH) {
+        int k = f->ncorr / 2;
+        while (k > 0) {
+            int x = f->corr[k][0], y = f->corr[k][1];
+            bool room = false;
+            for (int i = 0; i < n; i++) room |= in_room(&c[i], x, y);
+            if (!room && tile_free(m, x, y, get(m, x, y)) && spur_tile_walk(get(m, x, y))) break;
+            k--;
+        }
+        if (k > 0) {
+            int troop = d->ambush_troop[1] ? d->ambush_troop[1] : d->ambush_troop[0] ? d->ambush_troop[0] : SPUR_ZONE[d->zone].troop[0];
+            int which = d->map == M_SIXPENNY ? 0 : d->map == M_ROOSTMINE ? 1 : 2;
+            m->ambush[m->nambush++] = (SpurAmbush){(int8_t)f->corr[k][0], (int8_t)f->corr[k][1], (uint8_t)troop, (int16_t)(F_AMBUSH0 + 40 + which)};
+        }
+    }
+    /* the snake tunnels: sinkholes that drop into sealed pockets (a rope climbs back) */
+    if (d->style == DS_SNAKE) {
+        int made = 0;
+        for (int i = 0; i < n && made < 2; i++) {
+            Cell *L = &c[i];
+            if (i == far || i == entry || L->deg != 1 || L->parent < 0 || L->rw < 3 || L->rh < 3) continue;
+            Cell *P = &c[L->parent];
+            if (L->parent == entry || P->rw < 3 || P->rh < 3) continue;
+            bool treasure = false;
+            for (int k = 0; k < m->nchest; k++) treasure |= in_room(L, m->chest[k].x, m->chest[k].y);
+            if (!treasure) continue;
+            /* wall the room off, all round */
+            static int8_t sx_[64], sy_[64];
+            static uint8_t st_[64];
+            int ns = 0;
+            for (int y = L->ry - 1; y <= L->ry + L->rh && ns < 64; y++)
+                for (int x = L->rx - 1; x <= L->rx + L->rw && ns < 64; x++) {
+                    if (in_room(L, x, y) || get(m, x, y) < 0 || get(m, x, y) == wall) continue;
+                    sx_[ns] = (int8_t)x; sy_[ns] = (int8_t)y; st_[ns] = (uint8_t)get(m, x, y); ns++;
+                    put(m, x, y, wall);
+                }
+            /* the rest of the floor must still join up */
+            reach_count(m, ex, ey);
+            bool ok = true;
+            for (int k = 0; k < n && ok; k++)
+                if (k != i && c[k].rw >= 1) ok = vis[c[k].ry + c[k].rh / 2][c[k].rx + c[k].rw / 2];
+            for (int k = 0; k < m->nlink && ok; k++) ok = vis[m->link[k].y][m->link[k].x];
+            for (int k = 0; k < m->nnpc && ok; k++) ok = in_room(L, m->npc[k].x, m->npc[k].y) || vis[m->npc[k].y][m->npc[k].x];
+            int hx, hy, hlx, hly, rx, ry, rlx, rly;
+            ok = ok && spot_with_landing(m, P, floor, &hx, &hy, &hlx, &hly) && spot_with_landing(m, L, floor, &rx, &ry, &rlx, &rly) &&
+                 m->nlink + 2 <= SPUR_MAX_LINK;
+            if (!ok) {
+                for (int k = 0; k < ns; k++) put(m, sx_[k], sy_[k], st_[k]);
+                continue;
+            }
+            put(m, hx, hy, T_DOWN);
+            put(m, rx, ry, T_UP);
+            m->link[m->nlink++] = (SpurLink){(int8_t)hx, (int8_t)hy, (uint8_t)d->map, (int8_t)rlx, (int8_t)rly};
+            m->link[m->nlink++] = (SpurLink){(int8_t)rx, (int8_t)ry, (uint8_t)d->map, (int8_t)hlx, (int8_t)hly};
+            made++;
+        }
+    }
+}
+
 static void build_dungeon(SpurMap *m, const DunSpec *d, int di) {
     DRng r = {d->seed * 2654435761u + 17};
     m->w = d->w;
@@ -1144,7 +1569,8 @@ static void build_dungeon(SpurMap *m, const DunSpec *d, int di) {
     int wall, floor, path;
     style_tiles(d->style, &wall, &floor, &path);
     rectf(m, 0, 0, m->w - 1, m->h - 1, wall);
-    const int CW = 8, CH = 7;
+    /* the citadel is a maze: smaller rooms, more of them, hardly any loops */
+    const int CW = d->style == DS_CITADEL ? 6 : 8, CH = d->style == DS_CITADEL ? 5 : 7;
     int gw = (m->w - 1) / CW, gh = (m->h - 1) / CH;
     static Cell c[64];
     int n = gw * gh;
@@ -1194,11 +1620,15 @@ static void build_dungeon(SpurMap *m, const DunSpec *d, int di) {
     for (int i = 0; i < n; i++) {
         if (c[i].parent < 0) continue;
         int p = c[i].parent;
-        corridor(m, &c[i], c[p].rx + c[p].rw / 2, c[p].ry + c[p].rh / 2, c[i].rx + c[i].rw / 2, c[i].ry + c[i].rh / 2,
-                 path, drand(&r, 0, 1) == 0);
+        bool hfirst = drand(&r, 0, 1) == 0;
+        if (d->style == DS_MINE && i == far)
+            corridor_wind(m, &c[i], c[p].rx + c[p].rw / 2, c[p].ry + c[p].rh / 2, c[i].rx + c[i].rw / 2, c[i].ry + c[i].rh / 2, path);
+        else
+            corridor(m, &c[i], c[p].rx + c[p].rw / 2, c[p].ry + c[p].rh / 2, c[i].rx + c[i].rw / 2, c[i].ry + c[i].rh / 2,
+                     path, hfirst);
     }
     /* a few loops, never into the far room */
-    int loops = n / 6;
+    int loops = d->style == DS_CITADEL ? n / 16 : n / 6;
     for (int k = 0; k < loops * 4 && loops > 0; k++) {
         int a = drand(&r, 0, n - 1);
         int b = drand(&r, 0, 1) ? a + 1 : a + gw;
@@ -1358,10 +1788,10 @@ static void build_dungeon(SpurMap *m, const DunSpec *d, int di) {
             for (int k = 0; k < 2 && m->nambush < SPUR_MAX_AMBUSH; k++)
                 m->ambush[m->nambush++] = (SpurAmbush){(int8_t)(c[best].rx + 1 + k), (int8_t)(c[best].ry + c[best].rh / 2), (uint8_t)d->loop_ambush, -1};
     }
-    /* the citadel's winches: pull all four and the lift at the gate rises */
+    /* the citadel's winches, three a floor: wind all six and the lift at the gate rises */
     if (d->map == M_SPUR1 || d->map == M_SPUR2) {
         int placed = 0;
-        for (int i = n - 1; i >= 0 && placed < 2; i--) {
+        for (int i = n - 1; i >= 0 && placed < 3; i--) {
             if (i == far || i == entry || c[i].rw < 4) continue;
             int x = c[i].rx, y = c[i].ry + c[i].rh - 1;
             put(m, x, y, T_WINCH);
@@ -1369,7 +1799,8 @@ static void build_dungeon(SpurMap *m, const DunSpec *d, int di) {
         }
         if (d->map == M_SPUR1) {
             int lx = c[entry].rx + c[entry].rw - 1, ly = c[entry].ry;
-            bool up = spur_flag(F_MISC0 + 4) && spur_flag(F_MISC0 + 5) && spur_flag(F_MISC0 + 6) && spur_flag(F_MISC0 + 7);
+            bool up = true;
+            for (int k = 4; k < 10; k++) up &= spur_flag(F_MISC0 + k);
             put(m, lx, ly, up ? T_LIFT : T_WALL);
             m->link[m->nlink++] = (SpurLink){(int8_t)lx, (int8_t)ly, M_SPUR3, -1, 0};
         }
@@ -1384,6 +1815,7 @@ static void build_dungeon(SpurMap *m, const DunSpec *d, int di) {
         int x = cc->rx, y = cc->ry + cc->rh - 1;
         if (get(m, x, y) == floor) safe_put(m, x, y, deco, ex, ey);
     }
+    set_pieces(m, d, di, c, n, entry, far, ex, ey, floor, wall);
     m->zone = d->zone;
 }
 
@@ -1395,6 +1827,7 @@ void spur_world_build(SpurMap *m, int id) {
     m->zone = -1;
     if (id == M_WORLD) build_world(m);
     else if (id == M_HELL) build_hell(m);
+    else if (id == M_INSIDE) build_inside(m);
     else {
         bool done = false;
         for (int i = 0; i < ARRAY_LEN(HAND) && !done; i++)
@@ -1431,8 +1864,23 @@ int spur_world_zone(int map, int x, int y) {
 
 /* ---- checks for the tests -------------------------------------------------------------- */
 static uint8_t seen[SPUR_MAX_H][SPUR_MAX_W];
+static int flood_run(const SpurMap *m, int sx, int sy, bool open_all);
 static int flood(const SpurMap *m, int sx, int sy, bool open_all) {
     memset(seen, 0, sizeof seen);
+    int cnt = flood_run(m, sx, sy, open_all);
+    /* a floor's own sinkholes lead on to more of it */
+    for (bool more = true; more;) {
+        more = false;
+        for (int i = 0; i < m->nlink; i++) {
+            const SpurLink *l = &m->link[i];
+            if (l->map != m->id || l->tx < 0 || !seen[l->y][l->x] || seen[l->ty][l->tx]) continue;
+            cnt += flood_run(m, l->tx, l->ty, open_all);
+            more = true;
+        }
+    }
+    return cnt;
+}
+static int flood_run(const SpurMap *m, int sx, int sy, bool open_all) {
     int qh = 0, qt = 0, cnt = 0;
     static int bigx[SPUR_MAX_W * SPUR_MAX_H], bigy[SPUR_MAX_W * SPUR_MAX_H];
     bigx[qt] = sx; bigy[qt] = sy; qt++;
@@ -1457,7 +1905,7 @@ static int flood(const SpurMap *m, int sx, int sy, bool open_all) {
 }
 
 /* every link, chest and person on a map can be reached from where you come in */
-int spur_map_check(int id) {
+static int check_one(int id) {
     static SpurMap m;
     spur_world_build(&m, id);
     int bad = 0;
@@ -1487,10 +1935,14 @@ int spur_map_check(int id) {
     }
     for (int i = 0; i < m.nnpc; i++) {
         int x = m.npc[i].x, y = m.npc[i].y;
+        if (x == 0 && y == 0 && m.npc[i].talk == 0) continue; /* lives indoors */
         bool ok = seen[y][x];
         for (int k = 0; k < 4 && !ok; k++) {
             int nx = x + (k == 0) - (k == 1), ny = y + (k == 2) - (k == 3);
             if (nx >= 0 && ny >= 0 && nx < m.w && ny < m.h) ok |= seen[ny][nx];
+            /* or across a counter, an altar or a grille */
+            int t = spur_tile_at(&m, nx, ny), fx = nx + (k == 0) - (k == 1), fy = ny + (k == 2) - (k == 3);
+            if ((t == T_COUNTER || t == T_ALTAR || t == T_BARS) && fx >= 0 && fy >= 0 && fx < m.w && fy < m.h) ok |= seen[fy][fx];
         }
         if (!ok) { bad++; fprintf(stderr, "map %s: person %d at %d,%d cut off\n", spur_map_name(id), i, x, y); }
     }
@@ -1507,6 +1959,32 @@ int spur_map_check(int id) {
             }
             fputc('\n', stderr);
         }
+    return bad;
+}
+
+int spur_map_check(int id) {
+    if (id != M_INSIDE) return check_one(id);
+    /* every room behind every town door */
+    static const int SERVICES[] = {SV_HOTEL, SV_CHAPEL, SV_SHOP_A, SV_SHOP_B, SV_BANK, SV_SALOON, SV_SHERIFF, SV_STORY};
+    unsigned char keep[sizeof sg.inside];
+    memcpy(keep, &sg.inside, sizeof keep);
+    int bad = 0;
+    for (int town = SPUR_FIRST_TOWN; town < SPUR_FIRST_TOWN + SPUR_TOWNS; town++)
+        for (int k = 0; k < ARRAY_LEN(SERVICES); k++) {
+            int x, y;
+            if (!spur_has_inside(town, SERVICES[k]) || !spur_town_door(town, SERVICES[k], &x, &y)) continue;
+            for (int f = 0; f <= (SERVICES[k] == SV_HOTEL); f++) {
+                sg.inside.town = (uint8_t)town;
+                sg.inside.service = (uint8_t)SERVICES[k];
+                sg.inside.floor = (uint8_t)f;
+                sg.inside.dx = (int8_t)x;
+                sg.inside.dy = (int8_t)y;
+                int b = check_one(M_INSIDE);
+                if (b) fprintf(stderr, "  (town %d, door %d, floor %d)\n", town, SERVICES[k], f);
+                bad += b;
+            }
+        }
+    memcpy(&sg.inside, keep, sizeof keep);
     return bad;
 }
 
@@ -1544,8 +2022,9 @@ int spur_chest_total(void) {
     static SpurMap m;
     int n = 0;
     for (int id = 0; id < M_COUNT; id++) {
+        if (id == M_INSIDE) continue;
         spur_world_build(&m, id);
         n += m.nchest;
     }
-    return n;
+    return n + spur_inside_finds();
 }

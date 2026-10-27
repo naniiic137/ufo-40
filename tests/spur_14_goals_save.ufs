@@ -55,7 +55,10 @@ expect save_wins == 2
 press A
 wait 20
 expect state == 2
-expect map == 13
+# carrying on: inside the chapel of the town where the game was saved
+expect map == 41
+expect in_town == 13
+expect in_service == 2
 expect posse == 2
 expect lv0 == 45
 expect goals & 6

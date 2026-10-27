@@ -11,8 +11,9 @@ enum {
     EV_FIGHT_CARNAGE, EV_FIGHT_HUNGER, EV_FIGHT_REAPER, EV_FIGHT_GOV, EV_FIGHT_FINAL,
     EV_GIVE_MEDCHEST = 30, EV_DREAM_YES, EV_SLEEP_PAST, EV_SMITH_YES, EV_BUY_HELLITE, EV_BURRO_BUY, EV_WIDOW_REST,
     EV_ENDING, EV_LETTER_BANK, EV_FERRY_FIX, EV_BLAST, EV_PULL_SPIKE, EV_PAST_WAKE, EV_AMBROSE_GONE, EV_REAPER_GIFT,
-    EV_FINAL_TALK, EV_TRADE_FEATHER, EV_SIEGE, EV_MOTHER_TRUTH, EV_GOV_FLED, EV_CANCAN
+    EV_FINAL_TALK, EV_TRADE_FEATHER, EV_SIEGE, EV_MOTHER_TRUTH, EV_GOV_FLED, EV_CANCAN, EV_GIL_BELL, EV_MEDCHEST_BUY
 };
+#define F_MEDCHEST_SOLD (F_MISC0 + 12) /* the gentleman outside the Dolores saloon has sold his one */
 enum { PK_ANIMAL = 200 };
 
 static int pending_hero = -1, pending_animal = -1, pending_spike = -1;
@@ -87,12 +88,12 @@ static void animal_talk(int a) {
     const SpurAnimal *an = &SPUR_ANIMAL[a];
     if (!in_posse(H_SAGE) || !spur_alive(H_SAGE)) {
         static const char *const NOISE[SPUR_ANIMALS] = {"THE JACKRABBIT TWITCHES ITS NOSE.", "THE OWL BLINKS, SLOWLY.",
-            "THE COYOTE GRINS AT YOU.", "THE ROADRUNNER LOOKS AT YOU SIDEWAYS.", "THE ARMADILLO CURLS UP.",
+            "THE KIT FOX GRINS AT YOU.", "THE ROADRUNNER LOOKS AT YOU SIDEWAYS.", "THE ARMADILLO CURLS UP.",
             "THE BURRO FLICKS AN EAR.", "THE HORNED TOAD PUFFS UP.", "THE SCORPION RAISES ITS TAIL.",
             "THE COUGAR WATCHES, AND DOESN'T BLINK.", "THE CONDOR SPREADS WINGS WIDE AS A WAGON."};
         if (a == 2 && posse_has_alive(H_BISCUIT) && !spur_flag(F_LACKEY_GIFT)) {
             spur_set_flag(F_LACKEY_GIFT);
-            if (spur_bag_add(IT_WISHBONE) >= 0) { spur_say("THE COYOTE SNIFFS BISCUIT. THEY HAVE A LONG TALK.\nIT DROPS A WISHBONE AT HIS FEET."); return; }
+            if (spur_bag_add(IT_WISHBONE) >= 0) { spur_say("THE KIT FOX SNIFFS BISCUIT. THEY HAVE A LONG TALK.\nIT DROPS A WISHBONE AT HIS FEET."); return; }
         }
         spur_say(NOISE[a]);
         return;
@@ -116,9 +117,9 @@ static void boss_talk(int art) {
     case A_STORMCROW: spur_ask("THE STORM CROW SITS ON THE PASS LIKE A CLOUD\nWITH A BEAK. THE AIR SMELLS OF LIGHTNING.\fFIGHT?", EV_FIGHT_CROW, 0); break;
     case A_WORM: spur_ask("THE ROCK SPLITS AND A WORM OF CINDERS\nRISES OUT OF THE LAVA, HISSING.\fFIGHT?", EV_FIGHT_WORM, 0); break;
     case A_MOTHER: spur_ask("A SAGUARO TALLER THAN A CHURCH, WITH A FACE.\n\"YOU WANT THE TRUTH? THE TRUTH HAS THORNS.\nSHOW ME YOU CAN HOLD IT.\"\fFIGHT?", EV_FIGHT_MOTHER, 0); break;
-    case A_BLIGHT: spur_ask("A RIDER WRAPPED IN FLIES ON A YELLOW HORSE.\n\"COME TO SUFFER? THEN COME CLOSER.\"\fFIGHT?", EV_FIGHT_BLIGHT, 0); break;
+    case A_BLIGHT: spur_ask("A RIDER WRAPPED IN FLIES ON A YELLOW HORSE.\n\"SMELL THAT? THAT'S THE OLD WORLD ROTTING.\"\fFIGHT?", EV_FIGHT_BLIGHT, 0); break;
     case A_CARNAGE: spur_ask("A RIDER IN RED IRON ON A RED HORSE.\n\"YOU WON'T TURN BACK. GOOD. NEITHER WILL I.\"\fFIGHT?", EV_FIGHT_CARNAGE, 0); break;
-    case A_HUNGER: spur_ask("A RIDER SO THIN THE SADDLE SHOWS THROUGH.\n\"I ADMIRE YOU, LITTLE THINGS. YOU KEEP\nGOING ON SO LITTLE.\"\fFIGHT?", EV_FIGHT_HUNGER, 0); break;
+    case A_HUNGER: spur_ask("A RIDER SO THIN THE SADDLE SHOWS THROUGH.\n\"WHEN DID YOU LAST EAT, LITTLE THINGS?\nI CAN HEAR YOUR BELLIES FROM HERE.\"\fFIGHT?", EV_FIGHT_HUNGER, 0); break;
     case A_REAPER: spur_ask("THE LAST RIDER WEARS A PALE HAT AND AN OLD\nTIN STAR. \"I'M TIRED, POSSE. BUT A JOB'S\nA JOB.\"\fFIGHT?", EV_FIGHT_REAPER, 0); break;
     case A_GOVERNOR: spur_ask("THE GOVERNOR OF HELLSPUR SITS ON A THRONE\nOF LEDGERS. HIS SMILE IS TOO WIDE.\n\"THE PAPERWORK SAYS YOU'RE ALREADY DEAD.\"\fFIGHT?", EV_FIGHT_GOV, 0); break;
     default: spur_say("..."); break;
@@ -203,7 +204,7 @@ static void talk_hope(int s) {
         if (free) spur_say("THE DEVILS ARE GONE! THE CHAPEL'S OPEN, THE\nSALOON TOO, AND THE TRAIN'S RUNNING AGAIN!");
         else spur_say("THE TALLYMAN TOOK THE JAIL FOR HIS COUNTING\nHOUSE. HE WRITES DOWN EVERY SOUL IN TOWN.");
         break;
-    case 4: spur_say(free ? "GOD BLESS YOU." : "YOU'VE COME TO HOPE SPRINGS. I'D LEAVE THE\nWAY YOU CAME, IF I WERE YOU."); break;
+    case 4: spur_say(free ? "GOD BLESS YOU." : "STRANGERS DON'T LAST HERE. THE TALLYMAN\nSENDS HIS DEVILS ROUND AT SUPPER."); break;
     case 5: spur_say("BRUTUS HAS A SWEET TOOTH. HE SITS BY THE BEE\nTREES DOWN SOUTH-EAST WHEN HE'S OFF DUTY."); break;
     case 6: spur_say("THE DEEP PEN IS NORTH-EAST, PAST THE CREEK.\nTHE GROUND ROUND IT IS BAD. BIG THINGS WALK\nTHERE THAT SHOULDN'T BE THAT FAR SOUTH."); break;
     case 7: spur_say("\"SALOON'S CLOSED TO YOUR KIND.\""); break;
@@ -264,7 +265,7 @@ static void talk_dolores(int s) {
             spur_give_key(KI_BELL);
             spur_say("OLD GIL CLAPS YOUR HANDS. \"MOLLY'S DONE WITH\nME? HERE. MY SILVER BELL. RING IT AT THE\nMISSION OF THORNS. SOMETHING'S WRONG THERE.\"\fYOU GET THE SILVER BELL.");
         } else if (spur_flag(F_GIL_GAVE)) spur_say("\"RING THAT BELL AT THORNS. FALSE THINGS CAN'T\nSTAND THE SOUND OF IT.\"");
-        else spur_say("OLD GIL, BY THE WELL. \"BLACK MOLLY SAYS I OWE\nHER 6,000. SHE'S HOLED UP AT THE OUTLAW ROOST,\nNORTH-EAST. I'D GIVE MY LUCKY BELL TO BE FREE.\"");
+        else spur_ask("OLD GIL, BY THE WELL. \"BLACK MOLLY SAYS I OWE\nHER 6,000. SHE'S HOLED UP AT THE OUTLAW ROOST,\nNORTH-EAST.\"\f\"OR YOU COULD BUY MY SILVER BELL. 6,000, AND\nI'LL WALK IT UP TO HER MYSELF.\"\fBUY THE BELL FOR 6,000?", EV_GIL_BELL, 0);
         break;
     case 2: animal_talk(5); break;
     case 3:
@@ -277,6 +278,11 @@ static void talk_dolores(int s) {
         else spur_say("THE DOG WHINES AT THE WELL.");
         break;
     case 6: spur_say("MOLLY'S ROOST HAS A LOCKED DOOR IN THE BACK.\nGOES DOWN INTO AN OLD MINE. KEY'S LOST."); break;
+    case 8: spur_say("A CARD SHARP IN THE CORNER, BACK TO THE WALL.\n\"MAGPIE DEALS FROM THE BOTTOM OF THE DECK.\nEVERYBODY KNOWS IT. NOBODY SAYS IT.\""); break;
+    case 9:
+        if (spur_flag(F_MEDCHEST_SOLD)) { spur_say("\"SOLD YOU MY ONLY ONE, FRIEND. LOOK AFTER IT.\""); break; }
+        spur_ask("A GENTLEMAN IN A CHECKED SUIT, OUTSIDE THE\nSALOON. \"A REAL ARMY MED CHEST. SEALED. 8,000\nBITS AND IT'S YOURS.\"\fBUY IT?", EV_MEDCHEST_BUY, 0);
+        break;
     case 7:
         spur_ask("SLICK MAGPIE, THE GAMBLER, DEALS YOU A CARD.\n\"THE SALOON STAGE IS MINE, AND SO'S EVERY\nDANCER ON IT. CARE TO ARGUE?\"\fFIGHT?", EV_FIGHT_MAGPIE, 0);
         break;
@@ -364,7 +370,7 @@ static void talk_place(int map, int s) {
         if (s == 0) {
             if (spur_flag(F_MOLLY)) {
                 if (spur_flag(F_MOLLY_PAID)) { spur_open_door(SV_SHOP_A, 15); break; }
-                spur_say("BLACK MOLLY NURSES A BRUISE. \"WE'RE SQUARE.\nGET OUT OF MY ROOST.\"");
+                spur_say("BLACK MOLLY SCOWLS. \"GIL'S SQUARE. NOW GET\nOUT OF MY ROOST.\"");
                 break;
             }
             if (in_posse(H_VERA) && spur_alive(H_VERA))
@@ -392,7 +398,7 @@ static void talk_place(int map, int s) {
             } else spur_say("\"REST HERE AS LONG AS YOU LIKE. THE BED'S HERS,\nBUT SHE WON'T MIND.\"");
         } else if (s == 1) {
             if (posse_has_alive(H_BISCUIT)) spur_say("THE NIECE HUGS BISCUIT. \"YOU WERE AUNT\nTALLOW'S DOG! YOU CAME HOME!\" BISCUIT LOOKS\nAT THE DOOR, WAITING FOR SOMEONE.");
-            else spur_say("\"AUNT TALLOW HAD A DOG. ONE EYE. HE WENT WITH\nHER TO GLADWELL.\"");
+            else spur_say("\"AUNT TALLOW HAD A DOG, EAR ALL NOTCHED. HE WENT WITH\nHER TO GLADWELL.\"");
         } else spur_say("THE NIECE'S BROTHER IS FEEDING A LIZARD.");
         break;
     case M_SHRINE:
@@ -414,7 +420,7 @@ static void talk_place(int map, int s) {
     case M_SMITH:
         if (spur_flag(F_SMITH_DONE)) { spur_say("THE SMITH WIPES HER HANDS. \"ONE RIFLE. THERE\nWILL NEVER BE ANOTHER.\""); break; }
         if (spur_bag_find(IT_HELLITE) >= 0)
-            spur_ask("THE DEMON SMITH SEES THE HELLITE AND HER EYES\nCATCH FIRE. \"HELLITE! FOR THAT, AND 20,000\nBITS, I'LL MAKE THE DOOMSDAY RIFLE.\"\fDEAL?", EV_SMITH_YES, 0);
+            spur_ask("THE DEMON SMITH SEES THE HELLITE AND HER EYES\nCATCH FIRE. \"HELLITE! GIVE ME THAT AND I'LL\nMAKE YOU THE DOOMSDAY RIFLE.\"\fDEAL?", EV_SMITH_YES, 0);
         else spur_say("THE DEMON SMITH: \"I ONLY WORK IN HELLITE.\nBRING ME SOME. DIG IT, OR BUY IT.\"");
         break;
     case M_SPUR3:
@@ -463,10 +469,64 @@ static void talk_dungeon(int map, int s) {
     }
 }
 
+/* folk passing the time indoors */
+static void inside_chat(int service, int k) {
+    static const char *const HOTEL[] = {
+        "\"THE CLERK WRITES EVERY GUEST IN HIS BOOK.\nIF THE WISPS GET YOU, AT LEAST YOUR NAME'S KEPT.\"",
+        "\"A NIGHT'S SLEEP MENDS THE LIVING. THE DEAD\nWANT A CHAPEL.\"",
+        "\"UPSTAIRS IS QUIETER. FOLK LEAVE THINGS\nUNDER THE BEDS.\"",
+        "\"I SLEEP WITH MY BOOTS ON. THE WISPS DON'T\nKNOCK.\"",
+    };
+    static const char *const SALOON[] = {
+        "\"GINGER POP TASTES LIKE A STRUCK MATCH. PUTS\nTHE SPARK BACK IN YOUR SOUL.\"",
+        "\"A WORD WITH THE BARKEEP'S WORTH MORE THAN\nTHE DRINK. HE HEARS EVERYTHING.\"",
+        "\"I'D SING, BUT THE PIANO'S BEEN SHOT TWICE\nTHIS WEEK.\"",
+        "\"EVER SEE A BARKEEP COME OUT FROM BEHIND HIS\nBAR? SOME BARS HAVE A LOOSE FLAP, I HEAR.\"",
+    };
+    static const char *const SHOP[] = {
+        "\"TWO LITTLE PISTOLS FIRE TWICE AS OFTEN AS\nONE BIG ONE. IF YOU'VE THE HANDS FOR IT.\"",
+        "\"THEY'LL BUY ORE HERE. THE SHINIER THE\nBETTER.\"",
+        "\"TWENTY THINGS IN THE BAGS AND NOT ONE MORE.\nSORT THEM NOW AND THEN.\"",
+        "\"SNAKEROOT FOR THE POISON. NEVER LEAVE TOWN\nWITHOUT IT.\"",
+    };
+    static const char *const BANK[] = {
+        "\"THE VAULT KEEPS WHAT THE WISPS CAN'T TAKE.\"",
+        "\"TWO IN A HUNDRED AFTER EVERY FIGHT YOU WIN.\nIT ADDS UP.\"",
+        "\"I KEEP MY SAVINGS IN MY BOOT. THE TELLER\nLAUGHS AT ME.\"",
+        "\"EVERY BANK IN CALICO KNOWS YOUR BALANCE.\nDON'T ASK ME HOW.\"",
+    };
+    static const char *const LAW[] = {
+        "\"THE CELLS ARE EMPTY. NOBODY STAYS LOCKED UP\nIN HELL FOR LONG.\"",
+        "\"THE DEPUTY PLAYS CARDS WITH HIMSELF. AND\nLOSES.\"",
+        "\"IF YOU SEE THE SHERIFF, TELL HIM HIS COFFEE'S\nGONE COLD.\"",
+    };
+    static const char *const CHAPEL[] = {
+        "\"THE CHAPEL REMEMBERS YOU. FALL OUT THERE AND\nYOU WAKE UP IN THESE PEWS.\"",
+        "\"PRAYER HELPS. A PRIEST WITH A PRICE HELPS\nMORE.\"",
+        "\"WE LIGHT A CANDLE FOR EVERY STRANGER WHO\nPASSES. WE'RE OUT OF CANDLES.\"",
+    };
+    int ti = spur_town_here() - SPUR_FIRST_TOWN;
+    switch (service) {
+    case SV_HOTEL: spur_say(HOTEL[(ti + k) % 4]); break;
+    case SV_SALOON: spur_say(SALOON[(ti + k * 3) % 4]); break;
+    case SV_SHOP_A: case SV_SHOP_B: spur_say(SHOP[(ti + k + service) % 4]); break;
+    case SV_BANK: spur_say(BANK[(ti + k) % 4]); break;
+    case SV_SHERIFF: case SV_STORY: spur_say(LAW[(ti + k) % 3]); break;
+    case SV_CHAPEL: spur_say(CHAPEL[(ti + k) % 3]); break;
+    default: spur_say("..."); break;
+    }
+}
+
 void spur_talk(int npc) {
     const SpurNpc *n = &sg.map.npc[npc];
     int map = sg.map_id;
     int s = n->talk % 32;
+    if (map == M_INSIDE) {
+        /* the counter, the folk, or the town's own people indoors */
+        if (n->talk >= 0xF000) { spur_open_door(n->talk & 0xFF, sg.inside.arg); return; }
+        if (n->talk >= 0xE000) { inside_chat((n->talk >> 4) & 0xFF, n->talk & 15); return; }
+        map = n->talk / 32;
+    }
     if (n->look == LOOK_ANIMAL) { animal_talk(n->pal); return; }
     if (n->look == LOOK_BOSS && sg.map.kind == MK_DUNGEON) { boss_talk(n->pal); return; }
     switch (map) {
@@ -489,8 +549,18 @@ void spur_talk(int npc) {
 }
 
 /* ---- doors the story answers ----------------------------------------------------------- */
+/* doors the story keeps shut: you stay in the street */
+bool spur_story_gate(int service) {
+    int map = spur_town_here();
+    if (map == M_HOPE && !spur_flag(F_HOPE_FREE) && (service == SV_CHAPEL || service == SV_SALOON || service == SV_TRAIN)) {
+        spur_say("A DEVIL BLOCKS THE DOOR. \"CLOSED. BY ORDER\nOF THE TALLYMAN.\"");
+        return true;
+    }
+    return false;
+}
+
 bool spur_story_door(int service, int arg) {
-    int map = sg.map_id;
+    int map = spur_town_here();
     (void)arg;
     if (map == M_HOPE && !spur_flag(F_HOPE_FREE)) {
         if (service == SV_STORY) { spur_ask("THE TALLYMAN SITS AT A DESK OF LEDGERS, FOUR\nIMPS AT HIS ELBOWS. \"MORE SOULS FOR THE BOOK.\"\fFIGHT?", EV_FIGHT_TALLY, 0); return true; }
@@ -501,7 +571,7 @@ bool spur_story_door(int service, int arg) {
         spur_ask("THE STATIONMASTER WRINGS HIS HANDS. \"JACKAL\nJACK'S IN THE CAR, WITH HIS WHOLE PACK.\"\fGO ABOARD AND FIGHT HIM?", EV_FIGHT_JACK, 0);
         return true;
     }
-    if (map == M_STEEPLE && service == SV_SHERIFF) { spur_open_door(SV_SHOP_B, 17); return false; }
+    if (map == M_STEEPLE && service == SV_SHERIFF) { spur_open_door(SV_SHOP_B, 17); return true; }
     if (map == M_LASTCHANCE && service == SV_SHERIFF) {
         /* the sheriff's desk sells halo pins */
         sg.ui.kind = UI_NONE;
@@ -516,7 +586,7 @@ bool spur_story_door(int service, int arg) {
         spur_say("WITH MAGPIE GONE, THE DANCERS PULL CORA UP ON\nTHE STAGE. THE PIANO GOES WILD. SO DOES CORA.\fCORA LEARNS THE CANCAN.");
         return true;
     }
-    if (map == M_DOLORES && service == SV_SALOON && !spur_flag(F_MAGPIE)) { spur_say("SLICK MAGPIE OWNS THE STAGE. HE'S OUT FRONT,\nDEALING CARDS."); return true; }
+    if (map == M_DOLORES && service == SV_SALOON && !spur_flag(F_MAGPIE)) { spur_say("THE BARKEEP NODS AT THE STAGE. \"MAGPIE'S\nHOUSE, MAGPIE'S RULES. NO POURS TILL HE SAYS.\""); return true; }
     if (map == M_HOLLOW) {
         bool past = spur_flag(F_MISC0);
         if (service == SV_HOTEL && !past) { spur_ask("THE HOTEL IS A RUIN, BUT SOME OF THE BEDS\nARE WHOLE. SLEEP HERE TONIGHT?", EV_SLEEP_PAST, 0); return true; }
@@ -531,7 +601,7 @@ bool spur_story_door(int service, int arg) {
 /* ---- tiles you search ------------------------------------------------------------------- */
 void spur_open_chest(int i) {
     const SpurChest *c = &sg.map.chest[i];
-    char m[96];
+    char m[160];
     if (c->item >= 1000) {
         int k = c->item - 1000;
         spur_give_key(k);
@@ -548,6 +618,10 @@ void spur_open_chest(int i) {
     if (c->item > 0) {
         if (spur_bag_add(c->item) < 0) { spur_say("THERE'S SOMETHING HERE, BUT THE BAGS ARE FULL."); return; }
         snprintf(m, sizeof m, "%s %s.", c->hidden ? "TUCKED AWAY:" : "INSIDE:", SPUR_ITEM[c->item].name);
+    } else if (c->teeth == SPUR_CHEST_EMPTY) {
+        snprintf(m, sizeof m, "NOTHING. NOT EVEN DUST.");
+    } else if (c->teeth == SPUR_CHEST_JOKE) {
+        snprintf(m, sizeof m, "INSIDE: 100,000 BITS!\f...PAINTED ON THE BOTTOM OF THE CHEST.\nSOMEBODY DOWN HERE HAS A SENSE OF HUMOUR.");
     } else {
         sg.s.teeth += c->teeth;
         snprintf(m, sizeof m, "%s %d BITS.", c->hidden ? "TUCKED AWAY:" : "INSIDE:", c->teeth);
@@ -604,25 +678,22 @@ void spur_search_tile(int x, int y, int t) {
         } else spur_say("THE BEES ARE STILL ANGRY ABOUT LAST TIME.");
         return;
     case T_WINCH: {
-        int base = sg.map_id == M_SPUR1 ? 4 : 6;
-        int k = 0;
-        for (int i = 0; i < 2; i++) if (spur_flag(F_MISC0 + base + i)) k++;
-        int idx = base + (spur_flag(F_MISC0 + base) ? 1 : 0);
-        /* each winch is its own: the one nearer the top-left is the first */
-        static int winch_xy[2][2];
-        int nw = 0;
-        for (int yy = 0; yy < sg.map.h && nw < 2; yy++)
-            for (int xx = 0; xx < sg.map.w && nw < 2; xx++)
-                if (sg.map.tile[yy][xx] == T_WINCH) { winch_xy[nw][0] = xx; winch_xy[nw][1] = yy; nw++; }
-        for (int i = 0; i < nw; i++) if (winch_xy[i][0] == x && winch_xy[i][1] == y) idx = base + i;
-        (void)k;
+        /* three a floor (flags 4-6 below, 7-9 above); each winch is its own, counted from the top-left */
+        int base = sg.map_id == M_SPUR1 ? 4 : 7;
+        int idx = base, nw = 0;
+        for (int yy = 0; yy < sg.map.h; yy++)
+            for (int xx = 0; xx < sg.map.w; xx++)
+                if (sg.map.tile[yy][xx] == T_WINCH) {
+                    if (xx == x && yy == y) idx = base + imin(nw, 2);
+                    nw++;
+                }
         if (spur_flag(F_MISC0 + idx)) { spur_say("THE CHAIN IS ALREADY WOUND IN."); return; }
         spur_set_flag(F_MISC0 + idx);
         spur_sfx("spur_door");
         int pulled = 0;
-        for (int i = 4; i < 8; i++) pulled += spur_flag(F_MISC0 + i);
-        snprintf(tb, sizeof tb, "YOU WIND THE WINCH. SOMEWHERE A COUNTERWEIGHT\nDROPS. (%d OF 4)%s", pulled,
-                 pulled == 4 ? "\fFAR BELOW, BY THE GATE, A LIFT RISES." : "");
+        for (int i = 4; i < 10; i++) pulled += spur_flag(F_MISC0 + i);
+        snprintf(tb, sizeof tb, "YOU WIND THE WINCH. SOMEWHERE A COUNTERWEIGHT\nDROPS. (%d OF 6)%s", pulled,
+                 pulled == 6 ? "\fFAR BELOW, BY THE GATE, A LIFT RISES." : "");
         spur_say(tb);
         return;
     }
@@ -669,6 +740,7 @@ bool spur_event_door(int map) {
 }
 
 void spur_enter_event(int map) {
+    if (map == M_INSIDE) return;
     int st = SPUR_MAPINFO[map].station;
     if (st) sg.s.stations |= (uint8_t)(1u << (st - 1));
     if (map != M_HOLLOW && spur_flag(F_MISC0)) spur_clear_flag(F_MISC0); /* the past is behind you */
@@ -701,7 +773,7 @@ bool spur_battle_won_event(int troop) {
     case 87: spur_set_flag(F_MAGPIE); spur_refresh_map(); spur_say("SLICK MAGPIE FOLDS. \"THE STAGE IS YOURS.\nTAKE IT.\""); return true;
     case 88: spur_set_flag(F_MIMIC); spur_refresh_map(); spur_say("THE MIMIC SLUMPS INTO A PILE OF EMPTY SKIN.\nBEHIND THE ALTAR, STAIRS GO DOWN."); return true;
     case 89: spur_set_flag(F_MOLLY); spur_refresh_map(); spur_say("BLACK MOLLY SPITS A TOOTH. \"FINE! GIL'S\nSQUARE. GET OUT OF MY ROOST.\""); return true;
-    case 90: spur_set_flag(F_FORT); spur_refresh_map(); spur_say("THE DEMON CAPTAIN FALLS AND HIS TROOPERS\nSCATTER. THE GATES OF FORT PATIENCE OPEN."); return true;
+    case 90: spur_set_flag(F_FORT); spur_refresh_map(); spur_say("THE PIT CAPTAIN FALLS AND HIS TROOPERS\nSCATTER. THE GATES OF FORT PATIENCE OPEN."); return true;
     case 91:
         spur_set_flag(F_STORMCROW);
         spur_give_key(KI_STORMFEATHER);
@@ -709,7 +781,10 @@ bool spur_battle_won_event(int troop) {
         spur_refresh_map();
         spur_say("THE STORM CROW BURSTS INTO RAIN. A BLUE\nFEATHER DRIFTS DOWN, CRACKLING.\fYOU GET THE STORM FEATHER.");
         return true;
-    case 92: spur_set_flag(F_WORM); spur_refresh_map(); spur_say("THE CINDER WORM COOLS TO STONE. THE WAY TO\nLAST CHANCE IS OPEN."); return true;
+    case 92:
+        spur_set_flag(F_WORM);
+        sg.s.stations |= (uint8_t)(1u << (SPUR_MAPINFO[M_LASTCHANCE].station - 1)); /* the train runs there now */
+        spur_refresh_map(); spur_say("THE CINDER WORM COOLS TO STONE. THE WAY TO\nLAST CHANCE IS OPEN."); return true;
     case 93:
         spur_set_flag(F_MOTHER);
         spur_refresh_map();
@@ -717,12 +792,12 @@ bool spur_battle_won_event(int troop) {
         return true;
     case 94: spur_set_flag(F_BLIGHT); spur_refresh_map(); spur_say("BLIGHT DISSOLVES INTO A CLOUD OF FLIES.\nTHE STAIRS UP ARE CLEAR."); return true;
     case 95: spur_set_flag(F_CARNAGE); spur_refresh_map(); spur_say("CARNAGE DROPS HIS SWORD. \"GOOD FIGHT.\"\nHE MEANS IT."); return true;
-    case 96: spur_set_flag(F_HUNGER); spur_refresh_map(); spur_say("HUNGER SITS DOWN, SMILING. \"STILL GOING.\nI KNEW IT.\""); return true;
+    case 96: spur_set_flag(F_HUNGER); spur_refresh_map(); spur_say("HUNGER SITS DOWN, LICKING HIS LIPS.\n\"SAVE ME A PLATE.\""); return true;
     case 97:
         spur_set_flag(F_REAPER);
         spur_give_key(KI_NIGHTMARES);
         spur_refresh_map();
-        spur_say("THE REAPER TAKES OFF HIS HAT. \"THAT'S IT.\nI QUIT. TOO OLD FOR THIS.\"\f\"TAKE THE HORSES. ALL FOUR. THEY'VE GOT WINGS,\nAND THEY'RE SICK OF ME. GO FIND YOUR MAKERS.\"\fYOU GET THE NIGHTMARES. MOUNT FROM THE MENU,\nOUT IN THE OPEN.");
+        spur_say("THE REAPER TAKES OFF HIS HAT. \"THAT'S IT.\nI QUIT. TOO OLD FOR THIS.\"\f\"TAKE THE HORSES. ALL FOUR. THEY'VE GOT WINGS,\nAND THEY'RE SICK OF ME. GO SETTLE YOUR SCORE.\"\fYOU GET THE NIGHTMARES. MOUNT FROM THE MENU,\nOUT IN THE OPEN.");
         return true;
     case 98: spur_set_flag(F_JUGGERNAUT); spur_say("THE JUGGERNAUT JUMPS ITS RAILS AND TUMBLES\nINTO THE SEA. THE BLUFF GOES QUIET."); return true;
     case 99: spur_set_flag(F_GOVERNOR); spur_refresh_map(); spur_say("THE GOVERNOR'S HIDE SPLITS DOWN THE MIDDLE.\nSOMETHING CRAWLS OUT AND FLEES UP THE STAIRS.\fUP ABOVE, VOICES. AND THE SHUFFLE OF CARDS."); return true;
@@ -842,8 +917,6 @@ void spur_event(int ev) {
     case EV_SMITH_YES: {
         int s = spur_bag_find(IT_HELLITE);
         if (s < 0) return;
-        if (sg.s.teeth < 20000) { spur_say("\"20,000 BITS, PLUS THE ORE. NO CREDIT.\""); return; }
-        sg.s.teeth -= 20000;
         sg.s.bag[s] = IT_DOOMSDAY;
         spur_set_flag(F_SMITH_DONE);
         spur_sfx("spur_learn");
@@ -855,6 +928,22 @@ void spur_event(int ev) {
         if (spur_bag_add(IT_HELLITE) < 0) { spur_say("NO ROOM IN THE BAGS."); return; }
         sg.s.teeth -= 100000;
         spur_say("THE OLD MAN HANDS IT OVER WITH TONGS.");
+        return;
+    case EV_GIL_BELL:
+        if (sg.s.teeth < 6000) { spur_say("\"6,000, FRIEND. MOLLY COUNTS TWICE.\""); return; }
+        sg.s.teeth -= 6000;
+        spur_set_flag(F_GIL_GAVE);
+        spur_set_flag(F_MOLLY);
+        spur_give_key(KI_BELL);
+        spur_refresh_map();
+        spur_say("GIL TAKES THE BITS UP TO THE ROOST HIMSELF\nAND COMES BACK WHISTLING. \"SQUARE!\"\f\"RING THAT BELL AT THE MISSION OF THORNS.\nSOMETHING'S WRONG THERE.\"\fYOU GET THE SILVER BELL.");
+        return;
+    case EV_MEDCHEST_BUY:
+        if (sg.s.teeth < 8000) { spur_say("\"8,000. I DON'T HAGGLE.\""); return; }
+        if (spur_bag_add(IT_MEDCHEST) < 0) { spur_say("NO ROOM IN THE BAGS."); return; }
+        sg.s.teeth -= 8000;
+        spur_set_flag(F_MEDCHEST_SOLD);
+        spur_say("YOU GET A MED CHEST.");
         return;
     case EV_BURRO_BUY:
         if (sg.s.teeth < 1000) { spur_say("\"NO BITS, NO BURRO.\""); return; }

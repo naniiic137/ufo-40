@@ -332,6 +332,7 @@ static void paint_tile(int t, int v) {
     case T_LIFT: gfx_cls(C_INK); gfx_rect(1, 1, 14, 14, C_GREY); gfx_rectb(1, 1, 14, 14, C_YELLOW); gfx_vline(8, 3, 12, C_YELLOW); break;
     case T_PORTAL: gfx_cls(C_NIGHT); gfx_circ(8, 8, 7, C_PURPLE); gfx_circ(8, 8, 5, v ? C_MAGENTA : C_VIOLET); gfx_circ(8, 8, 2, C_WHITE); break;
     case T_CAULDRON: stone_floor(C_GREY, C_SLATE); gfx_rect(2, 4, 12, 10, C_INK); gfx_rect(4, 6, 8, 5, v ? C_ORANGE : C_RED); break;
+    case T_SECRET: paint_tile(T_COUNTER, v); break;
     default: gfx_cls(C_MAGENTA); break;
     }
 }

@@ -10,10 +10,16 @@ cheat posse 0 2
 cheat level 2 3
 cheat hp 2 0
 expect alive == 1
-# Gladwell's chapel, raising Hollis (level 3: 60 teeth)
+# Gladwell's chapel, raising Hollis (level 3: 60 teeth): in at the door,
+# up the aisle to the priest
 cheat pos 5 5
 cheat face 1
 press UP
+wait 12
+expect map == 41
+hold UP 50
+wait 5
+press A
 wait 12
 expect ui == 12
 press A
@@ -54,7 +60,10 @@ botuntil b_phase == 12 3000
 expect b_wiped == 1
 expect deaths >= 2
 botuntil state == 2 600
-expect map == 3
+# they wake in the pews of the Gladwell chapel
+expect map == 41
+expect in_town == 3
+expect in_service == 2
 expect teeth == 0
 expect bank == 777
 expect alive == 2

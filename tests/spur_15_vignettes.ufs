@@ -11,9 +11,9 @@ game hellspur
 wait 5
 cheat posse 3 0 2 4
 cheat spawns 0
-# Quill
-cheat warp 7 -1 0
-cheat talkto 1
+# Quill, upstairs in the Steepleton hotel
+cheat inside 7 1 1
+cheat talkto 0
 press A
 wait 5
 expect passive3_7 == 1
@@ -41,8 +41,8 @@ cheat closeui
 # Hollis and the soldier
 cheat flag 12
 cheat give 7
-cheat warp 8 -1 0
-cheat talkto 5
+cheat inside 8 1 1
+cheat talkto 0
 press A
 wait 5
 press A
@@ -90,8 +90,8 @@ cheat closeui
 # Hattie's letter
 cheat posse 5
 cheat key 2
-cheat warp 4 -1 0
-cheat talkto 6
+cheat inside 4 5 0
+cheat talkto 1
 press A
 wait 5
 press LEFT
@@ -105,8 +105,8 @@ cheat closeui
 # Cora and Slick Magpie
 cheat posse 6
 cheat level 6 30
-cheat warp 9 -1 0
-cheat talkto 7
+cheat inside 9 6 0
+cheat talkto 1
 press A
 wait 5
 press A
@@ -123,6 +123,11 @@ botuntil ui == 0 600
 cheat warp 9 14 5
 cheat face 1
 press UP
+wait 12
+expect map == 41
+hold UP 50
+wait 5
+press A
 wait 12
 expect skill6_4 == 1
 press A

@@ -58,6 +58,10 @@ static const struct { uint8_t level; uint8_t home; } STEP[S_DONE + 1] = {
     [S_GOV] = {40, M_ASHMARKET}, [S_FINAL] = {42, M_ASHMARKET}, [S_DONE] = {1, M_GLADWELL},
 };
 
+/* indoors: the town you're in, and whether you're in one at all */
+static int here(void) { return spur_town_here(); }
+static bool in_town(void) { return sg.map.kind == MK_TOWN || sg.map_id == M_INSIDE; }
+
 static int current_step(void) {
     if (!spur_flag(F_POSSE)) return S_PICK;
     if (!spur_flag(F_WREN)) return S_WREN;
@@ -671,7 +675,7 @@ static int menu_buttons(void) {
             if (sg.menu_slot == bot.t_item) return TAP(SPUR_OK);
             return TAP(nav_to(sg.menu_slot, bot.t_item, SPUR_BAG));
         }
-        if (page == FM_ITEM_DO) return TAP(nav_to(sg.menu_sel2, 0, 2));
+        if (page == FM_ITEM_DO) return TAP(nav_to(sg.menu_sel2, 0, 3));
         if (page == FM_ITEM_WHO) {
             int k = nav_to(sg.menu_who, bot.t_who, imax(1, sg.s.nposse));
             if (k == SPUR_OK && !(bot.frame & 1)) bot.task = TK_CLOSE;
@@ -747,7 +751,7 @@ static int number_buttons(void) {
     /* deposit all but a working purse; withdraw everything */
     int want = u->mode == 1 ? imax(0, imin(u->num_max, sg.s.teeth - 2000)) : u->num_max;
     if (u->num == want) {
-        if (!(bot.frame & 1)) { bot.intent = IN_NONE; if (u->mode == 2) bot.bank_map = sg.map_id; }
+        if (!(bot.frame & 1)) { bot.intent = IN_NONE; if (u->mode == 2) bot.bank_map = here(); }
         return TAP(SPUR_OK);
     }
     static const int POW[7] = {1, 10, 100, 1000, 10000, 100000, 1000000};
@@ -854,6 +858,26 @@ static bool exit_link(int target, int *x, int *y) {
 }
 
 /* a town: walk off the nearest edge */
+/* out of a building: down the stairs if upstairs, then out of the door */
+static int leave_inside(void) {
+    for (int pass = 0; pass < 2; pass++)
+        for (int k = 0; k < sg.map.nlink; k++) {
+            if ((sg.map.link[k].map == M_INSIDE) != (pass == 1)) continue;
+            int r = go_local(sg.map.link[k].x, sg.map.link[k].y, GK_ONTO, false);
+            return r < 0 ? 0 : r;
+        }
+    return 0;
+}
+
+/* stand at the counter and speak over it (the counter is right below whoever works it) */
+static int counter_talk(void) {
+    if (sg.map.nnpc < 1 || !spur_npc_visible(0) || sg.inside.floor) return leave_inside();
+    int cx = sg.npc_x[0], cy = sg.npc_y[0];
+    int r = go_local(cx, cy + 2, GK_ONTO, false);
+    if (r == -2) return face_and(cx, cy + 1);
+    return r < 0 ? 0 : r;
+}
+
 static int leave_town(void) {
     int best = -1, bx = 0, by = 0;
     int x0 = sg.pos[0].x, y0 = sg.pos[0].y;
@@ -929,6 +953,7 @@ static int travel_to(int target) {
         int r = go_local(32, 46, GK_ONTO, false);
         return r < 0 ? 0 : r;
     }
+    if (sg.map_id == M_INSIDE) return leave_inside();
     if (sg.map.kind == MK_TOWN) return leave_town();
     int x, y;
     if (in_chain || bot.dest_end >= 1000 || exit_link(target, &x, &y)) {
@@ -979,6 +1004,12 @@ static int door_of(int service) {
 }
 
 static int use_door(int service, int intent) {
+    if (sg.map_id == M_INSIDE) {
+        /* already in a building: this one's counter, or out and on to the next */
+        if (sg.inside.service != service) return leave_inside();
+        bot.intent = intent;
+        return counter_talk();
+    }
     int d = door_of(service);
     if (d < 0) return -1;
     bot.intent = intent;
@@ -1001,7 +1032,7 @@ static bool town_has(int map, int what) {
 
 /* in a town: rest, raise, shop, bank, equip. Returns buttons, or -1 when there's nothing to do here */
 static int town_chores(void) {
-    int map = sg.map_id;
+    int map = here();
     if (posse_hp_pct() >= 98) bot.rest_flag = 0;
     bool hurt = posse_hp_pct() < 85;
     int dead = dead_slot();
@@ -1168,7 +1199,7 @@ static int free_rest(int s) {
 static int go_home(int home) {
     int ti = home - SPUR_FIRST_TOWN;
     if (ti >= 0 && ti < SPUR_TOWNS && SPUR_TOWN[ti].hotel > sg.s.teeth) home = free_rest(current_step());
-    if (sg.map_id == home) return -1;
+    if (here() == home) return -1;
     return travel_to(home);
 }
 
@@ -1178,7 +1209,7 @@ static int field_buttons(void) {
         printf("== step %d at frame %d: lv %d teeth %d battles %d map %d\n", s, bot.frame, avg_level(), sg.s.teeth, sg.s.battles, sg.map_id);
     bot.step = s;
     if (spur_bot_goal >= 0 && s > spur_bot_goal) return 0;
-    if (sg.map.kind != MK_TOWN) bot.bank_map = -1;
+    if (!in_town()) bot.bank_map = -1;
     if (s == S_PICK) return saloon();
     if (s == S_DONE) return 0;
     if (sg.moving) return 0;
@@ -1194,7 +1225,7 @@ static int field_buttons(void) {
     int need = STEP[s].level + bot_extra[s];
     bool weak = avg_level() < need;
     bool beaten = posse_hp_pct() < 45;
-    if (sg.map.kind == MK_TOWN || sg.map_id == M_WIDOW) {
+    if (in_town() || sg.map_id == M_WIDOW) {
         int r = town_chores();
         if (r >= 0) return r;
         if (sg.map_id == M_WIDOW && posse_hp_pct() < 90) {
@@ -1212,7 +1243,7 @@ static int field_buttons(void) {
         for (int i = 0; i < 4; i++) { int h = spur_hero_at(i); raise |= spur_alive(h) && spur_has_skill(h, SK_RAISE); }
         int ch = town_has(home, SV_CHAPEL) ? home : sg.s.chapel;
         bool afford = sg.s.teeth >= 20 * sg.s.hero[spur_hero_at(dead)].level;
-        if (!raise && afford && spur_bag_find(IT_HOLYOIL) < 0 && sg.map_id != ch && ch >= SPUR_FIRST_TOWN) {
+        if (!raise && afford && spur_bag_find(IT_HOLYOIL) < 0 && here() != ch && ch >= SPUR_FIRST_TOWN) {
             int r = travel_to(ch);
             if (r) return r;
         }
@@ -1238,6 +1269,11 @@ static int field_buttons(void) {
         }
         int r = travel_to(gm);
         if (r) return r;
+    }
+    /* indoors with nothing left to do here: the Tallyman's desk, or back outside */
+    if (sg.map_id == M_INSIDE) {
+        if (s == S_TALLY && sg.inside.service == SV_STORY) { bot.answer = 0; return counter_talk(); }
+        return leave_inside();
     }
     Goal g = step_goal(s);
     /* a boss waits: go in rested and whole */

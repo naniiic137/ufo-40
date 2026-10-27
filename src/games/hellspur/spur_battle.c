@@ -60,7 +60,11 @@ void spur_battle_begin(int troop, int flag) {
     B.troop = troop;
     B.ambush_flag = flag;
     const SpurTroop *t = &SPUR_TROOP[troop];
-    if (t->flags & TRF_RANDOMN) {
+    if (t->flags & TRF_TWOPOOL) {
+        int n = rng_range(&sg.rng, t->min, t->max), m = rng_range(&sg.rng, 0, 2);
+        for (int i = 0; i < n; i++) add_foe(t->e[0]);
+        for (int i = 0; i < m; i++) add_foe(t->e[1]);
+    } else if (t->flags & TRF_RANDOMN) {
         int pool = 0;
         while (pool < SPUR_TROOP_MAX && t->e[pool]) pool++;
         int n = rng_range(&sg.rng, t->min, t->max);
@@ -142,6 +146,9 @@ static int hero_spd(int slot) {
 
 static void build_queue(void) {
     B.nqueue = 0;
+    /* DEFEND holds from the moment it is ordered, so it covers the whole round */
+    for (int i = 0; i < 4; i++)
+        if (B.order[i].cmd == CMD_DEFEND && spur_alive(spur_hero_at(i))) B.buff[i].defend = 1;
     for (int i = 0; i < 4; i++) if (spur_alive(spur_hero_at(i))) B.queue[B.nqueue++] = i;
     for (int i = 0; i < B.nfoe; i++) if (spur_foe_alive(i)) B.queue[B.nqueue++] = 10 + i;
     /* by speed; the posse wins ties, in posse order */
@@ -561,7 +568,7 @@ static void do_skill(int slot) {
             hr->observed++;
             snprintf(b2, sizeof b2, "PICKS UP %s!", SPUR_SKILL[learn].name);
             spur_sfx("spur_learn");
-        } else snprintf(b2, sizeof b2, "CAN'T QUITE FOLLOW IT.");
+        } else snprintf(b2, sizeof b2, "LOSES THE THREAD.");
         break;
     }
     case SK_DEADSHOT: {
@@ -933,7 +940,6 @@ static void next_actor(void) {
         case CMD_ITEM: do_item(a); return;
         case CMD_DEFEND: {
             char m[64];
-            B.buff[a].defend = 1;
             snprintf(m, sizeof m, "%s KEEPS HEAD DOWN.", SPUR_HERO[h].name);
             say(m, "");
             return;

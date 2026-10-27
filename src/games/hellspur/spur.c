@@ -64,15 +64,18 @@ void spur_write_file(void) {
 }
 
 /* saving happens in towns: a night at a hotel, leaving town, waking in a chapel */
+/* no saving in Hope Springs while the Tallyman holds it */
+bool spur_can_save(void) { return !(spur_town_here() == M_HOPE && !spur_flag(F_HOPE_FREE)); }
+
 void spur_save_game(void) {
-    if (sg.demo || !spur_flag(F_POSSE)) return;
+    if (sg.demo || !spur_flag(F_POSSE) || !spur_can_save()) return;
     int wins = spur_records.wins, cher = spur_records.cherries, best = spur_records.best_battles;
     int maxl = imax(spur_records.max_level, sg.s.max_level);
     spur_records = sg.s;
     spur_records.valid = 1;
-    spur_records.map = (uint8_t)sg.map_id;
-    spur_records.x = (int8_t)sg.pos[0].x;
-    spur_records.y = (int8_t)sg.pos[0].y;
+    spur_records.map = (uint8_t)spur_town_here();
+    spur_records.x = (int8_t)(sg.map_id == M_INSIDE ? sg.inside.dx : sg.pos[0].x);
+    spur_records.y = (int8_t)(sg.map_id == M_INSIDE ? sg.inside.dy + 1 : sg.pos[0].y);
     spur_records.wins = wins;
     spur_records.cherries = cher;
     spur_records.best_battles = best;
@@ -140,8 +143,9 @@ static void continue_game(void) {
     reset_game();
     sg.s = spur_records;
     spur_set_state(GS_FIELD);
-    int map = sg.s.map >= SPUR_FIRST_TOWN && sg.s.map < M_COUNT ? sg.s.map : M_GLADWELL;
-    spur_enter_map(map, sg.s.x > 0 ? sg.s.x : -1, sg.s.y, 0);
+    int map = sg.s.map >= SPUR_FIRST_TOWN && sg.s.map < M_INSIDE ? sg.s.map : M_GLADWELL;
+    /* you carry on from the town's chapel (or its hotel) */
+    if (!spur_enter_town_room(map, SV_CHAPEL)) spur_enter_map(map, sg.s.x > 0 ? sg.s.x : -1, sg.s.y, 0);
     game_set_pausable(true);
 }
 
@@ -238,6 +242,7 @@ static int count_wisps(void) {
 static int spur_query(const char *key, int *out) {
     const SpurBattle *b = &sg.b;
     if (!strcmp(key, "bot")) { *out = spur_bot_buttons(); return 1; }
+    if (!strcmp(key, "stations")) { *out = sg.s.stations; return 1; }
     if (!strcmp(key, "bot_step")) { *out = spur_bot_step(); return 1; }
     if (!strcmp(key, "state")) { *out = sg.state; return 1; }
     if (!strcmp(key, "map")) { *out = sg.map_id; return 1; }
@@ -298,7 +303,6 @@ static int spur_query(const char *key, int *out) {
     if (!strncmp(key, "key", 3) && isdigit((unsigned char)key[3])) { *out = spur_key(atoi(key + 3)); return 1; }
     if (!strncmp(key, "flag", 4)) { *out = spur_flag(atoi(key + 4)); return 1; }
     if (!strcmp(key, "chapel")) { *out = sg.s.chapel; return 1; }
-    if (!strcmp(key, "stations")) { *out = sg.s.stations; return 1; }
     if (!strcmp(key, "battles")) { *out = sg.s.battles; return 1; }
     if (!strcmp(key, "deaths")) { *out = sg.s.deaths; return 1; }
     if (!strcmp(key, "steps")) { *out = sg.s.steps; return 1; }
@@ -334,6 +338,38 @@ static int spur_query(const char *key, int *out) {
         return 1;
     }
     if (!strcmp(key, "chests")) { *out = spur_chest_total(); return 1; }
+    /* this map: links, chests, ambushes, how many of a tile, the room you are in */
+    if (!strcmp(key, "m_links")) { *out = sg.map.nlink; return 1; }
+    if (!strcmp(key, "m_chests")) { *out = sg.map.nchest; return 1; }
+    if (!strcmp(key, "m_ambush")) { *out = sg.map.nambush; return 1; }
+    if (!strncmp(key, "m_ambushflag", 12)) { /* is there an ambush that answers to this flag */
+        int f = atoi(key + 12), c = 0;
+        for (int i = 0; i < sg.map.nambush; i++) c += sg.map.ambush[i].flag == f;
+        *out = c;
+        return 1;
+    }
+    if (!strcmp(key, "m_emptychests") || !strcmp(key, "m_jokechests")) {
+        int want = key[2] == 'e' ? SPUR_CHEST_EMPTY : SPUR_CHEST_JOKE, c = 0;
+        for (int i = 0; i < sg.map.nchest; i++) c += sg.map.chest[i].item == 0 && sg.map.chest[i].teeth == want;
+        *out = c;
+        return 1;
+    }
+    if (!strcmp(key, "m_people")) { int n = 0; for (int i = 0; i < sg.map.nnpc; i++) n += spur_npc_visible(i); *out = n; return 1; }
+    if (!strncmp(key, "m_count", 7)) {
+        int c = 0, n = atoi(key + 7);
+        for (int y = 0; y < sg.map.h; y++) for (int x = 0; x < sg.map.w; x++) c += sg.map.tile[y][x] == n;
+        *out = c;
+        return 1;
+    }
+    if (!strcmp(key, "m_same")) { /* links on this map that lead back into it (sinkholes, ropes) */
+        int c = 0;
+        for (int i = 0; i < sg.map.nlink; i++) c += sg.map.link[i].map == sg.map_id && sg.map.link[i].map != M_INSIDE;
+        *out = c;
+        return 1;
+    }
+    if (!strcmp(key, "in_town")) { *out = sg.map_id == M_INSIDE ? sg.inside.town : -1; return 1; }
+    if (!strcmp(key, "in_service")) { *out = sg.map_id == M_INSIDE ? sg.inside.service : -1; return 1; }
+    if (!strcmp(key, "in_floor")) { *out = sg.map_id == M_INSIDE ? sg.inside.floor : -1; return 1; }
     if (!strcmp(key, "zone")) { *out = sg.map.kind == MK_WORLD ? spur_world_zone(sg.map_id, sg.pos[0].x, sg.pos[0].y) : sg.map.zone; return 1; }
     /* battle */
     if (!strcmp(key, "b_phase")) { *out = b->phase; return 1; }
@@ -371,6 +407,25 @@ static int spur_query(const char *key, int *out) {
     if (!strcmp(key, "b_fled")) { *out = b->fled; return 1; }
     if (!strcmp(key, "b_xp")) { *out = b->xp_gain; return 1; }
     if (!strcmp(key, "b_teeth")) { *out = b->teeth_gain; return 1; }
+    if (!strncmp(key, "b_defend", 8)) { *out = b->buff[iclamp(atoi(key + 8), 0, 3)].defend; return 1; }
+    if (!strncmp(key, "b_count", 7)) { /* how many of one kind of foe */
+        int e = atoi(key + 7), c = 0;
+        for (int i = 0; i < b->nfoe; i++) c += b->foe[i].e == e;
+        *out = c;
+        return 1;
+    }
+    if (!strncmp(key, "e_hp", 4)) { *out = SPUR_ENEMY[iclamp(atoi(key + 4), 0, SPUR_ENEMIES - 1)].hp; return 1; }
+    if (!strncmp(key, "zone_rare", 9)) { *out = SPUR_ZONE[iclamp(atoi(key + 9), 0, SPUR_ZONES - 1)].rare; return 1; }
+    if (!strncmp(key, "zone_pct", 8)) { *out = SPUR_ZONE[iclamp(atoi(key + 8), 0, SPUR_ZONES - 1)].rare_pct; return 1; }
+    if (!strncmp(key, "troop_in_zones", 14)) { /* how often a troop turns up in the wild */
+        int t = atoi(key + 14), c = 0;
+        for (int z = 0; z < SPUR_ZONES; z++) {
+            c += SPUR_ZONE[z].rare == t;
+            for (int k = 0; k < SPUR_ZONE_TROOPS && SPUR_ZONE[z].troop[k]; k++) c += SPUR_ZONE[z].troop[k] == t;
+        }
+        *out = c;
+        return 1;
+    }
     if (!strcmp(key, "b_queue0")) { *out = b->queue[0]; return 1; }
     if (!strncmp(key, "b_queue", 7)) { *out = b->queue[iclamp(atoi(key + 7), 0, 11)]; return 1; }
     if (!strcmp(key, "b_nqueue")) { *out = b->nqueue; return 1; }
@@ -459,6 +514,32 @@ static int spur_cheat(const char *cmd) {
     if (sscanf(cmd, "ward %d", &a) == 1) { sg.ward_steps = a; return 1; }
     if (sscanf(cmd, "battle %d", &a) == 1) { sg.ui.kind = UI_NONE; spur_battle_begin(iclamp(a, 1, SPUR_TROOPS - 1), -1); return 1; }
     if (!strcmp(cmd, "closeui")) { sg.ui.kind = UI_NONE; return 1; }
+    if (sscanf(cmd, "besidetile %d %d", &a, &b) == 2 || sscanf(cmd, "besidechest %d", &c) == 1) {
+        /* tests: stand next to the b-th tile of kind a (or chest c), facing it: from above,
+         * else the left, the right, below */
+        int tx = -1, ty = -1, k = 0;
+        if (!strncmp(cmd, "besidechest", 11)) {
+            if (c >= 0 && c < sg.map.nchest) { tx = sg.map.chest[c].x; ty = sg.map.chest[c].y; }
+        } else
+            for (int y = 0; y < sg.map.h && tx < 0; y++)
+                for (int x = 0; x < sg.map.w && tx < 0; x++)
+                    if (sg.map.tile[y][x] == a && k++ == b) { tx = x; ty = y; }
+        if (tx < 0) return 1;
+        static const int SX[4] = {0, -1, 1, 0}, SY[4] = {-1, 0, 0, 1}, FACE[4] = {0, 3, 2, 1};
+        for (int q = 0; q < 4; q++)
+            if (spur_walkable(tx + SX[q], ty + SY[q], false)) { spur_place_party(tx + SX[q], ty + SY[q], FACE[q]); break; }
+        return 1;
+    }
+    if (sscanf(cmd, "inside %d %d %d", &a, &b, &c) == 3) {
+        /* tests: into a town building (town, door service, floor) */
+        int x, y;
+        sg.ui.kind = UI_NONE;
+        spur_set_state(GS_FIELD);
+        if (!spur_town_door(a, b, &x, &y)) return 1;
+        spur_enter_inside(a, b, 0, x, y);
+        if (c) { sg.inside.floor = 1; spur_enter_map(M_INSIDE, -2, 0, 0); }
+        return 1;
+    }
     if (sscanf(cmd, "talkto %d", &a) == 1) {
         /* stand next to a person on this map, facing them (tests) */
         if (a < 0 || a >= sg.map.nnpc) return 1;
@@ -498,7 +579,7 @@ const GameDef GAME_HELLSPUR = {
     "1988",
     "RPG",
     "AN ANGEL SAVED FOUR OF THE EIGHT. RIDE THROUGH HELL AND MAKE IT COUNT.",
-    {"REACH LEVEL 10", "END THE GAME IN HELLSPUR", "WIN WITH ALL THE POSSE ALIVE"},
+    {"REACH LEVEL 10", "END THE GAME IN HELLSPUR", "EVERY ONE YOU SAVED SEES THE END"},
     GLYPH_DPAD "\tWALK\n"
     GLYPH_A "\tTALK, SEARCH, CHOOSE\n"
     GLYPH_B "\tTHE MENU, BACK\n"

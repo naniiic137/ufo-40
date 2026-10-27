@@ -8,10 +8,15 @@ seed 3
 game hellspur
 wait 5
 cheat posse 0 2 6 7
-# Gladwell's general store
+# Gladwell's general store: in at the door, up to the counter
 cheat pos 21 12
 cheat face 1
 press UP
+wait 12
+expect map == 41
+hold UP 50
+wait 5
+press A
 wait 12
 expect ui == 3
 press A
