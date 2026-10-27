@@ -1,4 +1,4 @@
-# Thank-you video: the header and footer cards of the vertical video, as
+# The v1.0.0 video: the header and footer cards of the vertical video, as
 # stills (the big words take the place of one of them while they're up).
 wait 30
 press A
@@ -10,10 +10,9 @@ overlay_text c 160 128 1 C PS VITA \x8a WINDOWS \x8a WEB
 shot card_top
 overlay_clear
 overlay_box 0 0 320 180 k
-overlay_text C 160 20 2 y PLAY IT FREE
-overlay_text c 160 44 2 C NANIIIC137.GITHUB.IO/UFO-40
-overlay_text C 160 84 2 y FOUND A BUG?
-overlay_text c 160 108 1 w TELL ME ON GITHUB ISSUES:
-overlay_text c 160 122 1 C GITHUB.COM/NANIIIC137/UFO-40/ISSUES
+overlay_text C 160 24 2 y PLAY IT FREE
+overlay_text c 160 48 2 C NANIIIC137.GITHUB.IO/UFO-40
+overlay_text c 160 88 1 w DOWNLOAD FOR PS VITA & WINDOWS
+overlay_text c 160 102 1 C GITHUB.COM/NANIIIC137/UFO-40/RELEASES
 overlay_text c 160 158 0 g FAN-MADE TRIBUTE \x8a NOT AFFILIATED WITH MOSSMOUTH
 shot card_bottom

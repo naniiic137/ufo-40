@@ -18,11 +18,12 @@
 #      OUT/ufo40-promo-vertical.mp4  1080x1920, the game at x3 between cards
 #      OUT/ufo40-promo.gif           640x360, 30 fps, silent, loops
 # The sound: the effects under the montage track (from the first frame),
-# faded out over the last 1.5 s and brought to about -14 LUFS.
+# faded out over the last 1.5 s and brought to about -14 LUFS (the thanks
+# edit limits lower, so the AAC keeps its true peak about 1 dB under 0).
 #
-# EDIT=thanks renders the thank-you video instead: the edit in thanks.txt
-# (big words over the play, and all 50 games in the grid, tiles/*.ufs
-# recording the games that have no clip) with cards-thanks.ufs, into
+# EDIT=thanks renders the v1.0.0 video instead: the edit in thanks.txt
+# (just the games, all 50 in the grid, tiles/*.ufs recording the games that
+# have no clip) with cards-thanks.ufs, into
 #      OUT/ufo40-thanks.mp4           1920x1080, 60 fps
 #      OUT/ufo40-thanks-vertical.mp4  1080x1920
 #
@@ -32,8 +33,8 @@ set -e
 cd "$(dirname "$0")/../.."
 EDIT=${EDIT:-promo}
 case $EDIT in
-promo) CUTS=tools/promo/cuts.txt CARDS=tools/promo/cards.ufs ;;
-thanks) CUTS=tools/promo/thanks.txt CARDS=tools/promo/cards-thanks.ufs ;;
+promo) CUTS=tools/promo/cuts.txt CARDS=tools/promo/cards.ufs LIMIT=0.84 ;;
+thanks) CUTS=tools/promo/thanks.txt CARDS=tools/promo/cards-thanks.ufs LIMIT=0.75 ;;
 *) echo "render: EDIT is promo or thanks"; exit 1 ;;
 esac
 FF=${FFMPEG:-ffmpeg}
@@ -78,7 +79,7 @@ fade=$(awk "BEGIN { print $total / 60 - 1.5 }")
     -map "[a]" -c:a pcm_s16le $TH "$OUT/mix.wav"
 lufs=$("$FF" -hide_banner -i "$OUT/mix.wav" -af ebur128 -f null - 2>&1 | sed -n 's/^ *I: *\(-*[0-9.]*\) LUFS/\1/p' | tail -1)
 gain=$(awk "BEGIN { print -14 - ($lufs) }")
-"$FF" -y -v error -i "$OUT/mix.wav" -af "volume=${gain}dB,alimiter=limit=0.84:level=false" \
+"$FF" -y -v error -i "$OUT/mix.wav" -af "volume=${gain}dB,alimiter=limit=$LIMIT:level=false" \
     -c:a pcm_s16le $TH "$OUT/audio.wav"
 echo "sound: $lufs LUFS, $gain dB"
 
