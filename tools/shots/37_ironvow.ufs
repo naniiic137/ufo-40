@@ -1,0 +1,68 @@
+# README media: IRONVOW. The title, a walk through the Gaol, a fight over
+# the knight's shoulder, a glyph being drawn, the Warren, the Starvault and
+# the Pit Regent. Play is the demo player's real presses; each place is
+# reached with a cheat. The GIF is the demo player on floor 2.
+shotscale 2
+seed 37
+game ironvow
+wait 60
+shot ironvow_title
+cheat newgame 37
+cheat stats 9 9 9
+cheat give ARMING_SWORD
+cheat equip 3
+cheat floor 1
+cheat noflames
+cheat pos 2 1 2
+cheat flame 3 3
+wait 2
+shot ironvow_gaol
+# the GIF: floor 2, the demo player exploring and fighting
+cheat floor 2
+botplay 400
+gifstart ironvow 4 1
+botplay 1200
+gifstop
+# a fight: a boneguard and a tusker in front, an ooze behind
+cheat floor 2
+cheat noflames
+cheat pos 16 2 1
+cheat fight 5 3 0
+wait 30
+cheat fpx 58
+cheat fcd 0 0
+wait 22
+shot ironvow_fight
+# drawing a glyph (THUNDER) in the middle of a fight
+press B
+press RIGHT
+press DOWN
+press LEFT
+press DOWN
+press RIGHT
+wait 2
+shot ironvow_glyph
+wait 150
+# the Warren: a fungus glowing over a flame
+cheat floor 3
+cheat noflames
+cheat pos 19 22 0
+cheat flame 19 20
+wait 2
+shot ironvow_warren
+# the Starvault's lava and its bridge
+cheat floor 5
+cheat noflames
+cheat pos 22 4 2
+wait 2
+shot ironvow_star
+# the Pit Regent and his three stones
+cheat floor 6
+cheat noflames
+cheat stats 15 15 15
+cheat pos 15 13 2
+cheat boss 3
+wait 30
+cheat fpx 130
+wait 3
+shot ironvow_regent

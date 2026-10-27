@@ -1,0 +1,13 @@
+# IRONVOW: the demo player again with other rolls (the encounters, the
+# loot and the pedlar's shelves change; the floors do not): it still climbs
+# out with all three goals, from the title, with real presses.
+seed 11
+game ironvow
+botuntil escape >= 1 400000
+expect dawn_kill == 1
+expect bosses == 14
+botuntil state == 18 30000
+expect goals == 7
+print save_battles
+print save_deaths
+print frame

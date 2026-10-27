@@ -1,0 +1,117 @@
+# IRONVOW: the three bosses. The Wraith Warden ends floor 2: if every torch
+# of the Gaol burns he starts at half health, and if every one is out he
+# leaves the wraith shield; below full health he may charge, flashing
+# yellow, striking more times the lower he is. The Comb Matron ends floor 4:
+# nothing reaches her until both claws are broken; she leaves the mould
+# cloak. The Pit Regent rises when three stones are set in the pillar: he
+# has three phases, and his stones mend him (moss), throw fire (cinder) and
+# call guards (frost). Beaten, the way up opens.
+seed 20
+game ironvow
+cheat newgame 5
+cheat stats 12 12 12
+cheat floor 2
+cheat noflames
+cheat tilest 0 12 1
+cheat tilest 22 12 1
+cheat tilest 27 23 1
+cheat boss 1
+wait 2
+expect fk0 == 17
+expect fhp0 == 85
+# all torches out: the wraith shield
+cheat floor 2
+cheat noflames
+cheat tilest 16 0 0
+cheat tilest 10 12 0
+cheat boss 1
+wait 2
+expect fhp0 == 170
+cheat fhp 0 1
+cheat spell 3
+waituntil state == 16 60
+expect f_loot0 == 26
+# above half health he never charges
+cheat stats 20 20 20
+cheat boss 1
+wait 2
+cheat fhp 0 100
+cheat fpx 150
+wait 1500
+expect f_charges == 0
+cheat hp 110
+# low on health, the yellow charge strikes again and again, and a guard
+# that takes one is left without a breath
+cheat fhp 0 20
+waituntil fstrikes0 >= 3 3000
+cheat st 90
+cheat hp 110
+hold DOWN 60
+expect f_exhausted == 1
+# the Matron behind her claws
+cheat stats 12 12 12
+cheat noloot 1
+cheat floor 4
+cheat noflames
+cheat boss 2
+wait 2
+expect fk0 == 18
+expect frow0 == 1
+expect fk1 == 19
+expect fk2 == 19
+cheat fpx 88
+cheat spell 13
+expect fhp0 == 130
+cheat fhp 1 1
+cheat fhp 2 1
+cheat spell 13
+expect frow0 == 0
+cheat fhp 3 1
+cheat fhp 4 1
+cheat spell 13
+expect fhp0 == 106
+cheat fhp 0 1
+cheat spell 13
+waituntil state == 16 60
+expect f_loot0 == 21
+# the Regent and his stones
+cheat floor 6
+cheat noflames
+cheat boss 3
+wait 2
+expect fk0 == 20
+expect fk1 == 21
+expect fk2 == 21
+expect fk3 == 21
+expect f_phase == 1
+expect falt1 == 0
+expect falt2 == 1
+expect falt3 == 2
+cheat fhp 0 200
+cheat fpx 10
+cheat fcd 0 9999
+cheat fcd 1 9999
+cheat fcd 3 9999
+cheat fcd 2 0
+wait 80
+expect fhp0 == 218
+expect f_phase == 2
+cheat fcd 3 0
+wait 80
+expect f_nfoe == 5
+cheat fhp 0 100
+wait 2
+expect f_phase == 3
+# the killing blow: with the Dawnbrand in hand it counts for the cherry
+cheat give DAWNBRAND
+cheat equip 3
+cheat fhp 0 1
+cheat fpx 88
+cheat fpos 0 88
+cheat spell 3
+waituntil state == 16 60
+expect dawn_kill == 1
+wait 35
+press A
+wait 3
+expect escape == 1

@@ -150,6 +150,7 @@ menu, shows the buttons as you now press them). SELECT or B closes it.
 | 34 | **BRAVADO** | Overbold | one fixed arena with four corner pads and lava, eight fights: a fixed first fight for 100, then each bet adding 100 and a random pack at a time up to 16 packs and 1,600, and a forced last fight of twelve packs and the only boss for 3,200; six health against hits of six, held fire that keeps the aim while you strafe, bombs that kill outright and hurt you too, lava that bites, twelve monsters on the floor at most and spawns that quicken up to a 900 prize; the original's seven pack kinds (two of them nine to a pack), sixteen kinds of gear at its prices with a sale and a hike every visit, the drone, the dash, medkits past full health, 2P in one arena | Dice the fox and her brother Domino, the Glass Pit, mites, gasbags, brutes, powder kegs, stilters, peepers, slag, the Pit Boss and its fizzers, every piece of gear's name and icon, ten tunes |
 | 35 | **CLARION CALL** | Campanella 2 | the Campanella ship on one tank for the whole run (coins burn when it's dry, and then it falls), a bar of 8 for the ship and for Clary behind doors, landing slowly on level ground and getting out, one hit or a two-tile drop the end outside, doors on foot into side-on caves with a skull at your back and a chest of three to choose from, and rooms with shops (one buy each, and every door shuts behind you), stalls, trials and sextons, ten notes to open the gold door and a 30-second dash, nine areas of a generated station in four of seven regions chosen on a map, sixteen cryptic upgrades, the yellow key, the Lobber and three Hush Engines, Lady Hush, the secret Grandsire Tock behind three sextons' sheets, the escape and three endings; one sitting, no save | Clary and the Clarion (CHIME CIRCUIT's), Ansel and Lady Hush (BELLHOP's), Grandsire Tock, the Carillon and its seven regions, the generator and every cave piece, the Crown, the sextons, the dozing tortoise, the FULL-PEAL code |
 | 36 | **HOOPLA** | Hyper Contender | a one-screen, one-on-one platform brawl with no health: hold five hoops at once to win, one each at the start, a new one every 15 s (on fire at first), every hit knocking one out to bounce round the pit (two if you were dizzy); the block that stops a lunge and leaves the attacker dizzy, the lunge that goes through shots, shots that get past the block; eight fighters who each move their own way (double jump with a knife-turning spin, claw line, gravity turned over, spring traps, wings, a cage lift, a rocket pack, a charged leap) with their weapon, alt shot and the button exceptions; twelve fixed pits in a random order and colours, some with moving ledges; the tournament of eight with the mirror match last and one rematch each, a second foe on the hardest challenge, the snake draft of three each to five wins, 2P exhibition, the ring options, the old-rules code, the demo and its twentieth-time note | TANSY, CLAMP, MOSS, BRISTLE, PEWIT, COLLIER, ASTRA and GULP, their endings, the twelve pits of the Glass Pit, twelve tunes |
+| 37 | **IRONVOW** | Valbrace | a hand-made, grid-based dungeon crawl in first person, a step and a quarter turn at a time, where every step and every menu action passes a turn: seven floors down through the Gaol, the Warren and the Starvault, with spikes that rise every other pair of turns, pits, poison slime that a switch moves, lava, levers that open a gate somewhere, a boulder trap, a comb of shifting walls, gem panels, outlined walls that the OPEN glyph makes doors, torches, fungus and lanterns; wandering flames that hunt you and turn into real-time fights seen over your shoulder, side to side in two rows of foes that guard until they strike, with a three-blow combo, a guard that costs stamina and breaks, a roll, exhaustion, and seventeen spells traced with the pad from glyphs written on the walls (all castable from the start, if you know them); motes that buy three points at one throne a floor; the pedlar's shop (steal and she fights), the Amber Knight's favour, the oathblade, the coin, the wish and the Dawnbrand; the Wraith Warden, the Comb Matron and the Pit Regent with his three stones; a save on each new floor and a restart of the floor on death | the knight, the pedlar, the Amber Knight, the Pit Regent and Blackspire Keep, every foe and item, seventeen glyphs, all seven floors, nine tunes |
 | 38 | **RESTLESS** | Rakshasa | a side-on platformer where one touch kills but there are no lives: every death (and the start: you begin dead) sends your wisp into a soul round of 1, 3, 6, 9, then 12 pieces past as many guardians, and one touch there ends the run; you rise on the spot with the plain weapon and the screen swept clean; every death makes the world harsher (more and nastier foes, torches that spit fire, a tougher first boss from four, a double-speed clock from six) and its treasure richer; one walking pace, one committed jump with no steering, a freeze on every landing, aim ahead or on the slants only, tap or charge; four weapons from torch wheels, the original's 19 foes with their hit points, pits that drop you into rooms of foes, a 150-second clock, bells that take a death back, a familiar that takes a hit and finds hidden spots, gifts every 5,000; three stages of two halves and six fights; a high-score table | Old Gaunt of Mossfold, his wisp, Blink the owlet, Grandmother Ash, the Hollow Host and all its foes, the Bridgekeeper, Old Rattle, Three-Tongue, Gust and Gash, the Rammer and the Hollow King, all 64 screens |
 | 39 | **BUZZBOLT** | Star Waspir | a fast vertical shooter over the whole wide screen where one hit is a loss, tap fire for a wide spread at full speed and hold it for focused fire and a slower ship, three ships with their own fire, options and two specials each (a charge lance, guard orbs, a shield drone, bombs on the second button), every kill dropping a letter in the fixed order B, Z, Z, words of three (BZZ puts the multiplier up with no limit, ZZZ brings an option, BBB and ZBB are the ship's specials, any other word puts it back to x1), the multiplier built up and cashed in on the bosses, losing a ship costs the multiplier and every gift, ships at 25k, 100k and 200k, five waves with a boss each (wave 1's pair flies off if left alone; wave 3 the hard one; walls, gates and a golden swarm in wave 4; a last boss of aimed fans), an unmultiplied time bonus, a high-score table | the Hive Wing (lacewing, shieldbug, firefly), the hiveship and the dragonfly, the Blight's gnats, midges, whirlers, crickets, blisters, puffballs, rot walls and goldbugs, the Ironbacks, the Bloatfly, the Queen Tick, Scythewing and Dustwing, the Sporeheart, five new waves |
 | 43 | **SHOWSTOPPER** | Elfazar's Hat | a top-down run-and-gun: eight-way walking, a wand that fires at once on a press and, held, keeps firing in bursts with the aim locked while you walk any way (tapping fires faster but doesn't lock), and a dash that is safe while it lasts, crosses pits and stuns; foes and crates drop cards of five colours, every third card is a hand (a pair: the colour's small power, three of a kind: its big one, three different: nothing) and the powers (hearts and Extend, spread shots, a helper, bombs from the dash, spiked balls) last until a life is lost; three hearts, three lives a credit (two spares on the counter, up to nine spares), a lost life brings you back on the spot in a bubble, a pit takes a life at once, unlimited continues restart the stage; five stages in the original's shape (a snow village with a mini-boss and a boss, one screen on a train's roof, a town in two halves with a chase up a winding road, the longest stage, a palace with two mini-boss fights and the magician, a lift and the last form), nine hidden star passes that pay for the Hop, a bonus round of hops on a board seen at an angle whose coins win lives, and on a run with no continue the true last boss and the true ending; 2 PLAYERS is in the menu, greyed out until the next update | Clover the show rabbit, her helpers, Jelly, Morrow the Marvellous, the Morrowmaw and the Heartstack, 22 kinds of foe, the Snow Engine, Granny Goggle, the Boiler, the Doppels, Old Wicks and the Ribbon, every row of the five stages, the cards' faces and nineteen tunes |
@@ -1792,6 +1793,55 @@ the top.
   their weapons, colours and endings, the Glass Pit's twelve pits (BRAVADO's
   pit on ring nights), the night porter's note, the old-rules code and
   twelve tunes.
+### 37 · IRONVOW
+
+<p align="center">
+  <img src="docs/shots/ironvow.gif" width="640" alt="Ironvow: the knight walks the torch halls of floor 2 and fights what the flames bring">
+</p>
+<p align="center">
+  <img src="docs/shots/ironvow_title.png" width="320" alt="The title: Blackspire Keep against the night, NEW GAME and CONTINUE, battles, deaths and secrets">
+  <img src="docs/shots/ironvow_gaol.png" width="320" alt="The Gaol in first person: a torch on the far wall and a wandering flame">
+</p>
+<p align="center">
+  <img src="docs/shots/ironvow_fight.png" width="320" alt="A fight over the knight's shoulder: a boneguard and a tusker in the front row, an ooze behind">
+  <img src="docs/shots/ironvow_glyph.png" width="320" alt="Drawing a glyph with the pad while the fight waits">
+</p>
+<p align="center">
+  <img src="docs/shots/ironvow_warren.png" width="320" alt="The Warren: a glowing fungus, a faint door outline in the comb wall, a flame ahead">
+  <img src="docs/shots/ironvow_regent.png" width="320" alt="The Pit Regent with his cinder, moss and frost stones">
+</p>
+
+*A tribute to **Valbrace** (UFO 50 #37).*
+
+- **Plays the same:** first person on a grid: UP and DOWN step a tile,
+  LEFT and RIGHT turn a quarter, and every step and every action passes a
+  turn (the clock on the right moves). A opens the menu: the pack and PASS
+  TURN always, and whatever is in front (a door, a lever, a torch, a chest,
+  a well, the throne, the pedlar, the knight). Health never comes back by
+  itself; mana does as you walk. The foes float down the halls as flames
+  and hunt you; touch one and the fight is real time, side to side: line
+  up, strike (A, again for a combo of three), guard (DOWN, for stamina,
+  until the shield gives), roll (DOWN, then LEFT or RIGHT), and wait for
+  the wind-up, because most foes guard until they strike. Run dry and
+  you're exhausted. B starts a spell: trace its glyph with the pad before
+  the time runs out (the fight waits). Seventeen glyphs; the walls teach
+  sixteen of them, but any works from the first step if you know it.
+- **Structure:** seven floors, 0 to 6, in three parts, a throne on each
+  from floor 1 (three points for motes, the last free), the Wraith Warden
+  at the end of floor 2 (light every torch of the Gaol and he starts at
+  half health; put them all out and he leaves his shield), the Comb Matron
+  at the end of floor 4 behind her two claws, and on floor 6 three stones to
+  find and set in a pillar to wake the Pit Regent, then the climb out. The
+  game saves when you reach a floor, and only then; death starts the floor
+  again. Four secrets lead from the old armoury's oathblade through the
+  Amber Knight's coin and a wish to the Dawnbrand. The goals: 8 in any
+  stat, slay the Regent and escape, and slay him with the Dawnbrand. The
+  demo player in the tests does all three from the title with button
+  presses, and plays a short demo when the title is left alone.
+- **Ours:** IRONVOW, Blackspire Keep and its seven floors, the knight, the
+  pedlar, the Amber Knight, the Pit Regent and his stones, the Wraith
+  Warden, the Comb Matron, every foe, item and glyph, and nine tunes.
+
 ### 38 · RESTLESS
 
 <p align="center">

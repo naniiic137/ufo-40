@@ -1,0 +1,112 @@
+# IRONVOW: levers open gates somewhere (the message never says where), roll
+# a boulder into a pit, or drop one on the knight; a slime switch swaps which
+# slime is wet across the whole floor; the comb's levers shift its walls. A
+# gem panel is solved when no two alike sit side by side (shards fall out).
+# Lanterns take 30 motes to light and give 10 back put out; poking a fungus
+# lights it but its spores drain all stamina.
+seed 19
+game ironvow
+cheat newgame 5
+cheat floor 1
+cheat noflames
+# the gate lever
+cheat pos 11 13 1
+expect tile_20_14 == 5
+press A
+wait 3
+expect menu0 == 5
+press A
+wait 3
+expect tile_20_14 == 6
+# the boulder fills the pit
+cheat pos 1 15 1
+expect tile_5_15 == 9
+press A
+wait 3
+press A
+wait 3
+expect tile_5_15 == 0
+# the trap
+cheat pos 14 21 1
+press A
+wait 3
+press A
+wait 3
+expect hp == 48
+# the slime switch on floor 3
+cheat floor 3
+cheat noflames
+cheat pos 7 8 1
+expect slime_b == 0
+press A
+wait 3
+expect menu0 == 11
+press A
+wait 3
+expect slime_b == 1
+# the comb's levers
+cheat floor 4
+cheat noflames
+cheat pos 21 6 2
+expect shift == 0
+expect tile_24_10 == 15
+press A
+wait 3
+press A
+wait 3
+expect shift == 1
+# a gem panel on floor 2: swap until no two alike touch
+cheat floor 2
+cheat noflames
+cheat pos 27 1 0
+press A
+wait 3
+expect menu0 == 10
+press A
+wait 3
+expect state == 10
+# the cursor starts in the middle: take the top gem, set it in the corner
+press UP
+press A
+press RIGHT
+press A
+wait 3
+expect st_27_0 == 1
+expect shards >= 4
+expect shards <= 8
+expect state == 3
+# a lantern on floor 5
+cheat floor 5
+cheat noflames
+cheat pos 18 1 0
+cheat essence 0
+press A
+wait 3
+expect menu0 == 9
+press A
+wait 3
+expect essence == 10
+expect st_18_0 == 0
+press A
+wait 3
+press A
+wait 3
+expect st_18_0 == 0
+cheat essence 30
+press A
+wait 3
+press A
+wait 3
+expect st_18_0 == 1
+expect essence == 0
+# a fungus on floor 3: poked, it glows and drains the knight's stamina
+cheat floor 3
+cheat noflames
+cheat pos 1 10 3
+press A
+wait 3
+expect menu0 == 7
+press A
+wait 3
+expect st_0_10 == 1
+expect st <= 11

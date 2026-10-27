@@ -1,0 +1,80 @@
+# IRONVOW: spikes stand up for two turns, then sink for two (PASS TURN
+# times them); a pit is death; lava burns (burning can kill); wet slime
+# poisons, and poison takes health down to 1 but never kills.
+seed 4
+game ironvow
+cheat newgame 5
+cheat noflames
+# spikes at (4,6) on floor 0
+cheat turn 0
+expect spikes_up == 0
+cheat turn 2
+expect spikes_up == 1
+cheat turn 3
+expect spikes_up == 1
+cheat turn 4
+expect spikes_up == 0
+# standing on spikes as they rise hurts 8
+cheat pos 4 6 1
+cheat turn 1
+press A
+wait 3
+press DOWN
+press A
+wait 3
+expect turn == 2
+expect hp == 52
+press A
+wait 3
+expect hp == 44
+press A
+wait 3
+expect hp == 44
+press B
+wait 3
+# poison (from wet slime): 1 a turn, but never below 1
+cheat pos 2 5 1
+cheat hp 3
+cheat poison 8
+press A
+wait 3
+press DOWN
+press A
+wait 3
+press A
+wait 3
+press A
+wait 3
+press B
+wait 3
+expect hp == 1
+expect state == 3
+# lava burns: 2 a turn, and it can kill
+cheat poison 0
+cheat hp 60
+cheat tile 5 6 12
+cheat pos 4 6 1
+cheat turn 4
+press UP
+wait 10
+expect here == 12
+expect burn == 4
+expect hp == 60
+press A
+wait 3
+press DOWN
+press A
+wait 3
+expect hp == 58
+cheat hp 2
+press A
+wait 3
+expect state == 17
+# a pit is death
+cheat newgame 6
+cheat noflames
+cheat tile 2 2 9
+press UP
+wait 10
+expect state == 17
+expect hp == 0

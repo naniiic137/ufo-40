@@ -363,6 +363,17 @@ CORE_SRC += src/games/kipper/kpr_text.c
 CORE_SRC += src/games/kipper/kpr_draw.c
 CORE_SRC += src/games/kipper/kpr_art.c
 CORE_SRC += src/games/kipper/kpr_audio.c
+CORE_SRC += src/games/ironvow/ivw.c
+CORE_SRC += src/games/ironvow/ivw_data.c
+CORE_SRC += src/games/ironvow/ivw_floors.c
+CORE_SRC += src/games/ironvow/ivw_world.c
+CORE_SRC += src/games/ironvow/ivw_fight.c
+CORE_SRC += src/games/ironvow/ivw_magic.c
+CORE_SRC += src/games/ironvow/ivw_bot.c
+CORE_SRC += src/games/ironvow/ivw_view.c
+CORE_SRC += src/games/ironvow/ivw_draw.c
+CORE_SRC += src/games/ironvow/ivw_art.c
+CORE_SRC += src/games/ironvow/ivw_audio.c
 
 HEADLESS_SRC += src/platform/headless/main_headless.c
 HEADLESS_SRC += src/platform/headless/imgwrite.c

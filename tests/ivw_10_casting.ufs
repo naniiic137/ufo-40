@@ -1,0 +1,72 @@
+# IRONVOW: B starts a spell. The pad traces strokes and the glyph is read
+# when the time runs out (90 frames and 6 more for each point of LORE). A
+# known glyph, or its mirror image, with the mana to pay casts the spell;
+# anything else fizzles and still costs 2 mana. Every glyph is its own.
+seed 10
+game ironvow
+expect glyphs_ok == 0
+cheat newgame 5
+cheat noflames
+expect cast_window == 120
+cheat stats 5 5 10
+expect cast_window == 150
+cheat stats 5 5 5
+cheat hp 30
+# MEND: RIGHT DOWN RIGHT UP RIGHT
+press B
+expect casting == 1
+press RIGHT
+press DOWN
+press RIGHT
+press UP
+press RIGHT
+waituntil casting == 0 200
+expect cast_result == 2
+expect hp == 50
+expect mp == 22
+expect turn == 1
+# its mirror image works too
+press B
+press LEFT
+press DOWN
+press LEFT
+press UP
+press LEFT
+waituntil casting == 0 200
+expect cast_result == 2
+expect hp == 60
+expect mp == 15
+# nonsense fizzles: 2 mana gone
+press B
+press UP
+press UP
+press UP
+press UP
+waituntil casting == 0 200
+expect cast_result == -1
+expect mp == 13
+# a glyph with too little mana behind it: 2 mana gone, nothing cast
+cheat mp 5
+cheat hp 30
+press B
+press RIGHT
+press DOWN
+press RIGHT
+press UP
+press RIGHT
+waituntil casting == 0 200
+expect cast_result == -2
+expect hp == 30
+expect mp == 3
+# in a fight, the fight waits while the glyph is drawn
+cheat fight 0
+wait 2
+cheat mp 30
+press B
+expect casting == 1
+expect f_t == 3
+wait 60
+expect f_t == 3
+waituntil casting == 0 200
+wait 2
+expect f_t > 3

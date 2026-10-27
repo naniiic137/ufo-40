@@ -1,0 +1,120 @@
+# IRONVOW: spells in a fight. LANCE goes through any guard and down the
+# whole line, back row too, and stuns; KINDLE singes and slows; GALE blows a
+# foe out of the fight (no motes for it); MIRE slows the front row; RIME
+# freezes every foe (a coiler three times as long); THUNDER strikes all;
+# HUSH stops casting; TWIN strikes alongside; WARD takes blows, even the ones
+# no guard holds, until it breaks or fades; QUICKEN speeds the knight; VEIL leaves foes unable to guard.
+seed 12
+game ironvow
+cheat newgame 5
+cheat stats 5 5 10
+# LANCE through a tusker's guard: UP DOWN UP
+cheat fight 3
+wait 2
+cheat fcd 0 999
+press B
+press UP
+press DOWN
+press UP
+waituntil casting == 0 200
+expect fhp0 == 19
+expect fstate0 == 4
+expect fstun0 == 30
+# LANCE reaches the back row in line
+cheat fight 0 0 0
+wait 2
+expect frow2 == 1
+expect fx2 == 88
+cheat spell 3
+expect fhp2 == 5
+# KINDLE singes and slows the foe in front
+cheat fight 0
+wait 2
+cheat spell 4
+expect fhp0 == 6
+expect fslow0 == 300
+# GALE: gone, no motes
+cheat fight 0 0
+wait 2
+cheat fpx 58
+cheat spell 5
+expect f_foes == 1
+# MIRE: the front row slowed
+cheat fight 0 0
+wait 2
+cheat spell 7
+expect fslow0 == 600
+expect fslow1 == 600
+# RIME: frozen; a coiler three times as long
+cheat fight 0 11
+wait 2
+cheat spell 9
+expect ffreeze0 == 180
+expect ffreeze1 == 540
+# THUNDER: every foe
+cheat fight 3 3 3
+wait 2
+cheat spell 13
+expect fhp0 == 8
+expect fhp1 == 8
+expect fhp2 == 8
+# HUSH, TWIN, WARD, QUICKEN, VEIL
+cheat spell 14
+expect f_silence == 900
+cheat spell 15
+expect f_twin == 900
+cheat fight 7
+wait 2
+cheat fpx 20
+cheat spell 16
+expect f_ward == 50
+# the ward fades: a point every 20 frames
+wait 200
+expect f_ward == 40
+cheat spell 12
+expect f_haste == 900
+cheat spell 6
+expect f_invis == 900
+# the ward holds a coiler's charge
+cheat stats 9 9 9
+cheat fight 11
+wait 2
+cheat spell 16
+cheat fcd 0 0
+hold DOWN 60
+waituntil fstate0 == 0 200
+cheat fcd 0 0
+wait 70
+expect hp == 80
+# hasted, the knight crosses twice as fast and more
+cheat fight 0
+wait 2
+cheat spell 12
+cheat fpx 20
+hold RIGHT 10
+expect f_px == 41
+# veiled, a guard is no guard
+cheat fight 3
+wait 2
+cheat fcd 0 999
+cheat spell 6
+press A 1
+wait 10
+expect fhp0 == 24
+# a flyer hovers out of a blade's reach until it swoops; LANCE reaches it
+cheat fight 1
+wait 2
+cheat fcd 0 999
+expect fstate0 == 0
+press A 1
+wait 20
+expect fhp0 == 13
+cheat spell 3
+expect fhp0 == 3
+# swooping, it can be struck (a counter in its wind-up)
+cheat fhp 0 13
+cheat fcd 0 0
+waituntil fstate0 == 1 100
+press A 1
+wait 6
+expect fhp0 < 13

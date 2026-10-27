@@ -1,0 +1,53 @@
+# IRONVOW: most foes guard until they strike. A blow into a guard clinks off
+# (and after three, the foe hits back at once); a blow while it winds up
+# cuts the strike short and stuns it. The knight's guard takes a blow on the
+# shield for stamina; each shield holds only so many blocks a fight, and a
+# guard with no stamina behind it breaks.
+seed 7
+game ironvow
+cheat newgame 5
+cheat fight 3
+wait 2
+expect fk0 == 3
+expect fhp0 == 30
+cheat fcd 0 999
+press A 1
+wait 20
+expect fhp0 == 30
+press A 1
+wait 20
+expect fstate0 == 0
+press A 1
+wait 8
+expect fhp0 == 30
+expect fstate0 == 1
+# a counter: struck in its wind-up, it reels
+cheat newgame 6
+cheat fight 3
+wait 2
+cheat fcd 0 0
+wait 2
+expect fstate0 == 1
+press A 1
+wait 6
+expect fstate0 == 4
+expect fstun0 == 50
+expect fhp0 < 30
+expect hp == 60
+# the knight's guard: the blow lands on the buckler and costs stamina
+cheat newgame 7
+cheat fight 3
+wait 2
+expect f_blocks == 5
+cheat fcd 0 0
+hold DOWN 45
+expect hp == 60
+expect f_blocks == 4
+expect st < 60
+# no stamina behind the guard: it breaks
+waituntil fstate0 == 0 200
+cheat fcd 0 0
+cheat st 2
+hold DOWN 45
+expect f_exhausted == 1
+expect f_pstate == 4
