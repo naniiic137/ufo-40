@@ -1,0 +1,13 @@
+# Promo tile: slot 42 (WITHERLEA) for the games grid, made from
+# tools/shots/42_witherlea.ufs: its set-up, then 240 frames of its GIF's play
+seed 42
+game witherlea
+wait 60
+press A
+wait 40
+cheat bot 1
+botuntil scene == 3 600
+botplay 20
+record_start 42
+botplay 240
+record_stop

@@ -1,0 +1,13 @@
+# Promo tile: slot 35 (CLARION) for the games grid, made from
+# tools/shots/35_clarion.ufs: its set-up, then 240 frames of its GIF's play
+seed 35
+game clarion
+wait 60
+press A
+wait 40
+cheat bot_goal 0
+cheat area 0 0
+wait 2
+record_start 35
+botplay 240
+record_stop

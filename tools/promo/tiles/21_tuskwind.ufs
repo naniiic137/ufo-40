@@ -1,0 +1,11 @@
+# Promo tile: slot 21 (TUSKWIND) for the games grid, made from
+# tools/shots/21_tuskwind.ufs: its set-up, then 240 frames of its GIF's play
+seed 21
+game tuskwind
+wait 60
+cheat seed 5
+botuntil state == 2 400
+botplay 240
+record_start 21
+botplay 240
+record_stop

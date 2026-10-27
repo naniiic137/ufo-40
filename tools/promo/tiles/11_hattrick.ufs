@@ -1,0 +1,19 @@
+# Promo tile: slot 11 (HATTRICK) for the games grid, made from
+# tools/shots/11_hattrick.ufs: its set-up, then 240 frames of its GIF's play
+seed 11
+game hattrick
+wait 40
+press A
+wait 10
+press RIGHT
+wait 20
+press LEFT
+wait 10
+press A
+wait 60
+press A
+wait 100
+botplay 160
+record_start 11
+botplay 240
+record_stop

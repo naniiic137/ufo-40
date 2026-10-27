@@ -1,0 +1,14 @@
+# Promo tile: slot 20 (LIMPET) for the games grid, made from
+# tools/shots/20_limpet.ufs: its set-up, then 240 frames of its GIF's play
+seed 20
+game limpet
+wait 60
+press A
+wait 40
+press A
+botuntil state == 2 600
+botplay 30
+cheat level 1
+record_start 20
+botplay 240
+record_stop

@@ -1,0 +1,29 @@
+# Promo tile: slot 19 (CHIME) for the games grid, made from
+# tools/shots/19_chime.ufs: its set-up, then 240 frames of its GIF's play
+seed 19
+game chime
+wait 120
+press DOWN
+wait 5
+press A
+wait 12
+press A
+press P2RIGHT
+press P2RIGHT
+wait 20
+press B
+press B
+wait 30
+press UP
+wait 5
+press A
+wait 15
+press A
+wait 40
+cheat race 2
+botuntil t >= 1500 20000
+cheat race 4
+botuntil t >= 1300 20000
+record_start 19
+botplay 240
+record_stop

@@ -1,0 +1,19 @@
+# Promo tile: slot 36 (HOOPLA) for the games grid, made from
+# tools/shots/36_hoopla.ufs: its set-up, then 240 frames of its GIF's play
+seed 36
+game hoopla
+wait 40
+cheat botplan 6
+botuntil state == 3 600
+press RIGHT
+press RIGHT
+press LEFT
+press LEFT
+wait 4
+botuntil state == 4 600
+wait 30
+botuntil state == 6 600
+botuntil mt >= 420 2000
+record_start 36
+botplay 240
+record_stop

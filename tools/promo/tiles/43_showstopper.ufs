@@ -1,0 +1,15 @@
+# Promo tile: slot 43 (SHOWSTOPPER) for the games grid, made from
+# tools/shots/43_showstopper.ufs: its set-up, then 240 frames of its GIF's play
+seed 43
+game showstopper
+wait 60
+press A
+wait 30
+press A
+wait 50
+press A
+botuntil state == 3 400
+botplay 500
+record_start 43
+botplay 240
+record_stop

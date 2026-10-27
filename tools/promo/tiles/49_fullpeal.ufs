@@ -1,0 +1,10 @@
+# Promo tile: slot 49 (FULLPEAL) for the games grid, made from
+# tools/shots/49_fullpeal.ufs: its set-up, then 240 frames of its GIF's play
+seed 49
+game fullpeal
+wait 60
+botuntil state == 3 400
+botplay 400
+record_start 49
+botplay 240
+record_stop

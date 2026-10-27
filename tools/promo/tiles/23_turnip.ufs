@@ -1,0 +1,13 @@
+# Promo tile: slot 23 (TURNIP) for the games grid, made from
+# tools/shots/23_turnip.ufs: its set-up, then 240 frames of its GIF's play
+seed 23
+game turnip
+wait 60
+press A
+wait 150
+press A
+wait 2
+botplay 120
+record_start 23
+botplay 240
+record_stop

@@ -20,10 +20,22 @@
 # The sound: the effects under the montage track (from the first frame),
 # faded out over the last 1.5 s and brought to about -14 LUFS.
 #
+# EDIT=thanks renders the thank-you video instead: the edit in thanks.txt
+# (big words over the play, and all 50 games in the grid, tiles/*.ufs
+# recording the games that have no clip) with cards-thanks.ufs, into
+#      OUT/ufo40-thanks.mp4           1920x1080, 60 fps
+#      OUT/ufo40-thanks-vertical.mp4  1080x1920
+#
 # OUT defaults to build/promo; CRT=0 leaves out the scanlines and vignette.
 # One ffmpeg at a time, two threads.
 set -e
 cd "$(dirname "$0")/../.."
+EDIT=${EDIT:-promo}
+case $EDIT in
+promo) CUTS=tools/promo/cuts.txt CARDS=tools/promo/cards.ufs ;;
+thanks) CUTS=tools/promo/thanks.txt CARDS=tools/promo/cards-thanks.ufs ;;
+*) echo "render: EDIT is promo or thanks"; exit 1 ;;
+esac
 FF=${FFMPEG:-ffmpeg}
 OUT=${OUT:-build/promo}
 CRT=${CRT:-1}
@@ -45,17 +57,17 @@ play() {
         { cat "$OUT/run/$n.log"; echo "render: $1 failed"; exit 1; }
 }
 games=0
-for s in tools/promo/clips/*.ufs tools/promo/boot.ufs tools/promo/library.ufs \
-         tools/promo/ohnew.ufs tools/promo/music.ufs; do
+for s in tools/promo/clips/*.ufs tools/promo/tiles/*.ufs tools/promo/boot.ufs \
+         tools/promo/library.ufs tools/promo/ohnew.ufs tools/promo/music.ufs; do
     play "$s"
 done
-FXA="-clips $OUT/clips -cuts tools/promo/cuts.txt -scripts tools/promo/clips"
+FXA="-clips $OUT/clips -cuts $CUTS -scripts tools/promo/clips"
 info=$("$FX" $FXA -info)
 echo "$info" | head -1
 games=$(echo "$info" | head -1 | sed 's/.*, \([0-9]*\) games$/\1/')
 total=$(echo "$info" | head -1 | sed 's/^[0-9]* shots, \([0-9]*\) frames.*/\1/')
 # the cards keep their words (overlay_text is what they are made of)
-sed "s/@GAMES@/$games/g" tools/promo/cards.ufs > "$OUT/run/cards.ufs"
+sed "s/@GAMES@/$games/g" "$CARDS" > "$OUT/run/cards.ufs"
 "$HL" --script "$OUT/run/cards.ufs" --save-dir "$OUT/save/cards" --out "$OUT/clips" > "$OUT/run/cards.log"
 
 # ---- 2. the sound -------------------------------------------------------------
@@ -80,6 +92,12 @@ video() { # video OUTFILE W H FX-OPTIONS...
             -map 0:v -map 1:a $enc -shortest $TH "$o"
     echo "wrote $o"
 }
+if [ "$EDIT" = thanks ]; then
+    video "$OUT/ufo40-thanks.mp4" 1920 1080 -size 1920 1080 6 0 0
+    video "$OUT/ufo40-thanks-vertical.mp4" 1080 1920 -size 1080 1920 3 60 690 \
+        -cards "$OUT/clips/card_top.png" "$OUT/clips/card_bottom.png"
+    exit 0
+fi
 video "$OUT/ufo40-promo.mp4" 1920 1080 -size 1920 1080 6 0 0
 video "$OUT/ufo40-promo-nolink.mp4" 1920 1080 -size 1920 1080 6 0 0 -end nolink
 # vertical: the header card, the game and the footer card, each x3, on ink

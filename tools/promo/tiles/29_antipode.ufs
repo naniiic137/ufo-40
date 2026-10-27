@@ -1,0 +1,13 @@
+# Promo tile: slot 29 (ANTIPODE) for the games grid, made from
+# tools/shots/29_antipode.ufs: its set-up, then 240 frames of its GIF's play
+seed 29
+game antipode
+wait 60
+press A
+wait 40
+press A
+botuntil state == 3 3000
+botplay 20
+record_start 29
+botplay 240
+record_stop

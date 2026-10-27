@@ -1,0 +1,9 @@
+# Promo tile: slot 31 (TILTSHOT) for the games grid, made from
+# tools/shots/31_tiltshot.ufs: its set-up, then 240 frames of its GIF's play
+seed 31
+game tiltshot
+wait 90
+cheat hole 1
+record_start 31
+botplay 240
+record_stop

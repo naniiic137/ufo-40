@@ -1,0 +1,15 @@
+# Promo clip: DRIFTLINE (slot 48), from tools/shots/48_driftline.ufs: stage
+# 1, Harbour Road, driven by the demo player
+audio on
+volume 0 10
+overlay_text L 3 160 1 y 48 DRIFTLINE
+overlay_text L 3 172 0 l TRIBUTE TO SEASIDE DRIVE
+seed 48
+game driftline
+wait 60
+botplay 2560
+record_start 48
+wav_start 48
+botplay 600
+record_stop
+wav_stop

@@ -1,0 +1,24 @@
+# Promo clip: DUKES UP (slot 33), from tools/shots/33_dukesup.ufs: night 1
+# on Market Street, the demo player's real presses (ROOK)
+audio on
+volume 0 10
+overlay_text L 3 160 1 y 33 DUKES UP
+overlay_text L 3 172 0 l TRIBUTE TO FIST HELL
+seed 1
+game dukesup
+wait 40
+press A
+wait 30
+press A
+wait 20
+press RIGHT
+wait 30
+press LEFT
+wait 2
+botuntil state == 4 600
+botuntil cam >= 300 20000
+record_start 33
+wav_start 33
+botplay 600
+record_stop
+wav_stop

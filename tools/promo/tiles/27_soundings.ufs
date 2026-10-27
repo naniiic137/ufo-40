@@ -1,0 +1,14 @@
+# Promo tile: slot 27 (SOUNDINGS) for the games grid, made from
+# tools/shots/27_soundings.ufs: its set-up, then 240 frames of its GIF's play
+seed 27
+game soundings
+wait 90
+cheat bot 0
+botuntil level >= 4 120000
+botuntil scene == 1 120000
+botplay 3
+botuntil scene == 4 3000
+botplay 200
+record_start 27
+botplay 240
+record_stop
