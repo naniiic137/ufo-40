@@ -42,20 +42,15 @@ gifstop
 cheat warp 4 16 13
 wait 20
 shot hellspur_town
-# the B menu's equipment page
-press B
-wait 5
-press DOWN
-press DOWN
-press A
-wait 3
-press A
-wait 6
-shot hellspur_menu
-press B
-press B
-press B
-wait 5
+# through the saloon door: the bar, the stage and the piano
+cheat warp 4 29 5
+cheat face 1
+press UP
+wait 20
+hold UP 30
+hold LEFT 10
+wait 20
+shot hellspur_room
 # a boss on the timing bar: the Saguaro Mother
 cheat level 0 30
 cheat level 5 30

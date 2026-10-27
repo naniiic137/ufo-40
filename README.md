@@ -1843,11 +1843,11 @@ the top.
 </p>
 <p align="center">
   <img src="docs/shots/hellspur_saloon.png" width="320" alt="The Golden Garter on fire: the angel and the eight strangers">
-  <img src="docs/shots/hellspur_town.png" width="320" alt="Meridian, the first town">
+  <img src="docs/shots/hellspur_town.png" width="320" alt="Meridian's main street">
 </p>
 <p align="center">
   <img src="docs/shots/hellspur_bar.png" width="320" alt="The Saguaro Mother and her arms; Sage's timing bar, yellow running into red">
-  <img src="docs/shots/hellspur_menu.png" width="320" alt="The posse menu's equipment page: right hand, left hand, neck, body, feet">
+  <img src="docs/shots/hellspur_room.png" width="320" alt="Inside the Meridian saloon: the bar, the stage and the piano">
 </p>
 <p align="center">
   <img src="docs/shots/hellspur_final.png" width="320" alt="Zenith and Nadir at the top of Hellspur">
@@ -1877,8 +1877,9 @@ the top.
   50 on shared XP, equipment in two hands, neck, body and feet, twenty
   things in the bags, hotels, chapels at 20 a level, a bank paying two in
   a hundred after every fight, trains, wipes that send you to the last
-  chapel with an empty purse, saving only in towns. Eleven towns, twenty
-  dungeon floors, nineteen boss fights, four riders in a bone tower whose
+  chapel with an empty purse, saving only in towns. Every town door but the
+  station's and the stables' opens on a room with a counter, and hotels
+  have an upstairs. Eleven towns, twenty dungeon floors, nineteen boss fights, four riders in a bone tower whose
   last gives you winged horses, three spikes to pull, and the last fight
   won when Zenith falls. Gift at level 10, gold for the ending, the cherry
   for ending it with every one the angel saved still standing. The demo
