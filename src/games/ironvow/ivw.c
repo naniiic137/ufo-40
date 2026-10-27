@@ -451,7 +451,9 @@ static void throne_update(void) {
     if (s < 3 && btnp(BTN_LEFT) && h->stat[s] > ig.stat_before[s]) { h->stat[s]--; ig.throne_pts++; ivw_sfx("ui_back"); return; }
     if (s == 3 && pressed_a() && ig.throne_pts == 0) {
         /* health, mana and stamina grow with the new numbers */
-        h->hp = (int16_t)imin(ivw_max_hp(h), h->hp + imax(0, ivw_max_hp(h) - h->hp) / 2);
+        IvwHero before = *h;
+        for (int k = 0; k < 3; k++) before.stat[k] = (uint8_t)ig.stat_before[k];
+        h->hp = (int16_t)imin(ivw_max_hp(h), h->hp + imax(0, ivw_max_hp(h) - ivw_max_hp(&before)));
         h->mp = (int16_t)imin(ivw_max_mp(h), h->mp);
         h->st = (int16_t)ivw_max_st(h);
         ivw_check_gift();
@@ -723,6 +725,7 @@ static int ivw_query(const char *key, int *out) {
     if (!strcmp(key, "f_shots")) { int n = 0; for (int i = 0; i < IVW_MAX_SHOTS; i++) n += f->shot[i].alive; *out = n; return 1; }
     if (!strcmp(key, "f_phase")) { *out = f->regent_phase; return 1; }
     if (!strcmp(key, "f_swaps")) { *out = f->swaps; return 1; }
+    if (!strcmp(key, "f_charges")) { *out = f->charges; return 1; }
     if (!strcmp(key, "f_t")) { *out = (int)f->t; return 1; }
     if (!strcmp(key, "f_front")) { int n = 0; for (int i = 0; i < f->nfoe; i++) n += f->foe[i].alive && f->foe[i].row == 0; *out = n; return 1; }
     if (!strcmp(key, "f_recover")) { *out = f->recover_hp; return 1; }

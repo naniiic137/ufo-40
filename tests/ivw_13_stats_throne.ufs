@@ -2,7 +2,7 @@
 # every third point; LORE gives 4 mana a point (and more casting time);
 # MIGHT gives harder blows, cheaper swings, quicker breath. One throne a
 # floor from floor 1: sitting costs motes (more each floor down; the last is
-# free) and gives 3 points to place. 8 in any stat earns the gift.
+# free) and gives 3 points to place, but no healing. 8 in any stat earns the gift.
 seed 13
 game ironvow
 cheat newgame 5
@@ -24,6 +24,7 @@ wait 3
 expect state == 3
 expect essence == 149
 cheat essence 160
+cheat hp 30
 press A
 wait 3
 press A
@@ -46,6 +47,8 @@ press A
 wait 3
 expect state == 3
 expect goals == 1
+# a throne heals nothing (MIGHT adds no health)
+expect hp == 30
 # a throne gives once
 press A
 wait 3

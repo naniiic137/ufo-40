@@ -141,12 +141,6 @@ static void flame_distances(void) {
     }
 }
 
-static bool lantern_near(int x, int y) {
-    for (int dy = -4; dy <= 4; dy++)
-        for (int dx = -4; dx <= 4; dx++)
-            if (ivw_tile(x + dx, y + dy) == T_LANTERN && ig.w.st[y + dy][x + dx]) return true;
-    return false;
-}
 
 static int flames_alive(void) {
     int n = 0;
@@ -162,7 +156,7 @@ static void spawn_flame(void) {
         int i = (start + k) % w->nspawn;
         int x = w->spawn_x[i], y = w->spawn_y[i];
         if (iabs(x - ig.hero.x) + iabs(y - ig.hero.y) < 5) continue;
-        if (ivw_flame_at(x, y) >= 0 || !ivw_flame_walkable(x, y) || lantern_near(x, y)) continue;
+        if (ivw_flame_at(x, y) >= 0 || !ivw_flame_walkable(x, y)) continue;
         for (int f = 0; f < IVW_MAX_FLAME; f++)
             if (!w->flame[f].alive) {
                 w->flame[f] = (IvwFlame){1, (uint8_t)x, (uint8_t)y, 0, 0};
@@ -469,9 +463,9 @@ static const char *const KNIGHT_LINES[3][3] = {
     {"WELL MET, FELLOW PRISONER. WE BOTH CAME DOWN HERE FOR THE REGENT.",
      "I WILL NOT CROSS SWORDS WITH YOU. MY BLADE IS SWORN TO HIM ALONE.",
      "THEY SAY A GREAT SWORD LIES FORGOTTEN IN AN OLD ARMOURY BELOW."},
-    {"STILL BREATHING? GOOD. SO AM I, MOSTLY.",
-     "MIND THE DARK HERE. SOME DOORS ONLY SHOW WHERE THE FUNGUS GLOWS.",
-     "GO CAREFULLY, FRIEND. IT ONLY GETS WORSE BELOW."},
+    {"AH, THE KNIGHT IN RAGS! NOT EATEN YET, I SEE.",
+     "THAT GLOWING FUNGUS? PROD IT AND IT TAKES ALL YOUR BREATH.",
+     "KEEP YOUR SHIELD UP. THE DEEPER STAIRS SMELL OF SMOKE."},
     {"THE STARVAULT. WE ARE CLOSE TO HIM NOW.",
      "THE REGENT DRAWS HIS POWER FROM THREE STONES. SET THEM, AND HE WAKES.",
      "STRIKE HIS STONES WHEN THEY SINK LOW, AND HE WEAKENS."},
@@ -491,11 +485,11 @@ void ivw_knight_talk(void) {
         if (ivw_give_item(IT_DAWN)) {
             h->dawn_given = 1;
             ivw_add_secret(SEC_DAWN);
-            show_talk("SUCH HONOUR! I CAME TO END THE REGENT, BUT I SEE NOW IT IS YOURS TO DO.",
+            show_talk("YOUR OATH RINGS TRUE AT LAST. THE REGENT IS YOURS TO FELL, NOT MINE.",
                       "TAKE THE DAWNBRAND. LET IT BE THE LAST THING HE SEES.");
         } else {
             h->dawn_given = 2; /* no room: the gift is gone for good */
-            show_talk("SUCH HONOUR! I WOULD GIVE YOU THE DAWNBRAND...",
+            show_talk("YOUR OATH RINGS TRUE AT LAST. I MEANT TO GIVE YOU THE DAWNBRAND...",
                       "...BUT YOU CARRY TOO MUCH. NO MATTER. I SHALL CARRY IT MYSELF.");
         }
         return;
@@ -516,8 +510,8 @@ void ivw_knight_give(int slot) {
         h->coin_given = 1;
         ivw_give_item(IT_COIN);
         ivw_add_secret(SEC_COIN);
-        show_talk("THE OATHBLADE! THIS IS THE SWORD I SOUGHT. YOU ARE A TRUE FRIEND.",
-                  "TAKE THIS AMBER COIN, A TOKEN BETWEEN US.");
+        show_talk("THE OATHBLADE! I HAVE HUNTED IT SINCE THE GATE. MY THANKS.",
+                  "HERE: AN AMBER COIN. IT HAS BROUGHT ME LUCK. MAY IT DO THE SAME FOR YOU.");
         return;
     }
     int before = h->knight_favour / 10;
@@ -527,22 +521,20 @@ void ivw_knight_give(int slot) {
         if (roll >= 90 && h->inv_cap < IVW_INV_MAX) {
             h->inv_cap++;
             h->knight_inv_gifts++;
-            show_talk("GENEROUS FRIEND, TAKE THIS: A BETTER PACK.", "(YOU CAN CARRY ONE MORE THING.)");
+            show_talk("YOU'VE A KIND HEART. HERE: A BETTER PACK.", "(YOU CAN CARRY ONE MORE THING.)");
         } else if (roll >= 75 && h->hp_bonus < 20) {
             h->hp_bonus = (int16_t)(h->hp_bonus + 10);
             h->hp = (int16_t)(h->hp + 10);
             h->knight_hp_gifts++;
-            show_talk("GENEROUS FRIEND, TAKE THIS: A CHARM OF OLD IRON.", "(YOUR HEALTH GROWS BY 10.)");
+            show_talk("YOU'VE A KIND HEART. HERE: A CHARM OF OLD IRON.", "(YOUR HEALTH GROWS BY 10.)");
         } else if (roll >= 45) {
-            static const uint8_t TON[5] = {IT_RED, IT_GREY, IT_GREEN, IT_BLACK, IT_BLUE};
-            receive(TON[rng_range(&ig.rng, 0, 4)]);
-            show_talk("GENEROUS FRIEND, I SHALL REPAY YOUR KINDNESS. TAKE THIS!", NULL);
+            receive(ivw_random_item(h->floor, &ig.rng));
+            show_talk("YOU'VE A KIND HEART. HERE, THIS IS FOR YOU.", NULL);
         } else {
-            int n = rng_range(&ig.rng, 5, 14);
-            h->shards = (int16_t)(h->shards + n);
-            show_talk("GENEROUS FRIEND, I SHALL REPAY YOUR KINDNESS. TAKE THESE SHARDS!", NULL);
+            h->shards = (int16_t)(h->shards + 5);
+            show_talk("YOU'VE A KIND HEART. HERE, A FEW SHARDS.", NULL);
         }
-    } else show_talk("YOUR KINDNESS WILL NOT BE FORGOTTEN, FRIEND.", NULL);
+    } else show_talk("I'LL KEEP IT SAFE. THANK YOU.", NULL);
 }
 
 /* the coin in a well: a wish (sweet) or a cruel joke (foul) */
@@ -567,7 +559,7 @@ void ivw_wish(int choice) {
             ivw_say("TREASURE RAINS FROM THE WELL.");
         } else {
             h->honor = 1;
-            ivw_say("YOU FEEL LIGHTER, AND SURE OF YOUR PATH.");
+            ivw_say("THE WATER STILLS. YOUR OATH FEELS CLEAN AGAIN.");
         }
     } else {
         if (choice == 0) {
@@ -575,11 +567,11 @@ void ivw_wish(int choice) {
             for (int s = 0; s < 3; s++) ig.stat_before[s] = h->stat[s];
             ig.throne_pts = 3;
             ig.throne_sel = 0;
-            ivw_say("PAIN! YOUR BODY TWISTS.");
+            ivw_say("THE FOUL WATER BURNS. YOU COME OUT LESSER.");
             ivw_set_state(VS_THRONE);
             return;
         }
-        ivw_say(choice == 1 ? "GREED EARNS NOTHING HERE." : "HONOUR? THE WELL ONLY LAUGHS.");
+        ivw_say(choice == 1 ? "GREED EARNS NOTHING HERE." : "A CLEAN OATH? THE WELL ONLY LAUGHS.");
     }
     ivw_set_state(VS_EXPLORE);
 }
@@ -745,7 +737,7 @@ void ivw_menu_do(int a) {
     case MA_ATTACK:
         if (o) o->kind = OB_NONE;
         h->knight_gone = 1;
-        show_talk("I WILL NOT FIGHT YOU, STRANGER. MY QUARREL IS NOT WITH YOU.", "(THE AMBER KNIGHT IS GONE.)");
+        show_talk("MY BLADE'S OATH IS TO THE REGENT, NOT TO YOU. FAREWELL.", "(THE AMBER KNIGHT IS GONE.)");
         return;
     case MA_SOCKET: ivw_set_stones(); return;
     case MA_PICKUP: ig.pick_mode = 2; ig.pick_sel = 0; ivw_set_state(VS_PICK); return;
@@ -871,9 +863,12 @@ void ivw_start_fight_flame(int flame) {
     ivw_fight_begin(kinds, n, BOSS_NONE);
     ig.f.flame = (uint8_t)flame;
     ig.f.start_burn = (int16_t)burned;
-    if (burned)
-        for (int i = 0; i < ig.f.nfoe; i++)
-            if (!(IVW_FOE[ig.f.foe[i].kind].flags & FF_NOBURN)) ig.f.foe[i].burn = 360;
+    if (burned) /* FLARE cast at the flame: its foes start scorched and burning */
+        for (int i = 0; i < ig.f.nfoe; i++) {
+            IvwFoe *e = &ig.f.foe[i];
+            e->hp = (int16_t)imax(1, e->hp - (10 + ig.hero.stat[STAT_LORE]));
+            if (!(IVW_FOE[e->kind].flags & FF_NOBURN)) e->burn = 360;
+        }
 }
 
 /* the Gaol's torches on this floor (lit ones in *lit) */

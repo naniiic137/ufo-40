@@ -1,7 +1,7 @@
 # IRONVOW: wells. A sweet well heals (three drinks); a foul one poisons. The
-# amber coin thrown into a sweet well grants a wish (a secret): CHANGE takes
-# 2 from each stat and gives 7 points to place; TREASURE gives 20 shards and
-# two things; HONOUR gives nothing now. A foul well twists each wish.
+# amber coin thrown into a sweet well grants a wish (a secret): STRENGTH ANEW
+# takes 2 from each stat and gives 7 points to place; RICHES gives 20 shards
+# and two things; A CLEAN OATH gives nothing now. A foul well twists each wish.
 seed 18
 game ironvow
 cheat newgame 5
@@ -16,7 +16,7 @@ expect menu1 == 15
 press A
 wait 3
 expect hp == 45
-# the coin: HONOUR
+# the coin: A CLEAN OATH
 cheat give AMBER_COIN
 press A
 wait 3
@@ -38,7 +38,7 @@ press A
 wait 3
 expect honor == 1
 expect state == 3
-# CHANGE
+# STRENGTH ANEW
 cheat give AMBER_COIN
 press A
 wait 3
@@ -57,7 +57,7 @@ expect might == 3
 expect grit == 3
 expect lore == 3
 expect throne_pts == 7
-# TREASURE
+# RICHES
 cheat newgame 6
 cheat floor 1
 cheat noflames

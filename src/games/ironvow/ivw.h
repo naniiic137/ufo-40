@@ -264,6 +264,7 @@ typedef struct IvwFight {
     int16_t regent_phase;
     int16_t start_burn;
     uint8_t swaps;                   /* rows traded (tests) */
+    uint8_t charges;                 /* the Warden's yellow charges begun (tests) */
 } IvwFight;
 
 /* ---- casting --------------------------------------------------------------------------------------- */
@@ -418,6 +419,7 @@ int ivw_weapon_item(void);
 int ivw_shield_item(void);
 int ivw_armour_item(void);
 int ivw_player_speed(void);           /* sixteenths of a pixel a frame */
+bool ivw_foe_hovering(const IvwFoe *e);
 
 /* ---- ivw_magic.c ------------------------------------------------------------------------------------------ */
 void ivw_cast_begin(void);

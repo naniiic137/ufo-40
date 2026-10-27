@@ -551,7 +551,7 @@ static bool ready_to_leave(void) {
     int tx, ty;
     if (throne_open(&tx, &ty) && reachable_adjacent(tx, ty, true)) return false;
     /* the Gaol's torches: all lit before the Warden */
-    if (h->floor <= 2) {
+    if (h->floor == 2) { /* only floor 2's torches count for the Warden */
         int lit, n = ivw_torches(&lit);
         if (lit < n) return false;
     }
@@ -592,7 +592,7 @@ static bool choose_errand(void) {
     /* the stones of the last floor lie over lava: float there */
     if (throne_open(&tx, &ty) && h->essence >= throne_cost() && reachable_adjacent(tx, ty, true))
         return set_errand(ER_ACT, tx, ty, MA_SIT, 0);
-    if (h->floor <= 2 && h->mp >= 8 && plan(g_unlit_torch_adj, &gx, &gy, false) >= 0) return set_errand(ER_GOTO, gx, gy, -1, SP_KINDLE);
+    if (h->floor == 2 && h->mp >= 8 && plan(g_unlit_torch_adj, &gx, &gy, false) >= 0) return set_errand(ER_GOTO, gx, gy, -1, SP_KINDLE);
     if (plan(g_gems_adj, &gx, &gy, false) >= 0) return set_errand(ER_GOTO, gx, gy, MA_GEMS, 0);
     if (search_left() > 0 && (pack_n() < h->inv_cap || search_left() > 1) && plan(g_search, &gx, &gy, false) >= 0)
         return set_errand(ER_GOTO, gx, gy, MA_SEARCH, 0);
@@ -1004,6 +1004,7 @@ static int fight_buttons(void) {
                 f->invis > 0 || tgt->kind == FK_MATRON || tgt->kind == FK_STONE;
     const IvwFoeDef *td = &IVW_FOE[tgt->kind];
     if (!(td->flags & FF_GUARD) && tgt->kind != FK_PUFF) open = true;
+    if (ivw_foe_hovering(tgt)) open = false; /* out of reach until it swoops */
     if (tgt->state == FS_WINDUP) {
         int w = td->windup;
         if (tgt->kind == FK_COILER && tgt->alt) w = 60;
@@ -1014,7 +1015,8 @@ static int fight_buttons(void) {
     if (tgt->state == FS_CAST) open = true;
     if (open) return tap(BTN_A);
     /* a guard that will not open: LANCE through it now and then */
-    if (!beetle && h->mp >= 12 && tgt->cd > 70 && (td->flags & FF_GUARD) && start_cast(SP_LANCE)) return cast_buttons();
+    if (!beetle && h->mp >= 12 && tgt->cd > 70 && ((td->flags & FF_GUARD) || ivw_foe_hovering(tgt)) && start_cast(SP_LANCE))
+        return cast_buttons();
     return 0;
 }
 

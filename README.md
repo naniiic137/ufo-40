@@ -1752,7 +1752,7 @@ the top.
   <img src="docs/shots/ironvow_glyph.png" width="320" alt="Drawing a glyph with the pad while the fight waits">
 </p>
 <p align="center">
-  <img src="docs/shots/ironvow_warren.png" width="320" alt="The Warren: a glowing fungus shows an outlined wall; a flame floats ahead">
+  <img src="docs/shots/ironvow_warren.png" width="320" alt="The Warren: a glowing fungus, a faint door outline in the comb wall, a flame ahead">
   <img src="docs/shots/ironvow_regent.png" width="320" alt="The Pit Regent with his cinder, moss and frost stones">
 </p>
 

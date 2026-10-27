@@ -31,13 +31,26 @@ cheat fhp 0 1
 cheat spell 3
 waituntil state == 16 60
 expect f_loot0 == 26
-# low on health, the yellow charge strikes again and again
+# above half health he never charges
+cheat stats 20 20 20
 cheat boss 1
 wait 2
-cheat fhp 0 20
+cheat fhp 0 100
 cheat fpx 150
+wait 1500
+expect f_charges == 0
+cheat hp 110
+# low on health, the yellow charge strikes again and again, and a guard
+# that takes one is left without a breath
+cheat fhp 0 20
 waituntil fstrikes0 >= 3 3000
+cheat st 90
+cheat hp 110
+hold DOWN 60
+expect f_exhausted == 1
 # the Matron behind her claws
+cheat stats 12 12 12
+cheat noloot 1
 cheat floor 4
 cheat noflames
 cheat boss 2

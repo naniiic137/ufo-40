@@ -62,6 +62,7 @@ press UP
 wait 4
 expect state == 15
 expect fburn0 > 300
+expect fhp0 <= 1
 # OPEN on floor 1's outlined wall
 cheat floor 1
 cheat noflames

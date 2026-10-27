@@ -45,6 +45,13 @@ hold DOWN RIGHT 1
 expect f_pstate == 3
 wait 20
 expect f_px > 100
+# a roll also comes from a tap of DOWN, let go, then RIGHT at once
+cheat fpx 60
+press DOWN 1
+press RIGHT 1
+expect f_pstate == 3
+wait 20
+expect f_px > 80
 # exhaustion: a swing with too little left empties the tank
 cheat fpx 30
 cheat fcd 0 999

@@ -130,7 +130,7 @@ static IvwShot *add_shot(int kind, int from_x, int to_x, int t_max, int dmg, int
 }
 
 /* ---- the knight is struck -------------------------------------------------------------------------- */
-enum { HIT_BLOCKABLE = 1, HIT_POISON = 2, HIT_BURN = 4, HIT_SLOW = 8 };
+enum { HIT_BLOCKABLE = 1, HIT_POISON = 2, HIT_BURN = 4, HIT_SLOW = 8, HIT_DRAIN = 16 };
 
 static void player_dead_check(void);
 
@@ -190,6 +190,7 @@ static bool player_hit(int dmg, int stdmg, int flags) {
         int pct = IVW_ITEM[shd].b;
         if (ig.buff & 4) pct /= 2;
         int cost = PX(stdmg) * pct / 100;
+        if (flags & HIT_DRAIN) cost = imax(cost, h->st + 1); /* it takes every last breath */
         F->blocks_left--;
         ivw_sfx("ivw_block");
         if (IVW_ITEM[shd].c & 2) h->mp = (int16_t)imin(ivw_max_mp(h), h->mp + 4);
@@ -306,6 +307,11 @@ static bool foe_guards(const IvwFoe *e) {
     return e->state == FS_MOVE || e->state == FS_HATCH;
 }
 
+/* a flyer keeps above a blade's reach until it swoops (or reels, or is frozen) */
+bool ivw_foe_hovering(const IvwFoe *e) {
+    return (IVW_FOE[e->kind].flags & FF_FLYER) && e->kind != FK_STONE && e->state == FS_MOVE && e->freeze <= 0;
+}
+
 /* the blow lands: on whom? */
 static void player_blow(bool pierce, int mult_num, int mult_den) {
     int flags = playing_beetle() ? 0 : weapon_flags();
@@ -321,6 +327,7 @@ static void player_blow(bool pierce, int mult_num, int mult_den) {
             bool front = e->row == 0;
             if (e->kind == FK_STONE) front = e->aux <= 0; /* a stone near the ground */
             if (e->kind == FK_MATRON && e->row != 0) continue;
+            if (ivw_foe_hovering(e)) continue;
             if (pass == 0 ? !front : (front || !(flags & WF_REACH))) continue;
             int dx = iabs(e->x - F->px);
             if (dx > reach) continue;
@@ -353,7 +360,7 @@ static void player_blow(bool pierce, int mult_num, int mult_den) {
     if (F->twin > 0)
         for (int i = 0; i < F->nfoe; i++) {
             IvwFoe *e = &F->foe[i];
-            if (e->alive && e->row == 0 && iabs(e->x - F->px) <= PX(40) && e->kind != FK_STONE) {
+            if (e->alive && e->row == 0 && iabs(e->x - F->px) <= PX(40) && e->kind != FK_STONE && !ivw_foe_hovering(e)) {
                 foe_hurt(e, imax(1, dmg / 2), true, 0);
                 break;
             }
@@ -377,6 +384,7 @@ void ivw_fight_begin(const uint8_t *kinds, int n, int boss) {
     F->mimic_obj = 255;
     F->px = (int16_t)PX(88);
     F->pstate = PS_IDLE;
+    F->down_t = 1000; /* no DOWN yet: no roll */
     int shd = ivw_shield_item();
     F->blocks_left = (int16_t)(shd ? IVW_ITEM[shd].a : 0);
     if (ig.buff & 4) F->blocks_left = (int16_t)(F->blocks_left * 3 / 2 + 2);
@@ -403,10 +411,7 @@ void ivw_fight_begin(const uint8_t *kinds, int n, int boss) {
         for (int i = 0; i < nb; i++) add_foe(kinds[nf + i], 1, nb == 1 ? X1[0] : X2[i]);
         if (boss == BOSS_WARDEN) {
             IvwFoe *w = &F->foe[0];
-            int lit = 0, all = 0, l;
-            for (int f = 0; f < 2; f++) { lit += h->torch_lit[f]; all += h->torch_all[f]; }
-            all += ivw_torches(&l);
-            lit += l;
+            int lit, all = ivw_torches(&lit); /* this floor's torches only */
             if (lit == all && all > 0) { w->hp = (int16_t)(w->hp / 2); ivw_say("THE TORCHLIGHT HAS WEAKENED HIM!"); }
         }
     }
@@ -483,10 +488,8 @@ static void fight_won(void) {
         }
     }
     if (F->boss == BOSS_WARDEN) {
-        int lit = 0, l;
-        for (int f = 0; f < 2; f++) lit += h->torch_lit[f];
-        ivw_torches(&l);
-        lit += l;
+        int lit;
+        ivw_torches(&lit);
         if (lit == 0) F->loot[F->nloot++] = IT_WRAITH;
     }
     if (F->boss == BOSS_MATRON && F->nloot < 4) F->loot[F->nloot++] = IT_MOULD;
@@ -537,7 +540,7 @@ static void foe_strike(IvwFoe *e) {
         break;
     case FK_WARDEN:
         if (e->strikes) { /* the yellow charge: right across the hall */
-            if (!player_invulnerable()) player_hit(12, 25, HIT_BLOCKABLE);
+            if (!player_invulnerable()) player_hit(12, 25, HIT_BLOCKABLE | HIT_DRAIN);
             return;
         }
         break;
@@ -734,7 +737,10 @@ static void foe_update(IvwFoe *e, int idx) {
         e->t = 0;
         if (e->kind == FK_WARDEN) {
             /* below full health, the yellow charge: the lower, the more strikes */
-            if (e->hp < e->hpmax && rng_chance(&ig.rng, 35)) e->strikes = (uint8_t)(1 + 3 * (e->hpmax - e->hp) / e->hpmax);
+            if (e->hp * 2 < e->hpmax && rng_chance(&ig.rng, 35)) {
+                e->strikes = (uint8_t)(1 + 3 * (e->hpmax - e->hp) / e->hpmax);
+                F->charges++;
+            }
         }
         if (e->kind == FK_REGENT) e->alt = F->regent_phase >= 2 && (!near || rng_chance(&ig.rng, 35)) ? 2 : 0;
         break;
@@ -820,7 +826,7 @@ static void player_update(void) {
     switch (F->pstate) {
     case PS_IDLE: case PS_GUARD: {
         /* a roll: DOWN, then quickly LEFT or RIGHT */
-        if ((btnp(BTN_LEFT) || btnp(BTN_RIGHT)) && F->down_t <= ROLL_WINDOW && !F->exhausted && dn) {
+        if ((btnp(BTN_LEFT) || btnp(BTN_RIGHT)) && F->down_t <= ROLL_WINDOW && !F->exhausted) {
             F->pstate = PS_DODGE;
             F->pt = 0;
             F->roll_dir = btnp(BTN_LEFT) ? -1 : 1;
@@ -920,7 +926,7 @@ static void ball_update(void) {
     if (F->t % 30) return;
     for (int i = 0; i < F->nfoe; i++) {
         IvwFoe *e = &F->foe[i];
-        if (!e->alive || e->row != 0 || e->kind == FK_STONE || iabs(e->x - F->ball_x) > PX(14)) continue;
+        if (!e->alive || e->row != 0 || e->kind == FK_STONE || ivw_foe_hovering(e) || iabs(e->x - F->ball_x) > PX(14)) continue;
         foe_hurt(e, F->ball_kind == IT_GRUB ? 3 : 2, true, F->ball_kind == IT_GRUB ? 0 : 30);
     }
 }
@@ -943,7 +949,7 @@ void ivw_fight_update(void) {
     if (F->haste > 0) F->haste--;
     if (F->twin > 0) F->twin--;
     if (F->silence > 0) F->silence--;
-    if (F->ward > 0 && F->t % 30 == 0) { /* a ward fades */ }
+    if (F->ward > 0 && F->t % 20 == 0 && --F->ward == 0) ivw_say("THE WARD FADES.");
     if (h->poison && F->t % 60 == 0) { if (h->hp > 1) h->hp--; if (F->t % 600 == 0) h->poison--; }
     if (h->burn && F->t % 30 == 0) {
         h->hp--;

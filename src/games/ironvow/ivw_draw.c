@@ -344,7 +344,7 @@ static void fight_scene(void) {
             }
             if (pass == 2 && e->row == 0 && !stone) {
                 bool big = e->kind == FK_WARDEN || e->kind == FK_REGENT || e->kind == FK_MATRON;
-                int fly = (IVW_FOE[e->kind].flags & FF_FLYER) && !(e->state == FS_ACTIVE) ? 12 : 0;
+                int fly = ivw_foe_hovering(e) ? 16 : 0;
                 ivw_draw_foe(e, x, ground - 2 - fly, big ? 4 : 6, t);
             }
         }
@@ -525,7 +525,7 @@ static void draw_wish(void) {
     int x = VX + 26, y = VY + 30, w = VW - 52, hh = 58;
     box(x, y, w, hh);
     tiny_center(ivw_wish_foul() ? "THE FOUL WELL GURGLES..." : "THE SWEET WELL GLOWS...", x + w / 2, y + 6, C_AMBER);
-    static const char *const W[3] = {"I WISH FOR CHANGE", "I WISH FOR TREASURE", "I WISH FOR HONOUR"};
+    static const char *const W[3] = {"STRENGTH ANEW", "RICHES", "A CLEAN OATH"};
     for (int i = 0; i < 3; i++) tiny_draw(W[i], x + 16, y + 20 + i * 11, i == ig.wish_sel ? C_WHITE : C_GREY);
     ui_cursor(x + 5, y + 19 + ig.wish_sel * 11, ig.frame_t);
 }

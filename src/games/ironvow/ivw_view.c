@@ -37,16 +37,6 @@ static int dist_steps(float d) {
     return s < 0 ? 0 : s;
 }
 
-static bool fungus_glow_near(int x, int y) {
-    for (int dy = -3; dy <= 3; dy++)
-        for (int dx = -3; dx <= 3; dx++) {
-            int tx = x + dx, ty = y + dy;
-            if (tx < 0 || ty < 0 || tx >= IVW_W || ty >= IVW_H) continue;
-            if (ig.w.tile[ty][tx] == T_FUNGUS && ig.w.st[ty][tx]) return true;
-        }
-    return false;
-}
-
 static const Sprite *decal_for(int x, int y) {
     int t = ivw_tile(x, y);
     int st = ig.w.st[y][x];
@@ -59,8 +49,8 @@ static const Sprite *decal_for(int x, int y) {
     case T_GEMS: return &ivw_decal[st ? DEC_GEMS_DONE : DEC_GEMS];
     case T_MURAL: return &ivw_glyph_decal[ig.w.id[y][x] % SP_COUNT];
     case T_HIDDEN:
-        if (IVW_FLOOR[ig.hero.floor].biome == BIO_WARREN && !fungus_glow_near(x, y)) return NULL;
-        return &ivw_decal[DEC_HIDDEN];
+        /* the Warren's outlines are much harder to make out */
+        return &ivw_decal[IVW_FLOOR[ig.hero.floor].biome == BIO_WARREN ? DEC_HIDDEN_FAINT : DEC_HIDDEN];
     default: return NULL;
     }
 }

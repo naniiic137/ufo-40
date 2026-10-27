@@ -213,6 +213,10 @@ static void dec_hidden(void) {
     gfx_rectb(7, 6, 18, 26, C_GREY);
     gfx_hline(9, 22, 6, C_LIGHT);
     end(&ivw_decal[DEC_HIDDEN], false);
+    begin(32, 32);
+    for (int i = 0; i < 26; i += 3) { dot(7, 6 + i, C_EARTH); dot(24, 6 + i, C_EARTH); }
+    for (int i = 0; i < 18; i += 3) dot(7 + i, 6, C_EARTH);
+    end(&ivw_decal[DEC_HIDDEN_FAINT], false);
 }
 
 /* a glyph scratched on a stone plate */

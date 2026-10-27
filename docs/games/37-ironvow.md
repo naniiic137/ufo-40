@@ -47,7 +47,7 @@ bosses sit). The rolls are seeded per run.
 | Stats | Battles, Deaths, Secrets [MH] | the same, on the title |
 | Endings | 2: plain, and with the Red Star Sword [GUIDE] | 2: the grey ending and the dawn ending |
 | Title | New Game, Continue, an attract mode [GUIDE] | the same |
-| Run length | casual about 5 h [POPCAR]; speedrun 7:08 (Gold/Cherry, 2nd place) [SR] | the demo player, which knows every floor and reacts in one frame, takes 12-14.5 min for gold and cherry (42,400-51,700 frames over twelve seeds, never dying) with about 70 battles; a player mapping the floors and learning the fights will take hours |
+| Run length | casual about 5 h [POPCAR]; speedrun 7:08 (Gold/Cherry, 2nd place) [SR] | the demo player, which knows every floor and reacts in one frame, takes 11.3-13.9 min for gold and cherry (40,600-49,800 frames over twelve seeds, never dying) with about 70 battles; a player mapping the floors and learning the fights will take hours |
 | Goals | 3 [MH], [GGC] | the same 3 |
 
 ## Mechanics checklist
@@ -64,36 +64,37 @@ bosses sit). The rolls are seeded per run.
 | Lava | burns, and burning can kill | [GUIDE] | ivw_04 |
 | Flames | they gather at the floor's haunts (3 on floor 0, 6 or 7 below; one every 8 turns, up to the floor's cap of 2-4), hunt the knight within 7 tiles (three moves in four), and touching one starts a fight; veiled, he walks through | [MH], [MM], [POPCAR] | ivw_05 |
 | No mid-floor heal | health never comes back by itself; mana does as turns pass (a cowl speeds it) | [MM], [GUIDE] | ivw_10 |
-| The fight's moves | LEFT / RIGHT strafe; A strikes, again for a combo of three (the third 1.5 times); DOWN held guards; DOWN then LEFT / RIGHT within 8 frames rolls (frames 1-12 untouchable, 18 stamina) | [MH], [MM], [GUIDE] | ivw_06 |
+| The fight's moves | LEFT / RIGHT strafe; A strikes, again for a combo of three (the third 1.5 times); DOWN held guards; a tap of DOWN (or DOWN held) then LEFT / RIGHT within 8 frames rolls (frames 1-12 untouchable, 18 stamina) | [MH], [MM], [GUIDE] | ivw_06 |
 | Stamina | swings (cheaper with MIGHT), blocks and rolls cost it; it does not come back while guarding; at 0 the knight is exhausted (no blows, guard or roll, half speed) until half is back | [MH], [MM] | ivw_06 |
 | Lining up | a blow lands on whoever stands in line with it, both ways | [MH] | ivw_06, ivw_09 |
 | Guarding foes | most foes guard until they strike: a blow on a guard clinks off; three in a row and the foe hits back at once | [MH], [GUIDE] | ivw_07 |
 | Counters | a blow during a wind-up cuts the strike short and stuns longer (50 frames) | [GUIDE] | ivw_07 |
 | The knight's guard | a blocked blow costs stamina by the shield's share; each shield holds a number of blocks a fight (buckler 5 ... wyrm 18), then gives way; a guard with no stamina breaks (a stagger, exhaustion) | [MH], [GUIDE] | ivw_07 |
 | Rows | two rows, at most two a row; most blades reach only the front; a glaive or the oathblade reaches the back; back and front trade places now and then; the back row rarely strikes | [MH], [MM], [GUIDE] | ivw_09 |
+| Flyers | gnawwings, puppets, mummers, puffballs, the pedlar and the Warden hover out of a blade's reach and swoop to strike; melee lands only while they swoop, cast, reel or are frozen; spells and the Dawnbrand's bolt always reach them (inferred: see Readings) | [MH], [GUIDE] | ivw_12 |
 | Foes' own ways | skink: a punch, then a stamina-draining cloud, always in turn; coiler: a swing, then an unblockable charge (it flashes yellow); chitin: strikes the moment the knight's stamina runs out, even from the back; egg: hatches into a grub; grub: bites on and on, no guard; puffball: mends friends or rains spikes; lidmaw: a chest that throws pellets; mummer: lobs, calls puppets; grasper: jumps about, drops rocks, throws bolts; boneguard: a wide swing; tusker: blows that drain stamina | [MH], [GUIDE] | ivw_08 |
 | Casting | B starts a spell; the pad traces strokes; when the time is up (90 frames, 6 more a point of LORE) the glyph is read; a known glyph or its mirror, with the mana, casts; anything else fizzles and costs 2; the fight waits while the glyph is drawn | [MH], [MM], [GUIDE] | ivw_10 |
 | Any spell from the start | no spell is unlocked: the walls only teach the glyphs | [GUIDE], [LIZ] | ivw_10, ivw_28 |
-| Spells outside a fight | CHART (what has been seen, 16 x 16), OPEN (an outlined wall becomes a door), KINDLE (lights a torch), GALE (flames down a passage blown away; things lying there pushed to its end), VEIL (10 turns + 1 a point of LORE, through flames and bosses), FLOAT (10 turns; ending over a pit is death), FLARE (a flame ahead starts its fight burning), MEND, RESTORE | [MH], [GUIDE] | ivw_11 |
-| Spells in a fight | LANCE (through any guard, down the line, back row too, a short stun), KINDLE (singes, slows), GALE (out of the fight, no motes), MIRE (the front row slowed), RIME (frozen: no guard, no blows; a coiler three times as long), THUNDER (every foe), HUSH (no casting), TWIN (a second knight strikes), WARD (takes blows, unblockable ones too), QUICKEN (much faster feet), VEIL (no foe can guard) | [MH], [GUIDE] | ivw_12 |
+| Spells outside a fight | CHART (what has been seen, 16 x 16), OPEN (an outlined wall becomes a door), KINDLE (lights a torch), GALE (flames down a passage blown away; things lying there pushed to its end), VEIL (10 turns + 1 a point of LORE, through flames and bosses), FLOAT (10 turns; ending over a pit is death), FLARE (a flame ahead starts its fight scorched and burning), MEND, RESTORE | [MH], [GUIDE] | ivw_11 |
+| Spells in a fight | LANCE (through any guard, down the line, back row too, a short stun), KINDLE (singes, slows), GALE (out of the fight, no motes), MIRE (the front row slowed), RIME (frozen: no guard, no blows; a coiler three times as long), THUNDER (every foe), HUSH (no casting), TWIN (a second knight strikes), WARD (takes blows, unblockable ones too, until it breaks or fades: a point every 20 frames), QUICKEN (much faster feet), VEIL (no foe can guard) | [MH], [GUIDE] | ivw_12 |
 | Stats | MIGHT: harder blows, cheaper swings, quicker breath, eases heavy armour; GRIT: 6 stamina a point, 10 health every 3; LORE: 4 mana a point, harder spells, more time to draw | [GUIDE] | ivw_13 |
-| Thrones | one a floor from floor 1; 150, 300, 450, 600, 750 motes, the last free (and blue, not red); 3 points to place | [GUIDE], [TVT], [STEAM-HELP] | ivw_13 |
+| Thrones | one a floor from floor 1; 150, 300, 450, 600, 750 motes, the last free (and blue, not red); 3 points to place, no healing | [GUIDE], [TVT], [STEAM-HELP] | ivw_13 |
 | Motes | each foe's worth (the wiki's 10-60 range, ours); the first 6 fights of a floor pay it times (2 + floor) / 2, the next 6 the plain worth, then 5 at most | [TVT], [MH] | ivw_14 |
 | The pack | 10 places, 12 at most; gear is worn from it; tonics are drunk from it; monster parts are readied and go off as the next fight starts; what is set down stays there | [MH], [GUIDE], [STEAM-RK] | ivw_15 |
 | Gear | 12 blades (dirk to Dawnbrand; the dirk needs no MIGHT, the others 3-15, and under it a blade hits for two thirds and costs half again), 9 armours (plate slows and costs swings), 7 shields and bracers (bracers cannot block) | [GUIDE] | ivw_15, ivw_09 |
 | Tonics and parts | red heals 40; blue stamina and mana; black harder blows, green haste, grey a sturdier guard, yellow foes stunned, for the next fight; ooze and bone skulls bounce and stun; a bat heart heals; a tusk stabs; a venom sac poisons; the juggler's ball bounces all fight; a bone scares nearby flames off; a chitin head leaps to a seen tile up to 8 away | [GUIDE] | ivw_15 |
 | The pedlar | trades for shards; floor 1's shelf is fixed and holds a boar shield, later shelves are rolled; she buys what the knight carries; stealing always fails: she fights (150 motes), and beaten she leaves the floor and the thing is his | [GUIDE] | ivw_16 |
-| The Amber Knight | three lines a floor; gifts build favour, a reward each 10 (5-14 shards, a tonic, +10 health up to +20, +1 pack place up to 12); struck at, he leaves for good | [GUIDE], [STEAM-RK] | ivw_17 |
-| The secrets | the oathblade from the old armoury's last search; given to the knight, the amber coin; the coin in a sweet well, a wish; after HONOUR, the knight's Dawnbrand (only with room for it; otherwise lost for good) | [GUIDE] | ivw_17, ivw_18, ivw_23 |
-| Wells | sweet: heals (three drinks); foul: poisons; the coin in a sweet well: CHANGE (-2 each stat, 7 points), TREASURE (20 shards, a thing, a weapon), HONOUR; in a foul well: CHANGE gives only 3, the others nothing | [GUIDE] | ivw_18 |
+| The Amber Knight | three lines a floor; gifts build favour, a reward each 10 (5 shards, a random item, +10 health up to +20, +1 pack place up to 12); struck at, he leaves for good | [GUIDE], [STEAM-RK] | ivw_17 |
+| The secrets | the oathblade from the old armoury's last search; given to the knight, the amber coin; the coin in a sweet well, a wish; after A CLEAN OATH, the knight's Dawnbrand (only with room for it; otherwise lost for good) | [GUIDE] | ivw_17, ivw_18, ivw_23 |
+| Wells | sweet: heals (three drinks); foul: poisons; the coin in a sweet well: STRENGTH ANEW (-2 each stat, 7 points), RICHES (20 shards, a thing, a weapon), A CLEAN OATH; in a foul well: STRENGTH ANEW gives only 3, the others nothing | [GUIDE] | ivw_18 |
 | The coin | flipped from the pack: heads heals a little, tails poisons | [GUIDE] | ivw_15 |
 | Levers | gates open somewhere (the message does not say where); a boulder fills a pit; a trap drops one on the knight | [GUIDE], [POPCAR] | ivw_19 |
 | Slime switches | swap which slime is wet across the whole floor | [GUIDE] | ivw_19 |
 | The shifting comb | floor 4's levers raise some walls and lower others | [GUIDE] | ivw_19, ivw_24 |
 | Gem panels | floor 2: swap gems until no two alike touch; 4-8 shards fall out | [GUIDE] | ivw_19 |
-| Torches and lanterns | the Gaol's torches are put out from the menu and lit with KINDLE; the Warren's fungus lights when poked (all stamina gone) or dims; the Starvault's lanterns take 30 motes to light and give 10 back put out | [GUIDE] | ivw_19 |
+| Torches and lanterns | the Gaol's torches are put out from the menu and lit with KINDLE; the Warren's fungus lights when prodded (all stamina gone) or dims; the Starvault's lanterns take 30 motes to light (FEED THE LANTERN) and give 10 back put out; none of them does anything else (only floor 2's torches count, for the Warden) | [GUIDE] | ivw_19 |
 | Searched rooms | floor 2's old armoury (west, among weapon racks): a fight, a find, a fight, a find, the oathblade; floor 4's comb room the same, ending in the grub egg; floor 6's vault room four rolls | [GUIDE] | ivw_23, ivw_27 |
-| The Wraith Warden | guards the stairs of floor 2; dives and slashes, throws his shield, and below full health may charge flashing yellow, striking 1 + 3 x (lost share) times (each blockable, heavy on stamina); every torch of the Gaol lit: he starts at half health; every one out: he leaves the wraith shield (mana on each block); VEIL slips past him | [GUIDE], [MH] | ivw_20 |
+| The Wraith Warden | guards the stairs of floor 2; dives and slashes, throws his shield, and below half health may charge flashing yellow, striking 1 + 3 x (lost share) times (each blockable, but a blocked strike takes every last breath: the guard breaks, the knight is exhausted); every torch of floor 2 lit: he starts at half health; every one out: he leaves the wraith shield (mana on each block); VEIL slips past him | [GUIDE], [MH] | ivw_20 |
 | The Comb Matron | guards the stairs of floor 4 with two chitins; her two claws have their own health and nothing reaches her until both are broken; she spits acid, coughs a cloud, lays eggs; she leaves the mould cloak (spores bite attackers; spending stamina wins back lost health) | [GUIDE], [MH] | ivw_20 |
 | The Pit Regent | rises when the three stones are set in the floor 6 pillar; three phases (a sweep no guard holds from the second, quicker blows in the third); his stones mend him (moss), throw fire (cinder) and call his guards (frost); they hover high and sink low to be struck; he cannot be poisoned, burned or frozen | [GUIDE] | ivw_20 |
 | The escape | beaten, the vault shakes and the way up opens; walking out is the win | [MH] | ivw_22 |
@@ -121,16 +122,27 @@ bosses sit). The rolls are seeded per run.
   image is LEFT and RIGHT swapped.
 - **The flames:** they hunt within 7 tiles by path and move three turns in
   four (otherwise a flame could never be outrun); a new one every 8 turns
-  ("swarmed every ~10 steps" [POPCAR]); none gathers within 4 tiles of a
-  lit lantern, which is our use for the lanterns the guide describes
-  without an effect.
-- **Fungus:** the knight's hint that "others thrive in shadow" [GUIDE] and
-  the Hive's hidden doors being "much harder to see" became one rule: in
-  the Warren an outlined wall only shows within 3 tiles of a lit fungus
-  (OPEN works on it either way).
-- **Torches:** they count only for the Warden (half health with every
-  Gaol torch lit, the wraith shield with every one out), as the guide's
-  two findings; floors 0 and 1 are counted as they are left.
+  ("swarmed every ~10 steps" [POPCAR]).
+- **Lanterns and fungus:** only what the guide gives: a lantern costs 30
+  motes to light and gives 10 put out, prodding a fungus lights it and
+  takes all stamina. No further effect is invented. The Warren's outlined
+  walls are drawn fainter ("much harder to see" [GUIDE]).
+- **Torches:** they count only for the Warden, and only floor 2's (half
+  health with every one lit, the wraith shield with every one out), as
+  [MH] and the guide's floor 2 notes give it; the torches of floors 0 and
+  1 are only light.
+- **Flyers (inferred):** gnawwings, puppets, mummers, puffballs, the
+  pedlar and the Warden hover above a blade's reach and come down to
+  strike; they can be struck in melee only while swooping, casting,
+  reeling or frozen; LANCE, THUNDER, FLARE and the Dawnbrand's bolt reach
+  them always. No source states it outright: the wiki's "fly downwards to
+  strike", the Jester as "the only airborne enemy that blocks", the Red
+  Star Sword's projectile that "can hit flying enemies" and the gems hit
+  "with ranged damage, or melee when they come closer to the ground"
+  [MH], [GUIDE] together point that way. The grasper (the Hand) blocks
+  and so does not fly.
+- **Thrones heal nothing:** health only grows by what new GRIT adds to
+  its maximum.
 - **Bosses on guard:** a boss notices the knight on its tile or beside it
   (our floors' halls are wide; the original's boss blocks the way).
 - **The "Guard" on the wiki** (worth 0, no details): the Pit Regent's
@@ -153,9 +165,11 @@ bosses sit). The rolls are seeded per run.
   sixteenths a frame; foes' health 13-46 (bosses 130-340) and blows 3-16;
   sweet wells 3 drinks of 25; a lever's trap 12; spikes 8; poison 1 a turn
   (never below 1); lava 2 a turn; FLOAT 10 turns; VEIL 10 + LORE turns.
-- **The knight's rewards:** 45 percent shards, 30 a tonic, 15 more health
-  (until +20), 10 a pack place (until 12), as the guide's comments list
-  them; the odds are ours.
+- **The knight's rewards:** 45 percent 5 shards, 30 a random item, 15
+  more health (until +20), 10 a pack place (until 12), as the guide and
+  its comments list them; the odds are ours.
+- **FLARE on a flame:** its foes start the fight scorched (10 + LORE) and
+  burning.
 - **Floor layouts:** all ours. Floor 1 has the boulder lever that fills a
   pit before a chest and an outlined wall before a room holding LANCE's
   glyph; floor 2 a throne hall in the middle, the searched armoury in the
@@ -224,8 +238,7 @@ PASS TURN, B to cast (also in fights), guard, roll, combo, exhaustion.
 | Charge attacks: how long A is held | 40 frames |
 | The roll's window after DOWN | 8 frames |
 | The beetle: whose buttons | the player steers it like the knight; B (the cast button, as [GUIDE] says) calls it back |
-| Lanterns' effect | none spawn near a lit one |
-| Fungus torches' effect | they show outlined walls nearby |
+| Flyers out of a blade's reach until they swoop | as in Readings (inferred) |
 | Every number in Readings | as listed |
 
 ## Tests
@@ -264,6 +277,11 @@ boss, every secret and all three goals.
   https://steamcommunity.com/app/1147860/discussions/0/4852154959747437380/
 - [STEAM-RK] Steam thread "Valbrace red knight upgrade limit?".
   https://steamcommunity.com/app/1147860/discussions/0/592887665229111763/
+- An independent fidelity review (2026-10-26) re-read [MH], [MM] and
+  [GUIDE] in full; its findings are folded in (our own wording for the
+  knight, the wishes and two menu actions; the roll on a tap; the
+  Warden's charge; floor 2's torches; the fading ward; flyers; no
+  invented lantern, fungus or throne effects).
 - [TVT] TV Tropes recap (through the research notes; the page refused a
   fetch on 2026-10-26). https://tvtropes.org/pmwiki/pmwiki.php/Recap/UFO50Game37Valbrace
 - [LIZ] Lizstar's Trashcan, "UFO 50 Retrospective Part 37".
