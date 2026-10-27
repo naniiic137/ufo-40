@@ -5,7 +5,7 @@
 <h1 align="center">UFO 40</h1>
 
 <p align="center">
-  <b>A pretend 1980s console with fifty cartridges (well, forty-seven so far), built from scratch<br>
+  <b>A pretend 1980s console with fifty cartridges, built from scratch<br>
   for the PlayStation Vita, Windows and the web.</b><br><br>
   <a href="https://naniiic137.github.io/ufo-40/"><b>▶ Play it in your browser</b></a> ·
   <a href="https://github.com/naniiic137/ufo-40/releases">Download for Vita / Windows</a>
@@ -18,16 +18,16 @@
 > coding assistant (Claude Code), which wrote the code, pixel art, music, levels
 > and tests from my descriptions, research notes and play-testing feedback.
 
-## What's new (v0.12.0)
+## What's new (v1.0.0)
 
-- **47 cartridges** in a 50-slot library, each checked against its UFO 50 original by an independent review, then fixed.
-- **Three new cartridges:**
-  - **08 LANDFALL** (tribute to Planet Zoldath): a new planet every run of flip-screen rooms, only two of eight tools in hand, gates each opened by one tool, locals who trade (half of them in glyphs), creatures that change every planet, one life and three chart pieces to bring home.
-  - **29 ANTIPODE** (tribute to Vainger): a suit that flips gravity in mid-air, a 4 × 3 mod table, 98 hand-drawn rooms across three sectors, seven bosses and two endings.
-  - **50 ECHO UNIT** (tribute to Cyber Owls): four bats, four genres (a brawler, a shooting gallery, a flight shooter and a stealth maze); a captured bat is freed in a turn-based jailbreak, then all four storm the Caldera.
-- The main attack is on **A** (Z / Space / Cross) in the new cartridges; each card's CONTROLS page can swap it back.
+- **All 50 cartridges.** Every slot of the library now holds a full game, each checked against its UFO 50 original by an independent review, then fixed.
+- **The last three:**
+  - **22 KIPPER** (tribute to Porgy): a little sub in a big sea where fuel is your health, finds only count once you bring them home to a dock, and twenty fuel tanks, twenty eggs, ten pieces of equipment and six bosses wait in three areas.
+  - **37 IRONVOW** (tribute to Valbrace): seven floors of a keep in first person, real-time side-to-side fights where you counter a foe's wind-up, 17 spells drawn as glyphs with the pad, three bosses and a four-step secret.
+  - **40 HELLSPUR** (tribute to Grimstone): a Wild West RPG in Hell; pick four of eight strangers, time every shot on a bar, see the foes coming on the map, and ride from town to town by horse and train.
+- The main action is on **A** (Z / Space / Cross) in the new cartridges; each card's CONTROLS page can swap it back.
 
-Earlier in v0.11.0: FOSSIL FEUD, LIMPET, WITHERLEA and SHOWSTOPPER.
+Earlier in v0.12.0: LANDFALL, ANTIPODE and ECHO UNIT.
 
 ---
 
@@ -37,7 +37,7 @@ UFO 40 is inspired by **UFO 50** by Mossmouth, a collection of fifty "lost" game
 from a console that never existed. It started as a joke port with a shorter
 name and fewer games, forty cartridge slots on the equally fictional
 **Beamdown Softworks** console. Then it kept going: UFO 40 is now a tribute
-that is growing to all 50 of UFO 50's games, one per slot. The name stayed 40;
+with all 50 of UFO 50's games, one per slot. The name stayed 40;
 the library didn't.
 
 Each cartridge is a tribute to one UFO 50 game and sits in the slot with that
@@ -83,20 +83,18 @@ and the music and sound volumes are in every game's pause menu too.
   <img src="docs/shots/savedata.png" width="320" alt="The save data screen">
 </p>
 
-## The library (47 of 50 loaded)
+## The library (all 50 loaded)
 
 <p align="center"><img src="docs/shots/library.png" width="640" alt="The UFO 40 game library with 50 cartridge slots"></p>
 
 Eight full-size cartridges to a row, five rows at a time: the grid scrolls
 as the cursor moves down to slots 41–50, and a bar in the left margin shows
-when there is more above or below. An empty slot holds a grey placeholder
-cartridge for the game still to come (COMING SOON, its number and the UFO 50
-game it will pay tribute to); it can't be started yet. A cartridge you
+when there is more above or below. A cartridge you
 haven't started since it arrived wears a red NEW tag until you play it.
 
 <p align="center">
   <img src="docs/shots/library_scrolled.png" width="320" alt="The library scrolled down to slots 41-50">
-  <img src="docs/shots/library_new.png" width="320" alt="Grey placeholder cartridges in the empty slots, and NEW tags on the latest cartridges">
+  <img src="docs/shots/library_new.png" width="320" alt="NEW tags on the latest cartridges">
 </p>
 
 SELECT on a cartridge opens its card over the library: time played, times
@@ -162,7 +160,6 @@ menu, shows the buttons as you now press them). SELECT or B closes it.
 | 48 | **DRIFTLINE** | Seaside Drive | a car locked to the road at the bottom while the world scrolls by, steering that also swings the gun through a 90-degree cone (UP straightens it), a rapid roof gun on A and side pairs along the road on B, a charge meter (grey, green, red: its section sets the shots' damage, rate and speed) that fills only while you drive left and drains slowly otherwise, one hit per car and the screen swept clean as the next drives in fully charged, fliers that turn nasty if left alone, wrecks that pay only when shot again, four fixed stages from morning to the open sea, each with a boss (10,000 to 40,000) seen in the background all stage, a Breakout bonus stage after any stage with no car lost whose coin is two more cars (the only extra cars), 2P co-op in one car with a driver and a gunner | Lou and the Gull, Dee on the gun, Harbour Road, the Sundown Strip, the Moonlit Mile and Open Water, every foe, the Zephyr, the Orrery, the Man in the Moon, Old Crab (from ROOFCAT) and a Beamdown saucer, all the waves, swells and block layouts |
 | 49 | **FULL PEAL** | Campanella 3 | a faux-3D shooter flying into the screen, the ship free on a flat 6 × 4 plane with no gravity, fuel or walls; A fires into the distance down your lane, B fires the side blaster along the plane away from the way you move (held, it keeps its aim) at whatever has reached you; one hit a ship, three ships a credit, not given back between stages, a lost credit restarts the stage; five stages of four fixed waves and a boss, each wave graded 0–100 by the share shot down; a 100 or a 0 brings a balloon round after the boss (red 1, orange 3, 50 for a continue); the final count is the twenty grades plus 100 a continue; sixteen foes, five bosses (the last healing until your sister flies in), a no-guns code; and, for a second controller held on A, fifty four-colour micro-games in the cockpit monitor, each with its high score | Ansel and the Tinkler with Clary on the radio (the BELLHOP cast), the bell-planet Knell, Outer Belfry, Tin Nebula, The Murk and Tollgate, all sixteen foes, the Gloameye, Knucklebell, the Inkwell, Shellback and Queen Sordina, the owl, all twenty waves and fifty micro-games, the HUGS-ONLY code |
 | 50 | **ECHO UNIT** | Cyber Owls | four cyber bats and four genres: a brawler with one fixed jump, a three-hit combo, a ki blast charged only from standing still that wipes out bullets and carries you forward, barrels to throw and kick on, troopers that keep coming and hazards that flash a "!" first, a shooting gallery where tapping fires a little faster, holding plants your feet so the pad steers the sight, the combo meter multiplies points and damage and lobbed grenades can be picked up and thrown back, a hover-bike autoscroller whose bike glows red and then blows up (and costs a life) if you keep holding the trigger, and an eight-way stealth maze of not-so-clever guards who come to look, hunt you once they see you and forget when you leave the room; two lives a mission, and a bat that loses both is captured, its mission locked until another bat wins a rolled, turn-based block-push jailbreak against five colours of guard, with skills on cooldowns and shots that fly; then all four in the Caldera, a second half as long as the first, where there are no second chances | Flint, Vesper, Dart, Sable and Colonel Hush, V.I.P.E.R. and its lizard troops, Scrapjaw, Ramrod and Vultra, Hog Wild, Cipher, Dr. Talpa, Major Rattle and Madame Coil, Marseille, the Andes, Cairo, Istanbul and the Caldera, and sixteen tunes |
-| 22, 37, 40 | *coming soon* | | | still in the saucer's cargo hold |
 
 Every cartridge has three goals, which follow the original's own three: a
 **Beacon** (a side challenge), the **Saucer** (beating the game) and the
@@ -2510,8 +2507,8 @@ src/platform/headless/ scripted test runner, PNG / GIF / WAV writers, Vita LiveA
     plays notes with lengths, ties and repeat blocks.
   - Sound effects use the same notation and take over one channel for a
     moment, just like old hardware.
-  - Every track and jingle is original: 497 compositions across the console and
-    the forty-seven cartridges.
+  - Every track and jingle is original: 537 compositions across the console and
+    the fifty cartridges.
 - **Art.** Sprites are written as strings of palette letters in the C source
   (`k` ink, `y` yellow, `C` cyan and so on), so there are no binary assets at
   all. The Vita LiveArea images are drawn by the engine itself
