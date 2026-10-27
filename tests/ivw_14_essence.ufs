@@ -1,0 +1,39 @@
+# IRONVOW: motes. The first six fights on a floor pay a foe's worth times
+# (2 + floor) / 2; the next six pay its plain worth; after that a foe pays
+# at most 5. Fights won are counted on the title as BATTLES.
+seed 14
+game ironvow
+cheat newgame 5
+cheat fight 0
+wait 2
+cheat fhp 0 1
+cheat fcd 0 999
+press A 1
+waituntil state == 16 60
+expect f_essence == 10
+expect battles == 1
+expect save_battles == 1
+cheat floor 2
+cheat fight 0
+wait 2
+cheat fhp 0 1
+cheat fcd 0 999
+press A 1
+waituntil state == 16 60
+expect f_essence == 20
+cheat battles 6
+cheat fight 0
+wait 2
+cheat fhp 0 1
+cheat fcd 0 999
+press A 1
+waituntil state == 16 60
+expect f_essence == 10
+cheat battles 12
+cheat fight 3
+wait 2
+cheat fhp 0 1
+cheat fcd 0 999
+cheat spell 3
+waituntil state == 16 60
+expect f_essence == 5

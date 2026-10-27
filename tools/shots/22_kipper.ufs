@@ -1,0 +1,72 @@
+# README media: KIPPER. The GIF is the title's own demo: the demo player
+# swims Kipper home through the Kelpwood towing three finds. The rest set a
+# scene with cheats and play it for a moment.
+shotscale 2
+seed 22
+game kipper
+wait 60
+shot kipper_title
+wait 850
+gifstart kipper 3 1
+wait 720
+gifstop
+# a dock's equipment screen
+game kipper
+wait 10
+press A
+wait 40
+press A
+wait 10
+cheat god
+cheat have 0
+cheat have 2
+cheat have 4
+cheat have 6
+cheat have 9
+cheat fit 6
+cheat fit 0
+cheat lights 2
+cheat tanks 9
+cheat boosters 7
+cheat eggsback 6
+cheat tile 80 5
+hold UP 60
+wait 10
+press RIGHT
+press RIGHT
+press RIGHT
+press RIGHT
+press DOWN
+wait 30
+shot kipper_dock
+press B
+wait 10
+# Inkwell reaches out of the wall in the Coral Garden
+cheat calm
+cheat tile 122 22
+cheat bosspos 1 2040 360
+cheat stormy
+wait 200
+shot kipper_inkwell
+# Auntie Roe
+cheat calm
+cheat take 52
+cheat take 53
+cheat tile 60 9
+hold LEFT 30
+wait 30
+shot kipper_roe
+press A
+wait 30
+# the Blackwater by lamplight
+cheat tile 58 116
+wait 150
+shot kipper_blackwater
+# Xolloth's laser
+cheat openall
+cheat stormy
+cheat tile 76 141
+wait 2
+cheat bosst 5 100
+wait 40
+shot kipper_xolloth

@@ -1,0 +1,41 @@
+# IRONVOW: UP steps forward one tile, DOWN one tile back, LEFT / RIGHT turn
+# a quarter. Every step passes a turn (the clock moves); turning does not,
+# and walking into a wall goes nowhere and passes nothing.
+seed 2
+game ironvow
+cheat newgame 5
+cheat noflames
+expect x == 1
+expect y == 2
+expect dir == 1
+expect turn == 0
+press UP
+wait 10
+expect x == 2
+expect y == 2
+expect turn == 1
+press RIGHT
+wait 8
+expect dir == 2
+expect turn == 1
+press LEFT
+wait 8
+press LEFT
+wait 8
+expect dir == 0
+expect turn == 1
+press UP
+wait 10
+expect y == 1
+expect turn == 2
+# a wall north of the cell's top row: a bump, no turn passes
+press UP
+wait 10
+expect y == 1
+expect turn == 2
+# DOWN steps back without turning round
+press DOWN
+wait 10
+expect y == 2
+expect dir == 0
+expect turn == 3

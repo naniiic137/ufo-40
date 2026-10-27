@@ -1,0 +1,56 @@
+# IRONVOW: the title offers NEW GAME (CONTINUE stays dark until a floor has
+# been saved), the story, floor 0's card, then the cells: the knight in rags
+# with a dirk and a plank buckler, 5 in each stat. Arriving on a floor is
+# the save. One player only: there is no 2-player choice to grey out.
+seed 1
+game ironvow
+wait 20
+expect state == 0
+expect paused == 0
+expect title_sel == 0
+expect save_has_run == 0
+press DOWN
+expect title_sel == 0
+press A
+wait 5
+expect state == 1
+wait 25
+press A
+wait 3
+expect state == 2
+expect floor == 0
+expect save_has_run == 1
+expect save_floor == 0
+wait 125
+expect state == 3
+expect x == 1
+expect y == 2
+expect dir == 1
+expect hp == 60
+expect hp_max == 60
+expect mp == 30
+expect mp_max == 30
+expect st == 70
+expect might == 5
+expect grit == 5
+expect lore == 5
+expect pack == 3
+expect pack_cap == 10
+expect wpn == 1
+expect arm == 13
+expect shd == 22
+expect essence == 0
+expect layout == 0
+# the pause menu works while exploring
+press START
+expect paused == 1
+press START
+expect paused == 0
+# back on the title, CONTINUE is offered first now; B leaves for the library
+game ironvow
+wait 20
+expect state == 0
+expect title_sel == 1
+press B
+wait 30
+expect_scene library

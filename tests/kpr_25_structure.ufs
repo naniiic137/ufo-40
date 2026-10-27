@@ -1,0 +1,15 @@
+# KIPPER: the sea's structure: 20 fuel tanks, 20 torpedo kits, 20 eggs and
+# 10 pieces of equipment; every pick-up, Auntie Roe, both docks and the lair
+# can be reached once every way is open; the layout and art are sound.
+seed 1
+game kipper
+wait 5
+expect nitems_0 == 20
+expect nitems_1 == 20
+expect nitems_2 == 20
+expect nitems_3 == 10
+expect nfoes == 85
+expect nbrk == 52
+expect reach == 0
+expect layout == 0
+expect art_bad == 0

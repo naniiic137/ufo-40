@@ -1,0 +1,77 @@
+# IRONVOW: spells while exploring. CHART shows what has been seen nearby;
+# OPEN turns an outlined wall into a door; KINDLE lights a torch; GALE blows
+# the flames down a passage away; VEIL hides the knight a while (longer with
+# LORE); FLOAT carries him ten turns over pits; FLARE sets a flame burning so
+# its foes start the fight on fire. A spell cast passes a turn.
+seed 11
+game ironvow
+cheat newgame 5
+cheat noflames
+# CHART: LEFT DOWN RIGHT
+press B
+press LEFT
+press DOWN
+press RIGHT
+waituntil state == 13 200
+wait 12
+press B
+wait 3
+expect state == 3
+# KINDLE on the cells' dark torch
+cheat pos 2 3 2
+expect ahead == 17
+expect ahead_st == 0
+press B
+press UP
+press RIGHT
+press UP
+press RIGHT
+waituntil casting == 0 200
+expect ahead_st == 1
+expect mp == 20
+# GALE down the corridor
+cheat mp 30
+cheat pos 1 2 1
+cheat flame 3 2
+expect flames == 1
+cheat spell 5
+expect flames == 0
+# VEIL: 10 turns and one more for each point of LORE (the cast itself takes one)
+cheat spell 6
+expect veil == 14
+# FLOAT over a pit
+cheat newgame 6
+cheat noflames
+cheat tile 2 2 9
+cheat spell 10
+expect fly == 9
+press UP
+wait 10
+expect x == 2
+expect state == 3
+expect fly == 8
+# FLARE: the flame burns before the fight begins
+cheat noflames
+cheat pos 1 2 1
+cheat tile 2 2 0
+cheat flame 3 2
+cheat spell 11
+press UP
+wait 10
+press UP
+wait 4
+expect state == 15
+expect fburn0 > 300
+expect fhp0 <= 1
+# OPEN on floor 1's outlined wall
+cheat floor 1
+cheat noflames
+cheat pos 14 16 3
+expect ahead == 7
+press B
+press UP
+press RIGHT
+press RIGHT
+press DOWN
+waituntil casting == 0 200
+expect ahead == 2

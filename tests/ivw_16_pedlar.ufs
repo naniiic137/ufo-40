@@ -1,0 +1,68 @@
+# IRONVOW: the pedlar trades for shards. On floor 1 her shelf is always the
+# same and holds a boar shield; she buys what the knight carries. Stealing
+# from her always fails: she fights, and beaten, she leaves the floor and
+# the thing taken is the knight's.
+seed 16
+game ironvow
+cheat newgame 5
+cheat floor 1
+cheat noflames
+cheat pos 17 8 1
+press A
+wait 3
+expect menu0 == 17
+expect menu1 == 19
+expect menu2 == 18
+press A
+wait 3
+expect state == 8
+cheat shards 5
+press A
+wait 3
+expect has24 == 0
+cheat shards 6
+press A
+wait 3
+expect has24 == 1
+expect shards == 0
+# selling the dirk would leave the knight bare-handed: worn things stay; a spare foil sells for 2
+cheat give FOIL
+press RIGHT
+press DOWN
+press DOWN
+press DOWN
+press DOWN
+press A
+wait 3
+expect shards == 2
+expect has2 == 0
+press B
+wait 3
+# stealing: she fights
+press A
+wait 3
+press DOWN
+press DOWN
+press A
+wait 3
+expect state == 7
+press DOWN
+press A
+wait 3
+press A
+wait 10
+expect state == 15
+expect fk0 == 4
+cheat fhp 0 1
+cheat fcd 0 999
+cheat fpx 88
+cheat spell 3
+waituntil state == 16 60
+expect f_essence == 150
+wait 35
+press A
+wait 3
+expect has29 == 1
+press A
+wait 3
+expect menu0 == 0

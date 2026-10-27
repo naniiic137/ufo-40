@@ -1,0 +1,52 @@
+# KIPPER: torpedoes. Held fire sends one every 14 frames and keeps the
+# facing (back away firing forward); taps fire as fast as every 7 frames
+# and let the facing turn. Damage 3 + a kit, reach 40 + 6 px a kit; the Ram
+# Torpedoes hit harder and shorter. Firing costs no fuel.
+seed 1
+game kipper
+wait 5
+cheat newgame
+cheat clear
+cheat calm
+cheat tile 70 28
+wait 20
+cheat face 1
+cheat fuel 1000
+hold A 57
+expect fuel == 1000
+expect shots_0 >= 1
+# held: the facing stays right while swimming left
+hold A+LEFT 30
+expect face == 1
+expect vx100 < -50
+# tapped: the facing turns with the pad
+press LEFT 2
+press A 1
+expect face == -1
+# reach and damage
+cheat tile 70 28
+wait 20
+press A 1
+expect shot0_dmg == 3
+expect shot0_life == 11
+cheat boosters 10
+wait 30
+press A 1
+expect torp_dmg == 13
+expect torp_range == 100
+expect shot0_dmg == 13
+expect shot0_life == 31
+cheat fit 0
+expect torp_dmg == 28
+expect torp_range == 52
+wait 40
+press A 1
+expect shots_1 == 1
+# a torpedo stops at rock
+wait 30
+cheat tile 78 20
+cheat face -1
+wait 2
+press A 1
+wait 10
+expect shots == 0

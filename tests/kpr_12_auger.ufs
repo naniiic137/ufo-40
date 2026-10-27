@@ -1,0 +1,44 @@
+# KIPPER: dirt stops the sub until the Auger is fitted: then a dash (or the
+# long thruster) digs through it. Dirt grows back whenever the sub docks.
+seed 1
+game kipper
+wait 5
+cheat newgame
+cheat clear
+cheat calm
+cheat fit 6
+cheat tile 79 96
+wait 2
+expect tile_79_98 == 100
+hold DOWN 40
+expect ty == 97
+press DOWN+B 4
+hold DOWN 30
+expect ty == 97
+cheat fit 1
+hold DOWN+B 6
+hold DOWN 4
+hold DOWN+B 6
+hold DOWN 4
+hold DOWN+B 6
+hold DOWN 20
+expect ty >= 100
+expect tile_79_98 == 46
+cheat dock 0
+expect tile_79_98 == 100
+# the Auger on a dash or a boost runs creatures through: they're hit (40,
+# enough to calm most), and the sub takes no knock
+wait 25
+press A
+wait 5
+press B
+wait 5
+cheat tile 64 28
+cheat clear
+cheat fit 2
+wait 2
+cheat foe 3 1110 456
+wait 1
+hold RIGHT+B 40
+expect calm_3 == 1
+expect hits == 0

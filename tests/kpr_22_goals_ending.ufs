@@ -1,0 +1,41 @@
+# KIPPER: beating Xolloth ends the game: the saucer goal, the ending and the
+# credits; with everything done first (75 parts) also the alien goal and
+# the other ending. CONTINUE afterwards goes back to the last save, with
+# Xolloth waiting again.
+seed 1
+game kipper
+wait 5
+cheat newgame
+cheat clear
+cheat calm
+cheat take 10
+cheat dock 0
+press A
+wait 5
+press B
+wait 5
+cheat win
+expect state == 6
+expect goals & 2
+expect goals !& 4
+expect cherry_run == 0
+expect layout == 0
+hold A 760
+expect state == 7
+hold A 760
+expect state == 0
+expect rec_wins == 1
+wait 10
+press A
+wait 5
+expect state == 2
+expect boss5_on == 1
+expect tanks == 1
+# everything done: the cherry
+cheat allitems
+cheat allbosses
+expect completion == 100
+cheat win
+expect goals & 4
+expect cherry_run == 1
+expect rec_cherries == 1

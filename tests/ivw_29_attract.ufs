@@ -1,0 +1,26 @@
+# IRONVOW: left on the title, the cartridge shows later play: the demo
+# player fights its way through floor 5 for half a minute. Any button stops
+# it and brings the title back; the demo saves nothing and counts nothing.
+seed 29
+game ironvow
+wait 20
+expect state == 0
+expect demo == 0
+wait 900
+expect demo == 1
+expect floor == 5
+expect save_has_run == 0
+wait 600
+expect demo == 1
+expect save_battles == 0
+expect save_deaths == 0
+press LEFT
+wait 3
+expect demo == 0
+expect state == 0
+expect save_has_run == 0
+# a button on the title holds the demo back
+wait 800
+press DOWN
+wait 200
+expect demo == 0

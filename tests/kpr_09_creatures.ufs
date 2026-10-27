@@ -1,0 +1,81 @@
+# KIPPER: the creatures' habits. A shellback stung by a torpedo hides in its
+# shell, where plain torpedoes can't hurt it but ram torpedoes can; close by
+# when it hides, it flings itself at the sub. A glimmer shows only against a
+# wall. A riser shoots up at a sub above it; a billfish in front winds up and
+# charges; a burr bristles when the sub comes close; a lanternmaw lunges; a
+# sunstar flings itself; a snapworm warns, then strikes.
+seed 1
+game kipper
+wait 5
+cheat newgame
+cheat clear
+cheat calm
+cheat god
+cheat tile 70 28
+wait 2
+# a shellback a little way off
+cheat foe 4 1060 470
+wait 1
+cheat hurtfoe 85 3
+expect foe85_state == 1
+expect foe85_hp == 11
+cheat hurtfoe 85 3
+expect foe85_hp == 11
+cheat fit 0
+cheat clear
+# close by when it hides: it comes flying
+cheat foe 4 1110 470
+wait 1
+cheat hurtfoe 85 3
+wait 2
+expect foe85_state == 2
+cheat clear
+# a glimmer: unseen until it touches a wall
+cheat foe 2 1060 440
+wait 1
+expect foe85_state == 0
+waituntil foe85_state > 0 300
+cheat clear
+# a riser under the sub shoots up
+cheat foe 9 1128 500
+wait 2
+expect foe85_state == 1
+cheat clear
+# a billfish level with the sub, facing it: wind-up, then the charge
+cheat foe 14 1060 456
+wait 1
+waituntil foe85_state == 2 120
+cheat clear
+# a burr bristles close by
+cheat foe 15 1100 456
+wait 2
+expect foe85_state == 1
+cheat clear
+cheat foe 15 1060 456
+wait 2
+expect foe85_state == 0
+cheat clear
+# a lanternmaw lunges
+cheat foe 8 1080 456
+wait 2
+expect foe85_state == 1
+cheat clear
+# a sunstar flings itself
+cheat foe 13 1080 456
+waituntil foe85_state == 1 60
+cheat clear
+# a snapworm: hidden, then a warning, then the strike
+cheat foe 16 1100 456
+wait 62
+expect foe85_state == 1
+waituntil foe85_state == 2 40
+cheat clear
+# a shellback walks to and fro along its floor and shoots at the sub
+cheat tile 80 26
+cheat clear
+wait 2
+cheat foe 4 1240 470
+waituntil eshots_0 >= 1 100
+expect eshot_vy100 < 0
+waituntil foe85_x < 1225 300
+waituntil foe85_x > 1235 600

@@ -1,0 +1,54 @@
+# KIPPER: the title offers NEW GAME and CONTINUE (greyed until there is a
+# save). NEW GAME tells the story (A skips it) and sends the sub out from
+# under the Pier with 4 bars of fuel, nothing found, two slots; the start
+# counts as a save. B on the title goes back to the library.
+seed 1
+game kipper
+wait 10
+expect state == 0
+expect menu == 0
+expect paused == 0
+expect save_has == 0
+press DOWN
+expect menu == 1
+press A
+wait 5
+# no save yet: CONTINUE does nothing
+expect state == 0
+press UP
+expect menu == 0
+press A
+wait 5
+expect state == 1
+wait 30
+press A
+wait 5
+expect state == 2
+expect dock == 0
+expect bars_max == 4
+expect fuel == 1440
+expect have == 0
+expect on == 0
+expect tanks == 0
+expect boosters == 0
+expect eggs_back == 0
+expect trail == 0
+expect area == 0
+expect slots == 2
+expect save_has == 1
+expect torp_dmg == 3
+expect torp_range == 40
+# the pause menu works in a dive
+press START
+expect paused == 1
+press START
+expect paused == 0
+expect layout == 0
+expect art_bad == 0
+# back on the title CONTINUE is offered first now; B leaves for the library
+game kipper
+wait 10
+expect menu == 1
+press B
+wait 40
+expect_scene library

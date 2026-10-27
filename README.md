@@ -133,6 +133,7 @@ menu, shows the buttons as you now press them). SELECT or B closes it.
 | 19 | **CHIME CIRCUIT** | The Big Bell Race | side-view flight with gravity, thrust and drift, six ships on one screen, eight laps on each of eight courses in a fixed order, three hit points that walls, floors and weapons take, a slash that only knocks, a relaunch from under the start line to fly the lap again, a hit point back every lap, pickup stations with a "!!" warning (bullets, mines, fireballs, the big slash, the payload), boost arrows and side routes, 9/7/5/3/2/1 points, the winner starting last, CPUs that turn on you, 2P at once | the chime ship, Ansel and Clary and four visitors from other UFO 40 cartridges, the eight tracks and their skies, the LOOT-GALE code |
 | 20 | **LIMPET** | Warptank | a tank that clings to any surface and can't jump or fall: it rolls tile by tile along floors, walls and ceilings, ramps carry it round corners, it fires straight out from its surface (a tap one shot, a hold a burst of three) and warps straight across to the opposite surface, with flares where it lands; one hit and it's scrapped, then try again from the last C plate or go back to the station, as often as it takes; a camera that snaps along; 26 decks of eight screen-sized rooms and a secret 27th, entered from pods in a station hub that is a maze of twenty rooms with hidden pods, opening up at 4 and 9 decks, by a hidden side way and by the mid-game boss, each opening shown in a short scene, with three survival decks of waves; a jar hidden in an unmarked surface in 23 decks that only counts if you leave alive, gold pods, hint bees and counters after the end; outline, swap, breakable and push blocks, one-way plates, magnet floors, doors, timed doors, portals, hoppers, platforms and crushers; turrets, lasers, drones, oglers, crawlers, sacs, worms and a switch worm; the Turncoat and the Dreadnought (hit only up its barrel); every deck's best time | Limpet and Spindle Station (the Concourse, the Canteen, the Gristle Wing, the Upper Ring), all 27 decks, the Gristle and its creatures, the Turncoat and the Dreadnought, honey and bees, Wren, Gus, Mother Brindle, Rolo and the night clerk, eighteen tunes |
 | 21 | **TUSKWIND** | Waldorf's Journey | a new random map every run, a chain of floating islets to a door at the far end; every jump aimed with a cursor and charged before launch (aimed flat, a lunge with no air), then nothing in the air but flapping on a bar only fish refill; one-way islets, solid bouncy rocks and foam that lasts one full charge; six terns from six lighthouses as lives; 36 loose shells that are money and score, two chests and two keys and a hidden third; winds at 40 % and 80 % and bells that toggle them once; charging rams; mantas to dodge, ride or burst for keys; stalls of two random wares from six items, one visit each; 22 signs and a hidden one; an end room with spiral shells for unused terns, a shaft and the hidden chest; two endings split at 50 shells; a 2P brawl on a wrapping screen whose islets crumble | Burl the walrus in his nightcap, Skerry the old one, the Duchess Auk, terns, rams and mantas, the bobber, spyglass, grapnel, kite, spinner and sprat tin, every sign, both talks and the hall |
+| 22 | **KIPPER** | Porgy | an undersea map in three areas stacked by depth, explored from two docks on the surface, where fuel is health and time: swimming, dashing and every knock burn it (half a bar a knock or a dash), and running dry means a tow home with the dive's finds lost; anything picked up trails behind the sub, three at most, and counts only once docked, where the dive is banked; stun torpedoes that pacify instead of kill (held fire keeps the facing, taps fire quicker), creatures that wake again at a dock or in another area, thieves that snatch from the trail and clouds that knock it loose; 20 fuel tanks (4 to 24 bars), 20 torpedo kits, 20 eggs for a fish lady who gives a fish companion every five, 10 pieces of equipment fitted 2 to 4 at a time (short hard torpedoes for switches, a drill dash for dirt (and through creatures), a held boost, bombs dropped sitting still, rockets that go up, homing torpedoes, a lamp for the pitch-dark deep, a radar for big ones and hidden things, leaner fuel, armour plates), five big ones who roam (one keeps to its chamber) and keep the damage done once you dock, a light from each for the slots, steam vents, hidden walls, the alien at the bottom and two endings; a demo on the title | Dr. Juno Marlow and her yellow sub Kipper, Auntie Roe, Gullwater Sound and every cavern of it, all 18 creatures, Gnasher, Inkwell, Longjaw, the Whorl, Nightcape and Xolloth, the equipment's names, nine tunes |
 | 23 | **TURNIP TRUCK** | Onion Delivery | one wrapping city under a fixed camera, steering that turns the truck to its own left and right, a tapped turn that sidesteps, a weak brake that becomes reverse, A+B powerslides and the spin-out's spin attack, walls that only spin you, three hearts that come back at top speed and refill on every delivery, seven workdays of five timed deliveries (+8 s, +30 s for the fifth, +12 s for a crate hanging over a hazard past a ramp) and back to the depot before 00, overtime, three spare tries for the whole week, six chaos events in a shuffled order from Tuesday, ramps, brine pools and drop zones, gas canisters, rocks and right-hand traffic, a practice code and a reverse code | Zib, Granny Root, Glenda Glorp of Channel 9, Blipton and its 33 places, the brine burst, the big beet, the mush mob, the radish ring, the downpour and the moon raid |
 | 24 | **SHUTTERBUG** | Caramel Caramel | a side-scroller with no power-ups: hold fire for an automatic gun that also charges four rings which bounce off rock, tap the other button for a photo a third of the screen ahead that stuns, doubles damage and points, blows up the foes round it, stops green foes firing back, brings down wall foes, stops whole trains and opens boss weak points; a camera that refills slowly, or at once with two bulbs that only fly to you when you stop firing; rock that does no harm; two hits a life, no spare ships to start, eight from points, a lost ship back to the stage start with the shown score at 0; a tutorial, three planets and two open wave stages, two mid-bosses (one you can leave), three bosses, a red repair foe per planet, and U, F and O hidden one per planet for the true last boss; 2P co-op | Poppy and Sprig, Teatime, Gloom and Fossil Planets, Comet Rain, Madame Scone, the Teapot, Old Croak, the Signalman, King Thunderjaw, the Kaleidoscope, every cave and wave |
 | 25 | **OPEN HOUSE** | Party House | drawing guests from a deck into a house with limited space, the original's 46 guest abilities, costs and trouble, police, fire marshal and bans, set guest lists and a random list, win by ending a party with four stars within 25 nights, 2P hot-seat; the fame and cash caps; the owner's endless OPEN ALL NIGHT, a custom list and two guests of his own | a whitewashed house by the sea, all 48 guests' names and faces |
@@ -149,6 +150,7 @@ menu, shows the buttons as you now press them). SELECT or B closes it.
 | 34 | **BRAVADO** | Overbold | one fixed arena with four corner pads and lava, eight fights: a fixed first fight for 100, then each bet adding 100 and a random pack at a time up to 16 packs and 1,600, and a forced last fight of twelve packs and the only boss for 3,200; six health against hits of six, held fire that keeps the aim while you strafe, bombs that kill outright and hurt you too, lava that bites, twelve monsters on the floor at most and spawns that quicken up to a 900 prize; the original's seven pack kinds (two of them nine to a pack), sixteen kinds of gear at its prices with a sale and a hike every visit, the drone, the dash, medkits past full health, 2P in one arena | Dice the fox and her brother Domino, the Glass Pit, mites, gasbags, brutes, powder kegs, stilters, peepers, slag, the Pit Boss and its fizzers, every piece of gear's name and icon, ten tunes |
 | 35 | **CLARION CALL** | Campanella 2 | the Campanella ship on one tank for the whole run (coins burn when it's dry, and then it falls), a bar of 8 for the ship and for Clary behind doors, landing slowly on level ground and getting out, one hit or a two-tile drop the end outside, doors on foot into side-on caves with a skull at your back and a chest of three to choose from, and rooms with shops (one buy each, and every door shuts behind you), stalls, trials and sextons, ten notes to open the gold door and a 30-second dash, nine areas of a generated station in four of seven regions chosen on a map, sixteen cryptic upgrades, the yellow key, the Lobber and three Hush Engines, Lady Hush, the secret Grandsire Tock behind three sextons' sheets, the escape and three endings; one sitting, no save | Clary and the Clarion (CHIME CIRCUIT's), Ansel and Lady Hush (BELLHOP's), Grandsire Tock, the Carillon and its seven regions, the generator and every cave piece, the Crown, the sextons, the dozing tortoise, the FULL-PEAL code |
 | 36 | **HOOPLA** | Hyper Contender | a one-screen, one-on-one platform brawl with no health: hold five hoops at once to win, one each at the start, a new one every 15 s (on fire at first), every hit knocking one out to bounce round the pit (two if you were dizzy); the block that stops a lunge and leaves the attacker dizzy, the lunge that goes through shots, shots that get past the block; eight fighters who each move their own way (double jump with a knife-turning spin, claw line, gravity turned over, spring traps, wings, a cage lift, a rocket pack, a charged leap) with their weapon, alt shot and the button exceptions; twelve fixed pits in a random order and colours, some with moving ledges; the tournament of eight with the mirror match last and one rematch each, a second foe on the hardest challenge, the snake draft of three each to five wins, 2P exhibition, the ring options, the old-rules code, the demo and its twentieth-time note | TANSY, CLAMP, MOSS, BRISTLE, PEWIT, COLLIER, ASTRA and GULP, their endings, the twelve pits of the Glass Pit, twelve tunes |
+| 37 | **IRONVOW** | Valbrace | a hand-made, grid-based dungeon crawl in first person, a step and a quarter turn at a time, where every step and every menu action passes a turn: seven floors down through the Gaol, the Warren and the Starvault, with spikes that rise every other pair of turns, pits, poison slime that a switch moves, lava, levers that open a gate somewhere, a boulder trap, a comb of shifting walls, gem panels, outlined walls that the OPEN glyph makes doors, torches, fungus and lanterns; wandering flames that hunt you and turn into real-time fights seen over your shoulder, side to side in two rows of foes that guard until they strike, with a three-blow combo, a guard that costs stamina and breaks, a roll, exhaustion, and seventeen spells traced with the pad from glyphs written on the walls (all castable from the start, if you know them); motes that buy three points at one throne a floor; the pedlar's shop (steal and she fights), the Amber Knight's favour, the oathblade, the coin, the wish and the Dawnbrand; the Wraith Warden, the Comb Matron and the Pit Regent with his three stones; a save on each new floor and a restart of the floor on death | the knight, the pedlar, the Amber Knight, the Pit Regent and Blackspire Keep, every foe and item, seventeen glyphs, all seven floors, nine tunes |
 | 38 | **RESTLESS** | Rakshasa | a side-on platformer where one touch kills but there are no lives: every death (and the start: you begin dead) sends your wisp into a soul round of 1, 3, 6, 9, then 12 pieces past as many guardians, and one touch there ends the run; you rise on the spot with the plain weapon and the screen swept clean; every death makes the world harsher (more and nastier foes, torches that spit fire, a tougher first boss from four, a double-speed clock from six) and its treasure richer; one walking pace, one committed jump with no steering, a freeze on every landing, aim ahead or on the slants only, tap or charge; four weapons from torch wheels, the original's 19 foes with their hit points, pits that drop you into rooms of foes, a 150-second clock, bells that take a death back, a familiar that takes a hit and finds hidden spots, gifts every 5,000; three stages of two halves and six fights; a high-score table | Old Gaunt of Mossfold, his wisp, Blink the owlet, Grandmother Ash, the Hollow Host and all its foes, the Bridgekeeper, Old Rattle, Three-Tongue, Gust and Gash, the Rammer and the Hollow King, all 64 screens |
 | 39 | **BUZZBOLT** | Star Waspir | a fast vertical shooter over the whole wide screen where one hit is a loss, tap fire for a wide spread at full speed and hold it for focused fire and a slower ship, three ships with their own fire, options and two specials each (a charge lance, guard orbs, a shield drone, bombs on the second button), every kill dropping a letter in the fixed order B, Z, Z, words of three (BZZ puts the multiplier up with no limit, ZZZ brings an option, BBB and ZBB are the ship's specials, any other word puts it back to x1), the multiplier built up and cashed in on the bosses, losing a ship costs the multiplier and every gift, ships at 25k, 100k and 200k, five waves with a boss each (wave 1's pair flies off if left alone; wave 3 the hard one; walls, gates and a golden swarm in wave 4; a last boss of aimed fans), an unmultiplied time bonus, a high-score table | the Hive Wing (lacewing, shieldbug, firefly), the hiveship and the dragonfly, the Blight's gnats, midges, whirlers, crickets, blisters, puffballs, rot walls and goldbugs, the Ironbacks, the Bloatfly, the Queen Tick, Scythewing and Dustwing, the Sporeheart, five new waves |
 | 40 | **HELLSPUR** | Grimstone | a Western RPG in Hell: an angel carries four of eight strangers out of a burning saloon (any one to four of them, and the rest burn), each with a trade of their own (animal spirits, half-price medicine, learning foes' tricks, picking pockets, shotguns and heavy guns, dances, a hound with a mind of his own); no random battles, but wisps on the map that step when you step toward the posse in its line (the fallen in their boxes still count) and fight on a touch, one step in two on horseback; a timing bar on every plain attack (yellow hits, red is a critical, anything else misses; marks for each shot, a shotgun's one wide yellow, a heavy gun held and reloaded, a bow all red); turns by speed, levels to 50, five equipment slots, twenty bag slots, hotels, chapels, a bank with interest, trains, wipes back to the chapel with an empty purse, saves in towns; eleven towns, twenty dungeon floors, nineteen boss fights, winged horses, three spikes and the last fight won when Zenith falls | the Territory of Calico and its towns and dungeons, Tucker, Sage, Hollis, Quill, Vera, Hattie, Cora and Biscuit, the angels, every boss and all 77 kinds of foe, 83 items and 37 skills by our names, twenty tunes |
@@ -933,6 +935,60 @@ the top.
   terns, rams, mantas, cockles and whelks, the bobber, spyglass, grapnel,
   kite, spinner and sprat tin, all 23 signs, both talks, the hall, and the
   music.
+
+### 22 · KIPPER
+
+<p align="center">
+  <img src="docs/shots/kipper.gif" width="640" alt="Kipper: the little yellow sub towing three finds home through the Kelpwood">
+</p>
+<p align="center">
+  <img src="docs/shots/kipper_title.png" width="320" alt="The title: Kipper bobbing under the waves">
+  <img src="docs/shots/kipper_dock.png" width="320" alt="A dock's equipment screen: ten pieces, as many fitted as there are slots">
+</p>
+<p align="center">
+  <img src="docs/shots/kipper_inkwell.png" width="320" alt="The Coral Garden: Inkwell the octopus reaches an arm out of the wall">
+  <img src="docs/shots/kipper_roe.png" width="320" alt="Auntie Roe takes her eggs back">
+</p>
+<p align="center">
+  <img src="docs/shots/kipper_blackwater.png" width="320" alt="The Blackwater by lamplight: eyes in the dark and a steam vent">
+  <img src="docs/shots/kipper_xolloth.png" width="320" alt="Xolloth in its lair, its laser trailing the sub">
+</p>
+
+*A tribute to **Porgy** (UFO 50 #22).*
+
+- **Plays the same:** a little sub in an undersea map, eight ways, slow,
+  from two docks on the surface. Fuel is health and time: swimming burns
+  it (sitting still doesn't), a dash burns more, and every knock from a
+  creature, a shot or a vent costs half a bar and a push. Run dry and the
+  sub is towed back to the last dock, the dive's finds back where they lay.
+  Anything picked up trails behind on the sub's wake, three at most, and
+  counts only once the sub noses up under a dock, which fills the tank,
+  saves, keeps the damage done to the big ones and the blocks blasted, and
+  wakes every creature again (as crossing into another area does). Stun
+  torpedoes don't kill: they pacify. Hold A for a torpedo every 14 frames
+  with the facing locked, or tap it for quicker fire (A is the main action,
+  as everywhere in UFO 40; the original fires with B and dashes with A).
+  Polyps let out thieves while you tow something, and a bloater's clouds
+  knock the trail loose.
+- **The sea:** the Kelpwood (lit, with both docks), the Drowned Arcade
+  (ruins and columns) and the Blackwater (pitch dark without the lamp,
+  eyes in the walls, steam vents). 20 fuel tanks (4 to 24 bars), 20 torpedo
+  kits, 20 eggs for Auntie Roe, who sends a fish along every five (blue
+  ones stop shots, red ones shoot with you), and ten pieces of equipment,
+  two fitted at a dock, three and four as the big ones fall: ram torpedoes
+  (switches, crabs in their shells), the auger (dashes through dirt), the
+  long thruster, sinker bombs (sit still, hold B, let go), upshot rockets (blue
+  blocks from below), seeker fins, the lamp, the sonar, the lean mix and
+  hull plates. Five big ones roam their areas (the Whorl keeps to its
+  chamber) and Xolloth waits at the bottom; beaten, each flees for good and
+  leaves a deep light. Cracked and sealed walls hide things. The goals are
+  driving off Gnasher, beating Xolloth, and beating it with everything
+  found; the demo player in the tests does all of it from the title with
+  real button presses, in 59 minutes of play.
+- **Ours:** Dr. Juno Marlow and Kipper, Auntie Roe, Gullwater Sound and
+  every cavern of it (laid out by hand), all 18 creatures, Gnasher,
+  Inkwell, Longjaw, the Whorl, Nightcape and Xolloth, the equipment's
+  names, both endings, and nine tunes.
 
 ### 23 · TURNIP TRUCK
 
@@ -1738,6 +1794,55 @@ the top.
   their weapons, colours and endings, the Glass Pit's twelve pits (BRAVADO's
   pit on ring nights), the night porter's note, the old-rules code and
   twelve tunes.
+### 37 · IRONVOW
+
+<p align="center">
+  <img src="docs/shots/ironvow.gif" width="640" alt="Ironvow: the knight walks the torch halls of floor 2 and fights what the flames bring">
+</p>
+<p align="center">
+  <img src="docs/shots/ironvow_title.png" width="320" alt="The title: Blackspire Keep against the night, NEW GAME and CONTINUE, battles, deaths and secrets">
+  <img src="docs/shots/ironvow_gaol.png" width="320" alt="The Gaol in first person: a torch on the far wall and a wandering flame">
+</p>
+<p align="center">
+  <img src="docs/shots/ironvow_fight.png" width="320" alt="A fight over the knight's shoulder: a boneguard and a tusker in the front row, an ooze behind">
+  <img src="docs/shots/ironvow_glyph.png" width="320" alt="Drawing a glyph with the pad while the fight waits">
+</p>
+<p align="center">
+  <img src="docs/shots/ironvow_warren.png" width="320" alt="The Warren: a glowing fungus, a faint door outline in the comb wall, a flame ahead">
+  <img src="docs/shots/ironvow_regent.png" width="320" alt="The Pit Regent with his cinder, moss and frost stones">
+</p>
+
+*A tribute to **Valbrace** (UFO 50 #37).*
+
+- **Plays the same:** first person on a grid: UP and DOWN step a tile,
+  LEFT and RIGHT turn a quarter, and every step and every action passes a
+  turn (the clock on the right moves). A opens the menu: the pack and PASS
+  TURN always, and whatever is in front (a door, a lever, a torch, a chest,
+  a well, the throne, the pedlar, the knight). Health never comes back by
+  itself; mana does as you walk. The foes float down the halls as flames
+  and hunt you; touch one and the fight is real time, side to side: line
+  up, strike (A, again for a combo of three), guard (DOWN, for stamina,
+  until the shield gives), roll (DOWN, then LEFT or RIGHT), and wait for
+  the wind-up, because most foes guard until they strike. Run dry and
+  you're exhausted. B starts a spell: trace its glyph with the pad before
+  the time runs out (the fight waits). Seventeen glyphs; the walls teach
+  sixteen of them, but any works from the first step if you know it.
+- **Structure:** seven floors, 0 to 6, in three parts, a throne on each
+  from floor 1 (three points for motes, the last free), the Wraith Warden
+  at the end of floor 2 (light every torch of the Gaol and he starts at
+  half health; put them all out and he leaves his shield), the Comb Matron
+  at the end of floor 4 behind her two claws, and on floor 6 three stones to
+  find and set in a pillar to wake the Pit Regent, then the climb out. The
+  game saves when you reach a floor, and only then; death starts the floor
+  again. Four secrets lead from the old armoury's oathblade through the
+  Amber Knight's coin and a wish to the Dawnbrand. The goals: 8 in any
+  stat, slay the Regent and escape, and slay him with the Dawnbrand. The
+  demo player in the tests does all three from the title with button
+  presses, and plays a short demo when the title is left alone.
+- **Ours:** IRONVOW, Blackspire Keep and its seven floors, the knight, the
+  pedlar, the Amber Knight, the Pit Regent and his stones, the Wraith
+  Warden, the Comb Matron, every foe, item and glyph, and nine tunes.
+
 ### 38 · RESTLESS
 
 <p align="center">

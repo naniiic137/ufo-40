@@ -1,0 +1,41 @@
+# KIPPER: damage done to a big one stays only once the sub docks; run dry
+# first and it's lost. Beaten, it flees for good at once, its deep light
+# counts (two lights, a third slot) and the game is saved; Gnasher's flight
+# earns the beacon goal.
+seed 1
+game kipper
+wait 5
+cheat newgame
+cheat clear
+cheat calm
+expect boss0_hp == 500
+cheat hurtboss 0 100
+expect boss0_hp == 400
+cheat dock 0
+expect boss0_banked == 400
+wait 25
+press A
+wait 5
+press B
+wait 5
+cheat hurtboss 0 100
+expect boss0_hp == 300
+cheat dry
+wait 160
+expect boss0_hp == 400
+press B
+wait 5
+cheat killboss 0
+wait 110
+expect boss0_dead == 1
+expect boss0_on == 0
+expect lights == 1
+expect goals & 1
+cheat killboss 1
+wait 110
+expect lights == 2
+expect slots == 3
+cheat dry
+wait 160
+expect boss0_dead == 1
+expect lights == 2

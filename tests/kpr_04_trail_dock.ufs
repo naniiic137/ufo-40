@@ -1,0 +1,48 @@
+# KIPPER: what the sub picks up trails behind it, three at most, and only
+# counts once it noses up under a dock: tanks, kits and equipment are
+# installed, the tank filled, the dive saved. Eggs stay in tow for Auntie
+# Roe. A fourth thing is left where it is.
+seed 1
+game kipper
+wait 5
+cheat newgame
+cheat clear
+cheat calm
+cheat take 10
+cheat take 30
+cheat take 50
+expect trail == 3
+expect item10_where == 1
+# a fourth: no room, it stays put
+cheat tile 98 18
+wait 10
+expect trail == 3
+expect item11_where == 0
+# nothing counts yet
+expect tanks == 0
+expect bank_tanks == 0
+# home to the Pier
+cheat tile 80 5
+cheat fuel 300
+hold UP 60
+expect state == 3
+expect tanks == 1
+expect boosters == 1
+expect bank_tanks == 1
+expect save_tanks == 1
+expect item10_state == 1
+expect item30_state == 1
+expect item50_state == 2
+expect fuel == 1800
+expect dock_lines == 2
+expect dock_phase == 0
+expect trail == 1
+expect trail_eggs == 1
+press A
+wait 5
+expect dock_phase == 1
+press B
+wait 5
+expect state == 2
+expect trail == 1
+expect fuel == 1800

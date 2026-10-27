@@ -1,0 +1,53 @@
+# IRONVOW: the grub egg (the last find of floor 4's comb room) hatches after
+# six fights into a fighting grub that bounces about each fight; after eight
+# more it is a war beetle. Readied, the beetle fights in the knight's place
+# with its own health (whole again after each fight); B calls it back and
+# the knight steps in. Fallen, it is gone.
+seed 27
+game ironvow
+cheat newgame 5
+cheat stats 9 9 20
+cheat give GRUB_EGG
+cheat fight 0
+wait 2
+cheat fhp 0 1
+cheat spell 13
+waituntil state == 16 60
+expect egg_fights == 1
+cheat fight 0
+wait 2
+cheat fhp 0 1
+cheat spell 13
+cheat fight 0
+wait 2
+cheat fhp 0 1
+cheat spell 13
+cheat fight 0
+wait 2
+cheat fhp 0 1
+cheat spell 13
+cheat fight 0
+wait 2
+cheat fhp 0 1
+cheat spell 13
+cheat fight 0
+wait 2
+cheat fhp 0 1
+cheat spell 13
+expect has44 == 0
+expect has45 == 1
+cheat fight 0
+wait 2
+expect f_ball == 45
+# the beetle, readied, fights in the knight's place
+cheat newgame 6
+cheat give WAR_BEETLE
+cheat ready 3
+cheat fight 3
+wait 2
+expect f_beetle == 1
+hold RIGHT 10
+expect f_px == 104
+press B
+wait 2
+expect f_beetle == 0

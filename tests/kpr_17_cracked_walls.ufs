@@ -1,0 +1,31 @@
+# KIPPER: cracked walls give way to three torpedoes, or to the sub rubbing
+# on them; sealed walls only to a blast.
+seed 1
+game kipper
+wait 5
+cheat newgame
+cheat clear
+cheat calm
+expect tile_88_33 == 63
+# rub: push into it
+cheat tile 88 32
+wait 2
+hold DOWN 50
+expect tile_88_33 == 46
+# shoot: three torpedoes at the crack east of the Colonnade
+cheat tile 116 67
+cheat face -1
+wait 2
+press A 1
+wait 10
+press A 1
+wait 10
+expect tile_114_67 == 63
+press A 1
+wait 10
+expect tile_114_67 == 46
+# a sealed wall shrugs off torpedoes and rubbing
+cheat tile 32 31
+wait 2
+hold DOWN 80
+expect tile_32_33 == 88

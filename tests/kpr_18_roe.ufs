@@ -1,0 +1,45 @@
+# KIPPER: Auntie Roe takes the eggs in tow, and they're home for good at
+# once (saved). Every fifth egg brings a hatchling along: blue ones circle
+# the sub and stop shots, red ones blow bubbles at creatures whenever a
+# torpedo goes.
+seed 1
+game kipper
+wait 5
+cheat newgame
+cheat clear
+cheat calm
+cheat take 50
+cheat take 51
+cheat take 52
+cheat tile 60 9
+hold LEFT 30
+expect state == 5
+expect eggs_back == 3
+expect trail == 0
+expect save_eggs == 3
+expect roe_given == 3
+expect roe_page == 0
+expect companions == 0
+wait 25
+press A
+wait 5
+expect state == 2
+cheat take 53
+cheat take 54
+cheat tile 60 9
+hold LEFT 30
+expect state == 5
+expect eggs_back == 5
+expect roe_page == 1
+expect companions == 1
+wait 25
+press A
+wait 5
+cheat eggsback 10
+expect companions == 2
+# a red fish: a bubble with every torpedo
+cheat tile 70 28
+cheat face 1
+wait 2
+press A 1
+expect shots_2 == 1

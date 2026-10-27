@@ -1,0 +1,44 @@
+# KIPPER: the Long Thruster keeps a dash going while the button is held (3
+# a frame); the Lean Mix makes swimming burn three quarters; the Seeker Fins
+# steer torpedoes at a creature ahead.
+seed 1
+game kipper
+wait 5
+cheat newgame
+cheat clear
+cheat calm
+cheat tile 60 58
+wait 2
+cheat fit 2
+cheat fuel 2000
+hold RIGHT+B
+wait 20
+expect boosting == 1
+expect vx100 >= 250
+expect fuel >= 1795
+expect fuel <= 1810
+# cruising: 2 a frame for 2.6 px, cheaper than swimming
+cheat fuel 2000
+wait 30
+release
+expect fuel == 1940
+# the Lean Mix
+cheat unfit 2
+cheat fit 8
+cheat tile 60 58
+wait 30
+cheat fuel 2000
+hold RIGHT 80
+expect fuel >= 1938
+expect fuel <= 1942
+# Seeker Fins
+cheat unfit 8
+cheat fit 5
+cheat tile 60 58
+cheat face 1
+wait 2
+cheat foe 3 1060 920
+wait 1
+press A 1
+wait 6
+expect shot0_vy100 < 0

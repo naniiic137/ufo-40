@@ -1,0 +1,55 @@
+# IRONVOW: the gift for 8 in any stat; the gold for slaying the Pit Regent
+# and climbing out of the keep; the cherry for slaying him with the
+# Dawnbrand in hand. Goals already earned come back from the save.
+seed 22
+game ironvow
+expect goals == 0
+cheat newgame 5
+cheat stats 5 5 5
+cheat floor 6
+cheat noflames
+cheat escape
+cheat pos 17 19 2
+expect ahead == 16
+press UP
+wait 10
+expect state == 18
+expect goals == 2
+expect ending == 0
+expect save_wins == 1
+expect save_cherries == 0
+# the cherry
+cheat newgame 6
+cheat floor 6
+cheat noflames
+cheat escape
+cheat dawnkill 1
+cheat pos 17 19 2
+press UP
+wait 10
+expect goals == 6
+expect ending == 1
+expect save_cherries == 1
+# the gift, from the throne's 8
+cheat newgame 7
+cheat floor 1
+cheat noflames
+cheat essence 150
+cheat pos 18 4 1
+press A
+wait 3
+press A
+wait 3
+press A
+press A
+press A
+press DOWN
+press DOWN
+press DOWN
+press A
+wait 3
+expect goals == 7
+# back from the save, all three are still there
+game ironvow
+wait 10
+expect goals == 7

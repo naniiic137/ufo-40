@@ -1,0 +1,74 @@
+# IRONVOW: A opens the menu; PACK and PASS TURN are always there, and what
+# else depends on what the knight faces: a door can be opened (a turn
+# passes). A locked door wants an iron key; keys picked up off the floor
+# go on a ring, not in the pack. B closes the menu.
+seed 3
+game ironvow
+cheat newgame 5
+cheat noflames
+# the cell door is east of the start, two steps on
+press UP
+wait 10
+press UP
+wait 10
+expect x == 3
+expect ahead == 2
+press A
+wait 3
+expect state == 4
+expect menu0 == 2
+expect menu1 == 0
+expect menu2 == 1
+expect menu_n == 3
+press B
+wait 3
+expect state == 3
+press A
+wait 3
+press A
+wait 3
+expect state == 3
+expect ahead == 3
+expect turn == 3
+# PASS TURN: the menu stays open on it; A again passes another, and A
+# held keeps passing turns (one at the press, then one each 12 frames
+# after the first 24)
+press A
+wait 3
+press DOWN
+press DOWN
+expect vmenu_sel == 2
+press A
+wait 3
+expect turn == 4
+expect state == 4
+press A
+wait 3
+expect turn == 5
+hold A 60
+expect turn == 10
+press B
+wait 3
+expect state == 3
+# the key on floor 0 lies at (2,6); stand on it and pick it up
+cheat pos 2 6 0
+press A
+wait 3
+expect menu0 == 23
+press A
+wait 3
+expect state == 7
+press A
+wait 3
+expect keys == 1
+expect pack == 3
+# the locked door before the stairs
+cheat pos 10 13 3
+expect ahead == 4
+press A
+wait 3
+expect menu0 == 4
+press A
+wait 3
+expect keys == 0
+expect ahead == 3

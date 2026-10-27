@@ -1,0 +1,62 @@
+# IRONVOW: each foe has its own way. A skink takes turns: a punch, then a
+# cloud that drains stamina; a coiler takes turns: a swing that can be
+# guarded, then a long two-armed charge (it flashes yellow) that cannot; a
+# chitin strikes the moment the knight's stamina runs out, even from the back
+# row; an egg left alone hatches into a grub; a puffball mends its friends.
+seed 8
+game ironvow
+cheat newgame 5
+cheat stats 9 9 9
+# the skink: a punch, then a cloud
+cheat fight 6
+wait 2
+cheat fcd 0 0
+wait 50
+expect fstate0 == 3
+waituntil fstate0 == 0 200
+cheat fcd 0 0
+wait 60
+expect f_shots >= 1
+# the coiler's second blow is the charge: a guard does not hold it
+cheat newgame 6
+cheat stats 9 9 9
+cheat fight 11
+wait 2
+cheat fcd 0 0
+hold DOWN 60
+expect hp == 80
+waituntil fstate0 == 0 200
+cheat fcd 0 0
+hold DOWN 80
+expect hp == 64
+# the chitin punishes an empty tank, from the back row too
+cheat newgame 7
+cheat fight 0 0 9
+wait 2
+expect frow2 == 1
+cheat fcd 0 999
+cheat fcd 1 999
+cheat fpx 20
+cheat st 5
+press A 1
+wait 3
+expect f_exhausted == 1
+expect hp == 52
+# an egg hatches if it lives long enough
+cheat newgame 8
+cheat fight 7
+wait 2
+expect fk0 == 7
+cheat fpx 20
+wait 610
+expect fk0 == 8
+# a puffball mends a hurt friend
+cheat newgame 9
+cheat fight 3 10
+wait 2
+cheat fpx 160
+cheat fhp 0 10
+cheat fcd 0 999
+cheat fcd 1 0
+wait 70
+expect fhp0 == 22

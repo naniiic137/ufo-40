@@ -1,0 +1,36 @@
+# IRONVOW: a chest that is a lidmaw bites (a fight; its loot after); the
+# knight turned to the wall behind his first step who thrusts LANCE at it
+# gets a word for his trouble; flames come from each floor's own pool (the
+# Gaol's oozes and gnawwings, the Warren's grubs and chitins...).
+seed 28
+game ironvow
+cheat newgame 5
+cheat noflames
+press LEFT
+wait 8
+press LEFT
+wait 8
+expect dir == 3
+press B
+press UP
+press DOWN
+press UP
+waituntil casting == 0 200
+expect easter == 1
+# the lidmaw on floor 0
+cheat pos 13 1 1
+press A
+wait 3
+expect menu0 == 13
+press A
+wait 3
+expect state == 15
+expect fk0 == 2
+cheat fhp 0 1
+cheat spell 3
+waituntil state == 16 60
+press A
+wait 40
+press A
+wait 3
+expect shards == 4
